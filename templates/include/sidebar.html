@@ -1,0 +1,40 @@
+{% load staticfiles %}
+<div id="sidebar" class="scroll-panes menu_block">
+          <div class="logo_block">
+              <h1><img src="{% static 'img/logo.png' %}" alt="logo"></h1>
+            </div>
+            <a href="http://5.101.121.49:8002/settings" class="nav_item">
+              <div class="admin_cont">
+                <div class="img_admin_block">
+                  <!--<img src="img/face_admin.png" alt="face">-->
+                </div>
+                <ul class="info">
+                  <li class="admin_name"></li>
+                  <li class="status"></li>
+                </ul>
+              </div>
+            </a>
+            <div class="navigation">
+              <ul>
+                <li>
+                  <a href="reports.html" class="reports">Отчеты</a>
+                </li>
+                <li>
+                  <a  href="events.html" class="developments">События</a>
+                </li>
+                <li>
+                  <a href="meetings.html" class="date">Встречи <span class="news"></span></a>
+                </li>
+                <li>
+                  <a href="settings.html" class="settings active">Настройки</a>
+                </li>
+              </ul>
+            </div>
+      </div>
+      <div class="main-content">
+          <div class="swipe-area"></div>
+          <button class="sandwich"data-toggle=".container" id="sidebar-toggle">
+            <span class="sw-topper"></span>
+            <span class="sw-bottom"></span>
+            <span class="sw-footer"></span>
+          </button>

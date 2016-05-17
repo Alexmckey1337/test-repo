@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block content %}
+
+<div class="wrapper">
+		<!--begin main-->
+			<div class="main">
+			<!--begin content-->
+		<section class="container">
+					{% block sidebar %}
+						{% include 'include/sidebar.html' %}
+					{% endblock %}
+
+					<div class="reports_container">
+						<h3 class="topic_cont">События</h3>
+						<div class="top_container_head">
+							<div class="top_block_head_left" id='date_events'>
+								<ul>
+									<li>
+										<input type="text" class="datepicker" id="datepicker" value="10/10/2015" style="cursor:pointer;">
+									</li>
+									<li>
+										<a class="active" data-period='today'>Сегодня</a>
+									</li>
+									<li>
+										<a data-period='last_week'>Неделя</a>
+									</li>
+									<li>
+										<a data-period='last_month'>Месяц</a>
+									</li>
+									<li>
+										<a data-period='last_year'>Год</a>
+									</li>
+								</ul>
+								<form action="#" class="search">
+									<input type="search" placeholder="Поиск" class="search_cont">
+									<button class="search_btn"></button>
+								</form>
+							</div>
+							<div class="top_block_head_right">
+								<!--<a href="#" class="import">Експорт</a> -->
+							</div>
+						</div>
+						<div class="filters_block">
+							<strong class="topic_container">Поиск</strong>
+						</div>
+
+						<div class="content_block">
+							<div class="search_cont">
+								<form action="#">
+									<strong class="topic_container">Поиск по ...</strong>
+									<input type="text" placeholder="Имя" name="name">
+									<input type="text" placeholder="Фамилия" name= "surname">
+									<input type="text" placeholder="Отчество" name="secondname">
+									<div id="hierarhy_dropbox_wrapper">
+									<!--<div class="sandwich-wrap">
+									</div> -->
+									</div>
+									<input type="tel" placeholder="Телефон" name="tel">
+									<input type="email" placeholder="E-mail" name="email">
+									<button class="apply_event">Применить</button>
+								</form>
+							</div><!--search_cont-->
+							<div class="popap" id='popup_div'>
+								<div class="pop_cont">
+									<p id='popup_text'></p>
+									<span onclick='hidePopup()' class="close">x</span>
+								</div>
+							</div>
+
+							<div class="evelopments_content_table_new">
+								<ul class="event_cont" id="events_links">
+								</ul>
+							</div><!--evelopments_content_table-->
+
+
+							<div class="evelopments_content_table tab_content">
+							<div class="selectTabs">
+							</div><!--selectTabs-->
+						</div><!--evelopments_content_table-->
+
+						</div><!--content_block-->
+
+					</div>
+				</section>
+			<!--end content-->
+			</div>
+		<!--end main-->
+		</div>
+		{% endblock %}
+{% block script %}
+		<script src="{% static 'js/events.js' %}"></script>
+{% endblock %}
+

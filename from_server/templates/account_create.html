@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block content %}
+     <div class="container ">
+					{% block sidebar %}
+						{% include 'include/sidebar.html' %}
+					{% endblock %}
+                  <div class="top-button">
+            <h1>События/Анкета</h1>
+          </div>
+          <div class="top-line">
+          </div>
+          <div class="main-pagewrap">
+              <div class="main-page">
+                <div class="tabscontent">
+                  <div class="korpus0">
+                    <input type="radio" name="odin" checked="checked" id="vkl1"/>
+                    <label for="vkl1">Общие</label>
+                   <!-- <input type="radio" name="odin" id="vkl2"/>
+                    <label for="vkl2">колееги</label>
+                    <input type="radio" name="odin" id="vkl3"/>
+                    <label for="vkl3">партнеры</label>
+                    -->
+                    <div class="fullscreen">
+                    <div class="user-info">
+                    <div class="user-photo">
+                      <img src="{% static 'img/userempty.png' %}" alt="">
+                      <div class="bottom_box ">
+                        <span class="photo_txt">
+                          <form enctype="multipart/form-data" method="post">
+                            <p><input type="file" name="f"></p>
+                          </form></span>
+                      </div>
+                    </div>
+                    <div class="user-data"> <!-- First col -->
+                      <ul id="user-info">
+
+                        <li><p>Фамилия</p><input type="text" placeholder="Фамилия" name="last_name" ></li>
+                          <li><p>Имя</p><input type="text" placeholder="Имя"   name="first_name" ></li>
+                        <li><p>Отчество</p><input type="text" placeholder="Отчество" name="middle_name"></li>
+
+                          <li><p>Почта</p><input type="text" placeholder="E-mail"   name="email"></li>
+                          <li><p>Дата рождения</p><input type="text"  id="datepicker"  style="cursor:pointer;" name="born_date" placeholder="дата рождения"></li>
+                        <li><p>Телефон</p> <input type="text" placeholder="Телефон" name="phone_number"></li>
+
+
+
+
+
+                        <li><p>Страна</p><input name="country" placeholder="страна"></li>
+<li><p>Область</p><input name="region" placeholder="введите область"></li>
+ <li><p>Город</p><input name="city" placeholder="введите город"></li>
+
+                        <li><p>Район</p><input name="district" placeholder="введите район"></li>
+                        <li><p>Адрес</p><input name="address" placeholder="введите адрес"></li>
+
+                        <li><p>Скайп</p><input type="text" name="skype" value=""  placeholder="skype_id"></li>
+                        <li><p>VK profile</p><input type="text" name="vk" value="" placeholder="http://vk.com/id"></li>
+                        <li><p>Facebook profile</p><input type="text" name="fb" value="" placeholder="https://www.facebook.com/zuck"></li>
+                        <li><p>Примечание</p><textarea name= "description" placeholder="Добавте примечание"></textarea></li>
+                      </ul>
+                      <input type="button" value="Создать пользователя" onclick="AddNewUser()">
+                    </div>  <!--END First col -->
+                    <div class="userswrap"> <!-- Second col -->
+
+                      <div class="user-status">
+                       <!-- <form action="#" id="check-status" >
+                          <div class="field">
+
+                            <input type="checkbox" name="check1" id="check1">
+                            <label for="check1">ЛЕВИТ<span></span></label>
+                          </div>
+                          <div class="field">
+                            <input type="checkbox" name="check2" id="check2">
+                            <label for="check2">Г.П.<span></span></label>
+                          </div>
+                          <div class="field">
+                            <input type="checkbox" name="check3" id="check3">
+                            <label for="check3">ЛЕВИТ<span></span></label>
+                          </div>
+                          <div class="field">
+                            <input type="checkbox" name="check4" id="check4">
+                            <label for="check4">Г.П.<span></span></label>
+                          </div>
+                          </form>
+
+                          -->
+                      </div>
+                      <div class="user-hierarchy clearfix">
+                        <div class="field">
+                        <div class="search_cont">
+                        <div id="dropbox_wrap">
+                        </div>
+                           <ul id="status">
+                            <!-- <li>
+                               <p>статус*</p>
+                               <span>Епископ</span>
+                             </li>
+                             <li>
+                              <p>лидер*</p>
+                               <span>Лидер:</span>
+                             </li>
+                             <li>
+                              <p>сотник*</p>
+                               <span>Иванов Иван</span>
+                             </li>
+                             <li>
+                               <p>отдел*</p>
+                               <span>Интернет студия</span>
+                             </li>
+
+                             -->
+                           </ul>
+                        </div>
+                        </div>
+                     <!-- <a href=""><span>Посмотреть в базе<span> </a> -->
+                    </div>
+                </div> <!--END Second col -->
+                </div>
+                </div>
+                <div class="fullscreen">коллеги</div>
+                <div class="fullscreen">партнеры</div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    </div>
+                  <div class="popap" id='popup_div'>
+                <div class="pop_cont">
+                  <p id='popup_text'></p>
+                  <span onclick='hidePopup()' class="close">x</span>
+                </div>
+              </div>
+ {% endblock %}
+{% block script %}
+ <script src="{% static 'js/account_create.js' %}"></script>
+{% endblock %}

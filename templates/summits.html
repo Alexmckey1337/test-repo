@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{%block title%}
+CRM
+{%endblock%}
+
+{%block style%}
+{%endblock%}
+
+{%block body%}
+<div class="page-width">
+
+		{% include 'sidebar.html' %}
+		<div class="main-wrap">
+				<div class="header">
+
+				  <ul class="top"><!-- Top -->
+				  	<li>
+								<h1>Саммиты</h1>
+				  	</li>
+				    <li class="userImgWrap">
+				    	<div class="userimg"><!-- <img src="img/layer-1.jpg" alt="userphoto"> -->
+				    	</div>
+				    </li>
+				     <li class="sms"><span>0</span><span></span></li>
+				      <li>
+				    	<div class="search">
+				    		<input type="text" placeholder="Поиск и фильтр" name="fullsearch">
+							</div>
+				    </li>
+				  </ul><!--End Top -->
+
+					<div class="user-hover photo-hover">
+						<div class="hover-wrapper">
+							<div class="top-box" id="edit_profile">
+								<span></span>
+								<p >Мой профиль</p>
+							</div>
+							<div class="bottom-box"><a href="/api/logout/">
+								<span></span>
+								<p>Выйти</p></a>
+							</div>
+						</div>
+					</div>
+
+					<div class="user-hover massage-hover">
+						<div class="hover-wrapper">
+							<div class="top-box">
+								<p>У Вас <span>48</span> незавершённых сделок</p>
+							</div>
+							<div class="bottom-box">
+								<p>Сегодня день рождения у:</p>
+								<ul>
+									<li>Кичеев Данила Никонович</li>
+									<li>Никоненко Сергей Эдуардович</li>
+									<li>Ломтева Виктория Ипполитовна</li>
+								</ul>
+							</div>
+					</div>
+				</div>
+
+			</div><!--End header -->
+
+			<div id="summits" class="summits-wrap">
+					<!-- <div class="summit-1">
+						<img src="img/sum.jpg" alt="">
+					</div>
+									<div class="summit-2">
+					<img src="img/gora.jpg" alt="">
+									</div> -->
+			</div><!--End summits-wrap -->
+
+
+	</div><!--End main-wrap -->
+</div>
+
+{%endblock%}
+
+{%block scripts%}
+
+
+	<script src="{% static 'js/summits.js' %}"></script>
+{%endblock%}

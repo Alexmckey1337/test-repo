@@ -1,0 +1,334 @@
+/*==========  Desktop First Method  ==========*/
+
+@media only screen and (max-width : 2800px) {
+	aside.scroll-panes {
+		z-index: 99999;
+		width: 325px;
+		left: -325px;
+		top: 0;
+		position: fixed;
+		box-shadow: -2px 0px 12px rgba(0,0,0,0.2);
+		min-height: 1000px;
+	}
+	.sandwich {
+		display: block;
+	}
+	.event
+	.reports_container,
+	.reports_container,
+
+	.event {
+		float: none;
+		/*margin: 50px 0 0 50px;*/
+		padding: 50px 0 0 50px;
+		width: auto;
+		overflow: hidden;
+	}
+	.profile{
+		float: none;
+		margin: 0;
+		width: auto;
+		overflow: hidden;
+	}
+	.emplyee {
+		float: none;
+		/*margin: 50px 0 0 25px;*/
+		width: auto;
+		overflow: hidden;
+	}
+	.event {
+		overflow: visible;
+	}
+	.event_cont li {
+		width: 30.5%;
+	}
+	.event_cont .event_info li {
+		width: 100%;
+	}
+}
+/* Large Devices, Wide Screens */
+@media only screen and (max-width : 1200px) {
+	.settings-table table td {
+  		max-width: 170px;
+  		min-width: 80px;
+	}
+}
+@media only screen and (max-width : 1100px) {
+
+	.event{
+		text-align: left;
+	}
+	.event .event-main, .event .event-special {
+		text-align: left;
+	}
+	.evelopments_content_table table td {
+  		min-width: 80px;
+	}
+	.settings-table table td {
+  		max-width: 130px;
+  		min-width: 40px;
+	}
+	.table-button .table-edit,
+	.table-button .table-close,
+	.table-button .table-delete {
+  		display: inline-block;
+  		cursor: pointer;
+  		margin: 0 2px;
+	}
+}
+/* Medium Devices, Desktops */
+@media only screen and (max-width : 992px) {
+	.top_block_head_left .search {
+		position: absolute;
+		top: 20px;
+		right: -10px;
+	}
+	.evelopments_content_table table td ,
+	.evelopments_content_table_new table td {
+  		min-width: 50px;
+	}
+	.settings-table table td {
+  		padding: 9px 5px;
+  		max-width: 130px;
+  		min-width: 40px;
+	}
+}
+@media only screen and (max-width : 920px) {
+	.evelopments_content_table table td,
+	.evelopments_content_table_new table td {
+  		padding: 9px 5px;
+  		min-width: 10px;
+	}
+	.settings-table table td {
+  		padding: 9px 5px !important;
+  		max-width: 120px;
+  		min-width: 10px;
+	}
+	.event,
+	.reports_container {
+		margin-left: 25px;
+	}
+	.evelopments_content_table table tr,
+	.evelopments_content_table_new table tr,
+	.settings-table table tr {
+	  font: 12px "RobotoRegular";
+	}
+	.evelopments_content_table table tr:first-child,
+	.evelopments_content_table_new table tr:first-child,
+	.settings-table table tr:first-child {
+	  font: 12px "RobotoRegular";
+	}
+}
+@media only screen and (max-width : 820px) {
+	.event-main, .event-special {
+		margin: 20px 0 0;
+	}
+}
+/* Small Devices, Tablets */
+@media only screen and (max-width : 790px) {
+	.reports_container .top_container_head li span {
+		padding: 5px 10px;
+	}
+	.evelopments_content_table,
+	.evelopments_content_table_new,
+	.settings-table {
+		overflow: auto;
+		width: 100%;
+	}
+
+}
+@media only screen and (max-width : 700px) {
+	.event_cont li {
+		margin: 0 0 30px;
+	}
+	.top_block_head_left .search input {
+		margin: 0
+	}
+	.emplyee {
+	    margin: 50px 0 0 0;
+	    text-align: center;
+	}
+}
+/* Extra Small Devices, Phones */
+@media only screen and (max-width : 580px) {
+	.reports_container li {
+		float: none;
+	}
+	.reports_container li a {
+		border-bottom:1px solid #228FC2;
+		border-left: 0;
+	}
+	aside.scroll-panes {
+		width: 280px;
+		left: -280px;
+	}
+	.sandwich {
+	    top: 5px;
+	    right: -34px;
+	}
+	.datepicker {
+	    padding: 6px 0 10px 15px;
+	    border-bottom:1px solid #228FC2;
+	}
+/*********************************************************/
+	/*
+	.emplyee-middle table tr:first-child td {
+		-moz-transform:rotate(-90deg);
+		-webkit-transform:rotate(-90deg);
+		-o-transform:rotate(-90deg);
+		-ms-transform:rotate(-90deg);
+	}
+	.emplyee-middle table tr:first-child td:first-child {
+		-moz-transform:rotate(0deg);
+		-webkit-transform:rotate(0deg);
+		-o-transform:rotate(0deg);
+		-ms-transform:rotate(0deg);
+	}
+/*********************************************************/
+	.emplyee-middle table tr td {
+		margin: 0;
+		padding: 9px 2px;
+	}
+	.emplyee-middle table tr {
+		font-size: 10px;
+	}
+	.emplyee-middle table tr:first-child {
+		font-size: 12px;
+	}
+	.emplyee {
+		text-align: center;
+	}
+	.emplyee {
+		margin: 0;
+	}
+
+	.emplyee-right .sandwich-block {
+		margin-left: -32.5px;
+		width: 314px;
+		top: 40px;
+	}
+	.emplyee-middle,
+	.emplyee-left{
+		padding: 25px 30px 30px;
+		margin: 50px 0px 0px 0px;
+		vertical-align: top;
+	}
+	.emplyee-middle{
+		overflow: auto;
+    	width: 310px;
+	}
+	.emplyee-middle table{
+		overflow: scroll;
+		width: 800px;
+	}
+	.emplyee-right-wrap,
+	.emplyee-left{
+		float: none;
+	}
+	.top_container_head li{
+		float: none;
+	}
+	.top_container_head li a{
+		border-left: 0;
+		border-bottom: 1px solid #228fc2;
+	}
+	.top_container_head li:last-child a{
+		border-bottom: 0;
+	}
+}
+@media only screen and (max-width : 500px) {
+	.event-block ul li {
+		margin: 0px 3px;
+	}
+	#prev,
+	.add-button,.green-button,
+	.event-block p {
+		width: 190px;
+		font-size: 15px;
+	}
+	.add-button::before {
+	    left: 5px;
+	}
+	.edit-special .edit-data, .edit-main .edit-data {
+		width: 210px;
+	}
+	.link_gener li{
+		width: auto;
+	}
+	.edit-special,
+	.edit-main{
+		padding: 7px 10px 5px;
+		right: -60px;
+	}
+	.add-edit-block .edit-block{
+		width: 310px;
+		left: -20px;
+	}
+	.profile{
+		text-align: center;
+	}
+	.profile h3{
+		margin: 50px 0 0;
+	}
+	.profile .personal-data,.edit-pass,.exit{
+		margin: 50px 0 0;
+		width: 300px;
+		padding: 20px 25px;
+	}
+	.content_block{
+		text-align: center;
+	}
+	.evelopments_content_table_new,
+	.search_cont{
+		float: none;
+		display: inline-block;
+		margin: 0 0 30px;
+		width: 320px;
+	}
+	.event_cont{
+		width: 100%;
+	}
+	#prev{
+		display: inline-block;
+	}
+	.evelopments_content_table.tab_content{
+		text-align: center;
+	}
+	.evelopments_content_table.tab_content .empty_list,
+	.evelopments_content_table.tab_content .add-button{
+		display: inline-block;
+	}
+	#prev:before{
+		left: 10px;
+	}
+}
+@media only screen and (max-width : 400px) {
+	.logo_block {
+		display: none;
+	}
+	.top_block_head_left .search {
+	    position: absolute;
+	    top: 5px;
+	    right: -32px;
+	}
+	.link_gener li{
+		font-size: 12px;
+		padding: 10px;
+	}
+}
+/* Custom, iPhone Retina */
+@media only screen and (max-width : 370px) {
+	.search_cont,
+	.event_cont,
+	.event_cont li {
+		width: 270px;
+		margin: 0 auto 30px;
+		float: none;
+	}
+	.search_cont {
+		padding: 20px 15px;
+	}
+	.search_cont .sandwich-wrap,
+	.search_cont .sandwich-block  {
+	  	width: 238px;
+}

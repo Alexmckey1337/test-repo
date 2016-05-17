@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block content %}
+<div class="wrapper">
+		<!--begin main-->
+			<div class="main">
+			<!--begin content-->
+				<section class="container">
+					{% block sidebar %}
+						{% include 'include/sidebar.html' %}
+					{% endblock %}
+					<div class="reports_container reports_wrap">
+						<h3 class="topic_cont">Уведомления</h3>
+						<div class="top_container_head">
+							<div class="top_block_head_right">
+								<ul>
+									<!--<li>
+										<a href="#" class="active">Вид 1</a>
+									</li>
+									<li>
+										<a href="#">Вид 2</a>
+									</li>
+								-->
+								</ul>
+							</div>
+						</div>
+						<div class="filters_block">
+							<strong class="topic_container">Фильтры</strong>
+						</div>
+						<div class="content_block">
+							<!--<div class="search_cont">
+								<form action="#">
+									<strong class="topic_container">Поиск по ...</strong>
+									<input type="text" placeholder="ФИО">
+									<div class="sandwich-wrap">
+										<span class="sandwich-cont">Сотник</span>
+										<span class="sandwich-button"></span>
+										<div class="sandwich-block">
+											<ul>
+												<li>
+													<span>Сотник1</span>
+												</li>
+												<li>
+													<span>Сотник2</span>
+												</li>
+												<li>
+													<span>Сотник3</span>
+												</li>
+
+											</ul>
+										</div>
+									</div>
+									<div class="sandwich-wrap">
+										<span class="sandwich-cont">Сотник</span>
+										<span class="sandwich-button"></span>
+										<div class="sandwich-block">
+											<ul>
+												<li>
+													<span>Сотник1</span>
+												</li>
+												<li>
+													<span>Сотник2</span>
+												</li>
+												<li>
+													<span>Сотник3</span>
+												</li>
+
+											</ul>
+										</div>
+									</div>
+									<input type="tel" placeholder="Телефон">
+									<input type="email" placeholder="E-mail">
+									<button class="apply">Применить</button>
+								</form>
+							-->
+							</div>
+							<div class="event_cont" id='notifications'>
+							</div>
+						</div>
+					</div>
+				</section>
+			<!--end content-->
+			</div>
+		<!--end main-->
+		</div>
+{% endblock %}
+{% block script %}
+		<script src="{% static 'js/notifications.js' %}"></script>
+{% endblock %}

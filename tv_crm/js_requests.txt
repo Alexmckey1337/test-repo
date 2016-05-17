@@ -1,0 +1,60 @@
+//Create new synopsis
+var xhr = new XMLHttpRequest();
+		var data = {
+    "history_description": "asdsda",
+    "diagnosis": "sda",
+    "sick_docs": "sda",
+    "sick_description": "sad",
+    "healing_description": "sad",
+    "how_to_know": "",
+    "how_recovery": "",
+    "recovery_information": "",
+    "recovery_docs": "SDSAD",
+    "decision_description": "",
+    "survey_date": "",
+    "producer": "",
+    "hero_id": 3,
+}
+		var json = JSON.stringify(data);
+		xhr.open("POST", 'http://127.0.0.1:8009/api/synopsis/post_data/', true)
+		xhr.setRequestHeader('Content-Type', 'application/json');
+		xhr.withCredentials = true;
+		xhr.onreadystatechange = function() {
+		    if (xhr.readyState == 4) {
+		    if(xhr.status == 200) {
+		        console.log(xhr.responseText);
+		        }
+		    }
+		}
+		xhr.send(json);
+
+
+//Update synopsis
+var xhr = new XMLHttpRequest();
+		var data = {
+    "history_description": "asdsda",
+    "diagnosis": "sda",
+    "sick_docs": "sda",
+    "sick_description": "sad",
+    "healing_description": "sad",
+    "how_to_know": "",
+    "how_recovery": "",
+    "recovery_information": "",
+    "recovery_docs": "SDSAD",
+    "decision_description": "",
+    "survey_date": "",
+    "producer": "",
+    "id": 3,
+}
+		var json = JSON.stringify(data);
+		xhr.open("POST", 'http://127.0.0.1:8009/api/synopsis/post_data/', true)
+		xhr.setRequestHeader('Content-Type', 'application/json');
+		xhr.withCredentials = true;
+		xhr.onreadystatechange = function() {
+		    if (xhr.readyState == 4) {
+		    if(xhr.status == 200) {
+		        console.log(xhr.responseText);
+		        }
+		    }
+		}
+		xhr.send(json);

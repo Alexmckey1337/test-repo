@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block content %}
+<div class="wrapper">
+		<!--begin main-->
+			<div class="main">
+			<!--begin content-->
+
+				<section class="container">
+					{% block sidebar %}
+						{% include 'include/sidebar.html' %}
+					{% endblock %}
+					<div class="event">
+						<h3 class="topic_cont">Настройки</h3>
+						<div class="top_container_head">
+							<div class="top_block_head_left">
+								<ul>
+									<li>
+										<a href="{% url 'settings_events' %}" class="active">События</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="event-main">
+							<h3>Главные</h3>
+							<div class="event-wrap event-main-wrap" id="general_events">
+							</div><!--event-wrap-->
+							<div class="add-edit-block">
+								<div class="edit-main edit-block" id='create_general_event'>
+									<h4>Добавить</h4>
+									<input type="text" placeholder="Введите название события">
+									<div class="checkbox-wrap">
+										<ul>
+											<li><span class="checkbox">Пн</span></li>
+											<li><span class="checkbox">Вт</span></li>
+											<li><span class="checkbox">Ср</span></li>
+											<li><span class="checkbox">Чт</span></li>
+											<li><span class="checkbox">Пт</span></li>
+											<li><span class="checkbox">Сб</span></li>
+											<li><span class="checkbox">Нд</span></li>
+										</ul>
+									</div><!--checkbox-wrap-->
+									<!--<div class="sandwich-data">
+										<span></span>
+									</div>
+									<div class="edit-data" id='all_atributes_1'>
+									</div>
+									<div class="edit-data miss">
+									</div>
+									-->
+									<a href="#" class="green-button addEvent" data-cyclic="regular">Добавить</a>
+								</div><!--edit-main-->
+							</div><!--add-edit-block-->
+							<a href="#" class="add-button green-button event-main-button">Добавить событие</a>
+						</div><!--event-main-->
+
+						<div class="popap" id='popup_div'>
+							<div class="pop_cont">
+								<p id='popup_text'></p>
+								<span onclick='hidePopup()' class="close">x</span>
+							</div>
+						</div>
+						<div class="event-special">
+							<h3>Особые</h3>
+							<div class="event-wrap" id="special_events">
+							</div><!--event-wrap-->
+
+							<div class="add-edit-block">
+								<div class="edit-special edit-block" id='create_special_event'>
+									<h4>Добавить</h4>
+									<input type="text" placeholder="Введите название события" id='title'>
+									<input type="text" class="datepicker" id="datepicker" placeholder="2015-12-04"></input>
+									<!--<div class="sandwich-data">
+										<span></span>
+									</div>
+									<div class="edit-data" id='all_atributes_2'>
+									</div>
+									<div class="edit-data miss">
+									</div>
+									-->
+									<a href="#" class="green-button addEvent">Добавить</a>
+								</div><!--edit-main-->
+							</div><!--add-edit-block-->
+							<a href="#" class="add-button event-main-button">Добавить событие</a>
+						</div>
+					</div>
+				</section>
+			<!--end content-->
+			</div>
+		<!--end main-->
+		</div>
+				{% endblock %}
+{% block script %}
+		<script src="{% static 'js/settings_event.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{%block title%}
+CRM
+{%endblock%}
+
+{%block style%}
+{%endblock%}
+
+
+
+{%block body%}
+	<div class="page-width vocrm-login ">
+		<div class="logo">
+					<div><span>V</span><span>O</span></div>
+					<div><span>C</span><span>R</span><span>M</span></div>
+		</div>
+
+		<div  class="account">
+			<div class="splash-screen" id="login_popup">
+				<div class="top-text">
+					<h3>Войти в систему</h3>
+				</div>
+				<div class="entry-input1">
+					<input type="mail" id="login">
+				</div>
+					<div class="entry-input2">
+					<input type="password" id="psw">
+				</div>
+				<div class="splash-bauttons">
+			<input type="checkbox" id="save-profile">
+			<label class="disable" for="save-profile">Чужой компьютер</label>
+					<button id="entry" autocomplete="on">Войти</button>
+				</div>
+				<div class="restore">Восстановить пароль</div>
+				<div class="invalid" autocomplete="on">Неверно введён e-mail или пароль</div>
+			</div>
+
+			<div class="splash-screen getpassword dn">
+				<div class="top-text">
+					<h3><span id="prev_page">← </span>Востановить пароль</h3>
+				</div>
+				<div class="entry-input1">
+					<input type="mail" placeholder="E-mail" id="send_letter" >
+				</div>
+				<div class="splash-bauttons">
+					<button id="getpass">Получить новый пароль</button>
+				</div>
+				<div class="invalid">Неверно введён e-mail</div>
+			</div>
+		</div><!--End Pop-up-splash-->
+	</div>
+
+
+ </div><!--End page-width -->
+
+
+<div class="popap" id='popup_div'>
+                <div class="pop_cont">
+                  <p id='popup_text'></p>
+                  <span onclick='hidePopup()' class="close">x</span>
+                </div>
+    </div>
+{%endblock%}
+
+{%block scripts%}
+	<script src="{% static 'js/entry.js' %}"></script>
+{%endblock%}
+

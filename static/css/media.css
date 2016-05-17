@@ -1,0 +1,17 @@
+@media screen and (min-width: 2100px) {
+  .top li:nth-child(2) {
+    width: 40.4%;
+	}
+}
+
+@media screen and (min-width: 1700px) {
+
+}
+
+@media screen and (max-width: 1430px) {
+	.anketa-photo {
+		width: 140px;
+		height: 140px;
+
+	}
+}
