@@ -114,11 +114,18 @@ $(document).ready(function(){
   });
 
   document.querySelector('.editprofile .top-text span').addEventListener('click', function() {
-   document.querySelector('.pop-up-splash').style.display = 'none';
+   document.querySelector('.pop-up-splash-add').style.display = 'none';
   });
 
   document.querySelector('button.close').addEventListener('click', function() {
-    document.querySelector('.pop-up-splash').style.display = 'none';
+    document.querySelector('.pop-up-splash-add').style.display = 'none';
+  });
+
+  document.querySelector('.pop-up-splash-add').addEventListener('click', function() {
+    if(el.target !== this) {
+      return;
+    }
+    this.style.display = 'none';
   });
 
   document.getElementById('addFileButton').addEventListener('click', function() {
@@ -334,13 +341,13 @@ function createNewAcc() {
     document.querySelector("#chooseStatus + span .select2-selection").style.border = '';
   }
 
-  var num_reg = /^[0-9]*$/ig;
+  /*var num_reg = /^[0-9]*$/ig;
   if (!num_reg.test(document.querySelector("input[name='phone_number']").value)) {
     document.querySelector("input[name='phone_number']").style.border = '1px solid #d46a6a';
     return;
   } else {
     document.querySelector("input[name='phone_number']").style.border = '';
-  }
+  }*/
   var val_reg = /^[0-9]*$/ig;
   if (!val_reg.test(document.querySelector("input[name='value']").value)) {
     document.querySelector("input[name='value']").style.border = '1px solid #d46a6a';
@@ -367,7 +374,8 @@ function createNewAcc() {
 */
   var json = JSON.stringify(data);
   ajaxRequest(config.DOCUMENT_ROOT + 'api/create_user/', json, function(data) {
-          if (data.redirect) {
+          registerUser(data.id+'',summit_id+'','0', '')
+           if (data.redirect) {
             var fd = new FormData();
             fd.append( 'file', $('input[type=file]')[0].files[0] );
             fd.append('id' , data.id)
@@ -382,7 +390,9 @@ function createNewAcc() {
                          //    debugger
                 showPopup(data.message)
                   setTimeout(function() {
-                    window.location.href = '/account/' + data.id;
+                    //window.location.href = '/account/' + data.id;
+                    document.querySelector('.pop-up-splash-add').style.display = 'none';
+                    document.querySelector('.pop-up-splash').style.display = 'none';
                   }, 1000);
                 }
               }

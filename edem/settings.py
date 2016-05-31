@@ -188,6 +188,6 @@ CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 SITE_DOMAIN_URL = 'http://5.101.119.32:8008/'
 
 
-ADMINS = (('Iskander', 'zumichke@gmail.com'), )
+#ADMINS = (('Iskander', 'zumichke@gmail.com'), )
 ARCHONS = [1, ]
 AXES_COOLOFF_TIME = 1
