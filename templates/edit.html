@@ -7,11 +7,14 @@ CRM
 
 {%block style%}
 <link href="{% static 'css/select2.css' %}" rel="stylesheet" />
+<link rel="stylesheet" href="{% static 'css/cropper.min.css' %}">
 {%endblock%}
 
 {%block body%}
 	<div class="page-width">
-            {%include 'sidebar.html'%}
+
+		{% include 'sidebar.html' %}
+
 		<div class="main-wrap anketa" id="account_view">
 			<div class="header">
 
@@ -20,7 +23,7 @@ CRM
 								<h1>Редактирование профиля</h1>
 				  	</li>
 				    <li class="userImgWrap">
-				    	<div class="userimg"><!-- <img src="img/layer-1.jpg" alt="userphoto"> -->
+				    	<div class="userimg"><!-- <img src="{% static 'img/layer-1.jpg' %}" alt="userphoto"> -->
 				    	</div>
 				    </li>
 				     <li class="sms"><span>0</span><span></span></li>
@@ -76,7 +79,7 @@ CRM
     		<div class="editprofile edit">
 					<div class="columns-wrapper">
 					<div class="col-1">
-						<div class="anketa-photo">
+						<div id="edit-photo" class="anketa-photo">
 							<img src="{% static 'img/no-usr.jpg' %}" alt="photo">
 						</div>
 						<div class="butt-wrap">
@@ -259,10 +262,28 @@ CRM
                   <span onclick='hidePopup()' class="close">x</span>
                 </div>
     	</div>
+
+    	<div id="impPopup">
+    		<div class="splash-screen">
+    			<div class="top-text">
+					<h3>Редактирование картинки</h3>
+					<span>×</span>
+				</div>
+    			<div class="crArea">
+    				<img src="" alt="">
+    			</div>
+    			<div class="splash-buttons">
+					<button class="cr">Изменить</button>
+				</div>
+    		</div>
+    	</div>
 {%endblock%}
 
 {%block scripts%}
+
 	<script src="{% static 'js/select2.js' %}"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/js/i18n/ru.js"></script>
 	<script src="{% static 'js/edit.js' %}"></script>
+	<script src="{% static 'js/cropper.min.js'%}"></script>
+
 {%endblock%}

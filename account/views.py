@@ -27,11 +27,10 @@ from rest_framework.permissions import IsAuthenticated
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-hierarchy__level')
     serializer_class = UserSerializer
-    permission_classes = (IsAuthenticated,)
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
                        filters.OrderingFilter,)
-
+    permission_classes = (IsAuthenticated,)
     ordering_fields = ('first_name', 'last_name', 'middle_name',
                        'born_date', 'country', 'region', 'city', 'disrict', 'address', 'skype',
                        'phone_number', 'email', 'hierarchy__level', 'department__title',
@@ -76,18 +75,17 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    def list(self, request, *args, **kwargs):
-        from resources import get_disciples
-        q = get_disciples(request.user)
-        q = q.order_by('-hierarchy__level')
-        queryset = self.filter_queryset(q)
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+#    def list(self, request, *args, **kwargs):
+#        from resources import get_disciples
+#        q = get_disciples(request.user)
+#        q = q.order_by('-hierarchy__level')
+#        queryset = self.filter_queryset(q)
+#        page = self.paginate_queryset(queryset)
+#        if page is not None:
+#            serializer = self.get_serializer(page, many=True)
+#            return self.get_paginated_response(serializer.data)
+#        serializer = self.get_serializer(queryset, many=True)
+#        return Response(serializer.data)
 
 
 class UserShortViewSet(viewsets.ModelViewSet):
@@ -119,16 +117,16 @@ def login_view(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                response_dict['message'] = u'Добро пожаловать'
+                response_dict['message'] = u"Добро пожаловать"
                 response_dict['status'] = True
             else:
-                response_dict['message'] = u'Вы не имеете доступ'
+                response_dict['message'] = u"Вы не имеете доступ"
                 response_dict['status'] = False
         else:
-            response_dict['message'] = u'Неверный пароль или email'
+            response_dict['message'] = u"Неверный пароль или email"
             response_dict['status'] = False
     except User.DoesNotExist:
-        response_dict['message'] = u'Пользователя с таким email не существует'
+        response_dict['message'] = u"Пользователя с таким email не существует"
         response_dict['status'] = False
     return Response(response_dict)
 
@@ -177,7 +175,9 @@ def delete_user(request):
     data = request.data
     try:
         user = User.objects.get(id=data['id'])
-        user.delete()
+        user.is_active=False
+        user.save()
+
         response_dict['message'] = u"Пользователь был удален успешно"
         response_dict['status'] = True
     except User.DoesNotExist:
@@ -273,17 +273,30 @@ def edit_user(data, files):
             else:
                 setattr(user, key, value)
         if files:
-            if files['file'].name == 'blob':
-                photo = files['file']
-            else:
-                import os
-                ext = os.path.splitext(files['file'].name)[1]
-                valid_extensions = ['.jpg', '.png', '.jpeg']
-                if ext in valid_extensions:
+            if 'file' in files.keys():
+                if files['file'].name == 'blob':
                     photo = files['file']
                 else:
-                    photo = None
-            user.image = photo
+                    import os
+                    ext = os.path.splitext(files['file'].name)[1]
+                    valid_extensions = ['.jpg', '.png', '.jpeg']
+                    if ext in valid_extensions:
+                        photo = files['file']
+                    else:
+                        photo = None
+                user.image = photo
+            if 'source' in files.keys():
+                if files['source'].name == 'blob':
+                    photo = files['source']
+                else:
+                    import os
+                    ext = os.path.splitext(files['source'].name)[1]
+                    valid_extensions = ['.jpg', '.png', '.jpeg']
+                    if ext in valid_extensions:
+                        photo = files['source']
+                    else:
+                        photo = None
+                user.image_source = photo
         user.save()
         message['message'] = u"Пользователь успешно отредактирован"
         message['id'] = user.id
@@ -372,18 +385,30 @@ def add_user(data, files, request):
             else:
                 setattr(user, key, value)
         if files:
-            if files['file'].name == 'blob':
-                photo = files['file']
-            else:
-                import os
-                ext = os.path.splitext(files['file'].name)[1]
-                valid_extensions = ['.jpg', '.png', '.jpeg']
-                if ext in valid_extensions:
+            if "file" in files.keys():
+                if files['file'].name == 'blob':
                     photo = files['file']
                 else:
-                    photo = None
-            user.image = photo
-
+                    import os
+                    ext = os.path.splitext(files['file'].name)[1]
+                    valid_extensions = ['.jpg', '.png', '.jpeg']
+                    if ext in valid_extensions:
+                        photo = files['file']
+                    else:
+                        photo = None
+                user.image = photo
+            if 'source' in files.keys():
+                if files['source'].name == 'blob':
+                    photo = files['source']
+                else:
+                    import os
+                    ext = os.path.splitext(files['source'].name)[1]
+                    valid_extensions = ['.jpg', '.png', '.jpeg']
+                    if ext in valid_extensions:
+                        photo = files['source']
+                    else:
+                        photo = None
+                user.image_source = photo
             user.save()
         sync_unique_user_call(user)
         #serializer = UserSerializer(user, context={'request': request})

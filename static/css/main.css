@@ -1382,7 +1382,7 @@ table input[type=checkbox],
 }
 .choose-user-wrap,
 .pop-up-splash,
-.add-user-wrap {
+.add-user-wrap, #impPopup {
 	display: none;
 	position: fixed;
 	top:0;
@@ -2764,3 +2764,37 @@ div.butt-wrap > p:nth-child(3) {
   padding-bottom: 15px;
 }
 
+#impPopup .splash-screen {
+    max-height: 500px;
+    max-width: 600px;
+    padding-bottom: 10px;
+}
+
+#impPopup .splash-buttons {
+    text-align: left;
+    margin: 10px 20px;    
+}
+
+#impPopup button {
+    text-align: center;
+    background-color: #3caeda;
+    padding: 10px 30px;
+}
+
+.crArea {
+	position: relative;
+	padding: 15px;
+	height:270px;
+}
+
+.cropper-container{
+	top: 0 !important;
+}
+
+.cropper-face, .cropper-viewer {
+	border-radius: 50%;
+}
+
+#edit-photo {
+	cursor:pointer;
+}

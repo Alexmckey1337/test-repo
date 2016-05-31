@@ -40,6 +40,7 @@ class CustomUser(User):
     vkontakte = models.URLField(default='', blank=True, null=True)
     odnoklassniki = models.URLField(default='', blank=True, null=True)
     image = models.ImageField(upload_to='images/', null=True, blank=True)
+    image_source = models.ImageField(upload_to='images/', null=True, blank=True)
     description = models.TextField(blank=True, null=True)
     department = models.ForeignKey('hierarchy.Department', related_name='users', null=True, blank=True, on_delete=models.SET_NULL)
     hierarchy = models.ForeignKey('hierarchy.Hierarchy', related_name='users', null=True, blank=True, on_delete=models.SET_NULL)

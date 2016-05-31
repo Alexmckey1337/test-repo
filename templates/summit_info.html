@@ -9,6 +9,7 @@ CRM
 	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-XdYbMnZ/QjLh6iI4ogqCTaIjrFk87ip+ekIjefZch0Y+PvJ8CDYtEs1ipDmPorQ+" crossorigin="anonymous">
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/css/select2.min.css" rel="stylesheet" />
 	<link rel="stylesheet" href="{% static 'css/jquery-ui.min.css' %}">
+	<link rel="stylesheet" href="{% static 'css/cropper.min.css' %}">
 {%endblock%}
 
 {%block body%}
@@ -24,7 +25,7 @@ CRM
 								<h1 id="summit-title"><!--span>САММИТЫ | </span> Четвёртое измерение--></h1>
 				  	</li>
 				    <li class="userImgWrap">
-				    	<div class="userimg"><!-- <img src="img/layer-1.jpg" alt="userphoto"> -->
+				    	<div class="userimg"><!-- <img src="{% static 'img/layer-1.jpg' %}" alt="userphoto"> -->
 				    	</div>
 				    </li>
 				    <li class="sms"><span>0</span><span></span></li>
@@ -245,7 +246,7 @@ CRM
 					</div>
 					<div class="columns-wrap">
 					<div class="col-1">
-						<div class="anketa-photo">
+						<div id="edit-photo" class="anketa-photo">
 							<img src="{% static 'img/no-usr.jpg' %}" alt="photo">
 						</div>
 						<div class="butt-wrap">
@@ -416,6 +417,20 @@ CRM
 				</div><!--End colums-wrap-->
 			</div>
 			</div>
+		<div id="impPopup">
+    		<div class="splash-screen">
+    			<div class="top-text">
+					<h3>Редактирование картинки</h3>
+					<span>×</span>
+				</div>
+    			<div class="crArea">
+    				<img src="" alt="">
+    			</div>
+    			<div class="splash-buttons">
+					<button class="cr">Изменить</button>
+				</div>
+    		</div>
+    	</div>
 {%endblock%}
 
 {%block scripts%}
@@ -423,4 +438,5 @@ CRM
 	<script src="{% static 'js/add_user_summit.js' %}"></script>
 	<script src= "{% static 'js/dnd_lib.js' %}"></script>
 	<script src="{% static 'js/summits.js' %}"></script>
+	<script src="{% static 'js/cropper.min.js'%}"></script>
 {%endblock%}

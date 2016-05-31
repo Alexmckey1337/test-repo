@@ -288,6 +288,10 @@ $(function() {
               document.getElementById("add_new").setAttribute('data-id',data.id);
             }
 
+            /*if(document.getElementById('edit-photo')){
+              document.getElementById('edit-photo').setAttribute('data-source', data.image_source);
+            }*/
+
               if(document.getElementById("report_wrap")){
                  init_report()
             }

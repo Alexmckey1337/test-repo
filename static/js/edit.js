@@ -7,6 +7,50 @@ $(document).ready(function() {
         document.getElementsByName('f')[0].click()
     }, false);
 
+    $('#impPopup').click(function(el){
+        if (el.target != this) {return}
+        $(this).fadeOut();
+        $('input[type=file]').val('');
+        img.cropper("destroy")
+    })
+
+    $('#impPopup .top-text span').click(function(){
+        $('#impPopup').fadeOut();
+        $('input[type=file]').val('');
+        img.cropper("destroy");
+
+    })
+
+
+
+    $('#edit-photo').click(function(){
+        if($(this).attr('data-source') !== 'null') {
+            document.querySelector("#impPopup img").src = $(this).attr('data-source');
+        } else {
+            document.querySelector("#impPopup img").src = $('#edit-photo img').attr('src');
+        }
+        document.querySelector("#impPopup").style.display = 'block';
+                img.cropper({
+                    aspectRatio: 1 / 1,
+                    built: function () {
+                      img.cropper("setCropBoxData", { width: "100", height: "50" });
+                    }
+                });
+    })
+
+
+                //$('#impPopup span.go').click(function(){
+                    
+                //})                
+                $('#impPopup button').click(function(){
+                    var iurl;
+                    iurl = img.cropper("getDataURL", "image/jpeg");
+                    $('#edit-photo').attr('data-source',document.querySelector("#impPopup img").src)
+                    $('.anketa-photo').html('<img src="'+iurl+'" />');
+                    $('#impPopup').fadeOut();
+                    img.cropper("destroy");
+                })
+
 
     
 
@@ -21,6 +65,8 @@ $(document).ready(function() {
     }).datepicker("setDate", new Date()).mousedown(function() {
             $('#ui-datepicker-div').toggle();
         });
+
+    
 
     document.getElementById('create_partner_info').addEventListener('click', function() {
         var el = document.getElementById('partner_wrap');
@@ -62,7 +108,7 @@ $(document).ready(function() {
 
 
 var data_for_drop = {}
-
+var img = $(".crArea img")
 
 function init(id) {
     var id = parseInt(id || document.location.href.split('/')[document.location.href.split('/').length - 2]);
@@ -75,7 +121,13 @@ function init(id) {
 
         if (data.image) {
             document.querySelector(".anketa-photo img").src = data.image
+            convertImgToDataURLviaCanvas($(".anketa-photo img").attr('src'),function(data64){
+                $(".anketa-photo img").attr('src',data64);
+            })
         }
+        if(document.getElementById('edit-photo')){
+              document.getElementById('edit-photo').setAttribute('data-source', data.image_source);
+            }
         if (!data.fields) {
             return
         }
@@ -172,6 +224,23 @@ function(){
     })
 }
 
+function convertImgToDataURLviaCanvas(url, callback, outputFormat){
+                    var img = new Image();
+                    img.crossOrigin = 'Anonymous';
+                    img.onload = function(){
+                        var canvas = document.createElement('CANVAS');
+                        var ctx = canvas.getContext('2d');
+                        var dataURL;
+                        canvas.height = this.height;
+                        canvas.width = this.width;
+                        ctx.drawImage(this, 0, 0);
+                        dataURL = canvas.toDataURL(outputFormat);
+                        callback(dataURL);
+                        canvas = null; 
+                    };
+                    img.src = url;
+                }
+
 function handleFileSelect(evt) {
 
     var files = evt.target.files; // FileList object
@@ -190,7 +259,18 @@ function handleFileSelect(evt) {
         reader.onload = (function(theFile) {
             return function(e) {
 
-                document.querySelector(".anketa-photo img").src = e.target.result
+                //document.querySelector(".anketa-photo img").src = e.target.result;
+                document.querySelector("#impPopup img").src = e.target.result;
+                console.log(e.target.result)
+                //$('#impPopup').css({'marginLeft':- $('#impPopup').width()/2, 'marginTop':- $('#impPopup').height()/2});
+                document.querySelector("#impPopup").style.display = 'block';
+                img.cropper({
+                    aspectRatio: 1 / 1,
+                    built: function () {
+                      img.cropper("setCropBoxData", { width: "100", height: "50" });
+                    }
+                });
+
             };
         })(f);
 
@@ -267,6 +347,13 @@ function initializeRegions() {
     console.log(opt)
 
     ajaxRequest(config.DOCUMENT_ROOT + 'api/regions/', opt, function(data) {
+        if(data.length == 0) {
+            document.getElementById('region_drop').innerHTML = '<option value=""> </option>';
+            document.getElementById('town_drop').innerHTML = '<option value=""> </option>';
+            $('#town_drop').select2({tags: true});
+            document.getElementById('region_drop').removeAttribute('disabled');
+            document.getElementById('town_drop').removeAttribute('disabled');
+          }
 
         var results = data;
         var html = '<option value=""></option>';
@@ -274,7 +361,7 @@ function initializeRegions() {
         for (var i = 0; i < data.length; i++) {
             html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
         }
-        document.getElementById('town_drop').setAttribute('disabled',true);
+        //document.getElementById('town_drop').setAttribute('disabled',true);
         document.getElementById('region_drop').innerHTML = html;
         document.getElementById('region_drop').removeAttribute('disabled');
         $('#region_drop').select2({placeholder: " "}).on("change", initializeTown);
@@ -334,7 +421,7 @@ function initializeTown() {
         }
         document.getElementById('town_drop').innerHTML = html;
         document.getElementById('town_drop').removeAttribute('disabled');
-        $('#town_drop').select2();
+        $('#town_drop').select2({tags: true});
         /*for (var i = 0; i < results.length; i++) {
 
             if (active == results[i].title) {
@@ -734,13 +821,27 @@ function sendData() {
                 //console.log(data.id)
                 var fd = new FormData();    
 
-
+                var blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+                var sr = $('input[type=file]')[0].files[0];
                 if( ! $('input[type=file]')[0].files[0]   ){
-                    window.location.href = '/account/' + data.id;
-                    return                     
+                    fd.append( 'file', blob);
+                    /*fd.append('source', sr)*/
+                    fd.append('id' , data.id)
+                } else {
+                    fd.append( 'file', blob);
+                    fd.append('source', sr)
+                    fd.append('id' , data.id)
                 }
-                fd.append( 'file', $('input[type=file]')[0].files[0] );
-                fd.append('id' , data.id)
+
+                function dataURLtoBlob(dataurl) {
+                    var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+                    while(n--){
+                        u8arr[n] = bstr.charCodeAt(n);
+                    }
+                    return new Blob([u8arr], {type:mime});
+                }
+                
                 var xhr = new XMLHttpRequest();
                 xhr.withCredentials = true;
                     xhr.open('POST',config.DOCUMENT_ROOT + 'api/create_user/', true);
@@ -748,9 +849,9 @@ function sendData() {
                     xhr.onreadystatechange = function(){
               if (xhr.readyState == 4) {
                     if(xhr.status == 200) {
-                      setTimeout(function() {
+                      /*setTimeout(function() {*/
                         window.location.href = '/account/' + data.id;
-                      }, 1000);
+                      /*}, 1000);*/
                     }
                   }
                 };

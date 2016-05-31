@@ -11,6 +11,45 @@ $(document).ready(function(){
       $("#repentanceDate").blur()
     });
 
+    $('#impPopup').click(function(el){
+        if (el.target != this) {return}
+        $(this).hide();
+        $('input[type=file]').val('');
+        img.cropper("destroy")
+    })
+
+    $('#impPopup .top-text span').click(function(){
+        $('#impPopup').hide();
+        $('input[type=file]').val('');
+        img.cropper("destroy");
+
+    })
+
+    $('#edit-photo').click(function(){
+        if($(this).attr('data-source')) {
+            document.querySelector("#impPopup img").src = $(this).attr('data-source');
+        } else {
+            document.querySelector("#impPopup img").src = $('#edit-photo img').attr('src');
+        }
+        document.querySelector("#impPopup").style.display = 'block';
+                img.cropper({
+                    aspectRatio: 1 / 1,
+                    built: function () {
+                      img.cropper("setCropBoxData", { width: "100", height: "50" });
+                    }
+                });
+    })
+
+
+    $('#impPopup button').click(function(){
+      var iurl;
+      iurl = img.cropper("getDataURL", "image/jpeg");
+      $('#edit-photo').attr('data-source',document.querySelector("#impPopup img").src)
+      $('.anketa-photo').html('<img src="'+iurl+'" />');
+      $('#impPopup').hide();
+      img.cropper("destroy");
+    })
+
     $.datepicker.setDefaults($.datepicker.regional["ru"]);
 
     $("#partnerFrom").datepicker().mousedown(function() {
@@ -104,6 +143,8 @@ $(document).ready(function(){
     document.getElementById('saveNew').addEventListener('click', createNewAcc);
 });
 
+var img = $(".crArea img");
+
 
 
   document.querySelector('.pop-up-splash').addEventListener('click', function(el) {
@@ -121,7 +162,7 @@ $(document).ready(function(){
     document.querySelector('.pop-up-splash-add').style.display = 'none';
   });
 
-  document.querySelector('.pop-up-splash-add').addEventListener('click', function() {
+  document.querySelector('.pop-up-splash-add').addEventListener('click', function(el) {
     if(el.target !== this) {
       return;
     }
@@ -132,7 +173,7 @@ $(document).ready(function(){
     document.getElementById('addFile').click();
   })
 
-  document.getElementsByName('f')[0].addEventListener('change', selectFile, false);  
+  document.getElementsByName('f')[0].addEventListener('change', selectFile, false);
 
 
 function getAll() {  
@@ -274,7 +315,14 @@ function selectFile(evt) {
           var reader = new FileReader();
           reader.onload = (function(theFile) {
             return function(e) {  
-              document.querySelector(".pop-up-splash .anketa-photo img").src= e.target.result
+              document.querySelector("#impPopup img").src= e.target.result
+              document.querySelector("#impPopup").style.display = 'block';
+                img.cropper({
+                    aspectRatio: 1 / 1,
+                    built: function () {
+                      img.cropper("setCropBoxData", { width: "100", height: "50" });
+                    }
+                });
             };
           })(f);
           reader.readAsDataURL(f);
@@ -377,8 +425,21 @@ function createNewAcc() {
           registerUser(data.id+'',summit_id+'','0', '')
            if (data.redirect) {
             var fd = new FormData();
-            fd.append( 'file', $('input[type=file]')[0].files[0] );
+            function dataURLtoBlob(dataurl) {
+                    var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+                    while(n--){
+                        u8arr[n] = bstr.charCodeAt(n);
+                    }
+                    return new Blob([u8arr], {type:mime});
+                }
+            var blob = dataURLtoBlob($(".anketa-photo img").attr('src'))
+            var sr = $('#edit-photo').attr('data-source')
+            fd.append( 'file', blob );
+            fd.append('source', $('input[type=file]')[0].files[0] || sr)
             fd.append('id' , data.id)
+            /*fd.append( 'file', $('input[type=file]')[0].files[0] );
+            fd.append('id' , data.id)*/
             var xhr = new XMLHttpRequest();
             xhr.withCredentials = true;
             xhr.open('POST',config.DOCUMENT_ROOT + 'api/create_user/', true);
