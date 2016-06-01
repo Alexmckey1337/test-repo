@@ -175,9 +175,7 @@ def delete_user(request):
     data = request.data
     try:
         user = User.objects.get(id=data['id'])
-        user.is_active=False
-        user.save()
-
+        user.delete()
         response_dict['message'] = u"Пользователь был удален успешно"
         response_dict['status'] = True
     except User.DoesNotExist:
