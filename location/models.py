@@ -23,7 +23,7 @@ class Region(models.Model):
 class City(models.Model):
     code = models.IntegerField()
     title = models.CharField(max_length=50)
-    region = models.ForeignKey(Region)
-
+    region = models.ForeignKey(Region, null=True, blank=True)
+    country = models.ForeignKey(Country, null=True, blank=True)
     def __unicode__(self):
         return self.title

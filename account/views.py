@@ -631,3 +631,4 @@ def password_view(request, activation_key=None):
         response_dict['status'] = False
     return Response(response_dict)
 
+

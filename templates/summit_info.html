@@ -16,8 +16,7 @@ CRM
 	<div class="page-width">
 
 		{% include 'sidebar.html' %}<!--End sidebar -->
-
-		<div class="main-wrap">
+<div class="main-wrap">
 			<div class="header">
 
 				  <ul class="top"><!-- Top -->
@@ -25,7 +24,7 @@ CRM
 								<h1 id="summit-title"><!--span>САММИТЫ | </span> Четвёртое измерение--></h1>
 				  	</li>
 				    <li class="userImgWrap">
-				    	<div class="userimg"><!-- <img src="{% static 'img/layer-1.jpg' %}" alt="userphoto"> -->
+				    	<div class="userimg"><!-- <img src="img/layer-1.jpg" alt="userphoto"> -->
 				    	</div>
 				    </li>
 				    <li class="sms"><span>0</span><span></span></li>
@@ -238,6 +237,35 @@ CRM
 					<button id="complete">Завершить</button>
 				</div>
 			</div>
+		</div>
+		<div id="popupForNew" class="pop-up-splash">
+			<div class="splash-screen">
+				<div class="top-text">
+					<h3><span>←</span>  Информация об участнике</h3>
+				</div>
+				<div class="user-info">
+					<div class="left-side">
+						<p>Клиент:</p>
+						<p>Ответственный:</p>
+					</div>
+					<div class="right-side">
+						<p id="client-nameNew"></p>
+						<p id="responsible-nameNew"></p>
+					</div>
+				</div>
+				<div class="summa-wrap">
+					<div class="summa">
+						<p>Сумма:</p>
+						<input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57" readonly="readonly" type="text" id="summit-valueNew">
+						<span id="changeSumNew" class="change-summ"></span>
+					</div>
+				</div>
+				<textarea placeholder="Добавить коментарий"></textarea>
+				<div class="splash-bauttons">
+					<button id="closeNew">Отменить</button>
+					<button id="completeNew">Завершить</button>
+				</div>
+			</div>
 		</div><!--End Pop-up-splash-->
     		<div class="pop-up-splash pop-up-splash-add">
     		<div class="splash-screen editprofile">
@@ -247,7 +275,7 @@ CRM
 					<div class="columns-wrap">
 					<div class="col-1">
 						<div id="edit-photo" class="anketa-photo">
-							<img src="{% static 'img/no-usr.jpg' %}" alt="photo">
+							<img src="{% static  'img/no-usr.jpg' %}" alt="photo">
 						</div>
 						<div class="butt-wrap">
 							<form style="display:none" enctype="multipart/form-data" method="post">
@@ -288,7 +316,7 @@ CRM
 										<li><input name="middle_name" type="text"></li>
 										<!--li><input type="text" id="bornDate" class="hasDatepicker"></li-->
 										<li><input name="born_date" type="text" id="bornDate" readonly="readonly"></li>
-										<li><input name="phone_number" type="text"></li>
+										<li><input placeholder="+380633333333" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43" name="phone_number" type="text"></li>
 										<li><input type="text"></li>
 										<li><input name="email" type="text"></li>
 										<li><input name="skype" type="text"></li>

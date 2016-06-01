@@ -11,6 +11,12 @@ $(document).ready(function(){
       $("#repentanceDate").blur()
     });
 
+    $('[name="phone_number"]').click(function(){
+        if ($(this).val().length === 0) {
+            $(this).val('+')
+        }
+    })
+
     $('#impPopup').click(function(el){
         if (el.target != this) {return}
         $(this).hide();
@@ -173,6 +179,29 @@ var img = $(".crArea img");
     document.getElementById('addFile').click();
   })
 
+  document.querySelector("#popupForNew h3 span").addEventListener('click', function() {
+        document.querySelector('#popupForNew').style.display = 'none';
+        document.querySelector('.pop-up-splash-add').style.display = 'block';
+    })
+
+    document.querySelector("#closeNew").addEventListener('click', function() {
+        document.querySelector('#popupForNew').style.display = 'none';
+        document.querySelector('.pop-up-splash-add').style.display = 'block';
+    })
+
+    document.getElementById('changeSumNew').addEventListener('click', function() {
+        document.getElementById('summit-valueNew').removeAttribute('readonly');
+        document.getElementById('summit-valueNew').focus();
+    })
+
+    document.getElementById('completeNew').addEventListener('click', function() {
+        var id = this.getAttribute('data-id'),
+            money = document.getElementById('summit-valueNew').value,
+            description = document.querySelector('#popupForNew textarea').value;
+        registerUserNew(id,summit_id,money,description);
+        window.location.reload();
+    })
+
   document.getElementsByName('f')[0].addEventListener('change', selectFile, false);
 
 
@@ -184,11 +213,37 @@ function getAll() {
   getManagers();
   getResponsibleStatuses();
 }
+
+function getDataForPopupNew(id, name, master) {
+    document.getElementById('completeNew').setAttribute('data-id', id);
+    document.getElementById('client-nameNew').innerHTML = name;
+    document.getElementById('responsible-nameNew').innerHTML = master;
+}
+
+function registerUserNew(id,summit_id,money, description) {
+      var data = {
+                "user_id": id,
+                "summit_id": summit_id,
+                "value": money,
+                "description": description
+            }
+        var json = JSON.stringify(data);
+        ajaxRequest(config.DOCUMENT_ROOT+'api/summit_ankets/post_anket/', json, function(JSONobj) {
+            if(JSONobj.status){
+                var data = {};
+                data['summit'] = summit_id;
+                getUsersList(data);
+                getUnregisteredUsers();
+            }
+        }, 'POST', true, {
+            'Content-Type': 'application/json'
+        });
+}
   
 
 function getCountries() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/countries/', null, function(data) {
-      var html = '<option value=""> </option>';
+      var html = '<option value=""> </option><option>Не выбрано</option>';
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
@@ -199,7 +254,7 @@ function getCountries() {
 function getDepartments() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/departments/', null, function(data) {
       var data = data.results;
-      var html = '<option value=""> </option>';
+      var html = '<option value=""> </option><option>Не выбрано</option>';
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
@@ -212,7 +267,7 @@ function getDepartments() {
 function getStatuses() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/hierarchy/', null, function(data) {
       var data = data.results;
-      var html = '<option value=""> </option>';
+      var html = '<option value=""> </option><option>Не выбрано</option>';
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
@@ -223,7 +278,7 @@ function getStatuses() {
 function getResponsibleStatuses() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/hierarchy/', null, function(data) {
       var data = data.results;
-      var html = '<option value=""> </option>';
+      var html = '<option value=""> </option><option>Не выбрано</option>';
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
@@ -235,7 +290,7 @@ function getResponsibleStatuses() {
 function getDivisions() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/divisions/', null, function(data) {
       var data = data.results;
-      var html = '<option value=""> </option>';
+      var html = '<option value=""> </option><option>Не выбрано</option>';
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
@@ -246,7 +301,7 @@ function getDivisions() {
 function getUsers() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/hierarchy/', null, function(data) {
       var data = data.results;
-      var html = '<option value=""> </option>';
+      var html = '<option value=""> </option><option>Не выбрано</option>';
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
@@ -257,7 +312,7 @@ function getUsers() {
 function getManagers() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/partnerships/?is_responsible=2', null, function(data) {
       var data = data.results;
-      var html = '<option value=""> </option>';
+      var html = '<option value=""> </option><option>Не выбрано</option>';
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].fullname+'</option>';
       }
@@ -273,7 +328,7 @@ function getRegions() {
         document.getElementById('chooseRegion').innerHTML = '<option value=""> </option>';
         document.getElementById('chooseCity').removeAttribute('disabled')
       }
-      var html = '<option value=""> </option>';
+      var html = '<option value=""> </option><option>Не выбрано</option>';
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
@@ -284,7 +339,7 @@ function getRegions() {
 
 function getResponsible(id,level) {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/short_users/?department=' + id + '&hierarchy=' + level, null, function(data) {
-      var html = '<option value=""> </option>';
+      var html = '<option value=""> </option><option>Не выбрано</option>';
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].fullname+'</option>';
       }
@@ -296,7 +351,7 @@ function getCities() {
     var opt = {};
     opt['region'] = $("#chooseRegion").val();;
     ajaxRequest(config.DOCUMENT_ROOT + 'api/cities/', opt, function(data) {
-      var html = '<option value=""> </option>';
+      var html = '<option value=""> </option><option>Не выбрано</option>';
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
@@ -389,13 +444,13 @@ function createNewAcc() {
     document.querySelector("#chooseStatus + span .select2-selection").style.border = '';
   }
 
-  /*var num_reg = /^[0-9]*$/ig;
+  var num_reg = /^\+[0-9]*$/ig;
   if (!num_reg.test(document.querySelector("input[name='phone_number']").value)) {
     document.querySelector("input[name='phone_number']").style.border = '1px solid #d46a6a';
     return;
   } else {
     document.querySelector("input[name='phone_number']").style.border = '';
-  }*/
+  }
   var val_reg = /^[0-9]*$/ig;
   if (!val_reg.test(document.querySelector("input[name='value']").value)) {
     document.querySelector("input[name='value']").style.border = '1px solid #d46a6a';
@@ -420,11 +475,22 @@ function createNewAcc() {
 
       })
 */
+var name = data['first_name'] + " " + data['last_name'],
+    master = $('#chooseResponsible option:selected').html();
   var json = JSON.stringify(data);
   ajaxRequest(config.DOCUMENT_ROOT + 'api/create_user/', json, function(data) {
-          registerUser(data.id+'',summit_id+'','0', '')
-           if (data.redirect) {
+          if (data.redirect) {
             var fd = new FormData();
+            if(!$('input[type=file]')[0].files[0]){
+              console.log(data.id)
+                  fd.append('id' , data.id)
+                } else {
+                  var blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+                  var sr = $('#edit-photo').attr('data-source');
+                  fd.append( 'file', blob );
+                  fd.set('source', $('input[type=file]')[0].files[0], 'photo.jpg');
+                  fd.append('id' , data.id)
+                }
             function dataURLtoBlob(dataurl) {
                     var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
                         bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
@@ -433,11 +499,6 @@ function createNewAcc() {
                     }
                     return new Blob([u8arr], {type:mime});
                 }
-            var blob = dataURLtoBlob($(".anketa-photo img").attr('src'))
-            var sr = $('#edit-photo').attr('data-source')
-            fd.append( 'file', blob );
-            fd.append('source', $('input[type=file]')[0].files[0] || sr)
-            fd.append('id' , data.id)
             /*fd.append( 'file', $('input[type=file]')[0].files[0] );
             fd.append('id' , data.id)*/
             var xhr = new XMLHttpRequest();
@@ -449,12 +510,14 @@ function createNewAcc() {
 
                 if(xhr.status == 200) {
                          //    debugger
-                showPopup(data.message)
-                  setTimeout(function() {
-                    //window.location.href = '/account/' + data.id;
+                //showPopup(data.message)
+                console.log(data)
+                    getDataForPopupNew(data.id, name, master);
                     document.querySelector('.pop-up-splash-add').style.display = 'none';
                     document.querySelector('.pop-up-splash').style.display = 'none';
-                  }, 1000);
+                    document.getElementById('popupForNew').style.display = 'block';
+                    //registerUser(data.id+'',summit_id+'','0', '')
+                    
                 }
               }
             };

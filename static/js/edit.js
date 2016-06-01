@@ -21,6 +21,12 @@ $(document).ready(function() {
 
     })
 
+    $('#phone_number').click(function(){
+        if ($(this).val().length === 0) {
+            $(this).val('+')
+        }
+    })
+
 
 
     $('#edit-photo').click(function(){
@@ -126,7 +132,7 @@ function init(id) {
             })
         }
         if(document.getElementById('edit-photo')){
-              document.getElementById('edit-photo').setAttribute('data-source', data.image_source);
+              document.getElementById('edit-photo').setAttribute('data-source', 'https://crossorigin.me/'+data.image_source);
             }
         if (!data.fields) {
             return
@@ -290,7 +296,7 @@ function initializeCountry(url) {
     ajaxRequest(config.DOCUMENT_ROOT + url, null, function(data) {
 
         var results = data;
-        var html = '<option selected="selected" value="">'+data_for_drop["country"]+'</option>';
+        var html = '<option>Не выбрано</option><option selected="selected" value="">'+data_for_drop["country"]+'</option>';
 
         for (var i = 0; i < data.length; i++) {
             html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
@@ -356,7 +362,7 @@ function initializeRegions() {
           }
 
         var results = data;
-        var html = '<option value=""></option>';
+        var html = '<option value=""></option><option>Не выбрано</option>';
 
         for (var i = 0; i < data.length; i++) {
             html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
@@ -415,7 +421,7 @@ function initializeTown() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/cities/', opt, function(data) {
 
         var results = data;
-        var html = '<option value=""></option>';
+        var html = '<option value=""></option><option>Не выбрано</option>';
         for (var i = 0; i < data.length; i++) {
             html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
         }
@@ -474,7 +480,7 @@ function initDropCustom(url, parent_id, active, callback) {
         var results = data.results;
 
         //var html = '<select multiple id="e1" style="width:300px">'
-        var html = ''
+        var html = '<option>Не выбрано</option>'
         for (var i = 0; i < results.length; i++) {
 
             if (active == results[i].title) {
@@ -531,7 +537,7 @@ function getLeader(active) {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/short_users/?department=' + id_dep + '&hierarchy=' + level, null, function(data) {
         //Потрібен парент айди 
 
-        var html = ''
+        var html = '<option>Не выбрано</option>';
         var results = data
         for (var i = 0; i < results.length; i++) {
 
@@ -571,12 +577,13 @@ function getDivisions(str) {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/divisions/', null, function(data) {
 
 
-        var html = '';
+        
 
 
 
-        var html = ''
+        var html = '<option>Не выбрано</option>';
         var results = data.results
+        console.log(results)
 
         for (var i = 0; i < results.length; i++) {
 
@@ -654,7 +661,7 @@ function getManagerList(active) {
 
     ajaxRequest(config.DOCUMENT_ROOT + 'api/partnerships/?is_responsible=' + 2, null, function(data) {
         var results = data.results;
-        var html = ''
+        var html = '<option>Не выбрано</option>'
 
 
 
@@ -821,15 +828,18 @@ function sendData() {
                 //console.log(data.id)
                 var fd = new FormData();    
 
-                var blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                var sr = $('input[type=file]')[0].files[0];
+                var blob;
+                var sr;
                 if( ! $('input[type=file]')[0].files[0]   ){
+                    blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
                     fd.append( 'file', blob);
                     /*fd.append('source', sr)*/
                     fd.append('id' , data.id)
                 } else {
+                    blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+                    sr = $('input[type=file]')[0].files[0];
                     fd.append( 'file', blob);
-                    fd.append('source', sr)
+                    fd.set('source', $('input[type=file]')[0].files[0], 'photo.jpg');
                     fd.append('id' , data.id)
                 }
 
