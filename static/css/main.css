@@ -799,10 +799,15 @@ li.current a {
 	background-color: #44c1f2;
 }
 */
-button#saveNew::before,
+button#completeDelete {
+	position: relative;
+}
+
+button#saveNew::before, 
 button#save::before,
 .rows-wrap button::before,
 button#complete::before,
+button#completeDelete::before,
 .splash-battons button:last-child::before{
 	display: block;
 	content: '';
@@ -1546,13 +1551,13 @@ table input[type=checkbox],
 	display: inline-block;
 	padding: 5px;
 }
-span#deal-value, input#deal-value, input#summit-value {
+span#deal-value, input#deal-value, input#summit-value, input#summit-valueNew, input#summit-valueDelete {
 	border: 1px solid #cdd0d4;
 	border-radius: 3px;
 	background-color: #f2f5fa;
 }
 
-input#deal-value, input#summit-value {
+input#deal-value, input#summit-value, input#summit-valueNew, input#summit-valueDelete {
 	width:45px;
 	height:12px;
 	padding: 5px;
@@ -1608,6 +1613,42 @@ input#deal-value, input#summit-value {
 	padding-left: 25px;
 	margin-right: 10px;
 }
+
+button#closeDelete {
+	padding-left: 25px;
+	margin-right: 10px;
+}
+
+button#completeDelete {
+	background-color: #3caeda;
+}
+
+#deleteAnket {
+	float: left;
+	padding: 12px 20px 12px 10px;
+	background-color: #3caeda;
+}
+
+#popupDelete .summa-wrap .summa {
+	float:left;
+}
+
+#deleteAnket i {
+    display: block;
+    float: left;
+    margin-right: 10px;
+    margin-top: 1px;
+    color: #fff
+}
+
+#popupDelete .splash-screen {
+	height:300px;
+}
+
+#popupDelete .summa-wrap {
+	border: none;
+}
+
 .small::before {
 	display: none !important;
 }

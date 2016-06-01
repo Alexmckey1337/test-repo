@@ -2,7 +2,7 @@ $(document).ready(function(){
 
     if (document.getElementById('summits')) {
         create_summit_buttons('summits');
-    }
+    }		
 
 	$('body').on('click', '#summit_buttons li', function(){
 		$(this).addClass('active');
@@ -27,6 +27,7 @@ $(document).ready(function(){
         $('#carousel li').removeClass('active');
         $(this).parent().addClass('active')
     })
+
     if(document.getElementById('sort_save')) {
         document.getElementById('sort_save').addEventListener('click', function() {
             updateSettings(getUsersList);
@@ -42,6 +43,8 @@ $(document).ready(function(){
         document.querySelector('.add-user-wrap').style.display = 'block';
     })
 
+
+
     document.querySelector("#popup h3 span").addEventListener('click', function() {
         document.querySelector('#popup').style.display = 'none';
         document.querySelector('.choose-user-wrap').style.display = 'block';
@@ -50,6 +53,10 @@ $(document).ready(function(){
     document.querySelector("#close").addEventListener('click', function() {
         document.querySelector('#popup').style.display = 'none';
         document.querySelector('.choose-user-wrap').style.display = 'block';
+    })
+
+    document.querySelector("#closeDelete").addEventListener('click', function() {
+        document.querySelector('#popupDelete').style.display = 'none';
     })
 
     document.querySelector(".add-user-wrap .top-text span").addEventListener('click', function() {
@@ -61,6 +68,17 @@ $(document).ready(function(){
             return;
         }
         document.querySelector('.add-user-wrap').style.display = '';
+    })
+
+    document.querySelector("#popupDelete").addEventListener('click', function(el) {
+        if (el.target !== this) {
+            return;
+        }
+        document.querySelector('#popupDelete').style.display = '';
+    })
+
+    document.querySelector("#popupDelete .top-text span").addEventListener('click', function(el) {
+        document.querySelector('#popupDelete').style.display = '';
     })
 
     document.querySelector(".choose-user-wrap").addEventListener('click', function(el) {
@@ -99,6 +117,24 @@ $(document).ready(function(){
         document.getElementById('summit-value').focus();
     })
 
+    document.getElementById('changeSumDelete').addEventListener('click', function() {
+        document.getElementById('summit-valueDelete').removeAttribute('readonly');
+        document.getElementById('summit-valueDelete').focus();
+    })
+
+    document.getElementById('deleteAnket').addEventListener('click', function() {
+        var summitAnket = this.getAttribute('data-anket');
+        unsubscribe(summitAnket);
+    })
+
+    document.getElementById('completeDelete').addEventListener('click', function() {
+        var id = this.getAttribute('data-id'),
+            money = document.getElementById('summit-valueDelete').value,
+            description = document.querySelector('#popupDelete textarea').value;
+        registerUser(id,summit_id,money,description);
+        document.querySelector('#popupDelete').style.display = 'none';
+    })
+
     document.getElementById('complete').addEventListener('click', function() {
         var id = this.getAttribute('data-id'),
             money = document.getElementById('summit-value').value,
@@ -116,7 +152,22 @@ var summit_id;
 var ordering = {};
 var order;
 
-
+function unsubscribe(id) {
+    var data = {
+                "id": id
+            }
+    var json = JSON.stringify(data);
+    ajaxRequest(config.DOCUMENT_ROOT+'api/summit_ankets/delete_anket/', json, function(JSONobj) {
+            if(JSONobj.status){
+                var data = {};
+                data['summit'] = summit_id;
+                getUsersList(data);
+                document.querySelector('#popupDelete').style.display = 'none';
+            }
+        }, 'POST', true, {
+            'Content-Type': 'application/json'
+        });
+}
 
 function registerUser(id,summit_id,money, description) {
       var data = {
@@ -154,7 +205,7 @@ function getUnregisteredUsers(parameters) {
         } else {
             document.getElementById('searchedUsers').innerHTML = '<div class="rows-wrap"><div class="rows"><p>По запросу не найдено учасников</p></div></div>';
         }
-        document.querySelector('.choose-user-wrap .splash-screen').classList.add('active');
+        document.querySelector('.choose-user-wrap .splash-screen').classList.add('active');  
         var but = document.querySelectorAll('.rows-wrap button');
         for (var j = 0; j < but.length; j++) {
             but[j].addEventListener('click', function() {
@@ -168,7 +219,7 @@ function getUnregisteredUsers(parameters) {
                 document.getElementById('popup').style.display = 'block';
                 document.querySelector('.choose-user-wrap').style.display = 'none';
             })
-        }
+        } 
     });
 }
 
@@ -193,30 +244,30 @@ function create_summit_buttons(id){
     				location.href = '/summit_info/' + this.getAttribute('data-id');
     			});
     		}
-        });
+        });    
 	}
 
 function addSummitInfo() {
 	var id = document.location.href.split('/')[document.location.href.split('/').length - 2];
 	ajaxRequest(config.DOCUMENT_ROOT + 'api/summit/?type=' + id, null, function(data) {
         var data = data.results,
-        	html = '';
-        for (var i = 0; i < data.length; i++) {
+        	html = '';        	
+        for (var i = 0; i < data.length; i++) { 
         	if (i == 0) {
         		html += '<li class="active"><span data-id='+data[i].id+'>' + data[i].start_date + '</span></li>';
         	} else {
         		html += '<li><span data-id='+data[i].id+'>' + data[i].start_date + '</span></li>';
         	}
-
+        	
         }
         document.getElementById('date').innerHTML = html;
-        document.getElementById('summit-title').innerHTML = '<a href="/summits">САММИТЫ | </a><span>' + data[0].title + '</span>';
+        document.getElementById('summit-title').innerHTML = '<a href="/summits">САММИТЫ | </a><span>' + data[0].title + '</span>'; 
         var width = 150,
     		count = 1,
     		carousel = document.getElementById('carousel'),
     		list = carousel.querySelector('ul'),
     		listElems = carousel.querySelectorAll('li'),
-    		position = 0;
+    		position = 0;         
     	carousel.querySelector('.arrow-left').onclick = function() {
     		position = Math.min(position + width * count, 0)
       		list.style.marginLeft = position + 'px';
@@ -224,7 +275,7 @@ function addSummitInfo() {
     	carousel.querySelector('.arrow-right').onclick = function() {
       		position = Math.max(position - width * count, -width * (listElems.length - 3));
       		list.style.marginLeft = position + 'px';
-    	};
+    	};   
     	var butt = document.querySelectorAll('#carousel li span');
         for (var z = 0; z < butt.length; z++) {
         	butt[z].addEventListener('click', function(){
@@ -233,7 +284,7 @@ function addSummitInfo() {
                 window.summit_id = data['summit'];
         		getUsersList(data);
         	})
-        }
+        } 	
     });
 }
 
@@ -260,7 +311,7 @@ function getUsersList(param) {
         var html = '';
         var thead = '<table><thead><tr>';
         var common = config['column_table'];
-
+        
         for (var title in config['column_table']) {
             if (!config['column_table'][title]['active'] && config['column_table'][title]['editable']) continue
             var blue_icon = typeof  ordering[config['column_table'][title]['ordering_title']]  == 'undefined' ? '' : 'blue_icon_active'
@@ -273,15 +324,15 @@ function getUsersList(param) {
         for (var x in common_fields) {
             thead += '<th data-order="' + common_fields[x] + '"    class="up"><span>' + x + '</span></th>';
         }
-
+        
         for (var i = 0; i < results.length; i++) {
             var list_fields = results[i].info;
             if (!list_fields) continue
-            html += '<tr>';
+            html += '<tr data-anketId=' + list_fields.money_info.summit_anket_id + ' data-value=' + list_fields.money_info.value + ' data-comment=' + list_fields.money_info.description + '>';
             for (var prop in config['column_table']) {
-                if (prop in list_fields) {
-                    if (prop == 'social' && config['column_table']['social'] && config['column_table']['social']['active']) {
-                        html += '<td>';
+                if (prop in list_fields) {                    
+                    if (prop == 'social' && config['column_table']['social'] && config['column_table']['social']['active']) {   
+                        html += '<td>';                                      
                         for (var p in list_fields[prop]) {
                             if (list_fields[prop][p] == '') {
                                 continue
@@ -299,25 +350,25 @@ function getUsersList(param) {
                                   case 'odnoklassniki':
                                     html += '<a href="'+list_fields[prop].odnoklassniki+'"><i class="fa fa-odnoklassniki" aria-hidden="true"></i></a>';
                                     break;
-                                }
+                                } 
                             }
                         }
-                        html += '</td>';
+                        html += '</td>';                                                                      
                     } else if ((!config['column_table'][prop]['active'] && config['column_table'][prop]['editable'])) {
                         continue;
                     } else if (prop == 'fullname') {
                         html += '<td><a href="/account/'+list_fields['id']['value']+'">' + list_fields[prop]['value'] + '</td>'
                     } else {
-                        html += '<td>' + list_fields[prop]['value'] + '</td>';
-                    }
-
-
-                }
+                        html += '<td>' + list_fields[prop]['value'] + '</td>';  
+                    }                   
+                    
+                                 
+                }                                
             }
             for (var z in common_fields) {
                 for (var s in list_fields) {
                     if (common_fields[z] == list_fields[s].verbose) {
-                        html += '<td>' + list_fields[s].value + '</td>';
+                        html += '<td>' + list_fields[s].value + '</td>';                            
                     }
                 }
             }
@@ -342,7 +393,7 @@ function getUsersList(param) {
 
         for (var j = page - 2; j < page + 3; j++) {
 
-
+             
 
             if (j == page) {
                 paginations += '<li class="active">' + j + '</li>'
@@ -360,7 +411,7 @@ function getUsersList(param) {
                         paginations += '<li>'+ pages +'</li>'
                      }
 
-
+                    
                 }
         paginations += '</ul>'
     }
@@ -376,6 +427,23 @@ function getUsersList(param) {
         Array.prototype.forEach.call(document.querySelectorAll(" .pag-wrap"), function(el) {
             el.innerHTML = paginations;
         });
+
+        $('#users_list tr').click(function(el){
+            if (el.target.nodeName == 'A') {
+                return;
+            }
+            var id = $(this).children().children('a').attr('href').split('/')[2],
+                usr = $(this).children().children('a').html(),
+                anketa = $(this).attr('data-anketId'),
+                val = $(this).attr('data-value'),
+                comment = $(this).attr('data-comment');
+            $('#completeDelete').attr('data-id',id);
+            $('#deleteAnket').attr('data-anket',anketa);
+            $('#summit-valueDelete').val(val);
+            $('#popupDelete textarea').val(comment);
+            $('#popupDelete h3').html(usr);
+            document.querySelector('#popupDelete').style.display = 'block';
+        })
 
         Array.prototype.forEach.call(document.querySelectorAll(" .pag li"), function(el) {
             el.addEventListener('click', function() {
@@ -398,7 +466,7 @@ function getUsersList(param) {
                 data['ordering'] = order;
                 getUsersList(data);
             });
-        });
+        });       
 
         /* Navigation*/
 
@@ -464,4 +532,4 @@ function getUsersList(param) {
         })
     });
 }
-
+    

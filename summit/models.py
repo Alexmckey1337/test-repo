@@ -62,6 +62,7 @@ class SummitAnket(models.Model):
         d['verbose'] = 'money_info'
         d['summit_title'] = ''
         d['summit_type_id'] = self.summit.type.id
+        d['summit_anket_id'] = self.id
         d[u'description'] = self.description
         if self.summit.title:
             d['summit_title'] = self.summit.title

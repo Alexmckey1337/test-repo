@@ -238,6 +238,27 @@ CRM
 				</div>
 			</div>
 		</div>
+		<div id="popupDelete" class="pop-up-splash">
+			<div class="splash-screen">
+				<div class="top-text">
+					<h3>Информация об участнике</h3>
+					<span>&times;</span>
+				</div>
+				<div class="summa-wrap">
+					<div class="summa">
+						<p>Сумма:</p>
+						<input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57" readonly="readonly" type="text" id="summit-valueDelete">
+						<span id="changeSumDelete" class="change-summ"></span>
+					</div>
+				</div>
+				<textarea placeholder="Добавить коментарий" maxlength="40"></textarea>
+				<div class="splash-bauttons">
+					<button id="deleteAnket" ><i class="fa fa-trash-o fa-lg" aria-hidden="true"></i> Удалить</button>
+					<button id="closeDelete">Отменить</button>
+					<button id="completeDelete">Завершить</button>
+				</div>
+			</div>
+		</div>
 		<div id="popupForNew" class="pop-up-splash">
 			<div class="splash-screen">
 				<div class="top-text">
