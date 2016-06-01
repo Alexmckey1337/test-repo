@@ -2403,8 +2403,19 @@ span.green {
     top:8px;
     height: 25px;
 }
-button.b-del{
-	display: none;
+
+#deletePopup .splash-buttons {
+	margin:15px auto;
+}
+
+#deletePopup .splash-screen {
+	height: 150px;
+}
+
+#deletePopup button {
+    margin-right: 10px;
+    padding-left: 45px;
+    padding-right: 45px;
 }
 /******************Edit profile**************************/
 .editprofile {

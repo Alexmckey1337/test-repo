@@ -3,7 +3,32 @@ $(document).ready(function(){
    getUserDeals()
    getUserSummitInfo();
 
+   $('#deleteUser').click(function(){
+        var id = $(this).attr('data-id');
+        $('#yes').attr('data-id',id);
+        $('.add-user-wrap').show();
+   })
 
+   $('#deletePopup').click(function(el){
+    if (el.target != this) {
+        return;
+    }
+        $(this).hide();
+   })
+
+   $('#no').click(function(){
+     $('#deletePopup').hide();
+   })
+
+   $('#deletePopup .top-text span').click(function(){
+     $('#deletePopup').hide();
+   })
+
+   $('#yes').click(function(){
+     var id = $(this).attr('data-id');
+     deleteUser(id)
+     $('#deletePopup').hide();
+   })
 
 
 
@@ -14,9 +39,9 @@ function init(id) {
     var id = parseInt(id || document.location.href.split('/')[document.location.href.split('/').length - 2]);
 
 
-
+     
     if(!id){
-        return
+        return 
     }
     ajaxRequest(config.DOCUMENT_ROOT + 'api/users/' + id, null, function(data) {
 
@@ -26,7 +51,8 @@ function init(id) {
         if( !data.fields ){
             return
         }
-        var fullname
+        $('#deleteUser').attr('data-id',data.id)
+        var fullname 
         var social = data.fields.social
         var repentance_date = data.fields.repentance_date;
 
@@ -40,7 +66,7 @@ function init(id) {
             if (!data.fields.hasOwnProperty(prop)) continue
 
             if(  prop == 'social' ){
-
+               
 
                 for(var soc in social){
 
@@ -48,20 +74,20 @@ function init(id) {
                 if( soc == 'skype'){
                 document.getElementById('skype').innerHTML  =  social[soc]
                 continue
-               }
+               } 
 
 
                         if(document.querySelector("[data-soc = '"  +  soc   + "']")){
                             if(  social[soc]  ){
                                 document.querySelector("[data-soc = '"  +  soc   + "']").setAttribute('data-href' , social[soc] )
                             }
-
+                            
                         }
                 }
 
 
                 continue
-            }
+            }    
 
             if( prop == 'fullname'){
 
@@ -88,7 +114,7 @@ function init(id) {
 
 
 
-        }
+        } 
 
          Array.prototype.forEach.call(document.querySelectorAll(".a-socials"), function(el) {
             el.addEventListener('click', function() {
@@ -103,7 +129,7 @@ function init(id) {
 
         document.getElementsByClassName('b-red')[0].addEventListener('click',function(){
             window.location.href = '/account_edit/' + id + '/'
-        })
+        }) 
 
     })
 }
@@ -113,9 +139,9 @@ function init(id) {
 function getUserDeals(){
     var id = parseInt(id || document.location.href.split('/')[document.location.href.split('/').length - 2]);
     if(!id){
-        return
+        return 
     }
-     var url = config.DOCUMENT_ROOT + '/api/partnerships/?user=' + id
+     var url = config.DOCUMENT_ROOT + '/api/partnerships/?user=' + id 
 
       ajaxRequest(url, null, function(data) {
         //console.log(data)
@@ -140,11 +166,11 @@ function getUserDeals(){
     document.getElementById('incomplete-count').innerHTML = parseInt(data.undone_deals_count) || 0
     document.getElementById('overdue-count').innerHTML = parseInt(data.expired_deals_count) || 0
     document.getElementById('completed-count').innerHTML = parseInt(data.done_deals_count) || 0
-
+    
     document.getElementById('responsible').innerHTML = responsible
     document.getElementById('partner_val').innerHTML = data.value;
     document.getElementById('coming_date_').innerHTML = data.date;
-
+    
     document.getElementById('parntership_info').style.display = 'block'
 
 
@@ -175,16 +201,16 @@ function getUserDeals(){
             });
         });
 
-
+     
 
      var done_deals = ''
      var expired_deals= ''
      var undone_deals = ''
     for (var i = 0; i < deal_fields.length; i++) {
         //console.log(  deal_fields[i].status )
-
+       
              switch(deal_fields[i].status.value){
-                case   'done':
+                case   'done': 
                 //console.log('done');
                 done_deals += '<div class="rows"><div class="col">'+
                                         '<p><span>'+ deal_fields[i].fullname.value + '</span></p>'+
@@ -199,18 +225,18 @@ function getUserDeals(){
                                         '<p>Последняя сделка:<span>' +  deal_fields[i].date.value +'</span></p>'+
                                         '<p>Сумма<span>'  +  deal_fields[i].value.value  + '₴</span></p></div></div>'
                 break;
-                case 'undone':
+                case 'undone': 
                 undone_deals += '<div class="rows"><div class="col">'+
                                         '<p><span>'+ deal_fields[i].fullname.value + '</span></p>'+
                                     '</div><div class="col">'+
                                         '<p>Последняя сделка:<span>' +  deal_fields[i].date.value +'</span></p>'+
                                         '<p>Сумма<span>'  +  deal_fields[i].value.value  + '₴</span></p></div></div>'
                 break;
-                default :
+                default : 
                 break;
              }
-
-
+        
+        
     }
 
         document.querySelector('[data-tab-content="3"]').innerHTML = done_deals
@@ -219,19 +245,34 @@ function getUserDeals(){
 
        document.querySelector("#tabs1 li").click()
 
-
+    
       })
+}
+
+function deleteUser(id) {
+    var data = {
+                "id": id
+                }
+    var json = JSON.stringify(data);
+    ajaxRequest(config.DOCUMENT_ROOT+'api/delete_user/', json, function(JSONobj) {
+            if(JSONobj.status){
+                showPopup('Пользователь успешно удален');
+                window.location.htef="/"
+            }
+        }, 'POST', true, {
+            'Content-Type': 'application/json'
+        });
 }
 
 
 function getUserSummitInfo(){
 
-
+ 
  var id = parseInt(id || document.location.href.split('/')[document.location.href.split('/').length - 2]);
     if(!id){
-        return
+        return 
     }
-     var url = config.DOCUMENT_ROOT + '/api/summit_ankets/?user=' + id
+     var url = config.DOCUMENT_ROOT + '/api/summit_ankets/?user=' + id 
 
       ajaxRequest(url, null, function(data) {
          var results = data.results;
@@ -251,14 +292,14 @@ function getUserSummitInfo(){
             if(  $.inArray( info.summit_type_id, tab_title ) == -1  ){
                menu_summit += '<li data-tab='+ info.summit_type_id  +'><a href="#" >' + info.summit_title + '</a></li>'
                 tab_title.push(info.summit_type_id)
-            }
+            }  
             body_summit += '<div class="rows" data-summit-id = "'+  info.summit_type_id +'" ><div class="col"><p>'+ info.summit_title  + '  '+info.start_date +'</p> </div><div class="col">';
             if (info.description != "") {
                 body_summit += '<p>' + info.description+ '</p>';
             } else {
                 body_summit += '<p>Комментарий не указан</p>';
             }
-
+            
             body_summit += '<p>Сумма<span> '+ info.value + ' ₴</span></p>' +
                                     '</div></div>'
 
@@ -290,11 +331,11 @@ function getUserSummitInfo(){
             return
         }
 
-
+          
 
 
       })
-
+       
 
 
 

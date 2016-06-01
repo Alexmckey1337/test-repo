@@ -26,7 +26,7 @@ CRM
 				    	</div>
 				    </li>
 				    <li class="sms"><span>0</span><span></span></li>
-				    <li style="visibility:hidden">
+				     <li style="visibility:hidden">
 				    	<div class="search">
 				    		<input type="text" placeholder="Поиск и фильтр" name="fullsearch">
 							</div>
@@ -35,7 +35,7 @@ CRM
 
 					<div class="top-buttons-wrap">
 					  <ul class="top-buttons"><!-- top-buttons -->
-					  	<li><button class="b-del">Удалить</button></li>
+					  	<li><button id="deleteUser" class="b-del">Удалить</button></li>
 					  	<li><button class="b-red">Редактировать</button></li>
 
 					  </ul><!--top-buttons -->
@@ -88,7 +88,7 @@ CRM
 										<i class="fa fa-facebook"></i>
 									</div>
 									<div class="anketa-photo">
-										<img src="{% static 'img/no-usr.jpg' %}" alt="photo">
+										<img src="img/no-usr.jpg" alt="photo">
 									</div>
 							</div>
 						</div>
@@ -278,7 +278,18 @@ CRM
 
 		</div><!--End main-wrap -->
 	</div><!--End page-width -->
-
+<div id="deletePopup" class="add-user-wrap"><!--Add -user -->
+							<div class="splash-screen">
+								<div class="top-text">
+									<h3>Вы уверены, что хотите удалить пользователя?</h3>
+									<span>&times;</span>
+								</div>
+								<div class="splash-buttons">
+									<button id="no">Нет</button>
+									<button id="yes">Да</button>
+								</div>
+							</div>
+						</div>
 
 			<div class="popap" id='popup_div'>
                 <div class="pop_cont">
