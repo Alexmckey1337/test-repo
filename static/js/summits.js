@@ -351,7 +351,7 @@ function getUsersList(param) {
         for (var i = 0; i < results.length; i++) {
             var list_fields = results[i].info;
             if (!list_fields) continue
-            html += '<tr data-anketId=' + list_fields.money_info.summit_anket_id + ' data-value=' + list_fields.money_info.value + ' data-comment=' + list_fields.money_info.description + '>';
+            html += '<tr>';
             for (var prop in config['column_table']) {
                 if (prop in list_fields) {                    
                     if (prop == 'social' && config['column_table']['social'] && config['column_table']['social']['active']) {   
@@ -380,7 +380,7 @@ function getUsersList(param) {
                     } else if ((!config['column_table'][prop]['active'] && config['column_table'][prop]['editable'])) {
                         continue;
                     } else if (prop == 'fullname') {
-                        html += '<td><a href="/account/'+list_fields['id']['value']+'">' + list_fields[prop]['value'] + '</td>'
+                        html += '<td><a href="/account/'+list_fields['id']['value']+'">' + list_fields[prop]['value'] + '</a><span title="Удалить анкету" data-anketId="' + list_fields.money_info.summit_anket_id + '"" data-value="' + list_fields.money_info.value + '" data-comment="' + list_fields.money_info.description + '" class="del"></span>' + '</td>'
                     } else {
                         html += '<td>' + list_fields[prop]['value'] + '</td>';  
                     }                   
@@ -451,12 +451,12 @@ function getUsersList(param) {
             el.innerHTML = paginations;
         });
 
-        $('#users_list tr').click(function(el){
+        $('#users_list .del').click(function(el){
             if (el.target.nodeName == 'A') {
                 return;
             }
-            var id = $(this).children().children('a').attr('href').split('/')[2],
-                usr = $(this).children().children('a').html(),
+            var id = $('#users_list tbody tr td:first-child').children('a').attr('href').split('/')[2],
+                usr = $('#users_list tbody tr td:first-child').children('a').html(),
                 anketa = $(this).attr('data-anketId'),
                 val = $(this).attr('data-value'),
                 comment = $(this).attr('data-comment');

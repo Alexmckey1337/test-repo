@@ -1251,6 +1251,32 @@ table label::before,
 	position: relative;
 	padding-right: 120px;
 }
+
+#users_list > table > tbody > tr > td:nth-child(1) {
+	position: relative;
+	padding-right: 120px;
+}
+
+
+#users_list > table > tbody > tr > td:nth-child(1) > span {
+	width: 21px;
+	cursor:pointer;
+    height: 21px;
+    position: absolute;
+    top: 7px;
+    right: 12px;
+    background: url('../img/gear-stat.png') no-repeat;
+}
+
+#users_list > table > tbody > tr > td:nth-child(1) > span:hover {
+	background: url('../img/gear.png') no-repeat;
+}
+
+#userinfo > tbody > tr > td:nth-child(2) span.pod:hover {
+	background-position: -27px 0px;
+	cursor:pointer;
+}
+
 #userinfo > tbody > tr > td:nth-child(2) span.pod {
 	width: 21px;
 	height: 17px;
@@ -1258,11 +1284,7 @@ table label::before,
 	top: 12px;
 	right: 12px;
 	background: url('../img/pod.png') no-repeat;
-  background-position: -2px 0px;
-}
-#userinfo > tbody > tr > td:nth-child(2) span.pod:hover {
-	background-position: -27px 0px;
-	cursor:pointer;
+    background-position: -2px 0px;
 }
 
 
@@ -2809,10 +2831,6 @@ div.butt-wrap > p:nth-child(3) {
 }
 #users_list {
   font-size: 1.1em;
-}
-
-#users_list td {
-  cursor:pointer;
 }
 
 .col-3 .col-table > p {
