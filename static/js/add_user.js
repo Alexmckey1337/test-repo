@@ -232,7 +232,7 @@ function getResponsibleStatuses() {
 function getDivisions() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/divisions/', null, function(data) {
       var data = data.results;
-      var html = '<option value=""> </option><option>Не выбрано</option>';
+      var html = '<option value=""> </option>';
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }

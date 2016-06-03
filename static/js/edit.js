@@ -124,15 +124,20 @@ function init(id) {
     
 
     ajaxRequest(config.DOCUMENT_ROOT + 'api/users/' + id, null, function(data) {
-
+        console.log(data)
         if (data.image) {
-            document.querySelector(".anketa-photo img").src = data.image
+            document.querySelector(".anketa-photo img").src = data.image;
+            convertImgToDataURLviaCanvas($(".anketa-photo img").attr('src'),function(data64){
+                $(".anketa-photo img").attr('src',data64);
+            })
+        } else {
+            document.querySelector(".anketa-photo img").src = '/static/img/no-usr.jpg';
             convertImgToDataURLviaCanvas($(".anketa-photo img").attr('src'),function(data64){
                 $(".anketa-photo img").attr('src',data64);
             })
         }
         if(document.getElementById('edit-photo')){
-              document.getElementById('edit-photo').setAttribute('data-source', 'https://crossorigin.me/'+data.image_source);
+              document.getElementById('edit-photo').setAttribute('data-source', data.image_source);
             }
         if (!data.fields) {
             return
@@ -581,7 +586,7 @@ function getDivisions(str) {
 
 
 
-        var html = '<option>Не выбрано</option>';
+        var html = '';
         var results = data.results
         console.log(results)
 
