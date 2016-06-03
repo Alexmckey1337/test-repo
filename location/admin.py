@@ -3,7 +3,7 @@ from models import Country, Region, City
 
 
 class CountryAdmin(admin.ModelAdmin):
-    list_display = ('title', )
+    list_display = ('title', 'phone_code', )
 
     class Meta:
         model = Country

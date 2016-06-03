@@ -37,7 +37,7 @@ class SummitAnketViewSet(viewsets.ModelViewSet):
                        )
     filter_fields = ('user',
                      'summit',
-                     'user__master'
+                     'user__master',
                      )
     search_fields = ('user__first_name',
                      'user__last_name',
@@ -45,6 +45,7 @@ class SummitAnketViewSet(viewsets.ModelViewSet):
                      'user__hierarchy__title',
                      'user__phone_number',
                      'user__city',
+                     'user__department__title',
                      )
     ordering_fields = ('user__first_name', 'user__last_name',
                        'user__middle_name', 'user__born_date', 'user__country',

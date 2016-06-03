@@ -6,7 +6,7 @@ from django.db import models
 class Country(models.Model):
     code = models.IntegerField()
     title = models.CharField(max_length=50)
-    phone_code = models.CharField(max_length=5, default="")
+    phone_code = models.CharField(max_length=5, default="", blank=True, null=True)
 
     def __unicode__(self):
         return self.title
