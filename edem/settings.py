@@ -185,7 +185,7 @@ CELERY_IMPORTS = ('report.tasks',)
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 
 #SESSION_COOKIE_AGE = 1
-SITE_DOMAIN_URL = 'http://5.101.119.32:8008/'
+SITE_DOMAIN_URL = 'http://vocrm.org/'
 
 
 #ADMINS = (('Iskander', 'zumichke@gmail.com'), )
