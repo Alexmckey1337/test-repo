@@ -19,7 +19,7 @@ $('.top input').blur(function() {
   if( !this.value.length ){
      $('.top .search').animate({width:"50%"});
   }
- 
+
 });
 
 
@@ -32,7 +32,7 @@ function getNotifications() {
  //   console.log(data);
     var data = data.results;
     var html = "";
-    if (count > 0) { 
+    if (count > 0) {
     document.querySelector('.sms span:first-child').innerHTML = count;
     document.querySelector('.sms span:first-child').style.display = 'block';
     for (var i = 0; i < data.length; i++) {
@@ -78,7 +78,7 @@ $("#sort-on").click(function () {
       $(".table-sorting").animate({right: '0px'}, 10, 'linear');
       $(".page-width").append(" <div class='bgsort'></div>");
  });
- 
+
 $("#sort-off").click(function () {
       $(".table-sorting").animate({right: '-300px'}, 10, 'linear');
       $(".bgsort").remove();
@@ -129,11 +129,14 @@ $(document).ready(function(){
   $('body').on('mouseover', '.toggle-sidebar a', function(el) {
     //if (el.target.className == '#move-sidebar a') {return};
     if ($(this).parent().is('#move-sidebar')) {return}
-    var hint = '<div id="hint">' + $(this).attr('data-title') + '</hint>';    
+    var hint = '<div id="hint">' + $(this).attr('data-title') + '</hint>';
     $('body').append(hint);
     var a = ($(this).offset().top - $(window).scrollTop()) + ($(this).outerHeight()/2) - $('#hint').outerHeight()/2;
     $('#hint').css('top',a).fadeIn();
   })
+
+  
+  $('.editprofile input').keypress(function(el){if(el.charCode == '32'){return false}})
 
   $('body').on('mouseout', '.toggle-sidebar a', function(el) {
     $('#hint').detach();
@@ -141,7 +144,7 @@ $(document).ready(function(){
   /*$('.toggle-sidebar a').hover(
     function() {
       console.log($(this).attr('title'))
-    }, 
+    },
     function() {
       console.log($(this).html())
     });*/
@@ -178,7 +181,7 @@ if (~loc.indexOf('event_info')) {
 
 
 
-//Перенести в файл 
+//Перенести в файл
   if( document.getElementById('edit_profile') ) {
     document.getElementById('edit_profile').addEventListener('click',function(){
       window.location.href = '/account/' + config.user_id + '/'
@@ -192,9 +195,9 @@ if (~loc.indexOf('event_info')) {
 
 window.onload = function(){
           if (opened('state')) {
-   $("#sidebar").addClass('toggle-sidebar');   
+   $("#sidebar").addClass('toggle-sidebar');
   } else {
-     $("#sidebar").removeClass('toggle-sidebar');  
+     $("#sidebar").removeClass('toggle-sidebar');
   }
   $('body').show();
 };
@@ -217,12 +220,12 @@ function deleteCookie(name) {
 
 //Cкрывать элементы когда клик по другой части области экрана
  document.body.addEventListener('click', function(el) {
-    if (el.target == document.querySelector(".userImgWrap") || el.target == document.querySelector(".userImgWrap img")) { 
+    if (el.target == document.querySelector(".userImgWrap") || el.target == document.querySelector(".userImgWrap img")) {
       document.querySelector(".photo-hover").style.display == 'block' ?   document.querySelector(".photo-hover").style.display = 'none' :
       document.querySelector(".photo-hover").style.display = 'block';
       document.querySelector('.massage-hover').style.display = 'none';
     } else if (el.target == document.querySelector('.sms') || el.target == document.querySelector('.sms span:last-child')) {
-      document.querySelector('.massage-hover').style.display == 'block' ? document.querySelector('.massage-hover').style.display = 'none' : 
+      document.querySelector('.massage-hover').style.display == 'block' ? document.querySelector('.massage-hover').style.display = 'none' :
       document.querySelector('.massage-hover').style.display = 'block';
       document.querySelector(".photo-hover").style.display = 'none';
     } else {
@@ -232,7 +235,7 @@ function deleteCookie(name) {
   })
 
 $(function() {
-    
+
         ajaxRequest(config.DOCUMENT_ROOT + 'api/users/current', null, function(data) {
             var user_id = data.id;
             config.user_id = data.id;
@@ -242,7 +245,7 @@ $(function() {
 
 
             if(  typeof init === "function"  ){
-              //Не потрібно в DOMReady 
+              //Не потрібно в DOMReady
               //init(user_id)
             }
 
@@ -271,7 +274,7 @@ $(function() {
               init(user_id)
               //createSubordinateList(user_id);
             }
-            
+
 
             if(document.querySelector(".userimg")){
               var img = "<img src='" + data.image + "' alt='userphoto' />";
@@ -327,7 +330,7 @@ jQuery(function($) {
         };
         $.datepicker.setDefaults($.datepicker.regional['ru']);
     }
-    
+
 });
 
 //old version
@@ -352,7 +355,7 @@ function getCurrentSetting(){
 
 
      document.getElementById('sort-form').innerHTML = html;
-    
+
     /*var cols = document.querySelectorAll('[draggable]');
     Array.prototype.forEach.call(cols, function(col) {
       col.addEventListener('drop', handleDrop, false);
@@ -378,7 +381,7 @@ function  updateSettings(callback){
 
 
 var data = [];
-var iteration = 1 
+var iteration = 1
 Array.prototype.forEach.call(document.querySelectorAll("#sort-form label"), function(el) {
      var item = {}
      item['id'] = parseInt( el.getAttribute('id') );
@@ -398,11 +401,11 @@ var json = JSON.stringify(data);
 if(callback){
     callback();
 }
-      
-        
+
+
                     }, 'POST', true, {
         'Content-Type': 'application/json'
         });
-        
+
 
 }
