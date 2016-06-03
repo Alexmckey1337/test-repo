@@ -34,11 +34,11 @@ class UserViewSet(viewsets.ModelViewSet):
     ordering_fields = ('first_name', 'last_name', 'middle_name',
                        'born_date', 'country', 'region', 'city', 'disrict', 'address', 'skype',
                        'phone_number', 'email', 'hierarchy__level', 'department__title',
-                       'facebook', 'vkontakte', 'hierarchy_order', )
+                       'facebook', 'vkontakte', 'hierarchy_order', 'master__last_name', )
     search_fields = ('first_name', 'last_name', 'middle_name',
                      'country', 'region', 'city', 'district',
                      'address', 'skype', 'phone_number', 'hierarchy__title', 'department__title',
-                     'email', )
+                     'email', 'master__last_name', )
     filter_fields = ('first_name', 'last_name', 'middle_name',
                      'born_date', 'email',
                      'country', 'region', 'city', 'district', 'address',
