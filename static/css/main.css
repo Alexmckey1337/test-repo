@@ -72,7 +72,7 @@ select {
 	border-radius: 3px;
 	-webkit-appearance: none;
 	-moz-appearance: none;
-  text-indent: 0.01px; 
+  text-indent: 0.01px;
   text-overflow: '';
   -ms-appearance: none;
   appearance: none!important;
@@ -302,7 +302,7 @@ color:#434a55;
 	text-align: center;
 	position: relative;
 }
-.top .top-text { 
+.top .top-text {
 	padding-top: 12px;
 }
 .top .top-text h1 span {
@@ -476,7 +476,7 @@ h1 a {
 }
 
 #edit_profile  + .bottom-box {
-	padding:  0 
+	padding:  0
 }
 #edit_profile  + .bottom-box a {
 	padding:  20px ;
@@ -551,7 +551,7 @@ h1 a {
 	background-color: #f2f5fa;
 	border-bottom: 1px solid #cdd0d4;
 }
-.top-buttons-wrap {	
+.top-buttons-wrap {
 	background-color: #f2f5fa;
 	padding: 18px 0;
 }
@@ -648,7 +648,7 @@ li.current a {
 .tab-status {
 	float: left;
 	margin-top: 15px;
-} 
+}
 .tab-status li {
 	display: inline-block;
 	padding: 10px;
@@ -803,7 +803,7 @@ button#completeDelete {
 	position: relative;
 }
 
-button#saveNew::before, 
+button#saveNew::before,
 button#save::before,
 .rows-wrap button::before,
 button#complete::before,
@@ -852,7 +852,7 @@ button#completeDelete::before,
 
 #tabs-slider li:nth-child(2) {
 	border-left: none;
-} 
+}
 /* #visiting {
 	overflow: hidden;
 } */
@@ -900,7 +900,7 @@ button#completeDelete::before,
 }
 /* ------------------Pagination------------------------------ */
 .pagination {
-	padding: 20px 30px 15px 0px; 
+	padding: 20px 30px 15px 0px;
 	float: right;
 }
 .full-width {
@@ -917,7 +917,7 @@ button#completeDelete::before,
 }
 .pag-wrap * {
 	display: inline-block;
-} 
+}
 
 .pag-wrap p {
 	color: #656d78;
@@ -932,7 +932,7 @@ button#completeDelete::before,
 
 .pag-wrap p > span {
 	width:16px;
-	margin:0 5px;	
+	margin:0 5px;
 }
 
 .pag li {
@@ -965,18 +965,18 @@ button#completeDelete::before,
 	width: 15px;
 	height: 14px;
 	background: url('../img/sprite-pag.png') no-repeat;
-	background-position: 0px 0px; 
+	background-position: 0px 0px;
 	cursor: pointer;
 	vertical-align: sub;
 }
 .prev span:last-child {
-	background-position: -41px 0px; 
+	background-position: -41px 0px;
 }
 .next span:first-child {
-	background-position: -26px 0px; 
+	background-position: -26px 0px;
 }
 .next span:last-child {
-	background-position: -26px 0px; 
+	background-position: -26px 0px;
 }
 
 .next.noarr span {
@@ -1038,7 +1038,7 @@ table {
   border-collapse: collapse;
   border-spacing: 0;
   min-width: 100%;
-} 
+}
 thead tr:first-child {
 	background: #fff;
   position: relative;
@@ -1296,7 +1296,7 @@ input:checked ~ label.disable:before {
 #sort-form [disable] label.check:before{
 	/*display: none;*/
 	background-position: 0px -60px;
-	
+
 }
 .editprofile input[type=checkbox],
 table input[type=checkbox],
@@ -1584,7 +1584,7 @@ input#deal-value, input#summit-value, input#summit-valueNew, input#summit-valueD
 	padding: 5px;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
-    box-sizing: border-box;	
+    box-sizing: border-box;
 }
 
 .pop-up-splash textarea::-webkit-input-placeholder {
@@ -1892,7 +1892,7 @@ span.change[style*="display: none"] ~ span.y{
 #journal .rows-wrap button::before {
 	background: url('../img/events.png') no-repeat;
   background-position: -77px 0px;
-} 
+}
 #journal .col:last-child p:nth-child(2) {
 	width: 200px;
 }
@@ -1998,9 +1998,9 @@ span.change[style*="display: none"] ~ span.y{
 }
 
 .gallery li {
-    display: inline-block;    
+    display: inline-block;
     -webkit-transition: all .3s ease;
-    transition: all .3s ease;    
+    transition: all .3s ease;
     width: 150px;
     text-align: center;
     cursor: pointer;
@@ -2031,7 +2031,7 @@ span.change[style*="display: none"] ~ span.y{
 }
 
 /* Summits slider end */
-/* Acount */ 
+/* Acount */
 .account {
 	position: fixed;
   top: 0;
@@ -2751,10 +2751,10 @@ div#hint:before {
     padding: 30px;
 }
 
-@-moz-document url-prefix() 
-{ 
+@-moz-document url-prefix()
+{
 	table {
-		border-collapse: unset;   
+		border-collapse: unset;
 	}
 	#sidebar .scrollbar-macosx {
 		overflow: hidden !important;
@@ -2810,6 +2810,11 @@ div.butt-wrap > p:nth-child(3) {
 #users_list {
   font-size: 1.1em;
 }
+
+#users_list td {
+  cursor:pointer;
+}
+
 .col-3 .col-table > p {
 	text-align: center;
   font-size: 1.4em;
@@ -2824,7 +2829,7 @@ div.butt-wrap > p:nth-child(3) {
 
 #impPopup .splash-buttons {
     text-align: left;
-    margin: 10px 20px;    
+    margin: 10px 20px;
 }
 
 #impPopup button {

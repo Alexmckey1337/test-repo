@@ -124,7 +124,30 @@ $(document).ready(function(){
 
     document.getElementById('deleteAnket').addEventListener('click', function() {
         var summitAnket = this.getAttribute('data-anket');
+        document.getElementById('yes').setAttribute('data-anket',summitAnket)
+        document.getElementById('deletePopup').style.display = 'block';
+        document.querySelector('#popupDelete').style.display = '';        
+    })
+
+    document.getElementById('yes').addEventListener('click', function() {
+        var summitAnket = this.getAttribute('data-anket');
+        document.getElementById('deletePopup').style.display = '';
         unsubscribe(summitAnket);
+    })
+
+    $('#deletePopup').click(function(el){
+        if (el.target != this) {
+            return;
+        }
+        $(this).hide();
+    })
+
+    $('#no').click(function(){
+        $('#deletePopup').hide();
+    })
+
+    $('#deletePopup .top-text span').click(function(){
+        $('#deletePopup').hide();
     })
 
     document.getElementById('completeDelete').addEventListener('click', function() {
