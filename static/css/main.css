@@ -1855,7 +1855,9 @@ span.y {
 }
 
 .rows-wrap span.x,
-.rows-wrap span.y{
+.rows-wrap span.y,
+#userinfo span.x,
+#userinfo span.y {
 	display: none
 }
 span.change:hover {
@@ -2872,4 +2874,8 @@ div.butt-wrap > p:nth-child(3) {
 
 #edit-photo {
 	cursor:pointer;
+}
+
+#users_list p {
+	padding-left: 30px;
 }

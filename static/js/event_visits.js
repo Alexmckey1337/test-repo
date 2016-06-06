@@ -10,6 +10,8 @@ function init(user_id) {
         return       
     }
 
+
+
     $('body').on('click', '#carousel li span', function(){
         $('#carousel li').removeClass('active');
         $(this).parent().addClass('active')
@@ -73,6 +75,7 @@ function createSubordinateList(data, event_id) {
         data['search'] = search;
         master_id = '';
     }
+    document.getElementsByClassName('preloader')[0].style.display = 'block';
 
     ajaxRequest(config.DOCUMENT_ROOT + '/api/participations/disciples/?event=' + event_id + '&user__user__master=' + master_id, data, function(answer) {
         var html_sub = ''
@@ -95,7 +98,7 @@ function createSubordinateList(data, event_id) {
 
 
         createUserInfoBySearch(answer, data)
-
+        document.getElementsByClassName('preloader')[0].style.display = 'none';
 
 
     })
@@ -114,6 +117,8 @@ function createHierarchyChain(data) {
     }
 
     document.querySelector('.tabs-names ul').innerHTML = html
+
+    $('.is_current').prev().hide();
 
 
     Array.prototype.forEach.call(document.querySelectorAll(".tabs-names [data-id]"), function(el) {

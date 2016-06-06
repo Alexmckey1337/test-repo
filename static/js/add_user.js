@@ -196,7 +196,7 @@ function getCountries() {
 function getDepartments() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/departments/', null, function(data) {
       var data = data.results;
-      var html = '<option value=""> </option><option>Не выбрано</option>';
+      var html = '<option value=""> </option>';
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
@@ -209,7 +209,7 @@ function getDepartments() {
 function getStatuses() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/hierarchy/', null, function(data) {
       var data = data.results;
-      var html = '<option value=""> </option><option>Не выбрано</option>';
+      var html = '<option value=""> </option>';
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
@@ -243,7 +243,7 @@ function getDivisions() {
 function getUsers() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/hierarchy/', null, function(data) {
       var data = data.results;
-      var html = '<option value=""> </option><option>Не выбрано</option>';
+      var html = '<option value=""> </option>';
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
@@ -340,7 +340,7 @@ function createNewAcc() {
     "address": document.querySelector("input[name='address']").value,
     "skype": document.querySelector("input[name='skype']").value,
     "district": document.querySelector("input[name='district']").value,
-    "region": $('#chooseRegion option:selected').html() || '',
+    "region": $('#chooseRegion option:selected').html() == 'Не выбрано'?'':$('#chooseRegion option:selected').html(),
     'responsible':$("#chooseManager").val(),
     'value': document.querySelector("input[name='value']").value,
     'date': document.querySelector("input[name='partnership_date']").value,
@@ -349,8 +349,8 @@ function createNewAcc() {
     'department': $("#chooseDepartment").val(),
     'repentance_date': document.querySelector("input[name='repentance_date']").value,
     'coming_date': document.querySelector("input[name='first_visit']").value,
-    'city': $('#chooseCity option:selected').html() || '',
-    'country': $('#chooseCountry option:selected').html()
+    'city': $('#chooseCity option:selected').html() == 'Не выбрано'?'':$('#chooseCity option:selected').html(),
+    'country': $('#chooseCountry option:selected').html() == 'Не выбрано'?'':$('#chooseCountry option:selected').html()
   }
   if (document.getElementById('kabinet').checked) {
     data['send_password'] = true;
@@ -422,7 +422,6 @@ function createNewAcc() {
           if (data.redirect) {
             var fd = new FormData();
             if(!$('input[type=file]')[0].files[0]){
-              console.log(data.id)
                   fd.append('id' , data.id)
                 } else {
                   fd.set('source', $('input[type=file]')[0].files[0], 'photo.jpg');
@@ -448,10 +447,9 @@ function createNewAcc() {
               if (xhr.readyState == 4) {
 
                 if(xhr.status == 200) {
-                         //    debugger
                 showPopup(data.message)
                   setTimeout(function() {
-                    window.location.href = '/account/' + data.id;
+                    //window.location.href = '/account/' + data.id;
                   }, 1000);
                 }
               }
