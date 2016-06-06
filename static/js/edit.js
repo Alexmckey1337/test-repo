@@ -301,13 +301,17 @@ function initializeCountry(url) {
     ajaxRequest(config.DOCUMENT_ROOT + url, null, function(data) {
 
         var results = data;
-        var html = '<option>Не выбрано</option><option selected="selected" value="">'+data_for_drop["country"]+'</option>';
+        var html = '<option value=""></option><option>Не выбрано</option>';
+        if (data_for_drop["country"] != '') {
+            html += '<option selected="selected" value="">'+data_for_drop["country"]+'</option>';
+        }
+        
 
         for (var i = 0; i < data.length; i++) {
             html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
         }
         document.getElementById('country_drop').innerHTML = html;
-        $('#country_drop').select2().on("change", initializeRegions);
+        $('#country_drop').select2({placeholder: " "}).on("change", initializeRegions);
         /*for (var i = 0; i < results.length; i++) {
 
             if (active == results[i].title) {
@@ -485,7 +489,11 @@ function initDropCustom(url, parent_id, active, callback) {
         var results = data.results;
 
         //var html = '<select multiple id="e1" style="width:300px">'
-        var html = '<option>Не выбрано</option>'
+        if (parent_id == 'department_drop' || parent_id == 'statuses_drop') {
+            var html = '';
+        } else {
+            var html = '<option>Не выбрано</option>';
+        }
         for (var i = 0; i < results.length; i++) {
 
             if (active == results[i].title) {
@@ -714,7 +722,7 @@ function sendData() {
         return
     }
 
-    var master = parseInt($("#leader_drop").val());
+    //var master = parseInt($("#leader_drop").val());
 
 
     var data = {
@@ -729,9 +737,9 @@ function sendData() {
         "phone_number": document.getElementById("phone_number").value,
         "born_date": document.getElementById("datepicker_born_date").value || '',
 
-        'country': $('#country_drop option:selected').html() || '',
-        'region': $('#region_drop option:selected').html() || '',
-        'city': $('#town_drop option:selected').html() || '',
+        'country': $('#country_drop option:selected').html() == "Не выбрано"?'':$('#country_drop option:selected').html(),
+        'region': $('#region_drop option:selected').html() == "Не выбрано"?'':$('#region_drop option:selected').html(),
+        'city': $('#town_drop option:selected').html() == "Не выбрано"?'':$('#town_drop option:selected').html(),
 
         "vkontakte": document.getElementById('vkontakte').value || '',
         "facebook": document.getElementById('facebook').value || '',
@@ -752,11 +760,11 @@ function sendData() {
     data['id'] = id
 
 
-    var master = parseInt($("#leader_drop").val());
+    var master = $("#leader_drop").val() == "Не выбрано"?"":$("#leader_drop").val();
 
-    if (master) {
-        data['master'] = master;
-    }
+    //if (master) {
+        data['master'] = '';
+    //}
 
     /*Блок проверки паролей */
 
