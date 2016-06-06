@@ -25,7 +25,7 @@ from rest_framework.permissions import IsAuthenticated
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by('-hierarchy__level')
+    queryset = User.objects.filter(is_active=True).all().order_by('-hierarchy__level')
     serializer_class = UserSerializer
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
@@ -175,6 +175,12 @@ def delete_user(request):
     data = request.data
     try:
         user = User.objects.get(id=data['id'])
+        archons = User.objects.filter(hierarchy__level=7).all()
+        if user in archons.all():
+            message['message'] = u"Нельзя удалить Архонта"
+            message['status'] = False
+            message['redirect'] = False
+            return Response(message)
         user.delete()
         response_dict['message'] = u"Пользователь был удален успешно"
         response_dict['status'] = True
@@ -223,13 +229,19 @@ def edit_user(data, files):
             message['redirect'] = False
             return message
         if "master" in data.keys():
-            master = User.objects.get(id=data['master'])
-            if check_recursion(user, master):
-                message['message'] = u"РЕКУРСИЯ!"
-                message['status'] = False
-                message['redirect'] = False
-                return message
-            user.master = master
+            if not data['master'] == "":
+                try:
+                    master = User.objects.get(id=int(data['master']))
+                    if check_recursion(user, master):
+                        message['message'] = u"РЕКУРСИЯ!"
+                        message['status'] = False
+                        message['redirect'] = False
+                        return message
+                except User.DoesNotExist:
+                    master = None
+                user.master = master
+            else:
+                user.master = None
         for key, value in data.iteritems():
             if key == 'master':
                 pass

@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '4y6l3@a0%vq394z6+w)k3-wl459r++v=z!jv1gw4+nt0sd5z+s'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['vocrm.org']
 
@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     'tv_crm',
     'summit',
     'location',
-    'axes',
+#    'axes',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -65,7 +65,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'axes.middleware.FailedLoginMiddleware',
+ #   'axes.middleware.FailedLoginMiddleware',
 ]
 
 ROOT_URLCONF = 'edem.urls'
