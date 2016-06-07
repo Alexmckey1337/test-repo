@@ -763,7 +763,7 @@ function sendData() {
     var master = $("#leader_drop").val() == "Не выбрано"?"":$("#leader_drop").val();
 
     //if (master) {
-        data['master'] = '';
+        data['master'] = $("#leader_drop").val();
     //}
 
     /*Блок проверки паролей */
