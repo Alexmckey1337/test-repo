@@ -6,7 +6,7 @@ class CountrySerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Country
-        fields = ('id', 'title', 'code', )
+        fields = ('id', 'title', 'code', 'phone_code', )
 
 
 class RegionSerializer(serializers.HyperlinkedModelSerializer):

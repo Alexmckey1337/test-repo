@@ -33,5 +33,5 @@ class CityViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,)
     search_fields = ('title', )
-    filter_fields = ['region']
+    filter_fields = ['region', 'country']
     permission_classes = (IsAuthenticated,)
