@@ -229,19 +229,20 @@ def edit_user(data, files):
             message['redirect'] = False
             return message
         if "master" in data.keys():
-            if not data['master'] == "":
-                try:
-                    master = User.objects.get(id=int(data['master']))
-                    if check_recursion(user, master):
-                        message['message'] = u"РЕКУРСИЯ!"
-                        message['status'] = False
-                        message['redirect'] = False
-                        return message
-                except User.DoesNotExist:
-                    master = None
-                user.master = master
+            if data['master'] == "":
+                master_id = 0
             else:
-                user.master = None
+                master_id = data['master']
+            try:
+                master = User.objects.get(id=master_id)
+                if check_recursion(user, master):
+                    message['message'] = u"РЕКУРСИЯ!"
+                    message['status'] = False
+                    message['redirect'] = False
+                    return message
+            except User.DoesNotExist:
+                master = None
+            user.master = master
         for key, value in data.iteritems():
             if key == 'master':
                 pass
