@@ -12,6 +12,13 @@ CRM
 {%endblock%}
 
 {%block body%}
+ <div class="preloader">
+					<div class="gif">
+					</div>
+				</div>
+<div class="page-width">
+
+		{% include 'sidebar.html' %}
 <div class="main-wrap">
 
 			<div class="header">
@@ -195,7 +202,7 @@ CRM
 					<div class="columns-wrap">
 					<div class="col-1">
 						<div id="edit-photo" class="anketa-photo">
-							<img src="{% static 'img/no-usr.jpg' %}" alt="photo">
+							<img src="img/no-usr.jpg" alt="photo">
 						</div>
 						<div class="butt-wrap">
 							<form style="display:none" enctype="multipart/form-data" method="post">
