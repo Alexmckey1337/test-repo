@@ -4,7 +4,7 @@ from import_export.admin import ImportExportModelAdmin
 from resources import SummitAnketResource
 
 
-class SummitAnketAdmin(admin.ModelAdmin, ImportExportModelAdmin):
+class SummitAnketAdmin(ImportExportModelAdmin):
     list_display = ('user', 'summit', )
     list_filter = ('summit', )
     resource_class = SummitAnketResource

@@ -227,6 +227,16 @@ class CustomUser(User):
             if len(self.master.middle_name) > 0:
                 s = s + self.master.middle_name[0] + '.'
         return s
+    @property
+    def short(self):
+        s = ''
+        if len(self.last_name) > 0:
+            s = s + self.last_name + ' '
+        if len(self.first_name) > 0:
+            s = s + self.first_name[0] + '.'
+        if len(self.middle_name) > 0:
+            s = s + self.middle_name[0] + '.'
+        return s
 
     @property
     def fullname(self):

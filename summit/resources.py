@@ -12,9 +12,19 @@ class SummitAnketResource(resources.ModelResource):
         #          'email', 'phone_number', 'skype', 'country', 'city', 'address',
         #          'born_date', 'facebook', 'vkontakte', 'description',
         #          'department', 'hierarchy', 'master')
-        exclude = ('user_ptr', 'password', 'last_login', 'is_superuser', 'groups', 'user_permissions', 'is_staff',
-                   'is_active', 'date_joined', 'image', 'hierarchy_order',)
+        exclude = ('id', 'user', 'summit', 'value', 'description', )
         #export_order = ('id', 'username', 'last_name', 'first_name', 'middle_name',
         #                'email', 'phone_number', 'skype', 'country', 'city', 'address',
         #                'born_date', 'facebook', 'vkontakte', 'description',
         #                'department', 'hierarchy', 'master')
+
+
+
+def fill():
+    ankets = SummitAnket.objects.all()
+    for anket in ankets.all():
+        anket.name = anket.user.short
+        summit_id = 2000000 + anket.id
+        summit_id_str = '0%i' % summit_id
+        anket.code = summit_id_str
+        anket.save()
