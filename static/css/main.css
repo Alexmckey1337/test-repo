@@ -1706,9 +1706,10 @@ button#complete {
 }
 /***********************Preloader************************/
 .preloader {
-	position: absolute;
-	top:50px;
+	position: fixed;
+	top:40%;
 	left: 50%;
+	z-index:999;
 }
 .preloader .gif {
 	width: 128px;
@@ -2878,4 +2879,36 @@ div.butt-wrap > p:nth-child(3) {
 
 #users_list p {
 	padding-left: 30px;
+}
+
+.phone .select2-selection.select2-selection--single {
+    width: 16%!important;
+    border-left: none!important;
+    border-right: none!important;
+}
+
+.phone .select2-container--default .select2-selection--single .select2-selection__arrow {
+	left:-1px;
+}
+
+.phone {
+	position: relative;
+}
+
+.phone input[name='phone_numberCode'] {
+    position: absolute;
+    left: 14%;
+    width: 19%!important;
+    border-left: none;
+    border-radius: 0 3px 3px 0;
+}
+
+.phone input[name="phone_number"] {
+    position: absolute;
+    left: 35%;
+    width: 61%!important;
+}
+
+.phone .select2-selection__arrow {
+	width:38px!important;
 }

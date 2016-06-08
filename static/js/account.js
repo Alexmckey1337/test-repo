@@ -51,6 +51,9 @@ function init(id) {
         if( !data.fields ){
             return
         }
+        if(data.fields.coming_date.value) {
+          document.getElementById('coming_date').innerHTML = data.fields.coming_date.value;
+        }
         $('#deleteUser').attr('data-id',data.id)
         var fullname 
         var social = data.fields.social

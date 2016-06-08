@@ -251,7 +251,7 @@ CRM
 						<span id="changeSumDelete" class="change-summ"></span>
 					</div>
 				</div>
-				<textarea placeholder="Добавить коментарий" maxlength="40"></textarea>
+				<textarea maxlength="40" placeholder="Добавить коментарий"></textarea>
 				<div class="splash-bauttons">
 					<button id="deleteAnket" ><i class="fa fa-trash-o fa-lg" aria-hidden="true"></i> Удалить</button>
 					<button id="closeDelete">Отменить</button>
@@ -296,7 +296,7 @@ CRM
 					<div class="columns-wrap">
 					<div class="col-1">
 						<div id="edit-photo" class="anketa-photo">
-							<img src="{% static  'img/no-usr.jpg' %}" alt="photo">
+							<img src="{% static 'img/no-usr.jpg' %}" alt="photo">
 						</div>
 						<div class="butt-wrap">
 							<form style="display:none" enctype="multipart/form-data" method="post">
@@ -337,7 +337,12 @@ CRM
 										<li><input name="middle_name" type="text"></li>
 										<!--li><input type="text" id="bornDate" class="hasDatepicker"></li-->
 										<li><input name="born_date" type="text" id="bornDate" readonly="readonly"></li>
-										<li><input placeholder="+380633333333" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43" name="phone_number" type="text"></li>
+										<li class="phone">
+											<select style="width: 96%" name="" id="chooseCountryCode">
+											</select>
+											<input disabled name="phone_numberCode" type="text">
+											<input name="phone_number" type="text">
+										</li>
 										<li><input type="text"></li>
 										<li><input name="email" type="text"></li>
 										<li><input name="skype" type="text"></li>

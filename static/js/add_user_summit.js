@@ -11,12 +11,6 @@ $(document).ready(function(){
       $("#repentanceDate").blur()
     });
 
-    $('[name="phone_number"]').click(function(){
-        if ($(this).val().length === 0) {
-            $(this).val('+')
-        }
-    })
-
     $('#impPopup').click(function(el){
         if (el.target != this) {return}
         $(this).hide();
@@ -75,13 +69,13 @@ $(document).ready(function(){
     });
 
     $('#partner').click(function(){$('.hidden-partner').toggle()})
-    
+
 
     getAll();
 
     var dep,
         stat;
-    
+
     $("#chooseCountry").select2({placeholder: " "}).on("change", getRegions);
     $("#chooseRegion").select2({placeholder: " "}).on("change", getCities);
     $("#chooseCity").select2({placeholder: " ",tags: true});
@@ -92,6 +86,9 @@ $(document).ready(function(){
     $("#chooseManager").select2({placeholder: " "});
     $("#chooseResponsible").select2({placeholder: " "});
     $("#chooseResponsibleStatus").select2({placeholder: " "});
+    $("#chooseCountryCode").select2({placeholder: " "}).on("select2:select", function(el) {
+      document.querySelector('[name="phone_numberCode"]').value = el.target.value;
+    });
 
 
     $("#chooseDepartment").on("change", function(){
@@ -205,13 +202,29 @@ var img = $(".crArea img");
   document.getElementsByName('f')[0].addEventListener('change', selectFile, false);
 
 
-function getAll() {  
+function getAll() {
   getCountries();
   getDepartments();
   getStatuses();
   getDivisions();
   getManagers();
   getResponsibleStatuses();
+  getCountryCodes();
+}
+
+function getCountryCodes() {
+  ajaxRequest(config.DOCUMENT_ROOT + 'api/countries/', null, function(data) {
+    var code = '<option value=""> </option>';
+    for (var i = 0; i < data.length; i++) {
+      if (data[i].phone_code == 38) {
+          code += '<option selected value="'+data[i].phone_code+'">'+data[i].title + ' ' + data[i].phone_code +'</option>';
+        } else {
+          code += '<option value="'+data[i].phone_code+'">'+data[i].title + ' ' + data[i].phone_code +'</option>';
+        }
+    }
+    document.getElementById('chooseCountryCode').innerHTML = code;
+    document.querySelector('[name="phone_numberCode"]').value = $('#chooseCountryCode').val();
+  })
 }
 
 function getDataForPopupNew(id, name, master) {
@@ -239,7 +252,7 @@ function registerUserNew(id,summit_id,money, description) {
             'Content-Type': 'application/json'
         });
 }
-  
+
 
 function getCountries() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/countries/', null, function(data) {
@@ -258,7 +271,7 @@ function getDepartments() {
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
-      document.getElementById('chooseDepartment').innerHTML = html;      
+      document.getElementById('chooseDepartment').innerHTML = html;
       dep = $("#chooseDepartment").val();
     });
 
@@ -271,7 +284,7 @@ function getStatuses() {
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
-      document.getElementById('chooseStatus').innerHTML = html;      
+      document.getElementById('chooseStatus').innerHTML = html;
     });
 }
 
@@ -294,7 +307,7 @@ function getDivisions() {
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
-      document.getElementById('chooseDivision').innerHTML = html;      
+      document.getElementById('chooseDivision').innerHTML = html;
     });
 }
 
@@ -333,7 +346,7 @@ function getRegions() {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
       document.getElementById('chooseRegion').innerHTML = html;
-      document.getElementById('chooseRegion').removeAttribute('disabled');      
+      document.getElementById('chooseRegion').removeAttribute('disabled');
     });
   }
 
@@ -343,7 +356,7 @@ function getResponsible(id,level) {
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].fullname+'</option>';
       }
-      document.getElementById('chooseResponsible').innerHTML = html;      
+      document.getElementById('chooseResponsible').innerHTML = html;
     });
   }
 
@@ -361,7 +374,7 @@ function getCities() {
   }
 
 function selectFile(evt) {
-  
+
         var files = evt.target.files;
         for (var i = 0, f; f = files[i]; i++) {
           if (!f.type.match('image.*')) {
@@ -369,7 +382,7 @@ function selectFile(evt) {
           }
           var reader = new FileReader();
           reader.onload = (function(theFile) {
-            return function(e) {  
+            return function(e) {
               document.querySelector("#impPopup img").src= e.target.result
               document.querySelector("#impPopup").style.display = 'block';
                 img.cropper({
@@ -391,7 +404,7 @@ function createNewAcc() {
     "last_name": document.querySelector("input[name='last_name']").value,
     "middle_name": document.querySelector("input[name='middle_name']").value,
     "born_date": document.querySelector("input[name='born_date']").value,
-    "phone_number": document.querySelector("input[name='phone_number']").value,
+    "phone_number": document.querySelector("input[name='phone_numberCode']").value + '' + document.querySelector("input[name='phone_number']").value,
     "vkontakte": document.querySelector("input[name='vk']").value,
     "facebook": document.querySelector("input[name='fb']").value,
     "odnoklassniki": document.querySelector("input[name='ok']").value,

@@ -12,10 +12,8 @@ CRM
 {%endblock%}
 
 {%block body%}
-<div class="page-width">
-
-		{% include 'sidebar.html' %}
 <div class="main-wrap">
+
 			<div class="header">
 
 				  <ul class="top"><!-- Top -->
@@ -23,7 +21,7 @@ CRM
 								<h1>База данных</h1>
 				  	</li>
 				    <li class="userImgWrap">
-				    	<div class="userimg"><!-- <img src="{% static 'img/layer-1.jpg' %}" alt="userphoto"> -->
+				    	<div class="userimg"><!-- <img src="img/layer-1.jpg" alt="userphoto"> -->
 				    	</div>
 				    </li>
 				    <li class="sms"><span>0</span><span></span></li>
@@ -90,10 +88,7 @@ CRM
 				<div class="query-none">
 						<p></p>
 				</div>
-				<div class="preloader">
-					<div class="gif">
-					</div>
-				</div>
+
 
 			</div><!--End Table -->
 
@@ -241,7 +236,13 @@ CRM
 										<li><input name="middle_name" type="text"></li>
 										<!--li><input type="text" id="bornDate" class="hasDatepicker"></li-->
 										<li><input name="born_date" type="text" id="bornDate" readonly="readonly"></li>
-										 <li><input placeholder="+380633333333" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43" name="phone_number" type="text"></li>
+										<li class="phone"><!-- <input placeholder="+380633333333" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43" name="phone_number" type="text"> -->
+											<select style="width: 96%" name="" id="chooseCountryCode">
+											<!-- <option value="">Закарпатская</option> -->
+											</select>
+											<input disabled name="phone_numberCode" type="text">
+											<input name="phone_number" type="text">
+										</li>
 										<li><input type="text"></li>
 										<li><input name="email" type="text"></li>
 										<li><input name="skype" type="text"></li>

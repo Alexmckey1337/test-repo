@@ -124,7 +124,7 @@ function init(id) {
     
 
     ajaxRequest(config.DOCUMENT_ROOT + 'api/users/' + id, null, function(data) {
-        console.log(data)
+        console.log(data.fields)
         if (data.image) {
             document.querySelector(".anketa-photo img").src = data.image;
             convertImgToDataURLviaCanvas($(".anketa-photo img").attr('src'),function(data64){
@@ -164,6 +164,23 @@ function init(id) {
         }).datepicker("setDate", data.fields.born_date.value).mousedown(function() {
             $('#ui-datepicker-div').toggle();
         });
+
+        $("#firsVisit").datepicker({
+            dateFormat: "yy-mm-dd",
+            maxDate: new Date(),
+            yearRange: '1920:+0',
+            onSelect: function(date) {
+
+            }
+        }).datepicker("setDate", data.fields.coming_date.value)
+        $("#repentanceDate").datepicker({
+            dateFormat: "yy-mm-dd",
+            maxDate: new Date(),
+            yearRange: '1920:+0',
+            onSelect: function(date) {
+
+            }
+        }).datepicker("setDate", data.fields.repentance_date.value)
 
         for (var prop in data.fields) {
             if (!data.fields.hasOwnProperty(prop)) continue
@@ -247,7 +264,7 @@ function convertImgToDataURLviaCanvas(url, callback, outputFormat){
                         ctx.drawImage(this, 0, 0);
                         dataURL = canvas.toDataURL(outputFormat);
                         callback(dataURL);
-                        canvas = null; 
+                        canvas = null;
                     };
                     img.src = url;
                 }
@@ -293,25 +310,26 @@ function handleFileSelect(evt) {
 
 
 
-//inialize DATABASE LOCATIONS 
+//inialize DATABASE LOCATIONS
 function initializeCountry(url) {
-   
+
 
 
     ajaxRequest(config.DOCUMENT_ROOT + url, null, function(data) {
 
         var results = data;
         var html = '<option value=""></option><option>Не выбрано</option>';
+        console.log(data_for_drop["country"])
         if (data_for_drop["country"] != '') {
-            html += '<option selected="selected" value="">'+data_for_drop["country"]+'</option>';
+            html += '<option selected value=" ">'+data_for_drop["country"]+'</option>';
         }
-        
+        console.log(html)
 
         for (var i = 0; i < data.length; i++) {
             html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
         }
         document.getElementById('country_drop').innerHTML = html;
-        $('#country_drop').select2({placeholder: " "}).on("change", initializeRegions);
+        $('#country_drop').select2().on("change", initializeRegions);
         /*for (var i = 0; i < results.length; i++) {
 
             if (active == results[i].title) {
@@ -322,7 +340,7 @@ function initializeCountry(url) {
             }
 
         }
-        
+
         if (active ||  active.length === 0 ) {
             html += '<option selected="selected" >' + active + '</option>'
         }
@@ -341,7 +359,7 @@ function initializeCountry(url) {
             var url_region = 'api/regions/?country=' + $(this).val()
 
                 initializeRegions(url_region, 'region_drop', data_for_drop['region'])
-            
+
         })
 
         $("#country_drop").trigger('change')
@@ -355,7 +373,7 @@ function initializeCountry(url) {
 }
 
 function initializeRegions() {
-    //Country 
+    //Country
     //console.log(active)
     var opt = {};
     opt['country'] = $("#country_drop").val();
@@ -364,7 +382,7 @@ function initializeRegions() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/regions/', opt, function(data) {
         if(data.length == 0) {
             document.getElementById('region_drop').innerHTML = '<option value=""> </option>';
-            document.getElementById('town_drop').innerHTML = '<option value=""> </option>';
+            //document.getElementById('town_drop').innerHTML = '<option value=""> </option>';
             $('#town_drop').select2({tags: true});
             document.getElementById('region_drop').removeAttribute('disabled');
             document.getElementById('town_drop').removeAttribute('disabled');
@@ -436,7 +454,7 @@ function initializeTown() {
         }
         document.getElementById('town_drop').innerHTML = html;
         document.getElementById('town_drop').removeAttribute('disabled');
-        $('#town_drop').select2({tags: true});
+        $('#town_drop').select2({tags: true,placeholder: " "});
         /*for (var i = 0; i < results.length; i++) {
 
             if (active == results[i].title) {
@@ -480,7 +498,7 @@ function initializeTown() {
 
 
 function initDropCustom(url, parent_id, active, callback) {
-    //Country 
+    //Country
     //console.log(active)
 
 
@@ -548,7 +566,7 @@ function getLeader(active) {
     }
 
     ajaxRequest(config.DOCUMENT_ROOT + 'api/short_users/?department=' + id_dep + '&hierarchy=' + level, null, function(data) {
-        //Потрібен парент айди 
+        //Потрібен парент айди
 
         var html = '<option>Не выбрано</option>';
         var results = data
@@ -590,7 +608,7 @@ function getDivisions(str) {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/divisions/', null, function(data) {
 
 
-        
+
 
 
 
@@ -654,7 +672,7 @@ function getPatrnershipInfo() {
         })
             }
             document.getElementById('val_partnerships').value = val;
-            //  document.getElementById('partner_name').innerHTML = data.responsible 
+            //  document.getElementById('partner_name').innerHTML = data.responsible
 
 
         } else {
@@ -736,6 +754,8 @@ function sendData() {
         "email": document.getElementById("email").value,
         "phone_number": document.getElementById("phone_number").value,
         "born_date": document.getElementById("datepicker_born_date").value || '',
+        "coming_date": document.querySelector("input[name='first_visit']").value || '',
+        "repentance_date": document.querySelector("input[name='repentance_date']").value || '',
 
         'country': $('#country_drop option:selected').html() == "Не выбрано"?'':$('#country_drop option:selected').html(),
         'region': $('#region_drop option:selected').html() == "Не выбрано"?'':$('#region_drop option:selected').html(),
@@ -745,7 +765,7 @@ function sendData() {
         "facebook": document.getElementById('facebook').value || '',
 
          "odnoklassniki": document.getElementById('odnoklassniki').value || '',
-        
+
         "address": document.getElementById('address').value || '',
 
 
@@ -813,11 +833,11 @@ function sendData() {
 /*
     var url =config.DOCUMENT_ROOT + 'api/short_users/?search=' + data["first_name"] +'+' + data["last_name"];
       ajaxRequest( url, null, function(answer) {
-      
+
         if (answer.length) {
            var id  = answer[0].id;
            showPopup('Такой пользователей есть уже в БД');
-           
+
            setTimeout(function() {
             window.location.href = '/account/' + id ;
             }, 1500);
@@ -839,7 +859,7 @@ function sendData() {
          if (data.redirect) {
 
                 //console.log(data.id)
-                var fd = new FormData();    
+                var fd = new FormData();
 
                 var blob;
                 var sr;
@@ -864,7 +884,7 @@ function sendData() {
                     }
                     return new Blob([u8arr], {type:mime});
                 }
-                
+
                 var xhr = new XMLHttpRequest();
                 xhr.withCredentials = true;
                     xhr.open('POST',config.DOCUMENT_ROOT + 'api/create_user/', true);
@@ -879,12 +899,12 @@ function sendData() {
                   }
                 };
                     xhr.send(fd);
-                                
 
 
 
 
-    
+
+
             }
 
 
@@ -900,6 +920,6 @@ function sendData() {
 
 */
 
-  
+
 
 }
