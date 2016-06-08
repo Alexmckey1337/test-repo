@@ -760,10 +760,10 @@ function sendData() {
     data['id'] = id
 
 
-    var master = $("#leader_drop").val() == "Не выбрано"?"":$("#leader_drop").val();
+    var master = $("#leader_drop").val() == "Не выбрано"?0:$("#leader_drop").val();
 
     //if (master) {
-        data['master'] = $("#leader_drop").val();
+        data['master'] = master;
     //}
 
     /*Блок проверки паролей */

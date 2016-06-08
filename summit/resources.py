@@ -23,7 +23,7 @@ class SummitAnketResource(resources.ModelResource):
 def fill():
     ankets = SummitAnket.objects.all()
     for anket in ankets.all():
-        anket.name = anket.user.short_fullname
+        anket.name = anket.user.short
         summit_id = 2000000 + anket.id
         summit_id_str = '0%i' % summit_id
         anket.code = summit_id_str

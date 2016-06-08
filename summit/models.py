@@ -45,7 +45,8 @@ class SummitAnket(models.Model):
                                null=True)
     value = models.PositiveSmallIntegerField(default=0)
     description = models.CharField(max_length=255, blank=True)
-
+    code = models.CharField(max_length=8, blank=True, null=True)
+    name = models.CharField(max_length=255, blank=True, null=True)
     class Meta:
         unique_together = (('user', 'summit'),)
 
