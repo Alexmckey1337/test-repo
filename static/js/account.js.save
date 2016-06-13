@@ -260,7 +260,7 @@ function deleteUser(id) {
     ajaxRequest(config.DOCUMENT_ROOT+'api/delete_user/', json, function(JSONobj) {
             if(JSONobj.status){
                 showPopup('Пользователь успешно удален');
-                window.location.href="/"
+                window.location.href="vocrm.org"
             }
         }, 'POST', true, {
             'Content-Type': 'application/json'
@@ -294,7 +294,7 @@ function getUserSummitInfo(){
             var info = results[i].info.money_info;
             if(  $.inArray( info.summit_type_id, tab_title ) == -1  ){
                menu_summit += '<li data-tab='+ info.summit_type_id  +'><a href="#" >' + info.summit_title + '</a></li>'
-                tab_title.push(info.summit_type_id)
+OB                tab_title.push(info.summit_type_id)
             }  
             body_summit += '<div class="rows" data-summit-id = "'+  info.summit_type_id +'" ><div class="col"><p>'+ info.summit_title  + '  '+info.start_date +'</p> </div><div class="col">';
             if (info.description != "") {
@@ -312,7 +312,7 @@ function getUserSummitInfo(){
          }
 
 
-         document.getElementsByClassName('summit_wrapper')[0].innerHTML = body_summit
+   OA      document.getElementsByClassName('summit_wrapper')[0].innerHTML = body_summit
          document.getElementById('tabs2').innerHTML = menu_summit
 
 

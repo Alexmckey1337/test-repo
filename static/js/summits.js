@@ -15,7 +15,17 @@ $(document).ready(function(){
         delay(function() {
             var data = {};
             data['summit'] = summit_id;
-            getUsersList(data);
+            getUsersList(path,data);
+        }, 1500);
+    });
+
+    $('input[name="searchDep"]').keyup(function() {
+        delay(function() {
+            var data = {};
+            var path = config.DOCUMENT_ROOT + 'api/summit_ankets/?';
+            data['summit'] = summit_id;
+            data['user__department__title'] = $('input[name="searchDep"]').val();
+            getUsersList(path,data);
         }, 1500);
     });
 
@@ -30,7 +40,7 @@ $(document).ready(function(){
 
     if(document.getElementById('sort_save')) {
         document.getElementById('sort_save').addEventListener('click', function() {
-            updateSettings(getUsersList);
+            updateSettings(getUsersList(path));
             $(".table-sorting").animate({
                 right: '-300px'
             }, 10, 'linear')
@@ -174,6 +184,7 @@ $(document).ready(function(){
 var summit_id;
 var ordering = {};
 var order;
+var path = config.DOCUMENT_ROOT + 'api/summit_ankets/?';
 
 function unsubscribe(id) {
     var data = {
@@ -184,7 +195,7 @@ function unsubscribe(id) {
             if(JSONobj.status){
                 var data = {};
                 data['summit'] = summit_id;
-                getUsersList(data);
+                getUsersList(path,data);
                 document.querySelector('#popupDelete').style.display = 'none';
             }
         }, 'POST', true, {
@@ -204,7 +215,7 @@ function registerUser(id,summit_id,money, description) {
             if(JSONobj.status){
                 var data = {};
                 data['summit'] = summit_id;
-                getUsersList(data);
+                getUsersList(path,data);
                 getUnregisteredUsers();
             }
         }, 'POST', true, {
@@ -305,15 +316,14 @@ function addSummitInfo() {
         		var data = {};
         		data['summit'] = this.getAttribute('data-id');
                 window.summit_id = data['summit'];
-        		getUsersList(data);
+        		getUsersList(path,data);
         	})
         } 	
     });
 }
 
-function getUsersList(param) {
+function getUsersList(path,param) {
     var param = param || {};
-    var path = config.DOCUMENT_ROOT + 'api/summit_ankets/?'
     var search = document.getElementsByName('fullsearch')[0].value;
     if (search) {
         param['search'] = search;
@@ -325,9 +335,12 @@ function getUsersList(param) {
         var results = data.results;
         var count = data.count;
         if (results.length == 0) {
-            document.getElementById('users_list').innerHTML = 'По запросу не найдено учасников';
+            document.getElementById('users_list').innerHTML = '<p>По запросу не найдено учасников</p>';
             document.querySelector(".element-select").innerHTML = elementSelect = '<p>Показано <span>' + results.length + '</span> из <span>' + count + '</span></p>';
             document.getElementsByClassName('preloader')[0].style.display = 'none';
+            Array.prototype.forEach.call(document.querySelectorAll(" .pag-wrap"), function(el) {
+                el.innerHTML = '';
+            });
             return;
         }
         var common_fields = results[0].common;
@@ -477,7 +490,8 @@ function getUsersList(param) {
                 data['summit'] = summit_id;
                 data['page'] = el.innerHTML;
                 data['ordering'] = order;
-                getUsersList(data);
+                data['user__department__title'] = $('input[name="searchDep"]').val();
+                getUsersList(path,data);
             });
         });
 
@@ -487,7 +501,8 @@ function getUsersList(param) {
                 data['summit'] = summit_id;
                 data['page'] = el.innerHTML;
                 data['ordering'] = order;
-                getUsersList(data);
+                data['user__department__title'] = $('input[name="searchDep"]').val();
+                getUsersList(path,data);
             });
         });       
 
@@ -502,14 +517,16 @@ function getUsersList(param) {
                     data['page'] = page;
                     data['summit'] = summit_id;
                     data['ordering'] = order;
-                    getUsersList(data);
+                    data['user__department__title'] = $('input[name="searchDep"]').val();
+                    getUsersList(path,data);
                 } else {
 
                     page = parseInt(document.querySelector(".pag li.active").innerHTML) != pages ? parseInt(document.querySelector(".pag li.active").innerHTML) + 1 : pages;
                     data['page'] = page;
                     data['summit'] = summit_id;
                     data['ordering'] = order;
-                    getUsersList(data);
+                    data['user__department__title'] = $('input[name="searchDep"]').val();
+                    getUsersList(path,data);
                 }
             });
         });
@@ -521,12 +538,12 @@ function getUsersList(param) {
                     data['page'] = 1;
                     data['summit'] = summit_id;
                     data['ordering'] = order;
-                    getUsersList(data);
+                    getUsersList(path,data);
                 } else {
                     data['page'] = pages;
                     data['summit'] = summit_id;
                     data['ordering'] = order;
-                    getUsersList(data);
+                    getUsersList(path,data);
                 }
             });
         });
@@ -550,7 +567,8 @@ function getUsersList(param) {
                 'page': page,
                 'summit': summit_id
             }
-            getUsersList(data)
+            data['user__department__title'] = $('input[name="searchDep"]').val();
+            getUsersList(path,data)
             });
         })
     });

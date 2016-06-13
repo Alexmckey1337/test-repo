@@ -6,7 +6,7 @@ from resources import SummitAnketResource
 
 class SummitAnketAdmin(ImportExportModelAdmin):
     list_display = ('user', 'summit', )
-    list_filter = ('summit', )
+    list_filter = ('summit', 'user__department', )
     resource_class = SummitAnketResource
 
     class Meta:

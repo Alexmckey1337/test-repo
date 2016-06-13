@@ -10,6 +10,7 @@ CRM
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/css/select2.min.css" rel="stylesheet" />
 	<link rel="stylesheet" href="{% static 'css/jquery-ui.min.css' %}">
 	<link rel="stylesheet" href="{% static 'css/cropper.min.css' %}">
+        <link rel="stylesheet" href="{% static 'css/main.css'%}">
 {%endblock%}
 
 {%block body%}
@@ -37,6 +38,11 @@ CRM
 
 					<div class="top-buttons-wrap">
 					  <ul class="top-buttons"><!-- top-buttons -->
+					  	<li>
+					    	<div class="searchDep">
+					    		<input type="text" placeholder="Поиск по названию отдела" name="searchDep">
+								</div>
+					    </li>
 					  	<li><button class="add">Добавить пользователя</button></li>
 					  	<li><button class="exp">Экспортировать</button></li>
 					  	<li><button id="sort-on">Изменить таблицу</button></li>

@@ -40,7 +40,7 @@ class UserViewSet(viewsets.ModelViewSet):
                      'address', 'skype', 'phone_number', 'hierarchy__title', 'department__title',
                      'email', 'master__last_name', )
     filter_fields = ('first_name', 'last_name', 'middle_name',
-                     'born_date', 'email',
+                     'born_date', 'email', 'department__title',
                      'country', 'region', 'city', 'district', 'address',
                      'skype', 'phone_number', 'hierarchy__level', 'master', )
 
@@ -229,12 +229,8 @@ def edit_user(data, files):
             message['redirect'] = False
             return message
         if "master" in data.keys():
-            if data['master'] == "":
-                master_id = 0
-            else:
-                master_id = data['master']
             try:
-                master = User.objects.get(id=master_id)
+                master = User.objects.get(id=data['master'])
                 if check_recursion(user, master):
                     message['message'] = u"РЕКУРСИЯ!"
                     message['status'] = False
@@ -272,6 +268,16 @@ def edit_user(data, files):
                     user.born_date = value
                 else:
                     user.born_date = None
+            elif key == 'repentance_date':
+                if value:
+                    user.repentance_date = value
+                else:
+                    user.repentance_date = None
+            elif key == 'coming_date':
+                if value:
+                    user.coming_date = value
+                else:
+                    user.coming_date = None
             elif key == 'first_name':
                 if value:
                     user.first_name = value.strip()

@@ -2,6 +2,7 @@
 
 var config = {
     'DOCUMENT_ROOT':'http://vocrm.org/',
+    //'DOCUMENT_ROOT': 'http://5.101.119.32:8008/',
     'pagination_count': 30, //Количество записей при пагинации
     'pagination_patrnership_count': 30, //Количество записей при пагинации for patrnership
 
@@ -11,17 +12,20 @@ var config = {
 
 
 /*search animate width*/
-$('.top input').focus(function() {
+/*$('.top input').focus(function() {
     $('.top .search').animate({width:"80%"});
+    $('.filter').show();
   });
 
 $('.top input').blur(function() {
   if( !this.value.length ){
      $('.top .search').animate({width:"50%"});
+     $('.filter').hide();
   }
 
-});
+});*/
 
+//$('#filter').select2();
 
 
 
@@ -135,7 +139,7 @@ $(document).ready(function(){
     $('#hint').css('top',a).fadeIn();
   })
 
-  
+
   $('.editprofile input').keypress(function(el){if(el.charCode == '32'){return false}})
 
   $('body').on('mouseout', '.toggle-sidebar a', function(el) {
@@ -264,7 +268,7 @@ $(function() {
               var dat = {};
               dat['summit'] = document.querySelectorAll('#carousel li span')[0].getAttribute('data-id');
               window.summit_id = dat['summit'];
-              getUsersList(dat);
+              getUsersList(path,dat);
               getCurrentSetting();
             }
 
@@ -336,12 +340,16 @@ jQuery(function($) {
 //old version
 function getCurrentSetting(){
 
-     var titles = config['column_table']
-     var html = ''
+     var titles = config['column_table'];
+     var html = '';
+     var options = '';
      for(var p in titles){
          if (!titles.hasOwnProperty(p)) continue;
-        var ischeck = titles[p]['active'] ? 'check' : ''
-       var isdraggable = titles[p]['editable'] ? 'draggable' : 'disable'
+        var ischeck = titles[p]['active'] ? 'check' : '';
+       var isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
+       if (titles[p].active == true) {
+        options += '<option>' + titles[p].title + '</option>'
+       }
         html += '<li '+ isdraggable  + ' >'+
 
            '<input id="'+  titles[p]['ordering_title']   +'" type="checkbox">'+

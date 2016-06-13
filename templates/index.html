@@ -9,6 +9,7 @@ CRM
 	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-XdYbMnZ/QjLh6iI4ogqCTaIjrFk87ip+ekIjefZch0Y+PvJ8CDYtEs1ipDmPorQ+" crossorigin="anonymous">
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/css/select2.min.css" rel="stylesheet" />
 	<link rel="stylesheet" href="{% static 'css/cropper.min.css' %}">
+        <link rel="stylesheet" href="{% static 'css/main.css'%}">
 {%endblock%}
 
 {%block body%}
@@ -19,7 +20,10 @@ CRM
 <div class="page-width">
 
 		{% include 'sidebar.html' %}
-<div class="main-wrap">
+
+
+
+		<div class="main-wrap">
 
 			<div class="header">
 
@@ -37,14 +41,20 @@ CRM
 				    		<input type="text" placeholder="Поиск и фильтр" name="fullsearch">
 							</div>
 				    </li>
-				  </ul><!--End Top -->
 
+				  </ul><!--End Top -->
+					
 					<div class="top-buttons-wrap">
 					  <ul class="top-buttons"><!-- top-buttons -->
+						  <li>
+					    	<div class="searchDep">
+					    		<input type="text" placeholder="Поиск по названию отдела" name="searchDep">
+								</div>
+					    </li>
 					  	<li><button id="add">Добавить пользователя</button></li>
 					  	<li><button class="exp">Экспортировать</button></li>
 					  	<li><button id="sort-on">Изменить таблицу</button></li>
-
+					  	
 					  </ul><!--top-buttons -->
 
 				  </div>
@@ -61,7 +71,7 @@ CRM
 							</div>
 						</div>
 					</div>
-
+				
 					<div class="user-hover massage-hover">
 						<div class="hover-wrapper">
 							<div class="top-box">
@@ -79,24 +89,24 @@ CRM
 
 
 			</div><!--End header -->
-	<div class="top-pag">
-			<div class="pagination"><!--pagination -->
-
+	<div class="top-pag">	
+			<div class="pagination"><!--pagination -->	
+			
 				<div class="query">
 					<p >По запросу найдено <span id="total_count"></span> человек</p>
-				</div>
+				</div>		
 				<div class="pag-wrap">
 
 				</div>
 			</div><!--End pagination -->
-	</div>
+	</div>		
 			<div class="table-wrap  clearfix" id="database_users"><!--Table -->
 				<div class="table scrollbar-inner" id="baseUsers"></div>
 				<div class="query-none">
 						<p></p>
 				</div>
-
-
+				
+				
 			</div><!--End Table -->
 
 			<div class="pagination full-width"><!--pagination -->
@@ -104,10 +114,10 @@ CRM
 						<p>Показано <span>10</span> из <span>500</span></p>
 				</div>-->
 				<div class="element-select">
-
+						
 				</div>
 				<div class="pag-wrap">
-
+			
 				</div>
 			</div><!--End pagination -->
 
@@ -125,7 +135,7 @@ CRM
 									</ul>
 								</div>
 								<div class="dropbox-wrap">
-
+	
 								</div>
 
 
@@ -169,7 +179,7 @@ CRM
 									</div>
 									<button>Выбрать</button>
 								</div>
-
+				
 								<div class="rows-wrap">
 									<div class="rows">
 										<div class="col">
@@ -202,7 +212,7 @@ CRM
 					<div class="columns-wrap">
 					<div class="col-1">
 						<div id="edit-photo" class="anketa-photo">
-							<img src="{% static img/no-usr.jpg' %}" alt="photo">
+							<img src="{% static 'img/no-usr.jpg' %}" alt="photo">
 						</div>
 						<div class="butt-wrap">
 							<form style="display:none" enctype="multipart/form-data" method="post">
@@ -276,7 +286,7 @@ CRM
 					<div class="col-table">
 						<div class="left-info">
 									<ul>
-										<li>Отдел*</li>
+										<li>Отдел*</li>										
 										<li>Статус*</li>
 										<li>Статус ответственного*</li>
 										<li>Ответственный*</li>
@@ -319,7 +329,7 @@ CRM
 							<div class="col-table">
 								<div class="left-info">
 									<ul>
-										<li>Партнёр</li>
+										<li>Партнёр</li>										
 									</ul>
 									<ul class="hidden-partner" style="display:none">
 										<li>Партнёр с</li>
@@ -331,7 +341,7 @@ CRM
 									<ul>
 										<li><input type="checkbox" id="partner">
 										<label for="partner"></label>
-										</li>
+										</li>										
 									</ul>
 									<ul class="hidden-partner" style="display:none">
 										<li><input name="partnership_date" type="text" id="partnerFrom" readonly="readonly"></li>
@@ -369,7 +379,7 @@ CRM
 									</ul>
 								</div>
 							</div>
-
+							
 					</div><!--End col-3-->
 					<div class="splash-bauttons">
 						<button class="close">Отменить</button>

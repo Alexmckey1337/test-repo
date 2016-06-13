@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from django.db import models
 from collections import OrderedDict
-
+from datetime import date
 
 class SummitType(models.Model):
     title = models.CharField(max_length=100, verbose_name='Название саммита')
@@ -47,6 +47,12 @@ class SummitAnket(models.Model):
     description = models.CharField(max_length=255, blank=True)
     code = models.CharField(max_length=8, blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True)
+    first_name = models.CharField(max_length=255, blank=True, null=True)
+    last_name = models.CharField(max_length=255, blank=True, null=True)
+    pastor = models.CharField(max_length=255, blank=True, null=True)
+    bishop = models.CharField(max_length=255, blank=True, null=True)
+    date = models.DateField(default=date.today())
+    department = models.CharField(max_length=255, blank=True, null=True)
     class Meta:
         unique_together = (('user', 'summit'),)
 

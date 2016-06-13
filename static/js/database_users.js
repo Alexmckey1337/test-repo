@@ -7,6 +7,13 @@ $(function() {
         }, 1500);
     });
 
+    $('input[name="searchDep"]').keyup(function() {
+
+        delay(function() {
+            createUserDep()
+        }, 1500);
+    });
+
     document.getElementById('sort_save').addEventListener('click', function() {
         updateSettings(createUser);
         $(".table-sorting").animate({
@@ -14,7 +21,7 @@ $(function() {
         }, 10, 'linear')
     })
 
-
+    
 
 
 });
@@ -56,7 +63,7 @@ function createUserInfoBySearch(data, search) {
     for (var title in config['column_table']) {
         if (!config['column_table'][title]['active'] && config['column_table'][title]['editable']) continue
 
-        var blue_icon = typeof  ordering[config['column_table'][title]['ordering_title']]  == 'undefined' ? '' : 'blue_icon_active'
+        var blue_icon = typeof  ordering[config['column_table'][title]['ordering_title']]  == 'undefined' ? '' : 'blue_icon_active'  
    // console.log(typeof  ordering[config['column_table'][title]['ordering_title']]  == 'undefined')
 
         if (ordering[config['column_table'][title]['ordering_title']]) {
@@ -83,7 +90,7 @@ function createUserInfoBySearch(data, search) {
 
         for (var j = page - 2; j < page + 3; j++) {
 
-
+             
 
             if (j == page) {
                 paginations += '<li class="active">' + j + '</li>'
@@ -101,7 +108,7 @@ function createUserInfoBySearch(data, search) {
                         paginations += '<li>'+ pages +'</li>'
                      }
 
-
+                    
                 }
         paginations += '</ul>'
     }
@@ -128,8 +135,8 @@ function createUserInfoBySearch(data, search) {
         tbody += '<tr data-id="'+ id_parent_subordinate  +'">';
         for (var prop in config['column_table']) {
             if (prop in list_fields) {
-                if (prop == 'social' && config['column_table']['social'] && config['column_table']['social']['active']) {
-                        tbody += '<td>';
+                if (prop == 'social' && config['column_table']['social'] && config['column_table']['social']['active']) {   
+                        tbody += '<td>';                                      
                         for (var p in list_fields[prop]) {
                             if (list_fields[prop][p] == '') {
                                 continue
@@ -147,16 +154,16 @@ function createUserInfoBySearch(data, search) {
                                   case 'odnoklassniki':
                                     tbody += '<a href="'+list_fields[prop].odnoklassniki+'"><i class="fa fa-odnoklassniki" aria-hidden="true"></i></a>';
                                     break;
-                                }
+                                } 
                             }
                         }
-                        tbody += '</td>';
+                        tbody += '</td>';                                                                      
                     } else if ((!config['column_table'][prop]['active'] && config['column_table'][prop]['editable'])) {
                         continue;
                     } else if (prop == 'fullname') {
                         tbody += '<td><a href="/account/'+id_parent_subordinate+'">' + list_fields[prop]['value'] + '</a></td>'
                     } else {
-                        tbody += '<td>' + list_fields[prop]['value'] + '</td>';
+                        tbody += '<td>' + list_fields[prop]['value'] + '</td>';  
                     }
                }
         }
@@ -257,6 +264,20 @@ function createUser(data) {
     var search = document.getElementsByName('fullsearch')[0].value;
     if (search && !data['sub']) {
         data['search'] = search;
+    }
+    document.getElementsByClassName('preloader')[0].style.display = 'block'
+    ajaxRequest(path, data, function(answer) {
+        //  document.getElementsByClassName('preloader')[0].style.display = 'block'
+        createUserInfoBySearch(answer, data)
+    })
+}
+
+function createUserDep(data) {
+    var path = config.DOCUMENT_ROOT + 'api/users/?'
+    var data = data || {}
+    var search = document.getElementsByName('searchDep')[0].value;
+    if (search && !data['sub']) {
+        data['department__title'] = search;
     }
     document.getElementsByClassName('preloader')[0].style.display = 'block'
     ajaxRequest(path, data, function(answer) {
