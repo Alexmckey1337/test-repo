@@ -13,7 +13,7 @@ class SummitAnketResource(resources.ModelResource):
         #          'born_date', 'facebook', 'vkontakte', 'description',
         #          'department', 'hierarchy', 'master')
         exclude = ('id', 'user', 'summit', 'value', 'description', )
-        export_order = ('last_name', 'first_name', 'code', 'pastor', 'bishop', 'date', 'department', )
+        export_order = ('last_name', 'first_name', 'code', 'pastor', 'bishop','sotnik', 'date', 'department', )
         #                'email', 'phone_number', 'skype', 'country', 'city', 'address',
         #                'born_date', 'facebook', 'vkontakte', 'description',
         #                'department', 'hierarchy', 'master')
@@ -63,6 +63,22 @@ def get_bishop(user):
         pass
 
 
+def get_sot(user):
+    if user.hierarchy.level == 2:
+        return user
+    #print "%s, %s" % (user.short, user.hierarchy.level)
+    if user.master:
+        if user.master.hierarchy.level == 2:
+            #print "got master %s, finish" % user.master.short
+            return user.master
+        else:
+            #print "got master %s, continue" % user.master.short
+            return get_sot(user.master)
+    else:
+        #print "no master, stop"
+        pass
+
+
 
 
 def find_pastor(anket):
@@ -78,6 +94,30 @@ def find_pastor(anket):
     anket.save()
 
 
+def find_sot(anket):
+    user = anket.user
+    sot = get_sot(user)
+    if sot:
+        anket.sotnik = sot.short
+        print sot.short
+    anket.save()
+
+def make_table_sot():
+    ankets = SummitAnket.objects.all()
+    for anket in ankets.all().order_by('id'):
+        find_sot(anket)
+    print 'ok'
+
+def clear_table_sot():
+    ankets = SummitAnket.objects.all()
+    for anket in ankets.all().order_by('id'):
+        anket.sotnik = ""
+        anket.save()
+    print 'ok'
+
+
+
+
 def make_table():
     i = 0
     ankets = SummitAnket.objects.all()
@@ -85,20 +125,37 @@ def make_table():
         anket.name = anket.user.short
         anket.first_name = anket.user.first_name
         anket.last_name = anket.user.last_name
-        summit_id = 2000000 + i
+        summit_id = 3000000 + i
         summit_id_str = '0%i' % summit_id
-        i += 1
         anket.code = summit_id_str
-        find_pastor(anket) 
+        print anket.code
+        find_pastor(anket)
+        i += 1 
     print 'OK'  
 
+def make_table_fix():
+    i = 0
+    ankets = SummitAnket.objects.all()
+    for anket in ankets.all().order_by('id'):
+        if anket.user.last_name == 'Строгова':
+            i = 2371
+            print "СТРОГОВА " + anket.code
+        anket.first_name = anket.user.first_name
+        anket.last_name = anket.user.last_name
+        summit_id = 2000000 + i
+        summit_id_str = '0%i' % summit_id
+        anket.code = summit_id_str
+        print anket.code
+        find_pastor(anket)
+        i += 1
+    print 'OK'
 
 
 from shutil import copyfile
 from edem.settings import MEDIA_ROOT
 
 def check_images():
-    ankets = SummitAnket.objects.all().order_by('id')[:1000]
+    ankets = SummitAnket.objects.all().order_by('id')[:2367]
     i = 0
     for anket in ankets.all():
         if not anket.user.image:
@@ -109,11 +166,14 @@ def check_images():
 
 
 def copy_images():
-    ankets = SummitAnket.objects.all().order_by('id')[:1000]
+    ankets = SummitAnket.objects.all().order_by('id')
     destination_folder = '/summit_images/'
     for anket in ankets.all():
         if anket.user.image: 
             path = anket.user.image.path
-            destination = MEDIA_ROOT + destination_folder + anket.code + '.jpg'
-            copyfile(path, destination)
-            print 'copied %s' % anket.code
+            if anket.code == '':
+                pass
+            else: 
+                destination = MEDIA_ROOT + destination_folder + anket.code + '.jpg'
+                copyfile(path, destination)
+                print 'copied %s' % anket.code

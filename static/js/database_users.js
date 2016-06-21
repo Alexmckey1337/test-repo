@@ -262,8 +262,9 @@ function createUser(data) {
     var path = config.DOCUMENT_ROOT + 'api/users/?'
     var data = data || {}
     var search = document.getElementsByName('fullsearch')[0].value;
+    var filter = document.getElementById('filter').value;
     if (search && !data['sub']) {
-        data['search'] = search;
+        data[filter] = search;
     }
     document.getElementsByClassName('preloader')[0].style.display = 'block'
     ajaxRequest(path, data, function(answer) {

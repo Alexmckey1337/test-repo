@@ -25,7 +25,7 @@ from rest_framework.permissions import IsAuthenticated
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.filter(is_active=True).all().order_by('-hierarchy__level')
+    queryset = User.objects.filter(is_active=True).all().order_by('-date_joined')
     serializer_class = UserSerializer
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
@@ -42,7 +42,7 @@ class UserViewSet(viewsets.ModelViewSet):
     filter_fields = ('first_name', 'last_name', 'middle_name',
                      'born_date', 'email', 'department__title',
                      'country', 'region', 'city', 'district', 'address',
-                     'skype', 'phone_number', 'hierarchy__level', 'master', )
+                     'skype', 'phone_number', 'hierarchy__level', 'master', 'master__last_name', )
 
     def dispatch(self, request, *args, **kwargs):
         if kwargs.get('pk') == 'current' and request.user.is_authenticated():

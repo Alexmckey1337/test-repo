@@ -53,8 +53,10 @@ class SummitAnketViewSet(viewsets.ModelViewSet):
                      'user__phone_number',
                      'user__city',
                      'user__department__title',
+                     'user__master__last_name',
+                     'user__email',
                      )
-    ordering_fields = ('user__first_name', 'user__last_name',
+    ordering_fields = ('user__first_name', 'user__last_name', 'user__master__last_name',
                        'user__middle_name', 'user__born_date', 'user__country',
                        'user__region', 'user__city', 'user__district',
                        'user__address', 'user__skype', 'user__phone_number',

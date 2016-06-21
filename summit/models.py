@@ -51,6 +51,7 @@ class SummitAnket(models.Model):
     last_name = models.CharField(max_length=255, blank=True, null=True)
     pastor = models.CharField(max_length=255, blank=True, null=True)
     bishop = models.CharField(max_length=255, blank=True, null=True)
+    sotnik = models.CharField(max_length=255, blank=True, null=True)
     date = models.DateField(default=date.today())
     department = models.CharField(max_length=255, blank=True, null=True)
     class Meta:

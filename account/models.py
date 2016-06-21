@@ -56,7 +56,7 @@ class CustomUser(User):
         return self.username
 
     class Meta:
-        ordering = ['last_name']
+        ordering = ['-date_joined']
 
     @property
     def hierarchy_chain(self):

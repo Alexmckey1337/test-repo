@@ -457,12 +457,16 @@ function createNewAcc() {
     document.querySelector("input[name='last_name']").style.border = '';
   }
 
-/*  if (!data['middle_name']) {
-    document.querySelector("input[name='middle_name']").style.border = '1px solid #d46a6a';
-    return;
+  if ($("#chooseCountry").val() == '206' || $("#chooseCountry").val() == '162') {
+    if (!data['middle_name']) {
+      document.querySelector("input[name='middle_name']").style.border = '1px solid #d46a6a';
+      return;
+    } else {
+      document.querySelector("input[name='middle_name']").style.border = '';
+    }
   } else {
-    document.querySelector("input[name='middle_name']").style.border = '';
-  }*/
+      document.querySelector("input[name='middle_name']").style.border = '';
+    }
 
   if (!data['email']) {
     document.querySelector("input[name='email']").style.border = '1px solid #d46a6a';

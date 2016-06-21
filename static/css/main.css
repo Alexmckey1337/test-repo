@@ -327,22 +327,28 @@ color:#434a55;
 
 .searchDep {
 	width:70%;
+	display: none;
 }
 
 .filter {
+	display: none;
 	position: absolute;
 	right:0;
-	top:3px;
-	width:130px;
+	top:0;
+	width:125px;
 }
 
 .filter .select2 {
-	width: 80%!important;
-	text-align: left;
+	width: 100%!important;
 }
 
 .filter .select2-container .select2-selection--single {
-	height:29px!important;
+	height:40px!important;
+	border-radius: 0;
+	border-top:none;
+	border-right:none;
+	border-bottom:none;
+
 }
 
 .filter .select2-container--default .select2-selection--single .select2-selection__arrow {
@@ -351,10 +357,12 @@ color:#434a55;
 
 .filter .select2-selection__arrow {
 	width:27px!important;
-	background: url('../img/down.png') no-repeat;
-	background-size: cover;
+	background: none!important;
 }
 
+.filter .select2-container .select2-selection--single .select2-selection__rendered {
+	padding: 5px 0 0 0!important;
+}
 /* #filter {
 	position: absolute!important;
 	right: 0;

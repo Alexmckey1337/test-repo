@@ -2,7 +2,6 @@
 
 var config = {
     'DOCUMENT_ROOT':'http://vocrm.org/',
-    //'DOCUMENT_ROOT': 'http://5.101.119.32:8008/',
     'pagination_count': 30, //Количество записей при пагинации
     'pagination_patrnership_count': 30, //Количество записей при пагинации for patrnership
 
@@ -12,20 +11,35 @@ var config = {
 
 
 /*search animate width*/
-/*$('.top input').focus(function() {
+  $('.top input').click(function() {
     $('.top .search').animate({width:"80%"});
     $('.filter').show();
   });
 
-$('.top input').blur(function() {
-  if( !this.value.length ){
-     $('.top .search').animate({width:"50%"});
-     $('.filter').hide();
-  }
+function hideFilter() {
+  //$('.top input').blur(function() {
+    if( !$('.top input').val().length ){
+       $('.top .search').animate({width:"50%"});
+       $('.filter').hide();
+    }
+  //});
+}
 
-});*/
+if (document.getElementById('filter')) {
+  $('#filter').select2();
+}
 
-//$('#filter').select2();
+if (document.getElementById('sort_save')) {
+  document.getElementById('sort_save').addEventListener('click', function() {
+          updateSettings(getCurrentSetting);
+          $(".table-sorting").animate({
+              right: '-300px'
+          }, 10, 'linear')
+      })
+}
+
+
+
 
 
 
@@ -139,7 +153,7 @@ $(document).ready(function(){
     $('#hint').css('top',a).fadeIn();
   })
 
-
+  
   $('.editprofile input').keypress(function(el){if(el.charCode == '32'){return false}})
 
   $('body').on('mouseout', '.toggle-sidebar a', function(el) {
@@ -232,9 +246,12 @@ function deleteCookie(name) {
       document.querySelector('.massage-hover').style.display == 'block' ? document.querySelector('.massage-hover').style.display = 'none' :
       document.querySelector('.massage-hover').style.display = 'block';
       document.querySelector(".photo-hover").style.display = 'none';
+    } else if (el.target == document.querySelector('.top input') || el.target == document.querySelector('#select2-filter-container')) {
+        return
     } else {
       document.querySelector('.massage-hover').style.display = 'none';
       document.querySelector(".photo-hover").style.display = 'none';
+      hideFilter();
     }
   })
 
@@ -342,14 +359,10 @@ function getCurrentSetting(){
 
      var titles = config['column_table'];
      var html = '';
-     var options = '';
      for(var p in titles){
          if (!titles.hasOwnProperty(p)) continue;
         var ischeck = titles[p]['active'] ? 'check' : '';
        var isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
-       if (titles[p].active == true) {
-        options += '<option>' + titles[p].title + '</option>'
-       }
         html += '<li '+ isdraggable  + ' >'+
 
            '<input id="'+  titles[p]['ordering_title']   +'" type="checkbox">'+
@@ -363,7 +376,7 @@ function getCurrentSetting(){
 
 
      document.getElementById('sort-form').innerHTML = html;
-
+    
     /*var cols = document.querySelectorAll('[draggable]');
     Array.prototype.forEach.call(cols, function(col) {
       col.addEventListener('drop', handleDrop, false);

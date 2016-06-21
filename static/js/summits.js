@@ -325,8 +325,14 @@ function addSummitInfo() {
 function getUsersList(path,param) {
     var param = param || {};
     var search = document.getElementsByName('fullsearch')[0].value;
+    var filter = document.getElementById('filter').value;
     if (search) {
-        param['search'] = search;
+        if (filter == 'search') {
+          param[filter] = search;
+        } else {
+          param['user__'+filter] = search;
+        }
+        
     }
     param['summit'] = summit_id;
     document.getElementsByClassName('preloader')[0].style.display = 'block';
