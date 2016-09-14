@@ -240,6 +240,11 @@ function registerUserNew(id,summit_id,money, description) {
                 "value": money,
                 "description": description
             }
+        if (document.getElementById('check').checked) {
+          data['retards'] = true;
+          data['code'] = document.getElementById('code').value;
+        }
+        console.log(data);
         var json = JSON.stringify(data);
         ajaxRequest(config.DOCUMENT_ROOT+'api/summit_ankets/post_anket/', json, function(JSONobj) {
             if(JSONobj.status){

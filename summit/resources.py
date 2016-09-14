@@ -1,8 +1,9 @@
+
 # -*- coding: utf-8
 from import_export import resources
 from account.models import CustomUser as User
 from models import SummitAnket
-
+from hierarchy.models import Department
 
 class SummitAnketResource(resources.ModelResource):
     """For excel import/export"""
@@ -12,20 +13,19 @@ class SummitAnketResource(resources.ModelResource):
         #          'email', 'phone_number', 'skype', 'country', 'city', 'address',
         #          'born_date', 'facebook', 'vkontakte', 'description',
         #          'department', 'hierarchy', 'master')
-        exclude = ('id', 'user', 'summit', 'value', 'description', )
-        export_order = ('last_name', 'first_name', 'code', 'pastor', 'bishop','sotnik', 'date', 'department', )
-        #                'email', 'phone_number', 'skype', 'country', 'city', 'address',
-        #                'born_date', 'facebook', 'vkontakte', 'description',
-        #                'department', 'hierarchy', 'master')
+        exclude = ('id', 'user', 'summit', 'value', 'description', 'protected', 'retards', )
+        #exclude = ('id', 'user', 'summit', 'value', 'description', 'protected', 'last_name', 'first_name', 'city', 'bishop', 'date', )
+        #export_order = ('last_name', 'first_name', 'code', 'pastor', 'bishop','sotnik', 'date', 'department', 'city', )
+        export_order = ('code', 'name', 'country', 'region', 'department', 'responsible', 'image', 'phone_number', 'last_name', 'first_name', 'pastor', 'bishop', 'sotnik', 'date', 'city', )
 
 
 
 def fill():
     i = 0
-    ankets = SummitAnket.objects.all()
+    ankets = SummitAnket.objects.filter(protected=False).all()
     for anket in ankets.all().order_by('id'):
         anket.name = anket.user.short
-        summit_id = 2000000 + i
+        summit_id = 4000000 + i
         summit_id_str = '0%i' % summit_id
         anket.code = summit_id_str
         anket.save()
@@ -75,8 +75,7 @@ def get_sot(user):
             #print "got master %s, continue" % user.master.short
             return get_sot(user.master)
     else:
-        #print "no master, stop"
-        pass
+        return None
 
 
 
@@ -87,8 +86,12 @@ def find_pastor(anket):
     bishop = get_bishop(user)
     if pastor:
         anket.pastor = pastor.short
+    else:
+        anket.pastor = ""
     if bishop:
         anket.bishop = bishop.short
+    else:
+        anket.bishop = ""
     anket.date = user.date_joined
     anket.department = user.department.title
     anket.save()
@@ -99,55 +102,86 @@ def find_sot(anket):
     sot = get_sot(user)
     if sot:
         anket.sotnik = sot.short
-        print sot.short
+    else:
+        anket.sotnik = ''
     anket.save()
 
-def make_table_sot():
-    ankets = SummitAnket.objects.all()
-    for anket in ankets.all().order_by('id'):
-        find_sot(anket)
-    print 'ok'
 
-def clear_table_sot():
-    ankets = SummitAnket.objects.all()
-    for anket in ankets.all().order_by('id'):
-        anket.sotnik = ""
+def get_fields(anket):
+    d = Department.objects.get(id=2)
+    anket.name = anket.user.short
+    anket.country = anket.user.country
+    anket.region = anket.user.region
+    anket.phone_number = anket.user.phone_number
+    anket.first_name = anket.user.first_name
+    anket.last_name = anket.user.last_name
+    anket.city = anket.user.city
+    if not anket.code:
+        summit_id = 4000000 + anket.id
+        summit_id_str = '0%i' % summit_id
+        anket.code = summit_id_str
+    #print anket.code
+    find_pastor(anket)
+    find_sot(anket)
+    if anket.pastor:
+        anket.responsible = anket.pastor
+    elif anket.sotnik:
+        anket.responsible = anket.sotnik
+    else:
+        anket.responsible = anket.bishop
+    if anket.user.department == d:
+        anket.responsible = anket.bishop
+    anket.image = "%s.jpg" % anket.code
+    anket.save()
+
+
+def doch():
+    from hierarchy.models import Department
+    d = Department.objects.get(id=2)
+    ankets = SummitAnket.objects.filter(user__department=d).all()
+    for anket in ankets:
+        anket.responsible = anket.bishop
         anket.save()
-    print 'ok'
-
 
 
 
 def make_table():
-    i = 0
+    ankets = SummitAnket.objects.all()
+    for anket in ankets.all().order_by('id'):
+        get_fields(anket)
+    print 'OK'  
+
+def make_table_prt():
+    ankets = SummitAnket.objects.filter(protected=True).all()
+    for anket in ankets.all().order_by('id'):
+        print anket.code
+        find_pastor(anket)
+        find_sot(anket)
+        if anket.pastor:
+            anket.responsible = anket.pastor
+        elif anket.sotnik:
+            anket.responsible = anket.sotnik
+        else:
+            anket.responsible = anket.bishop
+        anket.image = "%s.jpg" % anket.code
+        anket.save()
+    print 'OK'
+
+
+
+
+
+
+
+def make_table_fix():
     ankets = SummitAnket.objects.all()
     for anket in ankets.all().order_by('id'):
         anket.name = anket.user.short
-        anket.first_name = anket.user.first_name
-        anket.last_name = anket.user.last_name
-        summit_id = 3000000 + i
-        summit_id_str = '0%i' % summit_id
-        anket.code = summit_id_str
-        print anket.code
-        find_pastor(anket)
-        i += 1 
-    print 'OK'  
-
-def make_table_fix():
-    i = 0
-    ankets = SummitAnket.objects.all()
-    for anket in ankets.all().order_by('id'):
-        if anket.user.last_name == 'Строгова':
-            i = 2371
-            print "СТРОГОВА " + anket.code
-        anket.first_name = anket.user.first_name
-        anket.last_name = anket.user.last_name
-        summit_id = 2000000 + i
-        summit_id_str = '0%i' % summit_id
-        anket.code = summit_id_str
-        print anket.code
-        find_pastor(anket)
-        i += 1
+        anket.country = anket.user.country
+        anket.region = anket.user.region
+        anket.phone_number = anket.user.phone_number
+        anket.save()
+        print anket.name
     print 'OK'
 
 

@@ -54,6 +54,14 @@ class SummitAnket(models.Model):
     sotnik = models.CharField(max_length=255, blank=True, null=True)
     date = models.DateField(default=date.today())
     department = models.CharField(max_length=255, blank=True, null=True)
+    protected = models.BooleanField(default=False)
+    city = models.CharField(max_length=255, blank=True, null=True)
+    country = models.CharField(max_length=255, blank=True, null=True)
+    region = models.CharField(max_length=255, blank=True, null=True)
+    phone_number = models.CharField(max_length=255, blank=True, null=True)
+    responsible = models.CharField(max_length=255, blank=True, null=True)
+    image = models.CharField(max_length=12, blank=True, null=True)
+    retards = models.BooleanField(default=False)
     class Meta:
         unique_together = (('user', 'summit'),)
 

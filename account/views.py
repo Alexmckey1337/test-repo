@@ -117,6 +117,7 @@ def login_view(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
+                response_dict['uid'] = user.id
                 response_dict['message'] = u"Добро пожаловать"
                 response_dict['status'] = True
             else:

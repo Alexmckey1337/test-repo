@@ -7,7 +7,7 @@ from account.models import CustomUser as User
 class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = SummitAnket
-        fields = ('info', 'common',)
+        fields = ('info', 'common', 'code', )
 
 
 class SummitSerializer(serializers.HyperlinkedModelSerializer):

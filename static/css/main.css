@@ -327,7 +327,7 @@ color:#434a55;
 
 .searchDep {
 	width:70%;
-	display: none;
+	display:none;
 }
 
 .filter {
@@ -2790,7 +2790,7 @@ border-color: red;
 }
 
 #add_user_parners{
-	display: none
+	display: block
 }
 
 div#hint {
@@ -2840,7 +2840,7 @@ div#hint:before {
 
 
 .manager_view{
-	display: none;
+	display: block;
 }
 .top h1 a {
 	color:#abbdd6;
@@ -2955,4 +2955,16 @@ div.butt-wrap > p:nth-child(3) {
 
 .phone .select2-selection__arrow {
 	width:38px!important;
+}
+
+div.code {
+	float: left;
+	padding: 20px;
+}
+
+div.code input#code{
+	border: 1px solid #cdd0d4;
+	border-radius: 3px;
+	background-color: #f2f5fa;
+	padding: 5px;
 }

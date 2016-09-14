@@ -7,13 +7,17 @@ class UserResource(resources.ModelResource):
     """For excel import/export"""
     class Meta:
         model = User
-        #fields = ('id', 'username', 'last_name', 'first_name', 'middle_name',
+        # fields = ('id', 'username', 'last_name', 'first_name', 'middle_name',
         #          'email', 'phone_number', 'skype', 'country', 'city', 'address',
         #          'born_date', 'facebook', 'vkontakte', 'description',
         #          'department', 'hierarchy', 'master')
+        fields = ('id', 'username', 'last_name', 'first_name', 'middle_name',
+                  'email', 'phone_number', 'skype', 'country', 'city', 'address',
+                  'born_date', 'facebook', 'vkontakte', 'description',)
         exclude = ('user_ptr', 'password', 'last_login', 'is_superuser', 'groups', 'user_permissions', 'is_staff',
                    'is_active', 'date_joined', 'image', 'hierarchy_order',)
-        #export_order = ('id', 'username', 'last_name', 'first_name', 'middle_name',
+        # fields = ('id', 'username', 'last_name', 'first_name', 'middle_name')
+        # export_order = ('id', 'username', 'last_name', 'first_name', 'middle_name',
         #                'email', 'phone_number', 'skype', 'country', 'city', 'address',
         #                'born_date', 'facebook', 'vkontakte', 'description',
         #                'department', 'hierarchy', 'master')
@@ -53,15 +57,15 @@ def setHierarchyOrder(user, b):
         master_salt = user.hierarchy_order
     users = user.disciples.order_by('last_name').all()
     i = 1
-    print "%s : %d" % (user.last_name, user.hierarchy_order) 
+    print "%s : %d" % (user.last_name, user.hierarchy_order)
     for user in users.all():
         exponent = (user.hierarchy.level - 1) * 2
         salt = pow(10, exponent)
         user.hierarchy_order = master_salt + (i * salt)
         user.save()
-        print "%s : %d" % (user.last_name, user.hierarchy_order) 
+        print "%s : %d" % (user.last_name, user.hierarchy_order)
         i += 1
-        
+
 def manage(level):
     if level >= 2:
         masters = User.objects.filter(hierarchy__level=level).all()

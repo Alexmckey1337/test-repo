@@ -10,6 +10,7 @@ from account.serializers import UserSerializer
 import rest_framework_filters as filters_new
 from rest_framework.permissions import IsAuthenticated
 # Create your views here.
+from resources import get_fields
 
 
 class SummitPagination(PageNumberPagination):
@@ -86,9 +87,23 @@ class SummitAnketViewSet(viewsets.ModelViewSet):
                                     'status': True}
                         else:
                             if len(request.data['value']) > 0:
-                                SummitAnket.objects.create(user=user, summit=summit, value=request.data['value'], description=request.data['description'])
+                                s = SummitAnket.objects.create(user=user, summit=summit, value=request.data['value'], description=request.data['description'])
+                                if 'retards' in keys:
+                                    if request.data['retards']:
+                                        s.retards = request.data['retards']
+                                        s.code = request.data['code']
+                                    get_fields(s)
+                                else:
+                                    get_fields(s)                                
                             else:
-                                SummitAnket.objects.create(user=user, summit=summit, description=request.data['description'])
+                                s = SummitAnket.objects.create(user=user, summit=summit, description=request.data['description'])
+                                if 'retards' in keys:
+                                    if request.data['retards']:
+                                        s.retards = request.data['retards']
+                                        s.code = request.data['code']
+                                    get_fields(s)
+                                else:
+                                    get_fields(s)
                             data = {"message": u"Данные успешно сохраненны",
                                     'status': True}
                     else:
@@ -208,3 +223,18 @@ class SummitUnregisterUserViewSet(viewsets.ModelViewSet):
     search_fields = ('first_name', 'last_name', 'middle_name',
                      'country', 'region', 'city', 'district',
                      'address', 'email', )
+
+
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from resources import make_table
+
+
+@api_view(['GET'])
+def generate(request):
+    try:
+        make_table()
+        r = "Все ок, чувак"
+    except:
+        r = "Что-то пошло пиздец как не так"
+    return Response(r)

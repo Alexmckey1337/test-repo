@@ -21,24 +21,3 @@ app.conf.update(
 @app.task(bind=True)
 def debug_task(self):
     print('Request: {0!r}'.format(self.request))
-
-from celery.schedules import crontab
-@shared_task
-def add():
-    return 4 + 5
-
-
-
-CELERYBEAT_SCHEDULE = {
-    # Executes every day morning at 00:05 A.M
-    'add-every-day': {
-        'task': 'create',
-        'schedule': crontab(hour=00, minute=05),
-    },
-    'add-every-30-seconds': {
-        'task': 'add',
-        'schedule': timedelta(seconds=30),
-    },
-}
-
-CELERY_TIMEZONE = 'UTC'

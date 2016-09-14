@@ -182,8 +182,17 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TIMEZONE = 'Europe/Kiev'
 CELERY_ENABLE_UTC = True
-CELERY_IMPORTS = ('report.tasks',)
+CELERY_IMPORTS = ('summit.tasks',)
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+#from celery import crontab
+
+CELERYBEAT_SCHEDULE = {
+    'every_01_hour': {
+        'task': 'generate',
+  #      'schedule': crontab(minute=0, hour=1),
+    },
+}
+
 
 #SESSION_COOKIE_AGE = 1
 SITE_DOMAIN_URL = 'http://vocrm.org/'

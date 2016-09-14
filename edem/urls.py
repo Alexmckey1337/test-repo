@@ -57,6 +57,7 @@ urlpatterns = [
     url(r'^api/', include('tv_crm.urls')),
     url(r'^api/', include('hierarchy.urls')),
     url(r'^api/', include('navigation.urls')),
+    url(r'^api/', include('summit.urls')),
     url(r'^', include('main.urls')),
     url(r'^', include('django.contrib.auth.urls')),
 ]

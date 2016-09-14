@@ -195,6 +195,7 @@ function create_partnerships(data) {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/create_partnership', json, function(JSONobj) {
 
         if (JSONobj.status) {
+            $(".choose-user-wrap").hide()
             showPopup(JSONobj.message);
             //partners_initialize();
         } else {
