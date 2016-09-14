@@ -113,15 +113,23 @@ class Partnership(models.Model):
 
 
 class Deal(models.Model):
-    date = models.DateField()
+    date = models.DateField(null=True, blank=True)
+    date_created = models.DateField(null=True, blank=True, auto_now_add=True)
     value = models.IntegerField()
-    partnership = models.ForeignKey('partnership.Partnership', related_name="deals")
-    description = models.TextField()
+    partnership = models.ForeignKey('partnership.Partnership', related_name="deals", unique_for_month='date_created')
+    description = models.TextField(blank=True)
     done = models.BooleanField(default=False)
     expired = models.BooleanField(default=False)
 
+    class Meta:
+        ordering = ('date_created',)
+
     def __unicode__(self):
         return "%s : %s" % (self.partnership, self.date)
+
+    @property
+    def month(self):
+        return '{}.{}'.format(self.date_created.year, self.date_created.month)
 
     @property
     def fields(self):

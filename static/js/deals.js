@@ -561,7 +561,7 @@ function getPartnersList(param) {
         "count":"Количество сделок",
         "result_value" : "Итого"
     }
-    var path = config.DOCUMENT_ROOT + '/api/partnerships/?'
+    var path = config.DOCUMENT_ROOT + 'api/partnerships/?'
     var search = document.getElementsByName('fullsearch')[0].value;
     if (search) {
         param['search'] = search;

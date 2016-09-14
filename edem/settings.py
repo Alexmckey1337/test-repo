@@ -25,7 +25,7 @@ SECRET_KEY = '4y6l3@a0%vq394z6+w)k3-wl459r++v=z!jv1gw4+nt0sd5z+s'
 # SECURITY WARNING: don't run with debug turned on in production!
 
 DEBUG = False
-#DEBUG = True
+# DEBUG = True
 ALLOWED_HOSTS = ['vocrm.org']
 
 
@@ -100,7 +100,8 @@ DATABASES = {
         'USER': 'crmuse',
         'PASSWORD': '123456',
         'OPTIONS': {
-           "init_command": "SET storage_engine=MYISAM",
+            "init_command": "SET storage_engine=MYISAM",
+            # "init_command": "SET default_storage_engine=MYISAM",
         }
     }
 }
@@ -136,6 +137,7 @@ USE_TZ = True
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 STATIC_URL = '/static/'
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -174,22 +176,28 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = 'testzormail@gmail.com'
 
+import djcelery
+djcelery.setup_loader()
 
-# CELERY STUFF
-BROKER_URL = 'amqp://localhost'
+BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TIMEZONE = 'Europe/Kiev'
 CELERY_ENABLE_UTC = True
-CELERY_IMPORTS = ('summit.tasks',)
-CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
-#from celery import crontab
+CELERY_TASK_RESULT_EXPIRES = 7 * 86400  # 7 days
+CELERY_SEND_EVENTS = True
 
 CELERYBEAT_SCHEDULE = {
-    'every_01_hour': {
-        'task': 'generate',
-  #      'schedule': crontab(minute=0, hour=1),
+    'create_deals': {
+        'task': 'create_new_deals',
+       'schedule': 3600
+    },
+    'update_deals': {
+        'task': 'deals_to_expired',
+        'schedule': 3600
     },
 }
 

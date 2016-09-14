@@ -12,7 +12,8 @@ admin.site.register(Partnership, PartnershipAdmin)
 
 
 class DealAdmin(admin.ModelAdmin):
-    list_display = ('partnership', 'date', 'value', 'done', )
+    list_display = ('partnership', 'date_created', 'date', 'value', 'done', )
+    readonly_fields = ('date_created',)
 
     class Meta:
         model = Deal

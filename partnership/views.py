@@ -1,4 +1,6 @@
 # -*- coding: utf-8
+from datetime import datetime
+
 from models import Partnership, Deal
 from serializers import PartnershipSerializer, DealSerializer
 from rest_framework.decorators import api_view
@@ -201,6 +203,7 @@ def update_deal(request):
                 setattr(object, key, value)
             if object.done:
                 object.expired = False
+                object.date = datetime.now()
             object.save()
 
             serializer = DealSerializer(object, context={'request': request})

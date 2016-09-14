@@ -1,7 +1,7 @@
 amqp==1.4.9
 anyjson==0.3.3
 billiard==3.3.0.22
-celery==3.1.20
+celery==3.1.23
 diff-match-patch==20121119
 Django==1.9.1
 django-celery==3.1.17
@@ -22,4 +22,8 @@ six==1.10.0
 tablib==0.10.0
 wheel==0.26.0
 django-axes
+
+redis
+django-redis-cache==1.6.4
+django-redis-sessions==0.5.0
 

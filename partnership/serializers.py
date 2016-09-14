@@ -18,4 +18,5 @@ class DealSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Deal
-        fields = ('url', 'id', 'partnership', 'date', 'value', 'done', 'expired', 'description', 'fields', )
+        fields = ('url', 'id', 'partnership', 'date', 'date_created',
+                  'value', 'done', 'expired', 'description', 'fields', )
