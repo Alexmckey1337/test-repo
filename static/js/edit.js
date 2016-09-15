@@ -232,13 +232,13 @@ function init(id) {
         document.getElementById('town_drop').innerHTML = '<option selected="selected" value="">'+data_for_drop["city"]+'</option>';
         //
         //console.log(document.getElementById('town_drop').innerHTML)
-        initDropCustom('/api/departments/', 'department_drop', data.fields['department']['value'])
+        initDropCustom('api/departments/', 'department_drop', data.fields['department']['value'])
 
-        initDropCustom('/api/hierarchy/', 'statuses_drop', data.fields['hierarchy']['value'],
+        initDropCustom('api/hierarchy/', 'statuses_drop', data.fields['hierarchy']['value'],
 
         function(){
 
-        initDropCustom('/api/hierarchy/', 'statuses_drop_parent',data.fields['master_hierarchy'] ,
+        initDropCustom('api/hierarchy/', 'statuses_drop_parent',data.fields['master_hierarchy'] ,
 function(){
         getLeader(data_for_drop['master']) })
     })
@@ -655,7 +655,7 @@ function getPatrnershipInfo() {
     if (!id) {
         return
     }
-    var url = config.DOCUMENT_ROOT + '/api/partnerships/?user=' + id
+    var url = config.DOCUMENT_ROOT + 'api/partnerships/?user=' + id
 
     ajaxRequest(url, null, function(data) {
 

@@ -492,7 +492,7 @@ def create_or_update_partnership(data, user_id=None):
                     response_dict['status'] = True
                 except Partnership.DoesNotExist:
                     if 'responsible' in data.keys():
-                        responsible_partnerhip = Partnership.objects.filter(user__id=data['responsible']).first()
+                        responsible_partnerhip = Partnership.objects.filter(id=data['responsible']).first()
                         Partnership.objects.create(user=user, responsible=responsible_partnerhip, value=data['value'], date=data['date'])
                     else:
                         pass
