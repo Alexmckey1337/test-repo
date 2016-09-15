@@ -4,3 +4,4 @@
 *.pyc
 *.py[cod]
 *.sql
+edem/local_settings.py
