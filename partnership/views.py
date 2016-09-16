@@ -265,7 +265,8 @@ class PartnershipsUnregisterUserViewSet(viewsets.ModelViewSet):
                        filters.DjangoFilterBackend,)
     filter_fields = ('partnership',)
     search_fields = ('first_name', 'last_name', 'middle_name',
-                     'country', 'region', 'city', 'district',
-                     'address', 'email', )
+                     # 'country', 'region', 'city', 'district',
+                     # 'address', 'email',
+                     )
     permission_classes = (IsAuthenticated,)
 
