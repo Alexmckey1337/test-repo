@@ -1,12 +1,15 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
+
 from collections import OrderedDict
 from datetime import date
-from django.db.models import Sum, Count
 
 from django.db import models
+from django.db.models import Sum
+from django.utils.encoding import python_2_unicode_compatible
 
 
+@python_2_unicode_compatible
 class Partnership(models.Model):
     user = models.OneToOneField('account.CustomUser', related_name='partnership')
     responsible = models.ForeignKey('self', related_name='disciples', null=True, blank=True, on_delete=models.SET_NULL)
@@ -14,7 +17,7 @@ class Partnership(models.Model):
     date = models.DateField(default=date.today)
     is_responsible = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.user.get_full_name()
 
     @property
@@ -23,8 +26,7 @@ class Partnership(models.Model):
 
     @property
     def common(self):
-        return [u'Пользователь', u'Ответственный', u'Сумма', u'Количество сделок', u'Итого']
-
+        return ['Пользователь', 'Ответственный', 'Сумма', 'Количество сделок', 'Итого']
 
     @property
     def result_value(self):
@@ -58,13 +60,12 @@ class Partnership(models.Model):
         count = self.deals.filter(expired=True).count()
         return count
 
-
     @property
     def fields(self):
         l = self.user.fields
         d = OrderedDict()
         d['value'] = self.user.get_full_name()
-        l[u'user'] = d
+        l['user'] = d
 
         d = OrderedDict()
         if not self.is_responsible:
@@ -74,20 +75,20 @@ class Partnership(models.Model):
                 d['value'] = ''
         else:
             d['value'] = ''
-        l[u'responsible'] = d
+        l['responsible'] = d
 
         d = OrderedDict()
         d['value'] = self.value
-        l[u'value'] = d
+        l['value'] = d
 
         d = OrderedDict()
         d['value'] = self.deals_count
-        l[u'count'] = d
+        l['count'] = d
 
         if self.is_responsible:
             d = OrderedDict()
             d['value'] = self.disciples.count()
-            l[u'Количество партнеров'] = d
+            l['Количество партнеров'] = d
         else:
             pass
 
@@ -95,8 +96,8 @@ class Partnership(models.Model):
         d['value'] = self.result_value
         d['type'] = 'i'
         d['change'] = False
-        d['verbose'] = u'Итого'
-        l[u'result_value'] = d
+        d['verbose'] = 'Итого'
+        l['result_value'] = d
         return l
 
     @property
@@ -112,6 +113,7 @@ class Partnership(models.Model):
         return l
 
 
+@python_2_unicode_compatible
 class Deal(models.Model):
     date = models.DateField(null=True, blank=True)
     date_created = models.DateField(null=True, blank=True, auto_now_add=True)
@@ -124,7 +126,7 @@ class Deal(models.Model):
     class Meta:
         ordering = ('date_created',)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s : %s" % (self.partnership, self.date)
 
     @property
@@ -138,12 +140,12 @@ class Deal(models.Model):
         d = OrderedDict()
         d['value'] = self.id
         d['title'] = "Идентификатор сделки"
-        l[u'id'] = d
+        l['id'] = d
 
         d = OrderedDict()
         d['value'] = self.partnership.user.get_full_name()
         d['title'] = "Клиент"
-        l[u'fullname'] = d
+        l['fullname'] = d
 
         d = OrderedDict()
         if self.partnership.responsible:
@@ -151,36 +153,32 @@ class Deal(models.Model):
         else:
             d['value'] = ""
         d['title'] = "Ответственный"
-        l[u'responsible'] = d
+        l['responsible'] = d
 
         d = OrderedDict()
         d['value'] = self.date
         d['title'] = "Дата"
-        l[u'date'] = d
+        l['date'] = d
 
         d = OrderedDict()
         d['value'] = self.value
         d['title'] = "Сумма"
-        l[u'value'] = d
+        l['value'] = d
 
         d = OrderedDict()
         d['value'] = self.description
         d['title'] = "Описание"
-        l[u'description'] = d
-
+        l['description'] = d
 
         d = OrderedDict()
         if self.done:
-            d['value'] = u"done"
+            d['value'] = "done"
         else:
             if self.expired:
-                d['value'] = u"expired"
+                d['value'] = "expired"
             else:
-                d['value'] = u"undone"
+                d['value'] = "undone"
         d['title'] = "Статус"
-        l[u'status'] = d
+        l['status'] = d
 
         return l
-
-
-

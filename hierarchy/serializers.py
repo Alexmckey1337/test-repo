@@ -1,5 +1,9 @@
-from models import Department, Hierarchy
+# -*- coding: utf-8
+from __future__ import unicode_literals
+
 from rest_framework import serializers
+
+from .models import Department, Hierarchy
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
@@ -11,4 +15,4 @@ class DepartmentSerializer(serializers.ModelSerializer):
 class HierarchySerializer(serializers.ModelSerializer):
     class Meta:
         model = Hierarchy
-        fields = ('url', 'id', 'title', 'level', )
+        fields = ('url', 'id', 'title', 'level',)

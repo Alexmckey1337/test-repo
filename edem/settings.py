@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 """
 Django settings for edem project.
 
@@ -15,7 +17,6 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
@@ -27,7 +28,6 @@ SECRET_KEY = '4y6l3@a0%vq394z6+w)k3-wl459r++v=z!jv1gw4+nt0sd5z+s'
 DEBUG = False
 # DEBUG = True
 ALLOWED_HOSTS = ['vocrm.org']
-
 
 # Application definition
 
@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     'tv_crm',
     'summit',
     'location',
-#    'axes',
+    #    'axes',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -66,7 +66,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
- #   'axes.middleware.FailedLoginMiddleware',
+    #   'axes.middleware.FailedLoginMiddleware',
 ]
 
 ROOT_URLCONF = 'edem.urls'
@@ -88,7 +88,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'edem.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
@@ -124,7 +123,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 LANGUAGE_CODE = 'ru-RU'
 USE_I18N = True
 SITE_ID = 1
@@ -150,10 +148,9 @@ AUTHENTICATION_BACKENDS = (
 
 CUSTOM_USER_MODEL = 'account.CustomUser'
 
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        #'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
         'edem.authentification.CsrfExemptSessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ),
@@ -162,9 +159,9 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 30,
-#    'DEFAULT_RENDERER_CLASSES': (
-#        'rest_framework.renderers.JSONRenderer',
-#    )
+    #    'DEFAULT_RENDERER_CLASSES': (
+    #        'rest_framework.renderers.JSONRenderer',
+    #    )
 }
 SHORT_PAGINATION = 10
 DEFAULT_PAGINATION = 20
@@ -177,6 +174,7 @@ EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = 'testzormail@gmail.com'
 
 import djcelery
+
 djcelery.setup_loader()
 
 BROKER_URL = 'redis://localhost:6379/0'
@@ -193,7 +191,7 @@ CELERY_SEND_EVENTS = True
 CELERYBEAT_SCHEDULE = {
     'create_deals': {
         'task': 'create_new_deals',
-       'schedule': 3600
+        'schedule': 3600
     },
     'update_deals': {
         'task': 'deals_to_expired',
@@ -201,12 +199,10 @@ CELERYBEAT_SCHEDULE = {
     },
 }
 
-
-#SESSION_COOKIE_AGE = 1
+# SESSION_COOKIE_AGE = 1
 SITE_DOMAIN_URL = 'http://vocrm.org/'
 
-
-#ADMINS = (('Iskander', 'zumichke@gmail.com'), )
+# ADMINS = (('Iskander', 'zumichke@gmail.com'), )
 ARCHONS = [1, ]
 AXES_COOLOFF_TIME = 1
 

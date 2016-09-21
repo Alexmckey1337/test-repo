@@ -1,13 +1,16 @@
 # -*- coding: utf-8
-from models import Summit, SummitAnket, SummitType
+from __future__ import unicode_literals
+
 from rest_framework import serializers
+
 from account.models import CustomUser as User
+from .models import Summit, SummitAnket, SummitType
 
 
 class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = SummitAnket
-        fields = ('info', 'common', 'code', )
+        fields = ('info', 'common', 'code',)
 
 
 class SummitSerializer(serializers.HyperlinkedModelSerializer):

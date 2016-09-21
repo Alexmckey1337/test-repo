@@ -1,22 +1,24 @@
+# -*- coding: utf-8
 from __future__ import unicode_literals
+from django.utils.encoding import python_2_unicode_compatible
+
+import datetime
 
 from django.db import models
-import datetime
-from event.models import Participation
-from django.db.models import signals
-from django.dispatch import receiver
 from django.db.models import Sum
 
+from event.models import Participation
 
+
+@python_2_unicode_compatible
 class UserReport(models.Model):
     user = models.OneToOneField('account.CustomUser', related_name='user_report', null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.user.get_full_name()
 
 
-
-
+@python_2_unicode_compatible
 class WeekReport(models.Model):
     week = models.ForeignKey('event.Week', null=True, blank=True, related_name='week_reports')
     from_date = models.DateField(default=datetime.date.today)
@@ -35,9 +37,8 @@ class WeekReport(models.Model):
     service_as_leader_coming_count = models.IntegerField(default=0)
     service_as_leader_repentance_count = models.IntegerField(default=0)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s, week  %i" % (self.user.user.get_full_name(), self.week.week)
-
 
     def get_home(self):
         week = self.week
@@ -59,7 +60,6 @@ class WeekReport(models.Model):
         self.home_as_leader_value = home_as_leader_value
         self.save()
 
-
     def get_night(self):
         week = self.week
         user = self.user.user
@@ -74,7 +74,6 @@ class WeekReport(models.Model):
         self.night_as_leader_count = night_as_leader_count
         self.save()
 
-
     def get_service(self):
         week = self.week
         user = self.user.user
@@ -88,7 +87,6 @@ class WeekReport(models.Model):
         self.service_count = count
         self.service_as_leader_count = service_as_leader_count
         self.save()
-
 
     @property
     def fullname(self):
@@ -110,7 +108,7 @@ class WeekReport(models.Model):
         return self.user.user.master.id
 
 
-
+@python_2_unicode_compatible
 class MonthReport(models.Model):
     date = models.DateField()
     user = models.ForeignKey(UserReport, related_name='month_reports', null=True, blank=True)
@@ -126,6 +124,9 @@ class MonthReport(models.Model):
     service_as_leader_count = models.IntegerField(default=0)
     service_as_leader_coming_count = models.IntegerField(default=0)
     service_as_leader_repentance_count = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.fullname
 
     @property
     def fullname(self):
@@ -164,7 +165,7 @@ class MonthReport(models.Model):
         self.save()
 
 
-
+@python_2_unicode_compatible
 class YearReport(models.Model):
     date = models.DateField()
     user = models.ForeignKey(UserReport, related_name='year_reports', null=True, blank=True)
@@ -181,6 +182,9 @@ class YearReport(models.Model):
     service_as_leader_coming_count = models.IntegerField(default=0)
     service_as_leader_repentance_count = models.IntegerField(default=0)
 
+    def __str__(self):
+        return self.fullname
+
     @property
     def fullname(self):
         s = ''
@@ -191,7 +195,6 @@ class YearReport(models.Model):
         if len(self.user.user.middle_name) > 0:
             s = s + self.user.user.middle_name[0] + '.'
         return s.strip()
-
 
     @property
     def uid(self):
@@ -218,6 +221,6 @@ class YearReport(models.Model):
         self.service_as_leader_repentance_count = months.aggregate(Sum('service_as_leader_repentance_count'))
         self.save()
 
-#@receiver(signals.post_save, sender=WeekReport)
-#def sync_event(sender, instance, **kwargs):
+# @receiver(signals.post_save, sender=WeekReport)
+# def sync_event(sender, instance, **kwargs):
 #    instance.get_stat()

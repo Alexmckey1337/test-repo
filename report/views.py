@@ -1,9 +1,13 @@
 # -*- coding: utf-8
-from models import UserReport, WeekReport, MonthReport, YearReport
-from serializers import UserReportSerializer, WeekReportSerializer, MonthReportSerializer, YearReportSerializer
+from __future__ import unicode_literals
+
 from rest_framework import viewsets, filters
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from .models import UserReport, WeekReport, MonthReport, YearReport
+from .serializers import UserReportSerializer, WeekReportSerializer, MonthReportSerializer, YearReportSerializer
+
 
 class UserReportViewSet(viewsets.ModelViewSet):
     queryset = UserReport.objects.all()
@@ -14,6 +18,7 @@ class UserReportViewSet(viewsets.ModelViewSet):
     filter_fields = []
     permission_classes = (IsAuthenticated,)
 
+
 class WeekReportViewSet(viewsets.ModelViewSet):
     queryset = WeekReport.objects.all()
     serializer_class = WeekReportSerializer
@@ -22,7 +27,6 @@ class WeekReportViewSet(viewsets.ModelViewSet):
     search_fields = ()
     filter_fields = ['from_date', 'to_date', ]
     permission_classes = (IsAuthenticated,)
-
 
     def list(self, request, *args, **kwargs):
         master_queryset = WeekReport.objects.filter(user__user__master=request.user).all()
@@ -51,7 +55,7 @@ class MonthReportViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         master_queryset = MonthReport.objects.filter(user__user__master=request.user).all()
         disciples_queryset = MonthReport.objects.filter(user__user__master__master=request.user,
-                                                       ).exclude(user__user__disciples=None).all()
+                                                        ).exclude(user__user__disciples=None).all()
         q = master_queryset | disciples_queryset
         queryset = self.filter_queryset(q)
         page = self.paginate_queryset(queryset)

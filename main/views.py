@@ -1,6 +1,10 @@
-from django.shortcuts import render
+# -*- coding: utf-8
+from __future__ import unicode_literals
+
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from django.shortcuts import render
+
 from tv_crm.views import sync_user_call
 
 
@@ -57,15 +61,10 @@ def event_info(request):
     return render(request, 'event_info.html')
 
 
-
-from create import create_participations, create_reports
-from django.utils import timezone
-from datetime import timedelta
-
 @login_required(login_url='entry')
 def synchronize(request):
-    weekday = timezone.now().weekday() + 1
-    #create_participations()
-    #create_reports(weekday)
+    # weekday = timezone.now().weekday() + 1
+    # create_participations()
+    # create_reports(weekday)
     sync_user_call()
     return HttpResponse('ok')

@@ -1,15 +1,19 @@
 # -*- coding: utf-8
-from models import Participation, Event, EventAnket, EventType
-from serializers import ParticipationSerializer, EventSerializer, EventTypeSerializer, EventAnketSerializer
-from rest_framework import viewsets, filters
+from __future__ import unicode_literals
+
 import django_filters
-from rest_framework.pagination import PageNumberPagination
-from navigation.models import event_table
-from rest_framework.response import Response
-from account.pagination import ShortPagination
+from rest_framework import viewsets, filters
 from rest_framework.decorators import api_view
 from rest_framework.decorators import list_route
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from account.pagination import ShortPagination
+from navigation.models import event_table
+from .models import Participation, Event, EventAnket, EventType
+from .serializers import ParticipationSerializer, EventSerializer, EventTypeSerializer, EventAnketSerializer
+
 
 class ParticipationPagination(PageNumberPagination):
     page_size = 30
@@ -20,8 +24,8 @@ class ParticipationPagination(PageNumberPagination):
     def get_paginated_response(self, data):
         return Response({
             'links': {
-               'next': self.get_next_link(),
-               'previous': self.get_previous_link()
+                'next': self.get_next_link(),
+                'previous': self.get_previous_link()
             },
             'count': self.page.paginator.count,
             'common_table': event_table(),
@@ -79,11 +83,13 @@ class ParticipationViewSet(viewsets.ModelViewSet):
     filter_fields = ['event', 'user__user__master', 'user__user', ]
     search_fields = ('user__user__first_name', 'user__user__last_name', 'user__user__middle_name',
                      'user__user__country', 'user__user__region', 'user__user__city', 'user__user__district',
-                     'user__user__address', 'user__user__skype', 'user__user__phone_number', 'user__user__hierarchy__title', 'user__user__department__title',
-                     'user__user__email', )
+                     'user__user__address', 'user__user__skype', 'user__user__phone_number',
+                     'user__user__hierarchy__title', 'user__user__department__title',
+                     'user__user__email',)
     ordering_fields = ('user__user__first_name', 'user__user__last_name', 'user__user__hierarchy__level',
                        'user__user__country', 'user__user__region', 'user__user__city', 'user__user__district',
-                       'user__user__address', 'user__user__skype', 'user__user__phone_number', 'user__user__hierarchy__title', 'user__user__department__title',
+                       'user__user__address', 'user__user__skype', 'user__user__phone_number',
+                       'user__user__hierarchy__title', 'user__user__department__title',
                        'user__user__email',)
     permission_classes = (IsAuthenticated,)
 
@@ -101,7 +107,6 @@ class ParticipationViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-
 @api_view(['POST'])
 def update_participation(request):
     '''POST: (id, check, value)'''
@@ -116,11 +121,9 @@ def update_participation(request):
             object.recount()
             serializer = ParticipationSerializer(object, context={'request': request})
             response_dict['data'] = serializer.data
-            response_dict['message'] = u"Участие успешно изменено."
+            response_dict['message'] = "Участие успешно изменено."
             response_dict['status'] = True
         except Participation.DoesNotExist:
-            response_dict['message'] = u"Участие не существует."
+            response_dict['message'] = "Участие не существует."
             response_dict['status'] = False
     return Response(response_dict)
-
-

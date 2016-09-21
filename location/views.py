@@ -1,8 +1,12 @@
 # -*- coding: utf-8
-from models import Country, Region, City
-from serializers import CountrySerializer, RegionSerializer, CitySerializer
+from __future__ import unicode_literals
+
 from rest_framework import viewsets, filters
 from rest_framework.permissions import IsAuthenticated
+
+from .models import Country, Region, City
+from .serializers import CountrySerializer, RegionSerializer, CitySerializer
+
 
 class CountryViewSet(viewsets.ModelViewSet):
     queryset = Country.objects.all()
@@ -10,7 +14,7 @@ class CountryViewSet(viewsets.ModelViewSet):
     pagination_class = None
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,)
-    search_fields = ('title', )
+    search_fields = ('title',)
     filter_fields = []
     permission_classes = (IsAuthenticated,)
 
@@ -21,9 +25,9 @@ class RegionViewSet(viewsets.ModelViewSet):
     pagination_class = None
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,)
-    search_fields = ('title', )
+    search_fields = ('title',)
     filter_fields = ['country']
-    permission_classes = (IsAuthenticated,)    
+    permission_classes = (IsAuthenticated,)
 
 
 class CityViewSet(viewsets.ModelViewSet):
@@ -32,6 +36,6 @@ class CityViewSet(viewsets.ModelViewSet):
     pagination_class = None
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,)
-    search_fields = ('title', )
+    search_fields = ('title',)
     filter_fields = ['region', 'country']
     permission_classes = (IsAuthenticated,)

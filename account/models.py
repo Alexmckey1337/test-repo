@@ -1,19 +1,22 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
-from django.db import models
-from django.contrib.auth.models import User, UserManager
-from django.db.models.signals import post_save
-from collections import OrderedDict
-from django.utils import timezone
-from datetime import timedelta
-from tv_crm.models import LastCall
-from event.models import EventAnket
-from django.db.models import signals
-from django.dispatch import receiver
-from navigation.models import Table
 
-COMMON = ['Имя', 'Фамилия', 'Отчество','Email','Телефон', 'Дата рождения', 'Иерархия','Отдел',
-          'Страна', 'Область', 'Населенный пункт', 'Район','Адрес', 'Skype', 'Vkontakte', 'Facebook', 'Отдел церкви',]
+from collections import OrderedDict
+from datetime import timedelta
+
+from django.contrib.auth.models import User, UserManager
+from django.db import models
+from django.db.models import signals
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils import timezone
+
+from event.models import EventAnket
+from navigation.models import Table
+from tv_crm.models import LastCall
+
+COMMON = ['Имя', 'Фамилия', 'Отчество', 'Email', 'Телефон', 'Дата рождения', 'Иерархия', 'Отдел',
+          'Страна', 'Область', 'Населенный пункт', 'Район', 'Адрес', 'Skype', 'Vkontakte', 'Facebook', 'Отдел церкви', ]
 
 
 def get_hierarchy_chain(obj, l):
@@ -42,8 +45,10 @@ class CustomUser(User):
     image = models.ImageField(upload_to='images/', null=True, blank=True)
     image_source = models.ImageField(upload_to='images/', null=True, blank=True)
     description = models.TextField(blank=True, null=True)
-    department = models.ForeignKey('hierarchy.Department', related_name='users', null=True, blank=True, on_delete=models.SET_NULL)
-    hierarchy = models.ForeignKey('hierarchy.Hierarchy', related_name='users', null=True, blank=True, on_delete=models.SET_NULL)
+    department = models.ForeignKey('hierarchy.Department', related_name='users', null=True, blank=True,
+                                   on_delete=models.SET_NULL)
+    hierarchy = models.ForeignKey('hierarchy.Hierarchy', related_name='users', null=True, blank=True,
+                                  on_delete=models.SET_NULL)
     master = models.ForeignKey('self', related_name='disciples', null=True, blank=True, on_delete=models.SET_NULL)
     repentance_date = models.DateField(blank=True, null=True)
     coming_date = models.DateField(blank=True, null=True)
@@ -52,7 +57,7 @@ class CustomUser(User):
 
     objects = UserManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.username
 
     class Meta:
@@ -93,19 +98,19 @@ class CustomUser(User):
 
         d = OrderedDict()
         d['value'] = self.id
-        l[u'id'] = d
+        l['id'] = d
 
         d = OrderedDict()
         d['value'] = self.fullname
-        l[u'fullname'] = d
+        l['fullname'] = d
 
         d = OrderedDict()
         d['value'] = self.short_fullname
-        l[u'short_fullname'] = d
+        l['short_fullname'] = d
 
         d = OrderedDict()
         d['value'] = self.email
-        l[u'email'] = d
+        l['email'] = d
 
         d = OrderedDict()
         if self.born_date:
@@ -113,72 +118,72 @@ class CustomUser(User):
             d['value'] = self.born_date
         else:
             d['value'] = ''
-        l[u'born_date'] = d
+        l['born_date'] = d
 
         d = OrderedDict()
         d['value'] = self.phone_number
-        l[u'phone_number'] = d
+        l['phone_number'] = d
 
         d = OrderedDict()
         d['value'] = self.country
-        l[u'country'] = d
+        l['country'] = d
 
         d = OrderedDict()
         d['value'] = self.region
-        l[u'region'] = d
+        l['region'] = d
 
         d = OrderedDict()
         d['value'] = self.city
-        l[u'city'] = d
+        l['city'] = d
 
         d = OrderedDict()
         d['value'] = self.district
-        l[u'district'] = d
+        l['district'] = d
 
         d = OrderedDict()
         d['value'] = self.address
-        l[u'address'] = d
+        l['address'] = d
 
         d = OrderedDict()
         d['value'] = ''
         if self.hierarchy:
             d['value'] = self.hierarchy.title
-        l[u'hierarchy'] = d
+        l['hierarchy'] = d
 
         d = OrderedDict()
         d['value'] = ''
         if self.master:
             d['value'] = self.master.fullname
-        l[u'master'] = d
+        l['master'] = d
 
         d = OrderedDict()
         d['value'] = ''
         if self.master:
             d['value'] = self.master.hierarchy.title
-        l[u'master_hierarchy'] = d
+        l['master_hierarchy'] = d
 
         d = OrderedDict()
         if self.department:
             d['value'] = self.department.title
         else:
             d['value'] = ''
-        l[u'department'] = d
+        l['department'] = d
 
-        #s = OrderedDict()
+        # s = OrderedDict()
         d = OrderedDict()
         d['skype'] = self.skype
         d['vkontakte'] = self.vkontakte
         d['facebook'] = self.facebook
         d['odnoklassniki'] = self.odnoklassniki
-        l[u'social'] = d
+        l['social'] = d
 
         d = OrderedDict()
         d['value'] = self.repentance_date
-        l[u'repentance_date'] = d
+        l['repentance_date'] = d
 
         d = OrderedDict()
         d['value'] = self.coming_date
-        l[u'coming_date'] = d
+        l['coming_date'] = d
 
         d = OrderedDict()
         sl = list()
@@ -188,11 +193,11 @@ class CustomUser(User):
             d['value'] = ','.join(sl)
         else:
             d['value'] = ''
-        l[u'divisions'] = d
+        l['divisions'] = d
 
         d = OrderedDict()
         d['value'] = self.description
-        l[u'description'] = d
+        l['description'] = d
         return l
 
     @property
@@ -227,6 +232,7 @@ class CustomUser(User):
             if len(self.master.middle_name) > 0:
                 s = s + self.master.middle_name[0] + '.'
         return s
+
     @property
     def short(self):
         s = ''
@@ -257,8 +263,8 @@ class CustomUser(User):
 
     @property
     def attrs(self):
-        l = [u'Ответственный', u'Отдел', u'Город', u'Номер телефона',
-             u'Количество прозвонов за неделю', u'Посмотреть прозвоны']
+        l = ['Ответственный', 'Отдел', 'Город', 'Номер телефона',
+             'Количество прозвонов за неделю', 'Посмотреть прозвоны']
         return l
 
     @property
@@ -272,17 +278,17 @@ class CustomUser(User):
         try:
             p = self.partnership
             if p and p.is_responsible:
-                l[u'is_responsible'] = True
-                l[u'responsible'] = self.partnership.id
+                l['is_responsible'] = True
+                l['responsible'] = self.partnership.id
             else:
-                l[u'is_responsible'] = False
-                l[u'responsible'] = self.partnership.id
+                l['is_responsible'] = False
+                l['responsible'] = self.partnership.id
         except Exception:
-            l[u'is_responsible'] = False
-            l[u'responsible'] = ''
-        #if self.partnership and self.partnership.is_responsible:
-        #    l[u'is_responsible'] = True
-        #    l[u'responsible'] = self.partnership.id
+            l['is_responsible'] = False
+            l['responsible'] = ''
+        # if self.partnership and self.partnership.is_responsible:
+        #    l['is_responsible'] = True
+        #    l['responsible'] = self.partnership.id
         return l
 
 
@@ -293,6 +299,8 @@ def create_custom_user(sender, instance, created, **kwargs):
             values[field.attname] = getattr(instance, field.attname)
         user = CustomUser(**values)
         user.save()
+
+
 post_save.connect(create_custom_user, User)
 
 
@@ -307,20 +315,11 @@ def sync_user(sender, instance, **kwargs):
             birth_day_notification.date = date
             birth_day_notification.save()
         except Notification.DoesNotExist:
-            description = u"Сегодня свой день рождения отмечает %s." % instance.fullname
-            birth_day_notification = Notification.objects.create(date=date,
-                                                                 user=instance,
-                                                                 theme=birth_day_notification_theme)
+            # description = "Сегодня свой день рождения отмечает %s." % instance.fullname
+            Notification.objects.create(date=date,
+                                        user=instance,
+                                        theme=birth_day_notification_theme)
     from report.models import UserReport
-    try:
-        table = Table.objects.get(user=instance)
-    except Table.DoesNotExist:
-        table = Table.objects.create(user=instance)
-    try:
-        event_anket = EventAnket.objects.get(user=instance)
-    except EventAnket.DoesNotExist:
-        event_anket = EventAnket.objects.create(user=instance)
-    try:
-        user_report = UserReport.objects.get(user=instance)
-    except UserReport.DoesNotExist:
-        user_report = UserReport.objects.create(user=instance)
+    Table.objects.get_or_create(user=instance)
+    EventAnket.objects.get_or_create(user=instance)
+    UserReport.objects.get_or_create(user=instance)

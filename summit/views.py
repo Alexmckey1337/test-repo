@@ -1,16 +1,16 @@
 # -*- coding: utf-8
-from models import Summit, SummitAnket, SummitType
-from account.models import CustomUser
-from serializers import SummitAnketSerializer, SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer
-from rest_framework import viewsets, filters
-from rest_framework.decorators import list_route, detail_route
-from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
-from account.serializers import UserSerializer
+from __future__ import unicode_literals
+
 import rest_framework_filters as filters_new
+from rest_framework import viewsets, filters
+from rest_framework.decorators import list_route
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
-# Create your views here.
-from resources import get_fields
+
+from account.models import CustomUser
+from .models import Summit, SummitAnket, SummitType
+from .resources import get_fields
+from .serializers import SummitAnketSerializer, SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer
 
 
 class SummitPagination(PageNumberPagination):
@@ -66,7 +66,7 @@ class SummitAnketViewSet(viewsets.ModelViewSet):
                        'user__vkontakte', 'value',)
     permission_classes = (IsAuthenticated,)
 
-    @list_route(methods=['post'],)
+    @list_route(methods=['post'], )
     def post_anket(self, request):
         if request.method == 'POST':
             keys = request.data.keys()
@@ -83,20 +83,22 @@ class SummitAnketViewSet(viewsets.ModelViewSet):
                             if len(request.data['description']) > 0:
                                 sa.description = request.data['description']
                             sa.save()
-                            data = {"message": u"Данные успешно измененны",
+                            data = {"message": "Данные успешно измененны",
                                     'status': True}
                         else:
                             if len(request.data['value']) > 0:
-                                s = SummitAnket.objects.create(user=user, summit=summit, value=request.data['value'], description=request.data['description'])
+                                s = SummitAnket.objects.create(user=user, summit=summit, value=request.data['value'],
+                                                               description=request.data['description'])
                                 if 'retards' in keys:
                                     if request.data['retards']:
                                         s.retards = request.data['retards']
                                         s.code = request.data['code']
                                     get_fields(s)
                                 else:
-                                    get_fields(s)                                
+                                    get_fields(s)
                             else:
-                                s = SummitAnket.objects.create(user=user, summit=summit, description=request.data['description'])
+                                s = SummitAnket.objects.create(user=user, summit=summit,
+                                                               description=request.data['description'])
                                 if 'retards' in keys:
                                     if request.data['retards']:
                                         s.retards = request.data['retards']
@@ -104,32 +106,32 @@ class SummitAnketViewSet(viewsets.ModelViewSet):
                                     get_fields(s)
                                 else:
                                     get_fields(s)
-                            data = {"message": u"Данные успешно сохраненны",
+                            data = {"message": "Данные успешно сохраненны",
                                     'status': True}
                     else:
-                        data = {"message": u"Такой саммит отсутствует",
+                        data = {"message": "Такой саммит отсутствует",
                                 'status': False}
                 else:
-                    data = {'message': u"Такого полльзователя не существует",
+                    data = {'message': "Такого полльзователя не существует",
                             'status': False}
             else:
-                data = {'message': u"Некорректные данные",
+                data = {'message': "Некорректные данные",
                         'status': False}
         else:
-            data = {'message': u"Неправильный запрос",
+            data = {'message': "Неправильный запрос",
                     'status': False}
         return Response(data)
 
-    @list_route(methods=['post'],)
+    @list_route(methods=['post'], )
     def delete_anket(self, request):
         if request.method == 'POST':
             sa = SummitAnket.objects.filter(id=request.data['id']).first()
             if sa:
                 sa.delete()
-                data = {"message": u"Анкета удаленна",
+                data = {"message": "Анкета удаленна",
                         'status': True}
             else:
-                data = {"message": u"Анкеты не существует",
+                data = {"message": "Анкеты не существует",
                         'status': False}
             return Response(data)
 
@@ -142,20 +144,20 @@ class SummitViewSet(viewsets.ModelViewSet):
                      )
     permission_classes = (IsAuthenticated,)
 
-    @list_route(methods=['post'],)
+    @list_route(methods=['post'], )
     def delete_summit(self, request):
         if request.method == 'POST':
             summit = Summit.objects.filter(id=request.data['id']).first()
             if summit:
                 summit.delete()
-                data = {"message": u"Анкета удаленна",
+                data = {"message": "Анкета удаленна",
                         'status': True}
             else:
-                data = {"message": u"Анкеты не существует",
+                data = {"message": "Анкеты не существует",
                         'status': False}
             return Response(data)
 
-    @list_route(methods=['post'],)
+    @list_route(methods=['post'], )
     def update_summit(self, request):
         if request.method == "POST":
             summit = Summit.objects.filter(id=request.data['id']).first()
@@ -163,25 +165,25 @@ class SummitViewSet(viewsets.ModelViewSet):
                 for key in request.data:
                     if key == 'start_date':
                         summit.start_date = request.data['start_date']
-                        response_data = {'message': u'Данные успешно измененны'}
+                        response_data = {'message': 'Данные успешно измененны'}
                     elif key == 'end_date':
                         summit.end_date = request.data['end_date']
-                        response_data = {'message': u'Данные успешно измененны'}
+                        response_data = {'message': 'Данные успешно измененны'}
                     elif key == 'title':
                         summit.title = request.data['title']
-                        response_data = {'message': u'Данные успешно измененны'}
+                        response_data = {'message': 'Данные успешно измененны'}
                     elif key == 'description':
                         summit.description = request.data['description']
-                        response_data = {'message': u'Данные успешно измененны'}
+                        response_data = {'message': 'Данные успешно измененны'}
                     else:
-                        response_data = {'message': u'Некорректные данные'}
+                        response_data = {'message': 'Некорректные данные'}
             else:
-                response_data = {'message': u'Такого саммита не существует'}
+                response_data = {'message': 'Такого саммита не существует'}
         else:
-            response_data = {'message': u'Неправильный запрос'}
+            response_data = {'message': 'Неправильный запрос'}
         return Response(response_data)
 
-    @list_route(methods=['get'],)
+    @list_route(methods=['get'], )
     def user(self, request):
         if 'id' in request.GET.keys():
             user = CustomUser.objects.filter(id=request.GET['id']).first()
@@ -190,10 +192,10 @@ class SummitViewSet(viewsets.ModelViewSet):
                 serializer = self.get_serializer(summits, many=True)
                 return Response(serializer.data)
             else:
-                data = {'message': u'Такого пользователя не существует',
+                data = {'message': 'Такого пользователя не существует',
                         'status': False}
         else:
-            data = {'message': u'Введите нужный id пользователя',
+            data = {'message': 'Введите нужный id пользователя',
                     'status': False}
         if data:
             return Response(data)
@@ -203,6 +205,7 @@ class SummitTypeViewSet(viewsets.ModelViewSet):
     queryset = SummitType.objects.all()
     serializer_class = SummitTypeSerializer
     permission_classes = (IsAuthenticated,)
+
 
 class SummitUnregisterFilter(filters_new.FilterSet):
     summit_id = filters_new.CharFilter(name="summit_ankets__summit__id")
@@ -222,7 +225,7 @@ class SummitUnregisterUserViewSet(viewsets.ModelViewSet):
     filter_class = SummitUnregisterFilter
     search_fields = ('first_name', 'last_name', 'middle_name',
                      'country', 'region', 'city', 'district',
-                     'address', 'email', )
+                     'address', 'email',)
 
 
 from rest_framework.response import Response

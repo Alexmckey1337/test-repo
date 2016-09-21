@@ -1,22 +1,23 @@
 # -*- coding: utf-8
+from __future__ import unicode_literals
+
 from datetime import datetime
 
-from models import Partnership, Deal
-from serializers import PartnershipSerializer, DealSerializer
-from rest_framework.decorators import api_view
-from rest_framework import viewsets, filters
-from rest_framework.response import Response
-from account.models import CustomUser as User
+import django_filters
 from django.utils.dateparse import parse_date
 from rest_framework import filters
-from rest_framework import generics
-import django_filters
+from rest_framework import viewsets
+from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
-from collections import OrderedDict
-from navigation.models import partner_table
-import rest_framework_filters as filters_new
-from summit.serializers import SummitUnregisterUserSerializer
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from account.models import CustomUser as User
+from navigation.models import partner_table
+from summit.serializers import SummitUnregisterUserSerializer
+from .models import Partnership, Deal
+from .serializers import PartnershipSerializer, DealSerializer
+
 
 class SaganPagination(PageNumberPagination):
     page_size = 2
@@ -32,8 +33,8 @@ class PartnershipPagination(PageNumberPagination):
     def get_paginated_response(self, data):
         return Response({
             'links': {
-               'next': self.get_next_link(),
-               'previous': self.get_previous_link()
+                'next': self.get_next_link(),
+                'previous': self.get_previous_link()
             },
             'count': self.page.paginator.count,
             'common_table': partner_table(),
@@ -51,8 +52,9 @@ class PartnershipViewSet(viewsets.ModelViewSet):
     filter_fields = ('user', 'responsible__user', 'is_responsible',)
     search_fields = ('user__first_name', 'user__last_name', 'user__middle_name',
                      'user__country', 'user__region', 'user__city', 'user__district',
-                     'user__address', 'user__skype', 'user__phone_number', 'user__hierarchy__title', 'user__department__title',
-                     'user__email', )
+                     'user__address', 'user__skype', 'user__phone_number', 'user__hierarchy__title',
+                     'user__department__title',
+                     'user__email',)
     ordering_fields = ('user__first_name', 'user__last_name',
                        'user__middle_name', 'user__born_date', 'user__country',
                        'user__region', 'user__city', 'user__disrict',
@@ -81,9 +83,10 @@ class DealViewSet(viewsets.ModelViewSet):
                        filters.SearchFilter,
                        filters.OrderingFilter,)
     filter_class = DateFilter
-    search_fields = ('partnership', )
-    #pagination_class = SaganPagination
+    search_fields = ('partnership',)
+    # pagination_class = SaganPagination
     permission_classes = (IsAuthenticated,)
+
 
 @api_view(['POST'])
 def create_partnership(request):
@@ -100,21 +103,22 @@ def create_partnership(request):
         date = data['date']
         try:
             object = Partnership.objects.get(user__id=user_id)
-            response_dict['message'] = u"Этот пользователь уже имеет партнерство."
+            response_dict['message'] = "Этот пользователь уже имеет партнерство."
             response_dict['status'] = False
         except Partnership.DoesNotExist:
             try:
                 user = User.objects.get(id=user_id)
                 responsible_partnership = Partnership.objects.filter(id=responsible_partnership_id).first()
-                object = Partnership.objects.create(user=user, responsible=responsible_partnership, value=value, date=date)
+                object = Partnership.objects.create(user=user, responsible=responsible_partnership, value=value,
+                                                    date=date)
                 if object:
                     serializer = PartnershipSerializer(object, context={'request': request})
                     response_dict['data'] = serializer.data
-                    response_dict['message'] = u"Партнерство успешно добавлено."
+                    response_dict['message'] = "Партнерство успешно добавлено."
                     response_dict['status'] = True
             except User.DoesNotExist:
                 response_dict['data'] = []
-                response_dict['message'] = u"Пользователя не существует."
+                response_dict['message'] = "Пользователя не существует."
                 response_dict['status'] = False
     return Response(response_dict)
 
@@ -136,10 +140,10 @@ def update_partnership(request):
             object.save()
             serializer = PartnershipSerializer(object, context={'request': request})
             response_dict['data'] = serializer.data
-            response_dict['message'] = u"Партнерство успешно изменено."
+            response_dict['message'] = "Партнерство успешно изменено."
             response_dict['status'] = True
         except Partnership.DoesNotExist:
-            response_dict['message'] = u"Партнерство не существует."
+            response_dict['message'] = "Партнерство не существует."
             response_dict['status'] = False
     return Response(response_dict)
 
@@ -154,10 +158,10 @@ def delete_partnership(request):
         try:
             object = Partnership.objects.get(user__id=user_id)
             object.delete()
-            response_dict['message'] = u"Партнерство успешно удалено."
+            response_dict['message'] = "Партнерство успешно удалено."
             response_dict['status'] = True
         except Partnership.DoesNotExist:
-            response_dict['message'] = u"Такого пользователя не существует."
+            response_dict['message'] = "Такого пользователя не существует."
             response_dict['status'] = False
     return Response(response_dict)
 
@@ -175,7 +179,7 @@ def create_deal(request):
         partnership = Partnership.objects.get(user__id=data['user'])
         try:
             object = Deal.objects.get(date__month=date.month, date__year=date.year, partnership=partnership)
-            response_dict['message'] = u"Этот пользователь уже имеет сделку за этот месяц."
+            response_dict['message'] = "Этот пользователь уже имеет сделку за этот месяц."
             response_dict['status'] = False
         except Deal.DoesNotExist:
             object = Deal.objects.create(date=data['date'],
@@ -186,7 +190,7 @@ def create_deal(request):
             if object:
                 serializer = DealSerializer(object, context={'request': request})
                 response_dict['data'] = serializer.data
-                response_dict['message'] = u"Сделка успешно добавлена."
+                response_dict['message'] = "Сделка успешно добавлена."
                 response_dict['status'] = True
     return Response(response_dict)
 
@@ -208,10 +212,10 @@ def update_deal(request):
 
             serializer = DealSerializer(object, context={'request': request})
             response_dict['data'] = serializer.data
-            response_dict['message'] = u"Сделка успешно изменена."
+            response_dict['message'] = "Сделка успешно изменена."
             response_dict['status'] = True
         except Deal.DoesNotExist:
-            response_dict['message'] = u"Сделки не существует."
+            response_dict['message'] = "Сделки не существует."
             response_dict['status'] = False
     return Response(response_dict)
 
@@ -225,10 +229,10 @@ def delete_deal(request):
         try:
             object = Deal.objects.get(id=data['id'])
             object.delete()
-            response_dict['message'] = u"Сделка успешно удалена."
+            response_dict['message'] = "Сделка успешно удалена."
             response_dict['status'] = True
         except Deal.DoesNotExist:
-            response_dict['message'] = u"Такой сделки не существует."
+            response_dict['message'] = "Такой сделки не существует."
             response_dict['status'] = False
     return Response(response_dict)
 
@@ -245,13 +249,13 @@ def change_responsible(request):
             try:
                 new_responsible = Partnership.objects.get(id=data['responsible_id'])
                 disciples.update(responsible=new_responsible)
-                response_dict['message'] = u"Ответственный был успешно изменен."
+                response_dict['message'] = "Ответственный был успешно изменен."
                 response_dict['status'] = True
             except Partnership.DoesNotExist:
-                response_dict['message'] = u"Такого ответственного не существует."
+                response_dict['message'] = "Такого ответственного не существует."
                 response_dict['status'] = False
         except Partnership.DoesNotExist:
-            response_dict['message'] = u"Такого ответственного не существует."
+            response_dict['message'] = "Такого ответственного не существует."
             response_dict['status'] = False
     return Response(response_dict)
 
@@ -269,4 +273,3 @@ class PartnershipsUnregisterUserViewSet(viewsets.ModelViewSet):
                      # 'address', 'email',
                      )
     permission_classes = (IsAuthenticated,)
-

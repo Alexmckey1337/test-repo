@@ -1,10 +1,14 @@
 # -*- coding: utf-8
+from __future__ import unicode_literals
+
 from import_export import resources
+
 from account.models import CustomUser as User
 
 
 class UserResource(resources.ModelResource):
     """For excel import/export"""
+
     class Meta:
         model = User
         # fields = ('id', 'username', 'last_name', 'first_name', 'middle_name',
@@ -36,14 +40,15 @@ def clean_password(data):
 
 
 def clean_old_password(user, data):
-        if data["old_password"]:
-            old_password = data["old_password"]
-            if user.check_password(old_password):
-                return old_password
-            else:
-                return False
+    if data["old_password"]:
+        old_password = data["old_password"]
+        if user.check_password(old_password):
+            return old_password
         else:
             return False
+    else:
+        return False
+
 
 def setHierarchyOrder(user, b):
     if user.master and user.master.hierarchy_order:
@@ -57,14 +62,15 @@ def setHierarchyOrder(user, b):
         master_salt = user.hierarchy_order
     users = user.disciples.order_by('last_name').all()
     i = 1
-    print "%s : %d" % (user.last_name, user.hierarchy_order)
+    print("%s : %d" % (user.last_name, user.hierarchy_order))
     for user in users.all():
         exponent = (user.hierarchy.level - 1) * 2
         salt = pow(10, exponent)
         user.hierarchy_order = master_salt + (i * salt)
         user.save()
-        print "%s : %d" % (user.last_name, user.hierarchy_order)
+        print("%s : %d" % (user.last_name, user.hierarchy_order))
         i += 1
+
 
 def manage(level):
     if level >= 2:
@@ -74,8 +80,8 @@ def manage(level):
             setHierarchyOrder(master, b)
             b += 1
     else:
-        return u"Низя"
-    return u"Оки"
+        return "Низя"
+    return "Оки"
 
 
 def get_disciples(user):
@@ -85,9 +91,3 @@ def get_disciples(user):
         if disciple.has_disciples:
             queryset = queryset | get_disciples(disciple)
     return queryset
-
-
-
-
-
-

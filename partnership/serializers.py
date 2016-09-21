@@ -1,5 +1,9 @@
+# -*- coding: utf-8
+from __future__ import unicode_literals
+
 from rest_framework import serializers
-from models import Partnership, Deal
+
+from .models import Partnership, Deal
 
 
 class PartnershipSerializer(serializers.HyperlinkedModelSerializer):
@@ -10,7 +14,7 @@ class PartnershipSerializer(serializers.HyperlinkedModelSerializer):
         model = Partnership
         fields = ('url', 'id', 'user', 'fullname', 'responsible', 'value', 'date',
                   'is_responsible', 'deals', 'deals_count', 'done_deals_count', 'undone_deals_count',
-                  'expired_deals_count', 'result_value', 'fields', 'deal_fields', 'common', )
+                  'expired_deals_count', 'result_value', 'fields', 'deal_fields', 'common',)
 
 
 class DealSerializer(serializers.HyperlinkedModelSerializer):
@@ -19,4 +23,4 @@ class DealSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Deal
         fields = ('url', 'id', 'partnership', 'date', 'date_created',
-                  'value', 'done', 'expired', 'description', 'fields', )
+                  'value', 'done', 'expired', 'description', 'fields',)

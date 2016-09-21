@@ -1,6 +1,10 @@
-from models import LastCall, Synopsis
+# -*- coding: utf-8
+from __future__ import unicode_literals
+
 from rest_framework import serializers
+
 from account.models import CustomUser as User
+from .models import LastCall, Synopsis
 
 
 class LastCallSerializer(serializers.HyperlinkedModelSerializer):
@@ -10,8 +14,8 @@ class LastCallSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class UserLittleSerializer(serializers.HyperlinkedModelSerializer):
-    #fields = serializers.OrderedDict()
-    #master_leaderships = serializers.StringRelatedField(many=True)
+    # fields = serializers.OrderedDict()
+    # master_leaderships = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = User

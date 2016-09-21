@@ -1,12 +1,16 @@
 # -*- coding: utf-8
-from hierarchy.models import Hierarchy, Department
+from __future__ import unicode_literals
+
+import hashlib
+import random
+from datetime import timedelta
+
+from django.utils import timezone
+
 from account.models import CustomUser as User
 from event.models import Event, Participation
+from hierarchy.models import Hierarchy, Department
 from report.models import UserReport as Report
-import random
-import hashlib
-from django.utils import timezone
-from datetime import timedelta
 
 H = {'1': 'Прихожанин',
      '2': 'Лидер',
@@ -15,7 +19,6 @@ H = {'1': 'Прихожанин',
      '5': 'Епископ',
      '6': 'Апостол',
      '7': 'Архонт'}
-
 
 E = {'1': 'Понедельник',
      '2': 'Вторник',
@@ -30,16 +33,16 @@ def create_hierarchy():
     for key, value in H.items():
         hierarchy = Hierarchy.objects.create(level=int(key), title=value)
         hierarchy.save()
-        print "Created:" + hierarchy.title
+        print("Created:" + hierarchy.title)
     department = Department.objects.create(title='Киев')
     department.save()
-    print "Created:" + department.title
+    print("Created:" + department.title)
     return 'Done!'
 
 
 def create_users(master, count=2):
     department = Department.objects.get(id=1)
-    for i in xrange(count):
+    for i in range(count):
         hierarchy_level = master.hierarchy.level - 1
         hierarchy = Hierarchy.objects.filter(level=hierarchy_level).first()
         if hierarchy:
@@ -54,7 +57,7 @@ def create_users(master, count=2):
                                        master=master
                                        )
             user.save()
-            print 'Created: ' + user.username
+            print('Created: ' + user.username)
             create_users(user, count)
     return 'Done!'
 
@@ -63,7 +66,7 @@ def create_events():
     for key, value in E.items():
         event = Event.objects.create(day=int(key), title=value, active=True, cyclic=True)
         event.save()
-        print "Created:" + event.title
+        print("Created:" + event.title)
     return 'Done!'
 
 
@@ -76,7 +79,7 @@ def create_participations():
             if not participation:
                 participation = Participation.objects.create(user=user, event=event, check=False)
                 participation.save()
-                print "Created participation: " + event.title + ',' + user.username
+                print("Created participation: " + event.title + ',' + user.username)
     return 'Done'
 
 
@@ -87,8 +90,9 @@ def create_reports(weekday, delta=0):
     for user in users:
         report = Report.objects.create(user=user, event=event, date=date)
         report.save()
-        print "Created report: " + event.title + ',' + user.username
+        print("Created report: " + event.title + ',' + user.username)
     return "Done!"
+
 
 def create():
     weekday = timezone.now().weekday()

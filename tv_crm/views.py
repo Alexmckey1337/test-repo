@@ -1,15 +1,20 @@
 # -*- coding: utf-8
-from serializers import LastCallSerializer, UserLittleSerializer, SynopsisSerializer
+from __future__ import unicode_literals
+
+import json
+
+from django.http import HttpResponse
 from rest_framework import viewsets, filters
-from models import LastCall, Synopsis
-from rest_framework.decorators import list_route
-from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework.decorators import list_route
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 from account.models import CustomUser
 from status.models import Status
-from django.http import HttpResponse
-import json
-from rest_framework.permissions import IsAuthenticated
+from .models import LastCall, Synopsis
+from .serializers import LastCallSerializer, UserLittleSerializer, SynopsisSerializer
+
 
 def sync_user_call():
     users = CustomUser.objects.all()
@@ -58,7 +63,8 @@ class LastCallViewSet(viewsets.ModelViewSet):
         if tv_consult in user.statuses.all():
             queryset = LastCall.objects.filter(user__hierarchy__level=4).order_by('user__master')
         else:
-            queryset = LastCall.objects.filter(user__master=user).filter(user__hierarchy__level=4).order_by('user__master')
+            queryset = LastCall.objects.filter(user__master=user).filter(user__hierarchy__level=4).order_by(
+                'user__master')
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -104,11 +110,11 @@ def update_last_call(request):
         if last_call:
             last_call.last_responce = text_responce
             last_call.save()
-            return Response({"message": u"Данные успешно измененны"})
+            return Response({"message": "Данные успешно измененны"})
         else:
             user = CustomUser.objects.get(id=user_id)
             LastCall.objects.create(user=user, last_responce=text_responce)
-            return Response({"message": u"Данные успешно занесенны в базу данных"})
+            return Response({"message": "Данные успешно занесенны в базу данных"})
 
 
 class SynopsisViewSet(viewsets.ModelViewSet):
@@ -152,14 +158,14 @@ class SynopsisViewSet(viewsets.ModelViewSet):
                     elif key == 'healing_description':
                         synopsis.healing_description = request.data['healing_description']
                 synopsis.save()
-                return Response({"message": u"Данные успешно измененны",
+                return Response({"message": "Данные успешно измененны",
                                  "status": True})
             elif 'hero' in request.data.keys():
                 history_description = request.data['history_description']
                 hero = request.data['hero']
                 phone_number = request.data['phone_number']
                 if len(hero) == 0 or len(phone_number) == 0 or len(history_description) == 0:
-                    return Response({"message": u"Заполните пустые поля",
+                    return Response({"message": "Заполните пустые поля",
                                      "status": False})
                 else:
                     Synopsis.objects.create(
@@ -179,8 +185,8 @@ class SynopsisViewSet(viewsets.ModelViewSet):
                         interviewer=request.user,
                         phone_number=phone_number,
                     )
-                return Response({"message": u"Данные успешно занесенны в базу данных",
+                return Response({"message": "Данные успешно занесенны в базу данных",
                                  'status': True})
             else:
-                return Response({"message": u"Некорректные данные",
+                return Response({"message": "Некорректные данные",
                                  'status': False})

@@ -1,27 +1,30 @@
 # -*- coding: utf-8
-from account.models import CustomUser as User
-from status.models import Status, Division
-from hierarchy.models import Hierarchy, Department
-from partnership.models import Partnership
-from serializers import UserSerializer, UserShortSerializer
-from rest_framework.decorators import list_route
-from rest_framework.decorators import api_view
-from rest_framework import viewsets, filters
-from rest_framework.response import Response
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth import update_session_auth_hash
-from django.template.loader import get_template
-from django.template import Context
-from django.core.mail import EmailMultiAlternatives
-from resources import clean_password, clean_old_password
-from rest_framework.permissions import AllowAny
+from __future__ import unicode_literals
+
 import hashlib
 import random
-from edem.settings import SITE_DOMAIN_URL, DEFAULT_FROM_EMAIL
-from django.http import HttpResponseRedirect
+
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import update_session_auth_hash
+from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
-from tv_crm.views import sync_unique_user_call
+from django.http import HttpResponseRedirect
+from django.template import Context
+from django.template.loader import get_template
+from rest_framework import viewsets, filters
+from rest_framework.decorators import api_view
+from rest_framework.decorators import list_route
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from account.models import CustomUser as User
+from edem.settings import SITE_DOMAIN_URL, DEFAULT_FROM_EMAIL
+from hierarchy.models import Hierarchy, Department
+from partnership.models import Partnership
+from status.models import Status, Division
+from tv_crm.views import sync_unique_user_call
+from .resources import clean_password, clean_old_password
+from .serializers import UserSerializer, UserShortSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -34,15 +37,15 @@ class UserViewSet(viewsets.ModelViewSet):
     ordering_fields = ('first_name', 'last_name', 'middle_name',
                        'born_date', 'country', 'region', 'city', 'disrict', 'address', 'skype',
                        'phone_number', 'email', 'hierarchy__level', 'department__title',
-                       'facebook', 'vkontakte', 'hierarchy_order', 'master__last_name', )
+                       'facebook', 'vkontakte', 'hierarchy_order', 'master__last_name',)
     search_fields = ('first_name', 'last_name', 'middle_name',
                      'country', 'region', 'city', 'district',
                      'address', 'skype', 'phone_number', 'hierarchy__title', 'department__title',
-                     'email', 'master__last_name', )
+                     'email', 'master__last_name',)
     filter_fields = ('first_name', 'last_name', 'middle_name',
                      'born_date', 'email', 'department__title',
                      'country', 'region', 'city', 'district', 'address',
-                     'skype', 'phone_number', 'hierarchy__level', 'master', 'master__last_name', )
+                     'skype', 'phone_number', 'hierarchy__level', 'master', 'master__last_name',)
 
     def dispatch(self, request, *args, **kwargs):
         if kwargs.get('pk') == 'current' and request.user.is_authenticated():
@@ -75,7 +78,8 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-#    def list(self, request, *args, **kwargs):
+
+# def list(self, request, *args, **kwargs):
 #        from resources import get_disciples
 #        q = get_disciples(request.user)
 #        q = q.order_by('-hierarchy__level')
@@ -108,7 +112,6 @@ def login_view(request):
     :param request: data{'email': string, 'password': string}
     :return: {'message': string, 'status': boolean}
     """
-    permission_classes = (AllowAny,)
     response_dict = dict()
     data = request.data
     try:
@@ -118,16 +121,16 @@ def login_view(request):
             if user.is_active:
                 login(request, user)
                 response_dict['uid'] = user.id
-                response_dict['message'] = u"Добро пожаловать"
+                response_dict['message'] = "Добро пожаловать"
                 response_dict['status'] = True
             else:
-                response_dict['message'] = u"Вы не имеете доступ"
+                response_dict['message'] = "Вы не имеете доступ"
                 response_dict['status'] = False
         else:
-            response_dict['message'] = u"Неверный пароль или email"
+            response_dict['message'] = "Неверный пароль или email"
             response_dict['status'] = False
     except User.DoesNotExist:
-        response_dict['message'] = u"Пользователя с таким email не существует"
+        response_dict['message'] = "Пользователя с таким email не существует"
         response_dict['status'] = False
     return Response(response_dict)
 
@@ -153,13 +156,13 @@ def change_password(request):
             user.set_password(clean_password(data))
             user.save()
             update_session_auth_hash(request, user)
-            response_dict['message'] = u'Пароль успешно изменен'
+            response_dict['message'] = 'Пароль успешно изменен'
             response_dict['status'] = True
         else:
-            response_dict['message'] = u'Введенные пароли не совпадают'
+            response_dict['message'] = 'Введенные пароли не совпадают'
             response_dict['status'] = False
     else:
-        response_dict['message'] = u'Вы ввели неверный пароль'
+        response_dict['message'] = 'Вы ввели неверный пароль'
         response_dict['status'] = False
     return Response(response_dict)
 
@@ -178,15 +181,15 @@ def delete_user(request):
         user = User.objects.get(id=data['id'])
         archons = User.objects.filter(hierarchy__level=7).all()
         if user in archons.all():
-            message['message'] = u"Нельзя удалить Архонта"
-            message['status'] = False
-            message['redirect'] = False
-            return Response(message)
+            response_dict['message'] = "Нельзя удалить Архонта"
+            response_dict['status'] = False
+            response_dict['redirect'] = False
+            return Response(response_dict)
         user.delete()
-        response_dict['message'] = u"Пользователь был удален успешно"
+        response_dict['message'] = "Пользователь был удален успешно"
         response_dict['status'] = True
     except User.DoesNotExist:
-        response_dict['message'] = u"Пользователь не существует"
+        response_dict['message'] = "Пользователь не существует"
         response_dict['status'] = False
     return Response(response_dict)
 
@@ -203,7 +206,7 @@ def check_recursion(user, master):
         return True
     if master.master:
         if master.master == user:
-            print "Recursion"
+            print("Recursion")
             return True
         else:
             return check_recursion(user, master.master)
@@ -219,13 +222,12 @@ def check_all_recursion():
 
 
 def edit_user(data, files):
-    from edem.settings import ARCHONS
     message = dict()
     try:
         user = User.objects.get(id=data['id'])
         archons = User.objects.filter(hierarchy__level=7).all()
         if user in archons.all():
-            message['message'] = u"Нельзя редактировать Архонта"
+            message['message'] = "Нельзя редактировать Архонта"
             message['status'] = False
             message['redirect'] = False
             return message
@@ -233,7 +235,7 @@ def edit_user(data, files):
             try:
                 master = User.objects.get(id=data['master'])
                 if check_recursion(user, master):
-                    message['message'] = u"РЕКУРСИЯ!"
+                    message['message'] = "РЕКУРСИЯ!"
                     message['status'] = False
                     message['redirect'] = False
                     return message
@@ -316,11 +318,11 @@ def edit_user(data, files):
                         photo = None
                 user.image_source = photo
         user.save()
-        message['message'] = u"Пользователь успешно отредактирован"
+        message['message'] = "Пользователь успешно отредактирован"
         message['id'] = user.id
         message['redirect'] = True
     except User.DoesNotExist:
-        message['message'] = u"Пользователя не существует"
+        message['message'] = "Пользователя не существует"
         message['id'] = ''
         message['redirect'] = False
     return message
@@ -330,7 +332,8 @@ def add_user(data, files, request):
     message = dict()
     if 'master' in data.keys():
         master = User.objects.get(id=data['master'])
-        twink_user = User.objects.filter(first_name=data['first_name'], last_name=data['last_name'], master=master).first()
+        twink_user = User.objects.filter(first_name=data['first_name'], last_name=data['last_name'],
+                                         master=master).first()
     else:
         twink_user = None
     if not twink_user:
@@ -429,13 +432,13 @@ def add_user(data, files, request):
                 user.image_source = photo
             user.save()
         sync_unique_user_call(user)
-        #serializer = UserSerializer(user, context={'request': request})
-        #message['response'] = serializer.data
-        message['message'] = u"Пользователь успешно создан"
+        # serializer = UserSerializer(user, context={'request': request})
+        # message['response'] = serializer.data
+        message['message'] = "Пользователь успешно создан"
         message['id'] = user.id
         message['redirect'] = True
     else:
-        message['message'] = u"Пользователь с таким именем и фамилией уже есть в базе данных"
+        message['message'] = "Пользователь с таким именем и фамилией уже есть в базе данных"
         message['id'] = twink_user.id
         message['redirect'] = True
     return message
@@ -458,7 +461,7 @@ def send_password_func(user_id):
         msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
         msg.attach_alternative(html_content, "text/html")
         msg.send()
-        response_dict['message'] = u"Пароль успешно отправлен"
+        response_dict['message'] = "Пароль успешно отправлен"
     else:
         response_dict['message'] = "Пользователь не существует"
     return response_dict
@@ -488,12 +491,13 @@ def create_or_update_partnership(data, user_id=None):
                             else:
                                 setattr(object, key, value)
                     object.save()
-                    response_dict['message'] = u"Партнерство успешно изменено."
+                    response_dict['message'] = "Партнерство успешно изменено."
                     response_dict['status'] = True
                 except Partnership.DoesNotExist:
                     if 'responsible' in data.keys():
                         responsible_partnerhip = Partnership.objects.filter(id=data['responsible']).first()
-                        Partnership.objects.create(user=user, responsible=responsible_partnerhip, value=data['value'], date=data['date'])
+                        Partnership.objects.create(user=user, responsible=responsible_partnerhip, value=data['value'],
+                                                   date=data['date'])
                     else:
                         pass
     else:
@@ -511,13 +515,14 @@ def create_or_update_partnership(data, user_id=None):
             else:
                 responsible_partnership = Partnership.objects.filter(id=responsible_partnership_id).first()
                 if responsible_partnership:
-                    object = Partnership.objects.create(user=user, responsible=responsible_partnership, value=value, date=date)
+                    object = Partnership.objects.create(user=user, responsible=responsible_partnership, value=value,
+                                                        date=date)
                     if object:
-                        response_dict['message'] = u"Партнерство успешно добавлено."
+                        response_dict['message'] = "Партнерство успешно добавлено."
                         response_dict['status'] = True
         except User.DoesNotExist:
             response_dict['data'] = []
-            response_dict['message'] = u"Пользователя не существует."
+            response_dict['message'] = "Пользователя не существует."
             response_dict['status'] = False
     return response_dict
 
@@ -532,29 +537,29 @@ def create_user(request):
             user = User.objects.filter(id=data['id']).first()
             response_dict = edit_user(data, files)
             if 'old_password' in data.keys() and 'password1' in data.keys():
-                if len(data['old_password']) > 0 and len(data['password1'])>0:
+                if len(data['old_password']) > 0 and len(data['password1']) > 0:
                     if clean_old_password(user, data):
                         if clean_password(data):
                             user.set_password(clean_password(data))
                             user.save()
                             update_session_auth_hash(request, user)
-                            response_dict['special_message'] = u'Пароль успешно изменен'
+                            response_dict['special_message'] = 'Пароль успешно изменен'
                         else:
-                            response_dict['special_message'] = u'Введенные пароли не совпадают'
+                            response_dict['special_message'] = 'Введенные пароли не совпадают'
                     else:
-                        response_dict['special_message'] = u'Вы ввели неверный пароль'
+                        response_dict['special_message'] = 'Вы ввели неверный пароль'
             if 'responsible' in data.keys() or 'remove_partnership' in data.keys():
                 create_or_update_partnership(data)
-                response_dict['special_message'] = u'Партнерство успешно изменено'
+                response_dict['special_message'] = 'Партнерство успешно изменено'
         else:
             response_dict = add_user(data, files, request)
             if data['send_password']:
                 send_password_func(response_dict['id'])
             if 'responsible' in data.keys():
                 create_or_update_partnership(data, str(response_dict['id']))
-                response_dict['special_message'] = u'Партнерство успешно создано'
+                response_dict['special_message'] = 'Партнерство успешно создано'
     else:
-        response_dict['message'] = u"Нет полномочий"
+        response_dict['message'] = "Нет полномочий"
         response_dict['redirect'] = False
     return Response(response_dict)
 
@@ -588,11 +593,11 @@ def download_image(request):
                     photo = None
             user.image = photo
             user.save()
-            response_dict['message'] = u"Фото успешно загружено"
+            response_dict['message'] = "Фото успешно загружено"
             response_dict['redirect'] = False
             response_dict['status'] = True
     except User.DoesNotExist:
-        response_dict['message'] = u"Нет такого пользователя"
+        response_dict['message'] = "Нет такого пользователя"
         response_dict['redirect'] = False
         response_dict['status'] = False
     return Response(response_dict)
@@ -607,7 +612,7 @@ def password_forgot(request):
         try:
             user = User.objects.get(email=email)
             salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
-            user.activation_key = hashlib.sha1(salt+user.email).hexdigest()
+            user.activation_key = hashlib.sha1(salt + user.email).hexdigest()
             user.save()
             plaintext = get_template('email/password_reset.txt')
             htmly = get_template('email/password_reset.html')
@@ -618,13 +623,14 @@ def password_forgot(request):
             msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
             msg.attach_alternative(html_content, "text/html")
             msg.send()
-            response_dict['message'] = u"Вам на почту было отправлено письмо с дальнейшими инструкциями по восстановлению пароля"
+            response_dict[
+                'message'] = "Вам на почту было отправлено письмо с дальнейшими инструкциями по восстановлению пароля"
             response_dict['status'] = True
         except User.DoesNotExist:
-            response_dict['message'] = u"Пользователя с таким email не существует"
+            response_dict['message'] = "Пользователя с таким email не существует"
             response_dict['status'] = False
     else:
-        response_dict['message'] = u"Поле email обязательно"
+        response_dict['message'] = "Поле email обязательно"
         response_dict['status'] = False
     return Response(response_dict)
 
@@ -639,14 +645,12 @@ def password_view(request, activation_key=None):
         if clean_password(data):
             user.set_password(clean_password(data))
             user.save()
-            response_dict['message'] = u"Пароль успешно изменен"
+            response_dict['message'] = "Пароль успешно изменен"
             response_dict['status'] = True
         else:
-            response_dict['message'] = u"Пароли не совпадают"
+            response_dict['message'] = "Пароли не совпадают"
             response_dict['status'] = False
     except User.DoesNotExist:
-        response_dict['message'] = u"Ключ активации несуществует или устарел"
+        response_dict['message'] = "Ключ активации несуществует или устарел"
         response_dict['status'] = False
     return Response(response_dict)
-
-

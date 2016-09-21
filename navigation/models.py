@@ -1,8 +1,12 @@
 # -*- coding: utf-8
+from __future__ import unicode_literals
+
+from collections import OrderedDict
+
 from django.db import models
 from django.db.models import signals
 from django.dispatch import receiver
-from collections import OrderedDict
+from django.utils.encoding import python_2_unicode_compatible
 
 
 def partner_table():
@@ -33,23 +37,29 @@ def event_table():
     return l
 
 
+@python_2_unicode_compatible
 class Navigation(models.Model):
     title = models.CharField(max_length=30, unique=True)
     url = models.URLField()
 
     class Meta:
-        verbose_name_plural = u'Навигация'
-        ordering = [('id')]
+        verbose_name_plural = 'Навигация'
+        ordering = ('id',)
+
+    def __str__(self):
+        return self.title
 
 
+@python_2_unicode_compatible
 class Category(models.Model):
     title = models.CharField(max_length=50)
     common = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
 
+@python_2_unicode_compatible
 class ColumnType(models.Model):
     title = models.CharField(max_length=100)
     category = models.ForeignKey(Category, related_name="columnTypes", blank=True, null=True)
@@ -59,32 +69,34 @@ class ColumnType(models.Model):
     active = models.BooleanField(default=False)
     editable = models.BooleanField(default=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     class Meta:
         verbose_name_plural = "Колонки"
 
 
+@python_2_unicode_compatible
 class Table(models.Model):
     user = models.OneToOneField('account.CustomUser', related_name='table')
     columnTypes = models.ManyToManyField(ColumnType,
-                                     through='Column',
-                                     through_fields=('table', 'columnType'),
-                                     blank=True,
-                                     related_name='tables')
+                                         through='Column',
+                                         through_fields=('table', 'columnType'),
+                                         blank=True,
+                                         related_name='tables')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.user.get_full_name()
 
 
+@python_2_unicode_compatible
 class Column(models.Model):
     table = models.ForeignKey(Table, related_name='columns')
     columnType = models.ForeignKey(ColumnType, related_name='columns')
     number = models.IntegerField(default=0)
     active = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.columnType.title
 
     @property
@@ -119,4 +131,3 @@ def sync_table(sender, instance, **kwargs):
                                            active=columnType.active,
                                            editable=columnType.editable)
             column.save()
-

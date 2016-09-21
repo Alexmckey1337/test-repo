@@ -1,3 +1,6 @@
+# -*- coding: utf-8
+from __future__ import unicode_literals
+
 from datetime import datetime, date
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -32,5 +35,6 @@ def deals_to_expired():
     current_month = current_date.month
     current_year = current_date.year
 
-    expired_deals = Deal.objects.filter(date_created__lt=date(current_year, current_month, 1), expired=False, done=False)
+    expired_deals = Deal.objects.filter(date_created__lt=date(current_year, current_month, 1), expired=False,
+                                        done=False)
     expired_deals.update(expired=True)

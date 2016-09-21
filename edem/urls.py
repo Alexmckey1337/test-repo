@@ -1,17 +1,21 @@
-from django.contrib import admin
+# -*- coding: utf-8
+from __future__ import unicode_literals
+
 from django.conf.urls import url, include
+from django.contrib import admin
 from rest_framework import routers
+
 import account.views
-import hierarchy.views
-import notification.views
 import event.views
-import status.views
-import navigation.views
-import partnership.views
-import tv_crm.views
-import summit.views
-import report.views
+import hierarchy.views
 import location.views
+import navigation.views
+import notification.views
+import partnership.views
+import report.views
+import status.views
+import summit.views
+import tv_crm.views
 
 router = routers.DefaultRouter()
 router.register(r'users', account.views.UserViewSet)
@@ -25,7 +29,7 @@ router.register(r'events', event.views.EventViewSet)
 router.register(r'participations', event.views.ParticipationViewSet)
 router.register(r'statuses', status.views.StatusViewSet)
 router.register(r'divisions', status.views.DivisionViewSet)
-#router.register(r'navigation', navigation.views.NavigationViewSet)
+# router.register(r'navigation', navigation.views.NavigationViewSet)
 router.register(r'partnerships', partnership.views.PartnershipViewSet)
 router.register(r'partnerships_unregister_search', partnership.views.PartnershipsUnregisterUserViewSet)
 router.register(r'deals', partnership.views.DealViewSet)

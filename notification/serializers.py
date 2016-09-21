@@ -1,5 +1,9 @@
-from models import Notification
+# -*- coding: utf-8
+from __future__ import unicode_literals
+
 from rest_framework import serializers
+
+from .models import Notification
 
 
 class NotificationSerializer(serializers.HyperlinkedModelSerializer):
@@ -7,4 +11,4 @@ class NotificationSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Notification
-        fields = ('url', 'id', 'theme', 'fullname', 'uid', 'description', 'date', 'common', 'system', )
+        fields = ('url', 'id', 'theme', 'fullname', 'uid', 'description', 'date', 'common', 'system',)

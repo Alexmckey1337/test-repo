@@ -1,12 +1,15 @@
-from models import UserReport, WeekReport, MonthReport, YearReport
+# -*- coding: utf-8
+from __future__ import unicode_literals
+
 from rest_framework import serializers
+
+from .models import UserReport, WeekReport, MonthReport, YearReport
 
 
 class UserReportSerializer(serializers.HyperlinkedModelSerializer):
-
     class Meta:
         model = UserReport
-        fields = ('url', 'id', )
+        fields = ('url', 'id',)
 
 
 class WeekReportSerializer(serializers.HyperlinkedModelSerializer):
@@ -14,7 +17,7 @@ class WeekReportSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = WeekReport
-        fields = ('id', 'uid', 'mid', 'fullname','week', 'from_date',
+        fields = ('id', 'uid', 'mid', 'fullname', 'week', 'from_date',
                   'to_date', 'home_count', 'home_value',
                   'night_count', 'service_count',
                   'service_coming_count', 'service_repentance_count',
@@ -24,7 +27,6 @@ class WeekReportSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class MonthReportSerializer(serializers.HyperlinkedModelSerializer):
-
     class Meta:
         model = MonthReport
         fields = ('id', 'uid', 'mid', 'fullname', 'date',
@@ -37,7 +39,6 @@ class MonthReportSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class YearReportSerializer(serializers.HyperlinkedModelSerializer):
-
     class Meta:
         model = YearReport
         fields = ('id', 'uid', 'mid', 'fullname', 'date',

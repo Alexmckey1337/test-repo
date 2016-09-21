@@ -1,30 +1,31 @@
-from event.models import Week, Participation
+# -*- coding: utf-8
+from __future__ import unicode_literals
+
+from event.models import Week
 from report.models import WeekReport, UserReport
 
 
 def create_week_reports(int):
     try:
         week = Week.objects.get(id=int)
+    except Week.DoesNotExist:
+        print("Week doesn't exist")
+        return None
+    else:
         from_date = week.from_date
         to_date = week.to_date
         i = 0
         if not week.week_reports.all():
             user_reports = UserReport.objects.all()
             for user_report in user_reports.all():
-                try:
-                    week_report = WeekReport.objects.get(user=user_report,
-                                                         week=week)
-                except WeekReport.DoesNotExist:
-                    week_report = WeekReport.objects.create(user=user_report,
-                                                            week=week,
-                                                            from_date=from_date,
-                                                            to_date=to_date)
+                _, created = WeekReport.objects.get_or_create(user=user_report, week=week, defaults={
+                    'from_date': from_date,
+                    'to_date': to_date,
+                })
+                if created:
                     i += 1
-    except Week.DoesNotExist:
-        print u"Week doesn't exist"
+        print("Created %i" % i)
         return None
-    print u"Created %i" % i
-    return None
 
 
 def get_disciple_participations(user):

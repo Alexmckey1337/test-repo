@@ -1,5 +1,10 @@
+# -*- coding: utf-8
+from __future__ import unicode_literals
+
 from django.conf.urls import url
-from views import *
+
+from account.views import (delete_user, login_view, create_user, send_password, change_password, logout_view,
+                           download_image, password_forgot, password_view)
 
 urlpatterns = [
     url(r'^delete_user', delete_user),
