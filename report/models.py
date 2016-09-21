@@ -19,8 +19,8 @@ class UserReport(models.Model):
 
 class WeekReport(models.Model):
     week = models.ForeignKey('event.Week', null=True, blank=True, related_name='week_reports')
-    from_date = models.DateField(default=datetime.date.today())
-    to_date = models.DateField(default=datetime.date.today())
+    from_date = models.DateField(default=datetime.date.today)
+    to_date = models.DateField(default=datetime.date.today)
     user = models.ForeignKey(UserReport, related_name='week_reports')
     home_count = models.IntegerField(default=0)
     home_value = models.IntegerField(default=0)

@@ -11,7 +11,7 @@ class Partnership(models.Model):
     user = models.OneToOneField('account.CustomUser', related_name='partnership')
     responsible = models.ForeignKey('self', related_name='disciples', null=True, blank=True, on_delete=models.SET_NULL)
     value = models.IntegerField()
-    date = models.DateField(default=date.today())
+    date = models.DateField(default=date.today)
     is_responsible = models.BooleanField(default=False)
 
     def __unicode__(self):

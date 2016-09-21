@@ -48,6 +48,10 @@ VERBOSE_FIELDS = {'Имя': 'user__first_name',
                   'Явка': 'check'}
 
 
+def current_week():
+    return datetime.date.today().isocalendar()[1]
+
+
 class EventType(models.Model):
     title = models.CharField(max_length=50)
     image = models.ImageField(upload_to='images/eventTypes/', null=True, blank=True)
@@ -76,9 +80,9 @@ class EventAnket(models.Model):
 
 
 class Week(models.Model):
-    week = models.IntegerField(default=datetime.date.today().isocalendar()[1], unique=True)
-    from_date = models.DateField(default=date.today())
-    to_date = models.DateField(default=date.today())
+    week = models.IntegerField(default=current_week, unique=True)
+    from_date = models.DateField(default=date.today)
+    to_date = models.DateField(default=date.today)
 
     def __unicode__(self):
         return unicode(self.week)
@@ -87,9 +91,9 @@ class Week(models.Model):
 class Event(models.Model):
     week = models.ForeignKey(Week, null=True, blank=True)
     event_type = models.ForeignKey(EventType, related_name='events', blank=True, null=True)
-    from_date = models.DateField(default=date.today())
-    to_date = models.DateField(default=date.today())
-    time = models.TimeField(default=timezone.now())
+    from_date = models.DateField(default=date.today)
+    to_date = models.DateField(default=date.today)
+    time = models.TimeField(default=timezone.now)
     users = models.ManyToManyField(EventAnket,
                                    through='Participation',
                                    through_fields=('event', 'user'),

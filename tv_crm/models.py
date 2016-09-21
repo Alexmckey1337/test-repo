@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 
 class LastCall(models.Model):
-    user = models.ForeignKey('account.CustomUser', related_name='last_call', unique=True)
+    user = models.OneToOneField('account.CustomUser', related_name='last_call')
     last_responce = models.TextField(blank=True)
     date = models.DateField(auto_now=True)
 

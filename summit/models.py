@@ -52,7 +52,7 @@ class SummitAnket(models.Model):
     pastor = models.CharField(max_length=255, blank=True, null=True)
     bishop = models.CharField(max_length=255, blank=True, null=True)
     sotnik = models.CharField(max_length=255, blank=True, null=True)
-    date = models.DateField(default=date.today())
+    date = models.DateField(default=date.today)
     department = models.CharField(max_length=255, blank=True, null=True)
     protected = models.BooleanField(default=False)
     city = models.CharField(max_length=255, blank=True, null=True)
