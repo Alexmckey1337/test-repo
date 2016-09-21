@@ -38,18 +38,23 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'import_export',
     'rest_framework',
     'rest_framework.authtoken',
-    'account',
     'djcelery',
+
+    'rest_auth',
+    'corsheaders',
+    # 'rest_auth.registration',
+
+    'main',
+    'account',
     'hierarchy',
     'notification',
     'event',
     'report',
     'status',
     'navigation',
-    'main',
-    'import_export',
     'partnership',
     'tv_crm',
     'summit',
@@ -60,6 +65,7 @@ INSTALLED_APPS = [
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -68,6 +74,9 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
  #   'axes.middleware.FailedLoginMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'edem.urls'
 
@@ -201,6 +210,9 @@ CELERYBEAT_SCHEDULE = {
     },
 }
 
+REST_AUTH_SERIALIZERS = {
+    'USER_DETAILS_SERIALIZER': 'account.serializers.UserSerializer',
+}
 
 #SESSION_COOKIE_AGE = 1
 SITE_DOMAIN_URL = 'http://vocrm.org/'
