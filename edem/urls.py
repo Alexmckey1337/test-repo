@@ -52,6 +52,7 @@ router.register(r'regions', location.views.RegionViewSet)
 router.register(r'cities', location.views.CityViewSet)
 
 urlpatterns = [
+    url(r'^rest-auth/', include('rest_auth.urls')),
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^admin/', include(admin.site.urls)),

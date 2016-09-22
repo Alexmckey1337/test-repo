@@ -8,7 +8,7 @@ django-celery==3.1.17
 django-cors-headers==1.1.0
 django-filter==0.13.0
 django-import-export==0.4.2
-django-rest-auth==0.6.0
+django-rest-auth
 djangorestframework==3.3.2
 djangorestframework-filters==0.8.0
 gunicorn==19.4.5
