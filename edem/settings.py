@@ -211,6 +211,7 @@ CELERYBEAT_SCHEDULE = {
 REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'account.serializers.UserSerializer',
 }
+OLD_PASSWORD_FIELD_ENABLED = True
 
 # SESSION_COOKIE_AGE = 1
 SITE_DOMAIN_URL = 'http://vocrm.org/'

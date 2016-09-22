@@ -102,15 +102,23 @@ $(document).ready(function() {
             return
         }
         window.location.href= '/account/'+ id
-    })
+    });
 
 
     document.getElementById('save').addEventListener('click',function(){
         sendData();
+    });
+    document.getElementById('change_password').addEventListener('click', function () {
+        sendPassword();
+    });
+    document.getElementById('revert_edit_password').addEventListener('click', function () {
+        document.getElementById('old_password').value = "";
+        document.getElementById('password1').value = "";
+        document.getElementById('password2').value = "";
     })
 
 
-})
+});
 
 
 var data_for_drop = {}
@@ -732,6 +740,32 @@ function getManagerList(active) {
 
 
 }
+function sendPassword() {
+
+    var data = {};
+
+    /*Блок проверки паролей */
+
+    data['old_password'] = document.getElementById('old_password').value.trim();
+    data['new_password1'] = document.getElementById('password1').value.trim();
+    data['new_password2'] = document.getElementById('password2').value.trim();
+
+    var json = JSON.stringify(data);
+
+    ajaxRequest(config.DOCUMENT_ROOT + 'rest-auth/password/change/', json, function (data) {
+        showPopup(data.success, 'SUCCESS');
+        document.getElementById('old_password').value = "";
+        document.getElementById('password1').value = "";
+        document.getElementById('password2').value = "";
+    }, 'POST', true, {
+        'Content-Type': 'application/json'
+    }, {
+        400: function (data) {
+            showPopup(data, 'ERROR');
+        }
+    });
+}
+
 
 
 function sendData() {
@@ -801,9 +835,9 @@ function sendData() {
 
     /*Блок проверки паролей */
 
-    data['old_password'] = document.getElementById('old_password').value.trim()
-    data['password1'] = document.getElementById('password1').value.trim()
-    data['password2'] = document.getElementById('password2').value.trim()
+    data['old_password'] = document.getElementById('old_password').value.trim();
+    data['password1'] = document.getElementById('password1').value.trim();
+    data['password2'] = document.getElementById('password2').value.trim();
 
     /*
 
