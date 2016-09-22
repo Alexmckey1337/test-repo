@@ -1,11 +1,11 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
-from django.utils.encoding import python_2_unicode_compatible
 
 import datetime
 
 from django.db import models
 from django.db.models import Sum
+from django.utils.encoding import python_2_unicode_compatible
 
 from event.models import Participation
 
@@ -19,11 +19,7 @@ class UserReport(models.Model):
 
 
 @python_2_unicode_compatible
-class WeekReport(models.Model):
-    week = models.ForeignKey('event.Week', null=True, blank=True, related_name='week_reports')
-    from_date = models.DateField(default=datetime.date.today)
-    to_date = models.DateField(default=datetime.date.today)
-    user = models.ForeignKey(UserReport, related_name='week_reports')
+class AbstractReport(models.Model):
     home_count = models.IntegerField(default=0)
     home_value = models.IntegerField(default=0)
     night_count = models.IntegerField(default=0)
@@ -36,6 +32,39 @@ class WeekReport(models.Model):
     service_as_leader_count = models.IntegerField(default=0)
     service_as_leader_coming_count = models.IntegerField(default=0)
     service_as_leader_repentance_count = models.IntegerField(default=0)
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.fullname
+
+    @property
+    def fullname(self):
+        s = ''
+        if len(self.user.user.last_name) > 0:
+            s = s + self.user.user.last_name + ' '
+        if len(self.user.user.first_name) > 0:
+            s = s + self.user.user.first_name[0] + '.'
+        if len(self.user.user.middle_name) > 0:
+            s = s + self.user.user.middle_name[0] + '.'
+        return s.strip()
+
+    @property
+    def uid(self):
+        return self.user.user.id
+
+    @property
+    def mid(self):
+        return self.user.user.master.id
+
+
+@python_2_unicode_compatible
+class WeekReport(AbstractReport):
+    week = models.ForeignKey('event.Week', null=True, blank=True, related_name='week_reports')
+    from_date = models.DateField(default=datetime.date.today)
+    to_date = models.DateField(default=datetime.date.today)
+    user = models.ForeignKey(UserReport, related_name='week_reports')
 
     def __str__(self):
         return "%s, week  %i" % (self.user.user.get_full_name(), self.week.week)
@@ -88,68 +117,14 @@ class WeekReport(models.Model):
         self.service_as_leader_count = service_as_leader_count
         self.save()
 
-    @property
-    def fullname(self):
-        s = ''
-        if len(self.user.user.last_name) > 0:
-            s = s + self.user.user.last_name + ' '
-        if len(self.user.user.first_name) > 0:
-            s = s + self.user.user.first_name[0] + '.'
-        if len(self.user.user.middle_name) > 0:
-            s = s + self.user.user.middle_name[0] + '.'
-        return s.strip()
 
-    @property
-    def uid(self):
-        return self.user.user.id
-
-    @property
-    def mid(self):
-        return self.user.user.master.id
-
-
-@python_2_unicode_compatible
-class MonthReport(models.Model):
+class MonthReport(AbstractReport):
     date = models.DateField()
     user = models.ForeignKey(UserReport, related_name='month_reports', null=True, blank=True)
-    home_count = models.IntegerField(default=0)
-    home_value = models.IntegerField(default=0)
-    night_count = models.IntegerField(default=0)
-    service_count = models.IntegerField(default=0)
-    service_coming_count = models.IntegerField(default=0)
-    service_repentance_count = models.IntegerField(default=0)
-    home_as_leader_count = models.IntegerField(default=0)
-    home_as_leader_value = models.IntegerField(default=0)
-    night_as_leader_count = models.IntegerField(default=0)
-    service_as_leader_count = models.IntegerField(default=0)
-    service_as_leader_coming_count = models.IntegerField(default=0)
-    service_as_leader_repentance_count = models.IntegerField(default=0)
-
-    def __str__(self):
-        return self.fullname
-
-    @property
-    def fullname(self):
-        s = ''
-        if len(self.user.user.last_name) > 0:
-            s = s + self.user.user.last_name + ' '
-        if len(self.user.user.first_name) > 0:
-            s = s + self.user.user.first_name[0] + '.'
-        if len(self.user.user.middle_name) > 0:
-            s = s + self.user.user.middle_name[0] + '.'
-        return s.strip()
-
-    @property
-    def uid(self):
-        return self.user.user.id
-
-    @property
-    def mid(self):
-        return self.user.user.master.id
 
     def get_stat(self):
         month = self.date.month
-        weeks = WeekReport.objects.filter(from_date__month=month).all()
+        weeks = WeekReport.objects.filter(from_date__month=month)
         self.home_count = weeks.aggregate(Sum('home_count'))
         self.home_value = weeks.aggregate(Sum('home_value'))
         self.night_count = weeks.aggregate(Sum('night_count'))
@@ -165,48 +140,13 @@ class MonthReport(models.Model):
         self.save()
 
 
-@python_2_unicode_compatible
-class YearReport(models.Model):
+class YearReport(AbstractReport):
     date = models.DateField()
     user = models.ForeignKey(UserReport, related_name='year_reports', null=True, blank=True)
-    home_count = models.IntegerField(default=0)
-    home_value = models.IntegerField(default=0)
-    night_count = models.IntegerField(default=0)
-    service_count = models.IntegerField(default=0)
-    service_coming_count = models.IntegerField(default=0)
-    service_repentance_count = models.IntegerField(default=0)
-    home_as_leader_count = models.IntegerField(default=0)
-    home_as_leader_value = models.IntegerField(default=0)
-    night_as_leader_count = models.IntegerField(default=0)
-    service_as_leader_count = models.IntegerField(default=0)
-    service_as_leader_coming_count = models.IntegerField(default=0)
-    service_as_leader_repentance_count = models.IntegerField(default=0)
-
-    def __str__(self):
-        return self.fullname
-
-    @property
-    def fullname(self):
-        s = ''
-        if len(self.user.user.last_name) > 0:
-            s = s + self.user.user.last_name + ' '
-        if len(self.user.user.first_name) > 0:
-            s = s + self.user.user.first_name[0] + '.'
-        if len(self.user.user.middle_name) > 0:
-            s = s + self.user.user.middle_name[0] + '.'
-        return s.strip()
-
-    @property
-    def uid(self):
-        return self.user.user.id
-
-    @property
-    def mid(self):
-        return self.user.user.master.id
 
     def get_stat(self):
         year = self.date.year
-        months = MonthReport.objects.filter(date__year=year).all()
+        months = MonthReport.objects.filter(date__year=year)
         self.home_count = months.aggregate(Sum('home_count'))
         self.home_value = months.aggregate(Sum('home_value'))
         self.night_count = months.aggregate(Sum('night_count'))

@@ -1,10 +1,10 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
-from django.utils.encoding import python_2_unicode_compatible
 
 from collections import OrderedDict
 
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 
 
 @python_2_unicode_compatible
@@ -17,7 +17,7 @@ class LastCall(models.Model):
         ordering = ['date']
 
     def __str__(self):
-        return self.user
+        return str(self.user)
 
     @property
     def user_info(self):
@@ -80,11 +80,11 @@ class Synopsis(models.Model):
     producer = models.TextField(blank=True)
 
     def __str__(self):
-        return self.user
+        return str(self.user)
 
     @property
     def hero_fullname(self):
-        l = self.hero.fullname
+        l = self.hero
         return l
 
     @property

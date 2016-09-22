@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from import_export import resources
 
 from hierarchy.models import Department
-from models import SummitAnket
+from .models import SummitAnket
 
 
 class SummitAnketResource(resources.ModelResource):

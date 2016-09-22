@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.conf.urls import url
 
-from views import update_last_call
+from .views import update_last_call
 
 urlpatterns = [
     url(r'^update_last_call', update_last_call),

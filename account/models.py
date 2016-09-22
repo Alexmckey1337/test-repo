@@ -71,10 +71,7 @@ class CustomUser(User):
 
     @property
     def has_disciples(self):
-        if self.disciples.all():
-            return True
-        else:
-            return False
+        return self.disciples.exists()
 
     @property
     def column_table(self):
@@ -246,7 +243,7 @@ class CustomUser(User):
 
     @property
     def fullname(self):
-        return self.last_name.strip() + ' ' + self.first_name.strip() + ' ' + self.middle_name.strip()
+        return ' '.join(map(lambda name: name.strip(), (self.last_name, self.first_name, self.middle_name)))
 
     @property
     def hierarchy_name(self):

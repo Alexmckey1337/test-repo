@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from models import Country, Region, City
+from .models import Country, Region, City
 
 
 class CountrySerializer(serializers.HyperlinkedModelSerializer):

@@ -1,6 +1,5 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
-from django.utils.encoding import python_2_unicode_compatible
 
 import datetime
 from collections import OrderedDict
@@ -11,6 +10,7 @@ from django.db.models import Sum
 from django.db.models import signals
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
 
 DAY_OF_THE_WEEK = {
@@ -90,7 +90,7 @@ class Week(models.Model):
     to_date = models.DateField(default=date.today)
 
     def __str__(self):
-        return unicode(self.week)
+        return str(self.week)
 
 
 @python_2_unicode_compatible

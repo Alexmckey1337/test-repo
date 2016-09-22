@@ -230,7 +230,7 @@ class SummitUnregisterUserViewSet(viewsets.ModelViewSet):
 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from resources import make_table
+from .resources import make_table
 
 
 @api_view(['GET'])

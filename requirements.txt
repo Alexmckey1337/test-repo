@@ -3,7 +3,8 @@ anyjson==0.3.3
 billiard==3.3.0.22
 celery==3.1.23
 diff-match-patch==20121119
-Django==1.9.1
+Django==1.9.9
+django-allauth
 django-celery==3.1.17
 django-cors-headers==1.1.0
 django-filter==0.13.0
@@ -14,7 +15,8 @@ djangorestframework-filters==0.8.0
 gunicorn==19.4.5
 kombu==3.0.33
 Markdown==2.6.5
-MySQL-python==1.2.5
+# MySQL-python==1.2.5
+mysqlclient 
 Pillow==2.9.0
 Pygments==2.1
 pytz==2015.7
