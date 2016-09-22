@@ -1,17 +1,16 @@
-  //Проверка существование элемента на странице
-  function isElementExists(element) {
-      if (typeof(element) != 'undefined' && element != null) {
-          return true;
-      }
-  }
+//Проверка существование элемента на странице
+function isElementExists(element) {
+    if (typeof(element) != 'undefined' && element != null) {
+        return true;
+    }
+}
 
 
-
-Array.prototype.unique = function() {
+Array.prototype.unique = function () {
     var a = this.concat();
-    for(var i=0; i<a.length; ++i) {
-        for(var j=i+1; j<a.length; ++j) {
-            if(a[i] === a[j])
+    for (var i = 0; i < a.length; ++i) {
+        for (var j = i + 1; j < a.length; ++j) {
+            if (a[i] === a[j])
                 a.splice(j--, 1);
         }
     }
@@ -20,165 +19,150 @@ Array.prototype.unique = function() {
 };
 
 
+var delay = (function () {
+    var timer = 0;
+    return function (callback, ms) {
+        clearTimeout(timer);
+        timer = setTimeout(callback, ms);
+    };
+})();
 
-  var delay = (function() {
-      var timer = 0;
-      return function(callback, ms) {
-          clearTimeout(timer);
-          timer = setTimeout(callback, ms);
-      };
-  })();
-
-  //index() jquery alternative
-    function indexInParent(node) {
-        var children = node.parentNode.childNodes;
-        var num = 0;
-        for (var i=0; i<children.length; i++) {
-             if (children[i]==node) return num;
-             if (children[i].nodeType==1) num++;
-        }
-        return -1;
+//index() jquery alternative
+function indexInParent(node) {
+    var children = node.parentNode.childNodes;
+    var num = 0;
+    for (var i = 0; i < children.length; i++) {
+        if (children[i] == node) return num;
+        if (children[i].nodeType == 1) num++;
     }
+    return -1;
+}
 
 
-    function getRussianMonth(index){
-            var month=new Array(12);
-      month[0]="Январь";
-      month[1]="Февраль";
-      month[2]="Март";
-      month[3]="Апрель";
-      month[4]="Май";
-      month[5]="Июнь";
-      month[6]="Июль";
-      month[7]="Август";
-      month[8]="Сентябрь";
-      month[9]="Октябрь";
-      month[10]="Ноябрь";
-      month[11]="Декабрь";
+function getRussianMonth(index) {
+    var month = new Array(12);
+    month[0] = "Январь";
+    month[1] = "Февраль";
+    month[2] = "Март";
+    month[3] = "Апрель";
+    month[4] = "Май";
+    month[5] = "Июнь";
+    month[6] = "Июль";
+    month[7] = "Август";
+    month[8] = "Сентябрь";
+    month[9] = "Октябрь";
+    month[10] = "Ноябрь";
+    month[11] = "Декабрь";
 
-            return month[index] || ''
-    }
+    return month[index] || ''
+}
 
-    //tab plugin v_1
-    function tab_plugin(){
+//tab plugin v_1
+function tab_plugin() {
     var el = document.getElementById('tab_plugin');
-    if(!el){
-        return ;
+    if (!el) {
+        return;
     }
 
 
-    Array.prototype.forEach.call(document.querySelectorAll("#tab_plugin li"), function(el) {
+    Array.prototype.forEach.call(document.querySelectorAll("#tab_plugin li"), function (el) {
 
-        el.addEventListener('click', function(e) {
+        el.addEventListener('click', function (e) {
             e.preventDefault();
-            var index = indexInParent(el)
+            var index = indexInParent(el);
 
 
-           Array.prototype.forEach.call(document.querySelectorAll("#tab_plugin li"), function(el) {
-            el.classList.remove('current')
-           })
-           Array.prototype.forEach.call(document.querySelectorAll("[data-tab-body]"), function(el) {
-            el.style.display = 'none'
-           });
+            Array.prototype.forEach.call(document.querySelectorAll("#tab_plugin li"), function (el) {
+                el.classList.remove('current')
+            });
+            Array.prototype.forEach.call(document.querySelectorAll("[data-tab-body]"), function (el) {
+                el.style.display = 'none'
+            });
 
-           this.classList.add('current')
+            this.classList.add('current');
 
-           var tab = document.querySelectorAll("[data-tab-body]")[index];
-           if(tab){
-            tab.style.display = 'block';
-           }
-           
+            var tab = document.querySelectorAll("[data-tab-body]")[index];
+            if (tab) {
+                tab.style.display = 'block';
+            }
+
 
         });
 
 
-      //  document.querySelector("#tab_plugin li").click();
+        //  document.querySelector("#tab_plugin li").click();
     });
 }
-  //реализация jquery live event
-  function live(eventType, elementQuerySelector, cb) {
-      document.addEventListener(eventType, function(event) {
+//реализация jquery live event
+function live(eventType, elementQuerySelector, cb) {
+    document.addEventListener(eventType, function (event) {
 
-          var qs = document.querySelectorAll(elementQuerySelector);
-          if (qs) {
-              var el = event.target,
-                  index = -1;
-              while (el && ((index = Array.prototype.indexOf.call(qs, el)) === -1)) {
-                  el = el.parentElement;
-              }
-              if (index > -1) {
-                  cb.call(el, event);
-              }
-          }
-      });
-  }
-
-  //Счетчик уведомлений
-  function counterNotifications() {
-      ajaxRequest(config.DOCUMENT_ROOT+'api/notifications/today/', null, function(data) {
-          document.getElementById('count_notifications').innerHTML = '(' + data.count + ')';
-      });
-  }
-
-  function ajaxRequest(url, data, callback, method, withCredentials, headers, statusCode) {
-      var withCredentials = withCredentials === false ? false : true;
-      var method = method || 'GET';
-      var data = data || {};
-      var headers = headers || {};
-      statusCode = statusCode || {};
-      $.ajax({
-          url: url,
-          data: data,
-          type: method,
-          success: callback,
-          xhrFields: {
-              withCredentials: withCredentials
-          },
-          statusCode: statusCode,
-          headers: headers 
-      });
-  }
-
-
-
-function showPopup(text,title){
-
-  var title = title || 'Информационное сообщение'
-  var text = text || ''
-
-var popup =  document.getElementById('create_pop')
-if( popup  ){
-  popup.parentElement.removeChild(popup)
+        var qs = document.querySelectorAll(elementQuerySelector);
+        if (qs) {
+            var el = event.target,
+                index = -1;
+            while (el && ((index = Array.prototype.indexOf.call(qs, el)) === -1)) {
+                el = el.parentElement;
+            }
+            if (index > -1) {
+                cb.call(el, event);
+            }
+        }
+    });
 }
-var div  = document.createElement('div');
 
-var html =  '<div class="pop_cont" >'+
-        '<div class="top-text"><h3>'+ title+'</h3><span id="close_pop">×</span></div>'+
-        '<div class="main-text"><p>'+  text  +'</p></div>'+
-      '</div>'
-      div.className = "pop-up-universal"
-      div.innerHTML = html;
-      div.id= "create_pop"
+//Счетчик уведомлений
+function counterNotifications() {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/notifications/today/', null, function (data) {
+        document.getElementById('count_notifications').innerHTML = '(' + data.count + ')';
+    });
+}
 
- 
+function ajaxRequest(url, data, callback, method, withCredentials, headers, statusCode) {
+    withCredentials = withCredentials !== false;
+    method = method || 'GET';
+    data = data || {};
+    headers = headers || {};
+    statusCode = statusCode || {};
+    $.ajax({
+        url: url,
+        data: data,
+        type: method,
+        success: callback,
+        xhrFields: {
+            withCredentials: withCredentials
+        },
+        statusCode: statusCode,
+        headers: headers
+    });
+}
 
+function showPopup(text, title) {
 
-      document.body.appendChild(div);
+    title = title || 'Информационное сообщение';
+    text = text || '';
 
-      document.getElementById('close_pop').addEventListener('click' , function(){
+    var popup = document.getElementById('create_pop');
+    if (popup) {
+        popup.parentElement.removeChild(popup)
+    }
+    var div = document.createElement('div');
+
+    var html = '<div class="pop_cont" >' +
+        '<div class="top-text"><h3>' + title + '</h3><span id="close_pop">×</span></div>' +
+        '<div class="main-text"><p>' + text + '</p></div>' +
+        '</div>';
+    div.className = "pop-up-universal";
+    div.innerHTML = html;
+    div.id = "create_pop";
+
+    document.body.appendChild(div);
+
+    document.getElementById('close_pop').addEventListener('click', function () {
         document.getElementsByClassName('pop-up-universal')[0].style.display = 'none'
-      })
-
-
-      document.getElementsByClassName('pop-up-universal')[0].style.display= 'block'
-
-
-
-
+    });
+    document.getElementsByClassName('pop-up-universal')[0].style.display = 'block'
 }
-
-
-
 
 function getParameterByName(name, url) {
     if (!url) url = window.location.href;

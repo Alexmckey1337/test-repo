@@ -66,7 +66,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @list_route()
     def disciples(self, request, *args, **kwargs):
-        from resources import get_disciples
+        from .resources import get_disciples
         q = get_disciples(request.user)
         q = q.order_by('-hierarchy__level')
         queryset = self.filter_queryset(q)
