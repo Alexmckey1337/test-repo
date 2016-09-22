@@ -9,7 +9,7 @@ from django.utils.encoding import python_2_unicode_compatible
 class Country(models.Model):
     code = models.IntegerField()
     title = models.CharField(max_length=50)
-    phone_code = models.CharField(max_length=5, blank=True, null=True)
+    phone_code = models.CharField(max_length=5, blank=True)
 
     def __str__(self):
         return self.title

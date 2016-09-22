@@ -30,21 +30,21 @@ def get_hierarchy_chain(obj, l):
 
 
 class CustomUser(User):
-    middle_name = models.CharField(max_length=40, default='', blank=True)
-    phone_number = models.CharField(max_length=13, default='', blank=True, null=True)
-    skype = models.CharField(max_length=50, default='', null=True, blank=True)
-    country = models.CharField(max_length=50, default='', blank=True)
-    region = models.CharField(max_length=50, default='', blank=True)
-    city = models.CharField(max_length=50, default='', blank=True)
-    district = models.CharField(max_length=50, default='', blank=True)
-    address = models.CharField(max_length=300, default='', null=True, blank=True)
+    middle_name = models.CharField(max_length=40, blank=True)
+    phone_number = models.CharField(max_length=13, blank=True)
+    skype = models.CharField(max_length=50, blank=True)
+    country = models.CharField(max_length=50, blank=True)
+    region = models.CharField(max_length=50, blank=True)
+    city = models.CharField(max_length=50, blank=True)
+    district = models.CharField(max_length=50, blank=True)
+    address = models.CharField(max_length=300, blank=True)
     born_date = models.DateField(blank=True, null=True)
     facebook = models.URLField(default='', blank=True, null=True)
     vkontakte = models.URLField(default='', blank=True, null=True)
     odnoklassniki = models.URLField(default='', blank=True, null=True)
-    image = models.ImageField(upload_to='images/', null=True, blank=True)
-    image_source = models.ImageField(upload_to='images/', null=True, blank=True)
-    description = models.TextField(blank=True, null=True)
+    image = models.ImageField(upload_to='images/', blank=True)
+    image_source = models.ImageField(upload_to='images/', blank=True)
+    description = models.TextField(blank=True)
     department = models.ForeignKey('hierarchy.Department', related_name='users', null=True, blank=True,
                                    on_delete=models.SET_NULL)
     hierarchy = models.ForeignKey('hierarchy.Hierarchy', related_name='users', null=True, blank=True,

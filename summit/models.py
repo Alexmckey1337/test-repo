@@ -11,7 +11,7 @@ from django.db import models
 @python_2_unicode_compatible
 class SummitType(models.Model):
     title = models.CharField(max_length=100, verbose_name='Название саммита')
-    image = models.ImageField(upload_to='summit_type/images/', null=True, blank=True)
+    image = models.ImageField(upload_to='summit_type/images/', blank=True)
 
     def __str__(self):
         return self.title
@@ -52,22 +52,22 @@ class SummitAnket(models.Model):
                                null=True)
     value = models.PositiveSmallIntegerField(default=0)
     description = models.CharField(max_length=255, blank=True)
-    code = models.CharField(max_length=8, blank=True, null=True)
-    name = models.CharField(max_length=255, blank=True, null=True)
-    first_name = models.CharField(max_length=255, blank=True, null=True)
-    last_name = models.CharField(max_length=255, blank=True, null=True)
-    pastor = models.CharField(max_length=255, blank=True, null=True)
-    bishop = models.CharField(max_length=255, blank=True, null=True)
-    sotnik = models.CharField(max_length=255, blank=True, null=True)
+    code = models.CharField(max_length=8, blank=True)
+    name = models.CharField(max_length=255, blank=True)
+    first_name = models.CharField(max_length=255, blank=True)
+    last_name = models.CharField(max_length=255, blank=True)
+    pastor = models.CharField(max_length=255, blank=True)
+    bishop = models.CharField(max_length=255, blank=True)
+    sotnik = models.CharField(max_length=255, blank=True)
     date = models.DateField(default=date.today)
-    department = models.CharField(max_length=255, blank=True, null=True)
+    department = models.CharField(max_length=255, blank=True)
     protected = models.BooleanField(default=False)
-    city = models.CharField(max_length=255, blank=True, null=True)
-    country = models.CharField(max_length=255, blank=True, null=True)
-    region = models.CharField(max_length=255, blank=True, null=True)
-    phone_number = models.CharField(max_length=255, blank=True, null=True)
-    responsible = models.CharField(max_length=255, blank=True, null=True)
-    image = models.CharField(max_length=12, blank=True, null=True)
+    city = models.CharField(max_length=255, blank=True)
+    country = models.CharField(max_length=255, blank=True)
+    region = models.CharField(max_length=255, blank=True)
+    phone_number = models.CharField(max_length=255, blank=True)
+    responsible = models.CharField(max_length=255, blank=True)
+    image = models.CharField(max_length=12, blank=True)
     retards = models.BooleanField(default=False)
 
     class Meta:

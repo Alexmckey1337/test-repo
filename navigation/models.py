@@ -63,8 +63,8 @@ class Category(models.Model):
 class ColumnType(models.Model):
     title = models.CharField(max_length=100)
     category = models.ForeignKey(Category, related_name="columnTypes", blank=True, null=True)
-    verbose_title = models.CharField(max_length=100, blank=True, null=True)
-    ordering_title = models.CharField(max_length=100, blank=True, null=True)
+    verbose_title = models.CharField(max_length=100, blank=True)
+    ordering_title = models.CharField(max_length=100, blank=True)
     number = models.IntegerField(default=0)
     active = models.BooleanField(default=False)
     editable = models.BooleanField(default=True)

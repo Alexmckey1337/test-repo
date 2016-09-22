@@ -57,7 +57,7 @@ def current_week():
 @python_2_unicode_compatible
 class EventType(models.Model):
     title = models.CharField(max_length=50)
-    image = models.ImageField(upload_to='images/eventTypes/', null=True, blank=True)
+    image = models.ImageField(upload_to='images/eventTypes/', blank=True)
     home = models.BooleanField(default=False)
     night = models.BooleanField(default=False)
     service = models.BooleanField(default=False)
