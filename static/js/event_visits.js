@@ -77,7 +77,7 @@ function createSubordinateList(data, event_id) {
     }
     document.getElementsByClassName('preloader')[0].style.display = 'block';
 
-    ajaxRequest(config.DOCUMENT_ROOT + '/api/participations/disciples/?event=' + event_id + '&user__user__master=' + master_id, data, function(answer) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/participations/disciples/?event=' + event_id + '&user__user__master=' + master_id, data, function (answer) {
         var html_sub = ''
         var results = answer.results;
         if (!results.length) {
@@ -147,7 +147,7 @@ function getEventsListByID(id) {
     data['from_date'] = from_date;
 
 
-    ajaxRequest(config.DOCUMENT_ROOT + '/api/events/?event_type=' + id, data, function(data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/events/?event_type=' + id, data, function (data) {
 
         //Обработка если нету events
         var results = data.results;
@@ -660,7 +660,7 @@ function createUserInfoBySearch(data, search) {
 function update_visit(data) {
 
     var json = JSON.stringify(data);
-    ajaxRequest(config.DOCUMENT_ROOT + '/api/update_participations/', json, function(JSONobj) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/update_participations/', json, function (JSONobj) {
 
     }, 'POST', true, {
         'Content-Type': 'application/json'

@@ -16,8 +16,13 @@ class NavigationAdmin(admin.ModelAdmin):
 admin.site.register(Navigation, NavigationAdmin)
 
 
+class ColumnInline(admin.TabularInline):
+    model = Column
+
+
 class TableAdmin(admin.ModelAdmin):
     list_display = ('user',)
+    inlines = (ColumnInline,)
 
     class Meta:
         model = Table
