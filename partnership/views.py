@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from datetime import datetime
 
 import django_filters
+from django.utils import six
 from django.utils.dateparse import parse_date
 from rest_framework import filters
 from rest_framework import viewsets
@@ -131,7 +132,7 @@ def update_partnership(request):
         data = request.data
         try:
             object = Partnership.objects.get(id=data['id'])
-            for key, value in data.iteritems():
+            for key, value in six.iteritems(data):
                 if key == "responsible":
                     responsible_partnerhip = Partnership.objects.filter(user__id=value).first()
                     object.responsible = responsible_partnerhip
@@ -203,7 +204,7 @@ def update_deal(request):
         data = request.data
         try:
             object = Deal.objects.get(id=data['id'])
-            for key, value in data.iteritems():
+            for key, value in six.iteritems(data):
                 setattr(object, key, value)
             if object.done:
                 object.expired = False

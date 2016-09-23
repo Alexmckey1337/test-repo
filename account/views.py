@@ -11,6 +11,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.template import Context
 from django.template.loader import get_template
+from django.utils import six
 from rest_framework import viewsets, filters
 from rest_framework.decorators import api_view
 from rest_framework.decorators import list_route
@@ -242,7 +243,7 @@ def edit_user(data, files):
             except User.DoesNotExist:
                 master = None
             user.master = master
-        for key, value in data.iteritems():
+        for key, value in six.iteritems(data):
             if key == 'master':
                 pass
             elif key == 'hierarchy':
@@ -347,7 +348,7 @@ def add_user(data, files, request):
                                    email=email,
                                    first_name=data['first_name'],
                                    last_name=data['last_name'])
-        for key, value in data.iteritems():
+        for key, value in six.iteritems(data):
             if key == "master":
                 master = User.objects.get(id=value)
                 user.master = master
@@ -481,7 +482,7 @@ def create_or_update_partnership(data, user_id=None):
             if 'responsible' in data.keys():
                 try:
                     object = Partnership.objects.get(user=user)
-                    for key, value in data.iteritems():
+                    for key, value in six.iteritems(data):
                         if key == "id":
                             pass
                         else:

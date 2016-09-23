@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import django_filters
+from django.utils import six
 from rest_framework import viewsets, filters
 from rest_framework.decorators import api_view
 from rest_framework.decorators import list_route
@@ -95,7 +96,7 @@ class ParticipationViewSet(viewsets.ModelViewSet):
 
     @list_route()
     def disciples(self, request):
-        from utils import get_disciple_participations
+        from .utils import get_disciple_participations
         q = get_disciple_participations(request.user)
         queryset = self.filter_queryset(q)
         page = self.paginate_queryset(queryset)
@@ -115,7 +116,7 @@ def update_participation(request):
         data = request.data
         try:
             object = Participation.objects.get(id=data['id'])
-            for key, value in data.iteritems():
+            for key, value in six.iteritems(data):
                 setattr(object, key, value)
             object.save()
             object.recount()

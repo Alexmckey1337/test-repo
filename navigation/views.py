@@ -1,6 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from django.utils import six
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
@@ -43,7 +44,7 @@ def update_columns(request):
             try:
                 object = Column.objects.get(id=data['id'])
                 table = object.table
-                for key, value in data.iteritems():
+                for key, value in six.iteritems(data):
                     if key == 'active' and not object.columnType.editable:
                         pass
                     else:
