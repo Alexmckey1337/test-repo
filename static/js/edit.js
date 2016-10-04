@@ -710,7 +710,7 @@ function getManagerList(active) {
 
         for (var i = 0; i < results.length; i++) {
 
-            if (active == results[i].fullname) {
+            if (active == results[i].title) {
                 html += '<option selected="selected" value="' + results[i].id + '">' + results[i].fullname + '</option>'
                 active = false
             } else {

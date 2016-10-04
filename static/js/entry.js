@@ -10,15 +10,9 @@ function authUser() {
     var data = {
         "username": username,
         "email": username,
-        "password": password
-        //'remember_me': remember
-    }
-    if (remember_me) {
-        data['remember_me'] = false;
-    } else {
-        data['remember_me'] = true;
-    }
-    console.log(data)
+        "password": password,
+        'remember_me': !remember_me
+    };
     if (checkEmptyFields(username, password) == false) {
 
         var json = JSON.stringify(data);
@@ -30,7 +24,7 @@ function authUser() {
             } else {
                 //loginError(JSONobj.message);
                 //alert(JSONobj.message)
-                clearFields()
+                clearFields();
                 document.querySelector(".account .invalid").style.display = 'block'
             }
         }, 'POST', true, {
@@ -69,7 +63,7 @@ function addErrorStyle(errorId, fieldId) {
 }
 */
 function checkEmptyFields(username, password) {
-    var empty = false
+    var empty = false;
     if (username.length == 0) {
       //  addErrorStyle('login_alert', 'login');
         empty = true;
@@ -111,13 +105,13 @@ function sendPassToEmail(){
 $(document).ready(function(){
     document.getElementById('entry').addEventListener('click',function(){
         logIn();
-    })
+    });
 
 
     document.getElementById('prev_page').addEventListener('click',function(){
         document.getElementsByClassName('getpassword')[0].style.display = 'none';
         document.getElementById('login_popup').style.display = 'block'
-    })
+    });
 
 
 

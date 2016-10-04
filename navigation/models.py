@@ -9,6 +9,20 @@ from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
 
 
+def user_table(user):
+    l = OrderedDict()
+    column_types = user.table.columns.filter(active=True).order_by('number')
+    for column in column_types:
+        d = OrderedDict()
+        d['title'] = column.columnType.verbose_title
+        d['ordering_title'] = column.columnType.ordering_title
+        d['number'] = column.number
+        d['active'] = column.active
+        d['editable'] = column.columnType.editable
+        l[column.columnType.title] = d
+    return l
+
+
 def partner_table():
     l = OrderedDict()
     column_types = ColumnType.objects.filter(category__title="partnership").order_by('number')

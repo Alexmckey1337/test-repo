@@ -84,6 +84,7 @@ $(document).ready(function () {
     $("#chooseRegion").select2({placeholder: " "}).on("change", getCities);
     $("#chooseCity").select2({placeholder: " ", tags: true});
     $("#chooseDepartment").select2({placeholder: " "});
+    $("#chooseStatus").select2({placeholder: " "});
     $("#chooseDivision").select2({placeholder: " "});
     $("#chooseStatus").select2({placeholder: " "});
     $("#chooseManager").select2({placeholder: " "});

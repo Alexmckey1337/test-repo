@@ -63,6 +63,13 @@ class CustomUser(User):
     class Meta:
         ordering = ['-date_joined']
 
+    def get_absolute_url(self):
+        return '/account/{}/'.format(self.id)
+
+    @property
+    def link(self):
+        return self.get_absolute_url()
+
     @property
     def hierarchy_chain(self):
         l = list()

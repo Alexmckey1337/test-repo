@@ -7,6 +7,7 @@ import django_filters
 from django.utils import six
 from django.utils.dateparse import parse_date
 from rest_framework import filters
+from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
@@ -14,10 +15,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from account.models import CustomUser as User
-from navigation.models import partner_table
+from navigation.models import partner_table, user_table
 from summit.serializers import SummitUnregisterUserSerializer
 from .models import Partnership, Deal
-from .serializers import PartnershipSerializer, DealSerializer
+from .serializers import PartnershipSerializer, DealSerializer, NewPartnershipSerializer
 
 
 class SaganPagination(PageNumberPagination):
@@ -39,6 +40,7 @@ class PartnershipPagination(PageNumberPagination):
             },
             'count': self.page.paginator.count,
             'common_table': partner_table(),
+            'user_table': user_table(self.request.user),
             'results': data
         })
 
@@ -46,6 +48,32 @@ class PartnershipPagination(PageNumberPagination):
 class PartnershipViewSet(viewsets.ModelViewSet):
     queryset = Partnership.objects.all()
     serializer_class = PartnershipSerializer
+    pagination_class = PartnershipPagination
+    filter_backends = (filters.DjangoFilterBackend,
+                       filters.SearchFilter,
+                       filters.OrderingFilter,)
+    filter_fields = ('user', 'responsible__user', 'is_responsible',)
+    search_fields = ('user__first_name', 'user__last_name', 'user__middle_name',
+                     'user__country', 'user__region', 'user__city', 'user__district',
+                     'user__address', 'user__skype', 'user__phone_number', 'user__hierarchy__title',
+                     'user__department__title',
+                     'user__email',)
+    ordering_fields = ('user__first_name', 'user__last_name',
+                       'user__middle_name', 'user__born_date', 'user__country',
+                       'user__region', 'user__city', 'user__disrict',
+                       'user__address', 'user__skype', 'user__phone_number',
+                       'user__email', 'user__hierarchy__level',
+                       'user__department__title', 'user__facebook',
+                       'user__vkontakte',)
+    permission_classes = (IsAuthenticated,)
+
+
+class NewPartnershipViewSet(mixins.RetrieveModelMixin,
+                            mixins.UpdateModelMixin,
+                            mixins.ListModelMixin,
+                            viewsets.GenericViewSet):
+    queryset = Partnership.objects.all()
+    serializer_class = NewPartnershipSerializer
     pagination_class = PartnershipPagination
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,

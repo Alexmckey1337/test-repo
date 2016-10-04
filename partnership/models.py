@@ -46,6 +46,10 @@ class Partnership(models.Model):
         return count
 
     @property
+    def count(self):
+        return self.deals_count
+
+    @property
     def done_deals_count(self):
         count = self.deals.filter(done=True).count()
         return count
