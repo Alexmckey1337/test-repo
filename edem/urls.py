@@ -18,7 +18,7 @@ import summit.views
 import tv_crm.views
 
 router = routers.DefaultRouter()
-router.register(r'users', account.views.UserViewSet, base_name='users')
+router.register(r'users', account.views.UserViewSet, base_name='customuser')
 router.register(r'short_users', account.views.UserShortViewSet, base_name='short_users')
 router.register(r'hierarchy', hierarchy.views.HierarchyViewSet)
 router.register(r'departments', hierarchy.views.DepartmentViewSet)
