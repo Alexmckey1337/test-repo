@@ -1,7 +1,9 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.conf.urls import url
+from django.conf.urls.static import static
 
 from main import views
 
@@ -17,4 +19,4 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^event_info/$', views.event_info, name='event_info'),
     url(r'^password_view/(?P<activation_key>\w+)/$', views.edit_pass, name='password_view'),
-]
+              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
