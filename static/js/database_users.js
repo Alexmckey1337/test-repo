@@ -19,6 +19,14 @@ $(function () {
         $(".table-sorting").animate({
             right: '-300px'
         }, 10, 'linear')
+    });
+
+
+    getDepartmentsAll();
+
+    document.getElementById('dep_filter').addEventListener('change', function () {
+        createUser()
+
     })
 });
 
@@ -246,31 +254,42 @@ function createUser(data) {
     }
     document.getElementsByClassName('preloader')[0].style.display = 'block';
     ajaxRequest(path, data, function (answer) {
-        createUserInfoBySearch(answer, data)
-    })
-}
 
-function createUserDep(data) {
-    var path = config.DOCUMENT_ROOT + 'api/users/?';
-    data = data || {};
-    var search = document.getElementsByName('searchDep')[0].value;
-    if (search && !data['sub']) {
-        data['department__title'] = search;
-    }
-    document.getElementsByClassName('preloader')[0].style.display = 'block';
-    ajaxRequest(path, data, function (answer) {
-        createUserInfoBySearch(answer, data)
-    })
-}
 
-//Получение подчиненных
-function getsubordinates(e) {
-    e.preventDefault();
-    document.getElementsByName('fullsearch')[0].value = '';
-    var id = this.getAttribute('data-id');
-    createUser({
-        'master': id
+        var el = document.getElementById('dep_filter');
+        var value = el.options[el.selectedIndex].value;
+        if (parseInt(value)) {
+            data['department__title'] = el.options[el.selectedIndex].text;
+        }
+        document.getElementsByClassName('preloader')[0].style.display = 'block';
+        ajaxRequest(path, data, function (answer) {
+            //  document.getElementsByClassName('preloader')[0].style.display = 'block'
+            createUserInfoBySearch(answer, data)
+        })
     });
-    window.parent_id = id;
+    /*
+     function createUserDep(data) {
+     var path = config.DOCUMENT_ROOT + 'api/users/?';
+     data = data || {};
+     var search = document.getElementsByName('searchDep')[0].value;
+     if (search && !data['sub']) {
+     data['department__title'] = search;
+     }
+     document.getElementsByClassName('preloader')[0].style.display = 'block';
+     ajaxRequest(path, data, function (answer) {
+     createUserInfoBySearch(answer, data)
+     })
+     }
+     */
+//Получение подчиненных
+    function getsubordinates(e) {
+        e.preventDefault();
+        document.getElementsByName('fullsearch')[0].value = '';
+        var id = this.getAttribute('data-id');
+        createUser({
+            'master': id
+        });
+        window.parent_id = id;
 
+    }
 }

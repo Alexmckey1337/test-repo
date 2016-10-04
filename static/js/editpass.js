@@ -10,7 +10,7 @@ if(!hash){
         "password1": document.getElementsByTagName('input')[0].value,
         "password2": document.getElementsByTagName('input')[1].value,
         "activation_key": hash
-    }
+    };
 
 
         var json = JSON.stringify(data);
@@ -38,4 +38,4 @@ $("document").ready(function(){
     document.getElementById('create').addEventListener('click',function(){
         changePass()
     })
-})
+});

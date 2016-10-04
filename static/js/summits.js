@@ -36,7 +36,7 @@ $(document).ready(function(){
     $('body').on('click', '#carousel li span', function(){
         $('#carousel li').removeClass('active');
         $(this).parent().addClass('active')
-    })
+    });
 
     if(document.getElementById('sort_save')) {
         document.getElementById('sort_save').addEventListener('click', function() {

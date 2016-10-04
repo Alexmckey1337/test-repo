@@ -174,4 +174,18 @@ function getParameterByName(name, url) {
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
-  
+
+
+function getDepartmentsAll() {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/departments/', null, function (data) {
+        var data = data.results;
+        var html = '<option value="0">ВСЕ </option>';
+        for (var i = 0; i < data.length; i++) {
+            html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+        }
+
+        document.getElementById('dep_filter').innerHTML = html
+        // return html
+    });
+
+}  

@@ -123,7 +123,7 @@ $(document).ready(function(){
 
     document.getElementById('getpass').addEventListener('click',function(){
         sendPassToEmail();
-    })
+    });
 
     $('.entry-input2').keypress(function(e) {
         if (e.which == 13) {
@@ -136,4 +136,4 @@ $(document).ready(function(){
             logIn();
         }
     });
-})
+});
