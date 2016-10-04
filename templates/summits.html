@@ -50,7 +50,7 @@
 
             <ul class="top"><!-- Top -->
                 <li>
-                    <h1>Саммиты</h1>
+                    <h1 id="summit-title"><!--span>САММИТЫ | </span> Четвёртое измерение--></h1>
                 </li>
                 <li class="userImgWrap">
                     <div class="userimg"><!-- <img src="img/layer-1.jpg" alt="userphoto"> -->
@@ -60,9 +60,38 @@
                 <li>
                     <div class="search">
                         <input type="text" placeholder="Поиск и фильтр" name="fullsearch">
+                        <div class="filter"><select name="filter" id="filter">
+                            <option value="search">Все поля</option>
+                            <option value="department__title">Отдел</option>
+                            <option value="country">Страна</option>
+                            <option value="city">Населенный пункт</option>
+                            <option value="district">Район</option>
+                        </select>
+                        </div>
                     </div>
                 </li>
             </ul><!--End Top -->
+
+            <div class="top-buttons-wrap">
+                <ul class="top-buttons"><!-- top-buttons -->
+                    <li>
+                        <div class="searchDep">
+                            <input type="text" placeholder="Поиск по названию отдела" name="searchDep">
+                        </div>
+                    </li>
+                    <li>
+                        <button class="add">Добавить пользователя</button>
+                    </li>
+                    <li>
+                        <button class="exp">Экспортировать</button>
+                    </li>
+                    <li>
+                        <button id="sort-on">Изменить таблицу</button>
+                    </li>
+
+                </ul><!--top-buttons -->
+
+            </div>
 
             <div class="user-hover photo-hover">
                 <div class="hover-wrapper">
