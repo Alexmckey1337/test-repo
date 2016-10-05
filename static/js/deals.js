@@ -163,6 +163,7 @@ function getUnregisteredUsers(parameters) {
         }
     });
 }
+
 function registerUser(id) {
     if (!id) {
         return
@@ -185,7 +186,6 @@ function registerUser(id) {
     }
 }
 
-
 function create_partnerships(data) {
 
 
@@ -204,7 +204,6 @@ function create_partnerships(data) {
     });
 
 }
-
 
 function getExpiredDeals(time) {
     var json = time || null;
@@ -476,7 +475,6 @@ function sortExpiredDeals(from, to) {
     getExpiredDeals(json);
 }
 
-
 function makeTabs() {
     var pos = 0,
         tabs = document.getElementById('tabs'),
@@ -546,17 +544,10 @@ function makeTabs() {
     }
 }
 
-
 function getPartnersList(param) {
     param = param || {};
 
-    var lib = {
-        "value": "Cумма",
-        "responsible": "Ответственный",
-        "count": "Количество сделок",
-        "result_value": "Итого"
-    };
-    var path = config.DOCUMENT_ROOT + 'api/partnerships/?';
+    var path = config.DOCUMENT_ROOT + 'api/npartnerships/?';
     var search = document.getElementsByName('fullsearch')[0].value;
     if (search) {
         param['search'] = search;
@@ -567,86 +558,62 @@ function getPartnersList(param) {
 
         var results = data.results;
 
+        var col_name;
+        var value;
+
         var count = data.count;
         var common_fields = data.common_table;
-        var html = '';
-        var thead = '<table><thead><tr>';
+        var user_fields = data.user_table;
 
-        var orders_columns = Object.keys(config['column_table']).concat(Object.keys(common_fields)).unique();
+        var thead = '<thead><tr>';
+        for (j = 0; j < Object.keys(common_fields).length; j++) {
+            col_name = Object.keys(common_fields)[j];
+            thead += '<th data-order="' + common_fields[col_name]['ordering_title'] + '">' + common_fields[col_name]['title'] + '</th>'
+        }
 
+        for (j = 0; j < Object.keys(user_fields).length; j++) {
+            col_name = Object.keys(user_fields)[j];
+            thead += '<th data-order="user__' + user_fields[col_name]['ordering_title'] + '">' + user_fields[col_name]['title'] + '</th>'
+        }
+        thead += '</tr></thead>';
+
+        var tbody = '<tbody>';
         for (var i = 0; i < results.length; i++) {
 
+            tbody += '<tr>';
+            var field = results[i];
 
-            html += '<tr>';
-            var field = results[i].fields;
-
-            if (!field) {
-                //console.log('run')
-                continue
-            }
-
-
-            for (var x = 0; x < orders_columns.length; x++) {
-
-                j = orders_columns[x];
-
-                /*
-                 if(  !field   ){
-                 console.log('run')
-                 continue
-                 }
-                 */
-                var id_ = field['id']['value'];
-
-                if (!common_fields[j] && (!config['column_table'][j] || !config['column_table'][j]['active']   )) continue;
-                if (!i) {
-
-                    //console.log(j)
-                    if (j == 'responsible' || j == 'value' || j == 'count' || j == 'result_value') {
-                        thead += '<th data-order="' + j + '">' + lib[j] + '</th>'
-                    } else {
-
-                        thead += '<th data-order="user__' + config['column_table'][j]['ordering_title'] + '">' + config['column_table'][j]['title'] + '</th>'
-                    }
-                }
-                console.log(lib);
-                if (j == 'social' && config['column_table']['social'] && config['column_table']['social']['active']) {
-                    html += '<td>';
-                    for (var p in field[j]) {
-                        if (field[j][p] == '') {
-                        } else {
-                            switch (p) {
-                                case 'skype':
-                                    html += '<a href="skype:' + field[j].skype + '?chat"><i class="fa fa-skype"></i></a>';
-                                    break;
-                                case 'vkontakte':
-                                    html += '<a href="' + field[j].vkontakte + '"><i class="fa fa-vk"></i></a>';
-                                    break;
-                                case 'facebook':
-                                    html += '<a href="' + field[j].facebook + '"><i class="fa fa-facebook"></i></a>';
-                                    break;
-                                case 'odnoklassniki':
-                                    html += '<a href="' + field[j].odnoklassniki + '"><i class="fa fa-odnoklassniki" aria-hidden="true"></i></a>';
-                                    break;
-                            }
-                        }
-                    }
-                    html += '</td>';
-                } else if (j == 'fullname') {
-                    //debugger
-
-                    html += '<td><a href="/account/' + id_ + '">' + field[j]['value'] + '</a></td>'
+            for (j = 0; j < Object.keys(common_fields).length; j++) {
+                col_name = Object.keys(common_fields)[j];
+                value = field[col_name];
+                if (value === null) {
+                    value = '';
                 } else {
-                    html += '<td>' + field[j]['value'] + '</td>';
+                    if (typeof value === 'object' && typeof value.title !== 'undefined') {
+                        value = value.title;
+                    }
                 }
-                //html += '<td data-model="' + j + '">' + field[j].value + '</td>'
-                // }
+                tbody += '<td>' + value + '</td>'
             }
-            html += '</tr>';
-            thead += '</tr></thead><tbody></tbody></table>';
 
-
+            for (j = 0; j < Object.keys(user_fields).length; j++) {
+                col_name = Object.keys(user_fields)[j];
+                value = field['user'][col_name];
+                if (value === null) {
+                    value = '';
+                } else {
+                    if (typeof value === 'object' && typeof value.title !== 'undefined') {
+                        value = value.title;
+                    }
+                }
+                tbody += '<td>' + value + '</td>'
+            }
+            tbody += '</tr>';
         }
+        tbody += '</tbody>';
+
+        var table = '<table>' + thead + tbody + '</table>';
+
 
         // debugger
 
@@ -695,8 +662,8 @@ function getPartnersList(param) {
         if (results.length) {
 
             document.querySelector("#spisok .element-select").innerHTML = elementSelect;
-            document.getElementById('partnersips_list').innerHTML = thead;
-            document.querySelector("#partnersips_list tbody").innerHTML = html;
+            document.getElementById('partnersips_list').innerHTML = table;
+            // document.querySelector("#partnersips_list tbody").innerHTML = tbody;
             document.querySelector(".query-none p").innerHTML = '';
 
             //  document.querySelector(".element-select span").innerHTML = results.length;
