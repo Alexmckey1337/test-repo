@@ -36,12 +36,6 @@ var parent_id = null;
 
 function createUserInfoBySearch(data, search) {
 
-    var count = data.count;
-    data = data.results;
-    var tbody = '';
-    var page = parseInt(search.page) || 1;
-    var list = data;
-    var html = '<table id="userinfo">';
     if (data.length == 0) {
         showPopup('По данному запросу не найдено участников');
         document.getElementById("baseUsers").innerHTML = '';
@@ -61,20 +55,47 @@ function createUserInfoBySearch(data, search) {
         el.style.display = 'block'
     });
 
-    html += '<thead>';
-    var common = config['column_table'];
-    for (var title in common) {
-        if (!common[title]['active'] && common[title]['editable']) continue;
+    var count = data.count;
+    var page = parseInt(search.page) || 1;
 
-        var blue_icon = typeof ordering[common[title]['ordering_title']] == 'undefined' ? '' : 'blue_icon_active';
+    var results = data.results;
 
-        if (ordering[common[title]['ordering_title']]) {
-            html += '<th data-order="' + common[title]['ordering_title'] + '" class="down"><span>' + common[title]['title'] + '</span><span class="ups ' + blue_icon + '"></span></th>';
-        } else {
-            html += '<th data-order="' + common[title]['ordering_title'] + '"   class="up"><span>' + common[title]['title'] + '</span><span class="ups ups-active ' + blue_icon + '"></span></th>';
-        }
+    var col_name;
+    var value;
+
+    var user_fields = data.user_table;
+
+    var thead = '<thead><tr>';
+
+    for (j = 0; j < Object.keys(user_fields).length; j++) {
+        col_name = Object.keys(user_fields)[j];
+        thead += '<th data-order="' + user_fields[col_name]['ordering_title'] + '">' + user_fields[col_name]['title'] + '</th>'
     }
-    //  html += '<th>Подчиненные</th><th>Анкета</th></thead>';
+    thead += '</tr></thead>';
+
+    var tbody = '<tbody>';
+    for (var i = 0; i < results.length; i++) {
+
+        tbody += '<tr>';
+        var field = results[i];
+
+        for (j = 0; j < Object.keys(user_fields).length; j++) {
+            col_name = Object.keys(user_fields)[j];
+            value = field[col_name];
+            if (value === null) {
+                value = '';
+            } else {
+                if (typeof value === 'object' && typeof value.title !== 'undefined') {
+                    value = value.title;
+                }
+            }
+            tbody += '<td>' + value + '</td>'
+        }
+        tbody += '</tr>';
+    }
+    tbody += '</tbody>';
+
+    var table = '<table id="userinfo">' + thead + tbody + '</table>';
 
     //paginations
     var pages = Math.ceil(count / config.pagination_count);
@@ -120,53 +141,7 @@ function createUserInfoBySearch(data, search) {
         el.innerHTML = paginations
     });
 
-    html += '<tbody>';
-    for (var i = 0; i < list.length; i++) {
-        var id_parent_subordinate = list[i]['id'];
-        var list_fields = list[i].fields;
-        if (!list_fields) continue;
-        if (typeof list_fields === 'undefined') {
-            console.log('Нету fields для  ID:  ' + id_parent_subordinate)
-        }
-        tbody += '<tr data-id="' + id_parent_subordinate + '">';
-        for (var prop in config['column_table']) {
-            if (prop in list_fields) {
-                if (prop == 'social' && config['column_table']['social'] && config['column_table']['social']['active']) {
-                    tbody += '<td>';
-                    for (var p in list_fields['social']) {
-                        if (list_fields['social'][p] == '') {
-                        } else {
-                            switch (p) {
-                                case 'skype':
-                                    tbody += '<a href="skype:' + list_fields['social'].skype + '?chat"><i class="fa fa-skype"></i></a>';
-                                    break;
-                                case 'vkontakte':
-                                    tbody += '<a href="' + list_fields['social'].vkontakte + '"><i class="fa fa-vk"></i></a>';
-                                    break;
-                                case 'facebook':
-                                    tbody += '<a href="' + list_fields['social'].facebook + '"><i class="fa fa-facebook"></i></a>';
-                                    break;
-                                case 'odnoklassniki':
-                                    tbody += '<a href="' + list_fields['social'].odnoklassniki + '"><i class="fa fa-odnoklassniki" aria-hidden="true"></i></a>';
-                                    break;
-                            }
-                        }
-                    }
-                    tbody += '</td>';
-                } else if ((!config['column_table'][prop]['active'] && config['column_table'][prop]['editable'])) {
-                } else if (prop == 'fullname') {
-                    tbody += '<td><a href="/account/' + id_parent_subordinate + '">' + list_fields['fullname']['value'] + '</a></td>'
-                } else {
-                    tbody += '<td>' + list_fields[prop]['value'] + '</td>';
-                }
-            }
-        }
-    }
-    html += '</tbody>';
-    html += '</table>';
-
-    document.getElementById("baseUsers").innerHTML = html;
-    document.querySelector("#baseUsers tbody").innerHTML = tbody;
+    document.getElementById("baseUsers").innerHTML = table;
     document.querySelector(".query-none p").innerHTML = '';
     document.getElementsByClassName('preloader')[0].style.display = 'none';
     Array.prototype.forEach.call(document.querySelectorAll(" .pag li"), function (el) {
@@ -187,7 +162,6 @@ function createUserInfoBySearch(data, search) {
     });
 
     /* Navigation*/
-
     Array.prototype.forEach.call(document.querySelectorAll(".arrow"), function (el) {
         el.addEventListener('click', function () {
             var page;
@@ -220,7 +194,6 @@ function createUserInfoBySearch(data, search) {
 
     //Cортировка
 
-
     Array.prototype.forEach.call(document.querySelectorAll(".table-wrap th"), function (el) {
         el.addEventListener('click', function () {
             var data_order = this.getAttribute('data-order');
@@ -241,31 +214,26 @@ function createUserInfoBySearch(data, search) {
     document.getElementById('add').addEventListener('click', function () {
         document.querySelector('.pop-up-splash').style.display = 'block';
     })
-
 }
 
 function createUser(data) {
-    var path = config.DOCUMENT_ROOT + 'api/users/?';
+    var path = config.DOCUMENT_ROOT + 'api/nusers/?';
     data = data || {};
     var search = document.getElementsByName('fullsearch')[0].value;
     var filter = document.getElementById('filter').value;
     if (search && !data['sub']) {
         data[filter] = search;
     }
+
+    var el = document.getElementById('dep_filter');
+    var value = el.options[el.selectedIndex].value;
+    if (parseInt(value)) {
+        data['department__title'] = el.options[el.selectedIndex].text;
+    }
     document.getElementsByClassName('preloader')[0].style.display = 'block';
     ajaxRequest(path, data, function (answer) {
-
-
-        var el = document.getElementById('dep_filter');
-        var value = el.options[el.selectedIndex].value;
-        if (parseInt(value)) {
-            data['department__title'] = el.options[el.selectedIndex].text;
-        }
-        document.getElementsByClassName('preloader')[0].style.display = 'block';
-        ajaxRequest(path, data, function (answer) {
-            //  document.getElementsByClassName('preloader')[0].style.display = 'block'
-            createUserInfoBySearch(answer, data)
-        })
+        //  document.getElementsByClassName('preloader')[0].style.display = 'block'
+        createUserInfoBySearch(answer, data);
     });
     /*
      function createUserDep(data) {
@@ -281,15 +249,15 @@ function createUser(data) {
      })
      }
      */
+}
 //Получение подчиненных
-    function getsubordinates(e) {
-        e.preventDefault();
-        document.getElementsByName('fullsearch')[0].value = '';
-        var id = this.getAttribute('data-id');
-        createUser({
-            'master': id
-        });
-        window.parent_id = id;
+function getsubordinates(e) {
+    e.preventDefault();
+    document.getElementsByName('fullsearch')[0].value = '';
+    var id = this.getAttribute('data-id');
+    createUser({
+        'master': id
+    });
+    window.parent_id = id;
 
-    }
 }
