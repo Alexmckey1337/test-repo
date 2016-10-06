@@ -1,8 +1,9 @@
 //Создать метод вызова init()
 
 var config = {
+    // 'DOCUMENT_ROOT':'http://5.101.119.32:8008/',
     'DOCUMENT_ROOT':'http://vocrm.org/',
-    // 'DOCUMENT_ROOT': 'http://127.1:8000/',
+    // 'DOCUMENT_ROOT': 'http://crm.local:8000/',
     'pagination_count': 30, //Количество записей при пагинации
     'pagination_patrnership_count': 30, //Количество записей при пагинации for patrnership
 
@@ -14,14 +15,14 @@ var config = {
 /*search animate width*/
 $('.top input').click(function () {
     $('.top .search').animate({width: "80%"});
-    $('.filter').show();
+    // $('.filter').show();
 });
 
 function hideFilter() {
     //$('.top input').blur(function() {
     if (!$('.top input').val().length) {
         $('.top .search').animate({width: "50%"});
-        $('.filter').hide();
+        // $('.filter').hide();
     }
     //});
 }
@@ -40,7 +41,7 @@ if (document.getElementById('sort_save')) {
 }
 
 function getNotifications() {
-    ajaxRequest(config.DOCUMENT_ROOT + '/api/notifications/today', null, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/notifications/today', null, function (data) {
         var count = data.count;
         data = data.results;
         var html = "";
@@ -388,7 +389,7 @@ function updateSettings(callback) {
         var item = {};
         item['id'] = parseInt(el.getAttribute('id'));
         item['number'] = iteration++;
-        item['active'] = el.classList.contains('check') ? true : false;
+        item['active'] = !!el.classList.contains('check');
         data.push(item);
     });
 
