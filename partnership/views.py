@@ -15,7 +15,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from account.models import CustomUser as User
-from navigation.models import partner_table, user_table
+from navigation.models import user_table, user_partner_table
 from summit.serializers import SummitUnregisterUserSerializer
 from .models import Partnership, Deal
 from .serializers import PartnershipSerializer, DealSerializer, NewPartnershipSerializer
@@ -39,7 +39,7 @@ class PartnershipPagination(PageNumberPagination):
                 'previous': self.get_previous_link()
             },
             'count': self.page.paginator.count,
-            'common_table': partner_table(),
+            'common_table': user_partner_table(self.request.user),
             'user_table': user_table(self.request.user),
             'results': data
         })
