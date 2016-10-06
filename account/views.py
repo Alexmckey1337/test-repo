@@ -15,17 +15,36 @@ from django.utils import six
 from rest_framework import viewsets, filters
 from rest_framework.decorators import api_view
 from rest_framework.decorators import list_route
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from account.models import CustomUser as User
 from edem.settings import SITE_DOMAIN_URL, DEFAULT_FROM_EMAIL
 from hierarchy.models import Hierarchy, Department
+from navigation.models import user_table
 from partnership.models import Partnership
 from status.models import Status, Division
 from tv_crm.views import sync_unique_user_call
 from .resources import clean_password, clean_old_password
-from .serializers import UserSerializer, UserShortSerializer
+from .serializers import UserSerializer, UserShortSerializer, NewUserSerializer
+
+
+class UserPagination(PageNumberPagination):
+    page_size = 30
+    page_size_query_param = 'page_size'
+    max_page_size = 30
+
+    def get_paginated_response(self, data):
+        return Response({
+            'links': {
+                'next': self.get_next_link(),
+                'previous': self.get_previous_link()
+            },
+            'count': self.page.paginator.count,
+            'user_table': user_table(self.request.user),
+            'results': data
+        })
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -91,6 +110,59 @@ class UserViewSet(viewsets.ModelViewSet):
 #            return self.get_paginated_response(serializer.data)
 #        serializer = self.get_serializer(queryset, many=True)
 #        return Response(serializer.data)
+
+
+class NewUserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.filter(is_active=True).all().order_by('-date_joined')
+    serializer_class = NewUserSerializer
+    pagination_class = UserPagination
+    filter_backends = (filters.DjangoFilterBackend,
+                       filters.SearchFilter,
+                       filters.OrderingFilter,)
+    permission_classes = (IsAuthenticated,)
+    ordering_fields = ('first_name', 'last_name', 'middle_name',
+                       'born_date', 'country', 'region', 'city', 'disrict', 'address', 'skype',
+                       'phone_number', 'email', 'hierarchy__level', 'department__title',
+                       'facebook', 'vkontakte', 'hierarchy_order', 'master__last_name',)
+    search_fields = ('first_name', 'last_name', 'middle_name',
+                     'country', 'region', 'city', 'district',
+                     'address', 'skype', 'phone_number', 'hierarchy__title', 'department__title',
+                     'email', 'master__last_name',)
+    filter_fields = ('first_name', 'last_name', 'middle_name',
+                     'born_date', 'email', 'department__title',
+                     'country', 'region', 'city', 'district', 'address',
+                     'skype', 'phone_number', 'hierarchy__level', 'master', 'master__last_name',)
+
+    def dispatch(self, request, *args, **kwargs):
+        if kwargs.get('pk') == 'current' and request.user.is_authenticated():
+            kwargs['pk'] = request.user.pk
+        return super(NewUserViewSet, self).dispatch(request, *args, **kwargs)
+
+    @list_route()
+    def all(self, request):
+        users = User.objects.filter(is_staff=False).all()
+
+        page = self.paginate_queryset(users)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(users, many=True)
+        return Response(serializer.data)
+
+    @list_route()
+    def disciples(self, request, *args, **kwargs):
+        from .resources import get_disciples
+        q = get_disciples(request.user)
+        q = q.order_by('-hierarchy__level')
+        queryset = self.filter_queryset(q)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class UserShortViewSet(viewsets.ModelViewSet):
