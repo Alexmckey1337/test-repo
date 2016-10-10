@@ -18,11 +18,11 @@ class Partnership(models.Model):
     is_responsible = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.user.get_full_name()
+        return self.fullname
 
     @property
     def fullname(self):
-        return self.user.get_full_name()
+        return self.user.fullname
 
     @property
     def common(self):
@@ -31,9 +31,9 @@ class Partnership(models.Model):
     @property
     def result_value(self):
         if not self.is_responsible:
-            deals = Deal.objects.filter(partnership=self).all().aggregate(sum_deals=Sum('value'))
+            deals = self.deals.aggregate(sum_deals=Sum('value'))
         else:
-            deals = Deal.objects.filter(partnership__responsible=self).all().aggregate(sum_deals=Sum('value'))
+            deals = self.disciples.aggregate(sum_deals=Sum('deals__value'))
         if deals['sum_deals']:
             value = deals['sum_deals']
         else:
@@ -45,9 +45,10 @@ class Partnership(models.Model):
         count = self.deals.count()
         return count
 
-    @property
-    def count(self):
-        return self.deals_count
+    #
+    # @property
+    # def count(self):
+    #     return self.deals_count
 
     @property
     def done_deals_count(self):

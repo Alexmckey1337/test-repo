@@ -178,14 +178,40 @@ function getParameterByName(name, url) {
 
 function getDepartmentsAll() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/departments/', null, function (data) {
-        var data = data.results;
+        data = data.results;
         var html = '<option value="0">ВСЕ </option>';
         for (var i = 0; i < data.length; i++) {
             html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
         }
 
-        document.getElementById('dep_filter').innerHTML = html
+        document.getElementById('dep_filter').innerHTML = html;
         // return html
     });
 
-}  
+}
+
+function getCorrectValue(value) {
+    if (value === null) {
+        return '';
+    } else {
+        if (value instanceof Array) {
+            var str_value = [];
+            value.forEach(function (v) {
+                str_value = str_value.concat(getCorrectValue(v))
+            });
+            return str_value.join(', ')
+        } else if (value instanceof Object) {
+            var id = '';
+            var new_value = '';
+            for (var k in value) {
+                if (k === 'id') {
+                    id = value['id'];
+                } else {
+                    new_value = value[k]
+                }
+            }
+            return '<span data-id="' + id + '">' + new_value + '</span>'
+        }
+    }
+    return value
+}

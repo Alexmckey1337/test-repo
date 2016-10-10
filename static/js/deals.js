@@ -558,7 +558,7 @@ function getPartnersList(param) {
 
         var results = data.results;
 
-        var col_name;
+        var k;
         var value;
 
         var count = data.count;
@@ -566,50 +566,33 @@ function getPartnersList(param) {
         var user_fields = data.user_table;
 
         var thead = '<thead><tr>';
-        for (j = 0; j < Object.keys(common_fields).length; j++) {
-            col_name = Object.keys(common_fields)[j];
-            thead += '<th data-order="' + common_fields[col_name]['ordering_title'] + '">' + common_fields[col_name]['title'] + '</th>'
+        for (k in common_fields) {
+            if (!common_fields.hasOwnProperty(k)) continue;
+            thead += '<th data-order="' + common_fields[k]['ordering_title'] + '">' + common_fields[k]['title'] + '</th>'
         }
-
-        for (j = 0; j < Object.keys(user_fields).length; j++) {
-            col_name = Object.keys(user_fields)[j];
-            thead += '<th data-order="user__' + user_fields[col_name]['ordering_title'] + '">' + user_fields[col_name]['title'] + '</th>'
+        for (k in user_fields) {
+            if (!user_fields.hasOwnProperty(k)) continue;
+            thead += '<th data-order="user__' + user_fields[k]['ordering_title'] + '">' + user_fields[k]['title'] + '</th>'
         }
         thead += '</tr></thead>';
 
         var tbody = '<tbody>';
-        for (var i = 0; i < results.length; i++) {
-
+        results.forEach(function (field) {
             tbody += '<tr>';
-            var field = results[i];
 
-            for (j = 0; j < Object.keys(common_fields).length; j++) {
-                col_name = Object.keys(common_fields)[j];
-                value = field[col_name];
-                if (value === null) {
-                    value = '';
-                } else {
-                    if (typeof value === 'object' && typeof value.title !== 'undefined') {
-                        value = value.title;
-                    }
-                }
+            for (k in common_fields) {
+                if (!common_fields.hasOwnProperty(k)) continue;
+                value = getCorrectValue(field[k]);
                 tbody += '<td>' + value + '</td>'
             }
 
-            for (j = 0; j < Object.keys(user_fields).length; j++) {
-                col_name = Object.keys(user_fields)[j];
-                value = field['user'][col_name];
-                if (value === null) {
-                    value = '';
-                } else {
-                    if (typeof value === 'object' && typeof value.title !== 'undefined') {
-                        value = value.title;
-                    }
-                }
+            for (k in user_fields) {
+                if (!user_fields.hasOwnProperty(k)) continue;
+                value = getCorrectValue(field['user'][k]);
                 tbody += '<td>' + value + '</td>'
             }
             tbody += '</tr>';
-        }
+        });
         tbody += '</tbody>';
 
         var table = '<table>' + thead + tbody + '</table>';

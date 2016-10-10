@@ -60,39 +60,30 @@ function createUserInfoBySearch(data, search) {
 
     var results = data.results;
 
-    var col_name;
+    var k;
     var value;
 
     var user_fields = data.user_table;
 
     var thead = '<thead><tr>';
 
-    for (j = 0; j < Object.keys(user_fields).length; j++) {
-        col_name = Object.keys(user_fields)[j];
-        thead += '<th data-order="' + user_fields[col_name]['ordering_title'] + '">' + user_fields[col_name]['title'] + '</th>'
+    for (k in user_fields) {
+        if (!user_fields.hasOwnProperty(k)) continue;
+        thead += '<th data-order="' + user_fields[k]['ordering_title'] + '">' + user_fields[k]['title'] + '</th>'
     }
     thead += '</tr></thead>';
 
     var tbody = '<tbody>';
-    for (var i = 0; i < results.length; i++) {
-
+    results.forEach(function (field) {
         tbody += '<tr>';
-        var field = results[i];
 
-        for (j = 0; j < Object.keys(user_fields).length; j++) {
-            col_name = Object.keys(user_fields)[j];
-            value = field[col_name];
-            if (value === null) {
-                value = '';
-            } else {
-                if (typeof value === 'object' && typeof value.title !== 'undefined') {
-                    value = value.title;
-                }
-            }
+        for (k in user_fields) {
+            if (!user_fields.hasOwnProperty(k)) continue;
+            value = getCorrectValue(field[k]);
             tbody += '<td>' + value + '</td>'
         }
         tbody += '</tr>';
-    }
+    });
     tbody += '</tbody>';
 
     var table = '<table id="userinfo">' + thead + tbody + '</table>';
@@ -100,7 +91,7 @@ function createUserInfoBySearch(data, search) {
     //paginations
     var pages = Math.ceil(count / config.pagination_count);
     var paginations = '',
-        elementSelect = '<p>Показано <span>' + data.length + '</span> из <span>' + count + '</span></p>';
+        elementSelect = '<p>Показано <span>' + results.length + '</span> из <span>' + count + '</span></p>';
     if (page > 1) {
         paginations += '<div class="prev"><span class="arrow"></span></div>';
     }
@@ -237,7 +228,7 @@ function createUser(data) {
     });
     /*
      function createUserDep(data) {
-     var path = config.DOCUMENT_ROOT + 'api/users/?';
+     var path = config.DOCUMENT_ROOT + 'api/nusers/?';
      data = data || {};
      var search = document.getElementsByName('searchDep')[0].value;
      if (search && !data['sub']) {

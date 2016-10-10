@@ -4,12 +4,13 @@ from __future__ import unicode_literals
 from datetime import datetime
 
 import django_filters
+from django.db.models import Count
 from django.utils import six
 from django.utils.dateparse import parse_date
 from rest_framework import filters
 from rest_framework import mixins
 from rest_framework import viewsets
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, list_route
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -72,7 +73,15 @@ class NewPartnershipViewSet(mixins.RetrieveModelMixin,
                             mixins.UpdateModelMixin,
                             mixins.ListModelMixin,
                             viewsets.GenericViewSet):
-    queryset = Partnership.objects.all()
+    # TODO result_value is incorrect if partnership.is_responsible=True
+    queryset = Partnership.objects. \
+        select_related('user', 'user__hierarchy', 'user__department', 'user__master', 'responsible__user'). \
+        prefetch_related('deals', 'responsible__deals', 'user__divisions'). \
+        annotate(count=Count('deals'),
+                 # result_value=Case(When(is_responsible=True,
+                 #                        then=Sum('disciples__deals__value')),
+                 #                   default=Sum('deals__value'))
+                 )
     serializer_class = NewPartnershipSerializer
     pagination_class = PartnershipPagination
     filter_backends = (filters.DjangoFilterBackend,
@@ -93,6 +102,13 @@ class NewPartnershipViewSet(mixins.RetrieveModelMixin,
                        'user__vkontakte',)
     permission_classes = (IsAuthenticated,)
 
+    @list_route()
+    def simple(self, request):
+        partnerships = Partnership.objects.select_related('user').filter(is_responsible=True).values_list(
+            'id', 'user__first_name', 'user__last_name')
+        partnerships = [{'id': p[0], 'fullname': '{} {}'.format(*p[1:])} for p in partnerships]
+        return Response(partnerships)
+
 
 class DateFilter(filters.FilterSet):
     to_date = django_filters.DateFilter(name="date", lookup_type='lte')
@@ -106,7 +122,7 @@ class DateFilter(filters.FilterSet):
 
 
 class DealViewSet(viewsets.ModelViewSet):
-    queryset = Deal.objects.all()
+    queryset = Deal.objects.select_related('partnership').all()
     serializer_class = DealSerializer
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,

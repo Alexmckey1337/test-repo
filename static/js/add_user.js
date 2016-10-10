@@ -277,12 +277,11 @@ function getUsers() {
 }
 
 function getManagers() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/partnerships/?is_responsible=2', null, function (data) {
-        data = data.results;
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/npartnerships/simple/', null, function (data) {
         var html = '<option value=""> </option><option>Не выбрано</option>';
-        for (var i = 0; i < data.length; i++) {
-            html += '<option value="' + data[i].id + '">' + data[i].fullname + '</option>';
-        }
+        data.forEach(function (partnership) {
+            html += '<option value="' + partnership.id + '">' + partnership.fullname + '</option>';
+        });
         document.getElementById('chooseManager').innerHTML = html;
     });
 }

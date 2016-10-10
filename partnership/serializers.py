@@ -23,10 +23,16 @@ class NewPartnershipSerializer(serializers.ModelSerializer):
     date = serializers.DateField(format=None, input_formats=None)
     responsible = serializers.StringRelatedField()
     user = NewUserSerializer()
+    # result_value = serializers.IntegerField()
+    count = serializers.IntegerField()
 
     class Meta:
         model = Partnership
-        fields = ('id', 'user', 'fullname', 'responsible', 'value', 'is_responsible', 'result_value', 'count', 'date')
+        fields = ('id', 'user', 'responsible', 'value', 'is_responsible', 'date',
+                  'fullname',
+                  'result_value',
+                  'count'
+                  )
 
     def get_field_names(self, declared_fields, info):
         fields = getattr(self.Meta, 'fields', None)
