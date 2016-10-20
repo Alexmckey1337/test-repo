@@ -246,12 +246,12 @@ document.body.addEventListener('click', function (el) {
 
 $(function () {
 
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/users/current', null, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/nusers/current', null, function (data) {
         var user_id = data.id;
         config.user_id = data.id;
-        config.user_partnerships_info = data.partnerships_info;
-        config.column_table = data.column_table;
-        var hierarchy_chain = data['hierarchy_chain'];
+        // config.user_partnerships_info = data.partnerships_info;
+        // config.column_table = data.column_table;
+        // var hierarchy_chain = data['hierarchy_chain'];
 
 
         if (typeof init === "function") {
