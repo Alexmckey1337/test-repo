@@ -74,13 +74,17 @@ function createUserInfoBySearch(data, search) {
     thead += '</tr></thead>';
 
     var tbody = '<tbody>';
-    results.forEach(function (field) {
+    results.forEach(function (field, i) {
         tbody += '<tr>';
 
         for (k in user_fields) {
             if (!user_fields.hasOwnProperty(k)) continue;
             value = getCorrectValue(field[k]);
-            tbody += '<td>' + value + '</td>'
+            if (k === 'fullname') {
+                tbody += '<td>' + '<a href="' + results[i].link + '">' + value + '</a></td>'
+            } else {
+                tbody += '<td>' + value + '</td>'
+            }
         }
         tbody += '</tr>';
     });
