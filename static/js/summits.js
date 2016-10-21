@@ -184,7 +184,7 @@ $(document).ready(function(){
 var summit_id;
 var ordering = {};
 var order;
-var path = config.DOCUMENT_ROOT + 'api/summit_ankets/?';
+var path = config.DOCUMENT_ROOT + 'api/nsummit_ankets/?';
 
 function unsubscribe(id) {
     var data = {
@@ -322,8 +322,37 @@ function addSummitInfo() {
     });
 }
 
+function getCurrentSummitSetting(data) {
+    var html = '';
+    data.forEach(function (d) {
+        var titles = d[1];
+        html += '<h3>' + d[0] + '</h3>';
+        for (var p in titles) {
+            if (!titles.hasOwnProperty(p)) continue;
+            var ischeck = titles[p]['active'] ? 'check' : '';
+            var isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
+            html += '<li ' + isdraggable + ' >' +
+                '<input id="' + titles[p]['ordering_title'] + '" type="checkbox">' +
+                '<label for="' + titles[p]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[p]['id'] + '">' + titles[p]['title'] + '</label>';
+            if (isdraggable == 'disable') {
+                html += '<div class="disable-opacity"></div>'
+            }
+            html += '</li>'
+        }
+    });
+
+    document.getElementById('sort-form').innerHTML = html;
+
+    live('click', "#sort-form label", function (el) {
+        if (!this.parentElement.hasAttribute('disable')) {
+            this.classList.contains('check') ? this.classList.remove('check') : this.classList.add('check');
+        }
+    })
+
+}
+
 function getUsersList(path,param) {
-    var param = param || {};
+    param = param || {};
     var search = document.getElementsByName('fullsearch')[0].value;
     var filter = document.getElementById('filter').value;
     if (search) {
@@ -339,6 +368,10 @@ function getUsersList(path,param) {
     ajaxRequest(path, param, function(data) {
 
         var results = data.results;
+
+        var k;
+        var value;
+
         var count = data.count;
         if (results.length == 0) {
             document.getElementById('users_list').innerHTML = '<p>По запросу не найдено учасников</p>';
@@ -349,75 +382,117 @@ function getUsersList(path,param) {
             });
             return;
         }
-        var common_fields = results[0].common;
-        var html = '';
-        var thead = '<table><thead><tr>';
-        var common = config['column_table'];
-        
-        for (var title in config['column_table']) {
-            if (!config['column_table'][title]['active'] && config['column_table'][title]['editable']) continue
-            var blue_icon = typeof  ordering[config['column_table'][title]['ordering_title']]  == 'undefined' ? '' : 'blue_icon_active'
-            if (ordering[config['column_table'][title]['ordering_title']]) {
-                thead += '<th data-order="' + config['column_table'][title]['ordering_title'] + '" class="down"><span>' + config['column_table'][title]['title'] + '</span><span class="ups '+ blue_icon  +'"></span></th>';;
-            } else {
-                thead += '<th data-order="' + config['column_table'][title]['ordering_title'] + '" class="up"><span>' + config['column_table'][title]['title'] + '</span><span class="ups ups-active '+ blue_icon +'"></span></th>';
-            }
+
+        var common_fields = data.common_table;
+        var user_fields = data.user_table;
+
+        getCurrentSummitSetting([['Пользователь', user_fields]]);
+
+        var thead = '<thead><tr>';
+        for (k in user_fields) {
+            if (!user_fields.hasOwnProperty(k)) continue;
+            thead += '<th data-order="user__' + user_fields[k]['ordering_title'] + '">' + user_fields[k]['title'] + '</th>'
         }
-        for (var x in common_fields) {
-            thead += '<th data-order="' + common_fields[x] + '"    class="up"><span>' + x + '</span></th>';
+        for (k in common_fields) {
+            if (!common_fields.hasOwnProperty(k)) continue;
+            thead += '<th data-order="' + common_fields[k]['ordering_title'] + '">' + common_fields[k]['title'] + '</th>'
         }
-        
-        for (var i = 0; i < results.length; i++) {
-            var list_fields = results[i].info;
-            if (!list_fields) continue
-            html += '<tr>';
-            for (var prop in config['column_table']) {
-                if (prop in list_fields) {                    
-                    if (prop == 'social' && config['column_table']['social'] && config['column_table']['social']['active']) {   
-                        html += '<td>';                                      
-                        for (var p in list_fields[prop]) {
-                            if (list_fields[prop][p] == '') {
-                                continue
-                            } else {
-                                switch (p) {
-                                  case 'skype':
-                                    html += '<a href="skype:'+list_fields[prop].skype+'?chat"><i class="fa fa-skype"></i></a>';
-                                    break;
-                                  case 'vkontakte':
-                                    html += '<a target="_blank" href="'+list_fields[prop].vkontakte+'"><i class="fa fa-vk"></i></a>';
-                                    break;
-                                  case 'facebook':
-                                    html += '<a href="'+list_fields[prop].facebook+'"><i class="fa fa-facebook"></i></a>';
-                                    break;
-                                  case 'odnoklassniki':
-                                    html += '<a href="'+list_fields[prop].odnoklassniki+'"><i class="fa fa-odnoklassniki" aria-hidden="true"></i></a>';
-                                    break;
-                                } 
-                            }
-                        }
-                        html += '</td>';                                                                      
-                    } else if ((!config['column_table'][prop]['active'] && config['column_table'][prop]['editable'])) {
-                        continue;
-                    } else if (prop == 'fullname') {
-                        html += '<td><a href="/account/'+list_fields['id']['value']+'">' + list_fields[prop]['value'] + '</a><span title="Удалить анкету" data-anketId="' + list_fields.money_info.summit_anket_id + '"" data-value="' + list_fields.money_info.value + '" data-comment="' + list_fields.money_info.description + '" class="del"></span>' + '</td>'
-                    } else {
-                        html += '<td>' + list_fields[prop]['value'] + '</td>';  
-                    }                   
-                    
-                                 
-                }                                
-            }
-            for (var z in common_fields) {
-                for (var s in list_fields) {
-                    if (common_fields[z] == list_fields[s].verbose) {
-                        html += '<td>' + list_fields[s].value + '</td>';                            
-                    }
+        thead += '</tr></thead>';
+
+        var tbody = '<tbody>';
+        results.forEach(function (field, i) {
+            tbody += '<tr>';
+
+            for (k in user_fields) {
+                if (!user_fields.hasOwnProperty(k)) continue;
+                value = getCorrectValue(field['user'][k]);
+                if (k === 'fullname') {
+                    tbody += '<td>' + '<a href="' + results[i].user.link + '">' + value + '</a></td>'
+                } else {
+                    tbody += '<td>' + value + '</td>'
                 }
             }
-            html += '</tr>';
-        }
+            for (k in common_fields) {
+                if (!common_fields.hasOwnProperty(k)) continue;
+                value = getCorrectValue(field[k]);
+                tbody += '<td>' + value + '</td>'
+            }
+            tbody += '</tr>';
+        });
+        tbody += '</tbody>';
 
-        thead += '</thead><tbody></tbody></table>';
+        var table = '<table>' + thead + tbody + '</table>';
+
+
+        // var common_fields = results[0].common;
+        // var html = '';
+        // var thead = '<table><thead><tr>';
+        // var common = config['column_table'];
+        //
+        // for (var title in config['column_table']) {
+        //     if (!config['column_table'][title]['active'] && config['column_table'][title]['editable']) continue
+        //     var blue_icon = typeof  ordering[config['column_table'][title]['ordering_title']]  == 'undefined' ? '' : 'blue_icon_active'
+        //     if (ordering[config['column_table'][title]['ordering_title']]) {
+        //         thead += '<th data-order="' + config['column_table'][title]['ordering_title'] + '" class="down"><span>' + config['column_table'][title]['title'] + '</span><span class="ups '+ blue_icon  +'"></span></th>';;
+        //     } else {
+        //         thead += '<th data-order="' + config['column_table'][title]['ordering_title'] + '" class="up"><span>' + config['column_table'][title]['title'] + '</span><span class="ups ups-active '+ blue_icon +'"></span></th>';
+        //     }
+        // }
+        // for (var x in common_fields) {
+        //     thead += '<th data-order="' + common_fields[x] + '"    class="up"><span>' + x + '</span></th>';
+        // }
+        //
+        // for (var i = 0; i < results.length; i++) {
+        //     var list_fields = results[i].info;
+        //     if (!list_fields) continue
+        //     html += '<tr>';
+        //     for (var prop in config['column_table']) {
+        //         if (prop in list_fields) {
+        //             if (prop == 'social' && config['column_table']['social'] && config['column_table']['social']['active']) {
+        //                 html += '<td>';
+        //                 for (var p in list_fields[prop]) {
+        //                     if (list_fields[prop][p] == '') {
+        //                         continue
+        //                     } else {
+        //                         switch (p) {
+        //                           case 'skype':
+        //                             html += '<a href="skype:'+list_fields[prop].skype+'?chat"><i class="fa fa-skype"></i></a>';
+        //                             break;
+        //                           case 'vkontakte':
+        //                             html += '<a target="_blank" href="'+list_fields[prop].vkontakte+'"><i class="fa fa-vk"></i></a>';
+        //                             break;
+        //                           case 'facebook':
+        //                             html += '<a href="'+list_fields[prop].facebook+'"><i class="fa fa-facebook"></i></a>';
+        //                             break;
+        //                           case 'odnoklassniki':
+        //                             html += '<a href="'+list_fields[prop].odnoklassniki+'"><i class="fa fa-odnoklassniki" aria-hidden="true"></i></a>';
+        //                             break;
+        //                         }
+        //                     }
+        //                 }
+        //                 html += '</td>';
+        //             } else if ((!config['column_table'][prop]['active'] && config['column_table'][prop]['editable'])) {
+        //                 continue;
+        //             } else if (prop == 'fullname') {
+        //                 html += '<td><a href="/account/'+list_fields['id']['value']+'">' + list_fields[prop]['value'] + '</a><span title="Удалить анкету" data-anketId="' + list_fields.money_info.summit_anket_id + '"" data-value="' + list_fields.money_info.value + '" data-comment="' + list_fields.money_info.description + '" class="del"></span>' + '</td>'
+        //             } else {
+        //                 html += '<td>' + list_fields[prop]['value'] + '</td>';
+        //             }
+        //
+        //
+        //         }
+        //     }
+        //     for (var z in common_fields) {
+        //         for (var s in list_fields) {
+        //             if (common_fields[z] == list_fields[s].verbose) {
+        //                 html += '<td>' + list_fields[s].value + '</td>';
+        //             }
+        //         }
+        //     }
+        //     html += '</tr>';
+        // }
+        //
+        // thead += '</thead><tbody></tbody></table>';
 
         var page = parseInt(param['page']) || 1,
             pages = Math.ceil(count / config.pagination_count),
@@ -427,7 +502,7 @@ function getUsersList(path,param) {
             paginations += '<div class="prev"><span class="arrow"></span></div>';
         }
         if (pages > 1) {
-        paginations += '<ul class="pag">'
+            paginations += '<ul class="pag">';
 
         if( page > 4){
                      paginations += '<li>1</li><li class="no-pagin">&hellip;</li>'
@@ -462,8 +537,8 @@ function getUsersList(path,param) {
         paginations += '</ul><div class="next"><span class="arrow"></span></div>'
     }
 
-        document.getElementById('users_list').innerHTML = thead;
-        document.querySelector("#users_list tbody").innerHTML = html;
+        document.getElementById('users_list').innerHTML = table;
+        // document.querySelector("#users_list tbody").innerHTML = html;
         document.querySelector(".element-select").innerHTML = elementSelect;
         document.getElementsByClassName('preloader')[0].style.display = 'none';
         Array.prototype.forEach.call(document.querySelectorAll(" .pag-wrap"), function(el) {

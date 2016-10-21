@@ -8,9 +8,11 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
 from account.models import CustomUser
+from navigation.models import user_table, user_summit_table
 from .models import Summit, SummitAnket, SummitType
 from .resources import get_fields
-from .serializers import SummitAnketSerializer, SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer
+from .serializers import SummitAnketSerializer, SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, \
+    NewSummitAnketSerializer
 
 
 class SummitPagination(PageNumberPagination):
@@ -20,12 +22,124 @@ class SummitPagination(PageNumberPagination):
 
     def get_paginated_response(self, data):
         return Response({
-            'links': {'next': self.get_next_link(),
-                      'previous': self.get_previous_link()
-                      },
+            'links': {
+                'next': self.get_next_link(),
+                'previous': self.get_previous_link()
+            },
             'count': self.page.paginator.count,
+            'common_table': user_summit_table(),
+            'user_table': user_table(self.request.user),
             'results': data
         })
+
+
+class NewSummitAnketViewSet(viewsets.ModelViewSet):
+    queryset = SummitAnket.objects.select_related('user', 'user__hierarchy', 'user__department', 'user__master'). \
+        prefetch_related('user__divisions')
+    serializer_class = NewSummitAnketSerializer
+    pagination_class = SummitPagination
+    filter_backends = (filters.DjangoFilterBackend,
+                       filters.SearchFilter,
+                       filters.OrderingFilter,
+                       )
+    filter_fields = ('user',
+                     'summit',
+                     'user__master',
+                     'user__department__title',
+                     'user__first_name', 'user__last_name',
+                     'user__middle_name', 'user__born_date', 'user__country',
+                     'user__region', 'user__city', 'user__district',
+                     'user__address', 'user__skype', 'user__phone_number',
+                     'user__email', 'user__hierarchy__level', 'user__facebook',
+                     'user__vkontakte',
+                     )
+    search_fields = ('user__first_name',
+                     'user__last_name',
+                     'user__middle_name',
+                     'user__hierarchy__title',
+                     'user__phone_number',
+                     'user__city',
+                     'user__department__title',
+                     'user__master__last_name',
+                     'user__email',
+                     )
+    ordering_fields = ('user__first_name', 'user__last_name', 'user__master__last_name',
+                       'user__middle_name', 'user__born_date', 'user__country',
+                       'user__region', 'user__city', 'user__district',
+                       'user__address', 'user__skype', 'user__phone_number',
+                       'user__email', 'user__hierarchy__level',
+                       'user__department__title', 'user__facebook',
+                       'user__vkontakte', 'value',)
+    permission_classes = (IsAuthenticated,)
+
+    @list_route(methods=['post'], )
+    def post_anket(self, request):
+        if request.method == 'POST':
+            keys = request.data.keys()
+            if 'user_id' in keys and 'summit_id' in keys:
+                user = CustomUser.objects.filter(id=request.data['user_id']).first()
+                summit = Summit.objects.filter(id=request.data['summit_id']).first()
+                if user:
+                    sa = SummitAnket.objects.filter(user=user)
+                    if summit:
+                        sa = sa.filter(summit=summit).first()
+                        if sa:
+                            if len(request.data['value']) > 0:
+                                sa.value = request.data['value']
+                            if len(request.data['description']) > 0:
+                                sa.description = request.data['description']
+                            sa.save()
+                            data = {"message": "Данные успешно измененны",
+                                    'status': True}
+                        else:
+                            if len(request.data['value']) > 0:
+                                s = SummitAnket.objects.create(user=user, summit=summit, value=request.data['value'],
+                                                               description=request.data['description'])
+                                if 'retards' in keys:
+                                    if request.data['retards']:
+                                        s.retards = request.data['retards']
+                                        s.code = request.data['code']
+                                    get_fields(s)
+                                else:
+                                    get_fields(s)
+                            else:
+                                s = SummitAnket.objects.create(user=user, summit=summit,
+                                                               description=request.data['description'])
+                                if 'retards' in keys:
+                                    if request.data['retards']:
+                                        s.retards = request.data['retards']
+                                        s.code = request.data['code']
+                                    get_fields(s)
+                                else:
+                                    get_fields(s)
+                            data = {"message": "Данные успешно сохраненны",
+                                    'status': True}
+                    else:
+                        data = {"message": "Такой саммит отсутствует",
+                                'status': False}
+                else:
+                    data = {'message': "Такого полльзователя не существует",
+                            'status': False}
+            else:
+                data = {'message': "Некорректные данные",
+                        'status': False}
+        else:
+            data = {'message': "Неправильный запрос",
+                    'status': False}
+        return Response(data)
+
+    @list_route(methods=['post'], )
+    def delete_anket(self, request):
+        if request.method == 'POST':
+            sa = SummitAnket.objects.filter(id=request.data['id']).first()
+            if sa:
+                sa.delete()
+                data = {"message": "Анкета удаленна",
+                        'status': True}
+            else:
+                data = {"message": "Анкеты не существует",
+                        'status': False}
+            return Response(data)
 
 
 class SummitAnketViewSet(viewsets.ModelViewSet):

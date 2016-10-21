@@ -55,6 +55,25 @@ def user_partner_table(user):
     return l
 
 
+def user_summit_table():
+    l = OrderedDict()
+    d = OrderedDict()
+    d['title'] = 'Оплата'
+    d['ordering_title'] = 'value'
+    d['number'] = 1
+    d['active'] = True
+    d['editable'] = False
+    l['value'] = d
+    d = OrderedDict()
+    d['title'] = 'Примечание'
+    d['ordering_title'] = 'description'
+    d['number'] = 2
+    d['active'] = True
+    d['editable'] = False
+    l['description'] = d
+    return l
+
+
 def event_table():
     l = OrderedDict()
     column_types = ColumnType.objects.filter(category__title="events").order_by('number')
