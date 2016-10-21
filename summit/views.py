@@ -332,14 +332,14 @@ class SummitUnregisterFilter(filters_new.FilterSet):
 class SummitUnregisterUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = SummitUnregisterUserSerializer
-    pagination_class = None
     filter_backends = (filters.SearchFilter,
                        filters.DjangoFilterBackend,)
     permission_classes = (IsAuthenticated,)
     filter_class = SummitUnregisterFilter
     search_fields = ('first_name', 'last_name', 'middle_name',
-                     'country', 'region', 'city', 'district',
-                     'address', 'email',)
+                     # 'country', 'region', 'city', 'district',
+                     # 'address', 'email',
+                     )
 
 
 from rest_framework.response import Response

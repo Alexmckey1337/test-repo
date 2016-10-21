@@ -22,7 +22,7 @@ $(document).ready(function(){
     $('input[name="searchDep"]').keyup(function() {
         delay(function() {
             var data = {};
-            var path = config.DOCUMENT_ROOT + 'api/summit_ankets/?';
+            var path = config.DOCUMENT_ROOT + 'api/nsummit_ankets/?';
             data['summit'] = summit_id;
             data['user__department__title'] = $('input[name="searchDep"]').val();
             getUsersList(path,data);
@@ -38,14 +38,12 @@ $(document).ready(function(){
         $(this).parent().addClass('active')
     });
 
-    if(document.getElementById('sort_save')) {
         document.getElementById('sort_save').addEventListener('click', function() {
-            updateSettings(getUsersList(path));
+            updateSettings(getUsersList, path);
             $(".table-sorting").animate({
                 right: '-300px'
             }, 10, 'linear')
-        })
-    }
+        });
 
     if (document.querySelector('.table-wrap')) {
 
@@ -231,6 +229,7 @@ function getUnregisteredUsers(parameters) {
     }
     ajaxRequest(config.DOCUMENT_ROOT + 'api/summit_search/?summit_id!=' + summit_id, param, function(data) {
         var html = '';
+        data = data.results;
         for (var i = 0; i < data.length; i++) {
             html += '<div class="rows-wrap"><button data-master="' + data[i].master_short_fullname + '" data-name="' + data[i].fullname + '" data-id="' + data[i].id + '">Выбрать</button><div class="rows"><div class="col"><p><span><a href="/account/'+ data[i].id +'">' + data[i].fullname + '</a></span></p></div><div class="col"><p><span>' + data[i].country + '</span>,<span> ' + data[i].city + '</span></p></div></div></div>';
         }
@@ -245,7 +244,7 @@ function getUnregisteredUsers(parameters) {
             but[j].addEventListener('click', function() {
                 var id = this.getAttribute('data-id'),
                     name = this.getAttribute('data-name'),
-                    master = this.getAttribute('data-master')
+                    master = this.getAttribute('data-master');
                 document.getElementById('summit-value').value = "0";
                 document.getElementById('summit-value').setAttribute('readonly','readonly');
                 document.querySelector('#popup textarea').value = "";
@@ -407,7 +406,7 @@ function getUsersList(path,param) {
                 if (!user_fields.hasOwnProperty(k)) continue;
                 value = getCorrectValue(field['user'][k]);
                 if (k === 'fullname') {
-                    tbody += '<td>' + '<a href="' + results[i].user.link + '">' + value + '</a></td>'
+                    tbody += '<td>' + '<a href="' + results[i].user.link + '">' + value + '</a><span title="Удалить анкету" data-anketId="' + results[i].id + '"" data-value="' + results[i].value + '" data-comment="' + results[i].description + '" class="del"></span></td>'
                 } else {
                     tbody += '<td>' + value + '</td>'
                 }
