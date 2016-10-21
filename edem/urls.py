@@ -20,6 +20,7 @@ import tv_crm.views
 router = routers.DefaultRouter()
 router.register(r'users', account.views.UserViewSet, base_name='customuser')
 router.register(r'nusers', account.views.NewUserViewSet, base_name='nusers')
+router.register(r'consultant_select', account.views.ConsultantForSelectViewSet, base_name='consultant')
 router.register(r'short_users', account.views.UserShortViewSet, base_name='short_users')
 router.register(r'hierarchy', hierarchy.views.HierarchyViewSet)
 router.register(r'departments', hierarchy.views.DepartmentViewSet)

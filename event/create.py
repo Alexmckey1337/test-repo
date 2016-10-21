@@ -42,13 +42,13 @@ def create_events(week):
     if not created:
         print("Current night event is already created")
 
-    _, created = Event.objects.get(week=week, event_type=home_type, defaults={
+    _, created = Event.objects.get_or_create(week=week, event_type=home_type, defaults={
         'from_date': from_date,
         'to_date': to_date, })
     if not created:
         print("Current home event is already created")
 
-    _, created = Event.objects.get(week=week, event_type=service_type, defaults={
+    _, created = Event.objects.get_or_create(week=week, event_type=service_type, defaults={
         'from_date': from_date,
         'to_date': to_date, })
     if not created:

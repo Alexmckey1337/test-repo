@@ -242,8 +242,8 @@ def sync_event(sender, instance, **kwargs):
 
 @receiver(signals.post_save, sender=Week)
 def sync_week(sender, instance, **kwargs):
-    from create import create_events
-    from utils import create_week_reports
+    from .create import create_events
+    from .utils import create_week_reports
     create_events(instance)
     create_week_reports(instance.id)
 

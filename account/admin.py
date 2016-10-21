@@ -14,7 +14,8 @@ from .resources import UserResource
 
 class CustomUserAdmin(UserAdmin, ImportExportModelAdmin):
     list_display = ('username', 'date_joined',
-                    'is_staff', 'is_active')
+                    'is_staff', 'is_active', 'is_consultant')
+    list_editable = ('is_consultant', 'is_active')
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {'fields': (
@@ -22,6 +23,7 @@ class CustomUserAdmin(UserAdmin, ImportExportModelAdmin):
             'phone_number', 'skype', 'facebook', 'vkontakte', 'image', 'born_date',
             'country', 'region', 'city', 'district', 'address',
             'description', 'repentance_date', 'coming_date', 'hierarchy_order',
+            'is_consultant', 'consultant'
         )}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),

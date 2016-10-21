@@ -19,7 +19,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from account.models import CustomUser as User
+from account.models import CustomUser as User, Consultant
 from edem.settings import SITE_DOMAIN_URL, DEFAULT_FROM_EMAIL
 from hierarchy.models import Hierarchy, Department
 from navigation.models import user_table
@@ -27,7 +27,7 @@ from partnership.models import Partnership
 from status.models import Status, Division
 from tv_crm.views import sync_unique_user_call
 from .resources import clean_password, clean_old_password
-from .serializers import UserSerializer, UserShortSerializer, NewUserSerializer
+from .serializers import UserSerializer, UserShortSerializer, NewUserSerializer, ConsultantForSelectSerializer
 
 
 class UserPagination(PageNumberPagination):
@@ -45,6 +45,13 @@ class UserPagination(PageNumberPagination):
             'user_table': user_table(self.request.user),
             'results': data
         })
+
+
+class ConsultantForSelectViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Consultant.objects.filter(is_active=True).order_by('-date_joined')
+    serializer_class = ConsultantForSelectSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = None
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -114,7 +121,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class NewUserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.select_related(
-        'hierarchy', 'department', 'master').prefetch_related(
+        'hierarchy', 'department', 'master', 'consultant').prefetch_related(
         'divisions'
     ).filter(is_active=True).all().order_by('-date_joined')
     serializer_class = NewUserSerializer

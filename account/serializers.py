@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from account.models import CustomUser as User
+from account.models import CustomUser as User, Consultant
 from hierarchy.models import Department, Hierarchy
 from status.models import Division
 
@@ -11,7 +11,7 @@ from status.models import Division
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'email', 'fullname', 'image', 'image_source',
+        fields = ('id', 'email', 'fullname', 'image', 'image_source', 'consultant',
                   'hierarchy_name', 'has_disciples', 'hierarchy_order', 'column_table',
                   'fields', 'division_fields', 'hierarchy_chain', 'partnerships_info')
 
@@ -42,15 +42,22 @@ class DivisionSerializer(serializers.ModelSerializer):
         fields = ('id', 'title')
 
 
+class ConsultantForSelectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Consultant
+        fields = ('id', 'fullname')
+
+
 class NewUserSerializer(serializers.ModelSerializer):
     department = DepartmentTitleSerializer()
     master = MasterNameSerializer(required=False, allow_null=True)
     hierarchy = HierarchyTitleSerializer()
     divisions = DivisionSerializer(many=True, read_only=True)
+    consultant = ConsultantForSelectSerializer()
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'fullname', 'department', 'master', 'phone_number', 'hierarchy',
+        fields = ('id', 'email', 'fullname', 'department', 'master', 'phone_number', 'hierarchy', 'consultant',
                   'divisions', 'country', 'born_date', 'region', 'city', 'district', 'address', 'facebook')
         required_fields = ('id', 'link')
 
