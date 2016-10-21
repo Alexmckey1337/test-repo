@@ -10,9 +10,7 @@ from django.db.models import signals
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
 
-from account.managers import ConsultantManager
 from event.models import EventAnket
 from navigation.models import Table
 from tv_crm.models import LastCall
@@ -56,10 +54,6 @@ class CustomUser(User):
     coming_date = models.DateField(blank=True, null=True)
     hierarchy_order = models.BigIntegerField(blank=True, null=True)
     activation_key = models.CharField(max_length=40, blank=True)
-
-    is_consultant = models.BooleanField(_('Is consult?'), default=False)
-    consultant = models.ForeignKey('account.Consultant', on_delete=models.SET_NULL,
-                                   related_name='consultees', null=True, blank=True)
 
     objects = UserManager()
 
@@ -300,15 +294,6 @@ class CustomUser(User):
         #    l['is_responsible'] = True
         #    l['responsible'] = self.partnership.id
         return l
-
-
-class Consultant(CustomUser):
-    objects = ConsultantManager()
-
-    class Meta:
-        proxy = True
-        verbose_name = _('Consultant')
-        verbose_name_plural = _('Consultants')
 
 
 def create_custom_user(sender, instance, created, **kwargs):

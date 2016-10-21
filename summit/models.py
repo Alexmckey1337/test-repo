@@ -1,11 +1,11 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
-from django.utils.encoding import python_2_unicode_compatible
 
 from collections import OrderedDict
 from datetime import date
 
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 
 
 @python_2_unicode_compatible
