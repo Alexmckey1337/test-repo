@@ -27,8 +27,37 @@ $(function () {
     document.getElementById('dep_filter').addEventListener('change', function () {
         createUser()
 
-    })
+    });
 });
+
+function getCurrentUserSetting(data) {
+    var html = '';
+    data.forEach(function (d) {
+        var titles = d[1];
+        html += '<h3>' + d[0] + '</h3>';
+        for (var p in titles) {
+            if (!titles.hasOwnProperty(p)) continue;
+            var ischeck = titles[p]['active'] ? 'check' : '';
+            var isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
+            html += '<li ' + isdraggable + ' >' +
+                '<input id="' + titles[p]['ordering_title'] + '" type="checkbox">' +
+                '<label for="' + titles[p]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[p]['id'] + '">' + titles[p]['title'] + '</label>';
+            if (isdraggable == 'disable') {
+                html += '<div class="disable-opacity"></div>'
+            }
+            html += '</li>'
+        }
+    });
+
+    document.getElementById('sort-form').innerHTML = html;
+
+    live('click', "#sort-form label", function (el) {
+        if (!this.parentElement.hasAttribute('disable')) {
+            this.classList.contains('check') ? this.classList.remove('check') : this.classList.add('check');
+        }
+    })
+
+}
 
 
 var ordering = {};
@@ -64,6 +93,8 @@ function createUserInfoBySearch(data, search) {
     var value;
 
     var user_fields = data.user_table;
+
+    getCurrentUserSetting([['Пользователь', user_fields]]);
 
     var thead = '<thead><tr>';
 

@@ -33,7 +33,7 @@ if (document.getElementById('filter')) {
 
 if (document.getElementById('sort_save')) {
     document.getElementById('sort_save').addEventListener('click', function () {
-        updateSettings(getCurrentSetting);
+        // updateSettings(getCurrentSetting);
         $(".table-sorting").animate({
             right: '-300px'
         }, 10, 'linear')
@@ -262,12 +262,12 @@ $(function () {
 
         if (document.getElementById('database_users')) {
             createUser();
-            getCurrentSetting();
+            // getCurrentSetting();
         }
 
         if (document.getElementById('partnersips_list')) {
             getPartnersList();
-            getCurrentSetting();
+            // getCurrentSetting();
         }
 
         if (document.getElementById('users_list')) {

@@ -29,6 +29,7 @@ def user_table(user):
         active=True, columnType__category__title="Общая информация").order_by('number')
     for column in column_types:
         d = OrderedDict()
+        d['id'] = column.id
         d['title'] = column.columnType.verbose_title
         d['ordering_title'] = column.columnType.ordering_title
         d['number'] = column.number
@@ -44,6 +45,7 @@ def user_partner_table(user):
         active=True, columnType__category__title="partnership").order_by('number')
     for column in column_types.all():
         d = OrderedDict()
+        d['id'] = column.id
         d['title'] = column.columnType.verbose_title
         d['ordering_title'] = column.columnType.ordering_title
         d['number'] = column.number

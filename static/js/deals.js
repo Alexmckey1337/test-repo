@@ -544,6 +544,35 @@ function makeTabs() {
     }
 }
 
+function getCurrentPartnerSetting(data) {
+    var html = '';
+    data.forEach(function (d) {
+        var titles = d[1];
+        html += '<h3>' + d[0] + '</h3>';
+        for (var p in titles) {
+            if (!titles.hasOwnProperty(p)) continue;
+            var ischeck = titles[p]['active'] ? 'check' : '';
+            var isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
+            html += '<li ' + isdraggable + ' >' +
+                '<input id="' + titles[p]['ordering_title'] + '" type="checkbox">' +
+                '<label for="' + titles[p]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[p]['id'] + '">' + titles[p]['title'] + '</label>';
+            if (isdraggable == 'disable') {
+                html += '<div class="disable-opacity"></div>'
+            }
+            html += '</li>'
+        }
+    });
+
+    document.getElementById('sort-form').innerHTML = html;
+
+    live('click', "#sort-form label", function (el) {
+        if (!this.parentElement.hasAttribute('disable')) {
+            this.classList.contains('check') ? this.classList.remove('check') : this.classList.add('check');
+        }
+    })
+
+}
+
 function getPartnersList(param) {
     param = param || {};
 
@@ -565,6 +594,8 @@ function getPartnersList(param) {
         var common_fields = data.common_table;
         var user_fields = data.user_table;
 
+        getCurrentPartnerSetting([['Партнерство', common_fields], ['Пользователь', user_fields]]);
+
         var thead = '<thead><tr>';
         for (k in common_fields) {
             if (!common_fields.hasOwnProperty(k)) continue;
@@ -577,7 +608,7 @@ function getPartnersList(param) {
         thead += '</tr></thead>';
 
         var tbody = '<tbody>';
-        results.forEach(function (field) {
+        results.forEach(function (field, i) {
             tbody += '<tr>';
 
             for (k in common_fields) {
@@ -589,7 +620,11 @@ function getPartnersList(param) {
             for (k in user_fields) {
                 if (!user_fields.hasOwnProperty(k)) continue;
                 value = getCorrectValue(field['user'][k]);
-                tbody += '<td>' + value + '</td>'
+                if (k === 'fullname') {
+                    tbody += '<td>' + '<a href="' + results[i].user.link + '">' + value + '</a></td>'
+                } else {
+                    tbody += '<td>' + value + '</td>'
+                }
             }
             tbody += '</tr>';
         });
