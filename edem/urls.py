@@ -42,6 +42,7 @@ router.register(r'synopsis', tv_crm.views.SynopsisViewSet)
 
 router.register(r'summit', summit.views.SummitViewSet)
 router.register(r'summit_ankets', summit.views.SummitAnketViewSet)
+router.register(r'summit_ankets_with_notes', summit.views.SummitAnketWithNotesViewSet, base_name='ankets_with_notes')
 router.register(r'nsummit_ankets', summit.views.NewSummitAnketViewSet, base_name='nsummit_ankets')
 router.register(r'summit_types', summit.views.SummitTypeViewSet)
 router.register(r'summit_search', summit.views.SummitUnregisterUserViewSet, base_name='summit_search')

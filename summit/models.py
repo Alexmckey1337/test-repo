@@ -6,6 +6,7 @@ from datetime import date
 
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.translation import ugettext_lazy as _
 
 
 @python_2_unicode_compatible
@@ -107,3 +108,26 @@ class SummitAnket(models.Model):
                          ('Примечание', 'description'),
                          ])
         return l
+
+
+class SummitAnketNote(models.Model):
+    summit_anket = models.ForeignKey('summit.SummitAnket', on_delete=models.CASCADE, related_name='notes',
+                                     verbose_name=_('Summit anket'))
+    owner = models.ForeignKey('account.CustomUser', on_delete=models.SET_NULL, related_name='notes',
+                              null=True, blank=True, verbose_name=_('Owner of note'))
+
+    text = models.CharField(_('Note'), max_length=1000)
+
+    date_created = models.DateTimeField(_('Datetime created'), auto_now_add=True)
+
+    def __str__(self):
+        return self.short_text
+
+    @property
+    def short_text(self):
+        return '{}...'.format(self.text[:47]) if len(self.text) > 50 else self.text
+
+    class Meta:
+        verbose_name = _('Summit Anket Note')
+        verbose_name_plural = _('Summit Anket Notes')
+        ordering = ('-date_created',)

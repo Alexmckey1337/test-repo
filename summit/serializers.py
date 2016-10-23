@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from account.models import CustomUser as User
 from account.serializers import NewUserSerializer
-from .models import Summit, SummitAnket, SummitType
+from .models import Summit, SummitAnket, SummitType, SummitAnketNote
 
 
 class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
@@ -38,3 +38,21 @@ class SummitUnregisterUserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'city', 'fullname', 'country', 'master_short_fullname')
+
+
+class SummitAnketNoteSerializer(serializers.ModelSerializer):
+    owner = serializers.StringRelatedField()
+
+    class Meta:
+        model = SummitAnketNote
+        fields = ('summit_anket', 'text', 'owner', 'date_created')
+        read_only_fields = ('owner', 'date_created', 'id')
+        extra_kwargs = {'summit_anket': {'write_only': True}}
+
+
+class SummitAnketWithNotesSerializer(serializers.ModelSerializer):
+    notes = SummitAnketNoteSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = SummitAnket
+        fields = ('info', 'common', 'code', 'notes')

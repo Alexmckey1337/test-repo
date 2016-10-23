@@ -2,17 +2,30 @@
 from __future__ import unicode_literals
 
 import rest_framework_filters as filters_new
+from rest_framework import status
 from rest_framework import viewsets, filters
-from rest_framework.decorators import list_route
+from rest_framework.decorators import api_view
+from rest_framework.decorators import list_route, detail_route
+from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.settings import api_settings
 
 from account.models import CustomUser
 from navigation.models import user_table, user_summit_table
-from .models import Summit, SummitAnket, SummitType
+from .models import Summit, SummitAnket, SummitType, SummitAnketNote
 from .resources import get_fields
+from .resources import make_table
 from .serializers import SummitAnketSerializer, SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, \
-    NewSummitAnketSerializer
+    NewSummitAnketSerializer, SummitAnketNoteSerializer, SummitAnketWithNotesSerializer
+
+
+def get_success_headers(data):
+    try:
+        return {'Location': data[api_settings.URL_FIELD_NAME]}
+    except (TypeError, KeyError):
+        return {}
 
 
 class SummitPagination(PageNumberPagination):
@@ -141,6 +154,38 @@ class NewSummitAnketViewSet(viewsets.ModelViewSet):
                         'status': False}
             return Response(data)
 
+    @detail_route(methods=['get'])
+    def notes(self, request, pk=None):
+        serializer = SummitAnketNoteSerializer
+        anket = get_object_or_404(SummitAnket, pk=pk)
+        queryset = anket.notes
+
+        serializer = serializer(queryset, many=True)
+
+        return Response(serializer.data)
+
+    @detail_route(methods=['post'])
+    def create_note(self, request, pk=None):
+        text = request.data['text']
+        data = dict()
+        data['text'] = text
+        data['summit_anket'] = pk
+        serializer = SummitAnketNoteSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(owner=request.user.customuser)
+        headers = get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class SummitAnketWithNotesViewSet(viewsets.ModelViewSet):
+    queryset = SummitAnket.objects.select_related('user', 'user__hierarchy', 'user__department', 'user__master'). \
+        prefetch_related('user__divisions', 'notes')
+    serializer_class = SummitAnketWithNotesSerializer
+    pagination_class = None
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_fields = ('user',)
+
 
 class SummitAnketViewSet(viewsets.ModelViewSet):
     queryset = SummitAnket.objects.all()
@@ -249,6 +294,29 @@ class SummitAnketViewSet(viewsets.ModelViewSet):
                         'status': False}
             return Response(data)
 
+    @detail_route(methods=['get'])
+    def notes(self, request, pk=None):
+        serializer = SummitAnketNoteSerializer
+        anket = get_object_or_404(SummitAnket, pk=pk)
+        queryset = anket.notes
+
+        serializer = serializer(queryset, many=True)
+
+        return Response(serializer.data)
+
+    @detail_route(methods=['post'])
+    def create_note(self, request, pk=None):
+        text = request.data['text']
+        data = dict()
+        data['text'] = text
+        data['summit_anket'] = pk
+        serializer = SummitAnketNoteSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(owner=request.user.customuser)
+        headers = get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 class SummitViewSet(viewsets.ModelViewSet):
     queryset = Summit.objects.all().order_by('start_date')
@@ -342,9 +410,12 @@ class SummitUnregisterUserViewSet(viewsets.ModelViewSet):
                      )
 
 
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from .resources import make_table
+class SummitAnketNoteViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = SummitAnketNote.objects.all()
+    serializer_class = SummitAnketNoteSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_fields = ('summit_anket',)
+    permission_classes = (IsAuthenticated,)
 
 
 @api_view(['GET'])
