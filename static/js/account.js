@@ -64,6 +64,13 @@ function init(id) {
 
         document.getElementById('repentance_status').innerHTML = status;
 
+        var main_phone = data.fields.phone_number.value;
+        var additional_phone = data.fields.additional_phone.value;
+        var phone = main_phone;
+        if (additional_phone) {
+            phone = phone + ', ' + additional_phone;
+        }
+        document.getElementById('phone_number').innerHTML = phone || ' ';
 
         for (var prop in data.fields) {
             if (!data.fields.hasOwnProperty(prop)) continue
@@ -106,6 +113,9 @@ function init(id) {
             if(  prop == 'divisions'  ){
               var   divisions = data.fields[prop]['value'].split(',').join(', ');
               document.getElementById(prop).innerHTML = divisions
+                continue
+            }
+            if (prop == 'additional_phone' || prop == 'phone_number') {
                 continue
             }
 
