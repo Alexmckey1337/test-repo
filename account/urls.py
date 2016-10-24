@@ -4,9 +4,10 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 
 from account.views import (delete_user, login_view, create_user, send_password, change_password, logout_view,
-                           download_image, password_forgot, password_view)
+                           download_image, password_forgot, password_view, ping_user_key)
 
 urlpatterns = [
+    url(r'^ping_user_key', ping_user_key),
     url(r'^delete_user', delete_user),
     url(r'^login', login_view),
     url(r'^create_user', create_user),

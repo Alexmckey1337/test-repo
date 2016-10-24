@@ -13,8 +13,10 @@ from django.template import Context
 from django.template.loader import get_template
 from django.utils import six
 from rest_framework import viewsets, filters
+from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
 from rest_framework.decorators import list_route
+from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -730,3 +732,10 @@ def password_view(request, activation_key=None):
         response_dict['message'] = "Ключ активации несуществует или устарел"
         response_dict['status'] = False
     return Response(response_dict)
+
+
+@api_view(['POST'])
+def ping_user_key(request):
+    data = request.data
+    get_object_or_404(Token, key=data['key'])
+    return Response({'status': 'ok'})
