@@ -1,16 +1,21 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
-from django.db import models
-from django.contrib.auth.models import User, UserManager
-from django.db.models.signals import post_save
+
 from collections import OrderedDict
-from django.utils import timezone
 from datetime import timedelta
-from tv_crm.models import LastCall
-from event.models import EventAnket
+
+from django.contrib.auth.models import User, UserManager
+from django.db import models
 from django.db.models import signals
+from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
+from django.utils.translation import ugettext_lazy as _
+
+from event.models import EventAnket
 from navigation.models import Table
+from tv_crm.models import LastCall
 
 COMMON = ['Имя', 'Фамилия', 'Отчество','Email','Телефон', 'Дата рождения', 'Иерархия','Отдел',
           'Страна', 'Область', 'Населенный пункт', 'Район','Адрес', 'Skype', 'Vkontakte', 'Facebook', 'Отдел церкви',]
@@ -164,6 +169,13 @@ class CustomUser(User):
             d['value'] = ''
         l[u'department'] = d
 
+        d = OrderedDict()
+        if self.additional_phones.exists():
+            d['value'] = self.additional_phones.first().number
+        else:
+            d['value'] = ''
+        l[u'additional_phone'] = d
+
         #s = OrderedDict()
         d = OrderedDict()
         d['skype'] = self.skype
@@ -284,6 +296,21 @@ class CustomUser(User):
         #    l[u'is_responsible'] = True
         #    l[u'responsible'] = self.partnership.id
         return l
+
+
+@python_2_unicode_compatible
+class AdditionalPhoneNumber(models.Model):
+    user = models.ForeignKey('account.CustomUser', on_delete=models.CASCADE, related_name='additional_phones',
+                             verbose_name=_('User'))
+    number = models.CharField(_('Number'), max_length=15)
+
+    class Meta:
+        unique_together = ('user', 'number')
+        verbose_name = _('Additional Phone Number')
+        verbose_name_plural = _('Additional Phone Numbers')
+
+    def __str__(self):
+        return self.number
 
 
 def create_custom_user(sender, instance, created, **kwargs):

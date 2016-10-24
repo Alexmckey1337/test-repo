@@ -1,27 +1,29 @@
 # -*- coding: utf-8
-from account.models import CustomUser as User
-from status.models import Status, Division
-from hierarchy.models import Hierarchy, Department
-from partnership.models import Partnership
-from serializers import UserSerializer, UserShortSerializer
-from rest_framework.decorators import list_route
-from rest_framework.decorators import api_view
-from rest_framework import viewsets, filters
-from rest_framework.response import Response
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth import update_session_auth_hash
-from django.template.loader import get_template
-from django.template import Context
-from django.core.mail import EmailMultiAlternatives
-from resources import clean_password, clean_old_password
-from rest_framework.permissions import AllowAny
 import hashlib
 import random
-from edem.settings import SITE_DOMAIN_URL, DEFAULT_FROM_EMAIL
-from django.http import HttpResponseRedirect
+
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import update_session_auth_hash
+from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
-from tv_crm.views import sync_unique_user_call
+from django.http import HttpResponseRedirect
+from django.template import Context
+from django.template.loader import get_template
+from rest_framework import viewsets, filters
+from rest_framework.decorators import api_view
+from rest_framework.decorators import list_route
+from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from account.models import CustomUser as User, AdditionalPhoneNumber
+from edem.settings import SITE_DOMAIN_URL, DEFAULT_FROM_EMAIL
+from hierarchy.models import Hierarchy, Department
+from partnership.models import Partnership
+from resources import clean_password, clean_old_password
+from serializers import UserSerializer, UserShortSerializer
+from status.models import Status, Division
+from tv_crm.views import sync_unique_user_call
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -219,7 +221,6 @@ def check_all_recursion():
 
 
 def edit_user(data, files):
-    from edem.settings import ARCHONS
     message = dict()
     try:
         user = User.objects.get(id=data['id'])
@@ -243,6 +244,18 @@ def edit_user(data, files):
         for key, value in data.iteritems():
             if key == 'master':
                 pass
+            elif key == 'additional_phone':
+                if value:
+                    phone_number = user.additional_phones.first()
+                    if phone_number:
+                        phone_number.number = value
+                        phone_number.save()
+                    else:
+                        AdditionalPhoneNumber.objects.create(user=user, number=value)
+                else:
+                    phones = user.additional_phones.all()
+                    for phone in phones:
+                        phone.delete()
             elif key == 'hierarchy':
                 try:
                     hierarchy = Hierarchy.objects.get(id=value)
@@ -353,6 +366,8 @@ def add_user(data, files, request):
                 hierarchy = Hierarchy.objects.filter(id=value).first()
                 user.hierarchy = hierarchy
                 user.save()
+            elif key == 'additional_phone' and value:
+                AdditionalPhoneNumber.objects.create(user=user, number=value)
             elif key == 'department':
                 department = Department.objects.filter(id=value).first()
                 user.department = department

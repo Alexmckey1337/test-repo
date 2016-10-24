@@ -1,12 +1,17 @@
 # -*- coding: utf-8
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.forms import AdminPasswordChangeForm
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
-from models import CustomUser
-from django.contrib.auth.forms import AdminPasswordChangeForm
 from import_export.admin import ImportExportModelAdmin
+
+from models import CustomUser, AdditionalPhoneNumber
 from resources import UserResource
+
+
+class AdditionalPhoneNumberInline(admin.TabularInline):
+    model = AdditionalPhoneNumber
 
 
 class CustomUserAdmin(UserAdmin, ImportExportModelAdmin):
@@ -27,6 +32,8 @@ class CustomUserAdmin(UserAdmin, ImportExportModelAdmin):
     )
     change_password_form = AdminPasswordChangeForm
     resource_class = UserResource
+
+    inlines = [AdditionalPhoneNumberInline, ]
 
 admin.site.unregister(User)
 admin.site.register(CustomUser, CustomUserAdmin)
