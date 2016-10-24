@@ -14,6 +14,11 @@ class SummitType(models.Model):
     title = models.CharField(max_length=100, verbose_name='Название саммита')
     image = models.ImageField(upload_to='summit_type/images/', blank=True)
 
+    consultants = models.ManyToManyField(
+        'account.CustomUser', related_name='summit_types',
+        verbose_name=_('Consultants'),
+        limit_choices_to={'hierarchy__level__gt': 0, 'is_active': True})
+
     def __str__(self):
         return self.title
 
@@ -108,6 +113,25 @@ class SummitAnket(models.Model):
                          ('Примечание', 'description'),
                          ])
         return l
+
+
+@python_2_unicode_compatible
+class SummitUserConsultant(models.Model):
+    consultant = models.ForeignKey('account.CustomUser', on_delete=models.CASCADE, related_name='consultees',
+                                   limit_choices_to={'summit_types__isnull': False},
+                                   verbose_name=_('Consultant'))
+    user = models.ForeignKey('account.CustomUser', on_delete=models.CASCADE, related_name='consultants',
+                             verbose_name=_('User'))
+    summit_type = models.ForeignKey('summit.SummitType', on_delete=models.CASCADE, related_name='consultees',
+                                    verbose_name=_('Summit type'))
+
+    def __str__(self):
+        return '{}: {} is consultant for {}'.format(self.summit_type, self.consultant, self.user)
+
+    class Meta:
+        verbose_name = _('Summit consultant')
+        verbose_name_plural = _('Summit consultants')
+        unique_together = ('user', 'summit_type')
 
 
 class SummitAnketNote(models.Model):

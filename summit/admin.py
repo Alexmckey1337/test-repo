@@ -8,6 +8,11 @@ from .models import SummitAnket, Summit, SummitType
 from .resources import SummitAnketResource
 
 
+class SummitTypeAdmin(admin.ModelAdmin):
+    fields = ('title', 'image', 'consultants')
+    filter_horizontal = ('consultants',)
+
+
 class SummitAnketAdmin(ImportExportModelAdmin):
     list_display = ('name', 'user', 'summit', 'code',)
     list_filter = ('summit', 'user__department', 'protected',)
@@ -20,4 +25,4 @@ class SummitAnketAdmin(ImportExportModelAdmin):
 
 admin.site.register(SummitAnket, SummitAnketAdmin)
 admin.site.register(Summit)
-admin.site.register(SummitType)
+admin.site.register(SummitType, SummitTypeAdmin)

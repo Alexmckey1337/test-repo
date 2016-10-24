@@ -8,8 +8,14 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
 
+from summit.models import SummitUserConsultant
 from .models import CustomUser
 from .resources import UserResource
+
+
+class SummitUserConsultantInline(admin.TabularInline):
+    model = SummitUserConsultant
+    fk_name = 'user'
 
 
 class CustomUserAdmin(UserAdmin, ImportExportModelAdmin):
@@ -30,6 +36,8 @@ class CustomUserAdmin(UserAdmin, ImportExportModelAdmin):
     )
     change_password_form = AdminPasswordChangeForm
     resource_class = UserResource
+
+    inlines = [SummitUserConsultantInline, ]
 
 
 admin.site.unregister(User)

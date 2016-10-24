@@ -219,8 +219,3 @@ SITE_DOMAIN_URL = 'http://vocrm.org/'
 # ADMINS = (('Iskander', 'zumichke@gmail.com'), )
 ARCHONS = [1, ]
 AXES_COOLOFF_TIME = 1
-
-try:
-    from .local_settings import *
-except ImportError:
-    pass
