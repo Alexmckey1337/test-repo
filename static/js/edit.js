@@ -790,6 +790,7 @@ function sendData() {
         "skype": document.getElementById("skype").value,
         "email": document.getElementById("email").value,
         "phone_number": document.getElementById("phone_number").value,
+        "additional_phone": document.getElementById("additional_phone").value,
         "born_date": document.getElementById("datepicker_born_date").value || '',
         "coming_date": document.querySelector("input[name='first_visit']").value || '',
         "repentance_date": document.querySelector("input[name='repentance_date']").value || '',

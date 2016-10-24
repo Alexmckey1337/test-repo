@@ -18,10 +18,10 @@ from rest_framework.decorators import api_view
 from rest_framework.decorators import list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
-from account.models import CustomUser as User
+from account.models import CustomUser as User, AdditionalPhoneNumber
 from edem.settings import SITE_DOMAIN_URL, DEFAULT_FROM_EMAIL
 from hierarchy.models import Hierarchy, Department
 from navigation.models import user_table
@@ -323,6 +323,18 @@ def edit_user(data, files):
         for key, value in six.iteritems(data):
             if key == 'master':
                 pass
+            elif key == 'additional_phone':
+                if value:
+                    phone_number = user.additional_phones.first()
+                    if phone_number:
+                        phone_number.number = value
+                        phone_number.save()
+                    else:
+                        AdditionalPhoneNumber.objects.create(user=user, number=value)
+                else:
+                    phones = user.additional_phones.all()
+                    for phone in phones:
+                        phone.delete()
             elif key == 'hierarchy':
                 try:
                     hierarchy = Hierarchy.objects.get(id=value)
@@ -434,6 +446,8 @@ def add_user(data, files, request):
                 hierarchy = Hierarchy.objects.filter(id=value).first()
                 user.hierarchy = hierarchy
                 user.save()
+            elif key == 'additional_phone' and value:
+                AdditionalPhoneNumber.objects.create(user=user, number=value)
             elif key == 'department':
                 department = Department.objects.filter(id=value).first()
                 user.department = department
