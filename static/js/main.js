@@ -380,7 +380,7 @@ function getCurrentSetting() {
 }
 
 
-function updateSettings(callback) {
+function updateSettings(callback, param) {
 
 
     var data = [];
@@ -399,7 +399,11 @@ function updateSettings(callback) {
         $(".bgsort").remove();
         config['column_table'] = JSONobj['column_table'];
         if (callback) {
-            callback();
+            if (param !== undefined) {
+                callback(param);
+            } else {
+                callback();
+            }
         }
     }, 'POST', true, {
         'Content-Type': 'application/json'
