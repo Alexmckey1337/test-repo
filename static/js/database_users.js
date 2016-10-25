@@ -113,6 +113,21 @@ function createUserInfoBySearch(data, search) {
             value = getCorrectValue(field[k]);
             if (k === 'fullname') {
                 tbody += '<td>' + '<a href="' + results[i].link + '">' + value + '</a></td>'
+            } else if (k === 'social') {
+                tbody += '<td>';
+                if (results[i].skype) {
+                    tbody += '<a href="skype:' + results[i].skype + '?chat"><i class="fa fa-skype"></i></a>';
+                }
+                if (results[i].vkontakte) {
+                    tbody += '<a href="' + results[i].vkontakte + '"><i class="fa fa-vk"></i></a>';
+                }
+                if (results[i].facebook) {
+                    tbody += '<a href="' + results[i].facebook + '"><i class="fa fa-facebook"></i></a>';
+                }
+                if (results[i].odnoklassniki) {
+                    tbody += '<a href="' + results[i].odnoklassniki + '"><i class="fa fa-odnoklassniki" aria-hidden="true"></i></a>';
+                }
+                tbody += '</td>';
             } else {
                 tbody += '<td>' + value + '</td>'
             }

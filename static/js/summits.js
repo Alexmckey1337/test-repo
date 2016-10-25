@@ -407,6 +407,21 @@ function getUsersList(path,param) {
                 value = getCorrectValue(field['user'][k]);
                 if (k === 'fullname') {
                     tbody += '<td>' + '<a href="' + results[i].user.link + '">' + value + '</a><span title="Удалить анкету" data-anketId="' + results[i].id + '"" data-value="' + results[i].value + '" data-comment="' + results[i].description + '" class="del"></span></td>'
+                } else if (k === 'social') {
+                    tbody += '<td>';
+                    if (results[i].user.skype) {
+                        tbody += '<a href="skype:' + results[i].user.skype + '?chat"><i class="fa fa-skype"></i></a>';
+                    }
+                    if (results[i].user.vkontakte) {
+                        tbody += '<a href="' + results[i].user.vkontakte + '"><i class="fa fa-vk"></i></a>';
+                    }
+                    if (results[i].user.facebook) {
+                        tbody += '<a href="' + results[i].user.facebook + '"><i class="fa fa-facebook"></i></a>';
+                    }
+                    if (results[i].user.odnoklassniki) {
+                        tbody += '<a href="' + results[i].user.odnoklassniki + '"><i class="fa fa-odnoklassniki" aria-hidden="true"></i></a>';
+                    }
+                    tbody += '</td>';
                 } else {
                     tbody += '<td>' + value + '</td>'
                 }

@@ -51,8 +51,9 @@ class NewUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'email', 'fullname', 'department', 'master', 'phone_number', 'hierarchy',
-                  'divisions', 'country', 'born_date', 'region', 'city', 'district', 'address', 'facebook')
-        required_fields = ('id', 'link')
+                  'divisions', 'country', 'born_date', 'region', 'city', 'district', 'address',
+                  'facebook', 'vkontakte', 'odnoklassniki', 'skype')
+        required_fields = ('id', 'link',)
 
     def get_field_names(self, declared_fields, info):
         # fields = getattr(self.Meta, 'fields', None)
@@ -61,6 +62,8 @@ class NewUserSerializer(serializers.ModelSerializer):
             columns = user.table.columns.filter(
                 columnType__category__title="Общая информация",
                 active=True).order_by('number').values_list('columnType__title', flat=True)
+            if 'social' in columns:
+                columns = list(columns) + ['facebook', 'vkontakte', 'odnoklassniki', 'skype']
             return list(self.Meta.required_fields) + [i for i in columns if i != 'social']
         return getattr(self.Meta, 'fields', None)
 
