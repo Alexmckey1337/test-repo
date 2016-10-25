@@ -704,7 +704,7 @@ function getPatrnershipInfo() {
 function getManagerList(active) {
 
 
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/partnerships/?is_responsible=' + 2, null, function(data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/npartnerships/?is_responsible=' + 2, null, function (data) {
         var results = data.results;
         var html = '<option>Не выбрано</option>';
 
