@@ -73,23 +73,23 @@ class Partnership(models.Model):
         l['user'] = d
 
         d = OrderedDict()
-        if not self.is_responsible:
-            if self.responsible:
-                d['value'] = self.responsible.user.get_full_name()
-            else:
-                d['value'] = ''
+        # if not self.is_responsible:
+        if self.responsible:
+            d['value'] = self.responsible.user.get_full_name()
         else:
             d['value'] = ''
+        # else:
+        #     d['value'] = ''
         l['responsible'] = d
 
         d = OrderedDict()
-        if not self.is_responsible:
-            if self.responsible:
-                d['value'] = self.responsible.id
-            else:
-                d['value'] = None
+        # if not self.is_responsible:
+        if self.responsible:
+            d['value'] = self.responsible.id
         else:
             d['value'] = None
+        # else:
+        #     d['value'] = None
         l[u'responsible_id'] = d
 
         d = OrderedDict()
