@@ -6,7 +6,13 @@ $(document).ready(function () {
     $('input[name="fullsearch"]').keyup(function () {
 
         delay(function () {
-            getPartnersList()
+            getPartnersList();
+
+            var json = {};
+            json["page"] = '1';
+            getExpiredDeals(json);
+            getDoneDeals(json);
+            getUndoneDeals(json);
         }, 1500);
     });
 
@@ -207,7 +213,13 @@ function create_partnerships(data) {
 
 function getExpiredDeals(time) {
     var json = time || null;
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/deals/?expired=2', json, function (data) {
+    var search = document.getElementsByName('fullsearch')[0].value;
+    if (search) {
+        search = '&search=' + search;
+    } else {
+        search = '';
+    }
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/deals/?expired=2' + search, json, function (data) {
         var count = data.count;
         data = data.results;
         var page = time['page'] || 1,
@@ -249,7 +261,13 @@ function getExpiredDeals(time) {
 
 function getDoneDeals(time) {
     var json = time || null;
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/deals/?done=2', json, function (data) {
+    var search = document.getElementsByName('fullsearch')[0].value;
+    if (search) {
+        search = '&search=' + search;
+    } else {
+        search = '';
+    }
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/deals/?done=2' + search, json, function (data) {
         var count = data.count;
         data = data.results;
         var page = time['page'] || 1,
@@ -287,7 +305,13 @@ function getDoneDeals(time) {
 
 function getUndoneDeals(dat) {
     var json = dat || null;
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/deals/?done=3', json, function (data) {
+    var search = document.getElementsByName('fullsearch')[0].value;
+    if (search) {
+        search = '&search=' + search;
+    } else {
+        search = '';
+    }
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/deals/?done=3' + search, json, function (data) {
         var count = data.count;
         data = data.results;
         var page = dat['page'] || 1,

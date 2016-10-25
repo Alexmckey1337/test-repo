@@ -128,7 +128,8 @@ class DealViewSet(viewsets.ModelViewSet):
                        filters.SearchFilter,
                        filters.OrderingFilter,)
     filter_class = DateFilter
-    search_fields = ('partnership',)
+    search_fields = ('partnership__user__first_name', 'partnership__user__last_name',
+                     'partnership__user__middle_name',)
     # pagination_class = SaganPagination
     permission_classes = (IsAuthenticated,)
 
