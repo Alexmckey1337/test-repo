@@ -1,10 +1,11 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
+
 from collections import OrderedDict
 from datetime import date
-from django.db.models import Sum, Count
 
 from django.db import models
+from django.db.models import Sum
 
 
 class Partnership(models.Model):
@@ -75,6 +76,16 @@ class Partnership(models.Model):
         else:
             d['value'] = ''
         l[u'responsible'] = d
+
+        d = OrderedDict()
+        if not self.is_responsible:
+            if self.responsible:
+                d['value'] = self.responsible.id
+            else:
+                d['value'] = None
+        else:
+            d['value'] = None
+        l[u'responsible_id'] = d
 
         d = OrderedDict()
         d['value'] = self.value

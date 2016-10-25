@@ -498,7 +498,7 @@ def create_or_update_partnership(data, user_id=None):
                             pass
                         else:
                             if key == "responsible":
-                                responsible_partnerhip = Partnership.objects.filter(user__id=value).first()
+                                responsible_partnerhip = Partnership.objects.filter(id=value).first()
                                 object.responsible = responsible_partnerhip
                             else:
                                 setattr(object, key, value)
