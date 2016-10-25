@@ -99,7 +99,7 @@ function createUserInfoBySearch(data, search) {
     var thead = '<thead><tr>';
 
     for (k in user_fields) {
-        if (!user_fields.hasOwnProperty(k)) continue;
+        if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
         thead += '<th data-order="' + user_fields[k]['ordering_title'] + '">' + user_fields[k]['title'] + '</th>'
     }
     thead += '</tr></thead>';
@@ -109,7 +109,7 @@ function createUserInfoBySearch(data, search) {
         tbody += '<tr>';
 
         for (k in user_fields) {
-            if (!user_fields.hasOwnProperty(k)) continue;
+            if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
             value = getCorrectValue(field[k]);
             if (k === 'fullname') {
                 tbody += '<td>' + '<a href="' + results[i].link + '">' + value + '</a></td>'

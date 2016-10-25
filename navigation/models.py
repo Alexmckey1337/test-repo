@@ -26,7 +26,7 @@ def partner_table():
 def user_table(user):
     l = OrderedDict()
     column_types = user.table.columns.select_related('columnType').filter(
-        active=True, columnType__category__title="Общая информация").order_by('number')
+        columnType__category__title="Общая информация").order_by('number')
     for column in column_types:
         d = OrderedDict()
         d['id'] = column.id
@@ -42,7 +42,7 @@ def user_table(user):
 def user_partner_table(user):
     l = OrderedDict()
     column_types = user.table.columns.select_related('columnType').filter(
-        active=True, columnType__category__title="partnership").order_by('number')
+        columnType__category__title="partnership").order_by('number')
     for column in column_types.all():
         d = OrderedDict()
         d['id'] = column.id

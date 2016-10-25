@@ -622,11 +622,11 @@ function getPartnersList(param) {
 
         var thead = '<thead><tr>';
         for (k in user_fields) {
-            if (!user_fields.hasOwnProperty(k)) continue;
+            if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
             thead += '<th data-order="user__' + user_fields[k]['ordering_title'] + '">' + user_fields[k]['title'] + '</th>'
         }
         for (k in common_fields) {
-            if (!common_fields.hasOwnProperty(k)) continue;
+            if (!common_fields.hasOwnProperty(k) || !common_fields[k].active) continue;
             thead += '<th data-order="' + common_fields[k]['ordering_title'] + '">' + common_fields[k]['title'] + '</th>'
         }
         thead += '</tr></thead>';
@@ -636,7 +636,7 @@ function getPartnersList(param) {
             tbody += '<tr>';
 
             for (k in user_fields) {
-                if (!user_fields.hasOwnProperty(k)) continue;
+                if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
                 value = getCorrectValue(field['user'][k]);
                 if (k === 'fullname') {
                     tbody += '<td>' + '<a href="' + results[i].user.link + '">' + value + '</a></td>'
@@ -661,7 +661,7 @@ function getPartnersList(param) {
             }
 
             for (k in common_fields) {
-                if (!common_fields.hasOwnProperty(k)) continue;
+                if (!common_fields.hasOwnProperty(k) || !common_fields[k].active) continue;
                 value = getCorrectValue(field[k]);
                 tbody += '<td>' + value + '</td>'
             }
