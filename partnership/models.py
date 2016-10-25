@@ -83,6 +83,16 @@ class Partnership(models.Model):
         l['responsible'] = d
 
         d = OrderedDict()
+        if not self.is_responsible:
+            if self.responsible:
+                d['value'] = self.responsible.id
+            else:
+                d['value'] = None
+        else:
+            d['value'] = None
+        l[u'responsible_id'] = d
+
+        d = OrderedDict()
         d['value'] = self.value
         l['value'] = d
 

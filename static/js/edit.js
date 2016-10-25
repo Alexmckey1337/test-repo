@@ -674,6 +674,9 @@ function getPatrnershipInfo() {
             document.getElementById('partner_wrap').style.display = 'block'
 
             var data = data.results[0];
+
+            data_for_drop['responsible_id'] = data.fields['responsible_id'].value;
+
             var date = data.date
             var val = data.value || 0
             document.getElementById('partner').click();
@@ -693,7 +696,7 @@ function getPatrnershipInfo() {
 
         // console.log(data)
 
-        getManagerList(data_for_drop['master'])
+        getManagerList(data_for_drop['responsible_id'])
     })
 }
 
@@ -703,14 +706,14 @@ function getManagerList(active) {
 
     ajaxRequest(config.DOCUMENT_ROOT + 'api/partnerships/?is_responsible=' + 2, null, function(data) {
         var results = data.results;
-        var html = '<option>Не выбрано</option>'
+        var html = '<option>Не выбрано</option>';
 
 
 
 
         for (var i = 0; i < results.length; i++) {
 
-            if (active == results[i].title) {
+            if (active == results[i].id) {
                 html += '<option selected="selected" value="' + results[i].id + '">' + results[i].fullname + '</option>'
                 active = false
             } else {
@@ -723,8 +726,8 @@ function getManagerList(active) {
                                      html +=  '<option selected="selected" >' + active  +  '</option>'
                                 }
             */
-            document.getElementById('partner_drop').innerHTML = html
-            $eventSelect = $('#partner_drop')
+            document.getElementById('partner_drop').innerHTML = html;
+            $eventSelect = $('#partner_drop');
 
             $eventSelect.select2({
                 // tags: true
