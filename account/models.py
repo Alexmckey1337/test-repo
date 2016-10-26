@@ -31,6 +31,7 @@ def get_hierarchy_chain(obj, l):
         get_hierarchy_chain(master, l)
 
 
+@python_2_unicode_compatible
 class CustomUser(User):
     middle_name = models.CharField(max_length=40, blank=True)
     phone_number = models.CharField(max_length=13, blank=True)
@@ -313,7 +314,7 @@ class CustomUser(User):
 class AdditionalPhoneNumber(models.Model):
     user = models.ForeignKey('account.CustomUser', on_delete=models.CASCADE, related_name='additional_phones',
                              verbose_name=_('User'))
-    number = models.CharField(_('Number'), max_length=15)
+    number = models.CharField(_('Number'), max_length=255)
 
     class Meta:
         unique_together = ('user', 'number')
