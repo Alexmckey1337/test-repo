@@ -150,7 +150,6 @@ function getUnregisteredUsers(parameters) {
     }
     ajaxRequest(config.DOCUMENT_ROOT + 'api/partnerships_unregister_search/', param, function (data) {
         var html = '';
-        data = data.results;
         for (var i = 0; i < data.length; i++) {
             html += '<div class="rows-wrap"><button data-id=' + data[i].id + '>Выбрать</button><div class="rows"><div class="col"><p><span><a href="/account/' + data[i].id + '">' + data[i].fullname + '</a></span></p></div><div class="col"></div></div></div>';
         }
