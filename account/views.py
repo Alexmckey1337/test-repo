@@ -8,17 +8,19 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth import update_session_auth_hash
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
+from django.db.models import Case, BooleanField
+from django.db.models import When
 from django.http import HttpResponseRedirect
 from django.template import Context
 from django.template.loader import get_template
 from django.utils import six
 from rest_framework import viewsets, filters
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, detail_route
 from rest_framework.decorators import list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from account.models import CustomUser as User, AdditionalPhoneNumber
@@ -27,6 +29,7 @@ from hierarchy.models import Hierarchy, Department
 from navigation.models import user_table
 from partnership.models import Partnership
 from status.models import Status, Division
+from summit.models import SummitType, SummitLesson, SummitAnketNote
 from tv_crm.views import sync_unique_user_call
 from .resources import clean_password, clean_old_password
 from .serializers import UserSerializer, UserShortSerializer, NewUserSerializer
@@ -99,6 +102,33 @@ class UserViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    @detail_route(methods=['get'])
+    def summit_info(self, request, pk=None):
+        summit_types = SummitType.objects.filter(summits__ankets__user_id=pk)
+        json = {}
+        for t in summit_types:
+            summits = t.summits.filter(ankets__user_id=pk)
+            json[t.title] = {'summits': [
+                {
+                    'name': '{} {}'.format(t.title, summit.start_date),
+                    'id': summit.id,
+                    'description': summit.description,
+                    'value': summit.ankets.get(user_id=pk).value,
+                    'anket_id': summit.ankets.get(user_id=pk).id,
+                }
+                for summit in summits.all()]}
+            for s in json[t.title]['summits']:
+                lessons = SummitLesson.objects.filter(summit__ankets__user_id=pk, summit_id=s['id'])
+                notes = SummitAnketNote.objects.filter(summit_anket__user_id=pk, summit_anket_id=s['anket_id'])
+                s['lessons'] = list(lessons.annotate(
+                    is_view=Case(
+                        When(viewers=s['anket_id'], then=True),
+                        default=False,
+                        output_field=BooleanField())).values())
+                s['notes'] = list(notes.values())
+
+        return Response(json)
 
 
 # def list(self, request, *args, **kwargs):

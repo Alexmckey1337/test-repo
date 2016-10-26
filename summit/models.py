@@ -118,7 +118,7 @@ class SummitAnket(models.Model):
 @python_2_unicode_compatible
 class SummitLesson(models.Model):
     summit = models.ForeignKey('summit.Summit', on_delete=models.CASCADE, related_name='lessons',
-                               verbose_name=_('Summit'))
+                               related_query_name='lessons', verbose_name=_('Summit'))
     viewers = models.ManyToManyField('summit.SummitAnket', related_name='all_lessons',
                                      verbose_name=_('Viewers'))
     name = models.CharField(_('Name'), max_length=255)

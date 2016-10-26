@@ -18,7 +18,7 @@ from .models import Summit, SummitAnket, SummitType, SummitAnketNote
 from .resources import get_fields
 from .resources import make_table
 from .serializers import SummitAnketSerializer, SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, \
-    NewSummitAnketSerializer, SummitAnketNoteSerializer, SummitAnketWithNotesSerializer
+    NewSummitAnketSerializer, SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer
 
 
 def get_success_headers(data):
@@ -319,7 +319,7 @@ class SummitAnketViewSet(viewsets.ModelViewSet):
 
 
 class SummitViewSet(viewsets.ModelViewSet):
-    queryset = Summit.objects.all().order_by('start_date')
+    queryset = Summit.objects.prefetch_related('lessons').order_by('start_date')
     serializer_class = SummitSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = ('type',
@@ -381,6 +381,29 @@ class SummitViewSet(viewsets.ModelViewSet):
                     'status': False}
         if data:
             return Response(data)
+
+    @detail_route(methods=['get'])
+    def lessons(self, request, pk=None):
+        serializer = SummitLessonSerializer
+        summit = get_object_or_404(Summit, pk=pk)
+        queryset = summit.lessons
+
+        serializer = serializer(queryset, many=True)
+
+        return Response(serializer.data)
+
+    @detail_route(methods=['post'], )
+    def add_lesson(self, request, pk=None):
+        name = request.data['name']
+        data = dict()
+        data['name'] = name
+        data['summit'] = pk
+        serializer = SummitLessonSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        headers = get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class SummitTypeViewSet(viewsets.ModelViewSet):

@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from account.models import CustomUser as User
 from account.serializers import NewUserSerializer
-from .models import Summit, SummitAnket, SummitType, SummitAnketNote
+from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson
 
 
 class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
@@ -23,9 +23,11 @@ class NewSummitAnketSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class SummitSerializer(serializers.HyperlinkedModelSerializer):
+    lessons = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
     class Meta:
         model = Summit
-        fields = ('id', 'start_date', 'end_date', 'title', 'description')
+        fields = ('id', 'start_date', 'end_date', 'title', 'description', 'lessons')
 
 
 class SummitTypeSerializer(serializers.HyperlinkedModelSerializer):
@@ -56,3 +58,12 @@ class SummitAnketWithNotesSerializer(serializers.ModelSerializer):
     class Meta:
         model = SummitAnket
         fields = ('info', 'common', 'code', 'notes')
+
+
+class SummitLessonSerializer(serializers.ModelSerializer):
+    viewers = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
+    class Meta:
+        model = SummitLesson
+        fields = ('summit', 'name', 'viewers')
+        # extra_kwargs = {'viewers': {'required': False}}
