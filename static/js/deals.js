@@ -192,6 +192,8 @@ function registerUser(id) {
     data.responsible = config.user_partnerships_info.responsible;
     if (data.responsible) {
         create_partnerships(data)
+    } else {
+        showPopup("Для добавления партнера вы должны быть партнером.");
     }
     console.log('end reg');
 }
