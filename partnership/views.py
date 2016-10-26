@@ -105,8 +105,8 @@ class NewPartnershipViewSet(mixins.RetrieveModelMixin,
     @list_route()
     def simple(self, request):
         partnerships = Partnership.objects.select_related('user').filter(is_responsible=True).values_list(
-            'id', 'user__first_name', 'user__last_name')
-        partnerships = [{'id': p[0], 'fullname': '{} {}'.format(*p[1:])} for p in partnerships]
+            'id', 'user__last_name', 'user__first_name', 'user__middle_name')
+        partnerships = [{'id': p[0], 'fullname': '{} {} {}'.format(*p[1:])} for p in partnerships]
         return Response(partnerships)
 
 

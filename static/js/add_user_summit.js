@@ -69,13 +69,13 @@ $(document).ready(function(){
     });
 
     $('#partner').click(function(){$('.hidden-partner').toggle()})
-    
+
 
     getAll();
 
     var dep,
         stat;
-    
+
     $("#chooseCountry").select2({placeholder: " "}).on("change", getRegions);
     $("#chooseRegion").select2({placeholder: " "}).on("change", getCities);
     $("#chooseCity").select2({placeholder: " ",tags: true});
@@ -202,7 +202,7 @@ var img = $(".crArea img");
   document.getElementsByName('f')[0].addEventListener('change', selectFile, false);
 
 
-function getAll() {  
+function getAll() {
   getCountries();
   getDepartments();
   getStatuses();
@@ -257,7 +257,7 @@ function registerUserNew(id,summit_id,money, description) {
             'Content-Type': 'application/json'
         });
 }
-  
+
 
 function getCountries() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/countries/', null, function(data) {
@@ -276,7 +276,7 @@ function getDepartments() {
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
-      document.getElementById('chooseDepartment').innerHTML = html;      
+        document.getElementById('chooseDepartment').innerHTML = html;
       dep = $("#chooseDepartment").val();
     });
 
@@ -289,7 +289,7 @@ function getStatuses() {
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
-      document.getElementById('chooseStatus').innerHTML = html;      
+        document.getElementById('chooseStatus').innerHTML = html;
     });
 }
 
@@ -312,7 +312,7 @@ function getDivisions() {
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
-      document.getElementById('chooseDivision').innerHTML = html;      
+        document.getElementById('chooseDivision').innerHTML = html;
     });
 }
 
@@ -328,12 +328,11 @@ function getUsers() {
 }
 
 function getManagers() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/npartnerships/?is_responsible=2', null, function (data) {
-      var data = data.results;
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/npartnerships/simple/', null, function (data) {
       var html = '<option value=""> </option><option>Не выбрано</option>';
-      for (var i = 0; i < data.length; i++) {
-        html += '<option value="'+data[i].id+'">'+data[i].fullname+'</option>';
-      }
+        data.forEach(function (partnership) {
+            html += '<option value="' + partnership.id + '">' + partnership.fullname + '</option>';
+        });
       document.getElementById('chooseManager').innerHTML = html;
     });
 }
@@ -351,7 +350,7 @@ function getRegions() {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
       document.getElementById('chooseRegion').innerHTML = html;
-      document.getElementById('chooseRegion').removeAttribute('disabled');      
+        document.getElementById('chooseRegion').removeAttribute('disabled');
     });
   }
 
@@ -361,7 +360,7 @@ function getResponsible(id,level) {
       for (var i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].fullname+'</option>';
       }
-      document.getElementById('chooseResponsible').innerHTML = html;      
+        document.getElementById('chooseResponsible').innerHTML = html;
     });
   }
 
@@ -379,15 +378,15 @@ function getCities() {
   }
 
 function selectFile(evt) {
-  
-        var files = evt.target.files;
+
+    var files = evt.target.files;
         for (var i = 0, f; f = files[i]; i++) {
           if (!f.type.match('image.*')) {
             continue;
           }
           var reader = new FileReader();
           reader.onload = (function(theFile) {
-            return function(e) {  
+              return function (e) {
               document.querySelector("#impPopup img").src= e.target.result
               document.querySelector("#impPopup").style.display = 'block';
                 img.cropper({
@@ -562,7 +561,7 @@ var name = data['first_name'] + " " + data['last_name'],
                     document.querySelector('.pop-up-splash').style.display = 'none';
                     document.getElementById('popupForNew').style.display = 'block';
                     //registerUser(data.id+'',summit_id+'','0', '')
-                    
+
                 }
               }
             };
