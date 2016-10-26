@@ -4,13 +4,22 @@ from __future__ import unicode_literals
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
-from .models import SummitAnket, Summit, SummitType, SummitAnketNote
+from .models import SummitAnket, Summit, SummitType, SummitAnketNote, SummitLesson
 from .resources import SummitAnketResource
 
 
 class SummitTypeAdmin(admin.ModelAdmin):
     fields = ('title', 'image', 'consultants')
     filter_horizontal = ('consultants',)
+
+
+class SummitLessonInline(admin.TabularInline):
+    fields = ('name', 'summit')
+    model = SummitLesson
+
+
+class SummitAdmin(admin.ModelAdmin):
+    inlines = [SummitLessonInline, ]
 
 
 class SummitAnketNoteInline(admin.TabularInline):
@@ -30,5 +39,5 @@ class SummitAnketAdmin(ImportExportModelAdmin):
 
 
 admin.site.register(SummitAnket, SummitAnketAdmin)
-admin.site.register(Summit)
+admin.site.register(Summit, SummitAdmin)
 admin.site.register(SummitType, SummitTypeAdmin)

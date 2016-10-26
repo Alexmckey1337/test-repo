@@ -116,6 +116,24 @@ class SummitAnket(models.Model):
 
 
 @python_2_unicode_compatible
+class SummitLesson(models.Model):
+    summit = models.ForeignKey('summit.Summit', on_delete=models.CASCADE, related_name='lessons',
+                               verbose_name=_('Summit'))
+    viewers = models.ManyToManyField('summit.SummitAnket', related_name='all_lessons',
+                                     verbose_name=_('Viewers'))
+    name = models.CharField(_('Name'), max_length=255)
+
+    def __str__(self):
+        return '{}: {}'.format(self.summit, self.name)
+
+    class Meta:
+        ordering = ('summit', 'name')
+        verbose_name = _('Summit lesson')
+        verbose_name_plural = _('Summit lessons')
+        unique_together = ('name', 'summit')
+
+
+@python_2_unicode_compatible
 class SummitUserConsultant(models.Model):
     consultant = models.ForeignKey('account.CustomUser', on_delete=models.CASCADE, related_name='consultees',
                                    limit_choices_to={'summit_types__isnull': False},
