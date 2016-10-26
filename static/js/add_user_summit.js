@@ -328,7 +328,7 @@ function getUsers() {
 }
 
 function getManagers() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/partnerships/?is_responsible=2', null, function(data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/npartnerships/?is_responsible=2', null, function (data) {
       var data = data.results;
       var html = '<option value=""> </option><option>Не выбрано</option>';
       for (var i = 0; i < data.length; i++) {
