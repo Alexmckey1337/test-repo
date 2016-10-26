@@ -213,8 +213,11 @@ function registerUser(id,summit_id,money, description) {
             if(JSONobj.status){
                 var data = {};
                 data['summit'] = summit_id;
+                showPopup(JSONobj.message);
                 getUsersList(path,data);
                 getUnregisteredUsers();
+            } else {
+                showPopup(JSONobj.message);
             }
         }, 'POST', true, {
             'Content-Type': 'application/json'
