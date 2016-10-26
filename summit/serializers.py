@@ -37,7 +37,7 @@ class SummitTypeSerializer(serializers.HyperlinkedModelSerializer):
 class SummitUnregisterUserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'fullname')
+        fields = ('id', 'city', 'fullname', 'country', 'master_short_fullname')
 
 
 class SummitAnketNoteSerializer(serializers.ModelSerializer):

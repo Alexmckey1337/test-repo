@@ -60,3 +60,9 @@ class DealSerializer(serializers.HyperlinkedModelSerializer):
         model = Deal
         fields = ('url', 'id', 'partnership', 'date', 'date_created',
                   'value', 'done', 'expired', 'description', 'fields',)
+
+
+class PartnershipUnregisterUserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'fullname')

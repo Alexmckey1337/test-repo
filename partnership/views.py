@@ -17,9 +17,9 @@ from rest_framework.response import Response
 
 from account.models import CustomUser as User
 from navigation.models import user_table, user_partner_table
-from summit.serializers import SummitUnregisterUserSerializer
 from .models import Partnership, Deal
-from .serializers import PartnershipSerializer, DealSerializer, NewPartnershipSerializer
+from .serializers import PartnershipSerializer, DealSerializer, NewPartnershipSerializer, \
+    PartnershipUnregisterUserSerializer
 
 
 class SaganPagination(PageNumberPagination):
@@ -308,7 +308,7 @@ def change_responsible(request):
 
 class PartnershipsUnregisterUserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.filter(partnership__isnull=True)
-    serializer_class = SummitUnregisterUserSerializer
+    serializer_class = PartnershipUnregisterUserSerializer
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
                        filters.DjangoFilterBackend,)
