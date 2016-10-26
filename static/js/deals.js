@@ -145,31 +145,35 @@ init();
 function getUnregisteredUsers(parameters) {
     var param = parameters || {};
     var search = document.getElementById('searchUsers').value;
-    if (search) {
+    if (search && search.length > 2) {
         param['search'] = search;
+        ajaxRequest(config.DOCUMENT_ROOT + 'api/partnerships_unregister_search/', param, function (data) {
+            data = data.results;
+            var html = '';
+            for (var i = 0; i < data.length; i++) {
+                html += '<div class="rows-wrap"><button data-id=' + data[i].id + '>Выбрать</button><div class="rows"><div class="col"><p><span><a href="/account/' + data[i].id + '/">' + data[i].fullname + '</a></span></p></div><div class="col"></div></div></div>';
+            }
+            if (data.length > 0) {
+                document.getElementById('searchedUsers').innerHTML = html;
+            } else {
+                document.getElementById('searchedUsers').innerHTML = '<div class="rows-wrap"><div class="rows"><p>По запросу не найдено учасников</p></div></div>';
+            }
+            document.querySelector('.choose-user-wrap .splash-screen').classList.add('active');
+            var but = document.querySelectorAll('.rows-wrap button');
+            for (var j = 0; j < but.length; j++) {
+                but[j].addEventListener('click', function () {
+                    var id = this.getAttribute('data-id');
+                    registerUser(id);
+                })
+            }
+        });
+    } else {
+        document.getElementById('searchedUsers').innerHTML = '<div class="rows-wrap"><div class="rows"><p>Для поиска введите более 2-х символов</p></div></div>';
     }
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/partnerships_unregister_search/', param, function (data) {
-        var html = '';
-        for (var i = 0; i < data.length; i++) {
-            html += '<div class="rows-wrap"><button data-id=' + data[i].id + '>Выбрать</button><div class="rows"><div class="col"><p><span><a href="/account/' + data[i].id + '">' + data[i].fullname + '</a></span></p></div><div class="col"></div></div></div>';
-        }
-        if (data.length > 0) {
-            document.getElementById('searchedUsers').innerHTML = html;
-        } else {
-            document.getElementById('searchedUsers').innerHTML = '<div class="rows-wrap"><div class="rows"><p>По запросу не найдено учасников</p></div></div>';
-        }
-        document.querySelector('.choose-user-wrap .splash-screen').classList.add('active');
-        var but = document.querySelectorAll('.rows-wrap button');
-        for (var j = 0; j < but.length; j++) {
-            but[j].addEventListener('click', function () {
-                var id = this.getAttribute('data-id');
-                registerUser(id);
-            })
-        }
-    });
 }
 
 function registerUser(id) {
+    console.log('start reg');
     if (!id) {
         return
     }
@@ -189,11 +193,13 @@ function registerUser(id) {
     if (data.responsible) {
         create_partnerships(data)
     }
+    console.log('end reg');
 }
 
 function create_partnerships(data) {
 
 
+    console.log('start partner');
     var json = JSON.stringify(data);
     ajaxRequest(config.DOCUMENT_ROOT + 'api/create_partnership', json, function (JSONobj) {
 
@@ -204,6 +210,7 @@ function create_partnerships(data) {
         } else {
             showPopup(JSONobj.message);
         }
+        console.log('end partner');
     }, 'POST', true, {
         'Content-Type': 'application/json'
     });

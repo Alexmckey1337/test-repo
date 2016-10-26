@@ -307,9 +307,8 @@ def change_responsible(request):
 
 
 class PartnershipsUnregisterUserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.filter(partnership=None)
+    queryset = User.objects.filter(partnership__isnull=True)
     serializer_class = SummitUnregisterUserSerializer
-    pagination_class = None
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
                        filters.DjangoFilterBackend,)
