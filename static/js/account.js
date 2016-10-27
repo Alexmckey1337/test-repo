@@ -309,9 +309,7 @@ function getUserSummitInfo() {
                 body_summit += '<p>Сумма<span> ' + summit.value + ' ₴</span></p>' +
                     '</div></div>';
 
-                if (summit.notes.length) {
-                    body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 0;"><p>Примечания</p></div></div>';
-                }
+                body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 0;"><p>Примечания</p></div></div>';
                 summit.notes.forEach(function (note) {
                     body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>' + note.text + ' — ' + note.date_created + '</p></div></div>';
                 });
