@@ -152,6 +152,7 @@ class SummitUserConsultant(models.Model):
         unique_together = ('user', 'summit_type')
 
 
+@python_2_unicode_compatible
 class SummitAnketNote(models.Model):
     summit_anket = models.ForeignKey('summit.SummitAnket', on_delete=models.CASCADE, related_name='notes',
                                      verbose_name=_('Summit anket'))
@@ -172,4 +173,4 @@ class SummitAnketNote(models.Model):
     class Meta:
         verbose_name = _('Summit Anket Note')
         verbose_name_plural = _('Summit Anket Notes')
-        ordering = ('-date_created',)
+        ordering = ('date_created',)

@@ -247,13 +247,29 @@ function getUserDeals() {
 function deleteUser(id) {
     var data = {
         "id": id
-    }
+    };
     var json = JSON.stringify(data);
     ajaxRequest(config.DOCUMENT_ROOT + 'api/delete_user/', json, function (JSONobj) {
         if (JSONobj.status) {
             showPopup('Пользователь успешно удален');
             window.location.href = "/"
         }
+    }, 'POST', true, {
+        'Content-Type': 'application/json'
+    });
+}
+
+function sendNote(anket_id, text, box) {
+    var data = {
+        "text": text
+    };
+    var summit_type = box.data('summit-id');
+    var json = JSON.stringify(data);
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/nsummit_ankets/' + anket_id + '/create_note/', json, function (note) {
+        box.before(function () {
+            return '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>' + note.text + ' — ' + note.date_created + '</p></div></div>'
+        });
+        showPopup('Примечание добавлено');
     }, 'POST', true, {
         'Content-Type': 'application/json'
     });
@@ -280,11 +296,10 @@ function getUserSummitInfo() {
         var body_summit = '';
 
         results.forEach(function (summit_type) {
-            console.log(summit_type.name, summit_type.id);
             tab_title.push(summit_type.id);
             menu_summit += '<li data-tab=' + summit_type.id + '><a href="#" >' + summit_type.name + '</a></li>';
             summit_type.summits.forEach(function (summit) {
-                body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div class="col"><p>' + summit.name + '</p> </div><div class="col">';
+                body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" style="border-bottom: 2px solid #000"><div class="col"><p>' + summit.name + '</p> </div><div class="col">';
                 if (summit.description != "") {
                     body_summit += '<p>' + summit.description + '</p>';
                 } else {
@@ -300,6 +315,10 @@ function getUserSummitInfo() {
                 summit.notes.forEach(function (note) {
                     body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>' + note.text + ' — ' + note.date_created + '</p></div></div>';
                 });
+
+                body_summit += '<div class="rows note-box" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 0;">' +
+                    '<p>Написать примечание</p><p><textarea name="add_note" data-anket-id="' + summit.anket_id + '" class="js-add_note" cols="30" rows="10"></textarea></p>' +
+                    '<p><button id="send_note">Отправить примечание</button></p></div></div>';
 
                 if (summit.lessons.length) {
                     body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 0;"><p>Уроки</p></div></div>';
@@ -320,6 +339,22 @@ function getUserSummitInfo() {
         document.getElementsByClassName('summit_wrapper')[0].innerHTML = body_summit;
         document.getElementById('tabs2').innerHTML = menu_summit;
 
+        Array.prototype.forEach.call(document.querySelectorAll("#send_note"), function (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                var box = $(this).closest(".note-box");
+                var text_field = box.find('.js-add_note');
+                var text = text_field.val();
+                var anket_id = text_field.data('anket-id');
+                console.log(text, anket_id);
+                sendNote(anket_id, text, box);
+                text_field.val('');
+                // var anket_id = this.getAttribute('data-tab');
+                // $('[data-summit-id]').hide();
+                // $('[data-summit-id="' + id_tab + '"]').show();
+
+            });
+        });
 
         Array.prototype.forEach.call(document.querySelectorAll("#tabs2 li"), function (el) {
             el.addEventListener('click', function (e) {
