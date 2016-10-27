@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
 from account.models import CustomUser
+from account.serializers import UserShortSerializer
 from navigation.models import user_table, user_summit_table
 from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson
 from .resources import get_fields
@@ -435,6 +436,36 @@ class SummitTypeViewSet(viewsets.ModelViewSet):
     queryset = SummitType.objects.all()
     serializer_class = SummitTypeSerializer
     permission_classes = (IsAuthenticated,)
+
+    @detail_route(methods=['get'])
+    def consultants(self, request, pk=None):
+        serializer = UserShortSerializer
+        summit_type = get_object_or_404(SummitType, pk=pk)
+        queryset = summit_type.consultants
+
+        serializer = serializer(queryset, many=True)
+
+        return Response(serializer.data)
+
+    @detail_route(methods=['post'], )
+    def add_consultant(self, request, pk=None):
+        user_id = request.data['user_id']
+        summit_type = get_object_or_404(SummitType, pk=pk)
+        user = get_object_or_404(CustomUser, pk=user_id)
+        summit_type.consultants.add(user)
+        data = {'sumit_id': pk, 'consultant_id': user_id, 'action': 'added'}
+
+        return Response(data, status=status.HTTP_201_CREATED)
+
+    @detail_route(methods=['post'], )
+    def del_consultant(self, request, pk=None):
+        user_id = request.data['user_id']
+        summit_type = get_object_or_404(SummitType, pk=pk)
+        user = get_object_or_404(CustomUser, pk=user_id)
+        summit_type.consultants.remove(user)
+        data = {'sumit_id': pk, 'consultant_id': user_id, 'action': 'removed'}
+
+        return Response(data, status=status.HTTP_201_CREATED)
 
 
 class SummitUnregisterFilter(filters_new.FilterSet):
