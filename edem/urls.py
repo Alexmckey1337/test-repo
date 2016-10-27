@@ -46,6 +46,7 @@ router.register(r'summit_ankets_with_notes', summit.views.SummitAnketWithNotesVi
 router.register(r'nsummit_ankets', summit.views.NewSummitAnketViewSet, base_name='nsummit_ankets')
 router.register(r'summit_types', summit.views.SummitTypeViewSet)
 router.register(r'summit_search', summit.views.SummitUnregisterUserViewSet, base_name='summit_search')
+router.register(r'summit_lessons', summit.views.SummitLessonViewSet)
 
 router.register(r'tables', navigation.views.TableViewSet)
 router.register(r'columnTypes', navigation.views.ColumnTypeViewSet)

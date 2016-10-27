@@ -14,7 +14,7 @@ from rest_framework.settings import api_settings
 
 from account.models import CustomUser
 from navigation.models import user_table, user_summit_table
-from .models import Summit, SummitAnket, SummitType, SummitAnketNote
+from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson
 from .resources import get_fields
 from .resources import make_table
 from .serializers import SummitAnketSerializer, SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, \
@@ -176,6 +176,31 @@ class NewSummitAnketViewSet(viewsets.ModelViewSet):
         headers = get_success_headers(serializer.data)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class SummitLessonViewSet(viewsets.ModelViewSet):
+    queryset = SummitLesson.objects.all()
+    serializer_class = SummitLessonSerializer
+
+    @detail_route(methods=['post'])
+    def add_viewer(self, request, pk=None):
+        anket_id = request.data['anket_id']
+        lesson = get_object_or_404(SummitLesson, pk=pk)
+        anket = get_object_or_404(SummitAnket, pk=anket_id)
+
+        lesson.viewers.add(anket)
+
+        return Response({'lesson': lesson.name, 'lesson_id': pk, 'anket_id': anket_id, 'checked': True})
+
+    @detail_route(methods=['post'])
+    def del_viewer(self, request, pk=None):
+        anket_id = request.data['anket_id']
+        lesson = get_object_or_404(SummitLesson, pk=pk)
+        anket = get_object_or_404(SummitAnket, pk=anket_id)
+
+        lesson.viewers.remove(anket)
+
+        return Response({'lesson': lesson.name, 'lesson_id': pk, 'anket_id': anket_id, 'checked': False})
 
 
 class SummitAnketWithNotesViewSet(viewsets.ModelViewSet):

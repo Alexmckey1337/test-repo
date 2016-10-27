@@ -275,6 +275,29 @@ function sendNote(anket_id, text, box) {
     });
 }
 
+function changeLessonStatus(lesson_id, anket_id, checked) {
+    var data = {
+        "anket_id": anket_id
+    };
+    var url;
+    if (checked) {
+        url = config.DOCUMENT_ROOT + 'api/summit_lessons/' + lesson_id + '/add_viewer/';
+    } else {
+        url = config.DOCUMENT_ROOT + 'api/summit_lessons/' + lesson_id + '/del_viewer/';
+    }
+    var json = JSON.stringify(data);
+    ajaxRequest(url, json, function (data) {
+        if (data.checked) {
+            showPopup('Урок ' + data.lesson + ' просмотрен.');
+        } else {
+            showPopup('Урок ' + data.lesson + ' не просмотрен.');
+        }
+        $('#lesson' + data.lesson_id).prop('checked', data.checked);
+    }, 'POST', true, {
+        'Content-Type': 'application/json'
+    });
+}
+
 
 function getUserSummitInfo() {
 
@@ -309,6 +332,7 @@ function getUserSummitInfo() {
                 body_summit += '<p>Сумма<span> ' + summit.value + ' ₴</span></p>' +
                     '</div></div>';
 
+                // NOTES
                 body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 0;"><p>Примечания</p></div></div>';
                 summit.notes.forEach(function (note) {
                     body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>' + note.text + ' — ' + note.date_created + '</p></div></div>';
@@ -318,15 +342,16 @@ function getUserSummitInfo() {
                     '<p>Написать примечание</p><p><textarea name="add_note" data-anket-id="' + summit.anket_id + '" class="js-add_note" cols="30" rows="10"></textarea></p>' +
                     '<p><button id="send_note">Отправить примечание</button></p></div></div>';
 
+                // LESSONS
                 if (summit.lessons.length) {
                     body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 0;"><p>Уроки</p></div></div>';
                 }
                 summit.lessons.forEach(function (lesson) {
                     body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>';
                     if (lesson.is_view) {
-                        body_summit += '<input type="checkbox" data-lesson-id="' + lesson.id + '" checked>';
+                        body_summit += '<input id="lesson' + lesson.id + '" class="js-lesson" type="checkbox" data-anket-id="' + summit.anket_id + '" data-lesson-id="' + lesson.id + '" checked>';
                     } else {
-                        body_summit += '<input type="checkbox" data-lesson-id="' + lesson.id + '">';
+                        body_summit += '<input id="lesson' + lesson.id + '" class="js-lesson" type="checkbox" data-anket-id="' + summit.anket_id + '" data-lesson-id="' + lesson.id + '">';
                     }
                     body_summit += lesson.name + '</p></div></div>';
                 });
@@ -347,10 +372,16 @@ function getUserSummitInfo() {
                 console.log(text, anket_id);
                 sendNote(anket_id, text, box);
                 text_field.val('');
-                // var anket_id = this.getAttribute('data-tab');
-                // $('[data-summit-id]').hide();
-                // $('[data-summit-id="' + id_tab + '"]').show();
+            });
+        });
 
+        Array.prototype.forEach.call(document.querySelectorAll(".js-lesson"), function (el) {
+            el.addEventListener('click', function (e) {
+                var lesson_id = $(this).data("lesson-id");
+                var anket_id = $(this).data('anket-id');
+                var checked = $(this).is(':checked');
+                console.log(lesson_id, anket_id, checked);
+                changeLessonStatus(lesson_id, anket_id, checked);
             });
         });
 
