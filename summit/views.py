@@ -93,8 +93,8 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
                 user = CustomUser.objects.filter(id=request.data['user_id']).first()
                 summit = Summit.objects.filter(id=request.data['summit_id']).first()
                 if user:
-                    sa = SummitAnket.objects.filter(user=user)
                     if summit:
+                        sa = SummitAnket.objects.filter(user=user)
                         sa = sa.filter(summit=summit).first()
                         if sa:
                             if len(request.data['value']) > 0:
@@ -131,7 +131,7 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
                         data = {"message": "Такой саммит отсутствует",
                                 'status': False}
                 else:
-                    data = {'message': "Такого полльзователя не существует",
+                    data = {'message': "Такого пользователя не существует",
                             'status': False}
             else:
                 data = {'message': "Некорректные данные",

@@ -402,7 +402,7 @@ function getUsersList(path, param) {
                 if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
                 value = getCorrectValue(field['user'][k]);
                 if (k === 'fullname') {
-                    tbody += '<td>' + '<a href="' + results[i].user.link + '">' + value + '</a><span title="Удалить анкету" data-anketId="' + results[i].id + '"" data-value="' + results[i].value + '" data-comment="' + results[i].description + '" class="del"></span></td>'
+                    tbody += '<td>' + '<a href="' + results[i].user.link + '">' + value + '</a><span title="Удалить анкету" data-fullname="' + results[i].user.fullname + '" data-user-id="' + results[i].user.id + '" data-anketId="' + results[i].id + '"" data-value="' + results[i].value + '" data-comment="' + results[i].description + '" class="del"></span></td>'
                 } else if (k === 'social') {
                     tbody += '<td>';
                     if (results[i].user.skype) {
@@ -432,77 +432,6 @@ function getUsersList(path, param) {
         tbody += '</tbody>';
 
         var table = '<table>' + thead + tbody + '</table>';
-
-
-        // var common_fields = results[0].common;
-        // var html = '';
-        // var thead = '<table><thead><tr>';
-        // var common = config['column_table'];
-        //
-        // for (var title in config['column_table']) {
-        //     if (!config['column_table'][title]['active'] && config['column_table'][title]['editable']) continue
-        //     var blue_icon = typeof  ordering[config['column_table'][title]['ordering_title']]  == 'undefined' ? '' : 'blue_icon_active'
-        //     if (ordering[config['column_table'][title]['ordering_title']]) {
-        //         thead += '<th data-order="' + config['column_table'][title]['ordering_title'] + '" class="down"><span>' + config['column_table'][title]['title'] + '</span><span class="ups '+ blue_icon  +'"></span></th>';;
-        //     } else {
-        //         thead += '<th data-order="' + config['column_table'][title]['ordering_title'] + '" class="up"><span>' + config['column_table'][title]['title'] + '</span><span class="ups ups-active '+ blue_icon +'"></span></th>';
-        //     }
-        // }
-        // for (var x in common_fields) {
-        //     thead += '<th data-order="' + common_fields[x] + '"    class="up"><span>' + x + '</span></th>';
-        // }
-        //
-        // for (var i = 0; i < results.length; i++) {
-        //     var list_fields = results[i].info;
-        //     if (!list_fields) continue
-        //     html += '<tr>';
-        //     for (var prop in config['column_table']) {
-        //         if (prop in list_fields) {
-        //             if (prop == 'social' && config['column_table']['social'] && config['column_table']['social']['active']) {
-        //                 html += '<td>';
-        //                 for (var p in list_fields[prop]) {
-        //                     if (list_fields[prop][p] == '') {
-        //                         continue
-        //                     } else {
-        //                         switch (p) {
-        //                           case 'skype':
-        //                             html += '<a href="skype:'+list_fields[prop].skype+'?chat"><i class="fa fa-skype"></i></a>';
-        //                             break;
-        //                           case 'vkontakte':
-        //                             html += '<a target="_blank" href="'+list_fields[prop].vkontakte+'"><i class="fa fa-vk"></i></a>';
-        //                             break;
-        //                           case 'facebook':
-        //                             html += '<a href="'+list_fields[prop].facebook+'"><i class="fa fa-facebook"></i></a>';
-        //                             break;
-        //                           case 'odnoklassniki':
-        //                             html += '<a href="'+list_fields[prop].odnoklassniki+'"><i class="fa fa-odnoklassniki" aria-hidden="true"></i></a>';
-        //                             break;
-        //                         }
-        //                     }
-        //                 }
-        //                 html += '</td>';
-        //             } else if ((!config['column_table'][prop]['active'] && config['column_table'][prop]['editable'])) {
-        //                 continue;
-        //             } else if (prop == 'fullname') {
-        //                 html += '<td><a href="/account/'+list_fields['id']['value']+'">' + list_fields[prop]['value'] + '</a><span title="Удалить анкету" data-anketId="' + list_fields.money_info.summit_anket_id + '"" data-value="' + list_fields.money_info.value + '" data-comment="' + list_fields.money_info.description + '" class="del"></span>' + '</td>'
-        //             } else {
-        //                 html += '<td>' + list_fields[prop]['value'] + '</td>';
-        //             }
-        //
-        //
-        //         }
-        //     }
-        //     for (var z in common_fields) {
-        //         for (var s in list_fields) {
-        //             if (common_fields[z] == list_fields[s].verbose) {
-        //                 html += '<td>' + list_fields[s].value + '</td>';
-        //             }
-        //         }
-        //     }
-        //     html += '</tr>';
-        // }
-        //
-        // thead += '</thead><tbody></tbody></table>';
 
         var page = parseInt(param['page']) || 1,
             pages = Math.ceil(count / config.pagination_count),
@@ -558,8 +487,8 @@ function getUsersList(path, param) {
             if (el.target.nodeName == 'A') {
                 return;
             }
-            var id = $('#users_list tbody tr td:first-child').children('a').attr('href').split('/')[2],
-                usr = $('#users_list tbody tr td:first-child').children('a').html(),
+            var id = $(this).data('user-id'),
+                usr = $(this).data('fullname'),
                 anketa = $(this).attr('data-anketId'),
                 val = $(this).attr('data-value'),
                 comment = $(this).attr('data-comment');
@@ -569,7 +498,7 @@ function getUsersList(path, param) {
             $('#popupDelete textarea').val(comment);
             $('#popupDelete h3').html(usr);
             document.querySelector('#popupDelete').style.display = 'block';
-        })
+        });
 
         Array.prototype.forEach.call(document.querySelectorAll(" .pag li"), function (el) {
             el.addEventListener('click', function () {
