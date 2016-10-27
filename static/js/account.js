@@ -267,10 +267,9 @@ function getUserSummitInfo() {
     if (!id) {
         return
     }
-    var url = config.DOCUMENT_ROOT + 'api/summit_ankets/?user=' + id;
+    var url = config.DOCUMENT_ROOT + 'api/users/' + id + '/summit_info/';
 
-    ajaxRequest(url, null, function (data) {
-        var results = data.results;
+    ajaxRequest(url, null, function (results) {
         if (!results.length) {
             document.getElementsByClassName('a-sammits')[0].style.display = 'none';
             return
@@ -280,28 +279,42 @@ function getUserSummitInfo() {
         var menu_summit = '';
         var body_summit = '';
 
-
-        for (var i = 0; i < results.length; i++) {
-            if (results[i].info) {
-                var info = results[i].info.money_info;
-                if ($.inArray(info.summit_type_id, tab_title) == -1) {
-                    menu_summit += '<li data-tab=' + info.summit_type_id + '><a href="#" >' + info.summit_title + '</a></li>';
-                    tab_title.push(info.summit_type_id)
-                }
-                body_summit += '<div class="rows" data-summit-id = "' + info.summit_type_id + '" ><div class="col"><p>' + info.summit_title + '  ' + info.start_date + '</p> </div><div class="col">';
-                if (info.description != "") {
-                    body_summit += '<p>' + info.description + '</p>';
+        results.forEach(function (summit_type) {
+            console.log(summit_type.name, summit_type.id);
+            tab_title.push(summit_type.id);
+            menu_summit += '<li data-tab=' + summit_type.id + '><a href="#" >' + summit_type.name + '</a></li>';
+            summit_type.summits.forEach(function (summit) {
+                body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div class="col"><p>' + summit.name + '</p> </div><div class="col">';
+                if (summit.description != "") {
+                    body_summit += '<p>' + summit.description + '</p>';
                 } else {
                     body_summit += '<p>Комментарий не указан</p>';
                 }
 
-                body_summit += '<p>Сумма<span> ' + info.value + ' ₴</span></p>' +
-                    '</div></div>'
+                body_summit += '<p>Сумма<span> ' + summit.value + ' ₴</span></p>' +
+                    '</div></div>';
 
+                if (summit.notes.length) {
+                    body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 0;"><p>Примечания</p></div></div>';
+                }
+                summit.notes.forEach(function (note) {
+                    body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>' + note.text + ' — ' + note.date_created + '</p></div></div>';
+                });
 
-            }
-
-        }
+                if (summit.lessons.length) {
+                    body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 0;"><p>Уроки</p></div></div>';
+                }
+                summit.lessons.forEach(function (lesson) {
+                    body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>';
+                    if (lesson.is_view) {
+                        body_summit += '<input type="checkbox" data-lesson-id="' + lesson.id + '" checked>';
+                    } else {
+                        body_summit += '<input type="checkbox" data-lesson-id="' + lesson.id + '">';
+                    }
+                    body_summit += lesson.name + '</p></div></div>';
+                });
+            });
+        });
 
 
         document.getElementsByClassName('summit_wrapper')[0].innerHTML = body_summit;

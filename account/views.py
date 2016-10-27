@@ -106,10 +106,13 @@ class UserViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'])
     def summit_info(self, request, pk=None):
         summit_types = SummitType.objects.filter(summits__ankets__user_id=pk)
-        json = {}
+        lst = []
         for t in summit_types:
+            json = {}
             summits = t.summits.filter(ankets__user_id=pk)
-            json[t.title] = {'summits': [
+            json['name'] = t.title
+            json['id'] = t.id
+            json['summits'] = [
                 {
                     'name': '{} {}'.format(t.title, summit.start_date),
                     'id': summit.id,
@@ -117,8 +120,8 @@ class UserViewSet(viewsets.ModelViewSet):
                     'value': summit.ankets.get(user_id=pk).value,
                     'anket_id': summit.ankets.get(user_id=pk).id,
                 }
-                for summit in summits.all()]}
-            for s in json[t.title]['summits']:
+                for summit in summits.all()]
+            for s in json['summits']:
                 lessons = SummitLesson.objects.filter(summit__ankets__user_id=pk, summit_id=s['id'])
                 notes = SummitAnketNote.objects.filter(summit_anket__user_id=pk, summit_anket_id=s['anket_id'])
                 s['lessons'] = list(lessons.annotate(
@@ -127,8 +130,9 @@ class UserViewSet(viewsets.ModelViewSet):
                         default=False,
                         output_field=BooleanField())).values())
                 s['notes'] = list(notes.values())
+            lst.append(json)
 
-        return Response(json)
+        return Response(lst)
 
 
 # def list(self, request, *args, **kwargs):
