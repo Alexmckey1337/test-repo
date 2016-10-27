@@ -125,8 +125,7 @@ function init(id) {
     }
 
 
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/users/' + id, null, function (data) {
-        console.log(data.fields)
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/users/' + id + '/', null, function (data) {
         if (data.image) {
             document.querySelector(".anketa-photo img").src = data.image;
             convertImgToDataURLviaCanvas($(".anketa-photo img").attr('src'), function (data64) {
@@ -224,19 +223,19 @@ function init(id) {
         data_for_drop['master'] = data.fields['master']['value'];
         data.fields['master_hierarchy'] = data.fields['master_hierarchy']['value']
 
-        initializeCountry('api/countries/');
+        initializeCountry('api/v1.0/countries/');
 
         document.getElementById('region_drop').innerHTML = '<option selected="selected" value="">' + data_for_drop["region"] + '</option>';
         document.getElementById('town_drop').innerHTML = '<option selected="selected" value="">' + data_for_drop["city"] + '</option>';
         //
         //console.log(document.getElementById('town_drop').innerHTML)
-        initDropCustom('api/departments/', 'department_drop', data.fields['department']['value'])
+        initDropCustom('api/v1.0/departments/', 'department_drop', data.fields['department']['value'])
 
-        initDropCustom('api/hierarchy/', 'statuses_drop', data.fields['hierarchy']['value'],
+        initDropCustom('api/v1.0/hierarchy/', 'statuses_drop', data.fields['hierarchy']['value'],
 
             function () {
 
-                initDropCustom('api/hierarchy/', 'statuses_drop_parent', data.fields['master_hierarchy'],
+                initDropCustom('api/v1.0/hierarchy/', 'statuses_drop_parent', data.fields['master_hierarchy'],
                     function () {
                         getLeader(data_for_drop['master'])
                     })
@@ -351,7 +350,7 @@ function initializeCountry(url) {
 
 
 
-         var url_region = 'api/regions/?country=' + $(this).val()
+         var url_region = 'api/v1.0/regions/?country=' + $(this).val()
 
          initializeRegions(url_region, 'region_drop', data_for_drop['region'])
 
@@ -374,7 +373,7 @@ function initializeRegions() {
     opt['country'] = $("#country_drop").val();
     //console.log(opt)
 
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/regions/', opt, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/regions/', opt, function (data) {
         if (data.length == 0) {
             document.getElementById('region_drop').innerHTML = '<option value=""> </option>';
             //document.getElementById('town_drop').innerHTML = '<option value=""> </option>';
@@ -417,7 +416,7 @@ function initializeRegions() {
 
          $eventSelect.select2();
          $eventSelect.on("change", function(e) {
-         var url_town = 'api/cities/?region=' + $(this).val()
+         var url_town = 'api/v1.0/cities/?region=' + $(this).val()
          initializeTown(url_town, 'town_drop', data_for_drop['city'])
          })
          $eventSelect.on("select", function(e) {
@@ -439,7 +438,7 @@ function initializeTown() {
     var opt = {};
     opt['region'] = $("#region_drop").val();
 
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/cities/', opt, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/cities/', opt, function (data) {
 
         var results = data;
         var html = '<option value=""></option><option>Не выбрано</option>';
@@ -532,7 +531,7 @@ function initDropCustom(url, parent_id, active, callback) {
 
             getLeader(data_for_drop['master']);
             /*
-             var url_region = 'api/regions/?country=' + $(this).val()
+             var url_region = 'api/v1.0/regions/?country=' + $(this).val()
              initializeRegions(url_region,'region_drop', data_for_drop['region'] )
 
              */
@@ -557,7 +556,7 @@ function getLeader(active) {
         //  console.log(level);
     }
 
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/short_users/?department=' + id_dep + '&hierarchy=' + level, null, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id_dep + '&hierarchy=' + level, null, function (data) {
         //Потрібен парент айди 
 
         var html = '<option>Не выбрано</option>';
@@ -579,8 +578,8 @@ function getLeader(active) {
             html += '<option selected="selected" >' + active + '</option>'
         }
 
-        document.getElementById('leader_drop').innerHTML = html
-        $eventSelect = $('#leader_drop')
+        document.getElementById('leader_drop').innerHTML = html;
+        $eventSelect = $('#leader_drop');
 
         $eventSelect.select2({
             // tags: true
@@ -599,7 +598,7 @@ function getDivisions(str) {
     //console.log(arr);
 
 
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/divisions/', null, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/divisions/', null, function (data) {
 
 
         var html = '';
@@ -639,7 +638,7 @@ function getPatrnershipInfo() {
     if (!id) {
         return
     }
-    var url = config.DOCUMENT_ROOT + 'api/partnerships/?user=' + id
+    var url = config.DOCUMENT_ROOT + 'api/v1.0/partnerships/?user=' + id
 
     ajaxRequest(url, null, function (data) {
 
@@ -680,7 +679,7 @@ function getPatrnershipInfo() {
 function getManagerList(active) {
 
 
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/npartnerships/simple/', null, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.1/partnerships/simple/', null, function (data) {
         var html = '<option>Не выбрано</option>';
 
         data.forEach(function (partnership) {
@@ -841,7 +840,7 @@ function sendData() {
     }
 
     /*
-     var url =config.DOCUMENT_ROOT + 'api/short_users/?search=' + data["first_name"] +'+' + data["last_name"];
+     var url =config.DOCUMENT_ROOT + 'api/v1.0/short_users/?search=' + data["first_name"] +'+' + data["last_name"];
      ajaxRequest( url, null, function(answer) {
 
      if (answer.length) {
@@ -858,7 +857,7 @@ function sendData() {
 
     var json = JSON.stringify(data);
 
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/create_user/', json, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/create_user/', json, function (data) {
 
 
         if (!data.redirect) {
@@ -897,7 +896,7 @@ function sendData() {
 
             var xhr = new XMLHttpRequest();
             xhr.withCredentials = true;
-            xhr.open('POST', config.DOCUMENT_ROOT + 'api/create_user/', true);
+            xhr.open('POST', config.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
             //  xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4) {

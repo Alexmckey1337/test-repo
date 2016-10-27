@@ -41,7 +41,7 @@ function init(id) {
     if (!id) {
         return
     }
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/users/' + id, null, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/users/' + id + '/', null, function (data) {
 
         if (data.image) {
             document.querySelector(".anketa-photo img").src = data.image
@@ -148,7 +148,7 @@ function getUserDeals() {
     if (!id) {
         return
     }
-    var url = config.DOCUMENT_ROOT + 'api/partnerships/?user=' + id;
+    var url = config.DOCUMENT_ROOT + 'api/v1.0/partnerships/?user=' + id;
 
     ajaxRequest(url, null, function (data) {
         //console.log(data)
@@ -249,7 +249,7 @@ function deleteUser(id) {
         "id": id
     };
     var json = JSON.stringify(data);
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/delete_user/', json, function (JSONobj) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/delete_user/', json, function (JSONobj) {
         if (JSONobj.status) {
             showPopup('Пользователь успешно удален');
             window.location.href = "/"
@@ -265,7 +265,7 @@ function sendNote(anket_id, text, box) {
     };
     var summit_type = box.data('summit-id');
     var json = JSON.stringify(data);
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/nsummit_ankets/' + anket_id + '/create_note/', json, function (note) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/' + anket_id + '/create_note/', json, function (note) {
         box.before(function () {
             return '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>' + note.text + ' — ' + note.date_created + '</p></div></div>'
         });
@@ -281,9 +281,9 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     };
     var url;
     if (checked) {
-        url = config.DOCUMENT_ROOT + 'api/summit_lessons/' + lesson_id + '/add_viewer/';
+        url = config.DOCUMENT_ROOT + 'api/v1.0/summit_lessons/' + lesson_id + '/add_viewer/';
     } else {
-        url = config.DOCUMENT_ROOT + 'api/summit_lessons/' + lesson_id + '/del_viewer/';
+        url = config.DOCUMENT_ROOT + 'api/v1.0/summit_lessons/' + lesson_id + '/del_viewer/';
     }
     var json = JSON.stringify(data);
     ajaxRequest(url, json, function (data) {
@@ -306,7 +306,7 @@ function getUserSummitInfo() {
     if (!id) {
         return
     }
-    var url = config.DOCUMENT_ROOT + 'api/users/' + id + '/summit_info/';
+    var url = config.DOCUMENT_ROOT + 'api/v1.0/users/' + id + '/summit_info/';
 
     ajaxRequest(url, null, function (results) {
         if (!results.length) {

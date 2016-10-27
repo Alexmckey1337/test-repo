@@ -1,17 +1,26 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from django.conf.urls import url
+from django.conf.urls import url, include
+from rest_framework import routers
 
-from .views import update_participation
+from event import views
+
+router_v1_0 = routers.DefaultRouter()
+router_v1_0.register(r'event_types', views.EventTypeViewSet)
+router_v1_0.register(r'event_ankets', views.EventAnketViewSet)
+router_v1_0.register(r'events', views.EventViewSet)
+router_v1_0.register(r'participations', views.ParticipationViewSet)
+
+custom_urls = [
+    # url(r'^create_event/$', views.create_event),
+    # url(r'^delete_event/$', views.delete_event),
+    # url(r'^create_participations/$', views.create_participations),
+    url(r'^update_participation/$', views.update_participation),
+]
 
 urlpatterns = [
-    # url(r'^create_event', create_event),
-    # url(r'^delete_event', delete_event),
-    # url(r'^create_participations', create_participations),
-    url(r'^update_participation', update_participation),
+    url(r'^v1.0/', include(router_v1_0.urls)),
 
-    # url(r'^login', login_view),
-    # url(r'^create_user', create_user),
-    # url(r'^change_password', change_password),
+    url(r'^v1.0/', include(custom_urls)),
 ]

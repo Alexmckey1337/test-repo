@@ -185,7 +185,7 @@ function getAll() {
 }
 
 function getCountryCodes() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/countries/', null, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
         var code = '<option value=""> </option>';
         for (var i = 0; i < data.length; i++) {
             if (data[i].phone_code == 38) {
@@ -201,7 +201,7 @@ function getCountryCodes() {
 
 
 function getCountries() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/countries/', null, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
         var html = '<option value=""> </option><option>Не выбрано</option>';
         //var code = '<option value=""> </option>';
         for (var i = 0; i < data.length; i++) {
@@ -219,7 +219,7 @@ function getCountries() {
 }
 
 function getDepartments() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/departments/', null, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/departments/', null, function (data) {
         data = data.results;
         var html = '<option value=""> </option>';
         for (var i = 0; i < data.length; i++) {
@@ -232,7 +232,7 @@ function getDepartments() {
 }
 
 function getStatuses() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/hierarchy/', null, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
         data = data.results;
         var html = '<option value=""> </option>';
         for (var i = 0; i < data.length; i++) {
@@ -243,7 +243,7 @@ function getStatuses() {
 }
 
 function getResponsibleStatuses() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/hierarchy/', null, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
         data = data.results;
         var html = '<option value=""> </option><option>Не выбрано</option>';
         for (var i = 0; i < data.length; i++) {
@@ -255,7 +255,7 @@ function getResponsibleStatuses() {
 }
 
 function getDivisions() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/divisions/', null, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/divisions/', null, function (data) {
         data = data.results;
         var html = '<option value=""> </option>';
         for (var i = 0; i < data.length; i++) {
@@ -266,7 +266,7 @@ function getDivisions() {
 }
 
 function getUsers() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/hierarchy/', null, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
         data = data.results;
         var html = '<option value=""> </option>';
         for (var i = 0; i < data.length; i++) {
@@ -277,7 +277,7 @@ function getUsers() {
 }
 
 function getManagers() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/npartnerships/simple/', null, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.1/partnerships/simple/', null, function (data) {
         var html = '<option value=""> </option><option>Не выбрано</option>';
         data.forEach(function (partnership) {
             html += '<option value="' + partnership.id + '">' + partnership.fullname + '</option>';
@@ -290,7 +290,7 @@ function getRegions() {
     var opt = {};
     opt['country'] = $("#chooseCountry").val();
     ;
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/regions/', opt, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/regions/', opt, function (data) {
         if (data.length == 0) {
             document.getElementById('chooseRegion').innerHTML = '<option value=""> </option>';
             document.getElementById('chooseCity').removeAttribute('disabled')
@@ -305,7 +305,7 @@ function getRegions() {
 }
 
 function getResponsible(id, level) {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/short_users/?department=' + id + '&hierarchy=' + level, null, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id + '&hierarchy=' + level, null, function (data) {
         var html = '<option value=""> </option><option>Не выбрано</option>';
         for (var i = 0; i < data.length; i++) {
             html += '<option value="' + data[i].id + '">' + data[i].fullname + '</option>';
@@ -317,7 +317,7 @@ function getResponsible(id, level) {
 function getCities() {
     var opt = {};
     opt['region'] = $("#chooseRegion").val();
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/cities/', opt, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/cities/', opt, function (data) {
         var html = '<option value=""> </option><option>Не выбрано</option>';
         for (var i = 0; i < data.length; i++) {
             html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
@@ -448,7 +448,7 @@ function createNewAcc() {
         document.querySelector("input[name='value']").style.border = '';
     }
     /*
-     var url =config.DOCUMENT_ROOT + 'api/short_users/?search=' + data["first_name"] +'+' + data["last_name"];
+     var url =config.DOCUMENT_ROOT + 'api/v1.0/short_users/?search=' + data["first_name"] +'+' + data["last_name"];
      ajaxRequest( url, null, function(data,answer) {
      //  console.log(data);
      if (data.length) {
@@ -465,7 +465,7 @@ function createNewAcc() {
      })
      */
     var json = JSON.stringify(data);
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/create_user/', json, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/create_user/', json, function (data) {
         if (data.redirect) {
             var fd = new FormData();
             if (!$('input[type=file]')[0].files[0]) {
@@ -489,7 +489,7 @@ function createNewAcc() {
 
             var xhr = new XMLHttpRequest();
             xhr.withCredentials = true;
-            xhr.open('POST', config.DOCUMENT_ROOT + 'api/create_user/', true);
+            xhr.open('POST', config.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
 
             xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4) {

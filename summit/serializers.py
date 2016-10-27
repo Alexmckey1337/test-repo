@@ -8,18 +8,36 @@ from account.serializers import NewUserSerializer
 from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson
 
 
-class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
+class SummitAnketNoteSerializer(serializers.ModelSerializer):
+    owner = serializers.StringRelatedField()
+
+    class Meta:
+        model = SummitAnketNote
+        fields = ('summit_anket', 'text', 'owner', 'date_created')
+        read_only_fields = ('owner', 'date_created', 'id')
+        extra_kwargs = {'summit_anket': {'write_only': True}}
+
+
+class SummitAnketOldSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = SummitAnket
         fields = ('info', 'common', 'code',)
 
 
-class NewSummitAnketSerializer(serializers.HyperlinkedModelSerializer):
+class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
     user = NewUserSerializer()
 
     class Meta:
         model = SummitAnket
         fields = ('id', 'user', 'code', 'value', 'description')
+
+
+class SummitAnketWithNotesSerializer(serializers.ModelSerializer):
+    notes = SummitAnketNoteSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = SummitAnket
+        fields = ('info', 'common', 'code', 'notes')
 
 
 class SummitSerializer(serializers.HyperlinkedModelSerializer):
@@ -40,24 +58,6 @@ class SummitUnregisterUserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'city', 'fullname', 'country', 'master_short_fullname')
-
-
-class SummitAnketNoteSerializer(serializers.ModelSerializer):
-    owner = serializers.StringRelatedField()
-
-    class Meta:
-        model = SummitAnketNote
-        fields = ('summit_anket', 'text', 'owner', 'date_created')
-        read_only_fields = ('owner', 'date_created', 'id')
-        extra_kwargs = {'summit_anket': {'write_only': True}}
-
-
-class SummitAnketWithNotesSerializer(serializers.ModelSerializer):
-    notes = SummitAnketNoteSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = SummitAnket
-        fields = ('info', 'common', 'code', 'notes')
 
 
 class SummitLessonSerializer(serializers.ModelSerializer):

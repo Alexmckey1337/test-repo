@@ -113,7 +113,7 @@ function live(eventType, elementQuerySelector, cb) {
 
 //Счетчик уведомлений
 function counterNotifications() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/notifications/today/', null, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/notifications/today/', null, function (data) {
         document.getElementById('count_notifications').innerHTML = '(' + data.count + ')';
     });
 }
@@ -177,7 +177,7 @@ function getParameterByName(name, url) {
 
 
 function getDepartmentsAll() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/departments/', null, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/departments/', null, function (data) {
         data = data.results;
         var html = '<option value="0">ВСЕ </option>';
         for (var i = 0; i < data.length; i++) {

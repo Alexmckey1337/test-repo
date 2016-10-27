@@ -1,10 +1,20 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from django.conf.urls import url
+from django.conf.urls import url, include
+from rest_framework import routers
 
-from .views import generate
+from summit import views
+
+router_v1_0 = routers.DefaultRouter()
+router_v1_0.register(r'summit', views.SummitViewSet)
+router_v1_0.register(r'summit_ankets', views.SummitAnketTableViewSet)
+router_v1_0.register(r'summit_types', views.SummitTypeViewSet)
+router_v1_0.register(r'summit_search', views.SummitUnregisterUserViewSet, base_name='summit_search')
+router_v1_0.register(r'summit_lessons', views.SummitLessonViewSet)
+router_v1_0.register(r'summit_ankets_with_notes', views.SummitAnketWithNotesViewSet,
+                     base_name='ankets_with_notes')
 
 urlpatterns = [
-    url(r'^generate$', generate),
+    url(r'^v1.0/', include(router_v1_0.urls)),
 ]

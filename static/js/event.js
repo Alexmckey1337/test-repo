@@ -4,7 +4,7 @@ $(document).ready(function(){
 
 
 function getEventsList(){
-	ajaxRequest(config.DOCUMENT_ROOT + 'api/event_types/', null, function (data) {
+	ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/event_types/', null, function (data) {
 	 	//console.log(data)
 	 	var result = data.results;
 	 	var html = '';

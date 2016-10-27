@@ -41,7 +41,7 @@ if (document.getElementById('sort_save')) {
 }
 
 function getNotifications() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/notifications/today', null, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/notifications/today/', null, function (data) {
         var count = data.count;
         data = data.results;
         var html = "";
@@ -246,7 +246,7 @@ document.body.addEventListener('click', function (el) {
 
 $(function () {
 
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/users/current', null, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/users/current/', null, function (data) {
         var user_id = data.id;
         config.user_id = data.id;
         config.user_partnerships_info = data.partnerships_info;
@@ -272,10 +272,12 @@ $(function () {
 
         if (document.getElementById('users_list')) {
             var dat = {};
-            dat['summit'] = document.querySelectorAll('#carousel li span')[0].getAttribute('data-id');
-            window.summit_id = dat['summit'];
-            getUsersList(path, dat);
-            getCurrentSetting();
+            delay(function () {
+                dat['summit'] = document.querySelectorAll('#carousel li span')[0].getAttribute('data-id');
+                window.summit_id = dat['summit'];
+                getUsersList(path, dat);
+                getCurrentSetting();
+            }, 50);
         }
 
 
@@ -395,7 +397,7 @@ function updateSettings(callback, param) {
 
     var json = JSON.stringify(data);
 
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/update_columns', json, function (JSONobj) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/update_columns/', json, function (JSONobj) {
         $(".bgsort").remove();
         config['column_table'] = JSONobj['column_table'];
         if (callback) {

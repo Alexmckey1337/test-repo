@@ -147,7 +147,7 @@ function getUnregisteredUsers(parameters) {
     var search = document.getElementById('searchUsers').value;
     if (search && search.length > 2) {
         param['search'] = search;
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/partnerships_unregister_search/', param, function (data) {
+        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/partnerships_unregister_search/', param, function (data) {
             data = data.results;
             var html = '';
             for (var i = 0; i < data.length; i++) {
@@ -203,7 +203,7 @@ function create_partnerships(data) {
 
     console.log('start partner');
     var json = JSON.stringify(data);
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/create_partnership', json, function (JSONobj) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/create_partnership/', json, function (JSONobj) {
 
         if (JSONobj.status) {
             $(".choose-user-wrap").hide();
@@ -227,7 +227,7 @@ function getExpiredDeals(time) {
     } else {
         search = '';
     }
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/deals/?expired=2' + search, json, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/deals/?expired=2' + search, json, function (data) {
         var count = data.count;
         data = data.results;
         var page = time['page'] || 1,
@@ -275,7 +275,7 @@ function getDoneDeals(time) {
     } else {
         search = '';
     }
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/deals/?done=2' + search, json, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/deals/?done=2' + search, json, function (data) {
         var count = data.count;
         data = data.results;
         var page = time['page'] || 1,
@@ -319,7 +319,7 @@ function getUndoneDeals(dat) {
     } else {
         search = '';
     }
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/deals/?done=3' + search, json, function (data) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/deals/?done=3' + search, json, function (data) {
         var count = data.count;
         data = data.results;
         var page = dat['page'] || 1,
@@ -484,7 +484,7 @@ function updateDeals(deal, value) {
         "value": value
     };
     var json = JSON.stringify(data);
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/update_deal', json, function () {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/update_deal/', json, function () {
         init();
         document.getElementById('popup').style.display = '';
     }, 'POST', true, {
@@ -608,7 +608,7 @@ function getCurrentPartnerSetting(data) {
 function getPartnersList(param) {
     param = param || {};
 
-    var path = config.DOCUMENT_ROOT + 'api/npartnerships/?';
+    var path = config.DOCUMENT_ROOT + 'api/v1.1/partnerships/?';
     var search = document.getElementsByName('fullsearch')[0].value;
     if (search) {
         param['search'] = search;

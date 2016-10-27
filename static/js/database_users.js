@@ -258,7 +258,7 @@ function createUserInfoBySearch(data, search) {
 }
 
 function createUser(data) {
-    var path = config.DOCUMENT_ROOT + 'api/nusers/?';
+    var path = config.DOCUMENT_ROOT + 'api/v1.1/users/?';
     data = data || {};
     var search = document.getElementsByName('fullsearch')[0].value;
     var filter = document.getElementById('filter').value;
@@ -278,7 +278,7 @@ function createUser(data) {
     });
     /*
      function createUserDep(data) {
-     var path = config.DOCUMENT_ROOT + 'api/nusers/?';
+     var path = config.DOCUMENT_ROOT + 'api/v1.1/users/?';
      data = data || {};
      var search = document.getElementsByName('searchDep')[0].value;
      if (search && !data['sub']) {
