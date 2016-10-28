@@ -48,7 +48,7 @@ class SummitPagination(PageNumberPagination):
 
 class SummitAnketTableViewSet(viewsets.ModelViewSet):
     queryset = SummitAnket.objects.select_related('user', 'user__hierarchy', 'user__department', 'user__master'). \
-        prefetch_related('user__divisions')
+        prefetch_related('user__divisions').order_by('user__last_name', 'user__first_name', 'user__middle_name')
     serializer_class = SummitAnketSerializer
     pagination_class = SummitPagination
     filter_backends = (filters.DjangoFilterBackend,

@@ -156,7 +156,7 @@ class NewUserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.select_related(
         'hierarchy', 'department', 'master').prefetch_related(
         'divisions'
-    ).filter(is_active=True).all().order_by('-date_joined')
+    ).filter(is_active=True).order_by('last_name', 'first_name', 'middle_name')
     serializer_class = NewUserSerializer
     pagination_class = UserPagination
     filter_backends = (filters.DjangoFilterBackend,
