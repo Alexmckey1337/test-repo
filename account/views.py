@@ -9,7 +9,9 @@ from django.contrib.auth import update_session_auth_hash
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db.models import Case, BooleanField
+from django.db.models import Value as V
 from django.db.models import When
+from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
 from django.template import Context
 from django.template.loader import get_template
@@ -124,6 +126,8 @@ class UserViewSet(viewsets.ModelViewSet):
             for s in json['summits']:
                 lessons = SummitLesson.objects.filter(summit__ankets__user_id=pk, summit_id=s['id'])
                 notes = SummitAnketNote.objects.filter(summit_anket__user_id=pk, summit_anket_id=s['anket_id'])
+                notes = notes.annotate(owner_name=Concat(
+                    'owner__last_name', V(' '), 'owner__first_name', V(' '), 'owner__middle_name'))
                 s['lessons'] = list(lessons.annotate(
                     is_view=Case(
                         When(viewers=s['anket_id'], then=True),

@@ -170,6 +170,10 @@ class SummitAnketNote(models.Model):
     def short_text(self):
         return '{}...'.format(self.text[:47]) if len(self.text) > 50 else self.text
 
+    @property
+    def owner_name(self):
+        return self.owner.fullname
+
     class Meta:
         verbose_name = _('Summit Anket Note')
         verbose_name_plural = _('Summit Anket Notes')

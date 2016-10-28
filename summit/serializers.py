@@ -13,7 +13,7 @@ class SummitAnketNoteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SummitAnketNote
-        fields = ('summit_anket', 'text', 'owner', 'date_created')
+        fields = ('summit_anket', 'text', 'owner', 'date_created', 'owner_name')
         read_only_fields = ('owner', 'date_created', 'id')
         extra_kwargs = {'summit_anket': {'write_only': True}}
 

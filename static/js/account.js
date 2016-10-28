@@ -267,7 +267,9 @@ function sendNote(anket_id, text, box) {
     var json = JSON.stringify(data);
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/' + anket_id + '/create_note/', json, function (note) {
         box.before(function () {
-            return '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>' + note.text + ' — ' + note.date_created + '</p></div></div>'
+            return '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>' + note.text + ' — ' + note.date_created
+                + ' — Author: ' + note.owner_name
+                + '</p></div></div>'
         });
         showPopup('Примечание добавлено');
     }, 'POST', true, {
@@ -335,7 +337,9 @@ function getUserSummitInfo() {
                 // NOTES
                 body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 0;"><p>Примечания</p></div></div>';
                 summit.notes.forEach(function (note) {
-                    body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>' + note.text + ' — ' + note.date_created + '</p></div></div>';
+                    body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>' + note.text + ' — ' + note.date_created
+                        + ' — Author: ' + note.owner_name
+                        + '</p></div></div>';
                 });
 
                 body_summit += '<div class="rows note-box" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 0;">' +
