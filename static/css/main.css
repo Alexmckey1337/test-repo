@@ -1276,9 +1276,9 @@ th {
   white-space: pre;
 }
 
-#database th {
-	vertical-align: initial;
-}
+/*#database th {*/
+/*vertical-align: initial;*/
+/*}*/
 th span {
 	display: inline-block;
 }
