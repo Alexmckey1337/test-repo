@@ -519,14 +519,14 @@ function initDropCustom(url, parent_id, active, callback) {
             html += '<option selected="selected" >' + active + '</option>'
         }
 
-        document.getElementById(parent_id).innerHTML = html
+        document.getElementById(parent_id).innerHTML = html;
 
-        $eventSelect = $('#' + parent_id)
+        $eventSelect = $('#' + parent_id);
 
         $eventSelect.select2({
             // tags: true
 
-        })
+        });
         $eventSelect.on("change", function (e) {
 
             getLeader(data_for_drop['master']);
@@ -535,7 +535,7 @@ function initDropCustom(url, parent_id, active, callback) {
              initializeRegions(url_region,'region_drop', data_for_drop['region'] )
 
              */
-        })
+        });
 
         //$("#country_drop").trigger('change')
         if (callback) {
@@ -566,7 +566,6 @@ function getLeader(active) {
 
             if (active == results[i].title) {
                 html += '<option selected value="' + results[i].id + '">' + results[i].fullname + '</option>';
-                console.log(html)
                 active = false
             } else {
                 html += '<option value="' + results[i].id + '">' + results[i].fullname + '</option>'
@@ -638,22 +637,22 @@ function getPatrnershipInfo() {
     if (!id) {
         return
     }
-    var url = config.DOCUMENT_ROOT + 'api/v1.0/partnerships/?user=' + id
+    var url = config.DOCUMENT_ROOT + 'api/v1.0/partnerships/?user=' + id;
 
     ajaxRequest(url, null, function (data) {
 
-        var count = data.count
+        var count = data.count;
         if (count) {
 
-            document.getElementById('create_partner').style.display = 'none'
-            document.getElementById('partner_wrap').style.display = 'block'
+            document.getElementById('create_partner').style.display = 'none';
+            document.getElementById('partner_wrap').style.display = 'block';
 
-            var data = data.results[0];
+            data = data.results[0];
 
             data_for_drop['responsible_id'] = data.fields['responsible_id'].value;
 
-            var date = data.date
-            var val = data.value || 0
+            var date = data.date;
+            var val = data.value || 0;
             document.getElementById('partner').click();
             if (date) {
                 $("#partner_date").datepicker('setDate', date).mousedown(function () {
@@ -825,9 +824,9 @@ function sendData() {
     if (document.getElementById('partner') && document.getElementById('partner').checked) {
 
         // "responsible":"","value":"","date":"",
-        data['value'] = parseInt(document.getElementById('val_partnerships').value) || 0
-        data['date'] = document.getElementById('partner_date').value || ''
-        var id_partner = parseInt($("#partner_drop option:selected").val())
+        data['value'] = parseInt(document.getElementById('val_partnerships').value) || 0;
+        data['date'] = document.getElementById('partner_date').value || '';
+        var id_partner = parseInt($("#partner_drop option:selected").val());
 
         //   debugger
 
@@ -836,7 +835,7 @@ function sendData() {
         }
 
     } else {
-        data['remove_partnership'] = 'true' //gavnocod vlada
+        data['remove_partnership'] = 'true'; //gavnocod vlada
     }
 
     /*

@@ -597,7 +597,10 @@ def create_or_update_partnership(data, user_id=None):
     response_dict = dict()
     if 'id' in data.keys():
         user = User.objects.get(id=data['id'])
-        if 'remove_partnership' in data.keys():
+        # TODO удаление партнеров недопустимо т.к. несет за собой кучу проблем, основная:
+        # все сделки пользователя удалятся, и при случайном удалении партнера
+        # сделки уже не возможно восстановить
+        if 'remove_partnership' in data.keys() and False:
             if data['remove_partnership'] == 'true':
                 try:
                     Partnership.objects.get(user=user).delete()
