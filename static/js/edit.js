@@ -78,11 +78,11 @@ $(document).ready(function () {
         if (this.checked) {
             el.style.display = 'block';
             create_el.style.display = 'none';
-            document.getElementById('partner').click();
+            $('#partner').attr('checked', true);
         } else {
             el.style.display = 'none';
             create_el.style.display = 'block';
-            document.getElementById('partner').click();
+            $('#partner').attr('checked', false);
         }
 
 
@@ -102,14 +102,14 @@ $(document).ready(function () {
     document.getElementById('save').addEventListener('click', function () {
         sendData();
     });
-    document.getElementById('change_password').addEventListener('click', function () {
-        sendPassword();
-    });
-    document.getElementById('revert_edit_password').addEventListener('click', function () {
-        document.getElementById('old_password').value = "";
-        document.getElementById('password1').value = "";
-        document.getElementById('password2').value = "";
-    })
+    // document.getElementById('change_password').addEventListener('click', function () {
+    //     sendPassword();
+    // });
+    // document.getElementById('revert_edit_password').addEventListener('click', function () {
+    //     document.getElementById('old_password').value = "";
+    //     document.getElementById('password1').value = "";
+    //     document.getElementById('password2').value = "";
+    // })
 
 
 });
@@ -653,7 +653,9 @@ function getPatrnershipInfo() {
 
             var date = data.date;
             var val = data.value || 0;
-            document.getElementById('partner').click();
+            $('#partner').attr('checked', true);
+            $('#partner').parent('li').hide();
+            $('#partner').closest('#partner_wrap').find('.left-info').find('li:first-child').hide();
             if (date) {
                 $("#partner_date").datepicker('setDate', date).mousedown(function () {
                     $('#ui-datepicker-div').toggle();
@@ -796,9 +798,9 @@ function sendData() {
 
     /*Блок проверки паролей */
 
-    data['old_password'] = document.getElementById('old_password').value.trim();
-    data['password1'] = document.getElementById('password1').value.trim();
-    data['password2'] = document.getElementById('password2').value.trim();
+    // data['old_password'] = document.getElementById('old_password').value.trim();
+    // data['password1'] = document.getElementById('password1').value.trim();
+    // data['password2'] = document.getElementById('password2').value.trim();
 
     /*
 
@@ -863,8 +865,9 @@ function sendData() {
             showPopup(data.message)
         }
 
+        var send_image = false;
 
-        if (data.redirect) {
+        if (data.redirect && send_image) {
 
             //console.log(data.id)
             var fd = new FormData();
@@ -885,7 +888,8 @@ function sendData() {
             }
 
             function dataURLtoBlob(dataurl) {
-                var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                var arr = dataurl.split(',');
+                var mime = arr[0].match(/:(.*?);/)[1],
                     bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
                 while (n--) {
                     u8arr[n] = bstr.charCodeAt(n);
