@@ -142,7 +142,7 @@ $(document).ready(function () {
 
 
     $('.editprofile input').keypress(function (el) {
-        if (el.charCode == '32') {
+        if (el.charCode == '32' && el.currentTarget.id != 'additional_phone') {
             return false
         }
     });
