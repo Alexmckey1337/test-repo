@@ -914,6 +914,7 @@ function sendData() {
 
 
         }
+        window.location.href = '/account/' + data.id;
 
 
     }, 'POST', true, {
