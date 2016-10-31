@@ -865,7 +865,7 @@ function sendData() {
             showPopup(data.message)
         }
 
-        var send_image = false;
+        var send_image = true;
 
         if (data.redirect && send_image) {
 
@@ -914,7 +914,7 @@ function sendData() {
 
 
         }
-        window.location.href = '/account/' + data.id;
+        // window.location.href = '/account/' + data.id;
 
 
     }, 'POST', true, {
