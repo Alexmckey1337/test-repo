@@ -82,7 +82,7 @@ class NewPartnershipViewSet(mixins.RetrieveModelMixin,
                  # result_value=Case(When(is_responsible=True,
                  #                        then=Sum('disciples__deals__value')),
                  #                   default=Sum('deals__value'))
-                 )
+                 ).order_by('user__last_name', 'user__first_name', 'user__middle_name')
     serializer_class = NewPartnershipSerializer
     pagination_class = PartnershipPagination
     filter_backends = (filters.DjangoFilterBackend,
