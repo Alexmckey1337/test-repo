@@ -10,7 +10,8 @@ from django.utils.dateparse import parse_date
 from rest_framework import filters
 from rest_framework import mixins
 from rest_framework import viewsets
-from rest_framework.decorators import api_view, list_route
+from rest_framework.decorators import api_view, list_route, detail_route
+from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -108,6 +109,15 @@ class NewPartnershipViewSet(mixins.RetrieveModelMixin,
             'id', 'user__last_name', 'user__first_name', 'user__middle_name')
         partnerships = [{'id': p[0], 'fullname': '{} {} {}'.format(*p[1:])} for p in partnerships]
         return Response(partnerships)
+
+    @detail_route(methods=['put'])
+    def update_need(self, request, pk=None):
+        text = request.data['need_text']
+        parntership = get_object_or_404(Partnership, pk=pk)
+        parntership.need_text = text
+        parntership.save()
+
+        return Response({'need_text': text})
 
 
 class DateFilter(filters.FilterSet):

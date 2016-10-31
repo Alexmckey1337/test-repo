@@ -14,7 +14,7 @@ class PartnershipSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Partnership
-        fields = ('url', 'id', 'user', 'fullname', 'responsible', 'value', 'date',
+        fields = ('url', 'id', 'user', 'fullname', 'responsible', 'value', 'date', 'need_text',
                   'is_responsible', 'deals', 'deals_count', 'done_deals_count', 'undone_deals_count',
                   'expired_deals_count', 'result_value', 'fields', 'deal_fields', 'common',)
 

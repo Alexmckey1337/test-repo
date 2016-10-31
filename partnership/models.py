@@ -7,6 +7,7 @@ from datetime import date
 from django.db import models
 from django.db.models import Sum
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.translation import ugettext_lazy as _
 
 
 @python_2_unicode_compatible
@@ -15,6 +16,7 @@ class Partnership(models.Model):
     responsible = models.ForeignKey('self', related_name='disciples', null=True, blank=True, on_delete=models.SET_NULL)
     value = models.IntegerField()
     date = models.DateField(default=date.today)
+    need_text = models.CharField(_('Need text'), max_length=300, blank=True)
     is_responsible = models.BooleanField(default=False)
 
     def __str__(self):

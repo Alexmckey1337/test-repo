@@ -156,6 +156,8 @@ function getUserDeals() {
 
         data = data.results[0];
 
+        document.getElementById('id_need_text').value = data.need_text;
+
         if (!data) {
             document.getElementsByClassName('tab-status')[0].innerHTML = 'На данном пользователе нету сделок';
             document.getElementsByClassName('a-sdelki')[0].style.display = 'none';
@@ -195,6 +197,17 @@ function getUserDeals() {
                 $('[data-tab-content="' + id_tab + '"]').show();
 
             });
+        });
+
+        $('#send_need').on('click', function (el) {
+            var need_text = document.getElementById('id_need_text').value;
+            var url = config.DOCUMENT_ROOT + 'api/v1.1/partnerships/' + data.id + '/update_need/';
+            var need = JSON.stringify({'need_text': need_text});
+            ajaxRequest(url, need, function (data) {
+
+            }, 'PUT', true, {
+                'Content-Type': 'application/json'
+            })
         });
 
 
