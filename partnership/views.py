@@ -77,12 +77,12 @@ class NewPartnershipViewSet(mixins.RetrieveModelMixin,
     # TODO result_value is incorrect if partnership.is_responsible=True
     queryset = Partnership.objects. \
         select_related('user', 'user__hierarchy', 'user__department', 'user__master', 'responsible__user'). \
-        prefetch_related('deals', 'responsible__deals', 'user__divisions'). \
+        prefetch_related('deals', 'responsible__deals', 'user__divisions', 'disciples', 'disciples__deals'). \
         annotate(count=Count('deals'),
                  # result_value=Case(When(is_responsible=True,
                  #                        then=Sum('disciples__deals__value')),
                  #                   default=Sum('deals__value'))
-                 ).order_by('user__last_name', 'user__first_name', 'user__middle_name')
+                 )
     serializer_class = NewPartnershipSerializer
     pagination_class = PartnershipPagination
     filter_backends = (filters.DjangoFilterBackend,

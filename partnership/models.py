@@ -5,7 +5,7 @@ from collections import OrderedDict
 from datetime import date
 
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
@@ -32,20 +32,19 @@ class Partnership(models.Model):
 
     @property
     def result_value(self):
-        if not self.is_responsible:
-            deals = self.deals.aggregate(sum_deals=Sum('value'))
-        else:
-            deals = self.disciples.aggregate(sum_deals=Sum('deals__value'))
-        if deals['sum_deals']:
-            value = deals['sum_deals']
-        else:
-            value = 0
-        return value
+        return self.deals.aggregate(sum_deals=Sum('value'))['sum_deals']
+
+    @property
+    def disciples_result_value(self):
+        return self.disciples.aggregate(sum_deals=Sum('deals__value'))['sum_deals']
 
     @property
     def deals_count(self):
-        count = self.deals.count()
-        return count
+        return self.deals.count()
+
+    @property
+    def disciples_count(self):
+        return self.disciples.aggregate(count=Count('deals'))['count']
 
     #
     # @property

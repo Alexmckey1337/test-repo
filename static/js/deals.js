@@ -689,7 +689,11 @@ function getPartnersList(param) {
 
             for (k in common_fields) {
                 if (!common_fields.hasOwnProperty(k) || !common_fields[k].active) continue;
-                value = getCorrectValue(field[k]);
+                if (results[i].is_responsible && (k == 'count' || k == 'result_value')) {
+                    value = getCorrectValue(field['disciples_' + k]);
+                } else {
+                    value = getCorrectValue(field[k]);
+                }
                 tbody += '<td>' + value + '</td>'
             }
             tbody += '</tr>';
