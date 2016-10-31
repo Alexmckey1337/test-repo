@@ -204,6 +204,7 @@ function getUserDeals() {
             var url = config.DOCUMENT_ROOT + 'api/v1.1/partnerships/' + data.id + '/update_need/';
             var need = JSON.stringify({'need_text': need_text});
             ajaxRequest(url, need, function (data) {
+                showPopup('Нужда сохранена.');
 
             }, 'PUT', true, {
                 'Content-Type': 'application/json'
