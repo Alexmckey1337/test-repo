@@ -59,6 +59,14 @@ function getCurrentUserSetting(data) {
 
 }
 
+function reversOrder(order) {
+    if (order.charAt(0) == '-') {
+        order = order.substring(1)
+    } else {
+        order = '-' + order
+    }
+    return order
+}
 
 var ordering = {};
 var parent_id = null;
@@ -86,6 +94,7 @@ function createUserInfoBySearch(data, search) {
 
     var count = data.count;
     var page = parseInt(search.page) || 1;
+    var ordering = search.ordering || 'last_name';
 
     var results = data.results;
 
@@ -100,7 +109,11 @@ function createUserInfoBySearch(data, search) {
 
     for (k in user_fields) {
         if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
-        thead += '<th data-order="' + user_fields[k]['ordering_title'] + '">' + user_fields[k]['title'] + '</th>'
+        if (ordering.indexOf(user_fields[k]['ordering_title']) != -1) {
+            thead += '<th data-order="' + reversOrder(ordering) + '">' + user_fields[k]['title'] + '</th>'
+        } else {
+            thead += '<th data-order="' + user_fields[k]['ordering_title'] + '">' + user_fields[k]['title'] + '</th>'
+        }
     }
     thead += '</tr></thead>';
 
@@ -242,7 +255,7 @@ function createUserInfoBySearch(data, search) {
 
             ordering = {};
             ordering[data_order] = status;
-            data_order = status ? data_order : '-' + data_order;
+            // data_order = status ? data_order : '-' + data_order;
             var page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
             var data = {
                 'ordering': data_order,

@@ -605,11 +605,21 @@ function getCurrentPartnerSetting(data) {
 
 }
 
+function reversOrder(order) {
+    if (order.charAt(0) == '-') {
+        order = order.substring(1)
+    } else {
+        order = '-' + order
+    }
+    return order
+}
+
 function getPartnersList(param) {
     param = param || {};
 
     var path = config.DOCUMENT_ROOT + 'api/v1.1/partnerships/?';
     var search = document.getElementsByName('fullsearch')[0].value;
+    var ordering = param.ordering || 'user__last_name';
     if (search) {
         param['search'] = search;
     }
@@ -631,11 +641,20 @@ function getPartnersList(param) {
         var thead = '<thead><tr>';
         for (k in user_fields) {
             if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
-            thead += '<th data-order="user__' + user_fields[k]['ordering_title'] + '">' + user_fields[k]['title'] + '</th>'
+            if (ordering.indexOf(user_fields[k]['ordering_title']) != -1) {
+                thead += '<th data-order="' + reversOrder(ordering) + '">' + user_fields[k]['title'] + '</th>'
+            } else {
+                thead += '<th data-order="user__' + user_fields[k]['ordering_title'] + '">' + user_fields[k]['title'] + '</th>'
+            }
         }
         for (k in common_fields) {
             if (!common_fields.hasOwnProperty(k) || !common_fields[k].active) continue;
-            thead += '<th data-order="' + common_fields[k]['ordering_title'] + '">' + common_fields[k]['title'] + '</th>'
+            thead += '<th data-order="' + common_fields[k]['ordering_title'] + '">' + common_fields[k]['title'] + '</th>';
+            // if (ordering.indexOf(common_fields[k]['ordering_title']) != -1) {
+            //     thead += '<th data-order="' + reversOrder(ordering) + '">' + common_fields[k]['title'] + '</th>'
+            // } else {
+            //     thead += '<th data-order="' + common_fields[k]['ordering_title'] + '">' + common_fields[k]['title'] + '</th>'
+            // }
         }
         thead += '</tr></thead>';
 
@@ -791,33 +810,23 @@ function getPartnersList(param) {
         });
 
 
-        /*
-         Array.prototype.forEach.call(document.querySelectorAll(".table-wrap   th"), function(el) {
-         el.addEventListener('click', function() {
-
-         //Переписать модуль order
-         var data_order = this.getAttribute('data-order');
-         //  var status = ordering[data_order] = ordering[data_order] ? false : true
-         var status = false;
-         if (ordering[data_order]) {
-         status = false;
-         } else {
-         status = true
-         }
-         ordering = {};
-         ordering[data_order] = status
-         data_order = status ? data_order : '-' + data_order;
-         var page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1
-
-         var data = {
-         'ordering': data_order,
-         'page': page
-         }
-         //Problem
-         getPartnersList(data)
-         });
-         })
-         */
+        Array.prototype.forEach.call(document.querySelectorAll(".table-wrap th"), function (el) {
+            el.addEventListener('click', function () {
+                //Переписать модуль order
+                var data_order = this.getAttribute('data-order');
+                var status = !!ordering[data_order];
+                ordering = {};
+                ordering[data_order] = status;
+                // data_order = status ? data_order : '-' + data_order;
+                var page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
+                var data = {
+                    'ordering': data_order,
+                    'page': page
+                };
+                //Problem
+                getPartnersList(data)
+            });
+        });
         if (config.user_partnerships_info && config.user_partnerships_info.is_responsible) {
             document.getElementById('add_user_parners').style.display = 'block'
         }
