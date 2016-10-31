@@ -1803,8 +1803,8 @@ table input[type=checkbox],
 	font-size: 1.2em;
 }
 .butt-wrap {
-	/*text-align: center;*/
-	display: none;
+	text-align: center;
+	/*display: none;*/
 	margin-top: 20px;
 }
 .butt-hover {
