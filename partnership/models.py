@@ -53,17 +53,26 @@ class Partnership(models.Model):
 
     @property
     def done_deals_count(self):
-        count = self.deals.filter(done=True).count()
+        if self.is_responsible:
+            count = Deal.objects.filter(done=True, partnership__in=self.disciples.all()).count()
+        else:
+            count = self.deals.filter(done=True).count()
         return count
 
     @property
     def undone_deals_count(self):
-        count = self.deals.filter(done=False, expired=False).count()
+        if self.is_responsible:
+            count = Deal.objects.filter(done=False, expired=False, partnership__in=self.disciples.all()).count()
+        else:
+            count = self.deals.filter(done=False, expired=False).count()
         return count
 
     @property
     def expired_deals_count(self):
-        count = self.deals.filter(expired=True).count()
+        if self.is_responsible:
+            count = Deal.objects.filter(expired=True, partnership__in=self.disciples.all()).count()
+        else:
+            count = self.deals.filter(expired=True).count()
         return count
 
     @property
