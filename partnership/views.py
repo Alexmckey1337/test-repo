@@ -74,15 +74,14 @@ class NewPartnershipViewSet(mixins.RetrieveModelMixin,
                             mixins.UpdateModelMixin,
                             mixins.ListModelMixin,
                             viewsets.GenericViewSet):
-    # TODO result_value is incorrect if partnership.is_responsible=True
-    queryset = Partnership.objects. \
-        select_related('user', 'user__hierarchy', 'user__department', 'user__master', 'responsible__user'). \
-        prefetch_related('deals', 'responsible__deals', 'user__divisions', 'disciples', 'disciples__deals'). \
-        annotate(count=Count('deals'),
-                 # result_value=Case(When(is_responsible=True,
-                 #                        then=Sum('disciples__deals__value')),
-                 #                   default=Sum('deals__value'))
-                 ).order_by('user__last_name', 'user__first_name', 'user__middle_name')
+    queryset = Partnership.objects \
+        .select_related('user', 'user__hierarchy', 'user__department', 'user__master', 'responsible__user') \
+        .prefetch_related('deals', 'responsible__deals', 'user__divisions', 'disciples', 'disciples__deals') \
+        .annotate(count=Count('deals'),
+                  # result_value=Case(When(is_responsible=True,
+                  #                        then=Sum('disciples__deals__value')),
+                  #                   default=Sum('deals__value'))
+                  ).order_by('user__last_name', 'user__first_name', 'user__middle_name')
     serializer_class = NewPartnershipSerializer
     pagination_class = PartnershipPagination
     filter_backends = (filters.DjangoFilterBackend,
@@ -102,6 +101,19 @@ class NewPartnershipViewSet(mixins.RetrieveModelMixin,
                        'user__department__title', 'user__facebook',
                        'user__vkontakte', 'value', 'responsible__user__last_name')
     permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        user = self.request.user
+        if Partnership.objects.get(user=user).level < Partnership.MANAGER:
+            return self.queryset
+        return Partnership.objects.filter(responsible__user=user) \
+            .select_related('user', 'user__hierarchy', 'user__department', 'user__master', 'responsible__user') \
+            .prefetch_related('deals', 'responsible__deals', 'user__divisions', 'disciples', 'disciples__deals') \
+            .annotate(count=Count('deals'),
+                      # result_value=Case(When(is_responsible=True,
+                      #                        then=Sum('disciples__deals__value')),
+                      #                   default=Sum('deals__value'))
+                      ).order_by('user__last_name', 'user__first_name', 'user__middle_name')
 
     @list_route()
     def simple(self, request):
@@ -132,7 +144,7 @@ class DateFilter(filters.FilterSet):
 
 
 class DealViewSet(viewsets.ModelViewSet):
-    queryset = Deal.objects.select_related('partnership').all()
+    queryset = Deal.objects.select_related('partnership')
     serializer_class = DealSerializer
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
@@ -142,6 +154,14 @@ class DealViewSet(viewsets.ModelViewSet):
                      'partnership__user__middle_name',)
     # pagination_class = SaganPagination
     permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        user = self.request.user
+        if Partnership.objects.get(user=user).level < Partnership.MANAGER:
+            return self.queryset
+        return Deal.objects.select_related(
+            'partnership', 'partnership__responsible__user') \
+            .filter(partnership__responsible__user=user)
 
 
 @api_view(['POST'])
