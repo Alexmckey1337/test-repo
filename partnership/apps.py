@@ -8,4 +8,4 @@ class PartnershipConfig(AppConfig):
     name = 'partnership'
 
     def ready(self):
-        pass
+        from . import receivers  # noqa
