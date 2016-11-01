@@ -19,6 +19,17 @@ class Partnership(models.Model):
     need_text = models.CharField(_('Need text'), max_length=300, blank=True)
     is_responsible = models.BooleanField(default=False)
 
+    is_active = models.BooleanField(_('Is active?'), default=True)
+
+    DIRECTOR, SUPERVISOR, MANAGER, PARTNER = 0, 1, 2, 3
+    LEVELS = (
+        (DIRECTOR, _('Director')),
+        (SUPERVISOR, _('Supervisor')),
+        (MANAGER, _('Manager')),
+        (PARTNER, _('Partner')),
+    )
+    level = models.PositiveSmallIntegerField(_('Level'), choices=LEVELS, default=PARTNER)
+
     def __str__(self):
         return self.fullname
 
