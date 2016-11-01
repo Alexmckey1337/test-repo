@@ -100,7 +100,7 @@ class NewPartnershipViewSet(mixins.RetrieveModelMixin,
                        'user__address', 'user__skype', 'user__phone_number',
                        'user__email', 'user__hierarchy__level',
                        'user__department__title', 'user__facebook',
-                       'user__vkontakte',)
+                       'user__vkontakte', 'value', 'responsible__user__last_name')
     permission_classes = (IsAuthenticated,)
 
     @list_route()

@@ -650,12 +650,12 @@ function getPartnersList(param) {
         }
         for (k in common_fields) {
             if (!common_fields.hasOwnProperty(k) || !common_fields[k].active) continue;
-            thead += '<th data-order="' + common_fields[k]['ordering_title'] + '">' + common_fields[k]['title'] + '</th>';
-            // if (ordering.indexOf(common_fields[k]['ordering_title']) != -1) {
-            //     thead += '<th data-order="' + reversOrder(ordering) + '">' + common_fields[k]['title'] + '</th>'
-            // } else {
-            //     thead += '<th data-order="' + common_fields[k]['ordering_title'] + '">' + common_fields[k]['title'] + '</th>'
-            // }
+            // thead += '<th data-order="' + common_fields[k]['ordering_title'] + '">' + common_fields[k]['title'] + '</th>';
+            if (ordering.indexOf(common_fields[k]['ordering_title']) != -1) {
+                thead += '<th data-order="' + reversOrder(ordering) + '">' + common_fields[k]['title'] + '</th>'
+            } else {
+                thead += '<th data-order="' + common_fields[k]['ordering_title'] + '">' + common_fields[k]['title'] + '</th>'
+            }
         }
         thead += '</tr></thead>';
 
