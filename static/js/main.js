@@ -2,8 +2,8 @@
 
 var config = {
     // 'DOCUMENT_ROOT':'http://5.101.119.32:8008/',
-    // 'DOCUMENT_ROOT': 'http://vocrm.org/',
-    'DOCUMENT_ROOT': 'http://crm.local:8000/',
+    'DOCUMENT_ROOT': 'http://vocrm.org/',
+    // 'DOCUMENT_ROOT': 'http://crm.local:8000/',
     'pagination_count': 30, //Количество записей при пагинации
     'pagination_patrnership_count': 30, //Количество записей при пагинации for patrnership
 
