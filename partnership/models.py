@@ -17,7 +17,6 @@ class Partnership(models.Model):
     value = models.IntegerField()
     date = models.DateField(default=date.today)
     need_text = models.CharField(_('Need text'), max_length=300, blank=True)
-    is_responsible = models.BooleanField(default=False)
 
     is_active = models.BooleanField(_('Is active?'), default=True)
 
@@ -32,6 +31,10 @@ class Partnership(models.Model):
 
     def __str__(self):
         return self.fullname
+
+    @property
+    def is_responsible(self):
+        return self.level <= Partnership.MANAGER
 
     @property
     def fullname(self):

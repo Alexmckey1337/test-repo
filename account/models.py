@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from event.models import EventAnket
 from navigation.models import Table
+from partnership.models import Partnership
 from tv_crm.models import LastCall
 
 COMMON = ['Имя', 'Фамилия', 'Отчество', 'Email', 'Телефон', 'Дата рождения', 'Иерархия', 'Отдел',
@@ -295,7 +296,7 @@ class CustomUser(User):
         l = OrderedDict()
         try:
             p = self.partnership
-            if p and p.is_responsible:
+            if p and p.level <= Partnership.MANAGER:
                 l['is_responsible'] = True
                 l['responsible'] = self.partnership.id
             else:
@@ -304,7 +305,7 @@ class CustomUser(User):
         except Exception:
             l['is_responsible'] = False
             l['responsible'] = ''
-        # if self.partnership and self.partnership.is_responsible:
+        # if self.partnership and self.partnership.level <= Partnership.MANAGER:
         #    l['is_responsible'] = True
         #    l['responsible'] = self.partnership.id
         return l

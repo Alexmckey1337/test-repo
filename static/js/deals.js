@@ -489,6 +489,11 @@ function updateDeals(deal, value) {
         document.getElementById('popup').style.display = '';
     }, 'POST', true, {
         'Content-Type': 'application/json'
+    }, {
+        403: function (data) {
+            data = data.responseJSON;
+            showPopup(data.message);
+        }
     });
 
 }

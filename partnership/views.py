@@ -9,6 +9,7 @@ from django.utils import six
 from django.utils.dateparse import parse_date
 from rest_framework import filters
 from rest_framework import mixins
+from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import api_view, list_route, detail_route
 from rest_framework.generics import get_object_or_404
@@ -54,7 +55,7 @@ class PartnershipViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
                        filters.OrderingFilter,)
-    filter_fields = ('user', 'responsible__user', 'is_responsible',)
+    filter_fields = ('user', 'responsible__user',)
     search_fields = ('user__first_name', 'user__last_name', 'user__middle_name',
                      'user__country', 'user__region', 'user__city', 'user__district',
                      'user__address', 'user__skype', 'user__phone_number', 'user__hierarchy__title',
@@ -78,16 +79,13 @@ class NewPartnershipViewSet(mixins.RetrieveModelMixin,
         .select_related('user', 'user__hierarchy', 'user__department', 'user__master', 'responsible__user') \
         .prefetch_related('deals', 'responsible__deals', 'user__divisions', 'disciples', 'disciples__deals') \
         .annotate(count=Count('deals'),
-                  # result_value=Case(When(is_responsible=True,
-                  #                        then=Sum('disciples__deals__value')),
-                  #                   default=Sum('deals__value'))
                   ).order_by('user__last_name', 'user__first_name', 'user__middle_name')
     serializer_class = NewPartnershipSerializer
     pagination_class = PartnershipPagination
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
                        filters.OrderingFilter,)
-    filter_fields = ('user', 'responsible__user', 'is_responsible',)
+    filter_fields = ('user', 'responsible__user',)
     search_fields = ('user__first_name', 'user__last_name', 'user__middle_name',
                      'user__country', 'user__region', 'user__city', 'user__district',
                      'user__address', 'user__skype', 'user__phone_number', 'user__hierarchy__title',
@@ -110,14 +108,12 @@ class NewPartnershipViewSet(mixins.RetrieveModelMixin,
             .select_related('user', 'user__hierarchy', 'user__department', 'user__master', 'responsible__user') \
             .prefetch_related('deals', 'responsible__deals', 'user__divisions', 'disciples', 'disciples__deals') \
             .annotate(count=Count('deals'),
-                      # result_value=Case(When(is_responsible=True,
-                      #                        then=Sum('disciples__deals__value')),
-                      #                   default=Sum('deals__value'))
                       ).order_by('user__last_name', 'user__first_name', 'user__middle_name')
 
     @list_route()
     def simple(self, request):
-        partnerships = Partnership.objects.select_related('user').filter(is_responsible=True).values_list(
+        partnerships = Partnership.objects.select_related('user').filter(
+            level__lte=Partnership.MANAGER).values_list(
             'id', 'user__last_name', 'user__first_name', 'user__middle_name')
         partnerships = [{'id': p[0], 'fullname': '{} {} {}'.format(*p[1:])} for p in partnerships]
         return Response(partnerships)
@@ -276,6 +272,13 @@ def update_deal(request):
     '''POST: (id, date value description)'''
     response_dict = dict()
     if request.method == 'POST':
+        user = request.user
+        if user.partnership.level > Partnership.SUPERVISOR:
+            data = {
+                'message': 'У вас не достаточно прав для изменения сделки',
+                'status': False
+            }
+            return Response(data, status=status.HTTP_403_FORBIDDEN)
         data = request.data
         try:
             object = Deal.objects.get(id=data['id'])
