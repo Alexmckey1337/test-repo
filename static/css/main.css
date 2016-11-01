@@ -2934,6 +2934,11 @@ span.change[style*="display: none"] ~ span.y{
 .summit_wrapper .rows textarea {
 	padding: 5px 15px;
 	font-size: 16px;
+	margin: 10px 0;
+}
+
+.summit_wrapper .rows.note-box button, .a-sdelki button#send_need {
+	padding: 12px 20px 12px 20px;
 }
 .anketa .rows .col:nth-child(1) {
 	float: none;
