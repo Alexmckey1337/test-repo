@@ -7,10 +7,10 @@ $(document).ready(function() {
 
          if(   this.innerHTML =='Свернуть таблицу'  ){
               this.innerHTML = 'Полная таблица'
-             getWeekShortReports('/api/v1.0/week_reports/', 'report_week');
+             getWeekShortReports('api/v1.0/week_reports/', 'report_week');
          }else{
               this.innerHTML = 'Свернуть таблицу'
-             getWeekReports('/api/v1.0/week_reports/', 'report_week');
+             getWeekReports('api/v1.0/week_reports/', 'report_week');
          }
 
       })
@@ -19,7 +19,7 @@ $(document).ready(function() {
 
 function init_report(){
 	window.my_id = config.user_id; // for test my_id =2 
-    getWeekReports('/api/v1.0/week_reports/', 'report_week', function () {
+    getWeekReports('api/v1.0/week_reports/', 'report_week', function () {
         getReports('api/v1.0/month_reports/', 'report_mounth', function () {
             getReports('api/v1.0/year_reports/', 'report_year', function () {
         		document.querySelector("#tab_plugin li").click();

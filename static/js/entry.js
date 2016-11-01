@@ -86,10 +86,10 @@ function sendPassToEmail(){
 
         var data = {
             'email' : document.getElementById('send_letter').value
-        }
+        };
 
             var json = JSON.stringify(data);
-    ajaxRequest(config.DOCUMENT_ROOT + '/api/v1.0/password_forgot/', json, function (JSONobj) {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/password_forgot/', json, function (JSONobj) {
             showPopup(JSONobj.message);
             if (JSONobj.status == true) {
                 //showPopup(JSONobj.message);

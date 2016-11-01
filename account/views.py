@@ -1,7 +1,9 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import binascii
 import hashlib
+import os
 import random
 
 from django.contrib.auth import authenticate, login, logout
@@ -35,6 +37,10 @@ from summit.models import SummitType, SummitLesson, SummitAnketNote
 from tv_crm.views import sync_unique_user_call
 from .resources import clean_password, clean_old_password
 from .serializers import UserSerializer, UserShortSerializer, NewUserSerializer
+
+
+def generate_key():
+    return binascii.hexlify(os.urandom(20)).decode()
 
 
 class UserPagination(PageNumberPagination):
@@ -744,12 +750,11 @@ def password_forgot(request):
     if len(email) > 0:
         try:
             user = User.objects.get(email=email)
-            salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
-            user.activation_key = hashlib.sha1(salt + user.email).hexdigest()
+            user.activation_key = generate_key()
             user.save()
             plaintext = get_template('email/password_reset.txt')
             htmly = get_template('email/password_reset.html')
-            d = Context({'user': user, 'site_url': SITE_DOMAIN_URL})
+            d = Context({'user': user, 'site_url': SITE_DOMAIN_URL[:-1]})
             subject, from_email, to = 'Восстановление пароля', DEFAULT_FROM_EMAIL, user.email
             text_content = plaintext.render(d)
             html_content = htmly.render(d)
