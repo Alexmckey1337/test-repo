@@ -156,7 +156,7 @@ function getUserDeals() {
 
         data = data.results[0];
 
-        document.getElementById('id_need_text').value = data.need_text;
+            document.getElementById('parntership_info').style.display = 'block';
 
         if (!data) {
             document.getElementsByClassName('tab-status')[0].innerHTML = 'На данном пользователе нету сделок';
@@ -164,6 +164,8 @@ function getUserDeals() {
             document.getElementById('parntership_info').style.display = 'none';
             return;
         }
+
+            document.getElementById('id_need_text').value = data.need_text;
         var deal_fields = data.deal_fields;
         var responsible = data.responsible;
 
@@ -175,8 +177,6 @@ function getUserDeals() {
         document.getElementById('responsible').innerHTML = responsible;
         document.getElementById('partner_val').innerHTML = data.value;
         document.getElementById('coming_date_').innerHTML = data.date;
-
-        document.getElementById('parntership_info').style.display = 'block';
 
 
         if (!deal_fields || deal_fields.length == 0) {
@@ -255,7 +255,14 @@ function getUserDeals() {
         document.querySelector("#tabs1 li").click()
 
 
-    })
+        }, 'GET', true, {'Content-Type': 'application/json'},
+        {
+            403: function (data) {
+                document.getElementsByClassName('tab-status')[0].innerHTML = 'На данном пользователе нету сделок';
+                document.getElementsByClassName('a-sdelki')[0].style.display = 'none';
+                document.getElementById('parntership_info').style.display = 'none';
+            }
+        })
 }
 
 function deleteUser(id) {

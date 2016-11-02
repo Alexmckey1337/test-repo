@@ -2,9 +2,7 @@
 from __future__ import unicode_literals
 
 import binascii
-import hashlib
 import os
-import random
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth import update_session_auth_hash
@@ -475,8 +473,7 @@ def add_user(data, files, request):
             username = email = data['email']
         else:
             email = ''
-            salt = hashlib.sha1(str(random.random())).hexdigest()[:8]
-            username = 'user_' + hashlib.sha1(salt).hexdigest()
+            username = 'user_' + generate_key()
         user = User.objects.create(username=username,
                                    email=email,
                                    first_name=data['first_name'],
@@ -584,8 +581,7 @@ def send_password_func(user_id):
     response_dict = dict()
     user = User.objects.filter(id=user_id).first()
     if user:
-        salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
-        password = hashlib.sha1(salt + user.email).hexdigest()[:12]
+        password = generate_key()[:12]
         user.set_password(password)
         user.save()
         plaintext = get_template('email/register_email.txt')
@@ -692,8 +688,8 @@ def create_user(request):
                 response_dict['special_message'] = 'Партнерство успешно изменено'
         else:
             response_dict = add_user(data, files, request)
-            if data['send_password']:
-                send_password_func(response_dict['id'])
+            # if data['send_password']:
+            #     send_password_func(response_dict['id'])
             if 'responsible' in data.keys():
                 create_or_update_partnership(data, str(response_dict['id']))
                 response_dict['special_message'] = 'Партнерство успешно создано'

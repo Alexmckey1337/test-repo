@@ -637,42 +637,35 @@ function getPatrnershipInfo() {
     if (!id) {
         return
     }
-    var url = config.DOCUMENT_ROOT + 'api/v1.0/partnerships/?user=' + id;
+    var url = config.DOCUMENT_ROOT + 'api/v1.1/partnerships/for_edit/?user=' + id;
 
     ajaxRequest(url, null, function (data) {
 
-        var count = data.count;
-        if (count) {
+        document.getElementById('create_partner').style.display = 'none';
+        document.getElementById('partner_wrap').style.display = 'block';
 
-            document.getElementById('create_partner').style.display = 'none';
-            document.getElementById('partner_wrap').style.display = 'block';
+        data_for_drop['responsible_id'] = data.responsible_id;
 
-            data = data.results[0];
-
-            data_for_drop['responsible_id'] = data.fields['responsible_id'].value;
-
-            var date = data.date;
-            var val = data.value || 0;
-            $('#partner').attr('checked', true);
-            $('#partner').parent('li').hide();
-            $('#partner').closest('#partner_wrap').find('.left-info').find('li:first-child').hide();
-            if (date) {
-                $("#partner_date").datepicker('setDate', date).mousedown(function () {
-                    $('#ui-datepicker-div').toggle();
-                })
-            }
-            document.getElementById('val_partnerships').value = val;
-            //  document.getElementById('partner_name').innerHTML = data.responsible 
-
-
-        } else {
-            document.getElementById('create_partner').style.display = 'block'
+        var date = data.date;
+        var val = data.value || 0;
+        $('#partner').attr('checked', true);
+        $('#partner').parent('li').hide();
+        $('#partner').closest('#partner_wrap').find('.left-info').find('li:first-child').hide();
+        if (date) {
+            $("#partner_date").datepicker('setDate', date).mousedown(function () {
+                $('#ui-datepicker-div').toggle();
+            })
         }
+        document.getElementById('val_partnerships').value = val;
+        //  document.getElementById('partner_name').innerHTML = data.responsible
 
-
-        // console.log(data)
 
         getManagerList(data_for_drop['responsible_id'])
+    }, 'GET', true, null, {
+        404: function () {
+            document.getElementById('create_partner').style.display = 'block'
+            getManagerList(data_for_drop['responsible_id'])
+        }
     })
 }
 

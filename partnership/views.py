@@ -17,11 +17,12 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from account.models import CustomUser as User
+from account.models import CustomUser as User, CustomUser
 from navigation.models import user_table, user_partner_table
+from partnership.permissions import IsManagerOrHigh, IsSupervisorOrHigh
 from .models import Partnership, Deal
 from .serializers import PartnershipSerializer, DealSerializer, NewPartnershipSerializer, \
-    PartnershipUnregisterUserSerializer
+    PartnershipUnregisterUserSerializer, PartnershipForEditSerializer
 
 
 class SaganPagination(PageNumberPagination):
@@ -68,7 +69,16 @@ class PartnershipViewSet(viewsets.ModelViewSet):
                        'user__email', 'user__hierarchy__level',
                        'user__department__title', 'user__facebook',
                        'user__vkontakte',)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsManagerOrHigh,)
+
+    def get_queryset(self):
+        user = self.request.user
+        user_perm = IsSupervisorOrHigh()
+        if not Partnership.objects.filter(user=user).exists():
+            return self.queryset.none()
+        if user_perm.has_permission(self.request, None):
+            return self.queryset
+        return self.queryset.select_related('responsible__user').filter(responsible__user=user)
 
 
 class NewPartnershipViewSet(mixins.RetrieveModelMixin,
@@ -102,13 +112,12 @@ class NewPartnershipViewSet(mixins.RetrieveModelMixin,
 
     def get_queryset(self):
         user = self.request.user
-        if Partnership.objects.get(user=user).level < Partnership.MANAGER:
+        user_perm = IsSupervisorOrHigh()
+        if not Partnership.objects.filter(user=user).exists():
+            return self.queryset.none()
+        if user_perm.has_permission(self.request, None):
             return self.queryset
-        return Partnership.objects.filter(responsible__user=user) \
-            .select_related('user', 'user__hierarchy', 'user__department', 'user__master', 'responsible__user') \
-            .prefetch_related('deals', 'responsible__deals', 'user__divisions', 'disciples', 'disciples__deals') \
-            .annotate(count=Count('deals'),
-                      ).order_by('user__last_name', 'user__first_name', 'user__middle_name')
+        return self.queryset.select_related('responsible__user').filter(responsible__user=user)
 
     @list_route()
     def simple(self, request):
@@ -117,6 +126,15 @@ class NewPartnershipViewSet(mixins.RetrieveModelMixin,
             'id', 'user__last_name', 'user__first_name', 'user__middle_name')
         partnerships = [{'id': p[0], 'fullname': '{} {} {}'.format(*p[1:])} for p in partnerships]
         return Response(partnerships)
+
+    @list_route()
+    def for_edit(self, request):
+        user_id = request.query_params.get('user')
+        user = get_object_or_404(CustomUser, pk=user_id)
+        partnership = get_object_or_404(Partnership, user=user)
+
+        data = PartnershipForEditSerializer(partnership).data
+        return Response(data)
 
     @detail_route(methods=['put'])
     def update_need(self, request, pk=None):
