@@ -5,7 +5,7 @@ from partnership.models import Partnership
 
 class IsPartnership(IsAuthenticated):
     def has_permission(self, request, view):
-        if not super().has_permission(request, view):
+        if not super(IsPartnership).has_permission(request, view):
             return False
         if not Partnership.objects.filter(user=request.user).exists():
             return False
@@ -15,7 +15,7 @@ class IsPartnership(IsAuthenticated):
 class IsManagerOrHigh(IsPartnership):
     def has_permission(self, request, view):
         return (
-            super().has_permission(request, view) and
+            super(IsManagerOrHigh, self).has_permission(request, view) and
             request.user.partnership.level < Partnership.PARTNER
         )
 
@@ -23,6 +23,6 @@ class IsManagerOrHigh(IsPartnership):
 class IsSupervisorOrHigh(IsPartnership):
     def has_permission(self, request, view):
         return (
-            super().has_permission(request, view) and
+            super(IsSupervisorOrHigh, self).has_permission(request, view) and
             request.user.partnership.level < Partnership.MANAGER
         )
