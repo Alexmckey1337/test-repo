@@ -277,7 +277,7 @@ $(function () {
                 window.summit_id = dat['summit'];
                 getUsersList(path, dat);
                 getCurrentSetting();
-            }, 50);
+            }, 250);
         }
 
 
