@@ -5,7 +5,7 @@ from partnership.models import Partnership
 
 class IsPartnership(IsAuthenticated):
     def has_permission(self, request, view):
-        if not super(IsPartnership).has_permission(request, view):
+        if not super(IsPartnership, self).has_permission(request, view):
             return False
         if not Partnership.objects.filter(user=request.user).exists():
             return False
