@@ -356,14 +356,14 @@ function getUserSummitInfo() {
                     '</div></div>';
 
                 // NOTES
-                body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 0;"><p>Примечания</p></div></div>';
+                body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 15px;"><p>Примечания</p></div></div>';
                 summit.notes.forEach(function (note) {
                     body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>' + note.text + ' — ' + note.date_created
                         + ' — Author: ' + note.owner_name
                         + '</p></div></div>';
                 });
 
-                body_summit += '<div class="rows note-box" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 0;">' +
+                body_summit += '<div class="rows note-box" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 15px;">' +
                     '<p>Написать примечание</p><p><textarea name="add_note" data-anket-id="' + summit.anket_id + '" class="js-add_note" cols="30" rows="10"></textarea></p>' +
                     '<p><button id="send_note">Отправить примечание</button></p></div></div>';
 
