@@ -180,6 +180,14 @@ class NewUserViewSet(viewsets.ModelViewSet):
                      'country', 'region', 'city', 'district', 'address',
                      'skype', 'phone_number', 'hierarchy__level', 'master', 'master__last_name',)
 
+    def get_queryset(self):
+        user = self.request.user
+        if not user.hierarchy:
+            return self.queryset.none()
+        # if user.is_staff:
+        #     return self.queryset
+        return self.queryset.filter(hierarchy__level__lt=user.hierarchy.level)
+
     def dispatch(self, request, *args, **kwargs):
         if kwargs.get('pk') == 'current' and request.user.is_authenticated():
             kwargs['pk'] = request.user.pk
