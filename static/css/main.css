@@ -966,6 +966,10 @@ li.current a {
 .rows .col:first-child p {
 	padding-left: 0;
 }
+
+.summit_wrapper .rows .col:first-child p {
+	padding-left: 15px;
+}
 .rows .col:last-child {
 	float: right;
 	position: relative;
@@ -2798,6 +2802,10 @@ span.change[style*="display: none"] ~ span.y{
 .user-fio {
 	overflow: hidden;
 }
+
+.user-fio h3#fullname {
+	font-family: "UbuntuMedium", sans-serif;
+}
 .anketa h3 {
 	font-size: 1.6em;
 }
@@ -2928,7 +2936,7 @@ span.change[style*="display: none"] ~ span.y{
 	border-radius: 0 !important;
 	margin-right: 0;
 	margin-left: 0;
-	padding-left: 15px;
+	/*padding-left: 15px;*/
 }
 
 .summit_wrapper .rows textarea {
