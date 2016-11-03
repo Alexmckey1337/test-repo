@@ -31,9 +31,11 @@ class HierarchyTitleSerializer(serializers.ModelSerializer):
 
 
 class MasterNameSerializer(serializers.ModelSerializer):
+    hierarchy = HierarchyTitleSerializer()
+
     class Meta:
         model = User
-        fields = ('id', 'fullname')
+        fields = ('id', 'fullname', 'hierarchy')
 
 
 class DivisionSerializer(serializers.ModelSerializer):
@@ -52,20 +54,8 @@ class NewUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'email', 'fullname', 'department', 'master', 'phone_number', 'hierarchy',
                   'divisions', 'country', 'born_date', 'region', 'city', 'district', 'address',
-                  'facebook', 'vkontakte', 'odnoklassniki', 'skype')
+                  'facebook', 'vkontakte', 'odnoklassniki', 'skype', 'image', 'image_source')
         required_fields = ('id', 'link',)
-
-    def get_field_names(self, declared_fields, info):
-        # fields = getattr(self.Meta, 'fields', None)
-        if self.context.get('request', None):
-            user = self.context['request'].user
-            columns = user.table.columns.filter(
-                columnType__category__title="Общая информация",
-                active=True).order_by('number').values_list('columnType__title', flat=True)
-            if 'social' in columns:
-                columns = list(columns) + ['facebook', 'vkontakte', 'odnoklassniki', 'skype']
-            return list(self.Meta.required_fields) + [i for i in columns if i != 'social']
-        return getattr(self.Meta, 'fields', None)
 
     def update(self, instance, validated_data):
         department = validated_data.pop('department')
@@ -77,6 +67,20 @@ class NewUserSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class UserTableSerializer(NewUserSerializer):
+    def get_field_names(self, declared_fields, info):
+        # fields = getattr(self.Meta, 'fields', None)
+        if self.context.get('request', None):
+            user = self.context['request'].user
+            columns = user.table.columns.filter(
+                columnType__category__title="Общая информация",
+                active=True).order_by('number').values_list('columnType__title', flat=True)
+            if 'social' in columns:
+                columns = list(columns) + ['facebook', 'vkontakte', 'odnoklassniki', 'skype', 'image', 'image_source']
+            return list(self.Meta.required_fields) + [i for i in columns if i != 'social']
+        return getattr(self.Meta, 'fields', None)
 
 
 class UserShortSerializer(serializers.HyperlinkedModelSerializer):
