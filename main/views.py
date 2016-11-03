@@ -2,8 +2,9 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from tv_crm.views import sync_user_call
 
@@ -33,6 +34,10 @@ def account(request, id):
 
 @login_required(login_url='entry')
 def account_edit(request, user_id):
+    if not request.user.is_staff:
+        if user_id:
+            return redirect(reverse('account', args=[user_id]))
+        return redirect('/')
     return render(request, 'edit.html')
 
 
