@@ -156,8 +156,8 @@ class Partnership(models.Model):
 class Deal(models.Model):
     date = models.DateField(null=True, blank=True)
     date_created = models.DateField(null=True, blank=True, auto_now_add=True)
-    value = models.IntegerField()
-    partnership = models.ForeignKey('partnership.Partnership', related_name="deals", unique_for_month='date_created')
+    value = models.IntegerField(default=0)
+    partnership = models.ForeignKey('partnership.Partnership', related_name="deals")
     description = models.TextField(blank=True)
     done = models.BooleanField(default=False)
     expired = models.BooleanField(default=False)
@@ -170,7 +170,9 @@ class Deal(models.Model):
 
     @property
     def month(self):
-        return '{}.{}'.format(self.date_created.year, self.date_created.month)
+        if self.date_created:
+            return '{}.{}'.format(self.date_created.year, self.date_created.month)
+        return ''
 
     @property
     def fields(self):

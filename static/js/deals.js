@@ -79,13 +79,14 @@ $(document).ready(function () {
 
     document.getElementById('complete').addEventListener('click', function () {
         var attr = this.getAttribute('data-id'),
-            value = document.getElementById('deal-value').value;
+            value = document.getElementById('deal-value').value,
+            description = document.getElementById('deal-description').value;
         var reg = /^\d{1,5} ?₴?$/gi;
         if (!reg.test(value)) {
             showPopup('Введите правильное значение суммы');
             return;
         }
-        updateDeals(attr, parseInt(value));
+        updateDeals(attr, parseInt(value), description);
         document.getElementById('deal-value').setAttribute('readonly', 'readonly');
     });
 
@@ -477,22 +478,22 @@ function init() {
     getUndoneDeals(json);
 }
 
-function updateDeals(deal, value) {
+function updateDeals(deal, value, description) {
     var data = {
-        "id": deal,
         "done": true,
-        "value": value
+        "value": value,
+        "description": description
     };
     var json = JSON.stringify(data);
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/update_deal/', json, function () {
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/deals/' + deal + '/', json, function () {
         init();
         document.getElementById('popup').style.display = '';
-    }, 'POST', true, {
+    }, 'PATCH', true, {
         'Content-Type': 'application/json'
     }, {
         403: function (data) {
             data = data.responseJSON;
-            showPopup(data.message);
+            showPopup(data.detail);
         }
     });
 

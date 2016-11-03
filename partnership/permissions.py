@@ -1,4 +1,4 @@
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 
 from partnership.models import Partnership
 
@@ -25,4 +25,20 @@ class IsSupervisorOrHigh(IsPartnership):
         return (
             super(IsSupervisorOrHigh, self).has_permission(request, view) and
             request.user.partnership.level < Partnership.MANAGER
+        )
+
+
+class IsManagerReadOnly(IsPartnership):
+    def has_permission(self, request, view):
+        return (
+            super(IsManagerReadOnly, self).has_permission(request, view) and
+            request.user.partnership.level < Partnership.PARTNER and request.method in SAFE_METHODS
+        )
+
+
+class IsSupervisorOrManagerReadOnly(IsManagerReadOnly):
+    def has_permission(self, request, view):
+        return (
+            super(IsSupervisorOrManagerReadOnly, self).has_permission(request, view) or
+            IsSupervisorOrHigh().has_permission(request, view)
         )

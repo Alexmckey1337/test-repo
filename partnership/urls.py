@@ -19,9 +19,6 @@ custom_urls = [
     url(r'^create_partnership/$', views.create_partnership),
     url(r'^update_partnership/$', views.update_partnership),
     url(r'^delete_partnership/$', views.delete_partnership),
-    url(r'^create_deal/$', views.create_deal),
-    url(r'^update_deal/$', views.update_deal),
-    url(r'^delete_deal/$', views.delete_deal),
 ]
 
 urlpatterns = [
