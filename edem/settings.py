@@ -136,7 +136,7 @@ LANGUAGE_CODE = 'ru-RU'
 USE_I18N = True
 SITE_ID = 1
 TIME_ZONE = 'Europe/Kiev'
-USE_L10N = True
+USE_L10N = False
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
@@ -156,6 +156,10 @@ AUTHENTICATION_BACKENDS = (
 )
 
 CUSTOM_USER_MODEL = 'account.CustomUser'
+DATE_FORMAT = 'd.m.Y'
+DATETIME_FORMAT = 'd.m.Y H:i:s'
+TIME_FORMAT = 'H:i:s'
+SHORT_DATE_FORMAT = 'd.m.Y'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -168,6 +172,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 30,
+    'DATE_FORMAT': '%d.%m.%Y',
     #    'DEFAULT_RENDERER_CLASSES': (
     #        'rest_framework.renderers.JSONRenderer',
     #    )
