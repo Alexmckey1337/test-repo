@@ -369,7 +369,7 @@ function getUserSummitInfo() {
 
                 // LESSONS
                 if (summit.lessons.length) {
-                    body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 0;"><p>Уроки</p></div></div>';
+                    body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 15px;"><p>Уроки</p></div></div>';
                 }
                 summit.lessons.forEach(function (lesson) {
                     body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>';
