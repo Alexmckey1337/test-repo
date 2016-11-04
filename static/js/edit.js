@@ -646,7 +646,8 @@ function getPatrnershipInfo() {
 
         data_for_drop['responsible_id'] = data.responsible_id;
 
-        var date = data.date;
+        var date = data.date.split('.');
+        date = date[2] + '-' + date[1] + '-' +date[0];
         var val = data.value || 0;
         $('#partner').attr('checked', true);
         $('#partner').parent('li').hide();
