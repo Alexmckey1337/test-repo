@@ -4,12 +4,10 @@ from __future__ import unicode_literals
 from datetime import datetime
 
 import django_filters
-from django.db.models import Count
+from django.db.models import Count, Sum
 from django.utils import six
-from django.utils.dateparse import parse_date
 from rest_framework import filters
 from rest_framework import mixins
-from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import api_view, list_route, detail_route
 from rest_framework.generics import get_object_or_404
@@ -19,7 +17,7 @@ from rest_framework.response import Response
 
 from account.models import CustomUser as User, CustomUser
 from navigation.models import user_table, user_partner_table
-from partnership.permissions import IsManagerOrHigh, IsSupervisorOrHigh
+from partnership.permissions import IsManagerOrHigh, IsSupervisorOrHigh, IsSupervisorOrManagerReadOnly
 from .models import Partnership, Deal
 from .serializers import PartnershipSerializer, DealSerializer, NewPartnershipSerializer, \
     PartnershipUnregisterUserSerializer, PartnershipForEditSerializer
@@ -167,7 +165,7 @@ class DealViewSet(viewsets.ModelViewSet):
     search_fields = ('partnership__user__first_name', 'partnership__user__last_name',
                      'partnership__user__middle_name',)
     # pagination_class = SaganPagination
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsSupervisorOrManagerReadOnly,)
 
     def get_queryset(self):
         user = self.request.user
@@ -176,6 +174,18 @@ class DealViewSet(viewsets.ModelViewSet):
         return Deal.objects.select_related(
             'partnership', 'partnership__responsible__user') \
             .filter(partnership__responsible__user=user)
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+        partnership = serializer.instance.partnership
+        plan_value = partnership.value
+        month = datetime.now().month
+        complete_value = partnership.deals.filter(
+            date_created__month=month).aggregate(values_sum=Sum('value'))['values_sum']
+        diff_value = plan_value - complete_value if complete_value else plan_value
+        if diff_value > 0:
+            Deal.objects.create(value=diff_value, partnership=partnership)
 
 
 @api_view(['POST'])
@@ -252,84 +262,6 @@ def delete_partnership(request):
             response_dict['status'] = True
         except Partnership.DoesNotExist:
             response_dict['message'] = "Такого пользователя не существует."
-            response_dict['status'] = False
-    return Response(response_dict)
-
-
-@api_view(['POST'])
-def create_deal(request):
-    '''POST: (date user description)'''
-    response_dict = dict()
-
-    if request.method == 'POST':
-        data = request.data
-        date_str = data['date']
-        done = data['done']
-        date = parse_date(date_str)
-        partnership = Partnership.objects.get(user__id=data['user'])
-        try:
-            object = Deal.objects.get(date__month=date.month, date__year=date.year, partnership=partnership)
-            response_dict['message'] = "Этот пользователь уже имеет сделку за этот месяц."
-            response_dict['status'] = False
-        except Deal.DoesNotExist:
-            object = Deal.objects.create(date=data['date'],
-                                         value=partnership.value,
-                                         partnership=partnership,
-                                         description=data['description'],
-                                         done=done)
-            if object:
-                serializer = DealSerializer(object, context={'request': request})
-                response_dict['data'] = serializer.data
-                response_dict['message'] = "Сделка успешно добавлена."
-                response_dict['status'] = True
-    return Response(response_dict)
-
-
-@api_view(['POST'])
-def update_deal(request):
-    '''POST: (id, date value description)'''
-    response_dict = dict()
-    if request.method == 'POST':
-        user = request.user
-        if user.partnership.level > Partnership.SUPERVISOR:
-            data = {
-                'message': 'У вас не достаточно прав для изменения сделки',
-                'status': False
-            }
-            return Response(data, status=status.HTTP_403_FORBIDDEN)
-        data = request.data
-        try:
-            object = Deal.objects.get(id=data['id'])
-            for key, value in six.iteritems(data):
-                setattr(object, key, value)
-            if object.done:
-                object.expired = False
-                object.date = datetime.now()
-            object.save()
-
-            serializer = DealSerializer(object, context={'request': request})
-            response_dict['data'] = serializer.data
-            response_dict['message'] = "Сделка успешно изменена."
-            response_dict['status'] = True
-        except Deal.DoesNotExist:
-            response_dict['message'] = "Сделки не существует."
-            response_dict['status'] = False
-    return Response(response_dict)
-
-
-@api_view(['POST'])
-def delete_deal(request):
-    '''POST: (id)'''
-    response_dict = dict()
-    if request.method == 'POST':
-        data = request.data
-        try:
-            object = Deal.objects.get(id=data['id'])
-            object.delete()
-            response_dict['message'] = "Сделка успешно удалена."
-            response_dict['status'] = True
-        except Deal.DoesNotExist:
-            response_dict['message'] = "Такой сделки не существует."
             response_dict['status'] = False
     return Response(response_dict)
 

@@ -28,8 +28,7 @@ $(document).ready(function () {
         var id = $(this).attr('data-id');
         deleteUser(id);
         $('#deletePopup').hide();
-    })
-
+    });
 
 });
 
@@ -151,109 +150,152 @@ function getUserDeals() {
     var url = config.DOCUMENT_ROOT + 'api/v1.0/partnerships/?user=' + id;
 
     ajaxRequest(url, null, function (data) {
-        //console.log(data)
-
-
-        data = data.results[0];
+            data = data.results[0];
 
             document.getElementById('parntership_info').style.display = 'block';
 
-        if (!data) {
-            document.getElementsByClassName('tab-status')[0].innerHTML = 'На данном пользователе нету сделок';
-            document.getElementsByClassName('a-sdelki')[0].style.display = 'none';
-            document.getElementById('parntership_info').style.display = 'none';
-            return;
-        }
-
-            document.getElementById('id_need_text').value = data.need_text;
-        var deal_fields = data.deal_fields;
-        var responsible = data.responsible;
-
-
-        document.getElementById('incomplete-count').innerHTML = parseInt(data.undone_deals_count) || "0";
-        document.getElementById('overdue-count').innerHTML = parseInt(data.expired_deals_count) || "0";
-        document.getElementById('completed-count').innerHTML = parseInt(data.done_deals_count) || "0";
-
-        document.getElementById('responsible').innerHTML = responsible;
-        document.getElementById('partner_val').innerHTML = data.value;
-        document.getElementById('coming_date_').innerHTML = data.date;
-
-
-        if (!deal_fields || deal_fields.length == 0) {
-            // document.getElementById('partner_table').innerHTML = '' //'Нету deal_fields';
-            document.getElementsByClassName('tab-status')[0].innerHTML = 'На данном пользователе нету сделок';
-            document.getElementsByClassName('a-sdelki')[0].style.display = 'none';
-            document.getElementById('parntership_info').style.display = 'none';
-            return ''
-        }
-
-        document.getElementsByClassName('a-sdelki')[0].style.display = 'block';
-
-
-        Array.prototype.forEach.call(document.querySelectorAll("#tabs1 li"), function (el) {
-            el.addEventListener('click', function () {
-                var id_tab = this.getAttribute('data-tab');
-                $('[data-tab-content]').hide();
-                $('[data-tab-content="' + id_tab + '"]').show();
-
-            });
-        });
-
-        $('#send_need').on('click', function (el) {
-            var need_text = document.getElementById('id_need_text').value;
-            var url = config.DOCUMENT_ROOT + 'api/v1.1/partnerships/' + data.id + '/update_need/';
-            var need = JSON.stringify({'need_text': need_text});
-            ajaxRequest(url, need, function (data) {
-                showPopup('Нужда сохранена.');
-
-            }, 'PUT', true, {
-                'Content-Type': 'application/json'
-            })
-        });
-
-
-        var done_deals = '';
-        var expired_deals = '';
-        var undone_deals = '';
-        for (var i = 0; i < deal_fields.length; i++) {
-            //console.log(  deal_fields[i].status )
-
-            switch (deal_fields[i].status.value) {
-                case   'done':
-                    //console.log('done');
-                    done_deals += '<div class="rows"><div class="col">' +
-                        '<p><span>' + deal_fields[i].fullname.value + '</span></p>' +
-                        '</div><div class="col">' +
-                        '<p>Последняя сделка:<span>' + deal_fields[i].date.value + '</span></p>' +
-                        '<p>Сумма<span>' + deal_fields[i].value.value + '₴</span></p></div></div>';
-                    break;
-                case  'expired' :
-                    expired_deals += '<div class="rows"><div class="col">' +
-                        '<p><span>' + deal_fields[i].fullname.value + '</span></p>' +
-                        '</div><div class="col">' +
-                        '<p>Последняя сделка:<span>' + deal_fields[i].date.value + '</span></p>' +
-                        '<p>Сумма<span>' + deal_fields[i].value.value + '₴</span></p></div></div>';
-                    break;
-                case 'undone':
-                    undone_deals += '<div class="rows"><div class="col">' +
-                        '<p><span>' + deal_fields[i].fullname.value + '</span></p>' +
-                        '</div><div class="col">' +
-                        '<p>Последняя сделка:<span>' + deal_fields[i].date.value + '</span></p>' +
-                        '<p>Сумма<span>' + deal_fields[i].value.value + '₴</span></p></div></div>';
-                    break;
-                default :
-                    break;
+            if (!data) {
+                document.getElementsByClassName('tab-status')[0].innerHTML = 'На данном пользователе нету сделок';
+                document.getElementsByClassName('a-sdelki')[0].style.display = 'none';
+                document.getElementById('parntership_info').style.display = 'none';
+                return;
             }
 
+            document.getElementById('id_need_text').value = data.need_text;
+            var deal_fields = data.deal_fields;
+            var responsible = data.responsible;
 
-        }
 
-        document.querySelector('[data-tab-content="3"]').innerHTML = done_deals;
-        document.querySelector('[data-tab-content="2"]').innerHTML = expired_deals;
-        document.querySelector('[data-tab-content="1"]').innerHTML = undone_deals;
+            document.getElementById('incomplete-count').innerHTML = parseInt(data.undone_deals_count) || "0";
+            document.getElementById('overdue-count').innerHTML = parseInt(data.expired_deals_count) || "0";
+            document.getElementById('completed-count').innerHTML = parseInt(data.done_deals_count) || "0";
 
-        document.querySelector("#tabs1 li").click()
+            document.getElementById('responsible').innerHTML = responsible;
+            document.getElementById('partner_val').innerHTML = data.value;
+            document.getElementById('coming_date_').innerHTML = data.date;
 
+
+            if (!deal_fields || deal_fields.length == 0) {
+                // document.getElementById('partner_table').innerHTML = '' //'Нету deal_fields';
+                document.getElementsByClassName('tab-status')[0].innerHTML = 'На данном пользователе нету сделок';
+                document.getElementsByClassName('a-sdelki')[0].style.display = 'none';
+                document.getElementById('parntership_info').style.display = 'none';
+                return ''
+            }
+
+            document.getElementsByClassName('a-sdelki')[0].style.display = 'block';
+
+
+            Array.prototype.forEach.call(document.querySelectorAll("#tabs1 li"), function (el) {
+                el.addEventListener('click', function () {
+                    var id_tab = this.getAttribute('data-tab');
+                    $('[data-tab-content]').hide();
+                    $('[data-tab-content="' + id_tab + '"]').show();
+
+                });
+            });
+
+            $('#send_need').on('click', function (el) {
+                var need_text = document.getElementById('id_need_text').value;
+                var url = config.DOCUMENT_ROOT + 'api/v1.1/partnerships/' + data.id + '/update_need/';
+                var need = JSON.stringify({'need_text': need_text});
+                ajaxRequest(url, need, function (data) {
+                    showPopup('Нужда сохранена.');
+
+                }, 'PUT', true, {
+                    'Content-Type': 'application/json'
+                })
+            });
+
+            $('#send_new_deal').on('click', function (el) {
+                var description = document.getElementById('id_deal_description').value;
+                var value = document.getElementById('id_deal_value').value;
+                var date = document.getElementById('id_deal_date').value;
+
+                if (description && value && date) {
+                    var url = config.DOCUMENT_ROOT + 'api/v1.0/deals/';
+
+                    var deal = JSON.stringify({
+                        'date': date,
+                        'date_created': date,
+                        'value': value,
+                        'description': description,
+                        'done': true,
+                        'partnership': data.id
+                    });
+                    ajaxRequest(url, deal, function (data) {
+                        showPopup('Сделка создана.');
+
+                        document.getElementById('id_deal_description').value = '';
+                        document.getElementById('id_deal_value').value = '';
+                        document.getElementById('id_deal_date').value = '';
+
+                    }, 'POST', true, {
+                        'Content-Type': 'application/json'
+                    }, {
+                        403: function (data) {
+                            data = data.responseJSON;
+                            showPopup(data.detail)
+                        }
+                    })
+                } else {
+                    showPopup('Заполните все поля.');
+                }
+            });
+
+
+            var done_deals = '';
+            var expired_deals = '';
+            var undone_deals = '';
+            for (var i = 0; i < deal_fields.length; i++) {
+                //console.log(  deal_fields[i].status )
+
+                switch (deal_fields[i].status.value) {
+                    case   'done':
+                        //console.log('done');
+                        done_deals += '<div class="rows"><div class="col">' +
+                            '<p><span>' + deal_fields[i].fullname.value + '</span></p>' +
+                            '</div><div class="col">' +
+                            '<p>Последняя сделка:<span>' + deal_fields[i].date.value + '</span></p>' +
+                            '<p>Сумма<span>' + deal_fields[i].value.value + '₴</span></p></div></div>';
+                        break;
+                    case  'expired' :
+                        expired_deals += '<div class="rows"><div class="col">' +
+                            '<p><span>' + deal_fields[i].fullname.value + '</span></p>' +
+                            '</div><div class="col">' +
+                            '<p>Последняя сделка:<span>' + deal_fields[i].date.value + '</span></p>' +
+                            '<p>Сумма<span>' + deal_fields[i].value.value + '₴</span></p></div></div>';
+                        break;
+                    case 'undone':
+                        undone_deals += '<div class="rows"><div class="col">' +
+                            '<p><span>' + deal_fields[i].fullname.value + '</span></p>' +
+                            '</div><div class="col">' +
+                            '<p>Последняя сделка:<span>' + deal_fields[i].date.value + '</span></p>' +
+                            '<p>Сумма<span>' + deal_fields[i].value.value + '₴</span></p></div></div>';
+                        break;
+                    default :
+                        break;
+                }
+
+
+            }
+
+            document.querySelector('[data-tab-content="3"]').innerHTML = done_deals;
+            document.querySelector('[data-tab-content="2"]').innerHTML = expired_deals;
+            document.querySelector('[data-tab-content="1"]').innerHTML = undone_deals;
+
+            document.querySelector("#tabs1 li").click()
+
+            $("#id_deal_date").datepicker({
+                dateFormat: "yy-mm-dd",
+                maxDate: new Date(),
+                yearRange: '2010:+0',
+                onSelect: function (date) {
+
+                }
+            }).mousedown(function () {
+                $('#ui-datepicker-div').toggle();
+            });
 
         }, 'GET', true, {'Content-Type': 'application/json'},
         {
@@ -427,7 +469,6 @@ function getUserSummitInfo() {
             document.getElementsByClassName('a-sammits')[0].style.display = 'none';
             return
         }
-
 
     })
 
