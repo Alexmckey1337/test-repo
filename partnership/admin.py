@@ -21,6 +21,7 @@ class DealAdmin(admin.ModelAdmin):
     list_display = ('partnership', 'date_created', 'date', 'value', 'done',)
     search_fields = ('partnership__user__first_name', 'partnership__user__last_name', 'partnership__user__middle_name')
     readonly_fields = ('date_created',)
+    list_editable = ('done', 'value')
 
     class Meta:
         model = Deal

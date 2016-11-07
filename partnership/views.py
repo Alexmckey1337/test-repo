@@ -1,8 +1,10 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from datetime import datetime
+
 import django_filters
-from django.db.models import Count
+from django.db.models import Count, Sum
 from django.utils import six
 from rest_framework import filters
 from rest_framework import mixins
@@ -172,6 +174,18 @@ class DealViewSet(viewsets.ModelViewSet):
         return Deal.objects.select_related(
             'partnership', 'partnership__responsible__user') \
             .filter(partnership__responsible__user=user)
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+        partnership = serializer.instance.partnership
+        plan_value = partnership.value
+        month = datetime.now().month
+        complete_value = partnership.deals.filter(
+            date_created__month=month).aggregate(values_sum=Sum('value'))['values_sum']
+        diff_value = plan_value - complete_value if complete_value else plan_value
+        if diff_value > 0:
+            Deal.objects.create(value=diff_value, partnership=partnership)
 
 
 @api_view(['POST'])
