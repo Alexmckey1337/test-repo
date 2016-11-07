@@ -575,7 +575,7 @@ h1 a {
 	height: 0;
 }
 .massage-hover .bottom-box li {
-	display: inline-block;
+	display: block; /*inline-block*/
 	margin-bottom: 10px;
 	color: #656d78;
 	font-family: "UbuntuLight", sans-serif;
