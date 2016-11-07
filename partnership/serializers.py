@@ -64,6 +64,8 @@ class NewPartnershipSerializer(serializers.ModelSerializer):
 
 class DealSerializer(serializers.HyperlinkedModelSerializer):
     date = serializers.DateField(format=None, input_formats=None)
+    date_created = serializers.DateField(input_formats=None)
+    partnership = serializers.PrimaryKeyRelatedField(queryset=Partnership.objects.all())
 
     class Meta:
         model = Deal

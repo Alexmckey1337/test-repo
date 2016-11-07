@@ -154,13 +154,14 @@ class Partnership(models.Model):
 
 @python_2_unicode_compatible
 class Deal(models.Model):
-    date = models.DateField(null=True, blank=True)
-    date_created = models.DateField(null=True, blank=True, auto_now_add=True)
     value = models.IntegerField(default=0)
     partnership = models.ForeignKey('partnership.Partnership', related_name="deals")
     description = models.TextField(blank=True)
     done = models.BooleanField(default=False)
     expired = models.BooleanField(default=False)
+
+    date_created = models.DateField(null=True, blank=True, default=date.today)
+    date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ('date_created',)
