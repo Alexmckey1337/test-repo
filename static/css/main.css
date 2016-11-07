@@ -582,9 +582,19 @@ h1 a {
 	font-size: 1.2em;
 	-webkit-transition: all .2s ease;
 	transition: all .2s ease;
+    /*border-bottom: 1px dotted transparent;*/
+}
+
+/*.massage-hover .bottom-box li:hover {
+	color: #3caeda;
+	cursor: pointer;
+	border-bottom: 1px dotted #3caeda;
+}*/
+.massage-hover .bottom-box li a {
 	border-bottom: 1px dotted transparent;
 }
-.massage-hover .bottom-box li:hover {
+
+.massage-hover .bottom-box li a:hover {
 	color: #3caeda;
 	cursor: pointer;
 	border-bottom: 1px dotted #3caeda;
@@ -967,7 +977,8 @@ li.current a {
 	padding-left: 0;
 }
 
-.summit_wrapper .rows .col:first-child p {
+.summit_wrapper .rows .col:first-child p,
+.sdelki-content .rows .col:first-child p {
 	padding-left: 15px;
 }
 .rows .col:last-child {
@@ -2930,7 +2941,8 @@ span.change[style*="display: none"] ~ span.y{
 .anketa .rows:nth-child(1) {
 	border-top: 1px solid #cdd0d4;
 }
-.summit_wrapper .rows {
+
+.summit_wrapper .rows, .sdelki-content .rows {
 	border-top: 1px solid #cdd0d4 !important;
 	background-color: #fff !important;
 	border-radius: 0 !important;
