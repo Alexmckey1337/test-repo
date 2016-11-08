@@ -267,6 +267,30 @@ class NewUserViewSet(viewsets.ModelViewSet):
             return self.serializer_list_class
         return self.serializer_class
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+    def perform_update(self, serializer):
+        serializer.save()
+        user = serializer.instance
+        additional_phone = self.request.data.get('additional_phone')
+        if additional_phone:
+            phone_number = user.additional_phones.first()
+            if phone_number:
+                phone_number.number = additional_phone
+                phone_number.save()
+            else:
+                AdditionalPhoneNumber.objects.create(user=user, number=additional_phone)
+        else:
+            phones = user.additional_phones.all()
+            for phone in phones:
+                phone.delete()
+
 
 class UserShortViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')

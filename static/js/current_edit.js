@@ -159,6 +159,7 @@ function handleFileSelect(evt) {
 
 var data_for_drop = {};
 var img = $(".crArea img");
+var is_supervisor = false;
 
 function formatDate(date) {
     if (date) {
@@ -188,6 +189,7 @@ function init(id) {
             document.getElementById('edit-photo').setAttribute('data-source', data.image_source);
         }
         var fullname;
+        var phone_number;
         var social = {
             'skype': data.skype,
             'vkontakte': data.vkontakte,
@@ -240,6 +242,11 @@ function init(id) {
                 document.getElementById('middle_name').value = fullname[2];
                 continue
             }
+            if (prop == 'additional_phones') {
+                phone_number = data[prop][0].number;
+                document.getElementById('additional_phone').value = phone_number;
+                continue
+            }
             if (document.getElementById(prop)) {
                 document.getElementById(prop).value = data[prop] || ' '
             }
@@ -253,26 +260,28 @@ function init(id) {
         document.getElementById('region_drop').innerHTML = '<option selected="selected" value="">' + data_for_drop["region"] + '</option>';
         document.getElementById('town_drop').innerHTML = '<option selected="selected" value="">' + data_for_drop["city"] + '</option>';
 
-        //////////////////////////////////////////////////////////////////////////////////////
+        if (is_supervisor) {
+            //////////////////////////////////////////////////////////////////////////////////////
 
-        data_for_drop['master'] = data.master.fullname;
+            data_for_drop['master'] = data.master.fullname;
 
-        initDropCustom('api/v1.0/departments/', 'department_drop', data.department.title);
+            initDropCustom('api/v1.0/departments/', 'department_drop', data.department.title);
 
-        initDropCustom('api/v1.0/hierarchy/', 'statuses_drop', data.hierarchy.title,
-            function () {
-                initDropCustom('api/v1.0/hierarchy/', 'statuses_drop_parent', data.master.hierarchy.title,
-                    function () {
-                        getLeader(data.master.fullname)
-                    })
-            });
+            initDropCustom('api/v1.0/hierarchy/', 'statuses_drop', data.hierarchy.title,
+                function () {
+                    initDropCustom('api/v1.0/hierarchy/', 'statuses_drop_parent', data.master.hierarchy.title,
+                        function () {
+                            getLeader(data.master.fullname)
+                        })
+                });
 
-        var divisions = data.divisions;
-        getDivisions(divisions);
+            var divisions = data.divisions;
+            getDivisions(divisions);
 
-        //////////////////////////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////////////////////////
 
-        getPatrnershipInfo();
+            getPatrnershipInfo();
+        }
     })
 }
 
@@ -694,121 +703,62 @@ function sendData() {
 
 
     var data = {
-
-
+        "email": document.getElementById("email").value,
         "first_name": document.getElementById("first_name").value,
         "last_name": document.getElementById("last_name").value,
         "middle_name": document.getElementById("middle_name").value,
 
         "skype": document.getElementById("skype").value,
-        "email": document.getElementById("email").value,
+        "vkontakte": document.getElementById('vkontakte').value || '',
+        "facebook": document.getElementById('facebook').value || '',
+        "odnoklassniki": document.getElementById('odnoklassniki').value || '',
+
         "phone_number": document.getElementById("phone_number").value,
-        "additional_phone": document.getElementById("additional_phone").value,
+        "additional_phone": document.getElementById("additional_phone").value,  // TODO
         "born_date": document.getElementById("datepicker_born_date").value || '',
-        "coming_date": document.querySelector("input[name='first_visit']").value || '',
-        "repentance_date": document.querySelector("input[name='repentance_date']").value || '',
+        "coming_date": document.querySelector("input[name='first_visit']").value || '',  // TODO
+        "repentance_date": document.querySelector("input[name='repentance_date']").value || '',  // TODO
 
         'country': $('#country_drop option:selected').html() == "Не выбрано" ? '' : $('#country_drop option:selected').html(),
         'region': $('#region_drop option:selected').html() == "Не выбрано" ? '' : $('#region_drop option:selected').html(),
         'city': $('#town_drop option:selected').html() == "Не выбрано" ? '' : $('#town_drop option:selected').html(),
-
-        "vkontakte": document.getElementById('vkontakte').value || '',
-        "facebook": document.getElementById('facebook').value || '',
-
-        "odnoklassniki": document.getElementById('odnoklassniki').value || '',
-
+        "district": document.getElementById('district').value || '',
         "address": document.getElementById('address').value || '',
-
-
-        'department': parseInt(document.getElementById('department_drop').value),
-        'divisions': $("#division_drop").val() || [],
-        'hierarchy': parseInt(document.getElementById('statuses_drop').value),
-
-        // "odnoklassniki": document.querySelector("input[name='ok']").value,
 
     };
 
-    data['id'] = id;
+    if (is_supervisor) {
+        data['department'] = parseInt(document.getElementById('department_drop').value);
+        data['hierarchy'] = parseInt(document.getElementById('statuses_drop').value);
+        data['divisions'] = $("#division_drop").val() || [];
 
+        var master = $('#leader_drop option:selected');
 
-    var master = $('#leader_drop option:selected');
-
-
-    if (master.html() == "Не выбрано") {
-        data['master'] = 0;
-    } else {
-        if (master.attr('value') != undefined) {
+        if (master.html() != "Не выбрано" && master.attr('value') != undefined) {
             data['master'] = master.attr('value');
         }
 
+        // if (document.getElementById('partner') && document.getElementById('partner').checked) {
+        //
+        //     // "responsible":"","value":"","date":"",
+        //     data['value'] = parseInt(document.getElementById('val_partnerships').value) || 0;
+        //     data['date'] = document.getElementById('partner_date').value || '';
+        //     var id_partner = parseInt($("#partner_drop option:selected").val());
+        //
+        //     if (id_partner) {
+        //         data['responsible'] = id_partner
+        //     }
+        // }
     }
-
-    //if (master) {
-
-    //}
-
-    /*Блок проверки паролей */
-
-    // data['old_password'] = document.getElementById('old_password').value.trim();
-    // data['password1'] = document.getElementById('password1').value.trim();
-    // data['password2'] = document.getElementById('password2').value.trim();
-
-    /*
-
-     if(  !data['password1'].length   ||  !data['old_password'].length || data['password1'] != data['password2'] ){
-     showPopup('Не совпадение паролей');
-     document.getElementById('old_password').value = ''
-     document.getElementById('password1').value = ''
-     document.getElementById('password2').value = ''
-     //document.getElementById('old_password').focus();
-
-
-     Array.prototype.forEach.call(document.querySelectorAll(" .pass"), function(el) {
-     // el.classList.add('error_valid')
-     })
-     }else{
-
-
-     }
-
-     */
-    //Партнерка
-
-    if (document.getElementById('partner') && document.getElementById('partner').checked) {
-
-        // "responsible":"","value":"","date":"",
-        data['value'] = parseInt(document.getElementById('val_partnerships').value) || 0;
-        data['date'] = document.getElementById('partner_date').value || '';
-        var id_partner = parseInt($("#partner_drop option:selected").val());
-
-        //   debugger
-
-        if (id_partner) {
-            data['responsible'] = id_partner
-        }
-
-    } else {
-        data['remove_partnership'] = 'true'; //gavnocod vlada
-    }
-
-    /*
-     var url =config.DOCUMENT_ROOT + 'api/v1.0/short_users/?search=' + data["first_name"] +'+' + data["last_name"];
-     ajaxRequest( url, null, function(answer) {
-
-     if (answer.length) {
-     var id  = answer[0].id;
-     showPopup('Такой пользователей есть уже в БД');
-
-     setTimeout(function() {
-     window.location.href = '/account/' + id ;
-     }, 1500);
-
-     return;
-     }else{
-     */
 
     var json = JSON.stringify(data);
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.1/users/' + id + '/', json, function (data) {
 
+    }, 'PATCH', true, {
+        'Content-Type': 'application/json'
+    });
+
+    /*
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/create_user/', json, function (data) {
 
 
@@ -828,7 +778,6 @@ function sendData() {
             if (!$('input[type=file]')[0].files[0]) {
                 blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
                 fd.append('file', blob);
-                /*fd.append('source', sr)*/
                 fd.append('id', data.id)
             } else {
                 blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
@@ -855,9 +804,7 @@ function sendData() {
             xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4) {
                     if (xhr.status == 200) {
-                        /*setTimeout(function() {*/
                         window.location.href = '/account/' + data.id;
-                        /*}, 1000);*/
                     }
                 }
             };
@@ -865,21 +812,12 @@ function sendData() {
 
 
         }
-        // window.location.href = '/account/' + data.id;
 
 
     }, 'POST', true, {
         'Content-Type': 'application/json'
     });
-    /*
-     }
-
-     })
-
-
      */
-
-
 }
 
 function sendPassword() {
