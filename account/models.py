@@ -127,7 +127,7 @@ class CustomUser(User):
         d = OrderedDict()
         if self.born_date:
 
-            d['value'] = self.born_date.strftime('%d.%m.%Y')
+            d['value'] = self.born_date
         else:
             d['value'] = ''
         l['born_date'] = d
