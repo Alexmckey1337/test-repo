@@ -95,6 +95,13 @@ function createUserInfoBySearch(data, search) {
     var count = data.count;
     var page = parseInt(search.page) || 1;
     var ordering = search.ordering || 'last_name';
+    var tordering;
+    if (ordering.indexOf('-') != -1) {
+        tordering = ordering.substr(1)
+    } else {
+        tordering = ordering
+    }
+    console.log(ordering, tordering);
 
     var results = data.results;
 
@@ -109,7 +116,7 @@ function createUserInfoBySearch(data, search) {
 
     for (k in user_fields) {
         if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
-        if (ordering.indexOf(user_fields[k]['ordering_title']) != -1) {
+        if (tordering == user_fields[k]['ordering_title']) {
             thead += '<th data-order="' + reversOrder(ordering) + '">' + user_fields[k]['title'] + '</th>'
         } else {
             thead += '<th data-order="' + user_fields[k]['ordering_title'] + '">' + user_fields[k]['title'] + '</th>'
