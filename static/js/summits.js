@@ -396,7 +396,7 @@ function getUsersList(path, param) {
         var thead = '<thead><tr>';
         for (k in user_fields) {
             if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
-            if (ordering.indexOf(user_fields[k]['ordering_title']) != -1) {
+            if (ordering.indexOf('user__' + user_fields[k]['ordering_title']) != -1) {
                 thead += '<th data-order="' + reversOrder(ordering) + '">' + user_fields[k]['title'] + '</th>'
             } else {
                 thead += '<th data-order="user__' + user_fields[k]['ordering_title'] + '">' + user_fields[k]['title'] + '</th>'
