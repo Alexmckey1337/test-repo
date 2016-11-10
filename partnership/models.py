@@ -13,7 +13,6 @@ from django.utils.translation import ugettext_lazy as _
 @python_2_unicode_compatible
 class Partnership(models.Model):
     user = models.OneToOneField('account.CustomUser', related_name='partnership')
-    responsible = models.ForeignKey('self', related_name='disciples', null=True, blank=True, on_delete=models.SET_NULL)
     value = models.IntegerField()
     date = models.DateField(default=date.today)
     need_text = models.CharField(_('Need text'), max_length=300, blank=True)
@@ -28,6 +27,9 @@ class Partnership(models.Model):
         (PARTNER, _('Partner')),
     )
     level = models.PositiveSmallIntegerField(_('Level'), choices=LEVELS, default=PARTNER)
+
+    responsible = models.ForeignKey('self', related_name='disciples', limit_choices_to={'level__lte': MANAGER},
+                                    null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.fullname

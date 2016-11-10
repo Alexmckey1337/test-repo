@@ -3,9 +3,11 @@ from __future__ import unicode_literals
 
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
+from partnership.models import Partnership
 from tv_crm.views import sync_user_call
 
 
@@ -25,6 +27,14 @@ def events(request):
 @login_required(login_url='entry')
 def deals(request):
     return render(request, 'deals.html')
+
+
+@login_required(login_url='entry')
+def partner_stats(request):
+    partner = request.user.partnership
+    if not partner or partner.level > Partnership.MANAGER:
+        raise Http404('Статистику можно просматривать только менеджерам.')
+    return render(request, 'partner_stats.html')
 
 
 @login_required(login_url='entry')

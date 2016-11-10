@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^entry/$', views.entry, name='entry'),
     url(r'^events/$', views.events, name='events'),
     url(r'^deals/$', views.deals, name='deals'),
+                  url(r'^partners/stats/$', views.partner_stats, name='partner_stats'),
     url(r'^account/([0-9]+)/$', views.account, name='account'),
     url(r'^account_edit/([0-9]+)/$', views.account_edit, name='account_edit'),
     url(r'^reports/$', views.reports, name='reports'),

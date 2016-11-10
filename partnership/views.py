@@ -4,10 +4,15 @@ from __future__ import unicode_literals
 from datetime import datetime
 
 import django_filters
+from django.db.models import Case, IntegerField
 from django.db.models import Count, Sum
+from django.db.models import Value
+from django.db.models import When
+from django.db.models.functions import Concat
 from django.utils import six
 from rest_framework import filters
 from rest_framework import mixins
+from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import api_view, list_route, detail_route
 from rest_framework.generics import get_object_or_404
@@ -142,6 +147,97 @@ class NewPartnershipViewSet(mixins.RetrieveModelMixin,
         parntership.save()
 
         return Response({'need_text': text})
+
+    @list_route(methods=['get'])
+    def stats(self, request):
+        perm = IsSupervisorOrHigh()
+
+        request_partner_id = request.query_params.get('partner_id')
+
+        current_user = request.user
+        current_partner = get_object_or_404(Partnership, user=current_user)
+
+        if current_partner.level > Partnership.MANAGER:
+            return Response({'detail': 'Статистику можно просматривать только менеджерам.'},
+                            status=status.HTTP_403_FORBIDDEN)
+        elif current_partner.level == Partnership.MANAGER or not request_partner_id:
+            partnership = current_partner
+        else:
+            partnership = get_object_or_404(Partnership, id=request_partner_id)
+
+        partners = self._get_partners_list(partnership)
+
+        stat = self._get_partners_stats(partners)
+
+        return Response(stat)
+
+    @staticmethod
+    def _get_partners_stats(partners):
+        stat_keys = ('total_deals', 'paid_deals', 'unpaid_deals',
+                     'sum_deals', 'value',
+                     'paid_sum_deals', 'unpaid_sum_deals')
+        stat = {}
+        for k in stat_keys:
+            if k == 'value':
+                stat['planned_sum_deals'] = sum([p[k] for p in partners])
+            else:
+                stat[k] = sum([p[k] for p in partners])
+
+        stat['count_partners'] = len(partners)
+        stat['paid_partners'] = len([1 for i in partners if i['is_paid']])
+        stat['partial_paid_partners'] = len(
+            list(filter(lambda x: x > 0, [p['paid_deals'] for p in partners if not p['is_paid']])))
+        stat['unpaid_partners'] = len(partners) - stat['paid_partners'] - stat['partial_paid_partners']
+
+        stat['partners'] = [p for p in partners if p['total_deals'] > 0]
+
+        return stat
+
+    def _get_partners_list(self, partnership):
+
+        month = self.request.query_params.get('month', datetime.now().month)
+        year = self.request.query_params.get('year', datetime.now().year)
+        partners = list(partnership.disciples.annotate(
+            total_deals=Sum(
+                Case(When(deals__date_created__month=month, deals__date_created__year=year,
+                          then=1), default=0,
+                     output_field=IntegerField())
+            ),
+            paid_deals=Sum(
+                Case(When(deals__date_created__month=month, deals__date_created__year=year,
+                          deals__done=True, then=1), default=0,
+                     output_field=IntegerField())
+            ),
+            unpaid_deals=Sum(
+                Case(When(deals__date_created__month=month, deals__date_created__year=year,
+                          deals__done=False, then=1), default=0,
+                     output_field=IntegerField())
+            ),
+            sum_deals=Sum(
+                Case(When(deals__date_created__month=month, deals__date_created__year=year,
+                          then='deals__value'), default=0,
+                     output_field=IntegerField())
+            ),
+            paid_sum_deals=Sum(
+                Case(When(deals__date_created__month=month, deals__date_created__year=year,
+                          deals__done=True, then='deals__value'), default=0,
+                     output_field=IntegerField())
+            ),
+            unpaid_sum_deals=Sum(
+                Case(When(deals__date_created__month=month, deals__date_created__year=year,
+                          deals__done=False, then='deals__value'), default=0,
+                     output_field=IntegerField())
+            ),
+            partner_name=Concat('user__last_name', Value(' '), 'user__first_name', Value(' '), 'user__middle_name')
+        ).values('partner_name',
+                 'total_deals', 'paid_deals', 'unpaid_deals',
+                 'sum_deals', 'value',
+                 'paid_sum_deals', 'unpaid_sum_deals'))
+
+        for p in partners:
+            p['is_paid'] = bool(p['paid_sum_deals']) and p['paid_sum_deals'] >= p['value']
+
+        return partners
 
 
 class DateFilter(filters.FilterSet):
