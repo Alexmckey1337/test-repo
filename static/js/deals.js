@@ -620,6 +620,24 @@ function reversOrder(order) {
     return order
 }
 
+(function createPartnershipsList() {
+    ajaxRequest(config.DOCUMENT_ROOT + "api/v1.1/partnerships/simple/", null, function (data) {
+        data.forEach(function (partner) {
+            var option = '<option value="' + partner.id + '">' + partner.fullname + '</option>';
+            $(option).appendTo('#accountable');
+        });
+        $('#accountable').select2();
+    });
+})();
+
+$('#accountable').on('change', function () {
+    var id = this.value;
+    var obj = {'responsible__user': id };
+    getPartnersList(obj);
+});
+
+// $('#accountable__list').on('click', createPartnershipsList());
+
 function getPartnersList(param) {
     param = param || {};
 

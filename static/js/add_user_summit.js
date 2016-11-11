@@ -44,7 +44,7 @@ $(document).ready(function(){
     $('#impPopup button').click(function(){
       var iurl;
       iurl = img.cropper("getDataURL", "image/jpeg");
-      $('#edit-photo').attr('data-source',document.querySelector("#impPopup img").src)
+      $('#edit-photo').attr('data-source',document.querySelector("#impPopup img").src);
       $('.anketa-photo').html('<img src="'+iurl+'" />');
       $('#impPopup').hide();
       img.cropper("destroy");
