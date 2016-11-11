@@ -41,6 +41,7 @@ function init(id) {
         return
     }
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/users/' + id + '/', null, function (data) {
+        var date = data.fields.coming_date.value.replace(/\-/g, '.');
 
         if (data.image) {
             document.querySelector(".anketa-photo img").src = data.image
@@ -49,7 +50,8 @@ function init(id) {
             return
         }
         if (data.fields.coming_date.value) {
-            document.getElementById('coming_date').innerHTML = data.fields.coming_date.value;
+            document.getElementById('coming_date').innerHTML = date;
+            console.log(date);
         }
         $('#deleteUser').attr('data-id', data.id);
         var fullname;
@@ -57,7 +59,7 @@ function init(id) {
         var repentance_date = data.fields.repentance_date;
 
 
-        var status = repentance_date.value ? '<span class="green1">Покаялся: ' + repentance_date.value + '</span>' : '<span class="reds">Не покаялся</span>';
+        var status = repentance_date.value ? '<span class="green1">Покаялся: ' + repentance_date.value.replace(/\-/g, '.') + '</span>' : '<span class="reds">Не покаялся</span>';
 
         document.getElementById('repentance_status').innerHTML = status;
 
@@ -162,8 +164,10 @@ function getUserDeals() {
             }
 
             document.getElementById('id_need_text').value = data.need_text;
-            var deal_fields = data.deal_fields;
-            var responsible = data.responsible;
+            var deal_fields = data.deal_fields,
+                responsible = data.responsible,
+                date = data.date.replace(/\-/g, '.');
+
 
 
             document.getElementById('incomplete-count').innerHTML = parseInt(data.undone_deals_count) || "0";
@@ -172,7 +176,7 @@ function getUserDeals() {
 
             document.getElementById('responsible').innerHTML = responsible;
             document.getElementById('partner_val').innerHTML = data.value;
-            document.getElementById('coming_date_').innerHTML = data.date;
+            document.getElementById('coming_date_').innerHTML = date;
 
 
             if (!deal_fields || deal_fields.length == 0) {
@@ -469,7 +473,6 @@ function getUserSummitInfo() {
             document.getElementsByClassName('a-sammits')[0].style.display = 'none';
             return
         }
-
     })
 
 

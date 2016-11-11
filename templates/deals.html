@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--[if IE]>
-  <link rel="stylesheet" type="text/css" href="css/ie.css" />
+<link rel="stylesheet" type="text/css" href="css/ie.css"/>
 <!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
 <!--[if (gte IE 9)|!(IE)]><!-->
 <html lang="ru"> <!--<![endif]-->
@@ -78,9 +78,14 @@
                         <li>
                             <button class="add" id="add_user_parners">Добавить пользователя</button>
                         </li>
-                        {#                        <li>#}
-                        {#                            <button>Экспортировать</button>#}
-                        {#                        </li>#}
+                        {#
+                        <li>#}
+                            {#
+                            <button>Экспортировать</button>
+                            #}
+                            {#
+                        </li>
+                        #}
                         <li>
                             <button id="sort-on">Изменить таблицу</button>
                         </li>
@@ -88,6 +93,7 @@
 
                 </div>
             </div>
+
 
             <div class="user-hover photo-hover">
                 <div class="hover-wrapper">
@@ -185,6 +191,15 @@
 
 
             <div data-id="1" id="spisok" class="tab-toggle">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="accountable_filter">
+                            <select name="accountable" id="accountable">
+                                <option disabled selected>Фильтр по ответственному</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 <div class="top-pag">
                     <div class="pagination">
                         <div class="pag-wrap">
@@ -342,7 +357,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/js/select2.min.js"></script>
 <script src='/static/js/lib.js'></script>
 <script src='/static/js/main.js'></script>
-
+<script src="/static/js/select2.js"></script>
 <script src="/static/js/deals.js"></script>
 </body>
 </html>

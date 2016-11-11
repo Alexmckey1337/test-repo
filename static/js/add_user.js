@@ -72,7 +72,7 @@ $(document).ready(function () {
 
     $('#partner').click(function () {
         $('.hidden-partner').toggle()
-    })
+    });
 
 
     getAll();
