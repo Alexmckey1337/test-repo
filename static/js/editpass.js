@@ -1,6 +1,6 @@
 function changePass() {
-   
-var hash =   document.location.href.split('/')[document.location.href.split('/').length - 2] ;
+
+    var hash = getLastId();
 
 if(!hash){
      showPopup('неверный ключ активации');

@@ -277,7 +277,7 @@ function create_summit_buttons(id) {
 }
 
 function addSummitInfo() {
-    var id = document.location.href.split('/')[document.location.href.split('/').length - 2];
+    var id = getLastId();
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit/?type=' + id, null, function (data) {
         var data = data.results,
             html = '';

@@ -91,7 +91,7 @@ $(document).ready(function () {
 
     document.getElementById('revert_edit').addEventListener('click', function () {
 
-        var id = parseInt(id || document.location.href.split('/')[document.location.href.split('/').length - 2]);
+        var id = parseInt(id || getLastId());
         if (!id) {
             return
         }
@@ -115,11 +115,11 @@ $(document).ready(function () {
 });
 
 
-var data_for_drop = {}
-var img = $(".crArea img")
+var data_for_drop = {};
+var img = $(".crArea img");
 
 function init(id) {
-    var id = parseInt(id || document.location.href.split('/')[document.location.href.split('/').length - 2]);
+    var id = parseInt(id || getLastId());
     if (!id) {
         return
     }
@@ -631,7 +631,7 @@ function getDivisions(str) {
 
 function getPatrnershipInfo() {
 
-    var id = parseInt(document.location.href.split('/')[document.location.href.split('/').length - 2]);
+    var id = parseInt(getLastId());
 
 
     if (!id) {
@@ -726,7 +726,7 @@ function sendPassword() {
 
 function sendData() {
 
-    var id = parseInt(document.location.href.split('/')[document.location.href.split('/').length - 2]);
+    var id = parseInt(getLastId());
 
 
     if (!id) {

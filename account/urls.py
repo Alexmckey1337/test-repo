@@ -20,7 +20,7 @@ custom_urls = [
     url(r'^create_user/$', views.create_user),
     url(r'^send_password/$', views.send_password),
     url(r'^change_password/$', views.change_password),
-    url(r'^logout/$', views.logout_view, name="logout"),
+    url(r'^logout/$', views.LogoutView.as_view(), name="logout"),
     url(r'^download_image/$', views.download_image),
     url(r'^password_forgot/$', views.password_forgot, ),
     url(r'^password_view/$', views.password_view, ),

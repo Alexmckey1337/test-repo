@@ -1,6 +1,8 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import binascii
+import os
 from collections import OrderedDict
 from datetime import timedelta
 
@@ -324,6 +326,34 @@ class AdditionalPhoneNumber(models.Model):
 
     def __str__(self):
         return self.number
+
+
+@python_2_unicode_compatible
+class Token(models.Model):
+    """
+    The default authorization token model.
+    """
+    key = models.CharField(_("Key"), max_length=40, primary_key=True)
+    user = models.ForeignKey(
+        'account.CustomUser', related_name='auth_tokens',
+        on_delete=models.CASCADE, verbose_name=_("User")
+    )
+    created = models.DateTimeField(_("Created"), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("Token")
+        verbose_name_plural = _("Tokens")
+
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.key = self.generate_key()
+        return super(Token, self).save(*args, **kwargs)
+
+    def generate_key(self):
+        return binascii.hexlify(os.urandom(20)).decode()
+
+    def __str__(self):
+        return self.key
 
 
 def create_custom_user(sender, instance, created, **kwargs):

@@ -4,8 +4,9 @@ from __future__ import unicode_literals
 import binascii
 import os
 
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout as django_logout
 from django.contrib.auth import update_session_auth_hash
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db.models import Case, BooleanField
@@ -16,8 +17,10 @@ from django.http import HttpResponseRedirect
 from django.template import Context
 from django.template.loader import get_template
 from django.utils import six
+from django.utils.translation import ugettext_lazy as _
+from rest_auth.views import LogoutView as RestAuthLogoutView
+from rest_framework import status
 from rest_framework import viewsets, filters
-from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, detail_route
 from rest_framework.decorators import list_route
 from rest_framework.generics import get_object_or_404
@@ -26,6 +29,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from account.models import CustomUser as User, AdditionalPhoneNumber
+from account.models import Token
 from edem.settings import SITE_DOMAIN_URL, DEFAULT_FROM_EMAIL
 from hierarchy.models import Hierarchy, Department
 from navigation.models import user_table
@@ -232,6 +236,20 @@ class UserShortViewSet(viewsets.ModelViewSet):
     search_fields = ('first_name', 'last_name')
 
 
+class LogoutView(RestAuthLogoutView):
+    def logout(self, request):
+        try:
+            key = request._request.COOKIES.get('key', '')
+            request.user.auth_tokens.filter(key=key).delete()
+        except (AttributeError, ObjectDoesNotExist):
+            pass
+
+        django_logout(request)
+
+        return Response({"success": _("Successfully logged out.")},
+                        status=status.HTTP_200_OK)
+
+
 @api_view(['POST'])
 def login_view(request):
     """
@@ -264,7 +282,7 @@ def login_view(request):
 
 
 def logout_view(request):
-    logout(request)
+    django_logout(request)
     return HttpResponseRedirect(reverse('entry'))
 
 
