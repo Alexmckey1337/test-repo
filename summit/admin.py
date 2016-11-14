@@ -2,7 +2,8 @@
 from __future__ import unicode_literals
 
 from django.contrib import admin
-from import_export.admin import ImportExportModelAdmin
+from import_export.admin import ExportMixin
+from import_export.formats import base_formats
 
 from .models import SummitAnket, Summit, SummitType, SummitAnketNote, SummitLesson
 from .resources import SummitAnketResource
@@ -26,11 +27,15 @@ class SummitAnketNoteInline(admin.TabularInline):
     model = SummitAnketNote
 
 
-class SummitAnketAdmin(ImportExportModelAdmin):
-    list_display = ('name', 'user', 'summit', 'code',)
+class SummitAnketAdmin(ExportMixin, admin.ModelAdmin):
+    list_display = ('name', 'user', 'summit', 'code', 'visited')
+    list_editable = ('visited',)
+    readonly_fields = ('user', 'summit')
     list_filter = ('summit', 'user__department', 'protected',)
     search_fields = ['code', 'user__last_name', ]
+
     resource_class = SummitAnketResource
+    formats = (base_formats.XLSX,)
 
     inlines = [SummitAnketNoteInline, ]
 
