@@ -85,6 +85,11 @@ class SummitAnket(models.Model):
         return '%s %s' % (self.user.fullname, self.summit.type.title)
 
     @property
+    def is_member(self):
+        summit_type = self.summit.type
+        return summit_type.summits.filter(ankets__visited=True, ankets__user=self.user).exists()
+
+    @property
     def info(self):
         d = OrderedDict()
         d['value'] = '0'

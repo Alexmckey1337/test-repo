@@ -201,6 +201,12 @@ function registerUser(id, summit_id, money, description) {
         "value": money,
         "description": description
     };
+
+    // ######################### example #####################
+    data.visited = false;
+    // data.visited = true;
+    // ##################### end example #####################
+
     var json = JSON.stringify(data);
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/post_anket/', json, function (JSONobj) {
         if (JSONobj.status) {
