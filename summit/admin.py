@@ -28,7 +28,7 @@ class SummitAnketNoteInline(admin.TabularInline):
 
 
 class SummitAnketAdmin(ExportMixin, admin.ModelAdmin):
-    list_display = ('name', 'user', 'summit', 'code', 'visited')
+    list_display = ('name', 'user', 'summit', 'code', 'visited', 'is_member')
     list_editable = ('visited',)
     readonly_fields = ('user', 'summit')
     list_filter = ('summit', 'user__department', 'protected',)
