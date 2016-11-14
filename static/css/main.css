@@ -18,6 +18,11 @@ i {
 	-webkit-transition:all .2s ease;
 	transition:all .2s ease;
 }
+.col-4 {
+	width: 25%;
+	min-width: 500px;
+	margin: 1.3em;
+}
 i:hover {
 	color:#3caeda;
 }

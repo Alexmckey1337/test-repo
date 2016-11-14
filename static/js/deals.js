@@ -633,7 +633,11 @@ function reversOrder(order) {
 $('#accountable').on('change', function () {
     var id = this.value;
     var obj = {'responsible': id};
-    getPartnersList(obj);
+    if(id == '0') {
+        getPartnersList();
+    } else {
+        getPartnersList(obj);
+    }
 });
 
 // $('#accountable__list').on('click', createPartnershipsList());
