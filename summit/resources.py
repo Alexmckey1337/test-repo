@@ -12,10 +12,15 @@ class SummitAnketResource(resources.ModelResource):
 
     class Meta:
         model = SummitAnket
-        exclude = ('id', 'user', 'summit', 'value', 'description', 'protected', 'retards',)
+        fields = (
+            'user__email', 'name', 'last_name', 'first_name', 'user__born_date', 'phone_number', 'code',
+            'country', 'region', 'city', 'department', 'responsible', 'image',
+            'pastor', 'bishop', 'sotnik', 'date',
+        )
         export_order = (
-            'code', 'name', 'country', 'region', 'department', 'responsible', 'image', 'phone_number', 'last_name',
-            'first_name', 'pastor', 'bishop', 'sotnik', 'date', 'city',
+            'user__email', 'name', 'last_name', 'first_name', 'user__born_date', 'phone_number', 'code',
+            'country', 'region', 'city', 'department', 'responsible', 'image',
+            'pastor', 'bishop', 'sotnik', 'date',
         )
 
 
