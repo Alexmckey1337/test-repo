@@ -33,6 +33,29 @@ $(document).ready(function () {
         getUnregisteredUsers();
     });
 
+    $('#summit_type').on('change', function () {
+        var val = this.value;
+        var path = '/api/v1.0/summit_ankets/';
+        var param;
+        switch (val) {
+            case '0':
+                getUsersList(path);
+                break;
+            case '1':
+
+                param = {
+                    is_member: true
+                };
+                getUsersList(path, param);
+                break;
+            case '2':
+                param = {
+                    is_member: false
+                };
+                getUsersList(path, param);
+                break;
+        }
+    });
     $('body').on('click', '#carousel li span', function () {
         $('#carousel li').removeClass('active');
         $(this).parent().addClass('active')
@@ -49,44 +72,44 @@ $(document).ready(function () {
 
         document.querySelector(".add").addEventListener('click', function () {
             document.querySelector('.add-user-wrap').style.display = 'block';
-        })
+        });
 
 
         document.querySelector("#popup h3 span").addEventListener('click', function () {
             document.querySelector('#popup').style.display = 'none';
             document.querySelector('.choose-user-wrap').style.display = 'block';
-        })
+        });
 
         document.querySelector("#close").addEventListener('click', function () {
             document.querySelector('#popup').style.display = 'none';
             document.querySelector('.choose-user-wrap').style.display = 'block';
-        })
+        });
 
         document.querySelector("#closeDelete").addEventListener('click', function () {
             document.querySelector('#popupDelete').style.display = 'none';
-        })
+        });
 
         document.querySelector(".add-user-wrap .top-text span").addEventListener('click', function () {
             document.querySelector('.add-user-wrap').style.display = '';
-        })
+        });
 
         document.querySelector(".add-user-wrap").addEventListener('click', function (el) {
             if (el.target !== this) {
                 return;
             }
             document.querySelector('.add-user-wrap').style.display = '';
-        })
+        });
 
         document.querySelector("#popupDelete").addEventListener('click', function (el) {
             if (el.target !== this) {
                 return;
             }
             document.querySelector('#popupDelete').style.display = '';
-        })
+        });
 
         document.querySelector("#popupDelete .top-text span").addEventListener('click', function (el) {
             document.querySelector('#popupDelete').style.display = '';
-        })
+        });
 
         document.querySelector(".choose-user-wrap").addEventListener('click', function (el) {
             if (el.target !== this) {
@@ -95,67 +118,67 @@ $(document).ready(function () {
             document.querySelector('.choose-user-wrap').style.display = '';
             document.getElementById('searchUsers').value = '';
             document.querySelector('.choose-user-wrap .splash-screen').classList.remove('active');
-        })
+        });
 
         document.querySelector(".choose-user-wrap .top-text > span").addEventListener('click', function () {
             document.getElementById('searchUsers').value = '';
             document.querySelector('.choose-user-wrap .splash-screen').classList.remove('active');
             document.querySelector('.choose-user-wrap').style.display = '';
-        })
+        });
 
         document.getElementById('choose').addEventListener('click', function () {
             document.querySelector('.choose-user-wrap').style.display = 'block';
             document.querySelector('.add-user-wrap').style.display = '';
-        })
+        });
 
         document.querySelector('.choose-user-wrap h3 span').addEventListener('click', function () {
             document.getElementById('searchUsers').value = '';
             document.querySelector('.choose-user-wrap .splash-screen').classList.remove('active');
             document.querySelector('.choose-user-wrap').style.display = '';
             document.querySelector('.add-user-wrap').style.display = 'block';
-        })
+        });
 
         document.getElementById('add_new').addEventListener('click', function () {
             document.querySelector('.pop-up-splash-add').style.display = 'block';
-        })
+        });
 
         document.getElementById('changeSum').addEventListener('click', function () {
             document.getElementById('summit-value').removeAttribute('readonly');
             document.getElementById('summit-value').focus();
-        })
+        });
 
         document.getElementById('changeSumDelete').addEventListener('click', function () {
             document.getElementById('summit-valueDelete').removeAttribute('readonly');
             document.getElementById('summit-valueDelete').focus();
-        })
+        });
 
         document.getElementById('deleteAnket').addEventListener('click', function () {
             var summitAnket = this.getAttribute('data-anket');
             document.getElementById('yes').setAttribute('data-anket', summitAnket)
             document.getElementById('deletePopup').style.display = 'block';
             document.querySelector('#popupDelete').style.display = '';
-        })
+        });
 
         document.getElementById('yes').addEventListener('click', function () {
             var summitAnket = this.getAttribute('data-anket');
             document.getElementById('deletePopup').style.display = '';
             unsubscribe(summitAnket);
-        })
+        });
 
         $('#deletePopup').click(function (el) {
             if (el.target != this) {
                 return;
             }
             $(this).hide();
-        })
+        });
 
         $('#no').click(function () {
             $('#deletePopup').hide();
-        })
+        });
 
         $('#deletePopup .top-text span').click(function () {
             $('#deletePopup').hide();
-        })
+        });
 
         document.getElementById('completeDelete').addEventListener('click', function () {
             var id = this.getAttribute('data-id'),
@@ -163,7 +186,7 @@ $(document).ready(function () {
                 description = document.querySelector('#popupDelete textarea').value;
             registerUser(id, summit_id, money, description);
             document.querySelector('#popupDelete').style.display = 'none';
-        })
+        });
 
         document.getElementById('complete').addEventListener('click', function () {
             var id = this.getAttribute('data-id'),
@@ -590,7 +613,7 @@ function getUsersList(path, param) {
                 }
             });
         });
-         $('#summit_type').select2();
+        $('#summit_type').select2();
         Array.prototype.forEach.call(document.querySelectorAll(".table-wrap th"), function (el) {
             el.addEventListener('click', function () {
                 var data_order = this.getAttribute('data-order');
