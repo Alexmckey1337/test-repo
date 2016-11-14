@@ -76,6 +76,8 @@ class SummitAnket(models.Model):
     image = models.CharField(max_length=12, blank=True)
     retards = models.BooleanField(default=False)
 
+    visited = models.BooleanField(default=False)
+
     class Meta:
         unique_together = (('user', 'summit'),)
 
