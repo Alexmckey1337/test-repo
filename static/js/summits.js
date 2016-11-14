@@ -584,7 +584,7 @@ function getUsersList(path, param) {
                 }
             });
         });
-
+         $('#summit_type').select2();
         Array.prototype.forEach.call(document.querySelectorAll(".table-wrap th"), function (el) {
             el.addEventListener('click', function () {
                 var data_order = this.getAttribute('data-order');

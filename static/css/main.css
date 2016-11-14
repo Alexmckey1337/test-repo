@@ -20,8 +20,9 @@ i {
 }
 .col-4 {
 	width: 25%;
-	min-width: 500px;
+	min-width: 170px;
 	margin: 1.3em;
+	float: left;
 }
 i:hover {
 	color:#3caeda;
