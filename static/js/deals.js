@@ -632,7 +632,7 @@ function reversOrder(order) {
 
 $('#accountable').on('change', function () {
     var id = this.value;
-    var obj = {'responsible__user': id };
+    var obj = {'responsible': id};
     getPartnersList(obj);
 });
 
