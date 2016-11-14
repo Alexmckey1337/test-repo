@@ -116,18 +116,23 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
                     if summit:
                         sa = SummitAnket.objects.filter(user=user)
                         sa = sa.filter(summit=summit).first()
+                        visited = request.data.get('visited', None)
                         if sa:
                             if len(request.data['value']) > 0:
                                 sa.value = request.data['value']
                             if len(request.data['description']) > 0:
                                 sa.description = request.data['description']
+                            if visited in (True, False):
+                                sa.visited = visited
                             sa.save()
                             data = {"message": "Данные успешно измененны",
                                     'status': True}
                         else:
+                            visited = True if visited == True else False
                             if len(request.data['value']) > 0:
                                 s = SummitAnket.objects.create(user=user, summit=summit, value=request.data['value'],
-                                                               description=request.data['description'])
+                                                               description=request.data['description'],
+                                                               visited=visited)
                                 if 'retards' in keys:
                                     if request.data['retards']:
                                         s.retards = request.data['retards']
@@ -136,7 +141,7 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
                                 else:
                                     get_fields(s)
                             else:
-                                s = SummitAnket.objects.create(user=user, summit=summit,
+                                s = SummitAnket.objects.create(user=user, summit=summit, visited=visited,
                                                                description=request.data['description'])
                                 if 'retards' in keys:
                                     if request.data['retards']:
