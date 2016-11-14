@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+from account.utils import create_token
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -40,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'import_export',
     'rest_framework',
-    'rest_framework.authtoken',
+    # 'rest_framework.authtoken',
     'djcelery',
 
     'rest_auth',
@@ -161,6 +162,8 @@ DATETIME_FORMAT = 'd.m.Y H:i:s'
 TIME_FORMAT = 'H:i:s'
 SHORT_DATE_FORMAT = 'd.m.Y'
 
+REST_AUTH_TOKEN_CREATOR = create_token
+REST_AUTH_TOKEN_MODEL = 'account.models.Token'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         # 'rest_framework.authentication.BasicAuthentication',

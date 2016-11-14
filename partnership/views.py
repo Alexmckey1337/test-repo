@@ -98,7 +98,7 @@ class NewPartnershipViewSet(mixins.RetrieveModelMixin,
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
                        filters.OrderingFilter,)
-    filter_fields = ('user', 'responsible__user',)
+    filter_fields = ('user', 'responsible__user', 'responsible')
     search_fields = ('user__first_name', 'user__last_name', 'user__middle_name',
                      'user__country', 'user__region', 'user__city', 'user__district',
                      'user__address', 'user__skype', 'user__phone_number', 'user__hierarchy__title',

@@ -34,7 +34,7 @@ $(document).ready(function () {
 
 
 function init(id) {
-    var id = parseInt(id || document.location.href.split('/')[document.location.href.split('/').length - 2]);
+    var id = parseInt(id || getLastId());
 
 
     if (!id) {
@@ -145,7 +145,7 @@ function init(id) {
 
 
 function getUserDeals() {
-    var id = parseInt(id || document.location.href.split('/')[document.location.href.split('/').length - 2]);
+    var id = parseInt(id || getLastId());
     if (!id) {
         return
     }
@@ -371,7 +371,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
 function getUserSummitInfo() {
 
 
-    var id = parseInt(id || document.location.href.split('/')[document.location.href.split('/').length - 2]);
+    var id = parseInt(id || getLastId());
     if (!id) {
         return
     }

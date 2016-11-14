@@ -5,6 +5,37 @@ function isElementExists(element) {
     }
 }
 
+function getLastId(url) {
+    if (!url) {
+        url = document.location.href
+    }
+    var id = url.split('/');
+    if (id[id.length - 1]) {
+        return id[id.length - 1]
+    }
+    return id[id.length - 2]
+}
+
+function getCookie(c_name) {
+    // From http://www.w3schools.com/js/js_cookies.asp
+    var c_value = document.cookie;
+    var c_start = c_value.indexOf(" " + c_name + "=");
+    if (c_start == -1) {
+        c_start = c_value.indexOf(c_name + "=");
+    }
+    if (c_start == -1) {
+        c_value = null;
+    } else {
+        c_start = c_value.indexOf("=", c_start) + 1;
+        var c_end = c_value.indexOf(";", c_start);
+        if (c_end == -1) {
+            c_end = c_value.length;
+        }
+        c_value = unescape(c_value.substring(c_start, c_end));
+    }
+    return c_value;
+}
+
 
 Array.prototype.unique = function () {
     var a = this.concat();
@@ -123,6 +154,9 @@ function ajaxRequest(url, data, callback, method, withCredentials, headers, stat
     method = method || 'GET';
     data = data || {};
     headers = headers || {};
+    if (getCookie('key')) {
+        headers['Authorization'] = 'Token ' + getCookie('key');
+    }
     statusCode = statusCode || {};
     $.ajax({
         url: url,
