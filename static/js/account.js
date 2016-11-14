@@ -41,7 +41,9 @@ function init(id) {
         return
     }
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/users/' + id + '/', null, function (data) {
-        var date = data.fields.coming_date.value.replace(/\-/g, '.');
+        if (data.fields.coming_date.value) {
+            var date = data.fields.coming_date.value.replace(/\-/g, '.');
+        }
 
         if (data.image) {
             document.querySelector(".anketa-photo img").src = data.image
