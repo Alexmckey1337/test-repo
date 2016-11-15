@@ -3960,7 +3960,19 @@ div.code input#code {
     -ms-user-select: none; /* IE 10+ */
     user-select: none; /* Likely future */
 }
-
+.member_user {
+    position: relative;
+}
+.member_user:before {
+    content: '';
+    position: absolute;
+    right: 45px;
+    top: 12px;
+    display: inline-block;
+    width: 21px;
+    height: 12px;
+    background: url('../img/oc_icon.png') no-repeat center/cover;
+}
 /*============styles for close deals popup==============*/
 
 
