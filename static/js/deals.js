@@ -4,8 +4,11 @@ $(document).ready(function () {
     //getPartnersList();
 
     $('input[name="fullsearch"]').keyup(function () {
-
-        delay(function () {
+        var id = $('#accountable').val();
+        console.log(id);
+        var obj = {'responsible': id};
+        if (id == '0') {
+            delay(function () {
             getPartnersList();
 
             var json = {};
@@ -14,6 +17,19 @@ $(document).ready(function () {
             getDoneDeals(json);
             getUndoneDeals(json);
         }, 1500);
+        } else {
+            delay(function () {
+            getPartnersList(obj);
+
+            var json = {};
+            json["page"] = '1';
+            getExpiredDeals(json);
+            getDoneDeals(json);
+            getUndoneDeals(json);
+        }, 1500);
+        }
+
+
     });
 
     document.getElementById('sort_save').addEventListener('click', function () {
@@ -633,7 +649,7 @@ function reversOrder(order) {
 $('#accountable').on('change', function () {
     var id = this.value;
     var obj = {'responsible': id};
-    if(id == '0') {
+    if (id == '0') {
         getPartnersList();
     } else {
         getPartnersList(obj);
@@ -648,6 +664,7 @@ function getPartnersList(param) {
     var path = config.DOCUMENT_ROOT + 'api/v1.1/partnerships/?';
     var search = document.getElementsByName('fullsearch')[0].value;
     var ordering = param.ordering || 'user__last_name';
+
     console.log(ordering);
     if (search) {
         param['search'] = search;
