@@ -290,6 +290,22 @@ class SummitTypeViewSet(viewsets.ModelViewSet):
 
         return Response(data, status=status.HTTP_201_CREATED)
 
+    @detail_route(methods=['get'], )
+    def is_member(self, request, pk=None):
+        user_id = request.query_params.get('user_id')
+        if user_id and not user_id.isdigit():
+            return Response({'result': 'user_id должен быть числом.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if not user_id:
+            user_id = request.user.id
+        data = {
+            'result': SummitAnket.objects.filter(
+                user_id=user_id, summit__type_id=pk, visited=True).exists(),
+            'user_id': user_id,
+        }
+
+        return Response(data)
+
 
 class SummitUnregisterFilter(filters_new.FilterSet):
     summit_id = filters_new.CharFilter(name="summit_ankets__summit__id")
