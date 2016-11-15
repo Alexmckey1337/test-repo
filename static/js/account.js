@@ -41,6 +41,7 @@ function init(id) {
         return
     }
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/users/' + id + '/', null, function (data) {
+        console.log(data);
         if (data.fields.coming_date.value) {
             var date = data.fields.coming_date.value.replace(/\-/g, '.');
         }
