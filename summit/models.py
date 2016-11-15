@@ -12,6 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 @python_2_unicode_compatible
 class SummitType(models.Model):
     title = models.CharField(max_length=100, verbose_name='Название саммита')
+    club_name = models.CharField(_('Club name'), max_length=30, blank=True)
     image = models.ImageField(upload_to='summit_type/images/', blank=True)
 
     consultants = models.ManyToManyField(
@@ -44,6 +45,10 @@ class Summit(models.Model):
     @property
     def title(self):
         return self.type.title
+
+    @property
+    def club_name(self):
+        return self.type.club_name
 
 
 @python_2_unicode_compatible

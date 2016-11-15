@@ -236,13 +236,16 @@
                             <button id="send_need" style="display:block;">Сохранить нужду</button>
                         </div>
                         <div style="display:block;padding:10px;" id="create_deal_block">
+                            <div style="display: inline-block; width: 49%;">
+                                <lable for="id_deal_value" style="display:block;">Сумма</lable>
+                                <input type="number" id="id_deal_value" required
+                                       style="width:90%;margin:10px 0; padding: 5px 0;"></div>
+                            <div style="display: inline-block; width: 49%;">
+                                <lable for="id_deal_date" style="display:block;">Дата</lable>
+                                <input type="text" id="id_deal_date" required style="width:100%;margin:10px 0;"></div>
                             <lable for="id_deal_description" style="display:block;">Примечание</lable>
                             <textarea name="deal_description" id="id_deal_description" rows="4"
                                       style="width:100%;margin:10px 0;" required></textarea>
-                            <lable for="id_deal_value" style="display:block;">Сумма</lable>
-                            <input type="number" id="id_deal_value" required style="width:100%;margin:10px 0;">
-                            <lable for="id_deal_date" style="display:block;">Дата</lable>
-                            <input type="text" id="id_deal_date" required style="width:100%;margin:10px 0;">
                             <button id="send_new_deal" style="display:block;">Создать сделку</button>
                         </div>
                         <div class="tab-status">

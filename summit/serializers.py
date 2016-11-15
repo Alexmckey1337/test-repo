@@ -47,7 +47,7 @@ class SummitSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Summit
-        fields = ('id', 'start_date', 'end_date', 'title', 'description', 'lessons')
+        fields = ('id', 'start_date', 'end_date', 'title', 'description', 'lessons', 'club_name')
 
 
 class SummitTypeSerializer(serializers.HyperlinkedModelSerializer):
