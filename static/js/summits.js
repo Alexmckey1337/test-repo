@@ -446,7 +446,12 @@ function getUsersList(path, param) {
                 if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
                 value = getCorrectValue(field['user'][k]);
                 if (k === 'fullname') {
-                    tbody += '<td>' + '<a href="' + results[i].user.link + '">' + value + '</a><span title="Удалить анкету" data-fullname="' + results[i].user.fullname + '" data-user-id="' + results[i].user.id + '" data-anketId="' + results[i].id + '"" data-value="' + results[i].value + '" data-comment="' + results[i].description + '" data-member="' + results[i].is_member + '" class="del"></span></td>'
+                    // results[i].is_member
+                    tbody += '<td';
+                    if(results[i].is_member) {
+                        tbody += ' class="member_user"';
+                    }
+                    tbody +=   '>' + '<a href="' + results[i].user.link + '">' + value + '</a><span title="Удалить анкету" data-fullname="' + results[i].user.fullname + '" data-user-id="' + results[i].user.id + '" data-anketId="' + results[i].id + '"" data-value="' + results[i].value + '" data-comment="' + results[i].description + '" data-member="' + results[i].is_member + '" class="del"></span></td>'
                 } else if (k === 'social') {
                     tbody += '<td>';
                     if (results[i].user.skype) {
