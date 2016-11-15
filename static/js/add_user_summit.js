@@ -354,7 +354,7 @@ function getRegions() {
     });
   }
 
-function getResponsible(id,level) {
+function getResponsible(id, level) {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id + '&hierarchy=' + level, null, function (data) {
       var html = '<option value=""> </option><option>Не выбрано</option>';
       for (var i = 0; i < data.length; i++) {

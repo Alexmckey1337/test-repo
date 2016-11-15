@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--[if IE]>
-  <link rel="stylesheet" type="text/css" href="css/ie.css" />
+<link rel="stylesheet" type="text/css" href="css/ie.css"/>
 <!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
 <!--[if (gte IE 9)|!(IE)]><!-->
 <html lang="ru"> <!--<![endif]-->
@@ -79,7 +79,17 @@
             </ul><!--End Top -->
 
             <div class="top-buttons-wrap">
+                <div class="col-4">
+                     <select name="summit_type" id="summit_type">
+                            <option value="0">Все</option>
+                            <option value="1">Облако свидетелей</option>
+                            <option value="2">Не облако свидетелей</option>
+                        </select>
+                </div>
                 <ul class="top-buttons"><!-- top-buttons -->
+                    <li>
+
+                    </li>
                     <li>
                         <div class="searchDep">
                             <input type="text" placeholder="Поиск по названию отдела" name="searchDep">
@@ -88,9 +98,9 @@
                     <li>
                         <button class="add">Добавить пользователя</button>
                     </li>
-                    {#                    <li>#}
-                    {#                        <button class="exp">Экспортировать</button>#}
-                    {#                    </li>#}
+                    <li>
+                        <button class="exp">Экспортировать</button>
+                    </li>
                     <li>
                         <button id="sort-on">Изменить таблицу</button>
                     </li>
@@ -251,8 +261,6 @@
         </div>
     </div><!--End Choose -user -->
 </div><!--End page-width -->
-
-
 <div class="popap" id='popup_div'>
     <div class="pop_cont">
         <p id='popup_text'></p>
@@ -301,6 +309,10 @@
                 <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                        readonly="readonly" type="text" id="summit-valueDelete">
                 <span id="changeSumDelete" class="change-summ"></span>
+            </div>
+            <div class="member_club_block">
+                <input type="checkbox" id="member">
+                <label for="member">Учасник <span id="member_club">Облако свидетелей</span>:</label>
             </div>
         </div>
         <textarea maxlength="40" placeholder="Добавить коментарий"></textarea>
@@ -566,7 +578,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/js/select2.min.js"></script>
 <script src='/static/js/lib.js'></script>
 <script src='/static/js/main.js'></script>
-
+<script src="/static/js/select2.js"></script>
 <script src="/static/js/add_user_summit.js"></script>
 <script src="/static/js/summits.js"></script>
 <script src="/static/js/cropper.min.js"></script>
