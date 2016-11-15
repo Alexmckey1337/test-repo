@@ -40,6 +40,14 @@ function init(id) {
     if (!id) {
         return
     }
+    var path = '/api/v1.0/summit_types/3/is_member/';
+        var param = {
+            "user_id": id
+        };
+    ajaxRequest(path, param, function (data) {
+        console.log(data);
+    });
+
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/users/' + id + '/', null, function (data) {
         console.log(data);
         if (data.fields.coming_date.value) {
