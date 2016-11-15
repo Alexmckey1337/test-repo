@@ -47,7 +47,7 @@ class SummitPagination(PageNumberPagination):
         })
 
 
-class FilterByCloud(BaseFilterBackend):
+class FilterByClub(BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         """
         Return a filtered queryset.
@@ -73,7 +73,7 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
                        filters.OrderingFilter,
-                       FilterByCloud,
+                       FilterByClub,
                        )
     filter_fields = ('user',
                      'summit', 'visited',

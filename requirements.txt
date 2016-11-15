@@ -8,7 +8,7 @@ django-allauth
 django-celery==3.1.17
 django-cors-headers==1.1.0
 django-filter==0.13.0
-django-import-export==0.4.2
+django-import-export
 django-rest-auth
 djangorestframework==3.4.7
 djangorestframework-filters==0.8.0
@@ -21,7 +21,7 @@ Pillow==2.9.0
 Pygments==2.1
 pytz==2015.7
 six==1.10.0
-tablib==0.10.0
+tablib
 wheel==0.26.0
 django-axes
 
