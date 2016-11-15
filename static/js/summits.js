@@ -218,17 +218,14 @@ function unsubscribe(id) {
 }
 
 function registerUser(id, summit_id, money, description) {
+    var member_club = $("#member").prop("checked");
     var data = {
         "user_id": id,
         "summit_id": summit_id,
         "value": money,
-        "description": description
+        "description": description,
+        "visited": member_club
     };
-
-    // ######################### example #####################
-    data.visited = false;
-    // data.visited = true;
-    // ##################### end example #####################
 
     var json = JSON.stringify(data);
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/post_anket/', json, function (JSONobj) {
@@ -449,7 +446,7 @@ function getUsersList(path, param) {
                 if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
                 value = getCorrectValue(field['user'][k]);
                 if (k === 'fullname') {
-                    tbody += '<td>' + '<a href="' + results[i].user.link + '">' + value + '</a><span title="Удалить анкету" data-fullname="' + results[i].user.fullname + '" data-user-id="' + results[i].user.id + '" data-anketId="' + results[i].id + '"" data-value="' + results[i].value + '" data-comment="' + results[i].description + '" class="del"></span></td>'
+                    tbody += '<td>' + '<a href="' + results[i].user.link + '">' + value + '</a><span title="Удалить анкету" data-fullname="' + results[i].user.fullname + '" data-user-id="' + results[i].user.id + '" data-anketId="' + results[i].id + '"" data-value="' + results[i].value + '" data-comment="' + results[i].description + '" data-member="' + results[i].is_member + '" class="del"></span></td>'
                 } else if (k === 'social') {
                     tbody += '<td>';
                     if (results[i].user.skype) {
@@ -534,16 +531,25 @@ function getUsersList(path, param) {
             if (el.target.nodeName == 'A') {
                 return;
             }
+            console.log($(this));
             var id = $(this).data('user-id'),
                 usr = $(this).data('fullname'),
                 anketa = $(this).attr('data-anketId'),
                 val = $(this).attr('data-value'),
-                comment = $(this).attr('data-comment');
+                comment = $(this).attr('data-comment'),
+                member = $(this).attr('data-member');
+
             $('#completeDelete').attr('data-id', id);
             $('#deleteAnket').attr('data-anket', anketa);
             $('#summit-valueDelete').val(val);
             $('#popupDelete textarea').val(comment);
             $('#popupDelete h3').html(usr);
+            if( member == 'false') {
+                $('#member').prop('checked', false);
+            } else {
+                $('#member').prop('checked', true);
+            }
+
             document.querySelector('#popupDelete').style.display = 'block';
         });
 
@@ -631,7 +637,7 @@ function getUsersList(path, param) {
                 data['user__department__title'] = $('input[name="searchDep"]').val();
                 getUsersList(path, data)
             });
-        })
+        });
     });
 }
     
