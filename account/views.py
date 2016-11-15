@@ -115,7 +115,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def summit_info(self, request, pk=None):
-        summit_types = SummitType.objects.filter(summits__ankets__user_id=pk)
+        summit_types = set(SummitType.objects.filter(summits__ankets__user_id=pk))
         lst = []
         for t in summit_types:
             json = {}
