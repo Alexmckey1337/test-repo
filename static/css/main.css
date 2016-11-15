@@ -3960,9 +3960,11 @@ div.code input#code {
     -ms-user-select: none; /* IE 10+ */
     user-select: none; /* Likely future */
 }
+
 .member_user {
     position: relative;
 }
+
 .member_user:before {
     content: '';
     position: absolute;
@@ -3973,6 +3975,26 @@ div.code input#code {
     height: 12px;
     background: url('../img/oc_icon.png') no-repeat center/cover;
 }
+
+.member-icon {
+    position: relative;
+}
+
+.member-icon:before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    display: block;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: url(../img/oc_icon.png) no-repeat center / 21px auto;
+    background-color: white;
+    border: 1px solid gray;
+    z-index: 999;
+}
+
 /*============styles for close deals popup==============*/
 
 

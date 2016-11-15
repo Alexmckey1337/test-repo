@@ -35,21 +35,23 @@ $(document).ready(function () {
 
 function init(id) {
     var id = parseInt(id || getLastId());
-
+    var isMember;
 
     if (!id) {
         return
     }
-    var path = '/api/v1.0/summit_types/3/is_member/';
+    var path = '/api/v1.0/summit_types/1/is_member';
         var param = {
             "user_id": id
         };
     ajaxRequest(path, param, function (data) {
-        console.log(data);
+        isMember = data.result;
     });
 
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/users/' + id + '/', null, function (data) {
-        console.log(data);
+        if(isMember) {
+            $(".label").addClass("member-icon");
+        }
         if (data.fields.coming_date.value) {
             var date = data.fields.coming_date.value.replace(/\-/g, '.');
         }
