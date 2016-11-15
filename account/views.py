@@ -442,12 +442,18 @@ def edit_user(data, files):
             elif key == 'first_name':
                 if value:
                     user.first_name = value.strip()
+                else:
+                    user.first_name = ''
             elif key == 'last_name':
                 if value:
                     user.last_name = value.strip()
+                else:
+                    user.last_name = ''
             elif key == 'middle_name':
                 if value:
                     user.middle_name = value.strip()
+                else:
+                    user.middle_name = ''
             else:
                 setattr(user, key, value)
         if files:

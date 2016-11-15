@@ -864,47 +864,52 @@ function sendData() {
         if (data.redirect && send_image) {
 
             //console.log(data.id)
-            var fd = new FormData();
+            try {
+                var fd = new FormData();
 
-            var blob;
-            var sr;
-            if (!$('input[type=file]')[0].files[0]) {
-                blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                fd.append('file', blob);
-                /*fd.append('source', sr)*/
-                fd.append('id', data.id)
-            } else {
-                blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                sr = $('input[type=file]')[0].files[0];
-                fd.append('file', blob);
-                fd.set('source', $('input[type=file]')[0].files[0], 'photo.jpg');
-                fd.append('id', data.id)
-            }
-
-            function dataURLtoBlob(dataurl) {
-                var arr = dataurl.split(',');
-                var mime = arr[0].match(/:(.*?);/)[1],
-                    bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-                while (n--) {
-                    u8arr[n] = bstr.charCodeAt(n);
+                var blob;
+                var sr;
+                if (!$('input[type=file]')[0].files[0]) {
+                    blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+                    fd.append('file', blob);
+                    /*fd.append('source', sr)*/
+                    fd.append('id', data.id)
+                } else {
+                    blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+                    sr = $('input[type=file]')[0].files[0];
+                    fd.append('file', blob);
+                    fd.set('source', $('input[type=file]')[0].files[0], 'photo.jpg');
+                    fd.append('id', data.id)
                 }
-                return new Blob([u8arr], {type: mime});
-            }
 
-            var xhr = new XMLHttpRequest();
-            xhr.withCredentials = true;
-            xhr.open('POST', config.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
-            //  xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4) {
-                    if (xhr.status == 200) {
-                        /*setTimeout(function() {*/
-                        window.location.href = '/account/' + data.id;
-                        /*}, 1000);*/
+                function dataURLtoBlob(dataurl) {
+                    var arr = dataurl.split(',');
+                    var mime = arr[0].match(/:(.*?);/)[1],
+                        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+                    while (n--) {
+                        u8arr[n] = bstr.charCodeAt(n);
                     }
+                    return new Blob([u8arr], {type: mime});
                 }
-            };
-            xhr.send(fd);
+
+                var xhr = new XMLHttpRequest();
+                xhr.withCredentials = true;
+                xhr.open('POST', config.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
+                //  xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        if (xhr.status == 200) {
+                            /*setTimeout(function() {*/
+                            window.location.href = '/account/' + data.id;
+                            /*}, 1000);*/
+                        }
+                    }
+                };
+                xhr.send(fd);
+            } catch (err) {
+                console.log(err);
+                window.location.href = '/account/' + data.id;
+            }
 
 
         }
