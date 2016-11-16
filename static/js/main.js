@@ -185,7 +185,7 @@ $(document).ready(function () {
 
 
     $('.editprofile input').keypress(function (el) {
-        if (el.charCode == '32' && el.currentTarget.id != 'additional_phone') {
+        if (el.charCode == '32' && el.currentTarget.id != 'additional_phone' && el.currentTarget.id != 'address') {
             return false
         }
     });
