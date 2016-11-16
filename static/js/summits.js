@@ -308,10 +308,11 @@ function addSummitInfo() {
         var data = data.results,
             html = '';
         for (var i = 0; i < data.length; i++) {
+            var summit_name = data[i].description ? data[i].description : data[i].start_date;
             if (i == 0) {
-                html += '<li class="active"><span data-id=' + data[i].id + '>' + data[i].start_date + '</span></li>';
+                html += '<li class="active"><span data-id=' + data[i].id + '>' + summit_name + '</span></li>';
             } else {
-                html += '<li><span data-id=' + data[i].id + '>' + data[i].start_date + '</span></li>';
+                html += '<li><span data-id=' + data[i].id + '>' + summit_name + '</span></li>';
             }
 
         }
