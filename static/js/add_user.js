@@ -366,6 +366,7 @@ function createNewAcc() {
         "middle_name": document.querySelector("input[name='middle_name']").value,
         "born_date": document.querySelector("input[name='born_date']").value,
         "phone_number": document.querySelector("input[name='phone_numberCode']").value + '' + document.querySelector("input[name='phone_number']").value,
+        "additional_phone": document.getElementById("additional_phone").value,
         "vkontakte": document.querySelector("input[name='vk']").value,
         "facebook": document.querySelector("input[name='fb']").value,
         "odnoklassniki": document.querySelector("input[name='ok']").value,
