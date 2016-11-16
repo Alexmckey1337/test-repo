@@ -17,7 +17,7 @@ from account.models import CustomUser
 from navigation.models import user_table, user_summit_table
 from summit.permissions import IsSupervisorOrHigh
 from summit.utils import generate_ticket
-from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson
+from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, SummitUserConsultant
 from .resources import get_fields
 from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
@@ -221,6 +221,16 @@ class SummitLessonViewSet(viewsets.ModelViewSet):
         lesson = get_object_or_404(SummitLesson, pk=pk)
         anket = get_object_or_404(SummitAnket, pk=anket_id)
 
+        current_user_anket = SummitAnket.objects.filter(
+            user=request.user, summit=anket.summit, role__gte=SummitAnket.CONSULTANT)
+        is_consultant = SummitUserConsultant.objects.filter(
+            consultant=current_user_anket, user_id=anket_id, summit=anket.summit).exists()
+        if not is_consultant:
+            return Response({'message': 'Только консультант может отмечать уроки.',
+                             'lesson_id': pk,
+                             'checked': False},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         lesson.viewers.add(anket)
 
         return Response({'lesson': lesson.name, 'lesson_id': pk, 'anket_id': anket_id, 'checked': True})
@@ -230,6 +240,16 @@ class SummitLessonViewSet(viewsets.ModelViewSet):
         anket_id = request.data['anket_id']
         lesson = get_object_or_404(SummitLesson, pk=pk)
         anket = get_object_or_404(SummitAnket, pk=anket_id)
+
+        current_user_anket = SummitAnket.objects.filter(
+            user=request.user, summit=anket.summit, role__gte=SummitAnket.CONSULTANT)
+        is_consultant = SummitUserConsultant.objects.filter(
+            consultant=current_user_anket, user_id=anket_id, summit=anket.summit).exists()
+        if not is_consultant:
+            return Response({'message': 'Только консультант может отмечать уроки.',
+                             'lesson_id': pk,
+                             'checked': True},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         lesson.viewers.remove(anket)
 

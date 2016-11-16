@@ -377,6 +377,12 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         $('#lesson' + data.lesson_id).prop('checked', data.checked);
     }, 'POST', true, {
         'Content-Type': 'application/json'
+    }, {
+        400: function (data) {
+            data = data.responseJSON;
+            showPopup(data.message);
+            $('#lesson' + data.lesson_id).prop('checked', data.checked);
+        }
     });
 }
 
@@ -432,12 +438,22 @@ function getUserSummitInfo() {
                 }
                 summit.lessons.forEach(function (lesson) {
                     body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>';
-                    if (lesson.is_view) {
-                        body_summit += '<input id="lesson' + lesson.id + '" class="js-lesson" type="checkbox" data-anket-id="' + summit.anket_id + '" data-lesson-id="' + lesson.id + '" checked>';
+                    if (summit.is_consultant) {
+                        if (lesson.is_view) {
+                            body_summit += '<input id="lesson' + lesson.id + '" class="js-lesson" type="checkbox" data-anket-id="' + summit.anket_id + '" data-lesson-id="' + lesson.id + '" checked>';
+                        } else {
+                            body_summit += '<input id="lesson' + lesson.id + '" class="js-lesson" type="checkbox" data-anket-id="' + summit.anket_id + '" data-lesson-id="' + lesson.id + '">';
+                        }
+                        body_summit += lesson.name + '</p></div></div>';
                     } else {
-                        body_summit += '<input id="lesson' + lesson.id + '" class="js-lesson" type="checkbox" data-anket-id="' + summit.anket_id + '" data-lesson-id="' + lesson.id + '">';
+                        if (lesson.is_view) {
+                            body_summit += '<input id="lesson' + lesson.id + '" type="checkbox" data-anket-id="' + summit.anket_id + '" data-lesson-id="' + lesson.id + '" checked disabled>';
+                            body_summit += '<span style="color:darkgreen">' + lesson.name + '  </span></p></div></div>';
+                        } else {
+                            body_summit += '<input id="lesson' + lesson.id + '" type="checkbox" data-anket-id="' + summit.anket_id + '" data-lesson-id="' + lesson.id + '" disabled>';
+                            body_summit += '<span style="color:darkred">' + lesson.name + '</span></p></div></div>';
+                        }
                     }
-                    body_summit += lesson.name + '</p></div></div>';
                 });
                 // EMAILS
                 if (summit.emails.length) {
