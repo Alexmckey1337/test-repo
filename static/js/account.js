@@ -40,7 +40,7 @@ function init(id) {
     if (!id) {
         return
     }
-    var path = '/api/v1.0/summit_types/1/is_member';
+    var path = '/api/v1.0/summit_types/2/is_member';
         var param = {
             "user_id": id
         };
@@ -49,7 +49,7 @@ function init(id) {
     });
 
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/users/' + id + '/', null, function (data) {
-        if(isMember) {
+        if(isMember || isMember == 'true' ) {
             $(".label").addClass("member-icon");
         }
         if (data.fields.coming_date.value) {
