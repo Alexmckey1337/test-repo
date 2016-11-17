@@ -344,8 +344,6 @@ class SummitAnketNoteViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 def generate_code(request):
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="somefilename.pdf"'
 
     user_id = request.GET.get('user_id', None)
     if user_id:
@@ -358,17 +356,17 @@ def generate_code(request):
     code = request.GET.get('code', '00000000')
 
     logo = os.path.join(settings.MEDIA_ROOT, 'ticket.jpg')
-    url = 'http://barcodes4.me/barcode/{type}/{code}.jpg' \
-          '?IsTextDrawn=1&height=79'.format(type='c39', code=code)
+    url = 'http://barcode.tec-it.com/barcode.ashx?translate-esc=off&data={code}' \
+          '&code=Code128&unit=Px&dpi=96&imagetype=Jpg&rotation=90&color=000000' \
+          '&bgcolor=FFFFFF&qunit=Mm&quiet=0&modulewidth=3&download=true'.format(code=code)
 
     r = requests.get(url)
     image = open("/tmp/{}.jpg".format(code), "wb")
     image.write(r.content)
     image.close()
 
-    code = pilImage.open("/tmp/{}.jpg".format(code))
-    # code = pilImage.open(r.content)
-    code = code.rotate(90)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="{}.pdf"'.format(code)
 
     c = canvas.Canvas(response, pagesize=(2261, 961))
     pdfmetrics.registerFont(TTFont('FreeSans', 'FreeSans.ttf'))
@@ -379,7 +377,8 @@ def generate_code(request):
     c.setFont('FreeSans', 46)
     c.drawString(80, 175, first_name)
     c.drawString(970, 175, last_name)
-    c.drawImage(ImageReader(code), 1950, 10, 297, 942)
+    # c.drawImage(ImageReader(code), 1950, 10, 297, 942)
+    c.drawImage("/tmp/{}.jpg".format(code), 1950, 10, 297, 942)
 
     c.showPage()
     c.save()
