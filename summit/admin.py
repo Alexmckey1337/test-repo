@@ -10,9 +10,8 @@ from .resources import SummitAnketResource
 
 
 class SummitTypeAdmin(admin.ModelAdmin):
-    fields = ('title', 'club_name', 'image', 'consultants')
+    fields = ('title', 'club_name', 'image')
     list_display = ('title', 'club_name')
-    filter_horizontal = ('consultants',)
 
 
 class SummitLessonInline(admin.TabularInline):
@@ -21,6 +20,7 @@ class SummitLessonInline(admin.TabularInline):
 
 
 class SummitAdmin(admin.ModelAdmin):
+    filter_horizontal = ('consultants',)
     inlines = [SummitLessonInline, ]
 
 
