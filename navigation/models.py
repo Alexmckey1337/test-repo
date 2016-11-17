@@ -58,16 +58,23 @@ def user_partner_table(user):
 def user_summit_table():
     l = OrderedDict()
     d = OrderedDict()
+    d['title'] = 'Код'
+    d['ordering_title'] = 'code'
+    d['number'] = 1
+    d['active'] = True
+    d['editable'] = False
+    l['code'] = d
+    d = OrderedDict()
     d['title'] = 'Оплата'
     d['ordering_title'] = 'value'
-    d['number'] = 1
+    d['number'] = 2
     d['active'] = True
     d['editable'] = False
     l['value'] = d
     d = OrderedDict()
     d['title'] = 'Примечание'
     d['ordering_title'] = 'description'
-    d['number'] = 2
+    d['number'] = 3
     d['active'] = True
     d['editable'] = False
     l['description'] = d
