@@ -406,9 +406,9 @@ function getUserSummitInfo() {
             summit_type.summits.forEach(function (summit) {
                 body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" style="border-bottom: 2px solid #000"><div class="col"><p>' + summit.name + '</p> </div><div class="col">';
                 if (summit.description != "") {
-                    body_summit += '<p>' + summit.description + '</p>';
+                    body_summit += '<p>' + summit.description + ' (Code: ' + summit.code + ')' + '</p>';
                 } else {
-                    body_summit += '<p>Комментарий не указан</p>';
+                    body_summit += '<p>Комментарий не указан ' + ' (Code: ' + summit.code + ')' + '</p>';
                 }
 
                 body_summit += '<p>Сумма<span> ' + summit.value + ' ₴</span></p>' +
