@@ -1,7 +1,17 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import os
+
+import requests
 import rest_framework_filters as filters_new
+from PIL import Image as pilImage
+from django.conf import settings
+from django.http import HttpResponse
+from reportlab.lib.utils import ImageReader
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
 from rest_framework import status
 from rest_framework import viewsets, filters
 from rest_framework.decorators import list_route, detail_route
@@ -331,3 +341,46 @@ class SummitAnketNoteViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = ('summit_anket',)
     permission_classes = (IsAuthenticated,)
+
+
+def generate_code(request):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="somefilename.pdf"'
+
+    user_id = request.GET.get('user_id', None)
+    if user_id:
+        user = CustomUser.objects.get(pk=user_id)
+        first_name = user.first_name
+        last_name = user.last_name
+    else:
+        first_name = request.GET.get('first_name', 'No first name')
+        last_name = request.GET.get('last_name', 'No last name')
+    code = request.GET.get('code', '00000000')
+
+    logo = os.path.join(settings.MEDIA_ROOT, 'ticket.jpg')
+    url = 'http://barcodes4.me/barcode/{type}/{code}.jpg' \
+          '?IsTextDrawn=1&height=79'.format(type='c39', code=code)
+
+    r = requests.get(url)
+    image = open("/tmp/{}.jpg".format(code), "wb")
+    image.write(r.content)
+    image.close()
+
+    code = pilImage.open("/tmp/{}.jpg".format(code))
+    # code = pilImage.open(r.content)
+    code = code.rotate(90)
+
+    c = canvas.Canvas(response, pagesize=(2261, 961))
+    pdfmetrics.registerFont(TTFont('FreeSans', 'FreeSans.ttf'))
+    try:
+        c.drawImage(logo, 0, 10)
+    except OSError:
+        pass
+    c.setFont('FreeSans', 46)
+    c.drawString(80, 175, first_name)
+    c.drawString(970, 175, last_name)
+    c.drawImage(ImageReader(code), 1950, 10, 297, 942)
+
+    c.showPage()
+    c.save()
+    return response

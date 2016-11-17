@@ -15,6 +15,12 @@ router_v1_0.register(r'summit_lessons', views.SummitLessonViewSet)
 router_v1_0.register(r'summit_ankets_with_notes', views.SummitAnketWithNotesViewSet,
                      base_name='ankets_with_notes')
 
+custom_urls = [
+    url(r'^generate_code/$', views.generate_code, name='generate_code'),
+]
+
 urlpatterns = [
     url(r'^v1.0/', include(router_v1_0.urls)),
+
+    url(r'^v1.0/', include(custom_urls)),
 ]
