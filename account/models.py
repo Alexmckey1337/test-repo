@@ -62,8 +62,8 @@ class CustomUser(User):
     activation_key = models.CharField(max_length=40, blank=True)
 
     summit_consultants = models.ManyToManyField(
-        'summit.SummitType', related_name='users',
-        through='summit.SummitUserConsultant', through_fields=('user', 'summit_type'))
+        'summit.Summit', related_name='users',
+        through='summit.SummitUserConsultant', through_fields=('user', 'summit'))
 
     objects = UserManager()
 

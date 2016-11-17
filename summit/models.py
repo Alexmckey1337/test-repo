@@ -15,11 +15,6 @@ class SummitType(models.Model):
     club_name = models.CharField(_('Club name'), max_length=30, blank=True)
     image = models.ImageField(upload_to='summit_type/images/', blank=True)
 
-    consultants = models.ManyToManyField(
-        'account.CustomUser', related_name='summit_types',
-        verbose_name=_('Consultants'),
-        limit_choices_to={'hierarchy__level__gt': 0, 'is_active': True})
-
     def __str__(self):
         return self.title
 
@@ -39,6 +34,16 @@ class Summit(models.Model):
     description = models.CharField(max_length=255, verbose_name='Описание',
                                    blank=True, null=True)
 
+    consultants = models.ManyToManyField(
+        'account.CustomUser', related_name='consultees_summits',
+        verbose_name=_('Consultants'),
+        limit_choices_to={'is_active': True})
+
+    class Meta:
+        ordering = ('type',)
+        verbose_name = _('Summit')
+        verbose_name_plural = _('Summits')
+
     def __str__(self):
         return '%s %s' % (self.type.title, self.start_date)
 
@@ -53,14 +58,10 @@ class Summit(models.Model):
 
 @python_2_unicode_compatible
 class SummitAnket(models.Model):
-    user = models.ForeignKey('account.CustomUser',
-                             related_name='summit_ankets',
-                             )
-    summit = models.ForeignKey('Summit',
-                               related_name='ankets',
-                               verbose_name='Саммит',
-                               blank=True,
-                               null=True)
+    user = models.ForeignKey('account.CustomUser', related_name='summit_ankets')
+    summit = models.ForeignKey('Summit', related_name='ankets', verbose_name='Саммит',
+                               blank=True, null=True)
+
     value = models.PositiveSmallIntegerField(default=0)
     description = models.CharField(max_length=255, blank=True)
     code = models.CharField(max_length=8, blank=True)
@@ -148,20 +149,20 @@ class SummitLesson(models.Model):
 @python_2_unicode_compatible
 class SummitUserConsultant(models.Model):
     consultant = models.ForeignKey('account.CustomUser', on_delete=models.CASCADE, related_name='consultees',
-                                   limit_choices_to={'summit_types__isnull': False},
+                                   limit_choices_to={'consultees_summits__isnull': False},
                                    verbose_name=_('Consultant'))
     user = models.ForeignKey('account.CustomUser', on_delete=models.CASCADE, related_name='consultants',
                              verbose_name=_('User'))
-    summit_type = models.ForeignKey('summit.SummitType', on_delete=models.CASCADE, related_name='consultees',
-                                    verbose_name=_('Summit type'))
+    summit = models.ForeignKey('summit.Summit', on_delete=models.CASCADE, related_name='consultees',
+                               verbose_name=_('Summit'))
 
     def __str__(self):
-        return '{}: {} is consultant for {}'.format(self.summit_type, self.consultant, self.user)
+        return '{}: {} is consultant for {}'.format(self.summit, self.consultant, self.user)
 
     class Meta:
         verbose_name = _('Summit consultant')
         verbose_name_plural = _('Summit consultants')
-        unique_together = ('user', 'summit_type')
+        unique_together = ('user', 'summit')
 
 
 @python_2_unicode_compatible

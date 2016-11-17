@@ -254,17 +254,11 @@ class SummitViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-
-class SummitTypeViewSet(viewsets.ModelViewSet):
-    queryset = SummitType.objects.all()
-    serializer_class = SummitTypeSerializer
-    permission_classes = (IsAuthenticated,)
-
     @detail_route(methods=['get'])
     def consultants(self, request, pk=None):
         serializer = UserShortSerializer
-        summit_type = get_object_or_404(SummitType, pk=pk)
-        queryset = summit_type.consultants
+        summit = get_object_or_404(Summit, pk=pk)
+        queryset = summit.consultants
 
         serializer = serializer(queryset, many=True)
 
@@ -273,9 +267,9 @@ class SummitTypeViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'], )
     def add_consultant(self, request, pk=None):
         user_id = request.data['user_id']
-        summit_type = get_object_or_404(SummitType, pk=pk)
+        summit = get_object_or_404(Summit, pk=pk)
         user = get_object_or_404(CustomUser, pk=user_id)
-        summit_type.consultants.add(user)
+        summit.consultants.add(user)
         data = {'sumit_id': pk, 'consultant_id': user_id, 'action': 'added'}
 
         return Response(data, status=status.HTTP_201_CREATED)
@@ -283,12 +277,18 @@ class SummitTypeViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'], )
     def del_consultant(self, request, pk=None):
         user_id = request.data['user_id']
-        summit_type = get_object_or_404(SummitType, pk=pk)
+        summit = get_object_or_404(Summit, pk=pk)
         user = get_object_or_404(CustomUser, pk=user_id)
-        summit_type.consultants.remove(user)
+        summit.consultants.remove(user)
         data = {'sumit_id': pk, 'consultant_id': user_id, 'action': 'removed'}
 
         return Response(data, status=status.HTTP_201_CREATED)
+
+
+class SummitTypeViewSet(viewsets.ModelViewSet):
+    queryset = SummitType.objects.all()
+    serializer_class = SummitTypeSerializer
+    permission_classes = (IsAuthenticated,)
 
     @detail_route(methods=['get'], )
     def is_member(self, request, pk=None):
