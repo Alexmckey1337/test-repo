@@ -475,7 +475,11 @@ function getUsersList(path, param) {
             for (k in common_fields) {
                 if (!common_fields.hasOwnProperty(k) || !common_fields[k].active) continue;
                 value = getCorrectValue(field[k]);
-                tbody += '<td>' + value + '</td>'
+                if (k == 'code') {
+                    tbody += '<td><a href="/api/v1.0/generate_code/?user_id=' + results[i].user.id + '&code=' + value + '">' + value + '</a></td>'
+                } else {
+                    tbody += '<td>' + value + '</td>'
+                }
             }
             tbody += '</tr>';
         });
