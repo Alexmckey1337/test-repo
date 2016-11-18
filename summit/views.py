@@ -9,7 +9,6 @@ import rest_framework_filters as filters_new
 from PIL import Image
 from django.conf import settings
 from django.http import HttpResponse
-from reportlab.lib.colors import white
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -359,9 +358,8 @@ def generate_code(request):
         last_name = request.GET.get('last_name', 'No_name')
 
     logo = os.path.join(settings.MEDIA_ROOT, 'ticket.jpg')
-    url = 'http://barcode.tec-it.com/barcode.ashx?translate-esc=off&data={code}' \
-          '&code=Code128&unit=Px&dpi=96&imagetype=Jpg&rotation=90&color=000000' \
-          '&bgcolor=FFFFFF&qunit=Mm&quiet=0&modulewidth=3&download=true'.format(code=code)
+    url = 'http://barcode.tec-it.com/barcode.ashx?translate-esc=off&data={code}&code=Code128&unit=Px&dpi=300&imagetype=Jpg&rotation=90&color=000000&bgcolor=FFFFFF&qunit=Mm&quiet=0&modulewidth=11.6&download=true'.format(
+        code=code)
 
     r = requests.get(url)
 
@@ -377,10 +375,10 @@ def generate_code(request):
     c.setFont('FreeSans', 46)
     c.drawString(80, 175, first_name)
     c.drawString(970, 175, last_name)
-    c.drawImage(ImageReader(Image.open(BytesIO(r.content))), 1960, 4, 291, 922)
-    c.setStrokeColor(white)
-    c.setLineWidth(80)
-    c.line(2250, 20, 2250, 950)
+    c.drawImage(ImageReader(Image.open(BytesIO(r.content))), 1960, 4, 333, 917)
+    # c.setStrokeColor(white)
+    # c.setLineWidth(80)
+    # c.line(2250, 20, 2250, 950)
 
     c.showPage()
     c.save()
