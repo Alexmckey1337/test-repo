@@ -9,7 +9,6 @@ import rest_framework_filters as filters_new
 from PIL import Image
 from django.conf import settings
 from django.http import HttpResponse
-from reportlab.lib.colors import white
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -359,32 +358,27 @@ def generate_code(request):
         last_name = request.GET.get('last_name', 'No_name')
 
     logo = os.path.join(settings.MEDIA_ROOT, 'ticket.jpg')
-    url = 'http://barcode.tec-it.com/barcode.ashx?translate-esc=off&data={code}' \
-          '&code=Code128&unit=Px&dpi=96&imagetype=Jpg&rotation=90&color=000000' \
-          '&bgcolor=FFFFFF&qunit=Mm&quiet=0&modulewidth=3&download=true'.format(code=code)
+    url = 'http://barcode.tec-it.com/barcode.ashx?translate-esc=off&data={code}&code=Code128&unit=Px&dpi=300&imagetype=Jpg&rotation=90&color=000000&bgcolor=FFFFFF&qunit=Mm&quiet=0&modulewidth=11.6&download=true'.format(
+        code=code)
 
     r = requests.get(url)
-    # image = open("/tmp/{}.jpg".format(code), "wb")
-    # image.write(r.content)
-    # image.close()
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment;'
 
-    c = canvas.Canvas(response, pagesize=(2261, 961))
+    c = canvas.Canvas(response, pagesize=(2261, 931))
     pdfmetrics.registerFont(TTFont('FreeSans', 'FreeSans.ttf'))
     try:
-        c.drawImage(logo, 0, 10)
+        c.drawImage(logo, -4, 0)
     except OSError:
         pass
     c.setFont('FreeSans', 46)
     c.drawString(80, 175, first_name)
     c.drawString(970, 175, last_name)
-    c.drawImage(ImageReader(Image.open(BytesIO(r.content))), 1950, 10, 297, 942)
-    # c.drawImage("/tmp/{}.jpg".format(code), 1950, 10, 297, 942)
-    c.setStrokeColor(white)
-    c.setLineWidth(70)
-    c.line(2240, 20, 2240, 950)
+    c.drawImage(ImageReader(Image.open(BytesIO(r.content))), 1960, 4, 333, 917)
+    # c.setStrokeColor(white)
+    # c.setLineWidth(80)
+    # c.line(2250, 20, 2250, 950)
 
     c.showPage()
     c.save()
