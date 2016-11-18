@@ -130,6 +130,7 @@ class UserViewSet(viewsets.ModelViewSet):
                     'value': summit.ankets.get(user_id=pk).value,
                     'code': summit.ankets.get(user_id=pk).code,
                     'anket_id': summit.ankets.get(user_id=pk).id,
+                    'user_fullname': summit.ankets.get(user_id=pk).user.fullname,
                 }
                 for summit in summits.all()]
             for s in json['summits']:
