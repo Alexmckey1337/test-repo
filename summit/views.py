@@ -364,27 +364,23 @@ def generate_code(request):
           '&bgcolor=FFFFFF&qunit=Mm&quiet=0&modulewidth=3&download=true'.format(code=code)
 
     r = requests.get(url)
-    # image = open("/tmp/{}.jpg".format(code), "wb")
-    # image.write(r.content)
-    # image.close()
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment;'
 
-    c = canvas.Canvas(response, pagesize=(2261, 961))
+    c = canvas.Canvas(response, pagesize=(2261, 931))
     pdfmetrics.registerFont(TTFont('FreeSans', 'FreeSans.ttf'))
     try:
-        c.drawImage(logo, 0, 10)
+        c.drawImage(logo, -4, 0)
     except OSError:
         pass
     c.setFont('FreeSans', 46)
     c.drawString(80, 175, first_name)
     c.drawString(970, 175, last_name)
-    c.drawImage(ImageReader(Image.open(BytesIO(r.content))), 1950, 10, 297, 942)
-    # c.drawImage("/tmp/{}.jpg".format(code), 1950, 10, 297, 942)
+    c.drawImage(ImageReader(Image.open(BytesIO(r.content))), 1960, 4, 291, 922)
     c.setStrokeColor(white)
-    c.setLineWidth(70)
-    c.line(2240, 20, 2240, 950)
+    c.setLineWidth(80)
+    c.line(2250, 20, 2250, 950)
 
     c.showPage()
     c.save()
