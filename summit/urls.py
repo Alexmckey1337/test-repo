@@ -16,7 +16,7 @@ router_v1_0.register(r'summit_ankets_with_notes', views.SummitAnketWithNotesView
                      base_name='ankets_with_notes')
 
 custom_urls = [
-    url(r'^generate_code/$', views.generate_code, name='generate_code'),
+    url(r'^generate_code/.+\.pdf', views.generate_code, name='generate_code'),
 ]
 
 urlpatterns = [
