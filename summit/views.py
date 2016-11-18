@@ -2,12 +2,14 @@
 from __future__ import unicode_literals
 
 import os
+from io import BytesIO
 
 import requests
 import rest_framework_filters as filters_new
-from PIL import Image as pilImage
+from PIL import Image
 from django.conf import settings
 from django.http import HttpResponse
+from reportlab.lib.colors import white
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -345,15 +347,16 @@ class SummitAnketNoteViewSet(viewsets.ReadOnlyModelViewSet):
 
 def generate_code(request):
 
-    user_id = request.GET.get('user_id', None)
-    if user_id:
-        user = CustomUser.objects.get(pk=user_id)
+    code = request.GET.get('code', '00000000')
+
+    if code != '00000000':
+        anket = get_object_or_404(SummitAnket, code=code)
+        user = anket.user
         first_name = user.first_name
         last_name = user.last_name
     else:
-        first_name = request.GET.get('first_name', 'No first name')
-        last_name = request.GET.get('last_name', 'No last name')
-    code = request.GET.get('code', '00000000')
+        first_name = request.GET.get('first_name', 'No_name')
+        last_name = request.GET.get('last_name', 'No_name')
 
     logo = os.path.join(settings.MEDIA_ROOT, 'ticket.jpg')
     url = 'http://barcode.tec-it.com/barcode.ashx?translate-esc=off&data={code}' \
@@ -361,12 +364,12 @@ def generate_code(request):
           '&bgcolor=FFFFFF&qunit=Mm&quiet=0&modulewidth=3&download=true'.format(code=code)
 
     r = requests.get(url)
-    image = open("/tmp/{}.jpg".format(code), "wb")
-    image.write(r.content)
-    image.close()
+    # image = open("/tmp/{}.jpg".format(code), "wb")
+    # image.write(r.content)
+    # image.close()
 
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="{}.pdf"'.format(code)
+    response['Content-Disposition'] = 'attachment;'
 
     c = canvas.Canvas(response, pagesize=(2261, 961))
     pdfmetrics.registerFont(TTFont('FreeSans', 'FreeSans.ttf'))
@@ -377,8 +380,11 @@ def generate_code(request):
     c.setFont('FreeSans', 46)
     c.drawString(80, 175, first_name)
     c.drawString(970, 175, last_name)
-    # c.drawImage(ImageReader(code), 1950, 10, 297, 942)
-    c.drawImage("/tmp/{}.jpg".format(code), 1950, 10, 297, 942)
+    c.drawImage(ImageReader(Image.open(BytesIO(r.content))), 1950, 10, 297, 942)
+    # c.drawImage("/tmp/{}.jpg".format(code), 1950, 10, 297, 942)
+    c.setStrokeColor(white)
+    c.setLineWidth(70)
+    c.line(2240, 20, 2240, 950)
 
     c.showPage()
     c.save()
