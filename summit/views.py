@@ -1,18 +1,8 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-import os
-from io import BytesIO
-
-import requests
 import rest_framework_filters as filters_new
-from PIL import Image
-from django.conf import settings
 from django.http import HttpResponse
-from reportlab.lib.utils import ImageReader
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfgen import canvas
 from rest_framework import status
 from rest_framework import viewsets, filters
 from rest_framework.decorators import list_route, detail_route
@@ -26,6 +16,7 @@ from rest_framework.settings import api_settings
 from account.models import CustomUser
 from account.serializers import UserShortSerializer
 from navigation.models import user_table, user_summit_table
+from summit.utils import generate_ticket
 from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson
 from .resources import get_fields
 from .serializers import (
@@ -138,6 +129,12 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
                             sa.save()
                             data = {"message": "Данные успешно измененны",
                                     'status': True}
+                            # if data['status']:
+                            #     email_data = {
+                            #         'email': sa.user.email,
+                            #         'summit_name': str(sa.summit)
+                            #     }
+                            #     send_ticket.delay(sa)
                         else:
                             visited = True if visited == True else False
                             if len(request.data['value']) > 0:
@@ -163,6 +160,8 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
                                     get_fields(s)
                             data = {"message": "Данные успешно сохраненны",
                                     'status': True}
+                            # if data['status']:
+                            #     send_ticket.delay(s)
                     else:
                         data = {"message": "Такой саммит отсутствует",
                                 'status': False}
@@ -348,38 +347,11 @@ def generate_code(request):
 
     code = request.GET.get('code', '00000000')
 
-    if code != '00000000':
-        anket = get_object_or_404(SummitAnket, code=code)
-        user = anket.user
-        first_name = user.first_name
-        last_name = user.last_name
-    else:
-        first_name = request.GET.get('first_name', 'No_name')
-        last_name = request.GET.get('last_name', 'No_name')
-
-    logo = os.path.join(settings.MEDIA_ROOT, 'ticket.jpg')
-    url = 'http://barcode.tec-it.com/barcode.ashx?translate-esc=off&data={code}&code=Code128&unit=Px&dpi=300&imagetype=Jpg&rotation=90&color=000000&bgcolor=FFFFFF&qunit=Mm&quiet=0&modulewidth=11.6&download=true'.format(
-        code=code)
-
-    r = requests.get(url)
+    pdf = generate_ticket(code)
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment;'
 
-    c = canvas.Canvas(response, pagesize=(2261, 931))
-    pdfmetrics.registerFont(TTFont('FreeSans', 'FreeSans.ttf'))
-    try:
-        c.drawImage(logo, -4, 0)
-    except OSError:
-        pass
-    c.setFont('FreeSans', 46)
-    c.drawString(80, 175, first_name)
-    c.drawString(970, 175, last_name)
-    c.drawImage(ImageReader(Image.open(BytesIO(r.content))), 1960, 4, 333, 917)
-    # c.setStrokeColor(white)
-    # c.setLineWidth(80)
-    # c.line(2250, 20, 2250, 950)
+    response.write(pdf)
 
-    c.showPage()
-    c.save()
     return response
