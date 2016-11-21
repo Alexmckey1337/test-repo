@@ -32,14 +32,15 @@ DEBUG = False
 ALLOWED_HOSTS = ['vocrm.org']
 
 # Application definition
-
-INSTALLED_APPS = [
+DJANGO_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+)
+THIRD_PARTY_APPS = (
     'import_export',
     'rest_framework',
     # 'rest_framework.authtoken',
@@ -48,7 +49,8 @@ INSTALLED_APPS = [
     'rest_auth',
     'corsheaders',
     # 'rest_auth.registration',
-
+)
+LOCAL_APPS = (
     'main',
     'account',
     'hierarchy',
@@ -61,8 +63,9 @@ INSTALLED_APPS = [
     'tv_crm',
     'summit',
     'location',
-    #    'axes',
-]
+)
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
@@ -74,7 +77,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
- #   'axes.middleware.FailedLoginMiddleware',
+    #   'axes.middleware.FailedLoginMiddleware',
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
