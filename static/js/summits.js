@@ -219,6 +219,7 @@ function unsubscribe(id) {
 
 function registerUser(id, summit_id, money, description) {
     var member_club = $("#member").prop("checked");
+    // var send_email = $("#send_email").prop("checked");
     var data = {
         "user_id": id,
         "summit_id": summit_id,
