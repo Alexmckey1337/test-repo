@@ -2270,7 +2270,7 @@ table input[type=checkbox],
 }
 
 .splash-screen {
-    max-width: 560px;
+    max-width: 666px;
     min-width: 466px;
     background-color: #fff;
     border-radius: 3px;
@@ -3974,6 +3974,21 @@ div.code input#code {
     width: 21px;
     height: 12px;
     background: url('../img/oc_icon.png') no-repeat center/cover;
+}
+
+.email_is_send {
+    position: relative;
+}
+
+.email_is_send:after {
+    content: '';
+    position: absolute;
+    right: 75px;
+    top: 7px;
+    display: inline-block;
+    width: 21px;
+    height: 21px;
+    background: url('../img/send_email.png') no-repeat center/cover;
 }
 
 .member-icon {

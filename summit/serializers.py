@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from account.models import CustomUser as User
 from account.serializers import NewUserSerializer
-from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson
+from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail
 
 
 class SummitAnketNoteSerializer(serializers.ModelSerializer):
@@ -24,13 +24,21 @@ class SummitAnketOldSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('info', 'common', 'code',)
 
 
+class AnketEmailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnketEmail
+        fields = ('id', 'created_at')
+
+
 class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
     user = NewUserSerializer()
+    emails = AnketEmailSerializer(many=True, read_only=True)
 
     class Meta:
         model = SummitAnket
         fields = ('id', 'user', 'code', 'value', 'description',
                   'is_member',
+                  'emails',
                   'visited')
 
 

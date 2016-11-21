@@ -219,13 +219,14 @@ function unsubscribe(id) {
 
 function registerUser(id, summit_id, money, description) {
     var member_club = $("#member").prop("checked");
-    // var send_email = $("#send_email").prop("checked");
+    var send_email = $("#send_email").prop("checked");
     var data = {
         "user_id": id,
         "summit_id": summit_id,
         "value": money,
         "description": description,
-        "visited": member_club
+        "visited": member_club,
+        "send_email": send_email
     };
 
     var json = JSON.stringify(data);
@@ -236,8 +237,10 @@ function registerUser(id, summit_id, money, description) {
             showPopup(JSONobj.message);
             getUsersList(path, data);
             getUnregisteredUsers();
+            $("#send_email").prop("checked", false);
         } else {
             showPopup(JSONobj.message);
+            $("#send_email").prop("checked", false);
         }
     }, 'POST', true, {
         'Content-Type': 'application/json'
@@ -450,8 +453,15 @@ function getUsersList(path, param) {
                 if (k === 'fullname') {
                     // results[i].is_member
                     tbody += '<td';
+                    var classes = [];
                     if(results[i].is_member) {
-                        tbody += ' class="member_user"';
+                        classes = classes.concat('member_user')
+                    }
+                    if (results[i].emails.length > 0) {
+                        classes = classes.concat('email_is_send')
+                    }
+                    if (classes.length > 0) {
+                        tbody += ' class="' + classes.join(' ') + '"';
                     }
                     tbody +=   '>' + '<a href="' + results[i].user.link + '">' + value + '</a><span title="Удалить анкету" data-fullname="' + results[i].user.fullname + '" data-user-id="' + results[i].user.id + '" data-anketId="' + results[i].id + '"" data-value="' + results[i].value + '" data-comment="' + results[i].description + '" data-member="' + results[i].is_member + '" class="del"></span></td>'
                 } else if (k === 'social') {
@@ -542,7 +552,6 @@ function getUsersList(path, param) {
             if (el.target.nodeName == 'A') {
                 return;
             }
-            console.log($(this));
             var id = $(this).data('user-id'),
                 usr = $(this).data('fullname'),
                 anketa = $(this).attr('data-anketId'),

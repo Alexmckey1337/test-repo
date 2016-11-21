@@ -347,7 +347,7 @@ function sendNote(anket_id, text, box) {
     var json = JSON.stringify(data);
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/' + anket_id + '/create_note/', json, function (note) {
         box.before(function () {
-            return '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>' + note.text + ' — ' + note.date_created
+            return '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>' + note.text + ' — ' + moment(note.date_created).format("DD.MM.YYYY HH:mm:ss")
                 + ' — Author: ' + note.owner_name
                 + '</p></div></div>'
         });
@@ -417,7 +417,7 @@ function getUserSummitInfo() {
                 // NOTES
                 body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 15px;"><p>Примечания</p></div></div>';
                 summit.notes.forEach(function (note) {
-                    body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>' + note.text + ' — ' + note.date_created
+                    body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>' + note.text + ' — ' + moment(note.date_created).format("DD.MM.YYYY HH:mm:ss")
                         + ' — Author: ' + note.owner_name
                         + '</p></div></div>';
                 });
@@ -438,6 +438,14 @@ function getUserSummitInfo() {
                         body_summit += '<input id="lesson' + lesson.id + '" class="js-lesson" type="checkbox" data-anket-id="' + summit.anket_id + '" data-lesson-id="' + lesson.id + '">';
                     }
                     body_summit += lesson.name + '</p></div></div>';
+                });
+                // EMAILS
+                if (summit.emails.length) {
+                    body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 15px;"><p>EMAIL</p></div></div>';
+                }
+                summit.emails.forEach(function (email) {
+                    body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p> Отправлено на email: ' + email.recipient + ' — Дата отправки: ' + moment(email.created_at).format("DD.MM.YYYY HH:mm:ss")
+                        + '</p></div></div>';
                 });
             });
         });
