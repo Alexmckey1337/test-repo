@@ -5,7 +5,7 @@ from django.contrib import admin
 from import_export.admin import ExportMixin
 from import_export.formats import base_formats
 
-from .models import SummitAnket, Summit, SummitType, SummitAnketNote, SummitLesson
+from .models import SummitAnket, Summit, SummitType, SummitAnketNote, SummitLesson, AnketEmail
 from .resources import SummitAnketResource
 
 
@@ -28,6 +28,12 @@ class SummitAnketNoteInline(admin.TabularInline):
     model = SummitAnketNote
 
 
+class AnketEmailAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'attach')
+    readonly_fields = ('anket',)
+    list_filter = ('anket__summit',)
+
+
 class SummitAnketAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('name', 'user', 'summit', 'code', 'visited', 'is_member')
     list_editable = ('visited',)
@@ -47,3 +53,4 @@ class SummitAnketAdmin(ExportMixin, admin.ModelAdmin):
 admin.site.register(SummitAnket, SummitAnketAdmin)
 admin.site.register(Summit, SummitAdmin)
 admin.site.register(SummitType, SummitTypeAdmin)
+admin.site.register(AnketEmail, AnketEmailAdmin)

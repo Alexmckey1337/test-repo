@@ -22,6 +22,7 @@ from .resources import get_fields
 from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
     SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer)
+from .tasks import send_ticket
 
 
 def get_success_headers(data):
@@ -129,12 +130,15 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
                             sa.save()
                             data = {"message": "Данные успешно измененны",
                                     'status': True}
-                            # if data['status']:
-                            #     email_data = {
-                            #         'email': sa.user.email,
-                            #         'summit_name': str(sa.summit)
-                            #     }
-                            #     send_ticket.delay(sa)
+                            if data['status']:
+                                email_data = {
+                                    'anket_id': sa.id,
+                                    'email': sa.user.email,
+                                    'summit_name': str(sa.summit),
+                                    'fullname': sa.user.fullname,
+                                    'code': sa.code
+                                }
+                                send_ticket.delay(email_data)
                         else:
                             visited = True if visited == True else False
                             if len(request.data['value']) > 0:
@@ -160,8 +164,15 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
                                     get_fields(s)
                             data = {"message": "Данные успешно сохраненны",
                                     'status': True}
-                            # if data['status']:
-                            #     send_ticket.delay(s)
+                            if data['status']:
+                                email_data = {
+                                    'anket_id': s.id,
+                                    'email': s.user.email,
+                                    'summit_name': str(s.summit),
+                                    'fullname': s.user.fullname,
+                                    'code': s.code
+                                }
+                                send_ticket.delay(email_data)
                     else:
                         data = {"message": "Такой саммит отсутствует",
                                 'status': False}
@@ -235,7 +246,7 @@ class SummitAnketWithNotesViewSet(viewsets.ModelViewSet):
 
 
 class SummitViewSet(viewsets.ModelViewSet):
-    queryset = Summit.objects.prefetch_related('lessons').order_by('start_date')
+    queryset = Summit.objects.prefetch_related('lessons').order_by('-start_date')
     serializer_class = SummitSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = ('type',)

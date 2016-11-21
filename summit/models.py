@@ -129,6 +129,28 @@ class SummitAnket(models.Model):
 
 
 @python_2_unicode_compatible
+class AnketEmail(models.Model):
+    anket = models.ForeignKey('summit.SummitAnket', on_delete=models.CASCADE, related_name='emails',
+                              verbose_name=_('Anket'))
+    recipient = models.CharField(_('Email'), max_length=255)
+
+    subject = models.CharField(_('Subject'), max_length=255, blank=True)
+    text = models.TextField(_('Text'), blank=True)
+    html = models.TextField(_('HTML text'), blank=True)
+    attach = models.FileField(_('Attach'), upload_to='tickets', null=True, blank=True)
+
+    created_at = models.DateTimeField(_('Date created'), auto_now_add=True)
+
+    def __str__(self):
+        return '{}: {}'.format(self.created_at, self.anket)
+
+    class Meta:
+        ordering = ('-created_at', 'anket')
+        verbose_name = _('Anket email')
+        verbose_name_plural = _('Anket emails')
+
+
+@python_2_unicode_compatible
 class SummitLesson(models.Model):
     summit = models.ForeignKey('summit.Summit', on_delete=models.CASCADE, related_name='lessons',
                                related_query_name='lessons', verbose_name=_('Summit'))
