@@ -5,8 +5,13 @@ from django.contrib import admin
 from import_export.admin import ExportMixin
 from import_export.formats import base_formats
 
-from .models import SummitAnket, Summit, SummitType, SummitAnketNote, SummitLesson, AnketEmail
+from .models import SummitAnket, Summit, SummitType, SummitAnketNote, SummitLesson, AnketEmail, SummitUserConsultant
 from .resources import SummitAnketResource
+
+
+class SummitUserConsultantInline(admin.TabularInline):
+    model = SummitUserConsultant
+    fk_name = 'user'
 
 
 class SummitTypeAdmin(admin.ModelAdmin):
@@ -20,7 +25,7 @@ class SummitLessonInline(admin.TabularInline):
 
 
 class SummitAdmin(admin.ModelAdmin):
-    filter_horizontal = ('consultants',)
+    # filter_horizontal = ('consultants',)
     inlines = [SummitLessonInline, ]
 
 
@@ -35,7 +40,7 @@ class AnketEmailAdmin(admin.ModelAdmin):
 
 
 class SummitAnketAdmin(ExportMixin, admin.ModelAdmin):
-    list_display = ('name', 'user', 'summit', 'code', 'visited', 'is_member')
+    list_display = ('name', 'user', 'summit', 'code', 'visited', 'is_member', 'role')
     list_editable = ('visited',)
     readonly_fields = ('user', 'summit')
     list_filter = ('summit', 'user__department', 'protected',)
@@ -44,7 +49,10 @@ class SummitAnketAdmin(ExportMixin, admin.ModelAdmin):
     resource_class = SummitAnketResource
     formats = (base_formats.XLSX,)
 
-    inlines = [SummitAnketNoteInline, ]
+    inlines = [
+        # SummitAnketNoteInline,
+        SummitUserConsultantInline
+    ]
 
     class Meta:
         model = SummitAnket

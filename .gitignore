@@ -7,3 +7,9 @@
 *.sql
 edem/local_settings.py
 /.sift.conf
+/celerybeat-schedule
+__pycache__/
+celerybeat.pid
+celeryev.pid
+static/bower_components/
+templates/search/

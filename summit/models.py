@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from collections import OrderedDict
 from datetime import date
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
@@ -34,11 +35,6 @@ class Summit(models.Model):
     description = models.CharField(max_length=255, verbose_name='Описание',
                                    blank=True, null=True)
 
-    consultants = models.ManyToManyField(
-        'account.CustomUser', related_name='consultees_summits',
-        verbose_name=_('Consultants'),
-        limit_choices_to={'is_active': True})
-
     class Meta:
         ordering = ('type',)
         verbose_name = _('Summit')
@@ -46,6 +42,10 @@ class Summit(models.Model):
 
     def __str__(self):
         return '%s %s' % (self.type.title, self.start_date)
+
+    @property
+    def consultants(self):
+        return self.ankets.filter(role__gte=SummitAnket.CONSULTANT)
 
     @property
     def title(self):
@@ -84,11 +84,23 @@ class SummitAnket(models.Model):
 
     visited = models.BooleanField(default=False)
 
+    VISITOR, CONSULTANT, SUPERVISOR = 10, 20, 30
+    ROLES = (
+        (VISITOR, _('Visitor')),
+        (CONSULTANT, _('Consultant')),
+        (SUPERVISOR, _('Supervisor')),
+    )
+    role = models.PositiveSmallIntegerField(_('Summit Role'), choices=ROLES, default=VISITOR)
+
+    summit_consultants = models.ManyToManyField(
+        'summit.Summit', related_name='consultant_ankets',
+        through='summit.SummitUserConsultant', through_fields=('user', 'summit'))
+
     class Meta:
         unique_together = (('user', 'summit'),)
 
     def __str__(self):
-        return '%s %s' % (self.user.fullname, self.summit.type.title)
+        return '%s %s %s' % (self.user.fullname, self.summit.type.title, self.summit.start_date)
 
     @property
     def is_member(self):
@@ -170,10 +182,10 @@ class SummitLesson(models.Model):
 
 @python_2_unicode_compatible
 class SummitUserConsultant(models.Model):
-    consultant = models.ForeignKey('account.CustomUser', on_delete=models.CASCADE, related_name='consultees',
-                                   limit_choices_to={'consultees_summits__isnull': False},
+    consultant = models.ForeignKey('summit.SummitAnket', on_delete=models.CASCADE, related_name='consultees',
+                                   limit_choices_to={'role__gte': SummitAnket.CONSULTANT},
                                    verbose_name=_('Consultant'))
-    user = models.ForeignKey('account.CustomUser', on_delete=models.CASCADE, related_name='consultants',
+    user = models.ForeignKey('summit.SummitAnket', on_delete=models.CASCADE, related_name='consultants',
                              verbose_name=_('User'))
     summit = models.ForeignKey('summit.Summit', on_delete=models.CASCADE, related_name='consultees',
                                verbose_name=_('Summit'))
@@ -185,6 +197,12 @@ class SummitUserConsultant(models.Model):
         verbose_name = _('Summit consultant')
         verbose_name_plural = _('Summit consultants')
         unique_together = ('user', 'summit')
+
+    def clean(self):
+        if self.summit != self.user.summit:
+            raise ValidationError(_('Этот пользователь не участвует в данном саммите.'))
+        if self.summit != self.consultant.summit:
+            raise ValidationError(_('Этот пользователь не является консультантом на данном саммите.'))
 
 
 @python_2_unicode_compatible
