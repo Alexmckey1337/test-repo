@@ -20,7 +20,7 @@ def generate():
     return True
 
 
-@app.task(ignore_relust=True, max_retries=10, default_retry_delay=10)
+@app.task(ignore_result=True, max_retries=10, default_retry_delay=10)
 def send_ticket(data):
     template_name = 'email/summit_ticket.html'
     main_email = settings.EMAIL_HOST_USER or ''
