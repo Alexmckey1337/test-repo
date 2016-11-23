@@ -1,6 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import django_filters
 import rest_framework_filters as filters_new
 from django.http import HttpResponse
 from rest_framework import mixins
@@ -317,11 +318,22 @@ class SummitTypeForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     pagination_class = None
 
 
+class ProductFilter(django_filters.FilterSet):
+    min_id = django_filters.NumberFilter(name="id", lookup_expr='gte')
+    max_id = django_filters.NumberFilter(name="id", lookup_expr='lte')
+
+    class Meta:
+        model = SummitAnket
+        fields = ['summit', 'min_id', 'max_id']
+
+
 class SummitAnketForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = SummitAnket.objects.select_related('user').order_by('id')
     serializer_class = SummitAnketForAppSerializer
     filter_backends = (filters.DjangoFilterBackend,)
-    filter_fields = ('summit',)
+    # filter_fields = ('summit', 'id')
+    # filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+    filter_class = ProductFilter
     permission_classes = (AllowAny,)
     pagination_class = None
 
