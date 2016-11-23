@@ -78,7 +78,7 @@ def send_ticket(data, force_ticket=False):
     html_template = get_template(template_name)
     subject = ctx.get('subject', 'Билет на саммит')
     message = ctx.get('message', 'Билен на саммит')
-    from_email = 'Саммит <{email}>'.format(email=auth_user)
+    from_email = 'Саммит 4 Измерение <{email}>'.format(email=auth_user)
     html_message = html_template.render(ctx)
     connection = get_connection(username=auth_user, password=auth_password)
     mail = EmailMultiAlternatives(subject, message, from_email, [recipient], connection=connection)
