@@ -3,13 +3,14 @@ from __future__ import unicode_literals
 
 import rest_framework_filters as filters_new
 from django.http import HttpResponse
+from rest_framework import mixins
 from rest_framework import status
 from rest_framework import viewsets, filters
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.filters import BaseFilterBackend
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
@@ -21,7 +22,8 @@ from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLess
 from .resources import get_fields
 from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
-    SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer)
+    SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitTypeForAppSerializer,
+    SummitAnketForAppSerializer)
 from .tasks import send_ticket
 
 
@@ -308,6 +310,22 @@ class SummitViewSet(viewsets.ModelViewSet):
         return Response(data, status=status.HTTP_201_CREATED)
 
 
+class SummitTypeForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = SummitType.objects.prefetch_related('summits')
+    serializer_class = SummitTypeForAppSerializer
+    permission_classes = (AllowAny,)
+    pagination_class = None
+
+
+class SummitAnketForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = SummitAnket.objects.select_related('user').order_by('id')
+    serializer_class = SummitAnketForAppSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_fields = ('summit',)
+    permission_classes = (AllowAny,)
+    pagination_class = None
+
+
 class SummitTypeViewSet(viewsets.ModelViewSet):
     queryset = SummitType.objects.all()
     serializer_class = SummitTypeSerializer
@@ -357,7 +375,6 @@ class SummitAnketNoteViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 def generate_code(request):
-
     code = request.GET.get('code', '00000000')
 
     pdf = generate_ticket(code)
