@@ -82,6 +82,8 @@ class SummitAnket(models.Model):
     image = models.CharField(max_length=12, blank=True)
     retards = models.BooleanField(default=False)
 
+    ticket = models.FileField(_('Ticket'), upload_to='tickets', null=True, blank=True)
+
     visited = models.BooleanField(default=False)
 
     VISITOR, CONSULTANT, SUPERVISOR = 10, 20, 30
