@@ -90,7 +90,7 @@ class SummitAnketForAppSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SummitAnket
-        fields = ('id', 'user', 'code')
+        fields = ('id', 'user', 'code', 'value', 'is_member')
 
 
 class SummitUnregisterUserSerializer(serializers.HyperlinkedModelSerializer):
