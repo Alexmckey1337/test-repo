@@ -136,7 +136,8 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
                                     'email': sa.user.email,
                                     'summit_name': str(sa.summit),
                                     'fullname': sa.user.fullname,
-                                    'code': sa.code
+                                    'code': sa.code,
+                                    'ticket': sa.ticket.url if sa.ticket else None
                                 }
                                 send_ticket.delay(email_data)
                         else:
@@ -170,7 +171,8 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
                                     'email': s.user.email,
                                     'summit_name': str(s.summit),
                                     'fullname': s.user.fullname,
-                                    'code': s.code
+                                    'code': s.code,
+                                    'ticket': sa.ticket.url if sa.ticket else None
                                 }
                                 send_ticket.delay(email_data)
                     else:

@@ -4,13 +4,13 @@ from __future__ import unicode_literals
 import os
 from io import BytesIO
 
-import requests
-from PIL import Image
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+from reportlab.graphics import renderPDF
+from reportlab.graphics.barcode import createBarcodeDrawing
+from reportlab.graphics.shapes import Drawing
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
-from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
@@ -29,10 +29,6 @@ def generate_ticket(code):
         last_name = 'No_name'
 
     logo = os.path.join(settings.MEDIA_ROOT, 'ticket.jpg')
-    url = 'http://barcode.tec-it.com/barcode.ashx?translate-esc=off&data={code}&code=Code128&dpi=600&imagetype=Jpg&rotation=90&color=000000&bgcolor=FFFFFF&download=true'.format(
-        code=code)
-
-    r = requests.get(url)
 
     buffer = BytesIO()
 
@@ -48,11 +44,26 @@ def generate_ticket(code):
     c.setFont('FreeSans', 46 * w / 2241)
     c.drawString(80 * w / 2241, 165 * w / 2241 + v, first_name)
     c.drawString(970 * w / 2241, 165 * w / 2241 + v, last_name)
-    c.drawImage(ImageReader(Image.open(BytesIO(r.content))), 1950 * w / 2241, 200 * w / 2241 + v, 645 / 2 * w / 2241,
-                988 / 2 * w / 2241)
-    # c.setStrokeColor(white)
-    # c.setLineWidth(80)
-    # c.line(2250, 20, 2250, 950)
+
+    barcode_font_size = 70 * w / 2241
+    barcode = createBarcodeDrawing('Code128', value=code, lquiet=0,
+                                   barWidth=1.65, barHeight=465 / 2 * w / 2241,
+                                   humanReadable=True,
+                                   fontSize=barcode_font_size, fontName='FreeSans')
+
+    drawing_width = 988 / 2 * w / 2241
+    barcode_scale = drawing_width / barcode.width
+    drawing_height = barcode.height * barcode_scale
+
+    drawing = Drawing(drawing_width, drawing_height)
+    drawing.scale(barcode_scale, barcode_scale)
+    drawing.add(barcode, name='barcode')
+
+    drawing_rotated = Drawing(drawing_height, drawing_width)
+    drawing_rotated.rotate(90)
+    drawing_rotated.translate(0, -drawing_height)
+    drawing_rotated.add(drawing, name='drawing')
+    renderPDF.draw(drawing_rotated, c, 1974 * w / 2241, 200 * w / 2241 + v)
 
     c.showPage()
     c.save()
@@ -60,25 +71,3 @@ def generate_ticket(code):
     buffer.close()
 
     return pdf
-
-# def send_ticket(summit_anket):
-#     template_name = 'email/summit_ticket.html'
-#     ctx = {}
-#     main_email = settings.EMAIL_HOST_USER or ''
-#     recipient_list = [summit_anket.user.email]
-#
-#     html_template = get_template(template_name)
-#     subject = ctx.get('subject', 'Билет')
-#     message = ctx.get('message', 'Билен на саммит {}'.format(summit_anket.summit))
-#     from_email = 'Билет <{email}>'.format(email=main_email)
-#     html_message = html_template.render(ctx)
-#
-#     mail = EmailMultiAlternatives(subject, message, from_email, recipient_list)
-#     mail.attach_alternative(html_message, 'text/html')
-#
-#     mail.attach('{} ({}).pdf'.format(
-#         summit_anket.user.fullname, summit_anket.code),
-#         generate_ticket(summit_anket.code),
-#         'application/pdf')
-#
-#     return mail.send()

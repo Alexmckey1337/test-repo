@@ -9,7 +9,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 
 from edem.celery import app
-from summit.models import AnketEmail
+from summit.models import AnketEmail, SummitAnket
 from summit.utils import generate_ticket
 from .resources import make_table
 
@@ -20,8 +20,39 @@ def generate():
     return True
 
 
-@app.task(ignore_result=True, max_retries=10, default_retry_delay=10)
-def send_ticket(data):
+@app.task(ignore_result=True, max_retries=10, default_retry_delay=10 * 60)
+def create_ticket(anket_id, code, fullname):
+    attach = generate_ticket(code)
+    anket = SummitAnket.objects.get(id=anket_id)
+
+    pdf_name = '{} ({}).pdf'.format(fullname, code)
+    anket.ticket.save(pdf_name, File(BytesIO(attach)))
+
+
+@app.task(ignore_result=True, max_retries=0)
+def create_tickets(ankets):
+    for anket in ankets:
+        create_ticket.dalay(anket.get('id'), anket.get('code'), anket.get('fullname'))
+
+
+@app.task(ignore_result=True, max_retries=0)
+def send_tickets(ankets):
+    for anket in ankets:
+        email_data = {
+            'anket_id': anket.get('id', ''),
+            'email': anket.get('user__email', ''),
+            'summit_name': '{} {}'.format(anket.get('summit__type__title', ''), anket.get('summit__start_date', '')),
+            'fullname': '{} {} {}'.format(anket.get('user__first_name', ''),
+                                          anket.get('user__last_name', ''),
+                                          anket.get('user__middle_name', '')),
+            'code': anket.get('code', ''),
+            'ticket': anket.get('ticket', '')
+        }
+        send_ticket.delay(email_data)
+
+
+@app.task(ignore_result=True, max_retries=10, default_retry_delay=10 * 60)
+def send_ticket(data, force_ticket=False):
     template_name = 'email/summit_ticket.html'
     main_email = settings.EMAIL_HOST_USER or ''
 
@@ -46,9 +77,18 @@ def send_ticket(data):
     mail = EmailMultiAlternatives(subject, message, from_email, [recipient])
     mail.attach_alternative(html_message, 'text/html')
 
-    attach = generate_ticket(code)
-    pdf_name = '{} ({}).pdf'.format(fullname, code)
-    mail.attach(pdf_name, attach, 'application/pdf')
+    anket = SummitAnket.objects.get(id=anket_id)
+    if force_ticket or not data.get('ticket'):
+        attach = generate_ticket(code)
+        pdf_name = '{} ({}).pdf'.format(fullname, code)
+        mail.attach(pdf_name, attach, 'application/pdf')
+        anket.ticket.save(pdf_name, File(BytesIO(attach)))
+    else:
+        file = anket.ticket
+        attach = file.read()
+        pdf_name = '{} ({}).pdf'.format(fullname, code)
+        mail.attach(pdf_name, attach, 'application/pdf')
+        file.close()
 
     send = mail.send()
     if send > 0 and anket_id:
