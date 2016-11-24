@@ -133,7 +133,8 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
                             sa.save()
                             data = {"message": "Данные успешно измененны",
                                     'status': True}
-                            if data['status'] and request.data.get('send_email', False):
+                            if (data['status'] and request.data.get('send_email', False) and
+                                        int(request.user.id) == 4035):
                                 email_data = {
                                     'anket_id': sa.id,
                                     'email': sa.user.email,
@@ -168,7 +169,8 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
                                     get_fields(s)
                             data = {"message": "Данные успешно сохраненны",
                                     'status': True}
-                            if data['status'] and request.data.get('send_email', False):
+                            if (data['status'] and request.data.get('send_email', False) and
+                                        int(request.user.id) == 4035):
                                 email_data = {
                                     'anket_id': s.id,
                                     'email': s.user.email,
