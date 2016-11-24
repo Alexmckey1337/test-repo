@@ -33,6 +33,7 @@ class HasEmailListFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() == 'yes':
-            return queryset.filter(emails__isnull=False)
+            ids = queryset.filter(emails__isnull=False).values_list('id', flat=True)
+            return queryset.filter(id__in=ids)
         if self.value() == 'no':
             return queryset.filter(emails__isnull=True)
