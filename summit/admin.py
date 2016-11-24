@@ -5,7 +5,7 @@ from django.contrib import admin
 from import_export.admin import ExportMixin
 from import_export.formats import base_formats
 
-from summit.admin_filters import HasTicketListFilter
+from summit.admin_filters import HasTicketListFilter, HasEmailListFilter
 from .models import SummitAnket, Summit, SummitType, SummitAnketNote, SummitLesson, AnketEmail, SummitUserConsultant
 from .resources import SummitAnketResource
 from .tasks import send_tickets, create_tickets
@@ -45,10 +45,10 @@ class SummitAnketAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('name', 'user', 'summit', 'code', 'visited', 'is_member', 'role')
     list_editable = ('visited',)
     readonly_fields = ('user', 'summit')
-    list_filter = ('summit', 'user__department', 'protected', HasTicketListFilter)
+    list_filter = ('summit', 'user__department', 'protected', HasTicketListFilter, HasEmailListFilter)
     search_fields = ['code', 'user__last_name', ]
 
-    # actions = ['send_tickets', 'create_tickets']
+    actions = ['send_tickets', 'create_tickets']
 
     resource_class = SummitAnketResource
     formats = (base_formats.XLSX,)

@@ -5,7 +5,7 @@ from io import BytesIO
 
 from django.conf import settings
 from django.core.files import File
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, get_connection
 from django.template.loader import get_template
 
 from edem.celery import app
@@ -32,7 +32,7 @@ def create_ticket(anket_id, code, fullname):
 @app.task(ignore_result=True, max_retries=0)
 def create_tickets(ankets):
     for anket in ankets:
-        create_ticket.dalay(anket.get('id'), anket.get('code'), anket.get('fullname'))
+        create_ticket.delay(anket.get('id'), anket.get('code'), anket.get('fullname'))
 
 
 @app.task(ignore_result=True, max_retries=0)
@@ -64,17 +64,24 @@ def send_ticket(data, force_ticket=False):
 
     ctx = {
         'fullname': fullname,
-        'message': 'Поздравляю тебя, {}!\nТебе пришел билет на саммит,'
-                   'его необходимо распечатать и предъявить при входе в Палац Украина.'.format(fullname)
+        'message': 'Дорогой студент!'
+                   'В этом письме находится твой электронный билет. Распечатай его и сохрани,'
+                   'он будет твоим пропуском на все дни обучения на саммите. '
+                   'В этом билете закодированы твои персональные данные. '
+                   'До встречи на саммите!'
+                   'С уважением Администрация саммита.'
     }
+
+    auth_user = '4izmerenie@vo.org.ua'
+    auth_password = 'natasha120821'
 
     html_template = get_template(template_name)
     subject = ctx.get('subject', 'Билет на саммит')
     message = ctx.get('message', 'Билен на саммит')
-    from_email = 'Саммит <{email}>'.format(email=main_email)
+    from_email = 'Саммит 4 Измерение <{email}>'.format(email=auth_user)
     html_message = html_template.render(ctx)
-
-    mail = EmailMultiAlternatives(subject, message, from_email, [recipient])
+    connection = get_connection(username=auth_user, password=auth_password)
+    mail = EmailMultiAlternatives(subject, message, from_email, [recipient], connection=connection)
     mail.attach_alternative(html_message, 'text/html')
 
     anket = SummitAnket.objects.get(id=anket_id)

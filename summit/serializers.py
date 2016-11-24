@@ -72,6 +72,35 @@ class SummitTypeSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'title', 'image')
 
 
+class SummitForAppSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Summit
+        fields = ('id', 'start_date', 'end_date', 'description')
+
+
+class SummitTypeForAppSerializer(serializers.ModelSerializer):
+    summits = SummitForAppSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = SummitType
+        fields = ('title', 'summits')
+
+
+class UserForAppSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('email', 'first_name', 'last_name', 'middle_name',
+                  'phone_number', 'country', 'region', 'city', 'district', 'address', 'image_source')
+
+
+class SummitAnketForAppSerializer(serializers.ModelSerializer):
+    user = UserForAppSerializer()
+
+    class Meta:
+        model = SummitAnket
+        fields = ('id', 'user', 'code', 'value', 'is_member')
+
+
 class SummitUnregisterUserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User

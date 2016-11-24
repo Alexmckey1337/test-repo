@@ -1,15 +1,17 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import django_filters
 import rest_framework_filters as filters_new
 from django.http import HttpResponse
+from rest_framework import mixins
 from rest_framework import status
 from rest_framework import viewsets, filters
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.filters import BaseFilterBackend
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
@@ -21,7 +23,8 @@ from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLess
 from .resources import get_fields
 from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
-    SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer)
+    SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer,
+    SummitTypeForAppSerializer, SummitAnketForAppSerializer)
 from .tasks import send_ticket
 
 
@@ -346,6 +349,33 @@ class SummitViewSet(viewsets.ModelViewSet):
         data = {'sumit_id': pk, 'consultant_id': anket_id, 'action': 'removed'}
 
         return Response(data, status=status.HTTP_204_NO_CONTENT)
+
+
+class SummitTypeForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = SummitType.objects.prefetch_related('summits')
+    serializer_class = SummitTypeForAppSerializer
+    permission_classes = (AllowAny,)
+    pagination_class = None
+
+
+class ProductFilter(django_filters.FilterSet):
+    min_id = django_filters.NumberFilter(name="id", lookup_expr='gte')
+    max_id = django_filters.NumberFilter(name="id", lookup_expr='lte')
+
+    class Meta:
+        model = SummitAnket
+        fields = ['summit', 'min_id', 'max_id']
+
+
+class SummitAnketForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = SummitAnket.objects.select_related('user').order_by('id')
+    serializer_class = SummitAnketForAppSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    # filter_fields = ('summit', 'id')
+    # filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+    filter_class = ProductFilter
+    permission_classes = (AllowAny,)
+    pagination_class = None
 
 
 class SummitTypeViewSet(viewsets.ModelViewSet):
