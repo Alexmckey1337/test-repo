@@ -33,6 +33,14 @@ $(document).ready(function () {
         getUnregisteredUsers();
     });
 
+    document.getElementById('dep_filter').addEventListener('change', function () {
+        var params = {};
+        getUsersList(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/', params)
+
+    });
+
+    getDepartmentsAll();
+
     $('#summit_type').on('change', function () {
         var val = this.value;
         var path = '/api/v1.0/summit_ankets/';
@@ -389,6 +397,11 @@ function reversOrder(order) {
 function getUsersList(path, param) {
     param = param || {};
     var search = document.getElementsByName('fullsearch')[0].value;
+    var el = document.getElementById('dep_filter');
+    var value = el.options[el.selectedIndex].value;
+    if (parseInt(value)) {
+        param['user__department__title'] = el.options[el.selectedIndex].text;
+    }
     var ordering = param.ordering || 'user__last_name';
     var filter = document.getElementById('filter').value;
     if (search) {
