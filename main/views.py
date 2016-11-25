@@ -12,21 +12,21 @@ from tv_crm.views import sync_user_call
 
 
 def entry(request):
-    return render(request, 'entry.html')
+    return render(request, 'login/login.html')
 
 
 def edit_pass(request, activation_key=None):
-    return render(request, 'editpass.html')
+    return render(request, 'login/editpass.html')
 
 
 @login_required(login_url='entry')
 def events(request):
-    return render(request, 'events.html')
+    return render(request, 'event/events.html')
 
 
 @login_required(login_url='entry')
 def deals(request):
-    return render(request, 'deals.html')
+    return render(request, 'partner/deals.html')
 
 
 @login_required(login_url='entry')
@@ -34,12 +34,12 @@ def partner_stats(request):
     partner = request.user.partnership
     if not partner or partner.level > Partnership.MANAGER:
         raise Http404('Статистику можно просматривать только менеджерам.')
-    return render(request, 'partner_stats.html')
+    return render(request, 'partner/partner_stats.html')
 
 
 @login_required(login_url='entry')
 def account(request, id):
-    return render(request, 'anketa.html')
+    return render(request, 'account/anketa.html')
 
 
 @login_required(login_url='entry')
@@ -48,32 +48,32 @@ def account_edit(request, user_id):
         if user_id:
             return redirect(reverse('account', args=[user_id]))
         return redirect('/')
-    return render(request, 'edit.html')
+    return render(request, 'account/edit.html')
 
 
 @login_required(login_url='entry')
 def summits(request):
-    return render(request, 'summits.html')
+    return render(request, 'summit/summits.html')
 
 
 @login_required(login_url='entry')
 def summit_info(request, summit_id):
-    return render(request, 'summit_info.html')
+    return render(request, 'summit/summit_info.html')
 
 
 @login_required(login_url='entry')
 def index(request):
-    return render(request, 'main.html')
+    return render(request, 'database/main.html')
 
 
 @login_required(login_url='entry')
 def reports(request):
-    return render(request, 'reports.html')
+    return render(request, 'report/reports.html')
 
 
 @login_required(login_url='entry')
 def event_info(request):
-    return render(request, 'event_info.html')
+    return render(request, 'event/event_info.html')
 
 
 @login_required(login_url='entry')
