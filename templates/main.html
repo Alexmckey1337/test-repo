@@ -1,6 +1,8 @@
 {% extends "layout_main.html" %}
 
-{% block header.top.h1 %}База данных | {% endblock %}
+{% block body_id %} id="database"{% endblock %}
+
+{% block header.top.h1 %}<h1>База данных | </h1>{% endblock %}
 
 {% block header.top.select %}
     <select class="selectdb" id="dep_filter">
@@ -20,7 +22,7 @@
     </div>
 {% endblock %}
 
-{% block header_buttons.export %}
+{% block header.buttons.export %}
 {% endblock %}
 
 {% block create_user %}

@@ -40,7 +40,7 @@
                             <ul class="top">
                                 {% block header.top.left %}
                                     <li>
-                                        <h1>{% block header.top.h1 %}{% endblock %}</h1>
+                                        {% block header.top.h1 %}{% endblock %}
                                         {% block header.top.select %}
                                         {% endblock %}
                                     </li>
@@ -70,20 +70,21 @@
                             </ul><!--End Top -->
                         {% endblock %}
 
-                        {% block header_buttons %}
+                        {% block header.buttons %}
                             <div class="top-buttons-wrap">
+                                {% block header.buttons.filter %}{% endblock %}
                                 <ul class="top-buttons">
-                                    {% block header_buttons.add %}
+                                    {% block header.buttons.add %}
                                         <li>
                                             <button id="add">Добавить пользователя</button>
                                         </li>
                                     {% endblock %}
-                                    {% block header_buttons.export %}
+                                    {% block header.buttons.export %}
                                         <li>
                                             <button class="exp">Экспортировать</button>
                                         </li>
                                     {% endblock %}
-                                    {% block header_buttons.change_table %}
+                                    {% block header.buttons.change_table %}
                                         <li>
                                             <button id="sort-on">Изменить таблицу</button>
                                         </li>
@@ -155,17 +156,10 @@
                 {% endblock %}
 
                 {% block pagination_bottom %}
-                    <div class="pagination full-width"><!--pagination -->
-                        <!--<div class="element-select">
-                                <p>Показано <span>10</span> из <span>500</span></p>
-                        </div>-->
-                        <div class="element-select">
-
-                        </div>
-                        <div class="pag-wrap">
-
-                        </div>
-                    </div><!--End pagination -->
+                    <div class="pagination full-width">
+                        <div class="element-select"></div>
+                        <div class="pag-wrap"></div>
+                    </div>
                 {% endblock %}
             </div>
         {% endblock main %}
@@ -202,8 +196,8 @@
                         <h3>Добавить участника</h3>
                     </div>
                     <div class="splash-buttons">
-                        <button>Выбрать из базы</button>
-                        <button>Создать нового</button>
+                        <button id="choose">Выбрать из базы</button>
+                        <button id="add_new">Создать нового</button>
                     </div>
                 </div>
             </div><!--End-Add -user -->
@@ -213,36 +207,15 @@
             <div class="choose-user-wrap"><!--Choose -user -->
                 <div class="splash-screen">
                     <div class="top-text">
-                        <h3>← Выбрать участника из базы</h3>
+                        <h3><span>←</span> Выбрать участника из базы</h3>
+                        <span>&times;</span>
                     </div>
                     <div class="search">
-                        <input type="text" placeholder="Поиск" name="fullsearch">
+                        {% block choose_user_modal.search_field %}
+                            <input type="text" placeholder="Поиск" name="fullsearch">
+                        {% endblock %}
                     </div>
-                    <div class="scrollwrap scrollbar-macosx">
-                        <div class="rows-wrap">
-                            <div class="rows">
-                                <div class="col">
-                                    <p><span>Батрутдинова Диана Николаевна</span></p>
-                                </div>
-                                <div class="col">
-                                    <p><span>Украина</span>,<span>Киев</span></p>
-                                </div>
-                            </div>
-                            <button>Выбрать</button>
-                        </div>
-
-                        <div class="rows-wrap">
-                            <div class="rows">
-                                <div class="col">
-                                    <p><span>Батрутдинова Диана Николаевна</span></p>
-                                </div>
-                                <div class="col">
-                                    <p><span>Украина</span>,<span>Киев</span></p>
-                                </div>
-                            </div>
-                            <button>Выбрать</button>
-                        </div>
-                    </div>
+                    <div id="searchedUsers" class="scrollwrap scrollbar-macosx"></div>
                 </div>
             </div><!--End Choose -user -->
         {% endblock %}

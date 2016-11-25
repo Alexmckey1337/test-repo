@@ -1,595 +1,81 @@
-<!DOCTYPE html>
-<!--[if IE]>
-<link rel="stylesheet" type="text/css" href="css/ie.css"/>
-<!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
-<!--[if (gte IE 9)|!(IE)]><!-->
-<html lang="ru"> <!--<![endif]-->
+{% extends "layout_main.html" %}
 
-<head>
+{% block header.top.h1 %}<h1 id="summit-title"></h1>{% endblock %}
 
-    <meta charset="UTF-8">
+{% block header.top.select %}
+    <select class="selectdb" id="dep_filter">
+        <option>ВСЕ</option>
+    </select>
+{% endblock %}
 
-    <title>CRM</title>
-    <meta name="description" content="">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-
-    <link rel="shortcut icon" href="/static/img/favicon.png" type="image/x-icon">
-    <link rel="stylesheet" href="/static/css/normalize.min.css">
-    <link rel="stylesheet" href="/static/libs/jquery.scrollbar.css">
-    <link rel="stylesheet" href="/static/css/jquery-ui.min.css">
-    <link rel="stylesheet" href="/static/css/fonts.css">
-    <link rel="stylesheet" href="/static/css/main.css">
-    <link rel="stylesheet" href="/static/css/media.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/css/select2.min.css" rel="stylesheet"/>
-
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet"
-          integrity="sha384-XdYbMnZ/QjLh6iI4ogqCTaIjrFk87ip+ekIjefZch0Y+PvJ8CDYtEs1ipDmPorQ+" crossorigin="anonymous">
-    <link rel="stylesheet" href="/static/css/jquery-ui.min.css">
-    <link rel="stylesheet" href="/static/css/cropper.min.css">
-    <link rel="stylesheet" href="/static/css/main.css">
-</head>
-
-<body>
-<div class="page-width">
-
-    <div id="sidebar"><!--Sidebar -->
-        <div class="scrollbar-macosx">
-
-            <div class="logo">
-                <div><span>V</span><span>O</span></div>
-                <div><span>C</span><span>R</span><span>M</span></div>
-            </div>
-
-            <ul id="nav-sidebar">
-                <li><a data-title="База данных" href="/">База данных</a></li>
-                <li><a data-title="Все отчеты" href="/reports/">Все отчеты</a></li>
-                <li><a data-title="События" href="/events/">События</a></li>
-                <li><a data-title="Партнёрство" href="/deals/">Партнёрство</a></li>
-                <li><a data-title="Саммиты" href="/summits/">Саммиты</a></li>
-                <li id="move-sidebar"><a data-title="Развернуть" href="#">Свернуть</a></li>
-            </ul>
-        </div>
+{% block header.search.filter %}
+    <div class="filter">
+        <select name="filter" id="filter">
+            <option value="search">Все поля</option>
+            <option value="department__title">Отдел</option>
+            <option value="country">Страна</option>
+            <option value="city">Населенный пункт</option>
+            <option value="district">Район</option>
+        </select>
     </div>
-    <div class="main-wrap">
-        <div class="header">
+{% endblock %}
 
-            <ul class="top"><!-- Top -->
-                <li>
-                    <h1 id="summit-title"><!--span>САММИТЫ | </span> Четвёртое измерение--></h1>
-                    <select class="selectdb" id="dep_filter">
-                        <option>ВСЕ</option>
-                        <!--<option>Item 2</option>
-                        <option>Item 3</option>-->
-                    </select>
-                </li>
-                <li class="userImgWrap">
-                    <div class="userimg"><!-- <img src="img/layer-1.jpg" alt="userphoto"> -->
-                    </div>
-                </li>
-                <li class="sms"><span>0</span><span></span></li>
-                <li>
-                    <div class="search">
-                        <input type="text" placeholder="Поиск и фильтр" name="fullsearch">
-                        <div class="filter"><select name="filter" id="filter">
-                            <option value="search">Все поля</option>
-                            <option value="department__title">Отдел</option>
-                            <option value="country">Страна</option>
-                            <option value="city">Населенный пункт</option>
-                            <option value="district">Район</option>
-                        </select>
-                        </div>
-                    </div>
-                </li>
-            </ul><!--End Top -->
+{% block header.buttons.filter %}
+    <div class="col-4">
+        <select name="summit_type" id="summit_type">
+            <option value="0">Все</option>
+            <option value="1">Облако свидетелей</option>
+            <option value="2">Не облако свидетелей</option>
+        </select>
+    </div>
+{% endblock %}
 
-            <div class="top-buttons-wrap">
-                <div class="col-4">
-                     <select name="summit_type" id="summit_type">
-                            <option value="0">Все</option>
-                            <option value="1">Облако свидетелей</option>
-                            <option value="2">Не облако свидетелей</option>
-                        </select>
-                </div>
-                <ul class="top-buttons"><!-- top-buttons -->
-                    <li>
+{% block header.buttons.export %}
+{% endblock %}
 
-                    </li>
-                    <li>
-                        <div class="searchDep">
-                            <input type="text" placeholder="Поиск по названию отдела" name="searchDep">
-                        </div>
-                    </li>
-                    <li>
-                        <button class="add">Добавить пользователя</button>
-                    </li>
-                    <li>
-                        <button class="exp">Экспортировать</button>
-                    </li>
-                    <li>
-                        <button id="sort-on">Изменить таблицу</button>
-                    </li>
+{% block pagination_top %}
+    <div class="top-pag">
+        <div id="carousel" class="carousel">
 
-                </ul><!--top-buttons -->
+            <span class="arrow-left"></span>
 
+            <div class="gallery">
+                <ul id="date" class="images">
+                </ul>
             </div>
 
-            <div class="user-hover photo-hover">
-                <div class="hover-wrapper">
-                    <div class="top-box" id="edit_profile">
-                        <span></span>
-                        <p>Мой профиль</p>
-                    </div>
-                    <div class="bottom-box"><a id="logout_button">
-                        <span></span>
-                        <p>Выйти</p></a>
-                    </div>
-                </div>
-            </div>
+            <span class="arrow-right"></span>
 
-
-            <div class="user-hover massage-hover">
-                <div class="hover-wrapper">
-                    <div class="top-box">
-                        <p>У Вас <span>48</span> незавершённых сделок</p>
-                    </div>
-                    <div class="bottom-box">
-                        <p>Сегодня день рождения у:</p>
-                        <ul>
-                            <li>Кичеев Данила Никонович</li>
-                            <li>Никоненко Сергей Эдуардович</li>
-                            <li>Ломтева Виктория Ипполитовна</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-        </div><!--End header -->
-
-        <div class="top-pag">
-            <div id="carousel" class="carousel">
-
-                <span class="arrow-left"></span>
-
-                <div class="gallery">
-                    <ul id="date" class="images">
-                        <!-- <li><span>1 – 7 марта (11:00)</span></li>
-                                                <li><span>1 – 7 марта (11:00)</span></li>
-                                                <li><span>1 – 7 марта (11:00)</span></li> -->
-                        <!-- <li><span>1 – 7 марта (11:00)</span></li>
-                        <li><span>1 – 7 марта (11:00)</span></li>
-                        <li><span>1 – 7 марта (11:00)</span></li> -->
-                    </ul>
-                </div>
-
-                <span class="arrow-right"></span>
-
-            </div>
-
-            <div class="pagination"><!--pagination -->
-                <div class="pag-wrap"></div>
-            </div><!--End pagination -->
         </div>
 
-
-        <div class="table-wrap clearfix">
-            <div id="users_list" class="table scrollbar-inner"></div>
-            <div class="preloader">
-                <div class="gif">
-                </div>
-            </div>
-        </div>
-
-        <!--End Table -->
-
-        <div class="pagination full-width"><!--pagination -->
-            <div class="element-select">
-
-            </div>
+        <div class="pagination"><!--pagination -->
             <div class="pag-wrap"></div>
         </div><!--End pagination -->
-
-
-    </div><!--End main-wrap -->
-
-    <div class="table-sorting "><!--table-sorting -->
-        <div class="form-wrap scrollbar-macosx">
-            <div class="top-text">
-                <h2>Вы можете добавить столбцы и изменить их порядок</h2>
-            </div>
-            <div class="input-wrap">
-                <ul id="sort-form"></ul>
-            </div>
-            <div class="dropbox-wrap">
-                <!--<span>Показывать</span>
-                <select >
-                    <option value="">15</option>
-                    <option value="">30</option>
-                    <option value="">45</option>
-                </select>
-                <span>строк</span>-->
-            </div>
-            <div class="butt-wrap">
-                <button id="sort-off">Отменить</button>
-                <button id="sort_save">Сохранить</button>
-            </div>
-
-        </div>
-    </div><!--End table-sorting -->
-
-    <div class="add-user-wrap"><!--Add -user -->
-        <div class="splash-screen">
-            <div class="top-text">
-                <h3>Добавить участника</h3>
-                <span>&times;</span>
-            </div>
-            <div class="splash-buttons">
-                <button id="choose">Выбрать из базы</button>
-                <button id="add_new">Создать нового</button>
-            </div>
-        </div>
-    </div><!--End-Add -user -->
-
-    <div class="choose-user-wrap"><!--Choose -user -->
-        <div class="splash-screen">
-            <div class="top-text">
-                <h3><span>←</span> Выбрать участника из базы</h3>
-                <span>&times;</span>
-            </div>
-            <div class="search">
-                <input id="searchUsers" type="text" placeholder="Поиск" name="unregsearch">
-            </div>
-            <div id="searchedUsers" class="scrollwrap scrollbar-macosx">
-                <!-- <div class="rows-wrap">
-                     <div class="rows">
-                         <div class="col">
-                             <p><span>Батрутдинова Диана Николаевна</span></p>
-                         </div>
-                         <div class="col">
-                             <p><span>Украина</span>,<span>Киев</span></p>
-                         </div>
-                     </div>
-                     <button>Выбрать</button>
-                 </div>
-                 <div class="rows-wrap">
-                     <div class="rows">
-                         <div class="col">
-                             <p><span>Батрутдинова Диана Николаевна</span></p>
-                         </div>
-                         <div class="col">
-                             <p><span>Украина</span>,<span>Киев</span></p>
-                         </div>
-                     </div>
-                     <button>Выбрать</button>
-                 </div> -->
-            </div>
-        </div>
-    </div><!--End Choose -user -->
-</div><!--End page-width -->
-<div class="popap" id='popup_div'>
-    <div class="pop_cont">
-        <p id='popup_text'></p>
-        <span onclick='hidePopup()' class="close">x</span>
     </div>
-</div>
-<div id="popup" class="pop-up-splash">
-    <div class="splash-screen">
-        <div class="top-text">
-            <h3><span>←</span> Информация об участнике</h3>
-        </div>
-        <div class="user-info">
-            <div class="left-side">
-                <p>Клиент:</p>
-                <p>Ответственный:</p>
+{% endblock %}
+
+{% block table %}
+    <div class="table-wrap clearfix">
+        <div id="users_list" class="table scrollbar-inner"></div>
+        <div class="preloader">
+            <div class="gif">
             </div>
-            <div class="right-side">
-                <p id="client-name"></p>
-                <p id="responsible-name"></p>
-            </div>
-        </div>
-        <div class="summa-wrap">
-            <div class="summa">
-                <p>Сумма:</p>
-                <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                       readonly="readonly" type="text" id="summit-value">
-                <span id="changeSum" class="change-summ"></span>
-            </div>
-        </div>
-        <textarea placeholder="Добавить коментарий"></textarea>
-        <div class="splash-bauttons">
-            <button id="close">Отменить</button>
-            <button id="complete">Завершить</button>
         </div>
     </div>
-</div>
-<div id="popupDelete" class="pop-up-splash">
-    <div class="splash-screen">
-        <div class="top-text">
-            <h3>Информация об участнике</h3>
-            <span>&times;</span>
-        </div>
-        <div class="summa-wrap">
-            <div class="summa">
-                <p>Сумма:</p>
-                <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                       readonly="readonly" type="text" id="summit-valueDelete">
-                <span id="changeSumDelete" class="change-summ"></span>
-            </div>
-            <div class="member_club_block">
-                <input type="checkbox" id="member">
-                <label for="member">Учасник <span id="member_club">Облако свидетелей</span>:</label>
-            </div>
-            <div class="member_club_block">
-                <input type="checkbox" id="send_email">
-                <label for="send_email"><span id="send_email_label">Отправить билет</span>:</label>
-            </div>
-        </div>
-        <textarea maxlength="40" placeholder="Добавить коментарий"></textarea>
-        <div class="splash-bauttons">
-            <button id="deleteAnket"><i class="fa fa-trash-o fa-lg" aria-hidden="true"></i> Удалить</button>
-            <button id="closeDelete">Отменить</button>
-            <button id="completeDelete">Завершить</button>
-        </div>
-    </div>
-</div>
-<div id="popupForNew" class="pop-up-splash">
-    <div class="splash-screen">
-        <div class="top-text">
-            <h3><span>←</span> Информация об участнике</h3>
-        </div>
-        <div class="user-info">
-            <div class="left-side">
-                <p>Клиент:</p>
-                <p>Ответственный:</p>
-            </div>
-            <div class="right-side">
-                <p id="client-nameNew"></p>
-                <p id="responsible-nameNew"></p>
-            </div>
-        </div>
-        <div class="summa-wrap">
-            <div class="code">
+{% endblock %}
 
-                <input placeholder="Номер пропуска" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                       type="text" id="code">
+{% block choose_user_modal.search_field %}
+    <input id="searchUsers" type="text" placeholder="Поиск" name="unregsearch">
+{% endblock %}
 
-                <input id="check" type="checkbox">
+{% block create_user %}
+    {% include 'partials/create_user_summit.html' %}
+{% endblock %}
 
-            </div>
-            <div class="summa">
-                <p>Сумма:</p>
-                <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                       readonly="readonly" type="text" id="summit-valueNew">
-                <span id="changeSumNew" class="change-summ"></span>
-            </div>
-        </div>
-        <textarea placeholder="Добавить коментарий"></textarea>
-        <div class="splash-bauttons">
-            <button id="closeNew">Отменить</button>
-            <button id="completeNew">Завершить</button>
-        </div>
-    </div>
-</div><!--End Pop-up-splash-->
-<div class="pop-up-splash pop-up-splash-add">
-    <div class="splash-screen editprofile">
-        <div class="top-text">
-            <h3><span>← </span>Добавить пользователя</h3>
-        </div>
-        <div class="columns-wrap">
-            <div class="col-1">
-                <div id="edit-photo" class="anketa-photo">
-                    <img src="/static/img/no-usr.jpg" alt="photo">
-                </div>
-                <div class="butt-wrap">
-                    <form style="display:none" enctype="multipart/form-data" method="post">
-                        <p><input id="addFile" type="file" name="f"></p>
-                    </form>
-                    <button id="addFileButton">Загрузить</button>
-                    <p>Размер файла не должен превышать <br/> 10 МБ.</p>
-                    <p>Типы файлов, которые поддерживаются: <br/> jpg, jpeg, png.</p>
-                </div>
-            </div><!--End col-1-->
+{% block extra_scripts %}
+    <script src="/static/js/select2.js"></script>
+    <script src="/static/js/add_user_summit.js"></script>
+    <script src="/static/js/cropper.min.js"></script>
 
-            <div class="col-2">
-                <div class="col-table">
-                    <div class="left-info">
-                        <ul>
-                            <li>Фамилия*</li>
-                            <li>Имя*</li>
-                            <li>Отчество</li>
-                            <li>Дата рождения*</li>
-                            <li>Телефон*</li>
-                            <li>Доп.телефон</li>
-                            <li>E-mail*</li>
-                            <li>Skype</li>
-                            <li>Страна*</li>
-                            <li>Область*</li>
-                            <li>Город*</li>
-                            <li>Район</li>
-                            <li>Адрес</li>
-                            <li>Facebook</li>
-                            <li>Vkontakte</li>
-                            <li>Odnaklasniki</li>
-                        </ul>
-                    </div>
-                    <div class="right-info">
-                        <ul>
-                            <li><input name="last_name" type="text"></li>
-                            <li><input name="first_name" type="text"></li>
-                            <li><input name="middle_name" type="text"></li>
-                            <!--li><input type="text" id="bornDate" class="hasDatepicker"></li-->
-                            <li><input name="born_date" type="text" id="bornDate" readonly="readonly"></li>
-                            <li class="phone">
-                                <select style="width: 96%" name="" id="chooseCountryCode">
-                                </select>
-                                <input disabled name="phone_numberCode" type="text">
-                                <input name="phone_number" type="text">
-                            </li>
-                            <li><input type="text"></li>
-                            <li><input name="email" type="text"></li>
-                            <li><input name="skype" type="text"></li>
-                            <li><select style="width: 96%" name="" id="chooseCountry">
-                                <!--option value="">Украина</option-->
-                            </select></li>
-                            <li><select style="width: 96%" disabled name="" id="chooseRegion">
-                                <!-- <option value="">Закарпатская</option> -->
-                            </select></li>
-                            <li><select style="width: 96%" disabled name="" id="chooseCity">
-                                <!-- <option value="">Мукачево</option> -->
-                            </select></li>
-                            <li><input name="district" type="text"></li>
-                            <li><input name="address" id="address" type="text"></li>
-                            <li><input name="fb" type="text"></li>
-                            <li><input name="vk" type="text"></li>
-                            <li><input name="ok" type="text"></li>
-                        </ul>
-                    </div>
-                </div>
-                </ul>
-            </div><!--End col-2-->
-            <div class="col-3">
-                <div class="col-table">
-                    <div class="left-info">
-                        <ul>
-                            <li>Отдел*</li>
-                            <li>Статус*</li>
-                            <li>Статус ответственного*</li>
-                            <li>Ответственный*</li>
-                        </ul>
-                    </div>
-                    <div class="right-info">
-                        <ul>
-                            <li><select style="width: 96%" name="" id="chooseDepartment">
-                                <option value=""></option>
-                            </select></li>
-                            <!-- <li><select name="" id="">
-                                <option value="">Бортничи</option>
-                            </select></li> -->
-                            <li><select style="width: 96%" name="" id="chooseStatus">
-                                <!-- <option value="">Лидер</option> -->
-                            </select></li>
-                            <li><select style="width: 96%" name="" id="chooseResponsibleStatus">
-                                <!-- <option value="">Лидер</option> -->
-                            </select></li>
-                            <li><select style="width: 96%" disabled name="" id="chooseResponsible">
-                                <!-- <option value="">Барков Евгений Иннокентиевич</option> -->
-                            </select></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-table">
-                    <div class="left-info">
-                        <ul>
-                            <li>Департамент</li>
-                        </ul>
-                    </div>
-                    <div class="right-info">
-                        <ul>
-                            <li><select style="width: 96%" name="" id="chooseDivision" multiple="multiple">
-                                <!-- <option value="">Департамент</option> -->
-                            </select></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-table">
-                    <div class="left-info">
-                        <ul>
-                            <li>Партнёр</li>
-                        </ul>
-                        <ul class="hidden-partner" style="display:none">
-                            <li>Партнёр с</li>
-                            <li>Сумма сделки</li>
-                            <li>Менеджер</li>
-                        </ul>
-                    </div>
-                    <div class="right-info">
-                        <ul>
-                            <li><input type="checkbox" id="partner">
-                                <label for="partner"></label>
-                            </li>
-                        </ul>
-                        <ul class="hidden-partner" style="display:none">
-                            <li><input name="partnership_date" type="text" id="partnerFrom" readonly="readonly"></li>
-                            <li><input name="value" type="text"></li>
-                            <li><select style="width: 96%" name="" id="chooseManager">
-                                <!-- <option value="">Языкин Богдан Евлампиевич</option> -->
-                            </select></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-table">
-                    <div class="left-info">
-                        <ul>
-                            <li>Первое посещение*</li>
-                            <li>Дата покаяния</li>
-                        </ul>
-                    </div>
-                    <div class="right-info">
-                        <ul>
-                            <li><input name="first_visit" type="text" readonly="readonly" id="firsVisit"></li>
-                            <li><input name="repentance_date" type="text" readonly="readonly" id="repentanceDate"></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-table">
-                    <div class="left-info" style="width:70%">
-                        <ul>
-                            <li>Отправить пароль пользователю</li>
-                        </ul>
-                    </div>
-                    <div class="right-info" style="width:20%">
-                        <ul>
-                            <li><input type="checkbox" id="kabinet">
-                                <label for="kabinet"></label></li>
-                        </ul>
-                    </div>
-                </div>
-
-            </div><!--End col-3-->
-            <div class="splash-bauttons">
-                <button class="close">Отменить</button>
-                <button id="saveNew">Сохранить</button>
-            </div>
-        </div><!--End colums-wrap-->
-    </div>
-</div>
-<div id="impPopup">
-    <div class="splash-screen">
-        <div class="top-text">
-            <h3>Редактирование картинки</h3>
-            <span>×</span>
-        </div>
-        <div class="crArea">
-            <img src="" alt="">
-        </div>
-        <div class="splash-buttons">
-            <button class="cr">Изменить</button>
-        </div>
-    </div>
-</div>
-<div id="deletePopup" class="add-user-wrap"><!--Add -user -->
-    <div class="splash-screen">
-        <div class="top-text">
-            <h3>Вы уверены, что хотите удалить пользователя?</h3>
-            <span>&times;</span>
-        </div>
-        <div class="splash-buttons">
-            <button id="no">Нет</button>
-            <button id="yes">Да</button>
-        </div>
-    </div>
-</div>
-
-
-<script src='/static/libs/jquery-1.12.1.min.js'></script>
-<script src='/static/libs/jquery.scrollbar.min.js'></script>
-<script src='/static/libs/jquery-ui.min.js'></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/js/select2.min.js"></script>
-<script src='/static/js/lib.js'></script>
-<script src='/static/js/main.js'></script>
-<script src="/static/js/select2.js"></script>
-<script src="/static/js/add_user_summit.js"></script>
-<script src="/static/js/summits.js"></script>
-<script src="/static/js/cropper.min.js"></script>
-</body>
-</html>
+    <script src="/static/js/summits.js"></script>
+{% endblock %}
