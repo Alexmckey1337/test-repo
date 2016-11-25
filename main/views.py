@@ -63,7 +63,7 @@ def summit_info(request, summit_id):
 
 @login_required(login_url='entry')
 def index(request):
-    return render(request, 'index.html')
+    return render(request, 'main.html')
 
 
 @login_required(login_url='entry')
