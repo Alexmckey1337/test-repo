@@ -127,66 +127,61 @@
                     </div>
                 {% endblock %}
 
-                {% block pagination_top %}
-                    <div class="top-pag">
-                        <div class="pagination"><!--pagination -->
+                {% block main.content %}
+                    {% block pagination_top %}
+                        <div class="top-pag">
+                            <div class="pagination"><!--pagination -->
 
-                            <div class="query">
-                                <p>По запросу найдено <span id="total_count"></span> человек</p>
-                            </div>
-                            <div class="pag-wrap">
+                                <div class="query">
+                                    <p>По запросу найдено <span id="total_count"></span> человек</p>
+                                </div>
+                                <div class="pag-wrap">
 
-                            </div>
-                        </div><!--End pagination -->
-                    </div>
-                {% endblock %}
-
-                {% block table %}
-                    <div class="table-wrap  clearfix" id="database_users"><!--Table -->
-                        <div class="table scrollbar-inner" id="baseUsers"></div>
-                        <div class="query-none">
-                            <p></p>
+                                </div>
+                            </div><!--End pagination -->
                         </div>
-                        <div class="preloader">
-                            <div class="gif">
+                    {% endblock %}
+
+                    {% block table %}
+                        <div class="table-wrap  clearfix" id="database_users"><!--Table -->
+                            <div class="table scrollbar-inner" id="baseUsers"></div>
+                            <div class="query-none">
+                                <p></p>
                             </div>
+                            <div class="preloader">
+                                <div class="gif">
+                                </div>
+                            </div>
+
+                        </div><!--End Table -->
+                    {% endblock %}
+
+                    {% block pagination_bottom %}
+                        <div class="pagination full-width">
+                            <div class="element-select"></div>
+                            <div class="pag-wrap"></div>
                         </div>
-
-                    </div><!--End Table -->
-                {% endblock %}
-
-                {% block pagination_bottom %}
-                    <div class="pagination full-width">
-                        <div class="element-select"></div>
-                        <div class="pag-wrap"></div>
-                    </div>
+                    {% endblock %}
                 {% endblock %}
             </div>
         {% endblock main %}
 
         {% block table_sort_modal %}
-            <div class="table-sorting"><!--table-sorting -->
+            <div class="table-sorting">
                 <div class="form-wrap scrollbar-macosx">
                     <div class="top-text">
                         <h2>Вы можете добавить столбцы и изменить их порядок</h2>
                     </div>
                     <div class="input-wrap">
-                        <ul id="sort-form">
-
-                        </ul>
+                        <ul id="sort-form"></ul>
                     </div>
-                    <div class="dropbox-wrap">
-
-                    </div>
-
-
+                    <div class="dropbox-wrap"></div>
                     <div class="butt-wrap">
                         <button id="sort-off">Отменить</button>
                         <button id="sort_save">Сохранить</button>
                     </div>
-
                 </div>
-            </div><!--End table-sorting -->
+            </div>
         {% endblock %}
 
         {% block add_user_modal %}
@@ -194,13 +189,18 @@
                 <div class="splash-screen">
                     <div class="top-text">
                         <h3>Добавить участника</h3>
+                        <span>&times;</span>
                     </div>
                     <div class="splash-buttons">
-                        <button id="choose">Выбрать из базы</button>
-                        <button id="add_new">Создать нового</button>
+                        {% block add_user_modal.buttons.choose %}
+                            <button id="choose">Выбрать из базы</button>
+                        {% endblock %}
+                        {% block add_user_modal.buttons.create %}
+                            <button id="add_new">Создать нового</button>
+                        {% endblock %}
                     </div>
                 </div>
-            </div><!--End-Add -user -->
+            </div>
         {% endblock %}
 
         {% block choose_user_modal %}
@@ -224,11 +224,13 @@
     {% block create_user %}
     {% endblock %}
 
-    <div class="popap" id='popup_div'>
-        <div class="pop_cont">
-            <p id='popup_text'></p>
-            <span onclick='hidePopup()' class="close">x</span>
+    {% block popup %}
+        <div class="popap" id='popup_div'>
+            <div class="pop_cont">
+                <p id='popup_text'></p>
+                <span onclick='hidePopup()' class="close">x</span>
+            </div>
         </div>
-    </div>
+    {% endblock %}
 
 {% endblock %}
