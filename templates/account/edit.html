@@ -32,7 +32,7 @@
             <div class="columns-wrapper">
                 <div class="col-1">
                     <div id="edit-photo" class="anketa-photo">
-                        <img src="/static/img/no-usr.jpg" alt="photo">
+                        <img src="{% static "img/no-usr.jpg" %}" alt="photo">
                     </div>
                     <div class="butt-wrap">
                         <input type="file" name="f">
@@ -225,6 +225,6 @@
 {% endblock %}
 
 {% block extra_scripts %}
-    <script src="/static/js/cropper.min.js"></script>
-    <script src="/static/js/edit.js"></script>
+    <script src="{% static "js/cropper.min.js" %}"></script>
+    <script src="{% static "js/edit.js" %}"></script>
 {% endblock %}

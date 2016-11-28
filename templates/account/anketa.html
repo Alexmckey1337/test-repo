@@ -1,4 +1,5 @@
 {% extends "layout_main.html" %}
+{% load static %}
 
 {% block main.attr %} class="main-wrap anketa"  id="account_view"{% endblock %}
 
@@ -40,7 +41,7 @@
                         </div>
                         <div class="label"></div>
                         <div class="anketa-photo">
-                            <img src="/static/img/no-usr.jpg" alt="photo">
+                            <img src="{% static "img/no-usr.jpg" %}" alt="photo">
                         </div>
                     </div>
                 </div>
@@ -217,6 +218,5 @@
 
 {% block extra_scripts %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.16.0/moment.min.js"></script>
-    <script src="/static/js/account.js"></script>
-    <!--<script src="/static/js/add_user.js"></script>-->
+    <script src="{% static "js/account.js" %}"></script>
 {% endblock %}
