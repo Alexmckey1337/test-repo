@@ -1,0 +1,230 @@
+{% extends "layout_main.html" %}
+
+{% block body_id %} id="database"{% endblock %}
+
+{% block header.top.h1 %}<h1>Редактирование профиля</h1>{% endblock %}
+
+{% block header.search %}
+    <li></li>
+{% endblock %}
+
+{% block header.buttons.add %}
+{% endblock %}
+
+{% block header.buttons.export %}
+{% endblock %}
+
+{% block header.buttons.change_table %}
+{% endblock %}
+
+{% block header.buttons.extra %}
+    <li>
+        <button class="small" id="revert_edit">Отменить</button>
+    </li>
+    <li>
+        <button id="save">Сохранить</button>
+    </li>
+{% endblock %}
+
+{% block main.content %}
+    <div class="content">
+        <div class="editprofile edit">
+            <div class="columns-wrapper">
+                <div class="col-1">
+                    <div id="edit-photo" class="anketa-photo">
+                        <img src="{% static "img/no-usr.jpg" %}" alt="photo">
+                    </div>
+                    <div class="butt-wrap">
+                        <input type="file" name="f">
+                        <button id="file_upload">Загрузить</button>
+                        <p>Размер файла не должен превышать <br/>10 МБ.</p>
+                        <p>Типы файлов, которые поддерживаются:<br/> jpg, jpeg, png.</p>
+                    </div>
+                </div><!--End col-1-->
+
+                <div class="col-2">
+                    <div class="col-table">
+                        <div class="left-info">
+                            <ul>
+                                <li>Фамилия*</li>
+                                <li>Имя*</li>
+                                <li>Отчество</li>
+                                <li>Дата рождения*</li>
+                                <li>Телефон*</li>
+                                <li>Доп.телефон</li>
+                                <li>E-mail*</li>
+                                <li>Skype</li>
+                                <li>Страна*</li>
+                                <li>Область*</li>
+                                <li>Город*</li>
+                                <li>Район</li>
+                                <li>Адрес</li>
+                                <li>Facebook</li>
+                                <li>Vkontakte</li>
+                                <li>Одноклассники</li>
+
+                            </ul>
+                        </div>
+                        <div class="right-info">
+                            <ul>
+                                <li><input type="text" id="last_name"></li>
+                                <li><input type="text" id="first_name"></li>
+                                <li><input type="text" id="middle_name"></li>
+                                <li><input type="text" id="datepicker_born_date"></li>
+                                <li><input placeholder="+380633333333"
+                                           onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
+                                           type="text" id="phone_number"></li>
+                                <li><input type="text" id="additional_phone"></li>
+                                <li><input type="text" id="email"></li>
+                                <li><input type="text" id="skype"></li>
+                                <li>
+                                    <!--
+                                    <select name="" id="">
+                                        <option value="">Украина</option>
+                                    </select>
+                                         -->
+                                    <select id="country_drop" style="width:205px"></select>
+                                </li>
+                                <li><select id="region_drop" disabled style="width:205px"></select></li>
+                                <li><select id="town_drop" disabled style="width:205px"></select></li>
+
+
+                                <li><input type="text" id="district"></li>
+
+                                <li><input type="text" id="address"></li>
+                                <li><input type="text" id="facebook"></li>
+                                <li><input type="text" id="vkontakte"></li>
+                                <li><input type="text" id="odnoklassniki"></li>
+                                <!--<li><input type="text"></li>-->
+                            </ul>
+                        </div>
+                    </div>
+                    </ul>
+                </div><!--End col-2-->
+                <div class="col-3">
+                    <div class="col-table">
+                        <div class="left-info">
+                            <ul>
+                                <li>Отдел*</li>
+                                <!--<li>Пототдел</li>-->
+                                <li>Статус*</li>
+                                <li>Статус ответственного*</li>
+                                <li>Ответственный*</li>
+                            </ul>
+                        </div>
+                        <div class="right-info">
+                            <ul>
+                                <li><select id="department_drop" style="width:205px"></select></li>
+                                <!--<li><select name="" id="">
+                                    <option value="">Бортничи</option>
+                                </select></li>
+
+
+                                    <select  id="statuses_drop_parent" style="width:205px"></select>
+
+                                -->
+                                <li><select id="statuses_drop" style="width:205px"></select></li>
+
+                                <li><select id="statuses_drop_parent" style="width:205px"></select></li>
+                                <li><select id="leader_drop" style="width:205px"></select></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-table ">
+                        <div class="left-info">
+                            <ul>
+                                <li>Департамент</li>
+                            </ul>
+                        </div>
+                        <div class="right-info">
+                            <ul>
+                                <li><select id="division_drop" style="width:205px" multiple=""></select></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-table manager_view">
+                        <div id="create_partner">
+                            <div class="left-info">
+                                <ul>
+                                    <li>Партнёр</li>
+                                </ul>
+                            </div>
+                            <div class="right-info">
+                                <ul>
+                                    <li><input type="checkbox" id="create_partner_info">
+                                        <label for="create_partner_info"></label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+
+                        <div id="partner_wrap">
+                            <div class="left-info">
+                                <ul>
+                                    <li>Партнёр</li>
+                                    <li>Партнёр с</li>
+                                    <li>Сумма сделки</li>
+                                    <li>Менеджер</li>
+                                </ul>
+                            </div>
+                            <div class="right-info">
+                                <ul>
+                                    <li><input type="checkbox" id="partner">
+                                        <label for="partner"></label>
+                                    </li>
+                                    <li><input type="text" id="partner_date"></li>
+                                    <li><input type="text" id="val_partnerships" maxlength="6"
+                                               onkeypress="return event.charCode >= 48 && event.charCode <= 57">
+                                    </li>
+                                    <li id="partner_name"><select id="partner_drop" style="width:205px"></select>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-table">
+                        <div class="left-info">
+                            <ul>
+                                <li>Первое посещение*</li>
+                                <li>Дата покаяния</li>
+                            </ul>
+                        </div>
+                        <div class="right-info">
+                            <ul>
+                                <li><input name="first_visit" type="text" readonly="readonly" id="firsVisit"></li>
+                                <li><input name="repentance_date" type="text" readonly="readonly"
+                                           id="repentanceDate"></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div><!--End col-3-->
+                <div class="splash-bauttons">
+                </div>
+            </div><!--End colums-wrap-->
+        </div>
+    </div>
+{% endblock %}
+
+{% block popap %}
+    {{ block.super }}
+    <div id="impPopup">
+        <div class="splash-screen">
+            <div class="top-text">
+                <h3>Редактирование картинки</h3>
+                <span>×</span>
+            </div>
+            <div class="crArea">
+                <img src="" alt="">
+            </div>
+            <div class="splash-buttons">
+                <button class="cr">Изменить</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{% static "js/cropper.min.js" %}"></script>
+    <script src="{% static "js/edit.js" %}"></script>
+{% endblock %}

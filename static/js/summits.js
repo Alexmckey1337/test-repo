@@ -78,7 +78,7 @@ $(document).ready(function () {
 
     if (document.querySelector('.table-wrap')) {
 
-        document.querySelector(".add").addEventListener('click', function () {
+        document.querySelector("#add").addEventListener('click', function () {
             document.querySelector('.add-user-wrap').style.display = 'block';
         });
 
