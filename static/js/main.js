@@ -63,7 +63,8 @@ $('.top input').click(function () {
 
 function hideFilter() {
     //$('.top input').blur(function() {
-    if (!$('.top input').val().length) {
+
+    if ($('.top input').length && !$('.top input').val().length) {
         $('.top .search').animate({width: "50%"});
         // $('.filter').hide();
     }

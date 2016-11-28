@@ -32,7 +32,7 @@
         {% endblock sidebar %}
 
         {% block main %}
-            <div class="main-wrap">
+            <div{% block main.attr %} class="main-wrap"{% endblock %}>
                 {% block header %}
                     <div class="header">
 
