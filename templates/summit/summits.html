@@ -1,0 +1,25 @@
+{% extends "layout_main.html" %}
+{% load static %}
+
+{% block header.top.h1 %}<h1 id="summit-title"></h1>{% endblock %}
+
+{% block header.search %}
+    <li></li>
+{% endblock %}
+
+{% block header.buttons.add %}
+{% endblock %}
+
+{% block header.buttons.export %}
+{% endblock %}
+
+{% block header.buttons.change_table %}
+{% endblock %}
+
+{% block main.content %}
+    <div id="summits" class="summits-wrap"></div>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{% static "js/summits.js" %}"></script>
+{% endblock %}

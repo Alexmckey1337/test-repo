@@ -61,10 +61,6 @@ class CustomUser(User):
     hierarchy_order = models.BigIntegerField(blank=True, null=True)
     activation_key = models.CharField(max_length=40, blank=True)
 
-    summit_consultants = models.ManyToManyField(
-        'summit.Summit', related_name='users',
-        through='summit.SummitUserConsultant', through_fields=('user', 'summit'))
-
     objects = UserManager()
 
     def __str__(self):

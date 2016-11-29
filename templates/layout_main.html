@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block main_styles %}
+    {{ block.super }}
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet"
+          integrity="sha384-XdYbMnZ/QjLh6iI4ogqCTaIjrFk87ip+ekIjefZch0Y+PvJ8CDYtEs1ipDmPorQ+"
+          crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static "css/cropper.min.css" %}">
+{% endblock %}
+
+{% block layout %}
+    <div class="page-width">
+        {% block sidebar %}
+            <div id="sidebar">
+                <div class="scrollbar-macosx">
+                    <div class="logo">
+                        <div><span>V</span><span>O</span></div>
+                        <div><span>C</span><span>R</span><span>M</span></div>
+                    </div>
+
+                    <ul id="nav-sidebar">
+                        <li><a data-title="База данных" href="{% url 'index' %}">База данных</a></li>
+                        {% comment %}
+                        <li><a data-title="Все отчеты" href="{% url 'reports' %}">Все отчеты</a></li>
+                        <li><a data-title="События" href="{% url 'events' %}">События</a></li>
+                        {% endcomment %}
+                        <li><a data-title="Партнёрство" href="{% url 'deals' %}">Партнёрство</a></li>
+                        <li><a data-title="Саммиты" href="{% url 'summits' %}">Саммиты</a></li>
+                        <li id="move-sidebar"><a data-title="Развернуть" href="#">Свернуть</a></li>
+                    </ul>
+                </div>
+            </div>
+        {% endblock sidebar %}
+
+        {% block main %}
+            <div{% block main.attr %} class="main-wrap"{% endblock %}>
+                {% block header %}
+                    <div class="header">
+
+                        {% block header.top %}
+                            <ul class="top">
+                                {% block header.top.left %}
+                                    <li>
+                                        {% block header.top.h1 %}{% endblock %}
+                                        {% block header.top.select %}
+                                        {% endblock %}
+                                    </li>
+                                {% endblock %}
+                                {% block header.top.right %}
+                                    {% block header.user.button %}
+                                        <li class="userImgWrap">
+                                            <div class="userimg">
+                                                {% if request.user.image %}
+                                                    <img src="{{ request.user.image.url }}" alt="userphoto"/>
+                                                {% else %}
+                                                    <img src="{% static "img/no-usr.jpg" %}" alt="userphoto"/>
+                                                {% endif %}
+                                            </div>
+                                        </li>
+                                    {% endblock %}
+                                    {% block header.notification.button %}
+                                        <li class="sms">
+                                            {% if notifications.exists %}
+                                                <span>{{ notifications.count }}</span>
+                                            {% else %}
+                                                <span style="display:none;"></span>
+                                            {% endif %}
+                                            <span></span>
+                                        </li>
+                                    {% endblock %}
+                                    {% block header.search %}
+                                        <li>
+                                            <div class="search">
+                                                {% block header.search.field %}
+                                                    <input type="text" placeholder="Поиск и фильтр" name="fullsearch">
+                                                {% endblock %}
+                                                {% block header.search.filter %}
+                                                {% endblock %}
+                                            </div>
+                                        </li>
+                                    {% endblock %}
+                                {% endblock %}
+                            </ul><!--End Top -->
+                        {% endblock %}
+
+                        {% block header.buttons %}
+                            <div class="top-buttons-wrap">
+                                {% block header.buttons.filter %}{% endblock %}
+                                <ul class="top-buttons">
+                                    {% block header.buttons.add %}
+                                        <li>
+                                            <button id="add">Добавить пользователя</button>
+                                        </li>
+                                    {% endblock %}
+                                    {% block header.buttons.export %}
+                                        <li>
+                                            <button class="exp">Экспортировать</button>
+                                        </li>
+                                    {% endblock %}
+                                    {% block header.buttons.change_table %}
+                                        <li>
+                                            <button id="sort-on">Изменить таблицу</button>
+                                        </li>
+                                    {% endblock %}
+                                    {% block header.buttons.extra %}
+                                    {% endblock %}
+                                </ul>
+                            </div>
+                        {% endblock %}
+
+                        {% block header_user_drop %}
+                            <div class="user-hover photo-hover">
+                                <div class="hover-wrapper">
+                                    <div class="top-box">
+                                        <a href="{% url "account" request.user.id %}">
+                                            <span></span>
+                                            <p>Мой профиль</p>
+                                        </a>
+                                    </div>
+                                    <div class="bottom-box"><a id="logout_button">
+                                        <span></span>
+                                        <p>Выйти</p></a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endblock %}
+
+                        {% block header_notification_drop %}
+                            <div class="user-hover massage-hover">
+                                <div class="hover-wrapper">
+                                    <div class="top-box">
+                                        <p>У Вас <span></span> незавершённых сделок</p>
+                                    </div>
+                                    <div class="bottom-box">
+                                        {% if notifications.exists %}
+                                            <p>Сегодня день рождения у:</p>
+                                            <ul>
+                                                {% for notification in notifications %}
+                                                    <li>
+                                                        <a href="{% url "account" notification.uid %}">{{ notification.fullname }}</a>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            <p>На сегодня нет уведомлений</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endblock %}
+
+                    </div>
+                {% endblock %}
+
+                {% block main.content %}
+                    {% block pagination_top %}
+                        <div class="top-pag">
+                            <div class="pagination"><!--pagination -->
+
+                                <div class="query">
+                                    <p>По запросу найдено <span id="total_count"></span> человек</p>
+                                </div>
+                                <div class="pag-wrap">
+
+                                </div>
+                            </div><!--End pagination -->
+                        </div>
+                    {% endblock %}
+
+                    {% block table %}
+                        <div class="table-wrap  clearfix" id="database_users"><!--Table -->
+                            <div class="table scrollbar-inner" id="baseUsers"></div>
+                            <div class="query-none">
+                                <p></p>
+                            </div>
+                            <div class="preloader">
+                                <div class="gif">
+                                </div>
+                            </div>
+
+                        </div><!--End Table -->
+                    {% endblock %}
+
+                    {% block pagination_bottom %}
+                        <div class="pagination full-width">
+                            <div class="element-select"></div>
+                            <div class="pag-wrap"></div>
+                        </div>
+                    {% endblock %}
+                {% endblock %}
+            </div>
+        {% endblock main %}
+
+        {% block table_sort_modal %}
+            <div class="table-sorting">
+                <div class="form-wrap scrollbar-macosx">
+                    <div class="top-text">
+                        <h2>Вы можете добавить столбцы и изменить их порядок</h2>
+                    </div>
+                    <div class="input-wrap">
+                        <ul id="sort-form"></ul>
+                    </div>
+                    <div class="dropbox-wrap"></div>
+                    <div class="butt-wrap">
+                        <button id="sort-off">Отменить</button>
+                        <button id="sort_save">Сохранить</button>
+                    </div>
+                </div>
+            </div>
+        {% endblock %}
+
+        {% block add_user_modal %}
+            <div class="add-user-wrap"><!--Add -user -->
+                <div class="splash-screen">
+                    <div class="top-text">
+                        <h3>Добавить участника</h3>
+                        <span>&times;</span>
+                    </div>
+                    <div class="splash-buttons">
+                        {% block add_user_modal.buttons.choose %}
+                            <button id="choose">Выбрать из базы</button>
+                        {% endblock %}
+                        {% block add_user_modal.buttons.create %}
+                            <button id="add_new">Создать нового</button>
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        {% endblock %}
+
+        {% block choose_user_modal %}
+            <div class="choose-user-wrap"><!--Choose -user -->
+                <div class="splash-screen">
+                    <div class="top-text">
+                        <h3><span>←</span> Выбрать участника из базы</h3>
+                        <span>&times;</span>
+                    </div>
+                    <div class="search">
+                        {% block choose_user_modal.search_field %}
+                            <input type="text" placeholder="Поиск" name="fullsearch">
+                        {% endblock %}
+                    </div>
+                    <div id="searchedUsers" class="scrollwrap scrollbar-macosx"></div>
+                </div>
+            </div><!--End Choose -user -->
+        {% endblock %}
+    </div>
+
+    {% block create_user %}
+    {% endblock %}
+
+    {% block popup %}
+        <div class="popap" id='popup_div'>
+            <div class="pop_cont">
+                <p id='popup_text'></p>
+                <span onclick='hidePopup()' class="close">x</span>
+            </div>
+        </div>
+    {% endblock %}
+
+{% endblock %}

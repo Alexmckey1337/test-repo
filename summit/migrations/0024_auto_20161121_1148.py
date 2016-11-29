@@ -31,8 +31,4 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'Anket emails',
             },
         ),
-        migrations.AlterModelOptions(
-            name='summit',
-            options={'ordering': ('type',), 'verbose_name': 'Summit', 'verbose_name_plural': 'Summits'},
-        ),
     ]

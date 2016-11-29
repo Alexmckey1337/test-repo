@@ -1,0 +1,308 @@
+{% load static %}
+<div id="popup" class="pop-up-splash">
+    <div class="splash-screen">
+        <div class="top-text">
+            <h3><span>←</span> Информация об участнике</h3>
+        </div>
+        <div class="user-info">
+            <div class="left-side">
+                <p>Клиент:</p>
+                <p>Ответственный:</p>
+            </div>
+            <div class="right-side">
+                <p id="client-name"></p>
+                <p id="responsible-name"></p>
+            </div>
+        </div>
+        <div class="summa-wrap">
+            <div class="summa">
+                <p>Сумма:</p>
+                <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                       readonly="readonly" type="text" id="summit-value">
+                <span id="changeSum" class="change-summ"></span>
+            </div>
+        </div>
+        <textarea placeholder="Добавить коментарий"></textarea>
+        <div class="splash-bauttons">
+            <button id="close">Отменить</button>
+            <button id="complete">Завершить</button>
+        </div>
+    </div>
+</div>
+<div id="popupDelete" class="pop-up-splash">
+    <div class="splash-screen">
+        <div class="top-text">
+            <h3>Информация об участнике</h3>
+            <span>&times;</span>
+        </div>
+        <div class="summa-wrap">
+            <div class="summa">
+                <p>Сумма:</p>
+                <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                       readonly="readonly" type="text" id="summit-valueDelete">
+                <span id="changeSumDelete" class="change-summ"></span>
+            </div>
+            <div class="member_club_block">
+                <input type="checkbox" id="member">
+                <label for="member">Учасник <span id="member_club">Облако свидетелей</span>:</label>
+            </div>
+            <div class="member_club_block">
+                <input type="checkbox" id="send_email">
+                <label for="send_email"><span id="send_email_label">Отправить билет</span>:</label>
+            </div>
+        </div>
+        <textarea maxlength="40" placeholder="Добавить коментарий"></textarea>
+        <div class="splash-bauttons">
+            <button id="deleteAnket"><i class="fa fa-trash-o fa-lg" aria-hidden="true"></i> Удалить</button>
+            <button id="closeDelete">Отменить</button>
+            <button id="completeDelete">Завершить</button>
+        </div>
+    </div>
+</div>
+<div id="popupForNew" class="pop-up-splash">
+    <div class="splash-screen">
+        <div class="top-text">
+            <h3><span>←</span> Информация об участнике</h3>
+        </div>
+        <div class="user-info">
+            <div class="left-side">
+                <p>Клиент:</p>
+                <p>Ответственный:</p>
+            </div>
+            <div class="right-side">
+                <p id="client-nameNew"></p>
+                <p id="responsible-nameNew"></p>
+            </div>
+        </div>
+        <div class="summa-wrap">
+            <div class="code">
+
+                <input placeholder="Номер пропуска" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                       type="text" id="code">
+
+                <input id="check" type="checkbox">
+
+            </div>
+            <div class="summa">
+                <p>Сумма:</p>
+                <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                       readonly="readonly" type="text" id="summit-valueNew">
+                <span id="changeSumNew" class="change-summ"></span>
+            </div>
+        </div>
+        <textarea placeholder="Добавить коментарий"></textarea>
+        <div class="splash-bauttons">
+            <button id="closeNew">Отменить</button>
+            <button id="completeNew">Завершить</button>
+        </div>
+    </div>
+</div><!--End Pop-up-splash-->
+<div class="pop-up-splash pop-up-splash-add">
+    <div class="splash-screen editprofile">
+        <div class="top-text">
+            <h3><span>← </span>Добавить пользователя</h3>
+        </div>
+        <div class="columns-wrap">
+            <div class="col-1">
+                <div id="edit-photo" class="anketa-photo">
+                    <img src="{% static "img/no-usr.jpg" %}" alt="photo">
+                </div>
+                <div class="butt-wrap">
+                    <form style="display:none" enctype="multipart/form-data" method="post">
+                        <p><input id="addFile" type="file" name="f"></p>
+                    </form>
+                    <button id="addFileButton">Загрузить</button>
+                    <p>Размер файла не должен превышать <br/> 10 МБ.</p>
+                    <p>Типы файлов, которые поддерживаются: <br/> jpg, jpeg, png.</p>
+                </div>
+            </div><!--End col-1-->
+
+            <div class="col-2">
+                <div class="col-table">
+                    <div class="left-info">
+                        <ul>
+                            <li>Фамилия*</li>
+                            <li>Имя*</li>
+                            <li>Отчество</li>
+                            <li>Дата рождения*</li>
+                            <li>Телефон*</li>
+                            <li>Доп.телефон</li>
+                            <li>E-mail*</li>
+                            <li>Skype</li>
+                            <li>Страна*</li>
+                            <li>Область*</li>
+                            <li>Город*</li>
+                            <li>Район</li>
+                            <li>Адрес</li>
+                            <li>Facebook</li>
+                            <li>Vkontakte</li>
+                            <li>Odnaklasniki</li>
+                        </ul>
+                    </div>
+                    <div class="right-info">
+                        <ul>
+                            <li><input name="last_name" type="text"></li>
+                            <li><input name="first_name" type="text"></li>
+                            <li><input name="middle_name" type="text"></li>
+                            <!--li><input type="text" id="bornDate" class="hasDatepicker"></li-->
+                            <li><input name="born_date" type="text" id="bornDate" readonly="readonly"></li>
+                            <li class="phone">
+                                <select style="width: 96%" name="" id="chooseCountryCode">
+                                </select>
+                                <input disabled name="phone_numberCode" type="text">
+                                <input name="phone_number" type="text">
+                            </li>
+                            <li><input type="text"></li>
+                            <li><input name="email" type="text"></li>
+                            <li><input name="skype" type="text"></li>
+                            <li><select style="width: 96%" name="" id="chooseCountry">
+                                <!--option value="">Украина</option-->
+                            </select></li>
+                            <li><select style="width: 96%" disabled name="" id="chooseRegion">
+                                <!-- <option value="">Закарпатская</option> -->
+                            </select></li>
+                            <li><select style="width: 96%" disabled name="" id="chooseCity">
+                                <!-- <option value="">Мукачево</option> -->
+                            </select></li>
+                            <li><input name="district" type="text"></li>
+                            <li><input name="address" id="address" type="text"></li>
+                            <li><input name="fb" type="text"></li>
+                            <li><input name="vk" type="text"></li>
+                            <li><input name="ok" type="text"></li>
+                        </ul>
+                    </div>
+                </div>
+                </ul>
+            </div><!--End col-2-->
+            <div class="col-3">
+                <div class="col-table">
+                    <div class="left-info">
+                        <ul>
+                            <li>Отдел*</li>
+                            <li>Статус*</li>
+                            <li>Статус ответственного*</li>
+                            <li>Ответственный*</li>
+                        </ul>
+                    </div>
+                    <div class="right-info">
+                        <ul>
+                            <li><select style="width: 96%" name="" id="chooseDepartment">
+                                <option value=""></option>
+                            </select></li>
+                            <!-- <li><select name="" id="">
+                                <option value="">Бортничи</option>
+                            </select></li> -->
+                            <li><select style="width: 96%" name="" id="chooseStatus">
+                                <!-- <option value="">Лидер</option> -->
+                            </select></li>
+                            <li><select style="width: 96%" name="" id="chooseResponsibleStatus">
+                                <!-- <option value="">Лидер</option> -->
+                            </select></li>
+                            <li><select style="width: 96%" disabled name="" id="chooseResponsible">
+                                <!-- <option value="">Барков Евгений Иннокентиевич</option> -->
+                            </select></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-table">
+                    <div class="left-info">
+                        <ul>
+                            <li>Департамент</li>
+                        </ul>
+                    </div>
+                    <div class="right-info">
+                        <ul>
+                            <li><select style="width: 96%" name="" id="chooseDivision" multiple="multiple">
+                                <!-- <option value="">Департамент</option> -->
+                            </select></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-table">
+                    <div class="left-info">
+                        <ul>
+                            <li>Партнёр</li>
+                        </ul>
+                        <ul class="hidden-partner" style="display:none">
+                            <li>Партнёр с</li>
+                            <li>Сумма сделки</li>
+                            <li>Менеджер</li>
+                        </ul>
+                    </div>
+                    <div class="right-info">
+                        <ul>
+                            <li><input type="checkbox" id="partner">
+                                <label for="partner"></label>
+                            </li>
+                        </ul>
+                        <ul class="hidden-partner" style="display:none">
+                            <li><input name="partnership_date" type="text" id="partnerFrom" readonly="readonly"></li>
+                            <li><input name="value" type="text"></li>
+                            <li><select style="width: 96%" name="" id="chooseManager">
+                                <!-- <option value="">Языкин Богдан Евлампиевич</option> -->
+                            </select></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-table">
+                    <div class="left-info">
+                        <ul>
+                            <li>Первое посещение*</li>
+                            <li>Дата покаяния</li>
+                        </ul>
+                    </div>
+                    <div class="right-info">
+                        <ul>
+                            <li><input name="first_visit" type="text" readonly="readonly" id="firsVisit"></li>
+                            <li><input name="repentance_date" type="text" readonly="readonly" id="repentanceDate"></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-table">
+                    <div class="left-info" style="width:70%">
+                        <ul>
+                            <li>Отправить пароль пользователю</li>
+                        </ul>
+                    </div>
+                    <div class="right-info" style="width:20%">
+                        <ul>
+                            <li><input type="checkbox" id="kabinet">
+                                <label for="kabinet"></label></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div><!--End col-3-->
+            <div class="splash-bauttons">
+                <button class="close">Отменить</button>
+                <button id="saveNew">Сохранить</button>
+            </div>
+        </div><!--End colums-wrap-->
+    </div>
+</div>
+<div id="impPopup">
+    <div class="splash-screen">
+        <div class="top-text">
+            <h3>Редактирование картинки</h3>
+            <span>×</span>
+        </div>
+        <div class="crArea">
+            <img src="" alt="">
+        </div>
+        <div class="splash-buttons">
+            <button class="cr">Изменить</button>
+        </div>
+    </div>
+</div>
+<div id="deletePopup" class="add-user-wrap"><!--Add -user -->
+    <div class="splash-screen">
+        <div class="top-text">
+            <h3>Вы уверены, что хотите удалить пользователя?</h3>
+            <span>&times;</span>
+        </div>
+        <div class="splash-buttons">
+            <button id="no">Нет</button>
+            <button id="yes">Да</button>
+        </div>
+    </div>
+</div>

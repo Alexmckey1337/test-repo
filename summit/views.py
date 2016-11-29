@@ -16,15 +16,15 @@ from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
 from account.models import CustomUser
-from account.serializers import UserShortSerializer
 from navigation.models import user_table, user_summit_table
+from summit.permissions import IsSupervisorOrHigh
 from summit.utils import generate_ticket
-from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson
+from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, SummitUserConsultant
 from .resources import get_fields
 from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
-    SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitTypeForAppSerializer,
-    SummitAnketForAppSerializer)
+    SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer,
+    SummitTypeForAppSerializer, SummitAnketForAppSerializer)
 from .tasks import send_ticket
 
 
@@ -228,6 +228,16 @@ class SummitLessonViewSet(viewsets.ModelViewSet):
         lesson = get_object_or_404(SummitLesson, pk=pk)
         anket = get_object_or_404(SummitAnket, pk=anket_id)
 
+        current_user_anket = SummitAnket.objects.filter(
+            user=request.user, summit=anket.summit, role__gte=SummitAnket.CONSULTANT)
+        is_consultant = SummitUserConsultant.objects.filter(
+            consultant=current_user_anket, user_id=anket_id, summit=anket.summit).exists()
+        if not is_consultant:
+            return Response({'message': 'Только консультант может отмечать уроки.',
+                             'lesson_id': pk,
+                             'checked': False},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         lesson.viewers.add(anket)
 
         return Response({'lesson': lesson.name, 'lesson_id': pk, 'anket_id': anket_id, 'checked': True})
@@ -237,6 +247,16 @@ class SummitLessonViewSet(viewsets.ModelViewSet):
         anket_id = request.data['anket_id']
         lesson = get_object_or_404(SummitLesson, pk=pk)
         anket = get_object_or_404(SummitAnket, pk=anket_id)
+
+        current_user_anket = SummitAnket.objects.filter(
+            user=request.user, summit=anket.summit, role__gte=SummitAnket.CONSULTANT)
+        is_consultant = SummitUserConsultant.objects.filter(
+            consultant=current_user_anket, user_id=anket_id, summit=anket.summit).exists()
+        if not is_consultant:
+            return Response({'message': 'Только консультант может отмечать уроки.',
+                             'lesson_id': pk,
+                             'checked': True},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         lesson.viewers.remove(anket)
 
@@ -284,7 +304,7 @@ class SummitViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def consultants(self, request, pk=None):
-        serializer = UserShortSerializer
+        serializer = SummitAnketForSelectSerializer
         summit = get_object_or_404(Summit, pk=pk)
         queryset = summit.consultants
 
@@ -294,23 +314,43 @@ class SummitViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['post'], )
     def add_consultant(self, request, pk=None):
-        user_id = request.data['user_id']
         summit = get_object_or_404(Summit, pk=pk)
-        user = get_object_or_404(CustomUser, pk=user_id)
-        summit.consultants.add(user)
-        data = {'sumit_id': pk, 'consultant_id': user_id, 'action': 'added'}
+
+        user_perm = IsSupervisorOrHigh().has_object_permission(request, None, summit)
+        if not user_perm:
+            return Response({'result': 'У вас нет прав для добавления консультантов.'},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        anket_id = request.data['anket_id']
+        anket = get_object_or_404(SummitAnket, pk=anket_id)
+        if anket.summit != summit:
+            return Response({'result': 'Выбранная анкета не соответствует данному саммиту.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        anket.role = SummitAnket.CONSULTANT
+        anket.save()
+        data = {'sumit_id': pk, 'consultant_id': anket_id, 'action': 'added'}
 
         return Response(data, status=status.HTTP_201_CREATED)
 
     @detail_route(methods=['post'], )
     def del_consultant(self, request, pk=None):
-        user_id = request.data['user_id']
         summit = get_object_or_404(Summit, pk=pk)
-        user = get_object_or_404(CustomUser, pk=user_id)
-        summit.consultants.remove(user)
-        data = {'sumit_id': pk, 'consultant_id': user_id, 'action': 'removed'}
 
-        return Response(data, status=status.HTTP_201_CREATED)
+        user_perm = IsSupervisorOrHigh().has_object_permission(request, None, summit)
+        if not user_perm:
+            return Response({'result': 'У вас нет прав для удаления консультантов.'},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        anket_id = request.data['anket_id']
+        anket = get_object_or_404(SummitAnket, pk=anket_id)
+        if anket.summit != summit:
+            return Response({'result': 'Выбранная анкета не соответствует данному саммиту.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        anket.role = SummitAnket.VISITOR
+        anket.save()
+        data = {'sumit_id': pk, 'consultant_id': anket_id, 'action': 'removed'}
+
+        return Response(data, status=status.HTTP_204_NO_CONTENT)
 
 
 class SummitTypeForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):

@@ -35,7 +35,7 @@ from hierarchy.models import Hierarchy, Department
 from navigation.models import user_table
 from partnership.models import Partnership
 from status.models import Status, Division
-from summit.models import SummitType, SummitLesson, SummitAnketNote, AnketEmail
+from summit.models import SummitType, SummitLesson, SummitAnketNote, SummitUserConsultant, AnketEmail, SummitAnket
 from tv_crm.views import sync_unique_user_call
 from .resources import clean_password, clean_old_password
 from .serializers import UserSerializer, UserShortSerializer, NewUserSerializer
@@ -134,6 +134,11 @@ class UserViewSet(viewsets.ModelViewSet):
                 }
                 for summit in summits.all()]
             for s in json['summits']:
+                current_user_anket = SummitAnket.objects.filter(
+                    user=request.user, summit_id=s['id'], role__gte=SummitAnket.CONSULTANT)
+                s['is_consultant'] = (
+                    current_user_anket.exists() and SummitUserConsultant.objects.filter(
+                        consultant=current_user_anket, user__user_id=pk, summit_id=s['id']).exists())
                 lessons = SummitLesson.objects.filter(summit__ankets__user_id=pk, summit_id=s['id'])
                 emails = AnketEmail.objects.filter(anket_id=s['anket_id'])
                 notes = SummitAnketNote.objects.filter(summit_anket__user_id=pk, summit_anket_id=s['anket_id'])
