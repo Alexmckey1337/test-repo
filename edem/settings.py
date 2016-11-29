@@ -17,7 +17,8 @@ import environ
 
 from account.utils import create_token
 
-BASE_DIR = environ.Path(__file__) - 2
+# BASE_DIR = environ.Path(__file__) - 2
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
@@ -88,7 +89,8 @@ ROOT_URLCONF = 'edem.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [str(BASE_DIR.path('templates')), ],
+        # 'DIRS': [str(BASE_DIR.path('templates')), ],
+        'DIRS': [BASE_DIR + '/templates', ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -96,6 +98,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'notification.context_processor.notifications'
             ],
         },
     },
@@ -146,9 +149,11 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
-MEDIA_ROOT = str(BASE_DIR.path('media'))
+# MEDIA_ROOT = str(BASE_DIR.path('media'))
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-STATIC_ROOT = str(BASE_DIR.path('static'))
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# STATIC_ROOT = str(BASE_DIR.path('static'))
 # STATICFILES_DIRS = (str(BASE_DIR.path('static')),)
 STATIC_URL = '/static/'
 STATICFILES_FINDERS = (

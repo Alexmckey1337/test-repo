@@ -53,7 +53,14 @@
                                         </li>
                                     {% endblock %}
                                     {% block header.notification.button %}
-                                        <li class="sms"><span>0</span><span></span></li>
+                                        <li class="sms">
+                                            {% if notifications.exists %}
+                                                <span>{{ notifications.count }}</span>
+                                            {% else %}
+                                                <span style="display:none;"></span>
+                                            {% endif %}
+                                            <span></span>
+                                        </li>
                                     {% endblock %}
                                     {% block header.search %}
                                         <li>
@@ -117,10 +124,18 @@
                                         <p>У Вас <span></span> незавершённых сделок</p>
                                     </div>
                                     <div class="bottom-box">
-                                        <p>Сегодня день рождения у:</p>
-                                        <ul>
-
-                                        </ul>
+                                        {% if notifications.exists %}
+                                            <p>Сегодня день рождения у:</p>
+                                            <ul>
+                                                {% for notification in notifications %}
+                                                    <li>
+                                                        <a href="{% url "account" notification.uid %}">{{ notification.fullname }}</a>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            <p>На сегодня нет уведомлений</p>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
