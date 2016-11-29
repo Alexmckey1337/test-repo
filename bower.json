@@ -1,0 +1,14 @@
+{
+  "name": "VO-CRM",
+  "description": "",
+  "main": "gulpfile.js",
+  "authors": [
+    "Ruslan Sapizhuk"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "jquery": "~2.2",
+    "bootstrap": "~3.3",
+    "html5shiv": "~3.7"
+  }
+}

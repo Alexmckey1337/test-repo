@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<!--[if IE]>
+  <link rel="stylesheet" type="text/css" href="css/ie.css" />
+<!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<html lang="ru"> <!--<![endif]-->
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>CRM</title>
+    <meta name="description" content="">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <link rel="shortcut icon" href="/static/img/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="/static/css/normalize.min.css">
+    <link rel="stylesheet" href="/static/libs/jquery.scrollbar.css">
+    <link rel="stylesheet" href="/static/css/jquery-ui.min.css">
+    <link rel="stylesheet" href="/static/css/fonts.css">
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/media.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/css/select2.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="/static/css/owl.carousel.css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet"
+          integrity="sha384-XdYbMnZ/QjLh6iI4ogqCTaIjrFk87ip+ekIjefZch0Y+PvJ8CDYtEs1ipDmPorQ+" crossorigin="anonymous">
+</head>
+
+<body>
+<div class="page-width">
+
+    <div id="sidebar"><!--Sidebar -->
+        <div class="scrollbar-macosx">
+
+            <div class="logo">
+                <div><span>V</span><span>O</span></div>
+                <div><span>C</span><span>R</span><span>M</span></div>
+            </div>
+
+            <ul id="nav-sidebar">
+                <li><a data-title="База данных" href="/">База данных</a></li>
+                <li><a data-title="Все отчеты" href="/reports/">Все отчеты</a></li>
+                <li><a data-title="События" href="/events/">События</a></li>
+                <li><a data-title="Партнёрство" href="/deals/">Партнёрство</a></li>
+                <li><a data-title="Саммиты" href="/summits/">Саммиты</a></li>
+                <li id="move-sidebar"><a data-title="Развернуть" href="#">Свернуть</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="main-wrap" id="event_wrap">
+        <div class="header">
+
+            <ul class="top"><!-- Top -->
+                <li>
+                    <h1><a href="/events">СОБЫТИЯ |</a> <span title></span></h1>
+                </li>
+                <li class="userImgWrap">
+                    <div class="userimg"><!-- <img src="img/layer-1.jpg" alt="userphoto"> -->
+                    </div>
+                </li>
+                <li class="sms"><span>0</span><span></span></li>
+                <li>
+                    <div class="search">
+                        <input type="text" placeholder="Поиск и фильтр" name="fullsearch">
+                    </div>
+                </li>
+            </ul><!--End Top -->
+
+            <div class="top-panel top-panel-1">
+
+                <div class="tabs-names">
+                    <ul>
+                        <!--	<li><h5>Олейник Виктория</h5></li>
+                            <li class="active"><h5>Захарова Анжела</h5></li> -->
+                    </ul>
+                </div>
+
+                <div class="top-buttons-wrap ">
+                    <ul class="top-buttons ">
+                        {#                        <li>#}
+                        {#                            <button class="none">Экспортировать</button>#}
+                        {#                        </li>#}
+                        <li>
+                            <button id="sort-on">Изменить таблицу</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+
+            <div class="user-hover photo-hover">
+                <div class="hover-wrapper">
+                    <div class="top-box" id="edit_profile">
+                        <span></span>
+                        <p>Мой профиль</p>
+                    </div>
+                    <div class="bottom-box"><a id="logout_button">
+                        <span></span>
+                        <p>Выйти</p></a>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="user-hover massage-hover">
+                <div class="hover-wrapper">
+                    <div class="top-box">
+                        <p>У Вас <span>48</span> незавершённых сделок</p>
+                    </div>
+                    <div class="bottom-box">
+                        <p>Сегодня день рождения у:</p>
+                        <ul>
+                            <li>Кичеев Данила Никонович</li>
+                            <li>Никоненко Сергей Эдуардович</li>
+                            <li>Ломтева Виктория Ипполитовна</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div><!--End header -->
+
+
+        <div class="top-pag">
+            <div id="carousel" class="carousel">
+
+                <span class="arrow-left"></span>
+
+                <div class="gallery">
+                    <ul id="date" class="images">
+                        <!-- <li><span>1 – 7 марта (11:00)</span></li>
+                                                <li><span>1 – 7 марта (11:00)</span></li>
+                                                <li><span>1 – 7 марта (11:00)</span></li> -->
+                        <!-- <li><span>1 – 7 марта (11:00)</span></li>
+                        <li><span>1 – 7 марта (11:00)</span></li>
+                        <li><span>1 – 7 марта (11:00)</span></li> -->
+                    </ul>
+                </div>
+
+                <span class="arrow-right"></span>
+
+            </div>
+
+            <div class="period period2">
+                <p>Период с <input type="text" id="done_datepicker_from"> по <input type="text" id="done_datepicker_to">
+                </p>
+
+            </div>
+
+
+            <div class="pagination">
+                <div class="pag-wrap">
+
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content clearfix">
+            <div id="visiting" data-id="0" class="tab-toggle clearfix">
+
+
+                <div class="table-wrap clearfix"><!--Table -->
+
+                    <div class="preloader">
+                        <div class="gif">
+                        </div>
+                    </div>
+                    <div class="table scrollbar-inner" id="event_id_wrap"></div>
+                </div><!--End Table-wrap -->
+
+                <div class="pagination full-width"><!--pagination -->
+                    <div class="element-select">
+                        <div class="query-none">
+                            <p>По запросу <span status></span> найдено <span id="total_count"></span> человек</p>
+                        </div>
+                    </div>
+                    <div class="pag-wrap">
+                        <!--<div class="prev">
+                            <span class="double_arrow"></span>
+                            <span class="arrow"></span>
+                        </div>
+                                <ul class="pag">
+                                    <li class="active">1</li>
+                                    <li>2</li>
+                                    <li>3</li>
+                                    <li>4</li>
+                                    <li>5</li>
+                                    <li>6</li>
+                                </ul>
+                            <div class="next">
+                                <span class="arrow"></span>
+                                <span class="double_arrow"></span>
+                            </div>
+                            -->
+                    </div>
+                </div><!--End pagination -->
+            </div><!--End visiting-->
+
+
+            <!--End journal -->
+        </div><!-- End tab-content-->
+
+
+        <div class="table-sorting"><!--table-sorting -->
+            <div class="form-wrap scrollbar-macosx">
+                <div class="top-text">
+                    <h2>Вы можете добавить столбцы и изменить их порядок</h2>
+                </div>
+                <div class="input-wrap">
+                    <ul id="sort-form"></ul>
+                </div>
+                <div class="dropbox-wrap">
+
+                </div>
+                <div class="butt-wrap">
+                    <button id="sort-off">Отменить</button>
+                    <button id="sort_save">Сохранить</button>
+                </div>
+
+            </div>
+        </div><!--End table-sorting -->
+
+        <div id="popup" class="pop-up-splash">
+            <div class="splash-screen">
+                <div class="top-text">
+                    <h3>Завершить сделку</h3>
+                </div>
+                <div class="user-info">
+                    <div class="left-side">
+                        <p>Клиент:</p>
+                        <p>Последняя сделка:</p>
+                        <p>Ответственный:</p>
+                    </div>
+                    <div class="right-side">
+                        <p id="client-name">Завершить сделку</p>
+                        <p id="deal-date">15.02.2015</p>
+                        <p id="responsible-name">Каравашкин Вадим</p>
+                    </div>
+                </div>
+                <div class="summa-wrap">
+                    <div class="summa">
+                        <p>Сумма:</p>
+                        <span id="deal-value">500 ₴</span>
+                    </div>
+                </div>
+                <textarea>Добавить коментарий</textarea>
+                <div class="splash-bauttons">
+                    <button id="close">Отменить</button>
+                    <button id="complete">Завершить</button>
+                </div>
+            </div>
+        </div><!--End Pop-up-splash-->
+
+    </div><!--End main-wrap -->
+</div><!--End page-width -->
+
+<div class="popap" id='popup_div'>
+    <div class="pop_cont">
+        <p id='popup_text'></p>
+        <span onclick='hidePopup()' class="close">x</span>
+    </div>
+</div>
+
+
+<script src='/static/libs/jquery-1.12.1.min.js'></script>
+<script src='/static/libs/jquery.scrollbar.min.js'></script>
+<script src='/static/libs/jquery-ui.min.js'></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/js/select2.min.js"></script>
+<script src='/static/js/lib.js'></script>
+<script src='/static/js/main.js'></script>
+
+<script src="/static/libs/owl.carousel.min.js"></script>
+<script src="/static/js/dnd_lib.js"></script>
+<script src="/static/js/event_visits.js"></script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+{% extends "layout_main.html" %}
+{% load static %}
+
+{% block main.attr %} class="main-wrap anketa"  id="account_view"{% endblock %}
+
+{% block header.top.h1 %}<h1>Анкета пользователя</h1>{% endblock %}
+
+{% block header.search %}
+    <li></li>
+{% endblock %}
+
+{% block header.buttons.add %}
+{% endblock %}
+
+{% block header.buttons.export %}
+{% endblock %}
+
+{% block header.buttons.change_table %}
+{% endblock %}
+
+{% block header.buttons.extra %}
+    <li>
+        <button class="b-red">Редактировать</button>
+    </li>
+{% endblock %}
+
+{% block main.content %}
+    <div class="content">
+        <div class="left-contentwrap">
+            <div class="left-content">
+                <div class="user-fiowrap">
+                    <div class="user-fio">
+                        <div class="right-info-r">
+                            <h3 id="fullname"></h3>
+                        </div>
+                        <div class="a-socials" data-soc="vkontakte">
+                            <i class="fa fa-vk"></i>
+                        </div>
+                        <div class="a-socials" data-soc="facebook">
+                            <i class="fa fa-facebook"></i>
+                        </div>
+                        <div class="label"></div>
+                        <div class="anketa-photo">
+                            <img src="{% static "img/no-usr.jpg" %}" alt="photo">
+                        </div>
+                    </div>
+                </div>
+                <ul>
+                    <li>
+                        <div class="right-info-r">
+                            <ul>
+                                <li><i class="fa fa-phone"></i><span id="phone_number"></span></li>
+                                <li><i class="fa fa-envelope"></i><span id="email"></span></li>
+                                <li><i class="fa fa-skype"></i><span id="skype"></span></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="left-info">
+                            <ul>
+                                <li>Дата рождения:</li>
+                                <li>Страна:</li>
+                                <li>Область:</li>
+                                <li>Город:</li>
+                                <li>Адрес:</li>
+                            </ul>
+                        </div>
+                        <div class="right-info">
+                            <ul>
+                                <li><span id="born_date"> </span></li>
+                                <li><span id="country"> </span></li>
+                                <li><span id="region"> </span></li>
+                                <li><span id="city"> </span></li>
+                                <li><span id="address"> </span></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="left-info">
+                            <ul>
+                                <li>Отдел:</li>
+                                <li>Статус:</li>
+                                <li>Ответственный:</li>
+                            </ul>
+                        </div>
+                        <div class="right-info">
+                            <ul>
+                                <li><span id="department"> </span></li>
+                                <li><span id="hierarchy"> </span></li>
+                                <li><span id="master"> </span></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="left-info">
+                            <ul>
+                                <li>Департамент:</li>
+                            </ul>
+                        </div>
+                        <div class="right-info">
+                            <ul>
+                                <li><span id="divisions"></span></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li id="parntership_info">
+                        <div class="left-info">
+                            <ul>
+                                <li>Партнёр с:</li>
+                                <li>Сумма сделки:</li>
+                                <li>Менеджер:</li>
+                            </ul>
+                        </div>
+                        <div class="right-info">
+                            <ul>
+                                <li><span id="coming_date_"></span></li>
+                                <li><span id="partner_val"></span></li>
+                                <li><span id="responsible"></span></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="left-info">
+                            <ul>
+                                <li>Первое посещение:</li>
+                                <li>Покаяние:</li>
+                            </ul>
+                        </div>
+                        <div class="right-info">
+                            <ul>
+                                <li><span id="coming_date" class="date"></span></li>
+                                <li><span id="repentance_status"></span></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div><!--End left-content -->
+        </div>
+
+        <div class="right-contentwrap">
+            <div class="right-content">
+                <div class="a-sdelki">
+                    <div class="top-s">
+                        <h3>Сделки </h3>
+                    </div>
+                    <div style="display:block;padding:10px;">
+                        <lable for="id_need_text" style="display:block;">Нужда</lable>
+                        <textarea name="need_text" id="id_need_text" rows="4"
+                                  style="width:100%;margin:10px 0;"></textarea>
+                        <button id="send_need" style="display:block;">Сохранить нужду</button>
+                    </div>
+                    <div style="display:block;padding:10px;" id="create_deal_block">
+                        <div style="display: inline-block; width: 49%;">
+                            <lable for="id_deal_value" style="display:block;">Сумма</lable>
+                            <input type="number" id="id_deal_value" required
+                                   style="width:90%;margin:10px 0; padding: 5px 0;"></div>
+                        <div style="display: inline-block; width: 49%;">
+                            <lable for="id_deal_date" style="display:block;">Дата</lable>
+                            <input type="text" id="id_deal_date" required style="width:100%;margin:10px 0;"></div>
+                        <lable for="id_deal_description" style="display:block;">Примечание</lable>
+                        <textarea name="deal_description" id="id_deal_description" rows="4"
+                                  style="width:100%;margin:10px 0;" required></textarea>
+                        <button id="send_new_deal" style="display:block;">Создать сделку</button>
+                    </div>
+                    <div class="tab-status">
+                        <ul id="tabs1">
+                            <li data-tab="1">
+                                <a href="#incomplete">Незавершённые (<span id="incomplete-count"></span>)</a>
+                            </li>
+                            <li data-tab="2">
+                                <a href="#overdue">Просроченные(<span id="overdue-count"></span>)</a>
+                            </li>
+                            <li data-tab="3">
+                                <a href="#completed">Завершённые(<span id="completed-count"></span>)</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="sdelki-content clearfix" data-tab-content="1">
+                    </div>
+                    <div class="sdelki-content clearfix" data-tab-content="2">
+                    </div>
+                    <div class="sdelki-content clearfix" data-tab-content="3">
+                    </div>
+                </div>
+
+                <div class="a-sammits">
+                    <div class="top-s">
+                        <h3>Саммиты</h3>
+                    </div>
+                    <div class="tab-status">
+                        <ul id="tabs2">
+                        </ul>
+                    </div>
+                    <div class="summit_wrapper clearfix">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block popap %}
+    <div id="deletePopup" class="add-user-wrap"><!--Add -user -->
+        <div class="splash-screen">
+            <div class="top-text">
+                <h3>Вы уверены, что хотите удалить пользователя?</h3>
+                <span>&times;</span>
+            </div>
+            <div class="splash-buttons">
+                <button id="no">Нет</button>
+                <button id="yes">Да</button>
+            </div>
+        </div>
+    </div>
+    {{ block.super }}
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.16.0/moment.min.js"></script>
+    <script src="{% static "js/account.js" %}"></script>
+{% endblock %}
