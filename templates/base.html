@@ -21,9 +21,9 @@
     <link rel="shortcut icon" href="{% static "img/favicon.png" %}" type="image/x-icon">
 
     {% block main_styles %}
-        <link rel="stylesheet" href="{% static "css/normalize.min.css" %}">
-        <link rel="stylesheet" href="{% static "libs/jquery.scrollbar.css" %}">
-        <link rel="stylesheet" href="{% static "css/jquery-ui.min.css" %}">
+        <link rel="stylesheet" href="{% static "libs/normalize-css/normalize.css" %}">
+        <link rel="stylesheet" href="{% static "libs/jquery.scrollbar/jquery.scrollbar.css" %}">
+        <link rel="stylesheet" href="{% static "css/jquery-ui/themes/base/jquery-ui.min.css" %}">
         <link rel="stylesheet" href="{% static "css/fonts.css" %}">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/css/select2.min.css" rel="stylesheet"/>
         <link rel="stylesheet" href="{% static "css/media.css" %}">
@@ -39,9 +39,9 @@
 {% endblock %}
 
 {% block main_scripts %}
-    <script src='{% static "libs/jquery-1.12.1.min.js" %}'></script>
-    <script src='{% static "libs/jquery.scrollbar.min.js" %}'></script>
-    <script src='{% static "libs/jquery-ui.min.js" %}'></script>
+    <script src='{% static "libs/jquery/dist/jquery.min.js" %}'></script>
+    <script src='{% static "libs/jquery.scrollbar/jquery.scrollbar.min.js" %}'></script>
+    <script src='{% static "libs/jquery-ui/jquery-ui.min.js" %}'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/js/select2.min.js"></script>
     <script src='{% static "js/lib.js" %}'></script>
     <script src='{% static "js/main.js" %}'></script>
