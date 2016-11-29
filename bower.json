@@ -8,7 +8,9 @@
   "license": "ISC",
   "dependencies": {
     "jquery": "~2.2",
-    "bootstrap": "~3.3",
-    "html5shiv": "~3.7"
+    "html5shiv": "~3.7",
+    "moment": "~2",
+    "normalize-css": "",
+    ""
   }
 }
