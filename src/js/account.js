@@ -20,7 +20,7 @@ $(document).ready(function () {
         $('#deletePopup').hide();
     });
 
-    $('#deletePopup .top-text span').click(function () {
+    $('#deletePopup span').click(function () {
         $('#deletePopup').hide();
     });
 
