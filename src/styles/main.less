@@ -199,6 +199,7 @@ select::-ms-expand {
     box-sizing: border-box;
     position: relative;
     border-top: 1px solid #555b65;
+    list-style-type: none;
 }
 
 #sidebar ul li:nth-child(5) {
@@ -345,6 +346,7 @@ select::-ms-expand {
     border-bottom: 1px solid #cdd0d4;
     height: 90px;
     box-sizing: border-box;
+    margin: 0;
 }
 
 .none {
@@ -361,6 +363,10 @@ select::-ms-expand {
     border-left: .1em solid #cdd0d4;
     text-align: center;
     position: relative;
+    & h1 {
+        float: left;
+        margin-top: 0;
+    }
 }
 
 #database .header .top li h1, #deals-new .header .top li h1 {
@@ -723,6 +729,11 @@ h1 a {
 .top-panel {
     position: relative;
     overflow: hidden;
+    & .tabs {
+        & .tabs-nav {
+                margin-top: 0;
+        }
+    }
 }
 
 .top-panel-1 {
