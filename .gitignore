@@ -1,4 +1,3 @@
-/media
 node_modules/
 /venv
 .venv
@@ -14,3 +13,5 @@ celerybeat.pid
 celeryev.pid
 static/bower_components/
 templates/search/
+public/media/
+public/static/

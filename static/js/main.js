@@ -84,27 +84,6 @@ if (document.getElementById('sort_save')) {
     })
 }
 
-function getNotifications() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/notifications/today/', null, function (data) {
-        var count = data.count;
-        data = data.results;
-        var html = "";
-        if (count > 0) {
-            document.querySelector('.sms span:first-child').innerHTML = count;
-            document.querySelector('.sms span:first-child').style.display = 'block';
-            for (var i = 0; i < data.length; i++) {
-                if (data[i].common) {
-                    html += '<li><a href="/account/' + data[i].uid + '">' + data[i].fullname + '</a></li>';
-                }
-            }
-            document.querySelector('.massage-hover .bottom-box ul').innerHTML = html;
-        } else {
-            document.querySelector('.sms span:first-child').style.display = 'none';
-            document.querySelector('.massage-hover .bottom-box').innerHTML = '<p>На сегодня нет уведомлений</p>'
-        }
-    })
-}
-
 /*function showWindow () {
  var wind = document.querySelector('.massage-hover');
  document.querySelector(".photo-hover").style.display = 'none';
@@ -237,11 +216,6 @@ $(document).ready(function () {
 
 
 //Перенести в файл
-    if (document.getElementById('edit_profile')) {
-        document.getElementById('edit_profile').addEventListener('click', function () {
-            window.location.href = '/account/' + config.user_id + '/'
-        })
-    }
 });
 
 window.onload = function () {
@@ -252,10 +226,6 @@ window.onload = function () {
     }
     $('body').show();
 };
-
-if (document.querySelector('.sms')) {
-    getNotifications();
-}
 
 function opened(name) {
     var matches = document.cookie.match(new RegExp(
@@ -329,15 +299,6 @@ $(function () {
             getCurrentSetting();
             init(user_id);
             //createSubordinateList(user_id);
-        }
-
-
-        if (document.querySelector(".userimg")) {
-            var img = "<img src='" + data.image + "' alt='userphoto' />";
-            if (data.image == null) {
-                img = "<img src='" + '/static/img/no-usr.jpg' + "' alt='userphoto' />";
-            }
-            document.querySelector(".userimg").innerHTML = img;
         }
 
         if (document.getElementById("add_new")) {
