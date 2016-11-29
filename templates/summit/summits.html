@@ -17,7 +17,12 @@
 {% endblock %}
 
 {% block main.content %}
-    <div id="summits" class="summits-wrap"></div>
+    <div id="summits" class="summits-wrap">
+        {% for summit_type in summit_types %}
+            <div><img data-id="{{ summit_type.id }}" src="{{ summit_type.image.url }}" alt=""/></div>
+        {% endfor %}
+
+    </div>
 {% endblock %}
 
 {% block extra_scripts %}

@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 from partnership.models import Partnership
+from summit.models import SummitType
 from tv_crm.views import sync_user_call
 
 
@@ -53,7 +54,10 @@ def account_edit(request, user_id):
 
 @login_required(login_url='entry')
 def summits(request):
-    return render(request, 'summit/summits.html')
+    ctx = {
+        'summit_types': SummitType.objects.exclude(id=3)
+    }
+    return render(request, 'summit/summits.html', context=ctx)
 
 
 @login_required(login_url='entry')

@@ -297,21 +297,12 @@ function getDataForPopup(id, name, master) {
 }
 
 function create_summit_buttons(id) {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit_types/', null, function (data) {
-        var data = data.results;
-        var html = '';
-        for (var i = 0; i < data.length; i++) {
-            html += '<div><img data-id="' + data[i].id + '" src="' + data[i].image + '" alt="" /></div>';
-        }
-        html += '</ul></div>';
-        document.getElementById(id).innerHTML = html;
-        var img = document.querySelectorAll('#summits img');
-        for (var i = 0; i < img.length; i++) {
-            img[i].addEventListener("click", function () {
-                location.href = '/summit_info/' + this.getAttribute('data-id');
-            });
-        }
-    });
+    var img = document.querySelectorAll('#summits img');
+    for (var i = 0; i < img.length; i++) {
+        img[i].addEventListener("click", function () {
+            location.href = '/summit_info/' + this.getAttribute('data-id');
+        });
+    }
 }
 
 function addSummitInfo() {
@@ -467,7 +458,7 @@ function getUsersList(path, param) {
                     // results[i].is_member
                     tbody += '<td';
                     var classes = [];
-                    if(results[i].is_member) {
+                    if (results[i].is_member) {
                         classes = classes.concat('member_user')
                     }
                     if (results[i].emails.length > 0) {
@@ -476,7 +467,7 @@ function getUsersList(path, param) {
                     if (classes.length > 0) {
                         tbody += ' class="' + classes.join(' ') + '"';
                     }
-                    tbody +=   '>' + '<a href="' + results[i].user.link + '">' + value + '</a><span title="Удалить анкету" data-fullname="' + results[i].user.fullname + '" data-user-id="' + results[i].user.id + '" data-anketId="' + results[i].id + '"" data-value="' + results[i].value + '" data-comment="' + results[i].description + '" data-member="' + results[i].is_member + '" class="del"></span></td>'
+                    tbody += '>' + '<a href="' + results[i].user.link + '">' + value + '</a><span title="Удалить анкету" data-fullname="' + results[i].user.fullname + '" data-user-id="' + results[i].user.id + '" data-anketId="' + results[i].id + '"" data-value="' + results[i].value + '" data-comment="' + results[i].description + '" data-member="' + results[i].is_member + '" class="del"></span></td>'
                 } else if (k === 'social') {
                     tbody += '<td>';
                     if (results[i].user.skype) {
@@ -577,7 +568,7 @@ function getUsersList(path, param) {
             $('#summit-valueDelete').val(val);
             $('#popupDelete textarea').val(comment);
             $('#popupDelete h3').html(usr);
-            if( member == 'false') {
+            if (member == 'false') {
                 $('#member').prop('checked', false);
             } else {
                 $('#member').prop('checked', true);
