@@ -216,11 +216,6 @@ $(document).ready(function () {
 
 
 //Перенести в файл
-    if (document.getElementById('edit_profile')) {
-        document.getElementById('edit_profile').addEventListener('click', function () {
-            window.location.href = '/account/' + config.user_id + '/'
-        })
-    }
 });
 
 window.onload = function () {
