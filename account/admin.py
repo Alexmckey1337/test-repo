@@ -12,7 +12,6 @@ from .models import CustomUser, AdditionalPhoneNumber
 from .resources import UserResource
 
 
-
 class AdditionalPhoneNumberInline(admin.TabularInline):
     model = AdditionalPhoneNumber
 
