@@ -1,7 +1,6 @@
 'use strict';
 
 const gulp = require('gulp'),
-    removeHtmlComments = require('gulp-remove-html-comments'),
     less = require('gulp-less'),
     path = require('path'),
     sourcemaps = require('gulp-sourcemaps'),
