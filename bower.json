@@ -10,7 +10,10 @@
     "jquery": "~2.2",
     "html5shiv": "~3.7",
     "moment": "~2",
-    "normalize-css": "",
-    ""
+    "normalize-css": "~5",
+    "jquery-ui": "~1",
+    "select2": "~3.2",
+    "cropper": "~2.3",
+    "font-awesome": "^4.7.0"
   }
 }
