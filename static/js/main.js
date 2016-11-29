@@ -301,15 +301,6 @@ $(function () {
             //createSubordinateList(user_id);
         }
 
-
-        if (document.querySelector(".userimg")) {
-            var img = "<img src='" + data.image + "' alt='userphoto' />";
-            if (data.image == null) {
-                img = "<img src='" + '/static/img/no-usr.jpg' + "' alt='userphoto' />";
-            }
-            document.querySelector(".userimg").innerHTML = img;
-        }
-
         if (document.getElementById("add_new")) {
             document.getElementById("add_new").setAttribute('data-id', data.id);
         }

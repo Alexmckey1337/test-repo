@@ -49,6 +49,11 @@
                                     {% block header.user.button %}
                                         <li class="userImgWrap">
                                             <div class="userimg">
+                                                {% if request.user.image %}
+                                                    <img src="{{ request.user.image.url }}" alt="userphoto"/>
+                                                {% else %}
+                                                    <img src="{% static "img/no-usr.jpg" %}" alt="userphoto"/>
+                                                {% endif %}
                                             </div>
                                         </li>
                                     {% endblock %}
