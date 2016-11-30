@@ -34,7 +34,7 @@ $(document).ready(function () {
 
 
 function init(id) {
-    let id = parseInt(id || getLastId());
+    id = parseInt(id || getLastId());
     let isMember;
 
     if (!id) {

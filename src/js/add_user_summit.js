@@ -271,7 +271,7 @@ function getCountries() {
 
 function getDepartments() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/departments/', null, function (data) {
-        let data = data.results;
+        data = data.results;
         let html = '<option value=""> </option>';
         for (let i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
@@ -284,7 +284,7 @@ function getDepartments() {
 
 function getStatuses() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
-        let data = data.results;
+        data = data.results;
         let html = '<option value=""> </option>';
         for (let i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
@@ -295,7 +295,7 @@ function getStatuses() {
 
 function getResponsibleStatuses() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
-        let data = data.results;
+        data = data.results;
         let html = '<option value=""> </option><option>Не выбрано</option>';
         for (let i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
@@ -307,7 +307,7 @@ function getResponsibleStatuses() {
 
 function getDivisions() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/divisions/', null, function (data) {
-        let data = data.results;
+        data = data.results;
         let html = '<option value=""> </option>';
         for (let i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
@@ -318,7 +318,7 @@ function getDivisions() {
 
 function getUsers() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
-        let data = data.results;
+        data = data.results;
         let html = '<option value=""> </option>';
         for (let i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';

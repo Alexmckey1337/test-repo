@@ -119,7 +119,7 @@ let data_for_drop = {};
 let img = $(".crArea img");
 
 function init(id) {
-    let id = parseInt(id || getLastId());
+    id = parseInt(id || getLastId());
     if (!id) {
         return
     }
@@ -143,8 +143,8 @@ function init(id) {
         if (!data.fields) {
             return
         }
-        let fullname
-        let social = data.fields.social
+        let fullname;
+        let social = data.fields.social;
         let repentance_date = data.fields.repentance_date;
 
 
