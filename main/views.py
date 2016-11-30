@@ -64,7 +64,8 @@ def summits(request):
 @login_required(login_url='entry')
 def summit_info(request, summit_id):
     ctx = {
-        'departments': Department.objects.all()
+        'departments': Department.objects.all(),
+        'summit_type': SummitType.objects.get(id=summit_id)
     }
     return render(request, 'summit/summit_info.html', context=ctx)
 
