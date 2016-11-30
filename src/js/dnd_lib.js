@@ -1,4 +1,4 @@
-/*var dragSrcEl = null; //Элемент который будем перетаскивать 
+/*let dragSrcEl = null; //Элемент который будем перетаскивать 
 function handleDragStart(e) {
  // this.style.opacity = '0.4';  // this / e.target is the source node.
   dragSrcEl = this;
@@ -34,7 +34,7 @@ function handleDrop(e) {
     e.stopPropagation(); // stops the browser from redirecting.
   }
 
-  var html = e.currentTarget.innerHTML;
+ let html = e.currentTarget.innerHTML;
  
   e.currentTarget.innerHTML = dragSrcEl.innerHTML;
   dragSrcEl.innerHTML = html

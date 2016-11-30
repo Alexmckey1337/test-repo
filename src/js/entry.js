@@ -1,13 +1,13 @@
 function authUser() {
-    var username = document.getElementById('login').value;
-    var password = document.getElementById('psw').value;
-    var remember_me = document.getElementById('save-profile').checked;
-    //var remember = false
+    let username = document.getElementById('login').value;
+    let password = document.getElementById('psw').value;
+    let remember_me = document.getElementById('save-profile').checked;
+    //let remember = false
         //	if (remember_me.className == 'checkbox active'){
         //		remember = true
         //	}
-    
-    var data = {
+
+    let data = {
         "username": username,
         "email": username,
         "password": password,
@@ -15,7 +15,7 @@ function authUser() {
     };
     if (checkEmptyFields(username, password) == false) {
 
-        var json = JSON.stringify(data);
+        let json = JSON.stringify(data);
         ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/login/', json, function (JSONobj) {
             //showPopup(JSONobj.message);
             if (JSONobj.status == true) {
@@ -63,7 +63,7 @@ function addErrorStyle(errorId, fieldId) {
 }
 */
 function checkEmptyFields(username, password) {
-    var empty = false;
+    let empty = false;
     if (username.length == 0) {
       //  addErrorStyle('login_alert', 'login');
         empty = true;
@@ -84,11 +84,11 @@ function logIn() {
 
 function sendPassToEmail(){
 
-        var data = {
+    let data = {
             'email' : document.getElementById('send_letter').value
         };
 
-            var json = JSON.stringify(data);
+    let json = JSON.stringify(data);
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/password_forgot/', json, function (JSONobj) {
             showPopup(JSONobj.message);
             if (JSONobj.status == true) {

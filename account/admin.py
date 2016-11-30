@@ -20,6 +20,7 @@ class CustomUserAdmin(UserAdmin, ImportExportModelAdmin):
     list_display = ('username', 'date_joined',
                     'is_staff', 'is_active')
     list_editable = ('is_active',)
+    list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups', 'department',)
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {'fields': (

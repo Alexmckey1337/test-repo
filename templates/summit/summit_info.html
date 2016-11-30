@@ -1,11 +1,20 @@
 {% extends "layout_main.html" %}
 {% load static %}
+{% load summit_tags %}
 
-{% block header.top.h1 %}<h1 id="summit-title"></h1>{% endblock %}
+{% block header.top.h1 %}
+    <h1 id="summit-title">
+        <a href="{% url 'summits' %}">САММИТЫ | </a>
+        <span>{{ summit_type.title }}</span>
+    </h1>
+{% endblock %}
 
 {% block header.top.select %}
     <select class="selectdb" id="dep_filter">
-        <option>ВСЕ</option>
+        <option value="0">ВСЕ</option>
+        {% for department in departments %}
+            <option value="{{ department.id }}">{{ department.title }}</option>
+        {% endfor %}
     </select>
 {% endblock %}
 
@@ -22,13 +31,15 @@
 {% endblock %}
 
 {% block header.buttons.filter %}
-    <div class="col-4">
-        <select name="summit_type" id="summit_type">
-            <option value="0">Все</option>
-            <option value="1">Облако свидетелей</option>
-            <option value="2">Не облако свидетелей</option>
-        </select>
-    </div>
+    {% if summit_type.club_name %}
+        <div class="col-4">
+            <select name="summit_type" id="summit_type">
+                <option value="0">Все</option>
+                <option value="1">{{ summit_type.club_name }}</option>
+                <option value="2">Не {{ summit_type.club_name|lower }}</option>
+            </select>
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block header.buttons.export %}
@@ -42,6 +53,16 @@
 
             <div class="gallery">
                 <ul id="date" class="images">
+                    {% for summit in summit_type.summits.all %}
+                        <li{% if forloop.first %} class="active"{% endif %}>
+                            <span data-id={{ summit.id }}>
+                                {% if summit.description %}
+                                    {{ summit.description }}
+                                {% else %}
+                                    {{ summit.start_date }}
+                                {% endif %}
+                            </span></li>
+                    {% endfor %}
                 </ul>
             </div>
 
@@ -70,7 +91,105 @@
 {% endblock %}
 
 {% block create_user %}
-    {% include 'partials/create_user_summit.html' %}
+    <div id="popup" class="pop-up-splash">
+        <div class="splash-screen">
+            <div class="top-text">
+                <h3><span>←</span> Информация об участнике</h3>
+            </div>
+            <div class="user-info">
+                <div class="left-side">
+                    <p>Клиент:</p>
+                    <p>Ответственный:</p>
+                </div>
+                <div class="right-side">
+                    <p id="client-name"></p>
+                    <p id="responsible-name"></p>
+                </div>
+            </div>
+            <div class="summa-wrap">
+                <div class="summa">
+                    <p>Сумма:</p>
+                    <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                           readonly="readonly" type="text" id="summit-value">
+                    <span id="changeSum" class="change-summ"></span>
+                </div>
+            </div>
+            <textarea placeholder="Добавить коментарий"></textarea>
+            <div class="splash-bauttons">
+                <button id="close">Отменить</button>
+                <button id="complete">Завершить</button>
+            </div>
+        </div>
+    </div>
+    <div id="popupDelete" class="pop-up-splash">
+        <div class="splash-screen">
+            <div class="top-text">
+                <h3>Информация об участнике</h3>
+                <span>&times;</span>
+            </div>
+            <div class="summa-wrap">
+                <div class="summa">
+                    <p>Сумма:</p>
+                    <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                           readonly="readonly" type="text" id="summit-valueDelete">
+                    <span id="changeSumDelete" class="change-summ"></span>
+                </div>
+                <div class="member_club_block">
+                    <input type="checkbox" id="member">
+                    <label for="member">Учасник <span id="member_club">Облако свидетелей</span>:</label>
+                </div>
+                <div class="member_club_block">
+                    <input type="checkbox" id="send_email">
+                    <label for="send_email"><span id="send_email_label">Отправить билет</span>:</label>
+                </div>
+            </div>
+            <textarea maxlength="40" placeholder="Добавить коментарий"></textarea>
+            <div class="splash-bauttons">
+                <button id="deleteAnket"><i class="fa fa-trash-o fa-lg" aria-hidden="true"></i> Удалить</button>
+                <button id="closeDelete">Отменить</button>
+                <button id="completeDelete">Завершить</button>
+            </div>
+        </div>
+    </div>
+    <div id="popupForNew" class="pop-up-splash">
+        <div class="splash-screen">
+            <div class="top-text">
+                <h3><span>←</span> Информация об участнике</h3>
+            </div>
+            <div class="user-info">
+                <div class="left-side">
+                    <p>Клиент:</p>
+                    <p>Ответственный:</p>
+                </div>
+                <div class="right-side">
+                    <p id="client-nameNew"></p>
+                    <p id="responsible-nameNew"></p>
+                </div>
+            </div>
+            <div class="summa-wrap">
+                <div class="code">
+
+                    <input placeholder="Номер пропуска" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                           type="text" id="code">
+
+                    <input id="check" type="checkbox">
+
+                </div>
+                <div class="summa">
+                    <p>Сумма:</p>
+                    <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                           readonly="readonly" type="text" id="summit-valueNew">
+                    <span id="changeSumNew" class="change-summ"></span>
+                </div>
+            </div>
+            <textarea placeholder="Добавить коментарий"></textarea>
+            <div class="splash-bauttons">
+                <button id="closeNew">Отменить</button>
+                <button id="completeNew">Завершить</button>
+            </div>
+        </div>
+    </div><!--End Pop-up-splash-->
+    {% create_user_form %}
 {% endblock %}
 
 {% block extra_scripts %}

@@ -1,14 +1,14 @@
 $(document).ready(function(){
 
     $('.columns-wrap').on('scroll', function () {
-      $("#partnerFrom").datepicker('hide')
-      $("#partnerFrom").blur()
-      $("#bornDate").datepicker('hide')
-      $("#bornDate").blur()
-      $("#firsVisit").datepicker('hide')
-      $("#firsVisit").blur()
-      $("#repentanceDate").datepicker('hide')
-      $("#repentanceDate").blur()
+        $("#partnerFrom").datepicker('hide');
+        $("#partnerFrom").blur();
+        $("#bornDate").datepicker('hide');
+        $("#bornDate").blur();
+        $("#firsVisit").datepicker('hide');
+        $("#firsVisit").blur();
+        $("#repentanceDate").datepicker('hide');
+        $("#repentanceDate").blur();
     });
 
     $('#impPopup').click(function(el){
@@ -16,14 +16,14 @@ $(document).ready(function(){
         $(this).hide();
         $('input[type=file]').val('');
         img.cropper("destroy")
-    })
+    });
 
     $('#impPopup .top-text span').click(function(){
         $('#impPopup').hide();
         $('input[type=file]').val('');
         img.cropper("destroy");
 
-    })
+    });
 
     $('#edit-photo').click(function(){
         if($(this).attr('data-source')) {
@@ -38,17 +38,17 @@ $(document).ready(function(){
                       img.cropper("setCropBoxData", { width: "100", height: "50" });
                     }
                 });
-    })
+    });
 
 
     $('#impPopup button').click(function(){
-      var iurl;
+        let iurl;
       iurl = img.cropper("getDataURL", "image/jpeg");
       $('#edit-photo').attr('data-source',document.querySelector("#impPopup img").src);
       $('.anketa-photo').html('<img src="'+iurl+'" />');
       $('#impPopup').hide();
       img.cropper("destroy");
-    })
+    });
 
     $.datepicker.setDefaults($.datepicker.regional["ru"]);
 
@@ -68,12 +68,14 @@ $(document).ready(function(){
         $('#ui-datepicker-div').toggle();
     });
 
-    $('#partner').click(function(){$('.hidden-partner').toggle()})
+    $('#partner').click(function () {
+        $('.hidden-partner').toggle()
+    });
 
 
     getAll();
 
-    var dep,
+    let dep,
         stat;
 
     $("#chooseCountry").select2({placeholder: " "}).on("change", getRegions);
@@ -146,7 +148,7 @@ $(document).ready(function(){
     document.getElementById('saveNew').addEventListener('click', createNewAcc);
 });
 
-var img = $(".crArea img");
+let img = $(".crArea img");
 
 
 
@@ -174,57 +176,38 @@ var img = $(".crArea img");
 
   document.getElementById('addFileButton').addEventListener('click', function() {
     document.getElementById('addFile').click();
-  })
+  });
 
   document.querySelector("#popupForNew h3 span").addEventListener('click', function() {
         document.querySelector('#popupForNew').style.display = 'none';
         document.querySelector('.pop-up-splash-add').style.display = 'block';
-    })
+  });
 
     document.querySelector("#closeNew").addEventListener('click', function() {
         document.querySelector('#popupForNew').style.display = 'none';
         document.querySelector('.pop-up-splash-add').style.display = 'block';
-    })
+    });
 
     document.getElementById('changeSumNew').addEventListener('click', function() {
         document.getElementById('summit-valueNew').removeAttribute('readonly');
         document.getElementById('summit-valueNew').focus();
-    })
+    });
 
     document.getElementById('completeNew').addEventListener('click', function() {
-        var id = this.getAttribute('data-id'),
+        let id = this.getAttribute('data-id'),
             money = document.getElementById('summit-valueNew').value,
             description = document.querySelector('#popupForNew textarea').value;
         registerUserNew(id,summit_id,money,description);
         window.location.reload();
-    })
+    });
 
   document.getElementsByName('f')[0].addEventListener('change', selectFile, false);
 
 
 function getAll() {
-  getCountries();
-  getDepartments();
-  getStatuses();
-  getDivisions();
-  getManagers();
-  getResponsibleStatuses();
-  getCountryCodes();
-}
-
-function getCountryCodes() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
-    var code = '<option value=""> </option>';
-    for (var i = 0; i < data.length; i++) {
-      if (data[i].phone_code == 38) {
-          code += '<option selected value="'+data[i].phone_code+'">'+data[i].title + ' ' + data[i].phone_code +'</option>';
-        } else {
-          code += '<option value="'+data[i].phone_code+'">'+data[i].title + ' ' + data[i].phone_code +'</option>';
-        }
-    }
-    document.getElementById('chooseCountryCode').innerHTML = code;
+    window.dep = $("#chooseDepartment").val();
+    window.stat = $("#chooseResponsibleStatus").val();
     document.querySelector('[name="phone_numberCode"]').value = $('#chooseCountryCode').val();
-  })
 }
 
 function getDataForPopupNew(id, name, master) {
@@ -234,7 +217,7 @@ function getDataForPopupNew(id, name, master) {
 }
 
 function registerUserNew(id,summit_id,money, description) {
-      var data = {
+    let data = {
                 "user_id": id,
                 "summit_id": summit_id,
                 "value": money,
@@ -245,10 +228,10 @@ function registerUserNew(id,summit_id,money, description) {
           data['code'] = document.getElementById('code').value;
         }
         console.log(data);
-        var json = JSON.stringify(data);
+    let json = JSON.stringify(data);
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/post_anket/', json, function (JSONobj) {
             if(JSONobj.status){
-                var data = {};
+                let data = {};
                 data['summit'] = summit_id;
                 getUsersList(data);
                 getUnregisteredUsers();
@@ -258,95 +241,16 @@ function registerUserNew(id,summit_id,money, description) {
         });
 }
 
-
-function getCountries() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
-      var html = '<option value=""> </option><option>Не выбрано</option>';
-      for (var i = 0; i < data.length; i++) {
-        html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
-      }
-      document.getElementById('chooseCountry').innerHTML = html;
-    });
-}
-
-function getDepartments() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/departments/', null, function (data) {
-      var data = data.results;
-      var html = '<option value=""> </option>';
-      for (var i = 0; i < data.length; i++) {
-        html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
-      }
-        document.getElementById('chooseDepartment').innerHTML = html;
-      dep = $("#chooseDepartment").val();
-    });
-
-}
-
-function getStatuses() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
-      var data = data.results;
-      var html = '<option value=""> </option>';
-      for (var i = 0; i < data.length; i++) {
-        html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
-      }
-        document.getElementById('chooseStatus').innerHTML = html;
-    });
-}
-
-function getResponsibleStatuses() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
-      var data = data.results;
-      var html = '<option value=""> </option><option>Не выбрано</option>';
-      for (var i = 0; i < data.length; i++) {
-        html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
-      }
-      document.getElementById('chooseResponsibleStatus').innerHTML = html;
-      stat = $("#chooseResponsibleStatus").val();
-    });
-}
-
-function getDivisions() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/divisions/', null, function (data) {
-      var data = data.results;
-      var html = '<option value=""> </option>';
-      for (var i = 0; i < data.length; i++) {
-        html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
-      }
-        document.getElementById('chooseDivision').innerHTML = html;
-    });
-}
-
-function getUsers() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
-      var data = data.results;
-      var html = '<option value=""> </option>';
-      for (var i = 0; i < data.length; i++) {
-        html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
-      }
-      document.getElementById('chooseStatus').innerHTML = html;
-    });
-}
-
-function getManagers() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.1/partnerships/simple/', null, function (data) {
-      var html = '<option value=""> </option><option>Не выбрано</option>';
-        data.forEach(function (partnership) {
-            html += '<option value="' + partnership.id + '">' + partnership.fullname + '</option>';
-        });
-      document.getElementById('chooseManager').innerHTML = html;
-    });
-}
-
 function getRegions() {
-    var opt = {};
+    let opt = {};
     opt['country'] = $("#chooseCountry").val();;
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/regions/', opt, function (data) {
       if(data.length == 0) {
         document.getElementById('chooseRegion').innerHTML = '<option value=""> </option>';
         document.getElementById('chooseCity').removeAttribute('disabled')
       }
-      var html = '<option value=""> </option><option>Не выбрано</option>';
-      for (var i = 0; i < data.length; i++) {
+        let html = '<option value=""> </option><option>Не выбрано</option>';
+        for (let i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
       document.getElementById('chooseRegion').innerHTML = html;
@@ -356,8 +260,8 @@ function getRegions() {
 
 function getResponsible(id, level) {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id + '&hierarchy=' + level, null, function (data) {
-      var html = '<option value=""> </option><option>Не выбрано</option>';
-      for (var i = 0; i < data.length; i++) {
+        let html = '<option value=""> </option><option>Не выбрано</option>';
+        for (let i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].fullname+'</option>';
       }
         document.getElementById('chooseResponsible').innerHTML = html;
@@ -365,11 +269,11 @@ function getResponsible(id, level) {
   }
 
 function getCities() {
-    var opt = {};
+    let opt = {};
     opt['region'] = $("#chooseRegion").val();;
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/cities/', opt, function (data) {
-      var html = '<option value=""> </option><option>Не выбрано</option>';
-      for (var i = 0; i < data.length; i++) {
+        let html = '<option value=""> </option><option>Не выбрано</option>';
+        for (let i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
       }
       document.getElementById('chooseCity').innerHTML = html;
@@ -379,12 +283,12 @@ function getCities() {
 
 function selectFile(evt) {
 
-    var files = evt.target.files;
-        for (var i = 0, f; f = files[i]; i++) {
+    let files = evt.target.files;
+    for (let i = 0, f; f = files[i]; i++) {
           if (!f.type.match('image.*')) {
             continue;
           }
-          var reader = new FileReader();
+        let reader = new FileReader();
           reader.onload = (function(theFile) {
               return function (e) {
               document.querySelector("#impPopup img").src= e.target.result
@@ -408,7 +312,7 @@ function createNewAcc() {
   } else {
     document.querySelector("input[name='phone_number']").style.border = '';
   }
-  var data = {
+    let data = {
     "email": document.querySelector("input[name='email']").value,
     "first_name": document.querySelector("input[name='first_name']").value,
     "last_name": document.querySelector("input[name='last_name']").value,
@@ -488,14 +392,14 @@ function createNewAcc() {
     document.querySelector("#chooseStatus + span .select2-selection").style.border = '';
   }
 
-  var num_reg = /^[0-9]*$/ig;
+    let num_reg = /^[0-9]*$/ig;
   if (!num_reg.test(document.querySelector("input[name='phone_number']").value)) {
     document.querySelector("input[name='phone_number']").style.border = '1px solid #d46a6a';
     return;
   } else {
     document.querySelector("input[name='phone_number']").style.border = '';
   }
-  var val_reg = /^[0-9]*$/ig;
+    let val_reg = /^[0-9]*$/ig;
   if (!val_reg.test(document.querySelector("input[name='value']").value)) {
     document.querySelector("input[name='value']").style.border = '1px solid #d46a6a';
     return;
@@ -503,11 +407,11 @@ function createNewAcc() {
     document.querySelector("input[name='value']").style.border = '';
   }
 /*
- var url =config.DOCUMENT_ROOT + 'api/v1.0/short_users/?search=' + data["first_name"] +'+' + data["last_name"];
+ let url =config.DOCUMENT_ROOT + 'api/v1.0/short_users/?search=' + data["first_name"] +'+' + data["last_name"];
       ajaxRequest( url, null, function(data,answer) {
       //  console.log(data);
         if (data.length) {
-           var id  = data[0].id;
+ let id  = data[0].id;
           // debugger
           // showPopup(data.message)
            //showPopup('Такой пользователей есть уже в БД');
@@ -519,24 +423,24 @@ function createNewAcc() {
 
       })
 */
-var name = data['first_name'] + " " + data['last_name'],
+    let name = data['first_name'] + " " + data['last_name'],
     master = $('#chooseResponsible option:selected').html();
-  var json = JSON.stringify(data);
+    let json = JSON.stringify(data);
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/create_user/', json, function (data) {
           if (data.redirect) {
-            var fd = new FormData();
+              let fd = new FormData();
             if(!$('input[type=file]')[0].files[0]){
               console.log(data.id)
                   fd.append('id' , data.id)
                 } else {
-                  var blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                  var sr = $('#edit-photo').attr('data-source');
+                let blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+                let sr = $('#edit-photo').attr('data-source');
                   fd.append( 'file', blob );
                   fd.set('source', $('input[type=file]')[0].files[0], 'photo.jpg');
                   fd.append('id' , data.id)
                 }
             function dataURLtoBlob(dataurl) {
-                    var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
                         bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
                     while(n--){
                         u8arr[n] = bstr.charCodeAt(n);
@@ -545,7 +449,7 @@ var name = data['first_name'] + " " + data['last_name'],
                 }
             /*fd.append( 'file', $('input[type=file]')[0].files[0] );
             fd.append('id' , data.id)*/
-            var xhr = new XMLHttpRequest();
+              let xhr = new XMLHttpRequest();
             xhr.withCredentials = true;
               xhr.open('POST', config.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
 

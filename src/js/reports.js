@@ -37,7 +37,7 @@ function init_report(){
 function getReports(period,container,callback){
     ajaxRequest(config.DOCUMENT_ROOT + period, null, function(data) {
 
-        var results = data.results;
+        let results = data.results;
 
         if( !results.length){
           //  showPopup('Не созданные репорты')
@@ -45,8 +45,8 @@ function getReports(period,container,callback){
         }
 
         window.reports_by_mid = [] //[2,120]
-        for(var i = 0; i < results.length; i++) {
-            var report = results[i];
+        for (let i = 0; i < results.length; i++) {
+            let report = results[i];
 
 
             if(!reports_by_mid[report['mid']]) {
@@ -60,7 +60,7 @@ function getReports(period,container,callback){
 
         window.sub_ids = []; //[3, 5, 6, 7, 8, 120]
 
-        for(var j = 0; j < reports_by_mid[my_id].length; j++) {
+        for (let j = 0; j < reports_by_mid[my_id].length; j++) {
 
             if( jQuery.inArray( reports_by_mid[my_id][j]['uid'], sub_ids ) == -1){
                  sub_ids.push(reports_by_mid[my_id][j]['uid'])
@@ -69,7 +69,7 @@ function getReports(period,container,callback){
         }
 
         //Генерация отчетов по подчиненных 
-        var wrap = ''
+        let wrap = ''
 
         if(  !reports_by_mid[my_id] ){
            //  showPopup('Не созданные репорты')
@@ -77,39 +77,38 @@ function getReports(period,container,callback){
         }
 
 
-        for(var m = 0; m < sub_ids.length; m++) {
+        for (let m = 0; m < sub_ids.length; m++) {
             //Постройка таблиц  ....1 sub_ids это 1 строка таблица
 
-            var report_event_container = '' // Контейнер Снижко Ю.И.
+            let report_event_container = '' // Контейнер Снижко Ю.И.
             // получаем отчеты только на подченных если они есть 
             if(reports_by_mid[sub_ids[m]]) {
 
 
               
                 window.week_reports = []
-                for(var p = 0; p < reports_by_mid[sub_ids[m]].length; p++) {
+                for (let p = 0; p < reports_by_mid[sub_ids[m]].length; p++) {
 
 
                     week_reports/*[reports_by_mid[sub_ids[m]][p]['date']]*/.push(reports_by_mid[sub_ids[m]][p])
 
                 }
 
-                
 
-                var thead = '<div class="event-wrap clearfix"><table>'
-                       
-
-                    var html ='<div class="event-wrap-scroll">'
+                let thead = '<div class="event-wrap clearfix"><table>'
 
 
-                    var  report_parent_by_current_week = reports_by_mid[my_id].filter(function(el){
+                let html = '<div class="event-wrap-scroll">'
+
+
+                let report_parent_by_current_week = reports_by_mid[my_id].filter(function (el) {
                         return el.uid == sub_ids[m] /*&& week_reports[l][0] == el.date*/
                      })
 
 
                    // week_reports.unshift(report_parent_by_current_week[0])
 
-                var caption = period == 'api/v1.0/month_reports/' ? getRussianMonth(new Date(week_reports[0]['date']).getMonth()) : new Date(week_reports[0]['date']).getFullYear()
+                let caption = period == 'api/v1.0/month_reports/' ? getRussianMonth(new Date(week_reports[0]['date']).getMonth()) : new Date(week_reports[0]['date']).getFullYear()
 
                       html += '<table><caption>' + caption + '</caption><tr>'+
                             '<th>Д.Г.<br>к-во</th><th>Д.Г.<br>пож.</th><th>Ноч.<br>к-во</th>'+
@@ -126,10 +125,8 @@ function getReports(period,container,callback){
                            '<td>'+ report_parent_by_current_week[0]['service_as_leader_repentance_count']  +'</td>'+
                         '</tr>'
 
-                
 
-
-                for(var s = 0; s < week_reports.length; s++) {
+                for (let s = 0; s < week_reports.length; s++) {
 
 
 
@@ -144,8 +141,8 @@ function getReports(period,container,callback){
 
                         html += '<tr>'
 
-                        
-                        for(var prop in week_reports[s]  ) {
+
+                    for (let prop in week_reports[s]) {
 
                             //console.log( week_reports[s] )
 
@@ -231,7 +228,7 @@ function getWeekReports(period,container,callback){
     ajaxRequest(config.DOCUMENT_ROOT + period, null, function(data) {
 
 
-        var results = data.results;
+        let results = data.results;
 
 
         if( !results.length){
@@ -244,8 +241,8 @@ function getWeekReports(period,container,callback){
 
 
         //  reports_by_mid = [ 0: [{},{}]  ]
-        for(var i = 0; i < results.length; i++) {
-            var report = results[i];
+        for (let i = 0; i < results.length; i++) {
+            let report = results[i];
 
 
             if(!reports_by_mid[report['mid']]) {
@@ -264,7 +261,7 @@ function getWeekReports(period,container,callback){
             return ''
         }
 
-        for(var j = 0; j < reports_by_mid[my_id].length; j++) {
+        for (let j = 0; j < reports_by_mid[my_id].length; j++) {
 
             if( jQuery.inArray( reports_by_mid[my_id][j]['uid'], sub_ids ) == -1){
                  sub_ids.push(reports_by_mid[my_id][j]['uid'])
@@ -274,17 +271,16 @@ function getWeekReports(period,container,callback){
 
 
         //Генерация отчетов по подчиненных 
-        var wrap = ''
-        for(var m = 0; m < sub_ids.length; m++) {
+        let wrap = ''
+        for (let m = 0; m < sub_ids.length; m++) {
 
 
-
-            var report_event_container = '' // Контейнер Снижко Ю.И.
+            let report_event_container = '' // Контейнер Снижко Ю.И.
 
             if(reports_by_mid[sub_ids[m]]) {
 
-                var week_reports = []
-                for(var p = 0; p < reports_by_mid[sub_ids[m]].length; p++) {
+                let week_reports = []
+                for (let p = 0; p < reports_by_mid[sub_ids[m]].length; p++) {
  
 
                     //Cортировка по ключу JS6
@@ -312,15 +308,14 @@ function getWeekReports(period,container,callback){
 
 
                // debugger
-                var thead = '<div class="event-wrap clearfix"><table>'
-                       
-
-                    var html ='<div class="event-wrap-scroll">'
-                for(var l = 0; l < week_reports.length; l++) {
+                let thead = '<div class="event-wrap clearfix"><table>'
 
 
+                let html = '<div class="event-wrap-scroll">'
+                for (let l = 0; l < week_reports.length; l++) {
 
-                    var caption  = (new Date( week_reports[l][0]['from_date'] )).getDate()  + ' - ' + (new Date( week_reports[l][0]['to_date'] )).getDate() + 
+
+                    let caption = (new Date(week_reports[l][0]['from_date'])).getDate() + ' - ' + (new Date(week_reports[l][0]['to_date'])).getDate() +
                     ' ' + getRussianMonth(new Date( week_reports[l][0]['to_date'] ).getMonth())
 
 
@@ -331,7 +326,7 @@ function getWeekReports(period,container,callback){
                         '</tr>'
 
                      //html +='<tr></tr>' 
-                     var  report_parent_by_current_week = reports_by_mid[my_id].filter(function(el){
+                    let report_parent_by_current_week = reports_by_mid[my_id].filter(function (el) {
                         return el.uid == sub_ids[m] && week_reports[l][0]['week'] == el.week
                      })
 
@@ -350,13 +345,13 @@ function getWeekReports(period,container,callback){
 
 
                      //window.thead = ''
-                    for(var s = 0; s < week_reports[l].length; s++) {
+                    for (let s = 0; s < week_reports[l].length; s++) {
 
 
 
 
                         html += '<tr>'
-                        for(var prop in week_reports[l][s]  ) {
+                        for (let prop in week_reports[l][s]) {
 
                         if( prop == 'fullname'  && l == 0){
                             if(s ==0){
@@ -435,7 +430,7 @@ function getWeekShortReports(period,container,callback){
     ajaxRequest(config.DOCUMENT_ROOT + period, null, function(data) {
 
 
-        var results = data.results;
+        let results = data.results;
 
 
         if( !results.length){
@@ -448,8 +443,8 @@ function getWeekShortReports(period,container,callback){
 
 
         //  reports_by_mid = [ 0: [{},{}]  ]
-        for(var i = 0; i < results.length; i++) {
-            var report = results[i];
+        for (let i = 0; i < results.length; i++) {
+            let report = results[i];
 
 
             if(!reports_by_mid[report['mid']]) {
@@ -468,7 +463,7 @@ function getWeekShortReports(period,container,callback){
             return ''
         }
 
-        for(var j = 0; j < reports_by_mid[my_id].length; j++) {
+        for (let j = 0; j < reports_by_mid[my_id].length; j++) {
 
             if( jQuery.inArray( reports_by_mid[my_id][j]['uid'], sub_ids ) == -1){
                  sub_ids.push(reports_by_mid[my_id][j]['uid'])
@@ -478,28 +473,22 @@ function getWeekShortReports(period,container,callback){
 
 
         //Генерация отчетов по подчиненных 
-        var wrap = ''
+        let wrap = ''
         window.week_reports = [];
 
         console.log(sub_ids)
-        for(var m = 0; m < sub_ids.length; m++) {
+        for (let m = 0; m < sub_ids.length; m++) {
           if(reports_by_mid[sub_ids[m]]) {
 
-       var  report_event_container =''
-    
+              let report_event_container = ''
 
 
-
-
-          var  report_parent_by_current_week = reports_by_mid[my_id].filter(function(el){
+              let report_parent_by_current_week = reports_by_mid[my_id].filter(function (el) {
                         return el.uid == sub_ids[m] //&& week_reports[l][0]['week'] == el.week
                      })
 
 
-      
-
-
-          for(var l = 0;l<report_parent_by_current_week.length;l++){
+              for (let l = 0; l < report_parent_by_current_week.length; l++) {
 
 
 
@@ -530,15 +519,14 @@ function getWeekShortReports(period,container,callback){
 
 
                // debugger
-                var thead = '<div class="event-wrap clearfix"><table>'
-                       
-
-                    var html ='<div class="event-wrap-scroll">'
-                for(var l = 0; l < week_reports.length; l++) {
+        let thead = '<div class="event-wrap clearfix"><table>'
 
 
+        let html = '<div class="event-wrap-scroll">'
+        for (let l = 0; l < week_reports.length; l++) {
 
-                    var caption  = (new Date( week_reports[l][0]['from_date'] )).getDate()  + ' - ' + (new Date( week_reports[l][0]['to_date'] )).getDate() + 
+
+            let caption = (new Date(week_reports[l][0]['from_date'])).getDate() + ' - ' + (new Date(week_reports[l][0]['to_date'])).getDate() +
                     ' ' + getRussianMonth(new Date( week_reports[l][0]['to_date'] ).getMonth())
 
 
@@ -556,13 +544,13 @@ function getWeekShortReports(period,container,callback){
 
 
                      //window.thead = ''
-                    for(var s = 0; s < week_reports[l].length; s++) {
+            for (let s = 0; s < week_reports[l].length; s++) {
 
 
 
 
                         html += '<tr>'
-                        for(var prop in week_reports[l][s]  ) {
+                for (let prop in week_reports[l][s]) {
 
                         if( prop == 'fullname'  && l == 0){
                             if(s ==0){
@@ -600,7 +588,7 @@ function getWeekShortReports(period,container,callback){
                        
                       // debugger
 
-                      var  report_parent_by_current_week = reports_by_mid[my_id].filter(function(el){
+            let report_parent_by_current_week = reports_by_mid[my_id].filter(function (el) {
 
                             //return el.uid == sub_ids[m]
                          // debugger

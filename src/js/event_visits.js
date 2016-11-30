@@ -1,6 +1,6 @@
 function init(user_id) {
 
-    var id = getParameterByName('id');
+    let id = getParameterByName('id');
     if (!id) {
         showPopup('Некоректный ID events');
      
@@ -15,11 +15,11 @@ function init(user_id) {
     $('body').on('click', '#carousel li span', function(){
         $('#carousel li').removeClass('active');
         $(this).parent().addClass('active')
-    })
+    });
 
     getEventsListByID(id);
-     var title = getParameterByName('title') || '';
-     document.querySelector("span[title]").innerHTML = title
+    let title = getParameterByName('title') || '';
+    document.querySelector("span[title]").innerHTML = title;
 
     $('input[name="fullsearch"]').keyup(function() {
 
@@ -62,13 +62,13 @@ function init(user_id) {
 
 function createSubordinateList(data, event_id) {
     //переробить master_id
-    var data = data || {}
-    var master_id = data['master_id'] || config.user_id
-    var event_id = event_id || document.querySelector(".active span").getAttribute('data-event-id');
+    data = data || {};
+    let master_id = data['master_id'] || config.user_id;
+    event_id = event_id || document.querySelector(".active span").getAttribute('data-event-id');
         //Для кожного  event_id свій
-    var page = data['page'] || 1
+    let page = data['page'] || 1;
 
-    var search = document.getElementsByName('fullsearch')[0].value;
+    let search = document.getElementsByName('fullsearch')[0].value;
 
 
     if (search && !data['sub']) {
@@ -79,8 +79,8 @@ function createSubordinateList(data, event_id) {
 
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/participations/disciples/?event=' + event_id +
         '&user__user__master=' + master_id, data, function (answer) {
-        var html_sub = '';
-        var results = answer.results;
+        let html_sub = '';
+        let results = answer.results;
         if (!results.length) {
             showPopup('По запросу нету пользователей');
                 //document.getElementById('rows-list').innerHTML = 'Нету подчиненных'
@@ -106,12 +106,12 @@ function createSubordinateList(data, event_id) {
 }
 
 function createHierarchyChain(data) {
-    var html = '';
+    let html = '';
 
-    var index;
+    let index;
     for (index = data.length - 1; index >= 1; --index) {
 
-        var current = data[index]['id'] == config.user_id ?  'is_current' : ''
+        let current = data[index]['id'] == config.user_id ? 'is_current' : ''
 
         html += (index == 1) ? '<li class="active ' +   current +'" data-id="' + data[index]['id'] + '"><h5>' + data[index]['value'] + '</h5></li>' :
             '<li class="'+  current +'" data-id="' + data[index]['id'] + '"><h5>' + data[index]['value'] + '</h5></li>'
@@ -124,7 +124,7 @@ function createHierarchyChain(data) {
 
     Array.prototype.forEach.call(document.querySelectorAll(".tabs-names [data-id]"), function(el) {
         el.addEventListener('click', function() {
-            var id = this.getAttribute('data-id');
+            let id = this.getAttribute('data-id');
             createSubordinateList({
                 'master_id': id,
                 'sub': true
@@ -140,10 +140,10 @@ function getEventsListByID(id) {
     if (!id) {
         return
     }
-    var data = {};
+    let data = {};
 
-    var from_date = document.getElementById('done_datepicker_from').value;
-    var to_date = document.getElementById('done_datepicker_to').value;
+    let from_date = document.getElementById('done_datepicker_from').value;
+    let to_date = document.getElementById('done_datepicker_to').value;
     data['to_date'] = to_date;
     data['from_date'] = from_date;
 
@@ -151,7 +151,7 @@ function getEventsListByID(id) {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/events/?event_type=' + id, data, function (data) {
 
         //Обработка если нету events
-        var results = data.results;
+        let results = data.results;
 
         if (!results.length) {
             showPopup('У данного события не созданные встречи за данный период');
@@ -178,13 +178,13 @@ function getEventsListByID(id) {
     //console.log('run')  // 2 раза
 
 
-    var html = '';
-    for (var j = 0; j < data.length; j++) {
+ let html = '';
+ for (let j = 0; j < data.length; j++) {
         html += '<div class="item"><span data-event-id=' + data[j].id + ' href="#">' + data[j].time + '</span></div>'
     }
 
     document.querySelector(".owl-carousel").innerHTML = html
-    var owl = $('.owl-carousel')
+ let owl = $('.owl-carousel')
     owl.trigger('destroy.owl.carousel');
     owl.owlCarousel({
         loop: false,
@@ -224,7 +224,7 @@ function getEventsListByID(id) {
     Array.prototype.forEach.call(document.querySelectorAll("[data-event-id]"), function(el) {
         el.addEventListener('click', function(e) {
             e.preventDefault();
-            var id = this.getAttribute('data-event-id');
+ let id = this.getAttribute('data-event-id');
 
             Array.prototype.forEach.call(document.querySelectorAll("[data-event-id]"), function(el) {
                 el.classList.remove('active_item')
@@ -241,8 +241,8 @@ function getEventsListByID(id) {
 }*/
 
 function createSliderEvent(data) {
-        var html = '';
-        for (var i = 0; i < data.length; i++) { 
+    let html = '';
+    for (let i = 0; i < data.length; i++) {
             if (i == 0) {
                 html += '<li class="active"><span data-event-id='+data[i].id+'>' + data[i].time + '</span></li>';
             } else {
@@ -252,7 +252,7 @@ function createSliderEvent(data) {
         }
         document.getElementById('date').innerHTML = html;
         //document.getElementById('summit-title').innerHTML = '<a href="summits_New.html">САММИТЫ | </a><span>' + data[0].title + '</span>'; 
-        var width = 150,
+    let width = 150,
             count = 1,
             carousel = document.getElementById('carousel'),
             list = carousel.querySelector('ul'),
@@ -269,12 +269,12 @@ function createSliderEvent(data) {
                 position = Math.max(position - width * count, -width * (listElems.length - 3));
             }
             list.style.marginLeft = position + 'px';
-        };   
-        var butt = document.querySelectorAll('#carousel li span');
-        for (var z = 0; z < butt.length; z++) {
+        };
+    let butt = document.querySelectorAll('#carousel li span');
+    for (let z = 0; z < butt.length; z++) {
             butt[z].addEventListener('click', function(){
-                //var data = {};
-                var id = this.getAttribute('data-event-id');
+                //let data = {};
+                let id = this.getAttribute('data-event-id');
                 createSubordinateList(null,id)
             })
         }
@@ -282,24 +282,22 @@ function createSliderEvent(data) {
     };
 
 
-
-
-var ordering = {}
+let ordering = {};
 
 
 function createUserInfoBySearch(data, search) {
 
-    var count = data.count;
+    let count = data.count;
 
 
-    var journal_table = Object.keys(data.common_table);
+    let journal_table = Object.keys(data.common_table);
 
-    var data = data.results;
-    var tbody = '';
+    data = data.results;
+    let tbody = '';
 
-    var page = parseInt(search.page) || 1;
-    var list = data;
-    var html = '<table id="userinfo">';
+    let page = parseInt(search.page) || 1;
+    let list = data;
+    let html = '<table id="userinfo">';
     if (data.length == 0) {
 
         showPopup('По данному запросу не найдено участников')
@@ -314,7 +312,7 @@ function createUserInfoBySearch(data, search) {
     }
 
 
-    var hierarchy_chain = data[0]['hierarchy_chain'];
+    let hierarchy_chain = data[0]['hierarchy_chain'];
     createHierarchyChain(hierarchy_chain);
 
 
@@ -324,13 +322,13 @@ function createUserInfoBySearch(data, search) {
     })
 
     html += '<thead>';
-    var common = config['column_table']
+    let common = config['column_table']
     html += '<th>Присутсвие</th>';
-    for (var title in config['column_table']) {
+    for (let title in config['column_table']) {
         if (!config['column_table'][title]['active'] && config['column_table'][title]['editable']) continue
 
 
-        var blue_icon = typeof  ordering['user__user__'  + config['column_table'][title]['ordering_title']]  == 'undefined' ? '' : 'blue_icon_active'     
+        let blue_icon = typeof  ordering['user__user__' + config['column_table'][title]['ordering_title']] == 'undefined' ? '' : 'blue_icon_active'
 
         if (ordering['user__user__'  + config['column_table'][title]['ordering_title']]) {
            
@@ -346,8 +344,8 @@ function createUserInfoBySearch(data, search) {
     //html += '<th>Подчиненные</th><th>Анкета</th></thead>';
 
     //paginations
-    var pages = Math.ceil(count / config.pagination_count);
-    var paginations = ''
+    let pages = Math.ceil(count / config.pagination_count);
+    let paginations = ''
     if (page > 1) {
         paginations += '<div class="prev"></span><span class="arrow"></span></div>';
     }
@@ -358,7 +356,7 @@ function createUserInfoBySearch(data, search) {
                      paginations += '<li>1</li><li class="no-pagin">&hellip;</li>'
                 }
 
-        for (var j = page - 2; j < page + 3; j++) {
+        for (let j = page - 2; j < page + 3; j++) {
 
              
 
@@ -395,20 +393,19 @@ function createUserInfoBySearch(data, search) {
     })
 
     html += '<tbody>'
-    var html_sub='';
-    var cash = 0;
-    for (var i = 0; i < list.length; i++) {
+    let html_sub = '';
+    let cash = 0;
+    for (let i = 0; i < list.length; i++) {
 
 
+        let has_disciples = list[i].has_disciples ? 'has_disciples' : 'no_disciples'
 
-        var has_disciples = list[i].has_disciples ? 'has_disciples' : 'no_disciples'
 
-
-        var id_parent_subordinate = list[i]['id'];
-        var list_fields = list[i].fields;
+        let id_parent_subordinate = list[i]['id'];
+        let list_fields = list[i].fields;
       //  console.log(list_fields)
-        var id_sub = list[i].uid
-        var check = list[i].check ? 'checked' : ''
+        let id_sub = list[i].uid
+        let check = list[i].check ? 'checked' : ''
         if (!list_fields) continue
         if (typeof list_fields === 'undefined') {
             console.log('Нету fields для  ID:  ' + id_parent_subordinate)
@@ -438,12 +435,11 @@ function createUserInfoBySearch(data, search) {
        tbody += '<td style="text-align:center;"><input id="visits_'+ id_sub +'" type="checkbox"   '+  check +' class="update_visit" data-id="' + id_parent_subordinate + '"><label for="visits_'+ id_sub +'" class="check"></label></td>'
 
 
-
-        for (var prop in config['column_table']) {
+        for (let prop in config['column_table']) {
             if (prop in list_fields) {
                 if (prop == 'social' && config['column_table']['social'] && config['column_table']['social']['active']) {   
-                        tbody += '<td>';                                      
-                        for (var pr in list_fields[prop]) {
+                        tbody += '<td>';
+                    for (let pr in list_fields[prop]) {
                             if (list_fields[prop][pr] == '') {
                                 continue
                             } else {
@@ -484,7 +480,7 @@ function createUserInfoBySearch(data, search) {
 
     Array.prototype.forEach.call(document.querySelectorAll("[data-id-sub][has_disciples]"), function(el) {
         el.addEventListener('click', function() {
-            var id = this.getAttribute('data-id-sub')
+            let id = this.getAttribute('data-id-sub')
             createSubordinateList({
                 'master_id': id,
                 'sub': true
@@ -503,7 +499,7 @@ function createUserInfoBySearch(data, search) {
             if (this.className == 'no-pagin') {
                 return false;
             }
-            var data = search;
+            let data = search;
             data['page'] = el.innerHTML;
             createSubordinateList(data)
         });
@@ -511,9 +507,9 @@ function createUserInfoBySearch(data, search) {
 
     Array.prototype.forEach.call(document.querySelectorAll(" .update_visit"), function(el) {
         el.addEventListener('click', function() {
-            var id = parseInt(this.getAttribute('data-id'));
-            var checked = this.checked ? true : false
-            var data = {
+            let id = parseInt(this.getAttribute('data-id'));
+            let checked = this.checked ? true : false
+            let data = {
                 'id': id,
                 'check': checked
             }
@@ -525,9 +521,9 @@ function createUserInfoBySearch(data, search) {
 /*
     Array.prototype.forEach.call(document.querySelectorAll(" .upd_sum"), function(el) {
         el.addEventListener('blur', function() {
-            var id = parseInt(this.getAttribute('data-id'));
-            var value = parseInt(this.value)
-            var data = {
+ let id = parseInt(this.getAttribute('data-id'));
+ let value = parseInt(this.value)
+ let data = {
                 'id': id,
                 'value': value
             }
@@ -539,8 +535,8 @@ function createUserInfoBySearch(data, search) {
 
     Array.prototype.forEach.call(document.querySelectorAll(".arrow"), function(el) {
         el.addEventListener('click', function() {
-            var page
-            var data = search;
+            let page
+            let data = search;
             if (this.parentElement.classList.contains('prev')) {
                 page = parseInt(document.querySelector(".pag li.active").innerHTML) > 1 ? parseInt(document.querySelector(".pag li.active").innerHTML) - 1 : 1
                 data['page'] = page
@@ -556,7 +552,7 @@ function createUserInfoBySearch(data, search) {
 
     Array.prototype.forEach.call(document.querySelectorAll(".double_arrow"), function(el) {
         el.addEventListener('click', function() {
-            var data = search;
+            let data = search;
             if (this.parentElement.classList.contains('prev')) {
                 data['page'] = 1
                 createSubordinateList(data)
@@ -571,7 +567,7 @@ function createUserInfoBySearch(data, search) {
 
     Array.prototype.forEach.call(document.querySelectorAll("[data-id-sub][has_disciples]"), function(el) {
         el.addEventListener('click', function() {
-            var id = this.getAttribute('data-id-sub')
+            let id = this.getAttribute('data-id-sub')
             createSubordinateList({
                 'master_id': id,
                 'sub': true
@@ -616,10 +612,9 @@ function createUserInfoBySearch(data, search) {
                 this.parentElement.querySelector("input").setAttribute('data-value',this.parentElement.querySelector("input").value)
 
 
-
-            var id = parseInt(this.parentElement.querySelector("input").getAttribute('data-id'));
-            var value = parseInt(this.parentElement.querySelector("input").value)
-            var data = {
+            let id = parseInt(this.parentElement.querySelector("input").getAttribute('data-id'));
+            let value = parseInt(this.parentElement.querySelector("input").value)
+            let data = {
                 'id': id,
                 'value': value
             }
@@ -635,9 +630,9 @@ function createUserInfoBySearch(data, search) {
 
     Array.prototype.forEach.call(document.querySelectorAll(".table-wrap   th"), function(el) {
         el.addEventListener('click', function() {
-            var data_order = this.getAttribute('data-order');
-            //  var status = ordering[data_order] = ordering[data_order] ? false : true
-           var status = false;
+            let data_order = this.getAttribute('data-order');
+            //  let status = ordering[data_order] = ordering[data_order] ? false : true
+            let status = false;
             if (ordering[data_order]) {
                 status = false;
             } else {
@@ -646,8 +641,8 @@ function createUserInfoBySearch(data, search) {
             ordering = {};
             ordering[data_order] = status
             data_order = status ? data_order : '-' + data_order;
-            var page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1
-            var data = {
+            let page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1
+            let data = {
                 'ordering': data_order,
                 'master_id' : parseInt(document.querySelector(".tabs-names li.active").getAttribute('data-id'))
             }
@@ -660,7 +655,7 @@ function createUserInfoBySearch(data, search) {
 
 function update_visit(data) {
 
-    var json = JSON.stringify(data);
+    let json = JSON.stringify(data);
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/update_participations/', json, function (JSONobj) {
 
     }, 'POST', true, {

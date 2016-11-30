@@ -1,7 +1,6 @@
 'use strict';
 
 const gulp = require('gulp'),
-    removeHtmlComments = require('gulp-remove-html-comments'),
     less = require('gulp-less'),
     path = require('path'),
     sourcemaps = require('gulp-sourcemaps'),
@@ -20,7 +19,7 @@ const paths = {
     fonts: './src/fonts/**/*'
 };
 
-gulp.task('clean', function() {
+gulp.task('clean', function () {
     return del(['./static/img']);
 });
 
@@ -39,21 +38,22 @@ gulp.task('less', function () {
         .pipe(gulp.dest('public/static/css/'));
 });
 
-gulp.task('scripts', function() {
+gulp.task('scripts', function () {
     return gulp.src(paths.scripts)
         .pipe(babel({
             presets: ['es2015']
         }))
+        .pipe(uglify())
         .pipe(gulp.dest('public/static/js/'));
 });
 
-gulp.task('images', ['clean'], function() {
+gulp.task('images', ['clean'], function () {
     return gulp.src(paths.images)
-    // .pipe(imagemin({optimizationLevel: 9}))
+        .pipe(imagemin({optimizationLevel: 9}))
         .pipe(gulp.dest('public/static/img/'));
 });
 
-gulp.task('font', ['clean'], function() {
+gulp.task('font', ['clean'], function () {
     return gulp.src(paths.fonts)
         .pipe(gulp.dest('public/static/fonts/'));
 });

@@ -1,7 +1,7 @@
 {% extends "layout_main.html" %}
 {% load static %}
-
-{% block header.top.h1 %}<h1>Партнёрство</h1>{% endblock %}
+{% load partner_tags %}
+{% block header.top.h1 %}<h1 xmlns="http://www.w3.org/1999/html">Партнёрство</h1>{% endblock %}
 
 {% block header.buttons %}
     <div class="top-panel">
@@ -9,6 +9,7 @@
             <ul class="tabs-nav">
                 <li><a href="#sdelki">Сделки</a></li>
                 <li><a href="#spisok">Список партнёров</a></li>
+                <li><a href="#stats">Статистика</a></li>
             </ul>
         </div>
 
@@ -18,10 +19,10 @@
                     <button class="add" id="add_user_parners">Добавить пользователя</button>
                 </li>
                 {% comment %}
-                <li>
-                    <button>Экспортировать</button>
-                </li>
-                {% endcomment %}
+            <li>
+                <button>Экспортировать</button>
+            </li>
+            {% endcomment %}
                 <li>
                     <button id="sort-on">Изменить таблицу</button>
                 </li>
@@ -32,9 +33,11 @@
 {% endblock %}
 
 {% block main.content %}
+
+    {% get_simple_managers as managers %}
     <div class="tab-content">
 
-        <div id="sdelki" data-id="0" class="tab-toggle">
+        <div data-id="0" id="sdelki" class="tab-toggle">
 
             <div class="top-pag">
 
@@ -92,18 +95,21 @@
 
 
         </div><!--End sdelki -->
-
-
         <div data-id="1" id="spisok" class="tab-toggle">
-            <div class="row">
-                <div class="col-4">
-                    <div class="accountable_filter">
-                        <select name="accountable" id="accountable">
-                            <option value="0" selected>Все</option>
-                        </select>
+            {% if request.user.is_partner_supervisor_or_high %}
+                <div class="row">
+                    <div class="col-4">
+                        <div class="accountable_filter">
+                            <select name="accountable" id="accountable">
+                                <option value="0" selected>Все</option>
+                                {% for manager in managers %}
+                                    <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
                 </div>
-            </div>
+            {% endif %}
             <div class="top-pag">
                 <div class="pagination">
                     <div class="pag-wrap">
@@ -148,6 +154,143 @@
                 </div>
             </div><!--End pagination -->
         </div><!--End spisok -->
+        <div data-id="2" id="stats" class="tab-toggle">
+            <div class="row">
+                <div class="col-6" style="height:130px;">
+                    <div class="form-group">
+                        <div class='input-group date'>
+                            <input type='text' class="datepicker-here" id="date_field_stats"
+                                   data-min-view="months"
+                                   data-view="months"
+                                   data-date-format="mm/yyyy" placeholder="Выберите дату"/>
+                            <i class="fa fa-calendar-check-o" id="check-date" aria-hidden="true"></i>
+                        </div>
+                        {% if request.user.is_partner_supervisor_or_high %}
+                            <div class="input-group select">
+                                <select name="accountable" id="stats_manager">
+                                    <option value="0" selected disabled>Выберите менеджера</option>
+                                    {% for manager in managers %}
+                                        <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                                    {% endfor %}
+                                </select></div>
+                        {% endif %}
+                    </div>
+                    <button id="apply_date" type="button" class="btn btn-default"><i class="fa fa-check"
+                                                                                     aria-hidden="true"></i>Применить
+                    </button>
+                </div>
+            </div>
+            <div {% if request.user.is_partner_supervisor_or_high %} class="no_visible" {% endif %}
+                                                                         id="statistic_block">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Статистика партнеров</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="well"><span>Всего партнеров</span>
+                                    <p style="font-size:4em;text-align: center">
+                                        <span id="count_partners" class="label label-primary"></span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="grid_block">
+                                <div class="col-sm-4">
+                                    <div class="well"><span>Партнеров оплатило</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="paid_partners" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="well"><span>Партнеров частично оплатило</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="partial_paid_partners" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="well"><span>Партнеров не оплатило</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="unpaid_partners" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-success">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            Статистика сделок
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+
+                            <div class="col-sm-12">
+                                <div class="well">
+                                    <span>Всего сделок</span>
+                                    <p style="font-size:4em;text-align: center">
+                                        <span id="total_deals" class="label label-primary"></span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="grid_block">
+                                <div class="col-sm-6">
+                                    <div class="well">
+                                        <span>Оплаченных сделок</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="paid_deals" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="well"><span>Неоплаченных сделок</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="unpaid_deals" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid_block">
+                                <div class="col-sm-4">
+                                    <div class="well"><span>Запланированная сумма</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="planned_sum_deals" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="well"><span>Выполнено</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="paid_sum_deals" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="well"><span>% выполнения</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="percent_paid_sum_deals" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="well"><span>Сумма всех сделок за месяц</span>
+                                    <p style="font-size:4em;text-align: center">
+                                        <span id="sum_deals" class="label label-primary"></span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!--End stats -->
     </div><!-- End tab-content-->
 {% endblock %}
 
@@ -195,6 +338,8 @@
 {% endblock %}
 
 {% block extra_scripts %}
-    <script src="{% static "js/select2.js" %}"></script>
-    <script src="{% static "js/deals.js" %}"></script>
+    {#    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">#}
+    <script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
+    <script src='{% static "js/deals.js" %}'></script>
+    <script src='{% static "js/stats.js" %}'></script>
 {% endblock %}

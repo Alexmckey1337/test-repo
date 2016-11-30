@@ -21,9 +21,6 @@ $(function () {
         }, 10, 'linear')
     });
 
-
-    getDepartmentsAll();
-
     document.getElementById('dep_filter').addEventListener('change', function () {
         createUser()
 
@@ -31,14 +28,14 @@ $(function () {
 });
 
 function getCurrentUserSetting(data) {
-    var html = '';
+    let html = '';
     data.forEach(function (d) {
-        var titles = d[1];
+        let titles = d[1];
         html += '<h3>' + d[0] + '</h3>';
-        for (var p in titles) {
+        for (let p in titles) {
             if (!titles.hasOwnProperty(p)) continue;
-            var ischeck = titles[p]['active'] ? 'check' : '';
-            var isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
+            let ischeck = titles[p]['active'] ? 'check' : '';
+            let isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
             html += '<li ' + isdraggable + ' >' +
                 '<input id="' + titles[p]['ordering_title'] + '" type="checkbox">' +
                 '<label for="' + titles[p]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[p]['id'] + '">' + titles[p]['title'] + '</label>';
@@ -68,8 +65,8 @@ function reversOrder(order) {
     return order
 }
 
-var ordering = {};
-var parent_id = null;
+let ordering = {};
+let parent_id = null;
 
 function createUserInfoBySearch(data, search) {
 
@@ -92,10 +89,10 @@ function createUserInfoBySearch(data, search) {
         el.style.display = 'block'
     });
 
-    var count = data.count;
-    var page = parseInt(search.page) || 1;
-    var ordering = search.ordering || 'last_name';
-    var tordering;
+    let count = data.count;
+    let page = parseInt(search.page) || 1;
+    let ordering = search.ordering || 'last_name';
+    let tordering;
     if (ordering.indexOf('-') != -1) {
         tordering = ordering.substr(1)
     } else {
@@ -103,16 +100,16 @@ function createUserInfoBySearch(data, search) {
     }
     console.log(ordering, tordering);
 
-    var results = data.results;
+    let results = data.results;
 
-    var k;
-    var value;
+    let k;
+    let value;
 
-    var user_fields = data.user_table;
+    let user_fields = data.user_table;
 
     getCurrentUserSetting([['Пользователь', user_fields]]);
 
-    var thead = '<thead><tr>';
+    let thead = '<thead><tr>';
 
     for (k in user_fields) {
         if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
@@ -124,7 +121,7 @@ function createUserInfoBySearch(data, search) {
     }
     thead += '</tr></thead>';
 
-    var tbody = '<tbody>';
+    let tbody = '<tbody>';
     results.forEach(function (field, i) {
         tbody += '<tr>';
 
@@ -156,11 +153,11 @@ function createUserInfoBySearch(data, search) {
     });
     tbody += '</tbody>';
 
-    var table = '<table id="userinfo">' + thead + tbody + '</table>';
+    let table = '<table id="userinfo">' + thead + tbody + '</table>';
 
     //paginations
-    var pages = Math.ceil(count / config.pagination_count);
-    var paginations = '',
+    let pages = Math.ceil(count / config.pagination_count);
+    let paginations = '',
         elementSelect = '<p>Показано <span>' + results.length + '</span> из <span>' + count + '</span></p>';
     if (page > 1) {
         paginations += '<div class="prev"><span class="arrow"></span></div>';
@@ -172,7 +169,7 @@ function createUserInfoBySearch(data, search) {
             paginations += '<li>1</li><li class="no-pagin">&hellip;</li>'
         }
 
-        for (var j = page - 2; j < page + 3; j++) {
+        for (let j = page - 2; j < page + 3; j++) {
             if (j == page) {
                 paginations += '<li class="active">' + j + '</li>'
             } else {
@@ -210,7 +207,7 @@ function createUserInfoBySearch(data, search) {
             if (this.className == 'no-pagin') {
                 return false;
             }
-            var data = search;
+            let data = search;
             data['page'] = el.innerHTML;
             createUser(data);
         });
@@ -225,8 +222,8 @@ function createUserInfoBySearch(data, search) {
     /* Navigation*/
     Array.prototype.forEach.call(document.querySelectorAll(".arrow"), function (el) {
         el.addEventListener('click', function () {
-            var page;
-            var data = search;
+            let page;
+            let data = search;
             if (this.parentElement.classList.contains('prev')) {
                 page = parseInt(document.querySelector(".pag li.active").innerHTML) > 1 ? parseInt(document.querySelector(".pag li.active").innerHTML) - 1 : 1;
                 data['page'] = page;
@@ -242,7 +239,7 @@ function createUserInfoBySearch(data, search) {
 
     Array.prototype.forEach.call(document.querySelectorAll(".double_arrow"), function (el) {
         el.addEventListener('click', function () {
-            var data = search;
+            let data = search;
             if (this.parentElement.classList.contains('prev')) {
                 data['page'] = 1;
                 createUser(data);
@@ -257,14 +254,14 @@ function createUserInfoBySearch(data, search) {
 
     Array.prototype.forEach.call(document.querySelectorAll(".table-wrap th"), function (el) {
         el.addEventListener('click', function () {
-            var data_order = this.getAttribute('data-order');
-            var status = !!ordering[data_order];
+            let data_order = this.getAttribute('data-order');
+            let status = !!ordering[data_order];
 
             ordering = {};
             ordering[data_order] = status;
             // data_order = status ? data_order : '-' + data_order;
-            var page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
-            var data = {
+            let page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
+            let data = {
                 'ordering': data_order,
                 'page': page
             };
@@ -278,16 +275,16 @@ function createUserInfoBySearch(data, search) {
 }
 
 function createUser(data) {
-    var path = config.DOCUMENT_ROOT + 'api/v1.1/users/?';
+    let path = config.DOCUMENT_ROOT + 'api/v1.1/users/?';
     data = data || {};
-    var search = document.getElementsByName('fullsearch')[0].value;
-    var filter = document.getElementById('filter').value;
+    let search = document.getElementsByName('fullsearch')[0].value;
+    let filter = document.getElementById('filter').value;
     if (search && !data['sub']) {
         data[filter] = search;
     }
 
-    var el = document.getElementById('dep_filter');
-    var value = el.options[el.selectedIndex].value;
+    let el = document.getElementById('dep_filter');
+    let value = el.options[el.selectedIndex].value;
     if (parseInt(value)) {
         data['department__title'] = el.options[el.selectedIndex].text;
     }
@@ -298,9 +295,9 @@ function createUser(data) {
     });
     /*
      function createUserDep(data) {
-     var path = config.DOCUMENT_ROOT + 'api/v1.1/users/?';
+     let path = config.DOCUMENT_ROOT + 'api/v1.1/users/?';
      data = data || {};
-     var search = document.getElementsByName('searchDep')[0].value;
+     let search = document.getElementsByName('searchDep')[0].value;
      if (search && !data['sub']) {
      data['department__title'] = search;
      }
@@ -315,7 +312,7 @@ function createUser(data) {
 function getsubordinates(e) {
     e.preventDefault();
     document.getElementsByName('fullsearch')[0].value = '';
-    var id = this.getAttribute('data-id');
+    let id = this.getAttribute('data-id');
     createUser({
         'master': id
     });
