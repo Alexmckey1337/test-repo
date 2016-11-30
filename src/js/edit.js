@@ -324,43 +324,7 @@ function initializeCountry(url) {
         }
         document.getElementById('country_drop').innerHTML = html;
         $('#country_drop').select2().on("change", initializeRegions);
-        /*for (var i = 0; i < results.length; i++) {
 
-         if (active == results[i].title) {
-         html += '<option selected="selected" value="' + results[i].id + '">' + results[i].title + '</option>'
-         active = false
-         } else {
-         html += '<option value="' + results[i].id + '">' + results[i].title + '</option>'
-         }
-
-         }
-
-         if (active ||  active.length === 0 ) {
-         html += '<option selected="selected" >' + active + '</option>'
-         }
-
-         document.getElementById(parent_id).innerHTML = html
-
-         $eventSelect = $('#' + parent_id)
-
-         $eventSelect.select2({
-
-         })
-         $eventSelect.on("change", function(e) {
-
-
-
-         var url_region = 'api/v1.0/regions/?country=' + $(this).val()
-
-         initializeRegions(url_region, 'region_drop', data_for_drop['region'])
-
-         })
-
-         $("#country_drop").trigger('change')
-         if (callback) {
-         callback();
-         }
-         */
     });
 
 
@@ -393,41 +357,6 @@ function initializeRegions() {
         document.getElementById('region_drop').removeAttribute('disabled');
         $('#region_drop').select2({placeholder: " "}).on("change", initializeTown);
 
-        /*for (var i = 0; i < results.length; i++) {
-
-         if (active == results[i].title) {
-         html += '<option selected="selected" value="' + results[i].id + '">' + results[i].title + '</option>'
-         active = false
-         } else {
-         html += '<option value="' + results[i].id + '">' + results[i].title + '</option>'
-         }
-
-         }
-
-         if (active || active.length === 0  ) {
-         html += '<option selected="selected" >' + active + '</option>'
-         }
-
-
-
-         document.getElementById(parent_id).innerHTML = html
-
-         $eventSelect = $('#' + parent_id)
-
-         $eventSelect.select2();
-         $eventSelect.on("change", function(e) {
-         var url_town = 'api/v1.0/cities/?region=' + $(this).val()
-         initializeTown(url_town, 'town_drop', data_for_drop['city'])
-         })
-         $eventSelect.on("select", function(e) {
-
-         })
-
-         if (callback) {
-         callback();
-         }
-
-         $eventSelect.trigger("change")*/
     });
 
 
@@ -448,39 +377,6 @@ function initializeTown() {
         document.getElementById('town_drop').innerHTML = html;
         document.getElementById('town_drop').removeAttribute('disabled');
         $('#town_drop').select2({tags: true, placeholder: " "});
-        /*for (var i = 0; i < results.length; i++) {
-
-         if (active == results[i].title) {
-         html += '<option selected="selected" value="' + results[i].id + '">' + results[i].title + '</option>'
-         active = false
-         } else {
-         html += '<option value="' + results[i].id + '">' + results[i].title + '</option>'
-         }
-
-         }
-
-         if (active || !active.length === 0 ) {
-         html += '<option selected="selected" >' + active + '</option>'
-         }
-
-
-
-         document.getElementById(parent_id).innerHTML = html
-
-         $eventSelect = $('#' + parent_id)
-
-         $eventSelect.select2({ });
-         $eventSelect.on("change", function(e) {
-
-
-
-
-         })
-
-
-         if (callback) {
-         callback();
-         }*/
     });
 
 
@@ -521,7 +417,7 @@ function initDropCustom(url, parent_id, active, callback) {
 
         document.getElementById(parent_id).innerHTML = html;
 
-        $eventSelect = $('#' + parent_id);
+        var $eventSelect = $('#' + parent_id);
 
         $eventSelect.select2({
             // tags: true
@@ -578,7 +474,7 @@ function getLeader(active) {
         }
 
         document.getElementById('leader_drop').innerHTML = html;
-        $eventSelect = $('#leader_drop');
+        var $eventSelect = $('#leader_drop');
 
         $eventSelect.select2({
             // tags: true
@@ -617,7 +513,7 @@ function getDivisions(str) {
 
 
         document.getElementById('division_drop').innerHTML = html
-        $eventSelect = $('#division_drop')
+        var $eventSelect = $('#division_drop');
 
         $eventSelect.select2({
             // tags: true
@@ -686,7 +582,7 @@ function getManagerList(active) {
             }
         });
         document.getElementById('partner_drop').innerHTML = html;
-        $eventSelect = $('#partner_drop');
+        var $eventSelect = $('#partner_drop');
 
         $eventSelect.select2({
             // tags: true

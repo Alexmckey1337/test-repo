@@ -1,34 +1,30 @@
 $(document).ready(function () {
 
-    //partnerlist 
-    //getPartnersList();
-
     $('input[name="fullsearch"]').keyup(function () {
         var id = $('#accountable').val();
         console.log(id);
         var obj = {'responsible': id};
         if (id == '0') {
             delay(function () {
-            getPartnersList();
+                getPartnersList();
 
-            var json = {};
-            json["page"] = '1';
-            getExpiredDeals(json);
-            getDoneDeals(json);
-            getUndoneDeals(json);
-        }, 1500);
+                var json = {};
+                json["page"] = '1';
+                getExpiredDeals(json);
+                getDoneDeals(json);
+                getUndoneDeals(json);
+            }, 1500);
         } else {
             delay(function () {
-            getPartnersList(obj);
+                getPartnersList(obj);
 
-            var json = {};
-            json["page"] = '1';
-            getExpiredDeals(json);
-            getDoneDeals(json);
-            getUndoneDeals(json);
-        }, 1500);
+                var json = {};
+                json["page"] = '1';
+                getExpiredDeals(json);
+                getDoneDeals(json);
+                getUndoneDeals(json);
+            }, 1500);
         }
-
 
     });
 
@@ -271,7 +267,7 @@ function getExpiredDeals(time) {
             if (!fields) {
                 continue
             }
-            names = Object.keys(fields);
+            var names = Object.keys(fields);
             html += '<div class="rows-wrap"><button data-id=' + fields[names[0]].value + '>Завершить</button><div class="rows"><div class="col"><p><span>' + fields[names[1]].value + '</span></p></div><div class="col"><p>Последняя сделка:<span> ' + fields[names[3]].value + '</span></p><p>Ответственный:<span> ' + fields[names[2]].value + '</span></p><p>Сумма:<span> ' + fields[names[4]].value + ' ₴</span></p></div></div></div>';
         }
         document.getElementById('overdue').innerHTML = html;
@@ -320,7 +316,7 @@ function getDoneDeals(time) {
             if (!fields) {
                 continue
             }
-            names = Object.keys(fields);
+            var names = Object.keys(fields);
             html += '<div class="rows-wrap"><div class="rows"><div class="col"><p><span>' + fields[names[1]].value + '</span></p></div><div class="col"><p>Последняя сделка:<span> ' + fields[names[3]].value + '</span></p><p>Ответственный:<span> ' + fields[names[2]].value + '</span></p><p>Сумма:<span> ' + fields[names[4]].value + ' ₴</span></p></div></div></div>';
 
         }
@@ -364,7 +360,7 @@ function getUndoneDeals(dat) {
             if (!fields) {
                 continue
             }
-            names = Object.keys(fields);
+            var names = Object.keys(fields);
             html += '<div class="rows-wrap"><button data-id=' + fields[names[0]].value + ' data-name="' + fields[names[1]].value + '" data-date=' + fields[names[3]].value + ' data-responsible="' + fields[names[2]].value + '" data-value=' + fields[names[4]].value + '>Завершить</button><div class="rows"><div class="col"><p><span>' + fields[names[1]].value + '</span></p></div><div class="col"><p>Последняя сделка:<span> ' + fields[names[3]].value + '</span></p><p>Ответственный:<span> ' + fields[names[2]].value + '</span></p><p>Сумма:<span> ' + fields[names[4]].value + ' ₴</span></p></div></div></div>';
             document.getElementById('incomplete').innerHTML = html;
         }
@@ -553,11 +549,13 @@ function makeTabs() {
         }
         tabsContent[i].style.display = 'block';
         tabs.children[i].classList.add('current');
+
         var done = document.getElementById('period_done'),
-            expired = document.getElementById('period_expired');
-        unpag = document.querySelectorAll('.undone-pagination');
-        expag = document.querySelectorAll('.expired-pagination');
-        dpag = document.querySelectorAll('.done-pagination');
+            expired = document.getElementById('period_expired'),
+            unpag = document.querySelectorAll('.undone-pagination'),
+            expag = document.querySelectorAll('.expired-pagination'),
+            dpag = document.querySelectorAll('.done-pagination');
+
         if (document.querySelectorAll('a[href="#overdue"]')[0].parentElement.classList.contains('current')) {
             done.style.display = 'none';
             expired.style.display = 'block';

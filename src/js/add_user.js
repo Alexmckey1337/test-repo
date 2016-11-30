@@ -226,7 +226,7 @@ function getDepartments() {
             html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
         }
         document.getElementById('chooseDepartment').innerHTML = html;
-        dep = $("#chooseDepartment").val();
+        var dep = $("#chooseDepartment").val();
     });
 
 }
@@ -250,7 +250,7 @@ function getResponsibleStatuses() {
             html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
         }
         document.getElementById('chooseResponsibleStatus').innerHTML = html;
-        stat = $("#chooseResponsibleStatus").val();
+        var stat = $("#chooseResponsibleStatus").val();
     });
 }
 
