@@ -635,13 +635,9 @@ function reversOrder(order) {
 }
 
 (function createPartnershipsList() {
-    ajaxRequest(config.DOCUMENT_ROOT + "api/v1.1/partnerships/simple/", null, function (data) {
-        data.forEach(function (partner) {
-            var option = '<option value="' + partner.id + '">' + partner.fullname + '</option>';
-            $(option).appendTo('#accountable');
-        });
+    if ($('#accountable')) {
         $('#accountable').select2();
-    });
+    }
 })();
 
 $('#accountable').on('change', function () {

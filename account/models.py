@@ -77,6 +77,26 @@ class CustomUser(User):
         return self.get_absolute_url()
 
     @property
+    def is_partner_manager(self):
+        return self.partnership and self.partnership.level == Partnership.MANAGER
+
+    @property
+    def is_partner_manager_or_high(self):
+        return self.partnership and self.partnership.level <= Partnership.MANAGER
+
+    @property
+    def is_partner_supervisor(self):
+        return self.partnership and self.partnership.level == Partnership.SUPERVISOR
+
+    @property
+    def is_partner_supervisor_or_high(self):
+        return self.partnership and self.partnership.level <= Partnership.SUPERVISOR
+
+    @property
+    def is_partner_director(self):
+        return self.partnership and self.partnership.level == Partnership.DIRECTOR
+
+    @property
     def hierarchy_chain(self):
         l = list()
         get_hierarchy_chain(self, l)
