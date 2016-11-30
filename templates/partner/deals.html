@@ -159,25 +159,23 @@
             <div class="col-6" style="height:130px;">
                 <div class="form-group">
                     <div class='input-group date'>
-                        <input type='text' class="datepicker-here" id="datepicker10"
+                        <input type='text' class="datepicker-here" id="date_field_stats"
                                data-min-view="months"
                                data-view="months"
-                               data-date-format="MM yyyy"/>
-                        <span class="input-group-addon">
-                            <span class="glyphicon glyphicon-calendar"></span>
-                        </span>
+                               data-date-format="mm/yyyy" placeholder="Выберите дату"/>
+                        <i class="fa fa-calendar-check-o" id="check-date" aria-hidden="true"></i>
                     </div>
                     {% if request.user.is_partner_supervisor_or_high %}
                         <div class="input-group select">
                             <select name="accountable" id="stats_manager">
-                                <option value="0" selected>Все</option>
+                                <option value="0" selected disabled>Выберите менеджера</option>
                                 {% for manager in managers %}
                                     <option value="{{ manager.id }}">{{ manager.fullname }}</option>
                                 {% endfor %}
                             </select></div>
                     {% endif %}
                 </div>
-                <button id="apply_date" type="button" class="btn btn-default">Применить</button>
+                <button id="apply_date" type="button" class="btn btn-default"><i class="fa fa-check" aria-hidden="true"></i>Применить</button>
             </div>
         </div>
         <div class="panel panel-primary">
@@ -278,26 +276,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h3 class="panel-title">Партнеры</h3>
-            </div>
-            <table class="table table-striped" id="partners_table">
-                <thead>
-                <tr>
-                    <th>Имя</th>
-                    <th>К-во сделок</th>
-                    <th>Оплаченных сделок</th>
-                    <th>Неоплаченных сделок</th>
-                    <th>Всего оплаченно</th>
-                    <th>Всего не оплаченно</th>
-                    <th>Всего запланированно</th>
-                </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
         </div>
     </div><!--End stats -->
 </div><!-- End tab-content-->

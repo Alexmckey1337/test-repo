@@ -14,7 +14,7 @@ $(document).ready(function () {
         $(this).fadeOut();
         $('input[type=file]').val('');
         img.cropper("destroy")
-    })
+    });
 
     $('#impPopup .top-text span').click(function () {
         $('#impPopup').fadeOut();
@@ -313,7 +313,6 @@ function initializeCountry(url) {
 
         let results = data;
         let html = '<option value=""></option><option>Не выбрано</option>';
-        //console.log(data_for_drop["country"])
         if (data_for_drop["country"] != '') {
             html += '<option selected value=" ">' + data_for_drop["country"] + '</option>';
         }
@@ -392,13 +391,14 @@ function initDropCustom(url, parent_id, active, callback) {
 
     ajaxRequest(config.DOCUMENT_ROOT + url, null, function (data) {
 
-        let results = data.results;
+        let results = data.results,
+            html;
 
         //let html = '<select multiple id="e1" style="width:300px">'
         if (parent_id == 'department_drop' || parent_id == 'statuses_drop') {
-            let html = '';
+            html = '';
         } else {
-            let html = '<option>Не выбрано</option>';
+            html = '<option>Не выбрано</option>';
         }
         for (let i = 0; i < results.length; i++) {
 
