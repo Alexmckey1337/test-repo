@@ -1,14 +1,14 @@
 $(document).ready(function () {
 
     $('input[name="fullsearch"]').keyup(function () {
-        var id = $('#accountable').val();
+        let id = $('#accountable').val();
         console.log(id);
-        var obj = {'responsible': id};
+        let obj = {'responsible': id};
         if (id == '0') {
             delay(function () {
                 getPartnersList();
 
-                var json = {};
+                let json = {};
                 json["page"] = '1';
                 getExpiredDeals(json);
                 getDoneDeals(json);
@@ -18,7 +18,7 @@ $(document).ready(function () {
             delay(function () {
                 getPartnersList(obj);
 
-                var json = {};
+                let json = {};
                 json["page"] = '1';
                 getExpiredDeals(json);
                 getDoneDeals(json);
@@ -90,10 +90,10 @@ $(document).ready(function () {
     });
 
     document.getElementById('complete').addEventListener('click', function () {
-        var attr = this.getAttribute('data-id'),
+        let attr = this.getAttribute('data-id'),
             value = document.getElementById('deal-value').value,
             description = document.getElementById('deal-description').value;
-        var reg = /^\d{1,5} ?₴?$/gi;
+        let reg = /^\d{1,5} ?₴?$/gi;
         if (!reg.test(value)) {
             showPopup('Введите правильное значение суммы');
             return;
@@ -147,7 +147,7 @@ $(document).ready(function () {
 
 });
 
-var done_from_date = '',
+let done_from_date = '',
     done_to_date = '',
     expired_from_date = '',
     expired_to_date = '';
@@ -156,14 +156,14 @@ init();
 
 
 function getUnregisteredUsers(parameters) {
-    var param = parameters || {};
-    var search = document.getElementById('searchUsers').value;
+    let param = parameters || {};
+    let search = document.getElementById('searchUsers').value;
     if (search && search.length > 2) {
         param['search'] = search;
         ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/partnerships_unregister_search/', param, function (data) {
             data = data.results;
-            var html = '';
-            for (var i = 0; i < data.length; i++) {
+            let html = '';
+            for (let i = 0; i < data.length; i++) {
                 html += '<div class="rows-wrap"><button data-id=' + data[i].id + '>Выбрать</button><div class="rows"><div class="col"><p><span><a href="/account/' + data[i].id + '/">' + data[i].fullname + '</a></span></p></div><div class="col"></div></div></div>';
             }
             if (data.length > 0) {
@@ -172,10 +172,10 @@ function getUnregisteredUsers(parameters) {
                 document.getElementById('searchedUsers').innerHTML = '<div class="rows-wrap"><div class="rows"><p>По запросу не найдено учасников</p></div></div>';
             }
             document.querySelector('.choose-user-wrap .splash-screen').classList.add('active');
-            var but = document.querySelectorAll('.rows-wrap button');
-            for (var j = 0; j < but.length; j++) {
+            let but = document.querySelectorAll('.rows-wrap button');
+            for (let j = 0; j < but.length; j++) {
                 but[j].addEventListener('click', function () {
-                    var id = this.getAttribute('data-id');
+                    let id = this.getAttribute('data-id');
                     registerUser(id);
                 })
             }
@@ -190,17 +190,17 @@ function registerUser(id) {
     if (!id) {
         return
     }
-    var money = 0;
+    let money = 0;
 
 
-    var dateObj = new Date();
-    var month = dateObj.getUTCMonth() + 1; //months from 1-12
-    var day = dateObj.getUTCDate();
-    var year = dateObj.getUTCFullYear();
+    let dateObj = new Date();
+    let month = dateObj.getUTCMonth() + 1; //months from 1-12
+    let day = dateObj.getUTCDate();
+    let year = dateObj.getUTCFullYear();
 
     newdate = year + "-" + month + "-" + day;
 
-    var data = {'date': newdate, 'user': parseInt(id)};
+    let data = {'date': newdate, 'user': parseInt(id)};
     data.value = money;
     data.responsible = config.user_partnerships_info.responsible;
     if (data.responsible) {
@@ -215,7 +215,7 @@ function create_partnerships(data) {
 
 
     console.log('start partner');
-    var json = JSON.stringify(data);
+    let json = JSON.stringify(data);
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/create_partnership/', json, function (JSONobj) {
 
         if (JSONobj.status) {
@@ -233,17 +233,17 @@ function create_partnerships(data) {
 }
 
 function getExpiredDeals(time) {
-    var json = time || null;
-    var search = document.getElementsByName('fullsearch')[0].value;
+    let json = time || null;
+    let search = document.getElementsByName('fullsearch')[0].value;
     if (search) {
         search = '&search=' + search;
     } else {
         search = '';
     }
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/deals/?expired=2' + search, json, function (data) {
-        var count = data.count;
+        let count = data.count;
         data = data.results;
-        var page = time['page'] || 1,
+        let page = time['page'] || 1,
             pages = Math.ceil(count / config.pagination_count),
             html = '';
         if (data.length == 0) {
@@ -256,23 +256,23 @@ function getExpiredDeals(time) {
             return;
         }
         document.getElementById('overdue-count').innerHTML = count;
-        var container = ".expired-pagination",
+        let container = ".expired-pagination",
             target = ".expired-pagination .pag li",
             arrow = ".expired-pagination .arrow",
             active = ".expired-pagination .pag li.active",
             dblArrow = ".expired-pagination .double_arrow";
         makePagination(page, container, target, arrow, active, dblArrow, pages, data.length, count, getExpiredDeals);
-        for (var i = 0; i < data.length; i++) {
-            var fields = data[i].fields;
+        for (let i = 0; i < data.length; i++) {
+            let fields = data[i].fields;
             if (!fields) {
                 continue
             }
-            var names = Object.keys(fields);
+            let names = Object.keys(fields);
             html += '<div class="rows-wrap"><button data-id=' + fields[names[0]].value + '>Завершить</button><div class="rows"><div class="col"><p><span>' + fields[names[1]].value + '</span></p></div><div class="col"><p>Последняя сделка:<span> ' + fields[names[3]].value + '</span></p><p>Ответственный:<span> ' + fields[names[2]].value + '</span></p><p>Сумма:<span> ' + fields[names[4]].value + ' ₴</span></p></div></div></div>';
         }
         document.getElementById('overdue').innerHTML = html;
-        var but = document.querySelectorAll(".rows-wrap button");
-        for (var j = 0; j < but.length; j++) {
+        let but = document.querySelectorAll(".rows-wrap button");
+        for (let j = 0; j < but.length; j++) {
             but[j].addEventListener('click', function () {
                 getDataForPopup(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-date'), this.getAttribute('data-responsible'), this.getAttribute('data-value') + ' ₴')
             })
@@ -281,17 +281,17 @@ function getExpiredDeals(time) {
 }
 
 function getDoneDeals(time) {
-    var json = time || null;
-    var search = document.getElementsByName('fullsearch')[0].value;
+    let json = time || null;
+    let search = document.getElementsByName('fullsearch')[0].value;
     if (search) {
         search = '&search=' + search;
     } else {
         search = '';
     }
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/deals/?done=2' + search, json, function (data) {
-        var count = data.count;
+        let count = data.count;
         data = data.results;
-        var page = time['page'] || 1,
+        let page = time['page'] || 1,
             pages = Math.ceil(count / config.pagination_count),
             html = '';
         if (data.length == 0) {
@@ -305,18 +305,18 @@ function getDoneDeals(time) {
         }
         document.getElementById('completed-count').innerHTML = count;
 
-        var container = ".done-pagination",
+        let container = ".done-pagination",
             target = ".done-pagination .pag li",
             arrow = ".done-pagination .arrow",
             active = ".done-pagination .pag li.active",
             dblArrow = ".done-pagination .double_arrow";
         makePagination(page, container, target, arrow, active, dblArrow, pages, data.length, count, getDoneDeals);
-        for (var i = 0; i < data.length; i++) {
-            var fields = data[i].fields;
+        for (let i = 0; i < data.length; i++) {
+            let fields = data[i].fields;
             if (!fields) {
                 continue
             }
-            var names = Object.keys(fields);
+            let names = Object.keys(fields);
             html += '<div class="rows-wrap"><div class="rows"><div class="col"><p><span>' + fields[names[1]].value + '</span></p></div><div class="col"><p>Последняя сделка:<span> ' + fields[names[3]].value + '</span></p><p>Ответственный:<span> ' + fields[names[2]].value + '</span></p><p>Сумма:<span> ' + fields[names[4]].value + ' ₴</span></p></div></div></div>';
 
         }
@@ -325,17 +325,17 @@ function getDoneDeals(time) {
 }
 
 function getUndoneDeals(dat) {
-    var json = dat || null;
-    var search = document.getElementsByName('fullsearch')[0].value;
+    let json = dat || null;
+    let search = document.getElementsByName('fullsearch')[0].value;
     if (search) {
         search = '&search=' + search;
     } else {
         search = '';
     }
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/deals/?done=3' + search, json, function (data) {
-        var count = data.count;
+        let count = data.count;
         data = data.results;
-        var page = dat['page'] || 1,
+        let page = dat['page'] || 1,
             pages = Math.ceil(count / config.pagination_count),
             html = '';
         if (data.length == 0) {
@@ -348,24 +348,24 @@ function getUndoneDeals(dat) {
             return;
         }
         document.getElementById('incomplete-count').innerHTML = count;
-        var container = ".undone-pagination",
+        let container = ".undone-pagination",
             target = ".undone-pagination .pag li",
             arrow = ".undone-pagination .arrow",
             active = ".undone-pagination .pag li.active",
             dblArrow = ".undone-pagination .double_arrow";
         makePagination(page, container, target, arrow, active, dblArrow, pages, data.length, count, getUndoneDeals);
 
-        for (var i = 0; i < data.length; i++) {
-            var fields = data[i].fields;
+        for (let i = 0; i < data.length; i++) {
+            let fields = data[i].fields;
             if (!fields) {
                 continue
             }
-            var names = Object.keys(fields);
+            let names = Object.keys(fields);
             html += '<div class="rows-wrap"><button data-id=' + fields[names[0]].value + ' data-name="' + fields[names[1]].value + '" data-date=' + fields[names[3]].value + ' data-responsible="' + fields[names[2]].value + '" data-value=' + fields[names[4]].value + '>Завершить</button><div class="rows"><div class="col"><p><span>' + fields[names[1]].value + '</span></p></div><div class="col"><p>Последняя сделка:<span> ' + fields[names[3]].value + '</span></p><p>Ответственный:<span> ' + fields[names[2]].value + '</span></p><p>Сумма:<span> ' + fields[names[4]].value + ' ₴</span></p></div></div></div>';
             document.getElementById('incomplete').innerHTML = html;
         }
-        var but = document.querySelectorAll(".rows-wrap button");
-        for (var j = 0; j < but.length; j++) {
+        let but = document.querySelectorAll(".rows-wrap button");
+        for (let j = 0; j < but.length; j++) {
             but[j].addEventListener('click', function () {
                 getDataForPopup(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-date'), this.getAttribute('data-responsible'), this.getAttribute('data-value') + ' ₴')
             })
@@ -374,7 +374,7 @@ function getUndoneDeals(dat) {
 }
 
 function makePagination(page, container, target, arrow, active, dblArrow, pages, length, count, callback) {
-    var pagination = '<div class="element-select"><p>Показано <span>' + length + '</span> из <span>' + count + '</span></p></div><div class="pag-wrap">';
+    let pagination = '<div class="element-select"><p>Показано <span>' + length + '</span> из <span>' + count + '</span></p></div><div class="pag-wrap">';
 
     if (page > 1) {
         pagination += '<div class="prev"><span class="double_arrow"></span><span class="arrow"></span></div>';
@@ -387,7 +387,7 @@ function makePagination(page, container, target, arrow, active, dblArrow, pages,
             pagination += '<li>1</li><li class="no-pagin">&hellip;</li>'
         }
 
-        for (var j = page - 2; j < page + 3; j++) {
+        for (let j = page - 2; j < page + 3; j++) {
 
 
             if (j == page) {
@@ -435,7 +435,7 @@ function makePagination(page, container, target, arrow, active, dblArrow, pages,
 }
 
 function dblArrowClick(parent, pages) {
-    var data = {};
+    let data = {};
     if (parent.parentElement.classList.contains('prev')) {
         data['page'] = 1;
         data["to_date"] = done_to_date;
@@ -450,8 +450,8 @@ function dblArrowClick(parent, pages) {
 }
 
 function arrowClick(parent, target, pages, callback) {
-    var page;
-    var data = {};
+    let page;
+    let data = {};
     if (parent.parentElement.classList.contains('prev')) {
         page = parseInt(document.querySelector(target).innerHTML) > 1 ? parseInt(document.querySelector(target).innerHTML) - 1 : 1;
         data['page'] = page;
@@ -468,7 +468,7 @@ function arrowClick(parent, target, pages, callback) {
 }
 
 function setClickToPagination(target, callback) {
-    var data = {};
+    let data = {};
     data['page'] = target.innerHTML;
     callback(data);
 }
@@ -483,7 +483,7 @@ function getDataForPopup(id, name, date, responsible, value) {
 }
 
 function init() {
-    var json = {};
+    let json = {};
     json["page"] = '1';
     getExpiredDeals(json);
     getDoneDeals(json);
@@ -491,12 +491,12 @@ function init() {
 }
 
 function updateDeals(deal, value, description) {
-    var data = {
+    let data = {
         "done": true,
         "value": value,
         "description": description
     };
-    var json = JSON.stringify(data);
+    let json = JSON.stringify(data);
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/deals/' + deal + '/', json, function () {
         init();
         document.getElementById('popup').style.display = '';
@@ -512,25 +512,25 @@ function updateDeals(deal, value, description) {
 }
 
 function sortDoneDeals(from, to) {
-    var json = {};
+    let json = {};
     json["to_date"] = to;
     json["from_date"] = from;
     getDoneDeals(json);
 }
 
 function sortExpiredDeals(from, to) {
-    var json = {};
+    let json = {};
     json["to_date"] = to;
     json["from_date"] = from;
     getExpiredDeals(json);
 }
 
 function makeTabs() {
-    var pos = 0,
+    let pos = 0,
         tabs = document.getElementById('tabs'),
         tabsContent = document.getElementsByClassName('tabs-cont');
 
-    for (var i = 0; i < tabs.children.length; i++) {
+    for (let i = 0; i < tabs.children.length; i++) {
         tabs.children[i].setAttribute('data-page', pos);
         pos++;
     }
@@ -543,14 +543,14 @@ function makeTabs() {
     };
 
     function showPage(i) {
-        for (var k = 0; k < tabsContent.length; k++) {
+        for (let k = 0; k < tabsContent.length; k++) {
             tabsContent[k].style.display = 'none';
             tabs.children[k].classList.remove('current');
         }
         tabsContent[i].style.display = 'block';
         tabs.children[i].classList.add('current');
 
-        var done = document.getElementById('period_done'),
+        let done = document.getElementById('period_done'),
             expired = document.getElementById('period_expired'),
             unpag = document.querySelectorAll('.undone-pagination'),
             expag = document.querySelectorAll('.expired-pagination'),
@@ -597,14 +597,14 @@ function makeTabs() {
 }
 
 function getCurrentPartnerSetting(data) {
-    var html = '';
+    let html = '';
     data.forEach(function (d) {
-        var titles = d[1];
+        let titles = d[1];
         html += '<h3>' + d[0] + '</h3>';
-        for (var p in titles) {
+        for (let p in titles) {
             if (!titles.hasOwnProperty(p)) continue;
-            var ischeck = titles[p]['active'] ? 'check' : '';
-            var isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
+            let ischeck = titles[p]['active'] ? 'check' : '';
+            let isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
             html += '<li ' + isdraggable + ' >' +
                 '<input id="' + titles[p]['ordering_title'] + '" type="checkbox">' +
                 '<label for="' + titles[p]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[p]['id'] + '">' + titles[p]['title'] + '</label>';
@@ -641,8 +641,8 @@ function reversOrder(order) {
 })();
 
 $('#accountable').on('change', function () {
-    var id = this.value;
-    var obj = {'responsible': id};
+    let id = this.value;
+    let obj = {'responsible': id};
     if (id == '0') {
         getPartnersList();
     } else {
@@ -655,9 +655,9 @@ $('#accountable').on('change', function () {
 function getPartnersList(param) {
     param = param || {};
 
-    var path = config.DOCUMENT_ROOT + 'api/v1.1/partnerships/?';
-    var search = document.getElementsByName('fullsearch')[0].value;
-    var ordering = param.ordering || 'user__last_name';
+    let path = config.DOCUMENT_ROOT + 'api/v1.1/partnerships/?';
+    let search = document.getElementsByName('fullsearch')[0].value;
+    let ordering = param.ordering || 'user__last_name';
 
     console.log(ordering);
     if (search) {
@@ -667,18 +667,18 @@ function getPartnersList(param) {
     document.getElementsByClassName('preloader')[0].style.display = 'block';
     ajaxRequest(path, param, function (data) {
 
-        var results = data.results;
+        let results = data.results;
 
-        var k;
-        var value;
+        let k;
+        let value;
 
-        var count = data.count;
-        var common_fields = data.common_table;
-        var user_fields = data.user_table;
+        let count = data.count;
+        let common_fields = data.common_table;
+        let user_fields = data.user_table;
 
         getCurrentPartnerSetting([['Партнерство', common_fields], ['Пользователь', user_fields]]);
 
-        var thead = '<thead><tr>';
+        let thead = '<thead><tr>';
         for (k in user_fields) {
             if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
             if (ordering.indexOf('user__' + user_fields[k]['ordering_title']) != -1) {
@@ -698,7 +698,7 @@ function getPartnersList(param) {
         }
         thead += '</tr></thead>';
 
-        var tbody = '<tbody>';
+        let tbody = '<tbody>';
         results.forEach(function (field, i) {
             tbody += '<tr>';
 
@@ -740,14 +740,14 @@ function getPartnersList(param) {
         });
         tbody += '</tbody>';
 
-        var table = '<table>' + thead + tbody + '</table>';
+        let table = '<table>' + thead + tbody + '</table>';
 
 
         // debugger
 
-        var page = parseInt(param['page']) || 1;
-        var pages = Math.ceil(count / config.pagination_patrnership_count);
-        var paginations = '',
+        let page = parseInt(param['page']) || 1;
+        let pages = Math.ceil(count / config.pagination_patrnership_count);
+        let paginations = '',
             elementSelect = '<p>Показано <span>' + results.length + '</span> из <span>' + count + '</span></p>';
         if (page > 1) {
             paginations += '<div class="prev"></span><span class="arrow"></span></div>';
@@ -759,7 +759,7 @@ function getPartnersList(param) {
                 paginations += '<li>1</li><li class="no-pagin">&hellip;</li>'
             }
 
-            for (var j = page - 2; j < page + 3; j++) {
+            for (let j = page - 2; j < page + 3; j++) {
 
 
                 if (j == page) {
@@ -814,7 +814,7 @@ function getPartnersList(param) {
                 if (this.className == 'no-pagin') {
                     return false;
                 }
-                var data = {};
+                let data = {};
                 data['page'] = el.innerHTML;
                 getPartnersList(data);
             });
@@ -825,8 +825,8 @@ function getPartnersList(param) {
 
         Array.prototype.forEach.call(document.querySelectorAll("#spisok .arrow"), function (el) {
             el.addEventListener('click', function () {
-                var page;
-                var data = {};
+                let page;
+                let data = {};
                 if (this.parentElement.classList.contains('prev')) {
                     page = parseInt(document.querySelector(".pag li.active").innerHTML) > 1 ? parseInt(document.querySelector(".pag li.active").innerHTML) - 1 : 1;
                     data['page'] = page;
@@ -842,7 +842,7 @@ function getPartnersList(param) {
 
         Array.prototype.forEach.call(document.querySelectorAll("#spisok .double_arrow"), function (el) {
             el.addEventListener('click', function () {
-                var data = {};
+                let data = {};
                 if (this.parentElement.classList.contains('prev')) {
                     data['page'] = 1;
                     getPartnersList(data);
@@ -857,13 +857,13 @@ function getPartnersList(param) {
         Array.prototype.forEach.call(document.querySelectorAll(".table-wrap th"), function (el) {
             el.addEventListener('click', function () {
                 //Переписать модуль order
-                var data_order = this.getAttribute('data-order');
-                var status = !!ordering[data_order];
+                let data_order = this.getAttribute('data-order');
+                let status = !!ordering[data_order];
                 ordering = {};
                 ordering[data_order] = status;
                 // data_order = status ? data_order : '-' + data_order;
-                var page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
-                var data = {
+                let page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
+                let data = {
                     'ordering': data_order,
                     'page': page
                 };
@@ -877,4 +877,4 @@ function getPartnersList(param) {
     })
 }
 
-var ordering = {};
+let ordering = {};

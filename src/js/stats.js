@@ -11,7 +11,7 @@
             url = window.location.href;
         }
         name = name.replace(/[\[\]]/g, "\\$&");
-        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        let regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
             results = regex.exec(url);
         if (!results) return null;
         if (!results[2]) return '';
@@ -19,7 +19,7 @@
     }
 
     function filterByMonth(params = {}) {
-        var url = '/api/v1.1/partnerships/stats/?',
+        let url = '/api/v1.1/partnerships/stats/?',
             partner_id = getParameterByName('partner_id');
 
         if (partner_id) {
@@ -30,20 +30,20 @@
                 return response.json();
             })
             .then(function (data) {
-                for (var k in data) {
+                for (let k in data) {
                     if (!data.hasOwnProperty(k)) continue;
                     if (k != 'partners' && k != 'unpaid_sum_deals') {
                         document.getElementById(k).innerHTML = data[k];
                     }
                 }
 
-                var percent = data['paid_sum_deals'] / data['planned_sum_deals'] * 100;
+                let percent = data['paid_sum_deals'] / data['planned_sum_deals'] * 100;
                 document.getElementById('percent_paid_sum_deals').innerHTML = percent.toFixed(1) + '%';
 
                 return data.partners;
             }).then(function (partners) {
             $('#partners_table tbody tr').remove();
-            var tr = '';
+            let tr = '';
             partners.forEach(function (partner) {
                 if (partner.is_paid) {
                     tr += '<tr class="success">'
@@ -66,7 +66,7 @@
     }
 
     $('#apply_date').click(function () {
-        var date, month, year;
+        let date, month, year;
         date = $('#date_field').val();
 
         if (date) {

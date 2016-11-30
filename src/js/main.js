@@ -1,6 +1,6 @@
 //Создать метод вызова init()
 
-var config = {
+let config = {
     // 'DOCUMENT_ROOT': 'http://vocrm.org/',
     'DOCUMENT_ROOT': '/',
     'pagination_count': 30, //Количество записей при пагинации
@@ -13,10 +13,10 @@ var config = {
 function setCookie(name, value, options) {
     options = options || {};
 
-    var expires = options.expires;
+    let expires = options.expires;
 
     if (typeof expires == "number" && expires) {
-        var d = new Date();
+        let d = new Date();
         d.setTime(d.getTime() + expires * 1000);
         expires = options.expires = d;
     }
@@ -26,11 +26,11 @@ function setCookie(name, value, options) {
 
     value = encodeURIComponent(value);
 
-    var updatedCookie = name + "=" + value;
+    let updatedCookie = name + "=" + value;
 
-    for (var propName in options) {
+    for (let propName in options) {
         updatedCookie += "; " + propName;
-        var propValue = options[propName];
+        let propValue = options[propName];
         if (propValue !== true) {
             updatedCookie += "=" + propValue;
         }
@@ -85,7 +85,7 @@ if (document.getElementById('sort_save')) {
 }
 
 /*function showWindow () {
- var wind = document.querySelector('.massage-hover');
+ let wind = document.querySelector('.massage-hover');
  document.querySelector(".photo-hover").style.display = 'none';
  wind.classList.toggle('active-window');
 
@@ -157,9 +157,9 @@ $(document).ready(function () {
         if ($(this).parent().is('#move-sidebar')) {
             return
         }
-        var hint = '<div id="hint">' + $(this).attr('data-title') + '</hint>';
+        let hint = '<div id="hint">' + $(this).attr('data-title') + '</hint>';
         $('body').append(hint);
-        var a = ($(this).offset().top - $(window).scrollTop()) + ($(this).outerHeight() / 2) - $('#hint').outerHeight() / 2;
+        let a = ($(this).offset().top - $(window).scrollTop()) + ($(this).outerHeight() / 2) - $('#hint').outerHeight() / 2;
         $('#hint').css('top', a).fadeIn();
     });
 
@@ -202,7 +202,7 @@ $(document).ready(function () {
         }
     });
 
-    var loc = window.location.pathname;
+    let loc = window.location.pathname;
     if (~loc.indexOf('event_info')) {
         $("#nav-sidebar li").removeClass('active');
         $("#nav-sidebar li a[href='/events/']").parent().addClass('active');
@@ -228,7 +228,7 @@ window.onload = function () {
 };
 
 function opened(name) {
-    var matches = document.cookie.match(new RegExp(
+    let matches = document.cookie.match(new RegExp(
         "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
     ));
     return matches ? true : false;
@@ -261,11 +261,11 @@ document.body.addEventListener('click', function (el) {
 $(function () {
 
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/users/current/', null, function (data) {
-        var user_id = data.id;
+        let user_id = data.id;
         config.user_id = data.id;
         config.user_partnerships_info = data.partnerships_info;
         config.column_table = data.column_table;
-        var hierarchy_chain = data['hierarchy_chain'];
+        let hierarchy_chain = data['hierarchy_chain'];
 
 
         if (typeof init === "function") {
@@ -285,7 +285,7 @@ $(function () {
         }
 
         if (document.getElementById('users_list')) {
-            var dat = {};
+            let dat = {};
             dat['summit'] = document.querySelectorAll('#carousel li span')[0].getAttribute('data-id');
             window.summit_id = dat['summit'];
             getUsersList(path, dat);
@@ -348,12 +348,12 @@ jQuery(function ($) {
 //old version
 function getCurrentSetting() {
 
-    var titles = config['column_table'];
-    var html = '';
-    for (var p in titles) {
+    let titles = config['column_table'];
+    let html = '';
+    for (let p in titles) {
         if (!titles.hasOwnProperty(p)) continue;
-        var ischeck = titles[p]['active'] ? 'check' : '';
-        var isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
+        let ischeck = titles[p]['active'] ? 'check' : '';
+        let isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
         html += '<li ' + isdraggable + ' >' +
             '<input id="' + titles[p]['ordering_title'] + '" type="checkbox">' +
             '<label for="' + titles[p]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[p]['id'] + '">' + titles[p]['title'] + '</label>';
@@ -366,7 +366,7 @@ function getCurrentSetting() {
 
     document.getElementById('sort-form').innerHTML = html;
 
-    /*var cols = document.querySelectorAll('[draggable]');
+    /*let cols = document.querySelectorAll('[draggable]');
      Array.prototype.forEach.call(cols, function(col) {
      col.addEventListener('drop', handleDrop, false);
      col.addEventListener('dragstart', handleDragStart, false);
@@ -388,17 +388,17 @@ function getCurrentSetting() {
 function updateSettings(callback, param) {
 
 
-    var data = [];
-    var iteration = 1;
+    let data = [];
+    let iteration = 1;
     Array.prototype.forEach.call(document.querySelectorAll("#sort-form label"), function (el) {
-        var item = {};
+        let item = {};
         item['id'] = parseInt(el.getAttribute('id'));
         item['number'] = iteration++;
         item['active'] = !!el.classList.contains('check');
         data.push(item);
     });
 
-    var json = JSON.stringify(data);
+    let json = JSON.stringify(data);
 
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/update_columns/', json, function (JSONobj) {
         $(".bgsort").remove();

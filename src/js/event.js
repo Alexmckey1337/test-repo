@@ -6,10 +6,10 @@ $(document).ready(function(){
 function getEventsList(){
 	ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/event_types/', null, function (data) {
 	 	//console.log(data)
-	 	var result = data.results;
-	 	var html = '';
-	 	var last_date_event;
-	 	for(var i =0 ; i<result.length;i++){
+        let result = data.results;
+        let html = '';
+        let last_date_event;
+        for (let i = 0; i < result.length; i++) {
 
 
 	 		last_date_event = result[i].last_event_date ? '<p>Последнее событие: <span>'+result[i].last_event_date + '</span></p>'  : '';
@@ -22,16 +22,16 @@ function getEventsList(){
 /*
 		 Array.prototype.forEach.call(document.querySelectorAll('button[data-id]'), function(el) {
 		        el.addEventListener('click', function() {
-		        	var id =   this.getAttribute('data-id') ;
-		        	var title= document.querySelector(".events-wrap h3").innerHTML 
+ let id =   this.getAttribute('data-id') ;
+ let title= document.querySelector(".events-wrap h3").innerHTML
 		            document.location.href = '/event_info?id=' + id +'&title=' + title
 		        })
     	});
 */
 		 Array.prototype.forEach.call(document.querySelectorAll('.event-hover'), function(el) {
 		        el.addEventListener('click', function() {
-		        	var id =   this.parentElement.getAttribute('data-id') 
-		        	var title= this.parentElement.getAttribute('data-tittle') 
+                    let id = this.parentElement.getAttribute('data-id')
+                    let title = this.parentElement.getAttribute('data-tittle')
 		            document.location.href = '/event_info?id=' + id +'&title=' + title
 		        })
     	});

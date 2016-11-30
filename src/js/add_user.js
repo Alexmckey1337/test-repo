@@ -44,7 +44,7 @@ $(document).ready(function () {
 
 
     $('#impPopup button').click(function () {
-        var iurl;
+        let iurl;
         iurl = img.cropper("getDataURL", "image/jpeg");
         $('#edit-photo').attr('data-source', document.querySelector("#impPopup img").src)
         $('.anketa-photo').html('<img src="' + iurl + '" />');
@@ -77,7 +77,7 @@ $(document).ready(function () {
 
     getAll();
 
-    var dep,
+    let dep,
         stat;
 
     $("#chooseCountry").select2({placeholder: " "}).on("change", getRegions);
@@ -150,7 +150,7 @@ $(document).ready(function () {
     document.getElementById('saveNew').addEventListener('click', createNewAcc);
 });
 
-var img = $(".crArea img");
+let img = $(".crArea img");
 
 document.querySelector('.pop-up-splash').addEventListener('click', function (el) {
     if (el.target !== this) {
@@ -186,8 +186,8 @@ function getAll() {
 
 function getCountryCodes() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
-        var code = '<option value=""> </option>';
-        for (var i = 0; i < data.length; i++) {
+        let code = '<option value=""> </option>';
+        for (let i = 0; i < data.length; i++) {
             if (data[i].phone_code == 38) {
                 code += '<option selected value="' + data[i].phone_code + '">' + data[i].title + ' ' + data[i].phone_code + '</option>';
             } else {
@@ -202,9 +202,9 @@ function getCountryCodes() {
 
 function getCountries() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
-        var html = '<option value=""> </option><option>Не выбрано</option>';
-        //var code = '<option value=""> </option>';
-        for (var i = 0; i < data.length; i++) {
+        let html = '<option value=""> </option><option>Не выбрано</option>';
+        //let code = '<option value=""> </option>';
+        for (let i = 0; i < data.length; i++) {
             html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
             /*if (data[i].code == 38) {
              code += '<option selected value="+'+data[i].code+'">'+data[i].title + ' +' + data[i].code +'</option>';
@@ -221,12 +221,12 @@ function getCountries() {
 function getDepartments() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/departments/', null, function (data) {
         data = data.results;
-        var html = '<option value=""> </option>';
-        for (var i = 0; i < data.length; i++) {
+        let html = '<option value=""> </option>';
+        for (let i = 0; i < data.length; i++) {
             html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
         }
         document.getElementById('chooseDepartment').innerHTML = html;
-        var dep = $("#chooseDepartment").val();
+        let dep = $("#chooseDepartment").val();
     });
 
 }
@@ -234,8 +234,8 @@ function getDepartments() {
 function getStatuses() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
         data = data.results;
-        var html = '<option value=""> </option>';
-        for (var i = 0; i < data.length; i++) {
+        let html = '<option value=""> </option>';
+        for (let i = 0; i < data.length; i++) {
             html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
         }
         document.getElementById('chooseStatus').innerHTML = html;
@@ -245,20 +245,20 @@ function getStatuses() {
 function getResponsibleStatuses() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
         data = data.results;
-        var html = '<option value=""> </option><option>Не выбрано</option>';
-        for (var i = 0; i < data.length; i++) {
+        let html = '<option value=""> </option><option>Не выбрано</option>';
+        for (let i = 0; i < data.length; i++) {
             html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
         }
         document.getElementById('chooseResponsibleStatus').innerHTML = html;
-        var stat = $("#chooseResponsibleStatus").val();
+        let stat = $("#chooseResponsibleStatus").val();
     });
 }
 
 function getDivisions() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/divisions/', null, function (data) {
         data = data.results;
-        var html = '<option value=""> </option>';
-        for (var i = 0; i < data.length; i++) {
+        let html = '<option value=""> </option>';
+        for (let i = 0; i < data.length; i++) {
             html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
         }
         document.getElementById('chooseDivision').innerHTML = html;
@@ -268,8 +268,8 @@ function getDivisions() {
 function getUsers() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
         data = data.results;
-        var html = '<option value=""> </option>';
-        for (var i = 0; i < data.length; i++) {
+        let html = '<option value=""> </option>';
+        for (let i = 0; i < data.length; i++) {
             html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
         }
         document.getElementById('chooseStatus').innerHTML = html;
@@ -278,7 +278,7 @@ function getUsers() {
 
 function getManagers() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.1/partnerships/simple/', null, function (data) {
-        var html = '<option value=""> </option><option>Не выбрано</option>';
+        let html = '<option value=""> </option><option>Не выбрано</option>';
         data.forEach(function (partnership) {
             html += '<option value="' + partnership.id + '">' + partnership.fullname + '</option>';
         });
@@ -287,7 +287,7 @@ function getManagers() {
 }
 
 function getRegions() {
-    var opt = {};
+    let opt = {};
     opt['country'] = $("#chooseCountry").val();
     ;
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/regions/', opt, function (data) {
@@ -295,8 +295,8 @@ function getRegions() {
             document.getElementById('chooseRegion').innerHTML = '<option value=""> </option>';
             document.getElementById('chooseCity').removeAttribute('disabled')
         }
-        var html = '<option value=""> </option><option>Не выбрано</option>';
-        for (var i = 0; i < data.length; i++) {
+        let html = '<option value=""> </option><option>Не выбрано</option>';
+        for (let i = 0; i < data.length; i++) {
             html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
         }
         document.getElementById('chooseRegion').innerHTML = html;
@@ -306,8 +306,8 @@ function getRegions() {
 
 function getResponsible(id, level) {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id + '&hierarchy=' + level, null, function (data) {
-        var html = '<option value=""> </option><option>Не выбрано</option>';
-        for (var i = 0; i < data.length; i++) {
+        let html = '<option value=""> </option><option>Не выбрано</option>';
+        for (let i = 0; i < data.length; i++) {
             html += '<option value="' + data[i].id + '">' + data[i].fullname + '</option>';
         }
         document.getElementById('chooseResponsible').innerHTML = html;
@@ -315,11 +315,11 @@ function getResponsible(id, level) {
 }
 
 function getCities() {
-    var opt = {};
+    let opt = {};
     opt['region'] = $("#chooseRegion").val();
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/cities/', opt, function (data) {
-        var html = '<option value=""> </option><option>Не выбрано</option>';
-        for (var i = 0; i < data.length; i++) {
+        let html = '<option value=""> </option><option>Не выбрано</option>';
+        for (let i = 0; i < data.length; i++) {
             html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
         }
         document.getElementById('chooseCity').innerHTML = html;
@@ -329,12 +329,12 @@ function getCities() {
 
 function selectFile(evt) {
 
-    var files = evt.target.files;
-    for (var i = 0, f; f = files[i]; i++) {
+    let files = evt.target.files;
+    for (let i = 0, f; f = files[i]; i++) {
         if (!f.type.match('image.*')) {
             continue;
         }
-        var reader = new FileReader();
+        let reader = new FileReader();
         reader.onload = (function (theFile) {
             return function (e) {
                 document.querySelector("#impPopup img").src = e.target.result;
@@ -359,7 +359,7 @@ function createNewAcc() {
     } else {
         document.querySelector("input[name='phone_number']").style.border = '';
     }
-    var data = {
+    let data = {
         "email": document.querySelector("input[name='email']").value,
         "first_name": document.querySelector("input[name='first_name']").value,
         "last_name": document.querySelector("input[name='last_name']").value,
@@ -434,14 +434,14 @@ function createNewAcc() {
         document.querySelector("#chooseStatus + span .select2-selection").style.border = '';
     }
 
-    var num_reg = /^[0-9]*$/ig;
+    let num_reg = /^[0-9]*$/ig;
     if (!num_reg.test(document.querySelector("input[name='phone_number']").value)) {
         document.querySelector("input[name='phone_number']").style.border = '1px solid #d46a6a';
         return;
     } else {
         document.querySelector("input[name='phone_number']").style.border = '';
     }
-    var val_reg = /^[0-9]*$/ig;
+    let val_reg = /^[0-9]*$/ig;
     if (!val_reg.test(document.querySelector("input[name='value']").value)) {
         document.querySelector("input[name='value']").style.border = '1px solid #d46a6a';
         return;
@@ -449,11 +449,11 @@ function createNewAcc() {
         document.querySelector("input[name='value']").style.border = '';
     }
     /*
-     var url =config.DOCUMENT_ROOT + 'api/v1.0/short_users/?search=' + data["first_name"] +'+' + data["last_name"];
+     let url =config.DOCUMENT_ROOT + 'api/v1.0/short_users/?search=' + data["first_name"] +'+' + data["last_name"];
      ajaxRequest( url, null, function(data,answer) {
      //  console.log(data);
      if (data.length) {
-     var id  = data[0].id;
+     let id  = data[0].id;
      // debugger
      // showPopup(data.message)
      //showPopup('Такой пользователей есть уже в БД');
@@ -465,22 +465,22 @@ function createNewAcc() {
 
      })
      */
-    var json = JSON.stringify(data);
+    let json = JSON.stringify(data);
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/create_user/', json, function (data) {
         if (data.redirect) {
-            var fd = new FormData();
+            let fd = new FormData();
             if (!$('input[type=file]')[0].files[0]) {
                 fd.append('id', data.id)
             } else {
                 fd.set('source', $('input[type=file]')[0].files[0], 'photo.jpg');
-                var blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                var sr = $('#edit-photo').attr('data-source');
+                let blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+                let sr = $('#edit-photo').attr('data-source');
                 fd.append('file', blob);
                 //fd.append('source', sr)
                 fd.append('id', data.id)
             }
             function dataURLtoBlob(dataurl) {
-                var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
                     bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
                 while (n--) {
                     u8arr[n] = bstr.charCodeAt(n);
@@ -488,7 +488,7 @@ function createNewAcc() {
                 return new Blob([u8arr], {type: mime});
             }
 
-            var xhr = new XMLHttpRequest();
+            let xhr = new XMLHttpRequest();
             xhr.withCredentials = true;
             xhr.open('POST', config.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
 

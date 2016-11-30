@@ -1,19 +1,19 @@
 function changePass() {
 
-    var hash = getLastId();
+    let hash = getLastId();
 
 if(!hash){
      showPopup('неверный ключ активации');
 }
 
-    var data = {
+    let data = {
         "password1": document.getElementsByTagName('input')[0].value,
         "password2": document.getElementsByTagName('input')[1].value,
         "activation_key": hash
     };
 
 
-        var json = JSON.stringify(data);
+    let json = JSON.stringify(data);
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/password_view/', json, function (JSONobj) {
           // debugger
 

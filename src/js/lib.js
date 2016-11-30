@@ -9,7 +9,7 @@ function getLastId(url) {
     if (!url) {
         url = document.location.href
     }
-    var id = url.split('/');
+    let id = url.split('/');
     if (id[id.length - 1]) {
         return id[id.length - 1]
     }
@@ -18,8 +18,8 @@ function getLastId(url) {
 
 function getCookie(c_name) {
     // From http://www.w3schools.com/js/js_cookies.asp
-    var c_value = document.cookie;
-    var c_start = c_value.indexOf(" " + c_name + "=");
+    let c_value = document.cookie;
+    let c_start = c_value.indexOf(" " + c_name + "=");
     if (c_start == -1) {
         c_start = c_value.indexOf(c_name + "=");
     }
@@ -27,7 +27,7 @@ function getCookie(c_name) {
         c_value = null;
     } else {
         c_start = c_value.indexOf("=", c_start) + 1;
-        var c_end = c_value.indexOf(";", c_start);
+        let c_end = c_value.indexOf(";", c_start);
         if (c_end == -1) {
             c_end = c_value.length;
         }
@@ -38,9 +38,9 @@ function getCookie(c_name) {
 
 
 Array.prototype.unique = function () {
-    var a = this.concat();
-    for (var i = 0; i < a.length; ++i) {
-        for (var j = i + 1; j < a.length; ++j) {
+    let a = this.concat();
+    for (let i = 0; i < a.length; ++i) {
+        for (let j = i + 1; j < a.length; ++j) {
             if (a[i] === a[j])
                 a.splice(j--, 1);
         }
@@ -50,8 +50,8 @@ Array.prototype.unique = function () {
 };
 
 
-var delay = (function () {
-    var timer = 0;
+let delay = (function () {
+    let timer = 0;
     return function (callback, ms) {
         clearTimeout(timer);
         timer = setTimeout(callback, ms);
@@ -60,9 +60,9 @@ var delay = (function () {
 
 //index() jquery alternative
 function indexInParent(node) {
-    var children = node.parentNode.childNodes;
-    var num = 0;
-    for (var i = 0; i < children.length; i++) {
+    let children = node.parentNode.childNodes;
+    let num = 0;
+    for (let i = 0; i < children.length; i++) {
         if (children[i] == node) return num;
         if (children[i].nodeType == 1) num++;
     }
@@ -71,7 +71,7 @@ function indexInParent(node) {
 
 
 function getRussianMonth(index) {
-    var month = new Array(12);
+    let month = new Array(12);
     month[0] = "Январь";
     month[1] = "Февраль";
     month[2] = "Март";
@@ -90,7 +90,7 @@ function getRussianMonth(index) {
 
 //tab plugin v_1
 function tab_plugin() {
-    var el = document.getElementById('tab_plugin');
+    let el = document.getElementById('tab_plugin');
     if (!el) {
         return;
     }
@@ -100,7 +100,7 @@ function tab_plugin() {
 
         el.addEventListener('click', function (e) {
             e.preventDefault();
-            var index = indexInParent(el);
+            let index = indexInParent(el);
 
 
             Array.prototype.forEach.call(document.querySelectorAll("#tab_plugin li"), function (el) {
@@ -112,7 +112,7 @@ function tab_plugin() {
 
             this.classList.add('current');
 
-            var tab = document.querySelectorAll("[data-tab-body]")[index];
+            let tab = document.querySelectorAll("[data-tab-body]")[index];
             if (tab) {
                 tab.style.display = 'block';
             }
@@ -128,9 +128,9 @@ function tab_plugin() {
 function live(eventType, elementQuerySelector, cb) {
     document.addEventListener(eventType, function (event) {
 
-        var qs = document.querySelectorAll(elementQuerySelector);
+        let qs = document.querySelectorAll(elementQuerySelector);
         if (qs) {
-            var el = event.target,
+            let el = event.target,
                 index = -1;
             while (el && ((index = Array.prototype.indexOf.call(qs, el)) === -1)) {
                 el = el.parentElement;
@@ -176,13 +176,13 @@ function showPopup(text, title) {
     title = title || 'Информационное сообщение';
     text = text || '';
 
-    var popup = document.getElementById('create_pop');
+    let popup = document.getElementById('create_pop');
     if (popup) {
         popup.parentElement.removeChild(popup)
     }
-    var div = document.createElement('div');
+    let div = document.createElement('div');
 
-    var html = '<div class="pop_cont" >' +
+    let html = '<div class="pop_cont" >' +
         '<div class="top-text"><h3>' + title + '</h3><span id="close_pop">×</span></div>' +
         '<div class="main-text"><p>' + text + '</p></div>' +
         '</div>';
@@ -202,7 +202,7 @@ function getParameterByName(name, url) {
     if (!url) url = window.location.href;
     url = url.toLowerCase(); // This is just to avoid case sensitiveness  
     name = name.replace(/[\[\]]/g, "\\$&").toLowerCase();// This is just to avoid case sensitiveness for query parameter name
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+    let regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
         results = regex.exec(url);
     if (!results) return null;
     if (!results[2]) return '';
@@ -214,15 +214,15 @@ function getCorrectValue(value) {
         return '';
     } else {
         if (value instanceof Array) {
-            var str_value = [];
+            let str_value = [];
             value.forEach(function (v) {
                 str_value = str_value.concat(getCorrectValue(v))
             });
             return str_value.join(', ')
         } else if (value instanceof Object) {
-            var id = '';
-            var new_value = '';
-            for (var k in value) {
+            let id = '';
+            let new_value = '';
+            for (let k in value) {
                 if (k === 'id') {
                     id = value['id'];
                 } else {

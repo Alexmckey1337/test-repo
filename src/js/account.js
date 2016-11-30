@@ -4,7 +4,7 @@ $(document).ready(function () {
     getUserSummitInfo();
 
     $('#deleteUser').click(function () {
-        var id = $(this).attr('data-id');
+        let id = $(this).attr('data-id');
         $('#yes').attr('data-id', id);
         $('.add-user-wrap').show();
     });
@@ -25,7 +25,7 @@ $(document).ready(function () {
     });
 
     $('#yes').click(function () {
-        var id = $(this).attr('data-id');
+        let id = $(this).attr('data-id');
         deleteUser(id);
         $('#deletePopup').hide();
     });
@@ -34,14 +34,14 @@ $(document).ready(function () {
 
 
 function init(id) {
-    var id = parseInt(id || getLastId());
-    var isMember;
+    let id = parseInt(id || getLastId());
+    let isMember;
 
     if (!id) {
         return
     }
-    var path = '/api/v1.0/summit_types/2/is_member';
-        var param = {
+    let path = '/api/v1.0/summit_types/2/is_member';
+    let param = {
             "user_id": id
         };
     ajaxRequest(path, param, function (data) {
@@ -53,7 +53,7 @@ function init(id) {
             $(".label").addClass("member-icon");
         }
         if (data.fields.coming_date.value) {
-            var date = data.fields.coming_date.value.replace(/\-/g, '.');
+            let date = data.fields.coming_date.value.replace(/\-/g, '.');
         }
 
         if (data.image) {
@@ -67,43 +67,39 @@ function init(id) {
             console.log(date);
         }
         $('#deleteUser').attr('data-id', data.id);
-        var fullname;
-        var social = data.fields.social;
-        var repentance_date = data.fields.repentance_date;
+        let fullname;
+        let social = data.fields.social;
+        let repentance_date = data.fields.repentance_date;
 
 
-        var status = repentance_date.value ? '<span class="green1">Покаялся: ' + repentance_date.value.replace(/\-/g, '.') + '</span>' : '<span class="reds">Не покаялся</span>';
+        let status = repentance_date.value ? '<span class="green1">Покаялся: ' + repentance_date.value.replace(/\-/g, '.') + '</span>' : '<span class="reds">Не покаялся</span>';
 
         document.getElementById('repentance_status').innerHTML = status;
 
-        var main_phone = data.fields.phone_number.value;
-        var additional_phone = data.fields.additional_phone.value;
-        var phone = main_phone;
+        let main_phone = data.fields.phone_number.value;
+        let additional_phone = data.fields.additional_phone.value;
+        let phone = main_phone;
         if (additional_phone) {
             phone = phone + ', ' + additional_phone;
         }
         document.getElementById('phone_number').innerHTML = phone || ' ';
 
-        for (var prop in data.fields) {
+        for (let prop in data.fields) {
             if (!data.fields.hasOwnProperty(prop)) continue;
 
             if (prop == 'social') {
 
 
-                for (var soc in social) {
-
+                for (let soc in social) {
+                    if (!social.hasOwnProperty(soc)) continue;
 
                     if (soc == 'skype') {
-                        document.getElementById('skype').innerHTML = social[soc];
+                        document.getElementById('skype').innerHTML = social['skype'];
                         continue
                     }
 
-
-                    if (document.querySelector("[data-soc = '" + soc + "']")) {
-                        if (social[soc]) {
-                            document.querySelector("[data-soc = '" + soc + "']").setAttribute('data-href', social[soc])
-                        }
-
+                    if (document.querySelector("[data-soc = '" + soc + "']") && social[soc]) {
+                        document.querySelector("[data-soc = '" + soc + "']").setAttribute('data-href', social[soc])
                     }
                 }
 
@@ -123,7 +119,7 @@ function init(id) {
                 continue
             }
             if (prop == 'divisions') {
-                var divisions = data.fields[prop]['value'].split(',').join(', ');
+                let divisions = data.fields[prop]['value'].split(',').join(', ');
                 document.getElementById(prop).innerHTML = divisions;
                 continue
             }
@@ -140,7 +136,7 @@ function init(id) {
 
         Array.prototype.forEach.call(document.querySelectorAll(".a-socials"), function (el) {
             el.addEventListener('click', function () {
-                var href = this.getAttribute('data-href');
+                let href = this.getAttribute('data-href');
                 if (href) {
                     window.location = href
                 }
@@ -158,11 +154,11 @@ function init(id) {
 
 
 function getUserDeals() {
-    var id = parseInt(id || getLastId());
+    let id = parseInt(id || getLastId());
     if (!id) {
         return
     }
-    var url = config.DOCUMENT_ROOT + 'api/v1.0/partnerships/?user=' + id;
+    let url = config.DOCUMENT_ROOT + 'api/v1.0/partnerships/?user=' + id;
 
     ajaxRequest(url, null, function (data) {
             data = data.results[0];
@@ -177,7 +173,7 @@ function getUserDeals() {
             }
 
             document.getElementById('id_need_text').value = data.need_text;
-            var deal_fields = data.deal_fields,
+            let deal_fields = data.deal_fields,
                 responsible = data.responsible,
                 date = data.date.replace(/\-/g, '.');
 
@@ -205,7 +201,7 @@ function getUserDeals() {
 
             Array.prototype.forEach.call(document.querySelectorAll("#tabs1 li"), function (el) {
                 el.addEventListener('click', function () {
-                    var id_tab = this.getAttribute('data-tab');
+                    let id_tab = this.getAttribute('data-tab');
                     $('[data-tab-content]').hide();
                     $('[data-tab-content="' + id_tab + '"]').show();
 
@@ -213,9 +209,9 @@ function getUserDeals() {
             });
 
             $('#send_need').on('click', function (el) {
-                var need_text = document.getElementById('id_need_text').value;
-                var url = config.DOCUMENT_ROOT + 'api/v1.1/partnerships/' + data.id + '/update_need/';
-                var need = JSON.stringify({'need_text': need_text});
+                let need_text = document.getElementById('id_need_text').value;
+                let url = config.DOCUMENT_ROOT + 'api/v1.1/partnerships/' + data.id + '/update_need/';
+                let need = JSON.stringify({'need_text': need_text});
                 ajaxRequest(url, need, function (data) {
                     showPopup('Нужда сохранена.');
 
@@ -225,14 +221,14 @@ function getUserDeals() {
             });
 
             $('#send_new_deal').on('click', function (el) {
-                var description = document.getElementById('id_deal_description').value;
-                var value = document.getElementById('id_deal_value').value;
-                var date = document.getElementById('id_deal_date').value;
+                let description = document.getElementById('id_deal_description').value;
+                let value = document.getElementById('id_deal_value').value;
+                let date = document.getElementById('id_deal_date').value;
 
                 if (description && value && date) {
-                    var url = config.DOCUMENT_ROOT + 'api/v1.0/deals/';
+                    let url = config.DOCUMENT_ROOT + 'api/v1.0/deals/';
 
-                    var deal = JSON.stringify({
+                    let deal = JSON.stringify({
                         'date': date,
                         'date_created': date,
                         'value': value,
@@ -261,10 +257,10 @@ function getUserDeals() {
             });
 
 
-            var done_deals = '';
-            var expired_deals = '';
-            var undone_deals = '';
-            for (var i = 0; i < deal_fields.length; i++) {
+            let done_deals = '';
+            let expired_deals = '';
+            let undone_deals = '';
+            for (let i = 0; i < deal_fields.length; i++) {
                 //console.log(  deal_fields[i].status )
 
                 switch (deal_fields[i].status.value) {
@@ -325,10 +321,10 @@ function getUserDeals() {
 }
 
 function deleteUser(id) {
-    var data = {
+    let data = {
         "id": id
     };
-    var json = JSON.stringify(data);
+    let json = JSON.stringify(data);
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/delete_user/', json, function (JSONobj) {
         if (JSONobj.status) {
             showPopup('Пользователь успешно удален');
@@ -340,11 +336,11 @@ function deleteUser(id) {
 }
 
 function sendNote(anket_id, text, box) {
-    var data = {
+    let data = {
         "text": text
     };
-    var summit_type = box.data('summit-id');
-    var json = JSON.stringify(data);
+    let summit_type = box.data('summit-id');
+    let json = JSON.stringify(data);
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/' + anket_id + '/create_note/', json, function (note) {
         box.before(function () {
             return '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>' + note.text + ' — ' + moment(note.date_created).format("DD.MM.YYYY HH:mm:ss")
@@ -358,16 +354,16 @@ function sendNote(anket_id, text, box) {
 }
 
 function changeLessonStatus(lesson_id, anket_id, checked) {
-    var data = {
+    let data = {
         "anket_id": anket_id
     };
-    var url;
+    let url;
     if (checked) {
         url = config.DOCUMENT_ROOT + 'api/v1.0/summit_lessons/' + lesson_id + '/add_viewer/';
     } else {
         url = config.DOCUMENT_ROOT + 'api/v1.0/summit_lessons/' + lesson_id + '/del_viewer/';
     }
-    var json = JSON.stringify(data);
+    let json = JSON.stringify(data);
     ajaxRequest(url, json, function (data) {
         if (data.checked) {
             showPopup('Урок ' + data.lesson + ' просмотрен.');
@@ -390,11 +386,11 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
 function getUserSummitInfo() {
 
 
-    var id = parseInt(id || getLastId());
+    let id = parseInt(id || getLastId());
     if (!id) {
         return
     }
-    var url = config.DOCUMENT_ROOT + 'api/v1.0/users/' + id + '/summit_info/';
+    let url = config.DOCUMENT_ROOT + 'api/v1.0/users/' + id + '/summit_info/';
 
     ajaxRequest(url, null, function (results) {
         if (!results.length) {
@@ -402,9 +398,9 @@ function getUserSummitInfo() {
             return
         }
 
-        var tab_title = [];
-        var menu_summit = '';
-        var body_summit = '';
+        let tab_title = [];
+        let menu_summit = '';
+        let body_summit = '';
 
         results.forEach(function (summit_type) {
             tab_title.push(summit_type.id);
@@ -473,10 +469,10 @@ function getUserSummitInfo() {
         Array.prototype.forEach.call(document.querySelectorAll("#send_note"), function (el) {
             el.addEventListener('click', function (e) {
                 e.preventDefault();
-                var box = $(this).closest(".note-box");
-                var text_field = box.find('.js-add_note');
-                var text = text_field.val();
-                var anket_id = text_field.data('anket-id');
+                let box = $(this).closest(".note-box");
+                let text_field = box.find('.js-add_note');
+                let text = text_field.val();
+                let anket_id = text_field.data('anket-id');
                 console.log(text, anket_id);
                 sendNote(anket_id, text, box);
                 text_field.val('');
@@ -485,9 +481,9 @@ function getUserSummitInfo() {
 
         Array.prototype.forEach.call(document.querySelectorAll(".js-lesson"), function (el) {
             el.addEventListener('click', function (e) {
-                var lesson_id = $(this).data("lesson-id");
-                var anket_id = $(this).data('anket-id');
-                var checked = $(this).is(':checked');
+                let lesson_id = $(this).data("lesson-id");
+                let anket_id = $(this).data('anket-id');
+                let checked = $(this).is(':checked');
                 console.log(lesson_id, anket_id, checked);
                 changeLessonStatus(lesson_id, anket_id, checked);
             });
@@ -496,7 +492,7 @@ function getUserSummitInfo() {
         Array.prototype.forEach.call(document.querySelectorAll("#tabs2 li"), function (el) {
             el.addEventListener('click', function (e) {
                 e.preventDefault();
-                var id_tab = this.getAttribute('data-tab');
+                let id_tab = this.getAttribute('data-tab');
                 $('[data-summit-id]').hide();
                 $('[data-summit-id="' + id_tab + '"]').show();
 
