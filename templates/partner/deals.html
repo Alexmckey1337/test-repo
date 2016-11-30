@@ -4,333 +4,342 @@
 {% block header.top.h1 %}<h1 xmlns="http://www.w3.org/1999/html">Партнёрство</h1>{% endblock %}
 
 {% block header.buttons %}
-<div class="top-panel">
-    <div class="tabs">
-        <ul class="tabs-nav">
-            <li><a href="#sdelki">Сделки</a></li>
-            <li><a href="#spisok">Список партнёров</a></li>
-            <li><a href="#stats">Статистика</a></li>
-        </ul>
-    </div>
+    <div class="top-panel">
+        <div class="tabs">
+            <ul class="tabs-nav">
+                <li><a href="#sdelki">Сделки</a></li>
+                <li><a href="#spisok">Список партнёров</a></li>
+                <li><a href="#stats">Статистика</a></li>
+            </ul>
+        </div>
 
-    <div class="top-buttons-wrap">
-        <ul class="top-buttons">
-            <li>
-                <button class="add" id="add_user_parners">Добавить пользователя</button>
-            </li>
-            {% comment %}
+        <div class="top-buttons-wrap">
+            <ul class="top-buttons">
+                <li>
+                    <button class="add" id="add_user_parners">Добавить пользователя</button>
+                </li>
+                {% comment %}
             <li>
                 <button>Экспортировать</button>
             </li>
             {% endcomment %}
-            <li>
-                <button id="sort-on">Изменить таблицу</button>
-            </li>
-        </ul>
+                <li>
+                    <button id="sort-on">Изменить таблицу</button>
+                </li>
+            </ul>
 
+        </div>
     </div>
-</div>
 {% endblock %}
 
 {% block main.content %}
 
-{% get_simple_managers as managers %}
-<div class="tab-content">
+    {% get_simple_managers as managers %}
+    <div class="tab-content">
 
-    <div data-id="0" id="sdelki" class="tab-toggle">
+        <div data-id="0" id="sdelki" class="tab-toggle">
 
-        <div class="top-pag">
+            <div class="top-pag">
 
-            <div class="tab-status">
-                <ul id="tabs">
-                    <li>
-                        <a href="#incomplete">Незавершённые (<span id="incomplete-count"></span>)</a>
-                    </li>
-                    <li>
-                        <a href="#overdue">Просроченные(<span id="overdue-count"></span>)</a>
-                    </li>
-                    <li>
-                        <a href="#completed">Завершённые(<span id="completed-count"></span>)</a>
-                    </li>
+                <div class="tab-status">
+                    <ul id="tabs">
+                        <li>
+                            <a href="#incomplete">Незавершённые (<span id="incomplete-count"></span>)</a>
+                        </li>
+                        <li>
+                            <a href="#overdue">Просроченные(<span id="overdue-count"></span>)</a>
+                        </li>
+                        <li>
+                            <a href="#completed">Завершённые(<span id="completed-count"></span>)</a>
+                        </li>
 
-                </ul>
+                    </ul>
+                </div>
+
+                <div id="period_expired" class="period">
+                    <p>Период с <input type="text" id="expired_datepicker_from" readonly="readonly"> по <input
+                            type="text" id="expired_datepicker_to" readonly="readonly"><a id="show-all-expired"
+                                                                                          href="javascript:void(0);">Показать
+                        все</a></p>
+
+                </div>
+                <div id="period_done" class=" period">
+                    <p>Период с <input type="text" id="done_datepicker_from" readonly="readonly"> по <input
+                            type="text" id="done_datepicker_to" readonly="readonly"><a id="show-all-done"
+                                                                                       href="javascript:void(0);">Показать
+                        все</a></p>
+
+                </div>
+                <div class="pagination undone-pagination"></div>
+                <div class="pagination expired-pagination"></div>
+                <div class="pagination done-pagination"></div>
             </div>
 
-            <div id="period_expired" class="period">
-                <p>Период с <input type="text" id="expired_datepicker_from" readonly="readonly"> по <input
-                        type="text" id="expired_datepicker_to" readonly="readonly"><a id="show-all-expired"
-                                                                                      href="javascript:void(0);">Показать
-                    все</a></p>
+            <div class="tabs-cont">
 
+                <div id="incomplete"></div>
+                <div class="pagination undone-pagination full-width"></div>
             </div>
-            <div id="period_done" class=" period">
-                <p>Период с <input type="text" id="done_datepicker_from" readonly="readonly"> по <input
-                        type="text" id="done_datepicker_to" readonly="readonly"><a id="show-all-done"
-                                                                                   href="javascript:void(0);">Показать
-                    все</a></p>
 
+            <div class="tabs-cont">
+
+                <div id="overdue"></div>
+                <div class="pagination expired-pagination full-width"></div>
             </div>
-            <div class="pagination undone-pagination"></div>
-            <div class="pagination expired-pagination"></div>
-            <div class="pagination done-pagination"></div>
-        </div>
 
-        <div class="tabs-cont">
+            <div class="tabs-cont">
 
-            <div id="incomplete"></div>
-            <div class="pagination undone-pagination full-width"></div>
-        </div>
-
-        <div class="tabs-cont">
-
-            <div id="overdue"></div>
-            <div class="pagination expired-pagination full-width"></div>
-        </div>
-
-        <div class="tabs-cont">
-
-            <div id="completed"></div>
-            <div class="pagination done-pagination full-width"></div>
-        </div>
+                <div id="completed"></div>
+                <div class="pagination done-pagination full-width"></div>
+            </div>
 
 
-    </div><!--End sdelki -->
-    <div data-id="1" id="spisok" class="tab-toggle">
-        {% if request.user.is_partner_supervisor_or_high %}
-        <div class="row">
-            <div class="col-4">
-                <div class="accountable_filter">
-                    <select name="accountable" id="accountable">
-                        <option value="0" selected>Все</option>
-                        {% for manager in managers %}
-                        <option value="{{ manager.id }}">{{ manager.fullname }}</option>
-                        {% endfor %}
-                    </select>
+        </div><!--End sdelki -->
+        <div data-id="1" id="spisok" class="tab-toggle">
+            {% if request.user.is_partner_supervisor_or_high %}
+                <div class="row">
+                    <div class="col-4">
+                        <div class="accountable_filter">
+                            <select name="accountable" id="accountable">
+                                <option value="0" selected>Все</option>
+                                {% for manager in managers %}
+                                    <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            <div class="top-pag">
+                <div class="pagination">
+                    <div class="pag-wrap">
+
+
+                    </div>
                 </div>
             </div>
-        </div>
-        {% endif %}
-        <div class="top-pag">
-            <div class="pagination">
+
+            <div class="table-wrap clearfix"><!--Table -->
+                <div class="query-none" style="display:none">
+                    <p></p>
+                </div>
+                <div class="preloader">
+                    <div class="gif">
+                    </div>
+                </div>
+                <div class="table scrollbar-inner" id="partnersips_list"></div>
+            </div><!--End Table-wrap -->
+
+            <div class="pagination full-width"><!--pagination -->
+                <div class="element-select">
+                    <!--<p>Показано <span>10</span> из <span>500</span></p> -->
+                </div>
                 <div class="pag-wrap">
-
-
-                </div>
-            </div>
-        </div>
-
-        <div class="table-wrap clearfix"><!--Table -->
-            <div class="query-none" style="display:none">
-                <p></p>
-            </div>
-            <div class="preloader">
-                <div class="gif">
-                </div>
-            </div>
-            <div class="table scrollbar-inner" id="partnersips_list"></div>
-        </div><!--End Table-wrap -->
-
-        <div class="pagination full-width"><!--pagination -->
-            <div class="element-select">
-                <!--<p>Показано <span>10</span> из <span>500</span></p> -->
-            </div>
-            <div class="pag-wrap">
-                <!-- <div class="prev">
-                    <span class="double_arrow"></span>
-                    <span class="arrow"></span>
-                </div>
-                        <ul class="pag">
-                            <li class="active">1</li>
-                            <li>2</li>
-                            <li>3</li>
-                            <li>4</li>
-                            <li>5</li>
-                            <li>6</li>
-                        </ul>
-                    <div class="next">
-                        <span class="arrow"></span>
+                    <!-- <div class="prev">
                         <span class="double_arrow"></span>
-                    </div> -->
-            </div>
-        </div><!--End pagination -->
-    </div><!--End spisok -->
-    <div data-id="2" id="stats" class="tab-toggle">
-        <div class="row">
-            <div class="col-6" style="height:130px;">
-                <div class="form-group">
-                    <div class='input-group date'>
-                        <input type='text' class="datepicker-here" id="date_field_stats"
-                               data-min-view="months"
-                               data-view="months"
-                               data-date-format="mm/yyyy" placeholder="Выберите дату"/>
-                        <i class="fa fa-calendar-check-o" id="check-date" aria-hidden="true"></i>
+                        <span class="arrow"></span>
                     </div>
-                    {% if request.user.is_partner_supervisor_or_high %}
-                    <div class="input-group select">
-                        <select name="accountable" id="stats_manager">
-                            <option value="0" selected disabled>Выберите менеджера</option>
-                            {% for manager in managers %}
-                            <option value="{{ manager.id }}">{{ manager.fullname }}</option>
-                            {% endfor %}
-                        </select></div>
-                    {% endif %}
+                            <ul class="pag">
+                                <li class="active">1</li>
+                                <li>2</li>
+                                <li>3</li>
+                                <li>4</li>
+                                <li>5</li>
+                                <li>6</li>
+                            </ul>
+                        <div class="next">
+                            <span class="arrow"></span>
+                            <span class="double_arrow"></span>
+                        </div> -->
                 </div>
-                <button id="apply_date" type="button" class="btn btn-default"><i class="fa fa-check"
-                                                                                 aria-hidden="true"></i>Применить
-                </button>
-            </div>
-        </div>
-        <div {% if not request.user.is_partner_supervisor_or_high %} class="no_visible" {% endif %} id="statistic_block">
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Статистика партнеров</h3>
-                </div>
-                <div class="panel-body">
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="well"><span>Всего партнеров</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="count_partners" class="label label-primary"></span>
-                                </p>
-                            </div>
+            </div><!--End pagination -->
+        </div><!--End spisok -->
+        <div data-id="2" id="stats" class="tab-toggle">
+            <div class="row">
+                <div class="col-6" style="height:130px;">
+                    <div class="form-group">
+                        <div class='input-group date'>
+                            <input type='text' class="datepicker-here" id="date_field_stats"
+                                   data-min-view="months"
+                                   data-view="months"
+                                   data-date-format="mm/yyyy" placeholder="Выберите дату"/>
+                            <i class="fa fa-calendar-check-o" id="check-date" aria-hidden="true"></i>
                         </div>
-                        <div class="col-sm-4">
-                            <div class="well"><span>Партнеров оплатило</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="paid_partners" class="label label-primary"></span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="well"><span>Партнеров частично оплатило</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="partial_paid_partners" class="label label-primary"></span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="well"><span>Партнеров не оплатило</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="unpaid_partners" class="label label-primary"></span>
-                                </p>
-                            </div>
-                        </div>
+                        {% if request.user.is_partner_supervisor_or_high %}
+                            <div class="input-group select">
+                                <select name="accountable" id="stats_manager">
+                                    <option value="0" selected disabled>Выберите менеджера</option>
+                                    {% for manager in managers %}
+                                        <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                                    {% endfor %}
+                                </select></div>
+                        {% endif %}
                     </div>
+                    <button id="apply_date" type="button" class="btn btn-default"><i class="fa fa-check"
+                                                                                     aria-hidden="true"></i>Применить
+                    </button>
                 </div>
             </div>
-            <div class="panel panel-success">
-                <div class="panel-heading">
-                    <h3 class="panel-title">
-                        Статистика сделок
-                    </h3>
-                </div>
-                <div class="panel-body">
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="well">
-                                <span>Всего сделок</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="total_deals" class="label label-primary"></span>
-                                </p>
+            <div {% if not request.user.is_partner_supervisor_or_high %} class="no_visible" {% endif %}
+                                                                         id="statistic_block">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Статистика партнеров</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="well"><span>Всего партнеров</span>
+                                    <p style="font-size:4em;text-align: center">
+                                        <span id="count_partners" class="label label-primary"></span>
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="well">
-                                <span>Оплаченных сделок</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="paid_deals" class="label label-primary"></span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="well"><span>Неоплаченных сделок</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="unpaid_deals" class="label label-primary"></span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="well"><span>Запланированная сумма</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="planned_sum_deals" class="label label-primary"></span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="well"><span>Выполнено</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="paid_sum_deals" class="label label-primary"></span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="well"><span>% выполнения</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="percent_paid_sum_deals" class="label label-primary"></span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-sm-12">
-                            <div class="well"><span>Сумма всех сделок за месяц</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="sum_deals" class="label label-primary"></span>
-                                </p>
+                            <div class="grid_block">
+                                <div class="col-sm-4">
+                                    <div class="well"><span>Партнеров оплатило</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="paid_partners" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="well"><span>Партнеров частично оплатило</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="partial_paid_partners" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="well"><span>Партнеров не оплатило</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="unpaid_partners" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div class="panel panel-success">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            Статистика сделок
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+
+                            <div class="col-sm-12">
+                                <div class="well">
+                                    <span>Всего сделок</span>
+                                    <p style="font-size:4em;text-align: center">
+                                        <span id="total_deals" class="label label-primary"></span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="grid_block">
+                                <div class="col-sm-6">
+                                    <div class="well">
+                                        <span>Оплаченных сделок</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="paid_deals" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="well"><span>Неоплаченных сделок</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="unpaid_deals" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid_block">
+                                <div class="col-sm-4">
+                                    <div class="well"><span>Запланированная сумма</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="planned_sum_deals" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="well"><span>Выполнено</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="paid_sum_deals" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="well"><span>% выполнения</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="percent_paid_sum_deals" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="well"><span>Сумма всех сделок за месяц</span>
+                                    <p style="font-size:4em;text-align: center">
+                                        <span id="sum_deals" class="label label-primary"></span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div><!--End stats -->
-</div><!-- End tab-content-->
+        </div><!--End stats -->
+    </div><!-- End tab-content-->
 {% endblock %}
 
 {% block popup %}
-<div id="popup" class="pop-up-splash">
-    <div class="splash-screen">
-        <div class="top-text">
-            <h3>Завершить сделку</h3>
-        </div>
-        <div class="user-info">
-            <div class="left-side">
-                <p>Клиент:</p>
-                <p>Последняя сделка:</p>
-                <p>Ответственный:</p>
+    <div id="popup" class="pop-up-splash">
+        <div class="splash-screen">
+            <div class="top-text">
+                <h3>Завершить сделку</h3>
             </div>
-            <div class="right-side">
-                <p id="client-name"></p>
-                <p id="deal-date"></p>
-                <p id="responsible-name"></p>
+            <div class="user-info">
+                <div class="left-side">
+                    <p>Клиент:</p>
+                    <p>Последняя сделка:</p>
+                    <p>Ответственный:</p>
+                </div>
+                <div class="right-side">
+                    <p id="client-name"></p>
+                    <p id="deal-date"></p>
+                    <p id="responsible-name"></p>
+                </div>
             </div>
-        </div>
-        <div class="summa-wrap">
-            <div class="summa">
-                <p>Сумма:</p>
-                <!-- <span id="deal-value"></span> -->
-                <input readonly="readonly" type="text" id="deal-value">
-                <span id="changeSum" class="change-summ"></span>
+            <div class="summa-wrap">
+                <div class="summa">
+                    <p>Сумма:</p>
+                    <!-- <span id="deal-value"></span> -->
+                    <input readonly="readonly" type="text" id="deal-value">
+                    <span id="changeSum" class="change-summ"></span>
+                </div>
             </div>
-        </div>
-        <textarea placeholder="Добавить коментарий" id="deal-description"></textarea>
-        <div class="splash-bauttons">
-            <button id="close">Отменить</button>
-            <button id="complete">Завершить</button>
+            <textarea placeholder="Добавить коментарий" id="deal-description"></textarea>
+            <div class="splash-bauttons">
+                <button id="close">Отменить</button>
+                <button id="complete">Завершить</button>
+            </div>
         </div>
     </div>
-</div>
-{{ block.super }}
+    {{ block.super }}
 {% endblock %}
 
 {% block add_user_modal.buttons.create %}
 {% endblock %}
 
 {% block choose_user_modal.search_field %}
-<input id="searchUsers" type="text" placeholder="Поиск (введите не менее трех символов)">
+    <input id="searchUsers" type="text" placeholder="Поиск (введите не менее трех символов)">
 {% endblock %}
 
 {% block extra_scripts %}
-{#    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">#}
-<script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
-<script src='{% static "js/deals.js" %}'></script>
-<script src='{% static "js/stats.js" %}'></script>
+    {#    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">#}
+    <script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
+    <script src='{% static "js/deals.js" %}'></script>
+    <script src='{% static "js/stats.js" %}'></script>
 {% endblock %}
