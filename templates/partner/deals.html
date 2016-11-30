@@ -155,7 +155,6 @@
         </div><!--End pagination -->
     </div><!--End spisok -->
     <div data-id="2" id="stats" class="tab-toggle">
-        {% if request.user.is_partner_supervisor_or_high %}
         <div class="row">
             <div class="col-6" style="height:130px;">
                 <div class="form-group">
@@ -166,18 +165,19 @@
                                data-date-format="MM yyyy" placeholder="Выберите дату"/>
                         <i class="fa fa-calendar-check-o" id="check-date" aria-hidden="true"></i>
                     </div>
-                    <div class="input-group select">
-                        <select name="accountable" id="stats_manager">
-                            <option value="0" selected>Все</option>
-                            {% for manager in managers %}
-                            <option value="{{ manager.id }}">{{ manager.fullname }}</option>
-                            {% endfor %}
-                        </select></div>
+                    {% if request.user.is_partner_supervisor_or_high %}
+                        <div class="input-group select">
+                            <select name="accountable" id="stats_manager">
+                                <option value="0" selected>Все</option>
+                                {% for manager in managers %}
+                                    <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                                {% endfor %}
+                            </select></div>
+                    {% endif %}
                 </div>
                 <button id="apply_date" type="button" class="btn btn-default"><i class="fa fa-check" aria-hidden="true"></i>Применить</button>
             </div>
         </div>
-        {% endif %}
         <div class="panel panel-primary">
             <div class="panel-heading">
                 <h3 class="panel-title">Статистика партнеров</h3>

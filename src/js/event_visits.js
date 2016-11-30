@@ -15,11 +15,11 @@ function init(user_id) {
     $('body').on('click', '#carousel li span', function(){
         $('#carousel li').removeClass('active');
         $(this).parent().addClass('active')
-    })
+    });
 
     getEventsListByID(id);
     let title = getParameterByName('title') || '';
-     document.querySelector("span[title]").innerHTML = title
+    document.querySelector("span[title]").innerHTML = title;
 
     $('input[name="fullsearch"]').keyup(function() {
 
@@ -62,11 +62,11 @@ function init(user_id) {
 
 function createSubordinateList(data, event_id) {
     //переробить master_id
-    let data = data || {}
-    let master_id = data['master_id'] || config.user_id
-    let event_id = event_id || document.querySelector(".active span").getAttribute('data-event-id');
+    data = data || {};
+    let master_id = data['master_id'] || config.user_id;
+    event_id = event_id || document.querySelector(".active span").getAttribute('data-event-id');
         //Для кожного  event_id свій
-    let page = data['page'] || 1
+    let page = data['page'] || 1;
 
     let search = document.getElementsByName('fullsearch')[0].value;
 
@@ -282,7 +282,7 @@ function createSliderEvent(data) {
     };
 
 
-let ordering = {}
+let ordering = {};
 
 
 function createUserInfoBySearch(data, search) {
@@ -292,7 +292,7 @@ function createUserInfoBySearch(data, search) {
 
     let journal_table = Object.keys(data.common_table);
 
-    let data = data.results;
+    data = data.results;
     let tbody = '';
 
     let page = parseInt(search.page) || 1;
