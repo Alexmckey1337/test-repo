@@ -1,7 +1,7 @@
 {% extends "layout_main.html" %}
 {% load static %}
 {% load partner_tags %}
-{% block header.top.h1 %}<h1>Партнёрство</h1>{% endblock %}
+{% block header.top.h1 %}<h1 xmlns="http://www.w3.org/1999/html">Партнёрство</h1>{% endblock %}
 
 {% block header.buttons %}
 <div class="top-panel">
@@ -166,112 +166,116 @@
                         <i class="fa fa-calendar-check-o" id="check-date" aria-hidden="true"></i>
                     </div>
                     {% if request.user.is_partner_supervisor_or_high %}
-                        <div class="input-group select">
-                            <select name="accountable" id="stats_manager">
-                                <option value="0" selected disabled>Выберите менеджера</option>
-                                {% for manager in managers %}
-                                    <option value="{{ manager.id }}">{{ manager.fullname }}</option>
-                                {% endfor %}
-                            </select></div>
+                    <div class="input-group select">
+                        <select name="accountable" id="stats_manager">
+                            <option value="0" selected disabled>Выберите менеджера</option>
+                            {% for manager in managers %}
+                            <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                            {% endfor %}
+                        </select></div>
                     {% endif %}
                 </div>
-                <button id="apply_date" type="button" class="btn btn-default"><i class="fa fa-check" aria-hidden="true"></i>Применить</button>
+                <button id="apply_date" type="button" class="btn btn-default"><i class="fa fa-check"
+                                                                                 aria-hidden="true"></i>Применить
+                </button>
             </div>
         </div>
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h3 class="panel-title">Статистика партнеров</h3>
-            </div>
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="well">Всего партнеров
-                            <p style="font-size:4em;text-align: center">
-                                <span id="count_partners" class="label label-primary"></span>
-                            </p>
+        <div {% if not request.user.is_partner_supervisor_or_high %} class="no_visible" {% endif %} id="statistic_block">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Статистика партнеров</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="well"><span>Всего партнеров</span>
+                                <p style="font-size:4em;text-align: center">
+                                    <span id="count_partners" class="label label-primary"></span>
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="well">Партнеров оплатило
-                            <p style="font-size:4em;text-align: center">
-                                <span id="paid_partners" class="label label-primary"></span>
-                            </p>
+                        <div class="col-sm-4">
+                            <div class="well"><span>Партнеров оплатило</span>
+                                <p style="font-size:4em;text-align: center">
+                                    <span id="paid_partners" class="label label-primary"></span>
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="well">Партнеров частично оплатило
-                            <p style="font-size:4em;text-align: center">
-                                <span id="partial_paid_partners" class="label label-primary"></span>
-                            </p>
+                        <div class="col-sm-4">
+                            <div class="well"><span>Партнеров частично оплатило</span>
+                                <p style="font-size:4em;text-align: center">
+                                    <span id="partial_paid_partners" class="label label-primary"></span>
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="well">Партнеров не оплатило
-                            <p style="font-size:4em;text-align: center">
-                                <span id="unpaid_partners" class="label label-primary"></span>
-                            </p>
+                        <div class="col-sm-4">
+                            <div class="well"><span>Партнеров не оплатило</span>
+                                <p style="font-size:4em;text-align: center">
+                                    <span id="unpaid_partners" class="label label-primary"></span>
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="panel panel-success">
-            <div class="panel-heading">
-                <h3 class="panel-title">
-                    Статистика сделок
-                </h3>
-            </div>
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="well">
-                            Всего сделок
-                            <p style="font-size:4em;text-align: center">
-                                <span id="total_deals" class="label label-primary"></span>
-                            </p>
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Статистика сделок
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="well">
+                                <span>Всего сделок</span>
+                                <p style="font-size:4em;text-align: center">
+                                    <span id="total_deals" class="label label-primary"></span>
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="well">
-                            Оплаченных сделок
-                            <p style="font-size:4em;text-align: center">
-                                <span id="paid_deals" class="label label-primary"></span>
-                            </p>
+                        <div class="col-sm-6">
+                            <div class="well">
+                                <span>Оплаченных сделок</span>
+                                <p style="font-size:4em;text-align: center">
+                                    <span id="paid_deals" class="label label-primary"></span>
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="well">Неоплаченных сделок
-                            <p style="font-size:4em;text-align: center">
-                                <span id="unpaid_deals" class="label label-primary"></span>
-                            </p>
+                        <div class="col-sm-6">
+                            <div class="well"><span>Неоплаченных сделок</span>
+                                <p style="font-size:4em;text-align: center">
+                                    <span id="unpaid_deals" class="label label-primary"></span>
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="well">Запланированная сумма
-                            <p style="font-size:4em;text-align: center">
-                                <span id="planned_sum_deals" class="label label-primary"></span>
-                            </p>
+                        <div class="col-sm-4">
+                            <div class="well"><span>Запланированная сумма</span>
+                                <p style="font-size:4em;text-align: center">
+                                    <span id="planned_sum_deals" class="label label-primary"></span>
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="well">Выполнено
-                            <p style="font-size:4em;text-align: center">
-                                <span id="paid_sum_deals" class="label label-primary"></span>
-                            </p>
+                        <div class="col-sm-4">
+                            <div class="well"><span>Выполнено</span>
+                                <p style="font-size:4em;text-align: center">
+                                    <span id="paid_sum_deals" class="label label-primary"></span>
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="well">% выполнения
-                            <p style="font-size:4em;text-align: center">
-                                <span id="percent_paid_sum_deals" class="label label-primary"></span>
-                            </p>
+                        <div class="col-sm-4">
+                            <div class="well"><span>% выполнения</span>
+                                <p style="font-size:4em;text-align: center">
+                                    <span id="percent_paid_sum_deals" class="label label-primary"></span>
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-12">
-                        <div class="well">Сумма всех сделок за месяц
-                            <p style="font-size:4em;text-align: center">
-                                <span id="sum_deals" class="label label-primary"></span>
-                            </p>
+                        <div class="col-sm-12">
+                            <div class="well"><span>Сумма всех сделок за месяц</span>
+                                <p style="font-size:4em;text-align: center">
+                                    <span id="sum_deals" class="label label-primary"></span>
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -325,9 +329,8 @@
 {% endblock %}
 
 {% block extra_scripts %}
+{#    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">#}
 <script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
-<script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
-<link rel="stylesheet" href='{% static "libs/air-datepicker/dist/css/datepicker.min.css" %}'>
 <script src='{% static "js/deals.js" %}'></script>
 <script src='{% static "js/stats.js" %}'></script>
 {% endblock %}

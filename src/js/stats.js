@@ -1,23 +1,14 @@
 (function ($) {
     $(document).ready(function () {
-        filterByMonth();
         $('#date_field_stats').datepicker({
-            maxDate: new Date()
+            maxDate: new Date(),
+            startDate: new Date()
         });
         $('#stats_manager').select2();
-    });
-
-    function getParameterByName(name, url) {
-        if (!url) {
-            url = window.location.href;
+        if( !$('#statistic_block').hasClass('no_visible')) {
+                filterByMonth();
         }
-        name = name.replace(/[\[\]]/g, "\\$&");
-        let regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-            results = regex.exec(url);
-        if (!results) return null;
-        if (!results[2]) return '';
-        return decodeURIComponent(results[2].replace(/\+/g, " "));
-    }
+    });
 
     function filterByMonth(params = {}) {
         let url = '/api/v1.1/partnerships/stats/?',
@@ -27,6 +18,7 @@
         }
         fetch(url + $.param(params), {'credentials': 'include'})
             .then(function (response) {
+                $('#statistic_block').removeClass('no_visible');
                 return response.json();
             })
             .then(function (data) {
@@ -69,17 +61,22 @@
         let date, month, year;
         date = $('#date_field_stats').val();
         if (date) {
-            console.log(date);
             date = date.split('/');
             if (date.length == 2) {
                 month = date[0];
                 year = date[1];
                 filterByMonth({month: month, year: year})
             } else {
+
                 alert('Неверный формат даты')
             }
         } else {
-            alert('Выберите месяц')
+            date = moment().format('MM/YYYY').split('/');
+            if (date.length == 2) {
+                month = date[0];
+                year = date[1];
+                filterByMonth({month: month, year: year});
+            }
         }
     });
 })(jQuery);
