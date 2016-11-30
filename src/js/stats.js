@@ -1,14 +1,15 @@
 (function ($) {
     $(document).ready(function () {
         filterByMonth();
+        $('#datepicker10').datepicker( {
+        changeMonth: true,
+        changeYear: true,
+        showButtonPanel: true,
+        dateFormat: 'MM yy',
+        onClose: function(dateText, inst) {
+            $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+        }
     });
-
-    $('#datepicker10').datetimepicker({
-        viewMode: 'months',
-        format: 'MM/YYYY',
-        locale: 'ru',
-        useCurrent: 'month',
-        maxDate: moment()
     });
 
     function getParameterByName(name, url) {
