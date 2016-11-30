@@ -17,6 +17,6 @@
     "font-awesome": "^4.7.0",
     "jquery.scrollbar": "^0.2.11",
     "reset-css": "^2.2.0",
-    "eonasdan-bootstrap-datetimepicker": "^4.17.43"
+    "air-datepicker": "^2.2.3"
   }
 }
