@@ -209,21 +209,6 @@ function getParameterByName(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
-
-function getDepartmentsAll() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/departments/', null, function (data) {
-        data = data.results;
-        var html = '<option value="0">ВСЕ </option>';
-        for (var i = 0; i < data.length; i++) {
-            html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
-        }
-
-        document.getElementById('dep_filter').innerHTML = html;
-        // return html
-    });
-
-}
-
 function getCorrectValue(value) {
     if (value === null) {
         return '';

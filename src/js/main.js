@@ -286,12 +286,10 @@ $(function () {
 
         if (document.getElementById('users_list')) {
             var dat = {};
-            delay(function () {
-                dat['summit'] = document.querySelectorAll('#carousel li span')[0].getAttribute('data-id');
-                window.summit_id = dat['summit'];
-                getUsersList(path, dat);
-                getCurrentSetting();
-            }, 250);
+            dat['summit'] = document.querySelectorAll('#carousel li span')[0].getAttribute('data-id');
+            window.summit_id = dat['summit'];
+            getUsersList(path, dat);
+            getCurrentSetting();
         }
 
 

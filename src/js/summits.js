@@ -6,14 +6,14 @@ $(document).ready(function () {
 
     $('body').on('click', '#summit_buttons li', function () {
         $(this).addClass('active');
-        var summit_id = $(this).attr('data-id');
+        let summit_id = $(this).attr('data-id');
         createSummits({'summit': summit_id})
         window.summit = summit_id;
     });
 
     $('input[name="fullsearch"]').keyup(function () {
         delay(function () {
-            var data = {};
+            let data = {};
             data['summit'] = summit_id;
             getUsersList(path, data);
         }, 1500);
@@ -21,8 +21,8 @@ $(document).ready(function () {
 
     $('input[name="searchDep"]').keyup(function () {
         delay(function () {
-            var data = {};
-            var path = config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/?';
+            let data = {};
+            let path = config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/?';
             data['summit'] = summit_id;
             data['user__department__title'] = $('input[name="searchDep"]').val();
             getUsersList(path, data);
@@ -34,17 +34,15 @@ $(document).ready(function () {
     });
 
     document.getElementById('dep_filter').addEventListener('change', function () {
-        var params = {};
+        let params = {};
         getUsersList(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/', params)
 
     });
 
-    getDepartmentsAll();
-
     $('#summit_type').on('change', function () {
-        var val = this.value;
-        var path = '/api/v1.0/summit_ankets/';
-        var param;
+        let val = this.value;
+        let path = '/api/v1.0/summit_ankets/';
+        let param;
         switch (val) {
             case '0':
                 getUsersList(path);
@@ -161,14 +159,14 @@ $(document).ready(function () {
         });
 
         document.getElementById('deleteAnket').addEventListener('click', function () {
-            var summitAnket = this.getAttribute('data-anket');
+            let summitAnket = this.getAttribute('data-anket');
             document.getElementById('yes').setAttribute('data-anket', summitAnket)
             document.getElementById('deletePopup').style.display = 'block';
             document.querySelector('#popupDelete').style.display = '';
         });
 
         document.getElementById('yes').addEventListener('click', function () {
-            var summitAnket = this.getAttribute('data-anket');
+            let summitAnket = this.getAttribute('data-anket');
             document.getElementById('deletePopup').style.display = '';
             unsubscribe(summitAnket);
         });
@@ -189,7 +187,7 @@ $(document).ready(function () {
         });
 
         document.getElementById('completeDelete').addEventListener('click', function () {
-            var id = this.getAttribute('data-id'),
+            let id = this.getAttribute('data-id'),
                 money = document.getElementById('summit-valueDelete').value,
                 description = document.querySelector('#popupDelete textarea').value;
             registerUser(id, summit_id, money, description);
@@ -197,7 +195,7 @@ $(document).ready(function () {
         });
 
         document.getElementById('complete').addEventListener('click', function () {
-            var id = this.getAttribute('data-id'),
+            let id = this.getAttribute('data-id'),
                 money = document.getElementById('summit-value').value,
                 description = document.querySelector('#popup textarea').value;
             registerUser(id, summit_id, money, description);
@@ -209,14 +207,14 @@ $(document).ready(function () {
     }
 });
 
-var summit_id;
-var ordering = {};
-var order;
-var path = config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/?';
+let summit_id;
+let ordering = {};
+let order;
+let path = config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/?';
 
 function unsubscribe(id) {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/' + id + '/', null, function () {
-        var data = {};
+        let data = {};
         data['summit'] = summit_id;
         getUsersList(path, data);
         document.querySelector('#popupDelete').style.display = 'none';
@@ -226,9 +224,9 @@ function unsubscribe(id) {
 }
 
 function registerUser(id, summit_id, money, description) {
-    var member_club = $("#member").prop("checked");
-    var send_email = $("#send_email").prop("checked");
-    var data = {
+    let member_club = $("#member").prop("checked");
+    let send_email = $("#send_email").prop("checked");
+    let data = {
         "user_id": id,
         "summit_id": summit_id,
         "value": money,
@@ -237,10 +235,10 @@ function registerUser(id, summit_id, money, description) {
         "send_email": send_email
     };
 
-    var json = JSON.stringify(data);
+    let json = JSON.stringify(data);
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/post_anket/', json, function (JSONobj) {
         if (JSONobj.status) {
-            var data = {};
+            let data = {};
             data['summit'] = summit_id;
             showPopup(JSONobj.message);
             getUsersList(path, data);
@@ -256,15 +254,15 @@ function registerUser(id, summit_id, money, description) {
 }
 
 function getUnregisteredUsers(parameters) {
-    var param = parameters || {};
-    var search = document.getElementById('searchUsers').value;
+    let param = parameters || {};
+    let search = document.getElementById('searchUsers').value;
     if (search) {
         param['search'] = search;
     }
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit_search/?summit_id!=' + summit_id, param, function (data) {
-        var html = '';
+        let html = '';
         data = data.results;
-        for (var i = 0; i < data.length; i++) {
+        for (let i = 0; i < data.length; i++) {
             html += '<div class="rows-wrap"><button data-master="' + data[i].master_short_fullname + '" data-name="' + data[i].fullname + '" data-id="' + data[i].id + '">Выбрать</button><div class="rows"><div class="col"><p><span><a href="/account/' + data[i].id + '">' + data[i].fullname + '</a></span></p></div><div class="col"><p><span>' + data[i].country + '</span>,<span> ' + data[i].city + '</span></p></div></div></div>';
         }
         if (data.length > 0) {
@@ -273,10 +271,10 @@ function getUnregisteredUsers(parameters) {
             document.getElementById('searchedUsers').innerHTML = '<div class="rows-wrap"><div class="rows"><p>По запросу не найдено учасников</p></div></div>';
         }
         document.querySelector('.choose-user-wrap .splash-screen').classList.add('active');
-        var but = document.querySelectorAll('.rows-wrap button');
-        for (var j = 0; j < but.length; j++) {
+        let but = document.querySelectorAll('.rows-wrap button');
+        for (let j = 0; j < but.length; j++) {
             but[j].addEventListener('click', function () {
-                var id = this.getAttribute('data-id'),
+                let id = this.getAttribute('data-id'),
                     name = this.getAttribute('data-name'),
                     master = this.getAttribute('data-master');
                 document.getElementById('summit-value').value = "0";
@@ -297,8 +295,8 @@ function getDataForPopup(id, name, master) {
 }
 
 function create_summit_buttons(id) {
-    var img = document.querySelectorAll('#summits img');
-    for (var i = 0; i < img.length; i++) {
+    let img = document.querySelectorAll('#summits img');
+    for (let i = 0; i < img.length; i++) {
         img[i].addEventListener("click", function () {
             location.href = '/summit_info/' + this.getAttribute('data-id');
         });
@@ -306,56 +304,40 @@ function create_summit_buttons(id) {
 }
 
 function addSummitInfo() {
-    var id = getLastId();
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit/?type=' + id, null, function (data) {
-        var data = data.results,
-            html = '';
-        for (var i = 0; i < data.length; i++) {
-            var summit_name = data[i].description ? data[i].description : data[i].start_date;
-            if (i == 0) {
-                html += '<li class="active"><span data-id=' + data[i].id + '>' + summit_name + '</span></li>';
-            } else {
-                html += '<li><span data-id=' + data[i].id + '>' + summit_name + '</span></li>';
-            }
-
-        }
-        document.getElementById('date').innerHTML = html;
-        document.getElementById('summit-title').innerHTML = '<a href="/summits">САММИТЫ | </a><span>' + data[0].title + '</span>';
-        var width = 150,
-            count = 1,
-            carousel = document.getElementById('carousel'),
-            list = carousel.querySelector('ul'),
-            listElems = carousel.querySelectorAll('li'),
-            position = 0;
-        carousel.querySelector('.arrow-left').onclick = function () {
-            position = Math.min(position + width * count, 0)
-            list.style.marginLeft = position + 'px';
-        };
-        carousel.querySelector('.arrow-right').onclick = function () {
-            position = Math.max(position - width * count, -width * (listElems.length - 3));
-            list.style.marginLeft = position + 'px';
-        };
-        var butt = document.querySelectorAll('#carousel li span');
-        for (var z = 0; z < butt.length; z++) {
-            butt[z].addEventListener('click', function () {
-                var data = {};
-                data['summit'] = this.getAttribute('data-id');
-                window.summit_id = data['summit'];
-                getUsersList(path, data);
-            })
-        }
-    });
+    let width = 150,
+        count = 1,
+        carousel = document.getElementById('carousel'),
+        list = carousel.querySelector('ul'),
+        listElems = carousel.querySelectorAll('li'),
+        position = 0;
+    carousel.querySelector('.arrow-left').onclick = function () {
+        position = Math.min(position + width * count, 0);
+        list.style.marginLeft = position + 'px';
+    };
+    carousel.querySelector('.arrow-right').onclick = function () {
+        position = Math.max(position - width * count, -width * (listElems.length - 3));
+        list.style.marginLeft = position + 'px';
+    };
+    let butt = document.querySelectorAll('#carousel li span');
+    for (let z = 0; z < butt.length; z++) {
+        butt[z].addEventListener('click', function () {
+            let data = {};
+            data['summit'] = this.getAttribute('data-id');
+            window.summit_id = data['summit'];
+            getUsersList(path, data);
+        })
+    }
 }
 
 function getCurrentSummitSetting(data) {
-    var html = '';
+    let html = '';
     data.forEach(function (d) {
-        var titles = d[1];
+        let titles = d[1];
         html += '<h3>' + d[0] + '</h3>';
-        for (var p in titles) {
+        for (let p in titles) {
             if (!titles.hasOwnProperty(p)) continue;
-            var ischeck = titles[p]['active'] ? 'check' : '';
-            var isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
+            let ischeck = titles[p]['active'] ? 'check' : '';
+            let isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
             html += '<li ' + isdraggable + ' >' +
                 '<input id="' + titles[p]['ordering_title'] + '" type="checkbox">' +
                 '<label for="' + titles[p]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[p]['id'] + '">' + titles[p]['title'] + '</label>';
@@ -387,14 +369,14 @@ function reversOrder(order) {
 
 function getUsersList(path, param) {
     param = param || {};
-    var search = document.getElementsByName('fullsearch')[0].value;
-    var el = document.getElementById('dep_filter');
-    var value = el.options[el.selectedIndex].value;
+    let search = document.getElementsByName('fullsearch')[0].value;
+    let el = document.getElementById('dep_filter');
+    let value = el.options[el.selectedIndex].value;
     if (parseInt(value)) {
         param['user__department__title'] = el.options[el.selectedIndex].text;
     }
-    var ordering = param.ordering || 'user__last_name';
-    var filter = document.getElementById('filter').value;
+    let ordering = param.ordering || 'user__last_name';
+    let filter = document.getElementById('filter').value;
     if (search) {
         if (filter == 'search') {
             param[filter] = search;
@@ -407,12 +389,12 @@ function getUsersList(path, param) {
     document.getElementsByClassName('preloader')[0].style.display = 'block';
     ajaxRequest(path, param, function (data) {
 
-        var results = data.results;
+        let results = data.results;
 
-        var k;
-        var value;
+        let k;
+        let value;
 
-        var count = data.count;
+        let count = data.count;
         if (results.length == 0) {
             document.getElementById('users_list').innerHTML = '<p>По запросу не найдено учасников</p>';
             document.querySelector(".element-select").innerHTML = elementSelect = '<p>Показано <span>' + results.length + '</span> из <span>' + count + '</span></p>';
@@ -423,12 +405,12 @@ function getUsersList(path, param) {
             return;
         }
 
-        var common_fields = data.common_table;
-        var user_fields = data.user_table;
+        let common_fields = data.common_table;
+        let user_fields = data.user_table;
 
         getCurrentSummitSetting([['Пользователь', user_fields]]);
 
-        var thead = '<thead><tr>';
+        let thead = '<thead><tr>';
         for (k in user_fields) {
             if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
             if (ordering.indexOf('user__' + user_fields[k]['ordering_title']) != -1) {
@@ -447,7 +429,7 @@ function getUsersList(path, param) {
         }
         thead += '</tr></thead>';
 
-        var tbody = '<tbody>';
+        let tbody = '<tbody>';
         results.forEach(function (field, i) {
             tbody += '<tr>';
 
@@ -457,7 +439,7 @@ function getUsersList(path, param) {
                 if (k === 'fullname') {
                     // results[i].is_member
                     tbody += '<td';
-                    var classes = [];
+                    let classes = [];
                     if (results[i].is_member) {
                         classes = classes.concat('member_user')
                     }
@@ -500,9 +482,9 @@ function getUsersList(path, param) {
         });
         tbody += '</tbody>';
 
-        var table = '<table>' + thead + tbody + '</table>';
+        let table = '<table>' + thead + tbody + '</table>';
 
-        var page = parseInt(param['page']) || 1,
+        let page = parseInt(param['page']) || 1,
             pages = Math.ceil(count / config.pagination_count),
             paginations = '',
             elementSelect = '<p>Показано <span>' + results.length + '</span> из <span>' + count + '</span></p>';
@@ -516,7 +498,7 @@ function getUsersList(path, param) {
                 paginations += '<li>1</li><li class="no-pagin">&hellip;</li>'
             }
 
-            for (var j = page - 2; j < page + 3; j++) {
+            for (let j = page - 2; j < page + 3; j++) {
 
 
                 if (j == page) {
@@ -556,7 +538,7 @@ function getUsersList(path, param) {
             if (el.target.nodeName == 'A') {
                 return;
             }
-            var id = $(this).data('user-id'),
+            let id = $(this).data('user-id'),
                 usr = $(this).data('fullname'),
                 anketa = $(this).attr('data-anketId'),
                 val = $(this).attr('data-value'),
@@ -582,7 +564,7 @@ function getUsersList(path, param) {
                 if (this.className == 'no-pagin') {
                     return false;
                 }
-                var data = {};
+                let data = {};
                 data['summit'] = summit_id;
                 data['page'] = el.innerHTML;
                 data['ordering'] = order;
@@ -593,7 +575,7 @@ function getUsersList(path, param) {
 
         Array.prototype.forEach.call(document.querySelectorAll(".pag-wrap p > span"), function (el) {
             el.addEventListener('click', function () {
-                var data = {};
+                let data = {};
                 data['summit'] = summit_id;
                 data['page'] = el.innerHTML;
                 data['ordering'] = order;
@@ -606,8 +588,8 @@ function getUsersList(path, param) {
 
         Array.prototype.forEach.call(document.querySelectorAll(".arrow"), function (el) {
             el.addEventListener('click', function () {
-                var page;
-                var data = {};
+                let page;
+                let data = {};
                 if (this.parentElement.classList.contains('prev')) {
                     page = parseInt(document.querySelector(".pag li.active").innerHTML) > 1 ? parseInt(document.querySelector(".pag li.active").innerHTML) - 1 : 1;
                     data['page'] = page;
@@ -629,7 +611,7 @@ function getUsersList(path, param) {
 
         Array.prototype.forEach.call(document.querySelectorAll(".double_arrow"), function (el) {
             el.addEventListener('click', function () {
-                var data = {};
+                let data = {};
                 if (this.parentElement.classList.contains('prev')) {
                     data['page'] = 1;
                     data['summit'] = summit_id;
@@ -646,14 +628,14 @@ function getUsersList(path, param) {
         $('#summit_type').select2();
         Array.prototype.forEach.call(document.querySelectorAll(".table-wrap th"), function (el) {
             el.addEventListener('click', function () {
-                var data_order = this.getAttribute('data-order');
-                var status = !!ordering[data_order];
+                let data_order = this.getAttribute('data-order');
+                let status = !!ordering[data_order];
                 ordering = {};
                 ordering[data_order] = status;
                 // data_order = status ? 'user__' + data_order : '-' + 'user__' + data_order;
                 window.order = data_order;
-                var page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
-                var data = {
+                let page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
+                let data = {
                     'ordering': data_order,
                     'page': page,
                     'summit': summit_id

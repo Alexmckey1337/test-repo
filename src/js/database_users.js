@@ -21,9 +21,6 @@ $(function () {
         }, 10, 'linear')
     });
 
-
-    getDepartmentsAll();
-
     document.getElementById('dep_filter').addEventListener('change', function () {
         createUser()
 

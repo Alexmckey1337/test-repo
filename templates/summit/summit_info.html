@@ -1,11 +1,19 @@
 {% extends "layout_main.html" %}
 {% load static %}
 
-{% block header.top.h1 %}<h1 id="summit-title"></h1>{% endblock %}
+{% block header.top.h1 %}
+    <h1 id="summit-title">
+        <a href="{% url 'summits' %}">САММИТЫ | </a>
+        <span>{{ summit_type.title }}</span>
+    </h1>
+{% endblock %}
 
 {% block header.top.select %}
     <select class="selectdb" id="dep_filter">
-        <option>ВСЕ</option>
+        <option value="0">ВСЕ</option>
+        {% for department in departments %}
+            <option value="{{ department.id }}">{{ department.title }}</option>
+        {% endfor %}
     </select>
 {% endblock %}
 
@@ -42,6 +50,16 @@
 
             <div class="gallery">
                 <ul id="date" class="images">
+                    {% for summit in summit_type.summits.all %}
+                        <li{% if forloop.first %} class="active"{% endif %}>
+                            <span data-id={{ summit.id }}>
+                                {% if summit.description %}
+                                    {{ summit.description }}
+                                {% else %}
+                                    {{ summit.start_date }}
+                                {% endif %}
+                            </span></li>
+                    {% endfor %}
                 </ul>
             </div>
 

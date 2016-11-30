@@ -7,6 +7,7 @@ from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
+from hierarchy.models import Department
 from partnership.models import Partnership
 from summit.models import SummitType
 from tv_crm.views import sync_user_call
@@ -62,12 +63,19 @@ def summits(request):
 
 @login_required(login_url='entry')
 def summit_info(request, summit_id):
-    return render(request, 'summit/summit_info.html')
+    ctx = {
+        'departments': Department.objects.all(),
+        'summit_type': SummitType.objects.get(id=summit_id)
+    }
+    return render(request, 'summit/summit_info.html', context=ctx)
 
 
 @login_required(login_url='entry')
 def index(request):
-    return render(request, 'database/main.html')
+    ctx = {
+        'departments': Department.objects.all()
+    }
+    return render(request, 'database/main.html', context=ctx)
 
 
 @login_required(login_url='entry')
