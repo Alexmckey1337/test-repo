@@ -35,10 +35,10 @@ class UserResource(resources.ModelResource):
         return '%s %s %s' % (user.first_name, user.last_name, user.middle_name)
 
     def dehydrate_department_title(self, user):
-        return user.department.title
+        return user.department.title if user.department else ''
 
     def dehydrate_hierarchy_title(self, user):
-        return user.hierarchy.title
+        return user.hierarchy.title if user.hierarchy else ''
 
 
 def clean_password(data):
