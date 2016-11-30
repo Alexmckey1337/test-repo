@@ -1,14 +1,14 @@
 $(document).ready(function(){
 
     $('.columns-wrap').on('scroll', function () {
-      $("#partnerFrom").datepicker('hide')
-      $("#partnerFrom").blur()
-      $("#bornDate").datepicker('hide')
-      $("#bornDate").blur()
-      $("#firsVisit").datepicker('hide')
-      $("#firsVisit").blur()
-      $("#repentanceDate").datepicker('hide')
-      $("#repentanceDate").blur()
+        $("#partnerFrom").datepicker('hide');
+        $("#partnerFrom").blur();
+        $("#bornDate").datepicker('hide');
+        $("#bornDate").blur();
+        $("#firsVisit").datepicker('hide');
+        $("#firsVisit").blur();
+        $("#repentanceDate").datepicker('hide');
+        $("#repentanceDate").blur();
     });
 
     $('#impPopup').click(function(el){
@@ -16,14 +16,14 @@ $(document).ready(function(){
         $(this).hide();
         $('input[type=file]').val('');
         img.cropper("destroy")
-    })
+    });
 
     $('#impPopup .top-text span').click(function(){
         $('#impPopup').hide();
         $('input[type=file]').val('');
         img.cropper("destroy");
 
-    })
+    });
 
     $('#edit-photo').click(function(){
         if($(this).attr('data-source')) {
@@ -38,7 +38,7 @@ $(document).ready(function(){
                       img.cropper("setCropBoxData", { width: "100", height: "50" });
                     }
                 });
-    })
+    });
 
 
     $('#impPopup button').click(function(){
@@ -48,7 +48,7 @@ $(document).ready(function(){
       $('.anketa-photo').html('<img src="'+iurl+'" />');
       $('#impPopup').hide();
       img.cropper("destroy");
-    })
+    });
 
     $.datepicker.setDefaults($.datepicker.regional["ru"]);
 
@@ -68,7 +68,9 @@ $(document).ready(function(){
         $('#ui-datepicker-div').toggle();
     });
 
-    $('#partner').click(function(){$('.hidden-partner').toggle()})
+    $('#partner').click(function () {
+        $('.hidden-partner').toggle()
+    });
 
 
     getAll();
@@ -174,22 +176,22 @@ let img = $(".crArea img");
 
   document.getElementById('addFileButton').addEventListener('click', function() {
     document.getElementById('addFile').click();
-  })
+  });
 
   document.querySelector("#popupForNew h3 span").addEventListener('click', function() {
         document.querySelector('#popupForNew').style.display = 'none';
         document.querySelector('.pop-up-splash-add').style.display = 'block';
-    })
+  });
 
     document.querySelector("#closeNew").addEventListener('click', function() {
         document.querySelector('#popupForNew').style.display = 'none';
         document.querySelector('.pop-up-splash-add').style.display = 'block';
-    })
+    });
 
     document.getElementById('changeSumNew').addEventListener('click', function() {
         document.getElementById('summit-valueNew').removeAttribute('readonly');
         document.getElementById('summit-valueNew').focus();
-    })
+    });
 
     document.getElementById('completeNew').addEventListener('click', function() {
         let id = this.getAttribute('data-id'),
@@ -197,34 +199,15 @@ let img = $(".crArea img");
             description = document.querySelector('#popupForNew textarea').value;
         registerUserNew(id,summit_id,money,description);
         window.location.reload();
-    })
+    });
 
   document.getElementsByName('f')[0].addEventListener('change', selectFile, false);
 
 
 function getAll() {
-  getCountries();
-  getDepartments();
-  getStatuses();
-  getDivisions();
-  getManagers();
-  getResponsibleStatuses();
-  getCountryCodes();
-}
-
-function getCountryCodes() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
-        let code = '<option value=""> </option>';
-        for (let i = 0; i < data.length; i++) {
-      if (data[i].phone_code == 38) {
-          code += '<option selected value="'+data[i].phone_code+'">'+data[i].title + ' ' + data[i].phone_code +'</option>';
-        } else {
-          code += '<option value="'+data[i].phone_code+'">'+data[i].title + ' ' + data[i].phone_code +'</option>';
-        }
-    }
-    document.getElementById('chooseCountryCode').innerHTML = code;
+    window.dep = $("#chooseDepartment").val();
+    window.stat = $("#chooseResponsibleStatus").val();
     document.querySelector('[name="phone_numberCode"]').value = $('#chooseCountryCode').val();
-  })
 }
 
 function getDataForPopupNew(id, name, master) {
@@ -256,85 +239,6 @@ function registerUserNew(id,summit_id,money, description) {
         }, 'POST', true, {
             'Content-Type': 'application/json'
         });
-}
-
-
-function getCountries() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
-        let html = '<option value=""> </option><option>Не выбрано</option>';
-        for (let i = 0; i < data.length; i++) {
-        html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
-      }
-      document.getElementById('chooseCountry').innerHTML = html;
-    });
-}
-
-function getDepartments() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/departments/', null, function (data) {
-        data = data.results;
-        let html = '<option value=""> </option>';
-        for (let i = 0; i < data.length; i++) {
-        html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
-      }
-        document.getElementById('chooseDepartment').innerHTML = html;
-      dep = $("#chooseDepartment").val();
-    });
-
-}
-
-function getStatuses() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
-        data = data.results;
-        let html = '<option value=""> </option>';
-        for (let i = 0; i < data.length; i++) {
-        html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
-      }
-        document.getElementById('chooseStatus').innerHTML = html;
-    });
-}
-
-function getResponsibleStatuses() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
-        data = data.results;
-        let html = '<option value=""> </option><option>Не выбрано</option>';
-        for (let i = 0; i < data.length; i++) {
-        html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
-      }
-      document.getElementById('chooseResponsibleStatus').innerHTML = html;
-      stat = $("#chooseResponsibleStatus").val();
-    });
-}
-
-function getDivisions() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/divisions/', null, function (data) {
-        data = data.results;
-        let html = '<option value=""> </option>';
-        for (let i = 0; i < data.length; i++) {
-        html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
-      }
-        document.getElementById('chooseDivision').innerHTML = html;
-    });
-}
-
-function getUsers() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
-        data = data.results;
-        let html = '<option value=""> </option>';
-        for (let i = 0; i < data.length; i++) {
-        html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
-      }
-      document.getElementById('chooseStatus').innerHTML = html;
-    });
-}
-
-function getManagers() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.1/partnerships/simple/', null, function (data) {
-        let html = '<option value=""> </option><option>Не выбрано</option>';
-        data.forEach(function (partnership) {
-            html += '<option value="' + partnership.id + '">' + partnership.fullname + '</option>';
-        });
-      document.getElementById('chooseManager').innerHTML = html;
-    });
 }
 
 function getRegions() {
