@@ -157,7 +157,7 @@
     <div data-id="2" id="stats" class="tab-toggle">
         {% if request.user.is_partner_supervisor_or_high %}
         <div class="row">
-            <div class="col-sm-6" style="height:130px;">
+            <div class="col-6" style="height:130px;">
                 <div class="form-group">
                     <div class='input-group date'>
                         <input type='text' class="datepicker-here" id="datepicker10"
@@ -165,11 +165,10 @@
                                data-view="months"
                                data-date-format="MM yyyy"/>
                         <span class="input-group-addon">
-                    <span class="glyphicon glyphicon-calendar">
-                    </span>
-                </span>
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
                     </div>
-                    <div>
+                    <div class="input-group select">
                         <select name="accountable" id="stats_manager">
                             <option value="0" selected>Все</option>
                             {% for manager in managers %}
