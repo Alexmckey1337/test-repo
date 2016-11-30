@@ -51,6 +51,13 @@
                             <li><input name="born_date" type="text" id="bornDate" readonly="readonly"></li>
                             <li class="phone">
                                 <select style="width: 96%" name="" id="chooseCountryCode">
+                                    <option value=""></option>
+                                    ;
+                                    {% for country in countries %}
+                                        <option{% if country.phone_code == '+38' %} selected{% endif %}
+                                                                                    value="{{ country.phone_code }}">
+                                            {{ country.title }} {{ country.phone_code }}</option>
+                                    {% endfor %}
                                 </select>
                                 <input disabled name="phone_numberCode" type="text">
                                 <input name="phone_number" type="text">
@@ -59,14 +66,14 @@
                             <li><input name="email" type="text"></li>
                             <li><input name="skype" type="text"></li>
                             <li><select style="width: 96%" name="" id="chooseCountry">
-                                <!--option value="">Украина</option-->
+                                <option value=""></option>
+                                <option>Не выбрано</option>
+                                {% for country in countries %}
+                                    <option value="{{ country.id }}">{{ country.title }}</option>
+                                {% endfor %}
                             </select></li>
-                            <li><select style="width: 96%" disabled name="" id="chooseRegion">
-                                <!-- <option value="">Закарпатская</option> -->
-                            </select></li>
-                            <li><select style="width: 96%" disabled name="" id="chooseCity">
-                                <!-- <option value="">Мукачево</option> -->
-                            </select></li>
+                            <li><select style="width: 96%" disabled name="" id="chooseRegion"></select></li>
+                            <li><select style="width: 96%" disabled name="" id="chooseCity"></select></li>
                             <li><input name="district" type="text"></li>
                             <li><input name="address" id="address" type="text"></li>
                             <li><input name="fb" type="text"></li>
@@ -91,19 +98,23 @@
                         <ul>
                             <li><select style="width: 96%" name="" id="chooseDepartment">
                                 <option value=""></option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">{{ department.title }}</option>
+                                {% endfor %}
                             </select></li>
-                            <!-- <li><select name="" id="">
-                                <option value="">Бортничи</option>
-                            </select></li> -->
                             <li><select style="width: 96%" name="" id="chooseStatus">
-                                <!-- <option value="">Лидер</option> -->
+                                <option value=""></option>
+                                {% for hierarchy in hierarchies %}
+                                    <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
+                                {% endfor %}
                             </select></li>
                             <li><select style="width: 96%" name="" id="chooseResponsibleStatus">
-                                <!-- <option value="">Лидер</option> -->
+                                <option value=""></option>
+                                {% for hierarchy in hierarchies %}
+                                    <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
+                                {% endfor %}
                             </select></li>
-                            <li><select style="width: 96%" disabled name="" id="chooseResponsible">
-                                <!-- <option value="">Барков Евгений Иннокентиевич</option> -->
-                            </select></li>
+                            <li><select style="width: 96%" disabled name="" id="chooseResponsible"></select></li>
                         </ul>
                     </div>
                 </div>
@@ -116,7 +127,10 @@
                     <div class="right-info">
                         <ul>
                             <li><select style="width: 96%" name="" id="chooseDivision" multiple="multiple">
-                                <!-- <option value="">Департамент</option> -->
+                                <option value=""></option>
+                                {% for division in divisions %}
+                                    <option value="{{ division.id }}">{{ division.title }}</option>
+                                {% endfor %}
                             </select></li>
                         </ul>
                     </div>
@@ -142,7 +156,11 @@
                             <li><input name="partnership_date" type="text" id="partnerFrom" readonly="readonly"></li>
                             <li><input name="value" type="text"></li>
                             <li><select style="width: 96%" name="" id="chooseManager">
-                                <!-- <option value="">Языкин Богдан Евлампиевич</option> -->
+                                <option value=""></option>
+                                <option>Не выбрано</option>
+                                {% for manager in managers %}
+                                    <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                                {% endfor %}
                             </select></li>
                         </ul>
                     </div>
