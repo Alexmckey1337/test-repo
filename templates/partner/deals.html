@@ -102,9 +102,9 @@
                         <div class="accountable_filter">
                             <select name="accountable" id="accountable">
                                 <option value="0" selected>Все</option>
-                                {% get_simple_partners as partners %}
-                                {% for partner in partners %}
-                                    <option value="{{ partner.id }}">{{ partner.fullname }}</option>
+                                {% get_simple_managers as managers %}
+                                {% for manager in managers %}
+                                    <option value="{{ manager.id }}">{{ manager.fullname }}</option>
                                 {% endfor %}
                             </select>
                         </div>
