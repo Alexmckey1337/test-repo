@@ -1,5 +1,6 @@
 {% extends "layout_main.html" %}
 {% load static %}
+{% load partner_tags %}
 
 {% block header.top.h1 %}<h1>Партнёрство</h1>{% endblock %}
 
@@ -94,15 +95,21 @@
 
         </div><!--End sdelki -->
         <div data-id="1" id="spisok" class="tab-toggle">
-            <div class="row">
-                <div class="col-4">
-                    <div class="accountable_filter">
-                        <select name="accountable" id="accountable">
-                            <option value="0" selected>Все</option>
-                        </select>
+            {% if request.user.is_partner_supervisor_or_high %}
+                <div class="row">
+                    <div class="col-4">
+                        <div class="accountable_filter">
+                            <select name="accountable" id="accountable">
+                                <option value="0" selected>Все</option>
+                                {% get_simple_managers as managers %}
+                                {% for manager in managers %}
+                                    <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
                 </div>
-            </div>
+            {% endif %}
             <div class="top-pag">
                 <div class="pagination">
                     <div class="pag-wrap">
@@ -333,5 +340,4 @@
     <script src='{% static "libs/eonasdan-bootstrap-datetimepicker/src/js/bootstrap-datetimepicker.js" %}'></script>
     <script src='{% static "js/deals.js" %}'></script>
     <script src='{% static "js/stats.js" %}'></script>
-
 {% endblock %}

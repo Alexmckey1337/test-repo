@@ -1,15 +1,22 @@
 (function ($) {
     $(document).ready(function () {
         filterByMonth();
-        $('#datepicker10').datepicker( {
-        changeMonth: true,
-        changeYear: true,
-        showButtonPanel: true,
-        dateFormat: 'MM yy',
-        onClose: function(dateText, inst) {
-            $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
-        }
-    });
+        $('#datepicker10').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            showButtonPanel: true,
+            dateFormat: 'MM yy',
+            beforeShow: function (e, t) {
+                $(this).datepicker("hide");
+                $("#datepicker10").addClass("hide-calendar");
+                $("#datepicker10").addClass('hide-today-button');
+            },
+            onClose: function (dateText, inst) {
+                var month = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
+                var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+                $(this).datepicker('setDate', new Date(year, month, 1));
+            }
+        });
     });
 
     function getParameterByName(name, url) {
