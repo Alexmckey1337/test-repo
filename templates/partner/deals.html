@@ -180,7 +180,7 @@
                     </button>
                 </div>
             </div>
-            <div {% if not request.user.is_partner_supervisor_or_high %} class="no_visible" {% endif %}
+            <div {% if request.user.is_partner_supervisor_or_high %} class="no_visible" {% endif %}
                                                                          id="statistic_block">
                 <div class="panel panel-primary">
                     <div class="panel-heading">
