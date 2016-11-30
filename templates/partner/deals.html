@@ -160,13 +160,11 @@
             <div class="col-6" style="height:130px;">
                 <div class="form-group">
                     <div class='input-group date'>
-                        <input type='text' class="datepicker-here" id="datepicker10"
+                        <input type='text' class="datepicker-here" id="date_field_stats"
                                data-min-view="months"
                                data-view="months"
-                               data-date-format="MM yyyy"/>
-                        <span class="input-group-addon">
-                            <span class="glyphicon glyphicon-calendar"></span>
-                        </span>
+                               data-date-format="MM yyyy" placeholder="Выберите дату"/>
+                        <i class="fa fa-calendar-check-o" id="check-date" aria-hidden="true"></i>
                     </div>
                     <div class="input-group select">
                         <select name="accountable" id="stats_manager">
@@ -176,7 +174,7 @@
                             {% endfor %}
                         </select></div>
                 </div>
-                <button id="apply_date" type="button" class="btn btn-default">Применить</button>
+                <button id="apply_date" type="button" class="btn btn-default"><i class="fa fa-check" aria-hidden="true"></i>Применить</button>
             </div>
         </div>
         {% endif %}

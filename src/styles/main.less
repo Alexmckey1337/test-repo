@@ -1037,11 +1037,9 @@ li.current a {
   padding: 10px;
   overflow: hidden;
   background-color: #f2f5fa;
-  -webkitt-transition: all .3s ease;
   transition: all .3s ease;
   text-align: left;
   margin-right: 174px;
-  margin-left: 30px;
 }
 
 .complete-deal-wrap .rows {
@@ -2723,7 +2721,9 @@ button#complete {
 .tabs-cont .pagination:first-child .element-select {
   display: none;
 }
-
+.tab-content {
+  padding: 1em 2.5em;
+}
 .top-pag .element-select {
   display: none;
 }
@@ -4029,10 +4029,25 @@ div.code input#code {
   max-width: 300px;
   &.date input {
     width: 80%;
-    height: 32px;
+    height: 33px;
     border-radius: 3px;
     border: 1px solid #cdd0d4;
+    padding: 0 1em;
+  }
+  & .fa {
+    font-size: 2em;
+    position: relative;
+    left: -1.25em;
+    top: -2px;
   }
 }
-
+#apply_date {
+  padding: 7px 20px 9px 30px;
+  & .fa {
+    color: white;
+    font-size: 1.5em;
+    position: relative;
+    left: -0.5em;
+  }
+}
 

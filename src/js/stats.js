@@ -1,7 +1,7 @@
 (function ($) {
     $(document).ready(function () {
         filterByMonth();
-        $('#datepicker10').datepicker({
+        $('#date_field_stats').datepicker({
             maxDate: new Date()
         });
         $('#stats_manager').select2();
@@ -68,8 +68,8 @@
 
     $('#apply_date').click(function () {
         let date, month, year;
-        date = $('#date_field').val();
-
+        date = $('#date_field_stats').val();
+console.log(date);
         if (date) {
             console.log(date);
             date = date.split('/');
