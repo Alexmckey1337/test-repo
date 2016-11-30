@@ -39,8 +39,6 @@ $(document).ready(function () {
 
     });
 
-    getDepartmentsAll();
-
     $('#summit_type').on('change', function () {
         var val = this.value;
         var path = '/api/v1.0/summit_ankets/';
