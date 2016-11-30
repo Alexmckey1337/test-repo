@@ -3,7 +3,8 @@
         filterByMonth();
         $('#datepicker10').datepicker({
             maxDate: new Date()
-        })
+        });
+        $('#stats_manager').select2();
     });
 
     function getParameterByName(name, url) {
