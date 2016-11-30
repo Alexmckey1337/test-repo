@@ -32,15 +32,15 @@ class NewPartnershipSerializer(serializers.ModelSerializer):
     responsible = serializers.StringRelatedField()
     user = NewUserSerializer()
     # result_value = serializers.IntegerField()
-    disciples_count = serializers.IntegerField()
-    count = serializers.IntegerField()
+    # disciples_count = serializers.IntegerField()
+    # count = serializers.IntegerField()
 
     class Meta:
         model = Partnership
         fields = ('id', 'user', 'responsible', 'value', 'is_responsible', 'date',
                   'fullname',
-                  'result_value', 'disciples_result_value',
-                  'count', 'disciples_count'
+                  # 'result_value', 'disciples_result_value',
+                  # 'count', 'disciples_count'
                   )
 
     def get_field_names(self, declared_fields, info):

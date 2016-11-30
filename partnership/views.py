@@ -5,7 +5,7 @@ from datetime import datetime
 
 import django_filters
 from django.db.models import Case, IntegerField
-from django.db.models import Count, Sum
+from django.db.models import Sum
 from django.db.models import Value
 from django.db.models import When
 from django.db.models.functions import Concat
@@ -90,9 +90,8 @@ class NewPartnershipViewSet(mixins.RetrieveModelMixin,
                             viewsets.GenericViewSet):
     queryset = Partnership.objects \
         .select_related('user', 'user__hierarchy', 'user__department', 'user__master', 'responsible__user') \
-        .prefetch_related('deals', 'responsible__deals', 'user__divisions', 'disciples', 'disciples__deals') \
-        .annotate(count=Count('deals'),
-                  ).order_by('user__last_name', 'user__first_name', 'user__middle_name')
+        .prefetch_related('user__divisions') \
+        .order_by('user__last_name', 'user__first_name', 'user__middle_name')
     serializer_class = NewPartnershipSerializer
     pagination_class = PartnershipPagination
     filter_backends = (filters.DjangoFilterBackend,
