@@ -21,8 +21,7 @@
 
     function filterByMonth(params = {}) {
         let url = '/api/v1.1/partnerships/stats/?',
-            partner_id = getParameterByName('partner_id');
-
+            partner_id = $('#stats_manager').val();
         if (partner_id) {
             params.partner_id = partner_id;
         }
@@ -69,7 +68,6 @@
     $('#apply_date').click(function () {
         let date, month, year;
         date = $('#date_field_stats').val();
-console.log(date);
         if (date) {
             console.log(date);
             date = date.split('/');
@@ -77,7 +75,6 @@ console.log(date);
                 month = date[0];
                 year = date[1];
                 filterByMonth({month: month, year: year})
-
             } else {
                 alert('Неверный формат даты')
             }
