@@ -1,8 +1,6 @@
 $(document).ready(function () {
     init();
     document.getElementsByName('f')[0].addEventListener('change', handleFileSelect, false);
-
-
     document.getElementById('file_upload').addEventListener('click', function () {
         document.getElementsByName('f')[0].click()
     }, false);
@@ -21,13 +19,13 @@ $(document).ready(function () {
         $('input[type=file]').val('');
         img.cropper("destroy");
 
-    })
+    });
 
     $('#phone_number').click(function () {
         if ($(this).val().length === 0) {
             $(this).val('+')
         }
-    })
+    });
 
 
     $('#edit-photo').click(function () {
@@ -43,8 +41,7 @@ $(document).ready(function () {
                 img.cropper("setCropBoxData", {width: "100", height: "50"});
             }
         });
-    })
-
+    });
 
     //$('#impPopup span.go').click(function(){
 
@@ -56,7 +53,7 @@ $(document).ready(function () {
         $('.anketa-photo').html('<img src="' + iurl + '" />');
         $('#impPopup').fadeOut();
         img.cropper("destroy");
-    })
+    });
 
 
     $("#partner_date").datepicker({
@@ -84,8 +81,6 @@ $(document).ready(function () {
             create_el.style.display = 'block';
             $('#partner').attr('checked', false);
         }
-
-
     });
 
 
@@ -102,16 +97,6 @@ $(document).ready(function () {
     document.getElementById('save').addEventListener('click', function () {
         sendData();
     });
-    // document.getElementById('change_password').addEventListener('click', function () {
-    //     sendPassword();
-    // });
-    // document.getElementById('revert_edit_password').addEventListener('click', function () {
-    //     document.getElementById('old_password').value = "";
-    //     document.getElementById('password1').value = "";
-    //     document.getElementById('password2').value = "";
-    // })
-
-
 });
 
 
@@ -146,12 +131,6 @@ function init(id) {
         let fullname;
         let social = data.fields.social;
         let repentance_date = data.fields.repentance_date;
-
-
-        //let status = repentance_date.value ? '<span class="green1">Покаялся</span>' : '<span class="reds">Не покаялся</span>'
-
-        //document.getElementById('repentance_status').innerHTML = status;
-
 
         $("#datepicker_born_date").datepicker({
             dateFormat: "yy-mm-dd",
@@ -323,14 +302,11 @@ function initializeCountry(url) {
         }
         document.getElementById('country_drop').innerHTML = html;
         $('#country_drop').select2().on("change", initializeRegions);
-
     });
-
-
 }
 
 function initializeRegions() {
-    //Country 
+    //Country
     //console.log(active)
     let opt = {};
     opt['country'] = $("#country_drop").val();
@@ -357,10 +333,7 @@ function initializeRegions() {
         $('#region_drop').select2({placeholder: " "}).on("change", initializeTown);
 
     });
-
-
 }
-
 
 function initializeTown() {
     let opt = {};
@@ -385,16 +358,10 @@ function initializeTown() {
 
 
 function initDropCustom(url, parent_id, active, callback) {
-    //Country 
-    //console.log(active)
-
-
     ajaxRequest(config.DOCUMENT_ROOT + url, null, function (data) {
 
         let results = data.results,
             html;
-
-        //let html = '<select multiple id="e1" style="width:300px">'
         if (parent_id == 'department_drop' || parent_id == 'statuses_drop') {
             html = '';
         } else {
@@ -419,21 +386,12 @@ function initDropCustom(url, parent_id, active, callback) {
 
         let $eventSelect = $('#' + parent_id);
 
-        $eventSelect.select2({
-            // tags: true
-
-        });
+        $eventSelect.select2();
         $eventSelect.on("change", function (e) {
 
             getLeader(data_for_drop['master']);
-            /*
-             let url_region = 'api/v1.0/regions/?country=' + $(this).val()
-             initializeRegions(url_region,'region_drop', data_for_drop['region'] )
-
-             */
         });
 
-        //$("#country_drop").trigger('change')
         if (callback) {
             callback();
         }
@@ -453,7 +411,7 @@ function getLeader(active) {
     }
 
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id_dep + '&hierarchy=' + level, null, function (data) {
-        //Потрібен парент айди 
+        //Потрібен парент айди
 
         let html = '<option>Не выбрано</option>';
         let results = data;
@@ -476,14 +434,8 @@ function getLeader(active) {
         document.getElementById('leader_drop').innerHTML = html;
         let $eventSelect = $('#leader_drop');
 
-        $eventSelect.select2({
-            // tags: true
-
-        })
-
+        $eventSelect.select2()
     })
-
-
 }
 
 function getDivisions(str) {
@@ -491,28 +443,19 @@ function getDivisions(str) {
     // console.log(str)
     let arr = str.split(',');
     //console.log(arr);
-
-
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/divisions/', null, function (data) {
-
-
         let html = '';
         let results = data.results
         //console.log(results)
 
         for (let i = 0; i < results.length; i++) {
-
             if ($.inArray(results[i].title, arr) != -1) {
                 html += '<option value="' + results[i].id + '" selected>' + results[i].title + '</option>'
             } else {
                 html += '<option value="' + results[i].id + '">' + results[i].title + '</option>'
             }
-
-
         }
-
-
-        document.getElementById('division_drop').innerHTML = html
+        document.getElementById('division_drop').innerHTML = html;
         let $eventSelect = $('#division_drop');
 
         $eventSelect.select2({
@@ -528,8 +471,6 @@ function getDivisions(str) {
 function getPatrnershipInfo() {
 
     let id = parseInt(getLastId());
-
-
     if (!id) {
         return
     }
@@ -554,8 +495,6 @@ function getPatrnershipInfo() {
             })
         }
         document.getElementById('val_partnerships').value = val;
-        //  document.getElementById('partner_name').innerHTML = data.responsible
-
 
         getManagerList(data_for_drop['responsible_id'])
     }, 'GET', true, null, {
@@ -565,11 +504,7 @@ function getPatrnershipInfo() {
         }
     })
 }
-
-
 function getManagerList(active) {
-
-
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.1/partnerships/simple/', null, function (data) {
         let html = '<option>Не выбрано</option>';
 
@@ -584,10 +519,7 @@ function getManagerList(active) {
         document.getElementById('partner_drop').innerHTML = html;
         let $eventSelect = $('#partner_drop');
 
-        $eventSelect.select2({
-            // tags: true
-
-        })
+        $eventSelect.select2();
 
     });
 
@@ -628,8 +560,6 @@ function sendData() {
     if (!id) {
         return
     }
-
-    //let master = parseInt($("#leader_drop").val());
 
 
     let data = {
@@ -682,36 +612,6 @@ function sendData() {
 
     }
 
-    //if (master) {
-
-    //}
-
-    /*Блок проверки паролей */
-
-    // data['old_password'] = document.getElementById('old_password').value.trim();
-    // data['password1'] = document.getElementById('password1').value.trim();
-    // data['password2'] = document.getElementById('password2').value.trim();
-
-    /*
-
-     if(  !data['password1'].length   ||  !data['old_password'].length || data['password1'] != data['password2'] ){
-     showPopup('Не совпадение паролей');
-     document.getElementById('old_password').value = ''
-     document.getElementById('password1').value = ''
-     document.getElementById('password2').value = ''
-     //document.getElementById('old_password').focus();
-
-
-     Array.prototype.forEach.call(document.querySelectorAll(" .pass"), function(el) {
-     // el.classList.add('error_valid')
-     })
-     }else{
-
-
-     }
-
-     */
-    //Партнерка
 
     if (document.getElementById('partner') && document.getElementById('partner').checked) {
 
@@ -729,22 +629,6 @@ function sendData() {
     } else {
         data['remove_partnership'] = 'true'; //gavnocod vlada
     }
-
-    /*
-     let url =config.DOCUMENT_ROOT + 'api/v1.0/short_users/?search=' + data["first_name"] +'+' + data["last_name"];
-     ajaxRequest( url, null, function(answer) {
-
-     if (answer.length) {
-     let id  = answer[0].id;
-     showPopup('Такой пользователей есть уже в БД');
-
-     setTimeout(function() {
-     window.location.href = '/account/' + id ;
-     }, 1500);
-
-     return;
-     }else{
-     */
 
     let json = JSON.stringify(data);
 
@@ -807,21 +691,9 @@ function sendData() {
                 window.location.href = '/account/' + data.id;
             }
 
-
         }
-        // window.location.href = '/account/' + data.id;
-
 
     }, 'POST', true, {
         'Content-Type': 'application/json'
     });
-    /*
-     }
-
-     })
-
-
-     */
-
-
 }
