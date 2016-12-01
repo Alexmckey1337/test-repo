@@ -40,10 +40,12 @@ gulp.task('less', function () {
 
 gulp.task('scripts', function () {
     return gulp.src(paths.scripts)
+        .pipe(sourcemaps.init())
         .pipe(babel({
             presets: ['es2015']
         }))
         .pipe(uglify())
+        .pipe(sourcemaps.write())
         .pipe(gulp.dest('public/static/js/'));
 });
 
