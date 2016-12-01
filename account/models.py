@@ -391,9 +391,7 @@ def sync_user(sender, instance, **kwargs):
     if instance.born_date:
         date = instance.born_date
         try:
-            birth_day_notification = Notification.objects.get(theme__birth_day=True, user=instance)
-            birth_day_notification.date = date
-            birth_day_notification.save()
+            Notification.objects.filter(theme__birth_day=True, user=instance).update(date=date)
         except Notification.DoesNotExist:
             # description = "Сегодня свой день рождения отмечает %s." % instance.fullname
             Notification.objects.create(date=date,
