@@ -38,7 +38,7 @@ $(document).ready(function () {
     $.datepicker.setDefaults($.datepicker.regional["ru"]);
 
     $("#done_datepicker_from").datepicker({
-        dateFormat: "yy-mm-dd",
+        dateFormat: "yyyy-mm-dd",
         maxDate: new Date(),
         onSelect: function (date) {
             window.done_from_date = date;
@@ -47,7 +47,7 @@ $(document).ready(function () {
     }).datepicker("setDate", '-1m');
 
     $("#done_datepicker_to").datepicker({
-        dateFormat: "yy-mm-dd",
+        dateFormat: "yyyy-mm-dd",
         onSelect: function (date) {
             window.done_to_date = date;
             sortDoneDeals(done_from_date, done_to_date);
@@ -150,10 +150,10 @@ $(document).ready(function () {
 let done_from_date = '',
     done_to_date = '',
     expired_from_date = '',
-    expired_to_date = '';
+    expired_to_date = '',
+    ordering = {};
 
 init();
-
 
 function getUnregisteredUsers(parameters) {
     let param = parameters || {};
@@ -876,5 +876,3 @@ function getPartnersList(param) {
         }
     })
 }
-
-let ordering = {};

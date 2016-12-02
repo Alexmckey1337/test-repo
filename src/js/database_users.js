@@ -1,7 +1,5 @@
 $(function () {
-    //createUser({'master':user_id}) ;
     $('input[name="fullsearch"]').keyup(function () {
-
         delay(function () {
             createUser()
         }, 1500);
@@ -293,20 +291,6 @@ function createUser(data) {
         //  document.getElementsByClassName('preloader')[0].style.display = 'block'
         createUserInfoBySearch(answer, data);
     });
-    /*
-     function createUserDep(data) {
-     let path = config.DOCUMENT_ROOT + 'api/v1.1/users/?';
-     data = data || {};
-     let search = document.getElementsByName('searchDep')[0].value;
-     if (search && !data['sub']) {
-     data['department__title'] = search;
-     }
-     document.getElementsByClassName('preloader')[0].style.display = 'block';
-     ajaxRequest(path, data, function (answer) {
-     createUserInfoBySearch(answer, data)
-     })
-     }
-     */
 }
 //Получение подчиненных
 function getsubordinates(e) {

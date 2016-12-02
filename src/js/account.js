@@ -446,7 +446,7 @@ function getUserSummitInfo() {
         });
 
 
-        $('#summitWrapper')[0].html(body_summit);
+        $('#summitWrapper').html(body_summit);
         $('#tabs2').html(menu_summit);
 
         $("#send_note").on('click', function (e) {

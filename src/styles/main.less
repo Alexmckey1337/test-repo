@@ -1004,10 +1004,10 @@ li.current a {
 .hasDatepicker,
 .period input {
   display: inline-block;
-  width: 110px;
+  width: 115px;
   border-radius: 3px;
   border: 1px solid #cdd0d4;
-  padding: 9px 0px 9px 5px;
+  padding: 9px 0 9px 5px;
   vertical-align: middle;
   background: url('../img/date.jpg') no-repeat;
   background-position: center right;
@@ -1804,8 +1804,14 @@ table tr:first-child td {
   border-bottom: 1px dotted #fff;
 }
 
-#partnersips_list th::after {
-  display: none;
+#partnersips_list {
+
+  & th {
+    cursor: pointer;
+    & ::after {
+      display: none;
+    }
+  }
 }
 
 .query-none {
