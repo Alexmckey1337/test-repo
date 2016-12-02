@@ -6,7 +6,7 @@
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet"
           integrity="sha384-XdYbMnZ/QjLh6iI4ogqCTaIjrFk87ip+ekIjefZch0Y+PvJ8CDYtEs1ipDmPorQ+"
           crossorigin="anonymous">
-    <link rel="stylesheet" href="{% static "css/cropper.min.css" %}">
+    <link rel="stylesheet" href="{% static "libs/cropper/dist/cropper.min.css" %}">
 {% endblock %}
 
 {% block layout %}
@@ -211,7 +211,7 @@
         {% endblock %}
 
         {% block add_user_modal %}
-            <div class="add-user-wrap"><!--Add -user -->
+            <div class="add-user-wrap" id="addUser"><!--Add -user -->
                 <div class="splash-screen">
                     <div class="top-text">
                         <h3>Добавить участника</h3>
