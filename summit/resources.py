@@ -13,12 +13,15 @@ class SummitAnketResource(resources.ModelResource):
     class Meta:
         model = SummitAnket
         fields = (
-            'user__email', 'name', 'last_name', 'first_name', 'user__born_date', 'phone_number', 'code',
+            'id',
+            'user__email', 'name', 'last_name', 'first_name', 'user__middle_name', 'user__born_date',
+            'phone_number', 'code',
             'country', 'region', 'city', 'department', 'responsible', 'image',
             'pastor', 'bishop', 'sotnik', 'date',
         )
         export_order = (
-            'user__email', 'name', 'last_name', 'first_name', 'user__born_date', 'phone_number', 'code',
+            'id', 'user__email', 'name', 'last_name', 'first_name', 'user__middle_name',
+            'user__born_date', 'phone_number', 'code',
             'country', 'region', 'city', 'department', 'responsible', 'image',
             'pastor', 'bishop', 'sotnik', 'date',
         )
