@@ -123,7 +123,6 @@
                 maxDate: new Date(),
                 yearRange: '1920:+0',
                 onSelect: function (date) {
-
                 }
             }).datepicker("setDate", data.fields.born_date.value).mousedown(function () {
                 $('#ui-datepicker-div').toggle();
