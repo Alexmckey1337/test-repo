@@ -20,7 +20,7 @@ function authUser() {
             //showPopup(JSONobj.message);
             if (JSONobj.status == true) {
                 //showPopup(JSONobj.message);
-              window.location.href = '/events';
+                window.location.href = '/';
             } else {
                 //loginError(JSONobj.message);
                 //alert(JSONobj.message)
@@ -94,7 +94,7 @@ function sendPassToEmail(){
             if (JSONobj.status == true) {
                 //showPopup(JSONobj.message);
                 setTimeout(function() {
-                   // window.location.href = '/events';
+                    // window.location.href = '/';
                 }, 1500);
             } 
         }, 'POST', true, {

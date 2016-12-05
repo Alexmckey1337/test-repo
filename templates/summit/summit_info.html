@@ -53,7 +53,7 @@
 
             <div class="gallery">
                 <ul id="date" class="images">
-                    {% for summit in summit_type.summits.all %}
+                    {% for summit in summit_type.summits.all reversed %}
                         <li{% if forloop.first %} class="active"{% endif %}>
                             <span data-id={{ summit.id }}>
                                 {% if summit.description %}
