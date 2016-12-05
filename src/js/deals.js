@@ -1,5 +1,5 @@
 $(document).ready(function () {
-
+    "use strict";
     $('input[name="fullsearch"]').keyup(function () {
         let id = $('#accountable').val();
         console.log(id);
@@ -121,17 +121,8 @@ $(document).ready(function () {
     document.getElementById('choose').addEventListener('click', function () {
         document.querySelector('.choose-user-wrap').style.display = 'block';
         document.querySelector('.add-user-wrap').style.display = 'none';
+        document.querySelector('#searchUsers').focus();
     });
-
-
-    /*
-     document.querySelector('.choose-user-wrap h3 span').addEventListener('click', function() {
-     document.getElementById('searchUsers').value = '';
-     document.querySelector('.choose-user-wrap .splash-screen').classList.remove('active');
-     document.querySelector('.choose-user-wrap').style.display = 'none';
-     document.querySelector('.add-user-wrap').style.display = 'block';
-     })
-     */
 
     document.querySelector(".choose-user-wrap .top-text > span").addEventListener('click', function () {
         document.getElementById('searchUsers').value = '';
@@ -155,9 +146,24 @@ let done_from_date = '',
 
 init();
 
-function getUnregisteredUsers(parameters) {
-    let param = parameters || {};
-    let search = document.getElementById('searchUsers').value;
+$('#accountable').on('change', function () {
+    let id = this.value;
+    let obj = {'responsible': id};
+    if (id == '0') {
+        getPartnersList();
+    } else {
+        getPartnersList(obj);
+    }
+});
+
+(function createPartnershipsList() {
+    if ($('#accountable')) {
+        $('#accountable').select2();
+    }
+})();
+
+function getUnregisteredUsers(param = {}) {
+    let search = $('#searchUsers').val();
     if (search && search.length > 2) {
         param['search'] = search;
         ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/partnerships_unregister_search/', param, function (data) {
@@ -186,21 +192,17 @@ function getUnregisteredUsers(parameters) {
 }
 
 function registerUser(id) {
-    console.log('start reg');
     if (!id) {
         return
     }
-    let money = 0;
+    let money = 0,
+        dateObj = new Date(),
+        month = dateObj.getUTCMonth() + 1, //months from 1-12
+        day = dateObj.getUTCDate(),
+        year = dateObj.getUTCFullYear(),
+        newdate = year + "-" + month + "-" + day,
+        data = {'date': newdate, 'user': parseInt(id)};
 
-
-    let dateObj = new Date();
-    let month = dateObj.getUTCMonth() + 1; //months from 1-12
-    let day = dateObj.getUTCDate();
-    let year = dateObj.getUTCFullYear();
-
-    newdate = year + "-" + month + "-" + day;
-
-    let data = {'date': newdate, 'user': parseInt(id)};
     data.value = money;
     data.responsible = config.user_partnerships_info.responsible;
     if (data.responsible) {
@@ -213,8 +215,6 @@ function registerUser(id) {
 
 function create_partnerships(data) {
 
-
-    console.log('start partner');
     let json = JSON.stringify(data);
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/create_partnership/', json, function (JSONobj) {
 
@@ -295,15 +295,15 @@ function getDoneDeals(time) {
             pages = Math.ceil(count / config.pagination_count),
             html = '';
         if (data.length == 0) {
-            document.getElementById('completed').innerHTML = '<p class="info">Сделок нету</p>';
-            document.getElementById('completed-count').innerHTML = '0';
-            Array.prototype.forEach.call(document.querySelectorAll('.done-pagination'), function (el) {
-                el.innerHTML = '';
-                el.style.display = 'none';
+            $('#completed').html('<p class="info">Сделок нету</p>');
+            $('#completed-count').html('0');
+            $('.done-pagination').each(function (el) {
+                $(el).html('');
+                $(el).css('display', 'none');
             });
             return;
         }
-        document.getElementById('completed-count').innerHTML = count;
+        $('#completed-count').html(count);
 
         let container = ".done-pagination",
             target = ".done-pagination .pag li",
@@ -318,9 +318,8 @@ function getDoneDeals(time) {
             }
             let names = Object.keys(fields);
             html += '<div class="rows-wrap"><div class="rows"><div class="col"><p><span>' + fields[names[1]].value + '</span></p></div><div class="col"><p>Последняя сделка:<span> ' + fields[names[3]].value + '</span></p><p>Ответственный:<span> ' + fields[names[2]].value + '</span></p><p>Сумма:<span> ' + fields[names[4]].value + ' ₴</span></p></div></div></div>';
-
         }
-        document.getElementById('completed').innerHTML = html;
+        $('#completed').html(html);
     });
 }
 
@@ -339,15 +338,15 @@ function getUndoneDeals(dat) {
             pages = Math.ceil(count / config.pagination_count),
             html = '';
         if (data.length == 0) {
-            document.getElementById('incomplete').innerHTML = '<p class="info">Сделок нету</p>';
-            document.getElementById('incomplete-count').innerHTML = '0';
-            Array.prototype.forEach.call(document.querySelectorAll('.undone-pagination'), function (el) {
-                el.innerHTML = '';
-                el.style.display = 'none';
+            $('#incomplete').html('<p class="info">Сделок нету</p>');
+            $('#incomplete-count').html('0');
+            $('.undone-pagination').each(function (el) {
+                $(el).html('');
+                $(el).css('display', 'none');
             });
             return;
         }
-        document.getElementById('incomplete-count').innerHTML = count;
+        $('#incomplete-count').html(count);
         let container = ".undone-pagination",
             target = ".undone-pagination .pag li",
             arrow = ".undone-pagination .arrow",
@@ -436,12 +435,14 @@ function makePagination(page, container, target, arrow, active, dblArrow, pages,
 
 function dblArrowClick(parent, pages) {
     let data = {};
-    if (parent.parentElement.classList.contains('prev')) {
+    if ($(parent).parent().hasClass('prev')) {
+        console.log($(parent).parent().hasClass('prev'));
         data['page'] = 1;
         data["to_date"] = done_to_date;
         data["from_date"] = done_from_date;
         getDoneDeals(data);
     } else {
+        console.log($(parent).parent().hasClass('prev'));
         data['page'] = pages;
         data["to_date"] = done_to_date;
         data["from_date"] = done_from_date;
@@ -452,14 +453,14 @@ function dblArrowClick(parent, pages) {
 function arrowClick(parent, target, pages, callback) {
     let page;
     let data = {};
-    if (parent.parentElement.classList.contains('prev')) {
-        page = parseInt(document.querySelector(target).innerHTML) > 1 ? parseInt(document.querySelector(target).innerHTML) - 1 : 1;
+    if ($(parent).parent().hasClass('prev')) {
+        page = parseInt($(target).html() > 1 ? parseInt(document.querySelector(target).html()) - 1 : 1);
         data['page'] = page;
         data["to_date"] = done_to_date;
         data["from_date"] = done_from_date;
         callback(data);
     } else {
-        page = parseInt(document.querySelector(target).innerHTML) != pages ? parseInt(document.querySelector(target).innerHTML) + 1 : pages;
+        page = parseInt($(target).html() != pages ? parseInt($(target).html()) + 1 : pages);
         data["to_date"] = done_to_date;
         data["from_date"] = done_from_date;
         data['page'] = page;
@@ -469,17 +470,17 @@ function arrowClick(parent, target, pages, callback) {
 
 function setClickToPagination(target, callback) {
     let data = {};
-    data['page'] = target.innerHTML;
+    data['page'] = $(target).html();
     callback(data);
 }
 
 function getDataForPopup(id, name, date, responsible, value) {
-    document.getElementById('complete').setAttribute('data-id', id);
-    document.getElementById('client-name').innerHTML = name;
-    document.getElementById('deal-date').innerHTML = date;
-    document.getElementById('responsible-name').innerHTML = responsible;
-    document.getElementById('deal-value').value = value;
-    document.getElementById('popup').style.display = 'block';
+    $('#complete').attr('data-id', id);
+    $('#client-name').html(name);
+    $('#deal-date').html(date);
+    $('#responsible-name').html(responsible);
+    $('#deal-value').val(value);
+    $('#popup').css('display', 'block');
 }
 
 function init() {
@@ -599,12 +600,14 @@ function makeTabs() {
 function getCurrentPartnerSetting(data) {
     let html = '';
     data.forEach(function (d) {
-        let titles = d[1];
+        let titles = d[1],
+            ischeck,
+            isdraggable;
         html += '<h3>' + d[0] + '</h3>';
         for (let p in titles) {
             if (!titles.hasOwnProperty(p)) continue;
-            let ischeck = titles[p]['active'] ? 'check' : '';
-            let isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
+            ischeck = titles[p]['active'] ? 'check' : '';
+            isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
             html += '<li ' + isdraggable + ' >' +
                 '<input id="' + titles[p]['ordering_title'] + '" type="checkbox">' +
                 '<label for="' + titles[p]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[p]['id'] + '">' + titles[p]['title'] + '</label>';
@@ -615,11 +618,11 @@ function getCurrentPartnerSetting(data) {
         }
     });
 
-    document.getElementById('sort-form').innerHTML = html;
+    $('#sort-form').html(html);
 
-    live('click', "#sort-form label", function (el) {
-        if (!this.parentElement.hasAttribute('disable')) {
-            this.classList.contains('check') ? this.classList.remove('check') : this.classList.add('check');
+    $("#sort-form label").on('click', function (el) {
+        if (!$(this).parent().attr('disable')) {
+            $(this).hasClass('check') ? $(this).removeClass('check') : $(this).addClass('check');
         }
     })
 
@@ -634,37 +637,18 @@ function reversOrder(order) {
     return order
 }
 
-(function createPartnershipsList() {
-    if ($('#accountable')) {
-        $('#accountable').select2();
-    }
-})();
-
-$('#accountable').on('change', function () {
-    let id = this.value;
-    let obj = {'responsible': id};
-    if (id == '0') {
-        getPartnersList();
-    } else {
-        getPartnersList(obj);
-    }
-});
-
-// $('#accountable__list').on('click', createPartnershipsList());
-
-function getPartnersList(param) {
-    param = param || {};
+function getPartnersList(param = {}) {
 
     let path = config.DOCUMENT_ROOT + 'api/v1.1/partnerships/?';
     let search = document.getElementsByName('fullsearch')[0].value;
     let ordering = param.ordering || 'user__last_name';
 
-    console.log(ordering);
     if (search) {
         param['search'] = search;
     }
 
-    document.getElementsByClassName('preloader')[0].style.display = 'block';
+    $('.preloader').css('display', 'block');
+
     ajaxRequest(path, param, function (data) {
 
         let results = data.results;
@@ -789,90 +773,71 @@ function getPartnersList(param) {
 
         if (results.length) {
 
-            document.querySelector("#spisok .element-select").innerHTML = elementSelect;
-            document.getElementById('partnersips_list').innerHTML = table;
-            // document.querySelector("#partnersips_list tbody").innerHTML = tbody;
-            document.querySelector(".query-none p").innerHTML = '';
-
-            //  document.querySelector(".element-select span").innerHTML = results.length;
-            //  document.querySelector(".element-select span + span").innerHTML = count;
+            $("#spisok .element-select").html(elementSelect);
+            $('#partnersips_list').html(table);
+            $(".query-none p").html('');
 
         } else {
-            document.getElementById('partnersips_list').innerHTML = '';
-            document.querySelector(".query-none p").innerHTML = 'По запросу не найдено участников';
-            document.querySelector("#spisok .element-select").innerHTML = '<p>Показано <span>' + results.length + '</span> из <span>' + count + '</span></p>'
+            $('#partnersips_list').html('');
+            $(".query-none p").html('По запросу не найдено участников');
+            $("#spisok .element-select").html('<p>Показано <span>' + results.length + '</span> из <span>' + count + '</span></p>');
         }
 
-
-        document.getElementsByClassName('preloader')[0].style.display = 'none';
-        Array.prototype.forEach.call(document.querySelectorAll("#spisok .pag-wrap"), function (el) {
-            el.innerHTML = paginations
+        $('.preloader').css('display', 'none');
+        $("#spisok .pag-wrap").each(function (el) {
+            $(el).html(paginations);
         });
-
-        Array.prototype.forEach.call(document.querySelectorAll("#spisok .pag li"), function (el) {
-            el.addEventListener('click', function () {
-                if (this.className == 'no-pagin') {
-                    return false;
-                }
-                let data = {};
-                data['page'] = el.innerHTML;
-                getPartnersList(data);
-            });
+        $("#spisok .pag li").on('click', function () {
+            let data = {};
+            if ($(this).hasClass('no-pagin')) {
+                return false;
+            }
+            data['page'] = $(this).html();
+            getPartnersList(data);
         });
 
 
         /* Navigation*/
 
-        Array.prototype.forEach.call(document.querySelectorAll("#spisok .arrow"), function (el) {
-            el.addEventListener('click', function () {
-                let page;
-                let data = {};
-                if (this.parentElement.classList.contains('prev')) {
-                    page = parseInt(document.querySelector(".pag li.active").innerHTML) > 1 ? parseInt(document.querySelector(".pag li.active").innerHTML) - 1 : 1;
-                    data['page'] = page;
-                    getPartnersList(data);
-                } else {
-
-                    page = parseInt(document.querySelector("#spisok .pag li.active").innerHTML) != pages ? parseInt(document.querySelector(".pag li.active").innerHTML) + 1 : pages;
-                    data['page'] = page;
-                    getPartnersList(data);
-                }
-            })
+        $("#spisok .arrow").on('click', function () {
+            let page;
+            let data = {};
+            if ($(this).parent().hasClass('prev')) {
+                page = parseInt($(".pag li.active").html()) > 1 ? parseInt($(".pag li.active").html()) - 1 : 1;
+                data['page'] = page;
+                getPartnersList(data);
+            } else {
+                page = parseInt($("#spisok .pag li.active").html()) != pages ? parseInt($(".pag li.active").html()) + 1 : pages;
+                data['page'] = page;
+                getPartnersList(data);
+            }
         });
 
-        Array.prototype.forEach.call(document.querySelectorAll("#spisok .double_arrow"), function (el) {
-            el.addEventListener('click', function () {
-                let data = {};
-                if (this.parentElement.classList.contains('prev')) {
-                    data['page'] = 1;
-                    getPartnersList(data);
-                } else {
-                    data['page'] = pages;
-                    getPartnersList(data);
-                }
-            })
-        });
+        $("#spisok .double_arrow").on('click', function () {
+            let data = {};
+            if ($(this).parent().hasClass('prev')) {
+                data['page'] = 1;
+                getPartnersList(data);
+            } else {
+                data['page'] = pages;
+                getPartnersList(data);
+            }
+        })
+    });
 
-
-        Array.prototype.forEach.call(document.querySelectorAll(".table-wrap th"), function (el) {
-            el.addEventListener('click', function () {
-                //Переписать модуль order
-                let data_order = this.getAttribute('data-order');
-                let status = !!ordering[data_order];
-                ordering = {};
-                ordering[data_order] = status;
-                // data_order = status ? data_order : '-' + data_order;
-                let page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
-                let data = {
-                    'ordering': data_order,
-                    'page': page
-                };
-                //Problem
-                getPartnersList(data)
-            });
-        });
-        if (config.user_partnerships_info && config.user_partnerships_info.is_responsible) {
-            document.getElementById('add_user_parners').style.display = 'block'
-        }
-    })
+    $(".table-wrap th").on('click', function () {
+        let data_order = this.getAttribute('data-order');
+        let status = !!ordering[data_order];
+        ordering = {};
+        ordering[data_order] = status;
+        let page = $(".pag li.active") ? parseInt($(".pag li.active").html()) : 1;
+        let data = {
+            'ordering': data_order,
+            'page': page
+        };
+        getPartnersList(data)
+    });
+    if (config.user_partnerships_info && config.user_partnerships_info.is_responsible) {
+        $('#add_user_parners').css('display', 'block');
+    }
 }

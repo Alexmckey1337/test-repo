@@ -445,7 +445,6 @@ function getUserSummitInfo() {
             });
         });
 
-
         $('#summitWrapper').html(body_summit);
         $('#tabs2').html(menu_summit);
 
