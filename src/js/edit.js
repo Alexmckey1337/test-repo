@@ -63,7 +63,7 @@
             $('#ui-datepicker-div').toggle();
         });
 
-        document.getElementById('create_partner_info').addEventListener('click', function () {
+        $('#create_partner_info').on('click', function () {
             let el = document.getElementById('partner_wrap');
             let create_el = document.getElementById('create_partner');
             if (this.checked) {
@@ -76,14 +76,14 @@
                 $('#partner').attr('checked', false);
             }
         });
-        document.getElementById('revert_edit').addEventListener('click', function () {
+       $('#revert_edit').on('click', function () {
             let id = parseInt(id || getLastId());
             if (!id) {
                 return
             }
             window.location.href = '/account/' + id
         });
-        document.getElementById('save').addEventListener('click', function () {
+        $('#save').on('click', function () {
             sendData();
         });
     });
