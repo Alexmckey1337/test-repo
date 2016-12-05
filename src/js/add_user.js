@@ -24,7 +24,6 @@ $(document).ready(function () {
         $('#impPopup').hide();
         $('input[type=file]').val('');
         img.cropper("destroy");
-
     });
 
     $('#edit-photo').click(function () {
@@ -44,10 +43,10 @@ $(document).ready(function () {
 
 
     $('#impPopup button').click(function () {
-        let iurl;
-        iurl = img.cropper("getDataURL", "image/jpeg");
-        $('#edit-photo').attr('data-source', document.querySelector("#impPopup img").src)
-        $('.anketa-photo').html('<img src="' + iurl + '" />');
+        let imgUrl;
+        imgUrl = img.cropper('getCroppedCanvas').toDataURL('image/jpeg');
+        $('#edit-photo').attr('data-source', document.querySelector("#impPopup img").src);
+        $('.anketa-photo').html('<img src="' + imgUrl + '" />');
         $('#impPopup').hide();
         img.cropper("destroy");
     });
@@ -73,8 +72,6 @@ $(document).ready(function () {
     $('#partner').click(function () {
         $('.hidden-partner').toggle()
     });
-
-
     getAll();
 
     let dep,
@@ -152,26 +149,26 @@ $(document).ready(function () {
 
 let img = $(".crArea img");
 
-document.querySelector('.pop-up-splash').addEventListener('click', function (el) {
+$('.pop-up-splash').on('click', function (el) {
     if (el.target !== this) {
         return;
     }
     this.style.display = 'none';
 });
 
-document.querySelector('.editprofile .top-text span').addEventListener('click', function () {
-    document.querySelector('.pop-up-splash').style.display = 'none';
+$('.editprofile .top-text span').on('click', function () {
+    $('.pop-up-splash').css('display','none');
 });
 
-document.querySelector('button.close').addEventListener('click', function () {
-    document.querySelector('.pop-up-splash').style.display = 'none';
+$('button.close').on('click', function () {
+    $('.pop-up-splash').css('display', 'none');
 });
 
-document.getElementById('addFileButton').addEventListener('click', function () {
-    document.getElementById('addFile').click();
+$('#addFileButton').on('click', function () {
+    $('#addFile').click();
 });
 
-document.getElementsByName('f')[0].addEventListener('change', selectFile, false);
+$('#addFile').on('change', selectFile);
 
 
 function getAll() {
@@ -328,7 +325,7 @@ function getCities() {
 }
 
 function selectFile(evt) {
-
+    evt.preventDefault();
     let files = evt.target.files;
     for (let i = 0, f; f = files[i]; i++) {
         if (!f.type.match('image.*')) {
@@ -360,111 +357,94 @@ function createNewAcc() {
         document.querySelector("input[name='phone_number']").style.border = '';
     }
     let data = {
-        "email": document.querySelector("input[name='email']").value,
-        "first_name": document.querySelector("input[name='first_name']").value,
-        "last_name": document.querySelector("input[name='last_name']").value,
-        "middle_name": document.querySelector("input[name='middle_name']").value,
-        "born_date": document.querySelector("input[name='born_date']").value,
-        "phone_number": document.querySelector("input[name='phone_numberCode']").value + '' + document.querySelector("input[name='phone_number']").value,
-        "additional_phone": document.getElementById("additional_phone").value,
-        "vkontakte": document.querySelector("input[name='vk']").value,
-        "facebook": document.querySelector("input[name='fb']").value,
-        "odnoklassniki": document.querySelector("input[name='ok']").value,
-        "address": document.querySelector("input[name='address']").value,
-        "skype": document.querySelector("input[name='skype']").value,
-        "district": document.querySelector("input[name='district']").value,
+        "email": $("input[name='email']").val(),
+        "first_name": $("input[name='first_name']").val(),
+        "last_name": $("input[name='last_name']").val(),
+        "middle_name": $("input[name='middle_name']").val(),
+        "born_date": $("input[name='born_date']").val(),
+        "phone_number": $("input[name='phone_numberCode']").val() + '' + $("input[name='phone_number']").val(),
+        "additional_phone": $("#additional_phone").val(),
+        "vkontakte": $("input[name='vk']").val(),
+        "facebook": $("input[name='fb']").val(),
+        "odnoklassniki": $("input[name='ok']").val(),
+        "address": $("input[name='address']").val(),
+        "skype": $("input[name='skype']").val(),
+        "district": $("input[name='district']").val(),
         "region": $('#chooseRegion option:selected').html() == 'Не выбрано' ? '' : $('#chooseRegion option:selected').html(),
         'responsible': $("#chooseManager").val(),
-        'value': document.querySelector("input[name='value']").value,
-        'date': document.querySelector("input[name='partnership_date']").value,
+        'value': $("input[name='value']").val(),
+        'date': $("input[name='partnership_date']").val(),
         'divisions': $('#chooseDivision').val() || '',
         'hierarchy': $("#chooseStatus").val(),
         'department': $("#chooseDepartment").val(),
-        'repentance_date': document.querySelector("input[name='repentance_date']").value,
-        'coming_date': document.querySelector("input[name='first_visit']").value,
+        'repentance_date': $("input[name='repentance_date']").val(),
+        'coming_date': $("input[name='first_visit']").val(),
         'city': $('#chooseCity option:selected').html() == 'Не выбрано' ? '' : $('#chooseCity option:selected').html(),
         'country': $('#chooseCountry option:selected').html() == 'Не выбрано' ? '' : $('#chooseCountry option:selected').html()
     };
 
-    data['send_password'] = document.getElementById('kabinet').checked;
+    data['send_password'] = $('#kabinet').prop("checked");
 
     if ($("#chooseResponsible").val()) {
         data["master"] = $("#chooseResponsible").val();
     }
 
     if (!data['first_name']) {
-        document.querySelector("input[name='first_name']").style.border = '1px solid #d46a6a';
+        $("input[name='first_name']").css('border', '1px solid #d46a6a');
         return;
     } else {
-        document.querySelector("input[name='first_name']").style.border = '';
+        $("input[name='first_name']").css('border', '');
     }
 
     if (!data['last_name']) {
-        document.querySelector("input[name='last_name']").style.border = '1px solid #d46a6a';
+        $("input[name='last_name']").css('border', '1px solid #d46a6a');
         return;
     } else {
-        document.querySelector("input[name='last_name']").style.border = '';
+        $("input[name='last_name']").css('border', '');
     }
 
     if ($("#chooseCountry").val() == '206' || $("#chooseCountry").val() == '162') {
         if (!data['middle_name']) {
-            document.querySelector("input[name='middle_name']").style.border = '1px solid #d46a6a';
+            $("input[name='middle_name']").css('border', '1px solid #d46a6a');
             return;
         } else {
-            document.querySelector("input[name='middle_name']").style.border = '';
+            $("input[name='middle_name']").css('border', '');
         }
     } else {
-        document.querySelector("input[name='middle_name']").style.border = '';
+        $("input[name='middle_name']").css('border', '');
     }
 
     if (!data['email']) {
-        document.querySelector("input[name='email']").style.border = '1px solid #d46a6a';
+        $("input[name='email']").css('border', '1px solid #d46a6a');
         return;
     } else {
-        document.querySelector("input[name='email']").style.border = '';
+        $("input[name='email']").css('border', '');
     }
 
 
     if (!data['hierarchy'] || !data['department']) {
-        document.querySelector("#chooseDepartment + span .select2-selection").style.border = '1px solid #d46a6a';
-        document.querySelector("#chooseStatus + span .select2-selection").style.border = '1px solid #d46a6a';
+        $("#chooseDepartment + span .select2-selection").css('border', '1px solid #d46a6a');
+        $("#chooseStatus + span .select2-selection").css('border', '1px solid #d46a6a');
         return;
     } else {
-        document.querySelector("#chooseDepartment + span .select2-selection").style.border = '';
-        document.querySelector("#chooseStatus + span .select2-selection").style.border = '';
+        $("#chooseDepartment + span .select2-selection").css('border', '');
+        $("#chooseStatus + span .select2-selection").css('border', '');
     }
 
     let num_reg = /^[0-9]*$/ig;
-    if (!num_reg.test(document.querySelector("input[name='phone_number']").value)) {
-        document.querySelector("input[name='phone_number']").style.border = '1px solid #d46a6a';
+    if (!num_reg.test($("input[name='phone_number']").val())) {
+        $("input[name='phone_number']").css('border', '1px solid #d46a6a');
         return;
     } else {
-        document.querySelector("input[name='phone_number']").style.border = '';
+        $("input[name='phone_number']").css('border', '');
     }
     let val_reg = /^[0-9]*$/ig;
-    if (!val_reg.test(document.querySelector("input[name='value']").value)) {
-        document.querySelector("input[name='value']").style.border = '1px solid #d46a6a';
+    if (!val_reg.test($("input[name='value']").val())) {
+        $("input[name='value']").css('border', '1px solid #d46a6a');
         return;
     } else {
-        document.querySelector("input[name='value']").style.border = '';
+        $("input[name='value']").css('border', '');
     }
-    /*
-     let url =config.DOCUMENT_ROOT + 'api/v1.0/short_users/?search=' + data["first_name"] +'+' + data["last_name"];
-     ajaxRequest( url, null, function(data,answer) {
-     //  console.log(data);
-     if (data.length) {
-     let id  = data[0].id;
-     // debugger
-     // showPopup(data.message)
-     //showPopup('Такой пользователей есть уже в БД');
-     return;
-     setTimeout(function() {
-     window.location.href = '/account/' + id ;
-     }, 1500);
-     }
-
-     })
-     */
     let json = JSON.stringify(data);
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/create_user/', json, function (data) {
         if (data.redirect) {
@@ -503,7 +483,6 @@ function createNewAcc() {
                     }
                 }
             };
-
 
             xhr.send(fd);
         }
