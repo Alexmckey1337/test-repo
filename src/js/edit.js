@@ -1,4 +1,4 @@
-(function () {
+(function ($) {
     "use strict";
     $(document).ready(function () {
         init();
@@ -98,18 +98,18 @@
         }
         ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/users/' + id + '/', null, function (data) {
             if (data.image) {
-                document.querySelector(".anketa-photo img").src = data.image;
+                $(".anketa-photo img").attr('src', data.image);
                 convertImgToDataURLviaCanvas($(".anketa-photo img").attr('src'), function (data64) {
                     $(".anketa-photo img").attr('src', data64);
                 })
             } else {
-                document.querySelector(".anketa-photo img").src = '/static/img/no-usr.jpg';
+                $(".anketa-photo img").attr('src', '/static/img/no-usr.jpg');
                 convertImgToDataURLviaCanvas($(".anketa-photo img").attr('src'), function (data64) {
                     $(".anketa-photo img").attr('src', data64);
                 })
             }
-            if (document.getElementById('edit-photo')) {
-                document.getElementById('edit-photo').setAttribute('data-source', data.image_source);
+            if ($('#edit-photo')) {
+                $('#edit-photo').attr('data-source', data.image_source);
             }
             if (!data.fields) {
                 return
@@ -137,6 +137,7 @@
 
                 }
             }).datepicker("setDate", data.fields.coming_date.value);
+
             $("#repentanceDate").datepicker({
                 dateFormat: "yy-mm-dd",
                 maxDate: new Date(),
@@ -253,6 +254,16 @@
         }
     }
 
+    function dataURLtoBlob(dataurl) {
+                        let arr = dataurl.split(',');
+                        let mime = arr[0].match(/:(.*?);/)[1],
+                            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+                        while (n--) {
+                            u8arr[n] = bstr.charCodeAt(n);
+                        }
+                        return new Blob([u8arr], {type: mime});
+                    }
+
 //inialize DATABASE LOCATIONS
     function initializeCountry(url) {
 
@@ -280,7 +291,6 @@
         ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/regions/', opt, function (data) {
             if (data.length == 0) {
                 document.getElementById('region_drop').innerHTML = '<option value=""> </option>';
-                //document.getElementById('town_drop').innerHTML = '<option value=""> </option>';
                 $('#town_drop').select2({tags: true});
                 document.getElementById('region_drop').removeAttribute('disabled');
                 document.getElementById('town_drop').removeAttribute('disabled');
@@ -292,7 +302,6 @@
             for (let i = 0; i < data.length; i++) {
                 html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
             }
-            //document.getElementById('town_drop').setAttribute('disabled',true);
             document.getElementById('region_drop').innerHTML = html;
             document.getElementById('region_drop').removeAttribute('disabled');
             $('#region_drop').select2({placeholder: " "}).on("change", initializeTown);
@@ -390,14 +399,10 @@
     }
 
     function getDivisions(str) {
-
-        // console.log(str)
         let arr = str.split(',');
-        //console.log(arr);
         ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/divisions/', null, function (data) {
             let html = '';
-            let results = data.results
-            //console.log(results)
+            let results = data.results;
 
             for (let i = 0; i < results.length; i++) {
                 if ($.inArray(results[i].title, arr) != -1) {
@@ -423,8 +428,8 @@
 
         ajaxRequest(url, null, function (data) {
 
-            document.getElementById('create_partner').style.display = 'none';
-            document.getElementById('partner_wrap').style.display = 'block';
+            $('#create_partner').css('display', 'none');
+           $('#partner_wrap').css('display', 'block');
 
             data_for_drop['responsible_id'] = data.responsible_id;
 
@@ -439,13 +444,13 @@
                     $('#ui-datepicker-div').toggle();
                 })
             }
-            document.getElementById('val_partnerships').value = val;
+            $('#val_partnerships').val(val);
 
             getManagerList(data_for_drop['responsible_id'])
         }, 'GET', true, null, {
             404: function () {
-                document.getElementById('create_partner').style.display = 'block'
-                getManagerList(data_for_drop['responsible_id'])
+                $('#create_partner').css('display', 'block');
+                getManagerList(data_for_drop['responsible_id']);
             }
         })
     }
@@ -462,14 +467,10 @@
                     html += '<option value="' + partnership.id + '">' + partnership.fullname + '</option>'
                 }
             });
-            document.getElementById('partner_drop').innerHTML = html;
+            $('#partner_drop').html(html);
             let $eventSelect = $('#partner_drop');
-
             $eventSelect.select2();
-
         });
-
-
     }
 
     function sendPassword() {
@@ -477,13 +478,11 @@
         let data = {};
 
         /*Блок проверки паролей */
-
         data['old_password'] = document.getElementById('old_password').value.trim();
         data['new_password1'] = document.getElementById('password1').value.trim();
         data['new_password2'] = document.getElementById('password2').value.trim();
 
         let json = JSON.stringify(data);
-
         ajaxRequest(config.DOCUMENT_ROOT + 'rest-auth/password/change/', json, function (data) {
             showPopup(data.success, 'SUCCESS');
             document.getElementById('old_password').value = "";
@@ -507,26 +506,26 @@
         }
 
         let data = {
-            "first_name": document.getElementById("first_name").value,
-            "last_name": document.getElementById("last_name").value,
-            "middle_name": document.getElementById("middle_name").value,
-            "skype": document.getElementById("skype").value,
-            "email": document.getElementById("email").value,
-            "phone_number": document.getElementById("phone_number").value,
-            "additional_phone": document.getElementById("additional_phone").value,
-            "born_date": document.getElementById("datepicker_born_date").value || '',
-            "coming_date": document.querySelector("input[name='first_visit']").value || '',
-            "repentance_date": document.querySelector("input[name='repentance_date']").value || '',
+            "first_name": $("#first_name").val(),
+            "last_name": $("#last_name").val(),
+            "middle_name": $("#middle_name").val(),
+            "skype": $("#skype").val(),
+            "email": $("#email").val(),
+            "phone_number": $("#phone_number").val(),
+            "additional_phone": $("#additional_phone").val(),
+            "born_date": $("#datepicker_born_date").val() || '',
+            "coming_date": $("input[name='first_visit']").val() || '',
+            "repentance_date": $("input[name='repentance_date']").val() || '',
             'country': $('#country_drop option:selected').html() == "Не выбрано" ? '' : $('#country_drop option:selected').html(),
             'region': $('#region_drop option:selected').html() == "Не выбрано" ? '' : $('#region_drop option:selected').html(),
             'city': $('#town_drop option:selected').html() == "Не выбрано" ? '' : $('#town_drop option:selected').html(),
-            "vkontakte": document.getElementById('vkontakte').value || '',
-            "facebook": document.getElementById('facebook').value || '',
-            "odnoklassniki": document.getElementById('odnoklassniki').value || '',
-            "address": document.getElementById('address').value || '',
-            'department': parseInt(document.getElementById('department_drop').value),
+            "vkontakte": $('#vkontakte').val() || '',
+            "facebook": $('#facebook').val() || '',
+            "odnoklassniki": $('#odnoklassniki').val() || '',
+            "address": $('#address').val() || '',
+            'department': parseInt($('#department_drop').val()),
             'divisions': $("#division_drop").val() || [],
-            'hierarchy': parseInt(document.getElementById('statuses_drop').value),
+            'hierarchy': parseInt($('#statuses_drop').val()),
         };
 
         data['id'] = id;
@@ -556,21 +555,15 @@
         let json = JSON.stringify(data);
 
         ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/create_user/', json, function (data) {
-
-
             if (!data.redirect) {
                 showPopup(data.message)
             }
-
             let send_image = true;
 
             if (data.redirect && send_image) {
-
-                //console.log(data.id)
                 try {
-                    let fd = new FormData();
-
-                    let blob;
+                    let fd = new FormData(),
+                        blob;
                     let sr;
                     if (!$('input[type=file]')[0].files[0]) {
                         blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
@@ -584,27 +577,13 @@
                         fd.set('source', $('input[type=file]')[0].files[0], 'photo.jpg');
                         fd.append('id', data.id)
                     }
-
-                    function dataURLtoBlob(dataurl) {
-                        let arr = dataurl.split(',');
-                        let mime = arr[0].match(/:(.*?);/)[1],
-                            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-                        while (n--) {
-                            u8arr[n] = bstr.charCodeAt(n);
-                        }
-                        return new Blob([u8arr], {type: mime});
-                    }
-
                     let xhr = new XMLHttpRequest();
                     xhr.withCredentials = true;
                     xhr.open('POST', config.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
-                    //  xhr.setRequestHeader('Content-Type', 'application/json');
                     xhr.onreadystatechange = function () {
                         if (xhr.readyState == 4) {
                             if (xhr.status == 200) {
-                                /*setTimeout(function() {*/
                                 window.location.href = '/account/' + data.id;
-                                /*}, 1000);*/
                             }
                         }
                     };
@@ -619,5 +598,4 @@
             'Content-Type': 'application/json'
         });
     }
-
-})();
+})(jQuery);
