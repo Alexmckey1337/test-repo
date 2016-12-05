@@ -1,8 +1,8 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from collections import OrderedDict
 from datetime import date
+from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -12,9 +12,22 @@ from django.utils.translation import ugettext_lazy as _
 
 @python_2_unicode_compatible
 class SummitType(models.Model):
+    """
+    Type of the summit.
+    """
+    #: Title of the summit
     title = models.CharField(max_length=100, verbose_name='Название саммита')
+    #: Club name of the summit.
     club_name = models.CharField(_('Club name'), max_length=30, blank=True)
+    #: Summit image
     image = models.ImageField(upload_to='summit_type/images/', blank=True)
+    #: Code of the summit type. Is an identifier for a summit_type.
+    #: By code we can find the summit_type.
+    code = models.SlugField(_('Code'), max_length=255, blank=True)
+
+    class Meta:
+        verbose_name = _('Summit Type')
+        verbose_name_plural = _('Summits Types')
 
     def __str__(self):
         return self.title
@@ -29,11 +42,25 @@ class SummitType(models.Model):
 
 @python_2_unicode_compatible
 class Summit(models.Model):
+    #: Start date of the summit
     start_date = models.DateField()
+    #: End date of the summit
     end_date = models.DateField()
+    #: Summit type
     type = models.ForeignKey('SummitType', related_name='summits', blank=True, null=True)
+    #: Display name
     description = models.CharField(max_length=255, verbose_name='Описание',
                                    blank=True, null=True)
+    #: Code of the summit. Is an identifier for a summit.
+    #: By code we can find the summit.
+    code = models.SlugField(_('Code'), max_length=255, blank=True)
+    #: Full cost of the summit.
+    full_cost = models.DecimalField(_('Full cost'), max_digits=12, decimal_places=0,
+                                    default=Decimal('0'))
+    #: Special cost of the summit. If user is member of this summit type then he
+    #: has discount for this summit.
+    special_cost = models.DecimalField(_('Special cost'), max_digits=12, decimal_places=0,
+                                       blank=True, null=True)
 
     class Meta:
         ordering = ('type',)
@@ -43,8 +70,22 @@ class Summit(models.Model):
     def __str__(self):
         return '%s %s' % (self.type.title, self.start_date)
 
+    def clean(self):
+        """
+        Validate a summit costs.
+
+        If special cost is exist then the special cost must be less then full cost.
+        """
+        if self.special_cost is not None and self.full_cost <= self.special_cost:
+            raise ValidationError(_('Special cost must be less then full cost'))
+
     @property
     def consultants(self):
+        """
+        Return list of the summit consultants
+
+        :return: QuerySet
+        """
         return self.ankets.filter(role__gte=SummitAnket.CONSULTANT)
 
     @property
@@ -62,25 +103,14 @@ class SummitAnket(models.Model):
     summit = models.ForeignKey('Summit', related_name='ankets', verbose_name='Саммит',
                                blank=True, null=True)
 
-    value = models.PositiveSmallIntegerField(default=0)
+    #: The amount paid for the summit
+    value = models.DecimalField(_('Paid amount'), max_digits=12, decimal_places=0,
+                                default=Decimal('0'))
     description = models.CharField(max_length=255, blank=True)
     code = models.CharField(max_length=8, blank=True)
-    name = models.CharField(max_length=255, blank=True)
-    first_name = models.CharField(max_length=255, blank=True)
-    last_name = models.CharField(max_length=255, blank=True)
-    pastor = models.CharField(max_length=255, blank=True)
-    bishop = models.CharField(max_length=255, blank=True)
-    sotnik = models.CharField(max_length=255, blank=True)
-    date = models.DateField(default=date.today)
-    department = models.CharField(max_length=255, blank=True)
-    protected = models.BooleanField(default=False)
-    city = models.CharField(max_length=255, blank=True)
-    country = models.CharField(max_length=255, blank=True)
-    region = models.CharField(max_length=255, blank=True)
-    phone_number = models.CharField(max_length=255, blank=True)
-    responsible = models.CharField(max_length=255, blank=True)
-    image = models.CharField(max_length=12, blank=True)
+
     retards = models.BooleanField(default=False)
+    protected = models.BooleanField(default=False)
 
     ticket = models.FileField(_('Ticket'), upload_to='tickets', null=True, blank=True)
 
@@ -98,6 +128,22 @@ class SummitAnket(models.Model):
         'summit.Summit', related_name='consultant_ankets',
         through='summit.SummitUserConsultant', through_fields=('user', 'summit'))
 
+    # cloned the user when creating anket
+    name = models.CharField(max_length=255, blank=True)
+    first_name = models.CharField(max_length=255, blank=True)
+    last_name = models.CharField(max_length=255, blank=True)
+    pastor = models.CharField(max_length=255, blank=True)
+    bishop = models.CharField(max_length=255, blank=True)
+    sotnik = models.CharField(max_length=255, blank=True)
+    date = models.DateField(default=date.today)
+    department = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=255, blank=True)
+    country = models.CharField(max_length=255, blank=True)
+    region = models.CharField(max_length=255, blank=True)
+    phone_number = models.CharField(max_length=255, blank=True)
+    responsible = models.CharField(max_length=255, blank=True)
+    image = models.CharField(max_length=12, blank=True)
+
     class Meta:
         unique_together = (('user', 'summit'),)
 
@@ -106,46 +152,32 @@ class SummitAnket(models.Model):
 
     @property
     def is_member(self):
+        """
+        Verification that the user is member of summit type.
+
+        :return: boolean
+        """
         summit_type = self.summit.type
         return summit_type.summits.filter(ankets__visited=True, ankets__user=self.user).exists()
 
     @property
-    def info(self):
-        d = OrderedDict()
-        d['value'] = '0'
-        if self.value:
-            d['value'] = self.value
-        d['title'] = "Информация про оплату"
-        d['verbose'] = 'money_info'
-        d['summit_title'] = ''
-        d['summit_type_id'] = self.summit.type.id
-        d['summit_anket_id'] = self.id
-        d['description'] = self.description
-        if self.summit.title:
-            d['summit_title'] = self.summit.title
-        d['start_date'] = ''
-        if self.summit.start_date:
-            d['start_date'] = self.summit.start_date
-        l = self.user.fields
-        l['money_info'] = d
-        d = OrderedDict()
-        d['value'] = self.description
-        d['verbose'] = 'description'
-        l['description'] = d
-        return l
+    def is_full_paid(self):
+        """
+        Verification that the user paid for the summit.
 
-    @property
-    def common(self):
-        l = OrderedDict([('Оплата', 'money_info'),
-                         ('Примечание', 'description'),
-                         ])
-        return l
+        :return: boolean
+        """
+        if self.is_member and self.summit.special_cost is not None:
+            return self.summit.special_cost <= self.value
+        else:
+            return self.summit.full_cost <= self.value
 
 
 @python_2_unicode_compatible
 class AnketEmail(models.Model):
     anket = models.ForeignKey('summit.SummitAnket', on_delete=models.CASCADE, related_name='emails',
                               verbose_name=_('Anket'))
+    #: Email of recipient user
     recipient = models.CharField(_('Email'), max_length=255)
 
     subject = models.CharField(_('Subject'), max_length=255, blank=True)
@@ -166,10 +198,13 @@ class AnketEmail(models.Model):
 
 @python_2_unicode_compatible
 class SummitLesson(models.Model):
+    #: Summit to which the lesson
     summit = models.ForeignKey('summit.Summit', on_delete=models.CASCADE, related_name='lessons',
                                related_query_name='lessons', verbose_name=_('Summit'))
+    #: List of the users who is view this lesson
     viewers = models.ManyToManyField('summit.SummitAnket', related_name='all_lessons',
                                      verbose_name=_('Viewers'))
+    #: Lesson name
     name = models.CharField(_('Name'), max_length=255)
 
     def __str__(self):

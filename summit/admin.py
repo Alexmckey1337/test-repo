@@ -45,7 +45,11 @@ class SummitAnketAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('name', 'user', 'summit', 'code', 'visited', 'is_member', 'role')
     list_editable = ('visited',)
     readonly_fields = ('user', 'summit')
-    list_filter = ('summit', 'user__department', 'protected', HasTicketListFilter, HasEmailListFilter)
+    list_filter = ('summit', 'user__department', 'protected',
+                   HasTicketListFilter, HasEmailListFilter,
+                   # TODO very slow
+                   # PaidStatusListFilter,
+                   )
     search_fields = ['code', 'user__last_name', ]
 
     actions = ['send_tickets', 'create_tickets']

@@ -18,12 +18,6 @@ class SummitAnketNoteSerializer(serializers.ModelSerializer):
         extra_kwargs = {'summit_anket': {'write_only': True}}
 
 
-class SummitAnketOldSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = SummitAnket
-        fields = ('info', 'common', 'code',)
-
-
 class AnketEmailSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnketEmail
@@ -38,6 +32,7 @@ class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
         model = SummitAnket
         fields = ('id', 'user', 'code', 'value', 'description',
                   'is_member',
+                  'is_full_paid',
                   'emails',
                   'visited')
 
@@ -55,7 +50,7 @@ class SummitAnketWithNotesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SummitAnket
-        fields = ('info', 'common', 'code', 'notes')
+        fields = ('code', 'notes')
 
 
 class SummitSerializer(serializers.HyperlinkedModelSerializer):
@@ -63,7 +58,8 @@ class SummitSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Summit
-        fields = ('id', 'start_date', 'end_date', 'title', 'description', 'lessons', 'club_name')
+        fields = ('id', 'start_date', 'end_date', 'title', 'description', 'lessons', 'club_name',
+                  'full_cost', 'special_cost')
 
 
 class SummitTypeSerializer(serializers.HyperlinkedModelSerializer):
