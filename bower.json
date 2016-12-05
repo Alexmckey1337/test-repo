@@ -13,7 +13,7 @@
     "normalize-css": "~5",
     "jquery-ui": "~1",
     "select2": "~4",
-    "cropper": "~2.3",
+    "cropper": "^2.3.4",
     "font-awesome": "^4.7.0",
     "jquery.scrollbar": "^0.2.11",
     "reset-css": "^2.2.0",
