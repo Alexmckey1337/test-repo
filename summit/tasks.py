@@ -85,6 +85,8 @@ def send_ticket(data, force_ticket=False):
     mail.attach_alternative(html_message, 'text/html')
 
     anket = SummitAnket.objects.get(id=anket_id)
+    # TODO crutch
+    force_ticket = True
     if force_ticket or not data.get('ticket'):
         attach = generate_ticket(code)
         pdf_name = '{} ({}).pdf'.format(fullname, code)
