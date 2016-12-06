@@ -8,6 +8,7 @@ from rest_framework_swagger.views import get_swagger_view
 schema_view = get_swagger_view(title='CRM API')
 
 urlpatterns = [
+    url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^rest-auth/', include('rest_auth.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),

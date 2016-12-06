@@ -50,6 +50,8 @@ class SummitAnketAdmin(ExportMixin, admin.ModelAdmin):
                    # TODO very slow
                    # PaidStatusListFilter,
                    )
+    change_list_template = "admin/change_list_filter_sidebar.html"
+    change_list_filter_template = "admin/filter_listing.html"
     search_fields = ['code', 'user__last_name', ]
 
     actions = ['send_tickets', 'create_tickets']

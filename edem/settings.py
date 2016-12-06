@@ -34,9 +34,11 @@ ALLOWED_HOSTS = ['vocrm.org']
 
 # Application definition
 DJANGO_APPS = (
+    'django.contrib.contenttypes',
+    'grappelli.dashboard',
+    'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
-    'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -147,6 +149,9 @@ TIME_ZONE = 'Europe/Kiev'
 USE_L10N = False
 USE_TZ = True
 
+GRAPPELLI_SWITCH_USER = True
+GRAPPELLI_INDEX_DASHBOARD = 'dashboard.CustomIndexDashboard'
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 # MEDIA_ROOT = str(BASE_DIR.path('public/media'))
@@ -154,7 +159,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'public/media')
 MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'public/static')
 # STATIC_ROOT = str(BASE_DIR.path('public/static'))
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+STATICFILES_DIRS = []
 # STATICFILES_DIRS = (str(BASE_DIR.path('static')),)
 STATIC_URL = '/static/'
 STATICFILES_FINDERS = (

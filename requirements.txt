@@ -5,7 +5,7 @@ anyjson==0.3.3
 billiard==3.3.0.22
 celery==3.1.23
 diff-match-patch==20121119
-Django==1.9.9
+Django==1.9.12
 django-allauth
 django-celery==3.1.17
 django-cors-headers==1.1.0
@@ -34,4 +34,4 @@ django-rest-swagger
 
 reportlab
 factory_boy
-
+django-grappelli==2.8.3
