@@ -8,6 +8,7 @@ Changelog
 
 * Добавлены поля code, full_cost и special_cost для Summit.
 * Добавлено поле code для SummitType.
+* Админ панель переведена на grappelli.
 
 1.3.6b - 2016-12-06
 -------------------
