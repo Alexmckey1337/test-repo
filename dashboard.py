@@ -53,17 +53,17 @@ class CustomIndexDashboard(Dashboard):
         ))
 
         # append another link list module for "support".
-        # self.children.append(modules.LinkList(
-        #     _('Media Management'),
-        #     column=2,
-        #     children=[
-        #         {
-        #             'title': _('FileBrowser'),
-        #             'url': '/admin/filebrowser/browse/',
-        #             'external': False,
-        #         },
-        #     ]
-        # ))
+        self.children.append(modules.LinkList(
+            _('Media Management'),
+            column=2,
+            children=[
+                {
+                    'title': _('FileBrowser'),
+                    'url': '/admin/filebrowser/browse/',
+                    'external': False,
+                },
+            ]
+        ))
 
         # append another link list module for "support".
         # self.children.append(modules.LinkList(

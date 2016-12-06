@@ -36,11 +36,13 @@ DJANGO_APPS = (
     'django.contrib.contenttypes',
     'grappelli.dashboard',
     'grappelli',
+    'filebrowser',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites'
 )
 THIRD_PARTY_APPS = (
     'import_export',
@@ -50,6 +52,8 @@ THIRD_PARTY_APPS = (
 
     'rest_auth',
     'corsheaders',
+    'dbmail',
+    'tinymce',
     # 'rest_auth.registration',
 )
 LOCAL_APPS = (
@@ -84,6 +88,20 @@ MIDDLEWARE_CLASSES = (
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
+
+CACHES = {
+    "default": {
+        'BACKEND': 'redis_cache.cache.RedisCache',
+        'LOCATION': '127.0.0.1:6379',
+    },
+}
+
+TINYMCE_DEFAULT_CONFIG = {
+    'plugins': "table,spellchecker,paste,searchreplace,fullpage",
+    'theme': "advanced",
+    'cleanup_on_startup': True,
+    'custom_undo_redo_levels': 10,
+}
 
 ROOT_URLCONF = 'edem.urls'
 
@@ -218,6 +236,7 @@ CELERY_TIMEZONE = 'Europe/Kiev'
 CELERY_ENABLE_UTC = True
 CELERY_TASK_RESULT_EXPIRES = 7 * 86400  # 7 days
 CELERY_SEND_EVENTS = True
+CELERY_DEFAULT_QUEUE = 'default'
 
 CELERYBEAT_SCHEDULE = {
     'create_deals': {

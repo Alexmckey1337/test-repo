@@ -8,7 +8,9 @@ django-allauth
 django-axes
 django-celery==3.1.17
 django-cors-headers==1.1.0
+django-db-mailer
 django-environ==0.4.1
+django-filebrowser
 django-filter==0.13.0
 django-grappelli==2.8.3
 django-import-export
@@ -16,6 +18,7 @@ django-redis-cache==1.6.4
 django-redis-sessions==0.5.0
 django-rest-auth
 django-rest-swagger==2.0.7
+django-tinymce
 djangorestframework==3.4.7
 djangorestframework-filters==0.8.0
 kombu==3.0.33
