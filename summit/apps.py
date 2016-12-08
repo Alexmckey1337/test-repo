@@ -6,3 +6,6 @@ from django.apps import AppConfig
 
 class SummitConfig(AppConfig):
     name = 'summit'
+
+    def ready(self):
+        pass

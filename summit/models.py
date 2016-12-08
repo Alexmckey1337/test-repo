@@ -61,6 +61,10 @@ class Summit(models.Model):
     #: has discount for this summit.
     special_cost = models.DecimalField(_('Special cost'), max_digits=12, decimal_places=0,
                                        blank=True, null=True)
+    #: Template for sending tickets. This template using in dbmail.
+    mail_template = models.ForeignKey('dbmail.MailTemplate', related_name='summits',
+                                      verbose_name=_('Mail template'),
+                                      null=True, blank=True)
 
     class Meta:
         ordering = ('type',)
@@ -184,6 +188,8 @@ class AnketEmail(models.Model):
     subject = models.CharField(_('Subject'), max_length=255, blank=True)
     text = models.TextField(_('Text'), blank=True)
     html = models.TextField(_('HTML text'), blank=True)
+    error_message = models.TextField(_('Error message'), blank=True)
+    is_success = models.BooleanField(_('Is success'), default=True)
     attach = models.FileField(_('Attach'), upload_to='tickets', null=True, blank=True)
 
     created_at = models.DateTimeField(_('Date created'), auto_now_add=True)

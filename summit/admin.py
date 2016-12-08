@@ -36,9 +36,18 @@ class SummitAnketNoteInline(admin.TabularInline):
 
 
 class AnketEmailAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'attach')
-    readonly_fields = ('anket',)
-    list_filter = ('anket__summit',)
+    list_display = ('__str__', 'attach', 'is_success')
+    search_fields = ('anket__user__last_name', 'anket__user__email', 'recipient')
+    list_filter = ('anket__summit', 'is_success', 'created_at')
+    date_hierarchy = 'created_at'
+    change_list_filter_template = "admin/filter_listing.html"
+    change_list_template = "admin/change_list_filter_sidebar.html"
+
+    def __init__(self, model, admin_site):
+        super(AnketEmailAdmin, self).__init__(model, admin_site)
+
+        self.readonly_fields = [field.name for field in model._meta.fields]
+        self.readonly_model = model
 
 
 class SummitAnketAdmin(ExportMixin, admin.ModelAdmin):
@@ -50,7 +59,6 @@ class SummitAnketAdmin(ExportMixin, admin.ModelAdmin):
                    # TODO very slow
                    # PaidStatusListFilter,
                    )
-    change_list_template = "admin/change_list_filter_sidebar.html"
     change_list_filter_template = "admin/filter_listing.html"
     search_fields = ['code', 'user__last_name', ]
 
@@ -68,13 +76,7 @@ class SummitAnketAdmin(ExportMixin, admin.ModelAdmin):
         model = SummitAnket
 
     def send_tickets(self, request, queryset):
-        ankets = list(queryset.values('id', 'user__email', 'summit__type__title', 'summit__start_date',
-                                      'user__first_name', 'user__last_name', 'user__middle_name', 'code',
-                                      'ticket'))
-        for a in ankets:
-            d = a['summit__start_date']
-            a['summit__start_date'] = '{}.{}.{}'.format(d.day, d.month, d.year)
-        send_tickets.delay(ankets)
+        send_tickets.delay(list(queryset.values_list('id', flat=True)))
 
     send_tickets.short_description = "Отправить билеты выбранным пользователям"
 

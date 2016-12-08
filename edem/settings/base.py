@@ -222,21 +222,19 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = 'testzormail@gmail.com'
 
-import djcelery
-
-djcelery.setup_loader()
-
 BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
+# CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'pickle'
+CELERY_RESULT_SERIALIZER = 'pickle'
 CELERY_TIMEZONE = 'Europe/Kiev'
 CELERY_ENABLE_UTC = True
 CELERY_TASK_RESULT_EXPIRES = 7 * 86400  # 7 days
 CELERY_SEND_EVENTS = True
 CELERY_DEFAULT_QUEUE = 'default'
+CELERY_ACKS_LATE = True
+CELERYD_PREFETCH_MULTIPLIER = 1
 
 CELERYBEAT_SCHEDULE = {
     'create_deals': {
@@ -248,6 +246,10 @@ CELERYBEAT_SCHEDULE = {
         'schedule': 3600
     },
 }
+
+import djcelery
+
+djcelery.setup_loader()
 
 REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'account.serializers.UserSerializer',
