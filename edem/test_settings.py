@@ -1,9 +1,15 @@
-from .local_settings import *
-
-DATABASES['default']['TEST'] = {
-    'ENGINE': 'django.db.backends.mysql',
-    'NAME': 'test_crm',
-    'OPTIONS': {
-        "init_command": "SET default_storage_engine=MYISAM",
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'crm_db',
+        'USER': 'crm_user',
+        'PASSWORD': 'crm_pass',
+        'HOST': 'localhost',
+        'TEST': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'test_crm',
+            'USER': 'crm_user',
+            'PASSWORD': '123456',
+        }
     }
 }

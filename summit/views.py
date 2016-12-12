@@ -274,7 +274,7 @@ class SummitAnketWithNotesViewSet(viewsets.ModelViewSet):
     filter_fields = ('user',)
 
 
-class SummitViewSet(viewsets.ModelViewSet):
+class SummitViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Summit.objects.prefetch_related('lessons').order_by('-start_date')
     serializer_class = SummitSerializer
     filter_backends = (filters.DjangoFilterBackend,)
@@ -330,7 +330,7 @@ class SummitViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         anket.role = SummitAnket.CONSULTANT
         anket.save()
-        data = {'sumit_id': pk, 'consultant_id': anket_id, 'action': 'added'}
+        data = {'summit_id': int(pk), 'consultant_id': anket_id, 'action': 'added'}
 
         return Response(data, status=status.HTTP_201_CREATED)
 
@@ -350,7 +350,7 @@ class SummitViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         anket.role = SummitAnket.VISITOR
         anket.save()
-        data = {'sumit_id': pk, 'consultant_id': anket_id, 'action': 'removed'}
+        data = {'summit_id': int(pk), 'consultant_id': anket_id, 'action': 'removed'}
 
         return Response(data, status=status.HTTP_204_NO_CONTENT)
 
