@@ -55,6 +55,7 @@ THIRD_PARTY_APPS = (
     'dbmail',
     'tinymce',
     # 'rest_auth.registration',
+    'mptt',
 )
 LOCAL_APPS = (
     'main',
