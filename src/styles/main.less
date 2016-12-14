@@ -4176,10 +4176,15 @@ div.code input#code {
     left: 30px;
 }
 
-.a-sammits-select .selectdb {
+.a-sammits-select {
+  position: relative;
+  min-height: 34px;
+  padding-bottom: 20px;
+  & .selectdb {
     left: 15px;
     top: 0;
     background-color: inherit;
+  }
 }
 .summit-tabs {
 /*  padding-bottom: 15px;*/
@@ -4227,6 +4232,9 @@ div.code input#code {
       width: 300px;
       min-height: 75px;
       resize: none;
+      margin-top: 10px;
+      padding: 5px 10px;
+      font-size: 1.1em;
     }
     & table tr td {
       padding: 9px 12px;
@@ -4290,13 +4298,15 @@ div.code input#code {
       & label {
         padding-bottom: 15px;
       }
-      & input, textarea, #sum-content3 textarea {
+      & input, textarea {
         margin-top: 10px;
         padding: 5px 10px;
       }
     }
-
   }
+  & #sum-content1 table tr td, #sum-content3 table tr td {
+    padding: 9px 12px;
+    }
   & #sum-content2 table input[type="checkbox"],
   #sum-content3 table input[type="checkbox"] {
     display:none;
