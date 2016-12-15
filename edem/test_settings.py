@@ -1,3 +1,10 @@
+# -*- coding: utf-8
+from __future__ import unicode_literals
+
+from .settings import *  # noqa
+
+DEBUG = DEBUG
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',

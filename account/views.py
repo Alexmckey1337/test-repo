@@ -36,7 +36,7 @@ from navigation.models import user_table
 from partnership.models import Partnership
 from status.models import Status, Division
 from summit.models import SummitType, SummitLesson, SummitAnketNote, SummitUserConsultant, AnketEmail, SummitAnket
-from tv_crm.views import sync_unique_user_call
+from tv_crm.models import LastCall
 from .resources import clean_password, clean_old_password
 from .serializers import UserSerializer, UserShortSerializer, UserTableSerializer, NewUserSerializer
 

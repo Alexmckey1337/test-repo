@@ -32,11 +32,13 @@ class HierarchyTitleSerializer(serializers.ModelSerializer):
 
 
 class MasterNameSerializer(serializers.ModelSerializer):
-    hierarchy = HierarchyTitleSerializer()
+    # hierarchy = HierarchyTitleSerializer()
 
     class Meta:
         model = User
-        fields = ('id', 'fullname', 'hierarchy')
+        fields = ('id', 'fullname',
+                  # 'hierarchy'
+                  )
 
 
 class DivisionSerializer(serializers.ModelSerializer):
@@ -48,7 +50,7 @@ class DivisionSerializer(serializers.ModelSerializer):
 class AdditionalPhoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdditionalPhoneNumber
-        fields = ('number',)
+        fields = ('id', 'number')
 
 
 class PartnershipSerializer(serializers.ModelSerializer):
@@ -58,11 +60,6 @@ class PartnershipSerializer(serializers.ModelSerializer):
 
 
 class NewUserSerializer(serializers.ModelSerializer):
-    department = DepartmentTitleSerializer()
-    master = MasterNameSerializer(required=False, allow_null=True)
-    hierarchy = HierarchyTitleSerializer()
-    divisions = DivisionSerializer(many=True, read_only=True)
-
     additional_phones = AdditionalPhoneSerializer(many=True, read_only=True)
 
     partnership = PartnershipSerializer()
@@ -106,6 +103,11 @@ class NewUserSerializer(serializers.ModelSerializer):
 
 
 class UserTableSerializer(NewUserSerializer):
+    department = DepartmentTitleSerializer()
+    master = MasterNameSerializer(required=False, allow_null=True)
+    hierarchy = HierarchyTitleSerializer()
+    divisions = DivisionSerializer(many=True, read_only=True)
+
     def get_field_names(self, declared_fields, info):
         # fields = getattr(self.Meta, 'fields', None)
         if self.context.get('request', None):

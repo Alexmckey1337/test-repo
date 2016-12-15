@@ -14,7 +14,6 @@ urlpatterns = [
                   url(r'^partners/stats/$', views.partner_stats, name='partner_stats'),
     url(r'^account/([0-9]+)/$', views.account, name='account'),
     url(r'^account_edit/([0-9]+)/$', views.account_edit, name='account_edit'),
-                  url(r'^account_edit/$', views.current_account_edit, name='current_edit'),
     url(r'^reports/$', views.reports, name='reports'),
     url(r'^summits/$', views.summits, name='summits'),
     url(r'^summit_info/([0-9]+)/$', views.summit_info, name='summit_info'),
