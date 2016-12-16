@@ -225,10 +225,10 @@ class NewUserViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if not user.hierarchy:
-            return self.queryset.none()
         if user.is_staff:
             return self.queryset
+        if not user.hierarchy:
+            return self.queryset.none()
         return self.queryset.filter(hierarchy__level__lt=user.hierarchy.level)
 
     def dispatch(self, request, *args, **kwargs):
@@ -263,22 +263,14 @@ class NewUserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def get_serializer_class(self):
-        if self.action == 'list':
+        if self.action in ('list', 'retrieve'):
             return self.serializer_list_class
         return self.serializer_class
-
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data)
 
     def perform_update(self, serializer):
         serializer.save()
         user = serializer.instance
-        additional_phone = self.request.data.get('additional_phone')
+        additional_phone = self.request.data.get('additional_phone', None)
         if additional_phone:
             phone_number = user.additional_phones.first()
             if phone_number:
@@ -286,7 +278,7 @@ class NewUserViewSet(viewsets.ModelViewSet):
                 phone_number.save()
             else:
                 AdditionalPhoneNumber.objects.create(user=user, number=additional_phone)
-        else:
+        elif additional_phone == '':
             phones = user.additional_phones.all()
             for phone in phones:
                 phone.delete()

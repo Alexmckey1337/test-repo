@@ -88,9 +88,9 @@ class NewUserSerializer(serializers.ModelSerializer):
         required_fields = ('id', 'link',)
 
     def update(self, instance, validated_data):
-        department = validated_data.pop('department') if validated_data.get('department') else None
-        master = validated_data.pop('master') if validated_data.get('master') else None
-        hierarchy = validated_data.pop('hierarchy') if validated_data.get('hierarchy') else None
+        # department = validated_data.pop('department') if validated_data.get('department') else None
+        # master = validated_data.pop('master') if validated_data.get('master') else None
+        # hierarchy = validated_data.pop('hierarchy') if validated_data.get('hierarchy') else None
         additional_phone = validated_data.pop('additional_phone') if validated_data.get('additional_phone') else None
         # coming_date = validated_data.pop('coming_date') if validated_data.get('coming_date') else None
         # repentance_date = validated_data.pop('repentance_date') if validated_data.get('repentance_date') else None
