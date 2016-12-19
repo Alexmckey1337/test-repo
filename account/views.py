@@ -187,7 +187,7 @@ class NewUserViewSet(viewsets.ModelViewSet):
         if not user.hierarchy:
             return self.queryset.none()
         if user.hierarchy.level < 2:
-            return user.get_descendants().select_related(
+            return user.get_descendants(include_self=True).select_related(
                 'hierarchy', 'department', 'master').prefetch_related(
                 'divisions'
             ).filter(is_active=True).order_by('last_name', 'first_name', 'middle_name')

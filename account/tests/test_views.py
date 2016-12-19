@@ -305,7 +305,25 @@ class TestNewUserViewSet(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], 0)
 
-    def test_get_queryset_as_current_user_with_hierarchy(self):
+    def test_get_queryset_as_current_user_with_hierarchy_less_then_2(self):
+        hierarchy = HierarchyFactory()
+        current_user = UserFactory(hierarchy=hierarchy)
+        first_level = UserFactory(hierarchy=hierarchy, master=current_user)
+        second_level = UserFactory(hierarchy=hierarchy, master=first_level)
+        UserFactory(hierarchy=hierarchy, master=current_user)
+        UserFactory.create_batch(8, hierarchy=hierarchy, master=first_level)
+        UserFactory.create_batch(7, hierarchy=hierarchy, master=second_level)
+        UserFactory.create_batch(55)
+
+        url = reverse('users_v1_1-list')
+
+        self.client.force_login(user=current_user)
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 19)
+
+    def test_get_queryset_as_current_user_with_hierarchy_more_or_eq_2(self):
         high_hierarchy = HierarchyFactory(level=3)
         medium_hierarchy = HierarchyFactory(level=2)
         low_hierarchy = HierarchyFactory(level=1)
@@ -319,4 +337,4 @@ class TestNewUserViewSet(APITestCase):
         response = self.client.get(url, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['count'], 10)
+        self.assertEqual(response.data['count'], 22)
