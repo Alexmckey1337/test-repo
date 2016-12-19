@@ -4,9 +4,8 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 
 from account.models import CustomUser as User
-from account.serializers import NewUserSerializer, UserShortSerializer
+from account.serializers import UserTableSerializer, UserShortSerializer
 from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail
-
 
 class SummitAnketNoteSerializer(serializers.ModelSerializer):
     owner = serializers.StringRelatedField()
@@ -25,7 +24,7 @@ class AnketEmailSerializer(serializers.ModelSerializer):
 
 
 class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
-    user = NewUserSerializer()
+    user = UserTableSerializer()
     emails = AnketEmailSerializer(many=True, read_only=True)
 
     class Meta:

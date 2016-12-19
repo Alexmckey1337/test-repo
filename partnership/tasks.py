@@ -5,7 +5,7 @@ from datetime import datetime, date
 
 from django.core.exceptions import ObjectDoesNotExist
 
-from edem.celery import app
+from edem.settings.celery import app
 from partnership.models import Partnership, Deal
 
 

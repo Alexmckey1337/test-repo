@@ -12,13 +12,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
-import os
 import environ
 
 from account.utils import create_token
 
-# BASE_DIR = environ.Path(__file__) - 2
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = environ.Path(__file__) - 3
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
@@ -70,7 +69,7 @@ LOCAL_APPS = (
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -81,7 +80,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     #   'axes.middleware.FailedLoginMiddleware',
-]
+)
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
@@ -91,8 +90,8 @@ ROOT_URLCONF = 'edem.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # 'DIRS': [str(BASE_DIR.path('templates')), ],
-        'DIRS': [BASE_DIR + '/templates', ],
+        'DIRS': [str(BASE_DIR.path('templates')), ],
+        # 'DIRS': [BASE_DIR + '/templates', ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -154,11 +153,11 @@ GRAPPELLI_INDEX_DASHBOARD = 'dashboard.CustomIndexDashboard'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
-# MEDIA_ROOT = str(BASE_DIR.path('public/media'))
-MEDIA_ROOT = os.path.join(BASE_DIR, 'public/media')
+MEDIA_ROOT = str(BASE_DIR.path('public/media'))
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'public/media')
 MEDIA_URL = '/media/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'public/static')
-# STATIC_ROOT = str(BASE_DIR.path('public/static'))
+# STATIC_ROOT = os.path.join(BASE_DIR, 'public/static')
+STATIC_ROOT = str(BASE_DIR.path('public/static'))
 STATICFILES_DIRS = []
 # STATICFILES_DIRS = (str(BASE_DIR.path('static')),)
 STATIC_URL = '/static/'
@@ -242,3 +241,48 @@ SITE_DOMAIN_URL = 'http://vocrm.org/'
 # ADMINS = (('Iskander', 'zumichke@gmail.com'), )
 ARCHONS = [1, ]
 AXES_COOLOFF_TIME = 1
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s '
+                      '%(process)d %(thread)d %(message)s'
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        }
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': 'ERROR',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        # 'account.views': {
+        #     'level': 'DEBUG',
+        #     'handlers': ['console', 'sentry'],
+        #     'propagate': False,
+        # },
+        'raven': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'sentry.errors': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+    },
+}

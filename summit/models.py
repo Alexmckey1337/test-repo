@@ -145,6 +145,7 @@ class SummitAnket(models.Model):
     image = models.CharField(max_length=12, blank=True)
 
     class Meta:
+        ordering = ('summit__type', '-summit__start_date')
         unique_together = (('user', 'summit'),)
 
     def __str__(self):
@@ -267,4 +268,4 @@ class SummitAnketNote(models.Model):
     class Meta:
         verbose_name = _('Summit Anket Note')
         verbose_name_plural = _('Summit Anket Notes')
-        ordering = ('date_created',)
+        ordering = ('-date_created',)

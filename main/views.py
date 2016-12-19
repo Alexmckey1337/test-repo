@@ -5,8 +5,9 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
+from account.models import CustomUser
 from hierarchy.models import Department
 from partnership.models import Partnership
 from summit.models import SummitType
@@ -41,7 +42,10 @@ def partner_stats(request):
 
 @login_required(login_url='entry')
 def account(request, id):
-    return render(request, 'account/anketa.html')
+    ctx = {
+        'account': get_object_or_404(CustomUser, pk=id)
+    }
+    return render(request, 'account/anketa.html', context=ctx)
 
 
 @login_required(login_url='entry')

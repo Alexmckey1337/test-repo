@@ -26,11 +26,7 @@ def sync_user_call():
 
 
 def sync_unique_user_call(user):
-    call = LastCall.objects.filter(user=user).first()
-    if call:
-        pass
-    else:
-        LastCall.objects.create(user=user, last_responce='')
+    LastCall.objects.get_or_create(user=user)
     return True
 
 
