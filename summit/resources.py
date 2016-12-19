@@ -1,6 +1,9 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from shutil import copyfile
+
+from django.conf import settings
 from import_export import resources
 
 from hierarchy.models import Department
@@ -186,10 +189,6 @@ def make_table_fix():
     print('OK')
 
 
-from shutil import copyfile
-from edem.settings import MEDIA_ROOT
-
-
 def check_images():
     ankets = SummitAnket.objects.all().order_by('id')[:2367]
     i = 0
@@ -209,6 +208,6 @@ def copy_images():
             if anket.code == '':
                 pass
             else:
-                destination = MEDIA_ROOT + destination_folder + anket.code + '.jpg'
+                destination = settings.MEDIA_ROOT + destination_folder + anket.code + '.jpg'
                 copyfile(path, destination)
                 print('copied %s' % anket.code)

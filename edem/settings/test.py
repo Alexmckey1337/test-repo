@@ -1,7 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from .settings import *  # noqa
+from .base import *  # noqa
 
 DEBUG = DEBUG
 

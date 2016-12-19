@@ -6,7 +6,7 @@ SOCKFILE=/projects/crm/socket/crm.sock
 USER=avrama                                       # the user to run as
                                     # the group to run as
 NUM_WORKERS=3                                     # how many worker processes should Gunicorn spawn
-DJANGO_SETTINGS_MODULE=edem.settings             # which settings file should Django use
+DJANGO_SETTINGS_MODULE=edem.settings.production             # which settings file should Django use
 DJANGO_WSGI_MODULE=edem.wsgi                     # WSGI module name
  
 echo "Starting $NAME as `whoami`"

@@ -8,7 +8,7 @@ from django.core.files import File
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.template.loader import get_template
 
-from edem.celery import app
+from edem.settings.celery import app
 from summit.models import AnketEmail, SummitAnket
 from summit.utils import generate_ticket
 from .resources import make_table
