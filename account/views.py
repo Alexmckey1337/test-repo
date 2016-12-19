@@ -5,6 +5,8 @@ import binascii
 import os
 import warnings
 
+import django_filters
+from django.conf import settings
 from django.contrib.auth import authenticate, login, logout as django_logout
 from django.contrib.auth import update_session_auth_hash
 from django.core.exceptions import ObjectDoesNotExist
@@ -31,7 +33,8 @@ from rest_framework.response import Response
 
 from account.models import CustomUser as User, AdditionalPhoneNumber
 from account.models import Token
-from edem.settings import SITE_DOMAIN_URL, DEFAULT_FROM_EMAIL
+from common.filters import FieldSearchFilter
+from hierarchy.models import Hierarchy, Department
 from navigation.models import user_table
 from partnership.models import Partnership
 from status.models import Status, Division
@@ -75,7 +78,6 @@ def generate_key():
 class UserPagination(PageNumberPagination):
     page_size = 30
     page_size_query_param = 'page_size'
-    max_page_size = 30
 
     def get_paginated_response(self, data):
         return Response({
@@ -140,60 +142,15 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @detail_route(methods=['get'])
-    def summit_info(self, request, pk=None):
-        summit_types = set(SummitType.objects.filter(summits__ankets__user_id=pk))
-        lst = []
-        for t in summit_types:
-            json = {}
-            summits = t.summits.filter(ankets__user_id=pk)
-            json['name'] = t.title
-            json['id'] = t.id
-            json['summits'] = [
-                {
-                    'name': '{} {}'.format(t.title, summit.start_date),
-                    'id': summit.id,
-                    'description': summit.description,
-                    'value': summit.ankets.get(user_id=pk).value,
-                    'code': summit.ankets.get(user_id=pk).code,
-                    'anket_id': summit.ankets.get(user_id=pk).id,
-                    'user_fullname': summit.ankets.get(user_id=pk).user.fullname,
-                }
-                for summit in summits.all()]
-            for s in json['summits']:
-                current_user_anket = SummitAnket.objects.filter(
-                    user=request.user, summit_id=s['id'], role__gte=SummitAnket.CONSULTANT)
-                s['is_consultant'] = (
-                    current_user_anket.exists() and SummitUserConsultant.objects.filter(
-                        consultant=current_user_anket, user__user_id=pk, summit_id=s['id']).exists())
-                lessons = SummitLesson.objects.filter(summit__ankets__user_id=pk, summit_id=s['id'])
-                emails = AnketEmail.objects.filter(anket_id=s['anket_id'])
-                notes = SummitAnketNote.objects.filter(summit_anket__user_id=pk, summit_anket_id=s['anket_id'])
-                notes = notes.annotate(owner_name=Concat(
-                    'owner__last_name', V(' '), 'owner__first_name', V(' '), 'owner__middle_name'))
-                s['lessons'] = list(lessons.annotate(
-                    is_view=Case(
-                        When(viewers=s['anket_id'], then=True),
-                        default=False,
-                        output_field=BooleanField())).values())
-                s['notes'] = list(notes.values())
-                s['emails'] = list(emails.values('id', 'recipient', 'created_at'))
-            lst.append(json)
 
-        return Response(lst)
+class UserFilter(django_filters.FilterSet):
+    hierarchy = django_filters.ModelChoiceFilter(name='hierarchy', queryset=Hierarchy.objects.all())
+    master = django_filters.ModelMultipleChoiceFilter(name="master", queryset=User.objects.all())
+    department = django_filters.ModelChoiceFilter(name="department", queryset=Department.objects.all())
 
-
-# def list(self, request, *args, **kwargs):
-#        from resources import get_disciples
-#        q = get_disciples(request.user)
-#        q = q.order_by('-hierarchy__level')
-#        queryset = self.filter_queryset(q)
-#        page = self.paginate_queryset(queryset)
-#        if page is not None:
-#            serializer = self.get_serializer(page, many=True)
-#            return self.get_paginated_response(serializer.data)
-#        serializer = self.get_serializer(queryset, many=True)
-#        return Response(serializer.data)
+    class Meta:
+        model = User
+        fields = ['master']
 
 
 class NewUserViewSet(viewsets.ModelViewSet):
@@ -207,21 +164,21 @@ class NewUserViewSet(viewsets.ModelViewSet):
 
     pagination_class = UserPagination
     filter_backends = (filters.DjangoFilterBackend,
-                       filters.SearchFilter,
+                       FieldSearchFilter,
                        filters.OrderingFilter,)
     permission_classes = (IsAuthenticated,)
     ordering_fields = ('first_name', 'last_name', 'middle_name',
                        'born_date', 'country', 'region', 'city', 'disrict', 'address', 'skype',
                        'phone_number', 'email', 'hierarchy__level', 'department__title',
                        'facebook', 'vkontakte', 'hierarchy_order', 'master__last_name',)
-    search_fields = ('first_name', 'last_name', 'middle_name',
-                     'country', 'region', 'city', 'district',
-                     'address', 'skype', 'phone_number', 'hierarchy__title', 'department__title',
-                     'email', 'master__last_name',)
-    filter_fields = ('first_name', 'last_name', 'middle_name',
-                     'born_date', 'email', 'department__title',
-                     'country', 'region', 'city', 'district', 'address',
-                     'skype', 'phone_number', 'hierarchy__level', 'master', 'master__last_name',)
+    field_search_fields = {
+        'search_fio': ('last_name', 'first_name', 'middle_name'),
+        'search_email': ('email',),
+        'search_phone_number': ('phone_number',),
+        'search_country': ('country',),
+        'search_city': ('city',),
+    }
+    filter_class = UserFilter
 
     def get_queryset(self):
         user = self.request.user
@@ -282,6 +239,48 @@ class NewUserViewSet(viewsets.ModelViewSet):
             phones = user.additional_phones.all()
             for phone in phones:
                 phone.delete()
+
+    @detail_route(methods=['get'])
+    def summit_info(self, request, pk=None):
+        summit_types = set(SummitType.objects.filter(summits__ankets__user_id=pk))
+        lst = []
+        for t in summit_types:
+            json = {}
+            summits = t.summits.filter(ankets__user_id=pk)
+            json['name'] = t.title
+            json['id'] = t.id
+            json['summits'] = [
+                {
+                    'name': '{} {}'.format(t.title, summit.start_date),
+                    'id': summit.id,
+                    'description': summit.description,
+                    'value': summit.ankets.get(user_id=pk).value,
+                    'code': summit.ankets.get(user_id=pk).code,
+                    'anket_id': summit.ankets.get(user_id=pk).id,
+                    'user_fullname': summit.ankets.get(user_id=pk).user.fullname,
+                }
+                for summit in summits.all()]
+            for s in json['summits']:
+                current_user_anket = SummitAnket.objects.filter(
+                    user=request.user, summit_id=s['id'], role__gte=SummitAnket.CONSULTANT)
+                s['is_consultant'] = (
+                    current_user_anket.exists() and SummitUserConsultant.objects.filter(
+                        consultant=current_user_anket, user__user_id=pk, summit_id=s['id']).exists())
+                lessons = SummitLesson.objects.filter(summit__ankets__user_id=pk, summit_id=s['id'])
+                emails = AnketEmail.objects.filter(anket_id=s['anket_id'])
+                notes = SummitAnketNote.objects.filter(summit_anket__user_id=pk, summit_anket_id=s['anket_id'])
+                notes = notes.annotate(owner_name=Concat(
+                    'owner__last_name', V(' '), 'owner__first_name', V(' '), 'owner__middle_name'))
+                s['lessons'] = list(lessons.annotate(
+                    is_view=Case(
+                        When(viewers=s['anket_id'], then=True),
+                        default=False,
+                        output_field=BooleanField())).values())
+                s['notes'] = list(notes.values())
+                s['emails'] = list(emails.values('id', 'recipient', 'created_at'))
+            lst.append(json)
+
+        return Response(lst)
 
 
 class UserShortViewSet(viewsets.ModelViewSet):
@@ -539,8 +538,8 @@ def _send_password_func(user_id):
         user.save()
         plaintext = get_template('email/register_email.txt')
         htmly = get_template('email/register_email.html')
-        d = Context({'user': user, 'SITE_DOMAIN_URL': SITE_DOMAIN_URL, 'password': password})
-        subject, from_email, to = 'Подтверждение регистрации', DEFAULT_FROM_EMAIL, user.email
+        d = Context({'user': user, 'SITE_DOMAIN_URL': settings.SITE_DOMAIN_URL, 'password': password})
+        subject, from_email, to = 'Подтверждение регистрации', settings.DEFAULT_FROM_EMAIL, user.email
         text_content = plaintext.render(d)
         html_content = htmly.render(d)
         msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
@@ -699,8 +698,8 @@ def password_forgot(request):
             user.save()
             plaintext = get_template('email/password_reset.txt')
             htmly = get_template('email/password_reset.html')
-            d = Context({'user': user, 'site_url': SITE_DOMAIN_URL[:-1]})
-            subject, from_email, to = 'Восстановление пароля', DEFAULT_FROM_EMAIL, user.email
+            d = Context({'user': user, 'site_url': settings.SITE_DOMAIN_URL[:-1]})
+            subject, from_email, to = 'Восстановление пароля', settings.DEFAULT_FROM_EMAIL, user.email
             text_content = plaintext.render(d)
             html_content = htmly.render(d)
             msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
