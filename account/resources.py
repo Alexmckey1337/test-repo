@@ -2,12 +2,12 @@
 from __future__ import unicode_literals
 
 from import_export import fields
-from import_export import resources
 
 from account.models import CustomUser as User
+from common.resources import CustomFieldsModelResource
 
 
-class UserResource(resources.ModelResource):
+class UserResource(CustomFieldsModelResource):
     """For excel import/export"""
     master_name = fields.Field()
     department_title = fields.Field()
@@ -15,21 +15,10 @@ class UserResource(resources.ModelResource):
 
     class Meta:
         model = User
-        # fields = ('id', 'username', 'last_name', 'first_name', 'middle_name',
-        #          'email', 'phone_number', 'skype', 'country', 'city', 'address',
-        #          'born_date', 'facebook', 'vkontakte', 'description',
-        #          'department', 'hierarchy', 'master')
         fields = ('id', 'username', 'last_name', 'first_name', 'middle_name',
                   'email', 'phone_number', 'skype', 'country', 'city', 'address',
                   'department_title', 'hierarchy_title', 'master_name',
                   'born_date', 'facebook', 'vkontakte', 'description',)
-        exclude = ('user_ptr', 'password', 'last_login', 'is_superuser', 'groups', 'user_permissions', 'is_staff',
-                   'is_active', 'date_joined', 'image', 'hierarchy_order',)
-        # fields = ('id', 'username', 'last_name', 'first_name', 'middle_name')
-        # export_order = ('id', 'username', 'last_name', 'first_name', 'middle_name',
-        #                'email', 'phone_number', 'skype', 'country', 'city', 'address',
-        #                'born_date', 'facebook', 'vkontakte', 'description',
-        #                'department', 'hierarchy', 'master')
 
     def dehydrate_master_name(self, user):
         return '%s %s %s' % (user.first_name, user.last_name, user.middle_name)

@@ -31,11 +31,12 @@ from rest_framework.filters import BaseFilterBackend
 
 from account.models import CustomUser as User
 from common.filters import FieldSearchFilter
+from common.views_mixins import ExportViewSetMixin
 from hierarchy.models import Hierarchy, Department
 from navigation.table_fields import user_table
 from partnership.models import Partnership
 from status.models import Status, Division
-from .resources import clean_password, clean_old_password
+from .resources import clean_password, clean_old_password, UserResource
 from .serializers import UserSerializer, UserShortSerializer, UserTableSerializer, NewUserSerializer, \
     UserSingleSerializer, PartnershipSerializer
 
@@ -158,7 +159,7 @@ class ShortUserFilter(django_filters.FilterSet):
         fields = ['level_gt', 'level_gte', 'level_lt', 'level_lte', 'department']
 
 
-class NewUserViewSet(viewsets.ModelViewSet):
+class NewUserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
     queryset = User.objects.select_related(
         'hierarchy', 'department', 'master__hierarchy').prefetch_related(
         'divisions'
@@ -188,6 +189,8 @@ class NewUserViewSet(viewsets.ModelViewSet):
         'search_city': ('city',),
     }
     filter_class = UserFilter
+
+    resource_class = UserResource
 
     def get_queryset(self):
         user = self.request.user
