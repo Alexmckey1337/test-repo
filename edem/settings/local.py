@@ -6,7 +6,7 @@ from .base import *
 BASE_DIR = environ.Path(__file__) - 3
 
 DEBUG = True
-ALLOWED_HOSTS = ['crm.local']
+ALLOWED_HOSTS = ['crm.local', '127.0.0.1']
 
 INSTALLED_APPS += (
     'django_extensions',
