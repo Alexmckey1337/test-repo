@@ -6,4 +6,4 @@ Models
 ------
 
 .. automodule:: summit.models
-:members:
+   :members:
