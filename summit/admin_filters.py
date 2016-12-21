@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
@@ -37,3 +39,28 @@ class HasEmailListFilter(admin.SimpleListFilter):
             return queryset.filter(id__in=ids)
         if self.value() == 'no':
             return queryset.filter(emails__isnull=True)
+
+
+# TODO very slow
+class PaidStatusListFilter(admin.SimpleListFilter):
+    title = _('Paid?')
+
+    parameter_name = 'paid'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('yes', _('Yes')),
+            ('no', _('No')),
+            ('partial', _('Partial')),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'yes':
+            ids = [a.id for a in queryset if a.is_full_paid]
+            return queryset.filter(id__in=ids)
+        if self.value() == 'no':
+            ids = [a.id for a in queryset if not a.is_full_paid]
+            return queryset.filter(id__in=ids)
+        if self.value() == 'partial':
+            ids = [a.id for a in queryset.filter(value__gt=Decimal(0)) if not a.is_full_paid]
+            return queryset.filter(id__in=ids)

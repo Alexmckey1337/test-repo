@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import django_filters
 import rest_framework_filters as filters_new
+from dbmail import send_db_mail
 from django.http import HttpResponse
 from rest_framework import mixins
 from rest_framework import status
@@ -25,7 +26,6 @@ from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
     SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer,
     SummitTypeForAppSerializer, SummitAnketForAppSerializer)
-from .tasks import send_ticket
 
 
 def get_success_headers(data):
@@ -72,8 +72,10 @@ class FilterByClub(BaseFilterBackend):
 
 
 class SummitAnketTableViewSet(viewsets.ModelViewSet):
-    queryset = SummitAnket.objects.select_related('user', 'user__hierarchy', 'user__department', 'user__master'). \
-        prefetch_related('user__divisions').order_by('user__last_name', 'user__first_name', 'user__middle_name')
+    queryset = SummitAnket.objects.select_related(
+        'user', 'user__hierarchy', 'user__department', 'user__master', 'summit', 'summit__type'). \
+        prefetch_related('user__divisions', 'emails').order_by(
+        'user__last_name', 'user__first_name', 'user__middle_name')
     serializer_class = SummitAnketSerializer
     pagination_class = SummitPagination
     filter_backends = (filters.DjangoFilterBackend,
@@ -113,85 +115,61 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
 
     @list_route(methods=['post'], )
     def post_anket(self, request):
-        if request.method == 'POST':
-            keys = request.data.keys()
-            if 'user_id' in keys and 'summit_id' in keys:
-                user = CustomUser.objects.filter(id=request.data['user_id']).first()
-                summit = Summit.objects.filter(id=request.data['summit_id']).first()
-                if user:
-                    if summit:
-                        sa = SummitAnket.objects.filter(user=user)
-                        sa = sa.filter(summit=summit).first()
-                        visited = request.data.get('visited', None)
-                        if sa:
-                            if len(request.data['value']) > 0:
-                                sa.value = request.data['value']
-                            if len(request.data['description']) > 0:
-                                sa.description = request.data['description']
-                            if visited in (True, False):
-                                sa.visited = visited
-                            sa.save()
-                            data = {"message": "Данные успешно измененны",
-                                    'status': True}
-                            if (data['status'] and request.data.get('send_email', False) and
-                                        int(request.user.id) == 4035):
-                                email_data = {
-                                    'anket_id': sa.id,
-                                    'email': sa.user.email,
-                                    'summit_name': str(sa.summit),
-                                    'fullname': sa.user.fullname,
-                                    'code': sa.code,
-                                    'ticket': sa.ticket.url if sa.ticket else None
-                                }
-                                send_ticket.delay(email_data)
-                        else:
-                            visited = True if visited == True else False
-                            if len(request.data['value']) > 0:
-                                s = SummitAnket.objects.create(user=user, summit=summit, value=request.data['value'],
-                                                               description=request.data['description'],
-                                                               visited=visited)
-                                if 'retards' in keys:
-                                    if request.data['retards']:
-                                        s.retards = request.data['retards']
-                                        s.code = request.data['code']
-                                    get_fields(s)
-                                else:
-                                    get_fields(s)
-                            else:
-                                s = SummitAnket.objects.create(user=user, summit=summit, visited=visited,
-                                                               description=request.data['description'])
-                                if 'retards' in keys:
-                                    if request.data['retards']:
-                                        s.retards = request.data['retards']
-                                        s.code = request.data['code']
-                                    get_fields(s)
-                                else:
-                                    get_fields(s)
-                            data = {"message": "Данные успешно сохраненны",
-                                    'status': True}
-                            if (data['status'] and request.data.get('send_email', False) and
-                                        int(request.user.id) == 4035):
-                                email_data = {
-                                    'anket_id': s.id,
-                                    'email': s.user.email,
-                                    'summit_name': str(s.summit),
-                                    'fullname': s.user.fullname,
-                                    'code': s.code,
-                                    'ticket': sa.ticket.url if sa.ticket else None
-                                }
-                                send_ticket.delay(email_data)
-                    else:
-                        data = {"message": "Такой саммит отсутствует",
-                                'status': False}
-                else:
-                    data = {'message': "Такого пользователя не существует",
-                            'status': False}
-            else:
-                data = {'message': "Некорректные данные",
-                        'status': False}
+        keys = request.data.keys()
+        if not ('user_id' in keys and 'summit_id' in keys):
+            return Response({"message": "Некоректные данные", 'status': False})
+
+        user = CustomUser.objects.filter(id=request.data['user_id']).first()
+        if not user:
+            return Response({"message": "Такого пользователя не существует", 'status': False})
+
+        summit = Summit.objects.filter(id=request.data['summit_id']).first()
+        if not summit:
+            return Response({"message": "Такой саммит отсутствует", 'status': False})
+
+        anket = SummitAnket.objects.filter(user=user, summit=summit)
+        visited = request.data.get('visited', None)
+        if anket.exists():
+            anket = anket.get()
+            if len(request.data['value']) > 0:
+                anket.value = request.data['value']
+            if len(request.data['description']) > 0:
+                anket.description = request.data['description']
+            if visited in (True, False):
+                anket.visited = visited
+            anket.save()
+        elif len(request.data['value']) > 0:
+            anket = SummitAnket.objects.create(
+                user=user, summit=summit, value=request.data['value'],
+                description=request.data['description'], visited=visited)
+            if 'retards' in keys:
+                if request.data['retards']:
+                    anket.retards = request.data['retards']
+                    anket.code = request.data['code']
+            get_fields(anket)
         else:
-            data = {'message': "Неправильный запрос",
-                    'status': False}
+            anket = SummitAnket.objects.create(
+                user=user, summit=summit, visited=visited, description=request.data['description'])
+            if 'retards' in keys:
+                if request.data['retards']:
+                    anket.retards = request.data['retards']
+                    anket.code = request.data['code']
+            get_fields(anket)
+        data = {"message": "Данные успешно сохраненны",
+                'status': True}
+        if (data['status'] and request.data.get('send_email', False) and
+                anket.summit.mail_template and anket.user.email and
+                (int(request.user.id) == 4035 or True)):
+            attach = generate_ticket(anket.code)
+            pdf_name = '{} ({}).pdf'.format(anket.user.fullname, anket.code)
+            send_db_mail(
+                anket.summit.mail_template.slug,
+                anket.user.email,
+                anket,
+                attachments=[(pdf_name, attach, 'application/pdf')],
+                signals_kwargs={'anket': anket}
+            )
+
         return Response(data)
 
     @detail_route(methods=['get'])
@@ -207,9 +185,10 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'])
     def create_note(self, request, pk=None):
         text = request.data['text']
-        data = dict()
-        data['text'] = text
-        data['summit_anket'] = pk
+        data = {
+            'text': text,
+            'summit_anket': pk
+        }
         serializer = SummitAnketNoteSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save(owner=request.user.customuser)
@@ -272,7 +251,7 @@ class SummitAnketWithNotesViewSet(viewsets.ModelViewSet):
     filter_fields = ('user',)
 
 
-class SummitViewSet(viewsets.ModelViewSet):
+class SummitViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Summit.objects.prefetch_related('lessons').order_by('-start_date')
     serializer_class = SummitSerializer
     filter_backends = (filters.DjangoFilterBackend,)
@@ -328,7 +307,7 @@ class SummitViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         anket.role = SummitAnket.CONSULTANT
         anket.save()
-        data = {'sumit_id': pk, 'consultant_id': anket_id, 'action': 'added'}
+        data = {'summit_id': int(pk), 'consultant_id': anket_id, 'action': 'added'}
 
         return Response(data, status=status.HTTP_201_CREATED)
 
@@ -348,7 +327,7 @@ class SummitViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         anket.role = SummitAnket.VISITOR
         anket.save()
-        data = {'sumit_id': pk, 'consultant_id': anket_id, 'action': 'removed'}
+        data = {'summit_id': int(pk), 'consultant_id': anket_id, 'action': 'removed'}
 
         return Response(data, status=status.HTTP_204_NO_CONTENT)
 

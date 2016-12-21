@@ -4,9 +4,8 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 
 from account.models import CustomUser as User
-from account.serializers import NewUserSerializer, UserShortSerializer
+from account.serializers import UserTableSerializer, UserShortSerializer
 from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail
-
 
 class SummitAnketNoteSerializer(serializers.ModelSerializer):
     owner = serializers.StringRelatedField()
@@ -18,12 +17,6 @@ class SummitAnketNoteSerializer(serializers.ModelSerializer):
         extra_kwargs = {'summit_anket': {'write_only': True}}
 
 
-class SummitAnketOldSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = SummitAnket
-        fields = ('info', 'common', 'code',)
-
-
 class AnketEmailSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnketEmail
@@ -31,13 +24,14 @@ class AnketEmailSerializer(serializers.ModelSerializer):
 
 
 class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
-    user = NewUserSerializer()
+    user = UserTableSerializer()
     emails = AnketEmailSerializer(many=True, read_only=True)
 
     class Meta:
         model = SummitAnket
         fields = ('id', 'user', 'code', 'value', 'description',
                   'is_member',
+                  'is_full_paid',
                   'emails',
                   'visited')
 
@@ -55,7 +49,7 @@ class SummitAnketWithNotesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SummitAnket
-        fields = ('info', 'common', 'code', 'notes')
+        fields = ('code', 'notes')
 
 
 class SummitSerializer(serializers.HyperlinkedModelSerializer):
@@ -63,7 +57,8 @@ class SummitSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Summit
-        fields = ('id', 'start_date', 'end_date', 'title', 'description', 'lessons', 'club_name')
+        fields = ('id', 'start_date', 'end_date', 'title', 'description', 'lessons', 'club_name',
+                  'full_cost', 'special_cost')
 
 
 class SummitTypeSerializer(serializers.HyperlinkedModelSerializer):

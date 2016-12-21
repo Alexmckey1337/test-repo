@@ -269,6 +269,7 @@ $(function () {
         if (config.user_partnerships_info && config.user_partnerships_info.is_responsible && document.querySelector('.manager_view')) {
             document.querySelector('.manager_view').style.display = 'block'
         }
+
     });
     if (document.getElementById('sort-form')) {
         $("#sort-form").sortable({revert: true, items: "li:not([disable])", scroll: false});

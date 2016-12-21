@@ -476,7 +476,7 @@ function createNewAcc() {
                 if (xhr.readyState == 4) {
 
                     if (xhr.status == 200) {
-                        showPopup(data.message)
+                        showPopup(data.message);
                         setTimeout(function () {
                             window.location.href = '/account/' + data.id;
                         }, 1000);
@@ -485,6 +485,8 @@ function createNewAcc() {
             };
 
             xhr.send(fd);
+        } else if (data.message) {
+            showPopup(data.message)
         }
     }, 'POST', true, {
         'Content-Type': 'application/json'

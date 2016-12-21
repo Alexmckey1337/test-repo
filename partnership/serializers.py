@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 
 from account.models import CustomUser
-from account.serializers import NewUserSerializer
+from account.serializers import UserTableSerializer
 from .models import Partnership, Deal
 
 
@@ -30,7 +30,7 @@ class PartnershipForEditSerializer(serializers.ModelSerializer):
 class NewPartnershipSerializer(serializers.ModelSerializer):
     date = serializers.DateField(format=None, input_formats=None)
     responsible = serializers.StringRelatedField()
-    user = NewUserSerializer()
+    user = UserTableSerializer()
     # result_value = serializers.IntegerField()
     # disciples_count = serializers.IntegerField()
     # count = serializers.IntegerField()
@@ -49,8 +49,8 @@ class NewPartnershipSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         user = validated_data.pop('user')
-        user_serializer = NewUserSerializer(CustomUser.objects.get(id=self.data['user']['id']), user,
-                                            partial=self.partial)
+        user_serializer = UserTableSerializer(CustomUser.objects.get(id=self.data['user']['id']), user,
+                                              partial=self.partial)
         user_serializer.is_valid(raise_exception=True)
 
         for attr, value in validated_data.items():
