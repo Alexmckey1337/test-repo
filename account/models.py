@@ -14,6 +14,8 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+from mptt.managers import TreeManager
+from mptt.models import MPTTModel, TreeForeignKey
 
 from event.models import EventAnket
 from navigation.models import Table
@@ -34,8 +36,12 @@ def get_hierarchy_chain(obj, l):
         get_hierarchy_chain(master, l)
 
 
+class CustomUserManager(TreeManager, UserManager):
+    use_in_migrations = False
+
+
 @python_2_unicode_compatible
-class CustomUser(User):
+class CustomUser(MPTTModel, User):
     middle_name = models.CharField(max_length=40, blank=True)
     phone_number = models.CharField(max_length=13, blank=True)
     skype = models.CharField(max_length=50, blank=True)
@@ -55,19 +61,23 @@ class CustomUser(User):
                                    on_delete=models.SET_NULL)
     hierarchy = models.ForeignKey('hierarchy.Hierarchy', related_name='users', null=True, blank=True,
                                   on_delete=models.SET_NULL)
-    master = models.ForeignKey('self', related_name='disciples', null=True, blank=True, on_delete=models.SET_NULL)
+    master = TreeForeignKey('self', related_name='disciples', null=True, blank=True,
+                            on_delete=models.PROTECT, db_index=True)
     repentance_date = models.DateField(blank=True, null=True)
     coming_date = models.DateField(blank=True, null=True)
     hierarchy_order = models.BigIntegerField(blank=True, null=True)
     activation_key = models.CharField(max_length=40, blank=True)
 
-    objects = UserManager()
+    objects = CustomUserManager()
 
     def __str__(self):
         return self.fullname
 
     class Meta:
         ordering = ['-date_joined']
+
+    class MPTTMeta:
+        parent_attr = 'master'
 
     def get_absolute_url(self):
         return '/account/{}/'.format(self.id)

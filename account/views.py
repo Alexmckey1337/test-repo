@@ -186,7 +186,12 @@ class NewUserViewSet(viewsets.ModelViewSet):
             return self.queryset
         if not user.hierarchy:
             return self.queryset.none()
-        return self.queryset.filter(hierarchy__level__lt=user.hierarchy.level)
+        if user.hierarchy.level < 2:
+            return user.get_descendants(include_self=True).select_related(
+                'hierarchy', 'department', 'master').prefetch_related(
+                'divisions'
+            ).filter(is_active=True).order_by('last_name', 'first_name', 'middle_name')
+        return self.queryset.all()
 
     def dispatch(self, request, *args, **kwargs):
         if kwargs.get('pk') == 'current' and request.user.is_authenticated():

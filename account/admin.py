@@ -7,6 +7,7 @@ from django.contrib.auth.forms import AdminPasswordChangeForm
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
+from mptt.admin import MPTTModelAdmin
 
 from .models import CustomUser, AdditionalPhoneNumber
 from .resources import UserResource
@@ -16,7 +17,7 @@ class AdditionalPhoneNumberInline(admin.TabularInline):
     model = AdditionalPhoneNumber
 
 
-class CustomUserAdmin(UserAdmin, ImportExportModelAdmin):
+class CustomUserAdmin(MPTTModelAdmin, UserAdmin, ImportExportModelAdmin):
     list_display = ('username', 'date_joined',
                     'is_staff', 'is_active')
     list_editable = ('is_active',)
