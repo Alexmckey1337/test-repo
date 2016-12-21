@@ -1,4 +1,5 @@
-$(document).ready(function () {
+
+    $(document).ready(function () {
     "use strict";
     $('input[name="fullsearch"]').keyup(function () {
         let id = $('#accountable').val();
