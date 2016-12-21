@@ -27,7 +27,6 @@ kombu==3.0.37
 Markdown==2.6.5
 mysqlclient
 Pillow==2.9.0
-Pygments==2.1
 pytz==2016.7
 redis
 reportlab
