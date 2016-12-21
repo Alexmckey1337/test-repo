@@ -60,7 +60,7 @@ Summit
    :resheader Content-Type: this depends on :mailheader:`Accept`
                             header of request
    :statuscode 200: no error
-       :statuscode 404: there's no summit
+   :statuscode 404: there's no summit
 
 
 .. http:get:: /api/v1.0/summit/
@@ -188,7 +188,7 @@ Summit
    :resheader Content-Type: this depends on :mailheader:`Accept`
                             header of request
    :statuscode 200: no error
-       :statuscode 404: there's no summit
+   :statuscode 404: there's no summit
 
 
 .. http:post:: /api/v1.0/summit/(int:summit_id)/add_lesson/
@@ -254,14 +254,14 @@ Summit
       }
 
    :form name: lesson name
-       :reqheader Accept: the response content type depends on
+   :reqheader Accept: the response content type depends on
                                             :mailheader:`Accept` header
    :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
                             ``application/json``, ``multipart/form-data``
    :resheader Content-Type: this depends on :mailheader:`Accept`
                             header of request
    :statuscode 201: lesson created
-       :statuscode 400: bad request — summit don't exist or pair ``(summit, lesson.name)`` not unique
+   :statuscode 400: bad request — summit don't exist or pair ``(summit, lesson.name)`` not unique
    :statuscode 404: there's no summit
 
 
@@ -323,7 +323,7 @@ Summit
    :resheader Content-Type: this depends on :mailheader:`Accept`
                             header of request
    :statuscode 200: no error
-       :statuscode 404: there's no summit
+   :statuscode 404: there's no summit
 
 
 .. http:post:: /api/v1.0/summit/(int:summit_id)/add_consultant/
@@ -398,15 +398,15 @@ Summit
       }
 
    :form anket_id: visitor id
-       :reqheader Accept: the response content type depends on
+   :reqheader Accept: the response content type depends on
                                                   :http:header:`Accept` header
    :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
                             ``application/json``, ``multipart/form-data``
    :resheader Content-Type: this depends on :http:header:`Accept`
                             header of request
    :statuscode 201: created consultant
-       :statuscode 404: there's no summit
-       :statuscode 400: bad request — selected summit don't have anket with id = ``anket_id``
+   :statuscode 404: there's no summit
+   :statuscode 400: bad request — selected summit don't have anket with id = ``anket_id``
    :statuscode 403: current user is not ``Supervisor`` of this summit
 
 
@@ -482,13 +482,13 @@ Summit
       }
 
    :form anket_id: visitor id
-       :reqheader Accept: the response content type depends on
+   :reqheader Accept: the response content type depends on
                                                         :http:header:`Accept` header
    :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
                             ``application/json``, ``multipart/form-data``
    :resheader Content-Type: this depends on :http:header:`Accept`
                             header of request
    :statuscode 201: created consultant
-       :statuscode 404: there's no summit
-       :statuscode 400: bad request — selected summit don't have anket with id = ``anket_id``
+   :statuscode 404: there's no summit
+   :statuscode 400: bad request — selected summit don't have anket with id = ``anket_id``
    :statuscode 403: current user is not ``Supervisor`` of this summit
