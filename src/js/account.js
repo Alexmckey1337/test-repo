@@ -1,4 +1,5 @@
-$(document).ready(function () {
+(function(){
+    $(document).ready(function () {
     init();
     getUserDeals();
     getUserSummitInfo();
@@ -482,3 +483,4 @@ function getUserSummitInfo() {
         }
     })
 }
+})();
