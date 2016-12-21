@@ -81,7 +81,7 @@
             if (!id) {
                 return
             }
-            window.location.href = '/account/' + id
+            // window.location.href = '/account/' + id
         });
         $('#save').on('click', function () {
             sendData();
@@ -567,7 +567,6 @@
                     if (!$('input[type=file]')[0].files[0]) {
                         blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
                         fd.append('file', blob);
-                        /*fd.append('source', sr)*/
                         fd.append('id', data.id)
                     } else {
                         blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
@@ -589,7 +588,7 @@
                     xhr.send(fd);
                 } catch (err) {
                     console.log(err);
-                    window.location.href = '/account/' + data.id;
+                    // window.location.href = '/account/' + data.id;
                 }
             }
 
