@@ -333,35 +333,35 @@ CustomUser
       }
 
    :form email: user email
-       :form first_name: first name
-       :form last_name: last name
-       :form middle_name: middle name
-       :form facebook: facebook url
-       :form vkontakte: vkontakte url
-       :form odnoklassniki: odnoklassiniki url
-       :form skype: login of skype
-       :form phone_number: phone number
-       :form additional_phone: additional phone number
-       :form born_date: born date
-       :form coming_date: coming date
-       :form repentance_date: repentance date
-       :form country: country
-       :form city: city
-       :form district: district
-       :form address: address
-       :form image: user photo
-       :form department: id of user department
-       :form hierarchy: id of hierarchy
-       :form master: id of master
-       :reqheader Accept: the response content type depends on
+   :form first_name: first name
+   :form last_name: last name
+   :form middle_name: middle name
+   :form facebook: facebook url
+   :form vkontakte: vkontakte url
+   :form odnoklassniki: odnoklassiniki url
+   :form skype: login of skype
+   :form phone_number: phone number
+   :form additional_phone: additional phone number
+   :form born_date: born date
+   :form coming_date: coming date
+   :form repentance_date: repentance date
+   :form country: country
+   :form city: city
+   :form district: district
+   :form address: address
+   :form image: user photo
+   :form department: id of user department
+   :form hierarchy: id of hierarchy
+   :form master: id of master
+   :reqheader Accept: the response content type depends on
                                                   :mailheader:`Accept` header
    :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
                             ``application/json``, ``multipart/form-data``
    :resheader Content-Type: this depends on :mailheader:`Accept`
                             header of request
    :statuscode 200: success update
-       :statuscode 403: user is not authenticated
-       :statuscode 404: there's no summit
+   :statuscode 403: user is not authenticated
+   :statuscode 404: there's no summit
 
 
 .. http:post:: /api/v1.1/users/export/
