@@ -295,7 +295,6 @@ jQuery(function ($) {
         };
         $.datepicker.setDefaults($.datepicker.regional['ru']);
     }
-
 });
 
 //old version
@@ -316,9 +315,7 @@ function getCurrentSetting() {
         html += '</li>'
     }
 
-
     document.getElementById('sort-form').innerHTML = html;
-
 
     $("#sort-form label").on('click', function (el) {
         if (!this.parentElement.hasAttribute('disable')) {
