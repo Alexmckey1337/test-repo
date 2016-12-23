@@ -10,6 +10,11 @@ from main import views
 urlpatterns = [
     url(r'^entry/$', views.entry, name='entry'),
     url(r'^events/$', views.events, name='events'),
+
+    url(r'^meeting_types/$', views.meeting_types, name='meeting_type-list'),
+    url(r'^meeting_types/(?P<code>[-_\w]+)/$', views.meeting_type_detail, name='meeting_type-detail'),
+    url(r'^meeting_types/(?P<code>[-_\w]+)/report/$', views.meeting_report, name='meeting-report'),
+
     url(r'^deals/$', views.deals, name='deals'),
                   url(r'^partners/stats/$', views.partner_stats, name='partner_stats'),
     url(r'^account/([0-9]+)/$', views.account, name='account'),
