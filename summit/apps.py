@@ -8,4 +8,4 @@ class SummitConfig(AppConfig):
     name = 'summit'
 
     def ready(self):
-        pass
+        from . import receivers  # noqa
