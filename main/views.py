@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from account.models import CustomUser
-from hierarchy.models import Department
+from hierarchy.models import Department, Hierarchy
 from partnership.models import Partnership
 from summit.models import SummitType
 from tv_crm.views import sync_user_call
@@ -76,9 +76,19 @@ def summit_info(request, summit_id):
 
 @login_required(login_url='entry')
 def index(request):
+    user = request.user
     ctx = {
-        'departments': Department.objects.all()
+        'departments': Department.objects.all(),
+        'hierarchies': Hierarchy.objects.order_by('level'),
     }
+    if user.is_staff:
+        ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
+    elif not user.hierarchy:
+        ctx['masters'] = list()
+    elif user.hierarchy.level < 2:
+        ctx['masters'] = user.get_descendants(include_self=True).filter(is_active=True, hierarchy__level__gte=1)
+    else:
+        ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
     return render(request, 'database/main.html', context=ctx)
 
 
