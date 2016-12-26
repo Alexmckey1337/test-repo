@@ -1,12 +1,8 @@
-//Создать метод вызова init()
-
-let config = {
+var config = {
     // 'DOCUMENT_ROOT': 'http://vocrm.org/',
     'DOCUMENT_ROOT': '/',
     'pagination_count': 30, //Количество записей при пагинации
     'pagination_patrnership_count': 30, //Количество записей при пагинации for patrnership
-
-    // 'pagination_mini_count': 10,
     'column_table': null
 };
 
@@ -58,17 +54,12 @@ $('#logout_button').on('click', function (e) {
 /*search animate width*/
 $('.top input').click(function () {
     $('.top .search').animate({width: "80%"});
-    // $('.filter').show();
 });
 
 function hideFilter() {
-    //$('.top input').blur(function() {
-
     if ($('.top input').length && !$('.top input').val().length) {
         $('.top .search').animate({width: "50%"});
-        // $('.filter').hide();
     }
-    //});
 }
 
 if (document.getElementById('filter')) {
@@ -77,21 +68,11 @@ if (document.getElementById('filter')) {
 
 if (document.getElementById('sort_save')) {
     document.getElementById('sort_save').addEventListener('click', function () {
-        // updateSettings(getCurrentSetting);
         $(".table-sorting").animate({
             right: '-300px'
         }, 10, 'linear')
     })
 }
-
-/*function showWindow () {
- let wind = document.querySelector('.massage-hover');
- document.querySelector(".photo-hover").style.display = 'none';
- wind.classList.toggle('active-window');
-
- }*/
-
-/* Написать модуль   пагинации и перенести обработчики туда */
 
 $("#pag li ").click(function (e) {
     e.preventDefault();
@@ -173,13 +154,6 @@ $(document).ready(function () {
     $('body').on('mouseout', '.toggle-sidebar a', function (el) {
         $('#hint').detach();
     });
-    /*$('.toggle-sidebar a').hover(
-     function() {
-     console.log($(this).attr('title'))
-     },
-     function() {
-     console.log($(this).html())
-     });*/
     if ($('.scrollbar-inner').length || $('.scrollbar-macosx').length) {
         $('.scrollbar-inner').scrollbar();
         $('.scrollbar-macosx').scrollbar();
@@ -192,7 +166,6 @@ $(document).ready(function () {
     });
 
     $("#move-sidebar").click(function () {
-        /*$("#sidebar").toggleClass("toggle-sidebar");*/
         if (!$("#sidebar").hasClass('toggle-sidebar')) {
             $("#sidebar").addClass('toggle-sidebar');
             document.cookie = 'state=active;path=/';
@@ -213,9 +186,6 @@ $(document).ready(function () {
         $("#nav-sidebar li").removeClass('active');
         $("#nav-sidebar li a[href='" + loc + "']").parent().addClass('active');
     }
-
-
-//Перенести в файл
 });
 
 window.onload = function () {
@@ -267,21 +237,12 @@ $(function () {
         config.column_table = data.column_table;
         let hierarchy_chain = data['hierarchy_chain'];
 
-
-        if (typeof init === "function") {
-            //Не потрібно в DOMReady
-            //init(user_id)
-        }
-
-
         if (document.getElementById('database_users')) {
             createUser();
-            // getCurrentSetting();
         }
 
         if (document.getElementById('partnersips_list')) {
             getPartnersList();
-            // getCurrentSetting();
         }
 
         if (document.getElementById('users_list')) {
@@ -292,24 +253,23 @@ $(function () {
             getCurrentSetting();
         }
 
-
         if (document.getElementById('event_wrap')) {
             getCurrentSetting();
             init(user_id);
-            //createSubordinateList(user_id);
         }
 
         if (document.getElementById("add_new")) {
             document.getElementById("add_new").setAttribute('data-id', data.id);
         }
 
-        /*if(document.getElementById('edit-photo')){
-         document.getElementById('edit-photo').setAttribute('data-source', data.image_source);
-         }*/
-
         if (document.getElementById("report_wrap")) {
             init_report()
         }
+
+        if (config.user_partnerships_info && config.user_partnerships_info.is_responsible && document.querySelector('.manager_view')) {
+            document.querySelector('.manager_view').style.display = 'block'
+        }
+
     });
     if (document.getElementById('sort-form')) {
         $("#sort-form").sortable({revert: true, items: "li:not([disable])", scroll: false});
@@ -335,7 +295,6 @@ jQuery(function ($) {
         };
         $.datepicker.setDefaults($.datepicker.regional['ru']);
     }
-
 });
 
 //old version
@@ -356,31 +315,16 @@ function getCurrentSetting() {
         html += '</li>'
     }
 
-
     document.getElementById('sort-form').innerHTML = html;
 
-    /*let cols = document.querySelectorAll('[draggable]');
-     Array.prototype.forEach.call(cols, function(col) {
-     col.addEventListener('drop', handleDrop, false);
-     col.addEventListener('dragstart', handleDragStart, false);
-     col.addEventListener('dragenter', handleDragEnter, false);
-     col.addEventListener('dragover', handleDragOver, false);
-     col.addEventListener('dragleave', handleDragLeave, false);
-     });*/
-
-
-    live('click', "#sort-form label", function (el) {
+    $("#sort-form label").on('click', function (el) {
         if (!this.parentElement.hasAttribute('disable')) {
             this.classList.contains('check') ? this.classList.remove('check') : this.classList.add('check');
         }
     })
-
 }
 
-
 function updateSettings(callback, param) {
-
-
     let data = [];
     let iteration = 1;
     Array.prototype.forEach.call(document.querySelectorAll("#sort-form label"), function (el) {

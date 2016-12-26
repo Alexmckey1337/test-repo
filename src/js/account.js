@@ -1,10 +1,8 @@
-$(document).ready(function () {
-    let id = getLastId();
+let id = getLastId();
     // init();
     $('.b-red').on('click', function () {
         window.location.href = `/account_edit/${id}/`;
     });
-    // getUserDeals();
     $("#tabs1 li").on('click', function () {
         let id_tab = $(this).attr('data-tab');
         $('[data-tab-content]').hide();
@@ -58,6 +56,7 @@ $(document).ready(function () {
             showPopup('Заполните все поля.');
         }
     });
+
     $("#tabs1 li").click();
 
     $("#id_deal_date").datepicker({
@@ -69,7 +68,7 @@ $(document).ready(function () {
     }).mousedown(function () {
         $('#ui-datepicker-div').toggle();
     });
-    // getUserSummitInfo();
+
     $("#send_note").on('click', function (e) {
         e.preventDefault();
         let box = $(this).closest(".note-box");
@@ -98,7 +97,6 @@ $(document).ready(function () {
         $('#Sammits').css('display', 'block');
     } else {
         $('#Sammits').css('display', 'block');
-        return
     }
 
     $('#deleteUser').click(function () {
@@ -127,116 +125,6 @@ $(document).ready(function () {
         deleteUser(id);
         $('#deletePopup').hide();
     });
-
-});
-
-
-function init(id) {
-    id = parseInt(id || getLastId());
-    let isMember;
-
-    if (!id) {
-        return
-    }
-    let path = '/api/v1.0/summit_types/2/is_member';
-    let param = {
-        "user_id": id
-    };
-    ajaxRequest(path, param, function (data) {
-        isMember = data.result;
-    });
-
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/users/' + id + '/', null, function (data) {
-        let date;
-        if (isMember || isMember == 'true') {
-            $(".label").addClass("member-icon");
-        }
-        if (data.fields.coming_date.value) {
-            date = data.fields.coming_date.value.replace(/\-/g, '.');
-        }
-
-        if (data.image) {
-            $(".anketa-photo img").attr('src', data.image);
-        }
-        if (!data.fields) {
-            return
-        }
-        if (data.fields.coming_date.value) {
-            $('#coming_date').html(date);
-        }
-        $('#deleteUser').attr('data-id', data.id);
-        let fullname;
-        let social = data.fields.social;
-        let repentance_date = data.fields.repentance_date;
-
-
-        let status = repentance_date.value ? '<span class="green1">Покаялся: ' + repentance_date.value.replace(/\-/g, '.') + '</span>' : '<span class="reds">Не покаялся</span>';
-
-        $('#repentance_status').html(status);
-
-        let main_phone = data.fields.phone_number.value;
-        let additional_phone = data.fields.additional_phone.value;
-        let phone = main_phone;
-        if (additional_phone) {
-            phone = phone + ', ' + additional_phone || ' ';
-        }
-        $('#phone_number').html(phone);
-
-        for (let prop in data.fields) {
-            if (!data.fields.hasOwnProperty(prop)) continue;
-
-            if (prop == 'social') {
-
-
-                for (let soc in social) {
-                    if (!social.hasOwnProperty(soc)) continue;
-
-                    if (soc == 'skype') {
-                        $('#skype').html(social['skype']);
-                        continue
-                    }
-
-                    if ($("[data-soc = '" + soc + "']") && social[soc]) {
-                        $("[data-soc = '" + soc + "']").attr('data-href', social[soc])
-                    }
-                }
-
-                continue
-            }
-
-            if (prop == 'fullname') {
-                fullname = data.fields[prop]['value'].split(' ');
-                if ($('#' + prop)) {
-                    $('#' + prop).html(fullname[0] + '<br>' + fullname[1] + ' ' + fullname[2]);
-                }
-                continue
-            }
-            if (prop == 'divisions') {
-                let divisions = data.fields[prop]['value'].split(',').join(', ');
-                $('#' + prop).html(divisions);
-                continue
-            }
-            if (prop == 'additional_phone' || prop == 'phone_number') {
-                continue
-            }
-
-            if ($('#' + prop) && data.fields[prop]['value']) {
-                $('#' + prop).html(data.fields[prop]['value']);
-            }
-
-
-        }
-
-        $(".a-socials").on('click', function () {
-            let href = $(this).attr('data-href');
-            if (href) {
-                window.location = href;
-            }
-        });
-
-
-    })
-}
 
 function deleteUser(id) {
     let data = {
@@ -299,3 +187,117 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         }
     });
 }
+
+(function getUserSummitInfo() {
+    let id = parseInt(id || getLastId());
+    if (!id) {
+        return
+    }
+    let url = config.DOCUMENT_ROOT + 'api/v1.0/users/' + id + '/summit_info/';
+
+    ajaxRequest(url, null, function (results) {
+        if (!results.length) {
+            document.getElementsByClassName('a-sammits')[0].style.display = 'none';
+            return
+        }
+
+        let tab_title = [];
+        let menu_summit = '';
+        let body_summit = '';
+
+        results.forEach(function (summit_type) {
+            tab_title.push(summit_type.id);
+            menu_summit += '<li data-tab=' + summit_type.id + '><a href="#" >' + summit_type.name + '</a></li>';
+            summit_type.summits.forEach(function (summit) {
+                body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" style="border-bottom: 2px solid #000"><div class="col"><p>' + summit.name + '</p> </div><div class="col">';
+                if (summit.description != "") {
+                    body_summit += '<p>' + summit.description + ' (Code: <a href="/api/v1.0/generate_code/' + summit.user_fullname + ' (' + summit.code + ').pdf?code=' + summit.code + '">' + summit.code + ')' + '</a></p>';
+                } else {
+                    body_summit += '<p>Комментарий не указан ' + ' (Code: <a href="/api/v1.0/generate_code/' + summit.user_fullname + ' (' + summit.code + ').pdf?code=' + summit.code + '">' + summit.code + ')' + '</a></p>';
+                }
+
+                body_summit += '<p>Сумма<span> ' + summit.value + ' ₴</span></p>' +
+                    '</div></div>';
+
+                // NOTES
+                body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 15px;"><p>Примечания</p></div></div>';
+                summit.notes.forEach(function (note) {
+                    body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>' + note.text + ' — ' + moment(note.date_created).format("DD.MM.YYYY HH:mm:ss")
+                        + ' — Author: ' + note.owner_name
+                        + '</p></div></div>';
+                });
+
+                body_summit += '<div class="rows note-box" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 15px;">' +
+                    '<p>Написать примечание</p><p><textarea name="add_note" data-anket-id="' + summit.anket_id + '" class="js-add_note" cols="30" rows="10"></textarea></p>' +
+                    '<p><button id="send_note">Отправить примечание</button></p></div></div>';
+
+                // LESSONS
+                if (summit.lessons.length) {
+                    body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 15px;"><p>Уроки</p></div></div>';
+                }
+                summit.lessons.forEach(function (lesson) {
+                    body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>';
+                    if (summit.is_consultant) {
+                        if (lesson.is_view) {
+                            body_summit += '<input id="lesson' + lesson.id + '" class="js-lesson" type="checkbox" data-anket-id="' + summit.anket_id + '" data-lesson-id="' + lesson.id + '" checked>';
+                        } else {
+                            body_summit += '<input id="lesson' + lesson.id + '" class="js-lesson" type="checkbox" data-anket-id="' + summit.anket_id + '" data-lesson-id="' + lesson.id + '">';
+                        }
+                        body_summit += lesson.name + '</p></div></div>';
+                    } else {
+                        if (lesson.is_view) {
+                            body_summit += '<input id="lesson' + lesson.id + '" type="checkbox" data-anket-id="' + summit.anket_id + '" data-lesson-id="' + lesson.id + '" checked disabled>';
+                            body_summit += '<span style="color:darkgreen">' + lesson.name + '  </span></p></div></div>';
+                        } else {
+                            body_summit += '<input id="lesson' + lesson.id + '" type="checkbox" data-anket-id="' + summit.anket_id + '" data-lesson-id="' + lesson.id + '" disabled>';
+                            body_summit += '<span style="color:darkred">' + lesson.name + '</span></p></div></div>';
+                        }
+                    }
+                });
+                // EMAILS
+                if (summit.emails.length) {
+                    body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 15px;"><p>EMAIL</p></div></div>';
+                }
+                summit.emails.forEach(function (email) {
+                    body_summit += '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p> Отправлено на email: ' + email.recipient + ' — Дата отправки: ' + moment(email.created_at).format("DD.MM.YYYY HH:mm:ss")
+                        + '</p></div></div>';
+                });
+            });
+        });
+
+        $('#summitWrapper').html(body_summit);
+        $('#tabs2').html(menu_summit);
+
+        $("#send_note").on('click', function (e) {
+            e.preventDefault();
+            let box = $(this).closest(".note-box");
+            let text_field = box.find('.js-add_note');
+            let text = text_field.val();
+            let anket_id = text_field.data('anket-id');
+            sendNote(anket_id, text, box);
+            text_field.val('');
+
+        });
+
+        $(".js-lesson").on('click', function (e) {
+            let lesson_id = $(this).data("lesson-id");
+            let anket_id = $(this).data('anket-id');
+            let checked = $(this).is(':checked');
+            changeLessonStatus(lesson_id, anket_id, checked);
+        });
+
+        $("#tabs2 li").on('click', function (e) {
+            e.preventDefault();
+            let id_tab = this.getAttribute('data-tab');
+            $('[data-summit-id]').hide();
+            $('[data-summit-id="' + id_tab + '"]').show();
+        });
+
+        if ($("#tabs2 li")) {
+            $('#Sammits').css('display', 'block');
+            $("#tabs2 li").click();
+        } else {
+            $('#Sammits').css('display', 'block');
+        }
+    })
+})();

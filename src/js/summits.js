@@ -11,9 +11,11 @@
     });
 
     $('input[name="fullsearch"]').keyup(function () {
+        let val = $(this).val();
         delay(function () {
             let data = {};
             data['summit'] = summit_id;
+            data['search'] = val;
             getUsersList(path, data);
         }, 1500);
     });
@@ -45,7 +47,6 @@
                 getUsersList(path);
                 break;
             case '1':
-
                 param = {
                     is_member: true
                 };
@@ -329,16 +330,16 @@ function addSummitInfo() {
 
 function getCurrentSummitSetting(data) {
     let html = '';
-    data.forEach(function (d) {
-        let titles = d[1];
-        html += '<h3>' + d[0] + '</h3>';
-        for (let p in titles) {
-            if (!titles.hasOwnProperty(p)) continue;
-            let ischeck = titles[p]['active'] ? 'check' : '';
-            let isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
+    data.forEach(function (obj) {
+        let titles = obj[1];
+        html += '<h3>' + obj[0] + '</h3>';
+        for (let prop in titles) {
+            if (!titles.hasOwnProperty(prop)) continue;
+            let ischeck = titles[prop]['active'] ? 'check' : '';
+            let isdraggable = titles[prop]['editable'] ? 'draggable' : 'disable';
             html += '<li ' + isdraggable + ' >' +
-                '<input id="' + titles[p]['ordering_title'] + '" type="checkbox">' +
-                '<label for="' + titles[p]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[p]['id'] + '">' + titles[p]['title'] + '</label>';
+                '<input id="' + titles[prop]['ordering_title'] + '" type="checkbox">' +
+                '<label for="' + titles[prop]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[prop]['id'] + '">' + titles[prop]['title'] + '</label>';
             if (isdraggable == 'disable') {
                 html += '<div class="disable-opacity"></div>'
             }
@@ -347,13 +348,11 @@ function getCurrentSummitSetting(data) {
     });
 
     $('#sort-form').html(html);
-
     $('#sort-form input').on('click', function (el) {
         if (!$(this).prop('disable')) {
             $(this).hasClass('check') ? $(this).removeClass('check') : $(this).addClass('check');
         }
     })
-
 }
 
 function reversOrder(order) {
@@ -374,15 +373,6 @@ function getUsersList(path, param) {
         param['user__department__title'] = el.options[el.selectedIndex].text;
     }
     let ordering = param.ordering || 'user__last_name';
-    let filter = document.getElementById('filter').value;
-    if (search) {
-        if (filter == 'search') {
-            param[filter] = search;
-        } else {
-            param['user__' + filter] = search;
-        }
-
-    }
     param['summit'] = summit_id;
     document.getElementsByClassName('preloader')[0].style.display = 'block';
     ajaxRequest(path, param, function (data) {
@@ -393,6 +383,7 @@ function getUsersList(path, param) {
         let value;
 
         let count = data.count;
+
         if (results.length == 0) {
             $('#users_list').html('<p>По запросу не найдено учасников</p>');
             $(".element-select").html('<p>Показано <span>' + results.length + '</span> из <span>' + count + '</span></p>');
@@ -495,10 +486,7 @@ function getUsersList(path, param) {
             if (page > 4) {
                 paginations += '<li>1</li><li class="no-pagin">&hellip;</li>'
             }
-
             for (let j = page - 2; j < page + 3; j++) {
-
-
                 if (j == page) {
                     paginations += '<li class="active">' + j + '</li>'
                 } else {
@@ -514,8 +502,6 @@ function getUsersList(path, param) {
                 if (page < pages - 3) {
                     paginations += '<li>' + pages + '</li>'
                 }
-
-
             }
             paginations += '</ul>'
         }
@@ -550,7 +536,6 @@ function getUsersList(path, param) {
             } else {
                 $('#member').prop('checked', true);
             }
-
             $('#popupDelete').css('display', 'block');
         });
 

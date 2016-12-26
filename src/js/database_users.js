@@ -27,16 +27,16 @@ $(function () {
 
 function getCurrentUserSetting(data) {
     let html = '';
-    data.forEach(function (d) {
-        let titles = d[1];
-        html += '<h3>' + d[0] + '</h3>';
-        for (let p in titles) {
-            if (!titles.hasOwnProperty(p)) continue;
-            let ischeck = titles[p]['active'] ? 'check' : '';
-            let isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
+    data.forEach(function (feed) {
+        let titles = feed[1];
+        html += '<h3>' + feed[0] + '</h3>';
+        for (let prop in titles) {
+            if (!titles.hasOwnProperty(prop)) continue;
+            let ischeck = titles[prop]['active'] ? 'check' : '';
+            let isdraggable = titles[prop]['editable'] ? 'draggable' : 'disable';
             html += '<li ' + isdraggable + ' >' +
-                '<input id="' + titles[p]['ordering_title'] + '" type="checkbox">' +
-                '<label for="' + titles[p]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[p]['id'] + '">' + titles[p]['title'] + '</label>';
+                '<input id="' + titles[prop]['ordering_title'] + '" type="checkbox">' +
+                '<label for="' + titles[prop]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[prop]['id'] + '">' + titles[prop]['title'] + '</label>';
             if (isdraggable == 'disable') {
                 html += '<div class="disable-opacity"></div>'
             }
@@ -46,12 +46,11 @@ function getCurrentUserSetting(data) {
 
     document.getElementById('sort-form').innerHTML = html;
 
-    live('click', "#sort-form label", function (el) {
+    $("#sort-form label").on('click', function (el) {
         if (!this.parentElement.hasAttribute('disable')) {
             this.classList.contains('check') ? this.classList.remove('check') : this.classList.add('check');
         }
     })
-
 }
 
 function reversOrder(order) {
@@ -276,19 +275,18 @@ function createUser(data) {
     let path = config.DOCUMENT_ROOT + 'api/v1.1/users/?';
     data = data || {};
     let search = document.getElementsByName('fullsearch')[0].value;
-    let filter = document.getElementById('filter').value;
     if (search && !data['sub']) {
-        data[filter] = search;
+        data.search_fio = search;
     }
 
     let el = document.getElementById('dep_filter');
-    let value = el.options[el.selectedIndex].value;
+    let value = el.value;
+
     if (parseInt(value)) {
-        data['department__title'] = el.options[el.selectedIndex].text;
+        data['department'] = value;
     }
     document.getElementsByClassName('preloader')[0].style.display = 'block';
     ajaxRequest(path, data, function (answer) {
-        //  document.getElementsByClassName('preloader')[0].style.display = 'block'
         createUserInfoBySearch(answer, data);
     });
 }

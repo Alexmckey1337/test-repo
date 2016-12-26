@@ -1,5 +1,5 @@
-$(document).ready(function () {
-
+(function($) {
+    $(document).ready(function () {
     $('.columns-wrap').on('scroll', function () {
         $("#partnerFrom").datepicker('hide');
         $("#partnerFrom").blur();
@@ -492,3 +492,4 @@ function createNewAcc() {
         'Content-Type': 'application/json'
     });
 }
+})(jQuery);
