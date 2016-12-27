@@ -29,7 +29,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 STATIC_ROOT = None
 STATICFILES_DIRS = (str(BASE_DIR.path('public/static')),)
-
+"""
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -41,16 +41,16 @@ DATABASES = {
         }
     }
 }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'crm_db',
-#         'USER': 'crm_user',
-#         'PASSWORD': 'crm_pass',
-#         'HOST': 'localhost',
-#     }
-# }
-
+"""
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'crm_db',
+        'USER': 'crm_user',
+        'PASSWORD': 'crm_pass',
+        'HOST': 'localhost',
+    }
+}
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',

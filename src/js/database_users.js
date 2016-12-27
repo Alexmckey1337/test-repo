@@ -1,4 +1,10 @@
 $(function () {
+    //buttons events
+    $('#filter_button').on('click', function () {
+        $('#filterPopup').css('display', 'block');
+    });
+
+    $('.selectdb').select2();
     $('input[name="fullsearch"]').keyup(function () {
         delay(function () {
             createUser()
@@ -6,9 +12,8 @@ $(function () {
     });
 
     $('input[name="searchDep"]').keyup(function () {
-
         delay(function () {
-            createUserDep()
+            createUserDep();
         }, 1500);
     });
 
@@ -21,36 +26,17 @@ $(function () {
 
     document.getElementById('dep_filter').addEventListener('change', function () {
         createUser()
-
     });
 });
 
 function getCurrentUserSetting(data) {
-    let html = '';
-    data.forEach(function (feed) {
-        let titles = feed[1];
-        html += '<h3>' + feed[0] + '</h3>';
-        for (let prop in titles) {
-            if (!titles.hasOwnProperty(prop)) continue;
-            let ischeck = titles[prop]['active'] ? 'check' : '';
-            let isdraggable = titles[prop]['editable'] ? 'draggable' : 'disable';
-            html += '<li ' + isdraggable + ' >' +
-                '<input id="' + titles[prop]['ordering_title'] + '" type="checkbox">' +
-                '<label for="' + titles[prop]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[prop]['id'] + '">' + titles[prop]['title'] + '</label>';
-            if (isdraggable == 'disable') {
-                html += '<div class="disable-opacity"></div>'
-            }
-            html += '</li>'
-        }
-    });
-
-    document.getElementById('sort-form').innerHTML = html;
-
-    $("#sort-form label").on('click', function (el) {
-        if (!this.parentElement.hasAttribute('disable')) {
-            this.classList.contains('check') ? this.classList.remove('check') : this.classList.add('check');
-        }
-    })
+    let sortFormTmpl, obj, rendered;
+    obj = {};
+    sortFormTmpl = document.getElementById("sortForm").innerHTML;
+    obj = {};
+    obj.user = data[0];
+    rendered = _.template(sortFormTmpl)(obj);
+    document.getElementById('sort-form').innerHTML = rendered;
 }
 
 function reversOrder(order) {
@@ -66,16 +52,17 @@ let ordering = {};
 let parent_id = null;
 
 function createUserInfoBySearch(data, search) {
-
     if (data.length == 0) {
         showPopup('По данному запросу не найдено участников');
         document.getElementById("baseUsers").innerHTML = '';
         document.querySelector(".query-none p").innerHTML = 'По запросу не найдено участников';
         document.getElementById('total_count').innerHTML = count;
         document.getElementsByClassName('preloader')[0].style.display = 'none';
+
         Array.prototype.forEach.call(document.querySelectorAll(".pagination"), function (el) {
             el.style.display = 'none'
         });
+
         document.querySelector(".element-select").innerHTML = '<p>Показано <span>' + data.length + '</span> из <span>' + count + '</span></p>';
         document.getElementsByClassName('preloader')[0].style.display = 'none';
         return;
@@ -95,62 +82,15 @@ function createUserInfoBySearch(data, search) {
     } else {
         tordering = ordering
     }
-    console.log(ordering, tordering);
 
     let results = data.results;
 
-    let k;
-    let value;
+    let k,
+        value;
 
     let user_fields = data.user_table;
 
     getCurrentUserSetting([['Пользователь', user_fields]]);
-
-    let thead = '<thead><tr>';
-
-    for (k in user_fields) {
-        if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
-        if (tordering == user_fields[k]['ordering_title']) {
-            thead += '<th data-order="' + reversOrder(ordering) + '">' + user_fields[k]['title'] + '</th>'
-        } else {
-            thead += '<th data-order="' + user_fields[k]['ordering_title'] + '">' + user_fields[k]['title'] + '</th>'
-        }
-    }
-    thead += '</tr></thead>';
-
-    let tbody = '<tbody>';
-    results.forEach(function (field, i) {
-        tbody += '<tr>';
-
-        for (k in user_fields) {
-            if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
-            value = getCorrectValue(field[k]);
-            if (k === 'fullname') {
-                tbody += '<td>' + '<a href="' + results[i].link + '">' + value + '</a></td>'
-            } else if (k === 'social') {
-                tbody += '<td>';
-                if (results[i].skype) {
-                    tbody += '<a href="skype:' + results[i].skype + '?chat"><i class="fa fa-skype"></i></a>';
-                }
-                if (results[i].vkontakte) {
-                    tbody += '<a href="' + results[i].vkontakte + '"><i class="fa fa-vk"></i></a>';
-                }
-                if (results[i].facebook) {
-                    tbody += '<a href="' + results[i].facebook + '"><i class="fa fa-facebook"></i></a>';
-                }
-                if (results[i].odnoklassniki) {
-                    tbody += '<a href="' + results[i].odnoklassniki + '"><i class="fa fa-odnoklassniki" aria-hidden="true"></i></a>';
-                }
-                tbody += '</td>';
-            } else {
-                tbody += '<td>' + value + '</td>'
-            }
-        }
-        tbody += '</tr>';
-    });
-    tbody += '</tbody>';
-
-    let table = '<table id="userinfo">' + thead + tbody + '</table>';
 
     //paginations
     let pages = Math.ceil(count / config.pagination_count);
@@ -191,12 +131,15 @@ function createUserInfoBySearch(data, search) {
     document.querySelector(".element-select").innerHTML = elementSelect;
     document.getElementById('total_count').innerHTML = count;
 
-    // document.getElementById("pag").innerHTML = paginations;
     Array.prototype.forEach.call(document.querySelectorAll(" .pag-wrap"), function (el) {
         el.innerHTML = paginations
     });
+    
+    var tmpl = document.getElementById('databaseUsers').innerHTML;
+    var result = _.template(tmpl)(data);
 
-    document.getElementById("baseUsers").innerHTML = table;
+    document.getElementById("baseUsers").innerHTML = result;
+
     document.querySelector(".query-none p").innerHTML = '';
     document.getElementsByClassName('preloader')[0].style.display = 'none';
     Array.prototype.forEach.call(document.querySelectorAll(" .pag li"), function (el) {
@@ -247,8 +190,7 @@ function createUserInfoBySearch(data, search) {
         })
     });
 
-    //Cортировка
-
+    // Cортировка
     Array.prototype.forEach.call(document.querySelectorAll(".table-wrap th"), function (el) {
         el.addEventListener('click', function () {
             let data_order = this.getAttribute('data-order');
@@ -278,14 +220,14 @@ function createUser(data) {
     if (search && !data['sub']) {
         data.search_fio = search;
     }
-
     let el = document.getElementById('dep_filter');
-    let value = el.value;
+    let value = 0;
 
     if (parseInt(value)) {
         data['department'] = value;
     }
-    document.getElementsByClassName('preloader')[0].style.display = 'block';
+    $('.preloader').css('display', 'block');
+
     ajaxRequest(path, data, function (answer) {
         createUserInfoBySearch(answer, data);
     });
@@ -299,5 +241,4 @@ function getsubordinates(e) {
         'master': id
     });
     window.parent_id = id;
-
 }

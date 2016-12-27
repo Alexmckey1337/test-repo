@@ -77,7 +77,9 @@ button {
   font-size: 1.1em;
   transition: all .3s ease;
 }
-
+.close-popup {
+  padding: 12px 20px 12px 20px;
+}
 button:hover {
   background-color: #3caeda;
 }
@@ -817,6 +819,14 @@ h1 a {
   width: 19px;
   height: 19px;
   background: url('../img/sprite-buttons.png') no-repeat 0 0;
+}
+
+#filter_button::before {
+  content: "\f0b0" !important;
+  font: 1.4em FontAwesome;
+  color: white;
+  //background: url('../img/sprite-buttons.png') no-repeat -1px -65px;
+  background: none;
 }
 
 .top-buttons button.exp::before {
@@ -1982,10 +1992,8 @@ table label::before {
   /*display: none*/
 }
 
-.editprofile input:checked ~ label:before,
-table input:checked ~ label:before,
-#sort-form label.check:before {
-  background-position: 0px -20px;
+input:checked ~ label:before {
+  background-position: 0px -20px !important;
 }
 
 label.disable:before {
@@ -2097,6 +2105,39 @@ table input[type=checkbox],
 }
 
 /***********************popup***************************************/
+.popap {
+  & input {
+    width: 96% !important;
+    padding: 6px;
+    border-radius: 3px;
+    border: 1px solid #cdd0d4;
+    height: 35px;
+    box-sizing: border-box;
+  }
+  & .label_block {
+    height: 35px;
+    font-size: 1.1em;
+    text-align: right;
+    padding: 0 1em;
+    margin-bottom: 0.7em;
+    & label {
+      margin-top: 0.7em;
+      display: block;
+    }
+  }
+  & .input_block {
+    margin-bottom: 0.7em;
+  }
+}
+.apply-filter {
+  padding: 12px 20px;
+  &.refresh {
+    i {
+      transform: rotate(180deg);
+      transition: transform 0.7s;
+    }
+  }
+}
 .pop-up-universal {
   position: fixed;
   top: 0;
@@ -2115,17 +2156,28 @@ table input[type=checkbox],
 
 .pop_cont {
   position: fixed;
-  max-width: 700px;
-  width: 400px;
+  max-width: 900px;
   height: auto;
   top: 50%;
   left: 50%;
-  padding: 0 0 20px 0;
+  padding: 1em;
   background: #fff;
   border: 1px solid #f3f3f3;
   z-index: 9999;
   border-radius: 3px;
   margin: -75px 0 0 -150px;
+  & .popup_text {
+    font-size: 1.5em;
+    text-transform: uppercase;
+    padding-bottom: 0.5em;
+    margin-bottom: 0.5em;
+    border-bottom: 1px solid #eee;
+  }
+  & .popup_body {
+    padding-bottom: 1em;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 2em;
+  }
 }
 
 .popap, .popap_wrap {
@@ -2135,7 +2187,7 @@ table input[type=checkbox],
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 9999999;
+  z-index: 9;
   display: none;
 }
 
@@ -2294,10 +2346,14 @@ table input[type=checkbox],
   margin: 40px auto;
 }
 
-.complete-deal-wrap .splash-bauttons {
+.complete-deal-wrap .splash-bauttons,
+.complete-deal-wrap .splash-buttons {
   position: relative;
   float: right;
   padding: 20px 30px 20px 0;
+  & .close {
+    padding-left: 45px;
+  }
 }
 
 .complete-deal-wrap button#complete-deal::before {
@@ -2508,6 +2564,9 @@ button#complete {
 
 #sort-form li[disable] label {
   cursor: default;
+  &::before {
+    display: none;
+  }
 }
 
 .over {
@@ -3072,9 +3131,11 @@ span.change[style*="display: none"] ~ span.y {
 .account h3 {
   font-size: 1.6em;
 }
+
 .vocrm-login .account h3 {
   margin: 0;
 }
+
 .account .restore:hover {
   color: #3caeda;
 }
@@ -3162,6 +3223,7 @@ span.change[style*="display: none"] ~ span.y {
   font-weight: bold;
   white-space: pre-line; /*pre*/
 }
+
 .left-content .right-info span {
   display: inline-block;
 }
@@ -3408,6 +3470,7 @@ span.green {
   height: 17px;
   background: url('../img/download.png');
 }
+
 .editprofile .col-1 .butt-wrap button {
   padding-left: 45px;
 }
@@ -3424,9 +3487,11 @@ span.green {
   padding-left: 25px;
   overflow: hidden;
 }
+
 .editprofile .splash-bauttons .close {
   padding-left: 45px;
 }
+
 .editprofile .splash-bauttons .close:after {
   display: block;
   content: '';
@@ -3437,6 +3502,7 @@ span.green {
   height: 19px;
   background: url(../img/events.png) 2px 0 no-repeat;
 }
+
 .columns-wrap {
   height: 100%;
   overflow-y: auto;
@@ -3449,6 +3515,12 @@ span.green {
   float: left;
 }
 
+.container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-around;
+}
+
 .col-2, .col-3 {
   width: 38%;
   float: left;
@@ -3456,6 +3528,11 @@ span.green {
 
 .col-3 {
   margin-left: 2%;
+}
+
+.col-6 {
+  width: 50%;
+  min-width: 250px;
 }
 
 .col-table {
@@ -4013,10 +4090,10 @@ div.code input#code {
 
 // grab bootsrap need delete
 
-
 #statistic_block {
   margin-top: 15px;
 }
+
 .panel-primary {
   border-color: #337ab7;
   & .well {
@@ -4100,7 +4177,7 @@ div.code input#code {
   //font-size: 1.5em;
   color: inherit;
   text-transform: uppercase;
-  font-family: UbuntuBold,sans-serif;
+  font-family: UbuntuBold, sans-serif;
 }
 
 .panel {
@@ -4112,7 +4189,7 @@ div.code input#code {
 }
 
 .label-primary {
-  background-color: transparent;/*#337ab7*/
+  background-color: transparent; /*#337ab7*/
 }
 
 .label {
@@ -4122,7 +4199,7 @@ div.code input#code {
   font-family: 'UbuntuBold', sans-serif;
   //font-weight: 700;
   line-height: 1;
-  color: #263238;/*fff*/
+  color: #263238; /*fff*/
   text-align: center;
   white-space: nowrap;
   vertical-align: baseline;
@@ -4183,13 +4260,11 @@ div.code input#code {
   }
 }
 
-
 // lessons anketa
 
-
 .header .top li .selectdb {
-    top: 55px;
-    left: 30px;
+  top: 55px;
+  left: 30px;
 }
 
 .a-sammits-select {
@@ -4202,9 +4277,10 @@ div.code input#code {
     background-color: inherit;
   }
 }
+
 .summit-tabs {
-/*  padding-bottom: 15px;*/
-    position: relative;
+  /*  padding-bottom: 15px;*/
+  position: relative;
   & input.a-tab {
     display: none;
   }
@@ -4280,7 +4356,7 @@ div.code input#code {
       right: 0;
       background-color: rgba(0, 0, 0, 0.6);
       z-index: 99;
-      & .splash-a-payment{
+      & .splash-a-payment {
         width: 400px;
         padding: 10px 20px;
         position: absolute;
@@ -4322,10 +4398,10 @@ div.code input#code {
   }
   & #sum-content1 table tr td, #sum-content3 table tr td {
     padding: 9px 12px;
-    }
+  }
   & #sum-content2 table input[type="checkbox"],
   #sum-content3 table input[type="checkbox"] {
-    display:none;
+    display: none;
   }
   & #sum-content2 table input[type="checkbox"] + label,
   #sum-content3 table input[type="checkbox"] + label {
@@ -4335,7 +4411,7 @@ div.code input#code {
     display: inline-block;
     width: 20px;
     height: 20px;
-    vertical-align:middle;
+    vertical-align: middle;
     background: url(../img/scheck-box.png) no-repeat 0 0;
   }
   & #sum-content2 table input[type="checkbox"] + label {

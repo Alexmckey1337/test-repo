@@ -41,7 +41,6 @@
         });
     });
 
-
     $('#impPopup button').click(function () {
         let imgUrl;
         imgUrl = img.cropper('getCroppedCanvas').toDataURL('image/jpeg');

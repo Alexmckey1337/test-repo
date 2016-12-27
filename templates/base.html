@@ -21,7 +21,7 @@
     <link rel="shortcut icon" href='{% static "img/favicon.png" %}' type="image/x-icon">
 
     {% block main_styles %}
-    <link rel="stylesheet" href='{% static "libs/reset-css/reset.css" %}'>
+        <link rel="stylesheet" href='{% static "libs/reset-css/reset.css" %}'>
         <link rel="stylesheet" href='{% static "libs/normalize-css/normalize.css" %}'>
         <link rel="stylesheet" href='{% static "libs/jquery.scrollbar/jquery.scrollbar.css" %}'>
         <link rel="stylesheet" href='{% static "libs/jquery-ui/themes/base/jquery-ui.min.css" %}'>
@@ -44,13 +44,94 @@
     <script src='{% static "libs/jquery/dist/jquery.min.js" %}'></script>
     <script src='{% static "libs/jquery.scrollbar/jquery.scrollbar.min.js" %}'></script>
     <script src='{% static "libs/jquery-ui/jquery-ui.min.js" %}'></script>
-    <script src='{% static "libs/select2/dist/js/select2.min.js" %}' ></script>
+    <script src='{% static "libs/select2/dist/js/select2.min.js" %}'></script>
+    <script src='{% static "libs/lodash/dist/lodash.min.js" %}'></script>
     <script src='{% static "js/lib.js" %}'></script>
     <script src='{% static "js/main.js" %}'></script>
 {% endblock %}
 
 {% block extra_scripts %}
 {% endblock %}
+{% block popup %}
+{% endblock %}
+<script type="text/template" id="databaseUsers">
+    <table>
+        <thead>
+        <tr>
+            <% for( var key in user_table) { %>
+                <% if(user_table[key].active) { %>
+                    <th><%=user_table[key].title %></th>
+                <% } %>
+            <% } %>
+        </tr>
+        </thead>
+        <tbody>
+            <% for( var index in results) { %>
+            <tr>
+                <% for( var key in user_table) { %>
+                    <% if(user_table[key].active) { %>
+                        <% if (key == 'master' ) { %>
+                            <% if (results[index][key] != null) { %>
+                                <th><%= results[index][key].fullname %></th>
+                            <% } else { %>
+                                <th></th>
+                            <% } %>
+                        <% }  else if (key == 'department' || key == 'hierarchy') { %>
+                            <% if (results[index][key] != null ) { %>
+                                <th><%= results[index][key].title %></th>
+                            <% } else { %>
+                                <th></th>
+                            <% } %>
+                        <% }  else if (key == 'divisions') { %>
+                            <% if ( Array.isArray(results[index][key]) && results[index][key].length != 0) { %>
+                                <% if (results[index][key].length == 1) { %>
+                                    <th><%= results[index][key][0].title %></th>
+                                <% }  else { %>
+                                    <th><%= results[index][key].reduce(function(sum, item) {
+                                            return sum.title + ', ' + item.title
+                                        }) %></th>
+                                <% } %>
+                            <% } else { %>
+                                <th></th>
+                            <% } %>
+                        <% }  else { %>
+                            <th><%=results[index][key]%></th>
+                        <% } %>
+                    <% } %>
+                <% } %>
+            </tr>
+            <% } %>
+        </tbody>
+    </table>
+</script>
+<script type="text/template" id="sortForm">
+    <h3><%=user[0]%></h3>
+        <% for( var key in user[1]) { %>
+        <li <% if(user[1][key].editable) {%>
+            class="draggable"
+            <% } else { %>
+                disable
+            <% } %> >
+            <input type="checkbox" id="<%=key%>" <% if(user[1][key].active) { %>
+            checked
+            <% }%> value="<%=user[1][key].id %>">
+            <label for="<%=key%>"><%=user[1][key].title%></label>
+        </li>
+         <% } %>
+</script>
+<script type="text/template" id="mainPopup">
+    <div class="splash-screen">
+        <div class="top-text">
+            <h3></h3>
+        </div>
+    </div>
+    <div class="columns-wrap">
+
+    </div>
+    <div class="splash-buttons">
+
+    </div>
+</script>
 
 </body>
 </html>

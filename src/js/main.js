@@ -67,6 +67,15 @@ if (document.getElementById('filter')) {
 }
 
 if (document.getElementById('sort_save')) {
+
+    document.getElementById('sort_save').addEventListener('click', function () {
+        $(".table-sorting").animate({
+            right: '-300px'
+        }, 10, 'linear')
+    })
+}
+
+function sortSave() {
     document.getElementById('sort_save').addEventListener('click', function () {
         $(".table-sorting").animate({
             right: '-300px'
@@ -327,27 +336,86 @@ function getCurrentSetting() {
 function updateSettings(callback, param) {
     let data = [];
     let iteration = 1;
-    Array.prototype.forEach.call(document.querySelectorAll("#sort-form label"), function (el) {
+    $("#sort-form input").each(function (el) {
         let item = {};
-        item['id'] = parseInt(el.getAttribute('id'));
+        item['id'] = $(this).val();
         item['number'] = iteration++;
-        item['active'] = !!el.classList.contains('check');
+        item['active'] = $(this).prop('checked');
         data.push(item);
     });
-
     let json = JSON.stringify(data);
 
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/update_columns/', json, function (JSONobj) {
         $(".bgsort").remove();
         config['column_table'] = JSONobj['column_table'];
+        
         if (callback) {
             if (param !== undefined) {
-                callback(param);
+                let extendParam = $.extend({}, param, filterParam());
+                callback(extendParam);
             } else {
-                callback();
+                let param = filterParam();
+                callback(param);
             }
         }
     }, 'POST', true, {
         'Content-Type': 'application/json'
     });
+}
+
+function hidePopup(el) {
+    $(el).closest('.popap').css('display', 'none');
+}
+function refreshFilter(el) {
+    var input = $(el).closest('.popap').find('input');
+    $(el).addClass('refresh');
+    setTimeout(function(){
+        $(el).removeClass('refresh');
+    }, 700);
+    Array.from(input).forEach(function(item){
+        $(item).val('')
+    })
+}
+function filterParam() {
+    let filterPopup, data = {}, department, hierarchy, master, search_email, search_phone_number, search_country, search_city;
+    filterPopup = $('#filterPopup');
+    department = parseInt($('#departments_filter').val());
+    hierarchy = parseInt($('#hierarchies_filter').val());
+    master = parseInt($('#masters_filter').val());
+    search_email = $('#search_email').val();
+    search_phone_number = $('#search_phone_number').val();
+    search_country = $('#search_country').val();
+    search_city = $('#search_city').val();
+
+    if(department !== 0 ) {
+        data['department'] = department;
+    }
+    if(hierarchy !== 0 ) {
+        data['hierarchy'] = hierarchy;
+    }
+    if(master !== 0 ) {
+        data['master'] = master;
+    }
+    if(search_email != "") {
+        data['search_email'] = search_email;
+    }
+    if(search_phone_number != "") {
+        data['search_phone_number'] = search_phone_number;
+    }
+    if(search_country != "") {
+        data['search_country'] = search_country;
+    }
+     if(search_city != "") {
+        data['search_city'] = search_city;
+    }
+    return data;
+}
+
+function applyFilter(el) {
+    let self = el, data;
+    data = filterParam();
+    createUser(data);
+    setTimeout(function () {
+        hidePopup(self);
+    }, 300);
 }
