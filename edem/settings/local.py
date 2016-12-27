@@ -32,24 +32,13 @@ STATICFILES_DIRS = (str(BASE_DIR.path('public/static')),)
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'crm2',
-        'USER': 'crmuse',
-        'PASSWORD': '123456',
-        'OPTIONS': {
-            "init_command": "SET default_storage_engine=MYISAM",
-        }
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'crm_db',
+        'USER': 'crm_user',
+        'PASSWORD': 'crm_pass',
+        'HOST': 'localhost',
     }
 }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'crm_db',
-#         'USER': 'crm_user',
-#         'PASSWORD': 'crm_pass',
-#         'HOST': 'localhost',
-#     }
-# }
 
 HAYSTACK_CONNECTIONS = {
     'default': {
