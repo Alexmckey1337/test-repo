@@ -131,17 +131,13 @@ WSGI_APPLICATION = 'edem.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'crm',
-        'USER': 'crmuse',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'crm_db',
+        'USER': 'crm_user',
         'PASSWORD': '123456',
-        'OPTIONS': {
-            "init_command": "SET storage_engine=MYISAM",
-            # "init_command": "SET default_storage_engine=MYISAM",
-        }
+        'HOST': 'localhost',
     }
 }
-
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
 
