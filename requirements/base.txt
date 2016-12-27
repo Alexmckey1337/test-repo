@@ -26,8 +26,8 @@ flower
 gunicorn==19.4.5
 kombu==3.0.37
 Markdown==2.6.5
-mysqlclient
 Pillow==2.9.0
+psycopg2
 pytz==2016.7
 redis
 reportlab
