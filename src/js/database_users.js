@@ -134,11 +134,13 @@ function createUserInfoBySearch(data, search) {
     Array.prototype.forEach.call(document.querySelectorAll(" .pag-wrap"), function (el) {
         el.innerHTML = paginations
     });
-    
-    var tmpl = document.getElementById('databaseUsers').innerHTML;
-    var result = _.template(tmpl)(data);
 
-    document.getElementById("baseUsers").innerHTML = result;
+
+    var tmpl = document.getElementById('databaseUsers').innerHTML;
+    var rendered = _.template(tmpl)(data);
+
+    document.getElementById("baseUsers").innerHTML = rendered;
+
 
     document.querySelector(".query-none p").innerHTML = '';
     document.getElementsByClassName('preloader')[0].style.display = 'none';
@@ -222,13 +224,11 @@ function createUser(data) {
     }
     let el = document.getElementById('dep_filter');
     let value = 0;
+    let extendData = $.extend({}, data, filterParam());
 
-    if (parseInt(value)) {
-        data['department'] = value;
-    }
     $('.preloader').css('display', 'block');
 
-    ajaxRequest(path, data, function (answer) {
+    ajaxRequest(path, extendData, function (answer) {
         createUserInfoBySearch(answer, data);
     });
 }

@@ -55,7 +55,7 @@
 {% block popup %}
 {% endblock %}
 <script type="text/template" id="databaseUsers">
-    <table>
+     <table>
         <thead>
         <tr>
             <% for( var key in user_table) { %>
@@ -69,33 +69,40 @@
             <% for( var index in results) { %>
             <tr>
                 <% for( var key in user_table) { %>
+
                     <% if(user_table[key].active) { %>
-                        <% if (key == 'master' ) { %>
+                        <% if (key == 'fullname' ) { %>
                             <% if (results[index][key] != null) { %>
-                                <th><%= results[index][key].fullname %></th>
+                                <td><a href="<%=results[index].link %>" data-link="<%=results[index].link %>" data-id="<%=results[index].id %>"><%= results[index][key] %></a></td>
                             <% } else { %>
-                                <th></th>
+                                <td></td>
+                            <% } %>
+                        <% } else if (key == 'master' ) { %>
+                            <% if (results[index][key] != null) { %>
+                                <td><%= results[index][key].fullname %></td>
+                            <% } else { %>
+                                <td></td>
                             <% } %>
                         <% }  else if (key == 'department' || key == 'hierarchy') { %>
                             <% if (results[index][key] != null ) { %>
-                                <th><%= results[index][key].title %></th>
+                                <td><%= results[index][key].title %></td>
                             <% } else { %>
-                                <th></th>
+                                <td></td>
                             <% } %>
                         <% }  else if (key == 'divisions') { %>
                             <% if ( Array.isArray(results[index][key]) && results[index][key].length != 0) { %>
                                 <% if (results[index][key].length == 1) { %>
-                                    <th><%= results[index][key][0].title %></th>
+                                    <td><%= results[index][key][0].title %></td>
                                 <% }  else { %>
-                                    <th><%= results[index][key].reduce(function(sum, item) {
+                                    <td><%= results[index][key].reduce(function(sum, item) {
                                             return sum.title + ', ' + item.title
-                                        }) %></th>
+                                        }) %></td>
                                 <% } %>
                             <% } else { %>
-                                <th></th>
+                                <td></td>
                             <% } %>
                         <% }  else { %>
-                            <th><%=results[index][key]%></th>
+                            <td><%=results[index][key]%></td>
                         <% } %>
                     <% } %>
                 <% } %>
