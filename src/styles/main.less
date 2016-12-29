@@ -2166,13 +2166,16 @@ table input[type=checkbox],
   border: 1px solid #f3f3f3;
   z-index: 9999;
   border-radius: 3px;
-  margin: -75px 0 0 -150px;
+  transform: translateY(-50%) translateX(-50%);
+  margin: 0 auto;
   & .popup_text {
     font-size: 1.5em;
     text-transform: uppercase;
     padding-bottom: 0.5em;
     margin-bottom: 0.5em;
     border-bottom: 1px solid #eee;
+    user-select: none;
+    cursor: default;
   }
   & .popup_body {
     padding-bottom: 1em;
@@ -4058,8 +4061,9 @@ div.code input#code {
 
 .input-group {
   float: left;
-  width: 30%;
-  max-width: 300px;
+  width: 37%;
+  max-width: 350px;
+  position: relative;
   &.date input {
     width: 80%;
     height: 33px;
@@ -4069,14 +4073,14 @@ div.code input#code {
   }
   & .fa {
     font-size: 2em;
-    position: relative;
-    left: -1.25em;
-    top: 3px;
+    position: absolute;
+    right: 10%;
+    top: 0;
   }
 }
 
 #apply_date {
-  padding: 7px 20px 9px 30px;
+  padding: 7px 12px 9px 20px;
   & .fa {
     color: white;
     font-size: 1.5em;

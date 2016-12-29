@@ -3,7 +3,12 @@ $('document').ready(function () {
     $('#filter_button').on('click', function () {
         $('#filterPopup').css('display', 'block');
     });
-
+    $('.pop_cont').on('click', function (e) {
+        e.stopPropagation();
+    });
+    $('.popap').on('click', function () {
+        $(this).css('display', 'none');
+    });
     $('.selectdb').select2();
 
     $('input[name="fullsearch"]').keyup(function () {
@@ -17,11 +22,6 @@ $('document').ready(function () {
             createUserDep();
         }, 1500);
     });
-
-    /*document.getElementById('dep_filter').addEventListener('change', function () {
-     createUser()
-     });*/
-
 });
 
 function getCurrentUserSetting(data) {
@@ -203,9 +203,13 @@ function createUserInfoBySearch(data, search) {
             $(".table-wrap th").on('click', function () {
                 let dataOrder;
                 let data_order = this.getAttribute('data-order');
-                var revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "-";
+                var revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
                 var order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
-                dataOrder = (order == data_order && revers == "-") ? data_order : '-' + data_order;
+                if(order != '') {
+                    dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
+                } else {
+                    dataOrder = '-' + data_order;
+                }
                 ordering = {};
                 ordering[data_order] = dataOrder;
                 let page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
@@ -216,7 +220,7 @@ function createUserInfoBySearch(data, search) {
                 if (order == data_order) {
                     revers = (revers == '+') ? '-' : '+';
                 } else {
-                    revers = "-"
+                    revers = "+"
                 }
                 sessionStorage.setItem('revers', revers);
                 sessionStorage.setItem('order', data_order);

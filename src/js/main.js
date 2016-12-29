@@ -6,7 +6,7 @@ var config = {
     'column_table': null
 };
 
-function makeQuickEditCart() {
+function makeQuickEditCart(e) {
     e.preventDefault();
     let id, link;
     id = $(this).attr('data-id');
