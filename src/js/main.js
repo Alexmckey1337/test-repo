@@ -6,7 +6,6 @@ var config = {
     'column_table': null
 };
 
-
 function makeQuickEditCart() {
     e.preventDefault();
     let id, link;
@@ -90,7 +89,6 @@ if (document.getElementById('filter')) {
 }
 
 if (document.getElementById('sort_save')) {
-
     document.getElementById('sort_save').addEventListener('click', function () {
         $(".table-sorting").animate({
             right: '-300px'

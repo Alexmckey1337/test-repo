@@ -42,6 +42,10 @@ function reversOrder(order) {
     return order
 }
 
+ $('#sort_save').on('click', function () {
+     updateSettings(createUser);
+ });
+
 let ordering = {};
 let parent_id = null;
 
@@ -224,7 +228,6 @@ function createUserInfoBySearch(data, search) {
             addListener: addListener
     }
     })();
-
     orderTable.addListener();
 
 
