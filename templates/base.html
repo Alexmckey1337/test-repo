@@ -60,7 +60,7 @@
         <tr>
             <% for( var key in user_table) { %>
                 <% if(user_table[key].active) { %>
-                    <th><%=user_table[key].title %></th>
+                    <th data-order="<%=user_table[key].ordering_title%>"><%=user_table[key].title %></th>
                 <% } %>
             <% } %>
         </tr>
@@ -73,7 +73,7 @@
                     <% if(user_table[key].active) { %>
                         <% if (key == 'fullname' ) { %>
                             <% if (results[index][key] != null) { %>
-                                <td><a href="<%=results[index].link %>" data-link="<%=results[index].link %>" data-id="<%=results[index].id %>"><%= results[index][key] %></a></td>
+                                <td><a href="#" class="quick" data-link="<%=results[index].link %>" data-id="<%=results[index].id %>"><%= results[index][key] %></a></td>
                             <% } else { %>
                                 <td></td>
                             <% } %>
@@ -139,6 +139,8 @@
 
     </div>
 </script>
-
+<script type="text/template" id="quickEditCart">
+    <input type="text" value="<%= fields.fullname.value %>">
+</script>
 </body>
 </html>

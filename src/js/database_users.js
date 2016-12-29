@@ -1,10 +1,11 @@
-$(function () {
+$('document').ready(function () {
     //buttons events
     $('#filter_button').on('click', function () {
         $('#filterPopup').css('display', 'block');
     });
 
     $('.selectdb').select2();
+
     $('input[name="fullsearch"]').keyup(function () {
         delay(function () {
             createUser()
@@ -17,21 +18,14 @@ $(function () {
         }, 1500);
     });
 
-    document.getElementById('sort_save').addEventListener('click', function () {
-        updateSettings(createUser);
-        $(".table-sorting").animate({
-            right: '-300px'
-        }, 10, 'linear')
-    });
+    /*document.getElementById('dep_filter').addEventListener('change', function () {
+     createUser()
+     });*/
 
-    document.getElementById('dep_filter').addEventListener('change', function () {
-        createUser()
-    });
 });
 
 function getCurrentUserSetting(data) {
     let sortFormTmpl, obj, rendered;
-    obj = {};
     sortFormTmpl = document.getElementById("sortForm").innerHTML;
     obj = {};
     obj.user = data[0];
@@ -139,6 +133,13 @@ function createUserInfoBySearch(data, search) {
     var tmpl = document.getElementById('databaseUsers').innerHTML;
     var rendered = _.template(tmpl)(data);
 
+    // quick edit event
+    setTimeout(function () {
+        $('.quick').on('click', goToUser);
+        $('.quick').dblclick(makeQuickEditCart);
+    }, 1000);
+
+
     document.getElementById("baseUsers").innerHTML = rendered;
 
 
@@ -193,22 +194,39 @@ function createUserInfoBySearch(data, search) {
     });
 
     // Cортировка
-    Array.prototype.forEach.call(document.querySelectorAll(".table-wrap th"), function (el) {
-        el.addEventListener('click', function () {
-            let data_order = this.getAttribute('data-order');
-            let status = !!ordering[data_order];
+    var orderTable = (function () {
+        function addListener() {
+            $(".table-wrap th").on('click', function () {
+                let dataOrder;
+                let data_order = this.getAttribute('data-order');
+                var revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "-";
+                var order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
+                dataOrder = (order == data_order && revers == "-") ? data_order : '-' + data_order;
+                ordering = {};
+                ordering[data_order] = dataOrder;
+                let page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
+                let data = {
+                    'ordering': dataOrder,
+                    'page': page
+                };
+                if (order == data_order) {
+                    revers = (revers == '+') ? '-' : '+';
+                } else {
+                    revers = "-"
+                }
+                sessionStorage.setItem('revers', revers);
+                sessionStorage.setItem('order', data_order);
 
-            ordering = {};
-            ordering[data_order] = status;
-            // data_order = status ? data_order : '-' + data_order;
-            let page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
-            let data = {
-                'ordering': data_order,
-                'page': page
-            };
-            createUser(data)
-        });
-    });
+                createUser(data);
+            });
+        }
+        return {
+            addListener: addListener
+    }
+    })();
+
+    orderTable.addListener();
+
 
     document.getElementById('add').addEventListener('click', function () {
         document.querySelector('.pop-up-splash').style.display = 'block';

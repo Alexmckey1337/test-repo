@@ -6,11 +6,35 @@ var config = {
     'column_table': null
 };
 
+
+function makeQuickEditCart() {
+    e.preventDefault();
+    let id, link;
+    id = $(this).attr('data-id');
+    link = $(this).attr('data-link');
+    let url = "/api/v1.0/users/" + id + '/';
+    ajaxRequest(url, null, function (data) {
+        let quickEditCartTmpl, rendered, obj = Object.create(null);
+        obj.fields =  data.fields;
+        console.log(data);
+        quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
+        rendered = _.template(quickEditCartTmpl)(obj);
+        console.log(rendered);
+        $('#quickEditCartPopup').find('.popup_body').html(rendered);
+        $('#quickEditCartPopup').css('display', 'block');
+    }, 'GET', true, {
+        'Content-Type': 'application/json'
+    });
+}
+function goToUser(e) {
+    e.preventDefault();
+    let link;
+    link = $(this).attr('data-link');
+    window.location.href = link;
+}
 function setCookie(name, value, options) {
     options = options || {};
-
     let expires = options.expires;
-
     if (typeof expires == "number" && expires) {
         let d = new Date();
         d.setTime(d.getTime() + expires * 1000);
@@ -31,7 +55,6 @@ function setCookie(name, value, options) {
             updatedCookie += "=" + propValue;
         }
     }
-
     document.cookie = updatedCookie;
 }
 
@@ -348,7 +371,7 @@ function updateSettings(callback, param) {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/update_columns/', json, function (JSONobj) {
         $(".bgsort").remove();
         config['column_table'] = JSONobj['column_table'];
-        
+
         if (callback) {
             if (param !== undefined) {
                 let extendParam = $.extend({}, param, filterParam());
@@ -369,10 +392,10 @@ function hidePopup(el) {
 function refreshFilter(el) {
     var input = $(el).closest('.popap').find('input');
     $(el).addClass('refresh');
-    setTimeout(function(){
+    setTimeout(function () {
         $(el).removeClass('refresh');
     }, 700);
-    Array.from(input).forEach(function(item){
+    Array.from(input).forEach(function (item) {
         $(item).val('')
     })
 }
@@ -387,25 +410,25 @@ function filterParam() {
     search_country = $('#search_country').val();
     search_city = $('#search_city').val();
 
-    if(department !== 0 ) {
+    if (department !== 0) {
         data['department'] = department;
     }
-    if(hierarchy !== 0 ) {
+    if (hierarchy !== 0) {
         data['hierarchy'] = hierarchy;
     }
-    if(master !== 0 ) {
+    if (master !== 0) {
         data['master'] = master;
     }
-    if(search_email != "") {
+    if (search_email != "") {
         data['search_email'] = search_email;
     }
-    if(search_phone_number != "") {
+    if (search_phone_number != "") {
         data['search_phone_number'] = search_phone_number;
     }
-    if(search_country != "") {
+    if (search_country != "") {
         data['search_country'] = search_country;
     }
-     if(search_city != "") {
+    if (search_city != "") {
         data['search_city'] = search_city;
     }
     return data;
