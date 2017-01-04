@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 # from django.conf import settings
 # settings.configure()
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'edem.settings.local')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'edem.settings.dev')
 
 import django
 
