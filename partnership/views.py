@@ -149,8 +149,6 @@ class NewPartnershipViewSet(mixins.RetrieveModelMixin,
 
     @list_route(methods=['get'])
     def stats(self, request):
-        perm = IsSupervisorOrHigh()
-
         request_partner_id = request.query_params.get('partner_id')
 
         current_user = request.user
