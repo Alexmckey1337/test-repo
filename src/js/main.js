@@ -5,30 +5,58 @@ var config = {
     'pagination_patrnership_count': 30, //Количество записей при пагинации for patrnership
     'column_table': null
 };
-
-function makeQuickEditCart(e) {
-    e.preventDefault();
+var GlobalParam = {};
+function saveUser(el) {
+    let $input, fullName, first_name, last_name, middle_name, data, id;
+    $input = $(el).closest('.pop_cont').find('input');
+    $input.each(function () {
+            $(this).attr('readonly', true);
+        });
+    fullName = $($(el).closest('.pop_cont').find('input.fullname')).val().split(' ');
+    first_name = fullName[1];
+    last_name = fullName[0];
+    middle_name = fullName[2] || "";
+    data = {
+            email: $($(el).closest('.pop_cont').find('#email')).val(),
+            first_name: first_name,
+            last_name: last_name,
+            middle_name: middle_name,
+            skype: $($(el).closest('.pop_cont').find('#skype')).val(),
+            phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
+            additional_phone: $($(el).closest('.pop_cont').find('#additional_phone')).val(),
+            repentance_date: $($(el).closest('.pop_cont').find('#repentance_date')).val(),
+            country: $($(el).closest('.pop_cont').find('#country')).val(),
+            region: $($(el).closest('.pop_cont').find('#region')).val(),
+            city: $($(el).closest('.pop_cont').find('#city')).val(),
+            address: $($(el).closest('.pop_cont').find('#address')).val()
+        };
+    id = $(el).closest('.pop_cont').find('img').attr('alt');
+    saveUserData(data, id);
+    $(el).text("Сохранено");
+    $(el).attr('disabled', true);
+}
+function makeQuickEditCart(el) {
     let id, link;
-    id = $(this).attr('data-id');
-    link = $(this).attr('data-link');
+    id = $(el).attr('data-id');
+    link = $(el).attr('data-link');
     let url = "/api/v1.0/users/" + id + '/';
     ajaxRequest(url, null, function (data) {
+        console.log(data);
         let quickEditCartTmpl, rendered, obj = Object.create(null);
         obj.fields =  data.fields;
-        console.log(data);
+        obj.img = data.image;
+        obj.id = data.id;
         quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
         rendered = _.template(quickEditCartTmpl)(obj);
-        console.log(rendered);
         $('#quickEditCartPopup').find('.popup_body').html(rendered);
         $('#quickEditCartPopup').css('display', 'block');
     }, 'GET', true, {
         'Content-Type': 'application/json'
     });
 }
-function goToUser(e) {
-    e.preventDefault();
+function goToUser(el) {
     let link;
-    link = $(this).attr('data-link');
+    link = $(el).attr('data-link');
     window.location.href = link;
 }
 function setCookie(name, value, options) {
@@ -386,6 +414,9 @@ function updateSettings(callback, param) {
 
 function hidePopup(el) {
     $(el).closest('.popap').css('display', 'none');
+    window.setTimeout(function(){
+        $(el).closest('.pop_cont').find('.save-user').css('display', 'none');
+    }, 500)
 }
 function refreshFilter(el) {
     var input = $(el).closest('.popap').find('input');

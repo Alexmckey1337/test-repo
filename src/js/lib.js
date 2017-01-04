@@ -1,3 +1,13 @@
+function saveUserData(data, id) {
+    if (id) {
+        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.1/users/' + id + '/', data, function (data) {
+            console.log(data);
+        }, 'PATCH', false, {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        });
+    }
+}
+
 //Проверка существование элемента на странице
 function isElementExists(element) {
     if (typeof(element) != 'undefined' && element != null) {

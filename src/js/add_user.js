@@ -71,7 +71,13 @@
     $('#partner').click(function () {
         $('.hidden-partner').toggle()
     });
-    getAll();
+    getCountries();
+    getDepartments();
+    getStatuses();
+    getDivisions();
+    getManagers();
+    getResponsibleStatuses();
+    getCountryCodes();
 
     let dep,
         stat;
@@ -170,15 +176,15 @@ $('#addFileButton').on('click', function () {
 $('#addFile').on('change', selectFile);
 
 
-function getAll() {
-    getCountries();
-    getDepartments();
-    getStatuses();
-    getDivisions();
-    getManagers();
-    getResponsibleStatuses();
-    getCountryCodes();
-}
+// function getAll() {
+//     getCountries();
+//     getDepartments();
+//     getStatuses();
+//     getDivisions();
+//     getManagers();
+//     getResponsibleStatuses();
+//     getCountryCodes();
+// }
 
 function getCountryCodes() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
@@ -216,15 +222,16 @@ function getCountries() {
 
 function getDepartments() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/departments/', null, function (data) {
-        data = data.results;
+        let results;
+        results = data.results;
         let html = '<option value=""> </option>';
-        for (let i = 0; i < data.length; i++) {
-            html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+        for (let i = 0; i < results.length; i++) {
+            html += '<option value="' + results[i].id + '">' + results[i].title + '</option>';
         }
         document.getElementById('chooseDepartment').innerHTML = html;
-        let dep = $("#chooseDepartment").val();
+        console.log(results);
+        GlobalParam.departments = results;
     });
-
 }
 
 function getStatuses() {
@@ -279,6 +286,7 @@ function getManagers() {
             html += '<option value="' + partnership.id + '">' + partnership.fullname + '</option>';
         });
         document.getElementById('chooseManager').innerHTML = html;
+        GlobalParam.partnerships = data;
     });
 }
 
@@ -490,5 +498,6 @@ function createNewAcc() {
     }, 'POST', true, {
         'Content-Type': 'application/json'
     });
+
 }
 })(jQuery);

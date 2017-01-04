@@ -57,7 +57,6 @@
         $("#partner_date").datepicker({
             dateFormat: "yy-mm-dd",
             onSelect: function (date) {
-
             }
         }).datepicker("setDate", new Date()).mousedown(function () {
             $('#ui-datepicker-div').toggle();

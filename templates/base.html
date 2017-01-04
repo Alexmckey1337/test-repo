@@ -46,6 +46,7 @@
     <script src='{% static "libs/jquery-ui/jquery-ui.min.js" %}'></script>
     <script src='{% static "libs/select2/dist/js/select2.min.js" %}'></script>
     <script src='{% static "libs/lodash/dist/lodash.min.js" %}'></script>
+    <script src='{% static "libs/es6-promise/es6-promise.min.js" %}'></script>
     <script src='{% static "js/lib.js" %}'></script>
     <script src='{% static "js/main.js" %}'></script>
 {% endblock %}
@@ -140,7 +141,44 @@
     </div>
 </script>
 <script type="text/template" id="quickEditCart">
-    <input type="text" value="<%= fields.fullname.value %>">
+   <div class="container bb-1">
+       <div>
+            <img class="user-image" src="<%=img %>" alt="<%=id%>">
+        </div>
+        <div class="col-7">
+            <p><input type="text" class="fullname" value="<%=fields.fullname.value %>" readonly></p>
+            <p><span>Отдел церкви: <%=fields.department.value %></span></p>
+            <p><span>Ответсвенный: <%=fields.master_hierarchy.value %></span></p>
+            <p><span>Статус: <%=fields.hierarchy.value %></span></p>
+{#            <p><label for="department">Отдел церкви: </label><input type="text" id="department" value="<%=fields.department.value %>" readonly></p>#}
+{#            <p><label for="master_hierarchy">Ответсвенный: </label><input type="text" id="master_hierarchy" value="<%=fields.master_hierarchy.value %>" readonly></p>#}
+{#            <p><label for="hierarchy">Статус: </label><input type="text" id="hierarchy" value="<%=fields.hierarchy.value %>" readonly></p>#}
+        </div>
+   </div>
+    <div class="container">
+        <div class="col-6">
+            <p class="label_block">Телефон:</p>
+            <p class="label_block">Домашний телефон:</p>
+            <p class="label_block">E-mail:</p>
+            <p class="label_block">Skype:</p>
+            <p class="label_block">Страна:</p>
+            <p class="label_block">Область:</p>
+            <p class="label_block">Нас.пункт:</p>
+            <p class="label_block">Адрес:</p>
+            <p class="label_block">Дата покаяния:</p>
+        </div>
+        <div class="col-6">
+            <p><input type="text" id="phone_number" value="<%=fields.phone_number.value %>" readonly></p>
+            <p><input type="text" id="additional_phone" value="<%=fields.additional_phone.value %>" readonly></p>
+            <p><input type="text" id="email" value="<%=fields.email.value %>" readonly></p>
+            <p><input type="text" id="skype" value="<%=fields.social.skype %>" readonly></p>
+            <p><input type="text" id="country" value="<%=fields.country.value %>" readonly></p>
+            <p><input type="text" id="region" value="<%=fields.region.value %>" readonly></p>
+            <p><input type="text" id="city" value="<%=fields.city.value %>" readonly></p>
+            <p><input type="text" id="address" value="<%=fields.address.value %>" readonly></p>
+            <p><input type="text" id="repentance_date" value="<%=fields.repentance_date.value %>" readonly></p>
+        </div>
+    </div>
 </script>
 </body>
 </html>
