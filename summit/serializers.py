@@ -7,6 +7,7 @@ from account.models import CustomUser as User
 from account.serializers import UserTableSerializer, UserShortSerializer
 from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail
 
+
 class SummitAnketNoteSerializer(serializers.ModelSerializer):
     owner = serializers.StringRelatedField()
 
