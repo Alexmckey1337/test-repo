@@ -2,4 +2,11 @@
 
 django-extensions
 django-debug-toolbar
+
+# Tests
 factory_boy
+pytest
+pytest-factoryboy
+pytest-django
+pytest-sugar
+pytest-xdist
