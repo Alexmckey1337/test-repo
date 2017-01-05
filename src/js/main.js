@@ -17,6 +17,7 @@ function saveUser(el) {
         $(this).attr('disabled', true)
     });
     let master = $('#master_hierarchy').val();
+    let master_id = (master.search('#') != -1) ? master.slice(master.search('#') + 1) : $("#master_hierarchy").attr('data-id');
     fullName = $($(el).closest('.pop_cont').find('input.fullname')).val().split(' ');
     first_name = fullName[1];
     last_name = fullName[0];
@@ -28,7 +29,7 @@ function saveUser(el) {
         middle_name: middle_name,
         hierarchy: $($(el).closest('.pop_cont').find('#hierarchySelect')).val(),
         department: $($(el).closest('.pop_cont').find('#departmentSelect')).val(),
-        master: master.slice(master.search('#') + 1),
+        master: master_id,
         skype: $($(el).closest('.pop_cont').find('#skype')).val(),
         phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
         additional_phone: $($(el).closest('.pop_cont').find('#additional_phone')).val(),
@@ -58,7 +59,7 @@ function makeQuickEditCart(el) {
             let department = $('#departmentSelect').val();
             let hierarchy = $('#hierarchySelect').val();
             let search = $("#master_hierarchy").val();
-            if ($(this).val().length >= 3) {
+            if ($(this).val().length >= 3 && $(this).val().length <= 5) {
                 getResponsible(department, hierarchy, search).then(function (data) {
                     var html = "";
                     data.forEach(function (el) {
