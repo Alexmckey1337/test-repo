@@ -10,13 +10,17 @@ function saveUser(el) {
     let $input, $select, fullName, first_name, last_name, middle_name, data, id;
     $input = $(el).closest('.pop_cont').find('input');
     $select = $(el).closest('.pop_cont').find('select');
+    if($('#safari_select').val()) {
+        $('#master_hierarchy').val($('#safari_select').val());
+        $('#safari_select').remove()
+    }
     $input.each(function () {
         $(this).attr('readonly', true);
     });
     $select.each(function () {
         $(this).attr('disabled', true)
     });
-    let master = $('#master_hierarchy').val();
+    let master = ($('#safari_select').val()) ? $('#safari_select').val() : $('#master_hierarchy').val();
     let master_id = (master.search('#') != -1) ? master.slice(master.search('#') + 1) : $("#master_hierarchy").attr('data-id');
     fullName = $($(el).closest('.pop_cont').find('input.fullname')).val().split(' ');
     first_name = fullName[1];
@@ -61,10 +65,11 @@ function makeQuickEditCart(el) {
             let search = $("#master_hierarchy").val();
             if ($(this).val().length >= 3 && $(this).val().length <= 5) {
                 getResponsible(department, hierarchy, search).then(function (data) {
-                    var html = "";
+                    var html = "<select id='safari_select'>";
                     data.forEach(function (el) {
-                        html += "<option value='" + el.fullname + " #" + el.id + "' data-id='" + el.id + "'></option>";
+                        html += "<option data-id='" + el.id + "'>" + el.fullname + " #" + el.id + "</option>";
                     });
+                     html += "</select>";
                     $("#master_hierarchy-list").html(html);
                     // $('#master_hierarchy').on('input', function () {
                     //     let val = $("#master_hierarchy").val();
