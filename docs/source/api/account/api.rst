@@ -476,7 +476,7 @@ CustomUser
    :query int level_lt: filter by ``hierarchy__level`` -> ``user.hierarchy.level < level_lt``
    :query int level_lte: filter by ``hierarchy__level`` -> ``user.hierarchy.level <= level_lte``
    :query int department: filter by ``department_id``
-   :query string search_fio: search by ``last_name``, ``first_name``, ``middle_name``
+   :query string search: search by ``last_name``, ``first_name``, ``middle_name``
 
    :reqheader Accept: the response content type depends on
                                             :mailheader:`Accept` header
