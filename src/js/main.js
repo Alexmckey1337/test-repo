@@ -47,12 +47,10 @@ function makeQuickEditCart(el) {
     link = $(el).attr('data-link');
     let url = "/api/v1.1/users/" + id + '/';
     ajaxRequest(url, null, function (data) {
-        let quickEditCartTmpl, rendered, obj = Object.create(null);
-        obj.fields =  data;
-        obj.img = data.image || "";
-        console.log(obj);
+        let quickEditCartTmpl, rendered;
+        console.log(data);
         quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
-        rendered = _.template(quickEditCartTmpl)(obj);
+        rendered = _.template(quickEditCartTmpl)(data);
         $('#quickEditCartPopup').find('.popup_body').html(rendered);
         $('#quickEditCartPopup').css('display', 'block');
     }, 'GET', true, {
