@@ -9,6 +9,20 @@ $('document').ready(function () {
     $('.popap').on('click', function () {
         $(this).css('display', 'none');
     });
+    $('#quickEditCartPopup').find('.edit').on('click', function(){
+        let $input = $(this).closest('.pop_cont').find('input');
+        let $button = $(this).closest('.pop_cont').find('.save-user');
+        $button.css('display', 'inline-block');
+        $button.removeAttr('disabled');
+        $button.text('Сохранить');
+        $input.each(function () {
+            $(this).removeAttr('readonly');
+        });
+        $("#repentance_date").datepicker({
+            dateFormat: "yy-mm-dd"
+        })
+    });
+
     $('.selectdb').select2();
 
     $('input[name="fullsearch"]').keyup(function () {
@@ -42,9 +56,9 @@ function reversOrder(order) {
     return order
 }
 
- $('#sort_save').on('click', function () {
-     updateSettings(createUser);
- });
+$('#sort_save').on('click', function () {
+    updateSettings(createUser);
+});
 
 let ordering = {};
 let parent_id = null;
@@ -139,8 +153,25 @@ function createUserInfoBySearch(data, search) {
 
     // quick edit event
     setTimeout(function () {
-        $('.quick').on('click', goToUser);
-        $('.quick').dblclick(makeQuickEditCart);
+        var timer = 0;
+        var delay = 200;
+        var prevent = false;
+        $('.quick')
+            .on('click', function () {
+                var _self = this;
+                timer = setTimeout(function () {
+                    if (!prevent) {
+                        goToUser(_self);
+                    }
+                    prevent = false;
+                }, delay);
+            })
+            .on('dblclick', function () {
+                var _self = this;
+                clearTimeout(timer);
+                prevent = true;
+                makeQuickEditCart(_self);
+            });
     }, 1000);
 
 
@@ -205,7 +236,7 @@ function createUserInfoBySearch(data, search) {
                 let data_order = this.getAttribute('data-order');
                 var revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
                 var order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
-                if(order != '') {
+                if (order != '') {
                     dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
                 } else {
                     dataOrder = '-' + data_order;
@@ -228,9 +259,10 @@ function createUserInfoBySearch(data, search) {
                 createUser(data);
             });
         }
+
         return {
             addListener: addListener
-    }
+        }
     })();
     orderTable.addListener();
 
