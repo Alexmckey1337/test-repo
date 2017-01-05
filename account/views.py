@@ -151,7 +151,18 @@ class UserFilter(django_filters.FilterSet):
 
     class Meta:
         model = User
-        fields = ['master']
+        fields = ['master', 'hierarchy', 'department']
+
+
+class ShortUserFilter(django_filters.FilterSet):
+    level_gt = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='gt')
+    level_gte = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='gte')
+    level_lt = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='lt')
+    level_lte = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='lte')
+
+    class Meta:
+        model = User
+        fields = ['level_gt', 'level_gte', 'level_lt', 'level_lte', 'department']
 
 
 class NewUserViewSet(viewsets.ModelViewSet):
@@ -300,8 +311,9 @@ class UserShortViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
                        filters.OrderingFilter,)
-    filter_fields = ('first_name', 'last_name', 'department', 'hierarchy')
-    search_fields = ('first_name', 'last_name')
+    # filter_fields = ('first_name', 'last_name', 'department', 'hierarchy')
+    filter_class = ShortUserFilter
+    search_fields = ('first_name', 'last_name', 'middle_name')
 
 
 class LogoutView(RestAuthLogoutView):

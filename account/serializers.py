@@ -27,7 +27,7 @@ class DepartmentTitleSerializer(serializers.ModelSerializer):
 class HierarchyTitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hierarchy
-        fields = ('id', 'title')
+        fields = ('id', 'title', 'level')
         read_only_fields = ('title',)
 
 
@@ -125,6 +125,8 @@ class UserTableSerializer(UserSingleSerializer):
 
 
 class UserShortSerializer(serializers.HyperlinkedModelSerializer):
+    hierarchy = HierarchyTitleSerializer()
+
     class Meta:
         model = User
-        fields = ('id', 'fullname')
+        fields = ('id', 'fullname', 'hierarchy')
