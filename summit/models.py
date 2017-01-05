@@ -4,10 +4,13 @@ from __future__ import unicode_literals
 from datetime import date
 from decimal import Decimal
 
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+
+from payment.models import get_default_currency
 
 
 @python_2_unicode_compatible
@@ -61,6 +64,9 @@ class Summit(models.Model):
     #: has discount for this summit.
     special_cost = models.DecimalField(_('Special cost'), max_digits=12, decimal_places=0,
                                        blank=True, null=True)
+    #: Currency of full_cost and special_cost
+    currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
+                                 default=get_default_currency, null=True)
     #: Template for sending tickets. This template using in dbmail.
     mail_template = models.ForeignKey('dbmail.MailTemplate', related_name='summits',
                                       verbose_name=_('Mail template'),
@@ -132,6 +138,9 @@ class SummitAnket(models.Model):
         'summit.Summit', related_name='consultant_ankets',
         through='summit.SummitUserConsultant', through_fields=('user', 'summit'))
 
+    #: Payments of the current anket
+    payments = GenericRelation('payment.Payment', related_query_name='summit_ankets')
+
     # cloned the user when creating anket
     name = models.CharField(max_length=255, blank=True)
     first_name = models.CharField(max_length=255, blank=True)
@@ -154,6 +163,10 @@ class SummitAnket(models.Model):
 
     def __str__(self):
         return '%s %s %s' % (self.user.fullname, self.summit.type.title, self.summit.start_date)
+
+    @property
+    def currency(self):
+        return self.summit.currency
 
     @property
     def is_member(self):

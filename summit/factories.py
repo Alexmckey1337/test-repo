@@ -4,6 +4,7 @@ from decimal import Decimal
 import factory
 import factory.fuzzy
 
+# from payment.factories import CurrencyFactory
 from . import models
 
 
@@ -23,6 +24,7 @@ class SummitFactory(factory.DjangoModelFactory):
     start_date = factory.fuzzy.FuzzyDate(start_date=datetime.date(2000, 1, 1))
     end_date = factory.LazyAttribute(lambda o: o.start_date + datetime.timedelta(o.duration))
     full_cost = Decimal('200')
+    currency = factory.SubFactory('payment.factories.CurrencyFactory')
 
     class Params:
         duration = 6
