@@ -225,7 +225,7 @@ class NewUserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
+        if self.action in ('list',):
             return self.serializer_list_class
         return self.serializer_class
 
