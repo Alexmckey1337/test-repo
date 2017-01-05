@@ -11,8 +11,8 @@ function saveUser(el) {
     $input = $(el).closest('.pop_cont').find('input');
     $select = $(el).closest('.pop_cont').find('select');
     $input.each(function () {
-            $(this).attr('readonly', true);
-        });
+        $(this).attr('readonly', true);
+    });
     $select.each(function () {
         $(this).attr('disabled', true)
     });
@@ -21,21 +21,21 @@ function saveUser(el) {
     last_name = fullName[0];
     middle_name = fullName[2] || "";
     data = {
-            email: $($(el).closest('.pop_cont').find('#email')).val(),
-            first_name: first_name,
-            last_name: last_name,
-            middle_name: middle_name,
-            hierarchy: $($(el).closest('.pop_cont').find('#hierarchySelect')).val(),
-            department: $($(el).closest('.pop_cont').find('#departmentSelect')).val(),
-            skype: $($(el).closest('.pop_cont').find('#skype')).val(),
-            phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
-            additional_phone: $($(el).closest('.pop_cont').find('#additional_phone')).val(),
-            repentance_date: $($(el).closest('.pop_cont').find('#repentance_date')).val(),
-            country: $($(el).closest('.pop_cont').find('#country')).val(),
-            region: $($(el).closest('.pop_cont').find('#region')).val(),
-            city: $($(el).closest('.pop_cont').find('#city')).val(),
-            address: $($(el).closest('.pop_cont').find('#address')).val()
-        };
+        email: $($(el).closest('.pop_cont').find('#email')).val(),
+        first_name: first_name,
+        last_name: last_name,
+        middle_name: middle_name,
+        hierarchy: $($(el).closest('.pop_cont').find('#hierarchySelect')).val(),
+        department: $($(el).closest('.pop_cont').find('#departmentSelect')).val(),
+        skype: $($(el).closest('.pop_cont').find('#skype')).val(),
+        phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
+        additional_phone: $($(el).closest('.pop_cont').find('#additional_phone')).val(),
+        repentance_date: $($(el).closest('.pop_cont').find('#repentance_date')).val(),
+        country: $($(el).closest('.pop_cont').find('#country')).val(),
+        region: $($(el).closest('.pop_cont').find('#region')).val(),
+        city: $($(el).closest('.pop_cont').find('#city')).val(),
+        address: $($(el).closest('.pop_cont').find('#address')).val()
+    };
     id = $(el).closest('.pop_cont').find('img').attr('alt');
     saveUserData(data, id);
     $(el).text("Сохранено");
@@ -48,11 +48,27 @@ function makeQuickEditCart(el) {
     let url = "/api/v1.1/users/" + id + '/';
     ajaxRequest(url, null, function (data) {
         let quickEditCartTmpl, rendered;
-        console.log(data);
         quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
         rendered = _.template(quickEditCartTmpl)(data);
         $('#quickEditCartPopup').find('.popup_body').html(rendered);
         $('#quickEditCartPopup').css('display', 'block');
+        $('#master_hierarchy').keyup(function () {
+            let department = $('#departmentSelect').val();
+            let hierarchy = $('#hierarchySelect').val();
+            if ($(this).val().length >= 3) {
+                getResponsible(department, hierarchy).then(function (data) {
+                    var html = "";
+                    data.forEach(function (el) {
+                        html += "<option value='" + el.id + "'>" + el.fullname + "</option>";
+                    });
+                    console.log(html);
+                    $("#master_hierarchy-list").html(html);
+                    $('#master_hierarchy').on('input', function () {
+                        console.log($('#master_hierarchy option[datalisted=datalisted]').val())
+                    });
+                });
+            }
+        });
     }, 'GET', true, {
         'Content-Type': 'application/json'
     });
@@ -417,7 +433,7 @@ function updateSettings(callback, param) {
 
 function hidePopup(el) {
     $(el).closest('.popap').css('display', 'none');
-    window.setTimeout(function(){
+    window.setTimeout(function () {
         $(el).closest('.pop_cont').find('.save-user').css('display', 'none');
     }, 500)
 }

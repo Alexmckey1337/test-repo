@@ -123,6 +123,7 @@
         });
         window.getStatuses = getStatuses();
         window.getDepartments = getDepartments();
+        window.getResponsible = getResponsible;
         var makeChooseDivision = getDivisions().then(function (data) {
             data = data.results;
             let html = '<option value=""> </option>';

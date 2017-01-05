@@ -148,13 +148,18 @@
         <div class="col-7">
             <p><input type="text" class="fullname" value="<%=fullname %>" readonly></p>
             <p><label for="departmentSelect">Отдел церкви: </label><select id="departmentSelect" disabled>
-                <option value="<%=department %>" selected><%=department %></option>
+                <option value="<%=department.id %>" selected><%=department.title %></option>
             </select></p>
-            <p ><label for="master_hierarchy">Ответственный: </label><select id="master_hierarchy" disabled>
-                <option value="<%=master %>" selected><%=master %></option>
-            </select></p>
+            <p ><label for="master_hierarchy">Ответственный: </label><input id="master_hierarchy" list="master_hierarchy-list"
+                                                                            <% if(master != null){ %>
+                                                                                data-id="<%=master.id%>" value="<%=master.fullname%>"
+                                                                            <%}%>
+                                                                            readonly></p>
+            <datalist id="master_hierarchy-list">
+
+            </datalist>
             <p><label for="hierarchySelect">Статус: </label><select id="hierarchySelect" disabled>
-                <option value="<%=hierarchy %>" selected><%=hierarchy %></option>
+                <option value="<%=hierarchy.id %>" selected><%=hierarchy.title %></option>
             </select></p>
 {#            <p><label for="departmentSelect">Отдел церкви: </label><input type="text" id="departmentSelect" value="<%=fields.department.value %>" readonly></p> #}
 {#            <p><label for="master_hierarchy">Ответсвенный: </label><input type="text" id="master_hierarchy" value="<%=fields.master_hierarchy.value %>" readonly></p>#}
@@ -176,7 +181,7 @@
         <div class="col-6">
             <p><input type="text" id="phone_number" value="<%=phone_number %>" readonly></p>
             <p><input type="text" id="additional_phone"
-                      <% if(additional_phones.length) { %>
+                      <% if(!additional_phones.length) { %>
                       value=""
                       <%} else { %>
                         value="<%=additional_phones[0].number %>"
