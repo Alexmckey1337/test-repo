@@ -428,3 +428,59 @@ CustomUser
                             header of request
    :statuscode 200: success export
 
+
+.. http:get:: /api/v1.0/short_users/
+
+   List of the users for select.
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      GET /api/v1.0/short_users/?level_gte=4&level_lt=6 HTTP/1.1
+      Host: vocrm.org
+      Accept: application/json
+
+   **Example response**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Vary: Accept, Cookie
+      Allow: GET,POST,HEAD,OPTIONS
+      Content-Type: application/json
+
+      [
+          {
+              "id": 13891,
+              "fullname": "Гарькавая Анна ",
+              "hierarchy": {
+                  "id": 5,
+                  "title": "Ст. епископ",
+                  "level": 5
+              }
+          },
+          {
+              "id": 12813,
+              "fullname": "Раду Бронислав ",
+              "hierarchy": {
+                  "id": 5,
+                  "title": "Епископ",
+                  "level": 4
+              }
+          }
+      ]
+
+   :query int level_gt: filter by ``hierarchy__level`` -> ``user.hierarchy.level > level_gt``
+   :query int level_gte: filter by ``hierarchy__level`` -> ``user.hierarchy.level >= level_gte``
+   :query int level_lt: filter by ``hierarchy__level`` -> ``user.hierarchy.level < level_lt``
+   :query int level_lte: filter by ``hierarchy__level`` -> ``user.hierarchy.level <= level_lte``
+   :query int department: filter by ``department_id``
+   :query string search: search by ``last_name``, ``first_name``, ``middle_name``
+
+   :reqheader Accept: the response content type depends on
+                                            :mailheader:`Accept` header
+   :resheader Content-Type: this depends on :mailheader:`Accept`
+                            header of request
+   :statuscode 200: no error
+
