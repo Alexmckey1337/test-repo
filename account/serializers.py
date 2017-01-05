@@ -102,11 +102,14 @@ class NewUserSerializer(serializers.ModelSerializer):
         return instance
 
 
-class UserTableSerializer(NewUserSerializer):
+class UserSingleSerializer(NewUserSerializer):
     department = DepartmentTitleSerializer()
     master = MasterNameSerializer(required=False, allow_null=True)
     hierarchy = HierarchyTitleSerializer()
     divisions = DivisionSerializer(many=True, read_only=True)
+
+
+class UserTableSerializer(UserSingleSerializer):
 
     def get_field_names(self, declared_fields, info):
         # fields = getattr(self.Meta, 'fields', None)
