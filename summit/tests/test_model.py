@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from account.factories import UserFactory
+from payment.factories import CurrencyFactory
 from summit.factories import SummitTypeFactory, SummitFactory, SummitAnketFactory, AnketEmailFactory, \
     SummitLessonFactory, SummitUserConsultantFactory, AnketNoteFactory
 
@@ -160,6 +161,13 @@ class TestAnket(TestCase):
         self.anket.save()
 
         self.assertFalse(self.anket.is_full_paid)
+
+    def test_currency(self):
+        currency = CurrencyFactory(code='cur', short_name='curr')
+        self.summit.currency = currency
+        self.summit.save()
+
+        self.assertEqual(self.anket.currency, self.summit.currency)
 
 
 class TestAnketEmail(TestCase):

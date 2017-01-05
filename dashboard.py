@@ -26,6 +26,7 @@ class CustomIndexDashboard(Dashboard):
                 'summit.models.*',
                 'account.models.*',
                 'partnership.models.*',
+                'payment.models.*',
             ),
         ))
         self.children.append(modules.AppList(
