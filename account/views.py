@@ -41,7 +41,8 @@ from status.models import Status, Division
 from summit.models import SummitType, SummitLesson, SummitAnketNote, SummitUserConsultant, AnketEmail, SummitAnket
 from tv_crm.models import LastCall
 from .resources import clean_password, clean_old_password
-from .serializers import UserSerializer, UserShortSerializer, UserTableSerializer, NewUserSerializer
+from .serializers import UserSerializer, UserShortSerializer, UserTableSerializer, NewUserSerializer, \
+    UserSingleSerializer
 
 USER_FIELDS = {
     'text_fields': {
@@ -161,6 +162,7 @@ class NewUserViewSet(viewsets.ModelViewSet):
 
     serializer_class = NewUserSerializer
     serializer_list_class = UserTableSerializer
+    serializer_single_class = UserSingleSerializer
 
     pagination_class = UserPagination
     filter_backends = (filters.DjangoFilterBackend,
@@ -225,8 +227,10 @@ class NewUserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def get_serializer_class(self):
-        if self.action in ('list',):
+        if self.action == 'list':
             return self.serializer_list_class
+        if self.action == 'retrieve':
+            return self.serializer_single_class
         return self.serializer_class
 
     def perform_update(self, serializer):
