@@ -7,11 +7,15 @@ var config = {
 };
 var GlobalParam = {};
 function saveUser(el) {
-    let $input, fullName, first_name, last_name, middle_name, data, id;
+    let $input, $select, fullName, first_name, last_name, middle_name, data, id;
     $input = $(el).closest('.pop_cont').find('input');
+    $select = $(el).closest('.pop_cont').find('select');
     $input.each(function () {
             $(this).attr('readonly', true);
         });
+    $select.each(function () {
+        $(this).attr('disabled', true)
+    });
     fullName = $($(el).closest('.pop_cont').find('input.fullname')).val().split(' ');
     first_name = fullName[1];
     last_name = fullName[0];
@@ -21,6 +25,8 @@ function saveUser(el) {
             first_name: first_name,
             last_name: last_name,
             middle_name: middle_name,
+            hierarchy: $($(el).closest('.pop_cont').find('#hierarchySelect')).val(),
+            department: $($(el).closest('.pop_cont').find('#departmentSelect')).val(),
             skype: $($(el).closest('.pop_cont').find('#skype')).val(),
             phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
             additional_phone: $($(el).closest('.pop_cont').find('#additional_phone')).val(),
@@ -39,13 +45,12 @@ function makeQuickEditCart(el) {
     let id, link;
     id = $(el).attr('data-id');
     link = $(el).attr('data-link');
-    let url = "/api/v1.0/users/" + id + '/';
+    let url = "/api/v1.1/users/" + id + '/';
     ajaxRequest(url, null, function (data) {
-        console.log(data);
         let quickEditCartTmpl, rendered, obj = Object.create(null);
-        obj.fields =  data.fields;
-        obj.img = data.image;
-        obj.id = data.id;
+        obj.fields =  data;
+        obj.img = data.image || "";
+        console.log(obj);
         quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
         rendered = _.template(quickEditCartTmpl)(obj);
         $('#quickEditCartPopup').find('.popup_body').html(rendered);

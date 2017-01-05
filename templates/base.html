@@ -143,14 +143,20 @@
 <script type="text/template" id="quickEditCart">
    <div class="container bb-1">
        <div>
-            <img class="user-image" src="<%=img %>" alt="<%=id%>">
+            <img class="user-image" src="<%=img %>" alt="<%=fields.id%>">
         </div>
         <div class="col-7">
-            <p><input type="text" class="fullname" value="<%=fields.fullname.value %>" readonly></p>
-            <p><span>Отдел церкви: <%=fields.department.value %></span></p>
-            <p><span>Ответсвенный: <%=fields.master_hierarchy.value %></span></p>
-            <p><span>Статус: <%=fields.hierarchy.value %></span></p>
-{#            <p><label for="department">Отдел церкви: </label><input type="text" id="department" value="<%=fields.department.value %>" readonly></p>#}
+            <p><input type="text" class="fullname" value="<%=fields.fullname %>" readonly></p>
+            <p><label for="departmentSelect">Отдел церкви: </label><select id="departmentSelect" disabled>
+                <option value="<%=fields.department.title %>" selected><%=fields.department.title %></option>
+            </select></p>
+            <p ><label for="master_hierarchy">Ответственный: </label><select id="master_hierarchy" disabled>
+                <option value="<%=fields.master %>" selected><%=fields.master %></option>
+            </select></p>
+            <p><label for="hierarchySelect">Статус: </label><select id="hierarchySelect" disabled>
+                <option value="<%=fields.hierarchy %>" selected><%=fields.hierarchy %></option>
+            </select></p>
+{#            <p><label for="departmentSelect">Отдел церкви: </label><input type="text" id="departmentSelect" value="<%=fields.department.value %>" readonly></p> #}
 {#            <p><label for="master_hierarchy">Ответсвенный: </label><input type="text" id="master_hierarchy" value="<%=fields.master_hierarchy.value %>" readonly></p>#}
 {#            <p><label for="hierarchy">Статус: </label><input type="text" id="hierarchy" value="<%=fields.hierarchy.value %>" readonly></p>#}
         </div>
@@ -168,15 +174,15 @@
             <p class="label_block">Дата покаяния:</p>
         </div>
         <div class="col-6">
-            <p><input type="text" id="phone_number" value="<%=fields.phone_number.value %>" readonly></p>
-            <p><input type="text" id="additional_phone" value="<%=fields.additional_phone.value %>" readonly></p>
-            <p><input type="text" id="email" value="<%=fields.email.value %>" readonly></p>
-            <p><input type="text" id="skype" value="<%=fields.social.skype %>" readonly></p>
-            <p><input type="text" id="country" value="<%=fields.country.value %>" readonly></p>
-            <p><input type="text" id="region" value="<%=fields.region.value %>" readonly></p>
-            <p><input type="text" id="city" value="<%=fields.city.value %>" readonly></p>
-            <p><input type="text" id="address" value="<%=fields.address.value %>" readonly></p>
-            <p><input type="text" id="repentance_date" value="<%=fields.repentance_date.value %>" readonly></p>
+            <p><input type="text" id="phone_number" value="<%=fields.phone_number %>" readonly></p>
+            <p><input type="text" id="additional_phone" value="<%=fields.additional_phone %>" readonly></p>
+            <p><input type="text" id="email" value="<%=fields.email %>" readonly></p>
+            <p><input type="text" id="skype" value="<%=fields.social %>" readonly></p>
+            <p><input type="text" id="country" value="<%=fields.country %>" readonly></p>
+            <p><input type="text" id="region" value="<%=fields.region %>" readonly></p>
+            <p><input type="text" id="city" value="<%=fields.city %>" readonly></p>
+            <p><input type="text" id="address" value="<%=fields.address %>" readonly></p>
+            <p><input type="text" id="repentance_date" value="<%=fields.repentance_date %>" readonly></p>
         </div>
     </div>
 </script>
