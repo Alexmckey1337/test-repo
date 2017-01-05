@@ -16,6 +16,7 @@ function saveUser(el) {
     $select.each(function () {
         $(this).attr('disabled', true)
     });
+    let master = $('#master_hierarchy').val();
     fullName = $($(el).closest('.pop_cont').find('input.fullname')).val().split(' ');
     first_name = fullName[1];
     last_name = fullName[0];
@@ -27,6 +28,7 @@ function saveUser(el) {
         middle_name: middle_name,
         hierarchy: $($(el).closest('.pop_cont').find('#hierarchySelect')).val(),
         department: $($(el).closest('.pop_cont').find('#departmentSelect')).val(),
+        master: master.slice(master.search('#') + 1),
         skype: $($(el).closest('.pop_cont').find('#skype')).val(),
         phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
         additional_phone: $($(el).closest('.pop_cont').find('#additional_phone')).val(),
@@ -55,17 +57,23 @@ function makeQuickEditCart(el) {
         $('#master_hierarchy').keyup(function () {
             let department = $('#departmentSelect').val();
             let hierarchy = $('#hierarchySelect').val();
+            let search = $("#master_hierarchy").val();
             if ($(this).val().length >= 3) {
-                getResponsible(department, hierarchy).then(function (data) {
+                getResponsible(department, hierarchy, search).then(function (data) {
                     var html = "";
                     data.forEach(function (el) {
-                        html += "<option value='" + el.id + "'>" + el.fullname + "</option>";
+                        html += "<option value='" + el.fullname + " #" + el.id + "' data-id='" + el.id + "'></option>";
                     });
-                    console.log(html);
                     $("#master_hierarchy-list").html(html);
-                    $('#master_hierarchy').on('input', function () {
-                        console.log($('#master_hierarchy option[datalisted=datalisted]').val())
-                    });
+                    // $('#master_hierarchy').on('input', function () {
+                    //     let val = $("#master_hierarchy").val();
+                    //     let $list = $('#master_hierarchy-list option');
+                    //     $list.each(function () {
+                    //         if($(this).val() == val) {
+                    //             console.log($(this).val());
+                    //         }
+                    //     })
+                    // });
                 });
             }
         });
