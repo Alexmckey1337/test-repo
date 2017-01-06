@@ -6,6 +6,10 @@ body {
   display: none;
 }
 
+.inline {
+  display: inline-block;
+}
+
 input:-webkit-autofill {
   -webkit-box-shadow: inset 0 0 0 50px #fff !important; /* Цвет фона */
   -webkit-text-fill-color: #999 !important; /* цвет текста */
@@ -1006,6 +1010,7 @@ li.current a {
   &:read-only {
     background: transparent;
   }
+
 }
 
 .period input:hover,
@@ -2135,6 +2140,13 @@ table input[type=checkbox],
       border-color: transparent;
     }
   }
+  & select {
+    padding: 4px 27px 4px 7px;
+    &:disabled {
+      border-color: transparent;
+      background: transparent none;
+    }
+  }
   & .save-user {
     display: none;
   }
@@ -2185,9 +2197,15 @@ table input[type=checkbox],
     width: auto !important;
     padding: 5px 6px;
     height: auto;
+    min-width: 17em;
     &.fullname {
       font-size: 1.5em;
     }
+  }
+  #safari_select {
+    position: relative;
+    top: -5px;
+    margin-left: 100px
   }
   & label {
     padding-left: 6px;
@@ -2300,9 +2318,11 @@ table input[type=checkbox],
 #sidebar .scrollbar-macosx > .scroll-element.scroll-x {
   display: none !important;
 }
+
 .scroll-element div {
   z-index: 1 !important;
 }
+
 .choose-user-wrap .rows-wrap {
   margin: 20px auto;
   width: 93%;

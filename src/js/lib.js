@@ -107,12 +107,9 @@ function tab_plugin() {
 
 
     Array.prototype.forEach.call(document.querySelectorAll("#tab_plugin li"), function (el) {
-
         el.addEventListener('click', function (e) {
             e.preventDefault();
             let index = indexInParent(el);
-
-
             Array.prototype.forEach.call(document.querySelectorAll("#tab_plugin li"), function (el) {
                 el.classList.remove('current')
             });
@@ -126,11 +123,7 @@ function tab_plugin() {
             if (tab) {
                 tab.style.display = 'block';
             }
-
-
         });
-
-
         //  document.querySelector("#tab_plugin li").click();
     });
 }

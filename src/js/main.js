@@ -7,29 +7,42 @@ var config = {
 };
 var GlobalParam = {};
 function saveUser(el) {
-    let $input, fullName, first_name, last_name, middle_name, data, id;
+    let $input, $select, fullName, first_name, last_name, middle_name, data, id;
     $input = $(el).closest('.pop_cont').find('input');
+    $select = $(el).closest('.pop_cont').find('select');
+    if($('#safari_select').val()) {
+        $('#master_hierarchy').val($('#safari_select').val());
+        $('#safari_select').remove()
+    }
     $input.each(function () {
-            $(this).attr('readonly', true);
-        });
+        $(this).attr('readonly', true);
+    });
+    $select.each(function () {
+        $(this).attr('disabled', true)
+    });
+    let master = ($('#safari_select').val()) ? $('#safari_select').val() : $('#master_hierarchy').val();
+    let master_id = (master.search('#') != -1) ? master.slice(master.search('#') + 1) : $("#master_hierarchy").attr('data-id');
     fullName = $($(el).closest('.pop_cont').find('input.fullname')).val().split(' ');
     first_name = fullName[1];
     last_name = fullName[0];
     middle_name = fullName[2] || "";
     data = {
-            email: $($(el).closest('.pop_cont').find('#email')).val(),
-            first_name: first_name,
-            last_name: last_name,
-            middle_name: middle_name,
-            skype: $($(el).closest('.pop_cont').find('#skype')).val(),
-            phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
-            additional_phone: $($(el).closest('.pop_cont').find('#additional_phone')).val(),
-            repentance_date: $($(el).closest('.pop_cont').find('#repentance_date')).val(),
-            country: $($(el).closest('.pop_cont').find('#country')).val(),
-            region: $($(el).closest('.pop_cont').find('#region')).val(),
-            city: $($(el).closest('.pop_cont').find('#city')).val(),
-            address: $($(el).closest('.pop_cont').find('#address')).val()
-        };
+        email: $($(el).closest('.pop_cont').find('#email')).val(),
+        first_name: first_name,
+        last_name: last_name,
+        middle_name: middle_name,
+        hierarchy: $($(el).closest('.pop_cont').find('#hierarchySelect')).val(),
+        department: $($(el).closest('.pop_cont').find('#departmentSelect')).val(),
+        master: master_id,
+        skype: $($(el).closest('.pop_cont').find('#skype')).val(),
+        phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
+        additional_phone: $($(el).closest('.pop_cont').find('#additional_phone')).val(),
+        repentance_date: $($(el).closest('.pop_cont').find('#repentance_date')).val(),
+        country: $($(el).closest('.pop_cont').find('#country')).val(),
+        region: $($(el).closest('.pop_cont').find('#region')).val(),
+        city: $($(el).closest('.pop_cont').find('#city')).val(),
+        address: $($(el).closest('.pop_cont').find('#address')).val()
+    };
     id = $(el).closest('.pop_cont').find('img').attr('alt');
     saveUserData(data, id);
     $(el).text("Сохранено");
@@ -39,17 +52,37 @@ function makeQuickEditCart(el) {
     let id, link;
     id = $(el).attr('data-id');
     link = $(el).attr('data-link');
-    let url = "/api/v1.0/users/" + id + '/';
+    let url = "/api/v1.1/users/" + id + '/';
     ajaxRequest(url, null, function (data) {
-        console.log(data);
-        let quickEditCartTmpl, rendered, obj = Object.create(null);
-        obj.fields =  data.fields;
-        obj.img = data.image;
-        obj.id = data.id;
+        let quickEditCartTmpl, rendered;
         quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
-        rendered = _.template(quickEditCartTmpl)(obj);
+        rendered = _.template(quickEditCartTmpl)(data);
         $('#quickEditCartPopup').find('.popup_body').html(rendered);
         $('#quickEditCartPopup').css('display', 'block');
+        $('#master_hierarchy').keyup(function () {
+            let department = $('#departmentSelect').val();
+            let hierarchy = $('#hierarchySelect').val();
+            let search = $("#master_hierarchy").val();
+            if ($(this).val().length >= 3 && $(this).val().length <= 5) {
+                getResponsible(department, hierarchy, search).then(function (data) {
+                    var html = "<select id='safari_select'>";
+                    data.forEach(function (el) {
+                        html += "<option data-id='" + el.id + "'>" + el.fullname + " #" + el.id + "</option>";
+                    });
+                     html += "</select>";
+                    $("#master_hierarchy-list").html(html);
+                    // $('#master_hierarchy').on('input', function () {
+                    //     let val = $("#master_hierarchy").val();
+                    //     let $list = $('#master_hierarchy-list option');
+                    //     $list.each(function () {
+                    //         if($(this).val() == val) {
+                    //             console.log($(this).val());
+                    //         }
+                    //     })
+                    // });
+                });
+            }
+        });
     }, 'GET', true, {
         'Content-Type': 'application/json'
     });
@@ -414,7 +447,7 @@ function updateSettings(callback, param) {
 
 function hidePopup(el) {
     $(el).closest('.popap').css('display', 'none');
-    window.setTimeout(function(){
+    window.setTimeout(function () {
         $(el).closest('.pop_cont').find('.save-user').css('display', 'none');
     }, 500)
 }
