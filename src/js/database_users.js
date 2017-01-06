@@ -205,7 +205,6 @@ function createUserInfoBySearch(data, search) {
             });
     }, 1000);
 
-
     document.getElementById("baseUsers").innerHTML = rendered;
 
 

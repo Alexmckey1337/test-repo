@@ -90,9 +90,9 @@
         makeChooseCountry.then(function (html) {
             document.getElementById('chooseCountry').innerHTML = html;
         });
-        getCountries().then(function (data) {
-            console.log(data);
-        });
+        // getCountries().then(function (data) {
+        //     console.log(data);
+        // });
 
         var makeChooseDepartment = getDepartments().then(function (data) {
             let results;
@@ -106,9 +106,9 @@
         makeChooseDepartment.then(function (html) {
             document.getElementById('chooseDepartment').innerHTML = html;
         });
-        getDepartments().then(function (data) {
-            console.log(data);
-        });
+        // getDepartments().then(function (data) {
+        //     console.log(data);
+        // });
 
         var makeChooseStatus = getStatuses().then(function (data) {
             data = data.results;
@@ -135,9 +135,9 @@
         makeChooseDivision.then(function (html) {
             document.getElementById('chooseDivision').innerHTML = html;
         });
-        getDivisions().then(function (data) {
-            console.log(data);
-        });
+        // getDivisions().then(function (data) {
+        //     console.log(data);
+        // });
 
         var makeChooseManager = getManagers().then(function (data) {
             let html = '<option value=""> </option><option>Не выбрано</option>';
@@ -149,9 +149,9 @@
         makeChooseManager.then(function (html) {
             document.getElementById('chooseManager').innerHTML = html;
         });
-        getManagers().then(function (data) {
-            console.log(data);
-        });
+        // getManagers().then(function (data) {
+        //     console.log(data);
+        // });
         var makeChooseResponsibleStatus = getResponsibleStatuses().then(function (data) {
             data = data.results;
             let html = '<option value=""> </option><option>Не выбрано</option>';
@@ -163,9 +163,9 @@
         makeChooseResponsibleStatus.then(function (html) {
             document.getElementById('chooseResponsibleStatus').innerHTML = html;
         });
-        getResponsibleStatuses().then(function (data) {
-            console.log(data);
-        });
+        // getResponsibleStatuses().then(function (data) {
+        //     console.log(data);
+        // });
         var makeChooseCountryCode = getCountryCodes().then(function (data) {
             let codes = '<option value=""> </option>';
             for (let i = 0; i < data.length; i++) {
@@ -180,9 +180,9 @@
         makeChooseCountryCode.then(function (codes) {
             document.getElementById('chooseCountryCode').innerHTML = codes;
         });
-        getCountryCodes().then(function (data) {
-            console.log(data);
-        });
+        // getCountryCodes().then(function (data) {
+        //     console.log(data);
+        // });
 
         let dep,
             stat;

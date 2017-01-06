@@ -148,7 +148,11 @@
         <div class="col-7">
             <p><input type="text" class="fullname" value="<%=fullname %>" readonly></p>
             <p><label for="departmentSelect">Отдел церкви: </label><select id="departmentSelect" disabled>
-                <option value="<%=department.id %>" selected><%=department.title %></option>
+                <% if(department != null) { %>
+                    <option value="<%=department.id %>" selected><%=department.title %></option>
+                <% } else { %>
+                    <option value="" selected></option>
+                <% } %>
             </select></p>
             <p ><label for="master_hierarchy">Ответственный: </label><input id="master_hierarchy" list="master_hierarchy-list"
                                                                             <% if(master != null){ %>
@@ -159,7 +163,11 @@
 
             </datalist>
             <p><label for="hierarchySelect">Статус: </label><select id="hierarchySelect" disabled>
+                <% if(hierarchy != null) { %>
                 <option value="<%=hierarchy.id %>" selected><%=hierarchy.title %></option>
+                <% } else { %>
+                    <option value="" selected></option>
+                <% } %>
             </select></p>
 {#            <p><label for="departmentSelect">Отдел церкви: </label><input type="text" id="departmentSelect" value="<%=fields.department.value %>" readonly></p> #}
 {#            <p><label for="master_hierarchy">Ответсвенный: </label><input type="text" id="master_hierarchy" value="<%=fields.master_hierarchy.value %>" readonly></p>#}

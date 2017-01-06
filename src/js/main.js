@@ -51,9 +51,11 @@ function saveUser(el) {
 function makeQuickEditCart(el) {
     let id, link;
     id = $(el).attr('data-id');
+
     link = $(el).attr('data-link');
     let url = "/api/v1.1/users/" + id + '/';
     ajaxRequest(url, null, function (data) {
+        console.log(data);
         let quickEditCartTmpl, rendered;
         quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
         rendered = _.template(quickEditCartTmpl)(data);
