@@ -167,7 +167,7 @@ class ShortUserFilter(django_filters.FilterSet):
 
 class NewUserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.select_related(
-        'hierarchy', 'department', 'master').prefetch_related(
+        'hierarchy', 'department', 'master__hierarchy').prefetch_related(
         'divisions'
     ).filter(is_active=True).order_by('last_name', 'first_name', 'middle_name')
 
@@ -201,7 +201,7 @@ class NewUserViewSet(viewsets.ModelViewSet):
             return self.queryset.none()
         if user.hierarchy.level < 2:
             return user.get_descendants(include_self=True).select_related(
-                'hierarchy', 'department', 'master').prefetch_related(
+                'hierarchy', 'department', 'master__hierarchy').prefetch_related(
                 'divisions'
             ).filter(is_active=True).order_by('last_name', 'first_name', 'middle_name')
         return self.queryset.all()

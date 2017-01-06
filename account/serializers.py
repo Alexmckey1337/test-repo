@@ -41,6 +41,16 @@ class MasterNameSerializer(serializers.ModelSerializer):
                   )
 
 
+class MasterWithHierarchySerializer(serializers.ModelSerializer):
+    hierarchy = HierarchyTitleSerializer()
+
+    class Meta:
+        model = User
+        fields = ('id', 'fullname',
+                  'hierarchy'
+                  )
+
+
 class DivisionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Division
@@ -104,12 +114,13 @@ class NewUserSerializer(serializers.ModelSerializer):
 
 class UserSingleSerializer(NewUserSerializer):
     department = DepartmentTitleSerializer()
-    master = MasterNameSerializer(required=False, allow_null=True)
+    master = MasterWithHierarchySerializer(required=False, allow_null=True)
     hierarchy = HierarchyTitleSerializer()
     divisions = DivisionSerializer(many=True, read_only=True)
 
 
 class UserTableSerializer(UserSingleSerializer):
+    master = MasterNameSerializer(required=False, allow_null=True)
 
     def get_field_names(self, declared_fields, info):
         # fields = getattr(self.Meta, 'fields', None)
