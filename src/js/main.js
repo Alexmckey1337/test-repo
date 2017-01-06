@@ -11,7 +11,7 @@ function saveUser(el) {
     let $input, $select, fullName, first_name, last_name, middle_name, data, id;
     $input = $(el).closest('.pop_cont').find('input');
     $select = $(el).closest('.pop_cont').find('select');
-    if($('#safari_select').val()) {
+    if ($('#safari_select').val()) {
         $('#master_hierarchy').val($('#safari_select').val());
         $('#safari_select').remove()
     }
@@ -62,29 +62,27 @@ function makeQuickEditCart(el) {
         rendered = _.template(quickEditCartTmpl)(data);
         $('#quickEditCartPopup').find('.popup_body').html(rendered);
         $('#quickEditCartPopup').css('display', 'block');
-        $('#master_hierarchy').keyup(function () {
-            let department = $('#departmentSelect').val();
-            let hierarchy = $('#hierarchySelect').val();
-            let search = $("#master_hierarchy").val();
-            if ($(this).val().length >= 3 && $(this).val().length <= 5) {
-                getResponsible(department, hierarchy, search).then(function (data) {
-                    var html = "<select id='safari_select'>";
-                    data.forEach(function (el) {
-                        html += "<option data-id='" + el.id + "'>" + el.fullname + " #" + el.id + "</option>";
-                    });
-                     html += "</select>";
-                    $("#master_hierarchy-list").html(html);
-                    // $('#master_hierarchy').on('input', function () {
-                    //     let val = $("#master_hierarchy").val();
-                    //     let $list = $('#master_hierarchy-list option');
-                    //     $list.each(function () {
-                    //         if($(this).val() == val) {
-                    //             console.log($(this).val());
-                    //         }
-                    //     })
-                    // });
-                });
-            }
+        let department = $('#departmentSelect').val();
+        let hierarchy = $('#hierarchySelect').val();
+        // let search = $("#master_hierarchy").val();
+        let search = "";
+        getResponsible(department, hierarchy, search).then(function (data) {
+            var html = "";
+            data.forEach(function (el) {
+                html += "<option data-id='" + el.id + "'>" + el.fullname + " #" + el.id + "</option>";
+            });
+            html += "";
+            $("#master_hierarchy").html(html);
+            $("#master_hierarchy").select2();
+            // $('#master_hierarchy').on('input', function () {
+            //     let val = $("#master_hierarchy").val();
+            //     let $list = $('#master_hierarchy-list option');
+            //     $list.each(function () {
+            //         if($(this).val() == val) {
+            //             console.log($(this).val());
+            //         }
+            //     })
+            // });
         });
     }, 'GET', true, {
         'Content-Type': 'application/json'

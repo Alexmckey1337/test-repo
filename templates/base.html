@@ -156,12 +156,14 @@
             </select></p>
             <p ><label for="master_hierarchy">Ответственный: </label>
                 <% if(master != null) { %>
-                    <input id="master_hierarchy" list="master_hierarchy-list" data-id="<%= master.id %>" value="<%= master.fullname %>" readonly autocomplete="off">
+                    <select id="master_hierarchy" disabled>
+                        <option value="<%= master.fullname %>" data-id="<%= master.id %>" selected><%= master.fullname %></option>
+                    </select>
                     <% if(master.hierarchy != null ) { %>
                         <span class="info">(<%= master.hierarchy.title %>)</span>
                     <% } %>
                 <% } else { %>
-                    <input id="master_hierarchy" list="master_hierarchy-list" data-id="" value="" readonly autocomplete="off">
+                    <select id="master_hierarchy" data-id="" value="" readonly autocomplete="off"></select>
                 <% } %>
             </p>
             <datalist id="master_hierarchy-list">
