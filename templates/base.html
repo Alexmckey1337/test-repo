@@ -143,7 +143,7 @@
 <script type="text/template" id="quickEditCart">
    <div class="container bb-1">
        <div>
-            <img class="user-image" src="<%=image %>" alt="<%=id%>">
+            <img class="user-image" src="<%= image %>" alt="<%=id%>">
         </div>
         <div class="col-7">
             <p><input type="text" class="fullname" value="<%=fullname %>" readonly></p>
@@ -154,11 +154,16 @@
                     <option value="" selected></option>
                 <% } %>
             </select></p>
-            <p ><label for="master_hierarchy">Ответственный: </label><input id="master_hierarchy" list="master_hierarchy-list"
-                                                                            <% if(master != null){ %>
-                                                                                data-id="<%=master.id%>" value="<%=master.fullname%>"
-                                                                            <%}%>
-                                                                            readonly autocomplete="off"></p>
+            <p ><label for="master_hierarchy">Ответственный: </label>
+                <% if(master != null) { %>
+                    <input id="master_hierarchy" list="master_hierarchy-list" data-id="<%= master.id %>" value="<%= master.fullname %>" readonly autocomplete="off">
+                    <% if(master.hierarchy != null ) { %>
+                        <span class="info">(<%= master.hierarchy.title %>)</span>
+                    <% } %>
+                <% } else { %>
+                    <input id="master_hierarchy" list="master_hierarchy-list" data-id="" value="" readonly autocomplete="off">
+                <% } %>
+            </p>
             <datalist id="master_hierarchy-list">
 
             </datalist>

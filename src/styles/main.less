@@ -2220,6 +2220,10 @@ table input[type=checkbox],
     & span {
       line-height: 1.5;
       padding-left: 6px;
+      &.info {
+        padding-right: 0;
+        font-size: 1em;
+      }
     }
   }
   & img {
@@ -2230,7 +2234,8 @@ table input[type=checkbox],
 
 .pop_cont {
   position: fixed;
-  max-width: 900px;
+  max-width: 940px;
+  min-width: 560px;
   height: auto;
   top: 50%;
   left: 50%;

@@ -6,6 +6,7 @@ var config = {
     'column_table': null
 };
 var GlobalParam = {};
+
 function saveUser(el) {
     let $input, $select, fullName, first_name, last_name, middle_name, data, id;
     $input = $(el).closest('.pop_cont').find('input');

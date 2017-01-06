@@ -13,9 +13,13 @@ $('document').ready(function () {
         let $input = $(this).closest('.pop_cont').find('input');
         let $select = $(this).closest('.pop_cont').find('select');
         let $button = $(this).closest('.pop_cont').find('.save-user');
+        let $info = $(this).closest('.pop_cont').find('.info');
         $button.css('display', 'inline-block');
         $button.removeAttr('disabled');
         $button.text('Сохранить');
+        $info.each(function () {
+            $(this).css('display', 'none');
+        });
         $input.each(function () {
             $(this).removeAttr('readonly');
         });
