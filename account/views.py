@@ -310,7 +310,7 @@ class NewUserViewSet(viewsets.ModelViewSet):
                     'name': '{} {}'.format(t.title, summit.start_date),
                     'id': summit.id,
                     'description': summit.description,
-                    'value': summit.ankets.get(user_id=pk).value,
+                    'total_payed': summit.ankets.get(user_id=pk).total_payed,
                     'code': summit.ankets.get(user_id=pk).code,
                     'anket_id': summit.ankets.get(user_id=pk).id,
                     'user_fullname': summit.ankets.get(user_id=pk).user.fullname,

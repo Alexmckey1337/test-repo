@@ -2,6 +2,7 @@
 
 django-extensions
 django-debug-toolbar
+django-silk
 
 # Tests
 factory_boy

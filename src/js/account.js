@@ -216,7 +216,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                     body_summit += '<p>Комментарий не указан ' + ' (Code: <a href="/api/v1.0/generate_code/' + summit.user_fullname + ' (' + summit.code + ').pdf?code=' + summit.code + '">' + summit.code + ')' + '</a></p>';
                 }
 
-                body_summit += '<p>Сумма<span> ' + summit.value + ' ₴</span></p>' +
+                body_summit += '<p>Сумма<span> ' + summit.total_payed + ' ₴</span></p>' +
                     '</div></div>';
 
                 // NOTES
