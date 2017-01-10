@@ -27,14 +27,18 @@ class AnketEmailSerializer(serializers.ModelSerializer):
 class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
     user = UserTableSerializer()
     emails = AnketEmailSerializer(many=True, read_only=True)
+    total_sum = serializers.DecimalField(max_digits=12, decimal_places=0)
 
     class Meta:
         model = SummitAnket
-        fields = ('id', 'user', 'code', 'value', 'description',
-                  'is_member',
-                  'is_full_paid',
+        fields = ('id', 'user', 'code', 'description',
                   'emails',
-                  'visited')
+                  'visited',
+
+                  'is_member',
+                  # 'is_full_paid',
+                  'total_sum',
+                  )
 
 
 class SummitAnketForSelectSerializer(serializers.HyperlinkedModelSerializer):

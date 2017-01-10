@@ -107,7 +107,7 @@ class Payment(models.Model):
     #: Rate of currency
     rate = models.DecimalField(_('Rate'), max_digits=12, decimal_places=2, default=Decimal(1))
     #: Sum of the payment
-    effective_sum = models.DecimalField(_('Effective sum'), max_digits=12, decimal_places=0,
+    effective_sum = models.DecimalField(_('Effective sum'), max_digits=12, decimal_places=2,
                                         null=True, blank=True, editable=False)
     #: Comment for payment, such as the purpose of payment
     description = models.TextField(_('Description'), blank=True)
@@ -153,11 +153,14 @@ class Payment(models.Model):
     def save(self, *args, **kwargs):
         if not self.effective_sum or kwargs.get('update_eff_sum', True):
             self.update_effective_sum(save=False)
-        if not self.id and self.purpose and hasattr(self.purpose, 'currency'):
+        if self.id is None and self.purpose and hasattr(self.purpose, 'currency'):
             self.currency_rate = self.purpose.currency
         if 'update_eff_sum' in kwargs:
             kwargs.pop('update_eff_sum')
         super(Payment, self).save(*args, **kwargs)
+        if hasattr(self.purpose, 'update_value') and callable(self.purpose.update_value):
+            # TODO не обрабатывает изменение (не пересчитывает предыдущего purpose, только нового)
+            self.purpose.update_value()
 
     def __str__(self):
         return '{}: {}'.format(self.created_at.strftime('%d %B %Y %H:%M'), self.purpose or 'UNKNOWN')
