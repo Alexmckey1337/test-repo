@@ -12,14 +12,19 @@ function makeResponsibleList() {
     let hierarchy = $('#hierarchySelect').val();
     getResponsible(department, hierarchy).then(function (data) {
         let id = $('#master_hierarchy option:selected').attr('data-id');
+        var selected = false;
         var html = "";
         data.forEach(function (el) {
             if (id == el.id) {
+                selected = true;
                 html += "<option data-id='" + el.id + "' selected>" + el.fullname + "</option>";
             } else {
                 html += "<option data-id='" + el.id + "'>" + el.fullname + "</option>";
             }
         });
+        if(!selected) {
+            html += "<option selected disabled>Выберите ответственного</option>";
+        }
         html += "";
         $("#master_hierarchy").html(html);
         $("#master_hierarchy").select2();
