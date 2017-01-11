@@ -9,7 +9,7 @@ $('document').ready(function () {
     $('.popap').on('click', function () {
         $(this).css('display', 'none');
     });
-    $('#quickEditCartPopup').find('.edit').on('click', function () {
+    $('#quickEditCartPopup').find('.close').on('click', function () {
         let $input = $(this).closest('.pop_cont').find('input');
         let $select = $(this).closest('.pop_cont').find('select');
         let $button = $(this).closest('.pop_cont').find('.save-user');
@@ -36,7 +36,6 @@ $('document').ready(function () {
                 } else {
                     html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
                 }
-
             }
             $('#hierarchySelect').html(html);
         });
@@ -191,22 +190,11 @@ function createUserInfoBySearch(data, search) {
         var timer = 0;
         var delay = 200;
         var prevent = false;
-        $('.quick')
+        $('.quick-edit')
             .on('click', function () {
                 var _self = this;
-                timer = setTimeout(function () {
-                    if (!prevent) {
-                        goToUser(_self);
-                    }
-                    prevent = false;
-                }, delay);
-            })
-            .on('dblclick', function () {
-                var _self = this;
-                clearTimeout(timer);
-                prevent = true;
                 makeQuickEditCart(_self);
-            });
+            })
     }, 1000);
 
     document.getElementById("baseUsers").innerHTML = rendered;
@@ -299,8 +287,6 @@ function createUserInfoBySearch(data, search) {
         }
     })();
     orderTable.addListener();
-
-
     document.getElementById('add').addEventListener('click', function () {
         document.querySelector('.pop-up-splash').style.display = 'block';
     })

@@ -9,20 +9,7 @@ var GlobalParam = {};
 
 function saveUser(el) {
     let $input, $select, fullName, first_name, last_name, middle_name, data, id;
-    $input = $(el).closest('.pop_cont').find('input');
-    $select = $(el).closest('.pop_cont').find('select');
-    if ($('#safari_select').val()) {
-        $('#master_hierarchy').val($('#safari_select').val());
-        $('#safari_select').remove()
-    }
-    $input.each(function () {
-        $(this).attr('readonly', true);
-    });
-    $select.each(function () {
-        $(this).attr('disabled', true)
-    });
-    let master = ($('#safari_select').val()) ? $('#safari_select').val() : $('#master_hierarchy').val();
-    let master_id = (master.search('#') != -1) ? master.slice(master.search('#') + 1) : $("#master_hierarchy").attr('data-id');
+    let master_id = $('#master_hierarchy option:selected').attr('data-id') || "";
     fullName = $($(el).closest('.pop_cont').find('input.fullname')).val().split(' ');
     first_name = fullName[1];
     last_name = fullName[0];
@@ -48,15 +35,24 @@ function saveUser(el) {
     saveUserData(data, id);
     $(el).text("Сохранено");
     $(el).attr('disabled', true);
+    $input = $(el).closest('.popap').find('input');
+    $select = $(el).closest('.popap').find('select');
+    $select.on('change', function () {
+        $(el).text("Сохранить");
+        $(el).attr('disabled', false);
+    });
+    $input.on('change', function () {
+        $(el).text("Сохранить");
+        $(el).attr('disabled', false);
+    })
 }
+
 function makeQuickEditCart(el) {
     let id, link;
-    id = $(el).attr('data-id');
-
-    link = $(el).attr('data-link');
+    id = $(el).closest('td').find('a').attr('data-id');
+    link = $(el).closest('td').find('a').attr('data-link');
     let url = "/api/v1.1/users/" + id + '/';
     ajaxRequest(url, null, function (data) {
-        console.log(data);
         let quickEditCartTmpl, rendered;
         quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
         rendered = _.template(quickEditCartTmpl)(data);
@@ -64,34 +60,53 @@ function makeQuickEditCart(el) {
         $('#quickEditCartPopup').css('display', 'block');
         let department = $('#departmentSelect').val();
         let hierarchy = $('#hierarchySelect').val();
-        // let search = $("#master_hierarchy").val();
-        let search = "";
-        getResponsible(department, hierarchy, search).then(function (data) {
+
+        getResponsible(department, hierarchy).then(function (data) {
+            let id = $('#master_hierarchy option:selected').attr('data-id');
             var html = "";
             data.forEach(function (el) {
-                html += "<option data-id='" + el.id + "'>" + el.fullname + " #" + el.id + "</option>";
+                if(id == el.id) {
+                    html += "<option data-id='" + el.id + "' selected>" + el.fullname + "</option>";
+                } else {
+                    html += "<option data-id='" + el.id + "'>" + el.fullname + "</option>";
+                }
             });
             html += "";
             $("#master_hierarchy").html(html);
             $("#master_hierarchy").select2();
-            // $('#master_hierarchy').on('input', function () {
-            //     let val = $("#master_hierarchy").val();
-            //     let $list = $('#master_hierarchy-list option');
-            //     $list.each(function () {
-            //         if($(this).val() == val) {
-            //             console.log($(this).val());
-            //         }
-            //     })
-            // });
         });
+        getStatuses.then(function (data) {
+            data = data.results;
+            let hierarchySelect = $('#hierarchySelect').val();
+            let html = "";
+            for (let i = 0; i < data.length; i++) {
+                if(hierarchySelect === data[i].title || hierarchySelect == data[i].id) {
+                    html += '<option value="' + data[i].id + '"' + 'selected' + '>' + data[i].title + '</option>';
+                } else {
+                    html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+                }
+            }
+            $('#hierarchySelect').html(html);
+        });
+        getDepartments.then(function (data) {
+            data = data.results;
+            let departmentSelect = $('#departmentSelect').val();
+            let html = "";
+            for (let i = 0; i < data.length; i++) {
+                if( departmentSelect == data[i].title || departmentSelect == data[i].id) {
+                    html += '<option value="' + data[i].id + '"' + 'selected' + '>' + data[i].title + '</option>';
+                } else {
+                    html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+                }
+            }
+            $('#departmentSelect').html(html);
+        });
+        $("#repentance_date").datepicker({
+            dateFormat: "yy-mm-dd"
+        })
     }, 'GET', true, {
         'Content-Type': 'application/json'
     });
-}
-function goToUser(el) {
-    let link;
-    link = $(el).attr('data-link');
-    window.location.href = link;
 }
 function setCookie(name, value, options) {
     options = options || {};
@@ -448,9 +463,6 @@ function updateSettings(callback, param) {
 
 function hidePopup(el) {
     $(el).closest('.popap').css('display', 'none');
-    window.setTimeout(function () {
-        $(el).closest('.pop_cont').find('.save-user').css('display', 'none');
-    }, 500)
 }
 function refreshFilter(el) {
     var input = $(el).closest('.popap').find('input');

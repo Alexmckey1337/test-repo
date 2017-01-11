@@ -411,7 +411,7 @@
         });
     }
 
-    function getResponsible(id, level, search) {
+    function getResponsible(id, level, search = "") {
         return new Promise(function (resolve, reject) {
             ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id + '&level_gte=' + level + '&search=' + search, null, function (data) {
                 if (data) {

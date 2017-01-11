@@ -101,15 +101,14 @@
         <div class="pop_cont">
             <div class="popup_text">
                 <h2>Карточка пользователя</h2>
-
-                <a href="#" class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                <a href="#" onclick="hidePopup(this)" class="close"><i class="fa fa-times" aria-hidden="true"></i></a>
 
             </div>
             <div class="popup_body">
 
             </div>
             <div class="container">
-                <button onclick="hidePopup(this)" class="close-popup">Закрыть</button>
+                <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
                 <button onclick="saveUser(this)" class="save-user">Сохранить</button>
             </div>
         </div>

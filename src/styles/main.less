@@ -1738,6 +1738,31 @@ td {
   transition: all .3s ease;
 }
 
+#database_users {
+  & td {
+    a {
+      & ~ .quick-edit {
+        height: 1em;
+        float: right;
+        display: none;
+        position: absolute;
+        right: 1em;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+      }
+    }
+    &:hover {
+      a {
+        & ~ .quick-edit {
+          display: block;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}
+
 td a:hover {
   color: #3caeda;
   border-bottom: 1px dotted #3caeda;
@@ -1749,7 +1774,7 @@ table tr:nth-child(even) {
 
 table tr td:first-child {
   padding-left: 35px;
-  padding-right: 7px;
+  padding-right: 3em;
   position: relative;
 }
 
@@ -2147,9 +2172,6 @@ table input[type=checkbox],
       background: transparent none;
     }
   }
-  & .save-user {
-    display: none;
-  }
   & .label_block {
     height: 35px;
     font-size: 1.1em;
@@ -2202,6 +2224,42 @@ table input[type=checkbox],
       font-size: 1.5em;
     }
   }
+  & .select2 {
+    width: auto !important;
+    min-width: 17em;
+    height: 25px;
+  }
+  & .select2-container .select2-selection--single {
+    height: 25px !important;
+  }
+  & .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 25px;
+  }
+  & .select2-container--default .select2-selection--single .select2-selection__arrow {
+    background: #e6e9ee;
+    height: ~'calc(100% - 2px)' !important;
+    width: 2em !important;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    &:before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: .6em;
+      margin: auto;
+      display: block;
+      width: 0;
+      height: 0;
+      border-left: .4em solid transparent;
+      border-right: .4em solid transparent;
+      border-top: .6em solid #656d78;
+      border-bottom: 0 solid transparent;
+    }
+  }
+  & .select2-dropdown {
+    border: 1px solid #cdd0d4;
+  }
   #safari_select {
     position: relative;
     top: -5px;
@@ -2226,6 +2284,9 @@ table input[type=checkbox],
       }
     }
   }
+  & div {
+    margin: 5px 0;
+  }
   & img {
     max-width: 115px;
     margin-right: 1em;
@@ -2235,7 +2296,7 @@ table input[type=checkbox],
 .pop_cont {
   position: fixed;
   max-width: 940px;
-  min-width: 560px;
+  min-width: 570px;
   height: auto;
   top: 50%;
   left: 50%;
@@ -2260,6 +2321,12 @@ table input[type=checkbox],
     border-bottom: 1px solid #eee;
     user-select: none;
     cursor: default;
+    & .close {
+      position: absolute;
+      top: 1em;
+      right: 1em;
+      cursor: pointer;
+    }
   }
   & .popup_body {
     padding-bottom: 1em;
