@@ -149,7 +149,7 @@
             <div class="summa-wrap">
                 <div class="summa">
                     <p>Сумма:</p>
-                    <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                    <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
                            type="text" id="new_payment_sum">
                 </div>
             </div>

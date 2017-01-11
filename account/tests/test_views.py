@@ -2,8 +2,8 @@ import datetime
 import copy
 
 import pytest
+from django.urls import reverse
 from decimal import Decimal
-from django.core.urlresolvers import reverse
 from rest_framework import status
 
 from account.models import CustomUser, AdditionalPhoneNumber

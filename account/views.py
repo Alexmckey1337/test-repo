@@ -11,7 +11,7 @@ from django.contrib.auth import authenticate, login, logout as django_logout
 from django.contrib.auth import update_session_auth_hash
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMultiAlternatives
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Case, BooleanField
 from django.db.models import Value as V
 from django.db.models import When

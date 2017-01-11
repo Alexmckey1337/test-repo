@@ -4,12 +4,15 @@ from __future__ import unicode_literals
 from datetime import datetime
 
 import django_filters
-from django.db.models import Case, IntegerField
+from decimal import Decimal
+
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Case, IntegerField, DecimalField
 from django.db.models import Sum
 from django.db.models import Value
 from django.db.models import When
+from django.db.models.functions import Coalesce
 from django.db.models.functions import Concat
-from django.utils import six
 from rest_framework import filters
 from rest_framework import mixins
 from rest_framework import status
@@ -19,19 +22,22 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.settings import api_settings
 
 from account.models import CustomUser as User, CustomUser
 from navigation.models import user_table, user_partner_table
-from partnership.permissions import IsManagerOrHigh, IsSupervisorOrHigh, IsSupervisorOrManagerReadOnly
+from partnership.permissions import IsSupervisorOrHigh, IsSupervisorOrManagerReadOnly
+from payment.serializers import PaymentCreateSerializer, PaymentShowSerializer
 from .models import Partnership, Deal
-from .serializers import PartnershipSerializer, DealSerializer, NewPartnershipSerializer, \
+from .serializers import DealSerializer, PartnershipSerializer, \
     PartnershipUnregisterUserSerializer, PartnershipForEditSerializer
 
 
-class SaganPagination(PageNumberPagination):
-    page_size = 2
-    page_size_query_param = 'page_size'
-    max_page_size = 2
+def get_success_headers(data):
+    try:
+        return {'Location': data[api_settings.URL_FIELD_NAME]}
+    except (TypeError, KeyError):
+        return {}
 
 
 class PartnershipPagination(PageNumberPagination):
@@ -52,47 +58,15 @@ class PartnershipPagination(PageNumberPagination):
         })
 
 
-class PartnershipViewSet(viewsets.ModelViewSet):
-    queryset = Partnership.objects.all()
-    serializer_class = PartnershipSerializer
-    pagination_class = PartnershipPagination
-    filter_backends = (filters.DjangoFilterBackend,
-                       filters.SearchFilter,
-                       filters.OrderingFilter,)
-    filter_fields = ('user', 'responsible__user',)
-    search_fields = ('user__first_name', 'user__last_name', 'user__middle_name', 'user__search_name',
-                     'user__country', 'user__region', 'user__city', 'user__district',
-                     'user__address', 'user__skype', 'user__phone_number', 'user__hierarchy__title',
-                     'user__department__title',
-                     'user__email',)
-    ordering_fields = ('user__first_name', 'user__last_name',
-                       'user__middle_name', 'user__born_date', 'user__country',
-                       'user__region', 'user__city', 'user__disrict',
-                       'user__address', 'user__skype', 'user__phone_number',
-                       'user__email', 'user__hierarchy__level',
-                       'user__department__title', 'user__facebook',
-                       'user__vkontakte',)
-    permission_classes = (IsManagerOrHigh,)
-
-    def get_queryset(self):
-        user = self.request.user
-        user_perm = IsSupervisorOrHigh()
-        if not Partnership.objects.filter(user=user).exists():
-            return self.queryset.none()
-        if user_perm.has_permission(self.request, None):
-            return self.queryset
-        return self.queryset.select_related('responsible__user').filter(responsible__user=user)
-
-
-class NewPartnershipViewSet(mixins.RetrieveModelMixin,
-                            mixins.UpdateModelMixin,
-                            mixins.ListModelMixin,
-                            viewsets.GenericViewSet):
+class PartnershipViewSet(mixins.RetrieveModelMixin,
+                         mixins.UpdateModelMixin,
+                         mixins.ListModelMixin,
+                         viewsets.GenericViewSet):
     queryset = Partnership.objects \
         .select_related('user', 'user__hierarchy', 'user__department', 'user__master', 'responsible__user') \
         .prefetch_related('user__divisions') \
         .order_by('user__last_name', 'user__first_name', 'user__middle_name')
-    serializer_class = NewPartnershipSerializer
+    serializer_class = PartnershipSerializer
     pagination_class = PartnershipPagination
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
@@ -213,17 +187,17 @@ class NewPartnershipViewSet(mixins.RetrieveModelMixin,
             sum_deals=Sum(
                 Case(When(deals__date_created__month=month, deals__date_created__year=year,
                           then='deals__value'), default=0,
-                     output_field=IntegerField())
+                     output_field=DecimalField())
             ),
             paid_sum_deals=Sum(
                 Case(When(deals__date_created__month=month, deals__date_created__year=year,
                           deals__done=True, then='deals__value'), default=0,
-                     output_field=IntegerField())
+                     output_field=DecimalField())
             ),
             unpaid_sum_deals=Sum(
                 Case(When(deals__date_created__month=month, deals__date_created__year=year,
                           deals__done=False, then='deals__value'), default=0,
-                     output_field=IntegerField())
+                     output_field=DecimalField())
             ),
             partner_name=Concat('user__last_name', Value(' '), 'user__first_name', Value(' '), 'user__middle_name')
         ).values('partner_name',
@@ -249,7 +223,19 @@ class DateFilter(filters.FilterSet):
 
 
 class DealViewSet(viewsets.ModelViewSet):
-    queryset = Deal.objects.select_related('partnership')
+    queryset = Deal.objects.select_related(
+        'partnership', 'partnership__responsible',
+        'partnership__responsible__user').annotate(
+        full_name=Concat(
+            'partnership__user__last_name', Value(' '),
+            'partnership__user__first_name', Value(' '),
+            'partnership__user__middle_name'),
+        responsible_name=Coalesce(Concat(
+            'partnership__responsible__user__last_name', Value(' '),
+            'partnership__responsible__user__first_name'
+        ), Value('')),
+        total_sum=Coalesce(Sum('payments__effective_sum'), Value(0))
+    )
     serializer_class = DealSerializer
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
@@ -259,7 +245,6 @@ class DealViewSet(viewsets.ModelViewSet):
                      'partnership__user__last_name',
                      'partnership__user__search_name',
                      'partnership__user__middle_name',)
-    # pagination_class = SaganPagination
     permission_classes = (IsSupervisorOrManagerReadOnly,)
 
     def get_queryset(self):
@@ -273,14 +258,38 @@ class DealViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         serializer.save()
 
-        partnership = serializer.instance.partnership
-        plan_value = partnership.value
-        month = datetime.now().month
-        complete_value = partnership.deals.filter(
-            date_created__month=month).aggregate(values_sum=Sum('value'))['values_sum']
-        diff_value = plan_value - complete_value if complete_value else plan_value
-        if diff_value > 0:
-            Deal.objects.create(value=diff_value, partnership=partnership)
+    @detail_route(methods=['post'])
+    def create_payment(self, request, pk=None):
+        deal = get_object_or_404(Deal, pk=pk)
+        sum = request.data['sum']
+        description = request.data.get('description', '')
+        rate = request.data.get('rate', Decimal(1))
+        currency = request.data.get('currency', deal.currency.id)
+        data = {
+            'sum': sum,
+            'rate': rate,
+            'currency_sum': currency,
+            'description': description,
+            'manager': request.user.id,
+            'content_type': ContentType.objects.get_for_model(Deal).id,
+            'object_id': pk
+        }
+        serializer = PaymentCreateSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        headers = get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @detail_route(methods=['get'])
+    def payments(self, request, pk=None):
+        serializer = PaymentShowSerializer
+        deal = get_object_or_404(Deal, pk=pk)
+        queryset = deal.payments.select_related('currency_sum', 'currency_rate', 'manager')
+
+        serializer = serializer(queryset, many=True)
+
+        return Response(serializer.data)
 
 
 @api_view(['POST'])
@@ -297,7 +306,7 @@ def create_partnership(request):
         value = data['value']
         date = data['date']
         try:
-            object = Partnership.objects.get(user__id=user_id)
+            Partnership.objects.get(user__id=user_id)
             response_dict['message'] = "Этот пользователь уже имеет партнерство."
             response_dict['status'] = False
         except Partnership.DoesNotExist:
@@ -315,72 +324,6 @@ def create_partnership(request):
                 response_dict['data'] = []
                 response_dict['message'] = "Пользователя не существует."
                 response_dict['status'] = False
-    return Response(response_dict)
-
-
-@api_view(['POST'])
-def update_partnership(request):
-    '''POST: (id, responsible, value, date, is_responsible)'''
-    response_dict = dict()
-    if request.method == 'POST':
-        data = request.data
-        try:
-            object = Partnership.objects.get(id=data['id'])
-            for key, value in six.iteritems(data):
-                if key == "responsible":
-                    responsible_partnerhip = Partnership.objects.filter(user__id=value).first()
-                    object.responsible = responsible_partnerhip
-                else:
-                    setattr(object, key, value)
-            object.save()
-            serializer = PartnershipSerializer(object, context={'request': request})
-            response_dict['data'] = serializer.data
-            response_dict['message'] = "Партнерство успешно изменено."
-            response_dict['status'] = True
-        except Partnership.DoesNotExist:
-            response_dict['message'] = "Партнерство не существует."
-            response_dict['status'] = False
-    return Response(response_dict)
-
-
-@api_view(['POST'])
-def delete_partnership(request):
-    '''POST: (id)'''
-    response_dict = dict()
-    if request.method == 'POST':
-        data = request.data
-        user_id = data['id']
-        try:
-            object = Partnership.objects.get(user__id=user_id)
-            object.delete()
-            response_dict['message'] = "Партнерство успешно удалено."
-            response_dict['status'] = True
-        except Partnership.DoesNotExist:
-            response_dict['message'] = "Такого пользователя не существует."
-            response_dict['status'] = False
-    return Response(response_dict)
-
-
-@api_view(['POST'])
-def change_responsible(request):
-    '''POST: (responsible_id, new_responsible_id)'''
-    response_dict = dict()
-    if request.method == 'POST':
-        data = request.data
-        try:
-            responsible = Partnership.objects.get(id=data['responsible_id'])
-            disciples = Partnership.objects.filter(responsible=responsible).all()
-            try:
-                new_responsible = Partnership.objects.get(id=data['responsible_id'])
-                disciples.update(responsible=new_responsible)
-                response_dict['message'] = "Ответственный был успешно изменен."
-                response_dict['status'] = True
-            except Partnership.DoesNotExist:
-                response_dict['message'] = "Такого ответственного не существует."
-                response_dict['status'] = False
-        except Partnership.DoesNotExist:
-            response_dict['message'] = "Такого ответственного не существует."
-            response_dict['status'] = False
     return Response(response_dict)
 
 

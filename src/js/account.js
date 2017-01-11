@@ -30,11 +30,9 @@ let id = getLastId();
             let url = config.DOCUMENT_ROOT + 'api/v1.0/deals/';
 
             let deal = JSON.stringify({
-                'date': date,
                 'date_created': date,
                 'value': value,
                 'description': description,
-                'done': true,
                 'partnership': $(this).data('partner')
             });
             ajaxRequest(url, deal, function (data) {
