@@ -7,6 +7,25 @@ var config = {
 };
 var GlobalParam = {};
 
+function makeResponsibleList() {
+    let department = $('#departmentSelect').val();
+    let hierarchy = $('#hierarchySelect').val();
+    getResponsible(department, hierarchy).then(function (data) {
+        let id = $('#master_hierarchy option:selected').attr('data-id');
+        var html = "";
+        data.forEach(function (el) {
+            if (id == el.id) {
+                html += "<option data-id='" + el.id + "' selected>" + el.fullname + "</option>";
+            } else {
+                html += "<option data-id='" + el.id + "'>" + el.fullname + "</option>";
+            }
+        });
+        html += "";
+        $("#master_hierarchy").html(html);
+        $("#master_hierarchy").select2();
+    });
+}
+
 function saveUser(el) {
     let $input, $select, fullName, first_name, last_name, middle_name, data, id;
     let master_id = $('#master_hierarchy option:selected').attr('data-id') || "";
@@ -58,29 +77,14 @@ function makeQuickEditCart(el) {
         rendered = _.template(quickEditCartTmpl)(data);
         $('#quickEditCartPopup').find('.popup_body').html(rendered);
         $('#quickEditCartPopup').css('display', 'block');
-        let department = $('#departmentSelect').val();
-        let hierarchy = $('#hierarchySelect').val();
 
-        getResponsible(department, hierarchy).then(function (data) {
-            let id = $('#master_hierarchy option:selected').attr('data-id');
-            var html = "";
-            data.forEach(function (el) {
-                if(id == el.id) {
-                    html += "<option data-id='" + el.id + "' selected>" + el.fullname + "</option>";
-                } else {
-                    html += "<option data-id='" + el.id + "'>" + el.fullname + "</option>";
-                }
-            });
-            html += "";
-            $("#master_hierarchy").html(html);
-            $("#master_hierarchy").select2();
-        });
+        makeResponsibleList();
         getStatuses.then(function (data) {
             data = data.results;
             let hierarchySelect = $('#hierarchySelect').val();
             let html = "";
             for (let i = 0; i < data.length; i++) {
-                if(hierarchySelect === data[i].title || hierarchySelect == data[i].id) {
+                if (hierarchySelect === data[i].title || hierarchySelect == data[i].id) {
                     html += '<option value="' + data[i].id + '"' + 'selected' + '>' + data[i].title + '</option>';
                 } else {
                     html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
@@ -93,7 +97,7 @@ function makeQuickEditCart(el) {
             let departmentSelect = $('#departmentSelect').val();
             let html = "";
             for (let i = 0; i < data.length; i++) {
-                if( departmentSelect == data[i].title || departmentSelect == data[i].id) {
+                if (departmentSelect == data[i].title || departmentSelect == data[i].id) {
                     html += '<option value="' + data[i].id + '"' + 'selected' + '>' + data[i].title + '</option>';
                 } else {
                     html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
@@ -101,6 +105,10 @@ function makeQuickEditCart(el) {
             }
             $('#departmentSelect').html(html);
         });
+
+        $('#departmentSelect').on('change', makeResponsibleList);
+        $('#hierarchySelect').on('change', makeResponsibleList);
+
         $("#repentance_date").datepicker({
             dateFormat: "yy-mm-dd"
         })
