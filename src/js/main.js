@@ -478,7 +478,10 @@ function updateSettings(callback, param) {
 }
 
 function hidePopup(el) {
+    $(el).closest('.popap').find('.save-user').text('Сохранить');
+    $(el).closest('.popap').find('.save-user').attr('disabled', false);
     $(el).closest('.popap').css('display', 'none');
+
 }
 function refreshFilter(el) {
     var input = $(el).closest('.popap').find('input');
