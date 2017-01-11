@@ -58,15 +58,18 @@ function saveUser(el) {
     id = $(el).closest('.pop_cont').find('img').attr('alt');
     saveUserData(data, id);
     $(el).text("Сохранено");
+    $(el).closest('.popap').find('.close-popup').text('Закрыть');
     $(el).attr('disabled', true);
     $input = $(el).closest('.popap').find('input');
     $select = $(el).closest('.popap').find('select');
     $select.on('change', function () {
         $(el).text("Сохранить");
+        $(el).closest('.popap').find('.close-popup').text('Отменить');
         $(el).attr('disabled', false);
     });
     $input.on('change', function () {
         $(el).text("Сохранить");
+        $(el).closest('.popap').find('.close-popup').text('Отменить');
         $(el).attr('disabled', false);
     })
 }
