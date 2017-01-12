@@ -12,7 +12,7 @@ from status.models import Division
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'email', 'fullname', 'image', 'image_source',
+        fields = ('id', 'email', 'fullname', 'image', 'image_source', 'search_name',
                   'hierarchy_name', 'has_disciples', 'hierarchy_order', 'column_table',
                   'fields', 'division_fields', 'hierarchy_chain', 'partnerships_info')
 
