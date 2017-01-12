@@ -478,6 +478,8 @@ function updateSettings(callback, param) {
 }
 
 function hidePopup(el) {
+    let e = window.event;
+    e.preventDefault();
     $(el).closest('.popap').find('.save-user').text('Сохранить');
     $(el).closest('.popap').find('.save-user').attr('disabled', false);
     $(el).closest('.popap').css('display', 'none');

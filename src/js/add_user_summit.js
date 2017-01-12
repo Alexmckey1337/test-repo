@@ -459,7 +459,6 @@ function createNewAcc() {
                 if(xhr.status == 200) {
                          //    debugger
                 //showPopup(data.message)
-                console.log(data)
                     getDataForPopupNew(data.id, name, master);
                     document.querySelector('.pop-up-splash-add').style.display = 'none';
                     document.querySelector('.pop-up-splash').style.display = 'none';
