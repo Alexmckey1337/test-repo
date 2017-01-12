@@ -61,7 +61,7 @@ USER_FIELDS = {
     },
     'fk': {
         'department', 'hierarchy',
-        # 'master',
+        'master',
     },
     'm2m': {
         'additional_phone', 'divisions',
