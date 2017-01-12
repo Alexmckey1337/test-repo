@@ -20,7 +20,7 @@ function getLastId(url) {
         url = document.location.href
     }
     let id = url.split('/');
-    if (id[id.length - 1]) {
+    if(id[id.length - 1]) {
         return id[id.length - 1]
     }
     return id[id.length - 2]

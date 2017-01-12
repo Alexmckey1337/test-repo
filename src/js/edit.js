@@ -80,7 +80,7 @@
             if (!id) {
                 return
             }
-            // window.location.href = '/account/' + id
+            window.location.href = '/account/' + id
         });
         $('#save').on('click', function () {
             sendData();
