@@ -474,7 +474,7 @@
             "last_name": $("input[name='last_name']").val(),
             "middle_name": $("input[name='middle_name']").val(),
             "born_date": $("input[name='born_date']").val(),
-            "phone_number": $("input[name='phone_numberCode']").val() + '' + $("input[name='phone_number']").val(),
+            "phone_number": parseInt($("input[name='phone_numberCode']").val() + '' + $("input[name='phone_number']").val()),
             "additional_phone": $("#additional_phone").val(),
             "vkontakte": $("input[name='vk']").val(),
             "facebook": $("input[name='fb']").val(),
@@ -487,18 +487,18 @@
             'value': $("input[name='value']").val(),
             'date': $("input[name='partnership_date']").val(),
             'divisions': $('#chooseDivision').val() || '',
-            'hierarchy': $("#chooseStatus").val(),
-            'department': $("#chooseDepartment").val(),
+            'hierarchy': parseInt($("#chooseStatus").val()),
+            'department': parseInt($("#chooseDepartment").val()),
             'repentance_date': $("input[name='repentance_date']").val(),
             'coming_date': $("input[name='first_visit']").val(),
             'city': $('#chooseCity option:selected').html() == 'Не выбрано' ? '' : $('#chooseCity option:selected').html(),
             'country': $('#chooseCountry option:selected').html() == 'Не выбрано' ? '' : $('#chooseCountry option:selected').html()
         };
-
+        console.log(data);
         data['send_password'] = $('#kabinet').prop("checked");
 
         if ($("#chooseResponsible").val()) {
-            data["master"] = $("#chooseResponsible").val();
+            data["master"] = parseInt($("#chooseResponsible").val());
         }
 
         if (!data['first_name']) {
