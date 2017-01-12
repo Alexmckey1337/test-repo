@@ -48,6 +48,7 @@ USER_FIELDS = {
     'text_fields': {
         # 'username',
         'email',
+        'search_name',
         'first_name', 'last_name', 'middle_name', 'phone_number', 'skype', 'country', 'region',
         'city', 'district', 'address', 'facebook', 'vkontakte', 'odnoklassniki', 'description',
         # 'activation_key', 'hierarchy_order',

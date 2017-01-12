@@ -221,7 +221,7 @@ CustomUser
    :query int master: filter by ``master_id``
    :query int department: filter by ``department_id``
    :query int page_size: page size, default is 30
-   :query string search_fio: search by ``last_name``, ``first_name``, ``middle_name``
+   :query string search_fio: search by ``last_name``, ``first_name``, ``middle_name``, ``search_name``
    :query string search_email: search by ``email``
    :query string search_phone_number: search by main ``phone_number``
    :query string search_country: search by ``country``
@@ -336,6 +336,7 @@ CustomUser
    :form first_name: first name
    :form last_name: last name
    :form middle_name: middle name
+   :form search_name: search name
    :form facebook: facebook url
    :form vkontakte: vkontakte url
    :form odnoklassniki: odnoklassiniki url
