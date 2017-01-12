@@ -516,7 +516,6 @@
             "phone_number": $("#phone_number").val(),
             "additional_phone": $("#additional_phone").val(),
             "born_date": $("#datepicker_born_date").val() || '',
-            "coming_date": $("input[name='first_visit']").val() || '',
             "repentance_date": $("input[name='repentance_date']").val() || '',
             'country': $('#country_drop option:selected').html() == "Не выбрано" ? '' : $('#country_drop option:selected').html(),
             'region': $('#region_drop option:selected').html() == "Не выбрано" ? '' : $('#region_drop option:selected').html(),
