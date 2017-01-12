@@ -60,7 +60,7 @@ class PartnershipViewSet(viewsets.ModelViewSet):
                        filters.SearchFilter,
                        filters.OrderingFilter,)
     filter_fields = ('user', 'responsible__user',)
-    search_fields = ('user__first_name', 'user__last_name', 'user__middle_name',
+    search_fields = ('user__first_name', 'user__last_name', 'user__middle_name', 'user__search_name',
                      'user__country', 'user__region', 'user__city', 'user__district',
                      'user__address', 'user__skype', 'user__phone_number', 'user__hierarchy__title',
                      'user__department__title',
@@ -98,7 +98,7 @@ class NewPartnershipViewSet(mixins.RetrieveModelMixin,
                        filters.SearchFilter,
                        filters.OrderingFilter,)
     filter_fields = ('user', 'responsible__user', 'responsible')
-    search_fields = ('user__first_name', 'user__last_name', 'user__middle_name',
+    search_fields = ('user__first_name', 'user__last_name', 'user__middle_name', 'user__search_name',
                      'user__country', 'user__region', 'user__city', 'user__district',
                      'user__address', 'user__skype', 'user__phone_number', 'user__hierarchy__title',
                      'user__department__title',
@@ -257,7 +257,9 @@ class DealViewSet(viewsets.ModelViewSet):
                        filters.SearchFilter,
                        filters.OrderingFilter,)
     filter_class = DateFilter
-    search_fields = ('partnership__user__first_name', 'partnership__user__last_name',
+    search_fields = ('partnership__user__first_name',
+                     'partnership__user__last_name',
+                     'partnership__user__search_name',
                      'partnership__user__middle_name',)
     # pagination_class = SaganPagination
     permission_classes = (IsSupervisorOrManagerReadOnly,)
