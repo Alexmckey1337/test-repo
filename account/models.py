@@ -412,4 +412,4 @@ def sync_user(sender, instance, **kwargs):
                                         user=instance,
                                         theme=birth_day_notification_theme)
     from report.models import UserReport
-    # Table.objects.get_or_create(user=instance)
+    Table.objects.get_or_create(user=instance)

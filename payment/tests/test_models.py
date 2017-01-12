@@ -7,8 +7,31 @@ from django.core.exceptions import ValidationError
 
 from account.models import CustomUser
 from partnership.models import Partnership, Deal
-from payment.models import Payment
+from payment.models import Payment, get_default_currency, Currency
 from summit.models import SummitAnket
+
+
+@pytest.mark.django_db
+def test_get_default_currency_with_uah():
+    currency = Currency.objects.get(code='uah')
+
+    assert get_default_currency() == currency.id
+
+
+@pytest.mark.django_db
+def test_get_default_currency_without_uah(currency_factory):
+    Currency.objects.all().delete()
+
+    other_currency = currency_factory()
+
+    assert get_default_currency() == other_currency.id
+
+
+@pytest.mark.django_db
+def test_get_default_currency_without_currencies():
+    Currency.objects.all().delete()
+
+    assert get_default_currency() is None
 
 
 @pytest.mark.django_db
@@ -90,6 +113,10 @@ class TestPayment:
 class TestCurrency:
     def test__str__(self, currency):
         assert currency.__str__() == 'Currency (100 cur.)'
+
+    def test__str__incorrect(self, currency):
+        currency.output_format = '{incorrect_key}'
+        assert currency.__str__() == "Currency (invalid format 'incorrect_key')"
 
     def test_clean_valid(self, currency):
         currency.clean()

@@ -77,55 +77,6 @@ class Partnership(models.Model):
     def fullname(self):
         return self.user.fullname
 
-    @property
-    def common(self):
-        return ['Пользователь', 'Ответственный', 'Сумма', 'Количество сделок', 'Итого']
-
-    @property
-    def result_value(self):
-        return self.deals.aggregate(sum_deals=Sum('value'))['sum_deals']
-
-    @property
-    def disciples_result_value(self):
-        return self.disciples.aggregate(sum_deals=Sum('deals__value'))['sum_deals']
-
-    @property
-    def deals_count(self):
-        return self.deals.count()
-
-    @property
-    def disciples_count(self):
-        return self.disciples.aggregate(count=Count('deals'))['count']
-
-    #
-    # @property
-    # def count(self):
-    #     return self.deals_count
-
-    @property
-    def done_deals_count(self):
-        return self.deals.filter(done=True).count()
-
-    @property
-    def undone_deals_count(self):
-        return self.deals.filter(done=False, expired=False).count()
-
-    @property
-    def expired_deals_count(self):
-        return self.deals.filter(expired=True).count()
-
-    @property
-    def done_deals(self):
-        return self.deals.filter(done=True)
-
-    @property
-    def undone_deals(self):
-        return self.deals.filter(done=False, expired=False)
-
-    @property
-    def expired_deals(self):
-        return self.deals.filter(expired=True)
-
 
 @python_2_unicode_compatible
 class Deal(models.Model):

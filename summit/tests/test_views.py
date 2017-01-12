@@ -1,9 +1,12 @@
 import pytest
+from decimal import Decimal
 from django.urls import reverse
 from rest_framework import status
 
+from payment.serializers import PaymentCreateSerializer, PaymentShowSerializer
 from summit.models import Summit, SummitLesson, SummitAnket
-from summit.serializers import SummitSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer
+from summit.serializers import SummitSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer, \
+    SummitAnketNoteSerializer
 
 
 @pytest.mark.django_db
@@ -154,3 +157,58 @@ class TestSummitViewSet:
         response = api_client.post(url, data={'anket_id': anket.id}, format='json')
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.django_db
+class TestSummitAnketTableViewSet:
+    def test_create_payment(self, api_login_client, anket, currency_factory):
+        url = reverse('summit_ankets-create-payment', kwargs={'pk': anket.id})
+
+        data = {
+            'sum': '10',
+            'description': 'no desc',
+            'rate': '1.22',
+            'currency': currency_factory().id,
+        }
+        response = api_login_client.post(url, data=data, format='json')
+
+        payment = anket.payments.get()
+
+        assert response.status_code == status.HTTP_201_CREATED
+        assert payment.sum == Decimal(data['sum'])
+        assert payment.rate == Decimal(data['rate'])
+        assert payment.description == data['description']
+        assert payment.currency_sum_id == data['currency']
+        assert response.data == PaymentCreateSerializer(payment).data
+
+    def test_payments(self, api_login_client, anket, payment_factory):
+        payment_factory.create_batch(6, purpose=anket)
+        url = reverse('summit_ankets-payments', kwargs={'pk': anket.id})
+
+        response = api_login_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == PaymentShowSerializer(anket.payments.all(), many=True).data
+
+    def test_create_note(self, api_login_client, anket):
+        url = reverse('summit_ankets-create-note', kwargs={'pk': anket.id})
+
+        data = {
+            'text': 'very long text',
+        }
+        response = api_login_client.post(url, data=data, format='json')
+
+        note = anket.notes.get()
+
+        assert response.status_code == status.HTTP_201_CREATED
+        assert note.text == data['text']
+        assert response.data == SummitAnketNoteSerializer(note).data
+
+    def test_notes(self, api_login_client, anket, anket_note_factory):
+        anket_note_factory.create_batch(6)
+        url = reverse('summit_ankets-notes', kwargs={'pk': anket.id})
+
+        response = api_login_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == SummitAnketNoteSerializer(anket.notes.all(), many=True).data

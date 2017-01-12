@@ -7,10 +7,37 @@ from decimal import Decimal
 from rest_framework import status
 
 from account.models import CustomUser, AdditionalPhoneNumber
-from hierarchy.factories import HierarchyFactory, DepartmentFactory
-from partnership.factories import PartnerFactory
-from status.factories import DivisionFactory
-from status.models import Division
+
+
+FIELD_CODES = (
+    # optional fields
+    ('email', 201),
+    ('middle_name', 201),
+    ('search_name', 201),
+    ('facebook', 201),
+    ('vkontakte', 201),
+    ('odnoklassniki', 201),
+    ('skype', 201),
+    ('additional_phones', 201),
+    ('born_date', 201),
+    ('coming_date', 201),
+    ('repentance_date', 201),
+    ('country', 201),
+    ('region', 201),
+    ('city', 201),
+    ('district', 201),
+    ('address', 201),
+    ('divisions', 201),
+    ('partner', 201),
+
+    # required fields
+    ('first_name', 400),
+    ('last_name', 400),
+    ('phone_number', 400),
+    ('department', 400),
+    ('master', 400),
+    ('hierarchy', 400),
+)
 
 
 @pytest.mark.django_db
@@ -67,7 +94,7 @@ class TestNewUserViewSet:
 
         url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
 
-        data = {
+        data= {
             'additional_phones': '+380776664422',
         }
         api_login_client.force_login(user=user_factory(is_staff=True))
@@ -287,7 +314,7 @@ class TestNewUserViewSet:
         response = api_login_client.get(url, format='json')
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.data['count'] == 14
+        assert response.data['count'] == 12
 
     def test_get_queryset_as_current_user_without_hierarchy(self, api_login_client, user_factory):
         user_factory.create_batch(10)
@@ -335,307 +362,42 @@ class TestNewUserViewSet:
         response = api_login_client.get(url, format='json')
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.data['count'] == 24
+        assert response.data['count'] == 22
 
-
-class TestNewUserViewSet(APITestCase):
-    def setUp(self):
-        self.user = UserFactory(username='testuser')
-        self.DATA = {
-            'email': 'test@email.com',
-            'first_name': 'test_first',
-            'last_name': 'test_last',
-            'middle_name': 'test_middle',
-            'search_name': 'test_search',
-            'facebook': 'http://fb.com/test',
-            'vkontakte': 'http://vk.com/test',
-            'odnoklassniki': 'http://ok.com/test',
-            'skype': 'test_skype',
-            'phone_number': '1234567890',
-            'additional_phones': '24681357',
-            'born_date': '2000-01-01',
-            'coming_date': '2000-02-20',
-            'repentance_date': '2000-02-20',
-            'country': 'Italy',
-            'region': 'R',
-            'city': 'C',
-            'district': 'D',
-            'address': 'A',
-            'department': DepartmentFactory().id,
-            'master': UserFactory().id,
-            'hierarchy': HierarchyFactory().id,
-            'divisions': [d.id for d in DivisionFactory.create_batch(4)],
-            'partner': {
-                'value': 100,
-                'responsible': PartnerFactory().id,
-                'date': '2020-04-04',
-            },
-        }
-
-    def test_create_user_with_all_fields(self):
+    def test_create_user_with_all_fields(self, api_client, staff_user, user_data):
         url = reverse('users_v1_1-list')
 
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
+        api_client.force_login(user=staff_user)
+        response = api_client.post(url, data=user_data, format='json')
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        assert response.status_code == status.HTTP_201_CREATED
 
-    def test_create_user_without_email(self):
+    @pytest.mark.parametrize(
+        "field,code", FIELD_CODES, ids=[f[0] for f in FIELD_CODES])
+    def test_create_user_without_one_field(self, api_client, staff_user, user_data, field, code):
         url = reverse('users_v1_1-list')
 
-        self.DATA.pop('email')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_create_user_without_first_name(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('first_name')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_create_user_without_last_name(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('last_name')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_create_user_without_middle_name(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('middle_name')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_create_user_without_search_name(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('search_name')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_create_user_without_fb(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('facebook')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_create_user_without_vk(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('vkontakte')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_create_user_without_ok(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('odnoklassniki')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_create_user_without_skype(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('skype')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_create_user_without_phone_number(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('phone_number')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_create_user_without_additional_phones(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('additional_phones')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_create_user_without_born_date(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('born_date')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_create_user_without_coming_date(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('coming_date')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_create_user_without_repentance_date(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('repentance_date')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_create_user_without_country(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('country')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_create_user_without_region(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('region')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_create_user_without_city(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('city')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_create_user_without_district(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('district')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_create_user_without_address(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('address')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_create_user_without_department(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('department')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_create_user_without_master(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('master')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_create_user_without_hierarchy(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('hierarchy')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_create_user_without_divisions(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('divisions')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_create_user_without_partner(self):
-        url = reverse('users_v1_1-list')
-
-        self.DATA.pop('partner')
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_update_user_with_all_fields(self):
-        user_data = copy.deepcopy(self.DATA)
-        additional_phones = user_data.pop('additional_phones')
-        divisions = user_data.pop('divisions')
-        partner = user_data.pop('partner')
-
-        user_data['department_id'] = user_data.pop('department')
-        user_data['hierarchy_id'] = user_data.pop('hierarchy')
-        user_data['master_id'] = user_data.pop('master')
-        user_data['born_date'] = datetime.date(*map(lambda d: int(d), user_data['born_date'].split('-')))
-        user_data['coming_date'] = datetime.date(*map(lambda d: int(d), user_data['coming_date'].split('-')))
-        user_data['repentance_date'] = datetime.date(*map(lambda d: int(d), user_data['repentance_date'].split('-')))
-
-        user = UserFactory(**user_data)
-        PartnerFactory(
+        user_data.pop(field)
+        api_client.force_login(user=staff_user)
+        response = api_client.post(url, data=user_data, format='json')
+
+        assert response.status_code == code
+
+    def test_update_user_with_all_fields(self, api_client, staff_user, user_data, user_factory, partner_factory):
+        create_user_data = copy.deepcopy(user_data)
+        additional_phones = create_user_data.pop('additional_phones')
+        divisions = create_user_data.pop('divisions')
+        partner = create_user_data.pop('partner')
+
+        create_user_data['department_id'] = create_user_data.pop('department')
+        create_user_data['hierarchy_id'] = create_user_data.pop('hierarchy')
+        create_user_data['master_id'] = create_user_data.pop('master')
+        create_user_data['born_date'] = datetime.date(*map(lambda d: int(d), create_user_data['born_date'].split('-')))
+        create_user_data['coming_date'] = datetime.date(*map(lambda d: int(d), create_user_data['coming_date'].split('-')))
+        create_user_data['repentance_date'] = datetime.date(*map(lambda d: int(d), create_user_data['repentance_date'].split('-')))
+
+        user = user_factory(**create_user_data)
+        partner_factory(
             user=user,
             value=Decimal(partner['value']),
             date=datetime.date(*map(lambda d: int(d), partner['date'].split('-'))),
@@ -645,8 +407,7 @@ class TestNewUserViewSet(APITestCase):
 
         url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
 
-        data = self.DATA
-        self.client.force_login(user=UserFactory(is_staff=True))
-        response = self.client.put(url, data=data, format='json')
+        api_client.force_login(user=staff_user)
+        response = api_client.put(url, data=user_data, format='json')
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        assert response.status_code == status.HTTP_200_OK
