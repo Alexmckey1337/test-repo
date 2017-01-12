@@ -83,6 +83,7 @@ function makeQuickEditCart(el) {
         let quickEditCartTmpl, rendered;
         quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
         rendered = _.template(quickEditCartTmpl)(data);
+        $('.save-user').attr('disabled', false);
         $('#quickEditCartPopup').find('.popup_body').html(rendered);
         $('#quickEditCartPopup').css('display', 'block');
 
