@@ -291,7 +291,7 @@ function selectFile(evt) {
         let reader = new FileReader();
           reader.onload = (function(theFile) {
               return function (e) {
-              document.querySelector("#impPopup img").src= e.target.result
+              document.querySelector("#impPopup img").src=e.target.result;
               document.querySelector("#impPopup").style.display = 'block';
                 img.cropper({
                     aspectRatio: 1 / 1,
@@ -459,7 +459,6 @@ function createNewAcc() {
                 if(xhr.status == 200) {
                          //    debugger
                 //showPopup(data.message)
-                console.log(data)
                     getDataForPopupNew(data.id, name, master);
                     document.querySelector('.pop-up-splash-add').style.display = 'none';
                     document.querySelector('.pop-up-splash').style.display = 'none';

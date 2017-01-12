@@ -8,7 +8,7 @@
         <span>{{ summit_type.title }}</span>
     </h1>
 {% endblock %}
-
+<div>
 {% block header.top.select %}
     <select class="selectdb" id="dep_filter">
         <option value="0">ВСЕ</option>
@@ -17,18 +17,7 @@
         {% endfor %}
     </select>
 {% endblock %}
-
-{% block header.search.filter %}
-    <div class="filter">
-        <select name="filter" id="filter">
-            <option value="search">Все поля</option>
-            <option value="department__title">Отдел</option>
-            <option value="country">Страна</option>
-            <option value="city">Населенный пункт</option>
-            <option value="district">Район</option>
-        </select>
-    </div>
-{% endblock %}
+</div>
 
 {% block header.buttons.filter %}
     {% if summit_type.club_name %}
@@ -193,9 +182,10 @@
 {% endblock %}
 
 {% block extra_scripts %}
-    <script src="{% static "js/select2.js" %}"></script>
-    <script src="{% static "js/add_user_summit.js" %}"></script>
-    <script src="{% static "js/cropper.min.js" %}"></script>
+    <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
+    <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
 
+    <script src="{% static "js/add_user_summit.js" %}"></script>
     <script src="{% static "js/summits.js" %}"></script>
+
 {% endblock %}

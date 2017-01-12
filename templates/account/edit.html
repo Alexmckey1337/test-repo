@@ -36,7 +36,7 @@
                         <img src="{% static "img/no-usr.jpg" %}" alt="photo">
                     </div>
                     <div class="butt-wrap">
-                        <input type="file" name="f">
+                        <input type="file" name="file" id="file">
                         <button id="file_upload">Загрузить</button>
                         <p>Размер файла не должен превышать <br/>10 МБ.</p>
                         <p>Типы файлов, которые поддерживаются:<br/> jpg, jpeg, png.</p>
@@ -187,13 +187,11 @@
                     <div class="col-table">
                         <div class="left-info">
                             <ul>
-                                <li>Первое посещение*</li>
                                 <li>Дата покаяния</li>
                             </ul>
                         </div>
                         <div class="right-info">
                             <ul>
-                                <li><input name="first_visit" type="text" readonly="readonly" id="firsVisit"></li>
                                 <li><input name="repentance_date" type="text" readonly="readonly"
                                            id="repentanceDate"></li>
                             </ul>
@@ -213,19 +211,20 @@
         <div class="splash-screen">
             <div class="top-text">
                 <h3>Редактирование картинки</h3>
-                <span>×</span>
+                <span class="close">×</span>
             </div>
             <div class="crArea">
                 <img src="" alt="">
             </div>
             <div class="splash-buttons">
-                <button class="cr">Изменить</button>
+                <button class="cr" id="editCropImg">Изменить</button>
             </div>
         </div>
     </div>
 {% endblock %}
 
 {% block extra_scripts %}
-    <script src="{% static "js/cropper.min.js" %}"></script>
+    <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
+{#    <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>#}
     <script src="{% static "js/edit.js" %}"></script>
 {% endblock %}

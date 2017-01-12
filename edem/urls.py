@@ -1,14 +1,19 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
+from filebrowser.sites import site
 from rest_framework_swagger.views import get_swagger_view
 
 schema_view = get_swagger_view(title='CRM API')
 
 urlpatterns = [
+    url(r'^admin/filebrowser/', include(site.urls)),
+    url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^tinymce/', include('tinymce.urls')),
     url(r'^rest-auth/', include('rest_auth.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
@@ -28,3 +33,12 @@ urlpatterns = [
     url(r'^', include('main.urls')),
     url(r'^', include('django.contrib.auth.urls')),
 ]
+
+if settings.DEBUG:
+    try:
+        import debug_toolbar
+        urlpatterns += [
+            url(r'^__debug__/', include(debug_toolbar.urls)),
+        ]
+    except ImportError:
+        pass

@@ -12,13 +12,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
-import os
 import environ
 
 from account.utils import create_token
 
-# BASE_DIR = environ.Path(__file__) - 2
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = environ.Path(__file__) - 3
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
@@ -34,12 +33,16 @@ ALLOWED_HOSTS = ['vocrm.org']
 
 # Application definition
 DJANGO_APPS = (
+    'django.contrib.contenttypes',
+    'grappelli.dashboard',
+    'grappelli',
+    'filebrowser',
     'django.contrib.admin',
     'django.contrib.auth',
-    'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites'
 )
 THIRD_PARTY_APPS = (
     'import_export',
@@ -49,7 +52,10 @@ THIRD_PARTY_APPS = (
 
     'rest_auth',
     'corsheaders',
+    'dbmail',
+    'tinymce',
     # 'rest_auth.registration',
+    'mptt',
 )
 LOCAL_APPS = (
     'main',
@@ -68,7 +74,7 @@ LOCAL_APPS = (
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -79,18 +85,32 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     #   'axes.middleware.FailedLoginMiddleware',
-]
+)
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
+
+CACHES = {
+    "default": {
+        'BACKEND': 'redis_cache.cache.RedisCache',
+        'LOCATION': '127.0.0.1:6379',
+    },
+}
+
+TINYMCE_DEFAULT_CONFIG = {
+    'plugins': "table,spellchecker,paste,searchreplace,fullpage",
+    'theme': "advanced",
+    'cleanup_on_startup': True,
+    'custom_undo_redo_levels': 10,
+}
 
 ROOT_URLCONF = 'edem.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # 'DIRS': [str(BASE_DIR.path('templates')), ],
-        'DIRS': [BASE_DIR + '/templates', ],
+        'DIRS': [str(BASE_DIR.path('templates')), ],
+        # 'DIRS': [BASE_DIR + '/templates', ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -111,17 +131,13 @@ WSGI_APPLICATION = 'edem.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'crm',
-        'USER': 'crmuse',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'crm_db',
+        'USER': 'crm_user',
         'PASSWORD': '123456',
-        'OPTIONS': {
-            "init_command": "SET storage_engine=MYISAM",
-            # "init_command": "SET default_storage_engine=MYISAM",
-        }
+        'HOST': 'localhost',
     }
 }
-
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
 
@@ -147,14 +163,17 @@ TIME_ZONE = 'Europe/Kiev'
 USE_L10N = False
 USE_TZ = True
 
+GRAPPELLI_SWITCH_USER = True
+GRAPPELLI_INDEX_DASHBOARD = 'dashboard.CustomIndexDashboard'
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
-# MEDIA_ROOT = str(BASE_DIR.path('public/media'))
-MEDIA_ROOT = os.path.join(BASE_DIR, 'public/media')
+MEDIA_ROOT = str(BASE_DIR.path('public/media'))
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'public/media')
 MEDIA_URL = '/media/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'public/static')
-# STATIC_ROOT = str(BASE_DIR.path('public/static'))
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+# STATIC_ROOT = os.path.join(BASE_DIR, 'public/static')
+STATIC_ROOT = str(BASE_DIR.path('public/static'))
+STATICFILES_DIRS = []
 # STATICFILES_DIRS = (str(BASE_DIR.path('static')),)
 STATIC_URL = '/static/'
 STATICFILES_FINDERS = (
@@ -200,20 +219,19 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = 'testzormail@gmail.com'
 
-import djcelery
-
-djcelery.setup_loader()
-
 BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
+# CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'pickle'
+CELERY_RESULT_SERIALIZER = 'pickle'
 CELERY_TIMEZONE = 'Europe/Kiev'
 CELERY_ENABLE_UTC = True
 CELERY_TASK_RESULT_EXPIRES = 7 * 86400  # 7 days
 CELERY_SEND_EVENTS = True
+CELERY_DEFAULT_QUEUE = 'default'
+CELERY_ACKS_LATE = True
+CELERYD_PREFETCH_MULTIPLIER = 1
 
 CELERYBEAT_SCHEDULE = {
     'create_deals': {
@@ -226,6 +244,10 @@ CELERYBEAT_SCHEDULE = {
     },
 }
 
+import djcelery
+
+djcelery.setup_loader()
+
 REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'account.serializers.UserSerializer',
 }
@@ -237,3 +259,48 @@ SITE_DOMAIN_URL = 'http://vocrm.org/'
 # ADMINS = (('Iskander', 'zumichke@gmail.com'), )
 ARCHONS = [1, ]
 AXES_COOLOFF_TIME = 1
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s '
+                      '%(process)d %(thread)d %(message)s'
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        }
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': 'ERROR',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        # 'account.views': {
+        #     'level': 'DEBUG',
+        #     'handlers': ['console', 'sentry'],
+        #     'propagate': False,
+        # },
+        'raven': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'sentry.errors': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+    },
+}

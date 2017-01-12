@@ -1,0 +1,46 @@
+{% extends "admin/import_export/base.html" %}
+{#{% load url from future %}#}
+{% load i18n %}
+{% load admin_urls %}
+{% load import_export_tags %}
+
+{% block breadcrumbs_last %}
+    {% trans "Export" %}
+{% endblock %}
+
+{% block content %}
+
+    <form action="" method="POST">
+        {% csrf_token %}
+        <div>
+            {% for field in form %}
+                <div class="grp-form-row">
+                    <fieldset class="grp-module">
+                        <div class="grp-row grp-cells-1 {% if field.errors %} grp-errors{% endif %}">
+                            {% if field.errors %}
+                                <p class="errornote">{% trans "Please correct the error below." %}</p>
+                                <ul class="errorlist">
+                                    <li> {{ field.errors }}</li>
+                                </ul>
+                            {% endif %}
+
+                            <div class="c-1">{{ field.label_tag }}</div>
+                            <div class="c-2">{{ field }}
+                                {% if field.field.help_text %}
+                                    <p class="grp-help">{{ field.field.help_text|safe }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            {% endfor %}
+
+            <footer class="grp-module grp-submit-row grp-fixed-footer">
+                <header style="display:none"><h1>Submit Options</h1></header>
+                <ul>
+                    <li><input type="submit" value="{% trans 'Download' %}" class="grp-button grp-default"/></li>
+                </ul>
+            </footer>
+        </div>
+    </form>
+{% endblock %}

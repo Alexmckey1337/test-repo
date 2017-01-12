@@ -1,3 +1,13 @@
+function saveUserData(data, id) {
+    if (id) {
+        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.1/users/' + id + '/', data, function (data) {
+            console.log(data);
+        }, 'PATCH', false, {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        });
+    }
+}
+
 //Проверка существование элемента на странице
 function isElementExists(element) {
     if (typeof(element) != 'undefined' && element != null) {
@@ -95,14 +105,10 @@ function tab_plugin() {
         return;
     }
 
-
     Array.prototype.forEach.call(document.querySelectorAll("#tab_plugin li"), function (el) {
-
         el.addEventListener('click', function (e) {
             e.preventDefault();
             let index = indexInParent(el);
-
-
             Array.prototype.forEach.call(document.querySelectorAll("#tab_plugin li"), function (el) {
                 el.classList.remove('current')
             });
@@ -116,11 +122,7 @@ function tab_plugin() {
             if (tab) {
                 tab.style.display = 'block';
             }
-
-
         });
-
-
         //  document.querySelector("#tab_plugin li").click();
     });
 }

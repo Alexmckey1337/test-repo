@@ -56,7 +56,7 @@ def clean_password(data):
 def clean_old_password(user, data):
     if data["old_password"]:
         old_password = data["old_password"]
-        if user.check_password(old_password):
+        if user and user.check_password(old_password):
             return old_password
         else:
             return False

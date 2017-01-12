@@ -6,7 +6,7 @@
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet"
           integrity="sha384-XdYbMnZ/QjLh6iI4ogqCTaIjrFk87ip+ekIjefZch0Y+PvJ8CDYtEs1ipDmPorQ+"
           crossorigin="anonymous">
-    <link rel="stylesheet" href="{% static "css/cropper.min.css" %}">
+    <link rel="stylesheet" href="{% static "libs/cropper/dist/cropper.min.css" %}">
 {% endblock %}
 
 {% block layout %}
@@ -86,8 +86,11 @@
 
                         {% block header.buttons %}
                             <div class="top-buttons-wrap">
-                                {% block header.buttons.filter %}{% endblock %}
+
                                 <ul class="top-buttons">
+                                    {% block header.buttons.filter %}
+
+                                    {% endblock %}
                                     {% block header.buttons.add %}
                                         <li>
                                             <button id="add">Добавить пользователя</button>
@@ -211,7 +214,7 @@
         {% endblock %}
 
         {% block add_user_modal %}
-            <div class="add-user-wrap"><!--Add -user -->
+            <div class="add-user-wrap" id="addUser"><!--Add -user -->
                 <div class="splash-screen">
                     <div class="top-text">
                         <h3>Добавить участника</h3>
@@ -251,12 +254,7 @@
     {% endblock %}
 
     {% block popup %}
-        <div class="popap" id='popup_div'>
-            <div class="pop_cont">
-                <p id='popup_text'></p>
-                <span onclick='hidePopup()' class="close">x</span>
-            </div>
-        </div>
+
     {% endblock %}
 
 {% endblock %}

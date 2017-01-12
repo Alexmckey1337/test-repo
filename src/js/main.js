@@ -1,20 +1,132 @@
-//Создать метод вызова init()
-
-let config = {
+var config = {
     // 'DOCUMENT_ROOT': 'http://vocrm.org/',
     'DOCUMENT_ROOT': '/',
     'pagination_count': 30, //Количество записей при пагинации
     'pagination_patrnership_count': 30, //Количество записей при пагинации for patrnership
-
-    // 'pagination_mini_count': 10,
     'column_table': null
 };
+var GlobalParam = {};
 
+function makeResponsibleList() {
+    let department = $('#departmentSelect').val();
+    let hierarchy = $('#hierarchySelect').val();
+    getResponsible(department, hierarchy).then(function (data) {
+        let id = $('#master_hierarchy option:selected').attr('data-id');
+        var selected = false;
+        var html = "";
+        data.forEach(function (el) {
+            if (id == el.id) {
+                selected = true;
+                html += "<option data-id='" + el.id + "' selected>" + el.fullname + "</option>";
+            } else {
+                html += "<option data-id='" + el.id + "'>" + el.fullname + "</option>";
+            }
+        });
+        if(!selected) {
+            html += "<option selected disabled>Выберите ответственного</option>";
+        }
+        html += "";
+        $("#master_hierarchy").html(html);
+        $("#master_hierarchy").select2();
+    });
+}
+
+function saveUser(el) {
+    let $input, $select, fullName, first_name, last_name, middle_name, data, id;
+    let master_id = $('#master_hierarchy option:selected').attr('data-id') || "";
+    fullName = $($(el).closest('.pop_cont').find('input.fullname')).val().split(' ');
+    first_name = fullName[1];
+    last_name = fullName[0];
+    middle_name = fullName[2] || "";
+    data = {
+        email: $($(el).closest('.pop_cont').find('#email')).val(),
+        first_name: first_name,
+        last_name: last_name,
+        middle_name: middle_name,
+        hierarchy: $($(el).closest('.pop_cont').find('#hierarchySelect')).val(),
+        department: $($(el).closest('.pop_cont').find('#departmentSelect')).val(),
+        master: master_id,
+        skype: $($(el).closest('.pop_cont').find('#skype')).val(),
+        phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
+        additional_phone: $($(el).closest('.pop_cont').find('#additional_phone')).val(),
+        repentance_date: $($(el).closest('.pop_cont').find('#repentance_date')).val(),
+        country: $($(el).closest('.pop_cont').find('#country')).val(),
+        region: $($(el).closest('.pop_cont').find('#region')).val(),
+        city: $($(el).closest('.pop_cont').find('#city')).val(),
+        address: $($(el).closest('.pop_cont').find('#address')).val()
+    };
+    id = $(el).closest('.pop_cont').find('img').attr('alt');
+    saveUserData(data, id);
+    $(el).text("Сохранено");
+    $(el).closest('.popap').find('.close-popup').text('Закрыть');
+    $(el).attr('disabled', true);
+    $input = $(el).closest('.popap').find('input');
+    $select = $(el).closest('.popap').find('select');
+    $select.on('change', function () {
+        $(el).text("Сохранить");
+        $(el).closest('.popap').find('.close-popup').text('Отменить');
+        $(el).attr('disabled', false);
+    });
+    $input.on('change', function () {
+        $(el).text("Сохранить");
+        $(el).closest('.popap').find('.close-popup').text('Отменить');
+        $(el).attr('disabled', false);
+    })
+}
+
+function makeQuickEditCart(el) {
+    let id, link;
+    id = $(el).closest('td').find('a').attr('data-id');
+    link = $(el).closest('td').find('a').attr('data-link');
+    let url = "/api/v1.1/users/" + id + '/';
+    ajaxRequest(url, null, function (data) {
+        let quickEditCartTmpl, rendered;
+        quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
+        rendered = _.template(quickEditCartTmpl)(data);
+        $('#quickEditCartPopup').find('.popup_body').html(rendered);
+        $('#quickEditCartPopup').css('display', 'block');
+
+        makeResponsibleList();
+        getStatuses.then(function (data) {
+            data = data.results;
+            let hierarchySelect = $('#hierarchySelect').val();
+            let html = "";
+            for (let i = 0; i < data.length; i++) {
+                if (hierarchySelect === data[i].title || hierarchySelect == data[i].id) {
+                    html += '<option value="' + data[i].id + '"' + 'selected' + '>' + data[i].title + '</option>';
+                } else {
+                    html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+                }
+            }
+            $('#hierarchySelect').html(html);
+        });
+        getDepartments.then(function (data) {
+            data = data.results;
+            let departmentSelect = $('#departmentSelect').val();
+            let html = "";
+            for (let i = 0; i < data.length; i++) {
+                if (departmentSelect == data[i].title || departmentSelect == data[i].id) {
+                    html += '<option value="' + data[i].id + '"' + 'selected' + '>' + data[i].title + '</option>';
+                } else {
+                    html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+                }
+            }
+            $('#departmentSelect').html(html);
+        });
+
+        $('#departmentSelect').on('change', makeResponsibleList);
+        $('#hierarchySelect').on('change', makeResponsibleList);
+
+        $("#repentance_date").datepicker({
+            dateFormat: "yy-mm-dd"
+        })
+    }, 'GET', true, {
+        'Content-Type': 'application/json'
+    });
+}
 function setCookie(name, value, options) {
     options = options || {};
-
     let expires = options.expires;
-
     if (typeof expires == "number" && expires) {
         let d = new Date();
         d.setTime(d.getTime() + expires * 1000);
@@ -35,7 +147,6 @@ function setCookie(name, value, options) {
             updatedCookie += "=" + propValue;
         }
     }
-
     document.cookie = updatedCookie;
 }
 
@@ -58,17 +169,12 @@ $('#logout_button').on('click', function (e) {
 /*search animate width*/
 $('.top input').click(function () {
     $('.top .search').animate({width: "80%"});
-    // $('.filter').show();
 });
 
 function hideFilter() {
-    //$('.top input').blur(function() {
-
     if ($('.top input').length && !$('.top input').val().length) {
         $('.top .search').animate({width: "50%"});
-        // $('.filter').hide();
     }
-    //});
 }
 
 if (document.getElementById('filter')) {
@@ -77,21 +183,19 @@ if (document.getElementById('filter')) {
 
 if (document.getElementById('sort_save')) {
     document.getElementById('sort_save').addEventListener('click', function () {
-        // updateSettings(getCurrentSetting);
         $(".table-sorting").animate({
             right: '-300px'
         }, 10, 'linear')
     })
 }
 
-/*function showWindow () {
- let wind = document.querySelector('.massage-hover');
- document.querySelector(".photo-hover").style.display = 'none';
- wind.classList.toggle('active-window');
-
- }*/
-
-/* Написать модуль   пагинации и перенести обработчики туда */
+function sortSave() {
+    document.getElementById('sort_save').addEventListener('click', function () {
+        $(".table-sorting").animate({
+            right: '-300px'
+        }, 10, 'linear')
+    })
+}
 
 $("#pag li ").click(function (e) {
     e.preventDefault();
@@ -173,13 +277,6 @@ $(document).ready(function () {
     $('body').on('mouseout', '.toggle-sidebar a', function (el) {
         $('#hint').detach();
     });
-    /*$('.toggle-sidebar a').hover(
-     function() {
-     console.log($(this).attr('title'))
-     },
-     function() {
-     console.log($(this).html())
-     });*/
     if ($('.scrollbar-inner').length || $('.scrollbar-macosx').length) {
         $('.scrollbar-inner').scrollbar();
         $('.scrollbar-macosx').scrollbar();
@@ -192,7 +289,6 @@ $(document).ready(function () {
     });
 
     $("#move-sidebar").click(function () {
-        /*$("#sidebar").toggleClass("toggle-sidebar");*/
         if (!$("#sidebar").hasClass('toggle-sidebar')) {
             $("#sidebar").addClass('toggle-sidebar');
             document.cookie = 'state=active;path=/';
@@ -213,9 +309,6 @@ $(document).ready(function () {
         $("#nav-sidebar li").removeClass('active');
         $("#nav-sidebar li a[href='" + loc + "']").parent().addClass('active');
     }
-
-
-//Перенести в файл
 });
 
 window.onload = function () {
@@ -267,21 +360,12 @@ $(function () {
         config.column_table = data.column_table;
         let hierarchy_chain = data['hierarchy_chain'];
 
-
-        if (typeof init === "function") {
-            //Не потрібно в DOMReady
-            //init(user_id)
-        }
-
-
         if (document.getElementById('database_users')) {
             createUser();
-            // getCurrentSetting();
         }
 
         if (document.getElementById('partnersips_list')) {
             getPartnersList();
-            // getCurrentSetting();
         }
 
         if (document.getElementById('users_list')) {
@@ -292,30 +376,22 @@ $(function () {
             getCurrentSetting();
         }
 
-
         if (document.getElementById('event_wrap')) {
             getCurrentSetting();
             init(user_id);
-            //createSubordinateList(user_id);
         }
 
         if (document.getElementById("add_new")) {
             document.getElementById("add_new").setAttribute('data-id', data.id);
         }
 
-        /*if(document.getElementById('edit-photo')){
-         document.getElementById('edit-photo').setAttribute('data-source', data.image_source);
-         }*/
-
         if (document.getElementById("report_wrap")) {
             init_report()
         }
 
-
         if (config.user_partnerships_info && config.user_partnerships_info.is_responsible && document.querySelector('.manager_view')) {
             document.querySelector('.manager_view').style.display = 'block'
         }
-
 
     });
     if (document.getElementById('sort-form')) {
@@ -342,7 +418,6 @@ jQuery(function ($) {
         };
         $.datepicker.setDefaults($.datepicker.regional['ru']);
     }
-
 });
 
 //old version
@@ -363,54 +438,101 @@ function getCurrentSetting() {
         html += '</li>'
     }
 
-
     document.getElementById('sort-form').innerHTML = html;
 
-    /*let cols = document.querySelectorAll('[draggable]');
-     Array.prototype.forEach.call(cols, function(col) {
-     col.addEventListener('drop', handleDrop, false);
-     col.addEventListener('dragstart', handleDragStart, false);
-     col.addEventListener('dragenter', handleDragEnter, false);
-     col.addEventListener('dragover', handleDragOver, false);
-     col.addEventListener('dragleave', handleDragLeave, false);
-     });*/
-
-
-    live('click', "#sort-form label", function (el) {
+    $("#sort-form label").on('click', function (el) {
         if (!this.parentElement.hasAttribute('disable')) {
             this.classList.contains('check') ? this.classList.remove('check') : this.classList.add('check');
         }
     })
-
 }
 
-
 function updateSettings(callback, param) {
-
-
     let data = [];
     let iteration = 1;
-    Array.prototype.forEach.call(document.querySelectorAll("#sort-form label"), function (el) {
+    $("#sort-form input").each(function (el) {
         let item = {};
-        item['id'] = parseInt(el.getAttribute('id'));
+        item['id'] = $(this).val();
         item['number'] = iteration++;
-        item['active'] = !!el.classList.contains('check');
+        item['active'] = $(this).prop('checked');
         data.push(item);
     });
-
     let json = JSON.stringify(data);
 
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/update_columns/', json, function (JSONobj) {
         $(".bgsort").remove();
         config['column_table'] = JSONobj['column_table'];
+
         if (callback) {
             if (param !== undefined) {
-                callback(param);
+                let extendParam = $.extend({}, param, filterParam());
+                callback(extendParam);
             } else {
-                callback();
+                let param = filterParam();
+                callback(param);
             }
         }
     }, 'POST', true, {
         'Content-Type': 'application/json'
     });
+}
+
+function hidePopup(el) {
+    $(el).closest('.popap').find('.save-user').text('Сохранить');
+    $(el).closest('.popap').find('.save-user').attr('disabled', false);
+    $(el).closest('.popap').css('display', 'none');
+
+}
+function refreshFilter(el) {
+    var input = $(el).closest('.popap').find('input');
+    $(el).addClass('refresh');
+    setTimeout(function () {
+        $(el).removeClass('refresh');
+    }, 700);
+    Array.from(input).forEach(function (item) {
+        $(item).val('')
+    })
+}
+function filterParam() {
+    let filterPopup, data = {}, department, hierarchy, master, search_email, search_phone_number, search_country, search_city;
+    filterPopup = $('#filterPopup');
+    department = parseInt($('#departments_filter').val());
+    hierarchy = parseInt($('#hierarchies_filter').val());
+    master = parseInt($('#masters_filter').val());
+    search_email = $('#search_email').val();
+    search_phone_number = $('#search_phone_number').val();
+    search_country = $('#search_country').val();
+    search_city = $('#search_city').val();
+
+    if (department !== 0) {
+        data['department'] = department;
+    }
+    if (hierarchy !== 0) {
+        data['hierarchy'] = hierarchy;
+    }
+    if (master !== 0) {
+        data['master'] = master;
+    }
+    if (search_email != "") {
+        data['search_email'] = search_email;
+    }
+    if (search_phone_number != "") {
+        data['search_phone_number'] = search_phone_number;
+    }
+    if (search_country != "") {
+        data['search_country'] = search_country;
+    }
+    if (search_city != "") {
+        data['search_city'] = search_city;
+    }
+    return data;
+}
+
+function applyFilter(el) {
+    let self = el, data;
+    data = filterParam();
+    createUser(data);
+    setTimeout(function () {
+        hidePopup(self);
+    }, 300);
 }
