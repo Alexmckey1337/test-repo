@@ -474,9 +474,7 @@
             $eventSelect.select2();
         });
     }
-
     function sendPassword() {
-
         let data = {};
 
         /*Блок проверки паролей */
@@ -498,7 +496,6 @@
             }
         });
     }
-
     function sendData() {
 
         let id = parseInt(getLastId());
@@ -506,7 +503,6 @@
         if (!id) {
             return
         }
-
         let data = {
             "first_name": $("#first_name").val(),
             "last_name": $("#last_name").val(),
@@ -528,7 +524,6 @@
             'divisions': $("#division_drop").val() || [],
             'hierarchy': parseInt($('#statuses_drop').val()),
         };
-
         data['id'] = id;
         let master = $('#leader_drop option:selected');
         if (master.html() == "Не выбрано") {
@@ -538,7 +533,6 @@
                 data['master'] = master.attr('value');
             }
         }
-
         if (document.getElementById('partner') && document.getElementById('partner').checked) {
             data['value'] = parseInt(document.getElementById('val_partnerships').value) || 0;
             data['date'] = document.getElementById('partner_date').value || '';
@@ -548,11 +542,9 @@
             if (id_partner) {
                 data['responsible'] = id_partner
             }
-
         } else {
             data['remove_partnership'] = 'true'; //gavnocod vlada
         }
-
         let json = JSON.stringify(data);
 
         ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/create_user/', json, function (data) {
@@ -593,7 +585,6 @@
                     // window.location.href = '/account/' + data.id;
                 }
             }
-
         }, 'POST', true, {
             'Content-Type': 'application/json'
         });
