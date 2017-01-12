@@ -105,7 +105,6 @@ function tab_plugin() {
         return;
     }
 
-
     Array.prototype.forEach.call(document.querySelectorAll("#tab_plugin li"), function (el) {
         el.addEventListener('click', function (e) {
             e.preventDefault();

@@ -490,7 +490,6 @@
             'hierarchy': parseInt($("#chooseStatus").val()),
             'department': parseInt($("#chooseDepartment").val()),
             'repentance_date': $("input[name='repentance_date']").val(),
-            'coming_date': $("input[name='first_visit']").val(),
             'city': $('#chooseCity option:selected').html() == 'Не выбрано' ? '' : $('#chooseCity option:selected').html(),
             'country': $('#chooseCountry option:selected').html() == 'Не выбрано' ? '' : $('#chooseCountry option:selected').html()
         };

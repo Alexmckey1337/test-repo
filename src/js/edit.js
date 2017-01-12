@@ -331,7 +331,7 @@
             if (parent_id == 'department_drop' || parent_id == 'statuses_drop') {
                 html = '';
             } else {
-                html = '<option>Не выбрано</option>';
+                html = '<option selected="selected" class="no-select">Не выбрано</option>';
             }
             for (let i = 0; i < results.length; i++) {
 
@@ -366,14 +366,18 @@
 
     function getLeader(active) {
         let id_dep = parseInt($("#department_drop option:selected").val()) || null;
+        let myLevel = parseInt($("#statuses_drop option:selected").val()) || null;
         let level = parseInt($("#statuses_drop_parent option:selected").val()) || null;
+        let url = config.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id_dep;
+        if(!level) {
+            url += '&level_gte=' + myLevel;
+        } else {
+            url += '&level_gte=' + level + '&level_lte=' + level;
+        }
 
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id_dep + '&hierarchy=' + level, null, function (data) {
-            //Потрібен парент айди
-
+        ajaxRequest(url, null, function (data) {
             let html = '<option>Не выбрано</option>';
             let results = data;
-            //onsole.log(results)
             for (let i = 0; i < results.length; i++) {
 
                 if (active == results[i].title) {
