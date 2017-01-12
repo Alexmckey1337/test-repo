@@ -97,6 +97,7 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
     search_fields = ('user__first_name',
                      'user__last_name',
                      'user__middle_name',
+                     'user__search_name',
                      'user__hierarchy__title',
                      'user__phone_number',
                      'user__city',

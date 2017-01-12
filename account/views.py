@@ -185,7 +185,7 @@ class NewUserViewSet(viewsets.ModelViewSet):
                        'phone_number', 'email', 'hierarchy__level', 'department__title',
                        'facebook', 'vkontakte', 'hierarchy_order', 'master__last_name',)
     field_search_fields = {
-        'search_fio': ('last_name', 'first_name', 'middle_name'),
+        'search_fio': ('last_name', 'first_name', 'middle_name', 'search_name'),
         'search_email': ('email',),
         'search_phone_number': ('phone_number',),
         'search_country': ('country',),

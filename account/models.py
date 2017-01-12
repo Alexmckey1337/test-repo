@@ -43,6 +43,10 @@ class CustomUserManager(TreeManager, UserManager):
 @python_2_unicode_compatible
 class CustomUser(MPTTModel, User):
     middle_name = models.CharField(max_length=40, blank=True)
+
+    #: Field for name in the native language of the user
+    search_name = models.CharField(_('Field for search by name'), max_length=255, blank=True)
+
     phone_number = models.CharField(max_length=13, blank=True)
     skype = models.CharField(max_length=50, blank=True)
     country = models.CharField(max_length=50, blank=True)

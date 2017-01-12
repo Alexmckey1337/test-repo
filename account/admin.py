@@ -25,7 +25,7 @@ class CustomUserAdmin(MPTTModelAdmin, UserAdmin, ImportExportModelAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {'fields': (
-            'email', 'first_name', 'last_name', 'middle_name', 'master', 'department', 'hierarchy',
+            'email', 'first_name', 'last_name', 'middle_name', 'search_name', 'master', 'department', 'hierarchy',
             'phone_number', 'skype', 'facebook', 'vkontakte', 'image', 'born_date',
             'country', 'region', 'city', 'district', 'address',
             'description', 'repentance_date', 'coming_date', 'hierarchy_order',
