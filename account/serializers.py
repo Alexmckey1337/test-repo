@@ -121,7 +121,7 @@ class NewUserSerializer(serializers.ModelSerializer):
         # hierarchy = validated_data.pop('hierarchy') if validated_data.get('hierarchy') else None
         # coming_date = validated_data.pop('coming_date') if validated_data.get('coming_date') else None
         # repentance_date = validated_data.pop('repentance_date') if validated_data.get('repentance_date') else None
-        validated_data.pop('additional_phone') if validated_data.get('additional_phone') else None
+        validated_data.pop('additional_phones') if validated_data.get('additional_phones') else None
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -130,9 +130,9 @@ class NewUserSerializer(serializers.ModelSerializer):
         return instance
 
     def create(self, validated_data):
-        validated_data.pop('additional_phone') if validated_data.get('additional_phone') else None
+        validated_data.pop('additional_phones') if validated_data.get('additional_phones') else None
 
-        username = generate_key()
+        username = generate_key()[:20]
         # while User.objects.filter(username=username).exists():
         #     username = generate_key()
 
