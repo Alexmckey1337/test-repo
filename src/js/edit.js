@@ -96,6 +96,7 @@
             return
         }
         ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/users/' + id + '/', null, function (data) {
+            console.log(data);
             if (data.image) {
                 $(".anketa-photo img").attr('src', data.image);
                 convertImgToDataURLviaCanvas($(".anketa-photo img").attr('src'), function (data64) {
@@ -507,6 +508,7 @@
             "first_name": $("#first_name").val(),
             "last_name": $("#last_name").val(),
             "middle_name": $("#middle_name").val(),
+            // "search_name": $("#search_name").val(),
             "skype": $("#skype").val(),
             "email": $("#email").val(),
             "phone_number": $("#phone_number").val(),
@@ -519,6 +521,7 @@
             "vkontakte": $('#vkontakte').val() || '',
             "facebook": $('#facebook').val() || '',
             "odnoklassniki": $('#odnoklassniki').val() || '',
+            "master": parseInt($('#leader_drop').val()),
             "address": $('#address').val() || '',
             'department': parseInt($('#department_drop').val()),
             'divisions': $("#division_drop").val() || [],
