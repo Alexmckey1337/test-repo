@@ -1,12 +1,19 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import binascii
+import os
+
 from rest_framework import serializers
 
 from account.models import CustomUser as User, AdditionalPhoneNumber
 from hierarchy.models import Department, Hierarchy
 from partnership.models import Partnership
 from status.models import Division
+
+
+def generate_key():
+    return binascii.hexlify(os.urandom(20)).decode()
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -66,17 +73,18 @@ class AdditionalPhoneSerializer(serializers.ModelSerializer):
 class PartnershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Partnership
-        fields = ('id', 'value', 'responsible')
+        fields = ('value', 'responsible', 'date', 'user')
 
 
 class NewUserSerializer(serializers.ModelSerializer):
     additional_phones = AdditionalPhoneSerializer(many=True, read_only=True)
 
-    partnership = PartnershipSerializer()
+    partnership = PartnershipSerializer(required=False)
 
     class Meta:
         model = User
         fields = ('id',
+                  # 'username',
                   'email', 'first_name', 'last_name', 'middle_name', 'search_name',
                   'facebook', 'vkontakte', 'odnoklassniki', 'skype',
 
@@ -95,21 +103,42 @@ class NewUserSerializer(serializers.ModelSerializer):
                   # read_only
                   'fullname',
                   )
-        required_fields = ('id', 'link',)
+        extra_kwargs = {
+            'first_name': {'required': True},
+            'last_name': {'required': True},
+            'phone_number': {'required': True},
+
+            'hierarchy': {'required': True},
+            'department': {'required': True},
+            'master': {'required': True},
+
+            'divisions': {'required': False},
+        }
 
     def update(self, instance, validated_data):
         # department = validated_data.pop('department') if validated_data.get('department') else None
         # master = validated_data.pop('master') if validated_data.get('master') else None
         # hierarchy = validated_data.pop('hierarchy') if validated_data.get('hierarchy') else None
-        additional_phone = validated_data.pop('additional_phone') if validated_data.get('additional_phone') else None
         # coming_date = validated_data.pop('coming_date') if validated_data.get('coming_date') else None
         # repentance_date = validated_data.pop('repentance_date') if validated_data.get('repentance_date') else None
+        validated_data.pop('additional_phone') if validated_data.get('additional_phone') else None
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
 
         return instance
+
+    def create(self, validated_data):
+        validated_data.pop('additional_phone') if validated_data.get('additional_phone') else None
+
+        username = generate_key()
+        # while User.objects.filter(username=username).exists():
+        #     username = generate_key()
+
+        validated_data['username'] = username
+
+        return super(NewUserSerializer, self).create(validated_data)
 
 
 class UserSingleSerializer(NewUserSerializer):
@@ -121,6 +150,9 @@ class UserSingleSerializer(NewUserSerializer):
 
 class UserTableSerializer(UserSingleSerializer):
     master = MasterNameSerializer(required=False, allow_null=True)
+
+    class Meta(UserSingleSerializer.Meta):
+        required_fields = ('id', 'link')
 
     def get_field_names(self, declared_fields, info):
         # fields = getattr(self.Meta, 'fields', None)

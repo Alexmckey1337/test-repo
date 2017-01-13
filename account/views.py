@@ -42,7 +42,7 @@ from summit.models import SummitType, SummitLesson, SummitAnketNote, SummitUserC
 from tv_crm.models import LastCall
 from .resources import clean_password, clean_old_password
 from .serializers import UserSerializer, UserShortSerializer, UserTableSerializer, NewUserSerializer, \
-    UserSingleSerializer
+    UserSingleSerializer, PartnershipSerializer
 
 USER_FIELDS = {
     'text_fields': {
@@ -246,9 +246,44 @@ class NewUserViewSet(viewsets.ModelViewSet):
         return self.serializer_class
 
     def perform_update(self, serializer):
-        serializer.save()
-        user = serializer.instance
-        additional_phone = self.request.data.get('additional_phone', None)
+        user = serializer.save()
+        self._create_additional_phone_number(user)
+        self._update_partnership(user)
+        self._update_divisions(user)
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        self._create_additional_phone_number(user)
+        self._create_partnership(user)
+
+    def _create_partnership(self, user):
+        partner = self.request.data.get('partner', None)
+        if partner is not None and isinstance(partner, dict):
+            partner['user'] = user
+            serializer = PartnershipSerializer(data=partner)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+    def _update_divisions(self, user):
+        divisions = self.request.data.get('divisions', None)
+        if divisions is not None and isinstance(divisions, (list, tuple)):
+            user.divisions.set(divisions)
+
+    def _update_partnership(self, user):
+        if not hasattr(user, 'partnership'):
+            self._create_partnership(user)
+            return
+
+        partner = self.request.data.get('partner', None)
+        if partner is not None and isinstance(partner, dict):
+            partner['user'] = user
+            partner_obj = user.partnership
+            serializer = PartnershipSerializer(partner_obj, data=partner)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+    def _create_additional_phone_number(self, user):
+        additional_phone = self.request.data.get('additional_phones', None)
         if additional_phone:
             phone_number = user.additional_phones.first()
             if phone_number:
