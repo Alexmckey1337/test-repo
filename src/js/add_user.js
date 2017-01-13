@@ -579,7 +579,7 @@
         }
         let json = JSON.stringify(data);
         ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.1/users/', json, function (data) {
-            if (data.redirect) {
+            if (data) {
                 let fd = new FormData();
                 if (!$('input[type=file]')[0].files[0]) {
                     fd.append('id', data.id)
@@ -601,11 +601,10 @@
 
                 let xhr = new XMLHttpRequest();
                 xhr.withCredentials = true;
-                xhr.open('POST', config.DOCUMENT_ROOT + 'api/v1.1/users/', true);
+                xhr.open('POST', config.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
 
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState == 4) {
-
                         if (xhr.status == 200) {
                             showPopup(data.message);
                             setTimeout(function () {
