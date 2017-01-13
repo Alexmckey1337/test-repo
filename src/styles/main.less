@@ -829,24 +829,32 @@ h1 a {
 
 .editprofile .col-1 button::before,
 .top-buttons button::before {
-  display: block;
   content: '';
   position: absolute;
   top: 11px;
   left: 15px;
   width: 19px;
   height: 19px;
-  background: url('../img/sprite-buttons.png') no-repeat 0 0;
 }
 
 #filter_button::before {
   content: "\f0b0" !important;
   font: 1.4em FontAwesome;
   color: white;
-  //background: url('../img/sprite-buttons.png') no-repeat -1px -65px;
   background: none;
 }
-
+#add::before {
+  content: "\f067" !important;
+  font: 1.4em FontAwesome;
+  color: white;
+  background: none;
+}
+#sort-on::before {
+  content: "\f040" !important;
+  font: 1.4em FontAwesome;
+  color: white;
+  background: none;
+}
 .top-buttons button.exp::before {
   background-position: 0px -20px;
 }
@@ -1746,7 +1754,7 @@ td {
         float: right;
         display: none;
         position: absolute;
-        right: 1em;
+        left: 1em;
         top: 0;
         bottom: 0;
         margin: auto;
@@ -3701,7 +3709,7 @@ span.green {
 .col-table {
   border: 1px solid #cdd0d4;
   border-radius: 3px;
-  padding: 20px 25px 25px 0;
+  padding: 10px 25px 15px 0;
   background-color: #f2f5fa;
   overflow: hidden;
 }
@@ -3710,9 +3718,6 @@ span.green {
   font-size: 1.2em;
   padding: 10px 0;
   white-space: pre;
-  white-space: -moz-pre;
-  white-space: -pre;
-  white-space: -o-pre;
   height: 35px;
   box-sizing: border-box;
   margin-top: 5px;
@@ -3735,9 +3740,7 @@ span.green {
 
 .editprofile select {
   width: 96%;
-  background: url('../img/down.png') no-repeat;
-  background-position: center right;
-  background-color: #fff;
+  background: #fff url('../img/down.png') no-repeat center right;
   padding-right: 38px;
 }
 
@@ -3793,20 +3796,6 @@ input[type='file'] {
   opacity: 0
 }
 
-/*DROPBOX styles*/
-/*
-.editprofile .select2-container .select2-choice div {
-	width: 38px;
-}
-
-.editprofile .select2-container .select2-choice div b{
-
-
-	background: url('../img/down.png') no-repeat;
-  background-position: center right;
-  background-color: #fff;
-}
-*/
 /* select in user_create */
 .select2-selection__arrow {
   background: url('../img/down.png') no-repeat center right;
@@ -4052,16 +4041,6 @@ div.butt-wrap > p:nth-child(3) {
   display: none;
 }
 
-/*
-.tabs-names li {
-	display: none;
-}
-
-.tabs-names li.is_current,.tabs-names li.is_current ~ li{
-	display: block;
-}
-*/
-
 .vocrm-login .logo div:nth-child(1), .vocrm-login .logo div:nth-child(2) {
   font-size: 4.2em;
 }
@@ -4082,15 +4061,16 @@ div.butt-wrap > p:nth-child(3) {
   padding-bottom: 10px;
 }
 
-#impPopup .splash-buttons {
-  text-align: left;
-  margin: 10px 20px;
-}
-
-#impPopup button {
-  text-align: center;
-  background-color: #3caeda;
-  padding: 10px 30px;
+#impPopup {
+  & .splash-buttons {
+    text-align: left;
+    margin: 10px 20px;
+  }
+  & button {
+    text-align: center;
+    background-color: #3caeda;
+    padding: 10px 30px;
+  }
 }
 
 .crArea {
@@ -4134,6 +4114,7 @@ div.butt-wrap > p:nth-child(3) {
   left: 17%;
   width: 19% !important;
   border-radius: 3px;
+  padding: 6px 4px;
 }
 
 .phone input[name="phone_number"] {
@@ -4161,10 +4142,7 @@ div.code input#code {
 .member_club_block {
   float: left;
   padding: 20px;
-  -webkit-user-select: none; /* Chrome all / Safari all */
-  -moz-user-select: none; /* Firefox all */
-  -ms-user-select: none; /* IE 10+ */
-  user-select: none; /* Likely future */
+  user-select: none;
 }
 
 .member_user {
