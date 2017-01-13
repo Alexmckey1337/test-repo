@@ -239,6 +239,338 @@ CustomUser
    :statuscode 200: no error
 
 
+.. http:post:: /api/v1.1/users/
+
+   Create new user.
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      POST /api/v1.1/users/13350/ HTTP/1.1
+      Host: vocrm.org
+      Accept: application/json
+      content-type: application/json
+      content-length: 661
+
+      {
+        "email": "example@email.com",
+        "first_name": "first",
+        "last_name": "last",
+        "middle_name": "middle",
+        "search_name": "search",
+        "facebook": "http://fb.com/test",
+        "vkontakte": "http://vk.com/test",
+        "odnoklassniki": "http://ok.com/test",
+        "skype": "skype",
+        "additional_phones": "26426264",
+        "born_date": "2000-02-20",
+        "coming_date": "2002-02-20",
+        "repentance_date": "2020-02-22",
+        "country": "C",
+        "region": "R",
+        "city": "City",
+        "district": "D",
+        "address": "A",
+        "department": 1,
+        "hierarchy": 1,
+        "master": 1,
+        "divisions": [1,2,3],
+        "phone_number": "573135171",
+        "partner": {
+          "value": 30,
+          "responsible": 4,
+          "date": "2020-02-20"
+        }
+      }
+
+   **Example response (Good request)**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 201 Created
+      Vary: Accept, Cookie
+      Allow: GET, POST, HEAD, OPTIONS
+      Content-Type: application/json
+
+      {
+        "id": 15183,
+        "email": "example@email.com",
+        "first_name": "first",
+        "last_name": "last",
+        "middle_name": "middle",
+        "search_name": "search",
+        "facebook": "http://fb.com/test",
+        "vkontakte": "http://vk.com/test",
+        "odnoklassniki": "http://ok.com/test",
+        "skype": "skype",
+        "phone_number": "573135171",
+        "additional_phones": [
+          {
+            "id": 5491,
+            "number": "26426264"
+          }
+        ],
+        "born_date": "20.02.2000",
+        "coming_date": "20.02.2002",
+        "repentance_date": "22.02.2020",
+        "country": "C",
+        "region": "R",
+        "city": "City",
+        "district": "D",
+        "address": "A",
+        "image": null,
+        "image_source": null,
+        "department": 1,
+        "master": 1,
+        "hierarchy": 1,
+        "divisions": [
+          1,
+          2,
+          3
+        ],
+        "partnership": {
+          "value": 30,
+          "responsible": 4,
+          "date": "20.02.2020",
+          "user": 15183
+        },
+        "fullname": "last first middle"
+      }
+
+   **Example response (Bad request 1)**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 403 Forbidden
+      Vary: Accept, Cookie
+      Allow: GET, POST, HEAD, OPTIONS
+      Content-Type: application/json
+
+      {
+        "detail": "Учетные данные не были предоставлены."
+      }
+
+   **Example response (Bad request 2)**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 400 Bad Request
+      Vary: Accept, Cookie
+      Allow: GET, POST, HEAD, OPTIONS
+      Content-Type: application/json
+
+      {
+        "first_name": [
+          "Это поле обязательно."
+        ]
+      }
+
+   :form email: user email
+   :form first_name: first name, **required**
+   :form last_name: last name, **required**
+   :form middle_name: middle name
+   :form search_name: search name
+   :form facebook: facebook url
+   :form vkontakte: vkontakte url
+   :form odnoklassniki: odnoklassiniki url
+   :form skype: login of skype
+   :form phone_number: phone number, **required**
+   :form additional_phones: additional phone number
+   :form born_date: born date
+   :form coming_date: coming date
+   :form repentance_date: repentance date
+   :form country: country
+   :form city: city
+   :form region: region
+   :form district: district
+   :form address: address
+   :form image: user photo
+   :form department: id of user department, **required**
+   :form hierarchy: id of hierarchy, **required**
+   :form master: id of master, **required**
+   :form divisions: list of ids of divisions
+   :form partner: dict of partnership fields
+   :form partner[value]: sum of partner's contribution
+   :form partner[responsible]: responsible of partner
+   :form partner[date]: date when the user became a partner
+   :reqheader Accept: the response content type depends on
+                                                              :mailheader:`Accept` header
+   :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
+                            ``application/json``, ``multipart/form-data``
+   :resheader Content-Type: this depends on :mailheader:`Accept`
+                            header of request
+   :statuscode 201: success create
+   :statuscode 403: user is not authenticated
+   :statuscode 400: bad request
+
+
+.. http:put:: /api/v1.1/users/<user_id>/
+
+   Update of user with ``id = user_id``.
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      PUT /api/v1.1/users/13350/ HTTP/1.1
+      Host: vocrm.org
+      Accept: application/json
+      content-type: application/json
+      content-length: 661
+
+      {
+        "email": "example@email.com",
+        "first_name": "first",
+        "last_name": "last",
+        "middle_name": "middle",
+        "search_name": "search",
+        "facebook": "http://fb.com/test",
+        "vkontakte": "http://vk.com/test",
+        "odnoklassniki": "http://ok.com/test",
+        "skype": "skype",
+        "additional_phones": "26426264",
+        "born_date": "2000-02-20",
+        "coming_date": "2002-02-20",
+        "repentance_date": "2020-02-22",
+        "country": "C",
+        "region": "R",
+        "city": "City",
+        "district": "D",
+        "address": "A",
+        "department": 1,
+        "hierarchy": 1,
+        "master": 1,
+        "divisions": [1,2,3],
+        "phone_number": "573135171",
+        "partner": {
+          "value": 30,
+          "responsible": 4,
+          "date": "2020-02-20"
+        }
+      }
+
+   **Example response (Good request)**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 201 Created
+      Vary: Accept, Cookie
+      Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      Content-Type: application/json
+
+      {
+        "id": 15183,
+        "email": "example@email.com",
+        "first_name": "first",
+        "last_name": "last",
+        "middle_name": "middle",
+        "search_name": "search",
+        "facebook": "http://fb.com/test",
+        "vkontakte": "http://vk.com/test",
+        "odnoklassniki": "http://ok.com/test",
+        "skype": "skype",
+        "phone_number": "573135171",
+        "additional_phones": [
+          {
+            "id": 5491,
+            "number": "26426264"
+          }
+        ],
+        "born_date": "20.02.2000",
+        "coming_date": "20.02.2002",
+        "repentance_date": "22.02.2020",
+        "country": "C",
+        "region": "R",
+        "city": "City",
+        "district": "D",
+        "address": "A",
+        "image": null,
+        "image_source": null,
+        "department": 1,
+        "master": 1,
+        "hierarchy": 1,
+        "divisions": [
+          1,
+          2,
+          3
+        ],
+        "partnership": {
+          "value": 30,
+          "responsible": 4,
+          "date": "20.02.2020",
+          "user": 15183
+        },
+        "fullname": "last first middle"
+      }
+
+   **Example response (Bad request 1)**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 403 Forbidden
+      Vary: Accept, Cookie
+      Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      Content-Type: application/json
+
+      {
+        "detail": "Учетные данные не были предоставлены."
+      }
+
+   **Example response (Bad request 2)**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 400 Bad Request
+      Vary: Accept, Cookie
+      Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      Content-Type: application/json
+
+      {
+        "first_name": [
+          "Это поле обязательно."
+        ]
+      }
+
+   :form email: user email
+   :form first_name: first name, **required**
+   :form last_name: last name, **required**
+   :form middle_name: middle name
+   :form search_name: search name
+   :form facebook: facebook url
+   :form vkontakte: vkontakte url
+   :form odnoklassniki: odnoklassiniki url
+   :form skype: login of skype
+   :form phone_number: phone number, **required**
+   :form additional_phones: additional phone number
+   :form born_date: born date
+   :form coming_date: coming date
+   :form repentance_date: repentance date
+   :form country: country
+   :form city: city
+   :form region: region
+   :form district: district
+   :form address: address
+   :form image: user photo
+   :form department: id of user department, **required**
+   :form hierarchy: id of hierarchy, **required**
+   :form master: id of master, **required**
+   :form divisions: list of ids of divisions
+   :form partner: dict of partnership fields
+   :form partner[value]: sum of partner's contribution
+   :form partner[responsible]: responsible of partner
+   :form partner[date]: date when the user became a partner
+   :reqheader Accept: the response content type depends on
+                                                        :mailheader:`Accept` header
+   :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
+                            ``application/json``, ``multipart/form-data``
+   :resheader Content-Type: this depends on :mailheader:`Accept`
+                            header of request
+   :statuscode 201: success create
+   :statuscode 403: user is not authenticated
+   :statuscode 400: bad request
+
+
 .. http:patch:: /api/v1.1/users/(int:user_id)/
 
    Partial update user data.
@@ -342,7 +674,7 @@ CustomUser
    :form odnoklassniki: odnoklassiniki url
    :form skype: login of skype
    :form phone_number: phone number
-   :form additional_phone: additional phone number
+   :form additional_phones: additional phone number
    :form born_date: born date
    :form coming_date: coming date
    :form repentance_date: repentance date
