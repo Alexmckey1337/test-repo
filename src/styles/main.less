@@ -829,24 +829,32 @@ h1 a {
 
 .editprofile .col-1 button::before,
 .top-buttons button::before {
-  display: block;
   content: '';
   position: absolute;
   top: 11px;
   left: 15px;
   width: 19px;
   height: 19px;
-  background: url('../img/sprite-buttons.png') no-repeat 0 0;
 }
 
 #filter_button::before {
   content: "\f0b0" !important;
   font: 1.4em FontAwesome;
   color: white;
-  //background: url('../img/sprite-buttons.png') no-repeat -1px -65px;
   background: none;
 }
-
+#add::before {
+  content: "\f067" !important;
+  font: 1.4em FontAwesome;
+  color: white;
+  background: none;
+}
+#sort-on::before {
+  content: "\f040" !important;
+  font: 1.4em FontAwesome;
+  color: white;
+  background: none;
+}
 .top-buttons button.exp::before {
   background-position: 0px -20px;
 }
@@ -1746,7 +1754,7 @@ td {
         float: right;
         display: none;
         position: absolute;
-        right: 1em;
+        left: 1em;
         top: 0;
         bottom: 0;
         margin: auto;
