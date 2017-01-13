@@ -195,7 +195,8 @@ function showPopup(text, title) {
     document.body.appendChild(div);
 
     document.getElementById('close_pop').addEventListener('click', function () {
-        document.getElementsByClassName('pop-up-universal')[0].style.display = 'none'
+        document.getElementsByClassName('pop-up-universal')[0].style.display = 'none';
+        document.body.removeChild(getElementsByClassName('pop-up-universal')[0]);
     });
     document.getElementsByClassName('pop-up-universal')[0].style.display = 'block'
 }
