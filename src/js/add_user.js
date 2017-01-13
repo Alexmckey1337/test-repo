@@ -163,8 +163,8 @@
             return html;
         });
         makeChooseResponsibleStatus.then(function (html) {
-            if(document.getElementById('chooseResponsibleStatus')) {
-                 document.getElementById('chooseResponsibleStatus').innerHTML = html;
+            if (document.getElementById('chooseResponsibleStatus')) {
+                document.getElementById('chooseResponsibleStatus').innerHTML = html;
             }
         });
         var makeChooseCountryCode = getCountryCodes().then(function (data) {
@@ -499,7 +499,7 @@
             "first_name": $("input[name='first_name']").val(),
             "last_name": $("input[name='last_name']").val(),
             "middle_name": $("input[name='middle_name']").val(),
-            "born_date": $("input[name='born_date']").val(),
+            "born_date": $("input[name='born_date']").val() || null,
             "phone_number": parseInt($("input[name='phone_numberCode']").val() + '' + $("input[name='phone_number']").val()),
             "additional_phone": $("#additional_phone").val(),
             "vkontakte": $("input[name='vk']").val(),
@@ -509,18 +509,32 @@
             "skype": $("input[name='skype']").val(),
             "district": $("input[name='district']").val(),
             "region": $('#chooseRegion option:selected').html() == 'Не выбрано' ? '' : $('#chooseRegion option:selected').html(),
-            'responsible': $("#chooseManager").val(),
-            'value': $("input[name='value']").val(),
-            'date': $("input[name='partnership_date']").val(),
-            'divisions': $('#chooseDivision').val() || '',
+            'divisions': $('#chooseDivision').val() || [],
             'hierarchy': parseInt($("#chooseStatus").val()),
             'department': parseInt($("#chooseDepartment").val()),
-            'repentance_date': $("input[name='repentance_date']").val(),
             'city': $('#chooseCity option:selected').html() == 'Не выбрано' ? '' : $('#chooseCity option:selected').html(),
             'country': $('#chooseCountry option:selected').html() == 'Не выбрано' ? '' : $('#chooseCountry option:selected').html()
         };
-        console.log(data);
-        data['send_password'] = $('#kabinet').prop("checked");
+
+        if ($('#partner').prop('checked')) {
+            if($('#summa_partner').val()) {
+                $('#summa_partner').css('border', '1px solid #d46a6a');
+                return
+            }
+            if($('#chooseManager').val()) {
+                $('#chooseManager').css('border', '1px solid #d46a6a');
+                return
+            }
+            if($('#partnerFrom').val()) {
+                $('#partnerFrom').css('border', '1px solid #d46a6a');
+                return
+            }
+            data.partner = {
+                "value": ($('#summa_partner').val()) ? parseInt($('#summa_partner').val()) : 0,
+                "responsible": ($('#chooseManager').val()) ? parseInt($('#chooseManager').val()) : null,
+                "date": $('#partnerFrom').val()
+            }
+        }
 
         if ($("#chooseResponsible").val()) {
             data["master"] = parseInt($("#chooseResponsible").val());
@@ -564,7 +578,7 @@
             $("input[name='value']").css('border', '');
         }
         let json = JSON.stringify(data);
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/create_user/', json, function (data) {
+        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.1/users/', json, function (data) {
             if (data.redirect) {
                 let fd = new FormData();
                 if (!$('input[type=file]')[0].files[0]) {
@@ -587,7 +601,7 @@
 
                 let xhr = new XMLHttpRequest();
                 xhr.withCredentials = true;
-                xhr.open('POST', config.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
+                xhr.open('POST', config.DOCUMENT_ROOT + 'api/v1.1/users/', true);
 
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState == 4) {
