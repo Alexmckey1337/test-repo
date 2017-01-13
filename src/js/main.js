@@ -48,7 +48,7 @@ function saveUser(el) {
         master: master_id,
         skype: $($(el).closest('.pop_cont').find('#skype')).val(),
         phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
-        additional_phone: $($(el).closest('.pop_cont').find('#additional_phone')).val(),
+        additional_phones: $($(el).closest('.pop_cont').find('#additional_phones')).val(),
         repentance_date: $($(el).closest('.pop_cont').find('#repentance_date')).val(),
         country: $($(el).closest('.pop_cont').find('#country')).val(),
         region: $($(el).closest('.pop_cont').find('#region')).val(),

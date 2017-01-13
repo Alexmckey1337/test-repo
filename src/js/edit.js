@@ -498,13 +498,12 @@
         });
     }
     function sendData() {
-
         let id = parseInt(getLastId());
-
         if (!id) {
             return
         }
         let data = {
+            "id": id,
             "first_name": $("#first_name").val(),
             "last_name": $("#last_name").val(),
             "middle_name": $("#middle_name").val(),
@@ -521,21 +520,12 @@
             "vkontakte": $('#vkontakte').val() || '',
             "facebook": $('#facebook').val() || '',
             "odnoklassniki": $('#odnoklassniki').val() || '',
-            "master": parseInt($('#leader_drop').val()),
+            "master": ($('#chooseResponsible').val()) ? parseInt($('#chooseResponsible').val()) : 0,
             "address": $('#address').val() || '',
-            'department': parseInt($('#department_drop').val()),
-            'divisions': $("#division_drop").val() || [],
-            'hierarchy': parseInt($('#statuses_drop').val()),
+            "department": parseInt($('#department_drop').val()),
+            "divisions": $("#division_drop").val() || [],
+            "hierarchy": parseInt($('#statuses_drop').val()),
         };
-        data['id'] = id;
-        let master = $('#leader_drop option:selected');
-        if (master.html() == "Не выбрано") {
-            data['master'] = 0;
-        } else {
-            if (master.attr('value') != undefined) {
-                data['master'] = master.attr('value');
-            }
-        }
         if (document.getElementById('partner') && document.getElementById('partner').checked) {
             data['value'] = parseInt(document.getElementById('val_partnerships').value) || 0;
             data['date'] = document.getElementById('partner_date').value || '';

@@ -17,6 +17,7 @@
             }
             document.getElementById('chooseResponsible').innerHTML = html;
             document.getElementById('chooseResponsible').removeAttribute('disabled');
+            $('#chooseResponsible').select2();
         }
 
         $('#impPopup').click(function (el) {
@@ -87,6 +88,7 @@
             }
             return html;
         });
+
         makeChooseCountry.then(function (html) {
             document.getElementById('chooseCountry').innerHTML = html;
         });
@@ -161,11 +163,10 @@
             return html;
         });
         makeChooseResponsibleStatus.then(function (html) {
-            document.getElementById('chooseResponsibleStatus').innerHTML = html;
+            if(document.getElementById('chooseResponsibleStatus')) {
+                 document.getElementById('chooseResponsibleStatus').innerHTML = html;
+            }
         });
-        // getResponsibleStatuses().then(function (data) {
-        //     console.log(data);
-        // });
         var makeChooseCountryCode = getCountryCodes().then(function (data) {
             let codes = '<option value=""> </option>';
             for (let i = 0; i < data.length; i++) {
@@ -179,6 +180,9 @@
         });
         makeChooseCountryCode.then(function (codes) {
             document.getElementById('chooseCountryCode').innerHTML = codes;
+            let code = $('#chooseCountryCode').val();
+            $('input[name="phone_numberCode"]').val(code);
+
         });
         // getCountryCodes().then(function (data) {
         //     console.log(data);
@@ -205,6 +209,28 @@
             let department = $(this).val();
             let status = $('#chooseResponsibleStatus').val();
             if (status) {
+                getResponsible(department, status).then(function (data) {
+                    makeChooseResponsible(data);
+                });
+            }
+        });
+
+        $('#chooseDepartment').on('change', function () {
+            let department = $('#chooseDepartment').val();
+            let status = $('#chooseStatus').val();
+            if (!!$('#chooseStatus').val()) {
+                $('#chooseResponsible').attr('disabled', true);
+                getResponsible(department, status).then(function (data) {
+                    makeChooseResponsible(data);
+                });
+            }
+        });
+        $('#chooseStatus').on('change', function () {
+            let department = $('#chooseDepartment').val();
+            let status = $('#chooseStatus').val();
+            $('#chooseResponsible').attr('disabled', true);
+            if (!!$('#chooseStatus').val()) {
+                $('#chooseResponsible').attr('disabled', true);
                 getResponsible(department, status).then(function (data) {
                     makeChooseResponsible(data);
                 });
@@ -514,25 +540,6 @@
             $("input[name='last_name']").css('border', '');
         }
 
-        if ($("#chooseCountry").val() == '206' || $("#chooseCountry").val() == '162') {
-            if (!data['middle_name']) {
-                $("input[name='middle_name']").css('border', '1px solid #d46a6a');
-                return;
-            } else {
-                $("input[name='middle_name']").css('border', '');
-            }
-        } else {
-            $("input[name='middle_name']").css('border', '');
-        }
-
-        if (!data['email']) {
-            $("input[name='email']").css('border', '1px solid #d46a6a');
-            return;
-        } else {
-            $("input[name='email']").css('border', '');
-        }
-
-
         if (!data['hierarchy'] || !data['department']) {
             $("#chooseDepartment + span .select2-selection").css('border', '1px solid #d46a6a');
             $("#chooseStatus + span .select2-selection").css('border', '1px solid #d46a6a');
@@ -567,7 +574,6 @@
                     let blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
                     let sr = $('#edit-photo').attr('data-source');
                     fd.append('file', blob);
-                    //fd.append('source', sr)
                     fd.append('id', data.id)
                 }
                 function dataURLtoBlob(dataurl) {
