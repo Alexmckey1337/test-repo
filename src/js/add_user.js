@@ -517,15 +517,15 @@
         };
 
         if ($('#partner').prop('checked')) {
-            if($('#summa_partner').val()) {
+            if(!$('#summa_partner').val()) {
                 $('#summa_partner').css('border', '1px solid #d46a6a');
                 return
             }
-            if($('#chooseManager').val()) {
+            if(!$('#chooseManager').val()) {
                 $('#chooseManager').css('border', '1px solid #d46a6a');
                 return
             }
-            if($('#partnerFrom').val()) {
+            if(!$('#partnerFrom').val()) {
                 $('#partnerFrom').css('border', '1px solid #d46a6a');
                 return
             }
