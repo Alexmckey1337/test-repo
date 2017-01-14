@@ -325,6 +325,7 @@
     }
 
 //INITIALIZE STATUS USER
+
     function initDropCustom(url, parent_id, active, callback) {
         ajaxRequest(config.DOCUMENT_ROOT + url, null, function (data) {
             let results = data.results,
