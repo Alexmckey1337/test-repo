@@ -380,8 +380,7 @@
             let html = '<option>Не выбрано</option>';
             let results = data;
             for (let i = 0; i < results.length; i++) {
-
-                if (active == results[i].title) {
+                if (active == results[i].fullname) {
                     html += '<option selected value="' + results[i].id + '">' + results[i].fullname + '</option>';
                     active = false
                 } else {
@@ -390,11 +389,8 @@
 
             }
 
-            if (active) {
-                html += '<option selected="selected" >' + active + '</option>'
-            }
-
             document.getElementById('leader_drop').innerHTML = html;
+
             let $eventSelect = $('#leader_drop');
 
             $eventSelect.select2()
@@ -520,7 +516,7 @@
             "vkontakte": $('#vkontakte').val() || '',
             "facebook": $('#facebook').val() || '',
             "odnoklassniki": $('#odnoklassniki').val() || '',
-            "master": ($('#chooseResponsible').val()) ? parseInt($('#chooseResponsible').val()) : 0,
+            "master": parseInt($('#leader_drop').val()) || null,
             "address": $('#address').val() || '',
             "department": parseInt($('#department_drop').val()),
             "divisions": $("#division_drop").val() || [],
