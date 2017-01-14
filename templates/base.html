@@ -157,13 +157,13 @@
             <div><label for="master_hierarchy">Ответственный: </label>
                 <select id="master_hierarchy">
                     <% if(master != null) { %>
-                        <option value="<%= master.fullname %>" data-id="<%= master.id %>" selected><%= master.fullname %></option>
+                        <option value="<%= master.fullname %>" data-id="<%= master.id %>" data-level="<%=master.hierarchy.level%>" selected><%= master.fullname %></option>
                     <% } %>
                 </select>
             </div>
             <p><label for="hierarchySelect">Статус: </label><select id="hierarchySelect">
                 <% if(hierarchy != null) { %>
-                <option value="<%=hierarchy.id %>" selected><%=hierarchy.title %></option>
+                <option value="<%=hierarchy.id %>" data-level="<%=hierarchy.level%>" selected><%=hierarchy.title %></option>
                 <% } else { %>
                     <option value="" selected></option>
                 <% } %>
