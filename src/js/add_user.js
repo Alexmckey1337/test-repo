@@ -116,7 +116,7 @@
             data = data.results;
             let html = '<option value=""> </option>';
             for (let i = 0; i < data.length; i++) {
-                html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+                html += '<option value="' + data[i].id + '" data-level="' + data[i].level + '">' + data[i].title + '</option>';
             }
             return html;
         });
@@ -217,7 +217,8 @@
 
         $('#chooseDepartment').on('change', function () {
             let department = $('#chooseDepartment').val();
-            let status = $('#chooseStatus').val();
+            let status = $('#chooseStatus option:selected').attr('data-level');
+
             if (!!$('#chooseStatus').val()) {
                 $('#chooseResponsible').attr('disabled', true);
                 getResponsible(department, status).then(function (data) {
@@ -227,7 +228,7 @@
         });
         $('#chooseStatus').on('change', function () {
             let department = $('#chooseDepartment').val();
-            let status = $('#chooseStatus').val();
+            let status = $('#chooseStatus option:selected').attr('data-level');
             $('#chooseResponsible').attr('disabled', true);
             if (!!$('#chooseStatus').val()) {
                 $('#chooseResponsible').attr('disabled', true);

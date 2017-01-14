@@ -9,7 +9,7 @@ var GlobalParam = {};
 
 function makeResponsibleList() {
     let department = $('#departmentSelect').val();
-    let hierarchy = $('#hierarchySelect').val();
+    let hierarchy = $('#hierarchySelect option:selected').attr('data-level');
     getResponsible(department, hierarchy).then(function (data) {
         let id = $('#master_hierarchy option:selected').attr('data-id');
         var selected = false;
@@ -94,9 +94,9 @@ function makeQuickEditCart(el) {
             let html = "";
             for (let i = 0; i < data.length; i++) {
                 if (hierarchySelect === data[i].title || hierarchySelect == data[i].id) {
-                    html += '<option value="' + data[i].id + '"' + 'selected' + '>' + data[i].title + '</option>';
+                    html += '<option value="' + data[i].id + '"' + 'selected' + ' data-level="' + data[i].level + '">' + data[i].title + '</option>';
                 } else {
-                    html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+                    html += '<option value="' + data[i].id + '" data-level="' + data[i].level + '" >' + data[i].title + '</option>';
                 }
             }
             $('#hierarchySelect').html(html);
