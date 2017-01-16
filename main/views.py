@@ -56,6 +56,10 @@ def account_edit(request, user_id):
         if user_id:
             return redirect(reverse('account', args=[user_id]))
         return redirect('/')
+    if not request.user.get_descendants(include_self=True).filter(id=user_id).exists():
+        if user_id:
+            return redirect(reverse('account', args=[user_id]))
+        return redirect('/')
     user = get_object_or_404(CustomUser, pk=user_id)
     ctx = {
         'account': user,
