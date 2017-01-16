@@ -19,7 +19,10 @@ cd $DJANGODIR
 source /projects/crm/venv3/bin/activate
 export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
 export PYTHONPATH=$DJANGODIR:$PYTHONPATH
- 
+export DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY
+export DATABASE_URL=$DATABASE_URL
+export CELERY_BROKER_URL=$CELERY_BROKER_URL
+
 # Start your Django Unicorn
 # Programs meant to be run under supervisor should not daemonize themselves (do not use --daemon)
 exec /projects/crm/venv3/bin/gunicorn ${DJANGO_WSGI_MODULE}:application \
