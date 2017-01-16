@@ -161,7 +161,6 @@
                 }
 
                 if (prop == 'fullname') {
-
                     fullname = data.fields[prop]['value'].split(' ');
                     document.getElementById('first_name').value = fullname[1];
                     document.getElementById('last_name').value = fullname[0];
