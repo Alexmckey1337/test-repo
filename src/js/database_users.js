@@ -73,10 +73,12 @@ $('document').ready(function () {
 });
 
 function getCurrentUserSetting(data) {
+    console.log(data);
     let sortFormTmpl, obj, rendered;
     sortFormTmpl = document.getElementById("sortForm").innerHTML;
     obj = {};
     obj.user = data[0];
+    console.log(obj);
     rendered = _.template(sortFormTmpl)(obj);
     document.getElementById('sort-form').innerHTML = rendered;
 }
