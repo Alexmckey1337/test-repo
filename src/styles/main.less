@@ -844,18 +844,21 @@ h1 a {
   color: white;
   background: none;
 }
+
 #add::before {
   content: "\f067" !important;
   font: 1.4em FontAwesome;
   color: white;
   background: none;
 }
+
 #sort-on::before {
   content: "\f040" !important;
   font: 1.4em FontAwesome;
   color: white;
   background: none;
 }
+
 .top-buttons button.exp::before {
   background-position: 0px -20px;
 }
@@ -1980,9 +1983,6 @@ table label::before,
   left: 190px;
 }
 
-/*#userinfo > tbody > tr > td:nth-child(1) {
-	transform: translateX(-10px);
-}*/
 #userinfo > tbody > tr > td:nth-child(2) {
   padding-right: 20px;
 }
@@ -4048,6 +4048,23 @@ div.butt-wrap > p:nth-child(3) {
 
 #users_list {
   font-size: 1.1em;
+  & tbody {
+    & td:first-child {
+      & a {
+        & ~ span {
+          display: none;
+          position: absolute;
+          top: 0.5em;
+          left: 0.7em;
+        }
+      }
+      &:hover a {
+        & ~ span {
+          display: block;
+        }
+      }
+    }
+  }
 }
 
 .col-3 .col-table > p {
