@@ -194,11 +194,9 @@ function showPopup(text, title) {
 
     document.body.appendChild(div);
 
-    document.getElementById('close_pop').addEventListener('click', function () {
-        document.getElementsByClassName('pop-up-universal')[0].style.display = 'none';
-        document.body.removeChild(getElementsByClassName('pop-up-universal')[0]);
+    $('#close_pop').on('click', function () {
+        $('.pop-up-universal').css('display', 'none').remove();
     });
-    document.getElementsByClassName('pop-up-universal')[0].style.display = 'block'
 }
 
 function getParameterByName(name, url) {

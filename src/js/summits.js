@@ -87,7 +87,7 @@ $(document).ready(function () {
         });
 
         $("#close").on('click', function () {
-            $('#popup').on('display', 'none');
+            $('#popup').css('display', 'none');
             $('.choose-user-wrap').css('display', 'block');
         });
 
@@ -153,7 +153,7 @@ $(document).ready(function () {
             $('.add-user-wrap').css('display', 'none');
             document.querySelector('#searchUsers').focus();
         });
-        $('changeSum').on('click', function () {
+        $('#changeSum').on('click', function () {
             $('#summit-value').removeAttr('readonly');
             $('#summit-value').focus();
         });
@@ -199,8 +199,8 @@ $(document).ready(function () {
             $('#popupDelete').css('display', 'none');
         });
 
-        $('complete').on('click', function () {
-            let id = this.attr('data-id'),
+        $('#complete').on('click', function () {
+            let id = $(this).attr('data-id'),
                 money = $('#summit-value').val(),
                 description = $('#popup textarea').val();
             registerUser(id, summit_id, money, description);
@@ -279,15 +279,15 @@ function getUnregisteredUsers() {
         }
         $('.choose-user-wrap .splash-screen').addClass('active');
         let but = $('.rows-wrap button');
-        but.on('clock', function () {
-            let id = this.attr('data-id'),
-                name = this.attr('data-name'),
-                master = this.attr('data-master');
+        but.on('click', function () {
+            let id = $(this).attr('data-id'),
+                name = $(this).attr('data-name'),
+                master = $(this).attr('data-master');
             $('#summit-value').val("0");
             $('#summit-value').attr('readonly', true);
             $('#popup textarea').val("");
             getDataForPopup(id, name, master);
-            $('popup').css('display', 'block');
+            $('#popup').css('display', 'block');
             $('.choose-user-wrap').css('display', 'block');
         });
     });
