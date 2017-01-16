@@ -1,5 +1,4 @@
-
-    $(document).ready(function () {
+$(document).ready(function () {
     "use strict";
     $('input[name="fullsearch"]').keyup(function () {
         let id = $('#accountable').val();
@@ -598,35 +597,46 @@ function makeTabs() {
     }
 }
 
+// function getCurrentPartnerSetting(data) {
+//     let html = '';
+//     data.forEach(function (d) {
+//         let titles = d[1],
+//             ischeck,
+//             isdraggable;
+//         html += '<h3>' + d[0] + '</h3>';
+//         for (let p in titles) {
+//             if (!titles.hasOwnProperty(p)) continue;
+//             ischeck = titles[p]['active'] ? 'check' : '';
+//             isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
+//             html += '<li ' + isdraggable + ' >' +
+//                 '<input id="' + titles[p]['ordering_title'] + '" type="checkbox">' +
+//                 '<label for="' + titles[p]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[p]['id'] + '">' + titles[p]['title'] + '</label>';
+//             if (isdraggable == 'disable') {
+//                 html += '<div class="disable-opacity"></div>'
+//             }
+//             html += '</li>'
+//         }
+//     });
+//
+//     $('#sort-form').html(html);
+//
+//     $("#sort-form label").on('click', function () {
+//         if (!$(this).parent().attr('disable')) {
+//             $(this).hasClass('check') ? $(this).removeClass('check') : $(this).addClass('check');
+//         }
+//     })
+//
+// }
+
 function getCurrentPartnerSetting(data) {
-    let html = '';
-    data.forEach(function (d) {
-        let titles = d[1],
-            ischeck,
-            isdraggable;
-        html += '<h3>' + d[0] + '</h3>';
-        for (let p in titles) {
-            if (!titles.hasOwnProperty(p)) continue;
-            ischeck = titles[p]['active'] ? 'check' : '';
-            isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
-            html += '<li ' + isdraggable + ' >' +
-                '<input id="' + titles[p]['ordering_title'] + '" type="checkbox">' +
-                '<label for="' + titles[p]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[p]['id'] + '">' + titles[p]['title'] + '</label>';
-            if (isdraggable == 'disable') {
-                html += '<div class="disable-opacity"></div>'
-            }
-            html += '</li>'
-        }
-    });
-
-    $('#sort-form').html(html);
-
-    $("#sort-form label").on('click', function (el) {
-        if (!$(this).parent().attr('disable')) {
-            $(this).hasClass('check') ? $(this).removeClass('check') : $(this).addClass('check');
-        }
-    })
-
+    console.log(data);
+    let sortFormTmpl, obj, rendered;
+    sortFormTmpl = document.getElementById("sortForm").innerHTML;
+    obj = {};
+    obj.user = data;
+    console.log(obj);
+    rendered = _.template(sortFormTmpl)(obj);
+    document.getElementById('sort-form').innerHTML = rendered;
 }
 
 function reversOrder(order) {
@@ -661,7 +671,7 @@ function getPartnersList(param = {}) {
         let common_fields = data.common_table;
         let user_fields = data.user_table;
 
-        getCurrentPartnerSetting([['Партнерство', common_fields], ['Пользователь', user_fields]]);
+        getCurrentPartnerSetting(['Пользователь', user_fields]);
 
         let thead = '<thead><tr>';
         for (k in user_fields) {
@@ -773,11 +783,9 @@ function getPartnersList(param = {}) {
         }
 
         if (results.length) {
-
             $("#spisok .element-select").html(elementSelect);
             $('#partnersips_list').html(table);
             $(".query-none p").html('');
-
         } else {
             $('#partnersips_list').html('');
             $(".query-none p").html('По запросу не найдено участников');
