@@ -785,8 +785,8 @@ function getPartnersList(param = {}) {
         }
 
         $('.preloader').css('display', 'none');
-        $("#spisok .pag-wrap").each(function (el) {
-            $(el).html(paginations);
+        $("#spisok .pag-wrap").each(function () {
+            $(this).html(paginations);
         });
         $("#spisok .pag li").on('click', function () {
             let data = {};
