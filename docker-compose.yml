@@ -1,0 +1,87 @@
+version: '2'
+
+volumes:
+  postgres_data: {}
+  postgres_backup: {}
+  nginx_data: {}
+
+services:
+  postgres:
+    build: ./compose/postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_backup:/backups
+    env_file: .env
+
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile
+    volumes:
+      - nginx_data:/app/public
+    user: django
+    depends_on:
+      - postgres
+      - redis
+    command: /gunicorn.sh
+    env_file: .env
+
+  daphne:
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile
+    user: django
+    depends_on:
+      - postgres
+      - redis
+      - asgi_worker
+    command: /daphne.sh
+    env_file: .env
+
+  asgi_worker:
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile
+    user: django
+    depends_on:
+      - postgres
+      - redis
+    command: /asgi_worker.sh
+    env_file: .env
+
+  nginx:
+    build: ./compose/nginx
+    volumes:
+      - nginx_data:/app/public
+    depends_on:
+      - django
+
+    ports:
+      - "0.0.0.0:80:80"
+
+
+  redis:
+    image: redis:latest
+
+  celeryworker:
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile
+    user: django
+    env_file: .env
+    depends_on:
+     - postgres
+     - redis
+    command: celery -A edem worker -l INFO
+
+  celerybeat:
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile
+    user: django
+    env_file: .env
+    depends_on:
+      - postgres
+      - redis
+    command: celery -A edem beat -l INFO
+
