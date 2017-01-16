@@ -1,4 +1,4 @@
- $(document).ready(function () {
+$(document).ready(function () {
     if (document.getElementById('summits')) {
         create_summit_buttons('summits');
     }
@@ -142,10 +142,15 @@
             $('.add-user-wrap').css('display', 'block');
         });
 
-        $('add_new').on('click', function () {
+        $('#add_new').on('click', function () {
             $('.pop-up-splash-add').css('display', 'block');
         });
-
+        $('#choose').on('click', function () {
+            console.log(this);
+            $('.choose-user-wrap').css('display', 'block');
+            $('.add-user-wrap').css('display', 'none');
+            document.querySelector('#searchUsers').focus();
+        });
         $('changeSum').on('click', function () {
             $('#summit-value').removeAttr('readonly');
             $('#summit-value').focus();
@@ -252,9 +257,10 @@ function registerUser(id, summit_id, money, description) {
     });
 }
 
-function getUnregisteredUsers(parameters) {
-    let param = parameters || {};
-    let search = document.getElementById('searchUsers').value;
+function getUnregisteredUsers() {
+    let param = {};
+    let search = $('#searchUsers').val();
+
     if (search) {
         param['search'] = search;
     }
@@ -271,17 +277,17 @@ function getUnregisteredUsers(parameters) {
         }
         $('.choose-user-wrap .splash-screen').addClass('active');
         let but = $('.rows-wrap button');
-            but.on('clock', function () {
-                let id = this.attr('data-id'),
-                    name = this.attr('data-name'),
-                    master = this.attr('data-master');
-                $('#summit-value').val("0");
-                $('#summit-value').attr('readonly', true);
-                $('#popup textarea').val("");
-                getDataForPopup(id, name, master);
-                $('popup').css('display', 'block');
-                $('.choose-user-wrap').css('display', 'block');
-            });
+        but.on('clock', function () {
+            let id = this.attr('data-id'),
+                name = this.attr('data-name'),
+                master = this.attr('data-master');
+            $('#summit-value').val("0");
+            $('#summit-value').attr('readonly', true);
+            $('#popup textarea').val("");
+            getDataForPopup(id, name, master);
+            $('popup').css('display', 'block');
+            $('.choose-user-wrap').css('display', 'block');
+        });
     });
 }
 
@@ -294,7 +300,7 @@ function getDataForPopup(id, name, master) {
 function create_summit_buttons(id) {
     let img = $('#summits img');
     img.on('click', function () {
-         location.href = '/summit_info/' + $(this).attr('data-id');
+        location.href = '/summit_info/' + $(this).attr('data-id');
     })
 }
 

@@ -7,7 +7,6 @@ $(document).ready(function () {
         if (id == '0') {
             delay(function () {
                 getPartnersList();
-
                 let json = {};
                 json["page"] = '1';
                 getExpiredDeals(json);
@@ -118,11 +117,13 @@ $(document).ready(function () {
     });
 
 
-    document.getElementById('choose').addEventListener('click', function () {
-        document.querySelector('.choose-user-wrap').style.display = 'block';
-        document.querySelector('.add-user-wrap').style.display = 'none';
-        document.querySelector('#searchUsers').focus();
-    });
+
+    // document.getElementById('choose').addEventListener('click', function () {
+    //     document.querySelector('.choose-user-wrap').style.display = 'block';
+    //     document.querySelector('.add-user-wrap').style.display = 'none';
+    //     document.querySelector('#searchUsers').focus();
+    // });
+
 
     document.querySelector(".choose-user-wrap .top-text > span").addEventListener('click', function () {
         document.getElementById('searchUsers').value = '';
