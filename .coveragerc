@@ -1,0 +1,5 @@
+[run]
+include = account, common, delivery, hierarchy, location, main, navigation, notification, partnership, payment, status, summit
+omit = *migrations*, *tests*, *management*
+plugins =
+    django_coverage_plugin

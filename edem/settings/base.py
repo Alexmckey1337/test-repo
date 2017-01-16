@@ -19,6 +19,9 @@ from account.utils import create_token
 BASE_DIR = environ.Path(__file__) - 3
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+env = environ.Env()
+env.read_env(env_file=str(BASE_DIR.path('.env')))
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
@@ -27,8 +30,8 @@ SECRET_KEY = '4y6l3@a0%vq394z6+w)k3-wl459r++v=z!jv1gw4+nt0sd5z+s'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = False
-# DEBUG = True
+DEBUG = env.bool('DJANGO_DEBUG', False)
+
 ALLOWED_HOSTS = ['vocrm.org']
 
 # Application definition
@@ -74,21 +77,16 @@ LOCAL_APPS = (
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #   'axes.middleware.FailedLoginMiddleware',
 )
-
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_CREDENTIALS = True
 
 CACHES = {
     "default": {
@@ -111,12 +109,20 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [str(BASE_DIR.path('templates')), ],
         # 'DIRS': [BASE_DIR + '/templates', ],
-        'APP_DIRS': True,
         'OPTIONS': {
+            'debug': DEBUG,
+            'loaders': [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+            ],
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
                 'notification.context_processor.notifications'
             ],
@@ -130,14 +136,10 @@ WSGI_APPLICATION = 'edem.wsgi.application'
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'crm_db',
-        'USER': 'crm_user',
-        'PASSWORD': '123456',
-        'HOST': 'localhost',
-    }
+    'default': env.db('DATABASE_URL', default='postgres:///crm_db'),
 }
+
+DATABASES['default']['ATOMIC_REQUESTS'] = True
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
 
@@ -212,6 +214,7 @@ REST_FRAMEWORK = {
 SHORT_PAGINATION = 10
 DEFAULT_PAGINATION = 20
 
+EMAIL_BACKEND = env('DJANGO_EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'testzormail@gmail.com'
 EMAIL_HOST_PASSWORD = 'testzorpassword'
@@ -219,8 +222,17 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = 'testzormail@gmail.com'
 
-BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+########## CELERY
+INSTALLED_APPS += ('edem.settings.celery.CeleryConfig',)
+# if you are not using the django database broker (e.g. rabbitmq, redis, memcached), you can remove the next line.
+INSTALLED_APPS += ('kombu.transport.django',)
+BROKER_URL = env('CELERY_BROKER_URL', default='django://')
+if BROKER_URL == 'django://':
+    CELERY_RESULT_BACKEND = 'redis://'
+else:
+    CELERY_RESULT_BACKEND = BROKER_URL
+# BROKER_URL = 'redis://localhost:6379/0'
+# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 
 # CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'pickle'
