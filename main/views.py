@@ -9,7 +9,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 from account.models import CustomUser
 from hierarchy.models import Department, Hierarchy
+from location.models import Country, Region, City
 from partnership.models import Partnership
+from status.models import Division
 from summit.models import SummitType
 from tv_crm.views import sync_user_call
 
@@ -54,7 +56,18 @@ def account_edit(request, user_id):
         if user_id:
             return redirect(reverse('account', args=[user_id]))
         return redirect('/')
-    return render(request, 'account/edit.html')
+    user = get_object_or_404(CustomUser, pk=user_id)
+    ctx = {
+        'account': user,
+        'departments': Department.objects.all(),
+        'hierarchies': Hierarchy.objects.order_by('level'),
+        'divisions': Division.objects.all(),
+        'countries': Country.objects.all(),
+        'regions': Region.objects.filter(country__title=user.country),
+        'cities': City.objects.filter(region__title=user.region),
+        'partners': Partnership.objects.all(),
+    }
+    return render(request, 'account/edit.html', context=ctx)
 
 
 @login_required(login_url='entry')
