@@ -34,6 +34,7 @@ $(document).ready(function () {
 
     $('#dep_filter').on('change', function () {
         let params = {};
+        console.log(config.DOCUMENT_ROOT);
         getUsersList(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/', params)
 
     });
@@ -66,6 +67,7 @@ $(document).ready(function () {
     });
 
     $('#sort_save').on('click', function () {
+        console.log(path);
         updateSettings(getUsersList, path);
         $(".table-sorting").animate({
             right: '-300px'
@@ -334,31 +336,43 @@ function addSummitInfo() {
     }
 }
 
-function getCurrentSummitSetting(data) {
-    let html = '';
-    data.forEach(function (obj) {
-        let titles = obj[1];
-        html += '<h3>' + obj[0] + '</h3>';
-        for (let prop in titles) {
-            if (!titles.hasOwnProperty(prop)) continue;
-            let ischeck = titles[prop]['active'] ? 'check' : '';
-            let isdraggable = titles[prop]['editable'] ? 'draggable' : 'disable';
-            html += '<li ' + isdraggable + ' >' +
-                '<input id="' + titles[prop]['ordering_title'] + '" type="checkbox">' +
-                '<label for="' + titles[prop]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[prop]['id'] + '">' + titles[prop]['title'] + '</label>';
-            if (isdraggable == 'disable') {
-                html += '<div class="disable-opacity"></div>'
-            }
-            html += '</li>'
-        }
-    });
+// function getCurrentSummitSetting(data) {
+//     let html = '';
+//     data.forEach(function (obj) {
+//         let titles = obj[1];
+//         html += '<h3>' + obj[0] + '</h3>';
+//         for (let prop in titles) {
+//             if (!titles.hasOwnProperty(prop)) continue;
+//             let ischeck = titles[prop]['active'] ? 'check' : '';
+//             let isdraggable = titles[prop]['editable'] ? 'draggable' : 'disable';
+//             html += '<li ' + isdraggable + ' >' +
+//                 '<input id="' + titles[prop]['ordering_title'] + '" type="checkbox">' +
+//                 '<label for="' + titles[prop]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[prop]['id'] + '">' + titles[prop]['title'] + '</label>';
+//             if (isdraggable == 'disable') {
+//                 html += '<div class="disable-opacity"></div>'
+//             }
+//             html += '</li>'
+//         }
+//     });
+//
+//     $('#sort-form').html(html);
+//
+//     $('#sort-form input').on('click', function () {
+//         if (!$(this).prop('disable')) {
+//             $(this).hasClass('check') ? $(this).removeClass('check') : $(this).addClass('check');
+//         }
+//     })
+// }
 
-    $('#sort-form').html(html);
-    $('#sort-form input').on('click', function (el) {
-        if (!$(this).prop('disable')) {
-            $(this).hasClass('check') ? $(this).removeClass('check') : $(this).addClass('check');
-        }
-    })
+function getCurrentSummitSetting(data) {
+    console.log(data);
+    let sortFormTmpl, obj, rendered;
+    sortFormTmpl = document.getElementById("sortForm").innerHTML;
+    obj = {};
+    obj.user = data[0];
+    console.log(obj);
+    rendered = _.template(sortFormTmpl)(obj);
+    document.getElementById('sort-form').innerHTML = rendered;
 }
 
 function reversOrder(order) {
@@ -382,14 +396,10 @@ function getUsersList(path, param) {
     param['summit'] = summit_id;
     document.getElementsByClassName('preloader')[0].style.display = 'block';
     ajaxRequest(path, param, function (data) {
-
         let results = data.results;
-
         let k;
         let value;
-
         let count = data.count;
-
         if (results.length == 0) {
             $('#users_list').html('<p>По запросу не найдено учасников</p>');
             $(".element-select").html('<p>Показано <span>' + results.length + '</span> из <span>' + count + '</span></p>');

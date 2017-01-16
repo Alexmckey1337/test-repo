@@ -448,7 +448,7 @@ function getCurrentSetting() {
     })
 }
 
-function updateSettings(callback, param) {
+function updateSettings(callback, path) {
     let data = [];
     let iteration = 1;
     $("#sort-form input").each(function (el) {
@@ -465,12 +465,13 @@ function updateSettings(callback, param) {
         config['column_table'] = JSONobj['column_table'];
 
         if (callback) {
-            if (param !== undefined) {
+            var param = {};
+            if (path !== undefined) {
                 let extendParam = $.extend({}, param, filterParam());
-                callback(extendParam);
+                callback(path, extendParam);
             } else {
                 let param = filterParam();
-                callback(param);
+                callback(path, param);
             }
         }
     }, 'POST', true, {
