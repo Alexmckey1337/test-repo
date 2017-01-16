@@ -185,8 +185,6 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         }
     });
 }
-<<<<<<< HEAD
-=======
 
 // (function getUserSummitInfo() {
 //     let id = parseInt(id || getLastId());
@@ -301,4 +299,3 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
 //         }
 //     })
 // })();
->>>>>>> hotfix/v1.4.8f
