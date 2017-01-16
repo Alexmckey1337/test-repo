@@ -44,6 +44,8 @@ def partner_stats(request):
 
 @login_required(login_url='entry')
 def account(request, id):
+    if not request.user.is_staff and not request.user.get_descendants(include_self=True).filter(id=id).exists():
+        return redirect('/')
     ctx = {
         'account': get_object_or_404(CustomUser, pk=id)
     }
@@ -52,13 +54,7 @@ def account(request, id):
 
 @login_required(login_url='entry')
 def account_edit(request, user_id):
-    if not request.user.is_staff:
-        if user_id:
-            return redirect(reverse('account', args=[user_id]))
-        return redirect('/')
-    if not request.user.get_descendants(include_self=True).filter(id=user_id).exists():
-        if user_id:
-            return redirect(reverse('account', args=[user_id]))
+    if not request.user.is_staff and not request.user.get_descendants(include_self=True).filter(id=user_id).exists():
         return redirect('/')
     user = get_object_or_404(CustomUser, pk=user_id)
     ctx = {
