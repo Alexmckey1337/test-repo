@@ -38,7 +38,7 @@ class Command(BaseCommand):
                         '{}/{}'.format(settings.MEDIA_ROOT, anket[image]),
                         '{}/{}.{}'.format(dir_name, anket[name], anket[image].split('.')[-1])
                     )
-                except FileNotFoundError:
+                except FileNotFoundError:  # noqa
                     pass
         with tarfile.open('anket_images_{}.tar.gz'.format(summit_id), 'w:gz') as tar:
             tar.add(dir_name)
