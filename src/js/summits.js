@@ -419,7 +419,7 @@ function getUsersList(path, param) {
         for (k in user_fields) {
             if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
             if (ordering.indexOf('user__' + user_fields[k]['ordering_title']) != -1) {
-                thead += '<th data-order="' + reversOrder(ordering) + '">' + user_fields[k]['title'] + '</th>'
+                thead += '<th data-order="' + ordering + '">' + user_fields[k]['title'] + '</th>'
             } else {
                 thead += '<th data-order="user__' + user_fields[k]['ordering_title'] + '">' + user_fields[k]['title'] + '</th>'
             }
@@ -427,7 +427,7 @@ function getUsersList(path, param) {
         for (k in common_fields) {
             if (!common_fields.hasOwnProperty(k) || !common_fields[k].active) continue;
             if (ordering.indexOf(common_fields[k]['ordering_title']) != -1) {
-                thead += '<th data-order="' + reversOrder(ordering) + '">' + common_fields[k]['title'] + '</th>'
+                thead += '<th data-order="' + ordering + '">' + common_fields[k]['title'] + '</th>'
             } else {
                 thead += '<th data-order="' + common_fields[k]['ordering_title'] + '">' + common_fields[k]['title'] + '</th>'
             }
@@ -532,7 +532,43 @@ function getUsersList(path, param) {
         $(".pag-wrap").each(function (i, el) {
             $(el).html(paginations);
         });
+    // Sorting
+    var orderTable = (function () {
+        function addListener() {
+            $(".table-wrap th").on('click', function () {
+                let dataOrder;
+                let data_order = this.getAttribute('data-order');
+                var revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
+                var order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
+                if (order != '') {
+                    dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
+                } else {
+                    dataOrder = '-' + data_order;
+                }
+                ordering = {};
+                ordering[data_order] = dataOrder;
+                let page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
+                let data = {
+                    'ordering': dataOrder,
+                    'page': page
+                };
+                if (order == data_order) {
+                    revers = (revers == '+') ? '-' : '+';
+                } else {
+                    revers = "+"
+                }
+                sessionStorage.setItem('revers', revers);
+                sessionStorage.setItem('order', data_order);
 
+                getUsersList(path, data);
+            });
+        }
+
+        return {
+            addListener: addListener
+        }
+    })();
+    orderTable.addListener();
         $('#users_list .del').on('click', function (el) {
             console.log(this);
             let id = $(this).attr('data-user-id'),

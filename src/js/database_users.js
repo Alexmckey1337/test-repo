@@ -73,23 +73,12 @@ $('document').ready(function () {
 });
 
 function getCurrentUserSetting(data) {
-    console.log(data);
     let sortFormTmpl, obj, rendered;
     sortFormTmpl = document.getElementById("sortForm").innerHTML;
     obj = {};
     obj.user = data[0];
-    console.log(obj);
     rendered = _.template(sortFormTmpl)(obj);
     document.getElementById('sort-form').innerHTML = rendered;
-}
-
-function reversOrder(order) {
-    if (order.charAt(0) == '-') {
-        order = order.substring(1)
-    } else {
-        order = '-' + order
-    }
-    return order
 }
 
 $('#sort_save').on('click', function () {
@@ -252,7 +241,7 @@ function createUserInfoBySearch(data, search) {
         })
     });
 
-    // Cортировка
+    // Sorting
     var orderTable = (function () {
         function addListener() {
             $(".table-wrap th").on('click', function () {
@@ -289,6 +278,7 @@ function createUserInfoBySearch(data, search) {
         }
     })();
     orderTable.addListener();
+
     document.getElementById('add').addEventListener('click', function () {
         document.querySelector('.pop-up-splash').style.display = 'block';
     })

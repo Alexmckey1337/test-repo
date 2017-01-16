@@ -174,10 +174,8 @@ function ajaxRequest(url, data, callback, method, withCredentials, headers, stat
 }
 
 function showPopup(text, title) {
-
     title = title || 'Информационное сообщение';
     text = text || '';
-
     let popup = document.getElementById('create_pop');
     if (popup) {
         popup.parentElement.removeChild(popup)
