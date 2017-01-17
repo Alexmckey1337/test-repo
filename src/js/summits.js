@@ -132,23 +132,22 @@ $(document).ready(function () {
             $('.choose-user-wrap').css('display', '');
         });
 
-        $('choose').on('click', function () {
-            $('.choose-user-wrap').css('display', 'block');
-            $('.add-user-wrap').css('display', '');
-        });
-
         $('.choose-user-wrap h3 span').on('click', function () {
             $('searchUsers').val('');
             $('.choose-user-wrap .splash-screen').removeClass('active');
             $('.choose-user-wrap').css('display', '');
             $('.add-user-wrap').css('display', 'block');
+            $('#choose').on('click', function () {
+                $('.choose-user-wrap').css('display', 'block');
+                $('.add-user-wrap').css('display', '');
+            });
         });
 
         $('#add_new').on('click', function () {
             $('.pop-up-splash-add').css('display', 'block');
         });
+
         $('#choose').on('click', function () {
-            console.log(this);
             $('.choose-user-wrap').css('display', 'block');
             $('.add-user-wrap').css('display', 'none');
             document.querySelector('#searchUsers').focus();
@@ -532,43 +531,43 @@ function getUsersList(path, param) {
         $(".pag-wrap").each(function (i, el) {
             $(el).html(paginations);
         });
-    // Sorting
-    var orderTable = (function () {
-        function addListener() {
-            $(".table-wrap th").on('click', function () {
-                let dataOrder;
-                let data_order = this.getAttribute('data-order');
-                var revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
-                var order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
-                if (order != '') {
-                    dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
-                } else {
-                    dataOrder = '-' + data_order;
-                }
-                ordering = {};
-                ordering[data_order] = dataOrder;
-                let page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
-                let data = {
-                    'ordering': dataOrder,
-                    'page': page
-                };
-                if (order == data_order) {
-                    revers = (revers == '+') ? '-' : '+';
-                } else {
-                    revers = "+"
-                }
-                sessionStorage.setItem('revers', revers);
-                sessionStorage.setItem('order', data_order);
+        // Sorting
+        var orderTable = (function () {
+            function addListener() {
+                $(".table-wrap th").on('click', function () {
+                    let dataOrder;
+                    let data_order = this.getAttribute('data-order');
+                    var revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
+                    var order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
+                    if (order != '') {
+                        dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
+                    } else {
+                        dataOrder = '-' + data_order;
+                    }
+                    ordering = {};
+                    ordering[data_order] = dataOrder;
+                    let page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
+                    let data = {
+                        'ordering': dataOrder,
+                        'page': page
+                    };
+                    if (order == data_order) {
+                        revers = (revers == '+') ? '-' : '+';
+                    } else {
+                        revers = "+"
+                    }
+                    sessionStorage.setItem('revers', revers);
+                    sessionStorage.setItem('order', data_order);
 
-                getUsersList(path, data);
-            });
-        }
+                    getUsersList(path, data);
+                });
+            }
 
-        return {
-            addListener: addListener
-        }
-    })();
-    orderTable.addListener();
+            return {
+                addListener: addListener
+            }
+        })();
+        orderTable.addListener();
         $('#users_list .del').on('click', function () {
             let id = $(this).attr('data-user-id'),
                 usr = $(this).attr('fullname'),

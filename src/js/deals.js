@@ -107,9 +107,9 @@ $(document).ready(function () {
     });
 
     /*add parnership*/
-    document.querySelector(".add").addEventListener('click', function () {
-        document.querySelector('.add-user-wrap').style.display = 'block';
-    });
+    // document.querySelector(".add").addEventListener('click', function () {
+    //     document.querySelector('.add-user-wrap').style.display = 'block';
+    // });
 
     document.querySelector(".add-user-wrap .top-text span").addEventListener('click', function () {
         document.querySelector('.add-user-wrap').style.display = 'none';
@@ -308,7 +308,6 @@ function getDoneDeals(time) {
                 continue
             }
             let names = Object.keys(fields);
-            console.log(fields);
             html += '<div class="rows-wrap"><div class="rows"><div class="col"><p><span>' + fields[names[1]].value + '</span></p></div><div class="col"><p>Последняя сделка:<span> ' + fields[names[3]].value + '</span></p><p>Ответственный:<span> ' + fields[names[2]].value + '</span></p><p>Сумма:<span> ' + fields[names[4]].value + ' ₴</span></p></div></div></div>';
         }
         $('#completed').html(html);
