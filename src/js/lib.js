@@ -20,7 +20,7 @@ function getLastId(url) {
         url = document.location.href
     }
     let id = url.split('/');
-    if (id[id.length - 1]) {
+    if(id[id.length - 1]) {
         return id[id.length - 1]
     }
     return id[id.length - 2]
@@ -105,14 +105,10 @@ function tab_plugin() {
         return;
     }
 
-
     Array.prototype.forEach.call(document.querySelectorAll("#tab_plugin li"), function (el) {
-
         el.addEventListener('click', function (e) {
             e.preventDefault();
             let index = indexInParent(el);
-
-
             Array.prototype.forEach.call(document.querySelectorAll("#tab_plugin li"), function (el) {
                 el.classList.remove('current')
             });
@@ -126,11 +122,7 @@ function tab_plugin() {
             if (tab) {
                 tab.style.display = 'block';
             }
-
-
         });
-
-
         //  document.querySelector("#tab_plugin li").click();
     });
 }
@@ -203,7 +195,8 @@ function showPopup(text, title) {
     document.body.appendChild(div);
 
     document.getElementById('close_pop').addEventListener('click', function () {
-        document.getElementsByClassName('pop-up-universal')[0].style.display = 'none'
+        document.getElementsByClassName('pop-up-universal')[0].style.display = 'none';
+        document.body.removeChild(getElementsByClassName('pop-up-universal')[0]);
     });
     document.getElementsByClassName('pop-up-universal')[0].style.display = 'block'
 }

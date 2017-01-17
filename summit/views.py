@@ -4,6 +4,11 @@ from __future__ import unicode_literals
 import django_filters
 import rest_framework_filters as filters_new
 from dbmail import send_db_mail
+from decimal import Decimal
+
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Sum, Value as V
+from django.db.models.functions import Coalesce
 from django.http import HttpResponse
 from rest_framework import mixins
 from rest_framework import status
@@ -18,6 +23,7 @@ from rest_framework.settings import api_settings
 
 from account.models import CustomUser
 from navigation.models import user_table, user_summit_table
+from payment.serializers import PaymentCreateSerializer, PaymentShowSerializer
 from summit.permissions import IsSupervisorOrHigh
 from summit.utils import generate_ticket
 from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, SummitUserConsultant
@@ -74,7 +80,8 @@ class FilterByClub(BaseFilterBackend):
 class SummitAnketTableViewSet(viewsets.ModelViewSet):
     queryset = SummitAnket.objects.select_related(
         'user', 'user__hierarchy', 'user__department', 'user__master', 'summit', 'summit__type'). \
-        prefetch_related('user__divisions', 'emails').order_by(
+        prefetch_related('user__divisions', 'emails').annotate(
+        total_sum=Coalesce(Sum('payments__effective_sum'), V(0))).order_by(
         'user__last_name', 'user__first_name', 'user__middle_name')
     serializer_class = SummitAnketSerializer
     pagination_class = SummitPagination
@@ -97,6 +104,7 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
     search_fields = ('user__first_name',
                      'user__last_name',
                      'user__middle_name',
+                     'user__search_name',
                      'user__hierarchy__title',
                      'user__phone_number',
                      'user__city',
@@ -110,7 +118,7 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
                        'user__address', 'user__skype', 'user__phone_number',
                        'user__email', 'user__hierarchy__level',
                        'user__department__title', 'user__facebook',
-                       'user__vkontakte', 'value',)
+                       'user__vkontakte',)
     permission_classes = (IsAuthenticated,)
 
     @list_route(methods=['post'], )
@@ -131,22 +139,11 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
         visited = request.data.get('visited', None)
         if anket.exists():
             anket = anket.get()
-            if len(request.data['value']) > 0:
-                anket.value = request.data['value']
             if len(request.data['description']) > 0:
                 anket.description = request.data['description']
             if visited in (True, False):
                 anket.visited = visited
             anket.save()
-        elif len(request.data['value']) > 0:
-            anket = SummitAnket.objects.create(
-                user=user, summit=summit, value=request.data['value'],
-                description=request.data['description'], visited=visited)
-            if 'retards' in keys:
-                if request.data['retards']:
-                    anket.retards = request.data['retards']
-                    anket.code = request.data['code']
-            get_fields(anket)
         else:
             anket = SummitAnket.objects.create(
                 user=user, summit=summit, visited=visited, description=request.data['description'])
@@ -195,6 +192,39 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
         headers = get_success_headers(serializer.data)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @detail_route(methods=['post'])
+    def create_payment(self, request, pk=None):
+        anket = get_object_or_404(SummitAnket, pk=pk)
+        sum = request.data['sum']
+        description = request.data.get('description', '')
+        rate = request.data.get('rate', Decimal(1))
+        currency = request.data.get('currency', anket.currency.id)
+        data = {
+            'sum': sum,
+            'rate': rate,
+            'currency_sum': currency,
+            'description': description,
+            'manager': request.user.id,
+            'content_type': ContentType.objects.get_for_model(SummitAnket).id,
+            'object_id': pk
+        }
+        serializer = PaymentCreateSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        headers = get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @detail_route(methods=['get'])
+    def payments(self, request, pk=None):
+        serializer = PaymentShowSerializer
+        anket = get_object_or_404(SummitAnket, pk=pk)
+        queryset = anket.payments.select_related('currency_sum', 'currency_rate', 'manager')
+
+        serializer = serializer(queryset, many=True)
+
+        return Response(serializer.data)
 
 
 class SummitLessonViewSet(viewsets.ModelViewSet):

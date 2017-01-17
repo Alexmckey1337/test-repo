@@ -80,7 +80,7 @@
             if (!id) {
                 return
             }
-            // window.location.href = '/account/' + id
+            window.location.href = '/account/' + id
         });
         $('#save').on('click', function () {
             sendData();
@@ -96,6 +96,7 @@
             return
         }
         ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/users/' + id + '/', null, function (data) {
+            console.log(data);
             if (data.image) {
                 $(".anketa-photo img").attr('src', data.image);
                 convertImgToDataURLviaCanvas($(".anketa-photo img").attr('src'), function (data64) {
@@ -160,7 +161,6 @@
                 }
 
                 if (prop == 'fullname') {
-
                     fullname = data.fields[prop]['value'].split(' ');
                     document.getElementById('first_name').value = fullname[1];
                     document.getElementById('last_name').value = fullname[0];
@@ -324,6 +324,7 @@
     }
 
 //INITIALIZE STATUS USER
+
     function initDropCustom(url, parent_id, active, callback) {
         ajaxRequest(config.DOCUMENT_ROOT + url, null, function (data) {
             let results = data.results,
@@ -331,7 +332,7 @@
             if (parent_id == 'department_drop' || parent_id == 'statuses_drop') {
                 html = '';
             } else {
-                html = '<option>Не выбрано</option>';
+                html = '<option selected="selected" class="no-select">Не выбрано</option>';
             }
             for (let i = 0; i < results.length; i++) {
 
@@ -366,17 +367,20 @@
 
     function getLeader(active) {
         let id_dep = parseInt($("#department_drop option:selected").val()) || null;
+        let myLevel = parseInt($("#statuses_drop option:selected").val()) || null;
         let level = parseInt($("#statuses_drop_parent option:selected").val()) || null;
+        let url = config.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id_dep;
+        if(!level) {
+            url += '&level_gte=' + myLevel;
+        } else {
+            url += '&level_gte=' + level + '&level_lte=' + level;
+        }
 
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id_dep + '&hierarchy=' + level, null, function (data) {
-            //Потрібен парент айди
-
+        ajaxRequest(url, null, function (data) {
             let html = '<option>Не выбрано</option>';
             let results = data;
-            //onsole.log(results)
             for (let i = 0; i < results.length; i++) {
-
-                if (active == results[i].title) {
+                if (active == results[i].fullname) {
                     html += '<option selected value="' + results[i].id + '">' + results[i].fullname + '</option>';
                     active = false
                 } else {
@@ -385,11 +389,8 @@
 
             }
 
-            if (active) {
-                html += '<option selected="selected" >' + active + '</option>'
-            }
-
             document.getElementById('leader_drop').innerHTML = html;
+
             let $eventSelect = $('#leader_drop');
 
             $eventSelect.select2()
@@ -470,9 +471,7 @@
             $eventSelect.select2();
         });
     }
-
     function sendPassword() {
-
         let data = {};
 
         /*Блок проверки паролей */
@@ -494,25 +493,22 @@
             }
         });
     }
-
     function sendData() {
-
         let id = parseInt(getLastId());
-
         if (!id) {
             return
         }
-
         let data = {
+            "id": id,
             "first_name": $("#first_name").val(),
             "last_name": $("#last_name").val(),
             "middle_name": $("#middle_name").val(),
+            // "search_name": $("#search_name").val(),
             "skype": $("#skype").val(),
             "email": $("#email").val(),
             "phone_number": $("#phone_number").val(),
             "additional_phone": $("#additional_phone").val(),
             "born_date": $("#datepicker_born_date").val() || '',
-            "coming_date": $("input[name='first_visit']").val() || '',
             "repentance_date": $("input[name='repentance_date']").val() || '',
             'country': $('#country_drop option:selected').html() == "Не выбрано" ? '' : $('#country_drop option:selected').html(),
             'region': $('#region_drop option:selected').html() == "Не выбрано" ? '' : $('#region_drop option:selected').html(),
@@ -520,22 +516,12 @@
             "vkontakte": $('#vkontakte').val() || '',
             "facebook": $('#facebook').val() || '',
             "odnoklassniki": $('#odnoklassniki').val() || '',
+            "master": parseInt($('#leader_drop').val()) || null,
             "address": $('#address').val() || '',
-            'department': parseInt($('#department_drop').val()),
-            'divisions': $("#division_drop").val() || [],
-            'hierarchy': parseInt($('#statuses_drop').val()),
+            "department": parseInt($('#department_drop').val()),
+            "divisions": $("#division_drop").val() || [],
+            "hierarchy": parseInt($('#statuses_drop').val()),
         };
-
-        data['id'] = id;
-        let master = $('#leader_drop option:selected');
-        if (master.html() == "Не выбрано") {
-            data['master'] = 0;
-        } else {
-            if (master.attr('value') != undefined) {
-                data['master'] = master.attr('value');
-            }
-        }
-
         if (document.getElementById('partner') && document.getElementById('partner').checked) {
             data['value'] = parseInt(document.getElementById('val_partnerships').value) || 0;
             data['date'] = document.getElementById('partner_date').value || '';
@@ -545,11 +531,9 @@
             if (id_partner) {
                 data['responsible'] = id_partner
             }
-
         } else {
             data['remove_partnership'] = 'true'; //gavnocod vlada
         }
-
         let json = JSON.stringify(data);
 
         ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/create_user/', json, function (data) {
@@ -590,7 +574,6 @@
                     // window.location.href = '/account/' + data.id;
                 }
             }
-
         }, 'POST', true, {
             'Content-Type': 'application/json'
         });

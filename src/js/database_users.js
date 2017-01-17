@@ -9,14 +9,48 @@ $('document').ready(function () {
     $('.popap').on('click', function () {
         $(this).css('display', 'none');
     });
-    $('#quickEditCartPopup').find('.edit').on('click', function(){
+    $('#quickEditCartPopup').find('.close').on('click', function () {
         let $input = $(this).closest('.pop_cont').find('input');
+        let $select = $(this).closest('.pop_cont').find('select');
         let $button = $(this).closest('.pop_cont').find('.save-user');
+        let $info = $(this).closest('.pop_cont').find('.info');
         $button.css('display', 'inline-block');
         $button.removeAttr('disabled');
         $button.text('Сохранить');
+        $info.each(function () {
+            $(this).css('display', 'none');
+        });
         $input.each(function () {
             $(this).removeAttr('readonly');
+        });
+        $select.each(function () {
+            $(this).removeAttr('disabled');
+        });
+        getStatuses.then(function (data) {
+            data = data.results;
+            let hierarchySelect = $('#hierarchySelect').val();
+            let html = "";
+            for (let i = 0; i < data.length; i++) {
+                if(hierarchySelect === data[i].title || hierarchySelect == data[i].id) {
+                    html += '<option value="' + data[i].id + '"' + 'selected' + '>' + data[i].title + '</option>';
+                } else {
+                    html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+                }
+            }
+            $('#hierarchySelect').html(html);
+        });
+        getDepartments.then(function (data) {
+            data = data.results;
+            let departmentSelect = $('#departmentSelect').val();
+            let html = "";
+            for (let i = 0; i < data.length; i++) {
+                if( departmentSelect == data[i].title || departmentSelect == data[i].id) {
+                    html += '<option value="' + data[i].id + '"' + 'selected' + '>' + data[i].title + '</option>';
+                } else {
+                    html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+                }
+            }
+            $('#departmentSelect').html(html);
         });
         $("#repentance_date").datepicker({
             dateFormat: "yy-mm-dd"
@@ -39,10 +73,12 @@ $('document').ready(function () {
 });
 
 function getCurrentUserSetting(data) {
+    console.log(data);
     let sortFormTmpl, obj, rendered;
     sortFormTmpl = document.getElementById("sortForm").innerHTML;
     obj = {};
     obj.user = data[0];
+    console.log(obj);
     rendered = _.template(sortFormTmpl)(obj);
     document.getElementById('sort-form').innerHTML = rendered;
 }
@@ -156,24 +192,12 @@ function createUserInfoBySearch(data, search) {
         var timer = 0;
         var delay = 200;
         var prevent = false;
-        $('.quick')
+        $('.quick-edit')
             .on('click', function () {
                 var _self = this;
-                timer = setTimeout(function () {
-                    if (!prevent) {
-                        goToUser(_self);
-                    }
-                    prevent = false;
-                }, delay);
-            })
-            .on('dblclick', function () {
-                var _self = this;
-                clearTimeout(timer);
-                prevent = true;
                 makeQuickEditCart(_self);
-            });
+            })
     }, 1000);
-
 
     document.getElementById("baseUsers").innerHTML = rendered;
 
@@ -265,8 +289,6 @@ function createUserInfoBySearch(data, search) {
         }
     })();
     orderTable.addListener();
-
-
     document.getElementById('add').addEventListener('click', function () {
         document.querySelector('.pop-up-splash').style.display = 'block';
     })

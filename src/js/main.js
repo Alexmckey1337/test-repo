@@ -6,58 +6,124 @@ var config = {
     'column_table': null
 };
 var GlobalParam = {};
-function saveUser(el) {
-    let $input, fullName, first_name, last_name, middle_name, data, id;
-    $input = $(el).closest('.pop_cont').find('input');
-    $input.each(function () {
-            $(this).attr('readonly', true);
+
+function makeResponsibleList() {
+    let department = $('#departmentSelect').val();
+    let hierarchy = $('#hierarchySelect option:selected').attr('data-level');
+    getResponsible(department, hierarchy).then(function (data) {
+        let id = $('#master_hierarchy option:selected').attr('data-id');
+        var selected = false;
+        var html = "";
+        data.forEach(function (el) {
+            if (id == el.id) {
+                selected = true;
+                html += "<option data-id='" + el.id + "' selected>" + el.fullname + "</option>";
+            } else {
+                html += "<option data-id='" + el.id + "'>" + el.fullname + "</option>";
+            }
         });
+        if(!selected) {
+            html += "<option selected disabled>Выберите ответственного</option>";
+        }
+        html += "";
+        $("#master_hierarchy").html(html);
+        $("#master_hierarchy").select2();
+    });
+}
+
+function saveUser(el) {
+    let $input, $select, fullName, first_name, last_name, middle_name, data, id;
+    let master_id = $('#master_hierarchy option:selected').attr('data-id') || "";
     fullName = $($(el).closest('.pop_cont').find('input.fullname')).val().split(' ');
     first_name = fullName[1];
     last_name = fullName[0];
     middle_name = fullName[2] || "";
     data = {
-            email: $($(el).closest('.pop_cont').find('#email')).val(),
-            first_name: first_name,
-            last_name: last_name,
-            middle_name: middle_name,
-            skype: $($(el).closest('.pop_cont').find('#skype')).val(),
-            phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
-            additional_phone: $($(el).closest('.pop_cont').find('#additional_phone')).val(),
-            repentance_date: $($(el).closest('.pop_cont').find('#repentance_date')).val(),
-            country: $($(el).closest('.pop_cont').find('#country')).val(),
-            region: $($(el).closest('.pop_cont').find('#region')).val(),
-            city: $($(el).closest('.pop_cont').find('#city')).val(),
-            address: $($(el).closest('.pop_cont').find('#address')).val()
-        };
+        email: $($(el).closest('.pop_cont').find('#email')).val(),
+        first_name: first_name,
+        last_name: last_name,
+        middle_name: middle_name,
+        hierarchy: $($(el).closest('.pop_cont').find('#hierarchySelect')).val(),
+        department: $($(el).closest('.pop_cont').find('#departmentSelect')).val(),
+        master: master_id,
+        skype: $($(el).closest('.pop_cont').find('#skype')).val(),
+        phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
+        additional_phones: $($(el).closest('.pop_cont').find('#additional_phones')).val(),
+        repentance_date: $($(el).closest('.pop_cont').find('#repentance_date')).val(),
+        country: $($(el).closest('.pop_cont').find('#country')).val(),
+        region: $($(el).closest('.pop_cont').find('#region')).val(),
+        city: $($(el).closest('.pop_cont').find('#city')).val(),
+        address: $($(el).closest('.pop_cont').find('#address')).val()
+    };
     id = $(el).closest('.pop_cont').find('img').attr('alt');
     saveUserData(data, id);
     $(el).text("Сохранено");
+    $(el).closest('.popap').find('.close-popup').text('Закрыть');
     $(el).attr('disabled', true);
+    $input = $(el).closest('.popap').find('input');
+    $select = $(el).closest('.popap').find('select');
+    $select.on('change', function () {
+        $(el).text("Сохранить");
+        $(el).closest('.popap').find('.close-popup').text('Отменить');
+        $(el).attr('disabled', false);
+    });
+    $input.on('change', function () {
+        $(el).text("Сохранить");
+        $(el).closest('.popap').find('.close-popup').text('Отменить');
+        $(el).attr('disabled', false);
+    })
 }
+
 function makeQuickEditCart(el) {
     let id, link;
-    id = $(el).attr('data-id');
-    link = $(el).attr('data-link');
-    let url = "/api/v1.0/users/" + id + '/';
+    id = $(el).closest('td').find('a').attr('data-id');
+    link = $(el).closest('td').find('a').attr('data-link');
+    let url = "/api/v1.1/users/" + id + '/';
     ajaxRequest(url, null, function (data) {
-        console.log(data);
-        let quickEditCartTmpl, rendered, obj = Object.create(null);
-        obj.fields =  data.fields;
-        obj.img = data.image;
-        obj.id = data.id;
+        let quickEditCartTmpl, rendered;
         quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
-        rendered = _.template(quickEditCartTmpl)(obj);
+        rendered = _.template(quickEditCartTmpl)(data);
+        $('.save-user').attr('disabled', false);
         $('#quickEditCartPopup').find('.popup_body').html(rendered);
         $('#quickEditCartPopup').css('display', 'block');
+
+        makeResponsibleList();
+        getStatuses.then(function (data) {
+            data = data.results;
+            let hierarchySelect = $('#hierarchySelect').val();
+            let html = "";
+            for (let i = 0; i < data.length; i++) {
+                if (hierarchySelect === data[i].title || hierarchySelect == data[i].id) {
+                    html += '<option value="' + data[i].id + '"' + 'selected' + ' data-level="' + data[i].level + '">' + data[i].title + '</option>';
+                } else {
+                    html += '<option value="' + data[i].id + '" data-level="' + data[i].level + '" >' + data[i].title + '</option>';
+                }
+            }
+            $('#hierarchySelect').html(html);
+        });
+        getDepartments.then(function (data) {
+            data = data.results;
+            let departmentSelect = $('#departmentSelect').val();
+            let html = "";
+            for (let i = 0; i < data.length; i++) {
+                if (departmentSelect == data[i].title || departmentSelect == data[i].id) {
+                    html += '<option value="' + data[i].id + '"' + 'selected' + '>' + data[i].title + '</option>';
+                } else {
+                    html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+                }
+            }
+            $('#departmentSelect').html(html);
+        });
+
+        $('#departmentSelect').on('change', makeResponsibleList);
+        $('#hierarchySelect').on('change', makeResponsibleList);
+
+        $("#repentance_date").datepicker({
+            dateFormat: "yy-mm-dd"
+        })
     }, 'GET', true, {
         'Content-Type': 'application/json'
     });
-}
-function goToUser(el) {
-    let link;
-    link = $(el).attr('data-link');
-    window.location.href = link;
 }
 function setCookie(name, value, options) {
     options = options || {};
@@ -204,7 +270,7 @@ $(document).ready(function () {
 
 
     $('.editprofile input').keypress(function (el) {
-        if (el.charCode == '32' && el.currentTarget.id != 'additional_phone' && el.currentTarget.id != 'address') {
+        if (el.charCode == '32' && el.currentTarget.id != 'additional_phone' && el.currentTarget.id != 'address' && el.currentTarget.id != 'search_name') {
             return false
         }
     });
@@ -413,10 +479,10 @@ function updateSettings(callback, param) {
 }
 
 function hidePopup(el) {
+    $(el).closest('.popap').find('.save-user').text('Сохранить');
+    $(el).closest('.popap').find('.save-user').attr('disabled', false);
     $(el).closest('.popap').css('display', 'none');
-    window.setTimeout(function(){
-        $(el).closest('.pop_cont').find('.save-user').css('display', 'none');
-    }, 500)
+
 }
 function refreshFilter(el) {
     var input = $(el).closest('.popap').find('input');

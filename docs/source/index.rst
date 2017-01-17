@@ -13,6 +13,7 @@ Contents:
 
    summit
    api/index
+   templatetags/index
 
 
 Indices and tables

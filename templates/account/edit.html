@@ -6,7 +6,7 @@
 {% block header.top.h1 %}<h1>Редактирование профиля</h1>{% endblock %}
 
 {% block header.search %}
-    <li></li>
+
 {% endblock %}
 
 {% block header.buttons.add %}
@@ -50,14 +50,15 @@
                                 <li>Фамилия*</li>
                                 <li>Имя*</li>
                                 <li>Отчество</li>
-                                <li>Дата рождения*</li>
+{#                                <li>Имя на родном языке</li>#}
+                                <li>Дата рождения</li>
                                 <li>Телефон*</li>
                                 <li>Доп.телефон</li>
-                                <li>E-mail*</li>
+                                <li>E-mail</li>
                                 <li>Skype</li>
-                                <li>Страна*</li>
-                                <li>Область*</li>
-                                <li>Город*</li>
+                                <li>Страна</li>
+                                <li>Область</li>
+                                <li>Город</li>
                                 <li>Район</li>
                                 <li>Адрес</li>
                                 <li>Facebook</li>
@@ -71,6 +72,7 @@
                                 <li><input type="text" id="last_name"></li>
                                 <li><input type="text" id="first_name"></li>
                                 <li><input type="text" id="middle_name"></li>
+{#                                <li><input type="text" id="search_name"></li>#}
                                 <li><input type="text" id="datepicker_born_date"></li>
                                 <li><input placeholder="+380633333333"
                                            onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
@@ -79,11 +81,6 @@
                                 <li><input type="text" id="email"></li>
                                 <li><input type="text" id="skype"></li>
                                 <li>
-                                    <!--
-                                    <select name="" id="">
-                                        <option value="">Украина</option>
-                                    </select>
-                                         -->
                                     <select id="country_drop" style="width:205px"></select>
                                 </li>
                                 <li><select id="region_drop" disabled style="width:205px"></select></li>
@@ -96,7 +93,6 @@
                                 <li><input type="text" id="facebook"></li>
                                 <li><input type="text" id="vkontakte"></li>
                                 <li><input type="text" id="odnoklassniki"></li>
-                                <!--<li><input type="text"></li>-->
                             </ul>
                         </div>
                     </div>
@@ -116,16 +112,7 @@
                         <div class="right-info">
                             <ul>
                                 <li><select id="department_drop" style="width:205px"></select></li>
-                                <!--<li><select name="" id="">
-                                    <option value="">Бортничи</option>
-                                </select></li>
-
-
-                                    <select  id="statuses_drop_parent" style="width:205px"></select>
-
-                                -->
                                 <li><select id="statuses_drop" style="width:205px"></select></li>
-
                                 <li><select id="statuses_drop_parent" style="width:205px"></select></li>
                                 <li><select id="leader_drop" style="width:205px"></select></li>
                             </ul>
@@ -187,13 +174,11 @@
                     <div class="col-table">
                         <div class="left-info">
                             <ul>
-                                <li>Первое посещение*</li>
                                 <li>Дата покаяния</li>
                             </ul>
                         </div>
                         <div class="right-info">
                             <ul>
-                                <li><input name="first_visit" type="text" readonly="readonly" id="firsVisit"></li>
                                 <li><input name="repentance_date" type="text" readonly="readonly"
                                            id="repentanceDate"></li>
                             </ul>

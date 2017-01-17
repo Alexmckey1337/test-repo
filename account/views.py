@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 import binascii
 import os
-import warnings
 
 import django_filters
 from django.conf import settings
@@ -11,42 +10,37 @@ from django.contrib.auth import authenticate, login, logout as django_logout
 from django.contrib.auth import update_session_auth_hash
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMultiAlternatives
-from django.core.urlresolvers import reverse
-from django.db.models import Case, BooleanField
-from django.db.models import Value as V
-from django.db.models import When
-from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect
 from django.template import Context
 from django.template.loader import get_template
+from django.urls import reverse
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 from rest_auth.views import LogoutView as RestAuthLogoutView
+from rest_framework import mixins
 from rest_framework import status
 from rest_framework import viewsets, filters
-from rest_framework.decorators import api_view, detail_route
-from rest_framework.decorators import list_route
-from rest_framework.generics import get_object_or_404
+from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.viewsets import GenericViewSet
 
 from account.models import CustomUser as User, AdditionalPhoneNumber
-from account.models import Token
 from common.filters import FieldSearchFilter
 from hierarchy.models import Hierarchy, Department
 from navigation.models import user_table
 from partnership.models import Partnership
 from status.models import Status, Division
-from summit.models import SummitType, SummitLesson, SummitAnketNote, SummitUserConsultant, AnketEmail, SummitAnket
 from tv_crm.models import LastCall
 from .resources import clean_password, clean_old_password
-from .serializers import UserSerializer, UserShortSerializer, UserTableSerializer, NewUserSerializer
+from .serializers import UserSerializer, UserShortSerializer, UserTableSerializer, NewUserSerializer, \
+    UserSingleSerializer, PartnershipSerializer
 
 USER_FIELDS = {
     'text_fields': {
         # 'username',
         'email',
+        'search_name',
         'first_name', 'last_name', 'middle_name', 'phone_number', 'skype', 'country', 'region',
         'city', 'district', 'address', 'facebook', 'vkontakte', 'odnoklassniki', 'description',
         # 'activation_key', 'hierarchy_order',
@@ -59,7 +53,7 @@ USER_FIELDS = {
     },
     'fk': {
         'department', 'hierarchy',
-        # 'master',
+        'master',
     },
     'm2m': {
         'additional_phone', 'divisions',
@@ -116,32 +110,6 @@ class UserViewSet(viewsets.ModelViewSet):
             kwargs['pk'] = request.user.pk
         return super(UserViewSet, self).dispatch(request, *args, **kwargs)
 
-    @list_route()
-    def all(self, request):
-        users = User.objects.filter(is_staff=False).all()
-
-        page = self.paginate_queryset(users)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(users, many=True)
-        return Response(serializer.data)
-
-    @list_route()
-    def disciples(self, request, *args, **kwargs):
-        from .resources import get_disciples
-        q = get_disciples(request.user)
-        q = q.order_by('-hierarchy__level')
-        queryset = self.filter_queryset(q)
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
 
 class UserFilter(django_filters.FilterSet):
     hierarchy = django_filters.ModelChoiceFilter(name='hierarchy', queryset=Hierarchy.objects.all())
@@ -150,17 +118,29 @@ class UserFilter(django_filters.FilterSet):
 
     class Meta:
         model = User
-        fields = ['master']
+        fields = ['master', 'hierarchy', 'department']
+
+
+class ShortUserFilter(django_filters.FilterSet):
+    level_gt = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='gt')
+    level_gte = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='gte')
+    level_lt = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='lt')
+    level_lte = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='lte')
+
+    class Meta:
+        model = User
+        fields = ['level_gt', 'level_gte', 'level_lt', 'level_lte', 'department']
 
 
 class NewUserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.select_related(
-        'hierarchy', 'department', 'master').prefetch_related(
+        'hierarchy', 'department', 'master__hierarchy').prefetch_related(
         'divisions'
     ).filter(is_active=True).order_by('last_name', 'first_name', 'middle_name')
 
     serializer_class = NewUserSerializer
     serializer_list_class = UserTableSerializer
+    serializer_single_class = UserSingleSerializer
 
     pagination_class = UserPagination
     filter_backends = (filters.DjangoFilterBackend,
@@ -172,7 +152,7 @@ class NewUserViewSet(viewsets.ModelViewSet):
                        'phone_number', 'email', 'hierarchy__level', 'department__title',
                        'facebook', 'vkontakte', 'hierarchy_order', 'master__last_name',)
     field_search_fields = {
-        'search_fio': ('last_name', 'first_name', 'middle_name'),
+        'search_fio': ('last_name', 'first_name', 'middle_name', 'search_name'),
         'search_email': ('email',),
         'search_phone_number': ('phone_number',),
         'search_country': ('country',),
@@ -188,7 +168,7 @@ class NewUserViewSet(viewsets.ModelViewSet):
             return self.queryset.none()
         if user.hierarchy.level < 2:
             return user.get_descendants(include_self=True).select_related(
-                'hierarchy', 'department', 'master').prefetch_related(
+                'hierarchy', 'department', 'master__hierarchy').prefetch_related(
                 'divisions'
             ).filter(is_active=True).order_by('last_name', 'first_name', 'middle_name')
         return self.queryset.all()
@@ -198,41 +178,52 @@ class NewUserViewSet(viewsets.ModelViewSet):
             kwargs['pk'] = request.user.pk
         return super(NewUserViewSet, self).dispatch(request, *args, **kwargs)
 
-    @list_route()
-    def all(self, request):
-        users = User.objects.filter(is_staff=False).all()
-
-        page = self.paginate_queryset(users)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(users, many=True)
-        return Response(serializer.data)
-
-    @list_route()
-    def disciples(self, request, *args, **kwargs):
-        from .resources import get_disciples
-        q = get_disciples(request.user)
-        q = q.order_by('-hierarchy__level')
-        queryset = self.filter_queryset(q)
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
     def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
+        if self.action == 'list':
             return self.serializer_list_class
+        if self.action == 'retrieve':
+            return self.serializer_single_class
         return self.serializer_class
 
     def perform_update(self, serializer):
-        serializer.save()
-        user = serializer.instance
-        additional_phone = self.request.data.get('additional_phone', None)
+        user = serializer.save()
+        self._create_additional_phone_number(user)
+        self._update_partnership(user)
+        self._update_divisions(user)
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        self._create_additional_phone_number(user)
+        self._create_partnership(user)
+
+    def _create_partnership(self, user):
+        partner = self.request.data.get('partner', None)
+        if partner is not None and isinstance(partner, dict):
+            partner['user'] = user
+            serializer = PartnershipSerializer(data=partner)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+    def _update_divisions(self, user):
+        divisions = self.request.data.get('divisions', None)
+        if divisions is not None and isinstance(divisions, (list, tuple)):
+            user.divisions.set(divisions)
+
+    def _update_partnership(self, user):
+        if not hasattr(user, 'partnership'):
+            self._create_partnership(user)
+            return
+
+        partner = self.request.data.get('partner', None)
+        if partner is not None and isinstance(partner, dict):
+            partner['user'] = user
+            partner_obj = user.partnership
+            serializer = PartnershipSerializer(partner_obj, data=partner)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+    def _create_additional_phone_number(self, user):
+        additional_phone = self.request.data.get('additional_phones', None)
         if additional_phone:
             phone_number = user.additional_phones.first()
             if phone_number:
@@ -245,59 +236,19 @@ class NewUserViewSet(viewsets.ModelViewSet):
             for phone in phones:
                 phone.delete()
 
-    @detail_route(methods=['get'])
-    def summit_info(self, request, pk=None):
-        summit_types = set(SummitType.objects.filter(summits__ankets__user_id=pk))
-        lst = []
-        for t in summit_types:
-            json = {}
-            summits = t.summits.filter(ankets__user_id=pk)
-            json['name'] = t.title
-            json['id'] = t.id
-            json['summits'] = [
-                {
-                    'name': '{} {}'.format(t.title, summit.start_date),
-                    'id': summit.id,
-                    'description': summit.description,
-                    'value': summit.ankets.get(user_id=pk).value,
-                    'code': summit.ankets.get(user_id=pk).code,
-                    'anket_id': summit.ankets.get(user_id=pk).id,
-                    'user_fullname': summit.ankets.get(user_id=pk).user.fullname,
-                }
-                for summit in summits.all()]
-            for s in json['summits']:
-                current_user_anket = SummitAnket.objects.filter(
-                    user=request.user, summit_id=s['id'], role__gte=SummitAnket.CONSULTANT)
-                s['is_consultant'] = (
-                    current_user_anket.exists() and SummitUserConsultant.objects.filter(
-                        consultant=current_user_anket, user__user_id=pk, summit_id=s['id']).exists())
-                lessons = SummitLesson.objects.filter(summit__ankets__user_id=pk, summit_id=s['id'])
-                emails = AnketEmail.objects.filter(anket_id=s['anket_id'])
-                notes = SummitAnketNote.objects.filter(summit_anket__user_id=pk, summit_anket_id=s['anket_id'])
-                notes = notes.annotate(owner_name=Concat(
-                    'owner__last_name', V(' '), 'owner__first_name', V(' '), 'owner__middle_name'))
-                s['lessons'] = list(lessons.annotate(
-                    is_view=Case(
-                        When(viewers=s['anket_id'], then=True),
-                        default=False,
-                        output_field=BooleanField())).values())
-                s['notes'] = list(notes.values())
-                s['emails'] = list(emails.values('id', 'recipient', 'created_at'))
-            lst.append(json)
 
-        return Response(lst)
-
-
-class UserShortViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by('-date_joined')
+class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
+    queryset = User.objects.exclude(hierarchy__level=0).select_related(
+        'hierarchy').order_by()
     serializer_class = UserShortSerializer
     pagination_class = None
     permission_classes = (IsAuthenticated,)
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
                        filters.OrderingFilter,)
-    filter_fields = ('first_name', 'last_name', 'department', 'hierarchy')
-    search_fields = ('first_name', 'last_name')
+    # filter_fields = ('first_name', 'last_name', 'department', 'hierarchy')
+    filter_class = ShortUserFilter
+    search_fields = ('first_name', 'last_name', 'middle_name')
 
 
 class LogoutView(RestAuthLogoutView):
@@ -670,11 +621,6 @@ def login_view(request):
     return Response(response_dict)
 
 
-def logout_view(request):
-    django_logout(request)
-    return HttpResponseRedirect(reverse('entry'))
-
-
 @api_view(['POST'])
 def create_user(request):
     if request.user.is_staff:
@@ -739,112 +685,5 @@ def password_view(request, activation_key=None):
             response_dict['status'] = False
     except User.DoesNotExist:
         response_dict['message'] = "Ключ активации несуществует или устарел"
-        response_dict['status'] = False
-    return Response(response_dict)
-
-
-@api_view(['POST'])
-def ping_user_key(request):
-    data = request.data
-    get_object_or_404(Token, key=data['key'])
-    return Response({'status': 'ok'})
-
-
-# TODO delete this
-@api_view(['POST'])
-def send_password(request):
-    response_dict = dict()
-    if request.method == 'POST':
-        data = request.data
-        response_dict = _send_password_func(data['id'])
-    return Response(response_dict)
-
-
-# TODO delete this
-@api_view(['POST'])
-def download_image(request):
-    response_dict = dict()
-    data = request.data
-    files = request.FILES
-    try:
-        user = User.objects.get(id=data['id'])
-        if files:
-            if files['file'].name == 'blob':
-                photo = files['file']
-            else:
-                import os
-                ext = os.path.splitext(files['file'].name)[1]
-                valid_extensions = ['.jpg', '.png', '.jpeg']
-                if ext in valid_extensions:
-                    photo = files['file']
-                else:
-                    photo = None
-            user.image = photo
-            user.save()
-            response_dict['message'] = "Фото успешно загружено"
-            response_dict['redirect'] = False
-            response_dict['status'] = True
-    except User.DoesNotExist:
-        response_dict['message'] = "Нет такого пользователя"
-        response_dict['redirect'] = False
-        response_dict['status'] = False
-    return Response(response_dict)
-
-
-# TODO delete this
-@api_view(['POST'])
-def change_password(request):
-    """
-    Changes password for request.user
-
-    :param request: data{'password1': string, 'password2': string}
-    :return: {'message': string, 'status': boolean}
-    """
-    response_dict = dict()
-    data = request.data
-    user = request.user
-    if clean_old_password(user, data):
-        if clean_password(data):
-            user.set_password(clean_password(data))
-            user.save()
-            update_session_auth_hash(request, user)
-            response_dict['message'] = 'Пароль успешно изменен'
-            response_dict['status'] = True
-        else:
-            response_dict['message'] = 'Введенные пароли не совпадают'
-            response_dict['status'] = False
-    else:
-        response_dict['message'] = 'Вы ввели неверный пароль'
-        response_dict['status'] = False
-    return Response(response_dict)
-
-
-# TODO delete this
-@api_view(['POST'])
-def delete_user(request):
-    """
-    Deleting a user, selected by id
-
-    :param request: data{'id': int}
-    :return: {'message': string, 'status': boolean}
-    """
-    warnings.warn(
-        "`delete_user method` is deprecated", None, 2
-    )
-    response_dict = dict()
-    data = request.data
-    try:
-        user = User.objects.get(id=data['id'])
-        archons = User.objects.filter(hierarchy__level=7).all()
-        if user in archons.all():
-            response_dict['message'] = "Нельзя удалить Архонта"
-            response_dict['status'] = False
-            response_dict['redirect'] = False
-            return Response(response_dict)
-        user.delete()
-        response_dict['message'] = "Пользователь был удален успешно"
-        response_dict['status'] = True
-    except User.DoesNotExist:
-        response_dict['message'] = "Пользователь не существует"
         response_dict['status'] = False
     return Response(response_dict)

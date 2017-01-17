@@ -17,3 +17,5 @@ public/static/
 /docs/build/*
 /edem/settings/local.py
 /edem/settings/dev.py
+/.env
+/deploy

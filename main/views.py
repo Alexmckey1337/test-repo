@@ -2,14 +2,16 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from account.models import CustomUser
 from hierarchy.models import Department, Hierarchy
+from location.models import Country, Region, City
 from partnership.models import Partnership
+from status.models import Division
 from summit.models import SummitType
 from tv_crm.views import sync_user_call
 
@@ -42,6 +44,8 @@ def partner_stats(request):
 
 @login_required(login_url='entry')
 def account(request, id):
+    if not request.user.is_staff and not request.user.get_descendants(include_self=True).filter(id=id).exists():
+        return redirect('/')
     ctx = {
         'account': get_object_or_404(CustomUser, pk=id)
     }
@@ -50,11 +54,20 @@ def account(request, id):
 
 @login_required(login_url='entry')
 def account_edit(request, user_id):
-    if not request.user.is_staff:
-        if user_id:
-            return redirect(reverse('account', args=[user_id]))
+    if not request.user.is_staff and not request.user.get_descendants(include_self=True).filter(id=user_id).exists():
         return redirect('/')
-    return render(request, 'account/edit.html')
+    user = get_object_or_404(CustomUser, pk=user_id)
+    ctx = {
+        'account': user,
+        'departments': Department.objects.all(),
+        'hierarchies': Hierarchy.objects.order_by('level'),
+        'divisions': Division.objects.all(),
+        'countries': Country.objects.all(),
+        'regions': Region.objects.filter(country__title=user.country),
+        'cities': City.objects.filter(region__title=user.region),
+        'partners': Partnership.objects.all(),
+    }
+    return render(request, 'account/edit.html', context=ctx)
 
 
 @login_required(login_url='entry')

@@ -74,7 +74,7 @@
                     <% if(user_table[key].active) { %>
                         <% if (key == 'fullname' ) { %>
                             <% if (results[index][key] != null) { %>
-                                <td><a href="#" class="quick" data-link="<%=results[index].link %>" data-id="<%=results[index].id %>"><%= results[index][key] %></a></td>
+                                <td><a href="<%= results[index].link %>" data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%= results[index][key] %></a><span class="quick-edit"><i class="fa fa-pencil" aria-hidden="true"></i></span></td>
                             <% } else { %>
                                 <td></td>
                             <% } %>
@@ -143,14 +143,32 @@
 <script type="text/template" id="quickEditCart">
    <div class="container bb-1">
        <div>
-            <img class="user-image" src="<%=img %>" alt="<%=id%>">
+            <img class="user-image" src="<%= image %>" alt="<%=id%>">
         </div>
         <div class="col-7">
-            <p><input type="text" class="fullname" value="<%=fields.fullname.value %>" readonly></p>
-            <p><span>Отдел церкви: <%=fields.department.value %></span></p>
-            <p><span>Ответсвенный: <%=fields.master_hierarchy.value %></span></p>
-            <p><span>Статус: <%=fields.hierarchy.value %></span></p>
-{#            <p><label for="department">Отдел церкви: </label><input type="text" id="department" value="<%=fields.department.value %>" readonly></p>#}
+            <p><input type="text" class="fullname" value="<%=fullname %>"></p>
+            <p><label for="departmentSelect">Отдел церкви: </label><select id="departmentSelect">
+                <% if(department != null) { %>
+                    <option value="<%=department.id %>" selected><%=department.title %></option>
+                <% } else { %>
+                    <option value="" selected></option>
+                <% } %>
+            </select></p>
+            <div><label for="master_hierarchy">Ответственный: </label>
+                <select id="master_hierarchy">
+                    <% if(master != null) { %>
+                        <option value="<%= master.fullname %>" data-id="<%= master.id %>" data-level="<%=master.hierarchy.level%>" selected><%= master.fullname %></option>
+                    <% } %>
+                </select>
+            </div>
+            <p><label for="hierarchySelect">Статус: </label><select id="hierarchySelect">
+                <% if(hierarchy != null) { %>
+                <option value="<%=hierarchy.id %>" data-level="<%=hierarchy.level%>" selected><%=hierarchy.title %></option>
+                <% } else { %>
+                    <option value="" selected></option>
+                <% } %>
+            </select></p>
+{#            <p><label for="departmentSelect">Отдел церкви: </label><input type="text" id="departmentSelect" value="<%=fields.department.value %>" readonly></p> #}
 {#            <p><label for="master_hierarchy">Ответсвенный: </label><input type="text" id="master_hierarchy" value="<%=fields.master_hierarchy.value %>" readonly></p>#}
 {#            <p><label for="hierarchy">Статус: </label><input type="text" id="hierarchy" value="<%=fields.hierarchy.value %>" readonly></p>#}
         </div>
@@ -168,15 +186,21 @@
             <p class="label_block">Дата покаяния:</p>
         </div>
         <div class="col-6">
-            <p><input type="text" id="phone_number" value="<%=fields.phone_number.value %>" readonly></p>
-            <p><input type="text" id="additional_phone" value="<%=fields.additional_phone.value %>" readonly></p>
-            <p><input type="text" id="email" value="<%=fields.email.value %>" readonly></p>
-            <p><input type="text" id="skype" value="<%=fields.social.skype %>" readonly></p>
-            <p><input type="text" id="country" value="<%=fields.country.value %>" readonly></p>
-            <p><input type="text" id="region" value="<%=fields.region.value %>" readonly></p>
-            <p><input type="text" id="city" value="<%=fields.city.value %>" readonly></p>
-            <p><input type="text" id="address" value="<%=fields.address.value %>" readonly></p>
-            <p><input type="text" id="repentance_date" value="<%=fields.repentance_date.value %>" readonly></p>
+            <p><input type="text" id="phone_number" value="<%=phone_number %>"></p>
+            <p><input type="text" id="additional_phones"
+                      <% if(!additional_phones.length) { %>
+                      value=""
+                      <%} else { %>
+                        value="<%=additional_phones[0].number %>"
+                        <% } %> >
+            </p>
+            <p><input type="text" id="email" value="<%=email %>"></p>
+            <p><input type="text" id="skype" value="<%=skype %>"></p>
+            <p><input type="text" id="country" value="<%=country %>"></p>
+            <p><input type="text" id="region" value="<%=region %>"></p>
+            <p><input type="text" id="city" value="<%=city %>"></p>
+            <p><input type="text" id="address" value="<%=address %>"></p>
+            <p><input type="text" id="repentance_date" value="<%=repentance_date %>"></p>
         </div>
     </div>
 </script>
