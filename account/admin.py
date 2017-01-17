@@ -17,8 +17,8 @@ class AdditionalPhoneNumberInline(admin.TabularInline):
     model = AdditionalPhoneNumber
 
 
-class CustomUserAdmin(MPTTModelAdmin, UserAdmin, ImportExportModelAdmin):
-    list_display = ('username', 'date_joined',
+class CustomUserAdmin(UserAdmin, MPTTModelAdmin, ImportExportModelAdmin):
+    list_display = ('fullname', 'email', 'date_joined',
                     'is_staff', 'is_active')
     list_editable = ('is_active',)
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups', 'department',)

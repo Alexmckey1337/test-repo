@@ -11,7 +11,6 @@ from django.contrib.auth import authenticate, login, logout as django_logout
 from django.contrib.auth import update_session_auth_hash
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMultiAlternatives
-from django.core.urlresolvers import reverse
 from django.db.models import Case, BooleanField
 from django.db.models import Value as V
 from django.db.models import When
@@ -19,9 +18,11 @@ from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
 from django.template import Context
 from django.template.loader import get_template
+from django.urls import reverse
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 from rest_auth.views import LogoutView as RestAuthLogoutView
+from rest_framework import mixins
 from rest_framework import status
 from rest_framework import viewsets, filters
 from rest_framework.decorators import api_view, detail_route
@@ -30,6 +31,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.viewsets import GenericViewSet
 
 from account.models import CustomUser as User, AdditionalPhoneNumber
 from account.models import Token
@@ -339,8 +341,9 @@ class NewUserViewSet(viewsets.ModelViewSet):
         return Response(lst)
 
 
-class UserShortViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by('-date_joined')
+class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
+    queryset = User.objects.exclude(hierarchy__level=0).select_related(
+        'hierarchy').order_by()
     serializer_class = UserShortSerializer
     pagination_class = None
     permission_classes = (IsAuthenticated,)

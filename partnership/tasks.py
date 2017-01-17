@@ -14,8 +14,9 @@ def create_new_deals():
     current_date = datetime.now()
     current_month = current_date.month
     current_year = current_date.year
-    partnerships_without_deals = Partnership.objects.exclude(deals__date_created__month=current_month,
-                                                             deals__date_created__year=current_year)
+    partnerships_without_deals = Partnership.objects \
+        .filter(is_active=True) \
+        .exclude(deals__date_created__month=current_month, deals__date_created__year=current_year)
 
     for partnership in partnerships_without_deals:
         deal = Deal(partnership=partnership, value=partnership.value)
