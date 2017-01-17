@@ -25,6 +25,8 @@ def partner_table():
 
 def user_table(user):
     l = OrderedDict()
+    if not (hasattr(user, 'table') and isinstance(user.table, Table)):
+        return l
     column_types = user.table.columns.select_related('columnType').filter(
         columnType__category__title="Общая информация").order_by('number')
     for column in column_types:
@@ -41,6 +43,8 @@ def user_table(user):
 
 def user_partner_table(user):
     l = OrderedDict()
+    if not (hasattr(user, 'table') and isinstance(user.table, Table)):
+        return l
     column_types = user.table.columns.select_related('columnType').filter(
         columnType__category__title="partnership").exclude(
         columnType__title__in=('count', 'result_value')).order_by('number')
@@ -174,8 +178,7 @@ def sync_column(sender, instance, **kwargs):
             column = Column.objects.create(table=table,
                                            columnType=instance,
                                            number=instance.number,
-                                           active=instance.active,
-                                           editable=instance.editable)
+                                           active=instance.active)
             column.save()
 
 
@@ -187,6 +190,5 @@ def sync_table(sender, instance, **kwargs):
             column = Column.objects.create(table=instance,
                                            columnType=columnType,
                                            number=columnType.number,
-                                           active=columnType.active,
-                                           editable=columnType.editable)
+                                           active=columnType.active)
             column.save()
