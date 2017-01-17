@@ -112,31 +112,14 @@
         //     console.log(data);
         // });
 
-        var makeChooseStatus = getStatuses().then(function (data) {
-            data = data.results;
-            let html = '<option value=""> </option>';
-            for (let i = 0; i < data.length; i++) {
-                html += '<option value="' + data[i].id + '" data-level="' + data[i].level + '">' + data[i].title + '</option>';
-            }
-            return html;
-        });
         makeChooseStatus.then(function (html) {
             document.getElementById('chooseStatus').innerHTML = html;
         });
-        window.getStatuses = getStatuses();
-        window.getDepartments = getDepartments();
-        window.getResponsible = getResponsible;
-        var makeChooseDivision = getDivisions().then(function (data) {
-            data = data.results;
-            let html = '<option value=""> </option>';
-            for (let i = 0; i < data.length; i++) {
-                html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
-            }
-            return html
-        });
+
         makeChooseDivision.then(function (html) {
             document.getElementById('chooseDivision').innerHTML = html;
         });
+
         // getDivisions().then(function (data) {
         //     console.log(data);
         // });
@@ -184,12 +167,6 @@
             $('input[name="phone_numberCode"]').val(code);
 
         });
-        // getCountryCodes().then(function (data) {
-        //     console.log(data);
-        // });
-
-        let dep,
-            stat;
 
         $("#chooseCountry").select2({placeholder: " "}).on("change", getRegions);
         $("#chooseRegion").select2({placeholder: " "}).on("change", getCities);
@@ -325,78 +302,6 @@
 //     getCountryCodes();
 // }
 
-    function getCountryCodes() {
-        return new Promise(function (resolve, reject) {
-            ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
-                if (data) {
-                    resolve(data);
-                } else {
-                    reject("Ошибка")
-                }
-            })
-        })
-    }
-
-
-    function getCountries() {
-        return new Promise(function (resolve, reject) {
-            ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
-                if (data) {
-                    resolve(data);
-                } else {
-                    reject("Ошибка");
-                }
-            });
-        });
-    }
-
-    function getDepartments() {
-        return new Promise(function (resolve, reject) {
-            ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/departments/', null, function (data) {
-                if (data) {
-                    resolve(data);
-                } else {
-                    reject('Ошибка');
-                }
-            });
-        });
-    }
-
-    function getStatuses() {
-        return new Promise(function (resolve, reject) {
-            ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
-                if (data) {
-                    resolve(data);
-                } else {
-                    reject("Ошибка");
-                }
-            });
-        })
-    }
-
-    function getResponsibleStatuses() {
-        return new Promise(function (resolve, reject) {
-            ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
-                if (data) {
-                    resolve(data);
-                } else {
-                    reject("Ошибка");
-                }
-            });
-        })
-    }
-
-    function getDivisions() {
-        return new Promise(function (resolve, reject) {
-            ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/divisions/', null, function (data) {
-                if (data) {
-                    resolve(data);
-                } else {
-                    reject("Ошибка");
-                }
-            });
-        })
-    }
 
     function getUsers() {
         ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
@@ -406,18 +311,6 @@
                 html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
             }
             document.getElementById('chooseStatus').innerHTML = html;
-        });
-    }
-
-    function getManagers() {
-        return new Promise(function (resolve, reject) {
-            ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.1/partnerships/simple/', null, function (data) {
-                if (data) {
-                    resolve(data);
-                } else {
-                    reject();
-                }
-            });
         });
     }
 
@@ -436,18 +329,6 @@
             document.getElementById('chooseRegion').innerHTML = html;
             document.getElementById('chooseRegion').removeAttribute('disabled');
         });
-    }
-
-    function getResponsible(id, level, search = "") {
-        return new Promise(function (resolve, reject) {
-            ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id + '&level_gte=' + level + '&search=' + search, null, function (data) {
-                if (data) {
-                    resolve(data);
-                } else {
-                    reject("Ошибка");
-                }
-            });
-        })
     }
 
     function getCities() {
