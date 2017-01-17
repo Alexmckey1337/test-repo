@@ -94,13 +94,6 @@ $(document).ready(function () {
         $("#closeDelete").on('click', function () {
             $('#popupDelete').css('display', 'none');
         });
-        $("#close-payment").on('click', function () {
-            $('#popup-create_payment').css('display', 'none');
-        });
-        $("#close-payments").on('click', function () {
-            $('#popup-payments').css('display', 'none');
-            $('#popup-payments table').html('');
-        });
 
         $(".add-user-wrap .top-text span").on('click', function () {
             $('.add-user-wrap').css('display', '');
@@ -122,15 +115,6 @@ $(document).ready(function () {
 
         $("#popupDelete .top-text span").on('click', function (el) {
             $('#popupDelete').css('display', '');
-        });
-        $("#popup-create_payment .top-text span").on('click', function (el) {
-            $('#new_payment_sum').val('');
-            $('#popup-create_payment textarea').val('');
-            $('#popup-create_payment').css('display', '');
-        });
-        $("#popup-payments .top-text span").on('click', function (el) {
-            $('#popup-payments').css('display', '');
-            $('#popup-payments table').html('');
         });
 
         $(".choose-user-wrap").on('click', function (el) {
@@ -214,15 +198,6 @@ $(document).ready(function () {
             registerUser(id, summit_id, money, description);
             $('#popupDelete').css('display', 'none');
         });
-        $('#complete-payment').on('click', function () {
-            let id = $(this).attr('data-id'),
-                sum = $('#new_payment_sum').val(),
-                description = $('#popup-create_payment textarea').val();
-            create_payment(id, sum, description);
-            $('#new_payment_sum').val('');
-            $('#popup-create_payment textarea').val('');
-            $('#popup-create_payment').css('display', 'none');
-        });
 
         $('#complete').on('click', function () {
             let id = $(this).attr('data-id'),
@@ -283,46 +258,6 @@ function registerUser(id, summit_id, money, description) {
         'Content-Type': 'application/json'
     });
 }
-function create_payment(id, sum, description) {
-    let data = {
-        "sum": sum,
-        "description": description,
-    };
-
-    let json = JSON.stringify(data);
-
-    ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/summit_ankets/${id}/create_payment/`, json, function (JSONobj) {
-        showPopup('Оплата прошла успешно.');
-    }, 'POST', true, {
-        'Content-Type': 'application/json'
-    }, {
-        403: function (data) {
-            data = data.responseJSON;
-            showPopup(data.detail)
-        }
-    });
-}
-function show_payments(id) {
-
-    ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/summit_ankets/${id}/payments/`, null, function (data) {
-        let payments_table = '';
-        let sum, date_time;
-        data.forEach(function (payment) {
-            sum = payment.effective_sum_str;
-            date_time = payment.created_at;
-            payments_table += `<tr><td>${sum}</td><td>${date_time}</td></tr>`
-        });
-        $('#popup-payments table').html(payments_table);
-        $('#popup-payments').css('display', 'block');
-    }, 'GET', true, {
-        'Content-Type': 'application/json'
-    }, {
-        403: function (data) {
-            data = data.responseJSON;
-            showPopup(data.detail)
-        }
-    });
-}
 
 function getUnregisteredUsers() {
     let param = {};
@@ -344,26 +279,15 @@ function getUnregisteredUsers() {
         }
         $('.choose-user-wrap .splash-screen').addClass('active');
         let but = $('.rows-wrap button');
-<<<<<<< HEAD
-        but.on('clock', function () {
-            let id = this.attr('data-id'),
-                name = this.attr('data-name'),
-                master = this.attr('data-master');
-=======
         but.on('click', function () {
             let id = $(this).attr('data-id'),
                 name = $(this).attr('data-name'),
                 master = $(this).attr('data-master');
->>>>>>> hotfix/v1.4.9f
             $('#summit-value').val("0");
             $('#summit-value').attr('readonly', true);
             $('#popup textarea').val("");
             getDataForPopup(id, name, master);
-<<<<<<< HEAD
-            $('popup').css('display', 'block');
-=======
             $('#popup').css('display', 'block');
->>>>>>> hotfix/v1.4.9f
             $('.choose-user-wrap').css('display', 'block');
         });
     });
@@ -530,9 +454,7 @@ function getUsersList(path, param) {
                     if (classes.length > 0) {
                         tbody += ' class="' + classes.join(' ') + '"';
                     }
-                    tbody += '>' + '<a href="' + results[i].user.link + '">' + value + '</a><span title="Удалить анкету" data-fullname="' + results[i].user.fullname + '" data-user-id="' + results[i].user.id + '" data-anketId="' + results[i].id +
-                        '"" data-value="' + results[i].total_sum +
-                        '" data-comment="' + results[i].description + '" data-member="' + results[i].is_member + '" class="del"></span></td>'
+                    tbody += '>' + '<a href="' + results[i].user.link + '">' + value + '</a><span title="Удалить анкету" data-fullname="' + results[i].user.fullname + '" data-user-id="' + results[i].user.id + '" data-anketId="' + results[i].id + '"" data-value="' + results[i].value + '" data-comment="' + results[i].description + '" data-member="' + results[i].is_member + '" class="del"></span></td>'
                 } else if (k === 'social') {
                     tbody += '<td>';
                     if (results[i].user.skype) {
@@ -557,8 +479,6 @@ function getUsersList(path, param) {
                 value = getCorrectValue(field[k]);
                 if (k == 'code') {
                     tbody += '<td><a href="/api/v1.0/generate_code/' + results[i].user.fullname + ' (' + value + ').pdf?code=' + value + '">' + value + '</a></td>'
-                } else if (k == 'value') {
-                    tbody += '<td><a href="#" class="show_payments" data-anketId="' + results[i].id + '">' + results[i].total_sum + '</a> <a href="#" class="create_payment" data-anketId="' + results[i].id + '">Pay</a></td>'
                 } else {
                     tbody += '<td>' + value + '</td>'
                 }
@@ -612,18 +532,6 @@ function getUsersList(path, param) {
         $(".pag-wrap").each(function (i, el) {
             $(el).html(paginations);
         });
-<<<<<<< HEAD
-        $('.create_payment').on('click', function (el) {
-            let id = $(this).attr('data-anketId');
-            $('#complete-payment').attr('data-id', id);
-
-            $('#popup-create_payment').css('display', 'block');
-        });
-        $('.show_payments').on('click', function (el) {
-            let id = $(this).attr('data-anketId');
-            show_payments(id);
-        });
-=======
     // Sorting
     var orderTable = (function () {
         function addListener() {
@@ -651,7 +559,6 @@ function getUsersList(path, param) {
                 }
                 sessionStorage.setItem('revers', revers);
                 sessionStorage.setItem('order', data_order);
->>>>>>> hotfix/v1.4.9f
 
                 getUsersList(path, data);
             });
