@@ -534,8 +534,23 @@ select::-ms-expand {
 }
 
 .top li.sms {
+  position: relative;
   cursor: pointer;
   width: 9em !important;
+  &:before {
+    content: attr(data-count);
+    position: absolute;
+    display: block;
+    top: 1.7em;
+    right: 2.5em;
+    width: 2em;
+    height: 2em;
+    background: red;
+    border-radius: 50%;
+    line-height: 2em;
+    color: white;
+    z-index: 1;
+  }
 }
 
 .top li:nth-child(1) {
@@ -641,8 +656,8 @@ h1 a {
 }
 
 .massage-hover .bottom-box p {
-  font-size: 1.5em;
-  padding-bottom: 20px;
+  font-size: 1.2em;
+  padding: 1.5em;
 }
 
 .massage-hover.active-window {

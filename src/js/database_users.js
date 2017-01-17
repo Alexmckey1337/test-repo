@@ -26,32 +26,7 @@ $('document').ready(function () {
         $select.each(function () {
             $(this).removeAttr('disabled');
         });
-        getStatuses.then(function (data) {
-            data = data.results;
-            let hierarchySelect = $('#hierarchySelect').val();
-            let html = "";
-            for (let i = 0; i < data.length; i++) {
-                if(hierarchySelect === data[i].title || hierarchySelect == data[i].id) {
-                    html += '<option value="' + data[i].id + '"' + 'selected' + '>' + data[i].title + '</option>';
-                } else {
-                    html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
-                }
-            }
-            $('#hierarchySelect').html(html);
-        });
-        getDepartments.then(function (data) {
-            data = data.results;
-            let departmentSelect = $('#departmentSelect').val();
-            let html = "";
-            for (let i = 0; i < data.length; i++) {
-                if( departmentSelect == data[i].title || departmentSelect == data[i].id) {
-                    html += '<option value="' + data[i].id + '"' + 'selected' + '>' + data[i].title + '</option>';
-                } else {
-                    html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
-                }
-            }
-            $('#departmentSelect').html(html);
-        });
+
         $("#repentance_date").datepicker({
             dateFormat: "yy-mm-dd"
         })

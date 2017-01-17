@@ -8,7 +8,133 @@ function saveUserData(data, id) {
     }
 }
 
-//Проверка существование элемента на странице
+function getCountryCodes() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка")
+            }
+        })
+    })
+}
+
+
+function getCountries() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    });
+}
+
+function getCountriesList() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject('Ошибка');
+            }
+        })
+    })
+}
+function getDepartments() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/departments/', null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject('Ошибка');
+            }
+        });
+    });
+}
+
+function getStatuses() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    })
+}
+
+function getCurrentUser(id) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.1/users/' + id + '/', null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        })
+    })
+}
+function getResponsible(id, level, search = "") {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id + '&level_gte=' + level + '&search=' + search, null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    })
+}
+
+function getResponsibleStatuses() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    })
+}
+
+function getDivisions() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/divisions/', null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    })
+}
+
+function getManagers() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.1/partnerships/simple/', null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject();
+            }
+        });
+    });
+}
+
+
+function deleteCookie(name) {
+    setCookie(name, "", {
+        expires: -1
+    })
+}
+
+
 function isElementExists(element) {
     if (typeof(element) != 'undefined' && element != null) {
         return true;
@@ -20,30 +146,29 @@ function getLastId(url) {
         url = document.location.href
     }
     let id = url.split('/');
-    if(id[id.length - 1]) {
+    if (id[id.length - 1]) {
         return id[id.length - 1]
     }
     return id[id.length - 2]
 }
 
-function getCookie(c_name) {
-    // From http://www.w3schools.com/js/js_cookies.asp
-    let c_value = document.cookie;
-    let c_start = c_value.indexOf(" " + c_name + "=");
-    if (c_start == -1) {
-        c_start = c_value.indexOf(c_name + "=");
+function getCookie(cookieName) {
+    let cookieValue = document.cookie;
+    let cookieStart = cookieValue.indexOf(" " + cookieName + "=");
+    if (cookieStart == -1) {
+        cookieStart = cookieValue.indexOf(cookieName + "=");
     }
-    if (c_start == -1) {
-        c_value = null;
+    if (cookieStart == -1) {
+        cookieValue = null;
     } else {
-        c_start = c_value.indexOf("=", c_start) + 1;
-        let c_end = c_value.indexOf(";", c_start);
-        if (c_end == -1) {
-            c_end = c_value.length;
+        cookieStart = cookieValue.indexOf("=", cookieStart) + 1;
+        let cookieEnd = cookieValue.indexOf(";", cookieStart);
+        if (cookieEnd == -1) {
+            cookieEnd = cookieValue.length;
         }
-        c_value = unescape(c_value.substring(c_start, c_end));
+        cookieValue = unescape(cookieValue.substring(cookieStart, cookieEnd));
     }
-    return c_value;
+    return cookieValue;
 }
 
 
@@ -55,7 +180,6 @@ Array.prototype.unique = function () {
                 a.splice(j--, 1);
         }
     }
-
     return a;
 };
 
@@ -123,16 +247,15 @@ function tab_plugin() {
                 tab.style.display = 'block';
             }
         });
-        //  document.querySelector("#tab_plugin li").click();
     });
 }
 //реализация jquery live event
 function live(eventType, elementQuerySelector, cb) {
     document.addEventListener(eventType, function (event) {
-
+        var el, index;
         let qs = document.querySelectorAll(elementQuerySelector);
         if (qs) {
-            let el = event.target,
+            el = event.target,
                 index = -1;
             while (el && ((index = Array.prototype.indexOf.call(qs, el)) === -1)) {
                 el = el.parentElement;
@@ -144,10 +267,10 @@ function live(eventType, elementQuerySelector, cb) {
     });
 }
 
-//Счетчик уведомлений
+// Counter counterNotifications
 function counterNotifications() {
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/notifications/today/', null, function (data) {
-        document.getElementById('count_notifications').innerHTML = '(' + data.count + ')';
+        $('.sms').attr('data-count', data.count);
     });
 }
 

@@ -569,8 +569,7 @@ function getUsersList(path, param) {
         }
     })();
     orderTable.addListener();
-        $('#users_list .del').on('click', function (el) {
-            console.log(this);
+        $('#users_list .del').on('click', function () {
             let id = $(this).attr('data-user-id'),
                 usr = $(this).attr('fullname'),
                 anketa = $(this).attr('data-anketId'),
