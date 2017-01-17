@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from .base import *  # noqa
 
 DEBUG = False
-TEMPLATES[0]['OPTIONS']['debug'] = False
+TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
 
 SECRET_KEY = env('DJANGO_SECRET_KEY', default='CHANGEME!!!')
 
@@ -24,21 +24,6 @@ CACHES = {
 
 TEST_RUNNER = 'edem.runner.PytestTestRunner'
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'crm_db',
-#         'USER': 'crm_user',
-#         'PASSWORD': 'crm_pass',
-#         'HOST': 'localhost',
-#         'TEST': {
-#             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#             'NAME': 'test_crm',
-#             'USER': 'crm_user',
-#             'PASSWORD': '123456',
-#         }
-#     }
-# }
 PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.MD5PasswordHasher',
 )

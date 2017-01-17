@@ -2,12 +2,8 @@ import datetime
 import copy
 
 import pytest
-from django.urls import reverse
 from decimal import Decimal
-<<<<<<< HEAD
-=======
 from django.urls import reverse
->>>>>>> hotfix/v.1.5.0f
 from rest_framework import status
 
 from account.models import CustomUser, AdditionalPhoneNumber

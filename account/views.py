@@ -10,14 +10,6 @@ from django.contrib.auth import authenticate, login, logout as django_logout
 from django.contrib.auth import update_session_auth_hash
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMultiAlternatives
-<<<<<<< HEAD
-=======
-from django.db.models import Case, BooleanField
-from django.db.models import Value as V
-from django.db.models import When
-from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect
->>>>>>> hotfix/v.1.5.0f
 from django.template import Context
 from django.template.loader import get_template
 from django.urls import reverse

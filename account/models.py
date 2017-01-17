@@ -419,8 +419,4 @@ def sync_user(sender, instance, **kwargs):
             Notification.objects.create(date=date,
                                         user=instance,
                                         theme=birth_day_notification_theme)
-<<<<<<< HEAD
-    from report.models import UserReport
-=======
->>>>>>> hotfix/v.1.5.0f
     Table.objects.get_or_create(user=instance)
