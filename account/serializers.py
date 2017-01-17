@@ -8,6 +8,7 @@ from rest_framework import serializers
 
 from account.models import CustomUser as User, AdditionalPhoneNumber
 from hierarchy.models import Department, Hierarchy
+from navigation.models import Table
 from partnership.models import Partnership
 from status.models import Division
 
@@ -21,7 +22,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         model = User
         fields = ('id', 'email', 'fullname', 'image', 'image_source', 'search_name',
                   'hierarchy_name', 'has_disciples', 'hierarchy_order', 'column_table',
-                  'fields', 'division_fields', 'hierarchy_chain', 'partnerships_info')
+                  'fields', 'division_fields', 'hierarchy_chain', 'partnerships_info',
+                  'spiritual_level')
 
 
 class DepartmentTitleSerializer(serializers.ModelSerializer):
@@ -101,7 +103,7 @@ class NewUserSerializer(serializers.ModelSerializer):
                   'divisions',
                   'partnership',
                   # read_only
-                  'fullname',
+                  'fullname', 'spiritual_level',
                   )
         extra_kwargs = {
             'first_name': {'required': True},
@@ -158,9 +160,12 @@ class UserTableSerializer(UserSingleSerializer):
         # fields = getattr(self.Meta, 'fields', None)
         if self.context.get('request', None):
             user = self.context['request'].user
-            columns = user.table.columns.filter(
-                columnType__category__title="Общая информация",
-                active=True).order_by('number').values_list('columnType__title', flat=True)
+            if hasattr(user, 'table') and isinstance(user.table, Table):
+                columns = user.table.columns.filter(
+                    columnType__category__title="Общая информация",
+                    active=True).order_by('number').values_list('columnType__title', flat=True)
+            else:
+                columns = list()
             if 'social' in columns:
                 columns = list(columns) + ['facebook', 'vkontakte', 'odnoklassniki', 'skype', 'image', 'image_source']
             return list(self.Meta.required_fields) + [i for i in columns if i != 'social']

@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 import pytest
 from decimal import Decimal
+=======
+>>>>>>> hotfix/v.1.5.0f
 from django.urls import reverse
 from rest_framework import status
 

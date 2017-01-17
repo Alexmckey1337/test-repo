@@ -381,6 +381,7 @@
             "first_name": $("input[name='first_name']").val(),
             "last_name": $("input[name='last_name']").val(),
             "middle_name": $("input[name='middle_name']").val(),
+            "search_name": $('#search_name').val(),
             "born_date": $("input[name='born_date']").val() || null,
             "phone_number": parseInt($("input[name='phone_numberCode']").val() + '' + $("input[name='phone_number']").val()),
             "additional_phone": $("#additional_phone").val(),

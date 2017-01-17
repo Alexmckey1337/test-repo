@@ -2,10 +2,14 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth.decorators import login_required
+<<<<<<< HEAD
 from django.urls import reverse
+=======
+>>>>>>> hotfix/v.1.5.0f
 from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 
 from account.models import CustomUser
 from hierarchy.models import Department, Hierarchy
@@ -44,6 +48,14 @@ def partner_stats(request):
 
 @login_required(login_url='entry')
 def account(request, id):
+    user = request.user
+    if not user.is_staff:
+        if not user.get_descendants(include_self=True).filter(id=id).exists():
+            if not user.partnership:
+                return redirect('/')
+            if not user.partnership.level < Partnership.MANAGER:
+                if not user.partnership.disciples.filter(user_id=id).exists():
+                    return redirect('/')
     ctx = {
         'account': get_object_or_404(CustomUser, pk=id)
     }
@@ -52,10 +64,13 @@ def account(request, id):
 
 @login_required(login_url='entry')
 def account_edit(request, user_id):
-    if not request.user.is_staff:
-        if user_id:
-            return redirect(reverse('account', args=[user_id]))
-        return redirect('/')
+    user = request.user
+    if not user.is_staff:
+        if not user.get_descendants(include_self=True).filter(id=user_id).exists():
+            if not (user.partnership or user.partnership.level >= Partnership.MANAGER):
+                if user_id:
+                    return redirect(reverse('account', args=(user_id,)))
+                return redirect('/')
     user = get_object_or_404(CustomUser, pk=user_id)
     ctx = {
         'account': user,
