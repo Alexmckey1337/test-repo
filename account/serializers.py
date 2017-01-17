@@ -21,7 +21,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         model = User
         fields = ('id', 'email', 'fullname', 'image', 'image_source', 'search_name',
                   'hierarchy_name', 'has_disciples', 'hierarchy_order', 'column_table',
-                  'fields', 'division_fields', 'hierarchy_chain', 'partnerships_info')
+                  'fields', 'division_fields', 'hierarchy_chain', 'partnerships_info',
+                  'spiritual_level')
 
 
 class DepartmentTitleSerializer(serializers.ModelSerializer):
@@ -101,7 +102,7 @@ class NewUserSerializer(serializers.ModelSerializer):
                   'divisions',
                   'partnership',
                   # read_only
-                  'fullname',
+                  'fullname', 'spiritual_level',
                   )
         extra_kwargs = {
             'first_name': {'required': True},

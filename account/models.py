@@ -72,6 +72,14 @@ class CustomUser(MPTTModel, User):
     hierarchy_order = models.BigIntegerField(blank=True, null=True)
     activation_key = models.CharField(max_length=40, blank=True)
 
+    BABY, JUNIOR, FATHER = 1, 2, 3
+    SPIRITUAL_LEVEL_CHOICES = (
+        (BABY, _('Baby')),
+        (JUNIOR, _('Junior')),
+        (FATHER, _('Father')),
+    )
+    spiritual_level = models.PositiveSmallIntegerField(_('Spiritual Level'), choices=SPIRITUAL_LEVEL_CHOICES, default=1)
+
     objects = CustomUserManager()
 
     def __str__(self):
