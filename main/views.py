@@ -14,6 +14,8 @@ from partnership.models import Partnership
 from status.models import Division
 from summit.models import SummitType
 from tv_crm.views import sync_user_call
+from group.models import Church, HomeGroup
+from django.db.models import Count
 
 
 def entry(request):
@@ -85,6 +87,38 @@ def summit_info(request, summit_id):
         'summit_type': SummitType.objects.get(id=summit_id)
     }
     return render(request, 'summit/summit_info.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def churches(request):
+    ctx = {
+
+    }
+    return render(request, 'group/churches.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def church_detail(request, church_id):
+    church = Church.objects.get(id=church_id)
+    home_groups_count = church.home_group.count()
+    parishioners_count = church.users.filter(hierarchy=1).count()
+    # leaders_count = church.users.filter(hierarchy=2).count()
+    ctx = {
+        'church': church,
+        'home_groups_count': home_groups_count,
+        'parishioners_count': parishioners_count,
+        # 'leaders_count': leaders_count,
+    }
+    return render(request, 'group/church-detail.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def home_group_detail(request, church_id, group_id):
+    group = HomeGroup.objects.filter(church=church_id).get(id=group_id)
+    ctx = {
+        'group': group,
+    }
+    return render(request, 'group/group_detail.html', context=ctx)
 
 
 @login_required(login_url='entry')

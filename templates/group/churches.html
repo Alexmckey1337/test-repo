@@ -1,0 +1,26 @@
+<h1>Церкви Все:</h1>
+
+{% for church in churches %}
+    <hr>
+    Имя Церкви:{{ church.title }}
+    <br>
+    Пастор: {{ church.pastor }}
+    <br>
+    Город: {{ church.city }}
+    <br>
+    Отдел: {{ church.department }}
+    <br>
+    Адрес: {{ church.address }}
+    <br>
+    Телефон: {{ church.phone_number }}
+    <br>
+    Открыта: {{ church.is_open }}
+    <br>
+    Сайт: {{ church.website }}
+    <br>
+    Дата открытия: {{ church.opening_date }}
+    <br>
+    Количество групп: {{ count_groups }}
+    <br>
+{% endfor %}
+<hr>

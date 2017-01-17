@@ -17,6 +17,11 @@ urlpatterns = [
     url(r'^reports/$', views.reports, name='reports'),
     url(r'^summits/$', views.summits, name='summits'),
     url(r'^summit_info/([0-9]+)/$', views.summit_info, name='summit_info'),
+
+    url(r'^churches/$', views.churches, name='churches'),
+    url(r'^churches/([0-9]+)/$', views.church_detail, name='church_detail'),
+    url(r'^churches/([0-9]+)/home_group/([0-9]+)/$', views.home_group_detail, name='home_group_detail'),
+
     url(r'^$', views.index, name='index'),
     url(r'^event_info/$', views.event_info, name='event_info'),
     url(r'^password_view/(?P<activation_key>\w+)/$', views.edit_pass, name='password_view'),
