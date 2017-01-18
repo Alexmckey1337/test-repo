@@ -24,6 +24,31 @@ $(document).ready(function () {
             }, 1500);
         }
     });
+    $("#close-payment").on('click', function () {
+        $('#popup-create_payment').css('display', 'none');
+    });
+    $("#close-payments").on('click', function () {
+        $('#popup-payments').css('display', 'none');
+        $('#popup-payments table').html('');
+    });
+    $("#popup-create_payment .top-text span").on('click', function (el) {
+        $('#new_payment_sum').val('');
+        $('#popup-create_payment textarea').val('');
+        $('#popup-create_payment').css('display', '');
+    });
+    $("#popup-payments .top-text span").on('click', function (el) {
+        $('#popup-payments').css('display', '');
+        $('#popup-payments table').html('');
+    });
+    $('#complete-payment').on('click', function () {
+        let id = $(this).attr('data-id'),
+            sum = $('#new_payment_sum').val(),
+            description = $('#popup-create_payment textarea').val();
+        create_payment(id, sum, description);
+        $('#new_payment_sum').val('');
+        $('#popup-create_payment textarea').val('');
+        $('#popup-create_payment').css('display', 'none');
+    });
 
 
     // makeTabs();
@@ -43,6 +68,17 @@ $(document).ready(function () {
     document.getElementById('close').addEventListener('click', function () {
         document.getElementById('popup').style.display = '';
     });
+
+    document.getElementById('complete').addEventListener('click', function () {
+        let attr = this.getAttribute('data-id'),
+            description = document.getElementById('deal-description').value;
+        updateDeals(attr, description);
+    });
+
+    /*add parnership*/
+    // document.querySelector(".add").addEventListener('click', function () {
+    //     document.querySelector('.add-user-wrap').style.display = 'block';
+    // });
 
     document.querySelector(".add-user-wrap .top-text span").addEventListener('click', function () {
         document.querySelector('.add-user-wrap').style.display = 'none';
@@ -156,6 +192,77 @@ function create_partnerships(data) {
 
 }
 
+function create_payment(id, sum, description) {
+    let data = {
+        "sum": sum,
+        "description": description,
+    };
+
+    let json = JSON.stringify(data);
+
+    ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/deals/${id}/create_payment/`, json, function (JSONobj) {
+        showPopup('Оплата прошла успешно.');
+    }, 'POST', true, {
+        'Content-Type': 'application/json'
+    }, {
+        403: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail)
+        }
+    });
+}
+function show_payments(id) {
+
+    ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/deals/${id}/payments/`, null, function (data) {
+        let payments_table = '';
+        let sum, date_time;
+        data.forEach(function (payment) {
+            sum = payment.effective_sum_str;
+            date_time = payment.created_at;
+            payments_table += `<tr><td>${sum}</td><td>${date_time}</td></tr>`
+        });
+        $('#popup-payments table').html(payments_table);
+        $('#popup-payments').css('display', 'block');
+    }, 'GET', true, {
+        'Content-Type': 'application/json'
+    }, {
+        403: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail)
+        }
+    });
+}
+
+function get_payment_or_complete_button(deal, can_pay, can_close) {
+    console.log(deal.value, deal.total_sum, can_pay, can_close);
+    let action, title;
+    if (deal.done) {
+        return ``;
+    } else if (parseInt(deal.value) > parseInt(deal.total_sum) && can_pay) {
+        action = "pay";
+        title = "Pay";
+    } else if (parseInt(deal.value) <= parseInt(deal.total_sum) && can_close) {
+        action = "complete";
+        title = "Завершить";
+    } else {
+        return ``;
+    }
+    return `<button ` +
+        `data-id="${deal.id}" data-action=${action} ` +
+        `data-name="${deal.full_name}" ` +
+        `data-date="${deal.date}" ` +
+        `data-responsible="${deal.responsible_name}" ` +
+        `data-total_sum="${deal.total_sum}" ` +
+        `data-value="${deal.value}">` +
+        title +
+        `</button>`
+}
+
+function get_deal_sum(deal) {
+    return `<p>Сумма: <a href="#" class="show_payments" data-id="${deal.id}">` +
+        `<span>${deal.total_sum}/${deal.value} ₴</span></a></p>`
+}
+
 function getExpiredDeals(time) {
     let json = time || null;
     let search = document.getElementsByName('fullsearch')[0].value;
@@ -166,6 +273,8 @@ function getExpiredDeals(time) {
     }
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/deals/?expired=2' + search, json, function (data) {
         let count = data.count;
+        let can_create_payment = data.can_create_payment;
+        let can_close_deal = data.can_close_deal;
         data = data.results;
         let page = time['page'] || 1,
             pages = Math.ceil(count / config.pagination_count),
@@ -187,20 +296,47 @@ function getExpiredDeals(time) {
             dblArrow = ".expired-pagination .double_arrow";
         makePagination(page, container, target, arrow, active, dblArrow, pages, data.length, count, getExpiredDeals);
         for (let i = 0; i < data.length; i++) {
-            let fields = data[i].fields;
-            if (!fields) {
-                continue
-            }
-            let names = Object.keys(fields);
-            html += '<div class="rows-wrap"><button data-id=' + fields[names[0]].value + '>Завершить</button><div class="rows"><div class="col"><p><span>' + fields[names[1]].value + '</span></p></div><div class="col"><p>Последняя сделка:<span> ' + fields[names[3]].value + '</span></p><p>Ответственный:<span> ' + fields[names[2]].value + '</span></p><p>Сумма:<span> ' + fields[names[4]].value + ' ₴</span></p></div></div></div>';
+            html +=
+                `<div class="rows-wrap">` +
+                    get_payment_or_complete_button(data[i], can_create_payment, can_close_deal) +
+                    `<div class="rows">` +
+                        `<div class="col">` +
+                            `<p><span>${data[i].full_name}</span></p>` +
+                        `</div>` +
+                        `<div class="col">` +
+                            `<p>Сделка за: <span>${data[i].date_created}</span></p>` +
+                            `<p>Ответственный: <span>${data[i].responsible_name}</span></p>` +
+                            get_deal_sum(data[i]) +
+                        `</div>` +
+                    `</div>` +
+                `</div>`;
         }
         document.getElementById('overdue').innerHTML = html;
-        let but = document.querySelectorAll(".rows-wrap button");
-        for (let j = 0; j < but.length; j++) {
-            but[j].addEventListener('click', function () {
-                getDataForPopup(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-date'), this.getAttribute('data-responsible'), this.getAttribute('data-value') + ' ₴')
-            })
-        }
+        $('#overdue a.show_payments').on('click', function (el) {
+            let id = $(this).data('id');
+            show_payments(id);
+        });
+        $("#overdue .rows-wrap button").on('click', function () {
+            if ($(this).data('action') == 'pay') {
+                console.log('hogome', $(this).data('id'));
+                let id = $(this).data('id');
+                let value = parseInt($(this).data('value'));
+                let total_sum = parseInt($(this).data('total_sum'));
+                let diff = value - total_sum;
+                diff = diff > 0 ? diff: 0;
+                $('#new_payment_sum').val(diff);
+                $('#complete-payment').attr('data-id', id);
+
+                $('#popup-create_payment').css('display', 'block');
+            } else {
+                getDataForPopup(
+                    this.getAttribute('data-id'),
+                    this.getAttribute('data-name'),
+                    this.getAttribute('data-date'),
+                    this.getAttribute('data-responsible'),
+                    this.getAttribute('data-value') + ' ₴')
+            }
+        });
     });
 }
 
@@ -236,14 +372,25 @@ function getDoneDeals(time) {
             dblArrow = ".done-pagination .double_arrow";
         makePagination(page, container, target, arrow, active, dblArrow, pages, data.length, count, getDoneDeals);
         for (let i = 0; i < data.length; i++) {
-            let fields = data[i].fields;
-            if (!fields) {
-                continue
-            }
-            let names = Object.keys(fields);
-            html += '<div class="rows-wrap"><div class="rows"><div class="col"><p><span>' + fields[names[1]].value + '</span></p></div><div class="col"><p>Последняя сделка:<span> ' + fields[names[3]].value + '</span></p><p>Ответственный:<span> ' + fields[names[2]].value + '</span></p><p>Сумма:<span> ' + fields[names[4]].value + ' ₴</span></p></div></div></div>';
+            html +=
+                `<div class="rows-wrap">` +
+                    `<div class="rows">` +
+                        `<div class="col">` +
+                            `<p><span>${data[i].full_name}</span></p>` +
+                        `</div>` +
+                        `<div class="col">` +
+                            `<p>Сделка за: <span>${data[i].date_created}</span></p>` +
+                            `<p>Ответственный: <span>${data[i].responsible_name}</span></p>` +
+                            get_deal_sum(data[i]) +
+                        `</div>` +
+                    `</div>` +
+                `</div>`;
         }
         $('#completed').html(html);
+        $('#completed a.show_payments').on('click', function (el) {
+            let id = $(this).data('id');
+            show_payments(id);
+        });
     });
 }
 
@@ -255,10 +402,10 @@ function getUndoneDeals(dat) {
     } else {
         search = '';
     }
-    getIncompleteDeals(search, json).then(function (data) {
-        console.log(data);
-
-        let count = data.count, element;
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/deals/?done=3' + search, json, function (data) {
+        let count = data.count;
+        let can_create_payment = data.can_create_payment;
+        let can_close_deal = data.can_close_deal;
         data = data.results;
         let page = dat['page'] || 1,
             pages = Math.ceil(count / config.pagination_count),
@@ -285,23 +432,50 @@ function getUndoneDeals(dat) {
             dblArrow = ".undone-pagination .double_arrow";
         makePagination(page, container, target, arrow, active, dblArrow, pages, data.length, count, getUndoneDeals);
 
+        let button;
         for (let i = 0; i < data.length; i++) {
-            let fields = data[i].fields;
-            if (!fields) {
-                continue
-            }
-            let names = Object.keys(fields);
-            html += '<div class="rows-wrap"><button data-id=' + fields[names[0]].value + ' data-name="' + fields[names[1]].value + '" data-date=' + fields[names[3]].value + ' data-responsible="' + fields[names[2]].value + '" data-value=' + fields[names[4]].value + '>Завершить</button><div class="rows"><div class="col"><p><span>' + fields[names[1]].value + '</span></p></div><div class="col"><p>Последняя сделка:<span> ' + fields[names[3]].value + '</span></p><p>Ответственный:<span> ' + fields[names[2]].value + '</span></p><p>Сумма:<span> ' + fields[names[4]].value + ' ₴</span></p></div></div></div>';
-            document.getElementById('incomplete').innerHTML = html;
+            html +=
+                `<div class="rows-wrap">` +
+                    get_payment_or_complete_button(data[i], can_create_payment, can_close_deal) +
+                    `<div class="rows">` +
+                        `<div class="col">` +
+                            `<p><span>${data[i].full_name}</span></p>` +
+                        `</div>` +
+                        `<div class="col">` +
+                            `<p>Сделка за: <span>${data[i].date_created}</span></p>` +
+                            `<p>Ответственный: <span>${data[i].responsible_name}</span></p>` +
+                            get_deal_sum(data[i]) +
+                        `</div>` +
+                    `</div>` +
+                `</div>`;
         }
-        let but = document.querySelectorAll(".rows-wrap button");
-        for (let j = 0; j < but.length; j++) {
-            but[j].addEventListener('click', function () {
-                getDataForPopup(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-date'), this.getAttribute('data-responsible'), this.getAttribute('data-value') + ' ₴')
-            })
-        }
-    })
+        document.getElementById('incomplete').innerHTML = html;
+        $('#incomplete a.show_payments').on('click', function (el) {
+            let id = $(this).data('id');
+            show_payments(id);
+        });
+        $("#incomplete .rows-wrap button").on('click', function () {
+                if ($(this).data('action') == 'pay') {
+                    console.log('gohome', $(this).data('id'));
+                    let id = $(this).data('id');
+                    let value = parseInt($(this).data('value'));
+                    let total_sum = parseInt($(this).data('total_sum'));
+                    let diff = value - total_sum;
+                    diff = diff > 0 ? diff: 0;
+                    $('#new_payment_sum').val(diff);
+                    $('#complete-payment').attr('data-id', id);
 
+                    $('#popup-create_payment').css('display', 'block');
+                } else {
+                    getDataForPopup(
+                        this.getAttribute('data-id'),
+                        this.getAttribute('data-name'),
+                        this.getAttribute('data-date'),
+                        this.getAttribute('data-responsible'),
+                        this.getAttribute('data-value') + ' ₴')
+                }
+        });
+    });
 }
 
 function makePagination(page, container, target, arrow, active, dblArrow, pages, length, count, callback) {
@@ -411,7 +585,6 @@ function getDataForPopup(id, name, date, responsible, value) {
     $('#client-name').html(name);
     $('#deal-date').html(date);
     $('#responsible-name').html(responsible);
-    $('#deal-value').val(value);
     $('#popup').css('display', 'block');
 }
 
@@ -423,10 +596,9 @@ function init() {
     getUndoneDeals(json);
 }
 
-function updateDeals(deal, value, description) {
+function updateDeals(deal, description) {
     let data = {
         "done": true,
-        "value": value,
         "description": description
     };
     let json = JSON.stringify(data);
@@ -795,5 +967,4 @@ function getPartnersList(param = {}) {
     if (config.user_partnerships_info && config.user_partnerships_info.is_responsible) {
         $('#add_user_parners').css('display', 'block');
     }
-
 }
