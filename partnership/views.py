@@ -1,11 +1,11 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from collections import OrderedDict
 from datetime import datetime
-
-import django_filters
 from decimal import Decimal
 
+import django_filters
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Case, IntegerField, DecimalField
 from django.db.models import Sum
@@ -26,7 +26,8 @@ from rest_framework.settings import api_settings
 
 from account.models import CustomUser as User, CustomUser
 from navigation.models import user_table, user_partner_table
-from partnership.permissions import IsSupervisorOrHigh, IsSupervisorOrManagerReadOnly
+from partnership.permissions import IsSupervisorOrHigh, IsSupervisorOrManagerReadOnly, CanCreatePartnerPayment, \
+    CanClosePartnerDeal
 from payment.serializers import PaymentCreateSerializer, PaymentShowSerializer
 from .models import Partnership, Deal
 from .serializers import DealSerializer, PartnershipSerializer, \
@@ -56,6 +57,22 @@ class PartnershipPagination(PageNumberPagination):
             'user_table': user_table(self.request.user),
             'results': data
         })
+
+
+class DealPagination(PageNumberPagination):
+    page_size = 30
+    page_size_query_param = 'page_size'
+    max_page_size = 30
+
+    def get_paginated_response(self, data):
+        return Response(OrderedDict([
+            ('can_create_payment', CanCreatePartnerPayment().has_permission(self.request, None)),
+            ('can_close_deal', CanClosePartnerDeal().has_permission(self.request, None)),
+            ('count', self.page.paginator.count),
+            ('next', self.get_next_link()),
+            ('previous', self.get_previous_link()),
+            ('results', data)
+        ]))
 
 
 class PartnershipViewSet(mixins.RetrieveModelMixin,
@@ -237,6 +254,7 @@ class DealViewSet(viewsets.ModelViewSet):
         total_sum=Coalesce(Sum('payments__effective_sum'), Value(0))
     )
     serializer_class = DealSerializer
+    pagination_class = DealPagination
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
                        filters.OrderingFilter,)
@@ -252,7 +270,17 @@ class DealViewSet(viewsets.ModelViewSet):
         if Partnership.objects.get(user=user).level < Partnership.MANAGER:
             return self.queryset
         return Deal.objects.select_related(
-            'partnership', 'partnership__responsible__user') \
+            'partnership', 'partnership__responsible',
+            'partnership__responsible__user').annotate(
+            full_name=Concat(
+                'partnership__user__last_name', Value(' '),
+                'partnership__user__first_name', Value(' '),
+                'partnership__user__middle_name'),
+            responsible_name=Coalesce(Concat(
+                'partnership__responsible__user__last_name', Value(' '),
+                'partnership__responsible__user__first_name'
+            ), Value('')),
+            total_sum=Coalesce(Sum('payments__effective_sum'), Value(0))) \
             .filter(partnership__responsible__user=user)
 
     def perform_update(self, serializer):
