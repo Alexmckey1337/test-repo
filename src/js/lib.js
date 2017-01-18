@@ -127,6 +127,17 @@ function getManagers() {
     });
 }
 
+function getIncompleteDeals(search, json) {
+    return new Promise(function (resolve, reject) {
+         ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/deals/?done=3' + search, json, function (data) {
+             if (data) {
+                resolve(data);
+            } else {
+                reject();
+            }
+         })
+    })
+}
 
 function deleteCookie(name) {
     setCookie(name, "", {

@@ -16,6 +16,7 @@ $(document).ready(function () {
         } else {
             delay(function () {
                 getPartnersList(obj);
+
                 let json = {};
                 json["page"] = '1';
                 getExpiredDeals(json);
@@ -23,10 +24,53 @@ $(document).ready(function () {
                 getUndoneDeals(json);
             }, 1500);
         }
+
     });
 
+    document.getElementById('sort_save').addEventListener('click', function () {
+        updateSettings(getPartnersList);
+        $(".table-sorting").animate({
+            right: '-300px'
+        }, 10, 'linear')
+    });
 
-    // makeTabs();
+    $.datepicker.setDefaults($.datepicker.regional["ru"]);
+
+    $("#done_datepicker_from").datepicker({
+        dateFormat: "yyyy-mm-dd",
+        maxDate: new Date(),
+        onSelect: function (date) {
+            window.done_from_date = date;
+            sortDoneDeals(done_from_date, done_to_date);
+        }
+    }).datepicker("setDate", '-1m');
+
+    $("#done_datepicker_to").datepicker({
+        dateFormat: "yyyy-mm-dd",
+        onSelect: function (date) {
+            window.done_to_date = date;
+            sortDoneDeals(done_from_date, done_to_date);
+        }
+    }).datepicker("setDate", new Date());
+
+    $("#expired_datepicker_from").datepicker({
+        dateFormat: "yy-mm-dd",
+        maxDate: new Date(),
+        onSelect: function (date) {
+            window.expired_from_date = date;
+            sortExpiredDeals(expired_from_date, expired_to_date);
+        }
+    }).datepicker("setDate", '-1m');
+
+    $("#expired_datepicker_to").datepicker({
+        dateFormat: "yy-mm-dd",
+        onSelect: function (date) {
+            window.expired_to_date = date;
+            sortExpiredDeals(expired_from_date, expired_to_date);
+        }
+    }).datepicker("setDate", new Date());
+
+    makeTabs();
 
     document.getElementById('show-all-expired').addEventListener('click', function () {
         window.expired_from_date = '';
@@ -43,6 +87,29 @@ $(document).ready(function () {
     document.getElementById('close').addEventListener('click', function () {
         document.getElementById('popup').style.display = '';
     });
+
+    document.getElementById('complete').addEventListener('click', function () {
+        let attr = this.getAttribute('data-id'),
+            value = document.getElementById('deal-value').value,
+            description = document.getElementById('deal-description').value;
+        let reg = /^\d{1,5} ?₴?$/gi;
+        if (!reg.test(value)) {
+            showPopup('Введите правильное значение суммы');
+            return;
+        }
+        updateDeals(attr, parseInt(value), description);
+        document.getElementById('deal-value').setAttribute('readonly', 'readonly');
+    });
+
+    document.getElementById('changeSum').addEventListener('click', function () {
+        document.getElementById('deal-value').removeAttribute('readonly');
+        document.getElementById('deal-value').focus();
+    });
+
+    /*add parnership*/
+    // document.querySelector(".add").addEventListener('click', function () {
+    //     document.querySelector('.add-user-wrap').style.display = 'block';
+    // });
 
     document.querySelector(".add-user-wrap .top-text span").addEventListener('click', function () {
         document.querySelector('.add-user-wrap').style.display = 'none';
@@ -255,22 +322,15 @@ function getUndoneDeals(dat) {
     } else {
         search = '';
     }
-    getIncompleteDeals(search, json).then(function (data) {
-        console.log(data);
-
-        let count = data.count, element;
+    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/deals/?done=3' + search, json, function (data) {
+        let count = data.count;
         data = data.results;
         let page = dat['page'] || 1,
             pages = Math.ceil(count / config.pagination_count),
             html = '';
         if (data.length == 0) {
-            element = document.createElement('p');
-            $(element).text('Сделок нету');
-            $(element).addClass('info');
-            $('#incomplete').appendChild(element);
-
-            console.log(element);
-            $('#incomplete-count').text('0');
+            $('#incomplete').html('<p class="info">Сделок нету</p>');
+            $('#incomplete-count').html('0');
             $('.undone-pagination').each(function (el) {
                 $(el).html('');
                 $(el).css('display', 'none');
@@ -300,8 +360,7 @@ function getUndoneDeals(dat) {
                 getDataForPopup(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-date'), this.getAttribute('data-responsible'), this.getAttribute('data-value') + ' ₴')
             })
         }
-    })
-
+    });
 }
 
 function makePagination(page, container, target, arrow, active, dblArrow, pages, length, count, callback) {
@@ -458,76 +517,76 @@ function sortExpiredDeals(from, to) {
     getExpiredDeals(json);
 }
 
-// function makeTabs() {
-//     let pos = 0,
-//         tabs = document.getElementById('tabs'),
-//         tabsContent = document.getElementsByClassName('tabs-cont');
-//
-//     for (let i = 0; i < tabs.children.length; i++) {
-//         tabs.children[i].setAttribute('data-page', pos);
-//         pos++;
-//     }
-//
-//     showPage(0);
-//
-//     tabs.onclick = function (event) {
-//         event.preventDefault();
-//         return showPage(parseInt(event.target.parentElement.getAttribute("data-page")));
-//     };
-//
-//     function showPage(i) {
-//         for (let k = 0; k < tabsContent.length; k++) {
-//             tabsContent[k].style.display = 'none';
-//             tabs.children[k].classList.remove('current');
-//         }
-//         tabsContent[i].style.display = 'block';
-//         tabs.children[i].classList.add('current');
-//
-//         let done = document.getElementById('period_done'),
-//             expired = document.getElementById('period_expired'),
-//             unpag = document.querySelectorAll('.undone-pagination'),
-//             expag = document.querySelectorAll('.expired-pagination'),
-//             dpag = document.querySelectorAll('.done-pagination');
-//
-//         if (document.querySelectorAll('a[href="#overdue"]')[0].parentElement.classList.contains('current')) {
-//             done.style.display = 'none';
-//             expired.style.display = 'block';
-//             Array.prototype.forEach.call(expag, function (el) {
-//                 el.style.display = 'block';
-//             });
-//             Array.prototype.forEach.call(unpag, function (el) {
-//                 el.style.display = 'none';
-//             });
-//             Array.prototype.forEach.call(dpag, function (el) {
-//                 el.style.display = 'none';
-//             });
-//         } else if (document.querySelectorAll('a[href="#completed"]')[0].parentElement.classList.contains('current')) {
-//             done.style.display = 'block';
-//             expired.style.display = '';
-//             Array.prototype.forEach.call(expag, function (el) {
-//                 el.style.display = 'none';
-//             });
-//             Array.prototype.forEach.call(unpag, function (el) {
-//                 el.style.display = 'none';
-//             });
-//             Array.prototype.forEach.call(dpag, function (el) {
-//                 el.style.display = 'block';
-//             });
-//         } else if (document.querySelectorAll('a[href="#incomplete"]')[0].parentElement.classList.contains('current')) {
-//             done.style.display = '';
-//             expired.style.display = '';
-//             Array.prototype.forEach.call(expag, function (el) {
-//                 el.style.display = 'none';
-//             });
-//             Array.prototype.forEach.call(unpag, function (el) {
-//                 el.style.display = 'block';
-//             });
-//             Array.prototype.forEach.call(dpag, function (el) {
-//                 el.style.display = 'none';
-//             });
-//         }
-//     }
-// }
+function makeTabs() {
+    let pos = 0,
+        tabs = document.getElementById('tabs'),
+        tabsContent = document.getElementsByClassName('tabs-cont');
+
+    for (let i = 0; i < tabs.children.length; i++) {
+        tabs.children[i].setAttribute('data-page', pos);
+        pos++;
+    }
+
+    showPage(0);
+
+    tabs.onclick = function (event) {
+        event.preventDefault();
+        return showPage(parseInt(event.target.parentElement.getAttribute("data-page")));
+    };
+
+    function showPage(i) {
+        for (let k = 0; k < tabsContent.length; k++) {
+            tabsContent[k].style.display = 'none';
+            tabs.children[k].classList.remove('current');
+        }
+        tabsContent[i].style.display = 'block';
+        tabs.children[i].classList.add('current');
+
+        let done = document.getElementById('period_done'),
+            expired = document.getElementById('period_expired'),
+            unpag = document.querySelectorAll('.undone-pagination'),
+            expag = document.querySelectorAll('.expired-pagination'),
+            dpag = document.querySelectorAll('.done-pagination');
+
+        if (document.querySelectorAll('a[href="#overdue"]')[0].parentElement.classList.contains('current')) {
+            done.style.display = 'none';
+            expired.style.display = 'block';
+            Array.prototype.forEach.call(expag, function (el) {
+                el.style.display = 'block';
+            });
+            Array.prototype.forEach.call(unpag, function (el) {
+                el.style.display = 'none';
+            });
+            Array.prototype.forEach.call(dpag, function (el) {
+                el.style.display = 'none';
+            });
+        } else if (document.querySelectorAll('a[href="#completed"]')[0].parentElement.classList.contains('current')) {
+            done.style.display = 'block';
+            expired.style.display = '';
+            Array.prototype.forEach.call(expag, function (el) {
+                el.style.display = 'none';
+            });
+            Array.prototype.forEach.call(unpag, function (el) {
+                el.style.display = 'none';
+            });
+            Array.prototype.forEach.call(dpag, function (el) {
+                el.style.display = 'block';
+            });
+        } else if (document.querySelectorAll('a[href="#incomplete"]')[0].parentElement.classList.contains('current')) {
+            done.style.display = '';
+            expired.style.display = '';
+            Array.prototype.forEach.call(expag, function (el) {
+                el.style.display = 'none';
+            });
+            Array.prototype.forEach.call(unpag, function (el) {
+                el.style.display = 'block';
+            });
+            Array.prototype.forEach.call(dpag, function (el) {
+                el.style.display = 'none';
+            });
+        }
+    }
+}
 
 // function getCurrentPartnerSetting(data) {
 //     let html = '';
@@ -714,42 +773,42 @@ function getPartnersList(param = {}) {
             $(".query-none p").html('По запросу не найдено участников');
             $("#spisok .element-select").html('<p>Показано <span>' + results.length + '</span> из <span>' + count + '</span></p>');
         }
-        var orderTable = (function () {
-            function addListener() {
-                $(".table-wrap th").on('click', function () {
-                    let dataOrder;
-                    let data_order = this.getAttribute('data-order');
-                    var revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
-                    var order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
-                    if (order != '') {
-                        dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
-                    } else {
-                        dataOrder = '-' + data_order;
-                    }
-                    ordering = {};
-                    ordering[data_order] = dataOrder;
-                    let page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
-                    let data = {
-                        'ordering': dataOrder,
-                        'page': page
-                    };
-                    if (order == data_order) {
-                        revers = (revers == '+') ? '-' : '+';
-                    } else {
-                        revers = "+"
-                    }
-                    sessionStorage.setItem('revers', revers);
-                    sessionStorage.setItem('order', data_order);
+    var orderTable = (function () {
+        function addListener() {
+            $(".table-wrap th").on('click', function () {
+                let dataOrder;
+                let data_order = this.getAttribute('data-order');
+                var revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
+                var order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
+                if (order != '') {
+                    dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
+                } else {
+                    dataOrder = '-' + data_order;
+                }
+                ordering = {};
+                ordering[data_order] = dataOrder;
+                let page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
+                let data = {
+                    'ordering': dataOrder,
+                    'page': page
+                };
+                if (order == data_order) {
+                    revers = (revers == '+') ? '-' : '+';
+                } else {
+                    revers = "+"
+                }
+                sessionStorage.setItem('revers', revers);
+                sessionStorage.setItem('order', data_order);
 
-                    getPartnersList(data);
-                });
-            }
+                getPartnersList(data);
+            });
+        }
 
-            return {
-                addListener: addListener
-            }
-        })();
-        orderTable.addListener();
+        return {
+            addListener: addListener
+        }
+    })();
+    orderTable.addListener();
         $('.preloader').css('display', 'none');
         $("#spisok .pag-wrap").each(function () {
             $(this).html(paginations);

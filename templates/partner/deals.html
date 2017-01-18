@@ -7,7 +7,7 @@
     <div class="top-panel">
         <div class="tabs">
             <ul class="nav tabs_link">
-                <li><a href="{% url 'partner-deals' %}">Сделки</a></li>
+                <li><a class="active" href="{% url 'partner-deals' %}">Сделки</a></li>
                 <li><a href="{% url 'partner-list' %}">Список партнёров</a></li>
                 <li><a href="{% url 'partner-stats' %}">Статистика</a></li>
             </ul>
@@ -63,7 +63,7 @@
                         все</a></p>
 
                 </div>
-                <div id="period_done" class=" period">
+                <div id="period_done" class="period">
                     <p>Период с <input type="text" id="done_datepicker_from" readonly="readonly"> по <input
                             type="text" id="done_datepicker_to" readonly="readonly"><a id="show-all-done"
                                                                                        href="javascript:void(0);">Показать
