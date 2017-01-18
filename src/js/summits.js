@@ -1,4 +1,4 @@
- $(document).ready(function () {
+$(document).ready(function () {
     if (document.getElementById('summits')) {
         create_summit_buttons('summits');
     }
@@ -34,6 +34,7 @@
 
     $('#dep_filter').on('change', function () {
         let params = {};
+        console.log(config.DOCUMENT_ROOT);
         getUsersList(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/', params)
 
     });
@@ -66,6 +67,7 @@
     });
 
     $('#sort_save').on('click', function () {
+        console.log(path);
         updateSettings(getUsersList, path);
         $(".table-sorting").animate({
             right: '-300px'
@@ -85,7 +87,7 @@
         });
 
         $("#close").on('click', function () {
-            $('#popup').on('display', 'none');
+            $('#popup').css('display', 'none');
             $('.choose-user-wrap').css('display', 'block');
         });
 
@@ -130,23 +132,27 @@
             $('.choose-user-wrap').css('display', '');
         });
 
-        $('choose').on('click', function () {
-            $('.choose-user-wrap').css('display', 'block');
-            $('.add-user-wrap').css('display', '');
-        });
-
         $('.choose-user-wrap h3 span').on('click', function () {
             $('searchUsers').val('');
             $('.choose-user-wrap .splash-screen').removeClass('active');
             $('.choose-user-wrap').css('display', '');
             $('.add-user-wrap').css('display', 'block');
+            $('#choose').on('click', function () {
+                $('.choose-user-wrap').css('display', 'block');
+                $('.add-user-wrap').css('display', '');
+            });
         });
 
-        $('add_new').on('click', function () {
+        $('#add_new').on('click', function () {
             $('.pop-up-splash-add').css('display', 'block');
         });
 
-        $('changeSum').on('click', function () {
+        $('#choose').on('click', function () {
+            $('.choose-user-wrap').css('display', 'block');
+            $('.add-user-wrap').css('display', 'none');
+            document.querySelector('#searchUsers').focus();
+        });
+        $('#changeSum').on('click', function () {
             $('#summit-value').removeAttr('readonly');
             $('#summit-value').focus();
         });
@@ -192,8 +198,8 @@
             $('#popupDelete').css('display', 'none');
         });
 
-        $('complete').on('click', function () {
-            let id = this.attr('data-id'),
+        $('#complete').on('click', function () {
+            let id = $(this).attr('data-id'),
                 money = $('#summit-value').val(),
                 description = $('#popup textarea').val();
             registerUser(id, summit_id, money, description);
@@ -252,9 +258,10 @@ function registerUser(id, summit_id, money, description) {
     });
 }
 
-function getUnregisteredUsers(parameters) {
-    let param = parameters || {};
-    let search = document.getElementById('searchUsers').value;
+function getUnregisteredUsers() {
+    let param = {};
+    let search = $('#searchUsers').val();
+
     if (search) {
         param['search'] = search;
     }
@@ -271,17 +278,17 @@ function getUnregisteredUsers(parameters) {
         }
         $('.choose-user-wrap .splash-screen').addClass('active');
         let but = $('.rows-wrap button');
-            but.on('clock', function () {
-                let id = this.attr('data-id'),
-                    name = this.attr('data-name'),
-                    master = this.attr('data-master');
-                $('#summit-value').val("0");
-                $('#summit-value').attr('readonly', true);
-                $('#popup textarea').val("");
-                getDataForPopup(id, name, master);
-                $('popup').css('display', 'block');
-                $('.choose-user-wrap').css('display', 'block');
-            });
+        but.on('click', function () {
+            let id = $(this).attr('data-id'),
+                name = $(this).attr('data-name'),
+                master = $(this).attr('data-master');
+            $('#summit-value').val("0");
+            $('#summit-value').attr('readonly', true);
+            $('#popup textarea').val("");
+            getDataForPopup(id, name, master);
+            $('#popup').css('display', 'block');
+            $('.choose-user-wrap').css('display', 'block');
+        });
     });
 }
 
@@ -294,7 +301,7 @@ function getDataForPopup(id, name, master) {
 function create_summit_buttons(id) {
     let img = $('#summits img');
     img.on('click', function () {
-         location.href = '/summit_info/' + $(this).attr('data-id');
+        location.href = '/summit_info/' + $(this).attr('data-id');
     })
 }
 
@@ -328,31 +335,43 @@ function addSummitInfo() {
     }
 }
 
-function getCurrentSummitSetting(data) {
-    let html = '';
-    data.forEach(function (obj) {
-        let titles = obj[1];
-        html += '<h3>' + obj[0] + '</h3>';
-        for (let prop in titles) {
-            if (!titles.hasOwnProperty(prop)) continue;
-            let ischeck = titles[prop]['active'] ? 'check' : '';
-            let isdraggable = titles[prop]['editable'] ? 'draggable' : 'disable';
-            html += '<li ' + isdraggable + ' >' +
-                '<input id="' + titles[prop]['ordering_title'] + '" type="checkbox">' +
-                '<label for="' + titles[prop]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[prop]['id'] + '">' + titles[prop]['title'] + '</label>';
-            if (isdraggable == 'disable') {
-                html += '<div class="disable-opacity"></div>'
-            }
-            html += '</li>'
-        }
-    });
+// function getCurrentSummitSetting(data) {
+//     let html = '';
+//     data.forEach(function (obj) {
+//         let titles = obj[1];
+//         html += '<h3>' + obj[0] + '</h3>';
+//         for (let prop in titles) {
+//             if (!titles.hasOwnProperty(prop)) continue;
+//             let ischeck = titles[prop]['active'] ? 'check' : '';
+//             let isdraggable = titles[prop]['editable'] ? 'draggable' : 'disable';
+//             html += '<li ' + isdraggable + ' >' +
+//                 '<input id="' + titles[prop]['ordering_title'] + '" type="checkbox">' +
+//                 '<label for="' + titles[prop]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[prop]['id'] + '">' + titles[prop]['title'] + '</label>';
+//             if (isdraggable == 'disable') {
+//                 html += '<div class="disable-opacity"></div>'
+//             }
+//             html += '</li>'
+//         }
+//     });
+//
+//     $('#sort-form').html(html);
+//
+//     $('#sort-form input').on('click', function () {
+//         if (!$(this).prop('disable')) {
+//             $(this).hasClass('check') ? $(this).removeClass('check') : $(this).addClass('check');
+//         }
+//     })
+// }
 
-    $('#sort-form').html(html);
-    $('#sort-form input').on('click', function (el) {
-        if (!$(this).prop('disable')) {
-            $(this).hasClass('check') ? $(this).removeClass('check') : $(this).addClass('check');
-        }
-    })
+function getCurrentSummitSetting(data) {
+    console.log(data);
+    let sortFormTmpl, obj, rendered;
+    sortFormTmpl = document.getElementById("sortForm").innerHTML;
+    obj = {};
+    obj.user = data[0];
+    console.log(obj);
+    rendered = _.template(sortFormTmpl)(obj);
+    document.getElementById('sort-form').innerHTML = rendered;
 }
 
 function reversOrder(order) {
@@ -376,14 +395,10 @@ function getUsersList(path, param) {
     param['summit'] = summit_id;
     document.getElementsByClassName('preloader')[0].style.display = 'block';
     ajaxRequest(path, param, function (data) {
-
         let results = data.results;
-
         let k;
         let value;
-
         let count = data.count;
-
         if (results.length == 0) {
             $('#users_list').html('<p>По запросу не найдено учасников</p>');
             $(".element-select").html('<p>Показано <span>' + results.length + '</span> из <span>' + count + '</span></p>');
@@ -403,7 +418,7 @@ function getUsersList(path, param) {
         for (k in user_fields) {
             if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
             if (ordering.indexOf('user__' + user_fields[k]['ordering_title']) != -1) {
-                thead += '<th data-order="' + reversOrder(ordering) + '">' + user_fields[k]['title'] + '</th>'
+                thead += '<th data-order="' + ordering + '">' + user_fields[k]['title'] + '</th>'
             } else {
                 thead += '<th data-order="user__' + user_fields[k]['ordering_title'] + '">' + user_fields[k]['title'] + '</th>'
             }
@@ -411,7 +426,7 @@ function getUsersList(path, param) {
         for (k in common_fields) {
             if (!common_fields.hasOwnProperty(k) || !common_fields[k].active) continue;
             if (ordering.indexOf(common_fields[k]['ordering_title']) != -1) {
-                thead += '<th data-order="' + reversOrder(ordering) + '">' + common_fields[k]['title'] + '</th>'
+                thead += '<th data-order="' + ordering + '">' + common_fields[k]['title'] + '</th>'
             } else {
                 thead += '<th data-order="' + common_fields[k]['ordering_title'] + '">' + common_fields[k]['title'] + '</th>'
             }
@@ -516,9 +531,44 @@ function getUsersList(path, param) {
         $(".pag-wrap").each(function (i, el) {
             $(el).html(paginations);
         });
+        // Sorting
+        var orderTable = (function () {
+            function addListener() {
+                $(".table-wrap th").on('click', function () {
+                    let dataOrder;
+                    let data_order = this.getAttribute('data-order');
+                    var revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
+                    var order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
+                    if (order != '') {
+                        dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
+                    } else {
+                        dataOrder = '-' + data_order;
+                    }
+                    ordering = {};
+                    ordering[data_order] = dataOrder;
+                    let page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
+                    let data = {
+                        'ordering': dataOrder,
+                        'page': page
+                    };
+                    if (order == data_order) {
+                        revers = (revers == '+') ? '-' : '+';
+                    } else {
+                        revers = "+"
+                    }
+                    sessionStorage.setItem('revers', revers);
+                    sessionStorage.setItem('order', data_order);
 
-        $('#users_list .del').on('click', function (el) {
-            console.log(this);
+                    getUsersList(path, data);
+                });
+            }
+
+            return {
+                addListener: addListener
+            }
+        })();
+        orderTable.addListener();
+        $('#users_list .del').on('click', function () {
             let id = $(this).attr('data-user-id'),
                 usr = $(this).attr('fullname'),
                 anketa = $(this).attr('data-anketId'),

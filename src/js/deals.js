@@ -7,7 +7,6 @@ $(document).ready(function () {
         if (id == '0') {
             delay(function () {
                 getPartnersList();
-
                 let json = {};
                 json["page"] = '1';
                 getExpiredDeals(json);
@@ -108,20 +107,12 @@ $(document).ready(function () {
     });
 
     /*add parnership*/
-    document.querySelector(".add").addEventListener('click', function () {
-        document.querySelector('.add-user-wrap').style.display = 'block';
-    });
-
+    // document.querySelector(".add").addEventListener('click', function () {
+    //     document.querySelector('.add-user-wrap').style.display = 'block';
+    // });
 
     document.querySelector(".add-user-wrap .top-text span").addEventListener('click', function () {
         document.querySelector('.add-user-wrap').style.display = 'none';
-    });
-
-
-    document.getElementById('choose').addEventListener('click', function () {
-        document.querySelector('.choose-user-wrap').style.display = 'block';
-        document.querySelector('.add-user-wrap').style.display = 'none';
-        document.querySelector('#searchUsers').focus();
     });
 
     document.querySelector(".choose-user-wrap .top-text > span").addEventListener('click', function () {
@@ -639,14 +630,6 @@ function getCurrentPartnerSetting(data) {
     document.getElementById('sort-form').innerHTML = rendered;
 }
 
-function reversOrder(order) {
-    if (order.charAt(0) == '-') {
-        order = order.substring(1)
-    } else {
-        order = '-' + order
-    }
-    return order
-}
 
 function getPartnersList(param = {}) {
 
@@ -677,16 +660,15 @@ function getPartnersList(param = {}) {
         for (k in user_fields) {
             if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
             if (ordering.indexOf('user__' + user_fields[k]['ordering_title']) != -1) {
-                thead += '<th data-order="' + reversOrder(ordering) + '">' + user_fields[k]['title'] + '</th>'
+                thead += '<th data-order="' + ordering + '">' + user_fields[k]['title'] + '</th>'
             } else {
                 thead += '<th data-order="user__' + user_fields[k]['ordering_title'] + '">' + user_fields[k]['title'] + '</th>'
             }
         }
         for (k in common_fields) {
             if (!common_fields.hasOwnProperty(k) || !common_fields[k].active) continue;
-            // thead += '<th data-order="' + common_fields[k]['ordering_title'] + '">' + common_fields[k]['title'] + '</th>';
             if (ordering.indexOf(common_fields[k]['ordering_title']) != -1) {
-                thead += '<th data-order="' + reversOrder(ordering) + '">' + common_fields[k]['title'] + '</th>'
+                thead += '<th data-order="' + ordering + '">' + common_fields[k]['title'] + '</th>'
             } else {
                 thead += '<th data-order="' + common_fields[k]['ordering_title'] + '">' + common_fields[k]['title'] + '</th>'
             }
@@ -791,7 +773,42 @@ function getPartnersList(param = {}) {
             $(".query-none p").html('По запросу не найдено участников');
             $("#spisok .element-select").html('<p>Показано <span>' + results.length + '</span> из <span>' + count + '</span></p>');
         }
+    var orderTable = (function () {
+        function addListener() {
+            $(".table-wrap th").on('click', function () {
+                let dataOrder;
+                let data_order = this.getAttribute('data-order');
+                var revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
+                var order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
+                if (order != '') {
+                    dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
+                } else {
+                    dataOrder = '-' + data_order;
+                }
+                ordering = {};
+                ordering[data_order] = dataOrder;
+                let page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
+                let data = {
+                    'ordering': dataOrder,
+                    'page': page
+                };
+                if (order == data_order) {
+                    revers = (revers == '+') ? '-' : '+';
+                } else {
+                    revers = "+"
+                }
+                sessionStorage.setItem('revers', revers);
+                sessionStorage.setItem('order', data_order);
 
+                getPartnersList(data);
+            });
+        }
+
+        return {
+            addListener: addListener
+        }
+    })();
+    orderTable.addListener();
         $('.preloader').css('display', 'none');
         $("#spisok .pag-wrap").each(function () {
             $(this).html(paginations);
@@ -834,19 +851,8 @@ function getPartnersList(param = {}) {
         })
     });
 
-    $(".table-wrap th").on('click', function () {
-        let data_order = this.getAttribute('data-order');
-        let status = !!ordering[data_order];
-        ordering = {};
-        ordering[data_order] = status;
-        let page = $(".pag li.active") ? parseInt($(".pag li.active").html()) : 1;
-        let data = {
-            'ordering': data_order,
-            'page': page
-        };
-        getPartnersList(data)
-    });
     if (config.user_partnerships_info && config.user_partnerships_info.is_responsible) {
         $('#add_user_parners').css('display', 'block');
     }
+
 }

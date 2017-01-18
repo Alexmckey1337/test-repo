@@ -73,7 +73,7 @@ def account_edit(request, user_id):
         'countries': Country.objects.all(),
         'regions': Region.objects.filter(country__title=user.country),
         'cities': City.objects.filter(region__title=user.region),
-        'partners': Partnership.objects.all(),
+        'partners': Partnership.objects.filter(level__lte=Partnership.MANAGER),
     }
     return render(request, 'account/edit.html', context=ctx)
 

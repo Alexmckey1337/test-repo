@@ -34,7 +34,13 @@
                 <div class="user-fiowrap">
                     <div class="user-fio">
                         <div class="right-info-r">
-                            <h3 id="fullname">{{ account.fullname }}</h3>
+                            <hgroup>
+                                <h3 id="fullname">{{ account.fullname }}</h3>
+                                {% if account.search_name %}
+                                    <h4>{{ account.search_name }}</h4>
+                                {% endif %}
+                            </hgroup>
+
                         </div>
                         <!-- TODO -->
                         <div class="a-socials" data-soc="vkontakte">
@@ -215,8 +221,8 @@
                                         <p><span>{{ account.fullname }}</span></p>
                                     </div>
                                     <div class="col">
-                                        <p>Дата создания:<span>{{ deal.date_created }}</span></p>
-                                        <p>Сумма<span>{{ deal.value }}₴</span></p></div>
+                                        <p>Дата создания: <span>{{ deal.date_created }}</span></p>
+                                        <p>Сумма: <span>{{ deal.value }}₴</span></p></div>
                                 </div>
                             {% endfor %}
                         </div>
