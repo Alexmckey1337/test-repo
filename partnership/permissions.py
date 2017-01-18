@@ -42,3 +42,15 @@ class IsSupervisorOrManagerReadOnly(IsManagerReadOnly):
             super(IsSupervisorOrManagerReadOnly, self).has_permission(request, view) or
             IsSupervisorOrHigh().has_permission(request, view)
         )
+
+
+class IsDisciplesOf(IsPartnership):
+    def has_object_permission(self, request, view, account):
+        return (
+            super(IsDisciplesOf, self).has_permission(request, view) and
+            request.user.partnership.disciples.filter(user=account).exists()
+        )
+
+
+CanCreatePartnerPayment = IsSupervisorOrHigh
+CanClosePartnerDeal = IsManagerOrHigh
