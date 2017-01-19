@@ -7,7 +7,6 @@ $(document).ready(function () {
         if (id == '0') {
             delay(function () {
                 getPartnersList();
-
                 let json = {};
                 json["page"] = '1';
                 getExpiredDeals(json);
@@ -43,11 +42,21 @@ $(document).ready(function () {
         $('#popup-payments').css('display', '');
         $('#popup-payments table').html('');
     });
-    $('#complete-payment').on('click', function () {
-        let id = $(this).attr('data-id'),
-            sum = $('#new_payment_sum').val(),
-            description = $('#popup-create_payment textarea').val();
-        create_payment(id, sum, description);
+    $('#payment-form').on("submit", function (event) {
+        event.preventDefault();
+        let data = $('#payment-form').serializeArray();
+        console.log(data);
+        let new_data = {};
+        data.forEach(function (field) {
+            new_data[field.name] = field.value
+        });
+        let id = new_data.id,
+            sum = new_data.sum,
+            description = new_data.description,
+            rate = new_data.rate,
+            currency = new_data.currency;
+        console.log(id, sum, description, rate, currency);
+        create_payment(id, sum, description, rate, currency);
         $('#new_payment_sum').val('');
         $('#popup-create_payment textarea').val('');
         $('#popup-create_payment').css('display', 'none');
@@ -121,20 +130,12 @@ $(document).ready(function () {
     });
 
     /*add parnership*/
-    document.querySelector(".add").addEventListener('click', function () {
-        document.querySelector('.add-user-wrap').style.display = 'block';
-    });
-
+    // document.querySelector(".add").addEventListener('click', function () {
+    //     document.querySelector('.add-user-wrap').style.display = 'block';
+    // });
 
     document.querySelector(".add-user-wrap .top-text span").addEventListener('click', function () {
         document.querySelector('.add-user-wrap').style.display = 'none';
-    });
-
-
-    document.getElementById('choose').addEventListener('click', function () {
-        document.querySelector('.choose-user-wrap').style.display = 'block';
-        document.querySelector('.add-user-wrap').style.display = 'none';
-        document.querySelector('#searchUsers').focus();
     });
 
     document.querySelector(".choose-user-wrap .top-text > span").addEventListener('click', function () {
@@ -245,10 +246,12 @@ function create_partnerships(data) {
 
 }
 
-function create_payment(id, sum, description) {
+function create_payment(id, sum, description, rate, currency) {
     let data = {
         "sum": sum,
         "description": description,
+        "rate": rate,
+        "currency": currency
     };
 
     let json = JSON.stringify(data);
@@ -286,16 +289,19 @@ function show_payments(id) {
     });
 }
 
-function get_payment_or_complete_button(deal) {
+function get_payment_or_complete_button(deal, can_pay, can_close) {
+    console.log(deal.value, deal.total_sum, can_pay, can_close);
     let action, title;
     if (deal.done) {
         return ``;
-    } else if (parseInt(deal.value) > parseInt(deal.total_sum)) {
+    } else if (parseInt(deal.value) > parseInt(deal.total_sum) && can_pay) {
         action = "pay";
         title = "Pay";
-    } else if (parseInt(deal.value) <= parseInt(deal.total_sum)) {
+    } else if (parseInt(deal.value) <= parseInt(deal.total_sum) && can_close) {
         action = "complete";
         title = "Завершить";
+    } else {
+        return ``;
     }
     return `<button ` +
         `data-id="${deal.id}" data-action=${action} ` +
@@ -323,6 +329,8 @@ function getExpiredDeals(time) {
     }
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/deals/?expired=2' + search, json, function (data) {
         let count = data.count;
+        let can_create_payment = data.can_create_payment;
+        let can_close_deal = data.can_close_deal;
         data = data.results;
         let page = time['page'] || 1,
             pages = Math.ceil(count / config.pagination_count),
@@ -346,7 +354,7 @@ function getExpiredDeals(time) {
         for (let i = 0; i < data.length; i++) {
             html +=
                 `<div class="rows-wrap">` +
-                    get_payment_or_complete_button(data[i]) +
+                    get_payment_or_complete_button(data[i], can_create_payment, can_close_deal) +
                     `<div class="rows">` +
                         `<div class="col">` +
                             `<p><span>${data[i].full_name}</span></p>` +
@@ -374,6 +382,7 @@ function getExpiredDeals(time) {
                 diff = diff > 0 ? diff: 0;
                 $('#new_payment_sum').val(diff);
                 $('#complete-payment').attr('data-id', id);
+                $('#purpose-id').val(id);
 
                 $('#popup-create_payment').css('display', 'block');
             } else {
@@ -452,6 +461,8 @@ function getUndoneDeals(dat) {
     }
     ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/deals/?done=3' + search, json, function (data) {
         let count = data.count;
+        let can_create_payment = data.can_create_payment;
+        let can_close_deal = data.can_close_deal;
         data = data.results;
         let page = dat['page'] || 1,
             pages = Math.ceil(count / config.pagination_count),
@@ -477,7 +488,7 @@ function getUndoneDeals(dat) {
         for (let i = 0; i < data.length; i++) {
             html +=
                 `<div class="rows-wrap">` +
-                    get_payment_or_complete_button(data[i]) +
+                    get_payment_or_complete_button(data[i], can_create_payment, can_close_deal) +
                     `<div class="rows">` +
                         `<div class="col">` +
                             `<p><span>${data[i].full_name}</span></p>` +
@@ -505,6 +516,7 @@ function getUndoneDeals(dat) {
                     diff = diff > 0 ? diff: 0;
                     $('#new_payment_sum').val(diff);
                     $('#complete-payment').attr('data-id', id);
+                    $('#purpose-id').val(id);
 
                     $('#popup-create_payment').css('display', 'block');
                 } else {
@@ -784,14 +796,6 @@ function getCurrentPartnerSetting(data) {
     document.getElementById('sort-form').innerHTML = rendered;
 }
 
-function reversOrder(order) {
-    if (order.charAt(0) == '-') {
-        order = order.substring(1)
-    } else {
-        order = '-' + order
-    }
-    return order
-}
 
 function getPartnersList(param = {}) {
 
@@ -822,16 +826,15 @@ function getPartnersList(param = {}) {
         for (k in user_fields) {
             if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
             if (ordering.indexOf('user__' + user_fields[k]['ordering_title']) != -1) {
-                thead += '<th data-order="' + reversOrder(ordering) + '">' + user_fields[k]['title'] + '</th>'
+                thead += '<th data-order="' + ordering + '">' + user_fields[k]['title'] + '</th>'
             } else {
                 thead += '<th data-order="user__' + user_fields[k]['ordering_title'] + '">' + user_fields[k]['title'] + '</th>'
             }
         }
         for (k in common_fields) {
             if (!common_fields.hasOwnProperty(k) || !common_fields[k].active) continue;
-            // thead += '<th data-order="' + common_fields[k]['ordering_title'] + '">' + common_fields[k]['title'] + '</th>';
             if (ordering.indexOf(common_fields[k]['ordering_title']) != -1) {
-                thead += '<th data-order="' + reversOrder(ordering) + '">' + common_fields[k]['title'] + '</th>'
+                thead += '<th data-order="' + ordering + '">' + common_fields[k]['title'] + '</th>'
             } else {
                 thead += '<th data-order="' + common_fields[k]['ordering_title'] + '">' + common_fields[k]['title'] + '</th>'
             }
@@ -936,7 +939,42 @@ function getPartnersList(param = {}) {
             $(".query-none p").html('По запросу не найдено участников');
             $("#spisok .element-select").html('<p>Показано <span>' + results.length + '</span> из <span>' + count + '</span></p>');
         }
+    var orderTable = (function () {
+        function addListener() {
+            $(".table-wrap th").on('click', function () {
+                let dataOrder;
+                let data_order = this.getAttribute('data-order');
+                var revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
+                var order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
+                if (order != '') {
+                    dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
+                } else {
+                    dataOrder = '-' + data_order;
+                }
+                ordering = {};
+                ordering[data_order] = dataOrder;
+                let page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
+                let data = {
+                    'ordering': dataOrder,
+                    'page': page
+                };
+                if (order == data_order) {
+                    revers = (revers == '+') ? '-' : '+';
+                } else {
+                    revers = "+"
+                }
+                sessionStorage.setItem('revers', revers);
+                sessionStorage.setItem('order', data_order);
 
+                getPartnersList(data);
+            });
+        }
+
+        return {
+            addListener: addListener
+        }
+    })();
+    orderTable.addListener();
         $('.preloader').css('display', 'none');
         $("#spisok .pag-wrap").each(function () {
             $(this).html(paginations);
@@ -979,18 +1017,6 @@ function getPartnersList(param = {}) {
         })
     });
 
-    $(".table-wrap th").on('click', function () {
-        let data_order = this.getAttribute('data-order');
-        let status = !!ordering[data_order];
-        ordering = {};
-        ordering[data_order] = status;
-        let page = $(".pag li.active") ? parseInt($(".pag li.active").html()) : 1;
-        let data = {
-            'ordering': data_order,
-            'page': page
-        };
-        getPartnersList(data)
-    });
     if (config.user_partnerships_info && config.user_partnerships_info.is_responsible) {
         $('#add_user_parners').css('display', 'block');
     }

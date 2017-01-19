@@ -282,7 +282,6 @@ function getCities() {
   }
 
 function selectFile(evt) {
-
     let files = evt.target.files;
     for (let i = 0, f; f = files[i]; i++) {
           if (!f.type.match('image.*')) {

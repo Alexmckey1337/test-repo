@@ -5,13 +5,20 @@ var config = {
     'pagination_patrnership_count': 30, //Количество записей при пагинации for patrnership
     'column_table': null
 };
+counterNotifications();
+
 var GlobalParam = {};
 
 function makeResponsibleList() {
     let department = $('#departmentSelect').val();
     let hierarchy = $('#hierarchySelect option:selected').attr('data-level');
+
     getResponsible(department, hierarchy).then(function (data) {
         let id = $('#master_hierarchy option:selected').attr('data-id');
+        if(!id) {
+            id = $('#master_hierarchy option').attr('data-id');
+        }
+        console.log(id);
         var selected = false;
         var html = "";
         data.forEach(function (el) {
@@ -22,14 +29,23 @@ function makeResponsibleList() {
                 html += "<option data-id='" + el.id + "'>" + el.fullname + "</option>";
             }
         });
-        if(!selected) {
+        if (!selected) {
             html += "<option selected disabled>Выберите ответственного</option>";
         }
         html += "";
-        $("#master_hierarchy").html(html);
-        $("#master_hierarchy").select2();
+        $("#master_hierarchy").html(html).select2();
     });
 }
+
+
+var makeChooseDivision = getDivisions().then(function (data) {
+            data = data.results;
+            let html = '';
+            for (let i = 0; i < data.length; i++) {
+                html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+            }
+            return html
+        });
 
 function saveUser(el) {
     let $input, $select, fullName, first_name, last_name, middle_name, data, id;
@@ -88,7 +104,8 @@ function makeQuickEditCart(el) {
         $('#quickEditCartPopup').css('display', 'block');
 
         makeResponsibleList();
-        getStatuses.then(function (data) {
+
+        getStatuses().then(function (data) {
             data = data.results;
             let hierarchySelect = $('#hierarchySelect').val();
             let html = "";
@@ -101,7 +118,7 @@ function makeQuickEditCart(el) {
             }
             $('#hierarchySelect').html(html);
         });
-        getDepartments.then(function (data) {
+        getDepartments().then(function (data) {
             data = data.results;
             let departmentSelect = $('#departmentSelect').val();
             let html = "";
@@ -149,12 +166,6 @@ function setCookie(name, value, options) {
         }
     }
     document.cookie = updatedCookie;
-}
-
-function deleteCookie(name) {
-    setCookie(name, "", {
-        expires: -1
-    })
 }
 
 $('#logout_button').on('click', function (e) {
@@ -448,7 +459,7 @@ function getCurrentSetting() {
     })
 }
 
-function updateSettings(callback, param) {
+function updateSettings(callback, path) {
     let data = [];
     let iteration = 1;
     $("#sort-form input").each(function (el) {
@@ -465,12 +476,13 @@ function updateSettings(callback, param) {
         config['column_table'] = JSONobj['column_table'];
 
         if (callback) {
-            if (param !== undefined) {
+            var param = {};
+            if (path !== undefined) {
                 let extendParam = $.extend({}, param, filterParam());
-                callback(extendParam);
+                callback(path, extendParam);
             } else {
                 let param = filterParam();
-                callback(param);
+                callback(path, param);
             }
         }
     }, 'POST', true, {
@@ -537,3 +549,12 @@ function applyFilter(el) {
         hidePopup(self);
     }, 300);
 }
+
+var makeChooseStatus = getStatuses().then(function (data) {
+    data = data.results;
+    let html = "";
+    for (let i = 0; i < data.length; i++) {
+        html += '<option value="' + data[i].id + '" data-level="' + data[i].level + '">' + data[i].title + '</option>';
+    }
+    return html;
+});

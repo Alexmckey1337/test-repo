@@ -131,7 +131,7 @@ class CustomUser(MPTTModel, User):
     @property
     def column_table(self):
         l = OrderedDict()
-        if self.table:
+        if hasattr(self, 'table') and isinstance(self.table, Table):
             columns = self.table.columns.order_by('number')
             for column in columns.all():
                 d = OrderedDict()
@@ -419,5 +419,4 @@ def sync_user(sender, instance, **kwargs):
             Notification.objects.create(date=date,
                                         user=instance,
                                         theme=birth_day_notification_theme)
-    from report.models import UserReport
     Table.objects.get_or_create(user=instance)

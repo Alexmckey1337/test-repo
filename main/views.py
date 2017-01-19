@@ -2,12 +2,14 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse
+from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 
 from account.models import CustomUser
+from account.permissions import CanAccountObjectRead, CanAccountObjectEdit
 from hierarchy.models import Department, Hierarchy
 from location.models import Country, Region, City
 from partnership.models import Partnership
@@ -46,19 +48,25 @@ def partner_stats(request):
 
 @login_required(login_url='entry')
 def account(request, id):
-    if not request.user.is_staff and not request.user.get_descendants(include_self=True).filter(id=id).exists():
-        return redirect('/')
+    user = get_object_or_404(CustomUser, pk=id)
+    has_perm = CanAccountObjectRead().has_object_permission(request, None, user)
+    if not has_perm:
+        raise PermissionDenied
     ctx = {
-        'account': get_object_or_404(CustomUser, pk=id)
+        'account': user
     }
     return render(request, 'account/anketa.html', context=ctx)
 
 
 @login_required(login_url='entry')
 def account_edit(request, user_id):
-    if not request.user.is_staff and not request.user.get_descendants(include_self=True).filter(id=user_id).exists():
-        return redirect('/')
     user = get_object_or_404(CustomUser, pk=user_id)
+    has_perm = CanAccountObjectEdit().has_object_permission(request, None, user)
+    if not has_perm:
+        if user_id:
+            get_object_or_404(CustomUser, pk=user_id)
+            return redirect(reverse('account', args=(user_id,)))
+        raise PermissionDenied
     ctx = {
         'account': user,
         'departments': Department.objects.all(),
@@ -67,7 +75,7 @@ def account_edit(request, user_id):
         'countries': Country.objects.all(),
         'regions': Region.objects.filter(country__title=user.country),
         'cities': City.objects.filter(region__title=user.region),
-        'partners': Partnership.objects.all(),
+        'partners': Partnership.objects.filter(level__lte=Partnership.MANAGER),
     }
     return render(request, 'account/edit.html', context=ctx)
 

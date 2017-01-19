@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block layout %}
+    <div class="page-width">
+        {% block sidebar %}
+            <div id="sidebar">
+                <div class="scrollbar-macosx">
+                    <div class="logo">
+                        <div><span>V</span><span>O</span></div>
+                        <div><span>C</span><span>R</span><span>M</span></div>
+                    </div>
+
+                    <ul id="nav-sidebar">
+                        <li><a data-title="База данных" href="{% url 'index' %}">База данных</a></li>
+                        {% comment %}
+                        <li><a data-title="Все отчеты" href="{% url 'reports' %}">Все отчеты</a></li>
+                        <li><a data-title="События" href="{% url 'events' %}">События</a></li>
+                        {% endcomment %}
+                        <li><a data-title="Партнёрство" href="{% url 'deals' %}">Партнёрство</a></li>
+                        <li><a data-title="Саммиты" href="{% url 'summits' %}">Саммиты</a></li>
+                        <li id="move-sidebar"><a data-title="Развернуть" href="#">Свернуть</a></li>
+                    </ul>
+                </div>
+            </div>
+        {% endblock sidebar %}
+
+        {% block main %}
+            <div{% block main.attr %} class="main-wrap"{% endblock %}>
+                {% block header %}
+                    <div class="header">
+
+                        {% block header.top %}
+                            <ul class="top">
+                                {% block header.top.left %}
+                                    <li>
+                                        {% block header.top.h1 %}{% endblock %}
+                                        {% block header.top.select %}
+                                        {% endblock %}
+                                    </li>
+                                {% endblock %}
+                                {% block header.top.right %}
+                                    {% block header.user.button %}
+                                        <li class="userImgWrap">
+                                            <div class="userimg">
+                                                {% if request.user.image %}
+                                                    <img src="{{ request.user.image.url }}" alt="userphoto"/>
+                                                {% else %}
+                                                    <img src="{% static "img/no-usr.jpg" %}" alt="userphoto"/>
+                                                {% endif %}
+                                            </div>
+                                        </li>
+                                    {% endblock %}
+                                    {% block header.notification.button %}
+                                        <li class="sms">
+                                            {% if notifications.exists %}
+                                                <span>{{ notifications.count }}</span>
+                                            {% else %}
+                                                <span style="display:none;"></span>
+                                            {% endif %}
+                                            <span></span>
+                                        </li>
+                                    {% endblock %}
+                                    {% block header.search %}
+                                        <li>
+                                        </li>
+                                    {% endblock %}
+                                {% endblock %}
+                            </ul><!--End Top -->
+                        {% endblock %}
+
+                        {% block header.buttons %}
+                            <div class="top-buttons-wrap">
+
+                                <ul class="top-buttons">
+                                    {% block header.buttons.filter %}{% endblock %}
+
+                                    {% block header.buttons.add %}{% endblock %}
+
+                                    {% block header.buttons.export %}{% endblock %}
+
+                                    {% block header.buttons.change_table %}{% endblock %}
+
+                                    {% block header.buttons.extra %}{% endblock %}
+                                </ul>
+                            </div>
+                        {% endblock %}
+
+                        {% block header_user_drop %}
+                            <div class="user-hover photo-hover">
+                                <div class="hover-wrapper">
+                                    <div class="top-box">
+                                        <a href="{% url "account" request.user.id %}">
+                                            <span></span>
+                                            <p>Мой профиль</p>
+                                        </a>
+                                    </div>
+                                    <div class="bottom-box"><a id="logout_button">
+                                        <span></span>
+                                        <p>Выйти</p></a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endblock %}
+
+                        {% block header_notification_drop %}
+                            <div class="user-hover massage-hover">
+                                <div class="hover-wrapper">
+                                    <div class="top-box">
+                                        <p>У Вас <span></span> незавершённых сделок</p>
+                                    </div>
+                                    <div class="bottom-box">
+                                        {% if notifications.exists %}
+                                            <p>Сегодня день рождения у:</p>
+                                            <ul>
+                                                {% for notification in notifications %}
+                                                    <li>
+                                                        <a href="{% url "account" notification.uid %}">{{ notification.fullname }}</a>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            <p>На сегодня нет уведомлений</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endblock %}
+
+                    </div>
+                {% endblock %}
+
+                {% block main.content %}{% endblock %}
+            </div>
+        {% endblock main %}
+
+        {% block table_sort_modal %}{% endblock %}
+
+        {% block add_user_modal %}{% endblock %}
+
+        {% block choose_user_modal %}{% endblock %}
+    </div>
+
+    {% block create_user %}{% endblock %}
+
+    {% block popup %}{% endblock %}
+
+{% endblock %}

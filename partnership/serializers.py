@@ -47,12 +47,12 @@ class PartnershipSerializer(serializers.ModelSerializer):
 
 
 class DealSerializer(serializers.HyperlinkedModelSerializer):
-    date = serializers.DateField(format=None, input_formats=None)
+    date = serializers.DateField(format=None, input_formats=None, read_only=True)
     date_created = serializers.DateField(input_formats=None)
     partnership = serializers.PrimaryKeyRelatedField(queryset=Partnership.objects.all())
-    full_name = serializers.CharField()
-    responsible_name = serializers.CharField()
-    total_sum = serializers.DecimalField(max_digits=12, decimal_places=0)
+    full_name = serializers.CharField(read_only=True)
+    responsible_name = serializers.CharField(read_only=True)
+    total_sum = serializers.DecimalField(max_digits=12, decimal_places=0, read_only=True)
 
     class Meta:
         model = Deal

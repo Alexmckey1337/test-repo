@@ -13,7 +13,7 @@ django-environ==0.4.1
 django-filebrowser
 django-filter==0.13.0
 django-grappelli==2.9.1
-django-import-export
+django-import-export==0.5.1
 django-mptt==0.8.6
 django-redis==4.7.0
 django-redis-cache==1.6.4

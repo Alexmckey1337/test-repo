@@ -26,32 +26,7 @@ $('document').ready(function () {
         $select.each(function () {
             $(this).removeAttr('disabled');
         });
-        getStatuses.then(function (data) {
-            data = data.results;
-            let hierarchySelect = $('#hierarchySelect').val();
-            let html = "";
-            for (let i = 0; i < data.length; i++) {
-                if(hierarchySelect === data[i].title || hierarchySelect == data[i].id) {
-                    html += '<option value="' + data[i].id + '"' + 'selected' + '>' + data[i].title + '</option>';
-                } else {
-                    html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
-                }
-            }
-            $('#hierarchySelect').html(html);
-        });
-        getDepartments.then(function (data) {
-            data = data.results;
-            let departmentSelect = $('#departmentSelect').val();
-            let html = "";
-            for (let i = 0; i < data.length; i++) {
-                if( departmentSelect == data[i].title || departmentSelect == data[i].id) {
-                    html += '<option value="' + data[i].id + '"' + 'selected' + '>' + data[i].title + '</option>';
-                } else {
-                    html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
-                }
-            }
-            $('#departmentSelect').html(html);
-        });
+
         $("#repentance_date").datepicker({
             dateFormat: "yy-mm-dd"
         })
@@ -73,23 +48,12 @@ $('document').ready(function () {
 });
 
 function getCurrentUserSetting(data) {
-    console.log(data);
     let sortFormTmpl, obj, rendered;
     sortFormTmpl = document.getElementById("sortForm").innerHTML;
     obj = {};
     obj.user = data[0];
-    console.log(obj);
     rendered = _.template(sortFormTmpl)(obj);
     document.getElementById('sort-form').innerHTML = rendered;
-}
-
-function reversOrder(order) {
-    if (order.charAt(0) == '-') {
-        order = order.substring(1)
-    } else {
-        order = '-' + order
-    }
-    return order
 }
 
 $('#sort_save').on('click', function () {
@@ -252,7 +216,7 @@ function createUserInfoBySearch(data, search) {
         })
     });
 
-    // Cортировка
+    // Sorting
     var orderTable = (function () {
         function addListener() {
             $(".table-wrap th").on('click', function () {
@@ -289,6 +253,7 @@ function createUserInfoBySearch(data, search) {
         }
     })();
     orderTable.addListener();
+
     document.getElementById('add').addEventListener('click', function () {
         document.querySelector('.pop-up-splash').style.display = 'block';
     })
