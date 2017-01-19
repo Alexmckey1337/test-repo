@@ -100,7 +100,7 @@ def summit_info(request, summit_id):
 @login_required(login_url='entry')
 def churches(request):
     user = request.user
-    if not user.is_staff and user.hierarchy.level < 2:
+    if not user.is_staff and user.hierarchy.level < 1:
         raise Http404('У Вас нет прав для просмотра данной страницы.')
     ctx = {}
     return render(request, 'group/churches.html', context=ctx)
@@ -143,7 +143,7 @@ def home_group_detail(request, church_id, group_id):
         'phone_number': home_group.phone_number,
         'website': home_group.website,
         'users_count': home_group.users.count(),
-        'fathers_count': home_group.users.filter(spiritual_level=3).count(),
+        'fathers_count': home_group.users.filter(spiritual_level=CustomUser.FATHER).count(),
         'juniors_count': home_group.users.filter(spiritual_level=2).count(),
         'babies_count': home_group.users.filter(spiritual_level=1).count(),
         'partners_count': home_group.users.filter(partnership__is_active=True).count(),

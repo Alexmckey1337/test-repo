@@ -1,18 +1,16 @@
 # -*- coding: utf-8
+from django.db.models import Count, Value as V
+from django.db.models.functions import Concat
 from rest_framework import status
 from rest_framework import viewsets, mixins, filters
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import detail_route
 from rest_framework.generics import get_object_or_404
-from django.db.models.functions import Concat
-from django.db.models import Count, Value as V
-from rest_framework.settings import api_settings
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
-from .models import HomeGroup, Church
 from account.models import CustomUser
-
+from .models import HomeGroup, Church
 from .serializers import ChurchSerializer, ChurchDetailSerializer, ChurchListSerializer
 from .serializers import HomeGroupDetailSerializer, HomeGroupSerializer
 from .serializers import HomeGroupUserSerializer
@@ -33,15 +31,9 @@ class GroupPagination(PageNumberPagination):
         })
 
 
-def get_success_headers(data):
-    try:
-        return {'Location': data[api_settings.URL_FIELD_NAME]}
-    except (TypeError, KeyError):
-        return {}
-
-
 class ChurchViewSet(mixins.RetrieveModelMixin,
                     mixins.UpdateModelMixin,
+                    mixins.CreateModelMixin,
                     viewsets.GenericViewSet):
     queryset = Church.objects.all()
 
@@ -67,30 +59,13 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
                        'is_open', 'opening_date', 'pastor', 'phone_number', 'title',
                        'users', 'website', 'display_title')
 
-    def list(self, request, *args, **kwargs):
-        queryset = Church.objects.annotate(
-            count_groups=Count('home_group', distinct=True),
-            count_users=Count('users', distinct=True) + Count('home_group__users', distinct=True),
-            display_title=Concat('city', V(' '), 'pastor__last_name'),
-        )
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-    @staticmethod
-    def perform_create(serializer):
-        serializer.save()
+    def get_queryset(self):
+        if self.action in 'list':
+            return self.queryset.annotate(
+                count_groups=Count('home_group', distinct=True),
+                count_users=Count('users', distinct=True) + Count('home_group__users', distinct=True),
+                display_title=Concat('city', V(' '), 'pastor__last_name'))
+        return self.queryset
 
     @detail_route(methods=['get'])
     def users(self, request, pk):
@@ -106,19 +81,22 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
         church = get_object_or_404(Church, pk=pk)
 
         if not user_id:
-            return Response({"message": "Некоректные данные", 'status': False})
+            return Response({"message": "Некоректные данные"},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-        if not CustomUser.objects.filter(id=user_id).exists():
+        user = CustomUser.objects.filter(id=user_id)
+        if not user.exists():
             return Response({'message': 'Невозможно добавить пользователя. '
                                         'Данного пользователя не существует.'},
                             status=status.HTTP_400_BAD_REQUEST)
+        user = user.get()
 
-        if CustomUser.objects.get(id=user_id).churches.exists():
+        if user.churches.exists():
             return Response({'message': 'Невозможно добавить пользователя. '
                                         'Данный пользователь уже состоит в Церкви.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if CustomUser.objects.get(id=user_id).home_groups.exists():
+        if user.home_groups.exists():
             return Response({'message': 'Невозможно добавить пользователя. '
                                         'Данный пользователь уже состоит в Домашней Группе.'},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -133,7 +111,8 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
         church = get_object_or_404(Church, pk=pk)
 
         if not user_id:
-            return Response({"message": "Некоректные данные", 'status': False})
+            return Response({"message": "Некоректные данные"},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         if not CustomUser.objects.filter(id=user_id).exists():
             return Response({'message': 'Невозможно удалить пользователя. '
@@ -147,24 +126,19 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
 
         church.users.remove(user_id)
         return Response({'message': 'Пользователь успешно удален из Церкви'},
-                        status=status.HTTP_200_OK)
+                        status=status.HTTP_204_NO_CONTENT)
 
 
 class HomeGroupViewSet(mixins.UpdateModelMixin,
                        mixins.RetrieveModelMixin,
                        mixins.ListModelMixin,
+                       mixins.CreateModelMixin,
                        viewsets.GenericViewSet):
-
     queryset = HomeGroup.objects.annotate(
         display_title=Concat('city', V(' '), 'leader__last_name'))
 
     serializer_class = HomeGroupSerializer
     serializer_retrieve_class = HomeGroupDetailSerializer
-
-    def get_serializer_class(self):
-        if self.action in 'retrieve':
-            return self.serializer_retrieve_class
-        return self.serializer_class
 
     permission_classes = (IsAuthenticated,)
     pagination_class = GroupPagination
@@ -176,27 +150,10 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
     ordering_fields = ('address', 'church', 'city', 'leader', 'opening_date',
                        'phone_number', 'title', 'users', 'website', 'home_group_title')
 
-    def create(self, request, *args, **kwargs):
-        leader_id = request.data['leader']
-        if CustomUser.objects.get(id=leader_id).home_group.exists():
-            return Response({'message': 'Невозможно создать группу. '
-                                        'Указанный лидер уже является членом Домашней Группы.'},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-    @staticmethod
-    def perform_create(serializer):
-        home_group = serializer.save()
-        leader = home_group.leader
-        church = home_group.church
-        if church.users.filter(id=leader.id).exists():
-            church.users.remove(leader)
-        home_group.users.add(leader)
+    def get_serializer_class(self):
+        if self.action in 'retrieve':
+            return self.serializer_retrieve_class
+        return self.serializer_class
 
     @detail_route(methods=['post'])
     def add_user(self, request, pk):
@@ -205,14 +162,16 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
         church = home_group.church
 
         if not user_id:
-            return Response({"message": "Некоректные данные", 'status': False})
+            return Response({"message": "Некоректные данные"},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-        if not CustomUser.objects.filter(id=user_id).exists():
+        user = CustomUser.objects.filter(id=user_id)
+        if not user.exists():
             return Response({'message': 'Невозможно добавить пользователя. '
                                         'Данного пользователя не существует.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if CustomUser.objects.get(id=user_id).home_groups.exists():
+        if user.get().home_groups.exists():
             return Response({'message': 'Невозможно добавить пользователя. '
                                         'Данный пользователь уже состоит в Домашней Группе.'},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -231,7 +190,8 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
         church = home_group.church
 
         if not user_id:
-            return Response({"message": "Некоректные данные", 'status': False})
+            return Response({"message": "Некоректные данные"},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         if not CustomUser.objects.filter(id=user_id).exists():
             return Response({'message': 'Невозможно удалить пользователя. '
@@ -243,7 +203,7 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
                                         'Пользователь не принадлежит к данной Домашней Группе.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        church.users.add(user_id)
         home_group.users.remove(user_id)
+        church.users.add(user_id)
         return Response({'message': 'Пользователь успешно удален.'},
                         status=status.HTTP_204_NO_CONTENT)

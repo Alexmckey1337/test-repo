@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 from django.db import models
 from datetime import date
+
+from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
 
@@ -34,10 +36,12 @@ class Church(CommonGroup):
         verbose_name_plural = _('Churches')
 
     def __str__(self):
-        return '{}'.format(self.title)
+        if self.title:
+            return self.title
+        return self.get_title
 
     def get_absolute_url(self):
-        return '/churches/{}/'.format(self.id)
+        return reverse('church_detail', args=(self.id,))
 
     @property
     def link(self):
@@ -45,6 +49,8 @@ class Church(CommonGroup):
 
     @property
     def get_title(self):
+        if self.title:
+            return self.title
         return '{} {}'.format(self.city, self.pastor.last_name)
 
 
@@ -62,7 +68,7 @@ class HomeGroup(CommonGroup):
         verbose_name_plural = _('Home Groups')
 
     def __str__(self):
-        return '{}'.format(self.title)
+        return self.get_title
 
     def get_absolute_url(self):
         return 'churches/{}/home_groups/{}/'.format(self.church_id, self.id)
@@ -73,4 +79,6 @@ class HomeGroup(CommonGroup):
 
     @property
     def get_title(self):
+        if self.title:
+            return self.title
         return '{} {}'.format(self.city, self.leader.last_name)

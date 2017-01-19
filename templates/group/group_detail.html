@@ -1,9 +1,5 @@
 <h1>Карточка Домашней Группы:</h1>
-{% if home_groups.title %}
-    <h2>Название Церкви: {{home_groups.title }}</h2>
-{% else %}
-    <h2>Название Церкви: {{home_groups.get_title }}</h2>
-{% endif %}
+<h2>Название Группы: {{home_group.get_title }}</h2>
 
 
 <h2><strong> Основная информация: </strong></h2>
