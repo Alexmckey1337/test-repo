@@ -6,10 +6,10 @@ from rest_framework import routers
 from group import views
 
 
-router_v1_1 = routers.DefaultRouter()
-router_v1_1.register(r'churches', views.ChurchViewSet)
-router_v1_1.register(r'home_groups', views.HomeGroupViewSet)
+router_v1_0 = routers.DefaultRouter()
+router_v1_0.register(r'churches', views.ChurchViewSet)
+router_v1_0.register(r'home_groups', views.HomeGroupViewSet)
 
 urlpatterns = [
-    url(r'^v1.1/', include(router_v1_1.urls)),
+    url(r'^v1.0/', include(router_v1_0.urls)),
 ]

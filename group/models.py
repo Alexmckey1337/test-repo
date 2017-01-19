@@ -52,7 +52,7 @@ class Church(CommonGroup):
 class HomeGroup(CommonGroup):
     leader = models.ForeignKey('account.CustomUser', related_name='home_group', on_delete=models.PROTECT,
                                verbose_name=_('Leader'))
-    church = models.ForeignKey('Church', related_name='home_group', on_delete=models.PROTECT,
+    church = models.ForeignKey('Church', related_name='home_group', on_delete=models.CASCADE,
                                verbose_name=_('Church'))
     users = models.ManyToManyField('account.CustomUser', related_name='home_groups', blank=True,
                                    verbose_name=_('Users'))
@@ -68,9 +68,9 @@ class HomeGroup(CommonGroup):
         return 'churches/{}/home_groups/{}/'.format(self.church_id, self.id)
 
     @property
-    def get_church_id(self):
-        return self.church.id
-
-    @property
     def link(self):
         return self.get_absolute_url()
+
+    @property
+    def get_title(self):
+        return '{} {}'.format(self.city, self.leader.last_name)

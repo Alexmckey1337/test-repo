@@ -1,5 +1,10 @@
 <h1>Карточка Церкви:</h1>
-<h2>{{ church }}</h2>
+{% if church.title %}
+    <h2>Название Церкви: {{church.title }}</h2>
+{% else %}
+    <h2>Название Церкви: {{church.get_title }}</h2>
+{% endif %}
+
 <strong> Основная информация: </strong>
 <hr>
     Дата открытия: {{ church.opening_date }}
@@ -15,12 +20,21 @@
     Телефон: {{ church.phone_number }}
     <br>
     Сайт: {{ church.website }}
-    <br><br>
-<strong> Сводная информация: </strong>
+<hr>
+
+<h2><strong> Сводная информация: </strong></h2>
 <hr>
     Количество прихожан: {{ parishioners_count }}
     <br>
+    Количеств Лидеров: {{ leaders_count }}
+    <br>
     Количество Домашних групп: {{ home_groups_count }}
     <br>
-    Количеств Лидеров: {{ leaders_count }}
-<br>
+    Количество Отцов: {{ fathers_count }}
+    <br>
+    Количество Юношей: {{ juniors_count }}
+    <br>
+    Количество Младенцев: {{ babies_count }}
+    <br>
+    Количество Партнеров: {{ partners_count }}
+<hr>

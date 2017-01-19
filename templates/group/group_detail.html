@@ -1,19 +1,35 @@
-<h1>Home Group Detail:</h1>
-<h2>{{ group }}</h2>
-<strong> Основная информация: </strong>
+<h1>Карточка Домашней Группы:</h1>
+{% if home_groups.title %}
+    <h2>Название Церкви: {{home_groups.title }}</h2>
+{% else %}
+    <h2>Название Церкви: {{home_groups.get_title }}</h2>
+{% endif %}
+
+
+<h2><strong> Основная информация: </strong></h2>
 <hr>
-    Дата Открытия: {{ group.opening_date }}
+        Дата Открытия: {{ opening_date }}
+<br>
+        Церковь: {{ church }}
+<br>
+        Лидер: {{ leader }}
+<br>
+        Адрес: {{ address }}
+<br>
+        Телефонный номер: {{ phone_number }}
+<br>
+        Веб сайт: {{ website }}
+<hr>
+
+<h2><strong> Сводная информация: </strong></h2>
+<hr>
+    Количество людей: {{ users_count }}
     <br>
-    Церковь: {{ group.church }}
+    Количество Отцов: {{ fathers_count }}
     <br>
-    Лидер: {{ group.leader }}
+    Количество Юношей: {{ juniors_count }}
     <br>
-    Адрес служения: {{ group.address }}
+    Количество Младенцев: {{ babies_count }}
     <br>
-    Телефон: {{ group.address }}
-    <br>
-    Сайт: {{ group.website }}
-    <br><br>
-<strong> Сводная информация: </strong>
-    <hr>
-    ...
+    Количество Партнеров: {{ partners_count }}
+<hr>
