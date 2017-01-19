@@ -1,6 +1,7 @@
 {% extends "layout_main.html" %}
 {% load static %}
 {% load summit_tags %}
+{% load payment_tags %}
 
 {% block main.attr %} class="main-wrap anketa"  id="account_view"{% endblock %}
 
@@ -415,26 +416,9 @@
             </div>
         </div>
     </div>
-    <div id="popup-create_payment" class="pop-up-splash">
-        <div class="splash-screen">
-            <div class="top-text">
-                <h3>Создать платеж</h3>
-                <span>&times;</span>
-            </div>
-            <div class="summa-wrap">
-                <div class="summa">
-                    <p>Сумма:</p>
-                    <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
-                           type="text" id="new_payment_sum">
-                </div>
-            </div>
-            <textarea maxlength="40" placeholder="Добавить коментарий"></textarea>
-            <div class="splash-bauttons">
-                <button id="close-payment">Отменить</button>
-                <button id="complete-payment" data-id="{{ account.partnership.id }}">Завершить</button>
-            </div>
-        </div>
-    </div>
+    {% if account.partnership %}
+        {% create_payment_form account.partnership %}
+    {% endif %}
     <div id="popup-create_deal" class="pop-up-splash">
         <div class="splash-screen">
             <div class="top-text">

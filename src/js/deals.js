@@ -42,11 +42,21 @@ $(document).ready(function () {
         $('#popup-payments').css('display', '');
         $('#popup-payments table').html('');
     });
-    $('#complete-payment').on('click', function () {
-        let id = $(this).attr('data-id'),
-            sum = $('#new_payment_sum').val(),
-            description = $('#popup-create_payment textarea').val();
-        create_payment(id, sum, description);
+    $('#payment-form').on("submit", function (event) {
+        event.preventDefault();
+        let data = $('#payment-form').serializeArray();
+        console.log(data);
+        let new_data = {};
+        data.forEach(function (field) {
+            new_data[field.name] = field.value
+        });
+        let id = new_data.id,
+            sum = new_data.sum,
+            description = new_data.description,
+            rate = new_data.rate,
+            currency = new_data.currency;
+        console.log(id, sum, description, rate, currency);
+        create_payment(id, sum, description, rate, currency);
         $('#new_payment_sum').val('');
         $('#popup-create_payment textarea').val('');
         $('#popup-create_payment').css('display', 'none');
@@ -236,10 +246,12 @@ function create_partnerships(data) {
 
 }
 
-function create_payment(id, sum, description) {
+function create_payment(id, sum, description, rate, currency) {
     let data = {
         "sum": sum,
         "description": description,
+        "rate": rate,
+        "currency": currency
     };
 
     let json = JSON.stringify(data);
@@ -370,6 +382,7 @@ function getExpiredDeals(time) {
                 diff = diff > 0 ? diff: 0;
                 $('#new_payment_sum').val(diff);
                 $('#complete-payment').attr('data-id', id);
+                $('#purpose-id').val(id);
 
                 $('#popup-create_payment').css('display', 'block');
             } else {
@@ -503,6 +516,7 @@ function getUndoneDeals(dat) {
                     diff = diff > 0 ? diff: 0;
                     $('#new_payment_sum').val(diff);
                     $('#complete-payment').attr('data-id', id);
+                    $('#purpose-id').val(id);
 
                     $('#popup-create_payment').css('display', 'block');
                 } else {

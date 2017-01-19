@@ -19,6 +19,7 @@ def get_success_headers(data):
 
 class CreatePaymentMixin:
     create_payment_serializer = PaymentCreateSerializer
+    show_payment_serializer = PaymentShowSerializer
 
     def get_queryset(self):
         raise NotImplementedError()
@@ -44,7 +45,10 @@ class CreatePaymentMixin:
         }
         serializer = self.create_payment_serializer(data=data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+
+        payment = serializer.save()
+        serializer = self.show_payment_serializer(payment)
+
         headers = get_success_headers(serializer.data)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
