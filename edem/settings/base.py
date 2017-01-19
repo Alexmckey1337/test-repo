@@ -317,3 +317,14 @@ LOGGING = {
         },
     },
 }
+
+# Partnership
+
+# levels
+
+PARTNER_LEVELS = {
+    'director': 0,
+    'supervisor': 1,
+    'manager': 2,
+    'partner': 3,
+}

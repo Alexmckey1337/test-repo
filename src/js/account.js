@@ -20,11 +20,43 @@ let id = getLastId();
             'Content-Type': 'application/json'
         })
     });
+    $("#close-payment").on('click', function () {
+        $('#popup-create_payment').css('display', 'none');
+    });
+    $("#popup-create_payment .top-text span").on('click', function (el) {
+        $('#new_payment_sum').val('');
+        $('#popup-create_payment textarea').val('');
+        $('#popup-create_payment').css('display', '');
+    });
+    $('#complete-payment').on('click', function () {
+        let id = $(this).attr('data-id'),
+            sum = $('#new_payment_sum').val(),
+            description = $('#popup-create_payment textarea').val();
+        create_payment(id, sum, description);
+        $('#new_payment_sum').val('');
+        $('#popup-create_payment textarea').val('');
+        $('#popup-create_payment').css('display', 'none');
+    });
+$("#create_new_payment").on('click', function () {
+    $('#popup-create_payment').css('display', 'block');
+});
+
+$("#close-deal").on('click', function () {
+    $('#popup-create_deal').css('display', 'none');
+});
+$("#popup-create_deal .top-text span").on('click', function (el) {
+    $('#new_deal_sum').val('');
+    $('#popup-create_deal textarea').val('');
+    $('#popup-create_deal').css('display', '');
+});
+$("#create_new_deal").on('click', function () {
+    $('#popup-create_deal').css('display', 'block');
+});
 
     $('#send_new_deal').on('click', function (el) {
-        let description = $('#id_deal_description').val();
-        let value = $('#id_deal_value').val();
-        let date = $('#id_deal_date').val();
+        let description = $('#popup-create_deal textarea').val();
+        let value = $('#new_deal_sum').val();
+        let date = $('#new_deal_date').val();
 
         if (description && value && date) {
             let url = config.DOCUMENT_ROOT + 'api/v1.0/deals/';
@@ -38,9 +70,10 @@ let id = getLastId();
             ajaxRequest(url, deal, function (data) {
                 showPopup('Сделка создана.');
 
-                $('#id_deal_description').val('');
-                $('#id_deal_value').val('');
-                $('#id_deal_date').val('');
+                $('#popup-create_deal textarea').val('');
+                $('#new_deal_sum').val('');
+                $('#new_deal_date').val('');
+                $('#popup-create_deal').css('display', 'none');
 
             }, 'POST', true, {
                 'Content-Type': 'application/json'
@@ -49,7 +82,7 @@ let id = getLastId();
                     data = data.responseJSON;
                     showPopup(data.detail)
                 }
-            })
+            });
         } else {
             showPopup('Заполните все поля.');
         }
@@ -136,6 +169,25 @@ function deleteUser(id) {
         }
     }, 'POST', true, {
         'Content-Type': 'application/json'
+    });
+}
+function create_payment(id, sum, description) {
+    let data = {
+        "sum": sum,
+        "description": description,
+    };
+
+    let json = JSON.stringify(data);
+
+    ajaxRequest(config.DOCUMENT_ROOT + `api/v1.1/partnerships/${id}/create_payment/`, json, function (JSONobj) {
+        showPopup('Оплата прошла успешно.');
+    }, 'POST', true, {
+        'Content-Type': 'application/json'
+    }, {
+        403: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail)
+        }
     });
 }
 
