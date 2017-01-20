@@ -54,3 +54,4 @@ class IsDisciplesOf(IsPartnership):
 
 CanCreatePartnerPayment = IsSupervisorOrHigh
 CanClosePartnerDeal = IsManagerOrHigh
+CanReadPartnerPayment = IsManagerOrHigh

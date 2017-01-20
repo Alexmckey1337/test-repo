@@ -50,7 +50,7 @@ class DealPagination(PageNumberPagination):
 
     def get_paginated_response(self, data):
         return Response(OrderedDict([
-            ('can_create_payment', CanCreatePartnerPayment().has_permission(self.request, None)),
+            ('check_payment_permissions', CanCreatePartnerPayment().has_permission(self.request, None)),
             ('can_close_deal', CanClosePartnerDeal().has_permission(self.request, None)),
             ('count', self.page.paginator.count),
             ('next', self.get_next_link()),
@@ -243,9 +243,6 @@ class DealViewSet(viewsets.ModelViewSet, CreatePaymentMixin, ListPaymentMixin):
         if Partnership.objects.get(user=user).level < Partnership.MANAGER:
             return self.queryset
         return self.queryset.filter(partnership__responsible__user=user)
-
-    def perform_update(self, serializer):
-        serializer.save()
 
 
 @api_view(['POST'])
