@@ -179,7 +179,7 @@ class TestSummitAnketTableViewSet:
         assert payment.rate == Decimal(data['rate'])
         assert payment.description == data['description']
         assert payment.currency_sum_id == data['currency']
-        assert response.data == PaymentCreateSerializer(payment).data
+        assert response.data == PaymentShowSerializer(payment).data
 
     def test_payments(self, api_login_client, anket, payment_factory):
         payment_factory.create_batch(6, purpose=anket)

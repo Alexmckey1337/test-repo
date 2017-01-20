@@ -24,10 +24,13 @@ class CreatePaymentMixin:
     def get_queryset(self):
         raise NotImplementedError()
 
+    def get_object(self):
+        raise NotImplementedError()
+
     @detail_route(methods=['post'])
     def create_payment(self, request, pk=None):
         purpose_model = self.get_queryset().model
-        purpose = get_object_or_404(purpose_model, pk=pk)
+        purpose = self.get_object()
 
         sum = request.data['sum']
         description = request.data.get('description', '')
@@ -61,10 +64,12 @@ class ListPaymentMixin:
     def get_queryset(self):
         raise NotImplementedError()
 
+    def get_object(self):
+        raise NotImplementedError()
+
     @detail_route(methods=['get'])
     def payments(self, request, pk=None):
-        purpose_model = self.get_queryset().model
-        purpose = get_object_or_404(purpose_model, pk=pk)
+        purpose = self.get_object()
         queryset = getattr(purpose, self.payment_list_field).select_related('currency_sum', 'currency_rate', 'manager')
 
         serializer = self.list_payment_serializer(queryset, many=True)

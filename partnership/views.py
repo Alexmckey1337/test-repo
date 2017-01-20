@@ -100,6 +100,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         partnerships = [{'id': p[0], 'fullname': '{} {} {}'.format(*p[1:])} for p in partnerships]
         return Response(partnerships)
 
+    # TODO deprecated
     @list_route()
     def for_edit(self, request):
         user_id = request.query_params.get('user')
@@ -112,9 +113,9 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
     @detail_route(methods=['put'])
     def update_need(self, request, pk=None):
         text = request.data['need_text']
-        parntership = get_object_or_404(Partnership, pk=pk)
-        parntership.need_text = text
-        parntership.save()
+        partnership = self.get_object()
+        partnership.need_text = text
+        partnership.save()
 
         return Response({'need_text': text})
 

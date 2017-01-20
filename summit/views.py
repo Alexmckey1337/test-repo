@@ -171,7 +171,7 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet,
     @detail_route(methods=['get'])
     def notes(self, request, pk=None):
         serializer = SummitAnketNoteSerializer
-        anket = get_object_or_404(SummitAnket, pk=pk)
+        anket = self.get_object()
         queryset = anket.notes
 
         serializer = serializer(queryset, many=True)
@@ -200,7 +200,7 @@ class SummitLessonViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'])
     def add_viewer(self, request, pk=None):
         anket_id = request.data['anket_id']
-        lesson = get_object_or_404(SummitLesson, pk=pk)
+        lesson = self.get_object()
         anket = get_object_or_404(SummitAnket, pk=anket_id)
 
         current_user_anket = SummitAnket.objects.filter(
@@ -220,7 +220,7 @@ class SummitLessonViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'])
     def del_viewer(self, request, pk=None):
         anket_id = request.data['anket_id']
-        lesson = get_object_or_404(SummitLesson, pk=pk)
+        lesson = self.get_object()
         anket = get_object_or_404(SummitAnket, pk=anket_id)
 
         current_user_anket = SummitAnket.objects.filter(
@@ -257,7 +257,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
     @detail_route(methods=['get'])
     def lessons(self, request, pk=None):
         serializer = SummitLessonSerializer
-        summit = get_object_or_404(Summit, pk=pk)
+        summit = self.get_object()
         queryset = summit.lessons
 
         serializer = serializer(queryset, many=True)
@@ -280,7 +280,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
     @detail_route(methods=['get'])
     def consultants(self, request, pk=None):
         serializer = SummitAnketForSelectSerializer
-        summit = get_object_or_404(Summit, pk=pk)
+        summit = self.get_object()
         queryset = summit.consultants
 
         serializer = serializer(queryset, many=True)
@@ -289,7 +289,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
 
     @detail_route(methods=['post'], )
     def add_consultant(self, request, pk=None):
-        summit = get_object_or_404(Summit, pk=pk)
+        summit = self.get_object()
 
         user_perm = IsSupervisorOrHigh().has_object_permission(request, None, summit)
         if not user_perm:
@@ -309,7 +309,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
 
     @detail_route(methods=['post'], )
     def del_consultant(self, request, pk=None):
-        summit = get_object_or_404(Summit, pk=pk)
+        summit = self.get_object()
 
         user_perm = IsSupervisorOrHigh().has_object_permission(request, None, summit)
         if not user_perm:
