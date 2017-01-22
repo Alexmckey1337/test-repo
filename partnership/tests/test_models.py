@@ -48,6 +48,25 @@ class TestPartnership:
     def test_full_name(self, partner, user):
         assert partner.fullname == user.fullname
 
+    def test_done_deals_count(self, partner_with_deals):
+        assert partner_with_deals.done_deals_count == 2
+
+    def test_undone_deals_count(self, partner_with_deals):
+        assert partner_with_deals.undone_deals_count == 5
+
+    def test_expired_deals_count(self, partner_with_deals):
+        assert partner_with_deals.expired_deals_count == 8
+
+    def test_done_deals(self, partner_with_deals):
+        assert [deal.done for deal in partner_with_deals.done_deals] == [True, True]
+
+    def test_undone_deals(self, partner_with_deals):
+        assert ([(deal.done, deal.expired) for deal in partner_with_deals.undone_deals] ==
+                [(False, False) for _ in range(5)])
+
+    def test_expired_deals(self, partner_with_deals):
+        assert [deal.expired for deal in partner_with_deals.expired_deals] == [True for _ in range(8)]
+
 
 @pytest.mark.django_db
 class TestDeal:
@@ -84,3 +103,11 @@ class TestDeal:
         deal.date_created = None
         deal.save()
         assert deal.month == ''
+
+    def test_total_payed_with_payments(self, deal, payment_factory):
+        payment_factory.create_batch(4, purpose=deal, sum=11)
+
+        assert deal.total_payed == 44
+
+    def test_total_payed_without_payments(self, deal):
+        assert deal.total_payed == 0

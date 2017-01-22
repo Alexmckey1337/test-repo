@@ -9,3 +9,10 @@ class DivisionFactory(factory.DjangoModelFactory):
         model = models.Division
 
     title = factory.Sequence(lambda n: 'Division {}'.format(n))
+
+
+class StatusFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.Status
+
+    title = factory.Sequence(lambda n: 'Status {}'.format(n))

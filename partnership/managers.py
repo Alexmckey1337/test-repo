@@ -14,17 +14,17 @@ class DealQuerySet(models.query.QuerySet):
 
     def annotate_full_name(self):
         return self.annotate(
-            full_name=Coalesce(Concat(
+            full_name=Concat(
                 'partnership__user__last_name', V(' '),
                 'partnership__user__first_name', V(' '),
-                'partnership__user__middle_name'), V('Unknown')))
+                'partnership__user__middle_name'))
 
     def annotate_responsible_name(self):
         return self.annotate(
-            responsible_name=Coalesce(Concat(
+            responsible_name=Concat(
                 'partnership__responsible__user__last_name', V(' '),
                 'partnership__responsible__user__first_name'
-            ), V('')))
+            ))
 
     def annotate_total_sum(self):
         return self.annotate(total_sum=Coalesce(Sum('payments__effective_sum'), V(0)))
@@ -53,6 +53,13 @@ class PartnerQuerySet(models.query.QuerySet):
             'user', 'user__hierarchy', 'user__department', 'user__master', 'responsible__user') \
             .prefetch_related('user__divisions')
 
+    def annotate_full_name(self):
+        return self.annotate(
+            full_name=Concat(
+                'user__last_name', V(' '),
+                'user__first_name', V(' '),
+                'user__middle_name'))
+
     def for_user(self, user):
         if not is_authenticated(user) or not hasattr(user, 'partnership'):
             return self.none()
@@ -67,3 +74,9 @@ class PartnerManager(models.Manager):
 
     def base_queryset(self):
         return self.get_queryset().base_queryset()
+
+    def annotate_full_name(self):
+        return self.get_queryset().annotate_full_name()
+
+    def for_user(self, user):
+        return self.get_queryset().for_user(user=user)

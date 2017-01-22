@@ -7,6 +7,7 @@ from datetime import datetime
 import django_filters
 from django.db.models import Case, IntegerField, DecimalField, Sum, Value, When
 from django.db.models.functions import Concat
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import api_view, list_route, detail_route
 from rest_framework.generics import get_object_or_404
@@ -110,9 +111,12 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         data = PartnershipForEditSerializer(partnership).data
         return Response(data)
 
+    # TODO deprecated
     @detail_route(methods=['put'])
     def update_need(self, request, pk=None):
-        text = request.data['need_text']
+        text = request.data.get('need_text', None)
+        if text is None:
+            return Response({'detail': _("'need_text' is required field.")}, status=status.HTTP_400_BAD_REQUEST)
         partnership = self.get_object()
         partnership.need_text = text
         partnership.save()

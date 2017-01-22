@@ -100,26 +100,26 @@ class Partnership(models.Model):
 
     @property
     def done_deals(self):
-        return self.deals.select_related(
-            'partnership', 'partnership__responsible',
-            'partnership__responsible__user').annotate(
-            total_sum=Coalesce(Sum('payments__effective_sum'), Value(0))).filter(done=True) \
+        return self.deals.\
+            base_queryset().\
+            annotate_total_sum().\
+            filter(done=True) \
             .order_by('-date_created')
 
     @property
     def undone_deals(self):
-        return self.deals.select_related(
-            'partnership', 'partnership__responsible',
-            'partnership__responsible__user').annotate(
-            total_sum=Coalesce(Sum('payments__effective_sum'), Value(0))).filter(done=False, expired=False) \
+        return self.deals.\
+            base_queryset().\
+            annotate_total_sum().\
+            filter(done=False, expired=False) \
             .order_by('-date_created')
 
     @property
     def expired_deals(self):
-        return self.deals.select_related(
-            'partnership', 'partnership__responsible',
-            'partnership__responsible__user').annotate(
-            total_sum=Coalesce(Sum('payments__effective_sum'), Value(0))).filter(expired=True) \
+        return self.deals.\
+            base_queryset().\
+            annotate_total_sum().\
+            filter(expired=True) \
             .order_by('-date_created')
 
 
@@ -163,4 +163,4 @@ class Deal(models.Model):
 
     @property
     def total_payed(self):
-        return self.payments.aggregate(Coalesce(Sum('effective_sum'), Value(0)))
+        return self.payments.aggregate(total_payed=Coalesce(Sum('effective_sum'), Value(0)))['total_payed']
