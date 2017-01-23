@@ -11,7 +11,7 @@ let id = getLastId();
 
     $('#send_need').on('click', function (el) {
         let need_text = $('#id_need_text').val();
-        let url = config.DOCUMENT_ROOT + `api/v1.1/partnerships/${$(this).data('partner')}/update_need/`;
+        let url = CONFIG.DOCUMENT_ROOT + `api/v1.1/partnerships/${$(this).data('partner')}/update_need/`;
         let need = JSON.stringify({'need_text': need_text});
         ajaxRequest(url, need, function (data) {
             showPopup('Нужда сохранена.');
@@ -27,7 +27,7 @@ let id = getLastId();
         let date = $('#id_deal_date').val();
 
         if (description && value && date) {
-            let url = config.DOCUMENT_ROOT + 'api/v1.0/deals/';
+            let url = CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/';
 
             let deal = JSON.stringify({
                 'date_created': date,
@@ -129,7 +129,7 @@ function deleteUser(id) {
         "id": id
     };
     let json = JSON.stringify(data);
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/delete_user/', json, function (JSONobj) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/delete_user/', json, function (JSONobj) {
         if (JSONobj.status) {
             showPopup('Пользователь успешно удален');
             window.location.href = "/"
@@ -145,7 +145,7 @@ function sendNote(anket_id, text, box) {
     };
     let summit_type = box.data('summit-id');
     let json = JSON.stringify(data);
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/' + anket_id + '/create_note/', json, function (note) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/' + anket_id + '/create_note/', json, function (note) {
         box.before(function () {
             return '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>' + note.text + ' — ' + moment(note.date_created).format("DD.MM.YYYY HH:mm:ss")
                 + ' — Author: ' + note.owner_name
@@ -163,9 +163,9 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     };
     let url;
     if (checked) {
-        url = config.DOCUMENT_ROOT + 'api/v1.0/summit_lessons/' + lesson_id + '/add_viewer/';
+        url = CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_lessons/' + lesson_id + '/add_viewer/';
     } else {
-        url = config.DOCUMENT_ROOT + 'api/v1.0/summit_lessons/' + lesson_id + '/del_viewer/';
+        url = CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_lessons/' + lesson_id + '/del_viewer/';
     }
     let json = JSON.stringify(data);
     ajaxRequest(url, json, function (data) {

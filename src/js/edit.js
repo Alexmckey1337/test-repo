@@ -2,7 +2,7 @@
     "use strict";
 
     function updateUser(data) {
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/create_user/', data, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/create_user/', data, function (data) {
 
             let send_image = true;
 
@@ -24,7 +24,7 @@
                     }
                     let xhr = new XMLHttpRequest();
                     xhr.withCredentials = true;
-                    xhr.open('POST', config.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
+                    xhr.open('POST', CONFIG.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
                     xhr.onreadystatechange = function () {
                         if (xhr.readyState == 4) {
                             if (xhr.status == 200) {
@@ -309,7 +309,7 @@
         opt['country'] = $("#country_drop").val();
         //console.log(opt)
 
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/regions/', opt, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/regions/', opt, function (data) {
             if (data.length == 0) {
                 document.getElementById('region_drop').innerHTML = '<option value=""> </option>';
                 $('#town_drop').select2({tags: true});
@@ -333,7 +333,7 @@
         let opt = {};
         opt['region'] = $("#region_drop").val();
 
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/cities/', opt, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/cities/', opt, function (data) {
 
             let results = data;
             let html = '<option value=""></option><option>Не выбрано</option>';
@@ -349,7 +349,7 @@
 //INITIALIZE STATUS USER
 
     function initDropCustom(url, parent_id, active, callback) {
-        ajaxRequest(config.DOCUMENT_ROOT + url, null, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + url, null, function (data) {
             let results = data.results,
                 html;
             if (parent_id == 'department_drop' || parent_id == 'statuses_drop') {
@@ -392,7 +392,7 @@
         let id_dep = parseInt($("#department_drop option:selected").val()) || null;
         let myLevel = parseInt($("#statuses_drop option:selected").val()) || null;
         let level = parseInt($("#statuses_drop_parent option:selected").val()) || null;
-        let url = config.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id_dep;
+        let url = CONFIG.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id_dep;
         if (!level) {
             url += '&level_gte=' + myLevel;
         } else {
@@ -422,7 +422,7 @@
 
     function getDivisions(str) {
         let arr = str.split(',');
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/divisions/', null, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/divisions/', null, function (data) {
             let html = '';
             let results = data.results;
 
@@ -448,7 +448,7 @@
         if (!id) {
             return
         }
-        let url = config.DOCUMENT_ROOT + 'api/v1.1/partnerships/for_edit/?user=' + id;
+        let url = CONFIG.DOCUMENT_ROOT + 'api/v1.1/partnerships/for_edit/?user=' + id;
 
         ajaxRequest(url, null, function (data) {
 
@@ -480,7 +480,7 @@
     }
 
     function getManagerList(active) {
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.1/partnerships/simple/', null, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/partnerships/simple/', null, function (data) {
             let html = '<option>Не выбрано</option>';
 
             data.forEach(function (partnership) {

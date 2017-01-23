@@ -70,32 +70,26 @@
                         все</a></p>
 
                 </div>
-                <div class="pagination undone-pagination"></div>
-                <div class="pagination expired-pagination"></div>
-                <div class="pagination done-pagination"></div>
             </div>
 
             <div class="tabs-cont">
-
+                <div class="pagination undone__pagination"></div>
                 <div id="incomplete"></div>
-                <div class="pagination undone-pagination full-width"></div>
+                <div class="pagination undone__pagination left"></div>
             </div>
 
             <div class="tabs-cont">
-
+                <div class="pagination expired__pagination"></div>
                 <div id="overdue"></div>
-                <div class="pagination expired-pagination full-width"></div>
+                <div class="pagination expired__pagination left"></div>
             </div>
 
             <div class="tabs-cont">
-
+                <div class="pagination done__pagination"></div>
                 <div id="completed"></div>
-                <div class="pagination done-pagination full-width"></div>
+                <div class="pagination done__pagination left"></div>
             </div>
-
-
         </div><!--End sdelki -->
-
     </div><!-- End tab-content-->
 {% endblock %}
 
@@ -170,5 +164,4 @@
     <script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
     <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
     <script src='{% static "js/deals.js" %}'></script>
-    <script src='{% static "js/stats.js" %}'></script>
 {% endblock %}

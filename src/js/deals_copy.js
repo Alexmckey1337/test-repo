@@ -1,227 +1,14 @@
 $(document).ready(function () {
     "use strict";
-    $('input[name="fullsearch"]').keyup(function () {
-        let id = $('#accountable').val();
-        console.log(id);
-        let obj = {'responsible': id};
-        if (id == '0') {
-            delay(function () {
-                getPartnersList();
-                let json = {};
-                json["page"] = '1';
-                getExpiredDeals(json);
-                getDoneDeals(json);
-                getUndoneDeals(json);
-            }, 1500);
-        } else {
-            delay(function () {
-                getPartnersList(obj);
-
-                let json = {};
-                json["page"] = '1';
-                getExpiredDeals(json);
-                getDoneDeals(json);
-                getUndoneDeals(json);
-            }, 1500);
-        }
-
-    });
-
-    document.getElementById('sort_save').addEventListener('click', function () {
-        updateSettings(getPartnersList);
-        $(".table-sorting").animate({
-            right: '-300px'
-        }, 10, 'linear')
-    });
-
-    $.datepicker.setDefaults($.datepicker.regional["ru"]);
-
-    $("#done_datepicker_from").datepicker({
-        dateFormat: "yyyy-mm-dd",
-        maxDate: new Date(),
-        onSelect: function (date) {
-            window.done_from_date = date;
-            sortDoneDeals(done_from_date, done_to_date);
-        }
-    }).datepicker("setDate", '-1m');
-
-    $("#done_datepicker_to").datepicker({
-        dateFormat: "yyyy-mm-dd",
-        onSelect: function (date) {
-            window.done_to_date = date;
-            sortDoneDeals(done_from_date, done_to_date);
-        }
-    }).datepicker("setDate", new Date());
-
-    $("#expired_datepicker_from").datepicker({
-        dateFormat: "yy-mm-dd",
-        maxDate: new Date(),
-        onSelect: function (date) {
-            window.expired_from_date = date;
-            sortExpiredDeals(expired_from_date, expired_to_date);
-        }
-    }).datepicker("setDate", '-1m');
-
-    $("#expired_datepicker_to").datepicker({
-        dateFormat: "yy-mm-dd",
-        onSelect: function (date) {
-            window.expired_to_date = date;
-            sortExpiredDeals(expired_from_date, expired_to_date);
-        }
-    }).datepicker("setDate", new Date());
+    let done_from_date = '',
+        done_to_date = '',
+        expired_from_date = '',
+        expired_to_date = '',
+        ordering = {};
 
     makeTabs();
-
-    document.getElementById('show-all-expired').addEventListener('click', function () {
-        window.expired_from_date = '';
-        window.expired_to_date = '';
-        sortExpiredDeals(expired_from_date, expired_to_date);
-    });
-
-    document.getElementById('show-all-done').addEventListener('click', function () {
-        window.done_from_date = '';
-        window.done_to_date = '';
-        sortDoneDeals(done_from_date, done_to_date);
-    });
-
-    document.getElementById('close').addEventListener('click', function () {
-        document.getElementById('popup').style.display = '';
-    });
-
-    document.getElementById('complete').addEventListener('click', function () {
-        let attr = this.getAttribute('data-id'),
-            value = document.getElementById('deal-value').value,
-            description = document.getElementById('deal-description').value;
-        let reg = /^\d{1,5} ?₴?$/gi;
-        if (!reg.test(value)) {
-            showPopup('Введите правильное значение суммы');
-            return;
-        }
-        updateDeals(attr, parseInt(value), description);
-        document.getElementById('deal-value').setAttribute('readonly', 'readonly');
-    });
-
-    document.getElementById('changeSum').addEventListener('click', function () {
-        document.getElementById('deal-value').removeAttribute('readonly');
-        document.getElementById('deal-value').focus();
-    });
-
-    /*add parnership*/
-    // document.querySelector(".add").addEventListener('click', function () {
-    //     document.querySelector('.add-user-wrap').style.display = 'block';
-    // });
-
-    document.querySelector(".add-user-wrap .top-text span").addEventListener('click', function () {
-        document.querySelector('.add-user-wrap').style.display = 'none';
-    });
-
-    document.querySelector(".choose-user-wrap .top-text > span").addEventListener('click', function () {
-        document.getElementById('searchUsers').value = '';
-        document.querySelector('.choose-user-wrap .splash-screen').classList.remove('active');
-        document.querySelector('.choose-user-wrap').style.display = '';
-    });
-
-
-    $('#searchUsers').keyup(function () {
-        getUnregisteredUsers();
-    });
-
-
+    init();
 });
-
-let done_from_date = '',
-    done_to_date = '',
-    expired_from_date = '',
-    expired_to_date = '',
-    ordering = {};
-
-init();
-
-$('#accountable').on('change', function () {
-    let id = this.value;
-    let obj = {'responsible': id};
-    if (id == '0') {
-        getPartnersList();
-    } else {
-        getPartnersList(obj);
-    }
-});
-
-(function createPartnershipsList() {
-    if ($('#accountable')) {
-        $('#accountable').select2();
-    }
-})();
-
-function getUnregisteredUsers(param = {}) {
-    let search = $('#searchUsers').val();
-    if (search && search.length > 2) {
-        param['search'] = search;
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/partnerships_unregister_search/', param, function (data) {
-            data = data.results;
-            let html = '';
-            for (let i = 0; i < data.length; i++) {
-                html += '<div class="rows-wrap"><button data-id=' + data[i].id + '>Выбрать</button><div class="rows"><div class="col"><p><span><a href="/account/' + data[i].id + '/">' + data[i].fullname + '</a></span></p></div><div class="col"></div></div></div>';
-            }
-            if (data.length > 0) {
-                document.getElementById('searchedUsers').innerHTML = html;
-            } else {
-                document.getElementById('searchedUsers').innerHTML = '<div class="rows-wrap"><div class="rows"><p>По запросу не найдено учасников</p></div></div>';
-            }
-            document.querySelector('.choose-user-wrap .splash-screen').classList.add('active');
-            let but = document.querySelectorAll('.rows-wrap button');
-            for (let j = 0; j < but.length; j++) {
-                but[j].addEventListener('click', function () {
-                    let id = this.getAttribute('data-id');
-                    registerUser(id);
-                })
-            }
-        });
-    } else {
-        document.getElementById('searchedUsers').innerHTML = '<div class="rows-wrap"><div class="rows"><p>Для поиска введите более 2-х символов</p></div></div>';
-    }
-}
-
-function registerUser(id) {
-    if (!id) {
-        return
-    }
-    let money = 0,
-        dateObj = new Date(),
-        month = dateObj.getUTCMonth() + 1, //months from 1-12
-        day = dateObj.getUTCDate(),
-        year = dateObj.getUTCFullYear(),
-        newdate = year + "-" + month + "-" + day,
-        data = {'date': newdate, 'user': parseInt(id)};
-
-    data.value = money;
-    data.responsible = config.user_partnerships_info.responsible;
-    if (data.responsible) {
-        create_partnerships(data)
-    } else {
-        showPopup("Для добавления партнера вы должны быть партнером.");
-    }
-    console.log('end reg');
-}
-
-function create_partnerships(data) {
-
-    let json = JSON.stringify(data);
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/create_partnership/', json, function (JSONobj) {
-
-        if (JSONobj.status) {
-            $(".choose-user-wrap").hide();
-            showPopup(JSONobj.message);
-            //partners_initialize();
-        } else {
-            showPopup(JSONobj.message);
-        }
-        console.log('end partner');
-    }, 'POST', true, {
-        'Content-Type': 'application/json'
-    });
-
-}
 
 function getExpiredDeals(time) {
     let json = time || null;
@@ -588,37 +375,6 @@ function makeTabs() {
     }
 }
 
-// function getCurrentPartnerSetting(data) {
-//     let html = '';
-//     data.forEach(function (d) {
-//         let titles = d[1],
-//             ischeck,
-//             isdraggable;
-//         html += '<h3>' + d[0] + '</h3>';
-//         for (let p in titles) {
-//             if (!titles.hasOwnProperty(p)) continue;
-//             ischeck = titles[p]['active'] ? 'check' : '';
-//             isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
-//             html += '<li ' + isdraggable + ' >' +
-//                 '<input id="' + titles[p]['ordering_title'] + '" type="checkbox">' +
-//                 '<label for="' + titles[p]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[p]['id'] + '">' + titles[p]['title'] + '</label>';
-//             if (isdraggable == 'disable') {
-//                 html += '<div class="disable-opacity"></div>'
-//             }
-//             html += '</li>'
-//         }
-//     });
-//
-//     $('#sort-form').html(html);
-//
-//     $("#sort-form label").on('click', function () {
-//         if (!$(this).parent().attr('disable')) {
-//             $(this).hasClass('check') ? $(this).removeClass('check') : $(this).addClass('check');
-//         }
-//     })
-//
-// }
-
 function getCurrentPartnerSetting(data) {
     console.log(data);
     let sortFormTmpl, obj, rendered;
@@ -629,7 +385,6 @@ function getCurrentPartnerSetting(data) {
     rendered = _.template(sortFormTmpl)(obj);
     document.getElementById('sort-form').innerHTML = rendered;
 }
-
 
 function getPartnersList(param = {}) {
 
@@ -773,42 +528,42 @@ function getPartnersList(param = {}) {
             $(".query-none p").html('По запросу не найдено участников');
             $("#spisok .element-select").html('<p>Показано <span>' + results.length + '</span> из <span>' + count + '</span></p>');
         }
-    var orderTable = (function () {
-        function addListener() {
-            $(".table-wrap th").on('click', function () {
-                let dataOrder;
-                let data_order = this.getAttribute('data-order');
-                var revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
-                var order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
-                if (order != '') {
-                    dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
-                } else {
-                    dataOrder = '-' + data_order;
-                }
-                ordering = {};
-                ordering[data_order] = dataOrder;
-                let page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
-                let data = {
-                    'ordering': dataOrder,
-                    'page': page
-                };
-                if (order == data_order) {
-                    revers = (revers == '+') ? '-' : '+';
-                } else {
-                    revers = "+"
-                }
-                sessionStorage.setItem('revers', revers);
-                sessionStorage.setItem('order', data_order);
+        var orderTable = (function () {
+            function addListener() {
+                $(".table-wrap th").on('click', function () {
+                    let dataOrder;
+                    let data_order = this.getAttribute('data-order');
+                    var revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
+                    var order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
+                    if (order != '') {
+                        dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
+                    } else {
+                        dataOrder = '-' + data_order;
+                    }
+                    ordering = {};
+                    ordering[data_order] = dataOrder;
+                    let page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
+                    let data = {
+                        'ordering': dataOrder,
+                        'page': page
+                    };
+                    if (order == data_order) {
+                        revers = (revers == '+') ? '-' : '+';
+                    } else {
+                        revers = "+"
+                    }
+                    sessionStorage.setItem('revers', revers);
+                    sessionStorage.setItem('order', data_order);
 
-                getPartnersList(data);
-            });
-        }
+                    getPartnersList(data);
+                });
+            }
 
-        return {
-            addListener: addListener
-        }
-    })();
-    orderTable.addListener();
+            return {
+                addListener: addListener
+            }
+        })();
+        orderTable.addListener();
         $('.preloader').css('display', 'none');
         $("#spisok .pag-wrap").each(function () {
             $(this).html(paginations);

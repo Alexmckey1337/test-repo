@@ -1,13 +1,35 @@
-var config = {
+const CONFIG = {
     // 'DOCUMENT_ROOT': 'http://vocrm.org/',
     'DOCUMENT_ROOT': '/',
     'pagination_count': 30, //Количество записей при пагинации
     'pagination_patrnership_count': 30, //Количество записей при пагинации for patrnership
     'column_table': null
 };
+
+var VOCRM = {};
+
 counterNotifications();
 
-var GlobalParam = {};
+function makeDataTable(data, id) {
+    var tmpl = document.getElementById('databaseUsers').innerHTML;
+    var rendered = _.template(tmpl)(data);
+    document.getElementById(id).innerHTML = rendered;
+    $('.quick-edit').on('click', function () {
+        makeQuickEditCart(this);
+    })
+}
+
+function makeSortForm(data) {
+    let sortFormTmpl, obj, rendered;
+    sortFormTmpl = document.getElementById("sortForm").innerHTML;
+    obj = {};
+    obj.user = [];
+    obj.user.push("Фильтр");
+    obj.user.push(data);
+    console.log(obj);
+    rendered = _.template(sortFormTmpl)(obj);
+    document.getElementById('sort-form').innerHTML = rendered;
+    }
 
 function makeResponsibleList() {
     let department = $('#departmentSelect').val();
@@ -142,6 +164,7 @@ function makeQuickEditCart(el) {
         'Content-Type': 'application/json'
     });
 }
+
 function setCookie(name, value, options) {
     options = options || {};
     let expires = options.expires;
@@ -170,12 +193,16 @@ function setCookie(name, value, options) {
 
 $('#logout_button').on('click', function (e) {
     e.preventDefault();
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/logout/', null, function (data) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/logout/', null, function (data) {
         deleteCookie('key');
         window.location.href = '/entry';
     }, 'POST', true, {
         'Content-Type': 'application/json'
     })
+});
+
+$('.close_popup').on('click', function () {
+    $(this).closest('.popap').css('display', 'none');
 });
 
 /*search animate width*/
@@ -221,11 +248,10 @@ $("body").on('click', '#pag li', function (e) {
     $(this).addClass('active');
 });
 
-
 /*DND columns*/
 
 $("#sort-on").click(function () {
-    $(".table-sorting").animate({right: '0px'}, 10, 'linear');
+    $(".table-sorting").animate({right: '0'}, 10, 'linear');
     $(".page-width").append(" <div class='bgsort'></div>");
 });
 
@@ -244,7 +270,6 @@ $('body').on('click', ".bgsort", function () {
     $(this).remove();
 });
 
-
 //WTF???
 $('#popup').click(function (el) {
     if (el.target !== this) {
@@ -252,7 +277,6 @@ $('#popup').click(function (el) {
     }
     $(this).hide();
 });
-
 
 //Переписати на нові таби
 $('.tabs-nav li').click(function (e) {
@@ -265,7 +289,6 @@ $('.tabs-nav li').click(function (e) {
 });
 
 $(".tabs-nav li a:first").click();
-
 
 $(document).ready(function () {
     $('body').on('mouseover', '.toggle-sidebar a', function (el) {
@@ -343,7 +366,6 @@ function deleteCookie(name) {
     document.cookie = name + '=active;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }
 
-
 //Cкрывать элементы когда клик по другой части области экрана
 document.body.addEventListener('click', function (el) {
     if (el.target == document.querySelector(".userImgWrap") || el.target == document.querySelector(".userImgWrap img")) {
@@ -364,21 +386,16 @@ document.body.addEventListener('click', function (el) {
 });
 
 $(function () {
-
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/users/current/', null, function (data) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/users/current/', null, function (data) {
         let user_id = data.id;
-        config.user_id = data.id;
-        config.user_partnerships_info = data.partnerships_info;
-        config.column_table = data.column_table;
+        VOCRM.user_id = data.id;
+        VOCRM.user_partnerships_info = data.partnerships_info;
+        VOCRM.column_table = data.column_table;
         let hierarchy_chain = data['hierarchy_chain'];
 
-        if (document.getElementById('database_users')) {
-            createUser();
-        }
-
-        if (document.getElementById('partnersips_list')) {
-            getPartnersList();
-        }
+        // if (document.getElementById('database_users')) {
+        //     createUser();
+        // }
 
         if (document.getElementById('users_list')) {
             let dat = {};
@@ -401,7 +418,7 @@ $(function () {
             init_report()
         }
 
-        if (config.user_partnerships_info && config.user_partnerships_info.is_responsible && document.querySelector('.manager_view')) {
+        if (VOCRM.user_partnerships_info && VOCRM.user_partnerships_info.is_responsible && document.querySelector('.manager_view')) {
             document.querySelector('.manager_view').style.display = 'block'
         }
 
@@ -434,8 +451,7 @@ jQuery(function ($) {
 
 //old version
 function getCurrentSetting() {
-
-    let titles = config['column_table'];
+    let titles = VOCRM['column_table'];
     let html = '';
     for (let p in titles) {
         if (!titles.hasOwnProperty(p)) continue;
@@ -459,10 +475,29 @@ function getCurrentSetting() {
     })
 }
 
+function createUsersTable(config) {
+        getUsers(config).then(function (data) {
+            let count = data.count;
+            let page = config['page'] || 1;
+            let pages = Math.ceil(count / CONFIG.pagination_count);
+            let id = "database_users";
+            let paginationConfig = {
+                container: ".users__pagination",
+                currentPage: page,
+                pages: pages,
+                callback: createUsersTable
+            };
+            makeDataTable(data, id);
+            makePagination(paginationConfig);
+            makeSortForm(data.user_table);
+            $('.preloader').css('display', 'none');
+        });
+    }
+
 function updateSettings(callback, path) {
     let data = [];
     let iteration = 1;
-    $("#sort-form input").each(function (el) {
+    $("#sort-form input").each(function () {
         let item = {};
         item['id'] = $(this).val();
         item['number'] = iteration++;
@@ -471,18 +506,18 @@ function updateSettings(callback, path) {
     });
     let json = JSON.stringify(data);
 
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/update_columns/', json, function (JSONobj) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/update_columns/', json, function (JSONobj) {
         $(".bgsort").remove();
-        config['column_table'] = JSONobj['column_table'];
+        VOCRM['column_table'] = JSONobj['column_table'];
 
         if (callback) {
             var param = {};
             if (path !== undefined) {
                 let extendParam = $.extend({}, param, filterParam());
-                callback(path, extendParam);
+                callback(extendParam);
             } else {
                 let param = filterParam();
-                callback(path, param);
+                callback(param);
             }
         }
     }, 'POST', true, {
@@ -494,8 +529,8 @@ function hidePopup(el) {
     $(el).closest('.popap').find('.save-user').text('Сохранить');
     $(el).closest('.popap').find('.save-user').attr('disabled', false);
     $(el).closest('.popap').css('display', 'none');
-
 }
+
 function refreshFilter(el) {
     var input = $(el).closest('.popap').find('input');
     $(el).addClass('refresh');
@@ -506,6 +541,7 @@ function refreshFilter(el) {
         $(item).val('')
     })
 }
+
 function filterParam() {
     let filterPopup, data = {}, department, hierarchy, master, search_email, search_phone_number, search_country, search_city;
     filterPopup = $('#filterPopup');
@@ -541,10 +577,11 @@ function filterParam() {
     return data;
 }
 
-function applyFilter(el) {
+function applyFilter(el, callback) {
     let self = el, data;
     data = filterParam();
-    createUser(data);
+    $('.preloader').css('display', 'block');
+    callback(data);
     setTimeout(function () {
         hidePopup(self);
     }, 300);
@@ -558,3 +595,74 @@ var makeChooseStatus = getStatuses().then(function (data) {
     }
     return html;
 });
+
+function makeTabs() {
+    let pos = 0,
+        tabs = document.getElementById('tabs'),
+        tabsContent = document.getElementsByClassName('tabs-cont');
+
+    for (let i = 0; i < tabs.children.length; i++) {
+        tabs.children[i].setAttribute('data-page', pos);
+        pos++;
+    }
+
+    showPage(0);
+
+    tabs.onclick = function (event) {
+        event.preventDefault();
+        return showPage(parseInt(event.target.parentElement.getAttribute("data-page")));
+    };
+
+    function showPage(i) {
+        for (let k = 0; k < tabsContent.length; k++) {
+            tabsContent[k].style.display = 'none';
+            tabs.children[k].classList.remove('current');
+        }
+        tabsContent[i].style.display = 'block';
+        tabs.children[i].classList.add('current');
+
+        let done = document.getElementById('period_done'),
+            expired = document.getElementById('period_expired'),
+            unpag = document.querySelectorAll('.undone-pagination'),
+            expag = document.querySelectorAll('.expired-pagination'),
+            dpag = document.querySelectorAll('.done-pagination');
+
+        if (document.querySelectorAll('a[href="#overdue"]')[0].parentElement.classList.contains('current')) {
+            done.style.display = 'none';
+            expired.style.display = 'block';
+            Array.prototype.forEach.call(expag, function (el) {
+                el.style.display = 'block';
+            });
+            Array.prototype.forEach.call(unpag, function (el) {
+                el.style.display = 'none';
+            });
+            Array.prototype.forEach.call(dpag, function (el) {
+                el.style.display = 'none';
+            });
+        } else if (document.querySelectorAll('a[href="#completed"]')[0].parentElement.classList.contains('current')) {
+            done.style.display = 'block';
+            expired.style.display = '';
+            Array.prototype.forEach.call(expag, function (el) {
+                el.style.display = 'none';
+            });
+            Array.prototype.forEach.call(unpag, function (el) {
+                el.style.display = 'none';
+            });
+            Array.prototype.forEach.call(dpag, function (el) {
+                el.style.display = 'block';
+            });
+        } else if (document.querySelectorAll('a[href="#incomplete"]')[0].parentElement.classList.contains('current')) {
+            done.style.display = '';
+            expired.style.display = '';
+            Array.prototype.forEach.call(expag, function (el) {
+                el.style.display = 'none';
+            });
+            Array.prototype.forEach.call(unpag, function (el) {
+                el.style.display = 'block';
+            });
+            Array.prototype.forEach.call(dpag, function (el) {
+                el.style.display = 'none';
+            });
+        }
+    }
+}

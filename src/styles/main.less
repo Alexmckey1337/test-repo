@@ -758,7 +758,6 @@ h1 a {
 .top-pag {
   overflow: hidden;
   padding-left: 21px;
-  height: 90px;
   box-sizing: border-box;
   padding-top: 13px;
   position: relative;
@@ -1337,6 +1336,10 @@ button#completeDelete::before,
 .pagination {
   padding: 20px 30px 15px 0;
   float: right;
+  &.left{
+    float: left;
+    padding-left: 20px;
+  }
 }
 
 .full-width {
@@ -1466,7 +1469,9 @@ button#completeDelete::before,
 }
 
 /* ------------------Table------------------------------ */
+
 .table-wrap {
+  overflow-x: scroll;
   position: relative;
   /*z-index: -1;*/
 }
@@ -1765,7 +1770,7 @@ td {
   transition: all .3s ease;
 }
 
-#database_users {
+#database_users, #partnersList {
   & td {
     a {
       & ~ .quick-edit {
@@ -2760,7 +2765,7 @@ button#complete {
 /***********************Preloader************************/
 .preloader {
   position: fixed;
-  top: 40%;
+  top: 50%;
   left: 50%;
   z-index: 999;
 }
@@ -4090,6 +4095,27 @@ div.butt-wrap > p:nth-child(3) {
 
 .undone-pagination, .expired-pagination, .done-pagination {
   display: none;
+}
+
+.pagination {
+  & .pagination__input {
+    width: 5em;
+    height: 1em;
+    padding: .5em;
+  }
+  & .text {
+    padding-left: 0.7em;
+    padding-right: 1em;
+  }
+  & a {
+    font-size: 2em;
+    padding-right: 0.7em;
+    cursor: pointer;
+    & i {
+      position: relative;
+      top: 0.15em;
+    }
+  }
 }
 
 .vocrm-login .logo div:nth-child(1), .vocrm-login .logo div:nth-child(2) {

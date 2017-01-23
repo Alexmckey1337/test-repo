@@ -15,9 +15,9 @@
 
         <div class="top-buttons-wrap">
             <ul class="top-buttons">
-{#                <li>#}
-{#                    <button class="add" id="add_user_parners">Добавить пользователя</button>#}
-{#                </li>#}
+                {#                <li>#}
+                {#                    <button class="add" id="add_user_parners">Добавить пользователя</button>#}
+                {#                </li>#}
                 {% comment %}
             <li>
                 <button>Экспортировать</button>
@@ -53,12 +53,7 @@
                 </div>
             {% endif %}
             <div class="top-pag">
-                <div class="pagination">
-                    <div class="pag-wrap">
-
-
-                    </div>
-                </div>
+                <div class="pagination partners__pagination"></div>
             </div>
 
             <div class="table-wrap clearfix"><!--Table -->
@@ -69,32 +64,10 @@
                     <div class="gif">
                     </div>
                 </div>
-                <div class="table scrollbar-inner" id="partnersips_list"></div>
+                <div class="table scrollbar-inner" id="partnersList"></div>
             </div><!--End Table-wrap -->
+            <div class="pagination partners__pagination left"></div>
 
-            <div class="pagination full-width"><!--pagination -->
-                <div class="element-select">
-                    <!--<p>Показано <span>10</span> из <span>500</span></p> -->
-                </div>
-                <div class="pag-wrap">
-                    <!-- <div class="prev">
-                        <span class="double_arrow"></span>
-                        <span class="arrow"></span>
-                    </div>
-                            <ul class="pag">
-                                <li class="active">1</li>
-                                <li>2</li>
-                                <li>3</li>
-                                <li>4</li>
-                                <li>5</li>
-                                <li>6</li>
-                            </ul>
-                        <div class="next">
-                            <span class="arrow"></span>
-                            <span class="double_arrow"></span>
-                        </div> -->
-                </div>
-            </div><!--End pagination -->
         </div><!--End spisok -->
     </div><!-- End tab-content-->
 {% endblock %}
@@ -145,6 +118,5 @@
 {% block extra_scripts %}
     <script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
     <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
-    <script src='{% static "js/deals.js" %}'></script>
-    <script src='{% static "js/stats.js" %}'></script>
+    <script src='{% static "js/partner_list.js" %}'></script>
 {% endblock %}

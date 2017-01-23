@@ -304,7 +304,7 @@
 
 
     function getUsers() {
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
             data = data.results;
             let html = '<option value=""> </option>';
             for (let i = 0; i < data.length; i++) {
@@ -317,7 +317,7 @@
     function getRegions() {
         let opt = {};
         opt['country'] = $("#chooseCountry").val();
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/regions/', opt, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/regions/', opt, function (data) {
             if (data.length == 0) {
                 document.getElementById('chooseRegion').innerHTML = '<option value=""> </option>';
                 document.getElementById('chooseCity').removeAttribute('disabled')
@@ -334,7 +334,7 @@
     function getCities() {
         let opt = {};
         opt['region'] = $("#chooseRegion").val();
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/cities/', opt, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/cities/', opt, function (data) {
             let html = '<option value=""> </option><option>Не выбрано</option>';
             for (let i = 0; i < data.length; i++) {
                 html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
@@ -461,7 +461,7 @@
             $("input[name='value']").css('border', '');
         }
         let json = JSON.stringify(data);
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.1/users/', json, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/', json, function (data) {
             if (data) {
                 let fd = new FormData();
                 if (!$('input[type=file]')[0].files[0]) {
@@ -484,7 +484,7 @@
 
                 let xhr = new XMLHttpRequest();
                 xhr.withCredentials = true;
-                xhr.open('POST', config.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
+                xhr.open('POST', CONFIG.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
 
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState == 4) {
