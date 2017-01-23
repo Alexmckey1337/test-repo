@@ -4,9 +4,6 @@ from __future__ import unicode_literals
 import django_filters
 import rest_framework_filters as filters_new
 from dbmail import send_db_mail
-from decimal import Decimal
-
-from django.contrib.contenttypes.models import ContentType
 from django.db.models import Sum, Value as V
 from django.db.models.functions import Coalesce
 from django.http import HttpResponse
@@ -23,7 +20,7 @@ from rest_framework.settings import api_settings
 
 from account.models import CustomUser
 from navigation.models import user_table, user_summit_table
-from payment.serializers import PaymentCreateSerializer, PaymentShowSerializer
+from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.permissions import IsSupervisorOrHigh
 from summit.utils import generate_ticket
 from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, SummitUserConsultant
@@ -77,7 +74,9 @@ class FilterByClub(BaseFilterBackend):
         return queryset
 
 
-class SummitAnketTableViewSet(viewsets.ModelViewSet):
+class SummitAnketTableViewSet(viewsets.ModelViewSet,
+                              CreatePaymentMixin,
+                              ListPaymentMixin):
     queryset = SummitAnket.objects.select_related(
         'user', 'user__hierarchy', 'user__department', 'user__master', 'summit', 'summit__type'). \
         prefetch_related('user__divisions', 'emails').annotate(
@@ -172,7 +171,7 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'])
     def notes(self, request, pk=None):
         serializer = SummitAnketNoteSerializer
-        anket = get_object_or_404(SummitAnket, pk=pk)
+        anket = self.get_object()
         queryset = anket.notes
 
         serializer = serializer(queryset, many=True)
@@ -193,39 +192,6 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    @detail_route(methods=['post'])
-    def create_payment(self, request, pk=None):
-        anket = get_object_or_404(SummitAnket, pk=pk)
-        sum = request.data['sum']
-        description = request.data.get('description', '')
-        rate = request.data.get('rate', Decimal(1))
-        currency = request.data.get('currency', anket.currency.id)
-        data = {
-            'sum': sum,
-            'rate': rate,
-            'currency_sum': currency,
-            'description': description,
-            'manager': request.user.id,
-            'content_type': ContentType.objects.get_for_model(SummitAnket).id,
-            'object_id': pk
-        }
-        serializer = PaymentCreateSerializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        headers = get_success_headers(serializer.data)
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-    @detail_route(methods=['get'])
-    def payments(self, request, pk=None):
-        serializer = PaymentShowSerializer
-        anket = get_object_or_404(SummitAnket, pk=pk)
-        queryset = anket.payments.select_related('currency_sum', 'currency_rate', 'manager')
-
-        serializer = serializer(queryset, many=True)
-
-        return Response(serializer.data)
-
 
 class SummitLessonViewSet(viewsets.ModelViewSet):
     queryset = SummitLesson.objects.all()
@@ -234,7 +200,7 @@ class SummitLessonViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'])
     def add_viewer(self, request, pk=None):
         anket_id = request.data['anket_id']
-        lesson = get_object_or_404(SummitLesson, pk=pk)
+        lesson = self.get_object()
         anket = get_object_or_404(SummitAnket, pk=anket_id)
 
         current_user_anket = SummitAnket.objects.filter(
@@ -254,7 +220,7 @@ class SummitLessonViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'])
     def del_viewer(self, request, pk=None):
         anket_id = request.data['anket_id']
-        lesson = get_object_or_404(SummitLesson, pk=pk)
+        lesson = self.get_object()
         anket = get_object_or_404(SummitAnket, pk=anket_id)
 
         current_user_anket = SummitAnket.objects.filter(
@@ -291,7 +257,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
     @detail_route(methods=['get'])
     def lessons(self, request, pk=None):
         serializer = SummitLessonSerializer
-        summit = get_object_or_404(Summit, pk=pk)
+        summit = self.get_object()
         queryset = summit.lessons
 
         serializer = serializer(queryset, many=True)
@@ -314,7 +280,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
     @detail_route(methods=['get'])
     def consultants(self, request, pk=None):
         serializer = SummitAnketForSelectSerializer
-        summit = get_object_or_404(Summit, pk=pk)
+        summit = self.get_object()
         queryset = summit.consultants
 
         serializer = serializer(queryset, many=True)
@@ -323,7 +289,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
 
     @detail_route(methods=['post'], )
     def add_consultant(self, request, pk=None):
-        summit = get_object_or_404(Summit, pk=pk)
+        summit = self.get_object()
 
         user_perm = IsSupervisorOrHigh().has_object_permission(request, None, summit)
         if not user_perm:
@@ -343,7 +309,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
 
     @detail_route(methods=['post'], )
     def del_consultant(self, request, pk=None):
-        summit = get_object_or_404(Summit, pk=pk)
+        summit = self.get_object()
 
         user_perm = IsSupervisorOrHigh().has_object_permission(request, None, summit)
         if not user_perm:

@@ -12,7 +12,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMultiAlternatives
 from django.template import Context
 from django.template.loader import get_template
-from django.urls import reverse
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 from rest_auth.views import LogoutView as RestAuthLogoutView
@@ -31,7 +30,6 @@ from hierarchy.models import Hierarchy, Department
 from navigation.models import user_table
 from partnership.models import Partnership
 from status.models import Status, Division
-from tv_crm.models import LastCall
 from .resources import clean_password, clean_old_password
 from .serializers import UserSerializer, UserShortSerializer, UserTableSerializer, NewUserSerializer, \
     UserSingleSerializer, PartnershipSerializer
@@ -473,8 +471,6 @@ def _add_user(data, files, request):
     user = _set_for_create_user_attrs(user, data)
     user = _set_user_image(user, files)
     user.save()
-
-    LastCall.objects.get_or_create(user=user)
 
     # serializer = UserSerializer(user, context={'request': request})
     # message['response'] = serializer.data

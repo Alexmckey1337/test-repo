@@ -51,6 +51,8 @@ $(document).ready(function () {
     let data = {
         "sum": sum,
         "description": description,
+        "rate": rate,
+        "currency": currency
     };
 
     let json = JSON.stringify(data);

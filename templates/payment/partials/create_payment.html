@@ -1,0 +1,42 @@
+<div id="popup-create_payment" class="pop-up-splash">
+    <div class="splash-screen">
+        <div class="top-text">
+            <h3>Создать платеж</h3>
+            <span>&times;</span>
+        </div>
+        <form action="" id="payment-form" method="post">
+            <input id="purpose-id" type="hidden" value="{{ purpose.id }}" name="id">
+            <div class="summa-wrap">
+                <div class="summa">
+                    <p>Валюта:</p>
+                    <select name="currency" id="new_payment_currency" required>
+                        <option value="">-----</option>
+                        {% for currency in currencies %}
+                            <option value="{{ currency.id }}"
+                                    {% if currency == purpose.currency %}selected{% endif %}>
+                                {{ currency.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="summa">
+                    <p>Курс:</p>
+                    <input type="number" name="rate" id="new_payment_rate" value="1" min="0" step="0.01" required>
+                </div>
+                <div class="summa">
+                    <p>Сумма:</p>
+                    <input maxlength="6"
+                           onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
+                           required
+                           name="sum"
+                           type="text" id="new_payment_sum">
+                </div>
+            </div>
+            <textarea name="description" maxlength="40" placeholder="Добавить коментарий"></textarea>
+            <div class="splash-bauttons">
+                <button id="close-payment">Отменить</button>
+                <button type="submit" id="complete-payment">Завершить</button>
+            </div>
+        </form>
+    </div>
+</div>

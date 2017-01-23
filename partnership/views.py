@@ -3,42 +3,27 @@ from __future__ import unicode_literals
 
 from collections import OrderedDict
 from datetime import datetime
-from decimal import Decimal
 
 import django_filters
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import Case, IntegerField, DecimalField
-from django.db.models import Sum
-from django.db.models import Value
-from django.db.models import When
-from django.db.models.functions import Coalesce
+from django.db.models import Case, IntegerField, DecimalField, Sum, Value, When
 from django.db.models.functions import Concat
-from rest_framework import filters
-from rest_framework import mixins
-from rest_framework import status
-from rest_framework import viewsets
+from django.utils.translation import ugettext_lazy as _
+from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import api_view, list_route, detail_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.settings import api_settings
 
 from account.models import CustomUser as User, CustomUser
 from navigation.models import user_table, user_partner_table
-from partnership.permissions import IsSupervisorOrHigh, IsSupervisorOrManagerReadOnly, CanCreatePartnerPayment, \
-    CanClosePartnerDeal
-from payment.serializers import PaymentCreateSerializer, PaymentShowSerializer
+from partnership.permissions import (
+    IsSupervisorOrManagerReadOnly, CanCreatePartnerPayment, CanClosePartnerDeal)
+from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from .models import Partnership, Deal
-from .serializers import DealSerializer, PartnershipSerializer, \
-    PartnershipUnregisterUserSerializer, PartnershipForEditSerializer
-
-
-def get_success_headers(data):
-    try:
-        return {'Location': data[api_settings.URL_FIELD_NAME]}
-    except (TypeError, KeyError):
-        return {}
+from .serializers import (
+    DealSerializer, PartnershipSerializer,
+    PartnershipUnregisterUserSerializer, PartnershipForEditSerializer)
 
 
 class PartnershipPagination(PageNumberPagination):
@@ -66,7 +51,7 @@ class DealPagination(PageNumberPagination):
 
     def get_paginated_response(self, data):
         return Response(OrderedDict([
-            ('can_create_payment', CanCreatePartnerPayment().has_permission(self.request, None)),
+            ('check_payment_permissions', CanCreatePartnerPayment().has_permission(self.request, None)),
             ('can_close_deal', CanClosePartnerDeal().has_permission(self.request, None)),
             ('count', self.page.paginator.count),
             ('next', self.get_next_link()),
@@ -78,11 +63,11 @@ class DealPagination(PageNumberPagination):
 class PartnershipViewSet(mixins.RetrieveModelMixin,
                          mixins.UpdateModelMixin,
                          mixins.ListModelMixin,
-                         viewsets.GenericViewSet):
-    queryset = Partnership.objects \
-        .select_related('user', 'user__hierarchy', 'user__department', 'user__master', 'responsible__user') \
-        .prefetch_related('user__divisions') \
-        .order_by('user__last_name', 'user__first_name', 'user__middle_name')
+                         viewsets.GenericViewSet,
+                         CreatePaymentMixin,
+                         ListPaymentMixin):
+    queryset = Partnership.objects.base_queryset().order_by(
+        'user__last_name', 'user__first_name', 'user__middle_name')
     serializer_class = PartnershipSerializer
     pagination_class = PartnershipPagination
     filter_backends = (filters.DjangoFilterBackend,
@@ -103,14 +88,10 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
                        'user__vkontakte', 'value', 'responsible__user__last_name')
     permission_classes = (IsAuthenticated,)
 
+    payment_list_field = 'extra_payments'
+
     def get_queryset(self):
-        user = self.request.user
-        user_perm = IsSupervisorOrHigh()
-        if not Partnership.objects.filter(user=user).exists():
-            return self.queryset.none()
-        if user_perm.has_permission(self.request, None):
-            return self.queryset
-        return self.queryset.select_related('responsible__user').filter(responsible__user=user)
+        return self.queryset.for_user(user=self.request.user)
 
     @list_route()
     def simple(self, request):
@@ -120,6 +101,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         partnerships = [{'id': p[0], 'fullname': '{} {} {}'.format(*p[1:])} for p in partnerships]
         return Response(partnerships)
 
+    # TODO deprecated
     @list_route()
     def for_edit(self, request):
         user_id = request.query_params.get('user')
@@ -129,12 +111,15 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         data = PartnershipForEditSerializer(partnership).data
         return Response(data)
 
+    # TODO deprecated
     @detail_route(methods=['put'])
     def update_need(self, request, pk=None):
-        text = request.data['need_text']
-        parntership = get_object_or_404(Partnership, pk=pk)
-        parntership.need_text = text
-        parntership.save()
+        text = request.data.get('need_text', None)
+        if text is None:
+            return Response({'detail': _("'need_text' is required field.")}, status=status.HTTP_400_BAD_REQUEST)
+        partnership = self.get_object()
+        partnership.need_text = text
+        partnership.save()
 
         return Response({'need_text': text})
 
@@ -239,20 +224,12 @@ class DateFilter(filters.FilterSet):
                   'expired', 'done', 'to_date', 'from_date', ]
 
 
-class DealViewSet(viewsets.ModelViewSet):
-    queryset = Deal.objects.select_related(
-        'partnership', 'partnership__responsible',
-        'partnership__responsible__user').annotate(
-        full_name=Concat(
-            'partnership__user__last_name', Value(' '),
-            'partnership__user__first_name', Value(' '),
-            'partnership__user__middle_name'),
-        responsible_name=Coalesce(Concat(
-            'partnership__responsible__user__last_name', Value(' '),
-            'partnership__responsible__user__first_name'
-        ), Value('')),
-        total_sum=Coalesce(Sum('payments__effective_sum'), Value(0))
-    )
+class DealViewSet(viewsets.ModelViewSet, CreatePaymentMixin, ListPaymentMixin):
+    queryset = Deal.objects.base_queryset(). \
+        annotate_full_name(). \
+        annotate_responsible_name(). \
+        annotate_total_sum(). \
+        order_by('-date_created', 'id')
     serializer_class = DealSerializer
     pagination_class = DealPagination
     filter_backends = (filters.DjangoFilterBackend,
@@ -269,55 +246,7 @@ class DealViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if Partnership.objects.get(user=user).level < Partnership.MANAGER:
             return self.queryset
-        return Deal.objects.select_related(
-            'partnership', 'partnership__responsible',
-            'partnership__responsible__user').annotate(
-            full_name=Concat(
-                'partnership__user__last_name', Value(' '),
-                'partnership__user__first_name', Value(' '),
-                'partnership__user__middle_name'),
-            responsible_name=Coalesce(Concat(
-                'partnership__responsible__user__last_name', Value(' '),
-                'partnership__responsible__user__first_name'
-            ), Value('')),
-            total_sum=Coalesce(Sum('payments__effective_sum'), Value(0))) \
-            .filter(partnership__responsible__user=user)
-
-    def perform_update(self, serializer):
-        serializer.save()
-
-    @detail_route(methods=['post'])
-    def create_payment(self, request, pk=None):
-        deal = get_object_or_404(Deal, pk=pk)
-        sum = request.data['sum']
-        description = request.data.get('description', '')
-        rate = request.data.get('rate', Decimal(1))
-        currency = request.data.get('currency', deal.currency.id)
-        data = {
-            'sum': sum,
-            'rate': rate,
-            'currency_sum': currency,
-            'description': description,
-            'manager': request.user.id,
-            'content_type': ContentType.objects.get_for_model(Deal).id,
-            'object_id': pk
-        }
-        serializer = PaymentCreateSerializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        headers = get_success_headers(serializer.data)
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-    @detail_route(methods=['get'])
-    def payments(self, request, pk=None):
-        serializer = PaymentShowSerializer
-        deal = get_object_or_404(Deal, pk=pk)
-        queryset = deal.payments.select_related('currency_sum', 'currency_rate', 'manager')
-
-        serializer = serializer(queryset, many=True)
-
-        return Response(serializer.data)
+        return self.queryset.filter(partnership__responsible__user=user)
 
 
 @api_view(['POST'])

@@ -1,9 +1,10 @@
-import pytest
 from decimal import Decimal
+
+import pytest
 from django.urls import reverse
 from rest_framework import status
 
-from payment.serializers import PaymentCreateSerializer, PaymentShowSerializer
+from payment.serializers import PaymentShowSerializer
 from summit.models import Summit, SummitLesson, SummitAnket
 from summit.serializers import SummitSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer, \
     SummitAnketNoteSerializer
@@ -157,12 +158,23 @@ class TestSummitViewSet:
         response = api_client.post(url, data={'anket_id': anket.id}, format='json')
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
+#
+# @pytest.fixture(params=[
+#     'anket_of_supervisor',
+#     'anket_of_consultant',
+#     'anket_of_visitor',
+# ])
+# def creator_anket(request):
+#     return request.getfuncargvalue(request.param)
 
 
 @pytest.mark.django_db
 class TestSummitAnketTableViewSet:
-    def test_create_payment(self, api_login_client, anket, currency_factory):
+    def test_create_payment(self, api_client, creator, anket, currency_factory):
         url = reverse('summit_ankets-create-payment', kwargs={'pk': anket.id})
+
+        api_client.force_login(creator['anket'].user)
+        api_login_client = api_client
 
         data = {
             'sum': '10',
@@ -172,23 +184,28 @@ class TestSummitAnketTableViewSet:
         }
         response = api_login_client.post(url, data=data, format='json')
 
-        payment = anket.payments.get()
+        assert response.status_code == creator['code']
 
-        assert response.status_code == status.HTTP_201_CREATED
-        assert payment.sum == Decimal(data['sum'])
-        assert payment.rate == Decimal(data['rate'])
-        assert payment.description == data['description']
-        assert payment.currency_sum_id == data['currency']
-        assert response.data == PaymentCreateSerializer(payment).data
+        if creator['code'] == status.HTTP_201_CREATED:
+            payment = anket.payments.get()
+            assert payment.sum == Decimal(data['sum'])
+            assert payment.rate == Decimal(data['rate'])
+            assert payment.description == data['description']
+            assert payment.currency_sum_id == data['currency']
+            assert response.data == PaymentShowSerializer(payment).data
 
-    def test_payments(self, api_login_client, anket, payment_factory):
+    def test_payments(self, api_client, viewer, anket, payment_factory):
         payment_factory.create_batch(6, purpose=anket)
         url = reverse('summit_ankets-payments', kwargs={'pk': anket.id})
 
+        api_client.force_login(viewer['anket'].user)
+        api_login_client = api_client
+
         response = api_login_client.get(url, format='json')
 
-        assert response.status_code == status.HTTP_200_OK
-        assert response.data == PaymentShowSerializer(anket.payments.all(), many=True).data
+        assert response.status_code == viewer['code']
+        if viewer['code'] == status.HTTP_200_OK:
+            assert response.data == PaymentShowSerializer(anket.payments.all(), many=True).data
 
     def test_create_note(self, api_login_client, anket):
         url = reverse('summit_ankets-create-note', kwargs={'pk': anket.id})

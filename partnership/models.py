@@ -1,17 +1,20 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from collections import OrderedDict
 from datetime import date
 from decimal import Decimal
 
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Q
-from django.db.models import Sum, Count
+from django.db.models import Sum
+from django.db.models import Value
+from django.db.models.functions import Coalesce
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
+from partnership.managers import DealManager, PartnerManager
 from payment.models import Payment, get_default_currency
 
 
@@ -28,7 +31,11 @@ class Partnership(models.Model):
 
     is_active = models.BooleanField(_('Is active?'), default=True)
 
-    DIRECTOR, SUPERVISOR, MANAGER, PARTNER = 0, 1, 2, 3
+    DIRECTOR = settings.PARTNER_LEVELS['director']
+    SUPERVISOR = settings.PARTNER_LEVELS['supervisor']
+    MANAGER = settings.PARTNER_LEVELS['manager']
+    PARTNER = settings.PARTNER_LEVELS['partner']
+
     LEVELS = (
         (DIRECTOR, _('Director')),
         (SUPERVISOR, _('Supervisor')),
@@ -42,6 +49,8 @@ class Partnership(models.Model):
 
     #: Payments of the current partner that do not relate to deals of partner
     extra_payments = GenericRelation('payment.Payment', related_query_name='partners')
+
+    objects = PartnerManager()
 
     def __str__(self):
         return self.fullname
@@ -77,6 +86,42 @@ class Partnership(models.Model):
     def fullname(self):
         return self.user.fullname
 
+    @property
+    def done_deals_count(self):
+        return self.deals.filter(done=True).count()
+
+    @property
+    def undone_deals_count(self):
+        return self.deals.filter(done=False, expired=False).count()
+
+    @property
+    def expired_deals_count(self):
+        return self.deals.filter(expired=True).count()
+
+    @property
+    def done_deals(self):
+        return self.deals.\
+            base_queryset().\
+            annotate_total_sum().\
+            filter(done=True) \
+            .order_by('-date_created')
+
+    @property
+    def undone_deals(self):
+        return self.deals.\
+            base_queryset().\
+            annotate_total_sum().\
+            filter(done=False, expired=False) \
+            .order_by('-date_created')
+
+    @property
+    def expired_deals(self):
+        return self.deals.\
+            base_queryset().\
+            annotate_total_sum().\
+            filter(expired=True) \
+            .order_by('-date_created')
+
 
 @python_2_unicode_compatible
 class Deal(models.Model):
@@ -97,6 +142,8 @@ class Deal(models.Model):
 
     payments = GenericRelation('payment.Payment', related_query_name='deals')
 
+    objects = DealManager()
+
     class Meta:
         ordering = ('date_created',)
 
@@ -113,3 +160,7 @@ class Deal(models.Model):
         if self.date_created:
             return '{}.{}'.format(self.date_created.year, self.date_created.month)
         return ''
+
+    @property
+    def total_payed(self):
+        return self.payments.aggregate(total_payed=Coalesce(Sum('effective_sum'), Value(0)))['total_payed']

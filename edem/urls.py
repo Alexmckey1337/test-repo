@@ -28,7 +28,6 @@ urlpatterns = [
     url(r'^api/', include('report.urls')),
     url(r'^api/', include('status.urls')),
     url(r'^api/', include('summit.urls')),
-    url(r'^api/', include('tv_crm.urls')),
 
     url(r'^', include('main.urls')),
     url(r'^', include('django.contrib.auth.urls')),

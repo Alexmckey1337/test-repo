@@ -70,7 +70,6 @@ LOCAL_APPS = (
     'status',
     'navigation',
     'partnership',
-    'tv_crm',
     'summit',
     'location',
     'payment',
@@ -316,4 +315,15 @@ LOGGING = {
             'propagate': False,
         },
     },
+}
+
+# Partnership
+
+# levels
+
+PARTNER_LEVELS = {
+    'director': 0,
+    'supervisor': 1,
+    'manager': 2,
+    'partner': 3,
 }

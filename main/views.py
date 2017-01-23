@@ -15,7 +15,6 @@ from location.models import Country, Region, City
 from partnership.models import Partnership
 from status.models import Division
 from summit.models import SummitType
-from tv_crm.views import sync_user_call
 
 
 def entry(request):
@@ -138,5 +137,4 @@ def synchronize(request):
     # weekday = timezone.now().weekday() + 1
     # create_participations()
     # create_reports(weekday)
-    sync_user_call()
     return HttpResponse('ok')

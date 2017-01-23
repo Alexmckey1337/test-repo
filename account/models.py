@@ -20,7 +20,6 @@ from mptt.models import MPTTModel, TreeForeignKey
 from event.models import EventAnket
 from navigation.models import Table
 from partnership.models import Partnership
-from tv_crm.models import LastCall
 
 COMMON = ['Имя', 'Фамилия', 'Отчество', 'Email', 'Телефон', 'Дата рождения', 'Иерархия', 'Отдел',
           'Страна', 'Область', 'Населенный пункт', 'Район', 'Адрес', 'Skype', 'Vkontakte', 'Facebook', 'Отдел церкви', ]
@@ -310,15 +309,6 @@ class CustomUser(MPTTModel, User):
     @property
     def hierarchy_name(self):
         return self.hierarchy.title
-
-    @property
-    def last_week_calls(self):
-        day = timezone.now().date() - timedelta(days=7)
-        count = LastCall.objects.filter(
-            user__master=self,
-            user__hierarchy__level=4,
-            date__gte=day, date__lte=(timezone.now().date())).count()
-        return count
 
     @property
     def attrs(self):
