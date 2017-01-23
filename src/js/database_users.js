@@ -48,9 +48,7 @@ $('document').ready(function () {
         let search = $(this).val();
         $('.preloader').css('display', 'block');
         delay(function () {
-            createUsersTable({
-                "search_fio": search
-            })
+            createUsersTable({})
         }, 1000);
     });
 

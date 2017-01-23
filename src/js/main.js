@@ -59,7 +59,6 @@ function makeResponsibleList() {
     });
 }
 
-
 var makeChooseDivision = getDivisions().then(function (data) {
             data = data.results;
             let html = '';
@@ -476,6 +475,8 @@ function getCurrentSetting() {
 }
 
 function createUsersTable(config) {
+        config["search_fio"] = $('input[name=fullsearch]').val();
+        Object.assign(config, filterParam());
         getUsers(config).then(function (data) {
             let count = data.count;
             let page = config['page'] || 1;
