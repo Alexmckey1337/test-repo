@@ -2,7 +2,9 @@ $('document').ready(function () {
 
     createUsersTable({});
 
-    //buttons events
+    $('.selectdb').select2();
+
+    //Events
     $('#filter_button').on('click', function () {
         $('#filterPopup').css('display', 'block');
     });
@@ -17,6 +19,22 @@ $('document').ready(function () {
     });
     $('.popap').on('click', function () {
         $(this).css('display', 'none');
+    });
+    $('input[name="fullsearch"]').keyup(function () {
+        let search = $(this).val();
+        $('.preloader').css('display', 'block');
+        delay(function () {
+            createUsersTable({})
+        }, 1000);
+    });
+    $('#sort_save').on('click', function () {
+        $('.preloader').css('display', 'block');
+        updateSettings(createUsersTable);
+    });
+    $('input[name="searchDep"]').keyup(function () {
+        delay(function () {
+            createUserDep();
+        }, 1500);
     });
 
     $('#quickEditCartPopup').find('.close').on('click', function () {
@@ -42,23 +60,4 @@ $('document').ready(function () {
         })
     });
 
-    $('.selectdb').select2();
-
-    $('input[name="fullsearch"]').keyup(function () {
-        let search = $(this).val();
-        $('.preloader').css('display', 'block');
-        delay(function () {
-            createUsersTable({})
-        }, 1000);
-    });
-
-    $('input[name="searchDep"]').keyup(function () {
-        delay(function () {
-            createUserDep();
-        }, 1500);
-    });
-$('#sort_save').on('click', function () {
-        $('.preloader').css('display', 'block');
-        updateSettings(createUsersTable);
-    });
 });
