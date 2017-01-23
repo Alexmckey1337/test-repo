@@ -131,7 +131,7 @@ select::-ms-expand {
 }
 
 .page-width {
-  min-width: 1325px;
+  min-width: 900px;
   min-height: 100vh;
   margin: 0 auto;
   position: relative;
@@ -1478,6 +1478,14 @@ button#completeDelete::before,
 .table {
   width: 100%;
   height: 100%;
+  & tr:last-child  {
+    border: 1px solid #E2E2E2;
+   & td {
+     height: 0;
+     border: none;
+     padding: 0.3em 0;
+    }
+  }
 }
 
 .table td a {

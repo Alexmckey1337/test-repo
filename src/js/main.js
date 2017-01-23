@@ -11,6 +11,7 @@ var VOCRM = {};
 counterNotifications();
 
 function makeDataTable(data, id) {
+    console.log(data);
     var tmpl = document.getElementById('databaseUsers').innerHTML;
     var rendered = _.template(tmpl)(data);
     document.getElementById(id).innerHTML = rendered;

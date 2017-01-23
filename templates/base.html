@@ -12,7 +12,6 @@
 
 <head>
     <meta charset="UTF-8">
-
     <title>{% block title %}CRM{% endblock %}</title>
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -70,7 +69,6 @@
             <% for( var index in results) { %>
             <tr>
                 <% for( var key in user_table) { %>
-
                     <% if(user_table[key].active) { %>
                         <% if (key == 'fullname' ) { %>
                             <% if (results[index][key] != null) { %>
@@ -134,10 +132,8 @@
         </div>
     </div>
     <div class="columns-wrap">
-
     </div>
     <div class="splash-buttons">
-
     </div>
 </script>
 <script type="text/template" id="quickEditCart">
