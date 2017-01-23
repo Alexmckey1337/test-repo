@@ -70,7 +70,6 @@ LOCAL_APPS = (
     'status',
     'navigation',
     'partnership',
-    'tv_crm',
     'summit',
     'location',
     'payment',
