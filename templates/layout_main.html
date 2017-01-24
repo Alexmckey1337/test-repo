@@ -42,14 +42,7 @@
 {% block main.content %}
     {% block pagination_top %}
         <div class="top-pag">
-            <div class="pagination"><!--pagination -->
-
-                <div class="query">
-                    <p>По запросу найдено <span id="total_count"></span> человек</p>
-                </div>
-                <div class="pag-wrap">
-
-                </div>
+            <div class="pagination users__pagination"><!--pagination -->
             </div><!--End pagination -->
         </div>
     {% endblock %}
@@ -60,18 +53,14 @@
             <div class="query-none">
                 <p></p>
             </div>
-            <div class="preloader">
-                <div class="gif">
-                </div>
-            </div>
-
         </div><!--End Table -->
+        <div class="preloader">
+                <div class="gif"></div>
+        </div>
     {% endblock %}
 
     {% block pagination_bottom %}
-        <div class="pagination full-width">
-            <div class="element-select"></div>
-            <div class="pag-wrap"></div>
+        <div class="pagination users__pagination">
         </div>
     {% endblock %}
 {% endblock %}

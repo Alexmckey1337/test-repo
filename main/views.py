@@ -31,8 +31,18 @@ def events(request):
 
 
 @login_required(login_url='entry')
+def partner(request):
+    return render(request, 'partner/partners.html')
+
+
+@login_required(login_url='entry')
 def deals(request):
     return render(request, 'partner/deals.html')
+
+
+@login_required(login_url='entry')
+def stats(request):
+    return render(request, 'partner/stats.html')
 
 
 @login_required(login_url='entry')

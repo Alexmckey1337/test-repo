@@ -23,7 +23,7 @@ $(document).ready(function () {
     $('input[name="searchDep"]').on('keyup', function () {
         delay(function () {
             let data = {};
-            let path = config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/?';
+            let path = CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/?';
             data['summit'] = summit_id;
             data['user__department__title'] = $('input[name="searchDep"]').val();
             getUsersList(path, data);
@@ -34,8 +34,7 @@ $(document).ready(function () {
 
     $('#dep_filter').on('change', function () {
         let params = {};
-        console.log(config.DOCUMENT_ROOT);
-        getUsersList(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/', params)
+        getUsersList(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/', params)
 
     });
 
@@ -249,10 +248,10 @@ $(document).ready(function () {
 var summit_id;
 var ordering = {};
 var order;
-var path = config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/?';
+var path = CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/?';
 
 function unsubscribe(id) {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/' + id + '/', null, function () {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/' + id + '/', null, function () {
         let data = {};
         data['summit'] = summit_id;
         getUsersList(path, data);
@@ -276,7 +275,7 @@ function registerUser(id, summit_id, money, description) {
 
     let json = JSON.stringify(data);
 
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/post_anket/', json, function (JSONobj) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/post_anket/', json, function (JSONobj) {
         if (JSONobj.status) {
             let data = {};
             data['summit'] = summit_id;
@@ -342,7 +341,7 @@ function getUnregisteredUsers() {
     if (search) {
         param['search'] = search;
     }
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit_search/?summit_id!=' + summit_id, param, function (data) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_search/?summit_id!=' + summit_id, param, function (data) {
         let html = '';
         data = data.results;
         for (let i = 0; i < data.length; i++) {
@@ -570,7 +569,7 @@ function getUsersList(path, param) {
         let table = '<table>' + thead + tbody + '</table>';
 
         let page = parseInt(param['page']) || 1,
-            pages = Math.ceil(count / config.pagination_count),
+            pages = Math.ceil(count / CONFIG.pagination_count),
             paginations = '',
             elementSelect = '<p>Показано <span>' + results.length + '</span> из <span>' + count + '</span></p>';
         if (page > 1) {

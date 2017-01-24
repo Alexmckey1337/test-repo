@@ -14,7 +14,7 @@ if(!hash){
 
 
     let json = JSON.stringify(data);
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/password_view/', json, function (JSONobj) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/password_view/', json, function (JSONobj) {
           // debugger
 
             if (JSONobj.status == true) {

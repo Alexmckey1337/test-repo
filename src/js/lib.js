@@ -1,6 +1,18 @@
+function getUsers(config = {}) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/', config, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка")
+            }
+        })
+    });
+}
+
 function saveUserData(data, id) {
     if (id) {
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.1/users/' + id + '/', data, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/' + id + '/', data, function (data) {
             console.log(data);
         }, 'PATCH', false, {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -10,7 +22,7 @@ function saveUserData(data, id) {
 
 function getCountryCodes() {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -20,10 +32,27 @@ function getCountryCodes() {
     })
 }
 
+function getPartnersList(data) {
+    let config = {
+        search: "",
+        page: 1
+    };
+    Object.assign(config, data);
+    let page = config.page;
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/partnerships/?page=' + config.page + '&search=' + config.search, null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка")
+            }
+        })
+    })
+}
 
 function getCountries() {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -35,7 +64,7 @@ function getCountries() {
 
 function getCountriesList() {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -44,9 +73,10 @@ function getCountriesList() {
         })
     })
 }
+
 function getDepartments() {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/departments/', null, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/departments/', null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -58,7 +88,7 @@ function getDepartments() {
 
 function getStatuses() {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -70,7 +100,7 @@ function getStatuses() {
 
 function getCurrentUser(id) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.1/users/' + id + '/', null, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/' + id + '/', null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -79,9 +109,10 @@ function getCurrentUser(id) {
         })
     })
 }
+
 function getResponsible(id, level, search = "") {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id + '&level_gte=' + level + '&search=' + search, null, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id + '&level_gte=' + level + '&search=' + search, null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -93,7 +124,7 @@ function getResponsible(id, level, search = "") {
 
 function getResponsibleStatuses() {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -105,7 +136,7 @@ function getResponsibleStatuses() {
 
 function getDivisions() {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/divisions/', null, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/divisions/', null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -117,7 +148,7 @@ function getDivisions() {
 
 function getManagers() {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.1/partnerships/simple/', null, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/partnerships/simple/', null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -127,13 +158,122 @@ function getManagers() {
     });
 }
 
+function getIncompleteDeals(search, json) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=3' + search, json, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject();
+            }
+        })
+    })
+}
+
+function getFinishedDeals(search, json) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=2' + search, json, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject();
+            }
+        })
+    })
+}
+
+function getOverdueDeals(search, json) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?expired=2' + search, json, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject();
+            }
+        })
+    })
+}
+
+function getPayment(id) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/deals/${id}/payments/`, null, function (data) {
+            resolve(data);
+        }, 'GET', true, {
+            'Content-Type': 'application/json'
+        }, {
+            403: function (data) {
+                data = data.responseJSON;
+                reject();
+                showPopup(data.detail)
+            }
+        })
+    })
+}
+
+function makePagination(config) {
+    let container = document.createElement('div'),
+        input = document.createElement('input'),
+        text = document.createElement('span'),
+        doubleLeft = document.createElement('a'),
+        doubleRight = document.createElement('a'),
+        left = document.createElement('a'),
+        right = document.createElement('a');
+    $(input).attr({
+        "type": "number",
+        "max": config.pages,
+        "min": 1
+    });
+    $(doubleLeft).addClass('double__left').append('<i class="fa fa-angle-double-left" aria-hidden="true"></i>');
+    $(doubleLeft).on('click', function () {
+        $(this).closest('.pagination').find('.pagination__input').val(1).trigger('change');
+    });
+    $(left).addClass('left').append('<i class="fa fa-angle-left" aria-hidden="true"></i>');
+    $(left).on('click', function () {
+        let val = parseInt($(this).closest('.pagination').find('.pagination__input').val());
+        if (!!(val - 1)) {
+            $(this).closest('.pagination').find('.pagination__input').val(val - 1).trigger('change');
+        }
+    });
+    $(doubleRight).addClass('double__right').append('<i class="fa fa-angle-double-right" aria-hidden="true"></i>');
+    $(doubleRight).on('click', function () {
+        $(this).closest('.pagination').find('.pagination__input').val(config.pages).trigger('change');
+    });
+    $(right).addClass('right').append('<i class="fa fa-angle-right" aria-hidden="true"></i>');
+    $(right).on('click', function () {
+        let val = parseInt($(this).closest('.pagination').find('.pagination__input').val());
+        if (!(val + 1 > config.pages)) {
+            $(this).closest('.pagination').find('.pagination__input').val(val + 1).trigger('change');
+        }
+    });
+
+    $(input).addClass('pagination__input').val(config.currentPage);
+    $(text).addClass('text').text(`из ${config.pages}`);
+    $(container).append(doubleLeft).append(left).append(input).append(text).append(right).append(doubleRight);
+
+    $(container).find('.pagination__input').change(function () {
+        let val = parseInt($(this).val());
+        if (val <= 0) {
+            $(container).find('.pagination__input').val(1).trigger('change');
+            return
+        }
+        if (val > config.pages) {
+            $(container).find('.pagination__input').val(config.pages).trigger('change');
+            return
+        }
+        config.callback({
+            page: val
+        });
+    });
+
+    $(config.container).html(container);
+
+}
 
 function deleteCookie(name) {
     setCookie(name, "", {
         expires: -1
     })
 }
-
 
 function isElementExists(element) {
     if (typeof(element) != 'undefined' && element != null) {
@@ -171,7 +311,6 @@ function getCookie(cookieName) {
     return cookieValue;
 }
 
-
 Array.prototype.unique = function () {
     let a = this.concat();
     for (let i = 0; i < a.length; ++i) {
@@ -183,7 +322,6 @@ Array.prototype.unique = function () {
     return a;
 };
 
-
 let delay = (function () {
     let timer = 0;
     return function (callback, ms) {
@@ -192,7 +330,7 @@ let delay = (function () {
     };
 })();
 
-//index() jquery alternative
+// jquery alternative
 function indexInParent(node) {
     let children = node.parentNode.childNodes;
     let num = 0;
@@ -202,7 +340,6 @@ function indexInParent(node) {
     }
     return -1;
 }
-
 
 function getRussianMonth(index) {
     let month = new Array(12);
@@ -249,6 +386,7 @@ function tab_plugin() {
         });
     });
 }
+
 //реализация jquery live event
 function live(eventType, elementQuerySelector, cb) {
     document.addEventListener(eventType, function (event) {
@@ -269,7 +407,7 @@ function live(eventType, elementQuerySelector, cb) {
 
 // Counter counterNotifications
 function counterNotifications() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/notifications/today/', null, function (data) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/notifications/today/', null, function (data) {
         $('.sms').attr('data-count', data.count);
     });
 }

@@ -229,7 +229,7 @@ function registerUserNew(id,summit_id,money, description) {
         }
         console.log(data);
     let json = JSON.stringify(data);
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/post_anket/', json, function (JSONobj) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/post_anket/', json, function (JSONobj) {
             if(JSONobj.status){
                 let data = {};
                 data['summit'] = summit_id;
@@ -244,7 +244,7 @@ function registerUserNew(id,summit_id,money, description) {
 function getRegions() {
     let opt = {};
     opt['country'] = $("#chooseCountry").val();;
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/regions/', opt, function (data) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/regions/', opt, function (data) {
       if(data.length == 0) {
         document.getElementById('chooseRegion').innerHTML = '<option value=""> </option>';
         document.getElementById('chooseCity').removeAttribute('disabled')
@@ -259,7 +259,7 @@ function getRegions() {
   }
 
 function getResponsible(id, level) {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id + '&hierarchy=' + level, null, function (data) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id + '&hierarchy=' + level, null, function (data) {
         let html = '<option value=""> </option><option>Не выбрано</option>';
         for (let i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].fullname+'</option>';
@@ -271,7 +271,7 @@ function getResponsible(id, level) {
 function getCities() {
     let opt = {};
     opt['region'] = $("#chooseRegion").val();;
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/cities/', opt, function (data) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/cities/', opt, function (data) {
         let html = '<option value=""> </option><option>Не выбрано</option>';
         for (let i = 0; i < data.length; i++) {
         html += '<option value="'+data[i].id+'">'+data[i].title+'</option>';
@@ -425,7 +425,7 @@ function createNewAcc() {
     let name = data['first_name'] + " " + data['last_name'],
     master = $('#chooseResponsible option:selected').html();
     let json = JSON.stringify(data);
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/create_user/', json, function (data) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/create_user/', json, function (data) {
           if (data.redirect) {
               let fd = new FormData();
             if(!$('input[type=file]')[0].files[0]){
@@ -450,7 +450,7 @@ function createNewAcc() {
             fd.append('id' , data.id)*/
               let xhr = new XMLHttpRequest();
             xhr.withCredentials = true;
-              xhr.open('POST', config.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
+              xhr.open('POST', CONFIG.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
 
             xhr.onreadystatechange = function(){
               if (xhr.readyState == 4) {
