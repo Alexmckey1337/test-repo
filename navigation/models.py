@@ -23,7 +23,7 @@ def partner_table():
     return l
 
 
-def user_table(user):
+def user_table(user, prefix_ordering_title=''):
     l = OrderedDict()
     if not (hasattr(user, 'table') and isinstance(user.table, Table)):
         return l
@@ -33,7 +33,7 @@ def user_table(user):
         d = OrderedDict()
         d['id'] = column.id
         d['title'] = column.columnType.verbose_title
-        d['ordering_title'] = column.columnType.ordering_title
+        d['ordering_title'] = '{}{}'.format(prefix_ordering_title, column.columnType.ordering_title)
         d['number'] = column.number
         d['active'] = column.active
         d['editable'] = column.columnType.editable

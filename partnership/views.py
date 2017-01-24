@@ -39,7 +39,7 @@ class PartnershipPagination(PageNumberPagination):
             },
             'count': self.page.paginator.count,
             'common_table': user_partner_table(self.request.user),
-            'user_table': user_table(self.request.user),
+            'user_table': user_table(self.request.user, prefix_ordering_title='user__'),
             'results': data
         })
 

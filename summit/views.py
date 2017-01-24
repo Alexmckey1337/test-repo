@@ -51,7 +51,7 @@ class SummitPagination(PageNumberPagination):
             },
             'count': self.page.paginator.count,
             'common_table': user_summit_table(),
-            'user_table': user_table(self.request.user),
+            'user_table': user_table(self.request.user, prefix_ordering_title='user__'),
             'results': data
         })
 
