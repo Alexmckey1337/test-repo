@@ -8,15 +8,20 @@
             let pages = Math.ceil(count / CONFIG.pagination_count);
             let data = {};
             let id = "partnersList";
-            data.results = response.results.map(function (item) {
-                return item.user
-            });
+            let common_table = Object.keys(response.common_table);
 
             data.user_table = response.user_table;
 
 
-            Object.keys(response.common_table).forEach(function (item) {
+           common_table.forEach(function (item) {
                 data.user_table[item] = response.common_table[item];
+            });
+            data.results = response.results.map(function (item) {
+                let result = item.user;
+                common_table.forEach(function (key) {
+                    result[key] = item[key];
+                });
+                return result;
             });
             console.log(data.user_table);
             makeDataTable(data, id);
