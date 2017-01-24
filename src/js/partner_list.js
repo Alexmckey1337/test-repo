@@ -14,6 +14,11 @@
 
             data.user_table = response.user_table;
 
+
+            Object.keys(response.common_table).forEach(function (item) {
+                data.user_table[item] = response.common_table[item];
+            });
+            console.log(data.user_table);
             makeDataTable(data, id);
 
             $('.preloader').css('display', 'none');
@@ -25,6 +30,7 @@
             };
             makePagination(paginationConfig);
             makeSortForm(response.user_table);
+            orderTable.sort(getPartners);
         });
     }
     

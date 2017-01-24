@@ -10,6 +10,41 @@ var VOCRM = {};
 
 counterNotifications();
 
+// Sorting
+    var orderTable = (function () {
+        function addListener(callback) {
+            $(".table-wrap th").on('click', function () {
+                let dataOrder;
+                let data_order = this.getAttribute('data-order');
+                let page = $('.pagination__input').val();
+                let revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
+                let order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
+                if (order != '') {
+                    dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
+                } else {
+                    dataOrder = '-' + data_order;
+                }
+                let data = {
+                    'ordering': dataOrder,
+                    'page': page
+                };
+                if (order == data_order) {
+                    revers = (revers == '+') ? '-' : '+';
+                } else {
+                    revers = "+"
+                }
+                sessionStorage.setItem('revers', revers);
+                sessionStorage.setItem('order', data_order);
+                $('.preloader').css('display', 'block');
+                callback(data);
+            });
+        }
+
+        return {
+            sort: addListener
+        }
+    })();
+
 function makeDataTable(data, id) {
     console.log(data);
     var tmpl = document.getElementById('databaseUsers').innerHTML;
@@ -35,7 +70,6 @@ function makeSortForm(data) {
 function makeResponsibleList() {
     let department = $('#departmentSelect').val();
     let hierarchy = $('#hierarchySelect option:selected').attr('data-level');
-
     getResponsible(department, hierarchy).then(function (data) {
         let id = $('#master_hierarchy option:selected').attr('data-id');
         if(!id) {
@@ -493,6 +527,7 @@ function createUsersTable(config) {
             makePagination(paginationConfig);
             makeSortForm(data.user_table);
             $('.preloader').css('display', 'none');
+            orderTable.sort(createUsersTable);
         });
     }
 

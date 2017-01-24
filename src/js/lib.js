@@ -38,9 +38,8 @@ function getPartnersList(data) {
         page: 1
     };
     Object.assign(config, data);
-    let page = config.page;
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/partnerships/?page=' + config.page + '&search=' + config.search, null, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/partnerships/', config, function (data) {
             if (data) {
                 resolve(data);
             } else {
