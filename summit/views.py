@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 import django_filters
 import rest_framework_filters as filters_new
 from dbmail import send_db_mail
+from django.db.models import Sum, Value as V
+from django.db.models.functions import Coalesce
 from django.http import HttpResponse
 from rest_framework import mixins
 from rest_framework import status
@@ -18,6 +20,7 @@ from rest_framework.settings import api_settings
 
 from account.models import CustomUser
 from navigation.models import user_table, user_summit_table
+from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.permissions import IsSupervisorOrHigh
 from summit.utils import generate_ticket
 from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, SummitUserConsultant
@@ -48,7 +51,7 @@ class SummitPagination(PageNumberPagination):
             },
             'count': self.page.paginator.count,
             'common_table': user_summit_table(),
-            'user_table': user_table(self.request.user),
+            'user_table': user_table(self.request.user, prefix_ordering_title='user__'),
             'results': data
         })
 
@@ -71,10 +74,13 @@ class FilterByClub(BaseFilterBackend):
         return queryset
 
 
-class SummitAnketTableViewSet(viewsets.ModelViewSet):
+class SummitAnketTableViewSet(viewsets.ModelViewSet,
+                              CreatePaymentMixin,
+                              ListPaymentMixin):
     queryset = SummitAnket.objects.select_related(
         'user', 'user__hierarchy', 'user__department', 'user__master', 'summit', 'summit__type'). \
-        prefetch_related('user__divisions', 'emails').order_by(
+        prefetch_related('user__divisions', 'emails').annotate(
+        total_sum=Coalesce(Sum('payments__effective_sum'), V(0))).order_by(
         'user__last_name', 'user__first_name', 'user__middle_name')
     serializer_class = SummitAnketSerializer
     pagination_class = SummitPagination
@@ -97,6 +103,7 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
     search_fields = ('user__first_name',
                      'user__last_name',
                      'user__middle_name',
+                     'user__search_name',
                      'user__hierarchy__title',
                      'user__phone_number',
                      'user__city',
@@ -110,7 +117,7 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
                        'user__address', 'user__skype', 'user__phone_number',
                        'user__email', 'user__hierarchy__level',
                        'user__department__title', 'user__facebook',
-                       'user__vkontakte', 'value',)
+                       'user__vkontakte',)
     permission_classes = (IsAuthenticated,)
 
     @list_route(methods=['post'], )
@@ -131,22 +138,11 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
         visited = request.data.get('visited', None)
         if anket.exists():
             anket = anket.get()
-            if len(request.data['value']) > 0:
-                anket.value = request.data['value']
             if len(request.data['description']) > 0:
                 anket.description = request.data['description']
             if visited in (True, False):
                 anket.visited = visited
             anket.save()
-        elif len(request.data['value']) > 0:
-            anket = SummitAnket.objects.create(
-                user=user, summit=summit, value=request.data['value'],
-                description=request.data['description'], visited=visited)
-            if 'retards' in keys:
-                if request.data['retards']:
-                    anket.retards = request.data['retards']
-                    anket.code = request.data['code']
-            get_fields(anket)
         else:
             anket = SummitAnket.objects.create(
                 user=user, summit=summit, visited=visited, description=request.data['description'])
@@ -175,7 +171,7 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'])
     def notes(self, request, pk=None):
         serializer = SummitAnketNoteSerializer
-        anket = get_object_or_404(SummitAnket, pk=pk)
+        anket = self.get_object()
         queryset = anket.notes
 
         serializer = serializer(queryset, many=True)
@@ -204,7 +200,7 @@ class SummitLessonViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'])
     def add_viewer(self, request, pk=None):
         anket_id = request.data['anket_id']
-        lesson = get_object_or_404(SummitLesson, pk=pk)
+        lesson = self.get_object()
         anket = get_object_or_404(SummitAnket, pk=anket_id)
 
         current_user_anket = SummitAnket.objects.filter(
@@ -224,7 +220,7 @@ class SummitLessonViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'])
     def del_viewer(self, request, pk=None):
         anket_id = request.data['anket_id']
-        lesson = get_object_or_404(SummitLesson, pk=pk)
+        lesson = self.get_object()
         anket = get_object_or_404(SummitAnket, pk=anket_id)
 
         current_user_anket = SummitAnket.objects.filter(
@@ -261,7 +257,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
     @detail_route(methods=['get'])
     def lessons(self, request, pk=None):
         serializer = SummitLessonSerializer
-        summit = get_object_or_404(Summit, pk=pk)
+        summit = self.get_object()
         queryset = summit.lessons
 
         serializer = serializer(queryset, many=True)
@@ -284,7 +280,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
     @detail_route(methods=['get'])
     def consultants(self, request, pk=None):
         serializer = SummitAnketForSelectSerializer
-        summit = get_object_or_404(Summit, pk=pk)
+        summit = self.get_object()
         queryset = summit.consultants
 
         serializer = serializer(queryset, many=True)
@@ -293,7 +289,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
 
     @detail_route(methods=['post'], )
     def add_consultant(self, request, pk=None):
-        summit = get_object_or_404(Summit, pk=pk)
+        summit = self.get_object()
 
         user_perm = IsSupervisorOrHigh().has_object_permission(request, None, summit)
         if not user_perm:
@@ -313,7 +309,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
 
     @detail_route(methods=['post'], )
     def del_consultant(self, request, pk=None):
-        summit = get_object_or_404(Summit, pk=pk)
+        summit = self.get_object()
 
         user_perm = IsSupervisorOrHigh().has_object_permission(request, None, summit)
         if not user_perm:

@@ -6,6 +6,10 @@ body {
   display: none;
 }
 
+.inline {
+  display: inline-block;
+}
+
 input:-webkit-autofill {
   -webkit-box-shadow: inset 0 0 0 50px #fff !important; /* Цвет фона */
   -webkit-text-fill-color: #999 !important; /* цвет текста */
@@ -19,6 +23,12 @@ a {
 i {
   color: #656d78;
   transition: all .2s ease;
+}
+
+.bb-1 {
+  padding-bottom: 0.5em;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 1em;
 }
 
 .col-4 {
@@ -76,6 +86,16 @@ button {
   cursor: pointer;
   font-size: 1.1em;
   transition: all .3s ease;
+  &:disabled {
+    background: transparent;
+    border: 0;
+    color: #656d78;
+    font-weight: 300;
+  }
+}
+
+.close-popup, .save-user {
+  padding: 12px 20px 12px 20px;
 }
 
 button:hover {
@@ -111,7 +131,7 @@ select::-ms-expand {
 }
 
 .page-width {
-  min-width: 1325px;
+  min-width: 900px;
   min-height: 100vh;
   margin: 0 auto;
   position: relative;
@@ -330,12 +350,12 @@ select::-ms-expand {
 
 .top,
 .top-buttons-wrap {
-  background-color: #e6e9ee;
   overflow: hidden;
   border-bottom: 1px solid #cdd0d4;
   height: 90px;
   box-sizing: border-box;
   margin: 0;
+  background-color: #e6e9ee;
 }
 
 .none {
@@ -514,7 +534,23 @@ select::-ms-expand {
 }
 
 .top li.sms {
+  position: relative;
   cursor: pointer;
+  width: 9em !important;
+  &:before {
+    content: attr(data-count);
+    position: absolute;
+    display: block;
+    top: 1.7em;
+    right: 2.5em;
+    width: 2em;
+    height: 2em;
+    background: red;
+    border-radius: 50%;
+    line-height: 2em;
+    color: white;
+    z-index: 1;
+  }
 }
 
 .top li:nth-child(1) {
@@ -620,8 +656,8 @@ h1 a {
 }
 
 .massage-hover .bottom-box p {
-  font-size: 1.5em;
-  padding-bottom: 20px;
+  font-size: 1.2em;
+  padding: 1.5em;
 }
 
 .massage-hover.active-window {
@@ -722,7 +758,6 @@ h1 a {
 .top-pag {
   overflow: hidden;
   padding-left: 21px;
-  height: 90px;
   box-sizing: border-box;
   padding-top: 13px;
   position: relative;
@@ -809,14 +844,33 @@ h1 a {
 
 .editprofile .col-1 button::before,
 .top-buttons button::before {
-  display: block;
   content: '';
   position: absolute;
   top: 11px;
   left: 15px;
   width: 19px;
   height: 19px;
-  background: url('../img/sprite-buttons.png') no-repeat 0 0;
+}
+
+#filter_button::before {
+  content: "\f0b0" !important;
+  font: 1.4em FontAwesome;
+  color: white;
+  background: none;
+}
+
+#add::before {
+  content: "\f067" !important;
+  font: 1.4em FontAwesome;
+  color: white;
+  background: none;
+}
+
+#sort-on::before {
+  content: "\f040" !important;
+  font: 1.4em FontAwesome;
+  color: white;
+  background: none;
 }
 
 .top-buttons button.exp::before {
@@ -979,6 +1033,10 @@ li.current a {
   padding: 9px 0 9px 5px;
   vertical-align: middle;
   background: url('../img/date.jpg') no-repeat center right;
+  &:read-only {
+    background: transparent;
+  }
+
 }
 
 .period input:hover,
@@ -1278,6 +1336,10 @@ button#completeDelete::before,
 .pagination {
   padding: 20px 30px 15px 0;
   float: right;
+  &.left{
+    float: left;
+    padding-left: 20px;
+  }
 }
 
 .full-width {
@@ -1407,14 +1469,23 @@ button#completeDelete::before,
 }
 
 /* ------------------Table------------------------------ */
+
 .table-wrap {
   position: relative;
-  /*z-index: -1;*/
+  overflow-y: hidden;
 }
 
-.table {
+table {
   width: 100%;
   height: 100%;
+  & tr:last-child  {
+    border: 1px solid #E2E2E2;
+   & td {
+     height: 0;
+     border: none;
+     padding: 0.3em 0;
+    }
+  }
 }
 
 .table td a {
@@ -1448,6 +1519,7 @@ th {
   background-color: #f6f7fb;
   vertical-align: middle;
   white-space: pre;
+  cursor: pointer;
 }
 
 /*#database th {*/
@@ -1561,19 +1633,19 @@ th.up label {
   left: -5px;
 }
 
-.close:after,
-#deals-new .close::after {
-    display: inline;
-    position: absolute;
-    top: 10px;
-    left: 7px;
-    z-index: 2;
-    content: '\d7';
-    font-size: 23px;
-    line-height: 15px;
-    color: white;
-    cursor: pointer;
-}
+//.close:after,
+//#deals-new .close::after {
+//    display: inline;
+//    position: absolute;
+//    top: 10px;
+//    left: 7px;
+//    z-index: 2;
+//    content: '\d7';
+//    font-size: 23px;
+//    line-height: 15px;
+//    color: white;
+//    cursor: pointer;
+//}
 
 .email ~ .close::after {
   top: 6px;
@@ -1705,6 +1777,31 @@ td {
   transition: all .3s ease;
 }
 
+#database_users, #partnersList {
+  & td {
+    a {
+      & ~ .quick-edit {
+        height: 1em;
+        float: right;
+        display: none;
+        position: absolute;
+        left: 1em;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+      }
+    }
+    &:hover {
+      a {
+        & ~ .quick-edit {
+          display: block;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}
+
 td a:hover {
   color: #3caeda;
   border-bottom: 1px dotted #3caeda;
@@ -1716,7 +1813,7 @@ table tr:nth-child(even) {
 
 table tr td:first-child {
   padding-left: 35px;
-  padding-right: 7px;
+  padding-right: 3em;
   position: relative;
 }
 
@@ -1913,9 +2010,6 @@ table label::before,
   left: 190px;
 }
 
-/*#userinfo > tbody > tr > td:nth-child(1) {
-	transform: translateX(-10px);
-}*/
 #userinfo > tbody > tr > td:nth-child(2) {
   padding-right: 20px;
 }
@@ -1982,10 +2076,8 @@ table label::before {
   /*display: none*/
 }
 
-.editprofile input:checked ~ label:before,
-table input:checked ~ label:before,
-#sort-form label.check:before {
-  background-position: 0px -20px;
+input:checked ~ label:before {
+  background-position: 0px -20px !important;
 }
 
 label.disable:before {
@@ -2097,6 +2189,51 @@ table input[type=checkbox],
 }
 
 /***********************popup***************************************/
+.popap {
+  & input {
+    width: 96% !important;
+    padding: 6px;
+    border-radius: 3px;
+    border: 1px solid #cdd0d4;
+    height: 35px;
+    box-sizing: border-box;
+    &:read-only {
+      border-color: transparent;
+    }
+  }
+  & select {
+    padding: 4px 27px 4px 7px;
+    &:disabled {
+      border-color: transparent;
+      background: transparent none;
+    }
+  }
+  & .label_block {
+    height: 35px;
+    font-size: 1.1em;
+    text-align: right;
+    padding: 0 1em;
+    margin-bottom: 0.7em;
+    & label {
+      margin-top: 0.7em;
+      display: block;
+    }
+  }
+  & .input_block {
+    margin-bottom: 0.7em;
+  }
+}
+
+.apply-filter {
+  padding: 12px 20px;
+  &.refresh {
+    i {
+      transform: rotate(180deg);
+      transition: transform 0.7s;
+    }
+  }
+}
+
 .pop-up-universal {
   position: fixed;
   top: 0;
@@ -2113,19 +2250,125 @@ table input[type=checkbox],
   line-height: 1.5;
 }
 
+#quickEditCartPopup {
+  & input {
+    width: auto !important;
+    padding: 5px 6px;
+    height: auto;
+    min-width: 17em;
+    &.fullname {
+      font-size: 1.5em;
+    }
+  }
+  & .select2 {
+    width: auto !important;
+    min-width: 17em;
+    height: 25px;
+  }
+  & .select2-container .select2-selection--single {
+    height: 25px !important;
+  }
+  & .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 25px;
+  }
+  & .select2-container--default .select2-selection--single .select2-selection__arrow {
+    background: #e6e9ee;
+    height: ~'calc(100% - 2px)' !important;
+    width: 2em !important;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    &:before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: .6em;
+      margin: auto;
+      display: block;
+      width: 0;
+      height: 0;
+      border-left: .4em solid transparent;
+      border-right: .4em solid transparent;
+      border-top: .6em solid #656d78;
+      border-bottom: 0 solid transparent;
+    }
+  }
+  & .select2-dropdown {
+    border: 1px solid #cdd0d4;
+  }
+  #safari_select {
+    position: relative;
+    top: -5px;
+    margin-left: 100px
+  }
+  & label {
+    padding-left: 6px;
+  }
+  & p {
+    margin-bottom: 5px;
+    &.label_block {
+      padding: 5px 6px;
+      height: auto;
+      border: 1px solid transparent;
+    }
+    & span {
+      line-height: 1.5;
+      padding-left: 6px;
+      &.info {
+        padding-right: 0;
+        font-size: 1em;
+      }
+    }
+  }
+  & div {
+    margin: 5px 0;
+  }
+  & img {
+    max-width: 115px;
+    margin-right: 1em;
+  }
+}
+
 .pop_cont {
   position: fixed;
-  max-width: 700px;
-  width: 400px;
+  max-width: 940px;
+  min-width: 570px;
   height: auto;
   top: 50%;
   left: 50%;
-  padding: 0 0 20px 0;
+  padding: 2em 3.2em;
   background: #fff;
   border: 1px solid #f3f3f3;
   z-index: 9999;
   border-radius: 3px;
-  margin: -75px 0 0 -150px;
+  transform: translateY(-50%) translateX(-50%);
+  margin: 0 auto;
+  box-shadow: 3px 7px 50px rgba(0, 0, 0, 0.5);
+  & .edit {
+    position: absolute;
+    right: 0.7em;
+    top: 1.7em;
+  }
+  & .popup_text {
+    font-size: 1.5em;
+    text-transform: uppercase;
+    padding-bottom: 0.5em;
+    margin-bottom: 0.5em;
+    border-bottom: 1px solid #eee;
+    user-select: none;
+    cursor: default;
+    & .close {
+      position: absolute;
+      top: 1em;
+      right: 1em;
+      cursor: pointer;
+    }
+  }
+  & .popup_body {
+    padding-bottom: 1em;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 2em;
+  }
 }
 
 .popap, .popap_wrap {
@@ -2135,7 +2378,7 @@ table input[type=checkbox],
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 9999999;
+  z-index: 11;
   display: none;
 }
 
@@ -2182,6 +2425,10 @@ table input[type=checkbox],
 
 #sidebar .scrollbar-macosx > .scroll-element.scroll-x {
   display: none !important;
+}
+
+.scroll-element div {
+  z-index: 1 !important;
 }
 
 .choose-user-wrap .rows-wrap {
@@ -2294,10 +2541,14 @@ table input[type=checkbox],
   margin: 40px auto;
 }
 
-.complete-deal-wrap .splash-bauttons {
+.complete-deal-wrap .splash-bauttons,
+.complete-deal-wrap .splash-buttons {
   position: relative;
   float: right;
   padding: 20px 30px 20px 0;
+  & .close {
+    padding-left: 45px;
+  }
 }
 
 .complete-deal-wrap button#complete-deal::before {
@@ -2508,6 +2759,9 @@ button#complete {
 
 #sort-form li[disable] label {
   cursor: default;
+  &::before {
+    display: none;
+  }
 }
 
 .over {
@@ -2518,7 +2772,7 @@ button#complete {
 /***********************Preloader************************/
 .preloader {
   position: fixed;
-  top: 40%;
+  top: 50%;
   left: 50%;
   z-index: 999;
 }
@@ -3072,9 +3326,11 @@ span.change[style*="display: none"] ~ span.y {
 .account h3 {
   font-size: 1.6em;
 }
+
 .vocrm-login .account h3 {
   margin: 0;
 }
+
 .account .restore:hover {
   color: #3caeda;
 }
@@ -3162,6 +3418,7 @@ span.change[style*="display: none"] ~ span.y {
   font-weight: bold;
   white-space: pre-line; /*pre*/
 }
+
 .left-content .right-info span {
   display: inline-block;
 }
@@ -3172,6 +3429,11 @@ span.change[style*="display: none"] ~ span.y {
 
 .user-fio h3#fullname {
   font-family: "UbuntuMedium", sans-serif;
+  & ~ h4 {
+    font-size: 1.2em;
+    margin-top: .5em;
+    line-height: 1.5em;
+  }
 }
 
 .anketa h3 {
@@ -3408,6 +3670,7 @@ span.green {
   height: 17px;
   background: url('../img/download.png');
 }
+
 .editprofile .col-1 .butt-wrap button {
   padding-left: 45px;
 }
@@ -3424,9 +3687,11 @@ span.green {
   padding-left: 25px;
   overflow: hidden;
 }
+
 .editprofile .splash-bauttons .close {
   padding-left: 45px;
 }
+
 .editprofile .splash-bauttons .close:after {
   display: block;
   content: '';
@@ -3437,6 +3702,7 @@ span.green {
   height: 19px;
   background: url(../img/events.png) 2px 0 no-repeat;
 }
+
 .columns-wrap {
   height: 100%;
   overflow-y: auto;
@@ -3449,6 +3715,12 @@ span.green {
   float: left;
 }
 
+.container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-around;
+}
+
 .col-2, .col-3 {
   width: 38%;
   float: left;
@@ -3458,10 +3730,19 @@ span.green {
   margin-left: 2%;
 }
 
+.col-6 {
+  width: 50%;
+  min-width: 250px;
+}
+
+.col-7 {
+  width: 70%;
+}
+
 .col-table {
   border: 1px solid #cdd0d4;
   border-radius: 3px;
-  padding: 20px 25px 25px 0;
+  padding: 10px 25px 15px 0;
   background-color: #f2f5fa;
   overflow: hidden;
 }
@@ -3470,9 +3751,6 @@ span.green {
   font-size: 1.2em;
   padding: 10px 0;
   white-space: pre;
-  white-space: -moz-pre;
-  white-space: -pre;
-  white-space: -o-pre;
   height: 35px;
   box-sizing: border-box;
   margin-top: 5px;
@@ -3495,9 +3773,7 @@ span.green {
 
 .editprofile select {
   width: 96%;
-  background: url('../img/down.png') no-repeat;
-  background-position: center right;
-  background-color: #fff;
+  background: #fff url('../img/down.png') no-repeat center right;
   padding-right: 38px;
 }
 
@@ -3537,6 +3813,36 @@ select[disabled] {
 }
 
 /*tabs deals*/
+
+.tabs_link {
+  & li {
+    float: left;
+    width: 14em;
+    height: 90px;
+    padding: 0;
+    & a {
+      display: block;
+      width: 100%;
+      height: 100%;
+      font-size: 1.2em;
+      color: #3caeda;
+      background-color: #f2f5fa;
+      border-right: 1px solid #cdd0d4;
+      border-bottom: 1px solid #cdd0d4;
+      padding: 2.5em 1em;
+      text-align: center;
+      box-sizing: border-box;
+      &.active {
+        background: transparent;
+        border-bottom: 1px solid transparent;
+      }
+      &:hover {
+        color: #656d78;
+      }
+    }
+  }
+}
+
 .sdelki-content {
   display: none;
 }
@@ -3553,20 +3859,6 @@ input[type='file'] {
   opacity: 0
 }
 
-/*DROPBOX styles*/
-/*
-.editprofile .select2-container .select2-choice div {
-	width: 38px;
-}
-
-.editprofile .select2-container .select2-choice div b{
-
-
-	background: url('../img/down.png') no-repeat;
-  background-position: center right;
-  background-color: #fff;
-}
-*/
 /* select in user_create */
 .select2-selection__arrow {
   background: url('../img/down.png') no-repeat center right;
@@ -3812,15 +4104,26 @@ div.butt-wrap > p:nth-child(3) {
   display: none;
 }
 
-/*
-.tabs-names li {
-	display: none;
+.pagination {
+  & .pagination__input {
+    width: 5em;
+    height: 1em;
+    padding: .5em;
+  }
+  & .text {
+    padding-left: 0.7em;
+    padding-right: 1em;
+  }
+  & a {
+    font-size: 2em;
+    padding-right: 0.7em;
+    cursor: pointer;
+    & i {
+      position: relative;
+      top: 0.15em;
+    }
+  }
 }
-
-.tabs-names li.is_current,.tabs-names li.is_current ~ li{
-	display: block;
-}
-*/
 
 .vocrm-login .logo div:nth-child(1), .vocrm-login .logo div:nth-child(2) {
   font-size: 4.2em;
@@ -3828,6 +4131,23 @@ div.butt-wrap > p:nth-child(3) {
 
 #users_list {
   font-size: 1.1em;
+  & tbody {
+    & td:first-child {
+      & a {
+        & ~ span {
+          display: none;
+          position: absolute;
+          top: 0.5em;
+          left: 0.7em;
+        }
+      }
+      &:hover a {
+        & ~ span {
+          display: block;
+        }
+      }
+    }
+  }
 }
 
 .col-3 .col-table > p {
@@ -3842,15 +4162,16 @@ div.butt-wrap > p:nth-child(3) {
   padding-bottom: 10px;
 }
 
-#impPopup .splash-buttons {
-  text-align: left;
-  margin: 10px 20px;
-}
-
-#impPopup button {
-  text-align: center;
-  background-color: #3caeda;
-  padding: 10px 30px;
+#impPopup {
+  & .splash-buttons {
+    text-align: left;
+    margin: 10px 20px;
+  }
+  & button {
+    text-align: center;
+    background-color: #3caeda;
+    padding: 10px 30px;
+  }
 }
 
 .crArea {
@@ -3894,6 +4215,7 @@ div.butt-wrap > p:nth-child(3) {
   left: 17%;
   width: 19% !important;
   border-radius: 3px;
+  padding: 6px 4px;
 }
 
 .phone input[name="phone_number"] {
@@ -3921,10 +4243,7 @@ div.code input#code {
 .member_club_block {
   float: left;
   padding: 20px;
-  -webkit-user-select: none; /* Chrome all / Safari all */
-  -moz-user-select: none; /* Firefox all */
-  -ms-user-select: none; /* IE 10+ */
-  user-select: none; /* Likely future */
+  user-select: none;
 }
 
 .member_user {
@@ -3980,8 +4299,9 @@ div.code input#code {
 
 .input-group {
   float: left;
-  width: 30%;
-  max-width: 300px;
+  width: 37%;
+  max-width: 350px;
+  position: relative;
   &.date input {
     width: 80%;
     height: 33px;
@@ -3991,14 +4311,14 @@ div.code input#code {
   }
   & .fa {
     font-size: 2em;
-    position: relative;
-    left: -1.25em;
-    top: 3px;
+    position: absolute;
+    right: 10%;
+    top: 0;
   }
 }
 
 #apply_date {
-  padding: 7px 20px 9px 30px;
+  padding: 7px 12px 9px 20px;
   & .fa {
     color: white;
     font-size: 1.5em;
@@ -4013,10 +4333,10 @@ div.code input#code {
 
 // grab bootsrap need delete
 
-
 #statistic_block {
   margin-top: 15px;
 }
+
 .panel-primary {
   border-color: #337ab7;
   & .well {
@@ -4100,7 +4420,7 @@ div.code input#code {
   //font-size: 1.5em;
   color: inherit;
   text-transform: uppercase;
-  font-family: UbuntuBold,sans-serif;
+  font-family: UbuntuBold, sans-serif;
 }
 
 .panel {
@@ -4112,7 +4432,7 @@ div.code input#code {
 }
 
 .label-primary {
-  background-color: transparent;/*#337ab7*/
+  background-color: transparent; /*#337ab7*/
 }
 
 .label {
@@ -4122,7 +4442,7 @@ div.code input#code {
   font-family: 'UbuntuBold', sans-serif;
   //font-weight: 700;
   line-height: 1;
-  color: #263238;/*fff*/
+  color: #263238; /*fff*/
   text-align: center;
   white-space: nowrap;
   vertical-align: baseline;
@@ -4183,13 +4503,11 @@ div.code input#code {
   }
 }
 
-
 // lessons anketa
 
-
 .header .top li .selectdb {
-    top: 55px;
-    left: 30px;
+  top: 55px;
+  left: 30px;
 }
 
 .a-sammits-select {
@@ -4202,9 +4520,10 @@ div.code input#code {
     background-color: inherit;
   }
 }
+
 .summit-tabs {
-/*  padding-bottom: 15px;*/
-    position: relative;
+  /*  padding-bottom: 15px;*/
+  position: relative;
   & input.a-tab {
     display: none;
   }
@@ -4280,7 +4599,7 @@ div.code input#code {
       right: 0;
       background-color: rgba(0, 0, 0, 0.6);
       z-index: 99;
-      & .splash-a-payment{
+      & .splash-a-payment {
         width: 400px;
         padding: 10px 20px;
         position: absolute;
@@ -4322,10 +4641,10 @@ div.code input#code {
   }
   & #sum-content1 table tr td, #sum-content3 table tr td {
     padding: 9px 12px;
-    }
+  }
   & #sum-content2 table input[type="checkbox"],
   #sum-content3 table input[type="checkbox"] {
-    display:none;
+    display: none;
   }
   & #sum-content2 table input[type="checkbox"] + label,
   #sum-content3 table input[type="checkbox"] + label {
@@ -4335,7 +4654,7 @@ div.code input#code {
     display: inline-block;
     width: 20px;
     height: 20px;
-    vertical-align:middle;
+    vertical-align: middle;
     background: url(../img/scheck-box.png) no-repeat 0 0;
   }
   & #sum-content2 table input[type="checkbox"] + label {

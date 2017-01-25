@@ -12,7 +12,6 @@
 
 <head>
     <meta charset="UTF-8">
-
     <title>{% block title %}CRM{% endblock %}</title>
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -21,7 +20,7 @@
     <link rel="shortcut icon" href='{% static "img/favicon.png" %}' type="image/x-icon">
 
     {% block main_styles %}
-    <link rel="stylesheet" href='{% static "libs/reset-css/reset.css" %}'>
+        <link rel="stylesheet" href='{% static "libs/reset-css/reset.css" %}'>
         <link rel="stylesheet" href='{% static "libs/normalize-css/normalize.css" %}'>
         <link rel="stylesheet" href='{% static "libs/jquery.scrollbar/jquery.scrollbar.css" %}'>
         <link rel="stylesheet" href='{% static "libs/jquery-ui/themes/base/jquery-ui.min.css" %}'>
@@ -44,13 +43,162 @@
     <script src='{% static "libs/jquery/dist/jquery.min.js" %}'></script>
     <script src='{% static "libs/jquery.scrollbar/jquery.scrollbar.min.js" %}'></script>
     <script src='{% static "libs/jquery-ui/jquery-ui.min.js" %}'></script>
-    <script src='{% static "libs/select2/dist/js/select2.min.js" %}' ></script>
+    <script src='{% static "libs/select2/dist/js/select2.min.js" %}'></script>
+    <script src='{% static "libs/lodash/dist/lodash.min.js" %}'></script>
+    <script src='{% static "libs/es6-promise/es6-promise.min.js" %}'></script>
     <script src='{% static "js/lib.js" %}'></script>
     <script src='{% static "js/main.js" %}'></script>
 {% endblock %}
 
 {% block extra_scripts %}
 {% endblock %}
-
+{% block popup %}
+{% endblock %}
+<script type="text/template" id="databaseUsers">
+     <table>
+        <thead>
+        <tr>
+            <% for( var key in user_table) { %>
+                <% if(user_table[key].active) { %>
+                    <th data-order="<%=user_table[key].ordering_title%>"><%=user_table[key].title %></th>
+                <% } %>
+            <% } %>
+        </tr>
+        </thead>
+        <tbody>
+            <% for( var index in results) { %>
+            <tr>
+                <% for( var key in user_table) { %>
+                    <% if(user_table[key].active) { %>
+                        <% if (key == 'fullname' ) { %>
+                            <% if (results[index][key] != null) { %>
+                                <td><a href="<%= results[index].link %>" target="_blank" data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%= results[index][key] %></a><span class="quick-edit"><i class="fa fa-pencil" aria-hidden="true"></i></span></td>
+                            <% } else { %>
+                                <td></td>
+                            <% } %>
+                        <% } else if (key == 'master' ) { %>
+                            <% if (results[index][key] != null) { %>
+                                <td><%= results[index][key].fullname %></td>
+                            <% } else { %>
+                                <td></td>
+                            <% } %>
+                        <% }  else if (key == 'department' || key == 'hierarchy') { %>
+                            <% if (results[index][key] != null ) { %>
+                                <td><%= results[index][key].title %></td>
+                            <% } else { %>
+                                <td></td>
+                            <% } %>
+                        <% }  else if (key == 'divisions') { %>
+                            <% if ( Array.isArray(results[index][key]) && results[index][key].length != 0) { %>
+                                <% if (results[index][key].length == 1) { %>
+                                    <td><%= results[index][key][0].title %></td>
+                                <% }  else { %>
+                                    <td><%= results[index][key].reduce(function(sum, item) {
+                                            return sum.title + ', ' + item.title
+                                        }) %></td>
+                                <% } %>
+                            <% } else { %>
+                                <td></td>
+                            <% } %>
+                        <% }  else { %>
+                            <td><%=results[index][key]%></td>
+                        <% } %>
+                    <% } %>
+                <% } %>
+            </tr>
+            <% } %>
+        </tbody>
+    </table>
+</script>
+<script type="text/template" id="sortForm">
+    <h3><%=user[0]%></h3>
+        <% for( var key in user[1]) { %>
+        <li <% if(user[1][key].editable) {%>
+            class="draggable"
+            <% } else { %>
+                disable
+            <% } %> >
+            <input type="checkbox" id="<%=key%>" <% if(user[1][key].active) { %>
+            checked
+            <% }%> value="<%=user[1][key].id %>">
+            <label for="<%=key%>"><%=user[1][key].title%></label>
+        </li>
+         <% } %>
+</script>
+<script type="text/template" id="mainPopup">
+    <div class="splash-screen">
+        <div class="top-text">
+            <h3></h3>
+        </div>
+    </div>
+    <div class="columns-wrap">
+    </div>
+    <div class="splash-buttons">
+    </div>
+</script>
+<script type="text/template" id="quickEditCart">
+   <div class="container bb-1">
+       <div>
+            <img class="user-image" src="<%= image %>" alt="<%=id%>">
+        </div>
+        <div class="col-7">
+            <p><input type="text" class="fullname" value="<%=fullname %>"></p>
+            <p><label for="departmentSelect">Отдел церкви: </label><select id="departmentSelect">
+                <% if(department != null) { %>
+                    <option value="<%=department.id %>" selected><%=department.title %></option>
+                <% } else { %>
+                    <option value="" selected></option>
+                <% } %>
+            </select></p>
+            <div><label for="master_hierarchy">Ответственный: </label>
+                <select id="master_hierarchy">
+                    <% if(master != null) { %>
+                        <option value="<%= master.fullname %>" data-id="<%= master.id %>" data-level="<%=master.hierarchy.level%>" selected><%= master.fullname %></option>
+                    <% } %>
+                </select>
+            </div>
+            <p><label for="hierarchySelect">Статус: </label><select id="hierarchySelect">
+                <% if(hierarchy != null) { %>
+                <option value="<%=hierarchy.id %>" data-level="<%=hierarchy.level%>" selected><%=hierarchy.title %></option>
+                <% } else { %>
+                    <option value="" selected></option>
+                <% } %>
+            </select></p>
+{#            <p><label for="departmentSelect">Отдел церкви: </label><input type="text" id="departmentSelect" value="<%=fields.department.value %>" readonly></p> #}
+{#            <p><label for="master_hierarchy">Ответсвенный: </label><input type="text" id="master_hierarchy" value="<%=fields.master_hierarchy.value %>" readonly></p>#}
+{#            <p><label for="hierarchy">Статус: </label><input type="text" id="hierarchy" value="<%=fields.hierarchy.value %>" readonly></p>#}
+        </div>
+   </div>
+    <div class="container">
+        <div class="col-6">
+            <p class="label_block">Телефон:</p>
+            <p class="label_block">Домашний телефон:</p>
+            <p class="label_block">E-mail:</p>
+            <p class="label_block">Skype:</p>
+            <p class="label_block">Страна:</p>
+            <p class="label_block">Область:</p>
+            <p class="label_block">Нас.пункт:</p>
+            <p class="label_block">Адрес:</p>
+            <p class="label_block">Дата покаяния:</p>
+        </div>
+        <div class="col-6">
+            <p><input type="text" id="phone_number" value="<%=phone_number %>"></p>
+            <p><input type="text" id="additional_phones"
+                      <% if(!additional_phones.length) { %>
+                      value=""
+                      <%} else { %>
+                        value="<%=additional_phones[0].number %>"
+                        <% } %> >
+            </p>
+            <p><input type="text" id="email" value="<%=email %>"></p>
+            <p><input type="text" id="skype" value="<%=skype %>"></p>
+            <p><input type="text" id="country" value="<%=country %>"></p>
+            <p><input type="text" id="region" value="<%=region %>"></p>
+            <p><input type="text" id="city" value="<%=city %>"></p>
+            <p><input type="text" id="address" value="<%=address %>"></p>
+            <p><input type="text" id="repentance_date" value="<%=repentance_date %>"></p>
+        </div>
+    </div>
+</script>
 </body>
 </html>

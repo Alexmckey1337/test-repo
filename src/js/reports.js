@@ -35,7 +35,7 @@ function init_report(){
 
 
 function getReports(period,container,callback){
-    ajaxRequest(config.DOCUMENT_ROOT + period, null, function(data) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + period, null, function(data) {
 
         let results = data.results;
 
@@ -225,7 +225,7 @@ function getReports(period,container,callback){
 
 
 function getWeekReports(period,container,callback){
-    ajaxRequest(config.DOCUMENT_ROOT + period, null, function(data) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + period, null, function(data) {
 
 
         let results = data.results;
@@ -427,7 +427,7 @@ function getWeekReports(period,container,callback){
 
 
 function getWeekShortReports(period,container,callback){
-    ajaxRequest(config.DOCUMENT_ROOT + period, null, function(data) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + period, null, function(data) {
 
 
         let results = data.results;

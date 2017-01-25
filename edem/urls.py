@@ -1,6 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
 from filebrowser.sites import site
@@ -25,10 +26,21 @@ urlpatterns = [
     url(r'^api/', include('notification.urls')),
     url(r'^api/', include('partnership.urls')),
     url(r'^api/', include('report.urls')),
+
+    url(r'^api/', include('group.urls')),
+
     url(r'^api/', include('status.urls')),
     url(r'^api/', include('summit.urls')),
-    url(r'^api/', include('tv_crm.urls')),
 
     url(r'^', include('main.urls')),
     url(r'^', include('django.contrib.auth.urls')),
 ]
+
+if settings.DEBUG:
+    try:
+        import debug_toolbar
+        urlpatterns += [
+            url(r'^__debug__/', include(debug_toolbar.urls)),
+        ]
+    except ImportError:
+        pass

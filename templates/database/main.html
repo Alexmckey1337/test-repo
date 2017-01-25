@@ -3,36 +3,115 @@
 
 {% block body_id %} id="database"{% endblock %}
 
-{% block header.top.h1 %}<h1>База данных | </h1>{% endblock %}
+{% block header.top.h1 %}<h1>База данных</h1>{% endblock %}
 
-{% block header.top.select %}
-    <select class="selectdb" id="dep_filter">
-        <option value="0">ВСЕ</option>
-        {% for department in departments %}
-            <option value="{{ department.id }}">{{ department.title }}</option>
-        {% endfor %}
-    </select>
+{% block header.buttons.filter %}
+    <li>
+        <button id="filter_button">Фильтр</button>
+    </li>
 {% endblock %}
-
-{% block header.search.filter %}
-    <div class="filter">
-        <select name="filter" id="filter">
-            <option value="search">Все поля</option>
-            <option value="department__title">Отдел</option>
-            <option value="country">Страна</option>
-            <option value="city">Населенный пункт</option>
-            <option value="district">Район</option>
-        </select>
-    </div>
-{% endblock %}
-
 {% block header.buttons.export %}
+
 {% endblock %}
 
 {% block create_user %}
     {% include 'partials/create_user.html' %}
 {% endblock %}
-
+{% block popup %}
+    <div class="popap" id='filterPopup'>
+        <div class="pop_cont">
+            <h2 class='popup_text'>
+                Фильтр
+            </h2>
+            <div class="popup_body">
+                <div class="container">
+                    <div class="col-6">
+                        <p class="label_block">
+                            <label for="departments_filter">Отдел</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="hierarchies_filter">Иерархия</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="masters_filter">Ответсвенный</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="search_email">Фильтр по email</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="search_phone_number">Фильтр по номеру телефона</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="search_country">Фильтр по стране</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="search_city">Фильтр по городу</label>
+                        </p>
+                    </div>
+                    <div class="col-6">
+                        <p class="input_block">
+                            <select class="selectdb" id="departments_filter">
+                                <option value="0">ВСЕ</option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">{{ department.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <select class="selectdb" id="hierarchies_filter">
+                                <option value="0">ВСЕ</option>
+                                {% for hierarchy in hierarchies %}
+                                    <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <select class="selectdb" id="masters_filter">
+                                <option value="0">ВСЕ</option>
+                                {% for master in masters %}
+                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <input type="email" placeholder="email или часть" id="search_email">
+                        </p>
+                        <p class="input_block">
+                            <input type="tel" placeholder="номер телефона или часть" id="search_phone_number">
+                        </p>
+                        <p class="input_block">
+                            <input type="text" placeholder="страна или часть названия" id="search_country">
+                        </p>
+                        <p class="input_block">
+                            <input type="text" placeholder="город или часть названия" id="search_city">
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <a href="#" onclick="refreshFilter(this)" class="apply-filter"><i class="fa fa-refresh"
+                                                                                  aria-hidden="true"></i>
+                    Очистить</a>
+                <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                <button onclick="applyFilter(this, createUsersTable)" class="apply-filter">Применить</button>
+            </div>
+        </div>
+    </div>
+    <div class="popap" id="quickEditCartPopup">
+        <div class="pop_cont">
+            <div class="popup_text">
+                <h2>Карточка пользователя</h2>
+                <span onclick="hidePopup(this)" class="close"><i class="fa fa-times" aria-hidden="true"></i></span>
+            </div>
+            <div class="popup_body">
+            </div>
+            <div class="container">
+                <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                <button onclick="saveUser(this)" class="save-user">Сохранить</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
 {% block extra_scripts %}
     <script src="{% static "js/add_user.js" %}"></script>
     <script src="{% static "js/database_users.js" %}"></script>

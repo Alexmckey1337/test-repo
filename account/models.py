@@ -20,7 +20,6 @@ from mptt.models import MPTTModel, TreeForeignKey
 from event.models import EventAnket
 from navigation.models import Table
 from partnership.models import Partnership
-from tv_crm.models import LastCall
 
 COMMON = ['Имя', 'Фамилия', 'Отчество', 'Email', 'Телефон', 'Дата рождения', 'Иерархия', 'Отдел',
           'Страна', 'Область', 'Населенный пункт', 'Район', 'Адрес', 'Skype', 'Vkontakte', 'Facebook', 'Отдел церкви', ]
@@ -43,6 +42,10 @@ class CustomUserManager(TreeManager, UserManager):
 @python_2_unicode_compatible
 class CustomUser(MPTTModel, User):
     middle_name = models.CharField(max_length=40, blank=True)
+
+    #: Field for name in the native language of the user
+    search_name = models.CharField(_('Field for search by name'), max_length=255, blank=True)
+
     phone_number = models.CharField(max_length=13, blank=True)
     skype = models.CharField(max_length=50, blank=True)
     country = models.CharField(max_length=50, blank=True)
@@ -67,6 +70,14 @@ class CustomUser(MPTTModel, User):
     coming_date = models.DateField(blank=True, null=True)
     hierarchy_order = models.BigIntegerField(blank=True, null=True)
     activation_key = models.CharField(max_length=40, blank=True)
+
+    BABY, JUNIOR, FATHER = 1, 2, 3
+    SPIRITUAL_LEVEL_CHOICES = (
+        (BABY, _('Baby')),
+        (JUNIOR, _('Junior')),
+        (FATHER, _('Father')),
+    )
+    spiritual_level = models.PositiveSmallIntegerField(_('Spiritual Level'), choices=SPIRITUAL_LEVEL_CHOICES, default=1)
 
     objects = CustomUserManager()
 
@@ -122,7 +133,7 @@ class CustomUser(MPTTModel, User):
     @property
     def column_table(self):
         l = OrderedDict()
-        if self.table:
+        if hasattr(self, 'table') and isinstance(self.table, Table):
             columns = self.table.columns.order_by('number')
             for column in columns.all():
                 d = OrderedDict()
@@ -303,15 +314,6 @@ class CustomUser(MPTTModel, User):
         return self.hierarchy.title
 
     @property
-    def last_week_calls(self):
-        day = timezone.now().date() - timedelta(days=7)
-        count = LastCall.objects.filter(
-            user__master=self,
-            user__hierarchy__level=4,
-            date__gte=day, date__lte=(timezone.now().date())).count()
-        return count
-
-    @property
     def attrs(self):
         l = ['Ответственный', 'Отдел', 'Город', 'Номер телефона',
              'Количество прозвонов за неделю', 'Посмотреть прозвоны']
@@ -410,7 +412,4 @@ def sync_user(sender, instance, **kwargs):
             Notification.objects.create(date=date,
                                         user=instance,
                                         theme=birth_day_notification_theme)
-    from report.models import UserReport
     Table.objects.get_or_create(user=instance)
-    EventAnket.objects.get_or_create(user=instance)
-    UserReport.objects.get_or_create(user=instance)

@@ -4,10 +4,14 @@ from __future__ import unicode_literals
 from datetime import date
 from decimal import Decimal
 
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Sum
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+
+from payment.models import get_default_currency
 
 
 @python_2_unicode_compatible
@@ -61,6 +65,9 @@ class Summit(models.Model):
     #: has discount for this summit.
     special_cost = models.DecimalField(_('Special cost'), max_digits=12, decimal_places=0,
                                        blank=True, null=True)
+    #: Currency of full_cost and special_cost
+    currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
+                                 default=get_default_currency, null=True)
     #: Template for sending tickets. This template using in dbmail.
     mail_template = models.ForeignKey('dbmail.MailTemplate', related_name='summits',
                                       verbose_name=_('Mail template'),
@@ -101,15 +108,36 @@ class Summit(models.Model):
         return self.type.club_name
 
 
+class CustomUserAbstract(models.Model):
+    # cloned the user when creating anket
+    name = models.CharField(max_length=255, blank=True)
+    first_name = models.CharField(max_length=255, blank=True)
+    last_name = models.CharField(max_length=255, blank=True)
+    pastor = models.CharField(max_length=255, blank=True)
+    bishop = models.CharField(max_length=255, blank=True)
+    sotnik = models.CharField(max_length=255, blank=True)
+    date = models.DateField(default=date.today)
+    department = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=255, blank=True)
+    country = models.CharField(max_length=255, blank=True)
+    region = models.CharField(max_length=255, blank=True)
+    phone_number = models.CharField(max_length=255, blank=True)
+    responsible = models.CharField(max_length=255, blank=True)
+    image = models.CharField(max_length=12, blank=True)
+
+    class Meta:
+        abstract = True
+
+
 @python_2_unicode_compatible
-class SummitAnket(models.Model):
+class SummitAnket(CustomUserAbstract):
     user = models.ForeignKey('account.CustomUser', related_name='summit_ankets')
     summit = models.ForeignKey('Summit', related_name='ankets', verbose_name='Саммит',
                                blank=True, null=True)
 
     #: The amount paid for the summit
     value = models.DecimalField(_('Paid amount'), max_digits=12, decimal_places=0,
-                                default=Decimal('0'))
+                                default=Decimal('0'), editable=False)
     description = models.CharField(max_length=255, blank=True)
     code = models.CharField(max_length=8, blank=True)
 
@@ -132,21 +160,8 @@ class SummitAnket(models.Model):
         'summit.Summit', related_name='consultant_ankets',
         through='summit.SummitUserConsultant', through_fields=('user', 'summit'))
 
-    # cloned the user when creating anket
-    name = models.CharField(max_length=255, blank=True)
-    first_name = models.CharField(max_length=255, blank=True)
-    last_name = models.CharField(max_length=255, blank=True)
-    pastor = models.CharField(max_length=255, blank=True)
-    bishop = models.CharField(max_length=255, blank=True)
-    sotnik = models.CharField(max_length=255, blank=True)
-    date = models.DateField(default=date.today)
-    department = models.CharField(max_length=255, blank=True)
-    city = models.CharField(max_length=255, blank=True)
-    country = models.CharField(max_length=255, blank=True)
-    region = models.CharField(max_length=255, blank=True)
-    phone_number = models.CharField(max_length=255, blank=True)
-    responsible = models.CharField(max_length=255, blank=True)
-    image = models.CharField(max_length=12, blank=True)
+    #: Payments of the current anket
+    payments = GenericRelation('payment.Payment', related_query_name='summit_ankets')
 
     class Meta:
         ordering = ('summit__type', '-summit__start_date')
@@ -154,6 +169,35 @@ class SummitAnket(models.Model):
 
     def __str__(self):
         return '%s %s %s' % (self.user.fullname, self.summit.type.title, self.summit.start_date)
+
+    @property
+    def total_payed(self):
+        return self.payments.aggregate(value=Sum('effective_sum'))['value']
+
+    @property
+    def currency(self):
+        return self.summit.currency
+
+    def calculate_value(self):
+        payments = self.payments.filter(currency_rate=self.currency)
+        # for payment in payments:
+        #     payment.update_effective_sum(save=True)
+        if self.payments.exclude(currency_rate=self.currency).exists():
+            # TODO logging
+            pass
+
+        # payments.refresh_from_db()
+        if payments.exists():
+            value = payments.aggregate(value=Sum('effective_sum'))['value']
+        else:
+            value = 0
+        return value
+
+    def update_value(self):
+        self.value = self.calculate_value()
+        self.save()
+
+    update_value.alters_data = True
 
     @property
     def is_member(self):
@@ -173,9 +217,9 @@ class SummitAnket(models.Model):
         :return: boolean
         """
         if self.is_member and self.summit.special_cost is not None:
-            return self.summit.special_cost <= self.value
+            return self.summit.special_cost <= self.total_payed
         else:
-            return self.summit.full_cost <= self.value
+            return self.summit.full_cost <= self.total_payed
 
 
 @python_2_unicode_compatible

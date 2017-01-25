@@ -1,4 +1,4 @@
- $(document).ready(function () {
+$(document).ready(function () {
     if (document.getElementById('summits')) {
         create_summit_buttons('summits');
     }
@@ -11,9 +11,11 @@
     });
 
     $('input[name="fullsearch"]').keyup(function () {
+        let val = $(this).val();
         delay(function () {
             let data = {};
             data['summit'] = summit_id;
+            data['search'] = val;
             getUsersList(path, data);
         }, 1500);
     });
@@ -21,7 +23,7 @@
     $('input[name="searchDep"]').on('keyup', function () {
         delay(function () {
             let data = {};
-            let path = config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/?';
+            let path = CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/?';
             data['summit'] = summit_id;
             data['user__department__title'] = $('input[name="searchDep"]').val();
             getUsersList(path, data);
@@ -32,7 +34,7 @@
 
     $('#dep_filter').on('change', function () {
         let params = {};
-        getUsersList(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/', params)
+        getUsersList(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/', params)
 
     });
 
@@ -45,7 +47,6 @@
                 getUsersList(path);
                 break;
             case '1':
-
                 param = {
                     is_member: true
                 };
@@ -65,6 +66,7 @@
     });
 
     $('#sort_save').on('click', function () {
+        console.log(path);
         updateSettings(getUsersList, path);
         $(".table-sorting").animate({
             right: '-300px'
@@ -84,12 +86,47 @@
         });
 
         $("#close").on('click', function () {
-            $('#popup').on('display', 'none');
+            $('#popup').css('display', 'none');
             $('.choose-user-wrap').css('display', 'block');
         });
 
         $("#closeDelete").on('click', function () {
             $('#popupDelete').css('display', 'none');
+        });
+        $("#close-payment").on('click', function () {
+            $('#popup-create_payment').css('display', 'none');
+        });
+        $("#close-payments").on('click', function () {
+            $('#popup-payments').css('display', 'none');
+            $('#popup-payments table').html('');
+        });
+        $("#popup-create_payment .top-text span").on('click', function (el) {
+            $('#new_payment_sum').val('');
+            $('#popup-create_payment textarea').val('');
+            $('#popup-create_payment').css('display', '');
+        });
+        $("#popup-payments .top-text span").on('click', function (el) {
+            $('#popup-payments').css('display', '');
+            $('#popup-payments table').html('');
+        });
+        $('#payment-form').on("submit", function (event) {
+            event.preventDefault();
+            let data = $('#payment-form').serializeArray();
+            console.log(data);
+            let new_data = {};
+            data.forEach(function (field) {
+                new_data[field.name] = field.value
+            });
+            let id = new_data.id,
+                sum = new_data.sum,
+                description = new_data.description,
+                rate = new_data.rate,
+                currency = new_data.currency;
+            console.log(id, sum, description, rate, currency);
+            create_payment(id, sum, description, rate, currency);
+            $('#new_payment_sum').val('');
+            $('#popup-create_payment textarea').val('');
+            $('#popup-create_payment').css('display', 'none');
         });
 
         $(".add-user-wrap .top-text span").on('click', function () {
@@ -129,23 +166,27 @@
             $('.choose-user-wrap').css('display', '');
         });
 
-        $('choose').on('click', function () {
-            $('.choose-user-wrap').css('display', 'block');
-            $('.add-user-wrap').css('display', '');
-        });
-
         $('.choose-user-wrap h3 span').on('click', function () {
             $('searchUsers').val('');
             $('.choose-user-wrap .splash-screen').removeClass('active');
             $('.choose-user-wrap').css('display', '');
             $('.add-user-wrap').css('display', 'block');
+            $('#choose').on('click', function () {
+                $('.choose-user-wrap').css('display', 'block');
+                $('.add-user-wrap').css('display', '');
+            });
         });
 
-        $('add_new').on('click', function () {
+        $('#add_new').on('click', function () {
             $('.pop-up-splash-add').css('display', 'block');
         });
 
-        $('changeSum').on('click', function () {
+        $('#choose').on('click', function () {
+            $('.choose-user-wrap').css('display', 'block');
+            $('.add-user-wrap').css('display', 'none');
+            document.querySelector('#searchUsers').focus();
+        });
+        $('#changeSum').on('click', function () {
             $('#summit-value').removeAttr('readonly');
             $('#summit-value').focus();
         });
@@ -191,8 +232,8 @@
             $('#popupDelete').css('display', 'none');
         });
 
-        $('complete').on('click', function () {
-            let id = this.attr('data-id'),
+        $('#complete').on('click', function () {
+            let id = $(this).attr('data-id'),
                 money = $('#summit-value').val(),
                 description = $('#popup textarea').val();
             registerUser(id, summit_id, money, description);
@@ -207,10 +248,10 @@
 var summit_id;
 var ordering = {};
 var order;
-var path = config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/?';
+var path = CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/?';
 
 function unsubscribe(id) {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/' + id + '/', null, function () {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/' + id + '/', null, function () {
         let data = {};
         data['summit'] = summit_id;
         getUsersList(path, data);
@@ -234,7 +275,7 @@ function registerUser(id, summit_id, money, description) {
 
     let json = JSON.stringify(data);
 
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/post_anket/', json, function (JSONobj) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/post_anket/', json, function (JSONobj) {
         if (JSONobj.status) {
             let data = {};
             data['summit'] = summit_id;
@@ -250,14 +291,57 @@ function registerUser(id, summit_id, money, description) {
         'Content-Type': 'application/json'
     });
 }
+function create_payment(id, sum, description, rate, currency) {
+    let data = {
+        "sum": sum,
+        "description": description,
+        "rate": rate,
+        "currency": currency
+    };
 
-function getUnregisteredUsers(parameters) {
-    let param = parameters || {};
-    let search = document.getElementById('searchUsers').value;
+    let json = JSON.stringify(data);
+
+    ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/summit_ankets/${id}/create_payment/`, json, function (JSONobj) {
+        showPopup('Оплата прошла успешно.');
+    }, 'POST', true, {
+        'Content-Type': 'application/json'
+    }, {
+        403: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail)
+        }
+    });
+}
+function show_payments(id) {
+
+    ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/summit_ankets/${id}/payments/`, null, function (data) {
+        let payments_table = '';
+        let sum, date_time;
+        data.forEach(function (payment) {
+            sum = payment.effective_sum_str;
+            date_time = payment.created_at;
+            payments_table += `<tr><td>${sum}</td><td>${date_time}</td></tr>`
+        });
+        $('#popup-payments table').html(payments_table);
+        $('#popup-payments').css('display', 'block');
+    }, 'GET', true, {
+        'Content-Type': 'application/json'
+    }, {
+        403: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail)
+        }
+    });
+}
+
+function getUnregisteredUsers() {
+    let param = {};
+    let search = $('#searchUsers').val();
+
     if (search) {
         param['search'] = search;
     }
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/summit_search/?summit_id!=' + summit_id, param, function (data) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_search/?summit_id!=' + summit_id, param, function (data) {
         let html = '';
         data = data.results;
         for (let i = 0; i < data.length; i++) {
@@ -270,17 +354,17 @@ function getUnregisteredUsers(parameters) {
         }
         $('.choose-user-wrap .splash-screen').addClass('active');
         let but = $('.rows-wrap button');
-            but.on('clock', function () {
-                let id = this.attr('data-id'),
-                    name = this.attr('data-name'),
-                    master = this.attr('data-master');
-                $('#summit-value').val("0");
-                $('#summit-value').attr('readonly', true);
-                $('#popup textarea').val("");
-                getDataForPopup(id, name, master);
-                $('popup').css('display', 'block');
-                $('.choose-user-wrap').css('display', 'block');
-            });
+        but.on('click', function () {
+            let id = $(this).attr('data-id'),
+                name = $(this).attr('data-name'),
+                master = $(this).attr('data-master');
+            $('#summit-value').val("0");
+            $('#summit-value').attr('readonly', true);
+            $('#popup textarea').val("");
+            getDataForPopup(id, name, master);
+            $('#popup').css('display', 'block');
+            $('.choose-user-wrap').css('display', 'block');
+        });
     });
 }
 
@@ -293,7 +377,7 @@ function getDataForPopup(id, name, master) {
 function create_summit_buttons(id) {
     let img = $('#summits img');
     img.on('click', function () {
-         location.href = '/summit_info/' + $(this).attr('data-id');
+        location.href = '/summit_info/' + $(this).attr('data-id');
     })
 }
 
@@ -327,33 +411,43 @@ function addSummitInfo() {
     }
 }
 
+// function getCurrentSummitSetting(data) {
+//     let html = '';
+//     data.forEach(function (obj) {
+//         let titles = obj[1];
+//         html += '<h3>' + obj[0] + '</h3>';
+//         for (let prop in titles) {
+//             if (!titles.hasOwnProperty(prop)) continue;
+//             let ischeck = titles[prop]['active'] ? 'check' : '';
+//             let isdraggable = titles[prop]['editable'] ? 'draggable' : 'disable';
+//             html += '<li ' + isdraggable + ' >' +
+//                 '<input id="' + titles[prop]['ordering_title'] + '" type="checkbox">' +
+//                 '<label for="' + titles[prop]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[prop]['id'] + '">' + titles[prop]['title'] + '</label>';
+//             if (isdraggable == 'disable') {
+//                 html += '<div class="disable-opacity"></div>'
+//             }
+//             html += '</li>'
+//         }
+//     });
+//
+//     $('#sort-form').html(html);
+//
+//     $('#sort-form input').on('click', function () {
+//         if (!$(this).prop('disable')) {
+//             $(this).hasClass('check') ? $(this).removeClass('check') : $(this).addClass('check');
+//         }
+//     })
+// }
+
 function getCurrentSummitSetting(data) {
-    let html = '';
-    data.forEach(function (d) {
-        let titles = d[1];
-        html += '<h3>' + d[0] + '</h3>';
-        for (let p in titles) {
-            if (!titles.hasOwnProperty(p)) continue;
-            let ischeck = titles[p]['active'] ? 'check' : '';
-            let isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
-            html += '<li ' + isdraggable + ' >' +
-                '<input id="' + titles[p]['ordering_title'] + '" type="checkbox">' +
-                '<label for="' + titles[p]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[p]['id'] + '">' + titles[p]['title'] + '</label>';
-            if (isdraggable == 'disable') {
-                html += '<div class="disable-opacity"></div>'
-            }
-            html += '</li>'
-        }
-    });
-
-    $('#sort-form').html(html);
-
-    $('#sort-form input').on('click', function (el) {
-        if (!$(this).prop('disable')) {
-            $(this).hasClass('check') ? $(this).removeClass('check') : $(this).addClass('check');
-        }
-    })
-
+    console.log(data);
+    let sortFormTmpl, obj, rendered;
+    sortFormTmpl = document.getElementById("sortForm").innerHTML;
+    obj = {};
+    obj.user = data[0];
+    console.log(obj);
+    rendered = _.template(sortFormTmpl)(obj);
+    document.getElementById('sort-form').innerHTML = rendered;
 }
 
 function reversOrder(order) {
@@ -374,24 +468,12 @@ function getUsersList(path, param) {
         param['user__department__title'] = el.options[el.selectedIndex].text;
     }
     let ordering = param.ordering || 'user__last_name';
-    let filter = document.getElementById('filter').value;
-    if (search) {
-        if (filter == 'search') {
-            param[filter] = search;
-        } else {
-            param['user__' + filter] = search;
-        }
-
-    }
     param['summit'] = summit_id;
     document.getElementsByClassName('preloader')[0].style.display = 'block';
     ajaxRequest(path, param, function (data) {
-
         let results = data.results;
-
         let k;
         let value;
-
         let count = data.count;
         if (results.length == 0) {
             $('#users_list').html('<p>По запросу не найдено учасников</p>');
@@ -412,7 +494,7 @@ function getUsersList(path, param) {
         for (k in user_fields) {
             if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
             if (ordering.indexOf('user__' + user_fields[k]['ordering_title']) != -1) {
-                thead += '<th data-order="' + reversOrder(ordering) + '">' + user_fields[k]['title'] + '</th>'
+                thead += '<th data-order="' + ordering + '">' + user_fields[k]['title'] + '</th>'
             } else {
                 thead += '<th data-order="user__' + user_fields[k]['ordering_title'] + '">' + user_fields[k]['title'] + '</th>'
             }
@@ -420,7 +502,7 @@ function getUsersList(path, param) {
         for (k in common_fields) {
             if (!common_fields.hasOwnProperty(k) || !common_fields[k].active) continue;
             if (ordering.indexOf(common_fields[k]['ordering_title']) != -1) {
-                thead += '<th data-order="' + reversOrder(ordering) + '">' + common_fields[k]['title'] + '</th>'
+                thead += '<th data-order="' + ordering + '">' + common_fields[k]['title'] + '</th>'
             } else {
                 thead += '<th data-order="' + common_fields[k]['ordering_title'] + '">' + common_fields[k]['title'] + '</th>'
             }
@@ -447,7 +529,9 @@ function getUsersList(path, param) {
                     if (classes.length > 0) {
                         tbody += ' class="' + classes.join(' ') + '"';
                     }
-                    tbody += '>' + '<a href="' + results[i].user.link + '">' + value + '</a><span title="Удалить анкету" data-fullname="' + results[i].user.fullname + '" data-user-id="' + results[i].user.id + '" data-anketId="' + results[i].id + '"" data-value="' + results[i].value + '" data-comment="' + results[i].description + '" data-member="' + results[i].is_member + '" class="del"></span></td>'
+                    tbody += '>' + '<a href="' + results[i].user.link + '">' + value + '</a><span title="Удалить анкету" data-fullname="' + results[i].user.fullname + '" data-user-id="' + results[i].user.id + '" data-anketId="' + results[i].id +
+                        '"" data-value="' + results[i].total_sum +
+                        '" data-comment="' + results[i].description + '" data-member="' + results[i].is_member + '" class="del"></span></td>'
                 } else if (k === 'social') {
                     tbody += '<td>';
                     if (results[i].user.skype) {
@@ -472,6 +556,8 @@ function getUsersList(path, param) {
                 value = getCorrectValue(field[k]);
                 if (k == 'code') {
                     tbody += '<td><a href="/api/v1.0/generate_code/' + results[i].user.fullname + ' (' + value + ').pdf?code=' + value + '">' + value + '</a></td>'
+                } else if (k == 'value') {
+                    tbody += '<td><a href="#" class="show_payments" data-anketId="' + results[i].id + '">' + results[i].total_sum + '</a> <a href="#" class="create_payment" data-anketId="' + results[i].id + '">Pay</a></td>'
                 } else {
                     tbody += '<td>' + value + '</td>'
                 }
@@ -483,7 +569,7 @@ function getUsersList(path, param) {
         let table = '<table>' + thead + tbody + '</table>';
 
         let page = parseInt(param['page']) || 1,
-            pages = Math.ceil(count / config.pagination_count),
+            pages = Math.ceil(count / CONFIG.pagination_count),
             paginations = '',
             elementSelect = '<p>Показано <span>' + results.length + '</span> из <span>' + count + '</span></p>';
         if (page > 1) {
@@ -495,10 +581,7 @@ function getUsersList(path, param) {
             if (page > 4) {
                 paginations += '<li>1</li><li class="no-pagin">&hellip;</li>'
             }
-
             for (let j = page - 2; j < page + 3; j++) {
-
-
                 if (j == page) {
                     paginations += '<li class="active">' + j + '</li>'
                 } else {
@@ -514,8 +597,6 @@ function getUsersList(path, param) {
                 if (page < pages - 3) {
                     paginations += '<li>' + pages + '</li>'
                 }
-
-
             }
             paginations += '</ul>'
         }
@@ -530,9 +611,55 @@ function getUsersList(path, param) {
         $(".pag-wrap").each(function (i, el) {
             $(el).html(paginations);
         });
+        $('.create_payment').on('click', function (el) {
+            let id = $(this).attr('data-anketId');
+            $('#complete-payment').attr('data-id', id);
+            $('#purpose-id').val(id);
 
-        $('#users_list .del').on('click', function (el) {
-            console.log(this);
+            $('#popup-create_payment').css('display', 'block');
+        });
+        $('.show_payments').on('click', function (el) {
+            let id = $(this).attr('data-anketId');
+            show_payments(id);
+        });
+        // Sorting
+        var orderTable = (function () {
+            function addListener() {
+                $(".table-wrap th").on('click', function () {
+                    let dataOrder;
+                    let data_order = this.getAttribute('data-order');
+                    var revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
+                    var order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
+                    if (order != '') {
+                        dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
+                    } else {
+                        dataOrder = '-' + data_order;
+                    }
+                    ordering = {};
+                    ordering[data_order] = dataOrder;
+                    let page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
+                    let data = {
+                        'ordering': dataOrder,
+                        'page': page
+                    };
+                    if (order == data_order) {
+                        revers = (revers == '+') ? '-' : '+';
+                    } else {
+                        revers = "+"
+                    }
+                    sessionStorage.setItem('revers', revers);
+                    sessionStorage.setItem('order', data_order);
+
+                    getUsersList(path, data);
+                });
+            }
+
+            return {
+                addListener: addListener
+            }
+        })();
+        orderTable.addListener();
+        $('#users_list .del').on('click', function () {
             let id = $(this).attr('data-user-id'),
                 usr = $(this).attr('fullname'),
                 anketa = $(this).attr('data-anketId'),
@@ -550,7 +677,6 @@ function getUsersList(path, param) {
             } else {
                 $('#member').prop('checked', true);
             }
-
             $('#popupDelete').css('display', 'block');
         });
 

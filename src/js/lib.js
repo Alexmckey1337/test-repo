@@ -1,4 +1,279 @@
-//Проверка существование элемента на странице
+function getUsers(config = {}) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/', config, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка")
+            }
+        })
+    });
+}
+
+function saveUserData(data, id) {
+    if (id) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/' + id + '/', data, function (data) {
+            console.log(data);
+        }, 'PATCH', false, {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        });
+    }
+}
+
+function getCountryCodes() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка")
+            }
+        })
+    })
+}
+
+function getPartnersList(data) {
+    let config = {
+        search: "",
+        page: 1
+    };
+    Object.assign(config, data);
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/partnerships/', config, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка")
+            }
+        })
+    })
+}
+
+function getCountries() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    });
+}
+
+function getCountriesList() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject('Ошибка');
+            }
+        })
+    })
+}
+
+function getDepartments() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/departments/', null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject('Ошибка');
+            }
+        });
+    });
+}
+
+function getStatuses() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    })
+}
+
+function getCurrentUser(id) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/' + id + '/', null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        })
+    })
+}
+
+function getResponsible(id, level, search = "") {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id + '&level_gte=' + level + '&search=' + search, null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    })
+}
+
+function getResponsibleStatuses() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    })
+}
+
+function getDivisions() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/divisions/', null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    })
+}
+
+function getManagers() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/partnerships/simple/', null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject();
+            }
+        });
+    });
+}
+
+function getIncompleteDeals(search, json) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=3' + search, json, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject();
+            }
+        })
+    })
+}
+
+function getFinishedDeals(search, json) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=2' + search, json, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject();
+            }
+        })
+    })
+}
+
+function getOverdueDeals(search, json) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?expired=2' + search, json, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject();
+            }
+        })
+    })
+}
+
+function getPayment(id) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/deals/${id}/payments/`, null, function (data) {
+            resolve(data);
+        }, 'GET', true, {
+            'Content-Type': 'application/json'
+        }, {
+            403: function (data) {
+                data = data.responseJSON;
+                reject();
+                showPopup(data.detail)
+            }
+        })
+    })
+}
+
+function makePagination(config) {
+    let container = document.createElement('div'),
+        input = document.createElement('input'),
+        text = document.createElement('span'),
+        doubleLeft = document.createElement('a'),
+        doubleRight = document.createElement('a'),
+        left = document.createElement('a'),
+        right = document.createElement('a');
+    $(input).attr({
+        "type": "number",
+        "max": config.pages,
+        "min": 1
+    });
+    $(doubleLeft).addClass('double__left').append('<i class="fa fa-angle-double-left" aria-hidden="true"></i>');
+    $(doubleLeft).on('click', function () {
+        $(this).closest('.pagination').find('.pagination__input').val(1).trigger('change');
+    });
+    $(left).addClass('left').append('<i class="fa fa-angle-left" aria-hidden="true"></i>');
+    $(left).on('click', function () {
+        let val = parseInt($(this).closest('.pagination').find('.pagination__input').val());
+        if (!!(val - 1)) {
+            $(this).closest('.pagination').find('.pagination__input').val(val - 1).trigger('change');
+        }
+    });
+    $(doubleRight).addClass('double__right').append('<i class="fa fa-angle-double-right" aria-hidden="true"></i>');
+    $(doubleRight).on('click', function () {
+        $(this).closest('.pagination').find('.pagination__input').val(config.pages).trigger('change');
+    });
+    $(right).addClass('right').append('<i class="fa fa-angle-right" aria-hidden="true"></i>');
+    $(right).on('click', function () {
+        let val = parseInt($(this).closest('.pagination').find('.pagination__input').val());
+        if (!(val + 1 > config.pages)) {
+            $(this).closest('.pagination').find('.pagination__input').val(val + 1).trigger('change');
+        }
+    });
+
+    $(input).addClass('pagination__input').val(config.currentPage);
+    $(text).addClass('text').text(`из ${config.pages}`);
+    $(container).append(doubleLeft).append(left).append(input).append(text).append(right).append(doubleRight);
+
+    $(container).find('.pagination__input').change(function () {
+        let val = parseInt($(this).val());
+        if (val <= 0) {
+            $(container).find('.pagination__input').val(1).trigger('change');
+            return
+        }
+        if (val > config.pages) {
+            $(container).find('.pagination__input').val(config.pages).trigger('change');
+            return
+        }
+        config.callback({
+            page: val
+        });
+    });
+
+    $(config.container).html(container);
+
+}
+
+function deleteCookie(name) {
+    setCookie(name, "", {
+        expires: -1
+    })
+}
+
 function isElementExists(element) {
     if (typeof(element) != 'undefined' && element != null) {
         return true;
@@ -16,26 +291,24 @@ function getLastId(url) {
     return id[id.length - 2]
 }
 
-function getCookie(c_name) {
-    // From http://www.w3schools.com/js/js_cookies.asp
-    let c_value = document.cookie;
-    let c_start = c_value.indexOf(" " + c_name + "=");
-    if (c_start == -1) {
-        c_start = c_value.indexOf(c_name + "=");
+function getCookie(cookieName) {
+    let cookieValue = document.cookie;
+    let cookieStart = cookieValue.indexOf(" " + cookieName + "=");
+    if (cookieStart == -1) {
+        cookieStart = cookieValue.indexOf(cookieName + "=");
     }
-    if (c_start == -1) {
-        c_value = null;
+    if (cookieStart == -1) {
+        cookieValue = null;
     } else {
-        c_start = c_value.indexOf("=", c_start) + 1;
-        let c_end = c_value.indexOf(";", c_start);
-        if (c_end == -1) {
-            c_end = c_value.length;
+        cookieStart = cookieValue.indexOf("=", cookieStart) + 1;
+        let cookieEnd = cookieValue.indexOf(";", cookieStart);
+        if (cookieEnd == -1) {
+            cookieEnd = cookieValue.length;
         }
-        c_value = unescape(c_value.substring(c_start, c_end));
+        cookieValue = unescape(cookieValue.substring(cookieStart, cookieEnd));
     }
-    return c_value;
+    return cookieValue;
 }
-
 
 Array.prototype.unique = function () {
     let a = this.concat();
@@ -45,10 +318,8 @@ Array.prototype.unique = function () {
                 a.splice(j--, 1);
         }
     }
-
     return a;
 };
-
 
 let delay = (function () {
     let timer = 0;
@@ -58,7 +329,7 @@ let delay = (function () {
     };
 })();
 
-//index() jquery alternative
+// jquery alternative
 function indexInParent(node) {
     let children = node.parentNode.childNodes;
     let num = 0;
@@ -68,7 +339,6 @@ function indexInParent(node) {
     }
     return -1;
 }
-
 
 function getRussianMonth(index) {
     let month = new Array(12);
@@ -95,14 +365,10 @@ function tab_plugin() {
         return;
     }
 
-
     Array.prototype.forEach.call(document.querySelectorAll("#tab_plugin li"), function (el) {
-
         el.addEventListener('click', function (e) {
             e.preventDefault();
             let index = indexInParent(el);
-
-
             Array.prototype.forEach.call(document.querySelectorAll("#tab_plugin li"), function (el) {
                 el.classList.remove('current')
             });
@@ -116,21 +382,17 @@ function tab_plugin() {
             if (tab) {
                 tab.style.display = 'block';
             }
-
-
         });
-
-
-        //  document.querySelector("#tab_plugin li").click();
     });
 }
+
 //реализация jquery live event
 function live(eventType, elementQuerySelector, cb) {
     document.addEventListener(eventType, function (event) {
-
+        var el, index;
         let qs = document.querySelectorAll(elementQuerySelector);
         if (qs) {
-            let el = event.target,
+            el = event.target,
                 index = -1;
             while (el && ((index = Array.prototype.indexOf.call(qs, el)) === -1)) {
                 el = el.parentElement;
@@ -142,10 +404,10 @@ function live(eventType, elementQuerySelector, cb) {
     });
 }
 
-//Счетчик уведомлений
+// Counter counterNotifications
 function counterNotifications() {
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/notifications/today/', null, function (data) {
-        document.getElementById('count_notifications').innerHTML = '(' + data.count + ')';
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/notifications/today/', null, function (data) {
+        $('.sms').attr('data-count', data.count);
     });
 }
 
@@ -172,10 +434,8 @@ function ajaxRequest(url, data, callback, method, withCredentials, headers, stat
 }
 
 function showPopup(text, title) {
-
     title = title || 'Информационное сообщение';
     text = text || '';
-
     let popup = document.getElementById('create_pop');
     if (popup) {
         popup.parentElement.removeChild(popup)
@@ -192,10 +452,9 @@ function showPopup(text, title) {
 
     document.body.appendChild(div);
 
-    document.getElementById('close_pop').addEventListener('click', function () {
-        document.getElementsByClassName('pop-up-universal')[0].style.display = 'none'
+    $('#close_pop').on('click', function () {
+        $('.pop-up-universal').css('display', 'none').remove();
     });
-    document.getElementsByClassName('pop-up-universal')[0].style.display = 'block'
 }
 
 function getParameterByName(name, url) {

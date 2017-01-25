@@ -1,6 +1,7 @@
 {% extends "layout_main.html" %}
 {% load static %}
 {% load summit_tags %}
+{% load payment_tags %}
 
 {% block main.attr %} class="main-wrap anketa"  id="account_view"{% endblock %}
 
@@ -20,9 +21,11 @@
 {% endblock %}
 
 {% block header.buttons.extra %}
-    <li>
-        <button class="b-red">Редактировать</button>
-    </li>
+    {% if user.is_staff or user.partnership.level < 2 or account in user.get_descendants.all %}
+        <li>
+            <button class="b-red">Редактировать</button>
+        </li>
+    {% endif %}
 {% endblock %}
 
 {% block main.content %}
@@ -32,7 +35,13 @@
                 <div class="user-fiowrap">
                     <div class="user-fio">
                         <div class="right-info-r">
-                            <h3 id="fullname">{{ account.fullname }}</h3>
+                            <hgroup>
+                                <h3 id="fullname">{{ account.fullname }}</h3>
+                                {% if account.search_name %}
+                                    <h4>{{ account.search_name }}</h4>
+                                {% endif %}
+                            </hgroup>
+
                         </div>
                         <!-- TODO -->
                         <div class="a-socials" data-soc="vkontakte">
@@ -174,74 +183,107 @@
                                 Сохранить нужду
                             </button>
                         </div>
-                        <div style="display:block;padding:10px;" id="create_deal_block">
+                        <div style="display:block;padding:10px;">
                             <div style="display: inline-block; width: 49%;">
-                                <label for="id_deal_value" style="display:block;">Сумма</label>
-                                <input type="number" id="id_deal_value" required
-                                       style="width:90%;margin:10px 0; padding: 5px 0;"></div>
+                                <button id="create_new_payment" style="display:block;">
+                                    Добавить платеж
+                                </button>
+                            </div>
                             <div style="display: inline-block; width: 49%;">
-                                <label for="id_deal_date" style="display:block;">Дата</label>
-                                <input type="text" id="id_deal_date" required style="width:100%;margin:10px 0;"></div>
-                            <label for="id_deal_description" style="display:block;">Примечание</label>
-                            <textarea name="deal_description" id="id_deal_description" rows="4"
-                                      style="width:100%;margin:10px 0;" required></textarea>
-                            <button id="send_new_deal" data-partner="{{ account.partnership.id }}"
-                                    style="display:block;">
-                                Создать сделку
-                            </button>
+                                <button id="create_new_deal" style="display:block;">
+                                    Добавить сделку
+                                </button>
+                            </div>
                         </div>
                         <div class="tab-status" id="tabStatus">
                             <ul id="tabs1">
                                 <li data-tab="1">
-                                    <a href="#incomplete">Незавершённые (<span
-                                            id="incomplete-count">{{ account.partnership.undone_deals_count }}</span>)</a>
+                                    <a href="#incomplete">Незавершённые (<span id="incomplete-count">
+                                        {% with count=account.partnership.undone_deals_count %}
+                                            {% if count > 2 %}2 из {% endif %}{{ count }}
+                                        {% endwith %}
+                                    </span>)</a>
                                 </li>
                                 <li data-tab="2">
-                                    <a href="#overdue">Просроченные(<span
-                                            id="overdue-count">{{ account.partnership.expired_deals_count }}</span>)</a>
+                                    <a href="#overdue">Просроченные(<span id="overdue-count">
+                                        {% with count=account.partnership.expired_deals_count %}
+                                            {% if count > 2 %}2 из {% endif %}{{ count }}
+                                        {% endwith %}
+                                    </span>)</a>
                                 </li>
                                 <li data-tab="3">
-                                    <a href="#completed">Завершённые(<span
-                                            id="completed-count">{{ account.partnership.done_deals_count }}</span>)</a>
+                                    <a href="#completed">Завершённые(<span id="completed-count">
+                                        {% with count=account.partnership.done_deals_count %}
+                                            {% if count > 2 %}2 из {% endif %}{{ count }}
+                                        {% endwith %}
+                                    </span>)</a>
                                 </li>
                             </ul>
                         </div>
                         <div class="sdelki-content clearfix" data-tab-content="1">
-                            {% for deal in account.partnership.undone_deals %}
+                            {% for deal in account.partnership.undone_deals|slice:":2" %}
                                 <div class="rows">
                                     <div class="col">
                                         <p><span>{{ account.fullname }}</span></p>
                                     </div>
                                     <div class="col">
-                                        <p>Дата создания:<span>{{ deal.date_created }}</span></p>
-                                        <p>Сумма<span>{{ deal.value }}₴</span></p></div>
+                                        <p>Дата создания: <span>{{ deal.date_created }}</span></p>
+                                        <p>Сумма: <span>{{ deal.total_sum }}/{{ deal.value }}₴</span></p></div>
                                 </div>
                             {% endfor %}
                         </div>
                         <div class="sdelki-content clearfix" data-tab-content="2">
-                            {% for deal in account.partnership.expired_deals %}
+                            {% for deal in account.partnership.expired_deals|slice:":2" %}
                                 <div class="rows">
                                     <div class="col">
                                         <p><span>{{ account.fullname }}</span></p>
                                     </div>
                                     <div class="col">
                                         <p>Дата создания:<span>{{ deal.date_created }}</span></p>
-                                        <p>Сумма<span>{{ deal.value }}₴</span></p></div>
+                                        <p>Сумма<span>{{ deal.total_sum }}/{{ deal.value }}₴</span></p></div>
                                 </div>
                             {% endfor %}
                         </div>
                         <div class="sdelki-content clearfix" data-tab-content="3">
-                            {% for deal in account.partnership.done_deals %}
+                            {% for deal in account.partnership.done_deals|slice:":2" %}
                                 <div class="rows">
                                     <div class="col">
                                         <p><span>{{ account.fullname }}</span></p>
                                     </div>
                                     <div class="col">
                                         <p>Дата создания:<span>{{ deal.date_created }}</span></p>
-                                        <p>Сумма<span>{{ deal.value }}₴</span></p></div>
+                                        <p>Сумма<span>{{ deal.total_sum }}/{{ deal.value }}₴</span></p></div>
                                 </div>
                             {% endfor %}
                         </div>
+                        <div class="rows" data-summit-id="{{ anket_group.grouper.id }}">
+                            <div style="padding:10px 15px;">
+                                <p>Платежи вне сделок</p>
+                            </div>
+                        </div>
+                        {% for payment in account.partnership.extra_payments.all %}
+                            <div class="rows">
+                                <div style="padding:10px 6px;">
+                                    <p>{{ payment.effective_sum_str }} — {{ payment.created_at|date:"d.m.Y H:i:s" }}
+                                        — Принял: {{ payment.manager.fullname }}
+                                    </p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <div class="rows" data-summit-id="{{ anket_group.grouper.id }}">
+                            <div style="padding:10px 15px;">
+                                <p>Платежи за сделки</p>
+                            </div>
+                        </div>
+                        {% for payment in account.partnership.deal_payments.all %}
+                            <div class="rows">
+                                <div style="padding:10px 6px;">
+                                    <p>{{ payment.effective_sum_str }} — {{ payment.created_at|date:"d.m.Y H:i:s" }}
+                                        — Принял: {{ payment.manager.fullname }}
+                                    </p>
+                                </div>
+                            </div>
+                        {% endfor %}
                     </div>
                 {% endif %}
                 {% if account.summit_ankets.exists %}
@@ -270,7 +312,7 @@
                                                 (Code: <a
                                                         href="/api/v1.0/generate_code/{{ anket.user.fullname }} ({{ anket.code }}).pdf?code={{ anket.code }}">{{ anket.code }}</a>)
                                             </p>
-                                            <p>Сумма<span> {{ anket.value }} ₴</span></p>
+                                            <p>Сумма<span> {{ anket.total_payed }} ₴</span></p>
                                         </div>
                                     </div>
                                     <div class="rows" data-summit-id="{{ anket_group.grouper.id }}"
@@ -361,7 +403,7 @@
     </div>
 {% endblock %}
 
-{% block popap %}
+{% block popup %}
     <div id="deletePopup" class="add-user-wrap">
         <div class="splash-screen">
             <div class="top-text">
@@ -371,6 +413,33 @@
             <div class="splash-buttons">
                 <button id="no">Нет</button>
                 <button id="yes">Да</button>
+            </div>
+        </div>
+    </div>
+    {% if account.partnership %}
+        {% create_payment_form account.partnership %}
+    {% endif %}
+    <div id="popup-create_deal" class="pop-up-splash">
+        <div class="splash-screen">
+            <div class="top-text">
+                <h3>Создать сделку</h3>
+                <span>&times;</span>
+            </div>
+            <div class="summa-wrap">
+                <div class="summa">
+                    <p>Сумма:</p>
+                    <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
+                           type="text" id="new_deal_sum">
+                </div>
+                <div class="summa">
+                    <p>Дата:</p>
+                    <input type="text" id="new_deal_date" required></div>
+                </div>
+            <textarea maxlength="40" placeholder="Добавить коментарий"></textarea>
+            <div class="splash-bauttons">
+                <button id="close-deal">Отменить</button>
+                <button id="send_new_deal" data-partner="{{ account.partnership.id }}">Завершить</button>
+            </div>
             </div>
         </div>
     </div>

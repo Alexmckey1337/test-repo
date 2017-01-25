@@ -1,25 +1,41 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from collections import OrderedDict
 from datetime import date
+from decimal import Decimal
 
+from django.conf import settings
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.db.models import Sum, Count
+from django.db.models import Q
+from django.db.models import Sum
+from django.db.models import Value
+from django.db.models.functions import Coalesce
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+
+from partnership.managers import DealManager, PartnerManager
+from payment.models import Payment, get_default_currency
 
 
 @python_2_unicode_compatible
 class Partnership(models.Model):
     user = models.OneToOneField('account.CustomUser', related_name='partnership')
-    value = models.IntegerField()
+    value = models.DecimalField(max_digits=12, decimal_places=0,
+                                default=Decimal('0'))
+    #: Currency of value
+    currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
+                                 default=get_default_currency, null=True)
     date = models.DateField(default=date.today)
     need_text = models.CharField(_('Need text'), max_length=300, blank=True)
 
     is_active = models.BooleanField(_('Is active?'), default=True)
 
-    DIRECTOR, SUPERVISOR, MANAGER, PARTNER = 0, 1, 2, 3
+    DIRECTOR = settings.PARTNER_LEVELS['director']
+    SUPERVISOR = settings.PARTNER_LEVELS['supervisor']
+    MANAGER = settings.PARTNER_LEVELS['manager']
+    PARTNER = settings.PARTNER_LEVELS['partner']
+
     LEVELS = (
         (DIRECTOR, _('Director')),
         (SUPERVISOR, _('Supervisor')),
@@ -31,8 +47,36 @@ class Partnership(models.Model):
     responsible = models.ForeignKey('self', related_name='disciples', limit_choices_to={'level__lte': MANAGER},
                                     null=True, blank=True, on_delete=models.SET_NULL)
 
+    #: Payments of the current partner that do not relate to deals of partner
+    extra_payments = GenericRelation('payment.Payment', related_query_name='partners')
+
+    objects = PartnerManager()
+
     def __str__(self):
         return self.fullname
+
+    @property
+    def deal_payments(self):
+        """
+        Payments for all deals of the current partner
+
+        :return: QuerySet
+        """
+        return Payment.objects.filter(
+            content_type__model='deal',
+            object_id__in=self.deals.values_list('id', flat=True))
+
+    @property
+    def payments(self):
+        """
+        All payments of the current partner
+
+        :return: QuerySet
+        """
+        return Payment.objects.filter((Q(content_type__model='deal') &
+                                       Q(object_id__in=self.deals.values_list('id', flat=True))) |
+                                      (Q(content_type__model='partnership') &
+                                       Q(object_id=self.id)))
 
     @property
     def is_responsible(self):
@@ -41,31 +85,6 @@ class Partnership(models.Model):
     @property
     def fullname(self):
         return self.user.fullname
-
-    @property
-    def common(self):
-        return ['Пользователь', 'Ответственный', 'Сумма', 'Количество сделок', 'Итого']
-
-    @property
-    def result_value(self):
-        return self.deals.aggregate(sum_deals=Sum('value'))['sum_deals']
-
-    @property
-    def disciples_result_value(self):
-        return self.disciples.aggregate(sum_deals=Sum('deals__value'))['sum_deals']
-
-    @property
-    def deals_count(self):
-        return self.deals.count()
-
-    @property
-    def disciples_count(self):
-        return self.disciples.aggregate(count=Count('deals'))['count']
-
-    #
-    # @property
-    # def count(self):
-    #     return self.deals_count
 
     @property
     def done_deals_count(self):
@@ -81,82 +100,38 @@ class Partnership(models.Model):
 
     @property
     def done_deals(self):
-        return self.deals.filter(done=True)
+        return self.deals.\
+            base_queryset().\
+            annotate_total_sum().\
+            filter(done=True) \
+            .order_by('-date_created')
 
     @property
     def undone_deals(self):
-        return self.deals.filter(done=False, expired=False)
+        return self.deals.\
+            base_queryset().\
+            annotate_total_sum().\
+            filter(done=False, expired=False) \
+            .order_by('-date_created')
 
     @property
     def expired_deals(self):
-        return self.deals.filter(expired=True)
-
-    @property
-    def fields(self):
-        l = self.user.fields
-        d = OrderedDict()
-        d['value'] = self.user.get_full_name()
-        l['user'] = d
-
-        d = OrderedDict()
-        # if not self.is_responsible:
-        if self.responsible:
-            d['value'] = self.responsible.user.get_full_name()
-        else:
-            d['value'] = ''
-        # else:
-        #     d['value'] = ''
-        l['responsible'] = d
-
-        d = OrderedDict()
-        # if not self.is_responsible:
-        if self.responsible:
-            d['value'] = self.responsible.id
-        else:
-            d['value'] = None
-        # else:
-        #     d['value'] = None
-        l[u'responsible_id'] = d
-
-        d = OrderedDict()
-        d['value'] = self.value
-        l['value'] = d
-
-        d = OrderedDict()
-        d['value'] = self.deals_count
-        l['count'] = d
-
-        if self.is_responsible:
-            d = OrderedDict()
-            d['value'] = self.disciples.count()
-            l['Количество партнеров'] = d
-        else:
-            pass
-
-        d = OrderedDict()
-        d['value'] = self.result_value
-        d['type'] = 'i'
-        d['change'] = False
-        d['verbose'] = 'Итого'
-        l['result_value'] = d
-        return l
-
-    @property
-    def deal_fields(self):
-        l = OrderedDict()
-        if self.is_responsible:
-            deals = Deal.objects.filter(partnership__responsible=self).all()
-        else:
-            deals = Deal.objects.filter(partnership=self).all()
-        l = list()
-        for deal in deals:
-            l.append(deal.fields)
-        return l
+        return self.deals.\
+            base_queryset().\
+            annotate_total_sum().\
+            filter(expired=True) \
+            .order_by('-date_created')
 
 
 @python_2_unicode_compatible
 class Deal(models.Model):
-    value = models.IntegerField(default=0)
+    value = models.DecimalField(max_digits=12, decimal_places=0,
+                                default=Decimal('0'))
+    #: Currency of value
+    currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
+                                 editable=False, null=True,
+                                 default=get_default_currency)
+
     partnership = models.ForeignKey('partnership.Partnership', related_name="deals")
     description = models.TextField(blank=True)
     done = models.BooleanField(default=False)
@@ -165,11 +140,20 @@ class Deal(models.Model):
     date_created = models.DateField(null=True, blank=True, default=date.today)
     date = models.DateField(null=True, blank=True)
 
+    payments = GenericRelation('payment.Payment', related_query_name='deals')
+
+    objects = DealManager()
+
     class Meta:
         ordering = ('date_created',)
 
     def __str__(self):
         return "%s : %s" % (self.partnership, self.date)
+
+    def save(self, *args, **kwargs):
+        if not self.id and self.partnership:
+            self.currency = self.partnership.currency
+        super(Deal, self).save(*args, **kwargs)
 
     @property
     def month(self):
@@ -178,51 +162,5 @@ class Deal(models.Model):
         return ''
 
     @property
-    def fields(self):
-        l = OrderedDict()
-
-        d = OrderedDict()
-        d['value'] = self.id
-        d['title'] = "Идентификатор сделки"
-        l['id'] = d
-
-        d = OrderedDict()
-        d['value'] = self.partnership.user.get_full_name()
-        d['title'] = "Клиент"
-        l['fullname'] = d
-
-        d = OrderedDict()
-        if self.partnership.responsible:
-            d['value'] = self.partnership.responsible.user.get_full_name()
-        else:
-            d['value'] = ""
-        d['title'] = "Ответственный"
-        l['responsible'] = d
-
-        d = OrderedDict()
-        d['value'] = self.date
-        d['title'] = "Дата"
-        l['date'] = d
-
-        d = OrderedDict()
-        d['value'] = self.value
-        d['title'] = "Сумма"
-        l['value'] = d
-
-        d = OrderedDict()
-        d['value'] = self.description
-        d['title'] = "Описание"
-        l['description'] = d
-
-        d = OrderedDict()
-        if self.done:
-            d['value'] = "done"
-        else:
-            if self.expired:
-                d['value'] = "expired"
-            else:
-                d['value'] = "undone"
-        d['title'] = "Статус"
-        l['status'] = d
-
-        return l
+    def total_payed(self):
+        return self.payments.aggregate(total_payed=Coalesce(Sum('effective_sum'), Value(0)))['total_payed']

@@ -63,7 +63,7 @@ function createSubordinateList(data, event_id) {
     }
     document.getElementsByClassName('preloader')[0].style.display = 'block';
 
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/participations/disciples/?event=' + event_id +
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/participations/disciples/?event=' + event_id +
         '&user__user__master=' + master_id, data, function (answer) {
         let html_sub = '';
         let results = answer.results;
@@ -122,7 +122,8 @@ function getEventsListByID(id) {
     data['to_date'] = to_date;
     data['from_date'] = from_date;
 
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/events/?event_type=' + id, data, function (data) {
+
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/events/?event_type=' + id, data, function (data) {
 
         //Обработка если нету events
         let results = data.results;
@@ -236,7 +237,7 @@ function createUserInfoBySearch(data, search) {
     //html += '<th>Подчиненные</th><th>Анкета</th></thead>';
 
     //paginations
-    let pages = Math.ceil(count / config.pagination_count);
+    let pages = Math.ceil(count / CONFIG.pagination_count);
     let paginations = '';
     if (page > 1) {
         paginations += '<div class="prev"></span><span class="arrow"></span></div>';

@@ -10,7 +10,7 @@ def log_send_ticket_email(*args, **kwargs):
     anket = kwargs.get('anket')
     instance = kwargs.get('instace')
     if anket and instance:
-        email = AnketEmail.objects.create(
+        AnketEmail.objects.create(
             anket_id=anket.id,
             recipient=anket.user.email,
             subject=instance._subject,
@@ -23,7 +23,7 @@ def log_error_send_ticket_email(*args, **kwargs):
     anket = kwargs.get('anket')
     instance = kwargs.get('instance')
     if anket and instance:
-        email = AnketEmail.objects.create(
+        AnketEmail.objects.create(
             anket_id=anket.id,
             recipient=anket.user.email,
             subject=instance._subject,

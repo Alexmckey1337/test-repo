@@ -1,18 +1,22 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
-
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 
 from account.models import CustomUser
 from event.models import MeetingType
 from hierarchy.models import Department
+from account.permissions import CanAccountObjectRead, CanAccountObjectEdit
+from hierarchy.models import Department, Hierarchy
+from location.models import Country, Region, City
 from partnership.models import Partnership
+from status.models import Division
 from summit.models import SummitType
-from tv_crm.views import sync_user_call
+from group.models import Church, HomeGroup
 
 
 def entry(request):
@@ -57,8 +61,18 @@ def meeting_report(request, code):
 
 
 @login_required(login_url='entry')
+def partner(request):
+    return render(request, 'partner/partners.html')
+
+
+@login_required(login_url='entry')
 def deals(request):
     return render(request, 'partner/deals.html')
+
+
+@login_required(login_url='entry')
+def stats(request):
+    return render(request, 'partner/stats.html')
 
 
 @login_required(login_url='entry')
@@ -71,19 +85,36 @@ def partner_stats(request):
 
 @login_required(login_url='entry')
 def account(request, id):
+    user = get_object_or_404(CustomUser, pk=id)
+    has_perm = CanAccountObjectRead().has_object_permission(request, None, user)
+    if not has_perm:
+        raise PermissionDenied
     ctx = {
-        'account': get_object_or_404(CustomUser, pk=id)
+        'account': user
     }
     return render(request, 'account/anketa.html', context=ctx)
 
 
 @login_required(login_url='entry')
 def account_edit(request, user_id):
-    if not request.user.is_staff:
+    user = get_object_or_404(CustomUser, pk=user_id)
+    has_perm = CanAccountObjectEdit().has_object_permission(request, None, user)
+    if not has_perm:
         if user_id:
-            return redirect(reverse('account', args=[user_id]))
-        return redirect('/')
-    return render(request, 'account/edit.html')
+            get_object_or_404(CustomUser, pk=user_id)
+            return redirect(reverse('account', args=(user_id,)))
+        raise PermissionDenied
+    ctx = {
+        'account': user,
+        'departments': Department.objects.all(),
+        'hierarchies': Hierarchy.objects.order_by('level'),
+        'divisions': Division.objects.all(),
+        'countries': Country.objects.all(),
+        'regions': Region.objects.filter(country__title=user.country),
+        'cities': City.objects.filter(region__title=user.region),
+        'partners': Partnership.objects.filter(level__lte=Partnership.MANAGER),
+    }
+    return render(request, 'account/edit.html', context=ctx)
 
 
 @login_required(login_url='entry')
@@ -104,10 +135,71 @@ def summit_info(request, summit_id):
 
 
 @login_required(login_url='entry')
-def index(request):
+def churches(request):
+    user = request.user
+    if not user.is_staff and user.hierarchy.level < 1:
+        raise Http404('У Вас нет прав для просмотра данной страницы.')
+    ctx = {}
+    return render(request, 'group/churches.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def church_detail(request, church_id):
+    user = request.user
+    church = get_object_or_404(Church, id=church_id)
+
+    if not user.is_staff and user.hierarchy.level < 1:
+        raise Http404('У Вас нет прав для просмотра данной страницы.')
+
     ctx = {
-        'departments': Department.objects.all()
+        'church': church,
+        'parishioners_count': church.users.filter(hierarchy__level=0).count(),
+        'leaders_count': church.users.filter(hierarchy__level=1).count(),
+        'home_groups_count': church.home_group.count(),
+        'fathers_count': church.users.filter(spiritual_level=CustomUser.FATHER).count() + HomeGroup.objects.filter(
+            church__id=church_id).filter(users__spiritual_level=3).count(),
+        'juniors_count': church.users.filter(spiritual_level=CustomUser.JUNIOR).count() + HomeGroup.objects.filter(
+            church__id=church_id).filter(users__spiritual_level=2).count(),
+        'babies_count': church.users.filter(spiritual_level=CustomUser.BABY).count() + HomeGroup.objects.filter(
+            church__id=church_id).filter(users__spiritual_level=1).count(),
+        'partners_count': church.users.filter(partnership__is_active=True).count(),
     }
+    return render(request, 'group/church_detail.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def home_group_detail(request, church_id, group_id):
+    try:
+        home_group = HomeGroup.objects.filter(church=church_id).get(id=group_id)
+    except ObjectDoesNotExist:
+        raise Http404('Данной Домашней Группы не существует')
+
+    ctx = {
+        'home_group': home_group,
+        'users_count': home_group.users.count(),
+        'fathers_count': home_group.users.filter(spiritual_level=CustomUser.FATHER).count(),
+        'juniors_count': home_group.users.filter(spiritual_level=CustomUser.JUNIOR).count(),
+        'babies_count': home_group.users.filter(spiritual_level=CustomUser.BABY).count(),
+        'partners_count': home_group.users.filter(partnership__is_active=True).count(),
+    }
+    return render(request, 'group/group_detail.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def index(request):
+    user = request.user
+    ctx = {
+        'departments': Department.objects.all(),
+        'hierarchies': Hierarchy.objects.order_by('level'),
+    }
+    if user.is_staff:
+        ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
+    elif not user.hierarchy:
+        ctx['masters'] = list()
+    elif user.hierarchy.level < 2:
+        ctx['masters'] = user.get_descendants(include_self=True).filter(is_active=True, hierarchy__level__gte=1)
+    else:
+        ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
     return render(request, 'database/main.html', context=ctx)
 
 
@@ -126,5 +218,4 @@ def synchronize(request):
     # weekday = timezone.now().weekday() + 1
     # create_participations()
     # create_reports(weekday)
-    sync_user_call()
     return HttpResponse('ok')
