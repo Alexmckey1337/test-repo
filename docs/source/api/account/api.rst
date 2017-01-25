@@ -238,7 +238,6 @@ CustomUser
                             header of request
    :statuscode 200: no error
 
-
 .. http:post:: /api/v1.1/users/
 
    Create new user.
@@ -816,4 +815,3 @@ CustomUser
    :resheader Content-Type: this depends on :mailheader:`Accept`
                             header of request
    :statuscode 200: no error
-
