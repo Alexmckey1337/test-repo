@@ -47,27 +47,57 @@ $(document).ready(function () {
         $('#popup-create_payment textarea').val('');
         $('#popup-create_payment').css('display', 'none');
     });
-    function createPayment(id, sum, description) {
+    $('#show-all-expired').on('click', function () {
+        $('#expired_datepicker_from').val();
+        $('#expired_datepicker_to').val();
+    });
+    $('#complete').on('click', function () {
+        let id = $(this).attr('data-id'),
+            description = $('#deal-description').val();
+        updateDeals(id, description);
+    });
+
+    function updateDeals(id, description) {
     let data = {
-        "sum": sum,
-        "description": description,
-        "rate": rate,
-        "currency": currency
+        "done": true,
+        "description": description
     };
-
-    let json = JSON.stringify(data);
-
-    ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/deals/${id}/create_payment/`, json, function (JSONobj) {
-        showPopup('Оплата прошла успешно.');
-    }, 'POST', true, {
+    let config = JSON.stringify(data);
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/' + id + '/', config, function () {
+        init();
+        document.getElementById('popup').style.display = '';
+    }, 'PATCH', true, {
         'Content-Type': 'application/json'
     }, {
         403: function (data) {
             data = data.responseJSON;
-            showPopup(data.detail)
+            showPopup(data.detail);
         }
     });
 }
+
+    function createPayment(id, sum, description) {
+        let data = {
+            "sum": sum,
+            "description": description,
+            "rate": $('#new_payment_rate').val(),
+            "currency": $('#new_payment_currency').val()
+        };
+
+        let json = JSON.stringify(data);
+
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/deals/${id}/create_payment/`, json, function (JSONobj) {
+            init();
+            showPopup('Оплата прошла успешно.');
+        }, 'POST', true, {
+            'Content-Type': 'application/json'
+        }, {
+            403: function (data) {
+                data = data.responseJSON;
+                showPopup(data.detail)
+            }
+        });
+    }
 
     function setDataForPopup(id, name, date, responsible, value) {
         $('#complete').attr('data-id', id);
@@ -91,96 +121,33 @@ $(document).ready(function () {
         })
     }
 
-    function getPaymentCompleteButton(deal, can_pay, can_close) {
-        let action, title;
-        if (deal.done) {
-            return ``;
-        } else if (parseInt(deal.value) > parseInt(deal.total_sum) && can_pay) {
-            action = "pay";
-            title = "Pay";
-        } else if (parseInt(deal.value) <= parseInt(deal.total_sum) && can_close) {
-            action = "complete";
-            title = "Завершить";
-        } else {
-            return ``;
-        }
-        return `<button ` +
-            `data-id="${deal.id}" data-action=${action} ` +
-            `data-name="${deal.full_name}" ` +
-            `data-date="${deal.date}" ` +
-            `data-responsible="${deal.responsible_name}" ` +
-            `data-total_sum="${deal.total_sum}" ` +
-            `data-value="${deal.value}">` +
-            title +
-            `</button>`
-    }
-
-    function getDealSum(deal) {
-        return `<p>Сумма: <a href="#" class="show_payments" data-id="${deal.id}">` +
-            `<span>${deal.total_sum}/${deal.value} ₴</span></a></p>`
-    }
-
     function getExpiredDeals(data) {
         let config = data || null;
         let search = document.getElementsByName('fullsearch')[0].value;
         if (search) {
-            search = '&search=' + search;
-        } else {
-            search = '';
+            config.search = search;
         }
-        console.log(config);
-        getOverdueDeals(search, config).then(function (data) {
+        getOverdueDeals(config).then(function (data) {
+            let tmpl = document.getElementById('showDeals').innerHTML;
+            let rendered = _.template(tmpl)(data);
             let count = data.count;
-            let can_create_payment = data.can_create_payment;
-            let can_close_deal = data.can_close_deal;
+            $('#overdue-count').text(count);
             data = data.results;
             let page = config['page'] || 1,
-                pages = Math.ceil(count / CONFIG.pagination_count),
-                html = '';
-            if (data.length == 0) {
-                document.getElementById('overdue').innerHTML = '<p class="info">Сделок нет</p>';
-                document.getElementById('overdue-count').innerHTML = '0';
-                Array.prototype.forEach.call(document.querySelectorAll('.expired-pagination'), function (el) {
-                    el.innerHTML = '';
-                    el.style.display = 'none';
-                });
-                return;
-            }
-            $('#overdue-count').text(count);
-
+                pages = Math.ceil(count / CONFIG.pagination_count);
+            document.getElementById('overdue').innerHTML = rendered;
             let paginationConfig = {
                 container: ".expired__pagination",
                 currentPage: page,
                 pages: pages,
                 callback: getExpiredDeals
             };
-
             makePagination(paginationConfig);
-
-            for (let i = 0; i < data.length; i++) {
-                html +=
-                    `<div class="rows-wrap">` +
-                    getPaymentCompleteButton(data[i], can_create_payment, can_close_deal) +
-                    `<div class="rows">` +
-                    `<div class="col">` +
-                    `<p><span>${data[i].full_name}</span></p>` +
-                    `</div>` +
-                    `<div class="col">` +
-                    `<p>Сделка за: <span>${data[i].date_created}</span></p>` +
-                    `<p>Ответственный: <span>${data[i].responsible_name}</span></p>` +
-                    getDealSum(data[i]) +
-                    `</div>` +
-                    `</div>` +
-                    `</div>`;
-            }
-            document.getElementById('overdue').innerHTML = html;
-            $('#overdue a.show_payments').on('click', function (el) {
+            $('.show_payments').on('click', function () {
                 let id = $(this).data('id');
                 showPayments(id);
             });
-            $("#overdue .rows-wrap button").on('click', function () {
-                if ($(this).data('action') == 'pay') {
-                    console.log('hogome', $(this).data('id'));
+            $("button.pay").on('click', function () {
                     let id = $(this).data('id');
                     let value = parseInt($(this).data('value'));
                     let total_sum = parseInt($(this).data('total_sum'));
@@ -188,17 +155,13 @@ $(document).ready(function () {
                     diff = diff > 0 ? diff : 0;
                     $('#new_payment_sum').val(diff);
                     $('#complete-payment').attr('data-id', id);
-
                     $('#popup-create_payment').css('display', 'block');
-                } else {
-                    getDataForPopup(
-                        this.getAttribute('data-id'),
-                        this.getAttribute('data-name'),
-                        this.getAttribute('data-date'),
-                        this.getAttribute('data-responsible'),
-                        this.getAttribute('data-value') + ' ₴')
-                }
             });
+            $("button.complete").on('click', function () {
+                $('#complete').attr('data-id', $(this).data('id'));
+                $('#popup').css('display', 'block');
+            });
+
         })
     }
 
@@ -206,52 +169,25 @@ $(document).ready(function () {
         let config = data || null;
         let search = document.getElementsByName('fullsearch')[0].value;
         if (search) {
-            search = '&search=' + search;
-        } else {
-            search = '';
+            config.search = search;
         }
-        getFinishedDeals(search, config).then(function (data) {
+        getFinishedDeals(config).then(function (data) {
             let count = data.count;
-            console.log(data);
-            data = data.results;
+            let tmpl = document.getElementById('showDeals').innerHTML;
+            let rendered = _.template(tmpl)(data);
             let page = config['page'] || 1,
                 pages = Math.ceil(count / CONFIG.pagination_count),
                 html = '';
-            if (data.length == 0) {
-                $('#completed').html('<p class="info">Сделок нету</p>');
-                $('#completed-count').html('0');
-                $('.done-pagination').each(function (el) {
-                    $(el).html('');
-                    $(el).css('display', 'none');
-                });
-                return;
-            }
-            $('#completed-count').html(count);
-
             let paginationConfig = {
                 container: ".done__pagination",
                 currentPage: page,
                 pages: pages,
                 callback: getDoneDeals
             };
+            $('#completed-count').html(count);
             makePagination(paginationConfig);
 
-            for (let i = 0; i < data.length; i++) {
-                html +=
-                    `<div class="rows-wrap">` +
-                    `<div class="rows">` +
-                    `<div class="col">` +
-                    `<p><span>${data[i].full_name}</span></p>` +
-                    `</div>` +
-                    `<div class="col">` +
-                    `<p>Сделка за: <span>${data[i].date_created}</span></p>` +
-                    `<p>Ответственный: <span>${data[i].responsible_name}</span></p>` +
-                    getDealSum(data[i]) +
-                    `</div>` +
-                    `</div>` +
-                    `</div>`;
-            }
-            $('#completed').html(html);
+            $('#completed').html(rendered);
             $('#completed a.show_payments').on('click', function (el) {
                 let id = $(this).data('id');
                 showPayments(id);
@@ -263,33 +199,16 @@ $(document).ready(function () {
         let config = data || null;
         let search = document.getElementsByName('fullsearch')[0].value;
         if (search) {
-            search = '&search=' + search;
-        } else {
-            search = '';
+            config.search = search;
         }
-        getIncompleteDeals(search, config).then(function (data) {
+        getIncompleteDeals(config).then(function (data) {
+            let tmpl = document.getElementById('showDeals').innerHTML;
+            let rendered = _.template(tmpl)(data);
             let count = data.count;
-            console.log(data);
-            let can_create_payment = data.can_create_payment;
-            let can_close_deal = data.can_close_deal;
-            data = data.results;
-            let page = config['page'] || 1,
-                pages = Math.ceil(count / CONFIG.pagination_count),
-                html = '';
-            if (data.length == 0) {
-                let element = document.createElement('p');
-                $(element).text('Сделок нету');
-                $(element).addClass('info');
-                $('#incomplete').appendChild(element);
-
-                $('#incomplete-count').text('0');
-                $('.undone-pagination').each(function (el) {
-                    $(el).html('');
-                    $(el).css('display', 'none');
-                });
-                return;
-            }
             $('#incomplete-count').html(count);
+            let page = config['page'] || 1,
+                pages = Math.ceil(count / CONFIG.pagination_count);
+
             let paginationConfig = {
                 container: ".undone__pagination",
                 currentPage: page,
@@ -298,31 +217,13 @@ $(document).ready(function () {
             };
             makePagination(paginationConfig);
 
-            let button;
-            for (let i = 0; i < data.length; i++) {
-                html +=
-                    `<div class="rows-wrap">` +
-                    getPaymentCompleteButton(data[i], can_create_payment, can_close_deal) +
-                    `<div class="rows">` +
-                    `<div class="col">` +
-                    `<p><span>${data[i].full_name}</span></p>` +
-                    `</div>` +
-                    `<div class="col">` +
-                    `<p>Сделка за: <span>${data[i].date_created}</span></p>` +
-                    `<p>Ответственный: <span>${data[i].responsible_name}</span></p>` +
-                    getDealSum(data[i]) +
-                    `</div>` +
-                    `</div>` +
-                    `</div>`;
-            }
-            document.getElementById('incomplete').innerHTML = html;
-            $('#incomplete a.show_payments').on('click', function (el) {
+            document.getElementById('incomplete').innerHTML = rendered;
+
+            $('.show_payments').on('click', function () {
                 let id = $(this).data('id');
                 showPayments(id);
             });
-            $("#incomplete .rows-wrap button").on('click', function () {
-                if ($(this).data('action') == 'pay') {
-                    console.log('gohome', $(this).data('id'));
+            $("button.pay").on('click', function () {
                     let id = $(this).data('id');
                     let value = parseInt($(this).data('value'));
                     let total_sum = parseInt($(this).data('total_sum'));
@@ -331,19 +232,55 @@ $(document).ready(function () {
                     $('#new_payment_sum').val(diff);
                     $('#complete-payment').attr('data-id', id);
                     $('#popup-create_payment').css('display', 'block');
-                } else {
-                    setDataForPopup(
-                        this.getAttribute('data-id'),
-                        this.getAttribute('data-name'),
-                        this.getAttribute('data-date'),
-                        this.getAttribute('data-responsible'),
-                        this.getAttribute('data-value') + ' ₴')
-                }
+            });
+            $("button.complete").on('click', function () {
+               let client_name = $(this).attr('data-name'),
+                    deal_date = $(this).attr('data-date'),
+                    responsible_name = $(this).attr('data-responsible');
+                $('#complete').attr('data-id', $(this).data('id'));
+                $('#client-name').val(client_name);
+                $('#deal-date').val(deal_date);
+                $('#responsible-name').val(responsible_name);
+                $('#popup').css('display', 'block');
             });
         })
     }
 
+    $.datepicker.setDefaults($.datepicker.regional["ru"]);
+    $("#done_datepicker_from").datepicker({
+        dateFormat: "yyyy-mm-dd",
+        maxDate: new Date(),
+        onSelect: function (date) {
+            window.done_from_date = date;
+            sortDoneDeals(done_from_date, done_to_date);
+        }
+    }).datepicker("setDate", '-1m');
+
+    $("#done_datepicker_to").datepicker({
+        dateFormat: "yyyy-mm-dd",
+        onSelect: function (date) {
+            window.done_to_date = date;
+            sortDoneDeals(done_from_date, done_to_date);
+        }
+    }).datepicker("setDate", new Date());
+
+    $("#expired_datepicker_from").datepicker({
+        dateFormat: "yy-mm-dd",
+        maxDate: new Date(),
+        onSelect: function (date) {
+            window.expired_from_date = date;
+            sortExpiredDeals(expired_from_date, expired_to_date);
+        }
+    }).datepicker("setDate", '-1m');
+
+    $("#expired_datepicker_to").datepicker({
+        dateFormat: "yy-mm-dd",
+        onSelect: function (date) {
+            window.expired_to_date = date;
+            sortExpiredDeals(expired_from_date, expired_to_date);
+        }
+    }).datepicker("setDate", new Date());
+
     init();
-})
-;
+});
 

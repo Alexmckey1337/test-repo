@@ -369,7 +369,6 @@
     }
 
     function createNewAcc() {
-
         if (!document.querySelector("input[name='phone_number']").value) {
             document.querySelector("input[name='phone_number']").style.border = '1px solid #d46a6a';
             return;

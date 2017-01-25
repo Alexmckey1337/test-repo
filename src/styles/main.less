@@ -537,6 +537,11 @@ select::-ms-expand {
   position: relative;
   cursor: pointer;
   width: 9em !important;
+  &:hover {
+    & span {
+
+    }
+  }
   &:before {
     content: attr(data-count);
     position: absolute;
@@ -1181,7 +1186,7 @@ li.current a {
 }
 
 .col:last-child p:first-child {
-  width: 210px;
+  width: 170px;
 }
 
 .col:last-child p:nth-child(2) {
@@ -1189,7 +1194,7 @@ li.current a {
 }
 
 .col:last-child p:last-child {
-  width: 130px;
+  width: 150px;
 }
 
 .rows p span {
@@ -1477,15 +1482,18 @@ button#completeDelete::before,
 
 table {
   width: 100%;
-  height: 100%;
   & tr:last-child  {
     border: 1px solid #E2E2E2;
    & td {
      height: 0;
      border: none;
-     padding: 0.3em 0;
+     padding: 0.35em 0;
     }
   }
+}
+#table__count {
+  float: left;
+  padding: 30px 0 15px 30px;
 }
 
 .table td a {
@@ -2579,7 +2587,16 @@ table input[type=checkbox],
 .right-side {
   float: left;
 }
-
+.right-side {
+  & p {
+    padding-bottom: .8em !important;
+    & input:disabled {
+      width: 100%;
+      border: 0;
+      font-size: .95em;
+    }
+  }
+}
 .left-side {
   width: 30%;
   text-align: right;

@@ -8,6 +8,7 @@
             let pages = Math.ceil(count / CONFIG.pagination_count);
             let data = {};
             let id = "partnersList";
+            let text = `Показано ${CONFIG.pagination_count} из ${count}`;
             let common_table = Object.keys(response.common_table);
             data.user_table = response.user_table;
             common_table.forEach(function (item) {
@@ -20,7 +21,7 @@
                 });
                 return result;
             });
-
+            data.count = response.count;
             makeDataTable(data, id);
 
             $('.preloader').css('display', 'none');
@@ -31,6 +32,7 @@
                 callback: getPartners
             };
             makePagination(paginationConfig);
+            $('#table__count').text(text);
             makeSortForm(response.user_table);
             orderTable.sort(getPartners);
         });
