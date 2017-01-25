@@ -517,8 +517,9 @@ function createUsersTable(config) {
             let count = data.count;
             let page = config['page'] || 1;
             let pages = Math.ceil(count / CONFIG.pagination_count);
+            let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
             let id = "database_users";
-            let text = `Показано ${CONFIG.pagination_count} из ${count}`;
+            let text = `Показано ${showCount} из ${count}`;
             let paginationConfig = {
                 container: ".users__pagination",
                 currentPage: page,
