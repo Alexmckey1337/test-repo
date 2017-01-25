@@ -1,8 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
-
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -17,7 +16,6 @@ from status.models import Division
 from summit.models import SummitType
 from tv_crm.views import sync_user_call
 from group.models import Church, HomeGroup
-from django.db.models import Count
 
 
 def entry(request):
@@ -119,11 +117,11 @@ def church_detail(request, church_id):
         'parishioners_count': church.users.filter(hierarchy__level=0).count(),
         'leaders_count': church.users.filter(hierarchy__level=1).count(),
         'home_groups_count': church.home_group.count(),
-        'fathers_count': church.users.filter(spiritual_level=3).count() + HomeGroup.objects.filter(
+        'fathers_count': church.users.filter(spiritual_level=CustomUser.FATHER).count() + HomeGroup.objects.filter(
             church__id=church_id).filter(users__spiritual_level=3).count(),
-        'juniors_count': church.users.filter(spiritual_level=2).count() + HomeGroup.objects.filter(
+        'juniors_count': church.users.filter(spiritual_level=CustomUser.JUNIOR).count() + HomeGroup.objects.filter(
             church__id=church_id).filter(users__spiritual_level=2).count(),
-        'babies_count': church.users.filter(spiritual_level=1).count() + HomeGroup.objects.filter(
+        'babies_count': church.users.filter(spiritual_level=CustomUser.BABY).count() + HomeGroup.objects.filter(
             church__id=church_id).filter(users__spiritual_level=1).count(),
         'partners_count': church.users.filter(partnership__is_active=True).count(),
     }
@@ -132,20 +130,17 @@ def church_detail(request, church_id):
 
 @login_required(login_url='entry')
 def home_group_detail(request, church_id, group_id):
-    home_group = HomeGroup.objects.filter(church=church_id).get(id=group_id)
+    try:
+        home_group = HomeGroup.objects.filter(church=church_id).get(id=group_id)
+    except ObjectDoesNotExist:
+        raise Http404('Данной Домашней Группы не существует')
 
     ctx = {
         'home_group': home_group,
-        'opening_date': home_group.opening_date,
-        'church': home_group.church,
-        'leader': home_group.leader,
-        'address': home_group.address,
-        'phone_number': home_group.phone_number,
-        'website': home_group.website,
         'users_count': home_group.users.count(),
         'fathers_count': home_group.users.filter(spiritual_level=CustomUser.FATHER).count(),
-        'juniors_count': home_group.users.filter(spiritual_level=2).count(),
-        'babies_count': home_group.users.filter(spiritual_level=1).count(),
+        'juniors_count': home_group.users.filter(spiritual_level=CustomUser.JUNIOR).count(),
+        'babies_count': home_group.users.filter(spiritual_level=CustomUser.BABY).count(),
         'partners_count': home_group.users.filter(partnership__is_active=True).count(),
     }
     return render(request, 'group/group_detail.html', context=ctx)

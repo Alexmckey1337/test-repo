@@ -27,6 +27,7 @@ class Church(CommonGroup):
                                    verbose_name=_('Department'))
     pastor = models.ForeignKey('account.CustomUser', related_name='church', on_delete=models.PROTECT,
                                verbose_name=_('Pastor'))
+    country = models.CharField(_('Country'), max_length=50)
     is_open = models.BooleanField(default=False)
     users = models.ManyToManyField('account.CustomUser', related_name='churches', blank=True,
                                    verbose_name=_('Users'))
@@ -34,6 +35,7 @@ class Church(CommonGroup):
     class Meta:
         verbose_name = _('Church')
         verbose_name_plural = _('Churches')
+        ordering = ['-opening_date', '-id']
 
     def __str__(self):
         if self.title:
@@ -66,6 +68,7 @@ class HomeGroup(CommonGroup):
     class Meta:
         verbose_name = _('Home Group')
         verbose_name_plural = _('Home Groups')
+        ordering = ['-opening_date', '-id']
 
     def __str__(self):
         return self.get_title

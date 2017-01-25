@@ -1,11 +1,7 @@
 <h1>Карточка Церкви:</h1>
-{% if church.title %}
-    <h2>Название Церкви: {{church.title }}</h2>
-{% else %}
-    <h2>Название Церкви: {{church.get_title }}</h2>
-{% endif %}
+<h2>Название Церкви: {{church.get_title }} </h2>
 
-<strong> Основная информация: </strong>
+<h2><strong> Основная информация: </strong></h2>
 <hr>
     Дата открытия: {{ church.opening_date }}
     <br>
