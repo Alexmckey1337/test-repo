@@ -42,6 +42,7 @@
 {% block main.content %}
     {% block pagination_top %}
         <div class="top-pag">
+            <div class="table__count"></div>
             <div class="pagination users__pagination"><!--pagination -->
             </div><!--End pagination -->
         </div>
@@ -55,12 +56,12 @@
             </div>
         </div><!--End Table -->
         <div class="preloader">
-                <div class="gif"></div>
+            <div class="gif"></div>
         </div>
     {% endblock %}
 
     {% block pagination_bottom %}
-        <div id="table__count"></div>
+        <div class="table__count"></div>
         <div class="pagination users__pagination"></div>
     {% endblock %}
 {% endblock %}

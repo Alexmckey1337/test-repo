@@ -10,6 +10,8 @@ $(document).ready(function () {
         makeTabs();
     }
 
+    init();
+
     $('input[name=fullsearch]').on('keyup', function () {
         let config = {};
         config.search = $(this).val();
@@ -38,8 +40,9 @@ $(document).ready(function () {
         $('#popup-payments table').html('');
     });
 
-    $('#complete-payment').on('click', function () {
-        let id = $(this).attr('data-id'),
+    $('#payment-form').on('submit', function (e) {
+        e.preventDefault();
+        let id = $(this).find('button[type="submit"]').attr('data-id'),
             sum = $('#new_payment_sum').val(),
             description = $('#popup-create_payment textarea').val();
         createPayment(id, sum, description);
@@ -58,23 +61,23 @@ $(document).ready(function () {
     });
 
     function updateDeals(id, description) {
-    let data = {
-        "done": true,
-        "description": description
-    };
-    let config = JSON.stringify(data);
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/' + id + '/', config, function () {
-        init();
-        document.getElementById('popup').style.display = '';
-    }, 'PATCH', true, {
-        'Content-Type': 'application/json'
-    }, {
-        403: function (data) {
-            data = data.responseJSON;
-            showPopup(data.detail);
-        }
-    });
-}
+        let data = {
+            "done": true,
+            "description": description
+        };
+        let config = JSON.stringify(data);
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/' + id + '/', config, function () {
+            init();
+            document.getElementById('popup').style.display = '';
+        }, 'PATCH', true, {
+            'Content-Type': 'application/json'
+        }, {
+            403: function (data) {
+                data = data.responseJSON;
+                showPopup(data.detail);
+            }
+        });
+    }
 
     function createPayment(id, sum, description) {
         let data = {
@@ -97,14 +100,6 @@ $(document).ready(function () {
                 showPopup(data.detail)
             }
         });
-    }
-
-    function setDataForPopup(id, name, date, responsible, value) {
-        $('#complete').attr('data-id', id);
-        $('#client-name').text(name);
-        $('#deal-date').text(date);
-        $('#responsible-name').text(responsible);
-        $('#popup').css('display', 'block');
     }
 
     function showPayments(id) {
@@ -148,14 +143,14 @@ $(document).ready(function () {
                 showPayments(id);
             });
             $("button.pay").on('click', function () {
-                    let id = $(this).data('id');
-                    let value = parseInt($(this).data('value'));
-                    let total_sum = parseInt($(this).data('total_sum'));
-                    let diff = value - total_sum;
-                    diff = diff > 0 ? diff : 0;
-                    $('#new_payment_sum').val(diff);
-                    $('#complete-payment').attr('data-id', id);
-                    $('#popup-create_payment').css('display', 'block');
+                let id = $(this).data('id');
+                let value = parseInt($(this).data('value'));
+                let total_sum = parseInt($(this).data('total_sum'));
+                let diff = value - total_sum;
+                diff = diff > 0 ? diff : 0;
+                $('#new_payment_sum').val(diff);
+                $('#complete-payment').attr('data-id', id);
+                $('#popup-create_payment').css('display', 'block');
             });
             $("button.complete").on('click', function () {
                 $('#complete').attr('data-id', $(this).data('id'));
@@ -224,17 +219,17 @@ $(document).ready(function () {
                 showPayments(id);
             });
             $("button.pay").on('click', function () {
-                    let id = $(this).data('id');
-                    let value = parseInt($(this).data('value'));
-                    let total_sum = parseInt($(this).data('total_sum'));
-                    let diff = value - total_sum;
-                    diff = diff > 0 ? diff : 0;
-                    $('#new_payment_sum').val(diff);
-                    $('#complete-payment').attr('data-id', id);
-                    $('#popup-create_payment').css('display', 'block');
+                let id = $(this).data('id');
+                let value = parseInt($(this).data('value'));
+                let total_sum = parseInt($(this).data('total_sum'));
+                let diff = value - total_sum;
+                diff = diff > 0 ? diff : 0;
+                $('#new_payment_sum').val(diff);
+                $('#complete-payment').attr('data-id', id);
+                $('#popup-create_payment').css('display', 'block');
             });
             $("button.complete").on('click', function () {
-               let client_name = $(this).attr('data-name'),
+                let client_name = $(this).attr('data-name'),
                     deal_date = $(this).attr('data-date'),
                     responsible_name = $(this).attr('data-responsible');
                 $('#complete').attr('data-id', $(this).data('id'));
@@ -281,6 +276,5 @@ $(document).ready(function () {
         }
     }).datepicker("setDate", new Date());
 
-    init();
 });
 

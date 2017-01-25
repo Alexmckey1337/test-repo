@@ -527,7 +527,7 @@ function createUsersTable(config) {
             };
             makeDataTable(data, id);
             makePagination(paginationConfig);
-            $('#table__count').text(text);
+            $('.table__count').text(text);
             makeSortForm(data.user_table);
             $('.preloader').css('display', 'none');
             orderTable.sort(createUsersTable);

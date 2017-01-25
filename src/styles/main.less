@@ -1341,7 +1341,7 @@ button#completeDelete::before,
 .pagination {
   padding: 20px 30px 15px 0;
   float: right;
-  &.left{
+  &.left {
     float: left;
     padding-left: 20px;
   }
@@ -1482,18 +1482,20 @@ button#completeDelete::before,
 
 table {
   width: 100%;
-  & tr:last-child  {
+  & tr:last-child {
     border: 1px solid #E2E2E2;
-   & td {
-     height: 0;
-     border: none;
-     padding: 0.35em 0;
+    & td {
+      height: 0;
+      border: none;
+      padding: 0.35em 0;
     }
   }
 }
-#table__count {
+
+.table__count {
   float: left;
   padding: 30px 0 15px 30px;
+  opacity: 0.5;
 }
 
 .table td a {
@@ -2587,6 +2589,7 @@ table input[type=checkbox],
 .right-side {
   float: left;
 }
+
 .right-side {
   & p {
     padding-bottom: .8em !important;
@@ -2597,6 +2600,7 @@ table input[type=checkbox],
     }
   }
 }
+
 .left-side {
   width: 30%;
   text-align: right;
@@ -2624,9 +2628,34 @@ table input[type=checkbox],
   margin-right: 20px;
 }
 
-.summa-wrap .summa {
-  float: right;
-  padding: 20px;
+.input__wrap {
+  height: 5em;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  & > div {
+    & input  {
+      padding: 0.3em;
+    }
+    & select {
+      padding: 0.3em;
+    }
+  }
+  & .summa {
+    & input {
+      width: 5em;
+    }
+  }
+  & .rate {
+    & input {
+      width: 5em;
+    }
+  }
+  & .currency {
+    & select {
+      width: 9em;
+    }
+  }
 }
 
 .summa p {
