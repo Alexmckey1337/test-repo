@@ -1,0 +1,31 @@
+<h1>Карточка Домашней Группы:</h1>
+<h2>Название Группы: {{home_group.get_title }}</h2>
+
+
+<h2><strong> Основная информация: </strong></h2>
+<hr>
+        Дата Открытия: {{ home_group.opening_date }}
+<br>
+        Церковь: {{ home_group.church }}
+<br>
+        Лидер: {{ home_group.leader }}
+<br>
+        Адрес: {{ home_group.address }}
+<br>
+        Телефонный номер: {{ home_group.phone_number }}
+<br>
+        Веб сайт: {{ home_group.website }}
+<hr>
+
+<h2><strong> Сводная информация: </strong></h2>
+<hr>
+    Количество людей: {{ users_count }}
+    <br>
+    Количество Отцов: {{ fathers_count }}
+    <br>
+    Количество Юношей: {{ juniors_count }}
+    <br>
+    Количество Младенцев: {{ babies_count }}
+    <br>
+    Количество Партнеров: {{ partners_count }}
+<hr>

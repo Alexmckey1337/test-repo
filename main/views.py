@@ -1,8 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
-
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -15,6 +14,7 @@ from location.models import Country, Region, City
 from partnership.models import Partnership
 from status.models import Division
 from summit.models import SummitType
+from group.models import Church, HomeGroup
 
 
 def entry(request):
@@ -102,6 +102,57 @@ def summit_info(request, summit_id):
         'summit_type': SummitType.objects.get(id=summit_id)
     }
     return render(request, 'summit/summit_info.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def churches(request):
+    user = request.user
+    if not user.is_staff and user.hierarchy.level < 1:
+        raise Http404('У Вас нет прав для просмотра данной страницы.')
+    ctx = {}
+    return render(request, 'group/churches.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def church_detail(request, church_id):
+    user = request.user
+    church = get_object_or_404(Church, id=church_id)
+
+    if not user.is_staff and user.hierarchy.level < 1:
+        raise Http404('У Вас нет прав для просмотра данной страницы.')
+
+    ctx = {
+        'church': church,
+        'parishioners_count': church.users.filter(hierarchy__level=0).count(),
+        'leaders_count': church.users.filter(hierarchy__level=1).count(),
+        'home_groups_count': church.home_group.count(),
+        'fathers_count': church.users.filter(spiritual_level=CustomUser.FATHER).count() + HomeGroup.objects.filter(
+            church__id=church_id).filter(users__spiritual_level=3).count(),
+        'juniors_count': church.users.filter(spiritual_level=CustomUser.JUNIOR).count() + HomeGroup.objects.filter(
+            church__id=church_id).filter(users__spiritual_level=2).count(),
+        'babies_count': church.users.filter(spiritual_level=CustomUser.BABY).count() + HomeGroup.objects.filter(
+            church__id=church_id).filter(users__spiritual_level=1).count(),
+        'partners_count': church.users.filter(partnership__is_active=True).count(),
+    }
+    return render(request, 'group/church_detail.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def home_group_detail(request, church_id, group_id):
+    try:
+        home_group = HomeGroup.objects.filter(church=church_id).get(id=group_id)
+    except ObjectDoesNotExist:
+        raise Http404('Данной Домашней Группы не существует')
+
+    ctx = {
+        'home_group': home_group,
+        'users_count': home_group.users.count(),
+        'fathers_count': home_group.users.filter(spiritual_level=CustomUser.FATHER).count(),
+        'juniors_count': home_group.users.filter(spiritual_level=CustomUser.JUNIOR).count(),
+        'babies_count': home_group.users.filter(spiritual_level=CustomUser.BABY).count(),
+        'partners_count': home_group.users.filter(partnership__is_active=True).count(),
+    }
+    return render(request, 'group/group_detail.html', context=ctx)
 
 
 @login_required(login_url='entry')

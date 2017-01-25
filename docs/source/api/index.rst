@@ -10,3 +10,4 @@ Contents:
    summit/api
    partner/api
    account/api
+   group/api
