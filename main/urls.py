@@ -9,6 +9,7 @@ from django.urls import reverse
 
 from main import views
 
+
 def redirect_to_deals(request):
     return redirect(reverse('partner-deals'))
 
@@ -26,8 +27,8 @@ urlpatterns = [
     url(r'^summit_info/([0-9]+)/$', views.summit_info, name='summit_info'),
 
     url(r'^churches/$', views.churches, name='churches'),
-    url(r'^churches/all_users/$', views.churches_all_users, name='churches_all_users'),
     url(r'^churches/([0-9]+)/$', views.church_detail, name='church_detail'),
+    url(r'^churches/([0-9]+)/users/$', views.church_users, name='church_users'),
     url(r'^home_groups/$', views.home_groups, name='home_groups'),
     url(r'^home_groups/([0-9]+)/$', views.home_group_detail, name='home_group_detail'),
 
