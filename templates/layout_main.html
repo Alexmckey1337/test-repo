@@ -3,9 +3,7 @@
 
 {% block main_styles %}
     {{ block.super }}
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet"
-          integrity="sha384-XdYbMnZ/QjLh6iI4ogqCTaIjrFk87ip+ekIjefZch0Y+PvJ8CDYtEs1ipDmPorQ+"
-          crossorigin="anonymous">
+    <link href="{% static "libs/font-awesome/css/font-awesome.min.css" %}" rel="stylesheet">
     <link rel="stylesheet" href="{% static "libs/cropper/dist/cropper.min.css" %}">
 {% endblock %}
 

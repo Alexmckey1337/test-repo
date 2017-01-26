@@ -216,68 +216,35 @@ select::-ms-expand {
   list-style-type: none;
 }
 
-#sidebar ul li:nth-child(5) {
-  border-bottom: 1px solid #555b65;
-  margin-bottom: 75px;
-}
-
-#sidebar ul li a:before {
-  content: '';
-  position: absolute;
-  top: 26px;
-  left: 29px;
-  width: 32px;
-  height: 34px;
-  background: url('../img/sprite-sidebar.png') no-repeat 1px -42px;
-}
-
-#sidebar ul li.active a:before,
-#sidebar ul li:hover a:before {
-  background-position: 1px 0;
-}
-
-#sidebar ul li:nth-child(2) a:before {
-  background-position: -42px -38px;
-}
-
-#sidebar ul li:nth-child(2).active a:before,
-#sidebar ul li:nth-child(2):hover a:before {
-  background-position: -42px 0;
-}
-
-#sidebar ul li:nth-child(3) a:before {
-  background-position: -83px -41px;
-}
-
-#sidebar ul li:nth-child(3).active a:before,
-#sidebar ul li:nth-child(3):hover a:before {
-  background-position: -83px 0;
-}
-
-#sidebar ul li:nth-child(4) a:before {
-  background-position: -132px -38px;
-}
-
-#sidebar ul li:nth-child(4).active a:before,
-#sidebar ul li:nth-child(4):hover a:before {
-  background-position: -132px 0;
-}
-
-#sidebar ul li:nth-child(5) a:before {
-  background-position: -213px -42px;
-}
-
-#sidebar ul li:nth-child(5).active a:before,
-#sidebar ul li:nth-child(5):hover a:before {
-  background-position: -213px -4px;
-}
-
-#sidebar ul li:last-child a:before {
-  background-position: -169px -40px;
-}
-
-#sidebar ul li:last-child:hover a:before {
-  background-position: -168px -4px;
+#sidebar ul li a {
+  &:before {
+    content: '';
+    color: 	#CECECE;
+    font: 2em FontAwesome;
+    position: absolute;
+    top: 26px;
+    left: 29px;
+    width: 32px;
+    height: 34px;
+  }
+  &:hover:before {
+    color: #3caeda;
+  }
+  &#databases__item:before {
+    content: '\f1c0';
+  }
+  &#churches__item:before {
+    content: '\f0c0';
+  }
+  &#partners__item:before {
+    content: '\f2b5';
+  }
+  &#summits__item:before {
+    content: '\f274';
+  }
+  &#turn_aside:before {
+    content: '\f100';
+  }
 }
 
 #sidebar ul li:before {
@@ -298,10 +265,6 @@ select::-ms-expand {
   height: 100%;
 }
 
-#sidebar ul li:not(:last-child).active a,
-#sidebar ul li:hover a {
-  color: #3caeda;
-}
 
 #sidebar ul li:last-child {
   position: fixed;
@@ -324,7 +287,9 @@ select::-ms-expand {
 #sidebar.toggle-sidebar .logo div {
   display: block;
 }
-
+#sidebar li:last-child a:before {
+  transform-origin: center;
+}
 #sidebar.toggle-sidebar li:last-child a:before {
   top: 20px;
   transform: rotate(180deg);
@@ -1252,6 +1217,7 @@ button#completeDelete::before,
   width: 19px;
   height: 19px;
 }
+
 .pay:before {
   content: '\f067' !important;
 }

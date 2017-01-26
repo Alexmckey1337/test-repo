@@ -11,14 +11,15 @@
                         <div><span>C</span><span>R</span><span>M</span></div>
                     </div>
                     <ul id="nav-sidebar">
-                        <li><a data-title="База данных" href="{% url 'index' %}">База данных</a></li>
+                        <li><a data-title="База данных" href="{% url 'index' %}" id="databases__item">База данных</a></li>
                         {% comment %}
                         <li><a data-title="Все отчеты" href="{% url 'reports' %}">Все отчеты</a></li>
                         <li><a data-title="События" href="{% url 'events' %}">События</a></li>
                         {% endcomment %}
-                        <li><a data-title="Партнёрство" href="{% url 'partner' %}">Партнёрство</a></li>
-                        <li><a data-title="Саммиты" href="{% url 'summits' %}">Саммиты</a></li>
-                        <li id="move-sidebar"><a data-title="Развернуть" href="#">Свернуть</a></li>
+                        <li><a data-title="Церкви" href="" id="churches__item">Церкви</a></li>
+                        <li><a data-title="Партнёрство" href="{% url 'partner' %}" id="partners__item">Партнёрство</a></li>
+                        <li><a data-title="Саммиты" href="{% url 'summits' %}" id="summits__item">Саммиты</a></li>
+                        <li id="move-sidebar"><a data-title="Развернуть" href="#" id="turn_aside">Свернуть</a></li>
                     </ul>
                 </div>
             </div>
