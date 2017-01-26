@@ -1058,6 +1058,7 @@ li.current a {
   width: 100%;
   position: relative;
   margin-bottom: 10px;
+  padding-left: 1.2em;
 }
 
 .complete-deal-wrap .rows-wrap {
@@ -1203,6 +1204,7 @@ li.current a {
 .rows .col:first-child:hover span {
   color: #3caeda;
   border-bottom: 1px dotted #3caeda;
+  cursor: default;
 }
 
 .rows-wrap button {
@@ -1241,13 +1243,17 @@ button#complete::before,
 button#completeDelete::before,
 .splash-battons button:last-child::before {
   display: block;
-  content: '';
+  content: '\f00c';
+  font: 1.2em FontAwesome;
+  margin-top: 0.1em;
   position: absolute;
   top: 10px;
   left: 15px;
   width: 19px;
   height: 19px;
-  background: url('../img/sprite-buttons.png') no-repeat -3px -63px;
+}
+.pay:before {
+  content: '\f067' !important;
 }
 
 #tabs-slider li .arrow {
@@ -2633,7 +2639,7 @@ table input[type=checkbox],
   justify-content: space-around;
   align-items: center;
   & > div {
-    & input  {
+    & input {
       padding: 0.3em;
     }
     & select {

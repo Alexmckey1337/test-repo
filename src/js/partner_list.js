@@ -25,6 +25,7 @@
             makeDataTable(data, id);
 
             $('.preloader').css('display', 'none');
+
             let paginationConfig = {
                 container: ".partners__pagination",
                 currentPage: page,
@@ -32,7 +33,7 @@
                 callback: getPartners
             };
             makePagination(paginationConfig);
-            $('#table__count').text(text);
+            $('.table__count').text(text);
             makeSortForm(response.user_table);
             orderTable.sort(getPartners);
         });

@@ -45,7 +45,12 @@ $(document).ready(function () {
         let id = $(this).find('button[type="submit"]').attr('data-id'),
             sum = $('#new_payment_sum').val(),
             description = $('#popup-create_payment textarea').val();
-        createPayment(id, sum, description);
+        createPayment(id, sum, description).then(function () {
+            $('#' + id + ' > .rows').css({
+                'background-color': '#dfedd6',
+                'border-color': '#aedd94',
+            });
+        });
         $('#new_payment_sum').val('');
         $('#popup-create_payment textarea').val('');
         $('#popup-create_payment').css('display', 'none');
@@ -80,26 +85,30 @@ $(document).ready(function () {
     }
 
     function createPayment(id, sum, description) {
-        let data = {
-            "sum": sum,
-            "description": description,
-            "rate": $('#new_payment_rate').val(),
-            "currency": $('#new_payment_currency').val()
-        };
-
-        let json = JSON.stringify(data);
-
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/deals/${id}/create_payment/`, json, function (JSONobj) {
-            init();
-            showPopup('Оплата прошла успешно.');
-        }, 'POST', true, {
-            'Content-Type': 'application/json'
-        }, {
-            403: function (data) {
-                data = data.responseJSON;
-                showPopup(data.detail)
-            }
-        });
+        return new Promise(function (resolve, reject) {
+            let data = {
+                "sum": sum,
+                "description": description,
+                "rate": $('#new_payment_rate').val(),
+                "currency": $('#new_payment_currency').val()
+            };
+            let json = JSON.stringify(data);
+            ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/deals/${id}/create_payment/`, json, function (JSONobj) {
+                init();
+                showPopup('Оплата прошла успешно.');
+                setTimeout(function () {
+                    resolve()
+                }, 1500);
+            }, 'POST', true, {
+                'Content-Type': 'application/json'
+            }, {
+                403: function (data) {
+                    data = data.responseJSON;
+                    showPopup(data.detail);
+                    reject();
+                }
+            });
+        })
     }
 
     function showPayments(id) {

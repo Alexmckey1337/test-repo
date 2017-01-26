@@ -56,7 +56,7 @@
 {% endblock %}
 <script type="text/template" id="showDeals">
     <% results.forEach(function(item) { %>
-    <div class="rows-wrap">
+    <div class="rows-wrap" id="<%=item.id%>">
         <% if(!item.done && can_close_deal) { %>
             <% if((parseInt(item.total_sum) - parseInt(item.value)) >= 0 ){ %>
                 <button class="complete"
@@ -78,7 +78,7 @@
                         data-responsible="<%=item.responsible_name%>"
                         data-total_sum="<%=item.total_sum %>"
                         data-value="<%=item.value%>"
-                >Pay</button>
+                >Платеж</button>
             <% } %>
         <% } %>
         <div class="rows">
