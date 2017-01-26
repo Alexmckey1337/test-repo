@@ -115,12 +115,13 @@ def churches(request):
 
 
 @login_required(login_url='entry')
-def churches_all_users(request):
+def church_users(request, church_id):
     user = request.user
+    church = get_object_or_404(Church, id=church_id)
     if not user.is_staff and user.hierarchy.level < 1:
         raise Http404('У Вас нет прав для просмотра данной страницы.')
     ctx = {}
-    return render(request, 'group/churches_all_users.html', context=ctx)
+    return render(request, 'group/church_users.html', context=ctx)
 
 
 @login_required(login_url='entry')

@@ -87,13 +87,13 @@ Church
 
     :query int page: page number (one of ``int`` or ``last``). default is 1
     :query int department: filter by ``department_id``
-    :query int pastor: filter by ``pastor``
+    :query int pastor: filter by ``pastor_id``
     :query int page_size: page size, default is 30
-    :query string search_title: search by ``title``
-    :query string search_country: search by ``country``
-    :query string search_city: search by ``city``
-    :query string search_is_open: search by ``is_open``
-    :query string search_phone_number: search by ``phone_number``
+    :query string title: search by ``title``
+    :query string country: search by ``country``
+    :query string city: search by ``city``
+    :query string is_open: search by ``is_open``
+    :query string phone_number: search by ``phone_number``
     :query string ordering: order by one of ``address``, ``city``, ``department``, ``department_id``,
                                             ``home_group``, ``is_open``, ``opening_date``, ``pastor``,
                                             ``phone_number``, ``title``, ``users``, ``website``, ``display_title``
@@ -482,7 +482,7 @@ Church
         Host: vocrm.org
         Content-type: application/json
 
-    **Example response**:
+    **Example response (Good request)**:
 
     .. sourcecode:: http
 
@@ -524,6 +524,28 @@ Church
                 "next": null
             }
         }
+
+    **Example response (Forbidden)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 403 Forbidden
+        Allow: GET, POST, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "detail": "Учетные данные не были предоставлены."
+        }
+
+    :query int page: page number (one of ``int`` or ``last``). default is 1
+    :query int spiritual_level: filter by ``spiritual_level_id``
+    :query string first_name: filter by ``first_name``
+    :query string last_name: filter by ``last_name``
+    :query int page_size: page size, default is 30
+
+    :statuscode 200: no error
+    :statuscode 403: user is not authenticated
 
 
 .. http:post:: /api/v1.0/churches/(int:<church_id>)/add_user/
@@ -703,7 +725,7 @@ Church
     :statuscode 403: user is not authenticated
 
 
-.. http:get:: /api/v1.0/churches_all_users
+.. http:get:: /api/v1.0/church_users
 
     Display all users in churches and home_groups.
     Pagination by 30 users per page.
@@ -712,7 +734,7 @@ Church
 
     .. sourcecode:: http
 
-        GET /api/v1.0/churches_all_users HTTP/1.1
+        GET /api/v1.0/church_users HTTP/1.1
         Host: vocrm.org
         Accept: application/json
 
@@ -760,8 +782,8 @@ Church
         }
 
     :query int page: page number (one of ``int`` or ``last``). default is 1
-    :query int spiritual_level: filter by ``spiritual level``
     :query int page_size: page size, default is 30
+    :query int spiritual_level: filter by ``spiritual level``
     :query string first_name: filter by ``first name``
     :query string last_name: filter by ``last name``
     :query string phone_number: filter by ``phone number``
@@ -872,10 +894,10 @@ _________
     :query int page: page number (one of ``int`` or ``last``). default is 1
     :query int church: filter by ``church_id``
     :query int leader: filter by ``leader_id``
+    :query string city: filter by ``city``
     :query string title: filter by ``title``
-    :query string get_title: filter by ``get_title``
-    :query string opening_date: filter by ``opening_date``
     :query string phone_number: filter by ``phone_number``
+    :query string website: filter by ``website``
     :query string ordering: order by one of ``address``, ``church``, ``city``, ``leader``,
                                             ``opening_date``, ``phone_number``, ``title``,
                                             ``users``, ``website``, ``home_group_title``,
