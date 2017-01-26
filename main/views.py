@@ -111,7 +111,7 @@ def churches(request):
     if not user.is_staff and user.hierarchy.level < 1:
         raise Http404('У Вас нет прав для просмотра данной страницы.')
     ctx = {}
-    return render(request, 'group/churches.html', context=ctx)
+    return render(request, 'database/churches.html', context=ctx)
 
 
 @login_required(login_url='entry')
@@ -155,7 +155,7 @@ def home_groups(request):
     if not user.is_staff and user.hierarchy.level < 1:
         raise Http404('У Вас нет прав для просмотра данной страницы.')
     ctx = {}
-    return render(request, 'group/home_groups.html', context=ctx)
+    return render(request, 'database/home_groups.html', context=ctx)
 
 
 @login_required(login_url='entry')
@@ -175,6 +175,22 @@ def home_group_detail(request, group_id):
     }
     return render(request, 'group/home_group_detail.html', context=ctx)
 
+@login_required(login_url='entry')
+def people(request):
+    user = request.user
+    ctx = {
+        'departments': Department.objects.all(),
+        'hierarchies': Hierarchy.objects.order_by('level'),
+    }
+    if user.is_staff:
+        ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
+    elif not user.hierarchy:
+        ctx['masters'] = list()
+    elif user.hierarchy.level < 2:
+        ctx['masters'] = user.get_descendants(include_self=True).filter(is_active=True, hierarchy__level__gte=1)
+    else:
+        ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
+    return render(request, 'database/people.html', context=ctx)
 
 @login_required(login_url='entry')
 def index(request):
