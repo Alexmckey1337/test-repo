@@ -74,7 +74,7 @@ class HomeGroup(CommonGroup):
         return self.get_title
 
     def get_absolute_url(self):
-        return 'churches/{}/home_groups/{}/'.format(self.church_id, self.id)
+        return reverse('home_group_detail', args=(self.id,))
 
     @property
     def link(self):
