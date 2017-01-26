@@ -35,6 +35,33 @@
 
 {% endblock %}
 
+{% block main.content %}
+    {% block pagination_top %}
+        <div class="top-pag">
+            <div class="table__count"></div>
+            <div class="pagination users__pagination"><!--pagination -->
+            </div><!--End pagination -->
+        </div>
+    {% endblock %}
+
+    {% block table %}
+        <div class="table-wrap  clearfix" id="database_users"><!--Table -->
+            <div class="table scrollbar-inner" id="baseUsers"></div>
+            <div class="query-none">
+                <p></p>
+            </div>
+        </div><!--End Table -->
+        <div class="preloader">
+            <div class="gif"></div>
+        </div>
+    {% endblock %}
+
+    {% block pagination_bottom %}
+        <div class="table__count"></div>
+        <div class="pagination users__pagination"></div>
+    {% endblock %}
+{% endblock %}
+
 {% block create_user %}
     {% include 'partials/create_user.html' %}
 {% endblock %}

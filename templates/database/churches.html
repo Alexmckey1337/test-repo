@@ -5,7 +5,6 @@
 
 {% block header.top.h1 %}<h1>База данных / Церкви</h1>{% endblock %}
 
-
 {% block header.buttons %}
     <div class="top-panel">
         <div class="tabs">
@@ -32,7 +31,33 @@
 {% endblock %}
 
 {% block header.buttons.export %}
+{% endblock %}
 
+{% block main.content %}
+    {% block pagination_top %}
+        <div class="top-pag">
+            <div class="table__count"></div>
+            <div class="pagination users__pagination"><!--pagination -->
+            </div><!--End pagination -->
+        </div>
+    {% endblock %}
+
+    {% block table %}
+        <div class="table-wrap  clearfix" id="churches"><!--Table -->
+            <div class="table scrollbar-inner" id="tableChurches"></div>
+            <div class="query-none">
+                <p></p>
+            </div>
+        </div><!--End Table -->
+        <div class="preloader">
+            <div class="gif"></div>
+        </div>
+    {% endblock %}
+
+    {% block pagination_bottom %}
+        <div class="table__count"></div>
+        <div class="pagination users__pagination"></div>
+    {% endblock %}
 {% endblock %}
 
 {% block create_user %}
@@ -135,7 +160,6 @@
     </div>
 {% endblock %}
 {% block extra_scripts %}
-    <script src="{% static "js/add_user.js" %}"></script>
-    <script src="{% static "js/database_users.js" %}"></script>
+    <script src="{% static "js/database_churches.js" %}"></script>
     <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
 {% endblock %}
