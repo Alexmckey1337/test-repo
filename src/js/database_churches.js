@@ -1,3 +1,5 @@
-/**
- * Created by ruslansapizhuk on 1/26/17.
- */
+(function ($) {
+    getChurches().then(function (data) {
+        console.log(data);
+    })
+})(jQuery);
