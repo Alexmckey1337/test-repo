@@ -3,7 +3,6 @@
 
     function updateUser(data, id) {
         ajaxRequest(config.DOCUMENT_ROOT + `api/v1.1/users/${id}/`, data, function (data) {
-            console.log(data);
             let send_image = true;
             if (send_image) {
                 try {
