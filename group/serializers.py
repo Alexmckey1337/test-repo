@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import Church, HomeGroup
 from account.models import CustomUser
 from account.serializers import DepartmentTitleSerializer
+from django.utils.translation import ugettext as _
 
 
 class LeaderNameSerializer(serializers.ModelSerializer):
@@ -23,8 +24,16 @@ class ChurchNameSerializer(serializers.ModelSerializer):
         fields = ('id', 'get_title',)
 
 
+class HomeGroupLeaderRelatedField(serializers.PrimaryKeyRelatedField):
+    default_error_messages = {
+        'required': _('This field is required.'),
+        'does_not_exist': 'Данный пользователь "{pk_value}" - не может быть назначен лидером Домашней Группы.',
+        'incorrect_type': _('Incorrect type. Expected pk value, received {data_type}.'),
+    }
+
+
 class HomeGroupSerializer(serializers.ModelSerializer):
-    leader = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(hierarchy__level__gt=0))
+    leader = HomeGroupLeaderRelatedField(queryset=CustomUser.objects.filter(hierarchy__level__gt=0))
 
     class Meta:
         model = HomeGroup
@@ -55,11 +64,19 @@ class HomeGroupDetailSerializer(serializers.ModelSerializer):
         fields = ('id', 'users')
 
 
+class ChurchPastorRelatedField(serializers.PrimaryKeyRelatedField):
+    default_error_messages = {
+        'required': _('This field is required.'),
+        'does_not_exist': 'Данный пользователь "{pk_value}" - не может быть назначен пастором Церкви.',
+        'incorrect_type': _('Incorrect type. Expected pk value, received {data_type}.'),
+    }
+
+
 class ChurchSerializer(serializers.ModelSerializer):
     count_groups = serializers.IntegerField(read_only=True)
     count_users = serializers.IntegerField(read_only=True)
     link = serializers.CharField(read_only=True)
-    pastor = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(hierarchy__level__gt=1))
+    pastor = ChurchPastorRelatedField(queryset=CustomUser.objects.filter(hierarchy__level__gt=1))
 
     class Meta:
         model = Church

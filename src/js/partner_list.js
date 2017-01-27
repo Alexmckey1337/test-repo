@@ -8,12 +8,10 @@
             let pages = Math.ceil(count / CONFIG.pagination_count);
             let data = {};
             let id = "partnersList";
+            let text = `Показано ${CONFIG.pagination_count} из ${count}`;
             let common_table = Object.keys(response.common_table);
-
             data.user_table = response.user_table;
-
-
-           common_table.forEach(function (item) {
+            common_table.forEach(function (item) {
                 data.user_table[item] = response.common_table[item];
             });
             data.results = response.results.map(function (item) {
@@ -23,10 +21,11 @@
                 });
                 return result;
             });
-            console.log(data.user_table);
+            data.count = response.count;
             makeDataTable(data, id);
 
             $('.preloader').css('display', 'none');
+
             let paginationConfig = {
                 container: ".partners__pagination",
                 currentPage: page,
@@ -34,11 +33,12 @@
                 callback: getPartners
             };
             makePagination(paginationConfig);
+            $('.table__count').text(text);
             makeSortForm(response.user_table);
             orderTable.sort(getPartners);
         });
     }
-    
+
     $('#accountable').select2();
     $('input[name=fullsearch]').on('keyup', function () {
         getPartners({

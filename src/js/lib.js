@@ -157,9 +157,21 @@ function getManagers() {
     });
 }
 
-function getIncompleteDeals(search, json) {
+function getIncompleteDeals(data) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=3' + search, json, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=3', data, function (response) {
+            if (response) {
+                resolve(response);
+            } else {
+                reject();
+            }
+        })
+    })
+}
+
+function getFinishedDeals(data) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=2', data, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -169,23 +181,11 @@ function getIncompleteDeals(search, json) {
     })
 }
 
-function getFinishedDeals(search, json) {
+function getOverdueDeals(data) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=2' + search, json, function (data) {
-            if (data) {
-                resolve(data);
-            } else {
-                reject();
-            }
-        })
-    })
-}
-
-function getOverdueDeals(search, json) {
-    return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?expired=2' + search, json, function (data) {
-            if (data) {
-                resolve(data);
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?expired=2', data, function (response) {
+            if (response) {
+                resolve(response);
             } else {
                 reject();
             }

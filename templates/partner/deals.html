@@ -14,7 +14,6 @@
                 <li><a href="{% url 'partner-stats' %}">Статистика</a></li>
             </ul>
         </div>
-
         <div class="top-buttons-wrap">
             <ul class="top-buttons">
 {#                <li>#}
@@ -29,7 +28,6 @@
 {#                    <button id="sort-on">Изменить таблицу</button>#}
 {#                </li>#}
             </ul>
-
         </div>
     </div>
 {% endblock %}
@@ -38,11 +36,8 @@
 
     {% get_simple_managers as managers %}
     <div class="content">
-
         <div  id="sdelki">
-
             <div class="top-pag">
-
                 <div class="tab-status">
                     <ul id="tabs">
                         <li>
@@ -54,38 +49,31 @@
                         <li>
                             <a href="#completed">Завершённые(<span id="completed-count"></span>)</a>
                         </li>
-
                     </ul>
                 </div>
-
                 <div id="period_expired" class="period">
                     <p>Период с <input type="text" id="expired_datepicker_from" readonly="readonly"> по <input
                             type="text" id="expired_datepicker_to" readonly="readonly"><a id="show-all-expired"
                                                                                           href="javascript:void(0);">Показать
                         все</a></p>
-
                 </div>
                 <div id="period_done" class="period">
                     <p>Период с <input type="text" id="done_datepicker_from" readonly="readonly"> по <input
                             type="text" id="done_datepicker_to" readonly="readonly"><a id="show-all-done"
                                                                                        href="javascript:void(0);">Показать
                         все</a></p>
-
                 </div>
             </div>
-
             <div class="tabs-cont">
                 <div class="pagination undone__pagination"></div>
                 <div id="incomplete"></div>
                 <div class="pagination undone__pagination"></div>
             </div>
-
             <div class="tabs-cont">
                 <div class="pagination expired__pagination"></div>
                 <div id="overdue"></div>
                 <div class="pagination expired__pagination"></div>
             </div>
-
             <div class="tabs-cont">
                 <div class="pagination done__pagination"></div>
                 <div id="completed"></div>
@@ -105,7 +93,7 @@
             </div>
             <table></table>
             <div class="splash-bauttons">
-                <button id="close-payments">Закрыть</button>
+                <button class="close">Закрыть</button>
             </div>
         </div>
     </div>
@@ -121,14 +109,14 @@
                     <p>Ответственный:</p>
                 </div>
                 <div class="right-side">
-                    <p id="client-name"></p>
-                    <p id="deal-date"></p>
-                    <p id="responsible-name"></p>
+                    <p><input id="client-name" value="" disabled></p>
+                    <p><input id="deal-date" value="" disabled></p>
+                    <p><input id="responsible-name" value="" disabled></p>
                 </div>
             </div>
             <textarea placeholder="Добавить коментарий" id="deal-description"></textarea>
             <div class="splash-bauttons">
-                <button id="close">Отменить</button>
+                <button class="close">Отменить</button>
                 <button id="complete">Завершить</button>
             </div>
         </div>

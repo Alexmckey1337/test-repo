@@ -14,11 +14,11 @@ $('.hard-login').on('click', function () {
         $('[data-tab-content="' + id_tab + '"]').show();
     });
 
-    $('#send_need').on('click', function (el) {
+    $('#send_need').on('click', function () {
         let need_text = $('#id_need_text').val();
         let url = CONFIG.DOCUMENT_ROOT + `api/v1.1/partnerships/${$(this).data('partner')}/update_need/`;
         let need = JSON.stringify({'need_text': need_text});
-        ajaxRequest(url, need, function (data) {
+        ajaxRequest(url, need, function () {
             showPopup('Нужда сохранена.');
 
         }, 'PUT', true, {

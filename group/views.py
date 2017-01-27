@@ -1,4 +1,7 @@
 # -*- coding: utf-8
+import django_filters
+from common.filters import FieldSearchFilter
+
 from django.db.models import Count, Q
 from rest_framework import status
 from rest_framework import viewsets, mixins, filters
@@ -8,6 +11,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from hierarchy.models import Department
 from account.models import CustomUser
 from .models import HomeGroup, Church
 from .serializers import ChurchSerializer, ChurchDetailSerializer, ChurchListSerializer
@@ -30,6 +34,45 @@ class GroupPagination(PageNumberPagination):
         })
 
 
+class ChurchUsersFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = CustomUser
+        fields = ['first_name', 'last_name', 'phone_number', 'repentance_date', 'spiritual_level']
+
+
+class ChurchUsersListView(mixins.ListModelMixin,
+                          viewsets.GenericViewSet):
+    queryset = CustomUser.objects.exclude(Q(churches__isnull=True))
+    serializer_class = HomeGroupUserSerializer
+
+    filter_backends = (filters.DjangoFilterBackend,
+                       FieldSearchFilter,
+                       filters.OrderingFilter)
+
+    ordering_fields = ('fullname', 'phone_number', 'repentance_date', 'spiritual_level',
+                       'born_date',)
+
+    filter_class = ChurchUsersFilter
+    field_search_fields = {
+        'search_fullname': ('fullname',),
+        'search_phone_number': ('phone_number',),
+        'search_spiritual_level': ('spiritual_level',),
+    }
+    permission_classes = (IsAuthenticated,)
+    pagination_class = GroupPagination
+
+
+class ChurchFilter(django_filters.FilterSet):
+    department = django_filters.ModelChoiceFilter(name='department', queryset=Department.objects.all())
+    pastor = django_filters.ModelChoiceFilter(name='pastor', queryset=CustomUser.objects.filter(
+        hierarchy__level__gt=1))
+
+    class Meta:
+        model = Church
+        fields = ['department', 'pastor', 'title', 'country', 'city', 'is_open', 'phone_number']
+
+
 class ChurchViewSet(mixins.RetrieveModelMixin,
                     mixins.UpdateModelMixin,
                     mixins.CreateModelMixin,
@@ -42,17 +85,25 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
     serializer_retrieve_class = ChurchDetailSerializer
 
     filter_backends = (filters.DjangoFilterBackend,
-                       filters.SearchFilter,
+                       FieldSearchFilter,
                        filters.OrderingFilter,)
 
+    ordering_fields = ('title', 'city', 'department', 'home_group', 'is_open',
+                       'opening_date', 'pastor', 'phone_number', 'address')
+
+    filter_class = ChurchFilter
+    field_search_fields = {
+        'search_title': ('title',),
+        'search_department': ('department',),
+        'search_pastor': ('pastor',),
+        'search_country': ('country',),
+        'search_city': ('city',),
+    }
     permission_classes = (IsAuthenticated,)
     pagination_class = GroupPagination
 
-    ordering_fields = ('address', 'city', 'department', 'department_id', 'home_group',
-                       'is_open', 'opening_date', 'pastor', 'phone_number', 'title',
-                       'users', 'website', 'display_title')
-
     def get_serializer_class(self):
+        print(self.action)
         if self.action in 'list':
             return self.serializer_list_class
         if self.action in 'retrieve':
@@ -65,30 +116,6 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
                 count_groups=Count('home_group', distinct=True),
                 count_users=Count('users', distinct=True) + Count('home_group__users', distinct=True))
         return self.queryset
-
-    @list_route(methods=['get'])
-    def all_users(self, request):
-        all_users = CustomUser.objects.exclude(Q(home_groups__isnull=True), Q(churches__isnull=True))
-        page = self.paginate_queryset(all_users)
-        if page is not None:
-            serializer = HomeGroupUserSerializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = HomeGroupUserSerializer(all_users, many=True)
-        return Response(serializer.data)
-
-    @detail_route(methods=['get'])
-    def users(self, request, pk):
-        serializer = HomeGroupUserSerializer
-        church = get_object_or_404(Church, pk=pk)
-        queryset = church.users
-        serializer = serializer(queryset, many=True)
-        page = self.paginate_queryset(serializer.data)
-        if page is not None:
-            serializers = HomeGroupUserSerializer(page, many=True, context={'request': request})
-            return self.get_paginated_response(serializers.data)
-        serializers = HomeGroupUserSerializer(serializer.data, many=True, context={'request': request})
-        return Response(serializers.data)
 
     @detail_route(methods=['post'])
     def add_user(self, request, pk):
@@ -144,6 +171,17 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
                         status=status.HTTP_204_NO_CONTENT)
 
 
+class HomeGroupFilter(django_filters.FilterSet):
+    church = django_filters.ModelChoiceFilter(name='church', queryset=Church.objects.all())
+    leader = django_filters.ModelChoiceFilter(name='leader', queryset=CustomUser.objects.filter(
+        hierarchy__level__gt=0))
+
+    class Meta:
+        model = HomeGroup
+        fields = ['church', 'leader', 'title', 'city', 'phone_number',
+                  'website']
+
+
 class HomeGroupViewSet(mixins.UpdateModelMixin,
                        mixins.RetrieveModelMixin,
                        mixins.ListModelMixin,
@@ -155,15 +193,22 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
     serializer_list_class = HomeGroupListSerializer
     serializer_retrieve_class = HomeGroupDetailSerializer
 
-    permission_classes = (IsAuthenticated,)
-    pagination_class = GroupPagination
-
     filter_backends = (filters.DjangoFilterBackend,
-                       filters.SearchFilter,
+                       FieldSearchFilter,
                        filters.OrderingFilter,)
 
-    ordering_fields = ('address', 'church', 'city', 'leader', 'opening_date',
-                       'phone_number', 'title', 'users', 'website', 'home_group_title')
+    ordering_fields = ('title', 'church', 'city', 'leader', 'opening_date',
+                       'phone_number',)
+
+    filter_class = HomeGroupFilter
+    field_search_fields = {
+        'search_title': ('title',),
+        'search_church': ('church',),
+        'search_leader': ('leader',),
+        'search_city': ('city',),
+    }
+    permission_classes = (IsAuthenticated,)
+    pagination_class = GroupPagination
 
     def get_serializer_class(self):
         if self.action in 'retrieve':
@@ -200,8 +245,8 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
 
         if church.users.filter(id=user_id).exists():
             church.users.remove(user_id)
+            home_group.users.add(user_id)
 
-        home_group.users.add(user_id)
         return Response({'message': 'Пользователь успешно добавлен.'},
                         status=status.HTTP_201_CREATED)
 

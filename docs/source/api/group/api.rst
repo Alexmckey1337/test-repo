@@ -85,6 +85,19 @@ Church
             }
         }
 
+    :query int page: page number (one of ``int`` or ``last``). default is 1
+    :query int department: filter by ``department_id``
+    :query int pastor: filter by ``pastor_id``
+    :query int page_size: page size, default is 30
+    :query string title: search by ``title``
+    :query string country: search by ``country``
+    :query string city: search by ``city``
+    :query string is_open: search by ``is_open``
+    :query string phone_number: search by ``phone_number``
+    :query string ordering: order by one of ``address``, ``city``, ``department``, ``department_id``,
+                                            ``home_group``, ``is_open``, ``opening_date``, ``pastor``,
+                                            ``phone_number``, ``title``, ``users``, ``website``, ``display_title``
+
     **Example response(Bad request)**:
 
     .. sourcecode:: http
@@ -195,7 +208,7 @@ Church
 
         {
             "pastor": [
-                "Недопустимый первичный ключ \"50\" - объект не существует."
+                "Данный пользователь \"50\" - не может быть назначен пастором Церкви."
             ]
         }
 
@@ -407,7 +420,7 @@ Church
 
         {
             "pastor": [
-                "Недопустимый первичный ключ \"50\" - объект не существует."
+                "Данный пользователь \"50\" - не может быть назначен пастором Церкви."
             ]
         }
 
@@ -469,7 +482,7 @@ Church
         Host: vocrm.org
         Content-type: application/json
 
-    **Example response**:
+    **Example response (Good request)**:
 
     .. sourcecode:: http
 
@@ -511,6 +524,28 @@ Church
                 "next": null
             }
         }
+
+    **Example response (Forbidden)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 403 Forbidden
+        Allow: GET, POST, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "detail": "Учетные данные не были предоставлены."
+        }
+
+    :query int page: page number (one of ``int`` or ``last``). default is 1
+    :query int spiritual_level: filter by ``spiritual_level_id``
+    :query string first_name: filter by ``first_name``
+    :query string last_name: filter by ``last_name``
+    :query int page_size: page size, default is 30
+
+    :statuscode 200: no error
+    :statuscode 403: user is not authenticated
 
 
 .. http:post:: /api/v1.0/churches/(int:<church_id>)/add_user/
@@ -690,6 +725,85 @@ Church
     :statuscode 403: user is not authenticated
 
 
+.. http:get:: /api/v1.0/church_users
+
+    Display all users in churches and home_groups.
+    Pagination by 30 users per page.
+
+    **Example request**
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/church_users HTTP/1.1
+        Host: vocrm.org
+        Accept: application/json
+
+    **Example response (Good request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "count": 3,
+            "results": [
+                {
+                    "id": 1,
+                    "fullname": "Аккаунт Технический №1",
+                    "phone_number": "+38099664224",
+                    "repentance_date": null,
+                    "spiritual_level": 1,
+                    "born_date": null
+                },
+                {
+                    "id": 2,
+                    "fullname": "Аккаунт Технический №2",
+                    "phone_number": "+38066666",
+                    "repentance_date": null,
+                    "spiritual_level": 1,
+                    "born_date": "01.10.1993"
+                },
+                {
+                    "id": 3,
+                    "fullname": "Аккаунт Технический №3",
+                    "phone_number": "",
+                    "repentance_date": null,
+                    "spiritual_level": 1,
+                    "born_date": "13.10.1993"
+                }
+            ],
+            "links": {
+                "previous": null,
+                "next": null
+            }
+        }
+
+    :query int page: page number (one of ``int`` or ``last``). default is 1
+    :query int page_size: page size, default is 30
+    :query int spiritual_level: filter by ``spiritual level``
+    :query string first_name: filter by ``first name``
+    :query string last_name: filter by ``last name``
+    :query string phone_number: filter by ``phone number``
+
+    **Example response (Forbidden)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 403 Forbidden
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "detail": "Учетные данные не были предоставлены."
+        }
+
+    :statuscode 200: no error
+    :statuscode 403: user is not authenticated
+
 
 HomeGroup
 _________
@@ -776,6 +890,17 @@ _________
         {
             "detail": "Учетные данные не были предоставлены."
         }
+
+    :query int page: page number (one of ``int`` or ``last``). default is 1
+    :query int church: filter by ``church_id``
+    :query int leader: filter by ``leader_id``
+    :query string city: filter by ``city``
+    :query string title: filter by ``title``
+    :query string phone_number: filter by ``phone_number``
+    :query string website: filter by ``website``
+    :query string ordering: order by one of ``address``, ``church``, ``city``, ``leader``,
+                                            ``opening_date``, ``phone_number``, ``title``,
+                                            ``users``, ``website``, ``home_group_title``,
 
     :statuscode 200: no error
     :statuscode 403: no authentication
@@ -883,7 +1008,7 @@ _________
 
         {
             "leader": [
-                "Недопустимый первичный ключ \"23\" - объект не существует."
+                "Данный пользователь \"23\" - не может быть назначен лидером Домашней Группы."
             ]
         }
 
@@ -1080,7 +1205,7 @@ _________
 
         {
             "leader": [
-                "Недопустимый первичный ключ \"23\" - объект не существует."
+                "Данный пользователь \"23\" - не может быть назначен лидером Домашней Группы."
             ]
         }
 
@@ -1297,7 +1422,7 @@ _________
 
     .. sourcecode:: http
 
-        HTTP 403 Forbidden
+        HTTP/1.1 403 Forbidden
         Allow: POST, OPTIONS
         Content-Type: application/json
         Vary: Accept

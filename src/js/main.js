@@ -46,7 +46,6 @@ counterNotifications();
     })();
 
 function makeDataTable(data, id) {
-    console.log(data);
     var tmpl = document.getElementById('databaseUsers').innerHTML;
     var rendered = _.template(tmpl)(data);
     document.getElementById(id).innerHTML = rendered;
@@ -224,7 +223,9 @@ function setCookie(name, value, options) {
     }
     document.cookie = updatedCookie;
 }
-
+$('.close').on('click', function () {
+    $(this).closest('.pop-up-splash').css('display', 'none');
+});
 $('#logout_button').on('click', function (e) {
     e.preventDefault();
     ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/logout/', null, function (data) {
@@ -520,7 +521,9 @@ function createUsersTable(config) {
             let count = data.count;
             let page = config['page'] || 1;
             let pages = Math.ceil(count / CONFIG.pagination_count);
+            let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
             let id = "database_users";
+            let text = `Показано ${showCount} из ${count}`;
             let paginationConfig = {
                 container: ".users__pagination",
                 currentPage: page,
@@ -529,6 +532,7 @@ function createUsersTable(config) {
             };
             makeDataTable(data, id);
             makePagination(paginationConfig);
+            $('.table__count').text(text);
             makeSortForm(data.user_table);
             $('.preloader').css('display', 'none');
             orderTable.sort(createUsersTable);
