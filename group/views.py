@@ -17,6 +17,7 @@ from .models import HomeGroup, Church
 from .serializers import ChurchSerializer, ChurchDetailSerializer, ChurchListSerializer
 from .serializers import HomeGroupSerializer, HomeGroupDetailSerializer, HomeGroupListSerializer
 from .serializers import HomeGroupUserSerializer
+from navigation.models import user_table
 
 
 class GroupPagination(PageNumberPagination):
@@ -30,6 +31,7 @@ class GroupPagination(PageNumberPagination):
                 'previous': self.get_previous_link()
             },
             'count': self.page.paginator.count,
+            'user_table': user_table(self.request.user),
             'results': data,
         })
 
