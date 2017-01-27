@@ -234,6 +234,10 @@ $('#logout_button').on('click', function (e) {
         'Content-Type': 'application/json'
     })
 });
+$('.reset_hard_user').on('click', function (e) {
+    deleteCookie('hard_user_id');
+    window.location.reload();
+});
 
 $('.close_popup').on('click', function () {
     $(this).closest('.popap').css('display', 'none');
