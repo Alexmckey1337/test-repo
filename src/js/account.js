@@ -3,6 +3,11 @@ let id = getLastId();
     $('.b-red').on('click', function () {
         window.location.href = `/account_edit/${id}/`;
     });
+$('.hard-login').on('click', function () {
+    let user = $(this).data('user-id');
+    setCookie('hard_user_id', user, {path: '/'});
+    window.location.reload();
+});
     $("#tabs1 li").on('click', function () {
         let id_tab = $(this).attr('data-tab');
         $('[data-tab-content]').hide();

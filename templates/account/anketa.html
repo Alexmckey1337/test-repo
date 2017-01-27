@@ -26,6 +26,17 @@
             <button class="b-red">Редактировать</button>
         </li>
     {% endif %}
+    {% if request.real_user or request.user.is_superuser %}
+        {% if request.hard_user.id == account.id %}
+            <li>
+                <button class="reset_hard_user">Сбросить</button>
+            </li>
+        {% else %}
+            <li>
+                <button class="hard-login" data-user-id="{{ account.id }}">Войти как...</button>
+            </li>
+        {% endif %}
+    {% endif %}
 {% endblock %}
 
 {% block main.content %}
