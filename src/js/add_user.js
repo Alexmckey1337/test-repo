@@ -65,16 +65,22 @@
             $('#ui-datepicker-div').toggle();
         });
 
-        $("#bornDate").datepicker({yearRange: '1920:+0'}).mousedown(function () {
-            $('#ui-datepicker-div').toggle();
+        $("#bornDate").datepicker({
+            minDate: new Date(new Date().setFullYear(new Date().getFullYear() - 120)),
+            maxDate: new Date(),
+            dateFormat: 'yyyy-mm-dd'
         });
 
-        $("#firsVisit").datepicker().datepicker("setDate", new Date()).mousedown(function () {
-            $('#ui-datepicker-div').toggle();
+        $("#firsVisit").datepicker().datepicker({
+            dateFormat: 'yyyy-mm-dd',
+            maxDate: new Date(),
+            setDate: new Date()
         });
 
-        $("#repentanceDate").datepicker().mousedown(function () {
-            $('#ui-datepicker-div').toggle();
+        $("#repentanceDate").datepicker({
+            dateFormat: 'yyyy-mm-dd',
+            maxDate: new Date(),
+            setDate: new Date()
         });
 
         $('#partner').click(function () {
@@ -92,9 +98,6 @@
         makeChooseCountry.then(function (html) {
             document.getElementById('chooseCountry').innerHTML = html;
         });
-        // getCountries().then(function (data) {
-        //     console.log(data);
-        // });
 
         var makeChooseDepartment = getDepartments().then(function (data) {
             let results;
@@ -108,9 +111,6 @@
         makeChooseDepartment.then(function (html) {
             document.getElementById('chooseDepartment').innerHTML = html;
         });
-        // getDepartments().then(function (data) {
-        //     console.log(data);
-        // });
 
         makeChooseStatus.then(function (html) {
             document.getElementById('chooseStatus').innerHTML = html;
@@ -119,10 +119,6 @@
         makeChooseDivision.then(function (html) {
             document.getElementById('chooseDivision').innerHTML = html;
         });
-
-        // getDivisions().then(function (data) {
-        //     console.log(data);
-        // });
 
         var makeChooseManager = getManagers().then(function (data) {
             let html = '<option value=""> </option><option>Не выбрано</option>';
@@ -134,9 +130,6 @@
         makeChooseManager.then(function (html) {
             document.getElementById('chooseManager').innerHTML = html;
         });
-        // getManagers().then(function (data) {
-        //     console.log(data);
-        // });
         var makeChooseResponsibleStatus = getResponsibleStatuses().then(function (data) {
             data = data.results;
             let html = '<option value=""> </option><option>Не выбрано</option>';
@@ -399,15 +392,15 @@
         };
 
         if ($('#partner').prop('checked')) {
-            if(!$('#summa_partner').val()) {
+            if (!$('#summa_partner').val()) {
                 $('#summa_partner').css('border', '1px solid #d46a6a');
                 return
             }
-            if(!$('#chooseManager').val()) {
+            if (!$('#chooseManager').val()) {
                 $('#chooseManager').css('border', '1px solid #d46a6a');
                 return
             }
-            if(!$('#partnerFrom').val()) {
+            if (!$('#partnerFrom').val()) {
                 $('#partnerFrom').css('border', '1px solid #d46a6a');
                 return
             }

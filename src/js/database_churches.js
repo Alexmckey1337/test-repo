@@ -4,5 +4,6 @@
         let tmpl = $('#databaseUsers').html();
         let rendered = _.template(tmpl)(data);
         $('#tableChurches').html(rendered);
+        $('.preloader').css('display', 'none');
     })
 })(jQuery);

@@ -258,7 +258,7 @@
             <p><input type="text" id="region" value="<%=region %>"></p>
             <p><input type="text" id="city" value="<%=city %>"></p>
             <p><input type="text" id="address" value="<%=address %>"></p>
-            <p><input type="text" id="repentance_date" value="<%=repentance_date %>"></p>
+            <p><input type="text" id="repentance_date" value="<%=repentance_date.split('.').reverse().join('-') %>"></p>
         </div>
     </div>
 </script>

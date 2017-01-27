@@ -10,14 +10,14 @@
     </h1>
 {% endblock %}
 <div>
-{% block header.top.select %}
-    <select class="selectdb" id="dep_filter">
-        <option value="0">ВСЕ</option>
-        {% for department in departments %}
-            <option value="{{ department.id }}">{{ department.title }}</option>
-        {% endfor %}
-    </select>
-{% endblock %}
+    {% block header.top.select %}
+        <select class="selectdb" id="dep_filter">
+            <option value="0">ВСЕ</option>
+            {% for department in departments %}
+                <option value="{{ department.id }}">{{ department.title }}</option>
+            {% endfor %}
+        </select>
+    {% endblock %}
 </div>
 
 {% block header.buttons.filter %}
@@ -171,12 +171,9 @@
             </div>
             <div class="summa-wrap">
                 <div class="code">
-
                     <input placeholder="Номер пропуска" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                            type="text" id="code">
-
                     <input id="check" type="checkbox">
-
                 </div>
                 <div class="summa">
                     <p>Сумма:</p>
@@ -193,13 +190,13 @@
         </div>
     </div><!--End Pop-up-splash-->
     {% create_user_form %}
+
 {% endblock %}
 
 {% block extra_scripts %}
     <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
-    <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
-
-    <script src="{% static "js/add_user_summit.js" %}"></script>
+    <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
+    <script src="{% static "js/add_user.js" %}"></script>
     <script src="{% static "js/summits.js" %}"></script>
 
 {% endblock %}

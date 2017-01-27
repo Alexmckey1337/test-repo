@@ -178,7 +178,8 @@ $(document).ready(function () {
         });
 
         $('#add_new').on('click', function () {
-            $('.pop-up-splash-add').css('display', 'block');
+            $('#addNewUserPopup').css('display', 'block');
+            $(this).closest('#addUser').css('display', 'none');
         });
 
         $('#choose').on('click', function () {
@@ -410,34 +411,6 @@ function addSummitInfo() {
         })
     }
 }
-
-// function getCurrentSummitSetting(data) {
-//     let html = '';
-//     data.forEach(function (obj) {
-//         let titles = obj[1];
-//         html += '<h3>' + obj[0] + '</h3>';
-//         for (let prop in titles) {
-//             if (!titles.hasOwnProperty(prop)) continue;
-//             let ischeck = titles[prop]['active'] ? 'check' : '';
-//             let isdraggable = titles[prop]['editable'] ? 'draggable' : 'disable';
-//             html += '<li ' + isdraggable + ' >' +
-//                 '<input id="' + titles[prop]['ordering_title'] + '" type="checkbox">' +
-//                 '<label for="' + titles[prop]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[prop]['id'] + '">' + titles[prop]['title'] + '</label>';
-//             if (isdraggable == 'disable') {
-//                 html += '<div class="disable-opacity"></div>'
-//             }
-//             html += '</li>'
-//         }
-//     });
-//
-//     $('#sort-form').html(html);
-//
-//     $('#sort-form input').on('click', function () {
-//         if (!$(this).prop('disable')) {
-//             $(this).hasClass('check') ? $(this).removeClass('check') : $(this).addClass('check');
-//         }
-//     })
-// }
 
 function getCurrentSummitSetting(data) {
     console.log(data);
