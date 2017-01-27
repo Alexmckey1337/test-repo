@@ -1,0 +1,228 @@
+{% extends "layout_main.html" %}
+{% load static %}
+{% load partner_tags %}
+{% block header.top.h1 %}<h1 xmlns="http://www.w3.org/1999/html">Партнёрство</h1>{% endblock %}
+
+{% block header.buttons %}
+    <div class="top-panel">
+        <div class="tabs">
+            <ul class="nav tabs_link">
+                <li><a href="{% url 'partner-deals' %}">Сделки</a></li>
+                <li><a href="{% url 'partner-list' %}">Список партнёров</a></li>
+                <li><a href="{% url 'partner-stats' %}">Статистика</a></li>
+            </ul>
+        </div>
+
+        <div class="top-buttons-wrap">
+            <ul class="top-buttons">
+{#                <li>#}
+{#                    <button class="add" id="add_user_parners">Добавить пользователя</button>#}
+{#                </li>#}
+                {% comment %}
+            <li>
+                <button>Экспортировать</button>
+            </li>
+            {% endcomment %}
+                <li>
+                    <button id="sort-on">Изменить таблицу</button>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block main.content %}
+
+    {% get_simple_managers as managers %}
+    <div class="tab-content">
+
+        <div id="stats">
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-group">
+                        <div class='input-group date'>
+                            <input type='text' class="datepicker-here" id="date_field_stats"
+                                   data-min-view="months"
+                                   data-view="months"
+                                   data-date-format="mm/yyyy" placeholder="Выберите дату"/>
+                            <i class="fa fa-calendar-check-o" id="check-date" aria-hidden="true"></i>
+                        </div>
+                        {% if request.user.is_partner_supervisor_or_high %}
+                            <div class="input-group select">
+                                <select name="accountable" id="stats_manager">
+                                    <option value="0" selected disabled>Выберите менеджера</option>
+                                    {% for manager in managers %}
+                                        <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                                    {% endfor %}
+                                </select></div>
+                        {% endif %}
+                    </div>
+                    <button id="apply_date" type="button" class="btn btn-default"><i class="fa fa-check"
+                                                                                     aria-hidden="true"></i>Применить
+                    </button>
+                </div>
+            </div>
+            <div {% if request.user.is_partner_supervisor_or_high %} class="no_visible" {% endif %}
+                                                                         id="statistic_block">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Статистика партнеров</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="well"><span>Всего партнеров</span>
+                                    <p style="font-size:4em;text-align: center">
+                                        <span id="count_partners" class="label label-primary"></span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="grid_block">
+                                <div class="col-sm-4">
+                                    <div class="well"><span>Партнеров оплатило</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="paid_partners" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="well"><span>Партнеров частично оплатило</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="partial_paid_partners" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="well"><span>Партнеров не оплатило</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="unpaid_partners" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-success">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            Статистика сделок
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+
+                            <div class="col-sm-12">
+                                <div class="well">
+                                    <span>Всего сделок</span>
+                                    <p style="font-size:4em;text-align: center">
+                                        <span id="total_deals" class="label label-primary"></span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="grid_block">
+                                <div class="col-sm-6">
+                                    <div class="well">
+                                        <span>Оплаченных сделок</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="paid_deals" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="well"><span>Неоплаченных сделок</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="unpaid_deals" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid_block">
+                                <div class="col-sm-4">
+                                    <div class="well"><span>Запланированная сумма</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="planned_sum_deals" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="well"><span>Выполнено</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="paid_sum_deals" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="well"><span>% выполнения</span>
+                                        <p style="font-size:4em;text-align: center">
+                                            <span id="percent_paid_sum_deals" class="label label-primary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="well"><span>Сумма всех сделок за месяц</span>
+                                    <p style="font-size:4em;text-align: center">
+                                        <span id="sum_deals" class="label label-primary"></span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!--End stats -->
+    </div><!-- End tab-content-->
+{% endblock %}
+
+{% block popup %}
+    <div id="popup" class="pop-up-splash">
+        <div class="splash-screen">
+            <div class="top-text">
+                <h3>Завершить сделку</h3>
+            </div>
+            <div class="user-info">
+                <div class="left-side">
+                    <p>Клиент:</p>
+                    <p>Последняя сделка:</p>
+                    <p>Ответственный:</p>
+                </div>
+                <div class="right-side">
+                    <p id="client-name"></p>
+                    <p id="deal-date"></p>
+                    <p id="responsible-name"></p>
+                </div>
+            </div>
+            <div class="summa-wrap">
+                <div class="summa">
+                    <p>Сумма:</p>
+                    <!-- <span id="deal-value"></span> -->
+                    <input readonly="readonly" type="text" id="deal-value">
+                    <span id="changeSum" class="change-summ"></span>
+                </div>
+            </div>
+            <textarea placeholder="Добавить коментарий" id="deal-description"></textarea>
+            <div class="splash-bauttons">
+                <button id="close">Отменить</button>
+                <button id="complete">Завершить</button>
+            </div>
+        </div>
+    </div>
+    {{ block.super }}
+{% endblock %}
+
+{% block add_user_modal.buttons.create %}
+{% endblock %}
+
+{% block choose_user_modal.search_field %}
+    <input id="searchUsers" type="text" placeholder="Поиск (введите не менее трех символов)">
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
+    <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
+    <script src='{% static "js/deals.js" %}'></script>
+    <script src='{% static "js/stats.js" %}'></script>
+{% endblock %}
