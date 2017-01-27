@@ -1,7 +1,9 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
+
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.db.models import Count
 from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -9,13 +11,12 @@ from django.urls import reverse
 
 from account.models import CustomUser
 from account.permissions import CanAccountObjectRead, CanAccountObjectEdit
+from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
 from location.models import Country, Region, City
 from partnership.models import Partnership
 from status.models import Division
 from summit.models import SummitType
-from group.models import Church, HomeGroup
-from django.db.models import Count
 
 
 def entry(request):
@@ -175,6 +176,7 @@ def home_group_detail(request, group_id):
     }
     return render(request, 'group/home_group_detail.html', context=ctx)
 
+
 @login_required(login_url='entry')
 def people(request):
     user = request.user
@@ -191,6 +193,7 @@ def people(request):
     else:
         ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
     return render(request, 'database/people.html', context=ctx)
+
 
 @login_required(login_url='entry')
 def index(request):
