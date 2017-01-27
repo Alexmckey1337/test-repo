@@ -1,12 +1,11 @@
 (function ($) {
     "use strict";
 
-    function updateUser(data) {
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/create_user/', data, function (data) {
-
+    function updateUser(data, id) {
+        ajaxRequest(config.DOCUMENT_ROOT + `api/v1.1/users/${id}/`, data, function (data) {
+            console.log(data);
             let send_image = true;
-
-            if (data.redirect && send_image) {
+            if (send_image) {
                 try {
                     let fd = new FormData(),
                         blob;
@@ -14,13 +13,13 @@
                     if (!$('input[type=file]')[0].files[0]) {
                         blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
                         fd.append('file', blob);
-                        fd.append('id', data.id)
+                        fd.append('id', id)
                     } else {
                         blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
                         sr = $('input[type=file]')[0].files[0];
                         fd.append('file', blob);
                         fd.set('source', $('input[type=file]')[0].files[0], 'photo.jpg');
-                        fd.append('id', data.id)
+                        fd.append('id', id)
                     }
                     let xhr = new XMLHttpRequest();
                     xhr.withCredentials = true;
@@ -28,7 +27,7 @@
                     xhr.onreadystatechange = function () {
                         if (xhr.readyState == 4) {
                             if (xhr.status == 200) {
-                                window.location.href = '/account/' + data.id;
+                                window.location.href = '/account/' + id;
                             }
                         }
                     };
@@ -37,7 +36,7 @@
                     console.log(err);
                 }
             }
-        }, 'POST', true, {
+        }, 'PUT', true, {
             'Content-Type': 'application/json'
         });
     }
@@ -124,32 +123,14 @@
                 $('#partner').prop('disabled', true);
             }
             $("#datepicker_born_date").datepicker({
-                dateFormat: "yy-mm-dd",
+                dateFormat: "yyyy-mm-dd",
                 maxDate: new Date(),
-                yearRange: '1920:+0',
-                onSelect: function (date) {
-                }
-            }).datepicker("setDate", data.born_date).mousedown(function () {
-                $('#ui-datepicker-div').toggle();
             });
 
-            $("#firsVisit").datepicker({
-                dateFormat: "yy-mm-dd",
-                maxDate: new Date(),
-                yearRange: '1920:+0',
-                onSelect: function (date) {
-
-                }
-            }).datepicker("setDate", data.coming_date);
-
             $("#repentanceDate").datepicker({
-                dateFormat: "yy-mm-dd",
-                maxDate: new Date(),
-                yearRange: '1920:+0',
-                onSelect: function (date) {
-
-                }
-            }).datepicker("setDate", data.repentance_date);
+                dateFormat: "yyyy-mm-dd",
+                maxDate: new Date()
+            });
 
             initializeCountry();
 
@@ -503,7 +484,6 @@
             return
         }
         let data = {
-            "id": id,
             "first_name": $("#first_name").val(),
             "last_name": $("#last_name").val(),
             "middle_name": $("#middle_name").val(),
@@ -513,7 +493,7 @@
             "phone_number": $("#phone_number").val(),
             "additional_phone": $("#additional_phone").val(),
             "born_date": $("#datepicker_born_date").val() || '',
-            "repentance_date": $("input[name='repentance_date']").val() || '',
+            "repentance_date": $("input[name='repentance_date']").val() || null,
             "country": $('#country_drop option:selected').html() == "Не выбрано" ? '' : $('#country_drop option:selected').html(),
             "region": $('#region_drop option:selected').html() == "Не выбрано" ? '' : $('#region_drop option:selected').html(),
             "city": $('#town_drop option:selected').html() == "Не выбрано" ? '' : $('#town_drop option:selected').html(),
@@ -540,7 +520,7 @@
             data['remove_partnership'] = 'true'; //gavnocod vlada
         }
         let json = JSON.stringify(data);
-        updateUser(json);
+        updateUser(json, id);
     }
 })(jQuery);
 
