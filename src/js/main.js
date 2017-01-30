@@ -74,7 +74,6 @@ function makeResponsibleList() {
         if(!id) {
             id = $('#master_hierarchy option').attr('data-id');
         }
-        console.log(id);
         var selected = false;
         var html = "";
         data.forEach(function (el) {
@@ -191,7 +190,7 @@ function makeQuickEditCart(el) {
         $('#hierarchySelect').on('change', makeResponsibleList);
 
         $("#repentance_date").datepicker({
-            dateFormat: "yy-mm-dd"
+            dateFormat: "yyyy-mm-dd"
         })
     }, 'GET', true, {
         'Content-Type': 'application/json'

@@ -3,7 +3,7 @@ $(document).ready(function () {
         create_summit_buttons('summits');
     }
 
-    $('body').on('click', '#summit_buttons li', function () {
+    $('#summit_buttons li').on('click', function () {
         $(this).addClass('active');
         let summit_id = $(this).attr('data-id');
         createSummits({'summit': summit_id});
@@ -178,7 +178,8 @@ $(document).ready(function () {
         });
 
         $('#add_new').on('click', function () {
-            $('.pop-up-splash-add').css('display', 'block');
+            $('#addNewUserPopup').css('display', 'block');
+            $(this).closest('#addUser').css('display', 'none');
         });
 
         $('#choose').on('click', function () {
@@ -388,7 +389,7 @@ function addSummitInfo() {
         list = carousel.find('ul'),
         listElems = carousel.find('li'),
         position = 0;
-    carousel.find('.arrow-left').on('click', function () {
+        carousel.find('.arrow-left').on('click', function () {
         position = Math.min(position + width * count, 0);
         $(list).css({
             marginLeft: position + 'px'
@@ -411,34 +412,6 @@ function addSummitInfo() {
     }
 }
 
-// function getCurrentSummitSetting(data) {
-//     let html = '';
-//     data.forEach(function (obj) {
-//         let titles = obj[1];
-//         html += '<h3>' + obj[0] + '</h3>';
-//         for (let prop in titles) {
-//             if (!titles.hasOwnProperty(prop)) continue;
-//             let ischeck = titles[prop]['active'] ? 'check' : '';
-//             let isdraggable = titles[prop]['editable'] ? 'draggable' : 'disable';
-//             html += '<li ' + isdraggable + ' >' +
-//                 '<input id="' + titles[prop]['ordering_title'] + '" type="checkbox">' +
-//                 '<label for="' + titles[prop]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[prop]['id'] + '">' + titles[prop]['title'] + '</label>';
-//             if (isdraggable == 'disable') {
-//                 html += '<div class="disable-opacity"></div>'
-//             }
-//             html += '</li>'
-//         }
-//     });
-//
-//     $('#sort-form').html(html);
-//
-//     $('#sort-form input').on('click', function () {
-//         if (!$(this).prop('disable')) {
-//             $(this).hasClass('check') ? $(this).removeClass('check') : $(this).addClass('check');
-//         }
-//     })
-// }
-
 function getCurrentSummitSetting(data) {
     console.log(data);
     let sortFormTmpl, obj, rendered;
@@ -450,167 +423,46 @@ function getCurrentSummitSetting(data) {
     document.getElementById('sort-form').innerHTML = rendered;
 }
 
-function reversOrder(order) {
-    if (order.charAt(0) == '-') {
-        order = order.substring(1)
-    } else {
-        order = '-' + order
-    }
-    return order
-}
-
 function getUsersList(path, param) {
     param = param || {};
     let search = document.getElementsByName('fullsearch')[0].value;
+    param.search = search;
     let el = document.getElementById('dep_filter');
     let value = el.options[el.selectedIndex].value;
     if (parseInt(value)) {
         param['user__department__title'] = el.options[el.selectedIndex].text;
     }
-    let ordering = param.ordering || 'user__last_name';
     param['summit'] = summit_id;
-    document.getElementsByClassName('preloader')[0].style.display = 'block';
+    $('.preloader').css('display', 'block');
     ajaxRequest(path, param, function (data) {
-        let results = data.results;
-        let k;
-        let value;
+        console.log(data);
+        let filter_data = {};
+        filter_data.results  =  data.results.map(function (item) {
+            return item.user;
+        });
+        console.log(filter_data);
+        filter_data.user_table = data.user_table;
+        console.log(filter_data);
+
+        // getCurrentSummitSetting([['Пользователь', user_fields]]);
         let count = data.count;
-        if (results.length == 0) {
-            $('#users_list').html('<p>По запросу не найдено учасников</p>');
-            $(".element-select").html('<p>Показано <span>' + results.length + '</span> из <span>' + count + '</span></p>');
-            $('.preloader')[0].css('display', 'none');
-            $(".pag-wrap").each(function (i, el) {
-                el.html('');
-            });
-            return;
-        }
-
-        let common_fields = data.common_table;
-        let user_fields = data.user_table;
-
-        getCurrentSummitSetting([['Пользователь', user_fields]]);
-
-        let thead = '<thead><tr>';
-        for (k in user_fields) {
-            if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
-            if (ordering.indexOf('user__' + user_fields[k]['ordering_title']) != -1) {
-                thead += '<th data-order="' + ordering + '">' + user_fields[k]['title'] + '</th>'
-            } else {
-                thead += '<th data-order="user__' + user_fields[k]['ordering_title'] + '">' + user_fields[k]['title'] + '</th>'
-            }
-        }
-        for (k in common_fields) {
-            if (!common_fields.hasOwnProperty(k) || !common_fields[k].active) continue;
-            if (ordering.indexOf(common_fields[k]['ordering_title']) != -1) {
-                thead += '<th data-order="' + ordering + '">' + common_fields[k]['title'] + '</th>'
-            } else {
-                thead += '<th data-order="' + common_fields[k]['ordering_title'] + '">' + common_fields[k]['title'] + '</th>'
-            }
-        }
-        thead += '</tr></thead>';
-
-        let tbody = '<tbody>';
-        results.forEach(function (field, i) {
-            tbody += '<tr>';
-
-            for (k in user_fields) {
-                if (!user_fields.hasOwnProperty(k) || !user_fields[k].active) continue;
-                value = getCorrectValue(field['user'][k]);
-                if (k === 'fullname') {
-                    // results[i].is_member
-                    tbody += '<td';
-                    let classes = [];
-                    if (results[i].is_member) {
-                        classes = classes.concat('member_user')
-                    }
-                    if (results[i].emails.length > 0) {
-                        classes = classes.concat('email_is_send')
-                    }
-                    if (classes.length > 0) {
-                        tbody += ' class="' + classes.join(' ') + '"';
-                    }
-                    tbody += '>' + '<a href="' + results[i].user.link + '">' + value + '</a><span title="Удалить анкету" data-fullname="' + results[i].user.fullname + '" data-user-id="' + results[i].user.id + '" data-anketId="' + results[i].id +
-                        '"" data-value="' + results[i].total_sum +
-                        '" data-comment="' + results[i].description + '" data-member="' + results[i].is_member + '" class="del"></span></td>'
-                } else if (k === 'social') {
-                    tbody += '<td>';
-                    if (results[i].user.skype) {
-                        tbody += '<a href="skype:' + results[i].user.skype + '?chat"><i class="fa fa-skype"></i></a>';
-                    }
-                    if (results[i].user.vkontakte) {
-                        tbody += '<a href="' + results[i].user.vkontakte + '"><i class="fa fa-vk"></i></a>';
-                    }
-                    if (results[i].user.facebook) {
-                        tbody += '<a href="' + results[i].user.facebook + '"><i class="fa fa-facebook"></i></a>';
-                    }
-                    if (results[i].user.odnoklassniki) {
-                        tbody += '<a href="' + results[i].user.odnoklassniki + '"><i class="fa fa-odnoklassniki" aria-hidden="true"></i></a>';
-                    }
-                    tbody += '</td>';
-                } else {
-                    tbody += '<td>' + value + '</td>'
-                }
-            }
-            for (k in common_fields) {
-                if (!common_fields.hasOwnProperty(k) || !common_fields[k].active) continue;
-                value = getCorrectValue(field[k]);
-                if (k == 'code') {
-                    tbody += '<td><a href="/api/v1.0/generate_code/' + results[i].user.fullname + ' (' + value + ').pdf?code=' + value + '">' + value + '</a></td>'
-                } else if (k == 'value') {
-                    tbody += '<td><a href="#" class="show_payments" data-anketId="' + results[i].id + '">' + results[i].total_sum + '</a> <a href="#" class="create_payment" data-anketId="' + results[i].id + '">Pay</a></td>'
-                } else {
-                    tbody += '<td>' + value + '</td>'
-                }
-            }
-            tbody += '</tr>';
-        });
-        tbody += '</tbody>';
-
-        let table = '<table>' + thead + tbody + '</table>';
-
-        let page = parseInt(param['page']) || 1,
-            pages = Math.ceil(count / CONFIG.pagination_count),
-            paginations = '',
-            elementSelect = '<p>Показано <span>' + results.length + '</span> из <span>' + count + '</span></p>';
-        if (page > 1) {
-            paginations += '<div class="prev"><span class="arrow"></span></div>';
-        }
-        if (pages > 1) {
-            paginations += '<ul class="pag">';
-
-            if (page > 4) {
-                paginations += '<li>1</li><li class="no-pagin">&hellip;</li>'
-            }
-            for (let j = page - 2; j < page + 3; j++) {
-                if (j == page) {
-                    paginations += '<li class="active">' + j + '</li>'
-                } else {
-                    if (j > 0 && j < pages + 1) {
-                        paginations += '<li>' + j + '</li>'
-                    }
-                }
-
-            }
-            if (page < pages - 3) {
-                paginations += '<li class="no-pagin">&hellip;</li>'
-
-                if (page < pages - 3) {
-                    paginations += '<li>' + pages + '</li>'
-                }
-            }
-            paginations += '</ul>'
-        }
-
-        if (page < pages) {
-            paginations += '</ul><div class="next"><span class="arrow"></span></div>'
-        }
-
-        $('#users_list').html(table);
-        $(".element-select").html(elementSelect);
-        $('.preloader').css('display', 'none');
-        $(".pag-wrap").each(function (i, el) {
-            $(el).html(paginations);
-        });
+            let page = 1;
+            let pages = Math.ceil(count / CONFIG.pagination_count);
+            let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+            let id = "users_list";
+            let text = `Показано ${showCount} из ${count}`;
+            let paginationConfig = {
+                container: ".users__pagination",
+                currentPage: page,
+                pages: pages,
+                callback: createUsersTable
+            };
+            makeDataTable(filter_data, id);
+            makePagination(paginationConfig);
+            $('.table__count').text(text);
+            makeSortForm(data.user_table);
+            $('.preloader').css('display', 'none');
+            // orderTable.sort(createUsersTable);
         $('.create_payment').on('click', function (el) {
             let id = $(this).attr('data-anketId');
             $('#complete-payment').attr('data-id', id);

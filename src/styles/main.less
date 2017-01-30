@@ -3672,59 +3672,67 @@ span.green {
   min-width: 1060px;
   overflow: hidden;
   height: 95%;
-}
-
-.editprofile .anketa-photo {
-  position: static;
-  margin: 5px auto;
-}
-
-.editprofile .col-1 button {
-  background-color: #3caeda;
-  position: relative;
-  margin-top: 15px;
-  transition: all .2s ease;
-}
-
-.editprofile .col-1 button:hover {
-  background-color: #3CAEAE;
-}
-
-.editprofile .col-1 button::before {
-  height: 17px;
-  background: url('../img/download.png');
-}
-
-.editprofile .col-1 .butt-wrap button {
-  padding-left: 45px;
-}
-
-.editprofile .left-info {
-  width: 40%;
-}
-
-.editprofile .right-info {
-  width: 60%;
-}
-
-.editprofile .right-info ul {
-  padding-left: 25px;
-  overflow: hidden;
-}
-
-.editprofile .splash-bauttons .close {
-  padding-left: 45px;
-}
-
-.editprofile .splash-bauttons .close:after {
-  display: block;
-  content: '';
-  position: absolute;
-  top: 11px;
-  left: 12px;
-  width: 19px;
-  height: 19px;
-  background: url(../img/events.png) 2px 0 no-repeat;
+  & .anketa-photo {
+    position: static;
+    margin: 5px auto;
+  }
+  & .col-1 {
+    & button {
+      background-color: #3caeda;
+      position: relative;
+      margin-top: 15px;
+      transition: all .2s ease;
+      &:hover {
+        background-color: #3CAEAE;
+      }
+      &:before {
+        height: 17px;
+        background: url('../img/download.png');
+      }
+    }
+    & .butt-wrap {
+      & button {
+        padding-left: 45px;
+      }
+    }
+  }
+  & .left-info {
+    width: 40%;
+  }
+  & .right-info {
+    width: 60%;
+    & ul {
+      padding-left: 25px;
+      overflow: hidden;
+    }
+  }
+  & .splash-bauttons {
+    & .close {
+      padding-left: 45px;
+      &:after {
+        display: block;
+        content: '';
+        position: absolute;
+        top: 11px;
+        left: 12px;
+        width: 19px;
+        height: 19px;
+        background: url(../img/events.png) 2px 0 no-repeat;
+      }
+    }
+  }
+  & select, & input {
+    width: 96% !important;
+    padding: 6px;
+    border-radius: 3px;
+    border: 1px solid #cdd0d4;
+    font-family: "UbuntuBold", sans-serif;
+    height: 35px;
+    box-sizing: border-box;
+    &:read-only {
+      border-color: #cdd0d4;
+    }
+  }
 }
 
 .columns-wrap {
@@ -3732,6 +3740,29 @@ span.green {
   overflow-y: auto;
   margin-top: 20px;
   padding-bottom: 20px;
+}
+
+#addChurch {
+  .container {
+    & > div:first-of-type {
+      & p {
+        text-align: right;
+      }
+    }
+    & > div {
+      & p {
+        height: 35px;
+        text-align: left;
+        font-size: 1.2em;
+        line-height: 1.5em;
+        margin-bottom: .5em;
+        &.end__block {
+          margin-bottom: 2em;
+        }
+      }
+
+    }
+  }
 }
 
 .col-1 {
@@ -3782,17 +3813,6 @@ span.green {
 
 .editprofile .right-info ul li {
   margin-top: 5px;
-}
-
-.editprofile select,
-.editprofile input {
-  width: 96% !important;
-  padding: 6px;
-  border-radius: 3px;
-  border: 1px solid #cdd0d4;
-  font-family: "UbuntuBold", sans-serif;
-  height: 35px;
-  box-sizing: border-box;
 }
 
 .editprofile select {

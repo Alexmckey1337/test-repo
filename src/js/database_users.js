@@ -54,10 +54,6 @@ $('document').ready(function () {
         $select.each(function () {
             $(this).removeAttr('disabled');
         });
-
-        $("#repentance_date").datepicker({
-            dateFormat: "yy-mm-dd"
-        })
     });
 
 });

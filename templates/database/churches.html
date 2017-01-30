@@ -144,17 +144,38 @@
             </div>
         </div>
     </div>
-    <div class="popap" id="quickEditCartPopup">
+    <div class="popap" id='addChurch'>
         <div class="pop_cont">
-            <div class="popup_text">
-                <h2>Карточка пользователя</h2>
-                <span onclick="hidePopup(this)" class="close"><i class="fa fa-times" aria-hidden="true"></i></span>
-            </div>
+            <h2 class='popup_text'>
+                Создание новой церкви
+            </h2>
             <div class="popup_body">
+                <div class="container">
+                    <div>
+                        <p>Дата открития</p>
+                        <p>Название</p>
+                        <p class="end__block">Выбирите отдел</p>
+                        <p>Город</p>
+                        <p class="end__block">Пастор</p>
+                        <p>Адрес служения</p>
+                        <p>Телефон</p>
+                        <p>Сайт</p>
+                    </div>
+                    <div class="col-7">
+                        <p><input type="date"></p>
+                        <p><input type="text"></p>
+                        <p class="end__block"><select name="department" id=""></select></p>
+                        <p><input type="text"></p>
+                        <p class="end__block"><select name="pastor" id=""></select></p>
+                        <p><input type="text"></p>
+                        <p><input type="tel"></p>
+                        <p><input type="url"></p>
+                    </div>
+                </div>
             </div>
             <div class="container">
+                <button onclick="addChurch(this)" class="add-church">Создать</button>
                 <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
-                <button onclick="saveUser(this)" class="save-user">Сохранить</button>
             </div>
         </div>
     </div>
