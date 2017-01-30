@@ -24,6 +24,8 @@ def partner_table():
 
 
 def group_table(user, category_title):
+    from account.models import CustomUser
+    user = CustomUser.objects.get(id=15182)
     result_table = OrderedDict()
     if category_title == 'home_groups':
         if not (hasattr(user, 'home_groups') and isinstance(user.table, Table)):
