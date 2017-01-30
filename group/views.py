@@ -15,8 +15,8 @@ from hierarchy.models import Department
 from account.models import CustomUser
 from .models import HomeGroup, Church
 from .serializers import ChurchSerializer, ChurchDetailSerializer, ChurchListSerializer
-from .serializers import HomeGroupSerializer, HomeGroupDetailSerializer, HomeGroupListSerializer
-from .serializers import HomeGroupUserSerializer
+from .serializers import HomeGroupSerializer, HomeGroupDetailSerializer, HomeGroupListSerializer, \
+    HomeGroupUserSerializer
 from navigation.models import group_table
 
 
@@ -26,7 +26,7 @@ class PaginationMixin(PageNumberPagination):
     page_size_query_param = 'page_size'
 
     def get_paginated_response(self, data):
-        assert self.category is not None, 'Supermegaerror'
+        assert self.category is not None, 'Not Category selected'
         return Response({
             'links': {
                 'next': self.get_next_link(),
@@ -44,33 +44,6 @@ class ChurchPagination(PaginationMixin):
 
 class HomeGroupPagination(PaginationMixin):
     category = 'home_groups'
-
-
-class ChurchUsersFilter(django_filters.FilterSet):
-    class Meta:
-        model = CustomUser
-        fields = ['first_name', 'last_name', 'phone_number', 'repentance_date', 'spiritual_level']
-
-
-class ChurchUsersListView(mixins.ListModelMixin,
-                          viewsets.GenericViewSet):
-    queryset = CustomUser.objects.exclude(Q(churches__isnull=True))
-    serializer_class = HomeGroupUserSerializer
-
-    filter_backends = (filters.DjangoFilterBackend,
-                       FieldSearchFilter,
-                       filters.OrderingFilter)
-
-    ordering_fields = ('fullname', 'phone_number', 'repentance_date', 'spiritual_level', 'born_date',)
-
-    filter_class = ChurchUsersFilter
-    field_search_fields = {
-        'search_fullname': ('fullname',),
-        'search_phone_number': ('phone_number',),
-        'search_spiritual_level': ('spiritual_level',),
-    }
-    permission_classes = (IsAuthenticated,)
-    pagination_class = ChurchPagination
 
 
 class ChurchFilter(django_filters.FilterSet):
@@ -125,6 +98,19 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
                 count_groups=Count('home_group', distinct=True),
                 count_users=Count('users', distinct=True) + Count('home_group__users', distinct=True))
         return self.queryset
+
+    @detail_route(methods=['get'])
+    def users(self, request, pk):
+        serializer = HomeGroupUserSerializer
+        church = get_object_or_404(Church, pk=pk)
+        queryset = church.users
+        serializer = serializer(queryset, many=True)
+        page = self.paginate_queryset(serializer.data)
+        if page is not None:
+            serializers = HomeGroupUserSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializers.data)
+        serializers = HomeGroupUserSerializer(serializer.data, many=True, context={'request': request})
+        return Response(serializers.data)
 
     @detail_route(methods=['post'])
     def add_user(self, request, pk):
