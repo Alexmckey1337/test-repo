@@ -1,6 +1,6 @@
 {% extends "layout_main.html" %}
 {% load static %}
-
+{% load summit_tags %}
 {% block body_id %} id="database"{% endblock %}
 
 {% block header.top.h1 %}<h1>База данных</h1>{% endblock %}
@@ -14,10 +14,14 @@
 
 {% endblock %}
 
-{% block create_user %}
-    {% include 'partials/create_user.html' %}
-{% endblock %}
+{#{% block create_user %}#}
+{#    {% include 'partials/create_user.html' %}#}
+{#{% endblock %}#}
+
+
 {% block popup %}
+    {% create_user_form %}
+
     <div class="popap" id='filterPopup'>
         <div class="pop_cont">
             <h2 class='popup_text'>

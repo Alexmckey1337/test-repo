@@ -30,7 +30,10 @@ function saveUserData(data, id) {
         });
     }
 }
-
+function addChurch(el) {
+    console.log('added');
+    hidePopup(el)
+}
 function getCountryCodes() {
     return new Promise(function (resolve, reject) {
         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
