@@ -5,6 +5,7 @@ import datetime
 from collections import OrderedDict
 from datetime import date
 
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Sum
 from django.db.models import signals
@@ -245,7 +246,7 @@ def sync_week(sender, instance, **kwargs):
     from .create import create_events
     from .utils import create_week_reports
     create_events(instance)
-    create_week_reports(instance.id)
+    create_week_reports(instance)
 
 
 @receiver(signals.post_save, sender=Participation)
@@ -259,3 +260,62 @@ def sync_participation(sender, instance, **kwargs):
     #     # week_report.get_home()
     # except WeekReport.DoesNotExist:
     #     pass
+
+
+@python_2_unicode_compatible
+class MeetingType(models.Model):
+    name = models.CharField(_('Name'), max_length=255)
+    code = models.SlugField(_('Code'), max_length=255, unique=True)
+    image = models.ImageField(_('Image'), upload_to='images/meeting_type/', blank=True)
+
+    class Meta:
+        verbose_name = _('Meeting type')
+        verbose_name_plural = _('Meeting types')
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('meeting_type-detail', kwargs={'code': self.code})
+
+
+@python_2_unicode_compatible
+class Meeting(models.Model):
+    type = models.ForeignKey(MeetingType, on_delete=models.PROTECT, verbose_name=_('Meeting type'))
+    date = models.DateField(_('Date'))
+
+    owner = models.ForeignKey('account.CustomUser', limit_choices_to={'hierarchy__level': 1})
+    visitors = models.ManyToManyField('account.CustomUser', through='event.MeetingAttend',
+                                      related_name='meeting_types', verbose_name=_('Visitors'))
+    total_sum = models.DecimalField(_('Total sum'), max_digits=12, decimal_places=0, default=0)
+
+    class Meta:
+        ordering = ('owner', '-date')
+        verbose_name = _('Meeting')
+        verbose_name_plural = _('Meetings')
+
+    def __str__(self):
+        return '{}: {}'.format(self.type.name, self.date.strftime('%d %B %Y'))
+
+
+@python_2_unicode_compatible
+class MeetingAttend(models.Model):
+    user = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT,
+                             related_name='attends', verbose_name=_('User'))
+    meeting = models.ForeignKey('event.Meeting', on_delete=models.PROTECT,
+                                related_name='attends', verbose_name=_('Meeting'))
+
+    attended = models.BooleanField(_('Attended'), default=False)
+
+    note = models.TextField(_('Note'), blank=True)
+
+    class Meta:
+        ordering = ('meeting__owner', '-meeting__date')
+        verbose_name = _('Meeting attend')
+        verbose_name_plural = _('Meeting attendees')
+
+    def __str__(self):
+        return '[{}] {} — visitor of {}'.format(
+            'X' if self.attended else ' ',
+            self.user,
+            self.meeting)

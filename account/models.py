@@ -93,6 +93,9 @@ class CustomUser(MPTTModel, User):
     def get_absolute_url(self):
         return '/account/{}/'.format(self.id)
 
+    def get_descendant_leaders(self):
+        return self.get_descendants().filter(hierarchy__level=1)
+
     @property
     def link(self):
         return self.get_absolute_url()

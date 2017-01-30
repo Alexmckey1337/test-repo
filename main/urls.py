@@ -25,6 +25,9 @@ urlpatterns = [
                   url(r'^partner/list/$', views.partner, name='partner-list'),
                   url(r'^partner/deals/$', views.deals, name='partner-deals'),
                   url(r'^partner/stats/$', views.stats, name='partner-stats'),
+                  url(r'^meeting_types/$', views.meeting_types, name='meeting_type-list'),
+                  url(r'^meeting_types/(?P<code>[-_\w]+)/$', views.meeting_type_detail, name='meeting_type-detail'),
+                  url(r'^meeting_types/(?P<code>[-_\w]+)/report/$', views.meeting_report, name='meeting-report'),
                   url(r'^account/([0-9]+)/$', views.account, name='account'),
                   url(r'^account_edit/([0-9]+)/$', views.account_edit, name='account_edit'),
                   url(r'^reports/$', views.reports, name='reports'),
@@ -42,4 +45,4 @@ urlpatterns = [
                   url(r'^event_info/$', views.event_info, name='event_info'),
                   url(r'^password_view/(?P<activation_key>\w+)/$', views.edit_pass, name='password_view'),
 
-            ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

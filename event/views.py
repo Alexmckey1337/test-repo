@@ -2,18 +2,50 @@
 from __future__ import unicode_literals
 
 import django_filters
+from django.db import transaction, IntegrityError
 from django.utils import six
+from rest_framework import status
 from rest_framework import viewsets, filters
 from rest_framework.decorators import api_view
 from rest_framework.decorators import list_route
+from rest_framework.generics import CreateAPIView, get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework import mixins
 
+from account.models import CustomUser
 from account.pagination import ShortPagination
 from navigation.models import event_table
-from .models import Participation, Event, EventAnket, EventType
-from .serializers import ParticipationSerializer, EventSerializer, EventTypeSerializer, EventAnketSerializer
+from .models import Participation, Event, EventAnket, EventType, MeetingAttend, Meeting
+from .serializers import ParticipationSerializer, EventSerializer, EventTypeSerializer, EventAnketSerializer, \
+    MeetingSerializer
+
+
+class MeetingPagination(PageNumberPagination):
+    page_size = 30
+    page_size_query_param = 'page_size'
+
+    def get_paginated_response(self, data):
+        return Response({
+            'links': {
+                'next': self.get_next_link(),
+                'previous': self.get_previous_link()
+            },
+            'count': self.page.paginator.count,
+            'results': data
+        })
+
+
+class MeetingViewSet(mixins.RetrieveModelMixin,
+                     mixins.UpdateModelMixin,
+                     mixins.CreateModelMixin,
+                     mixins.ListModelMixin,
+                     viewsets.GenericViewSet):
+    queryset = Meeting.objects.all()
+    serializer_class = MeetingSerializer
+
+    permission_classes = (IsAuthenticated,)
 
 
 class ParticipationPagination(PageNumberPagination):
@@ -128,3 +160,34 @@ def update_participation(request):
             response_dict['message'] = "Участие не существует."
             response_dict['status'] = False
     return Response(response_dict)
+
+
+class CreateMeetingView(CreateAPIView):
+    serializer_class = MeetingSerializer
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        owner = get_object_or_404(CustomUser, id=data.get('owner'))
+        owner_users_id = list(owner.get_children().values_list('id', flat=True))
+        meeting_attend = data.pop('users')
+        meeting_users_id = [int(a['user']) for a in meeting_attend]
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+
+        valid_attend = [a for a in meeting_attend if int(a['user']) in owner_users_id]
+        for user_id in owner_users_id:
+            if user_id not in meeting_users_id:
+                valid_attend.append({'user': user_id, 'attended': False, 'note': ''})
+
+        try:
+            with transaction.atomic():
+                meeting = serializer.save()
+                MeetingAttend.objects.bulk_create([MeetingAttend(
+                    user_id=attend['user'], meeting_id=meeting.id, attended=attend['attended'],
+                    note=attend['note']) for attend in valid_attend])
+        except IntegrityError:
+            data = {'message': 'При сохранении возникла ошибка. Попробуйте еще раз.'}
+            return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

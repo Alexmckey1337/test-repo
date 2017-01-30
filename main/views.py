@@ -10,6 +10,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 
 from account.models import CustomUser
+from event.models import MeetingType
+from hierarchy.models import Department
 from account.permissions import CanAccountObjectRead, CanAccountObjectEdit
 from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
@@ -30,6 +32,34 @@ def edit_pass(request, activation_key=None):
 @login_required(login_url='entry')
 def events(request):
     return render(request, 'event/events.html')
+
+
+@login_required(login_url='entry')
+def meeting_types(request):
+    ctx = {
+        'meeting_types': MeetingType.objects.all(),
+    }
+    return render(request, 'event/meeting_types.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def meeting_type_detail(request, code):
+    ctx = {
+        'meeting_type': get_object_or_404(MeetingType, code=code),
+    }
+    return render(request, 'event/meeting_type_detail.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def meeting_report(request, code):
+    if not request.user.hierarchy or request.user.hierarchy.level < 1:
+        return redirect('/')
+    ctx = {
+        'meeting_type': get_object_or_404(MeetingType, code=code),
+    }
+    if request.user.hierarchy.level > 1:
+        ctx['leaders'] = request.user.get_descendant_leaders()
+    return render(request, 'event/meeting_create_report.html', context=ctx)
 
 
 @login_required(login_url='entry')

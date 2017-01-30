@@ -80,6 +80,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('group', '0002_auto_20170120_1046'),
+        ('navigation', '0002_auto_20160922_1056')
     ]
 
     operations = [
