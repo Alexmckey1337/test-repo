@@ -13,8 +13,10 @@ from main import views
 def redirect_to_deals(request):
     return redirect(reverse('partner-deals'))
 
+
 def redirect_to_churches(request):
     return redirect(reverse('churches'))
+
 
 urlpatterns = [
                   url(r'^entry/$', views.entry, name='entry'),

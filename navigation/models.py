@@ -42,8 +42,6 @@ def church_table(user):
 
 
 def home_group_table(user):
-    from account.models import CustomUser
-    user = CustomUser.objects.get(id=15195)
     result_table = OrderedDict()
     if not (hasattr(user, 'home_groups') and isinstance(user.table, Table)):
         return result_table
