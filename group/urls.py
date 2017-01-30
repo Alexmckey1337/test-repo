@@ -8,7 +8,6 @@ from group import views
 
 router_v1_0 = routers.DefaultRouter()
 router_v1_0.register(r'churches', views.ChurchViewSet)
-router_v1_0.register(r'churches_users', views.ChurchUsersListView)
 router_v1_0.register(r'home_groups', views.HomeGroupViewSet)
 
 urlpatterns = [
