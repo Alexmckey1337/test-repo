@@ -1,5 +1,8 @@
+from datetime import date, datetime
 from decimal import Decimal
+from json import dumps
 
+from channels import Group
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions
@@ -83,6 +86,13 @@ class CreatePaymentMixin(PaymentCheckPermissionMixin):
         serializer = self.show_payment_serializer(payment)
 
         headers = get_success_headers(serializer.data)
+
+        data = {
+            'user_id': request.user.id,
+            'editor_name': request.user.fullname,
+            'sum': payment.effective_sum_str,
+        }
+        Group("payments_{}".format(purpose.user.id)).send({'text': dumps(data)})
 
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 

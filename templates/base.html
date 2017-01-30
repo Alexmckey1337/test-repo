@@ -269,5 +269,22 @@
         </div>
     </div>
 </script>
+{% block ws %}
+    <script src="https://cdn.rawgit.com/alertifyjs/alertify.js/v1.0.10/dist/js/alertify.js"></script>
+
+    <script>
+        socket = new WebSocket("ws://" + window.location.host + "/ws/user/{{ request.user.id }}/");
+        socket.onmessage = function (e) {
+            var data = JSON.parse(e.data);
+            if (true || +data.user_id != {{ request.user.id }}) {
+                var message_text = data.editor_name + ' создал платеж на ' + data.sum;
+                alertify.logPosition("bottom right");
+                alertify.delay(30000).maxLogItems(10).closeLogOnClick(true).log(message_text);
+            }
+        };
+        socket.onopen = function () {
+        };
+    </script>
+{% endblock %}
 </body>
 </html>

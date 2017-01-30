@@ -164,3 +164,7 @@ class Deal(models.Model):
     @property
     def total_payed(self):
         return self.payments.aggregate(total_payed=Coalesce(Sum('effective_sum'), Value(0)))['total_payed']
+
+    @property
+    def user(self):
+        return self.partnership.user
