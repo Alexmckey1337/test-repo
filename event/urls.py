@@ -17,6 +17,7 @@ custom_urls = [
     # url(r'^delete_event/$', views.delete_event),
     # url(r'^create_participations/$', views.create_participations),
     url(r'^update_participation/$', views.update_participation),
+    url(r'^create_meeting/$', views.CreateMeetingView.as_view()),
 ]
 
 urlpatterns = [
