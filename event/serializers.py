@@ -3,7 +3,9 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from .models import Event, Participation, EventType, EventAnket, Meeting
+from .models import Event, Participation, EventType, EventAnket
+from .models import Meeting, MeetingAttend
+from account.models import CustomUser
 
 
 class EventTypeSerializer(serializers.HyperlinkedModelSerializer):
@@ -28,6 +30,20 @@ class ParticipationSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Participation
         fields = ('id', 'check', 'value', 'uid', 'hierarchy_chain', 'has_disciples', 'fields',)
+
+
+class MeetingUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'fullname', 'spiritual_level', 'phone_number')
+
+
+class MeetingAttendSerializer(serializers.ModelSerializer):
+    user = MeetingUserSerializer()
+
+    class Meta:
+        models = MeetingAttend
+        fields = ('user', 'attended', 'note')
 
 
 class MeetingSerializer(serializers.ModelSerializer):
