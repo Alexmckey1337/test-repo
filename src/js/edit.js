@@ -26,7 +26,7 @@
                     xhr.onreadystatechange = function () {
                         if (xhr.readyState == 4) {
                             if (xhr.status == 200) {
-                                window.location.href = '/account/' + id;
+                                // window.location.href = '/account/' + id;
                             }
                         }
                     };
@@ -209,11 +209,7 @@
         });
 
         $("#partner_date").datepicker({
-            dateFormat: "yy-mm-dd",
-            onSelect: function (date) {
-            }
-        }).datepicker("setDate", new Date()).mousedown(function () {
-            $('#ui-datepicker-div').toggle();
+            dateFormat: "yyyy-mm-dd",
         });
 
         $('#create_partner_info').on('click', function () {
@@ -505,15 +501,17 @@
             "department": parseInt($('#departmentSelect').val()),
             "divisions": $("#division_drop").val() || [],
             "hierarchy": parseInt($('#hierarchySelect').val()),
+            "partner": null
         };
         if (document.getElementById('partner') && document.getElementById('partner').checked) {
-            data['value'] = parseInt(document.getElementById('val_partnerships').value) || 0;
-            data['date'] = document.getElementById('partner_date').value || '';
+            data.partner = {};
+            data.partner.value = parseInt(document.getElementById('val_partnerships').value) || 0;
+            data.partner.date = document.getElementById('partner_date').value || null;
             let id_partner = parseInt($("#partner_drop option:selected").val());
 
             //   debugger
             if (id_partner) {
-                data['responsible'] = id_partner
+                data.partner.responsible = id_partner
             }
         } else {
             data['remove_partnership'] = 'true'; //gavnocod vlada
