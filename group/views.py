@@ -5,7 +5,7 @@ from common.filters import FieldSearchFilter
 from django.db.models import Count, Q
 from rest_framework import status
 from rest_framework import viewsets, mixins, filters
-from rest_framework.decorators import detail_route, list_route
+from rest_framework.decorators import detail_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
