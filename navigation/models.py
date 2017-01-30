@@ -23,6 +23,42 @@ def partner_table():
     return l
 
 
+def church_table(user):
+    result_table = OrderedDict()
+    if not (hasattr(user, 'churches') and isinstance(user.table, Table)):
+        return result_table
+    church_columns = user.table.columns.select_related('columnType').filter(
+        columnType__category__title="churches").order_by('number')
+    for column in church_columns:
+        col = OrderedDict()
+        col['id'] = column.id
+        col['title'] = column.columnType.verbose_title
+        col['ordering_title'] = column.columnType.ordering_title
+        col['number'] = column.number
+        col['active'] = column.active
+        col['editable'] = column.columnType.editable
+        result_table[column.columnType.title] = col
+    return result_table
+
+
+def home_group_table(user):
+    result_table = OrderedDict()
+    if not (hasattr(user, 'home_groups') and isinstance(user.table, Table)):
+        return result_table
+    home_group_columns = user.table.columns.select_related('columnType').filter(
+        columnType__category__title='home_groups').order_by('number')
+    for column in home_group_columns:
+        col = OrderedDict()
+        col['id'] = column.id
+        col['title'] = column.columnType.verbose_title
+        col['ordering_title'] = column.columnType.ordering_title
+        col['number'] = column.number
+        col['active'] = column.active
+        col['editable'] = column.columnType.editable
+        result_table[column.columnType.title] = col
+    return result_table
+
+
 def user_table(user, prefix_ordering_title=''):
     l = OrderedDict()
     if not (hasattr(user, 'table') and isinstance(user.table, Table)):

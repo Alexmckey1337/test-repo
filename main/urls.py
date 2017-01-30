@@ -13,8 +13,10 @@ from main import views
 def redirect_to_deals(request):
     return redirect(reverse('partner-deals'))
 
+
 def redirect_to_churches(request):
     return redirect(reverse('churches'))
+
 
 urlpatterns = [
                   url(r'^entry/$', views.entry, name='entry'),
@@ -39,4 +41,5 @@ urlpatterns = [
                   url(r'^$', views.index, name='index'),
                   url(r'^event_info/$', views.event_info, name='event_info'),
                   url(r'^password_view/(?P<activation_key>\w+)/$', views.edit_pass, name='password_view'),
-              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+            ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
