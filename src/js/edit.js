@@ -3,7 +3,6 @@
 
     function updateUser(data, id) {
         ajaxRequest(config.DOCUMENT_ROOT + `api/v1.1/users/${id}/`, data, function (data) {
-            console.log(data);
             let send_image = true;
             if (send_image) {
                 try {
@@ -85,7 +84,7 @@
     }
 
     function initEvent() {
-        
+
     }
     function init(id) {
         id = parseInt(id || getLastId());
@@ -210,11 +209,7 @@
         });
 
         $("#partner_date").datepicker({
-            dateFormat: "yy-mm-dd",
-            onSelect: function (date) {
-            }
-        }).datepicker("setDate", new Date()).mousedown(function () {
-            $('#ui-datepicker-div').toggle();
+            dateFormat: "yyyy-mm-dd",
         });
 
         $('#create_partner_info').on('click', function () {
@@ -506,15 +501,17 @@
             "department": parseInt($('#departmentSelect').val()),
             "divisions": $("#division_drop").val() || [],
             "hierarchy": parseInt($('#hierarchySelect').val()),
+            "partner": null
         };
         if (document.getElementById('partner') && document.getElementById('partner').checked) {
-            data['value'] = parseInt(document.getElementById('val_partnerships').value) || 0;
-            data['date'] = document.getElementById('partner_date').value || '';
+            data.partner = {};
+            data.partner.value = parseInt(document.getElementById('val_partnerships').value) || 0;
+            data.partner.date = document.getElementById('partner_date').value || null;
             let id_partner = parseInt($("#partner_drop option:selected").val());
 
             //   debugger
             if (id_partner) {
-                data['responsible'] = id_partner
+                data.partner.responsible = id_partner
             }
         } else {
             data['remove_partnership'] = 'true'; //gavnocod vlada
@@ -523,26 +520,3 @@
         updateUser(json, id);
     }
 })(jQuery);
-
-// function sendPassword() {
-//     let data = {};
-//
-//     /*Блок проверки паролей */
-//     data['old_password'] = document.getElementById('old_password').value.trim();
-//     data['new_password1'] = document.getElementById('password1').value.trim();
-//     data['new_password2'] = document.getElementById('password2').value.trim();
-//
-//     let json = JSON.stringify(data);
-//     ajaxRequest(config.DOCUMENT_ROOT + 'rest-auth/password/change/', json, function (data) {
-//         showPopup(data.success, 'SUCCESS');
-//         document.getElementById('old_password').value = "";
-//         document.getElementById('password1').value = "";
-//         document.getElementById('password2').value = "";
-//     }, 'POST', true, {
-//         'Content-Type': 'application/json'
-//     }, {
-//         400: function (data) {
-//             showPopup(data, 'ERROR');
-//         }
-//     });
-// }
