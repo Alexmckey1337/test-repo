@@ -164,9 +164,16 @@
                     <div class="col-7">
                         <p><input type="date"></p>
                         <p><input type="text"></p>
-                        <p class="end__block"><select name="department" id=""></select></p>
+                        <p class="end__block"><select name="department" id="department_select">
+                            {% for item in departments %}
+                            <option value="{{ item.id }}">{{ item.title }}</option>
+                            {% endfor %}
+
+                        </select></p>
                         <p><input type="text"></p>
-                        <p class="end__block"><select name="pastor" id=""></select></p>
+                        <p class="end__block"><select name="pastor" id="pastor_select" disabled>
+                            <option value="0">Выберите пастора</option>
+                        </select></p>
                         <p><input type="text"></p>
                         <p><input type="tel"></p>
                         <p><input type="url"></p>

@@ -141,7 +141,7 @@ def churches(request):
     user = request.user
     if not user.is_staff and user.hierarchy.level < 1:
         raise Http404('У Вас нет прав для просмотра данной страницы.')
-    ctx = {}
+    ctx = {'departments': Department.objects.all()}
     return render(request, 'database/churches.html', context=ctx)
 
 
