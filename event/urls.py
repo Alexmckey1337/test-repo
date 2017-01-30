@@ -12,6 +12,8 @@ router_v1_0.register(r'event_ankets', views.EventAnketViewSet)
 router_v1_0.register(r'events', views.EventViewSet)
 router_v1_0.register(r'participations', views.ParticipationViewSet)
 
+router_v1_0.register(r'meetings', views.MeetingViewSet)
+
 custom_urls = [
     # url(r'^create_event/$', views.create_event),
     # url(r'^delete_event/$', views.delete_event),

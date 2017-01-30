@@ -14,7 +14,7 @@ def partner_table():
     column_types = ColumnType.objects.filter(category__title="partnership").order_by('number')
     for column in column_types.all():
         d = OrderedDict()
-        d['title'] = column.verbose_title
+        d['get_title'] = column.verbose_title
         d['ordering_title'] = column.ordering_title
         d['number'] = column.number
         d['active'] = column.active
@@ -23,31 +23,21 @@ def partner_table():
     return l
 
 
-def church_table(user):
+def group_table(user, category_title):
     result_table = OrderedDict()
-    if not (hasattr(user, 'churches') and isinstance(user.table, Table)):
+    if category_title == 'home_groups':
+        if not (hasattr(user, 'home_groups') and isinstance(user.table, Table)):
+            return result_table
+        table_columns = user.table.columns.select_related('columnType').filter(
+            columnType__category__title='home_groups').order_by('number')
+    elif category_title == 'churches':
+        if not (hasattr(user, 'churches') and isinstance(user.table, Table)):
+            return result_table
+        table_columns = user.table.columns.select_related('columnType').filter(
+            columnType__category__title='churches').order_by('number')
+    else:
         return result_table
-    church_columns = user.table.columns.select_related('columnType').filter(
-        columnType__category__title="churches").order_by('number')
-    for column in church_columns:
-        col = OrderedDict()
-        col['id'] = column.id
-        col['title'] = column.columnType.verbose_title
-        col['ordering_title'] = column.columnType.ordering_title
-        col['number'] = column.number
-        col['active'] = column.active
-        col['editable'] = column.columnType.editable
-        result_table[column.columnType.title] = col
-    return result_table
-
-
-def home_group_table(user):
-    result_table = OrderedDict()
-    if not (hasattr(user, 'home_groups') and isinstance(user.table, Table)):
-        return result_table
-    home_group_columns = user.table.columns.select_related('columnType').filter(
-        columnType__category__title='home_groups').order_by('number')
-    for column in home_group_columns:
+    for column in table_columns:
         col = OrderedDict()
         col['id'] = column.id
         col['title'] = column.columnType.verbose_title

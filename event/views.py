@@ -12,13 +12,40 @@ from rest_framework.generics import CreateAPIView, get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework import mixins
 
 from account.models import CustomUser
 from account.pagination import ShortPagination
 from navigation.models import event_table
-from .models import Participation, Event, EventAnket, EventType, MeetingAttend
+from .models import Participation, Event, EventAnket, EventType, MeetingAttend, Meeting
 from .serializers import ParticipationSerializer, EventSerializer, EventTypeSerializer, EventAnketSerializer, \
     MeetingSerializer
+
+
+class MeetingPagination(PageNumberPagination):
+    page_size = 30
+    page_size_query_param = 'page_size'
+
+    def get_paginated_response(self, data):
+        return Response({
+            'links': {
+                'next': self.get_next_link(),
+                'previous': self.get_previous_link()
+            },
+            'count': self.page.paginator.count,
+            'results': data
+        })
+
+
+class MeetingViewSet(mixins.RetrieveModelMixin,
+                     mixins.UpdateModelMixin,
+                     mixins.CreateModelMixin,
+                     mixins.ListModelMixin,
+                     viewsets.GenericViewSet):
+    queryset = Meeting.objects.all()
+    serializer_class = MeetingSerializer
+
+    permission_classes = (IsAuthenticated,)
 
 
 class ParticipationPagination(PageNumberPagination):

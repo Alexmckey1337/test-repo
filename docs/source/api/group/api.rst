@@ -9,7 +9,7 @@ Church
 .. http:get:: /api/v1.0/churches
 
     List of Churches (order by ``opening_date``, ``id``).
-    Displaying title of Church must be a first non-zero parameter ``title`` (first) or ``get_title`` (second).
+    Displaying title of Church is  or ``get_title``.
     Pagination by 30 churches per page.
 
     **Example request**:
@@ -812,7 +812,7 @@ _________
 .. http:get:: /api/v1.1/home_groups/
 
     List of the home groups. (order by ``opening_data``, ``id``).
-    Displaying title of Home Group must be a first non-zero parameter ``title`` (first) or ``get_title`` (second).
+    Displaying title of Home Group is ``get_title``.
     Paginate by 30 users per page.
 
     **Example request**:

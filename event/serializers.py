@@ -31,7 +31,6 @@ class ParticipationSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class MeetingSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Meeting
-        fields = ('owner', 'type', 'date', 'total_sum')
+        fields = ('id', 'owner', 'type', 'date', 'total_sum',)

@@ -5,7 +5,7 @@ from common.filters import FieldSearchFilter
 from django.db.models import Count, Q
 from rest_framework import status
 from rest_framework import viewsets, mixins, filters
-from rest_framework.decorators import detail_route, list_route
+from rest_framework.decorators import detail_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -17,39 +17,33 @@ from .models import HomeGroup, Church
 from .serializers import ChurchSerializer, ChurchDetailSerializer, ChurchListSerializer
 from .serializers import HomeGroupSerializer, HomeGroupDetailSerializer, HomeGroupListSerializer
 from .serializers import HomeGroupUserSerializer
-from navigation.models import church_table, home_group_table
+from navigation.models import group_table
 
 
-class ChurchPagination(PageNumberPagination):
+class PaginationMixin(PageNumberPagination):
+    category = None
     page_size = 30
     page_size_query_param = 'page_size'
 
     def get_paginated_response(self, data):
+        assert self.category is not None, 'Supermegaerror'
         return Response({
             'links': {
                 'next': self.get_next_link(),
                 'previous': self.get_previous_link()
             },
             'count': self.page.paginator.count,
-            'table_columns': church_table(self.request.user),
+            'table_columns': group_table(self.request.user, self.category),
             'results': data,
         })
 
 
-class HomeGroupPagination(PageNumberPagination):
-    page_size = 30
-    page_size_query_param = 'page_size'
+class ChurchPagination(PaginationMixin):
+    category = 'churches'
 
-    def get_paginated_response(self, data):
-        return Response({
-            'links': {
-                'next': self.get_next_link(),
-                'previous': self.get_previous_link()
-            },
-            'count': self.page.paginator.count,
-            'table_columns': home_group_table(self.request.user),
-            'results': data,
-        })
+
+class HomeGroupPagination(PaginationMixin):
+    category = 'home_groups'
 
 
 class ChurchUsersFilter(django_filters.FilterSet):
