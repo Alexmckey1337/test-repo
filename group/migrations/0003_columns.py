@@ -30,7 +30,9 @@ def create_church_columns(apps, schema_editor):
         Church_columns(title='count_groups', verbose_title='Количество групп', ordering_title='count_groups',
                        number=9, active=True, editable=True, category_id=ch.id),
         Church_columns(title='count_users', verbose_title='Количество людей', ordering_title='count_users',
-                       number=10, active=True, editable=True, category_id=ch.id)
+                       number=10, active=True, editable=True, category_id=ch.id),
+        Church_columns(title='country', verbose_title='Страна', ordering_title='country', number=11, active=True,
+                       editable=True, category_id=ch.id)
     ])
 
 

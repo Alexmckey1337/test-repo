@@ -453,12 +453,12 @@ Church
         }
 
     :form opening_date: the opening of the church date, **required**
-    :form is_open: Church opening status - true or false
+    :form is_open: Church opening status - true or false, **required**
     :form title: title
     :form department: department id, **required**
     :form pastor: pastor id, **required**
     :form country: "", **required**
-    :form city: city
+    :form city: city, **required**
     :form address: address
     :form phone_number: phone number
     :form website: web site
