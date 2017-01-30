@@ -487,7 +487,7 @@
             "email": $("#email").val(),
             "phone_number": $("#phone_number").val(),
             "additional_phone": $("#additional_phone").val(),
-            "born_date": $("#datepicker_born_date").val() || '',
+            "born_date": $("#datepicker_born_date").val() || null,
             "repentance_date": $("input[name='repentance_date']").val() || null,
             "country": $('#country_drop option:selected').html() == "Не выбрано" ? '' : $('#country_drop option:selected').html(),
             "region": $('#region_drop option:selected').html() == "Не выбрано" ? '' : $('#region_drop option:selected').html(),
