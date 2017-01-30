@@ -38,6 +38,9 @@
     }
 
     createChurchesTable();
+
+    $('#department_select').select2();
+    $('#pastor_select').select2();
 //    Events
     $('#add').on('click', function () {
         var department_id = parseInt($('#department_select').val());

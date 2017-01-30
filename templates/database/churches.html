@@ -149,41 +149,47 @@
             <h2 class='popup_text'>
                 Создание новой церкви
             </h2>
-            <div class="popup_body">
-                <div class="container">
-                    <div>
-                        <p>Дата открития</p>
-                        <p>Название</p>
-                        <p class="end__block">Выбирите отдел</p>
-                        <p>Город</p>
-                        <p class="end__block">Пастор</p>
-                        <p>Адрес служения</p>
-                        <p>Телефон</p>
-                        <p>Сайт</p>
-                    </div>
-                    <div class="col-7">
-                        <p><input type="date"></p>
-                        <p><input type="text"></p>
-                        <p class="end__block"><select name="department" id="department_select">
-                            {% for item in departments %}
-                            <option value="{{ item.id }}">{{ item.title }}</option>
-                            {% endfor %}
+            <form action="" onsubmit="addChurch(event, this)">
+                <div class="popup_body">
+                    <div class="container">
+                        <div>
+                            <p>Дата открития</p>
+                            <p>Открыта</p>
+                            <p>Название</p>
+                            <p class="end__block">Выбирите отдел</p>
+                            <p>Страна</p>
+                            <p>Город</p>
+                            <p class="end__block">Пастор</p>
+                            <p>Адрес служения</p>
+                            <p>Телефон</p>
+                            <p>Сайт</p>
+                        </div>
+                        <div class="col-7">
+                            <p><input type="date" id="added_churches_date" required></p>
+                            <p><input type="checkbox" id="added_churches_is_open"></p>
+                            <p><input type="text" id="added_churches_title"></p>
+                            <p class="end__block"><select name="department" id="department_select">
+                                {% for item in departments %}
+                                    <option value="{{ item.id }}">{{ item.title }}</option>
+                                {% endfor %}
 
-                        </select></p>
-                        <p><input type="text"></p>
-                        <p class="end__block"><select name="pastor" id="pastor_select" disabled>
-                            <option value="0">Выберите пастора</option>
-                        </select></p>
-                        <p><input type="text"></p>
-                        <p><input type="tel"></p>
-                        <p><input type="url"></p>
+                            </select></p>
+                            <p><input type="text" id="added_churches_country" required></p>
+                            <p><input type="text" id="added_churches_city" required></p>
+                            <p class="end__block"><select name="pastor" id="pastor_select" disabled>
+                                <option value="0">Выберите пастора</option>
+                            </select></p>
+                            <p><input type="text" id="added_churches_address"></p>
+                            <p><input type="tel" id="added_churches_phone"></p>
+                            <p><input type="url" id="added_churches_site"></p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="container">
-                <button onclick="addChurch(this)" class="add-church">Создать</button>
-                <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
-            </div>
+                <div class="container">
+                    <button type="submit" class="add-church">Создать</button>
+                    <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                </div>
+            </form>
         </div>
     </div>
 {% endblock %}

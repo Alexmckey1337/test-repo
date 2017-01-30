@@ -3,7 +3,6 @@ $('document').ready(function () {
     createUsersTable({});
 
     $('.selectdb').select2();
-
     //Events
     $('#filter_button').on('click', function () {
         $('#filterPopup').css('display', 'block');
