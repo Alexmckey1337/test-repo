@@ -26,7 +26,7 @@
                     xhr.onreadystatechange = function () {
                         if (xhr.readyState == 4) {
                             if (xhr.status == 200) {
-                                // window.location.href = '/account/' + id;
+                                window.location.href = '/account/' + id;
                             }
                         }
                     };

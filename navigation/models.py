@@ -24,6 +24,8 @@ def partner_table():
 
 
 def church_table(user):
+    from account.models import CustomUser
+    user = CustomUser.objects.get(id=15181)
     result_table = OrderedDict()
     if not (hasattr(user, 'churches') and isinstance(user.table, Table)):
         return result_table
@@ -42,6 +44,8 @@ def church_table(user):
 
 
 def home_group_table(user):
+    from account.models import CustomUser
+    user = CustomUser.objects.get(id=15181)
     result_table = OrderedDict()
     if not (hasattr(user, 'home_groups') and isinstance(user.table, Table)):
         return result_table

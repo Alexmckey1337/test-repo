@@ -9,9 +9,12 @@
             let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
             let text = `Показано ${showCount} из ${count}`;
             let tmpl = $('#databaseUsers').html();
-            let rendered = _.template(tmpl)(data);
+            let filterData = {};
+            filterData.user_table = data.table_columns;
+            filterData.results = data.results;
+            let rendered = _.template(tmpl)(filterData);
             $('#tableChurches').html(rendered);
-            makeSortForm(data.user_table);
+            makeSortForm(filterData.user_table);
             let paginationConfig = {
                 container: ".users__pagination",
                 currentPage: page,
