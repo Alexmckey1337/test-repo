@@ -115,16 +115,6 @@ def churches(request):
 
 
 @login_required(login_url='entry')
-def church_users(request, church_id):
-    user = request.user
-    church = get_object_or_404(Church, id=church_id)
-    if not user.is_staff and user.hierarchy.level < 1:
-        raise Http404('У Вас нет прав для просмотра данной страницы.')
-    ctx = {}
-    return render(request, 'group/church_users.html', context=ctx)
-
-
-@login_required(login_url='entry')
 def church_detail(request, church_id):
     user = request.user
     church = get_object_or_404(Church, id=church_id)
@@ -175,6 +165,7 @@ def home_group_detail(request, group_id):
     }
     return render(request, 'group/home_group_detail.html', context=ctx)
 
+
 @login_required(login_url='entry')
 def people(request):
     user = request.user
@@ -191,6 +182,7 @@ def people(request):
     else:
         ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
     return render(request, 'database/people.html', context=ctx)
+
 
 @login_required(login_url='entry')
 def index(request):

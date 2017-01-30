@@ -3,9 +3,8 @@ import django_filters
 from common.filters import FieldSearchFilter
 
 from django.db.models import Count, Q
-from rest_framework import status
-from rest_framework import viewsets, mixins, filters
-from rest_framework.decorators import detail_route, list_route
+from rest_framework import viewsets, mixins, filters, status
+from rest_framework.decorators import detail_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -17,9 +16,10 @@ from .models import HomeGroup, Church
 from .serializers import ChurchSerializer, ChurchDetailSerializer, ChurchListSerializer
 from .serializers import HomeGroupSerializer, HomeGroupDetailSerializer, HomeGroupListSerializer
 from .serializers import HomeGroupUserSerializer
+from navigation.models import church_table, home_group_table
 
 
-class GroupPagination(PageNumberPagination):
+class ChurchPagination(PageNumberPagination):
     page_size = 30
     page_size_query_param = 'page_size'
 
@@ -30,12 +30,28 @@ class GroupPagination(PageNumberPagination):
                 'previous': self.get_previous_link()
             },
             'count': self.page.paginator.count,
+            'table_columns': church_table(self.request.user),
+            'results': data,
+        })
+
+
+class HomeGroupPagination(PageNumberPagination):
+    page_size = 30
+    page_size_query_param = 'page_size'
+
+    def get_paginated_response(self, data):
+        return Response({
+            'links': {
+                'next': self.get_next_link(),
+                'previous': self.get_previous_link()
+            },
+            'count': self.page.paginator.count,
+            'table_columns': home_group_table(self.request.user),
             'results': data,
         })
 
 
 class ChurchUsersFilter(django_filters.FilterSet):
-
     class Meta:
         model = CustomUser
         fields = ['first_name', 'last_name', 'phone_number', 'repentance_date', 'spiritual_level']
@@ -50,8 +66,7 @@ class ChurchUsersListView(mixins.ListModelMixin,
                        FieldSearchFilter,
                        filters.OrderingFilter)
 
-    ordering_fields = ('fullname', 'phone_number', 'repentance_date', 'spiritual_level',
-                       'born_date',)
+    ordering_fields = ('fullname', 'phone_number', 'repentance_date', 'spiritual_level', 'born_date',)
 
     filter_class = ChurchUsersFilter
     field_search_fields = {
@@ -60,7 +75,7 @@ class ChurchUsersListView(mixins.ListModelMixin,
         'search_spiritual_level': ('spiritual_level',),
     }
     permission_classes = (IsAuthenticated,)
-    pagination_class = GroupPagination
+    pagination_class = ChurchPagination
 
 
 class ChurchFilter(django_filters.FilterSet):
@@ -88,8 +103,8 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
                        FieldSearchFilter,
                        filters.OrderingFilter,)
 
-    ordering_fields = ('title', 'city', 'department', 'home_group', 'is_open',
-                       'opening_date', 'pastor', 'phone_number', 'address')
+    ordering_fields = ('title', 'city', 'department', 'home_group', 'is_open', 'opening_date',
+                       'pastor', 'phone_number', 'address')
 
     filter_class = ChurchFilter
     field_search_fields = {
@@ -100,10 +115,9 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
         'search_city': ('city',),
     }
     permission_classes = (IsAuthenticated,)
-    pagination_class = GroupPagination
+    pagination_class = ChurchPagination
 
     def get_serializer_class(self):
-        print(self.action)
         if self.action in 'list':
             return self.serializer_list_class
         if self.action in 'retrieve':
@@ -178,8 +192,7 @@ class HomeGroupFilter(django_filters.FilterSet):
 
     class Meta:
         model = HomeGroup
-        fields = ['church', 'leader', 'title', 'city', 'phone_number',
-                  'website']
+        fields = ['church', 'leader', 'title', 'city', 'phone_number', 'website']
 
 
 class HomeGroupViewSet(mixins.UpdateModelMixin,
@@ -197,8 +210,7 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
                        FieldSearchFilter,
                        filters.OrderingFilter,)
 
-    ordering_fields = ('title', 'church', 'city', 'leader', 'opening_date',
-                       'phone_number',)
+    ordering_fields = ('title', 'church', 'city', 'leader', 'opening_date', 'phone_number',)
 
     filter_class = HomeGroupFilter
     field_search_fields = {
@@ -208,7 +220,7 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
         'search_city': ('city',),
     }
     permission_classes = (IsAuthenticated,)
-    pagination_class = GroupPagination
+    pagination_class = HomeGroupPagination
 
     def get_serializer_class(self):
         if self.action in 'retrieve':
