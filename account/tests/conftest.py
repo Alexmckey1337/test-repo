@@ -51,7 +51,7 @@ def user_data(department, user, hierarchy, partner, division_factory):
             'odnoklassniki': 'http://ok.com/test',
             'skype': 'test_skype',
             'phone_number': '1234567890',
-            'additional_phones': '24681357',
+            'extra_phone_numbers': ['1111', '2222', '3333'],
             'born_date': '2000-01-01',
             'coming_date': '2000-02-20',
             'repentance_date': '2000-02-20',

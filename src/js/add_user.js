@@ -376,7 +376,7 @@
             "search_name": $('#search_name').val(),
             "born_date": $("input[name='born_date']").val() || null,
             "phone_number": parseInt($("input[name='phone_numberCode']").val() + '' + $("input[name='phone_number']").val()),
-            "additional_phone": $("#additional_phone").val(),
+            "extra_phone_numbers": _.filter(_.map($("#extra_phone_numbers").val().split(","), x => x.trim()), x => !!x),
             "vkontakte": $("input[name='vk']").val(),
             "facebook": $("input[name='fb']").val(),
             "odnoklassniki": $("input[name='ok']").val(),

@@ -486,7 +486,7 @@
             "skype": $("#skype").val(),
             "email": $("#email").val(),
             "phone_number": $("#phone_number").val(),
-            "additional_phone": $("#additional_phone").val(),
+            "extra_phone_numbers": _.filter(_.map($("#extra_phone_numbers").val().split(","), x => x.trim()), x => !!x),
             "born_date": $("#datepicker_born_date").val() || null,
             "repentance_date": $("input[name='repentance_date']").val() || null,
             "country": $('#country_drop option:selected').html() == "Не выбрано" ? '' : $('#country_drop option:selected').html(),

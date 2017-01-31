@@ -79,10 +79,8 @@
                             <ul>
                                 <li><i class="fa fa-phone"></i>
                                     <span id="phone_number">{{ account.phone_number }}
-                                        {% if account.additional_phones.exists %}, {% endif %}
-                                        {% for additional_phone in account.additional_phones.all %}
-                                            {{ additional_phone.number }}{% if not forloop.last %},
-                                            {% endif %}{% endfor %}
+                                        {% if account.extra_phone_numbers %}, {% endif %}
+                                        {{ account.extra_phone_numbers|join:", " }}
                                 </span></li>
                                 <li><i class="fa fa-envelope"></i><span id="email">{{ account.email }}</span></li>
                                 <li><i class="fa fa-skype"></i><span id="skype">{{ account.skype }}</span></li>
