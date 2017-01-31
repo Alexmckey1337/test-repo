@@ -2,6 +2,7 @@
 {% load static %}
 {% load summit_tags %}
 {% load payment_tags %}
+{% load mptt_tags %}
 
 {% block main.attr %} class="main-wrap anketa"  id="account_view"{% endblock %}
 
@@ -79,10 +80,8 @@
                             <ul>
                                 <li><i class="fa fa-phone"></i>
                                     <span id="phone_number">{{ account.phone_number }}
-                                        {% if account.additional_phones.exists %}, {% endif %}
-                                        {% for additional_phone in account.additional_phones.all %}
-                                            {{ additional_phone.number }}{% if not forloop.last %},
-                                            {% endif %}{% endfor %}
+                                        {% if account.extra_phone_numbers %}, {% endif %}
+                                        {{ account.extra_phone_numbers|default:""|join:", " }}
                                 </span></li>
                                 <li><i class="fa fa-envelope"></i><span id="email">{{ account.email }}</span></li>
                                 <li><i class="fa fa-skype"></i><span id="skype">{{ account.skype }}</span></li>
@@ -121,7 +120,19 @@
                             <ul>
                                 <li><span id="department">{{ account.department }}</span></li>
                                 <li><span id="hierarchy">{{ account.hierarchy }}</span></li>
-                                <li><span id="master">{{ account.master }}</span></li>
+                                <li><span id="master">
+                                    {% if account.master %}
+                                        <a href="{% url 'account' account.master.id %}">{{ account.master }}</a>
+                                    {% endif %}
+                                </span></li>
+                                {% for ancestor in account.master.get_ancestors reversed %}
+                                    {% with level=account.master.level %}
+                                        <li>
+                                            <span style="font-size:1.4em;margin-right:5px;">&#11169;</span>
+                                            <a href="{% url 'account' ancestor.id %}">{{ ancestor }}</a>
+                                        </li>
+                                    {% endwith %}
+                                {% endfor %}
                             </ul>
                         </div>
                     </li>

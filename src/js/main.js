@@ -118,8 +118,8 @@ function saveUser(el) {
         master: master_id,
         skype: $($(el).closest('.pop_cont').find('#skype')).val(),
         phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
-        additional_phones: $($(el).closest('.pop_cont').find('#additional_phones')).val(),
-        repentance_date: $($(el).closest('.pop_cont').find('#repentance_date')).val(),
+        extra_phone_numbers: _.filter(_.map($($(el).closest('.pop_cont').find('#extra_phone_numbers')).val().split(","), x => x.trim()), x => !!x),
+        repentance_date: $($(el).closest('.pop_cont').find('#repentance_date')).val() || null,
         country: $($(el).closest('.pop_cont').find('#country')).val(),
         region: $($(el).closest('.pop_cont').find('#region')).val(),
         city: $($(el).closest('.pop_cont').find('#city')).val(),
@@ -342,7 +342,7 @@ $(document).ready(function () {
 
 
     $('.editprofile input').keypress(function (el) {
-        if (el.charCode == '32' && el.currentTarget.id != 'additional_phone' && el.currentTarget.id != 'address' && el.currentTarget.id != 'search_name') {
+        if (el.charCode == '32' && el.currentTarget.id != 'extra_phone_numbers' && el.currentTarget.id != 'address' && el.currentTarget.id != 'search_name') {
             return false
         }
     });
@@ -570,8 +570,10 @@ function updateSettings(callback, path) {
 }
 
 function hidePopup(el) {
-    $(el).closest('.popap').find('.save-user').text('Сохранить');
-    $(el).closest('.popap').find('.save-user').attr('disabled', false);
+    if($(el).closest('.popap').find('.save-user')) {
+        $(el).closest('.popap').find('.save-user').attr('disabled', false);
+        $(el).closest('.popap').find('.save-user').text('Сохранить');
+    }
     $(el).closest('.popap').css('display', 'none');
 }
 

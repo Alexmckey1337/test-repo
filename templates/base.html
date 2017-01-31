@@ -133,19 +133,25 @@
             <tr>
                 <% for( var key in user_table) { %>
                     <% if(user_table[key].active) { %>
-                        <% if (key == 'fullname' ) { %>
+                        <% if (key == 'fullname') { %>
                             <% if (results[index][key] != null) { %>
                                 <td><a href="<%= results[index].link %>" target="_blank" data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%= results[index][key] %></a><span class="quick-edit"><i class="fa fa-pencil" aria-hidden="true"></i></span></td>
                             <% } else { %>
                                 <td></td>
                             <% } %>
-                        <% } else if (key == 'master' || key == 'pastor') { %>
+                        <% } else if(key == 'get_title') { %>
+                            <% if (results[index][key] != null) { %>
+                                <td><a href="<%= results[index].link %>" target="_blank" data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%= results[index][key] %></a></td>
+                            <% } else { %>
+                                <td></td>
+                            <% } %>
+                        <% } else if (key == 'master' || key == 'pastor' || key == 'leader') { %>
                             <% if (results[index][key] != null) { %>
                                 <td><%= results[index][key].fullname %></td>
                             <% } else { %>
                                 <td></td>
                             <% } %>
-                        <% }  else if (key == 'department' || key == 'hierarchy') { %>
+                        <% }  else if (key == 'department' || key == 'hierarchy' || key == 'church' ) { %>
                             <% if (results[index][key] != null ) { %>
                                 <td><%= results[index][key].title %></td>
                             <% } else { %>
@@ -246,12 +252,8 @@
         </div>
         <div class="col-6">
             <p><input type="text" id="phone_number" value="<%=phone_number %>"></p>
-            <p><input type="text" id="additional_phones"
-                      <% if(!additional_phones.length) { %>
-                      value=""
-                      <%} else { %>
-                        value="<%=additional_phones[0].number %>"
-                        <% } %> >
+            <p><input type="text" id="extra_phone_numbers"
+                        value="<%=extra_phone_numbers.join(', ') %>">
             </p>
             <p><input type="text" id="email" value="<%=email %>"></p>
             <p><input type="text" id="skype" value="<%=skype %>"></p>

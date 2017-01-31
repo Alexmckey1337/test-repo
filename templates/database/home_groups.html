@@ -5,7 +5,6 @@
 
 {% block header.top.h1 %}<h1>База данных / Домашние группы</h1>{% endblock %}
 
-
 {% block header.buttons %}
     <div class="top-panel">
         <div class="tabs">
@@ -18,9 +17,6 @@
         <div class="top-buttons-wrap">
             <ul class="top-buttons">
                 <li>
-                    <button id="add">Добавить группу</button>
-                </li>
-                <li>
                     <button id="filter_button">Фильтр</button>
                 </li>
                 <li>
@@ -32,7 +28,31 @@
 {% endblock %}
 
 {% block header.buttons.export %}
+{% endblock %}
 
+{% block main.content %}
+    {% block pagination_top %}
+        <div class="top-pag">
+            <div class="table__count"></div>
+            <div class="pagination users__pagination"><!--pagination -->
+            </div><!--End pagination -->
+        </div>
+    {% endblock %}
+
+    {% block table %}
+        <div class="table-wrap  clearfix" id="churches"><!--Table -->
+            <div class="table scrollbar-inner" id="tableHomeGroup"></div>
+
+        </div><!--End Table -->
+        <div class="preloader">
+            <div class="gif"></div>
+        </div>
+    {% endblock %}
+
+    {% block pagination_bottom %}
+        <div class="table__count"></div>
+        <div class="pagination users__pagination"></div>
+    {% endblock %}
 {% endblock %}
 
 {% block create_user %}
@@ -119,23 +139,7 @@
             </div>
         </div>
     </div>
-    <div class="popap" id="quickEditCartPopup">
-        <div class="pop_cont">
-            <div class="popup_text">
-                <h2>Карточка пользователя</h2>
-                <span onclick="hidePopup(this)" class="close"><i class="fa fa-times" aria-hidden="true"></i></span>
-            </div>
-            <div class="popup_body">
-            </div>
-            <div class="container">
-                <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
-                <button onclick="saveUser(this)" class="save-user">Сохранить</button>
-            </div>
-        </div>
-    </div>
 {% endblock %}
 {% block extra_scripts %}
-    <script src="{% static "js/add_user.js" %}"></script>
-    <script src="{% static "js/database_users.js" %}"></script>
-    <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
+    <script src="{% static "js/database_home_groups.js" %}"></script>
 {% endblock %}

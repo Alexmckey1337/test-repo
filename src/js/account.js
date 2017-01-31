@@ -196,7 +196,7 @@ function create_payment(id, sum, description, rate, currency) {
 
     let json = JSON.stringify(data);
 
-    ajaxRequest(config.DOCUMENT_ROOT + `api/v1.1/partnerships/${id}/create_payment/`, json, function (JSONobj) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.1/partnerships/${id}/create_payment/`, json, function (JSONobj) {
         showPopup('Оплата прошла успешно.');
     }, 'POST', true, {
         'Content-Type': 'application/json'

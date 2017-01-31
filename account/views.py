@@ -24,7 +24,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from account.models import CustomUser as User, AdditionalPhoneNumber
+from account.models import CustomUser as User
 from common.filters import FieldSearchFilter
 from hierarchy.models import Hierarchy, Department
 from navigation.models import user_table
@@ -54,7 +54,7 @@ USER_FIELDS = {
         'master',
     },
     'm2m': {
-        'additional_phone', 'divisions',
+        'divisions',
     }
 }
 
@@ -185,13 +185,11 @@ class NewUserViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         user = serializer.save()
-        self._create_additional_phone_number(user)
         self._update_partnership(user)
         self._update_divisions(user)
 
     def perform_create(self, serializer):
         user = serializer.save()
-        self._create_additional_phone_number(user)
         self._create_partnership(user)
 
     def _create_partnership(self, user):
@@ -220,20 +218,6 @@ class NewUserViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
 
-    def _create_additional_phone_number(self, user):
-        additional_phone = self.request.data.get('additional_phones', None)
-        if additional_phone:
-            phone_number = user.additional_phones.first()
-            if phone_number:
-                phone_number.number = additional_phone
-                phone_number.save()
-            else:
-                AdditionalPhoneNumber.objects.create(user=user, number=additional_phone)
-        elif additional_phone == '':
-            phones = user.additional_phones.all()
-            for phone in phones:
-                phone.delete()
-
 
 class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
     queryset = User.objects.exclude(hierarchy__level=0).select_related(
@@ -247,6 +231,10 @@ class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
     # filter_fields = ('first_name', 'last_name', 'department', 'hierarchy')
     filter_class = ShortUserFilter
     search_fields = ('first_name', 'last_name', 'middle_name')
+
+    def get_queryset(self):
+        descendants = self.request.user.get_descendants()
+        return self.queryset.exclude(pk__in=descendants.values_list('pk', flat=True))
 
 
 class LogoutView(RestAuthLogoutView):
@@ -372,19 +360,7 @@ def _is_user_exist(data):
 def _set_for_update_user_attrs(user, data):
     for key, value in six.iteritems(data):
         # m2m
-        if key == 'additional_phone':
-            if value:
-                phone_number = user.additional_phones.first()
-                if phone_number:
-                    phone_number.number = value
-                    phone_number.save()
-                else:
-                    AdditionalPhoneNumber.objects.create(user=user, number=value)
-            else:
-                phones = user.additional_phones.all()
-                for phone in phones:
-                    phone.delete()
-        elif key == 'divisions':
+        if key == 'divisions':
             for division in user.divisions.all():
                 user.divisions.remove(division)
             for s in value:
@@ -406,9 +382,7 @@ def _set_for_update_user_attrs(user, data):
 
 def _set_for_create_user_attrs(user, data):
     for key, value in six.iteritems(data):
-        if key == 'additional_phone' and value:
-            AdditionalPhoneNumber.objects.create(user=user, number=value)
-        elif key == 'statuses':
+        if key == 'statuses':
             for s in value:
                 status = Status.objects.filter(id=s).first()
                 user.statuses.add(status)
