@@ -2,7 +2,7 @@
 import django_filters
 from common.filters import FieldSearchFilter
 
-from django.db.models import Count, Q
+from django.db.models import Count
 from rest_framework import status
 from rest_framework import viewsets, mixins, filters
 from rest_framework.decorators import detail_route
@@ -226,20 +226,26 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
                                         'Данного пользователя не существует.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if user.get().home_groups.exists():
+        user = user.get()
+        if user.home_groups.exists():
             return Response({'message': 'Невозможно добавить пользователя. '
                                         'Данный пользователь уже состоит в Домашней Группе.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if user.get().churches.exists() and user.get().churches.get().id != church.id:
+        if not user.churches.exists():
             return Response({'message': 'Невозможно добавить пользователя. '
-                                        'Данный пользователь является членом другой Церкви'},
+                                        'Данный пользователь не пренадлежит к данной Церкви'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if user.churches.get().id != church.id:
+            return Response({'message': 'Невозможно добавить пользователя. '
+                                        'Пользователь является членом другой Церкви'},
                             status=status.HTTP_400_BAD_REQUEST)
 
         if church.users.filter(id=user_id).exists():
             church.users.remove(user_id)
-            home_group.users.add(user_id)
 
+        home_group.users.add(user_id)
         return Response({'message': 'Пользователь успешно добавлен.'},
                         status=status.HTTP_201_CREATED)
 
