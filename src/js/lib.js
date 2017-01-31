@@ -63,8 +63,29 @@ function saveUserData(data, id) {
         });
     }
 }
-function addHomeGroup(){
+function addHomeGroup(e, el){
+    e.preventDefault();
     console.log('Added');
+    let data = getAddHomeGroupData();
+    let json = JSON.stringify(data);
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/home_groups/', json, function (data) {
+        console.log(data);
+    }, 'POST', false, {
+        'Content-Type': 'application/json'
+    });
+    hidePopup(el)
+}
+function getAddHomeGroupData() {
+    return {
+        "opening_date": $('#added_home_group_date').val(),
+        "title": $('#added_home_group_title').val(),
+        "church": $('#added_home_group_church').data('id'),
+        "leader": $('#added_home_group_pastor').val(),
+        "city": $('#added_home_group_city').val(),
+        "address": $('#added_home_group_address').val(),
+        "phone_number": $('#added_home_group_phone').val(),
+        "website": $('#added_home_group_site').val()
+    }
 }
 function getAddChurchData() {
     return {
@@ -203,6 +224,18 @@ function getResponsibleStatuses() {
             }
         });
     })
+}
+
+function getUsersFromDatabase(config) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/', config, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    });
 }
 
 function getDivisions() {

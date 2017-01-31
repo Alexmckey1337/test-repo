@@ -105,8 +105,10 @@
                         <div class="col-7">
                             <p><input type="date" id="added_home_group_date" required></p>
                             <p class="end__block"><input type="text" id="added_home_group_title"></p>
-                            <p><input type="text" id="added_home_group_church" required></p>
-                            <p><input type="text" id="added_home_group_lider" required></p>
+                            <p id="added_home_group_church" data-id="{{ church.id }}" data-department="{{ church.department.id }}">{{ church.get_title }}</p>
+                            <p><select id="added_home_group_pastor" required>
+                                <option>Выберите пастора</option>
+                            </select></p>
                             <p><input type="text" id="added_home_group_city" required></p>
                             <p><input type="text" id="added_home_group_address"></p>
                             <p><input type="tel" id="added_home_group_phone"></p>

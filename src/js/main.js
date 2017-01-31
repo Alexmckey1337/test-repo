@@ -223,7 +223,12 @@ function setCookie(name, value, options) {
     document.cookie = updatedCookie;
 }
 $('.close').on('click', function () {
-    $(this).closest('.pop-up-splash').css('display', 'none');
+    if($(this).closest('.pop-up-splash')){
+        $(this).closest('.pop-up-splash').css('display', 'none');
+    }
+    if($(this).closest('.popup')) {
+        $(this).closest('.popup').css('display', 'none');
+    }
 });
 $('#logout_button').on('click', function (e) {
     e.preventDefault();
