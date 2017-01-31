@@ -19,7 +19,7 @@ from account.pagination import ShortPagination
 from navigation.models import event_table
 from .models import Participation, Event, EventAnket, EventType, MeetingAttend, Meeting
 from .serializers import ParticipationSerializer, EventSerializer, EventTypeSerializer, EventAnketSerializer, \
-    MeetingSerializer
+    MeetingAttendSerializer, MeetingSerializer, UserMeetingSerializer
 
 
 class MeetingPagination(PageNumberPagination):
@@ -43,8 +43,30 @@ class MeetingViewSet(mixins.RetrieveModelMixin,
                      mixins.ListModelMixin,
                      viewsets.GenericViewSet):
     queryset = Meeting.objects.all()
-    serializer_class = MeetingSerializer
 
+    serializer_class = MeetingSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class MeetingAttendViewSet(mixins.RetrieveModelMixin,
+                           mixins.UpdateModelMixin,
+                           mixins.CreateModelMixin,
+                           mixins.ListModelMixin,
+                           viewsets.GenericViewSet):
+    queryset = MeetingAttend.objects.all()
+
+    serializer_class = MeetingAttendSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class UserMeetingViewSet(mixins.RetrieveModelMixin,
+                         mixins.UpdateModelMixin,
+                         mixins.CreateModelMixin,
+                         mixins.ListModelMixin,
+                         viewsets.GenericViewSet):
+    queryset = CustomUser.objects.all()
+
+    serializer_class = UserMeetingSerializer
     permission_classes = (IsAuthenticated,)
 
 

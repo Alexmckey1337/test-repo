@@ -25,16 +25,24 @@ def partner_table():
 
 def group_table(user, category_title):
     result_table = OrderedDict()
-    if category_title == 'home_groups':
-        if not (hasattr(user, 'home_groups') and isinstance(user.table, Table)):
-            return result_table
-        table_columns = user.table.columns.select_related('columnType').filter(
-            columnType__category__title='home_groups').order_by('number')
-    elif category_title == 'churches':
+    if category_title == 'churches':
         if not (hasattr(user, 'churches') and isinstance(user.table, Table)):
             return result_table
         table_columns = user.table.columns.select_related('columnType').filter(
             columnType__category__title='churches').order_by('number')
+
+    elif category_title == 'home_groups':
+        if not (hasattr(user, 'home_groups') and isinstance(user.table, Table)):
+            return result_table
+        table_columns = user.table.columns.select_related('columnType').filter(
+            columnType__category__title='home_groups').order_by('number')
+
+    elif category_title == 'group_users':
+        if not (hasattr(user, 'churches') and isinstance(user.table, Table)):
+            if not (hasattr(user, 'home_groups') and isinstance(user.table, Table)):
+                return result_table
+        table_columns = user.table.columns.select_related('columnType').filter(columnType__title__in=[
+            'fullname', 'phone_number', 'repentance_date', 'spiritual_level', 'born_date'])
     else:
         return result_table
     for column in table_columns:

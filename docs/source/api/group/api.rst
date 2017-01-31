@@ -469,6 +469,74 @@ Church
     :statuscode 404: there's no church
 
 
+.. http:get:: /api/v1.0/churches/(int:<church_id>)/home_groups
+
+    Details of ``Home Groups`` in selected ``Churhc`` with ``id = church_id``.
+    Paginated by 30 home_groups per page
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "count": 1,
+            "links": {
+                "previous": null,
+                "next": null
+            },
+            "results": [
+                {
+                    "id": 8,
+                    "link": "/home_groups/8/",
+                    "opening_date": "01.01.2017",
+                    "title": "Тестовая Домашняя Группа 2",
+                    "city": "Одесса",
+                    "get_title": "Тестовая Домашняя Группа 2",
+                    "church": {
+                        "id": 6
+                    },
+                    "leader": {
+                        "id": 50,
+                        "fullname": "Болжеларская Марина Александровна"
+                    },
+                    "address": "Гарматная",
+                    "phone_number": "093-288-23-32",
+                    "website": ""
+                }
+            ]
+        }
+
+    **Example response (Bad request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 404 Not Found
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "detail": "Не найдено."
+        }
+
+    :statuscode 200: no error
+    :statuscode 404: there's no church
+
+
 .. http:get:: /api/v1.0/churches/(int:<church_id>)/users/
 
     Details of users without home group in single ``Church`` with ``id = church_id``.
@@ -1157,6 +1225,93 @@ _________
     :statuscode 403: user is not authenticated
 
 
+.. http:get:: /api/v1.0/home_groups/(int:<home_group_id>)/users
+
+    List of the users of ``Home Group`` with ``id = home_group_id``.
+    Pagination by 30 user per page.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/home_groups/8/users/ HTTP/1.1
+        Host: vocrm.org
+        Accept: application/json
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+        "count": 3,
+            "links": {
+                "previous": null,
+                "next": null
+            },
+            "results": [
+                {
+                    "id": 7,
+                    "fullname": "Аккаунт Технический №7",
+                    "phone_number": "",
+                    "repentance_date": null,
+                    "spiritual_level": 1,
+                    "born_date": "09.10.1993"
+                },
+                {
+                    "id": 8,
+                    "fullname": "Аккаунт Технический №8",
+                    "phone_number": "",
+                    "repentance_date": null,
+                    "spiritual_level": 1,
+                    "born_date": "26.01.1995"
+                },
+                {
+                    "id": 2,
+                    "fullname": "Аккаунт Технический №2",
+                    "phone_number": "+38066666",
+                    "repentance_date": null,
+                    "spiritual_level": 1,
+                    "born_date": "01.10.1993"
+                },
+            ]
+        }
+
+    **Example response (Not Found)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 404 Not Found
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "detail": "Не найдено."
+        }
+
+    **Example response (Forbidden)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 403 Forbidden
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "detail": "Учетные данные не были предоставлены."
+        }
+
+    :statuscode 200: no error
+    :statuscode 403: user is not authenticated
+    :statuscode 404: there's no home_group
+
+
 .. http:post:: /api/v1.0/home_groups/6/add_user
 
     Add new user for ``Home Group`` with ``id = home_group_id``.
@@ -1226,6 +1381,19 @@ _________
         }
 
     **Example response (Bad request 4)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "message": "Невозможно добавить пользователя. Пользователь не состоит в Церкви"
+        }
+
+    **Example response (Bad request 5)**:
 
     .. sourcecode:: http
 

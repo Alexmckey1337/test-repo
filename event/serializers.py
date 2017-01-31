@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 
 from .models import Event, Participation, EventType, EventAnket
-from .models import Meeting, MeetingAttend
+from .models import Meeting, MeetingAttend, MeetingType
 from account.models import CustomUser
 
 
@@ -32,21 +32,24 @@ class ParticipationSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'check', 'value', 'uid', 'hierarchy_chain', 'has_disciples', 'fields',)
 
 
-class MeetingUserSerializer(serializers.ModelSerializer):
+class MeetingAttendSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MeetingAttend
+        fields = ('attended', 'note')
+
+
+class UserMeetingSerializer(serializers.ModelSerializer):
+    attends = MeetingAttendSerializer(many=True)
+
     class Meta:
         model = CustomUser
-        fields = ('id', 'fullname', 'spiritual_level', 'phone_number')
-
-
-class MeetingAttendSerializer(serializers.ModelSerializer):
-    user = MeetingUserSerializer()
-
-    class Meta:
-        models = MeetingAttend
-        fields = ('user', 'attended', 'note')
+        fields = ('id', 'fullname', 'spiritual_level', 'phone_number', 'attends')
 
 
 class MeetingSerializer(serializers.ModelSerializer):
+    owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(hierarchy__level=1))
+    visitors = UserMeetingSerializer(many=True,)
+
     class Meta:
         model = Meeting
-        fields = ('id', 'owner', 'type', 'date', 'total_sum',)
+        fields = ('id', 'owner', 'type', 'date', 'total_sum', 'visitors')

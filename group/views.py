@@ -16,7 +16,7 @@ from account.models import CustomUser
 from .models import HomeGroup, Church
 from .serializers import ChurchSerializer, ChurchDetailSerializer, ChurchListSerializer
 from .serializers import HomeGroupSerializer, HomeGroupDetailSerializer, HomeGroupListSerializer, \
-    HomeGroupUserSerializer
+    GroupUserSerializer
 from navigation.models import group_table
 
 
@@ -44,6 +44,10 @@ class ChurchPagination(PaginationMixin):
 
 class HomeGroupPagination(PaginationMixin):
     category = 'home_groups'
+
+
+class GroupUsersPagination(PaginationMixin):
+    category = 'group_users'
 
 
 class ChurchFilter(django_filters.FilterSet):
@@ -99,17 +103,30 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
                 count_users=Count('users', distinct=True) + Count('home_group__users', distinct=True))
         return self.queryset
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], pagination_class=HomeGroupPagination)
+    def home_groups(self, request, pk):
+        serializer = HomeGroupListSerializer
+        church = get_object_or_404(Church, pk=pk)
+        queryset = HomeGroup.objects.filter(church__id=pk)
+        serializer = serializer(queryset, many=True)
+        page = self.paginate_queryset(serializer.data)
+        if page is not None:
+            serializers = HomeGroupListSerializer(page, many=True)
+            return self.get_paginated_response(serializers.data)
+        serializers = HomeGroupSerializer(serializer.data, many=True)
+        return Response(serializers.data)
+
+    @detail_route(methods=['get'], pagination_class=GroupUsersPagination)
     def users(self, request, pk):
-        serializer = HomeGroupUserSerializer
+        serializer = GroupUserSerializer
         church = get_object_or_404(Church, pk=pk)
         queryset = church.users
         serializer = serializer(queryset, many=True)
         page = self.paginate_queryset(serializer.data)
         if page is not None:
-            serializers = HomeGroupUserSerializer(page, many=True, context={'request': request})
+            serializers = GroupUserSerializer(page, many=True)
             return self.get_paginated_response(serializers.data)
-        serializers = HomeGroupUserSerializer(serializer.data, many=True, context={'request': request})
+        serializers = GroupUserSerializer(serializer.data, many=True)
         return Response(serializers.data)
 
     @detail_route(methods=['post'])
@@ -210,6 +227,19 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
             return self.serializer_list_class
         return self.serializer_class
 
+    @detail_route(methods=['get'], pagination_class=GroupUsersPagination)
+    def users(self, request, pk):
+        serializer = GroupUserSerializer
+        home_group = get_object_or_404(HomeGroup, pk=pk)
+        queryset = home_group.users
+        serializer = serializer(queryset, many=True)
+        page = self.paginate_queryset(serializer.data)
+        if page is not None:
+            serializers = GroupUserSerializer(page, many=True)
+            return self.get_paginated_response(serializers.data)
+        serializers = GroupUserSerializer(serializer.data, many=True)
+        return Response(serializers.data)
+
     @detail_route(methods=['post'])
     def add_user(self, request, pk):
         user_id = request.data['user_id']
@@ -234,7 +264,7 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
 
         if not user.churches.exists():
             return Response({'message': 'Невозможно добавить пользователя. '
-                                        'Данный пользователь не пренадлежит к данной Церкви'},
+                                        'Пользователь не состоит в Церкви'},
                             status=status.HTTP_400_BAD_REQUEST)
 
         if user.churches.get().id != church.id:
