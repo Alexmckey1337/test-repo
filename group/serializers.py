@@ -19,7 +19,7 @@ class PastorNameSerializer(serializers.ModelSerializer):
 
 
 class ChurchNameSerializer(serializers.ModelSerializer):
-    title = serializers.PrimaryKeyRelatedField(source='get_title', read_only=True)
+    title = serializers.CharField(source='get_title', read_only=True)
 
     class Meta:
         model = Church
@@ -39,7 +39,7 @@ class HomeGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HomeGroup
-        fields = ('id', 'link', 'opening_date', 'title', 'get_title', 'city',
+        fields = ('id', 'link', 'opening_date', 'title', 'city', 'get_title',
                   'church', 'leader', 'address', 'phone_number', 'website',)
 
 
@@ -51,7 +51,7 @@ class HomeGroupListSerializer(HomeGroupSerializer):
         return getattr(self.Meta, 'fields', None)
 
 
-class HomeGroupUserSerializer(serializers.ModelSerializer):
+class GroupUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('id', 'fullname', 'phone_number', 'repentance_date', 'spiritual_level',
@@ -59,7 +59,7 @@ class HomeGroupUserSerializer(serializers.ModelSerializer):
 
 
 class HomeGroupDetailSerializer(serializers.ModelSerializer):
-    users = HomeGroupUserSerializer(many=True, read_only=True)
+    users = GroupUserSerializer(many=True, read_only=True)
 
     class Meta:
         model = HomeGroup
@@ -96,7 +96,7 @@ class ChurchListSerializer(ChurchSerializer):
 
 
 class ChurchDetailSerializer(serializers.ModelSerializer):
-    home_group = HomeGroupListSerializer(many=True)
+    home_group = HomeGroupListSerializer(many=True, read_only=True)
 
     class Meta:
         model = Church

@@ -13,8 +13,11 @@ def add_extra_phone_numbers(apps, schema_editor):
         phones = filter(lambda number: bool(number),
                         map(lambda n: n.strip().replace('\u200e', ''),
                             user.additional_phones.values_list('number', flat=True)))
-        if phones:
-            user.extra_phone_numbers = list(phones)
+        new_phones = list()
+        for phone in phones:
+            new_phones += list(map(lambda n: n.strip(), phone.split(',')))
+        if new_phones:
+            user.extra_phone_numbers = list(new_phones)
             user.save()
 
 
