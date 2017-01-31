@@ -71,7 +71,7 @@ class CustomUser(MPTTModel, User):
     activation_key = models.CharField(max_length=40, blank=True)
 
     extra_phone_numbers = ArrayField(
-        models.CharField(_('Number'), max_length=25),
+        models.CharField(_('Number'), max_length=255),
         verbose_name=_('Extra Phone Numbers'),
         blank=True, null=True,
     )

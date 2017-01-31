@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='customuser',
             name='extra_phone_numbers',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=25, verbose_name='Number'), blank=True, null=True, size=None, verbose_name='Extra Phone Numbers'),
+            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=255, verbose_name='Number'), blank=True, null=True, size=None, verbose_name='Extra Phone Numbers'),
         ),
         migrations.DeleteModel(
             name='AdditionalPhoneNumber',

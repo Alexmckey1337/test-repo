@@ -77,7 +77,7 @@
                                 <li><input placeholder="+380633333333"
                                            onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
                                            type="text" id="phone_number" value="{{ account.phone_number }}"></li>
-                                <li><input type="text" id="extra_phone_numbers" value="{{ account.extra_phone_numbers|join:", " }}">
+                                <li><input type="text" id="extra_phone_numbers" value="{{ account.extra_phone_numbers|default:""|join:", " }}">
 
                                 </li>
                                 <li><input type="text" id="email" value="{{ account.email }}"></li>

@@ -80,7 +80,7 @@
                                 <li><i class="fa fa-phone"></i>
                                     <span id="phone_number">{{ account.phone_number }}
                                         {% if account.extra_phone_numbers %}, {% endif %}
-                                        {{ account.extra_phone_numbers|join:", " }}
+                                        {{ account.extra_phone_numbers|default:""|join:", " }}
                                 </span></li>
                                 <li><i class="fa fa-envelope"></i><span id="email">{{ account.email }}</span></li>
                                 <li><i class="fa fa-skype"></i><span id="skype">{{ account.skype }}</span></li>
