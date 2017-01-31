@@ -570,8 +570,10 @@ function updateSettings(callback, path) {
 }
 
 function hidePopup(el) {
-    $(el).closest('.popap').find('.save-user').text('Сохранить');
-    $(el).closest('.popap').find('.save-user').attr('disabled', false);
+    if($(el).closest('.popap').find('.save-user')) {
+        $(el).closest('.popap').find('.save-user').attr('disabled', false);
+        $(el).closest('.popap').find('.save-user').text('Сохранить');
+    }
     $(el).closest('.popap').css('display', 'none');
 }
 
