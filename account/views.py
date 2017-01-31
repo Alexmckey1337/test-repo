@@ -354,6 +354,10 @@ class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
     filter_class = ShortUserFilter
     search_fields = ('first_name', 'last_name', 'middle_name')
 
+    def get_queryset(self):
+        descendants = self.request.user.get_descendants()
+        return self.queryset.exclude(pk__in=descendants.values_list('pk', flat=True))
+
 
 class LogoutView(RestAuthLogoutView):
     def logout(self, request):
