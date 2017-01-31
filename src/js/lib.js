@@ -30,8 +30,30 @@ function saveUserData(data, id) {
         });
     }
 }
-function addChurch(el) {
-    console.log('added');
+function getAddChurchData() {
+    return {
+        "opening_date": $('#added_churches_date').val(),
+        "is_open": $('#added_churches_is_open').prop('checked'),
+        "title": $('#added_churches_title').val(),
+        "department": $('#department_select').val(),
+        "pastor": $('#pastor_select').val(),
+        "country": $('#added_churches_country').val(),
+        "city": $('#added_churches_city').val(),
+        "address": $('#added_churches_address').val(),
+        "phone_number": $('#added_churches_phone').val(),
+        "website": $('#added_churches_site').val()
+    }
+}
+function addChurch(e, el) {
+    e.preventDefault();
+    let data = getAddChurchData();
+    let json = JSON.stringify(data);
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/churches/', json, function (data) {
+        console.log(data);
+        console.log('added');
+    }, 'POST', false, {
+        'Content-Type': 'application/json'
+    });
     hidePopup(el)
 }
 function getCountryCodes() {
