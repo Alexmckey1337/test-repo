@@ -19,9 +19,11 @@ class PastorNameSerializer(serializers.ModelSerializer):
 
 
 class ChurchNameSerializer(serializers.ModelSerializer):
+    title = serializers.PrimaryKeyRelatedField(source='get_title', read_only=True)
+
     class Meta:
         model = Church
-        fields = ('id', 'get_title',)
+        fields = ('id', 'title',)
 
 
 class HomeGroupLeaderRelatedField(serializers.PrimaryKeyRelatedField):
@@ -37,7 +39,7 @@ class HomeGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HomeGroup
-        fields = ('id', 'opening_date', 'title', 'get_title', 'city',
+        fields = ('id', 'link', 'opening_date', 'title', 'get_title', 'city',
                   'church', 'leader', 'address', 'phone_number', 'website',)
 
 
