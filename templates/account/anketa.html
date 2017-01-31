@@ -2,6 +2,7 @@
 {% load static %}
 {% load summit_tags %}
 {% load payment_tags %}
+{% load mptt_tags %}
 
 {% block main.attr %} class="main-wrap anketa"  id="account_view"{% endblock %}
 
@@ -119,7 +120,17 @@
                             <ul>
                                 <li><span id="department">{{ account.department }}</span></li>
                                 <li><span id="hierarchy">{{ account.hierarchy }}</span></li>
-                                <li><span id="master">{{ account.master }}</span></li>
+                                <li><span id="master">
+                                    <a href="{% url 'account' account.master.id %}">{{ account.master }}</a>
+                                </span></li>
+                                {% for ancestor in account.master.get_ancestors reversed %}
+                                    {% with level=account.master.level %}
+                                        <li>
+                                            <span style="font-size:1.4em;margin-right:5px;">&#11169;</span>
+                                            <a href="{% url 'account' ancestor.id %}">{{ ancestor }}</a>
+                                        </li>
+                                    {% endwith %}
+                                {% endfor %}
                             </ul>
                         </div>
                     </li>

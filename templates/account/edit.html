@@ -136,6 +136,11 @@
                                 <li><select id="master_hierarchy" style="width:205px">
                                     <option value="{{ account.master.fullname }}" selected data-id="{{ account.master.id }}">{{ account.master.fullname }}</option>
                                 </select></li>
+                            {% if account.master.hierarchy.level <= account.hierarchy.level %}
+                                <li>Сейчас: <a href="{% url 'account' account.master.id %}" style="color:red;">
+                                    {{ account.master }} - {{ account.master.hierarchy }}
+                                </a></li>
+                            {% endif %}
                             </ul>
                         </div>
                     </div>

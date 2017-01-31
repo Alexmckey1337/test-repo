@@ -2,7 +2,7 @@
     "use strict";
 
     function updateUser(data, id) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.1/users/${id}/`, data, function (data) {
+        ajaxRequest(config.DOCUMENT_ROOT + `api/v1.1/users/${id}/`, data, function (data) {
             let send_image = true;
             if (send_image) {
                 try {
@@ -84,7 +84,7 @@
     }
 
     function initEvent() {
-        
+
     }
     function init(id) {
         id = parseInt(id || getLastId());
