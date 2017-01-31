@@ -1,23 +1,27 @@
 # -*- coding: utf-8
 import django_filters
-from common.filters import FieldSearchFilter
-
 from django.db.models import Count
+from django.db.models import Q
+from django.db.models import Value as V
+from django.db.models.functions import Concat
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import status
 from rest_framework import viewsets, mixins, filters
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from hierarchy.models import Department
 from account.models import CustomUser
+from account.serializers import AddExistUserSerializer
+from common.filters import FieldSearchFilter
+from hierarchy.models import Department
+from navigation.models import group_table
 from .models import HomeGroup, Church
 from .serializers import ChurchSerializer, ChurchDetailSerializer, ChurchListSerializer
 from .serializers import HomeGroupSerializer, HomeGroupDetailSerializer, HomeGroupListSerializer, \
     HomeGroupUserSerializer
-from navigation.models import group_table
 
 
 class PaginationMixin(PageNumberPagination):
@@ -110,6 +114,54 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
             serializers = HomeGroupUserSerializer(page, many=True, context={'request': request})
             return self.get_paginated_response(serializers.data)
         serializers = HomeGroupUserSerializer(serializer.data, many=True, context={'request': request})
+        return Response(serializers.data)
+
+    @list_route(methods=['get'])
+    def potential_users_church(self, request):
+        params = request.query_params
+        search = params.get('search', '').strip()
+        if len(search) < 3:
+            return Response({'search': _('Length of search query must be > 2')}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = AddExistUserSerializer
+
+        users = CustomUser.objects.filter(Q(home_groups__isnull=True) | Q(churches__isnull=True)).annotate(
+            full_name=Concat('last_name', V(' '), 'first_name', V(' '), 'middle_name'))
+        for s in map(lambda s: s.strip(), search.split(' ')):
+            users = users.filter(Q(first_name__istartswith=s) |
+                                 Q(last_name__istartswith=s) |
+                                 Q(middle_name__istartswith=s))
+
+        department_id = params.get('department', None)
+        if department_id is not None:
+            users = users.filter(department_id=department_id)
+
+        serializers = serializer(users[:30], many=True)
+
+        return Response(serializers.data)
+
+    @detail_route(methods=['get'])
+    def potential_users_group(self, request, pk):
+        params = request.query_params
+        search = params.get('search', '').strip()
+        if len(search) < 3:
+            return Response({'search': _('Length of search query must be > 2')}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = AddExistUserSerializer
+
+        users = CustomUser.objects.filter(Q(churches__id=pk) | Q(churches__isnull=True)).annotate(
+            full_name=Concat('last_name', V(' '), 'first_name', V(' '), 'middle_name'))
+        for s in map(lambda s: s.strip(), search.split(' ')):
+            users = users.filter(Q(first_name__istartswith=s) |
+                                 Q(last_name__istartswith=s) |
+                                 Q(middle_name__istartswith=s))
+
+        department_id = params.get('department', None)
+        if department_id is not None:
+            users = users.filter(department_id=department_id)
+
+        serializers = serializer(users[:30], many=True)
+
         return Response(serializers.data)
 
     @detail_route(methods=['post'])

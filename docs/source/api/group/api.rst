@@ -6,7 +6,7 @@ Church
 ------
 
 
-.. http:get:: /api/v1.0/churches
+.. http:get:: /api/v1.0/churches/
 
     List of Churches (order by ``opening_date``, ``id``).
     Displaying title of Church is  or ``get_title``.
@@ -467,6 +467,130 @@ Church
     :statuscode 400: bad request
     :statuscode 403: user is not authenticated
     :statuscode 404: there's no church
+
+
+.. http:get:: /api/v1.0/churches/potential_users_church/
+
+    List of users for append to current church, only 30.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/churches/potential_users_church/?search=гал+ру HTTP/1.1
+        Host: vocrm.org
+        Content-type: application/json
+
+    **Example response (Good request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        [
+          {
+            "id": 13096,
+            "city": "Днепропетровск",
+            "country": "Украина",
+            "full_name": "Руденко Галина Ивановна"
+          },
+          {
+            "id": 13834,
+            "city": "Санкт Петербург",
+            "country": "Россия",
+            "full_name": "Мандрусова Галина Руслановна"
+          },
+          {
+            "id": 15101,
+            "city": "Луганск",
+            "country": "Украина",
+            "full_name": "Русинова Галина Пантелеевна"
+          }
+        ]
+
+    **Example response (Bad Requst)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Allow: GET, POST, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+          "search": "Length of search query must be > 2"
+        }
+
+    :query string search: search by ``full_name``, required (min length == ``3``)
+    :query int department: filter by ``department id``, optional
+
+    :statuscode 200: no error
+    :statuscode 400: length of search request < 3
+
+
+.. http:get:: /api/v1.0/churches/(int:<church_id>)/potential_users_group/
+
+    List of users for append to group of current church, only 30.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/churches/1/potential_users_group/?search=гал+ру HTTP/1.1
+        Host: vocrm.org
+        Content-type: application/json
+
+    **Example response (Good request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        [
+          {
+            "id": 13096,
+            "city": "Днепропетровск",
+            "country": "Украина",
+            "full_name": "Руденко Галина Ивановна"
+          },
+          {
+            "id": 13834,
+            "city": "Санкт Петербург",
+            "country": "Россия",
+            "full_name": "Мандрусова Галина Руслановна"
+          },
+          {
+            "id": 15101,
+            "city": "Луганск",
+            "country": "Украина",
+            "full_name": "Русинова Галина Пантелеевна"
+          }
+        ]
+
+    **Example response (Bad Request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Allow: GET, POST, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+          "search": "Length of search query must be > 2"
+        }
+
+    :query string search: search by ``full_name``, required (min length == ``3``)
+    :query int department: filter by ``department id``, optional
+
+    :statuscode 200: no error
+    :statuscode 400: length of search request < 3
 
 
 .. http:get:: /api/v1.0/churches/(int:<church_id>)/users/
