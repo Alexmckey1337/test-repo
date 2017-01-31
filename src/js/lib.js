@@ -31,15 +31,40 @@ function getUsers(config = {}) {
         })
     });
 }
-
+function getChurchUsers(id) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/users/`, null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка")
+            }
+        })
+    });
+}
+function getHomeGroupUsers(id) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${id}/`, null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка")
+            }
+        })
+    });
+}
 function saveUserData(data, id) {
     if (id) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/' + id + '/', data, function (data) {
+        let json = JSON.stringify(data);
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.1/users/${id}/`, json, function (data) {
             console.log(data);
         }, 'PATCH', false, {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/json'
         });
     }
+}
+function addHomeGroup(){
+    console.log('Added');
 }
 function getAddChurchData() {
     return {

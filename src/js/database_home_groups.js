@@ -23,7 +23,7 @@
             filterData.user_table = data.table_columns;
             filterData.results = data.results;
             let rendered = _.template(tmpl)(filterData);
-            $('#tableChurches').html(rendered);
+            $('#tableHomeGroup').html(rendered);
             makeSortForm(filterData.user_table);
             let paginationConfig = {
                 container: ".users__pagination",

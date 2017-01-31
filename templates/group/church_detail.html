@@ -1,38 +1,127 @@
-<h1>Карточка Церкви:</h1>
-<h2>Название Церкви: {{church.get_title }} </h2>
+{% extends "layout_main.html" %}
+{% load static %}
 
-<h2><strong> Основная информация: </strong></h2>
-<hr>
-    Дата открытия: {{ church.opening_date }}
-    <br>
-    Отдел: {{ church.department }}
-    <br>
-    Пастор: {{ church.pastor }}
-    <br>
-    Город: {{ church.city }}
-    <br>
-    Адрес: {{ church.address }}
-    <br>
-    Телефон: {{ church.phone_number }}
-    <br>
-    Сайт: {{ church.website }}
-<hr>
+{% block body_id %} id="database"{% endblock %}
 
-<h2><strong> Сводная информация: </strong></h2>
-<hr>
-    Общее количество людей: {{ users_count }}
-    <br>
-    Количество прихожан: {{ parishioners_count }}
-    <br>
-    Количеств Лидеров: {{ leaders_count }}
-    <br>
-    Количество Домашних групп: {{ home_groups_count }}
-    <br>
-    Количество Отцов: {{ fathers_count }}
-    <br>
-    Количество Юношей: {{ juniors_count }}
-    <br>
-    Количество Младенцев: {{ babies_count }}
-    <br>
-    Количество Партнеров: {{ partners_count }}
-<hr>
+{% block header.top.h1 %}<h1>Карточка Церкви</h1> <h2>{{ church.get_title }}</h2>{% endblock %}
+
+{% block header.buttons %}
+    <div class="top-panel">
+        <div class="top-buttons-wrap">
+            <ul class="top-buttons">
+                <li>
+                    <button id="add_userToChurch" class="add">Добавить пользователя</button>
+                </li>
+                <li>
+                    <button id="add_homeGroupToChurch" class="add">Добавить домашнюю группу</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block header.buttons.export %}
+{% endblock %}
+
+{% block main.content %}
+
+    <div class="container">
+        <div class="col-3">
+            <h2>Основная информация:</h2>
+            <ul>
+                <li>Дата открытия: {{ church.opening_date }}</li>
+                <li>Отдел: {{ church.department }}</li>
+                <li>Пастор: {{ church.pastor }}</li>
+                <li>Город: {{ church.city }}</li>
+                <li>Адрес: {{ church.address }}</li>
+                <li>Телефон: {{ church.phone_number }}</li>
+                <li>Сайт: {{ church.website }}</li>
+            </ul>
+        </div>
+        <div class="col-3">
+            <h2>Сводная информация:</h2>
+            <ul>
+                <li>Общее количество людей: {{ users_count }}</li>
+                <li>Количество прихожан: {{ parishioners_count }}</li>
+                <li>Количеств Лидеров: {{ leaders_count }}</li>
+                <li>Количество Домашних групп: {{ home_groups_count }}</li>
+                <li>Количество Отцов: {{ fathers_count }}</li>
+                <li>Количество Юношей: {{ juniors_count }}</li>
+                <li>Количество Младенцев: {{ babies_count }}</li>
+                <li>Количество Партнеров: {{ partners_count }}</li>
+            </ul>
+        </div>
+        <div class="col-3"></div>
+    </div>
+    {% block pagination_top %}
+        <div class="top-pag">
+            <div class="table__count"></div>
+            <div class="pagination users__pagination"><!--pagination -->
+            </div><!--End pagination -->
+        </div>
+    {% endblock %}
+
+    {% block table %}
+        <div class="table-wrap  clearfix" id="church" data-id="{{ church.id }}"><!--Table -->
+            <div class="table scrollbar-inner" id="tableUserINChurches"></div>
+            <div class="query-none">
+                <p></p>
+            </div>
+        </div><!--End Table -->
+        {#        <div class="preloader">#}
+        {#            <div class="gif"></div>#}
+        {#        </div>#}
+    {% endblock %}
+
+    {% block pagination_bottom %}
+        <div class="table__count"></div>
+        <div class="pagination users__pagination"></div>
+    {% endblock %}
+{% endblock %}
+
+{% block create_user %}
+    {% include 'partials/create_user.html' %}
+{% endblock %}
+
+{% block popup %}
+    <div class="popap" id='addHomeGroup'>
+        <div class="pop_cont">
+            <h2 class='popup_text'>
+                Добавление домашней группы
+            </h2>
+            <form action="" onsubmit="addHomeGroup(event, this)">
+                <div class="popup_body">
+                    <div class="container">
+                        <div>
+                            <p>Дата открития</p>
+                            <p class="end__block">Название</p>
+                            <p>Церковь</p>
+                            <p>Лидер</p>
+                            <p>Город</p>
+                            <p>Адрес служения</p>
+                            <p>Телефон</p>
+                            <p>Сайт</p>
+                        </div>
+                        <div class="col-7">
+                            <p><input type="date" id="added_home_group_date" required></p>
+                            <p class="end__block"><input type="text" id="added_home_group_title"></p>
+                            <p><input type="text" id="added_home_group_church" required></p>
+                            <p><input type="text" id="added_home_group_lider" required></p>
+                            <p><input type="text" id="added_home_group_city" required></p>
+                            <p><input type="text" id="added_home_group_address"></p>
+                            <p><input type="tel" id="added_home_group_phone"></p>
+                            <p><input type="url" id="added_home_group_site"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="container">
+                    <button type="submit" class="add-church">Создать</button>
+                    <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+{% block extra_scripts %}
+    <script src="{% static "js/churches_detail.js" %}"></script>
+{% endblock %}
