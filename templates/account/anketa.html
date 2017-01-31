@@ -121,7 +121,9 @@
                                 <li><span id="department">{{ account.department }}</span></li>
                                 <li><span id="hierarchy">{{ account.hierarchy }}</span></li>
                                 <li><span id="master">
-                                    <a href="{% url 'account' account.master.id %}">{{ account.master }}</a>
+                                    {% if account.master %}
+                                        <a href="{% url 'account' account.master.id %}">{{ account.master }}</a>
+                                    {% endif %}
                                 </span></li>
                                 {% for ancestor in account.master.get_ancestors reversed %}
                                     {% with level=account.master.level %}
