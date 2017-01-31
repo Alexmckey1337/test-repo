@@ -238,8 +238,8 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
 
         if church.users.filter(id=user_id).exists():
             church.users.remove(user_id)
-            home_group.users.add(user_id)
 
+        home_group.users.add(user_id)
         return Response({'message': 'Пользователь успешно добавлен.'},
                         status=status.HTTP_201_CREATED)
 
