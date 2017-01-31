@@ -246,12 +246,8 @@
         </div>
         <div class="col-6">
             <p><input type="text" id="phone_number" value="<%=phone_number %>"></p>
-            <p><input type="text" id="additional_phones"
-                      <% if(!additional_phones.length) { %>
-                      value=""
-                      <%} else { %>
-                        value="<%=additional_phones[0].number %>"
-                        <% } %> >
+            <p><input type="text" id="extra_phone_numbers"
+                        value="<%=extra_phone_numbers.join(', ') %>">
             </p>
             <p><input type="text" id="email" value="<%=email %>"></p>
             <p><input type="text" id="skype" value="<%=skype %>"></p>

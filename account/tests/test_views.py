@@ -6,7 +6,7 @@ from decimal import Decimal
 from django.urls import reverse
 from rest_framework import status
 
-from account.models import CustomUser, AdditionalPhoneNumber
+from account.models import CustomUser
 
 
 FIELD_CODES = (
@@ -18,7 +18,7 @@ FIELD_CODES = (
     ('vkontakte', 201),
     ('odnoklassniki', 201),
     ('skype', 201),
-    ('additional_phones', 201),
+    ('extra_phone_numbers', 201),
     ('born_date', 201),
     ('coming_date', 201),
     ('repentance_date', 201),
@@ -71,7 +71,7 @@ class TestNewUserViewSet:
 
         data = {
             'phone_number': '+380886664422',
-            'additional_phones': '+380776664422',
+            'extra_phone_numbers': ['+380776664422'],
             'email': 'test@email.com',
             'skype': 'skype',
             'facebook': 'http://fb.com/test',
@@ -83,62 +83,9 @@ class TestNewUserViewSet:
 
         assert response.status_code == status.HTTP_200_OK
 
-        additional_phone = data.pop('additional_phones')
         user_dict = dict(list(CustomUser.objects.filter(username='testuser').values(*data.keys()))[0])
 
         assert user_dict == data
-        assert AdditionalPhoneNumber.objects.get(user__username='testuser').number == additional_phone
-
-    def test_partial_update_non_exist_additional_phone_number(self, api_login_client, user_factory):
-        user = user_factory(username='otheruser')
-
-        url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
-
-        data= {
-            'additional_phones': '+380776664422',
-        }
-        api_login_client.force_login(user=user_factory(is_staff=True))
-        response = api_login_client.patch(url, data=data, format='json')
-
-        assert response.status_code == status.HTTP_200_OK
-
-        additional_phone = data.pop('additional_phones')
-        assert AdditionalPhoneNumber.objects.get(user__username='otheruser').number == additional_phone
-
-    def test_partial_update_exist_additional_phone_number(self, api_login_client, user_factory):
-        user = user_factory(username='otheruser')
-        AdditionalPhoneNumber.objects.create(user=user, number='+380666666666')
-        AdditionalPhoneNumber.objects.create(user=user, number='+380888888888')
-
-        url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
-
-        data = {
-            'additional_phones': '+380776664422',
-        }
-        api_login_client.force_login(user=user_factory(is_staff=True))
-        response = api_login_client.patch(url, data=data, format='json')
-
-        assert response.status_code == status.HTTP_200_OK
-
-        additional_phone = data.pop('additional_phones')
-        assert AdditionalPhoneNumber.objects.filter(user__username='otheruser').first().number == additional_phone
-
-    def test_partial_update_exist_additional_phone_number_delete(self, api_login_client, user_factory):
-        user = user_factory(username='otheruser')
-        AdditionalPhoneNumber.objects.create(user=user, number='+380666666666')
-        AdditionalPhoneNumber.objects.create(user=user, number='+380888888888')
-
-        url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
-
-        data = {
-            'additional_phones': '',
-        }
-        api_login_client.force_login(user=user_factory(is_staff=True))
-        response = api_login_client.patch(url, data=data, format='json')
-
-        assert response.status_code == status.HTTP_200_OK
-
-        assert not AdditionalPhoneNumber.objects.filter(user__username='otheruser').exists()
 
     def test_partial_update_master_hierarchy_department(self, user, api_login_client, user_factory,
                                                         hierarchy_factory, department_factory):
@@ -397,7 +344,6 @@ class TestNewUserViewSet:
 
     def test_update_user_with_all_fields(self, api_client, staff_user, user_data, user_factory, partner_factory):
         create_user_data = copy.deepcopy(user_data)
-        additional_phones = create_user_data.pop('additional_phones')
         divisions = create_user_data.pop('divisions')
         partner = create_user_data.pop('partner')
 
@@ -414,7 +360,6 @@ class TestNewUserViewSet:
             value=Decimal(partner['value']),
             date=datetime.date(*map(lambda d: int(d), partner['date'].split('-'))),
             responsible_id=partner['responsible'])
-        AdditionalPhoneNumber.objects.create(user=user, number=additional_phones)
         user.divisions.set(divisions)
 
         url = reverse('users_v1_1-detail', kwargs={'pk': user.id})

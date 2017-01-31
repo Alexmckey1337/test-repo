@@ -23,10 +23,10 @@ function getUsers(config = {}) {
 
 function saveUserData(data, id) {
     if (id) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/' + id + '/', data, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.1/users/${id}/`, JSON.stringify(data), function (data) {
             console.log(data);
         }, 'PATCH', false, {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/json'
         });
     }
 }

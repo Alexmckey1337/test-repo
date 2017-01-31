@@ -9,12 +9,8 @@ from django.utils.translation import ugettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
 from mptt.admin import MPTTModelAdmin
 
-from .models import CustomUser, AdditionalPhoneNumber
+from .models import CustomUser
 from .resources import UserResource
-
-
-class AdditionalPhoneNumberInline(admin.TabularInline):
-    model = AdditionalPhoneNumber
 
 
 class CustomUserAdmin(UserAdmin, MPTTModelAdmin, ImportExportModelAdmin):
@@ -26,7 +22,7 @@ class CustomUserAdmin(UserAdmin, MPTTModelAdmin, ImportExportModelAdmin):
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {'fields': (
             'email', 'first_name', 'last_name', 'middle_name', 'search_name', 'master', 'department', 'hierarchy',
-            'phone_number', 'skype', 'facebook', 'vkontakte', 'image', 'born_date',
+            'phone_number', 'extra_phone_numbers', 'skype', 'facebook', 'vkontakte', 'image', 'born_date',
             'country', 'region', 'city', 'district', 'address',
             'description', 'repentance_date', 'coming_date', 'hierarchy_order',
         )}),
@@ -36,8 +32,6 @@ class CustomUserAdmin(UserAdmin, MPTTModelAdmin, ImportExportModelAdmin):
     )
     change_password_form = AdminPasswordChangeForm
     resource_class = UserResource
-
-    inlines = [AdditionalPhoneNumberInline, ]
 
 
 admin.site.unregister(User)

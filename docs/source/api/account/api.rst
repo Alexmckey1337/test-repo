@@ -262,7 +262,7 @@ CustomUser
         "vkontakte": "http://vk.com/test",
         "odnoklassniki": "http://ok.com/test",
         "skype": "skype",
-        "additional_phones": "26426264",
+        "extra_phone_numbers": ["26426264"],
         "born_date": "2000-02-20",
         "coming_date": "2002-02-20",
         "repentance_date": "2020-02-22",
@@ -304,11 +304,8 @@ CustomUser
         "odnoklassniki": "http://ok.com/test",
         "skype": "skype",
         "phone_number": "573135171",
-        "additional_phones": [
-          {
-            "id": 5491,
-            "number": "26426264"
-          }
+        "extra_phone_numbers": [
+            "26426264"
         ],
         "born_date": "20.02.2000",
         "coming_date": "20.02.2002",
@@ -375,7 +372,7 @@ CustomUser
    :form odnoklassniki: odnoklassiniki url
    :form skype: login of skype
    :form phone_number: phone number, **required**
-   :form additional_phones: additional phone number
+   :form extra_phone_numbers: additional phone numbers
    :form born_date: born date
    :form coming_date: coming date
    :form repentance_date: repentance date
@@ -428,7 +425,7 @@ CustomUser
         "vkontakte": "http://vk.com/test",
         "odnoklassniki": "http://ok.com/test",
         "skype": "skype",
-        "additional_phones": "26426264",
+        "extra_phone_numbers": ["26426264"],
         "born_date": "2000-02-20",
         "coming_date": "2002-02-20",
         "repentance_date": "2020-02-22",
@@ -470,11 +467,8 @@ CustomUser
         "odnoklassniki": "http://ok.com/test",
         "skype": "skype",
         "phone_number": "573135171",
-        "additional_phones": [
-          {
-            "id": 5491,
-            "number": "26426264"
-          }
+        "extra_phone_numbers": [
+            "26426264"
         ],
         "born_date": "20.02.2000",
         "coming_date": "20.02.2002",
@@ -541,7 +535,7 @@ CustomUser
    :form odnoklassniki: odnoklassiniki url
    :form skype: login of skype
    :form phone_number: phone number, **required**
-   :form additional_phones: additional phone number
+   :form extra_phone_numbers: additional phone numbers
    :form born_date: born date
    :form coming_date: coming date
    :form repentance_date: repentance date
@@ -606,11 +600,8 @@ CustomUser
         "odnoklassniki": "ok",
         "skype": "iskype",
         "phone_number": "+3846266646",
-        "additional_phones": [
-          {
-            "id": 9,
-            "number": "+3843333338"
-          }
+        "extra_phone_numbers": [
+            "+3843333338"
         ],
         "born_date": "08.11.2016",
         "coming_date": "01.12.2016",
@@ -673,7 +664,7 @@ CustomUser
    :form odnoklassniki: odnoklassiniki url
    :form skype: login of skype
    :form phone_number: phone number
-   :form additional_phones: additional phone number
+   :form extra_phone_numbers: additional phone numbers
    :form born_date: born date
    :form coming_date: coming date
    :form repentance_date: repentance date
