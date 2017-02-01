@@ -53,7 +53,7 @@ function getAddNewUserData() {
         "middle_name": $("input[name='middle_name']").val(),
         "search_name": $('#search_name').val(),
         "born_date": $("input[name='born_date']").val() || null,
-        "phone_number": parseInt($("input[name='phone_numberCode']").val() + '' + $("input[name='phone_number']").val()),
+        "phone_number": $("input[name='phone_numberCode']").val() + '' + $("input[name='phone_number']").val(),
         "extra_phone_numbers": _.filter(_.map($("#extra_phone_numbers").val().split(","), x => x.trim()), x => !!x),
         "vkontakte": $("input[name='vk']").val(),
         "facebook": $("input[name='fb']").val(),
@@ -268,6 +268,7 @@ function initAddNewUser(id, callback) {
     $('#chooseCountryCode').select2();
 
     $('#saveNew').on('click', function () {
+        console.log(getAddNewUserData());
         let json = JSON.stringify(getAddNewUserData());
         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/', json, function (data) {
             let user_id = data.id;
