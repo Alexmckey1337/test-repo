@@ -25,5 +25,12 @@
          $('#pastor_select').prop('disabled', true);
         var department_id = parseInt($('#department_select').val());
         makePastorList(department_id);
+    });
+    $('#sort_save').on('click', function () {
+        $('.preloader').css('display', 'block');
+        updateSettings(createChurchesTable);
+    });
+    $('input[name="fullsearch"]').on('keyup', function () {
+        createChurchesTable();
     })
 })(jQuery);

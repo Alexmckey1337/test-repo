@@ -11,7 +11,8 @@
         });
     }
     function createHomeGroupsTable(config = {}) {
-        getHomeGroups().then(function (data) {
+        config.search_title = $('input[name="fullsearch"]').val();
+        getHomeGroups(config).then(function (data) {
             console.log(data);
             let count = data.count;
             let page = config['page'] || 1;
@@ -51,5 +52,12 @@
          $('#pastor_select').prop('disabled', true);
         var department_id = parseInt($('#department_select').val());
         makePastorList(department_id);
+    });
+    $('#sort_save').on('click', function () {
+        $('.preloader').css('display', 'block');
+        updateSettings(createHomeGroupsTable);
+    });
+    $('input[name="fullsearch"]').on('keyup', function () {
+        createHomeGroupsTable();
     })
 })(jQuery);

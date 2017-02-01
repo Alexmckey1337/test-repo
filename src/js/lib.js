@@ -137,7 +137,8 @@ function getAddChurchData() {
 }
 
 function createChurchesTable(config = {}) {
-    getChurches().then(function (data) {
+    config.search_title = $('input[name="fullsearch"]').val();
+    getChurches(config).then(function (data) {
         console.log(data);
         let count = data.count;
         let page = config['page'] || 1;
