@@ -322,7 +322,7 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
                             status=status.HTTP_400_BAD_REQUEST)
         """
 
-        if user.churches.get().id != church.id:
+        if user.churches.exists() and user.churches.get().id != church.id:
             return Response({'message': 'Невозможно добавить пользователя. '
                                         'Пользователь является членом другой Церкви'},
                             status=status.HTTP_400_BAD_REQUEST)
