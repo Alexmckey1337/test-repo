@@ -315,10 +315,12 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
                                         'Данный пользователь уже состоит в Домашней Группе.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
+        """
         if not user.churches.exists():
             return Response({'message': 'Невозможно добавить пользователя. '
                                         'Пользователь не состоит в Церкви'},
                             status=status.HTTP_400_BAD_REQUEST)
+        """
 
         if user.churches.get().id != church.id:
             return Response({'message': 'Невозможно добавить пользователя. '
