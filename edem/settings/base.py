@@ -59,6 +59,7 @@ THIRD_PARTY_APPS = (
     'tinymce',
     # 'rest_auth.registration',
     'mptt',
+    'channels',
 )
 LOCAL_APPS = (
     'main',
@@ -328,4 +329,14 @@ PARTNER_LEVELS = {
     'supervisor': 1,
     'manager': 2,
     'partner': 3,
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+        "ROUTING": "edem.routing.channel_routing",
+    },
 }

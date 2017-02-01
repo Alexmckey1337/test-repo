@@ -1,7 +1,9 @@
 amqp==1.4.9
+asgi_redis
 anyjson==0.3.3
 billiard==3.3.0.23
 celery==3.1.25
+channels
 diff-match-patch==20121119
 django>=1.10,<1.11
 django-allauth
