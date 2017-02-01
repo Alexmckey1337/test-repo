@@ -142,7 +142,7 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
 
         serializer = AddExistUserSerializer
 
-        users = CustomUser.objects.filter(Q(home_groups__isnull=True) | Q(churches__isnull=True)).annotate(
+        users = CustomUser.objects.filter(Q(home_groups__isnull=True) & Q(churches__isnull=True)).annotate(
             full_name=Concat('last_name', V(' '), 'first_name', V(' '), 'middle_name'))
         for s in map(lambda s: s.strip(), search.split(' ')):
             users = users.filter(Q(first_name__istartswith=s) |
@@ -166,8 +166,9 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
 
         serializer = AddExistUserSerializer
 
-        users = CustomUser.objects.filter(Q(churches__id=pk) | Q(churches__isnull=True)).annotate(
-            full_name=Concat('last_name', V(' '), 'first_name', V(' '), 'middle_name'))
+        users = CustomUser.objects. \
+            filter(Q(home_groups__isnull=True) & (Q(churches__isnull=True) | Q(churches__id=pk))). \
+            annotate(full_name=Concat('last_name', V(' '), 'first_name', V(' '), 'middle_name'))
         for s in map(lambda s: s.strip(), search.split(' ')):
             users = users.filter(Q(first_name__istartswith=s) |
                                  Q(last_name__istartswith=s) |
