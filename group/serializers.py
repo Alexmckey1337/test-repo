@@ -54,7 +54,7 @@ class HomeGroupListSerializer(HomeGroupSerializer):
 class GroupUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ('id', 'fullname', 'phone_number', 'repentance_date', 'spiritual_level',
+        fields = ('id', 'link', 'fullname', 'phone_number', 'repentance_date', 'spiritual_level',
                   'born_date',)
 
 

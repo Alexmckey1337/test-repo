@@ -94,8 +94,13 @@
         $('#chooseUserINBases').css('display', 'block');
     });
     $('#add_new').on('click', function () {
+        let department_id = $('#church').data('department_id');
+        let department_title = $('#church').data('department_title');
+        let option = document.createElement('option');
+        $(option).val(department_id).text(department_title).attr('selected', true);
         $(this).closest('.popup').css('display', 'none');
         $('#addNewUserPopup').css('display', 'block');
+        $('#chooseDepartment').append(option);
     });
     $('#searchUserFromDatabase').on('keyup', function () {
         let search = $(this).val();

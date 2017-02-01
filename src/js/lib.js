@@ -44,7 +44,7 @@ function getChurchUsers(id) {
 }
 function getHomeGroupUsers(id) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${id}/`, null, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${id}/users`, null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -124,7 +124,28 @@ function getCountryCodes() {
         })
     })
 }
-
+function getRegions(config = {}) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/regions/', config, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка")
+            }
+        })
+    })
+}
+function getCities(config = {}) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/cities/', config, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка")
+            }
+        })
+    })
+}
 function getPartnersList(data) {
     let config = {
         search: "",

@@ -1801,6 +1801,16 @@ td {
   }
 }
 
+#tableUserINChurches {
+  & td {
+    a {
+      & ~ .quick-edit {
+        display: none;
+      }
+    }
+  }
+}
+
 td a:hover {
   color: #3caeda;
   border-bottom: 1px dotted #3caeda;
@@ -3791,6 +3801,16 @@ span.green {
   display: flex;
   align-items: flex-start;
   justify-content: space-around;
+  & .info {
+    padding: 2em;
+    & h2 {
+      margin-bottom: 0.5em;
+      font-size: 1.5em;
+    }
+    & ul {
+      line-height: 1.5;
+    }
+  }
 }
 
 .col-2, .col-3 {
