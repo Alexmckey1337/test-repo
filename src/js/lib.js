@@ -259,6 +259,30 @@ function getUsersFromDatabase(config) {
     });
 }
 
+function getUsersTOChurch(config) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/churches/potential_users_church/', config, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    });
+}
+
+function getUsersTOHomeGroup(config, id) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/potential_users_group/`, config, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    });
+}
+
 function getDivisions() {
     return new Promise(function (resolve, reject) {
         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/divisions/', null, function (data) {

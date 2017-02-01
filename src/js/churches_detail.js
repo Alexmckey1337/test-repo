@@ -41,12 +41,16 @@
         })
     }
     function addUserToChurch(id, el) {
-        $(el).attr('disabled', true).text('Добавлен');
-        console.log(id)
+        let config = {};
+        config.user_id = id;
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${ID}/add_user/`, config, function () {
+            $(el).attr('disabled', true).text('Добавлен');
+            createChurchesUsersTable();
+        }, 'POST', 'application/json');
     }
     function makeUsersFromDatabaseList(config = {}) {
-        getUsersFromDatabase(config).then(function(data){
-            let users = data.results;
+        getUsersTOChurch(config).then(function(data) {
+            let users = data;
             let html = [];
             users.forEach(function (item) {
                 let rows_wrap = document.createElement('div');
@@ -56,10 +60,10 @@
                 let place = document.createElement('p');
                 let link = document.createElement('a');
                 let button = document.createElement('button');
-                $(link).attr('href', '/account/' + item.id).text(item.fullname);
+                $(link).attr('href', '/account/' + item.id).text(item.full_name);
                 $(place).text();
                 $(col_1).addClass('col').append(link);
-                $(col_2).addClass('col').append(item.city);
+                $(col_2).addClass('col').append(item.country + ', ' +  item.city);
                 $(rows).addClass('rows').append(col_1).append(col_2);
                 $(button).attr('data-id', item.id).text('Выбрать').on('click',function () {
                     let id = $(this).data('id');
@@ -85,6 +89,7 @@
     });
     $('#add_userToChurch').on('click', function () {
         $('#addUser').css('display', 'block');
+        initAddNewUser();
     });
     $('#choose').on('click', function () {
         $(this).closest('.popup').css('display', 'none');
@@ -106,7 +111,8 @@
         let search = $(this).val();
         if (search.length < 3) return;
         let config = {};
-        config.search_fio = search;
+        config.search = search;
+        config.department = D_ID;
         makeUsersFromDatabaseList(config);
     })
 })(jQuery);

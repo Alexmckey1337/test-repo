@@ -11,39 +11,39 @@ var VOCRM = {};
 counterNotifications();
 
 // Sorting
-    var orderTable = (function () {
-        function addListener(callback) {
-            $(".table-wrap th").on('click', function () {
-                let dataOrder;
-                let data_order = this.getAttribute('data-order');
-                let page = $('.pagination__input').val();
-                let revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
-                let order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
-                if (order != '') {
-                    dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
-                } else {
-                    dataOrder = '-' + data_order;
-                }
-                let data = {
-                    'ordering': dataOrder,
-                    'page': page
-                };
-                if (order == data_order) {
-                    revers = (revers == '+') ? '-' : '+';
-                } else {
-                    revers = "+"
-                }
-                sessionStorage.setItem('revers', revers);
-                sessionStorage.setItem('order', data_order);
-                $('.preloader').css('display', 'block');
-                callback(data);
-            });
-        }
+var orderTable = (function () {
+    function addListener(callback) {
+        $(".table-wrap th").on('click', function () {
+            let dataOrder;
+            let data_order = this.getAttribute('data-order');
+            let page = $('.pagination__input').val();
+            let revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
+            let order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
+            if (order != '') {
+                dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
+            } else {
+                dataOrder = '-' + data_order;
+            }
+            let data = {
+                'ordering': dataOrder,
+                'page': page
+            };
+            if (order == data_order) {
+                revers = (revers == '+') ? '-' : '+';
+            } else {
+                revers = "+"
+            }
+            sessionStorage.setItem('revers', revers);
+            sessionStorage.setItem('order', data_order);
+            $('.preloader').css('display', 'block');
+            callback(data);
+        });
+    }
 
-        return {
-            sort: addListener
-        }
-    })();
+    return {
+        sort: addListener
+    }
+})();
 
 function makeDataTable(data, id) {
     var tmpl = document.getElementById('databaseUsers').innerHTML;
@@ -64,14 +64,14 @@ function makeSortForm(data) {
     console.log(obj);
     rendered = _.template(sortFormTmpl)(obj);
     document.getElementById('sort-form').innerHTML = rendered;
-    }
+}
 
 function makeResponsibleList() {
     let department = $('#departmentSelect').val();
     let hierarchy = $('#hierarchySelect option:selected').attr('data-level');
     getResponsible(department, hierarchy).then(function (data) {
         let id = $('#master_hierarchy option:selected').attr('data-id');
-        if(!id) {
+        if (!id) {
             id = $('#master_hierarchy option').attr('data-id');
         }
         var selected = false;
@@ -93,14 +93,122 @@ function makeResponsibleList() {
 }
 
 var makeChooseDivision = getDivisions().then(function (data) {
-            data = data.results;
-            let html = '';
-            for (let i = 0; i < data.length; i++) {
-                html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
-            }
-            return html
+    data = data.results;
+    let html = '';
+    for (let i = 0; i < data.length; i++) {
+        html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+    }
+    return html
+});
+function initAddNewUser() {
+    getStatuses().then(function (data) {
+        let statuses = data.results;
+        let rendered = [];
+        let option = document.createElement('option');
+        $(option).text('Выбирите статус').attr('disabled', true).attr('selected', true);
+        rendered.push(option);
+        statuses.forEach(function (item) {
+            let option = document.createElement('option');
+            $(option).val(item.id).attr('data-level', item.level).text(item.title);
+            rendered.push(option);
         });
+        return rendered;
+    }).then(function (rendered) {
+        $('#chooseStatus').html(rendered).select2().on('change', function () {
+            let status = $(this).val();
+            getResponsible(HG_ID, status).then(function (data) {
+                let rendered = [];
+                data.forEach(function (item) {
+                    let option = document.createElement('option');
+                    $(option).val(item.id).text(item.fullname);
+                    rendered.push(option);
+                });
+                $('#chooseResponsible').html(rendered).attr('disabled', false).select2();
+            })
+        });
+    });
 
+    getDivisions().then(function (data) {
+        let divisions = data.results;
+        let rendered = [];
+        divisions.forEach(function (item) {
+            let option = document.createElement('option');
+            $(option).val(item.id).text(item.title);
+            rendered.push(option);
+        });
+        $('#chooseDivision').html(rendered).select2();
+    });
+    getCountryCodes().then(function (data) {
+        let codes = data;
+        let rendered = [];
+        codes.forEach(function (item) {
+            let option = document.createElement('option');
+            $(option).val(item.phone_code).text(item.title + ' ' + item.phone_code);
+            if (item.phone_code == '+38') {
+                $(option).attr('selected', true);
+            }
+            rendered.push(option);
+        });
+        $('#chooseCountryCode').html(rendered).on('change', function () {
+            let code = $(this).val();
+            $('#phoneNumberCode').val(code);
+        }).trigger('change');
+    });
+
+    getCountries().then(function (data) {
+        let rendered = [];
+        let option = document.createElement('option');
+        $(option).text('Выберите страну').attr('disabled', true).attr('selected', true);
+        rendered.push(option);
+        data.forEach(function (item) {
+            let option = document.createElement('option');
+            $(option).val(item.id).text(item.title);
+            rendered.push(option);
+        });
+        $('#chooseCountry').html(rendered).on('change', function () {
+            let config = {};
+            config.country = $(this).val();
+            getRegions(config).then(function (data) {
+                let rendered = [];
+                let option = document.createElement('option');
+                $(option).text('Выберите регион');
+                rendered.push(option);
+                data.forEach(function (item) {
+                    let option = document.createElement('option');
+                    $(option).val(item.id).text(item.title);
+                    rendered.push(option);
+                });
+                $('#chooseRegion').html(rendered).attr('disabled', false).on('change', function () {
+                    let config = {};
+                    config.country = $(this).val();
+                    getCities(config).then(function (data) {
+                        let rendered = [];
+                        let option = document.createElement('option');
+                        $(option).text('Выберите регион');
+                        rendered.push(option);
+                        data.forEach(function (item) {
+                            let option = document.createElement('option');
+                            $(option).val(item.id).text(item.title);
+                            rendered.push(option);
+                        });
+                        $('#chooseCity').html(rendered).attr('disabled', false).select2();
+                    })
+                }).select2();
+            })
+        }).select2();
+    });
+
+    $('#repentanceDate').datepicker({
+        dateFormat: 'yyyy-mm-dd'
+    });
+    $('#partnerFrom').datepicker({
+        dateFormat: 'yyyy-mm-dd'
+    });
+    $('#bornDate').datepicker({
+        dateFormat: 'yyyy-mm-dd'
+    });
+    $('#chooseCountryCode').select2();
+}
 function saveUser(el) {
     let $input, $select, fullName, first_name, last_name, middle_name, data, id;
     let master_id = $('#master_hierarchy option:selected').attr('data-id') || "";
@@ -223,10 +331,10 @@ function setCookie(name, value, options) {
     document.cookie = updatedCookie;
 }
 $('.close').on('click', function () {
-    if($(this).closest('.pop-up-splash')){
+    if ($(this).closest('.pop-up-splash')) {
         $(this).closest('.pop-up-splash').css('display', 'none');
     }
-    if($(this).closest('.popup')) {
+    if ($(this).closest('.popup')) {
         $(this).closest('.popup').css('display', 'none');
     }
 });
@@ -519,29 +627,29 @@ function getCurrentSetting() {
 }
 
 function createUsersTable(config) {
-        config["search_fio"] = $('input[name=fullsearch]').val();
-        Object.assign(config, filterParam());
-        getUsers(config).then(function (data) {
-            let count = data.count;
-            let page = config['page'] || 1;
-            let pages = Math.ceil(count / CONFIG.pagination_count);
-            let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
-            let id = "database_users";
-            let text = `Показано ${showCount} из ${count}`;
-            let paginationConfig = {
-                container: ".users__pagination",
-                currentPage: page,
-                pages: pages,
-                callback: createUsersTable
-            };
-            makeDataTable(data, id);
-            makePagination(paginationConfig);
-            $('.table__count').text(text);
-            makeSortForm(data.user_table);
-            $('.preloader').css('display', 'none');
-            orderTable.sort(createUsersTable);
-        });
-    }
+    config["search_fio"] = $('input[name=fullsearch]').val();
+    Object.assign(config, filterParam());
+    getUsers(config).then(function (data) {
+        let count = data.count;
+        let page = config['page'] || 1;
+        let pages = Math.ceil(count / CONFIG.pagination_count);
+        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let id = "database_users";
+        let text = `Показано ${showCount} из ${count}`;
+        let paginationConfig = {
+            container: ".users__pagination",
+            currentPage: page,
+            pages: pages,
+            callback: createUsersTable
+        };
+        makeDataTable(data, id);
+        makePagination(paginationConfig);
+        $('.table__count').text(text);
+        makeSortForm(data.user_table);
+        $('.preloader').css('display', 'none');
+        orderTable.sort(createUsersTable);
+    });
+}
 
 function updateSettings(callback, path) {
     let data = [];
@@ -575,7 +683,7 @@ function updateSettings(callback, path) {
 }
 
 function hidePopup(el) {
-    if($(el).closest('.popap').find('.save-user')) {
+    if ($(el).closest('.popap').find('.save-user')) {
         $(el).closest('.popap').find('.save-user').attr('disabled', false);
         $(el).closest('.popap').find('.save-user').text('Сохранить');
     }
