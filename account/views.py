@@ -141,9 +141,11 @@ class NewUserViewSet(viewsets.ModelViewSet):
     serializer_single_class = UserSingleSerializer
 
     pagination_class = UserPagination
-    filter_backends = (filters.DjangoFilterBackend,
-                       FieldSearchFilter,
-                       filters.OrderingFilter,)
+    filter_backends = (
+        filters.DjangoFilterBackend,
+        FieldSearchFilter,
+        filters.OrderingFilter,
+    )
     permission_classes = (IsAuthenticated,)
     ordering_fields = ('first_name', 'last_name', 'middle_name',
                        'born_date', 'country', 'region', 'city', 'disrict', 'address', 'skype',

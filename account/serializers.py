@@ -72,6 +72,14 @@ class PartnershipSerializer(serializers.ModelSerializer):
         fields = ('value', 'responsible', 'date', 'user')
 
 
+class AddExistUserSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ('id', 'city', 'country', 'full_name')
+
+
 class NewUserSerializer(serializers.ModelSerializer):
 
     partnership = PartnershipSerializer(required=False)
