@@ -34,7 +34,7 @@
     function addUserToHomeGroup(id, el) {
         let config = {};
         config.user_id = id;
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `/api/v1.0/home_groups/${ID}/add_user/`, config, function () {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${ID}/add_user/`, config, function () {
             $(el).attr('disabled', true).text('Добавлен');
             createHomeGroupUsersTable();
         }, 'POST', 'application/json');
@@ -75,7 +75,7 @@
 // Events
     $('#add_userToHomeGroup').on('click', function () {
         $('#addUser').css('display', 'block');
-        initAddNewUser();
+        initAddNewUser(HG_ID, addUserToHomeGroup);
     });
     $('#choose').on('click', function () {
         $(this).closest('.popup').css('display', 'none');
@@ -100,14 +100,6 @@
         config.search = search;
         config.department = HG_ID;
         makeUsersFromDatabaseList(config, ID);
-    });
-    $('#partner').on('change', function () {
-        let partner = $(this).is(':checked');
-        if (partner) {
-            $('.hidden-partner').css('display', 'block');
-        } else {
-            $('.hidden-partner').css('display', 'none');
-        }
     });
 
 })(jQuery);

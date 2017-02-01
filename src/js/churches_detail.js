@@ -2,32 +2,6 @@
     const ID = $('#church').data('id');
     const D_ID = $('#added_home_group_church').data('department');
     let responsibleList = false;
-    function createChurchesUsersTable(config = {}) {
-        getChurchUsers(ID).then(function (data) {
-            console.log(data);
-            let count = data.count;
-            let page = config['page'] || 1;
-            let pages = Math.ceil(count / CONFIG.pagination_count);
-            let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
-            let text = `Показано ${showCount} из ${count}`;
-            let tmpl = $('#databaseUsers').html();
-            let filterData = {};
-            filterData.user_table = data.table_columns;
-            filterData.results = data.results;
-            let rendered = _.template(tmpl)(filterData);
-            $('#tableUserINChurches').html(rendered);
-            makeSortForm(filterData.user_table);
-            let paginationConfig = {
-                container: ".users__pagination",
-                currentPage: page,
-                pages: pages,
-                callback: createChurchesUsersTable
-            };
-            makePagination(paginationConfig);
-            $('.table__count').text(text);
-            $('.preloader').css('display', 'none');
-        })
-    }
 
     function makeResponsibleList(id, level) {
         getResponsible(id, level).then(function (data) {
@@ -45,7 +19,7 @@
         config.user_id = id;
         ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${ID}/add_user/`, config, function () {
             $(el).attr('disabled', true).text('Добавлен');
-            createChurchesUsersTable();
+            createChurchesUsersTable(ID);
         }, 'POST', 'application/json');
     }
     function makeUsersFromDatabaseList(config = {}) {
@@ -77,7 +51,7 @@
             $('.choose-user-wrap .splash-screen').addClass('active');
         })
     }
-    createChurchesUsersTable();
+    createChurchesUsersTable(ID);
     $('#added_home_group_pastor').select2();
 //    Events
     $('#add_homeGroupToChurch').on('click', function () {
@@ -89,7 +63,7 @@
     });
     $('#add_userToChurch').on('click', function () {
         $('#addUser').css('display', 'block');
-        initAddNewUser();
+        initAddNewUser(D_ID, addUserToChurch);
     });
     $('#choose').on('click', function () {
         $(this).closest('.popup').css('display', 'none');

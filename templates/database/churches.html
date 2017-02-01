@@ -149,7 +149,7 @@
             <h2 class='popup_text'>
                 Создание новой церкви
             </h2>
-            <form action="" onsubmit="addChurch(event, this)">
+            <form action="" onsubmit="addChurch(event, this, createChurchesTable)">
                 <div class="popup_body">
                     <div class="container">
                         <div>
@@ -176,7 +176,7 @@
                             </select></p>
                             <p><input type="text" id="added_churches_country" required></p>
                             <p><input type="text" id="added_churches_city" required></p>
-                            <p class="end__block"><select name="pastor" id="pastor_select" disabled>
+                            <p class="end__block"><select name="pastor" id="pastor_select" disabled required>
                                 <option value="0">Выберите пастора</option>
                             </select></p>
                             <p><input type="text" id="added_churches_address"></p>
