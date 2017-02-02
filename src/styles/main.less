@@ -3809,6 +3809,24 @@ span.green {
     }
     & ul {
       line-height: 1.5;
+      & li {
+        margin: 0.2em 0;
+        &.mb {
+          margin-bottom: .5em;
+        }
+        & button {
+          padding: .3em;
+          color: inherit;
+          background-color: transparent;
+          font-size: 1em;
+          border: 1px solid transparent;
+          &:hover, &.active {
+            color: inherit;
+            border: 1px solid #aab2bd;
+            background-color: transparent;
+          }
+        }
+      }
     }
   }
 }
