@@ -85,8 +85,8 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
     filter_class = ChurchFilter
     field_search_fields = {
         'search_title': ('title',),
-        'search_department': ('department',),
-        'search_pastor': ('pastor',),
+        'search_department': ('department__title',),
+        'search_pastor': ('pastor__last_name',),
         'search_country': ('country',),
         'search_city': ('city',),
     }
@@ -106,6 +106,17 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
                 count_groups=Count('home_group', distinct=True),
                 count_users=Count('users', distinct=True) + Count('home_group__users', distinct=True))
         return self.queryset
+
+    @list_route(methods=['get'], pagination_class=GroupUsersPagination)
+    def all_users(self, request):
+        all_users = CustomUser.objects.exclude(Q(home_groups__isnull=True), Q(churches__isnull=True))
+        page = self.paginate_queryset(all_users)
+        if page is not None:
+            serializer = GroupUserSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = GroupUserSerializer(all_users, many=True)
+        return Response(serializer.data)
 
     @detail_route(methods=['get'], pagination_class=HomeGroupPagination)
     def home_groups(self, request, pk):
