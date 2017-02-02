@@ -15,6 +15,9 @@
                 <li>
                     <button id="add_homeGroupToChurch" class="add">Добавить домашнюю группу</button>
                 </li>
+                <li>
+                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
+                </li>
             </ul>
         </div>
     </div>
@@ -46,10 +49,11 @@
             <div class="info">
                 <h2>Сводная информация:</h2>
                 <ul>
-                    <li>Общее количество людей: {{ users_count }}</li>
+                    <li class="mb get_info"><button data-link="home_groups">Количество Домашних групп: {{ home_groups_count }}</button></li>
+                    <li class="get_info"><button data-link="all_users">Общее количество людей: {{ church_all_users }}</button></li>
+                    <li class="mb get_info"><button class="active" data-link="users" >Люди не в домашних группах: {{ church_users }}</button></li>
                     <li>Количество прихожан: {{ parishioners_count }}</li>
                     <li>Количеств Лидеров: {{ leaders_count }}</li>
-                    <li>Количество Домашних групп: {{ home_groups_count }}</li>
                     <li>Количество Отцов: {{ fathers_count }}</li>
                     <li>Количество Юношей: {{ juniors_count }}</li>
                     <li>Количество Младенцев: {{ babies_count }}</li>

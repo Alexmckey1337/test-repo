@@ -46,6 +46,18 @@ function getChurchUsers(id) {
     });
 }
 
+function getChurchDetails(id, link, config) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/${link}/`, config, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка")
+            }
+        })
+    });
+}
+
 function getHomeGroupUsers(id) {
     return new Promise(function (resolve, reject) {
         ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${id}/users`, null, function (data) {
@@ -71,6 +83,34 @@ function saveUserData(data, id) {
 
 function createChurchesUsersTable(id, config = {}) {
     getChurchUsers(id).then(function (data) {
+        console.log(data);
+        let count = data.count;
+        let page = config['page'] || 1;
+        let pages = Math.ceil(count / CONFIG.pagination_count);
+        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let text = `Показано ${showCount} из ${count}`;
+        let tmpl = $('#databaseUsers').html();
+        let filterData = {};
+        filterData.user_table = data.table_columns;
+        filterData.results = data.results;
+        let rendered = _.template(tmpl)(filterData);
+        $('#tableUserINChurches').html(rendered);
+        makeSortForm(filterData.user_table);
+        let paginationConfig = {
+            container: ".users__pagination",
+            currentPage: page,
+            pages: pages,
+            id: id,
+            callback: createChurchesUsersTable
+        };
+        makePagination(paginationConfig);
+        $('.table__count').text(text);
+        $('.preloader').css('display', 'none');
+    })
+}
+
+function createChurchesDetailsTable(id, link, config = {}) {
+    getChurchDetails(id, link, config).then(function (data) {
         console.log(data);
         let count = data.count;
         let page = config['page'] || 1;
@@ -137,7 +177,7 @@ function getAddChurchData() {
 }
 
 function createChurchesTable(config = {}) {
-    config.search_pastor = $('input[name="fullsearch"]').val();
+    config.search = $('input[name="fullsearch"]').val();
     getChurches(config).then(function (data) {
         console.log(data);
         let count = data.count;

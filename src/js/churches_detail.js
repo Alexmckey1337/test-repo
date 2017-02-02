@@ -2,6 +2,7 @@
     const ID = $('#church').data('id');
     const D_ID = $('#added_home_group_church').data('department');
     let responsibleList = false;
+    let link = $('.get_info .active').data('link');
 
     function makeResponsibleList(id, level) {
         getResponsible(id, level).then(function (data) {
@@ -51,7 +52,9 @@
             $('.choose-user-wrap .splash-screen').addClass('active');
         })
     }
-    createChurchesUsersTable(ID);
+
+    createChurchesDetailsTable(ID, link);
+
     $('#added_home_group_pastor').select2();
 //    Events
     $('#add_homeGroupToChurch').on('click', function () {
@@ -88,5 +91,11 @@
         config.search = search;
         config.department = D_ID;
         makeUsersFromDatabaseList(config);
-    })
+    });
+    $('.get_info button').on('click', function () {
+        let link = $(this).data('link');
+        createChurchesDetailsTable(ID, link);
+        $('.get_info button').removeClass('active');
+        $(this).addClass('active');
+    });
 })(jQuery);

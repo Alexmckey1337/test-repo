@@ -154,7 +154,8 @@ def church_detail(request, church_id):
 
     ctx = {
         'church': church,
-        'users_count': church.users.count() + HomeGroup.objects.filter(church_id=church_id).aggregate(
+        'church_users': church.users.count(),
+        'church_all_users': church.users.count() + HomeGroup.objects.filter(church_id=church_id).aggregate(
             home_users=Count('users'))['home_users'],
         'parishioners_count': church.users.filter(hierarchy__level=0).count(),
         'leaders_count': church.users.filter(hierarchy__level=1).count(),
