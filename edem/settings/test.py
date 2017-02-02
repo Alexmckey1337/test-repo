@@ -21,6 +21,9 @@ CACHES = {
         'LOCATION': ''
     }
 }
+INSTALLED_APPS += (
+    'raven.contrib.django.raven_compat',
+)
 
 TEST_RUNNER = 'edem.runner.PytestTestRunner'
 
