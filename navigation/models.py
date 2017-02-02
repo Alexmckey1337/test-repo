@@ -24,8 +24,8 @@ def partner_table():
 
 
 def group_table(user, category_title):
-    from account.models import CustomUser
-    user = CustomUser.objects.get(id=15192)
+    # from account.models import CustomUser
+    # user = CustomUser.objects.get(id=15192)
     result_table = OrderedDict()
     if category_title == 'churches':
         if not (hasattr(user, 'churches') and isinstance(user.table, Table)):
@@ -44,7 +44,7 @@ def group_table(user, category_title):
             if not (hasattr(user, 'home_groups') and isinstance(user.table, Table)):
                 return result_table
         table_columns = user.table.columns.select_related('columnType').filter(columnType__title__in=[
-            'fullname', 'phone_number', 'repentance_date', 'spiritual_level', 'born_date'])
+            'fullname', 'phone_number', 'repentance_date', 'spiritual_level', 'born_date']).order_by('number')
     else:
         return result_table
     for column in table_columns:

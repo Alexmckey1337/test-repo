@@ -96,6 +96,9 @@
                         <p class="label_block">
                             <label for="search_city">Фильтр по городу</label>
                         </p>
+                        <p class="label_block">
+                            <label for="search_city">Фильтр по дню рождению</label>
+                        </p>
                     </div>
                     <div class="col-6">
                         <p class="input_block">
@@ -134,6 +137,9 @@
                         <p class="input_block">
                             <input type="text" placeholder="город или часть названия" id="search_city">
                         </p>
+                        <p class="input_block">
+                            <input type="text" placeholder="от" id="date_from" class="select_date_filter"><input type="text" placeholder="до" id="date_to" class="select_date_filter">
+                        </p>
                     </div>
                 </div>
             </div>
@@ -162,7 +168,8 @@
     </div>
 {% endblock %}
 {% block extra_scripts %}
+    <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
+    <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
     <script src="{% static "js/add_user.js" %}"></script>
     <script src="{% static "js/database_users.js" %}"></script>
-    <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
 {% endblock %}

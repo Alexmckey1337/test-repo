@@ -3,6 +3,15 @@ $('document').ready(function () {
     createUsersTable({});
 
     $('.selectdb').select2();
+    $('.select_date_filter').datepicker({
+        dateFormat: 'yyyy-mm-dd',
+        selectOtherYears: false,
+        showOtherYears: false,
+        moveToOtherYearsOnSelect: false,
+        minDate: new Date((new Date().getFullYear()),0,1),
+        maxDate: new Date((new Date().getFullYear()),11,31),
+        autoClose: true
+    });
     //Events
     $('#filter_button').on('click', function () {
         $('#filterPopup').css('display', 'block');
