@@ -203,27 +203,26 @@ class Column(models.Model):
 
     class Meta:
         ordering = ['number']
+        unique_together = ('table', 'columnType')
 
 
 @receiver(signals.post_save, sender=ColumnType)
 def sync_column(sender, instance, **kwargs):
-    if instance.category.common:
-        tables = Table.objects.all()
-        for table in tables:
-            column = Column.objects.create(table=table,
-                                           columnType=instance,
-                                           number=instance.number,
-                                           active=instance.active)
-            column.save()
+    tables = Table.objects.all()
+    user_columns = list()
+    for table in tables:
+        user_columns.append(Column(
+            table=table, columnType=instance, number=instance.number, active=instance.active))
+
+    Column.objects.bulk_create(user_columns)
 
 
 @receiver(signals.post_save, sender=Table)
 def sync_table(sender, instance, **kwargs):
-    if not instance.columns.all():
-        column_types = ColumnType.objects.filter(category__common=True).all()
-        for columnType in column_types.all():
-            column = Column.objects.create(table=instance,
-                                           columnType=columnType,
-                                           number=columnType.number,
-                                           active=columnType.active)
-            column.save()
+    exist_columns = set(instance.columns.values_list('columnType', flat=True))
+    user_new_columns = list()
+    for column_type in ColumnType.objects.exclude(pk__in=exist_columns):
+        user_new_columns.append(Column(
+            table=instance, columnType=column_type, number=column_type.number, active=column_type.active))
+
+    Column.objects.bulk_create(user_new_columns)
