@@ -165,7 +165,7 @@
                             <p>Сайт</p>
                         </div>
                         <div class="col-7">
-                            <p><input type="date" id="added_churches_date" required></p>
+                            <p><input type="text" id="added_churches_date" required></p>
                             <p><input type="checkbox" id="added_churches_is_open"></p>
                             <p><input type="text" id="added_churches_title"></p>
                             <p class="end__block"><select name="department" id="department_select">
@@ -194,6 +194,7 @@
     </div>
 {% endblock %}
 {% block extra_scripts %}
+    <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
     <script src="{% static "js/database_churches.js" %}"></script>
     <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
 {% endblock %}

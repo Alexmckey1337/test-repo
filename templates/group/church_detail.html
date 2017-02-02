@@ -3,7 +3,7 @@
 
 {% block body_id %} id="database"{% endblock %}
 
-{% block header.top.h1 %}<h1>Карточка Церкви</h1> <h2>{{ church.get_title }}</h2>{% endblock %}
+{% block header.top.h1 %}<h1>Карточка Церкви</h1>{% endblock %}
 
 {% block header.buttons %}
     <div class="top-panel">
@@ -15,6 +15,9 @@
                 <li>
                     <button id="add_homeGroupToChurch" class="add">Добавить домашнюю группу</button>
                 </li>
+                <li>
+                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
+                </li>
             </ul>
         </div>
     </div>
@@ -24,7 +27,7 @@
 {% endblock %}
 
 {% block main.content %}
-
+    <h3>{{ church.get_title }}</h3>
     <div class="container">
         <div class="col-3">
             <div class="info">
@@ -36,7 +39,9 @@
                     <li>Город: {{ church.city }}</li>
                     <li>Адрес: {{ church.address }}</li>
                     <li>Телефон: {{ church.phone_number }}</li>
-                    <li>Сайт: {{ church.website }}</li>
+                    <li>Сайт: {% if church.website %}
+                        <a href="{{ church.website }}" target="_blank">{{ church.website }}</a>
+                    {% endif %}</li>
                 </ul>
             </div>
         </div>
@@ -44,10 +49,11 @@
             <div class="info">
                 <h2>Сводная информация:</h2>
                 <ul>
-                    <li>Общее количество людей: {{ users_count }}</li>
+                    <li class="mb get_info"><button data-link="home_groups">Количество Домашних групп: {{ home_groups_count }}</button></li>
+                    <li class="get_info"><button data-link="all_users">Общее количество людей: {{ church_all_users }}</button></li>
+                    <li class="mb get_info"><button class="active" data-link="users" >Люди не в домашних группах: {{ church_users }}</button></li>
                     <li>Количество прихожан: {{ parishioners_count }}</li>
                     <li>Количеств Лидеров: {{ leaders_count }}</li>
-                    <li>Количество Домашних групп: {{ home_groups_count }}</li>
                     <li>Количество Отцов: {{ fathers_count }}</li>
                     <li>Количество Юношей: {{ juniors_count }}</li>
                     <li>Количество Младенцев: {{ babies_count }}</li>
@@ -109,7 +115,7 @@
                             <p>Сайт</p>
                         </div>
                         <div class="col-7">
-                            <p><input type="date" id="added_home_group_date" required></p>
+                            <p><input id="added_home_group_date" required></p>
                             <p class="end__block"><input type="text" id="added_home_group_title"></p>
                             <p id="added_home_group_church" data-id="{{ church.id }}"
                                data-department="{{ church.department.id }}">{{ church.get_title }}</p>

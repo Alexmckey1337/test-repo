@@ -1,4 +1,5 @@
 body {
+   min-width: 1200px;
   font-family: "Ubuntu", sans-serif;
   font-size: 75%;
   height: 100%;
@@ -9,7 +10,9 @@ body {
 .inline {
   display: inline-block;
 }
-
+.text__center {
+  text-align: center;
+}
 input:-webkit-autofill {
   -webkit-box-shadow: inset 0 0 0 50px #fff !important; /* Цвет фона */
   -webkit-text-fill-color: #999 !important; /* цвет текста */
@@ -314,6 +317,9 @@ select::-ms-expand {
 .main-wrap {
   padding-left: 240px;
   transition: all .3s;
+  & h3 {
+    margin: 1em;
+  }
 }
 
 .header {
@@ -2199,13 +2205,17 @@ table input[type=checkbox],
 
 /***********************popup***************************************/
 .popap {
-  & input {
-    width: 96% !important;
+  & input:not([type=checkbox]) {
+    width: 96%;
     padding: 6px;
     border-radius: 3px;
     border: 1px solid #cdd0d4;
     height: 35px;
     box-sizing: border-box;
+    &.select_date_filter {
+      width: 7em;
+      margin-right: 1em;
+    }
     &:read-only {
       border-color: transparent;
     }
@@ -3809,6 +3819,24 @@ span.green {
     }
     & ul {
       line-height: 1.5;
+      & li {
+        margin: 0.2em 0;
+        &.mb {
+          margin-bottom: .5em;
+        }
+        & button {
+          padding: .3em;
+          color: inherit;
+          background-color: transparent;
+          font-size: 1em;
+          border: 1px solid transparent;
+          &:hover, &.active {
+            color: inherit;
+            border: 1px solid #aab2bd;
+            background-color: transparent;
+          }
+        }
+      }
     }
   }
 }

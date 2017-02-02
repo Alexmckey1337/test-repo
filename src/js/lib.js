@@ -6,7 +6,8 @@ function getChurches(config = {}) {
             } else {
                 reject("Ошибка")
             }
-        })
+        }, "GET",
+            "application/json")
     });
 }
 
@@ -46,9 +47,21 @@ function getChurchUsers(id) {
     });
 }
 
-function getHomeGroupUsers(id) {
+function getChurchDetails(id, link, config) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${id}/users`, null, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/${link}/`, config, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка")
+            }
+        })
+    });
+}
+
+function getHomeGroupUsers(config, id) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${id}/users`, config, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -97,15 +110,80 @@ function createChurchesUsersTable(id, config = {}) {
     })
 }
 
+function createChurchesDetailsTable(config = {}, id, link) {
+    if(id === undefined) {
+        id = $('#church').attr('data-id');
+    }
+    if(link === undefined) {
+        link = $('.get_info .active').data('link');
+    }
+    getChurchDetails(id, link, config).then(function (data) {
+        console.log(data);
+        let count = data.count;
+        let page = config['page'] || 1;
+        let pages = Math.ceil(count / CONFIG.pagination_count);
+        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let text = `Показано ${showCount} из ${count}`;
+        let tmpl = $('#databaseUsers').html();
+        let filterData = {};
+        filterData.user_table = data.table_columns;
+        filterData.results = data.results;
+        let rendered = _.template(tmpl)(filterData);
+        $('#tableUserINChurches').html(rendered);
+        makeSortForm(filterData.user_table);
+        let paginationConfig = {
+            container: ".users__pagination",
+            currentPage: page,
+            pages: pages,
+            id: id,
+            callback: createChurchesUsersTable
+        };
+        makePagination(paginationConfig);
+        $('.table__count').text(text);
+        $('.preloader').css('display', 'none');
+    })
+}
+
+function createHomeGroupUsersTable(config = {}, id) {
+        if(id === undefined) {
+            id = $('#home_group').data('id');
+        }
+        getHomeGroupUsers(config, id).then(function (data) {
+            console.log(data);
+            let count = data.count;
+            let page = config['page'] || 1;
+            let pages = Math.ceil(count / CONFIG.pagination_count);
+            let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+            let text = `Показано ${showCount} из ${count}`;
+            let tmpl = $('#databaseUsers').html();
+            let filterData = {};
+            filterData.user_table = data.table_columns;
+            filterData.results = data.results;
+            let rendered = _.template(tmpl)(filterData);
+            $('#tableUserINHomeGroups').html(rendered);
+            makeSortForm(filterData.user_table);
+            let paginationConfig = {
+                container: ".users__pagination",
+                currentPage: page,
+                pages: pages,
+                callback: createHomeGroupUsersTable
+            };
+            makePagination(paginationConfig);
+            $('.table__count').text(text);
+            $('.preloader').css('display', 'none');
+        })
+    }
+
 function addHomeGroup(e, el) {
     e.preventDefault();
     let data = getAddHomeGroupData();
     let json = JSON.stringify(data);
     ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/home_groups/', json, function () {
+        clearAddHomeGroupData();
+        hidePopup(el)
     }, 'POST', false, {
         'Content-Type': 'application/json'
     });
-    hidePopup(el)
 }
 
 function getAddHomeGroupData() {
@@ -135,9 +213,26 @@ function getAddChurchData() {
         "website": $('#added_churches_site').val()
     }
 }
-
+function clearAddChurchData() {
+        $('#added_churches_date').val(''),
+        $('#added_churches_is_open').prop('checked', false),
+        $('#added_churches_title').val(''),
+        $('#added_churches_country').val(''),
+        $('#added_churches_city').val(''),
+        $('#added_churches_address').val(''),
+        $('#added_churches_phone').val(''),
+        $('#added_churches_site').val('')
+}
+function clearAddHomeGroupData() {
+        $('#added_home_group_date').val(''),
+        $('#added_home_group_title').val(''),
+        $('#added_home_group_city').val(''),
+        $('#added_home_group_address').val(''),
+        $('#added_home_group_phone').val(''),
+        $('#added_home_group_site').val('')
+}
 function createChurchesTable(config = {}) {
-    config.search_title = $('input[name="fullsearch"]').val();
+    config.search = $('input[name="fullsearch"]').val();
     getChurches(config).then(function (data) {
         console.log(data);
         let count = data.count;
@@ -168,7 +263,8 @@ function addChurch(e, el, callback) {
     e.preventDefault();
     let data = getAddChurchData();
     let json = JSON.stringify(data);
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/churches/', json, function (data) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/churches/', json, function () {
+        clearAddChurchData();
         callback();
     }, 'POST', false, {
         'Content-Type': 'application/json'
@@ -609,23 +705,23 @@ function tab_plugin() {
     });
 }
 
-//реализация jquery live event
-function live(eventType, elementQuerySelector, cb) {
-    document.addEventListener(eventType, function (event) {
-        var el, index;
-        let qs = document.querySelectorAll(elementQuerySelector);
-        if (qs) {
-            el = event.target,
-                index = -1;
-            while (el && ((index = Array.prototype.indexOf.call(qs, el)) === -1)) {
-                el = el.parentElement;
-            }
-            if (index > -1) {
-                cb.call(el, event);
-            }
-        }
-    });
-}
+// //реализация jquery live event
+// function live(eventType, elementQuerySelector, cb) {
+//     document.addEventListener(eventType, function (event) {
+//         var el, index;
+//         let qs = document.querySelectorAll(elementQuerySelector);
+//         if (qs) {
+//             el = event.target,
+//                 index = -1;
+//             while (el && ((index = Array.prototype.indexOf.call(qs, el)) === -1)) {
+//                 el = el.parentElement;
+//             }
+//             if (index > -1) {
+//                 cb.call(el, event);
+//             }
+//         }
+//     });
+// }
 
 // Counter counterNotifications
 function counterNotifications() {

@@ -34,26 +34,6 @@
 </head>
 
 <body{% block body_id %}{% endblock %}>
-{% if request.hard_user %}
-    <h1 style="padding-left: 110px;"><strong>Real User:</strong>
-        <a href="{% url 'account' request.real_user.id %}">
-            {{ request.real_user }}
-        </a>
-    </h1>
-    <h1 style="padding-left: 110px;"><strong>Hard User:</strong>
-        <a href="{% url 'account' request.hard_user.id %}">
-            {{ request.hard_user }}
-        </a>
-        -
-        <a class="reset_hard_user" href="" style="color:darkred;">Сбросить</a>
-    </h1>
-{% elif request.user.is_superuser %}
-    <h1 style="padding-left: 110px;"><strong>User:</strong>
-        <a href="{% url 'account' request.user.id %}">
-            {{ request.user }}
-        </a>
-    </h1>
-{% endif %}
 
 {% block layout %}
 {% endblock %}
@@ -171,7 +151,14 @@
                                 <td></td>
                             <% } %>
                         <% }  else { %>
-                            <td><%=results[index][key]%></td>
+                            <td><% if (results[index][key] === true ) { %>
+                                <p class="text__center">✔</p>
+                                <% } else if (results[index][key] === false){ %>
+
+                                <% } else { %>
+                                <%= results[index][key] %>
+                                <% } %>
+                            </td>
                         <% } %>
                     <% } %>
                 <% } %>
