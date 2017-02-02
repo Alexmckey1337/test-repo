@@ -3,7 +3,7 @@
 
 {% block body_id %} id="database"{% endblock %}
 
-{% block header.top.h1 %}<h1>Карточка Церкви</h1> <h2>{{ church.get_title }}</h2>{% endblock %}
+{% block header.top.h1 %}<h1>Карточка Церкви</h1>{% endblock %}
 
 {% block header.buttons %}
     <div class="top-panel">
@@ -27,7 +27,7 @@
 {% endblock %}
 
 {% block main.content %}
-
+    <h3>{{ church.get_title }}</h3>
     <div class="container">
         <div class="col-3">
             <div class="info">

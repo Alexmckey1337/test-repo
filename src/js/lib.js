@@ -6,7 +6,8 @@ function getChurches(config = {}) {
             } else {
                 reject("Ошибка")
             }
-        })
+        }, "GET",
+            "application/json")
     });
 }
 
@@ -704,23 +705,23 @@ function tab_plugin() {
     });
 }
 
-//реализация jquery live event
-function live(eventType, elementQuerySelector, cb) {
-    document.addEventListener(eventType, function (event) {
-        var el, index;
-        let qs = document.querySelectorAll(elementQuerySelector);
-        if (qs) {
-            el = event.target,
-                index = -1;
-            while (el && ((index = Array.prototype.indexOf.call(qs, el)) === -1)) {
-                el = el.parentElement;
-            }
-            if (index > -1) {
-                cb.call(el, event);
-            }
-        }
-    });
-}
+// //реализация jquery live event
+// function live(eventType, elementQuerySelector, cb) {
+//     document.addEventListener(eventType, function (event) {
+//         var el, index;
+//         let qs = document.querySelectorAll(elementQuerySelector);
+//         if (qs) {
+//             el = event.target,
+//                 index = -1;
+//             while (el && ((index = Array.prototype.indexOf.call(qs, el)) === -1)) {
+//                 el = el.parentElement;
+//             }
+//             if (index > -1) {
+//                 cb.call(el, event);
+//             }
+//         }
+//     });
+// }
 
 // Counter counterNotifications
 function counterNotifications() {

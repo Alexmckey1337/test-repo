@@ -10,7 +10,9 @@ body {
 .inline {
   display: inline-block;
 }
-
+.text__center {
+  text-align: center;
+}
 input:-webkit-autofill {
   -webkit-box-shadow: inset 0 0 0 50px #fff !important; /* Цвет фона */
   -webkit-text-fill-color: #999 !important; /* цвет текста */
@@ -315,6 +317,9 @@ select::-ms-expand {
 .main-wrap {
   padding-left: 240px;
   transition: all .3s;
+  & h3 {
+    margin: 1em;
+  }
 }
 
 .header {
@@ -2200,7 +2205,7 @@ table input[type=checkbox],
 
 /***********************popup***************************************/
 .popap {
-  & input {
+  & input:not([type=checkbox]) {
     width: 96%;
     padding: 6px;
     border-radius: 3px;

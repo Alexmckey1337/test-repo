@@ -9,9 +9,11 @@ const CONFIG = {
 var VOCRM = {};
 
 counterNotifications();
+
 $(window).on('hashchange', function () {
     location.reload();
 });
+
 // Sorting
 var orderTable = (function () {
     function addListener(callback) {
