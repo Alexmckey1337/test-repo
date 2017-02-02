@@ -48,7 +48,18 @@ class HomeGroupListSerializer(HomeGroupSerializer):
     leader = LeaderNameSerializer()
 
 
+class ReadOnlyChoiceField(serializers.ChoiceField):
+
+    def to_representation(self, value):
+        if value in ('', None):
+            return value
+        t = self.grouped_choices.get(value, value)
+        return t
+
+
 class GroupUserSerializer(serializers.ModelSerializer):
+    spiritual_level = ReadOnlyChoiceField(choices=CustomUser.SPIRITUAL_LEVEL_CHOICES, read_only=True)
+
     class Meta:
         model = CustomUser
         fields = ('id', 'link', 'fullname', 'phone_number', 'repentance_date', 'spiritual_level',
