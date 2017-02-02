@@ -6,6 +6,7 @@ import os
 import operator
 from datetime import datetime, timedelta
 from django.db.models import Q
+from functools import reduce
 
 import django_filters
 from django.conf import settings
@@ -37,6 +38,7 @@ from status.models import Status, Division
 from .resources import clean_password, clean_old_password
 from .serializers import UserSerializer, UserShortSerializer, UserTableSerializer, NewUserSerializer, \
     UserSingleSerializer, PartnershipSerializer
+
 
 USER_FIELDS = {
     'text_fields': {
