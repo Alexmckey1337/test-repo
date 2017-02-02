@@ -47,9 +47,6 @@ class HomeGroupListSerializer(HomeGroupSerializer):
     church = ChurchNameSerializer()
     leader = LeaderNameSerializer()
 
-    def get_field_names(self, declared_fields, info):
-        return getattr(self.Meta, 'fields', None)
-
 
 class GroupUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -90,9 +87,6 @@ class ChurchSerializer(serializers.ModelSerializer):
 class ChurchListSerializer(ChurchSerializer):
     department = DepartmentTitleSerializer()
     pastor = PastorNameSerializer()
-
-    def get_field_names(self, declared_fields, info):
-        return getattr(self.Meta, 'fields', None)
 
 
 class ChurchDetailSerializer(serializers.ModelSerializer):
