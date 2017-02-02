@@ -3,8 +3,9 @@ from __future__ import unicode_literals
 
 from django.contrib.auth.backends import ModelBackend
 from django.core.exceptions import ImproperlyConfigured
+from rest_framework.authentication import TokenAuthentication
 
-from .models import CustomUser
+from .models import CustomUser, Token
 
 
 class CustomUserModelBackend(ModelBackend):
@@ -29,3 +30,7 @@ class CustomUserModelBackend(ModelBackend):
             if not self._user_class:
                 raise ImproperlyConfigured('Could not get custom user model')
         return self._user_class
+
+
+class CustomUserTokenAuthentication(TokenAuthentication):
+    model = Token

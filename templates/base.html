@@ -1,4 +1,6 @@
-{% load static %}<!DOCTYPE html>
+{% load static %}
+{% load raven %}
+<!DOCTYPE html>
 <!--[if IE]>
 <link rel="stylesheet" type="text/css" href="css/ie.css"/>
 <!--[if lt IE 7 ]><html class="ie ie6" lang="en"> <![endif]-->
@@ -268,6 +270,7 @@
         </div>
     </div>
 </script>
+<script>Raven.config('{% sentry_public_dsn %}').install()</script>
 {% block ws %}
     <script src="https://cdn.rawgit.com/alertifyjs/alertify.js/v1.0.10/dist/js/alertify.js"></script>
 
