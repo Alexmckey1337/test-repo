@@ -86,7 +86,7 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
     field_search_fields = {
         'search_title': ('title',),
         'search_department': ('department__title',),
-        'search_pastor': ('pastor__last_name',),
+        'search_pastor': ('pastor__last_name', 'pastor__first_name', 'pastor__middle_name'),
         'search_country': ('country',),
         'search_city': ('city',),
     }
@@ -277,8 +277,8 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
     filter_class = HomeGroupFilter
     field_search_fields = {
         'search_title': ('title',),
-        'search_church': ('church',),
-        'search_leader': ('leader',),
+        'search_church': ('church__title',),
+        'search_leader': ('leader__last_name', 'leader__first_name', 'leader__middle_name'),
         'search_city': ('city',),
     }
     permission_classes = (IsAuthenticated,)
