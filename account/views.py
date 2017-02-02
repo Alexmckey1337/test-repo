@@ -118,7 +118,7 @@ class FilterByBirthday(BaseFilterBackend):
         params = request.query_params
         from_date = params.get('from_date', None)
         to_date = params.get('to_date', None)
-        if from_date or to_date is None:
+        if from_date is None or to_date is None:
             return queryset
         if from_date > to_date:
             return Response({'message': 'Некоректный временной интервал'},
@@ -170,6 +170,7 @@ class NewUserViewSet(viewsets.ModelViewSet):
         filters.DjangoFilterBackend,
         FieldSearchFilter,
         filters.OrderingFilter,
+        FilterByBirthday,
     )
     permission_classes = (IsAuthenticated,)
     ordering_fields = ('first_name', 'last_name', 'middle_name',
@@ -183,7 +184,7 @@ class NewUserViewSet(viewsets.ModelViewSet):
         'search_country': ('country',),
         'search_city': ('city',),
     }
-    filter_class = UserFilter, FilterByBirthday
+    filter_class = UserFilter
 
     def get_queryset(self):
         user = self.request.user
