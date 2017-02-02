@@ -1,0 +1,626 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-02-02 17:40+0200\n"
+"PO-Revision-Date: 2017-02-02 17:42+0200\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
+"%100>=11 && n%100<=14)? 2 : 3);\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 1.8.7.1\n"
+
+#: account/admin.py:23
+msgid "Personal info"
+msgstr ""
+
+#: account/admin.py:29
+msgid "Permissions"
+msgstr ""
+
+#: account/admin.py:30
+msgid "Important dates"
+msgstr ""
+
+#: account/admin.py:31
+msgid "Groups"
+msgstr ""
+
+#: account/models.py:46
+msgid "Field for search by name"
+msgstr ""
+
+#: account/models.py:74
+msgid "Number"
+msgstr ""
+
+#: account/models.py:75
+msgid "Extra Phone Numbers"
+msgstr ""
+
+#: account/models.py:81
+msgid "Baby"
+msgstr "Младенец"
+
+#: account/models.py:82
+msgid "Junior"
+msgstr "Юноша"
+
+#: account/models.py:83
+msgid "Father"
+msgstr "Отец"
+
+#: account/models.py:85
+msgid "Spiritual Level"
+msgstr "Духовный уровень"
+
+#: account/models.py:350
+msgid "Key"
+msgstr ""
+
+#: account/models.py:353 event/models.py:304 summit/models.py:277
+msgid "User"
+msgstr "Пользователь"
+
+#: account/models.py:355
+msgid "Created"
+msgstr ""
+
+#: account/models.py:358
+msgid "Token"
+msgstr ""
+
+#: account/models.py:359
+msgid "Tokens"
+msgstr ""
+
+#: account/views.py:277
+msgid "Successfully logged out."
+msgstr ""
+
+#: dashboard.py:22
+msgid "Main applications"
+msgstr ""
+
+#: dashboard.py:33
+msgid "Other applications"
+msgstr ""
+
+#: dashboard.py:47
+msgid "Administration"
+msgstr ""
+
+#: dashboard.py:55
+msgid "Media Management"
+msgstr ""
+
+#: dashboard.py:59
+msgid "FileBrowser"
+msgstr ""
+
+#: dashboard.py:99
+msgid "Recent Actions"
+msgstr ""
+
+#: edem/settings/base.py:166
+msgid "Russian"
+msgstr ""
+
+#: event/models.py:18
+msgid "Monday"
+msgstr ""
+
+#: event/models.py:19
+msgid "Tuesday"
+msgstr ""
+
+#: event/models.py:20
+msgid "Wednesday"
+msgstr ""
+
+#: event/models.py:21
+msgid "Thursday"
+msgstr ""
+
+#: event/models.py:22
+msgid "Friday"
+msgstr ""
+
+#: event/models.py:23
+msgid "Saturday"
+msgstr ""
+
+#: event/models.py:24
+msgid "Sunday"
+msgstr ""
+
+#: event/models.py:267 payment/models.py:26 summit/models.py:259
+#: templates/event/meeting_create_report.html:26
+#: templates/event/meeting_create_report.html:53
+msgid "Name"
+msgstr ""
+
+#: event/models.py:268 payment/models.py:28 summit/models.py:30
+#: summit/models.py:60
+msgid "Code"
+msgstr ""
+
+#: event/models.py:269
+msgid "Image"
+msgstr ""
+
+#: event/models.py:272 event/models.py:284
+msgid "Meeting type"
+msgstr ""
+
+#: event/models.py:273
+msgid "Meeting types"
+msgstr ""
+
+#: event/models.py:285
+msgid "Date"
+msgstr ""
+
+#: event/models.py:289
+msgid "Visitors"
+msgstr ""
+
+#: event/models.py:290
+msgid "Total sum"
+msgstr ""
+
+#: event/models.py:294 event/models.py:306
+msgid "Meeting"
+msgstr ""
+
+#: event/models.py:295
+msgid "Meetings"
+msgstr ""
+
+#: event/models.py:308
+msgid "Attended"
+msgstr ""
+
+#: event/models.py:310 summit/models.py:303
+#: templates/event/meeting_create_report.html:30
+#: templates/event/meeting_create_report.html:57
+msgid "Note"
+msgstr ""
+
+#: event/models.py:314
+msgid "Meeting attend"
+msgstr ""
+
+#: event/models.py:315
+msgid "Meeting attendees"
+msgstr ""
+
+#: group/models.py:13
+msgid "Title"
+msgstr ""
+
+#: group/models.py:14
+msgid "Opening Date"
+msgstr ""
+
+#: group/models.py:15
+msgid "City"
+msgstr ""
+
+#: group/models.py:16
+msgid "Address"
+msgstr ""
+
+#: group/models.py:17
+msgid "Phone Number"
+msgstr ""
+
+#: group/models.py:18
+msgid "Web Site"
+msgstr ""
+
+#: group/models.py:40
+msgid "Department"
+msgstr ""
+
+#: group/models.py:42
+msgid "Pastor"
+msgstr ""
+
+#: group/models.py:43
+msgid "Country"
+msgstr ""
+
+#: group/models.py:46 group/models.py:68
+msgid "Users"
+msgstr ""
+
+#: group/models.py:49 group/models.py:66
+msgid "Church"
+msgstr ""
+
+#: group/models.py:50
+msgid "Churches"
+msgstr ""
+
+#: group/models.py:64
+msgid "Leader"
+msgstr ""
+
+#: group/models.py:71
+msgid "Home Group"
+msgstr ""
+
+#: group/models.py:72
+msgid "Home Groups"
+msgstr ""
+
+#: group/serializers.py:31 group/serializers.py:79
+msgid "This field is required."
+msgstr ""
+
+#: group/serializers.py:33 group/serializers.py:81
+#, python-brace-format
+msgid "Incorrect type. Expected pk value, received {data_type}."
+msgstr ""
+
+#: group/views.py:213
+msgid "Length of search query must be > 2"
+msgstr ""
+
+#: partnership/models.py:27 partnership/models.py:131 payment/models.py:42
+#: summit/models.py:69
+msgid "Currency"
+msgstr ""
+
+#: partnership/models.py:30
+msgid "Need text"
+msgstr ""
+
+#: partnership/models.py:32
+msgid "Is active?"
+msgstr ""
+
+#: partnership/models.py:40
+msgid "Director"
+msgstr ""
+
+#: partnership/models.py:41 summit/models.py:155
+msgid "Supervisor"
+msgstr ""
+
+#: partnership/models.py:42 payment/models.py:118
+msgid "Manager"
+msgstr ""
+
+#: partnership/models.py:43
+msgid "Partner"
+msgstr ""
+
+#: partnership/models.py:45
+msgid "Level"
+msgstr ""
+
+#: partnership/views.py:119
+msgid "'need_text' is required field."
+msgstr ""
+
+#: payment/models.py:30
+msgid "Short name"
+msgstr ""
+
+#: payment/models.py:32
+msgid "Symbol"
+msgstr ""
+
+#: payment/models.py:34
+msgid "Output format"
+msgstr ""
+
+#: payment/models.py:35
+#, python-brace-format
+msgid ""
+"Possible values: <br /><br />{value} — sum, <br />{symbol} — currency "
+"symbol, <br />{short_name} — short name of currency, <br />{name} — full "
+"name of currency"
+msgstr ""
+
+#: payment/models.py:43
+msgid "Currencies"
+msgstr ""
+
+#: payment/models.py:53
+#, python-format
+msgid "Invalid output format: %(err)s"
+msgstr ""
+
+#: payment/models.py:95
+msgid "Sum"
+msgstr ""
+
+#: payment/models.py:98
+msgid "Currency of sum"
+msgstr ""
+
+#: payment/models.py:105
+msgid "Rate currency"
+msgstr ""
+
+#: payment/models.py:108
+msgid "Rate"
+msgstr ""
+
+#: payment/models.py:110
+msgid "Effective sum"
+msgstr ""
+
+#: payment/models.py:113
+msgid "Description"
+msgstr ""
+
+#: payment/models.py:115 summit/models.py:239
+msgid "Date created"
+msgstr ""
+
+#: payment/models.py:128
+msgid "Payment"
+msgstr ""
+
+#: payment/models.py:129
+msgid "Payments"
+msgstr ""
+
+#: payment/views_mixins.py:31
+msgid "This object don't have payments."
+msgstr ""
+
+#: summit/admin_filters.py:9
+msgid "Has ticket?"
+msgstr ""
+
+#: summit/admin_filters.py:15 summit/admin_filters.py:33
+#: summit/admin_filters.py:53
+msgid "Yes"
+msgstr ""
+
+#: summit/admin_filters.py:16 summit/admin_filters.py:34
+#: summit/admin_filters.py:54
+msgid "No"
+msgstr ""
+
+#: summit/admin_filters.py:27
+msgid "Has email?"
+msgstr ""
+
+#: summit/admin_filters.py:47
+msgid "Paid?"
+msgstr ""
+
+#: summit/admin_filters.py:55
+msgid "Partial"
+msgstr ""
+
+#: summit/models.py:25
+msgid "Club name"
+msgstr ""
+
+#: summit/models.py:33
+msgid "Summit Type"
+msgstr ""
+
+#: summit/models.py:34
+msgid "Summits Types"
+msgstr ""
+
+#: summit/models.py:62
+msgid "Full cost"
+msgstr ""
+
+#: summit/models.py:66
+msgid "Special cost"
+msgstr ""
+
+#: summit/models.py:73
+msgid "Mail template"
+msgstr ""
+
+#: summit/models.py:78 summit/models.py:254 summit/models.py:279
+msgid "Summit"
+msgstr ""
+
+#: summit/models.py:79
+msgid "Summits"
+msgstr ""
+
+#: summit/models.py:91
+msgid "Special cost must be less then full cost"
+msgstr ""
+
+#: summit/models.py:139
+msgid "Paid amount"
+msgstr ""
+
+#: summit/models.py:147
+msgid "Ticket"
+msgstr ""
+
+#: summit/models.py:153
+msgid "Visitor"
+msgstr ""
+
+#: summit/models.py:154 summit/models.py:275
+msgid "Consultant"
+msgstr ""
+
+#: summit/models.py:157
+msgid "Summit Role"
+msgstr ""
+
+#: summit/models.py:228
+msgid "Anket"
+msgstr ""
+
+#: summit/models.py:230
+msgid "Email"
+msgstr ""
+
+#: summit/models.py:232
+msgid "Subject"
+msgstr ""
+
+#: summit/models.py:233
+msgid "Text"
+msgstr ""
+
+#: summit/models.py:234
+msgid "HTML text"
+msgstr ""
+
+#: summit/models.py:235
+msgid "Error message"
+msgstr ""
+
+#: summit/models.py:236
+msgid "Is success"
+msgstr ""
+
+#: summit/models.py:237
+msgid "Attach"
+msgstr ""
+
+#: summit/models.py:246
+msgid "Anket email"
+msgstr ""
+
+#: summit/models.py:247
+msgid "Anket emails"
+msgstr ""
+
+#: summit/models.py:257
+msgid "Viewers"
+msgstr ""
+
+#: summit/models.py:266
+msgid "Summit lesson"
+msgstr ""
+
+#: summit/models.py:267
+msgid "Summit lessons"
+msgstr ""
+
+#: summit/models.py:285
+msgid "Summit consultant"
+msgstr ""
+
+#: summit/models.py:286
+msgid "Summit consultants"
+msgstr ""
+
+#: summit/models.py:291
+msgid "Этот пользователь не участвует в данном саммите."
+msgstr ""
+
+#: summit/models.py:293
+msgid "Этот пользователь не является консультантом на данном саммите."
+msgstr ""
+
+#: summit/models.py:299
+msgid "Summit anket"
+msgstr ""
+
+#: summit/models.py:301
+msgid "Owner of note"
+msgstr ""
+
+#: summit/models.py:305
+msgid "Datetime created"
+msgstr ""
+
+#: summit/models.py:319
+msgid "Summit Anket Note"
+msgstr ""
+
+#: summit/models.py:320
+msgid "Summit Anket Notes"
+msgstr ""
+
+#: templates/403.html:5 templates/403.html:9
+msgid "Permission denied!"
+msgstr ""
+
+#: templates/403.html:13
+msgid "We're sorry but you are not permitted to access this page."
+msgstr ""
+
+#: templates/404.html:5
+msgid "Page not found"
+msgstr ""
+
+#: templates/404.html:9
+msgid "Page not found!"
+msgstr ""
+
+#: templates/404.html:13
+msgid "We're sorry but the page you are looking for can't be found."
+msgstr ""
+
+#: templates/admin/import_export/base.html:10
+msgid "Home"
+msgstr ""
+
+#: templates/admin/import_export/export.html:8
+msgid "Export"
+msgstr ""
+
+#: templates/admin/import_export/export.html:21
+msgid "Please correct the error below."
+msgstr ""
+
+#: templates/admin/import_export/export.html:41
+msgid "Download"
+msgstr ""
+
+#: templates/error.html:19
+msgid "Sorry!"
+msgstr ""
+
+#: templates/error.html:22
+msgid "Return to previous page"
+msgstr ""
+
+#: templates/error.html:23
+msgid "Go to homepage"
+msgstr ""
+
+#: templates/event/meeting_create_report.html:17
+msgid "Create report"
+msgstr ""
+
+#: templates/event/meeting_create_report.html:21
+#: templates/event/meeting_create_report.html:48
+msgid "Current leader"
+msgstr ""
+
+#: templates/event/meeting_create_report.html:25
+#: templates/event/meeting_create_report.html:52
+msgid "+/-"
+msgstr ""
+
+#: templates/event/meeting_create_report.html:28
+#: templates/event/meeting_create_report.html:55
+msgid "Phone"
+msgstr ""
+
+#: templates/event/meeting_type_detail.html:18
+msgid "Detail of"
+msgstr ""
