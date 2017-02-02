@@ -10,7 +10,7 @@
         <div class="top-buttons-wrap">
             <ul class="top-buttons">
                 <li>
-                    <button id="add_userToChurch" class="add">Добавить пользователя</button>
+                    <button id="add_userToHomeGroup" class="add">Добавить пользователя</button>
                 </li>
             </ul>
         </div>
@@ -24,27 +24,31 @@
 
     <div class="container">
         <div class="col-3">
-            <h2>Основная информация:</h2>
-            <ul>
-                <li>Дата открытия: {{ home_group.opening_date }}</li>
-                <li>Церковь: {{ home_group.church }}</li>
-                <li>Лидер: {{ home_group.leader }}</li>
-                <li>Адрес: {{ home_group.address }}</li>
-                <li>Телефонный номер: {{ home_group.phone_number }}</li>
-                <li>Сайт: {% if home_group.website %}
-                    <a href="{{ home_group.website }}">{{ home_group.website }}</a>
-                {% endif %}</li>
-            </ul>
+            <div class="info">
+                <h2>Основная информация:</h2>
+                <ul>
+                    <li>Дата открытия: {{ home_group.opening_date }}</li>
+                    <li>Церковь: {{ home_group.church }}</li>
+                    <li>Лидер: {{ home_group.leader }}</li>
+                    <li>Адрес: {{ home_group.address }}</li>
+                    <li>Телефонный номер: {{ home_group.phone_number }}</li>
+                    <li>Сайт: {% if home_group.website %}
+                        <a href="{{ home_group.website }}">{{ home_group.website }}</a>
+                    {% endif %}</li>
+                </ul>
+            </div>
         </div>
         <div class="col-3">
-            <h2>Сводная информация:</h2>
-            <ul>
-                <li>Количество людей: {{ users_count }}</li>
-                <li>Количество Отцов: {{ fathers_count }}</li>
-                <li>Количество Юношей: {{ juniors_count }}</li>
-                <li>Количество Младенцев: {{ babies_count }}</li>
-                <li>Количество Партнеров: {{ partners_count }}</li>
-            </ul>
+            <div class="info">
+                <h2>Сводная информация:</h2>
+                <ul>
+                    <li>Количество людей: {{ users_count }}</li>
+                    <li>Количество Отцов: {{ fathers_count }}</li>
+                    <li>Количество Юношей: {{ juniors_count }}</li>
+                    <li>Количество Младенцев: {{ babies_count }}</li>
+                    <li>Количество Партнеров: {{ partners_count }}</li>
+                </ul>
+            </div>
         </div>
         <div class="col-3"></div>
     </div>
@@ -57,7 +61,7 @@
     {% endblock %}
 
     {% block table %}
-        <div class="table-wrap  clearfix" id="home_group" data-id="{{ home_group.id }}"><!--Table -->
+        <div class="table-wrap  clearfix" id="home_group" data-id="{{ home_group.id }}" data-departament_id="{{ home_group.church.department.id }}" data-departament_title="{{ home_group.church.department }}"><!--Table -->
             <div class="table scrollbar-inner" id="tableUserINHomeGroups"></div>
             <div class="query-none">
                 <p></p>
@@ -208,5 +212,6 @@
     </div>
 {% endblock %}
 {% block extra_scripts %}
+    <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
     <script src="{% static "js/home_groups_detail.js" %}"></script>
 {% endblock %}

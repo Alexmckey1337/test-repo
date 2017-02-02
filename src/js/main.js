@@ -11,40 +11,85 @@ var VOCRM = {};
 counterNotifications();
 
 // Sorting
-    var orderTable = (function () {
-        function addListener(callback) {
-            $(".table-wrap th").on('click', function () {
-                let dataOrder;
-                let data_order = this.getAttribute('data-order');
-                let page = $('.pagination__input').val();
-                let revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
-                let order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
-                if (order != '') {
-                    dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
-                } else {
-                    dataOrder = '-' + data_order;
-                }
-                let data = {
-                    'ordering': dataOrder,
-                    'page': page
-                };
-                if (order == data_order) {
-                    revers = (revers == '+') ? '-' : '+';
-                } else {
-                    revers = "+"
-                }
-                sessionStorage.setItem('revers', revers);
-                sessionStorage.setItem('order', data_order);
-                $('.preloader').css('display', 'block');
-                callback(data);
-            });
-        }
+var orderTable = (function () {
+    function addListener(callback) {
+        $(".table-wrap th").on('click', function () {
+            let dataOrder;
+            let data_order = this.getAttribute('data-order');
+            let page = $('.pagination__input').val();
+            let revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
+            let order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
+            if (order != '') {
+                dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
+            } else {
+                dataOrder = '-' + data_order;
+            }
+            let data = {
+                'ordering': dataOrder,
+                'page': page
+            };
+            if (order == data_order) {
+                revers = (revers == '+') ? '-' : '+';
+            } else {
+                revers = "+"
+            }
+            sessionStorage.setItem('revers', revers);
+            sessionStorage.setItem('order', data_order);
+            $('.preloader').css('display', 'block');
+            callback(data);
+        });
+    }
 
-        return {
-            sort: addListener
-        }
-    })();
+    return {
+        sort: addListener
+    }
+})();
 
+function getAddNewUserData() {
+    let data = {
+        "email": $("input[name='email']").val(),
+        "first_name": $("input[name='first_name']").val(),
+        "last_name": $("input[name='last_name']").val(),
+        "middle_name": $("input[name='middle_name']").val(),
+        "search_name": $('#search_name').val(),
+        "born_date": $("input[name='born_date']").val() || null,
+        "phone_number": $("input[name='phone_numberCode']").val() + '' + $("input[name='phone_number']").val(),
+        "extra_phone_numbers": _.filter(_.map($("#extra_phone_numbers").val().split(","), x => x.trim()), x => !!x),
+        "vkontakte": $("input[name='vk']").val(),
+        "facebook": $("input[name='fb']").val(),
+        "odnoklassniki": $("input[name='ok']").val(),
+        "address": $("input[name='address']").val(),
+        "skype": $("input[name='skype']").val(),
+        "district": $("input[name='district']").val(),
+        "region": $('#chooseRegion option:selected').html() == 'Не выбрано' ? '' : $('#chooseRegion option:selected').text(),
+        'divisions': $('#chooseDivision').val() || [],
+        'hierarchy': parseInt($("#chooseStatus").val()),
+        'department': parseInt($("#chooseDepartment").val()),
+        'master': parseInt($("#chooseResponsible").val()),
+        'city': $('#chooseCity option:selected').html() == 'Не выбрано' ? '' : $('#chooseCity option:selected').text(),
+        'country': $('#chooseCountry option:selected').text() == 'Выберите страну' ? '' : $('#chooseCountry option:selected').text()
+    };
+    if ($('#partner').prop('checked')) {
+            if (!$('#summa_partner').val()) {
+                $('#summa_partner').css('border', '1px solid #d46a6a');
+                return
+            }
+            if (!$('#chooseManager').val()) {
+                $('#chooseManager').css('border', '1px solid #d46a6a');
+                return
+            }
+            if (!$('#partnerFrom').val()) {
+                $('#partnerFrom').css('border', '1px solid #d46a6a');
+                return
+            }
+            data.partner = {
+                "value": ($('#summa_partner').val()) ? parseInt($('#summa_partner').val()) : 0,
+                "responsible": ($('#chooseManager').val()) ? parseInt($('#chooseManager').val()) : null,
+                "date": $('#partnerFrom').val()
+            }
+        }
+    return data;
+}
 function makeDataTable(data, id) {
     var tmpl = document.getElementById('databaseUsers').innerHTML;
     var rendered = _.template(tmpl)(data);
@@ -64,14 +109,14 @@ function makeSortForm(data) {
     console.log(obj);
     rendered = _.template(sortFormTmpl)(obj);
     document.getElementById('sort-form').innerHTML = rendered;
-    }
+}
 
 function makeResponsibleList() {
     let department = $('#departmentSelect').val();
     let hierarchy = $('#hierarchySelect option:selected').attr('data-level');
     getResponsible(department, hierarchy).then(function (data) {
         let id = $('#master_hierarchy option:selected').attr('data-id');
-        if(!id) {
+        if (!id) {
             id = $('#master_hierarchy option').attr('data-id');
         }
         var selected = false;
@@ -93,14 +138,192 @@ function makeResponsibleList() {
 }
 
 var makeChooseDivision = getDivisions().then(function (data) {
-            data = data.results;
-            let html = '';
-            for (let i = 0; i < data.length; i++) {
-                html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
-            }
-            return html
-        });
+    data = data.results;
+    let html = '';
+    for (let i = 0; i < data.length; i++) {
+        html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+    }
+    return html
+});
 
+function initAddNewUser(id, callback) {
+    getStatuses().then(function (data) {
+        let statuses = data.results;
+        let rendered = [];
+        let option = document.createElement('option');
+        $(option).text('Выбирите статус').attr('disabled', true).attr('selected', true);
+        rendered.push(option);
+        statuses.forEach(function (item) {
+            let option = document.createElement('option');
+            $(option).val(item.id).attr('data-level', item.level).text(item.title);
+            rendered.push(option);
+        });
+        return rendered;
+    }).then(function (rendered) {
+        $('#chooseStatus').html(rendered).select2().on('change', function () {
+            let status = $(this).val();
+            getResponsible(id, status).then(function (data) {
+                let rendered = [];
+                data.forEach(function (item) {
+                    let option = document.createElement('option');
+                    $(option).val(item.id).text(item.fullname);
+                    rendered.push(option);
+                });
+                $('#chooseResponsible').html(rendered).attr('disabled', false).select2();
+            })
+        });
+    });
+    getDivisions().then(function (data) {
+        let divisions = data.results;
+        let rendered = [];
+        divisions.forEach(function (item) {
+            let option = document.createElement('option');
+            $(option).val(item.id).text(item.title);
+            rendered.push(option);
+        });
+        $('#chooseDivision').html(rendered).select2();
+    });
+    getCountryCodes().then(function (data) {
+        let codes = data;
+        let rendered = [];
+        codes.forEach(function (item) {
+            let option = document.createElement('option');
+            $(option).val(item.phone_code).text(item.title + ' ' + item.phone_code);
+            if (item.phone_code == '+38') {
+                $(option).attr('selected', true);
+            }
+            rendered.push(option);
+        });
+        $('#chooseCountryCode').html(rendered).on('change', function () {
+            let code = $(this).val();
+            $('#phoneNumberCode').val(code);
+        }).trigger('change');
+    });
+
+    getCountries().then(function (data) {
+        let rendered = [];
+        let option = document.createElement('option');
+        $(option).val('').text('Выберите страну').attr('disabled', true).attr('selected', true);
+        rendered.push(option);
+        data.forEach(function (item) {
+            let option = document.createElement('option');
+            $(option).val(item.id).text(item.title);
+            rendered.push(option);
+        });
+        $('#chooseCountry').html(rendered).on('change', function () {
+            let config = {};
+            config.country = $(this).val();
+            getRegions(config).then(function (data) {
+                let rendered = [];
+                let option = document.createElement('option');
+                $(option).text('Выберите регион');
+                rendered.push(option);
+                data.forEach(function (item) {
+                    let option = document.createElement('option');
+                    $(option).val(item.id).text(item.title);
+                    rendered.push(option);
+                });
+                $('#chooseRegion').html(rendered).attr('disabled', false).on('change', function () {
+                    let config = {};
+                    config.country = $(this).val();
+                    getCities(config).then(function (data) {
+                        let rendered = [];
+                        let option = document.createElement('option');
+                        $(option).text('Выберите регион');
+                        rendered.push(option);
+                        data.forEach(function (item) {
+                            let option = document.createElement('option');
+                            $(option).val(item.id).text(item.title);
+                            rendered.push(option);
+                        });
+                        $('#chooseCity').html(rendered).attr('disabled', false).select2();
+                    })
+                }).select2();
+            })
+        }).select2();
+    });
+
+    getManagers().then(function (data) {
+        let rendered = [];
+        let option = document.createElement('option');
+        $(option).val('').text('Выберите менеджера').attr('disabled', true).attr('selected', true);
+        rendered.push(option);
+        data.forEach(function (item) {
+            let option = document.createElement('option');
+            $(option).val(item.id).text(item.fullname);
+            rendered.push(option);
+        });
+        $('#chooseManager').html(rendered).select2();
+    });
+
+    $('#repentanceDate').datepicker({
+        dateFormat: 'yyyy-mm-dd'
+    });
+    $('#partnerFrom').datepicker({
+        dateFormat: 'yyyy-mm-dd'
+    });
+    $('#bornDate').datepicker({
+        dateFormat: 'yyyy-mm-dd'
+    });
+    $('#chooseCountryCode').select2();
+
+    $('#saveNew').on('click', function () {
+        console.log(getAddNewUserData());
+        let json = JSON.stringify(getAddNewUserData());
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/', json, function (data) {
+            let user_id = data.id;
+            if (data) {
+                let fd = new FormData();
+                if (!$('input[type=file]')[0].files[0]) {
+                    fd.append('id', data.id)
+                } else {
+                    fd.set('source', $('input[type=file]')[0].files[0], 'photo.jpg');
+                    let blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+                    let sr = $('#edit-photo').attr('data-source');
+                    fd.append('file', blob);
+                    fd.append('id', data.id)
+                }
+                function dataURLtoBlob(dataurl) {
+                    let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+                    while (n--) {
+                        u8arr[n] = bstr.charCodeAt(n);
+                    }
+                    return new Blob([u8arr], {type: mime});
+                }
+
+                let xhr = new XMLHttpRequest();
+                xhr.withCredentials = true;
+                xhr.open('POST', CONFIG.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        if (xhr.status == 200) {
+                            callback(user_id);
+                            setTimeout(function () {
+                                $('#addNewUserPopup').css('display', 'none');
+                            }, 100);
+                        }
+                    }
+                };
+
+                xhr.send(fd);
+            } else if (data.message) {
+                showPopup(data.message)
+            }
+        }, 'POST', true, {
+            'Content-Type': 'application/json'
+        });
+    });
+    $('#partner').on('change', function () {
+        let partner = $(this).is(':checked');
+        if (partner) {
+            $('.hidden-partner').css('display', 'block');
+        } else {
+            $('.hidden-partner').css('display', 'none');
+        }
+    });
+
+}
 function saveUser(el) {
     let $input, $select, fullName, first_name, last_name, middle_name, data, id;
     let master_id = $('#master_hierarchy option:selected').attr('data-id') || "";
@@ -223,7 +446,12 @@ function setCookie(name, value, options) {
     document.cookie = updatedCookie;
 }
 $('.close').on('click', function () {
-    $(this).closest('.pop-up-splash').css('display', 'none');
+    if ($(this).closest('.pop-up-splash')) {
+        $(this).closest('.pop-up-splash').css('display', 'none');
+    }
+    if ($(this).closest('.popup')) {
+        $(this).closest('.popup').css('display', 'none');
+    }
 });
 $('#logout_button').on('click', function (e) {
     e.preventDefault();
@@ -514,29 +742,29 @@ function getCurrentSetting() {
 }
 
 function createUsersTable(config) {
-        config["search_fio"] = $('input[name=fullsearch]').val();
-        Object.assign(config, filterParam());
-        getUsers(config).then(function (data) {
-            let count = data.count;
-            let page = config['page'] || 1;
-            let pages = Math.ceil(count / CONFIG.pagination_count);
-            let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
-            let id = "database_users";
-            let text = `Показано ${showCount} из ${count}`;
-            let paginationConfig = {
-                container: ".users__pagination",
-                currentPage: page,
-                pages: pages,
-                callback: createUsersTable
-            };
-            makeDataTable(data, id);
-            makePagination(paginationConfig);
-            $('.table__count').text(text);
-            makeSortForm(data.user_table);
-            $('.preloader').css('display', 'none');
-            orderTable.sort(createUsersTable);
-        });
-    }
+    config["search_fio"] = $('input[name=fullsearch]').val();
+    Object.assign(config, filterParam());
+    getUsers(config).then(function (data) {
+        let count = data.count;
+        let page = config['page'] || 1;
+        let pages = Math.ceil(count / CONFIG.pagination_count);
+        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let id = "database_users";
+        let text = `Показано ${showCount} из ${count}`;
+        let paginationConfig = {
+            container: ".users__pagination",
+            currentPage: page,
+            pages: pages,
+            callback: createUsersTable
+        };
+        makeDataTable(data, id);
+        makePagination(paginationConfig);
+        $('.table__count').text(text);
+        makeSortForm(data.user_table);
+        $('.preloader').css('display', 'none');
+        orderTable.sort(createUsersTable);
+    });
+}
 
 function updateSettings(callback, path) {
     let data = [];
@@ -570,7 +798,7 @@ function updateSettings(callback, path) {
 }
 
 function hidePopup(el) {
-    if($(el).closest('.popap').find('.save-user')) {
+    if ($(el).closest('.popap').find('.save-user')) {
         $(el).closest('.popap').find('.save-user').attr('disabled', false);
         $(el).closest('.popap').find('.save-user').text('Сохранить');
     }

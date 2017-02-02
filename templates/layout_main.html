@@ -82,11 +82,11 @@
 {% endblock %}
 
 {% block add_user_modal %}
-    <div class="add-user-wrap" id="addUser"><!--Add -user -->
+    <div class="add-user-wrap popup" id="addUser"><!--Add -user -->
         <div class="splash-screen">
             <div class="top-text">
                 <h3>Добавить участника</h3>
-                <span>&times;</span>
+                <span class="close">&times;</span>
             </div>
             <div class="splash-buttons">
                 {% block add_user_modal.buttons.choose %}
@@ -101,15 +101,15 @@
 {% endblock %}
 
 {% block choose_user_modal %}
-    <div class="choose-user-wrap"><!--Choose -user -->
+    <div class="choose-user-wrap popup" id="chooseUserINBases"><!--Choose -user -->
         <div class="splash-screen">
             <div class="top-text">
                 <h3><span>←</span> Выбрать участника из базы</h3>
-                <span>&times;</span>
+                <span class="close">&times;</span>
             </div>
             <div class="search">
                 {% block choose_user_modal.search_field %}
-                    <input type="text" placeholder="Поиск" name="fullsearch">
+                    <input type="text" placeholder="Поиск" name="fullsearch" id="searchUserFromDatabase">
                 {% endblock %}
             </div>
             <div id="searchedUsers" class="scrollwrap scrollbar-macosx"></div>

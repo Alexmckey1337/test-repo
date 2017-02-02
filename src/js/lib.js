@@ -9,6 +9,7 @@ function getChurches(config = {}) {
         })
     });
 }
+
 function getHomeGroups(config = {}) {
     return new Promise(function (resolve, reject) {
         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/home_groups/', config, function (data) {
@@ -20,6 +21,7 @@ function getHomeGroups(config = {}) {
         })
     });
 }
+
 function getUsers(config = {}) {
     return new Promise(function (resolve, reject) {
         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/', config, function (data) {
@@ -31,6 +33,7 @@ function getUsers(config = {}) {
         })
     });
 }
+
 function getChurchUsers(id) {
     return new Promise(function (resolve, reject) {
         ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/users/`, null, function (data) {
@@ -42,9 +45,10 @@ function getChurchUsers(id) {
         })
     });
 }
+
 function getHomeGroupUsers(id) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${id}/`, null, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${id}/users`, null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -53,6 +57,7 @@ function getHomeGroupUsers(id) {
         })
     });
 }
+
 function saveUserData(data, id) {
     if (id) {
         let json = JSON.stringify(data);
@@ -63,9 +68,59 @@ function saveUserData(data, id) {
         });
     }
 }
-function addHomeGroup(){
-    console.log('Added');
+
+function createChurchesUsersTable(id, config = {}) {
+    getChurchUsers(id).then(function (data) {
+        console.log(data);
+        let count = data.count;
+        let page = config['page'] || 1;
+        let pages = Math.ceil(count / CONFIG.pagination_count);
+        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let text = `Показано ${showCount} из ${count}`;
+        let tmpl = $('#databaseUsers').html();
+        let filterData = {};
+        filterData.user_table = data.table_columns;
+        filterData.results = data.results;
+        let rendered = _.template(tmpl)(filterData);
+        $('#tableUserINChurches').html(rendered);
+        makeSortForm(filterData.user_table);
+        let paginationConfig = {
+            container: ".users__pagination",
+            currentPage: page,
+            pages: pages,
+            id: id,
+            callback: createChurchesUsersTable
+        };
+        makePagination(paginationConfig);
+        $('.table__count').text(text);
+        $('.preloader').css('display', 'none');
+    })
 }
+
+function addHomeGroup(e, el) {
+    e.preventDefault();
+    let data = getAddHomeGroupData();
+    let json = JSON.stringify(data);
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/home_groups/', json, function () {
+    }, 'POST', false, {
+        'Content-Type': 'application/json'
+    });
+    hidePopup(el)
+}
+
+function getAddHomeGroupData() {
+    return {
+        "opening_date": $('#added_home_group_date').val(),
+        "title": $('#added_home_group_title').val(),
+        "church": $('#added_home_group_church').data('id'),
+        "leader": $('#added_home_group_pastor').val(),
+        "city": $('#added_home_group_city').val(),
+        "address": $('#added_home_group_address').val(),
+        "phone_number": $('#added_home_group_phone').val(),
+        "website": $('#added_home_group_site').val()
+    }
+}
+
 function getAddChurchData() {
     return {
         "opening_date": $('#added_churches_date').val(),
@@ -80,21 +135,74 @@ function getAddChurchData() {
         "website": $('#added_churches_site').val()
     }
 }
-function addChurch(e, el) {
+
+function createChurchesTable(config = {}) {
+    config.search_title = $('input[name="fullsearch"]').val();
+    getChurches(config).then(function (data) {
+        console.log(data);
+        let count = data.count;
+        let page = config['page'] || 1;
+        let pages = Math.ceil(count / CONFIG.pagination_count);
+        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let text = `Показано ${showCount} из ${count}`;
+        let tmpl = $('#databaseUsers').html();
+        let filterData = {};
+        filterData.user_table = data.table_columns;
+        filterData.results = data.results;
+        let rendered = _.template(tmpl)(filterData);
+        $('#tableChurches').html(rendered);
+        makeSortForm(filterData.user_table);
+        let paginationConfig = {
+            container: ".users__pagination",
+            currentPage: page,
+            pages: pages,
+            callback: createChurchesTable
+        };
+        makePagination(paginationConfig);
+        $('.table__count').text(text);
+        $('.preloader').css('display', 'none');
+    });
+}
+
+function addChurch(e, el, callback) {
     e.preventDefault();
     let data = getAddChurchData();
     let json = JSON.stringify(data);
     ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/churches/', json, function (data) {
-        console.log(data);
-        console.log('added');
+        callback();
     }, 'POST', false, {
         'Content-Type': 'application/json'
     });
     hidePopup(el)
 }
+
 function getCountryCodes() {
     return new Promise(function (resolve, reject) {
         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка")
+            }
+        })
+    })
+}
+
+function getRegions(config = {}) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/regions/', config, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка")
+            }
+        })
+    })
+}
+
+function getCities(config = {}) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/cities/', config, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -203,6 +311,42 @@ function getResponsibleStatuses() {
             }
         });
     })
+}
+
+function getUsersFromDatabase(config) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/', config, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    });
+}
+
+function getUsersTOChurch(config) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/churches/potential_users_church/', config, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    });
+}
+
+function getUsersTOHomeGroup(config, id) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/potential_users_group/`, config, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    });
 }
 
 function getDivisions() {
@@ -331,9 +475,16 @@ function makePagination(config) {
             $(container).find('.pagination__input').val(config.pages).trigger('change');
             return
         }
-        config.callback({
-            page: val
-        });
+        if (config.hasOwnProperty('id')) {
+            config.callback({
+                page: val
+            }, config.id);
+        } else {
+            config.callback({
+                page: val
+            });
+        }
+
     });
 
     $(config.container).html(container);

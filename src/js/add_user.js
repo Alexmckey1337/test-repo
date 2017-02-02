@@ -110,6 +110,7 @@
         });
         makeChooseDepartment.then(function (html) {
             document.getElementById('chooseDepartment').innerHTML = html;
+            $('#chooseDepartment').attr('disabled', false);
         });
 
         makeChooseStatus.then(function (html) {

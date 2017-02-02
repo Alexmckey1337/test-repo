@@ -1185,18 +1185,23 @@ li.current a {
   cursor: default;
 }
 
-.rows-wrap button {
-  float: right;
-  width: 130px;
-  background-color: #3caeda;
-  position: relative;
-  margin-right: 30px;
-  margin-top: 4px;
-}
-
-.rows-wrap:hover button,
-.rows-wrap button:hover {
-  background-color: #51c2ee;
+.rows-wrap {
+  & button {
+    float: right;
+    width: 130px;
+    background-color: #3caeda;
+    position: relative;
+    margin-right: 30px;
+    margin-top: 4px;
+    &:hover {
+      background-color: #51c2ee;
+    }
+    &:disabled:hover {
+      cursor: default;
+      background-color: #3caeda;
+      opacity: 1;
+    }
+  }
 }
 
 .rows-wrap button[no_disciples], span[no_disciples], .rows-wrap button[no_disciples]:hover {
@@ -1791,6 +1796,16 @@ td {
           display: block;
           cursor: pointer;
         }
+      }
+    }
+  }
+}
+
+#tableUserINChurches, #home_group {
+  & td {
+    a {
+      & ~ .quick-edit {
+        display: none;
       }
     }
   }
@@ -2461,10 +2476,6 @@ table input[type=checkbox],
 
 .choose-user-wrap .rows:hover {
   background-color: #ececec;
-}
-
-.choose-user-wrap .rows-wrap:hover button {
-  background-color: #51c2ee;
 }
 
 .choose-user-wrap button::before {
@@ -3761,7 +3772,7 @@ span.green {
         height: 35px;
         text-align: left;
         font-size: 1.2em;
-        line-height: 1.5em;
+        line-height: 35px;
         margin-bottom: .5em;
         &.end__block {
           margin-bottom: 2em;
@@ -3790,6 +3801,16 @@ span.green {
   display: flex;
   align-items: flex-start;
   justify-content: space-around;
+  & .info {
+    padding: 2em;
+    & h2 {
+      margin-bottom: 0.5em;
+      font-size: 1.5em;
+    }
+    & ul {
+      line-height: 1.5;
+    }
+  }
 }
 
 .col-2, .col-3 {

@@ -27,29 +27,33 @@
 
     <div class="container">
         <div class="col-3">
-            <h2>Основная информация:</h2>
-            <ul>
-                <li>Дата открытия: {{ church.opening_date }}</li>
-                <li>Отдел: {{ church.department }}</li>
-                <li>Пастор: {{ church.pastor }}</li>
-                <li>Город: {{ church.city }}</li>
-                <li>Адрес: {{ church.address }}</li>
-                <li>Телефон: {{ church.phone_number }}</li>
-                <li>Сайт: {{ church.website }}</li>
-            </ul>
+            <div class="info">
+                <h2>Основная информация:</h2>
+                <ul>
+                    <li>Дата открытия: {{ church.opening_date }}</li>
+                    <li>Отдел: {{ church.department }}</li>
+                    <li>Пастор: {{ church.pastor }}</li>
+                    <li>Город: {{ church.city }}</li>
+                    <li>Адрес: {{ church.address }}</li>
+                    <li>Телефон: {{ church.phone_number }}</li>
+                    <li>Сайт: {{ church.website }}</li>
+                </ul>
+            </div>
         </div>
         <div class="col-3">
-            <h2>Сводная информация:</h2>
-            <ul>
-                <li>Общее количество людей: {{ users_count }}</li>
-                <li>Количество прихожан: {{ parishioners_count }}</li>
-                <li>Количеств Лидеров: {{ leaders_count }}</li>
-                <li>Количество Домашних групп: {{ home_groups_count }}</li>
-                <li>Количество Отцов: {{ fathers_count }}</li>
-                <li>Количество Юношей: {{ juniors_count }}</li>
-                <li>Количество Младенцев: {{ babies_count }}</li>
-                <li>Количество Партнеров: {{ partners_count }}</li>
-            </ul>
+            <div class="info">
+                <h2>Сводная информация:</h2>
+                <ul>
+                    <li>Общее количество людей: {{ users_count }}</li>
+                    <li>Количество прихожан: {{ parishioners_count }}</li>
+                    <li>Количеств Лидеров: {{ leaders_count }}</li>
+                    <li>Количество Домашних групп: {{ home_groups_count }}</li>
+                    <li>Количество Отцов: {{ fathers_count }}</li>
+                    <li>Количество Юношей: {{ juniors_count }}</li>
+                    <li>Количество Младенцев: {{ babies_count }}</li>
+                    <li>Количество Партнеров: {{ partners_count }}</li>
+                </ul>
+            </div>
         </div>
         <div class="col-3"></div>
     </div>
@@ -62,7 +66,9 @@
     {% endblock %}
 
     {% block table %}
-        <div class="table-wrap  clearfix" id="church" data-id="{{ church.id }}"><!--Table -->
+        <div class="table-wrap clearfix" id="church" data-id="{{ church.id }}"
+             data-department_id="{{ church.department.id }}" data-department_title="{{ church.department }}">
+            <!--Table -->
             <div class="table scrollbar-inner" id="tableUserINChurches"></div>
             <div class="query-none">
                 <p></p>
@@ -105,8 +111,11 @@
                         <div class="col-7">
                             <p><input type="date" id="added_home_group_date" required></p>
                             <p class="end__block"><input type="text" id="added_home_group_title"></p>
-                            <p><input type="text" id="added_home_group_church" required></p>
-                            <p><input type="text" id="added_home_group_lider" required></p>
+                            <p id="added_home_group_church" data-id="{{ church.id }}"
+                               data-department="{{ church.department.id }}">{{ church.get_title }}</p>
+                            <p><select id="added_home_group_pastor" required>
+                                <option>Выберите пастора</option>
+                            </select></p>
                             <p><input type="text" id="added_home_group_city" required></p>
                             <p><input type="text" id="added_home_group_address"></p>
                             <p><input type="tel" id="added_home_group_phone"></p>
@@ -123,5 +132,6 @@
     </div>
 {% endblock %}
 {% block extra_scripts %}
+    <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
     <script src="{% static "js/churches_detail.js" %}"></script>
 {% endblock %}
