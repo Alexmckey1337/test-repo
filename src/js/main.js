@@ -9,7 +9,9 @@ const CONFIG = {
 var VOCRM = {};
 
 counterNotifications();
-
+$(window).on('hashchange', function () {
+    location.reload();
+});
 // Sorting
 var orderTable = (function () {
     function addListener(callback) {
@@ -70,33 +72,35 @@ function getAddNewUserData() {
         'country': $('#chooseCountry option:selected').text() == 'Выберите страну' ? '' : $('#chooseCountry option:selected').text()
     };
     if ($('#partner').prop('checked')) {
-            if (!$('#summa_partner').val()) {
-                $('#summa_partner').css('border', '1px solid #d46a6a');
-                return
-            }
-            if (!$('#chooseManager').val()) {
-                $('#chooseManager').css('border', '1px solid #d46a6a');
-                return
-            }
-            if (!$('#partnerFrom').val()) {
-                $('#partnerFrom').css('border', '1px solid #d46a6a');
-                return
-            }
-            data.partner = {
-                "value": ($('#summa_partner').val()) ? parseInt($('#summa_partner').val()) : 0,
-                "responsible": ($('#chooseManager').val()) ? parseInt($('#chooseManager').val()) : null,
-                "date": $('#partnerFrom').val()
-            }
+        if (!$('#summa_partner').val()) {
+            $('#summa_partner').css('border', '1px solid #d46a6a');
+            return
         }
+        if (!$('#chooseManager').val()) {
+            $('#chooseManager').css('border', '1px solid #d46a6a');
+            return
+        }
+        if (!$('#partnerFrom').val()) {
+            $('#partnerFrom').css('border', '1px solid #d46a6a');
+            return
+        }
+        data.partner = {
+            "value": ($('#summa_partner').val()) ? parseInt($('#summa_partner').val()) : 0,
+            "responsible": ($('#chooseManager').val()) ? parseInt($('#chooseManager').val()) : null,
+            "date": $('#partnerFrom').val()
+        }
+    }
     return data;
 }
 function makeDataTable(data, id) {
     var tmpl = document.getElementById('databaseUsers').innerHTML;
     var rendered = _.template(tmpl)(data);
     document.getElementById(id).innerHTML = rendered;
-    $('.quick-edit').on('click', function () {
-        makeQuickEditCart(this);
-    })
+    if($('.quick-edit').length) {
+        $('.quick-edit').on('click', function () {
+            makeQuickEditCart(this);
+        })
+    }
 }
 
 function makeSortForm(data) {
@@ -798,7 +802,7 @@ function updateSettings(callback, path) {
 }
 
 function hidePopup(el) {
-    if ($(el).closest('.popap').find('.save-user')) {
+    if ($(el).closest('.popap').find('.save-user').length) {
         $(el).closest('.popap').find('.save-user').attr('disabled', false);
         $(el).closest('.popap').find('.save-user').text('Сохранить');
     }
@@ -817,7 +821,7 @@ function refreshFilter(el) {
 }
 
 function filterParam() {
-    let filterPopup, data = {}, department, hierarchy, master, search_email, search_phone_number, search_country, search_city;
+    let filterPopup, data = {}, department, hierarchy, master, search_email, search_phone_number, search_country, search_city, from_date, to_date;
     filterPopup = $('#filterPopup');
     department = parseInt($('#departments_filter').val());
     hierarchy = parseInt($('#hierarchies_filter').val());
@@ -826,7 +830,8 @@ function filterParam() {
     search_phone_number = $('#search_phone_number').val();
     search_country = $('#search_country').val();
     search_city = $('#search_city').val();
-
+    from_date = $('#date_from').val();
+    to_date = $('#date_to').val();
     if (department && department !== 0) {
         data['department'] = department;
     }
@@ -847,6 +852,21 @@ function filterParam() {
     }
     if (search_city && search_city != "") {
         data['search_city'] = search_city;
+    }
+    if(from_date && from_date != "") {
+        if (new Date(from_date) >= new Date(to_date)){
+            data['to_date'] = from_date;
+        } else {
+            data['from_date'] = from_date;
+        }
+
+    }
+    if(to_date && to_date != "") {
+        if (new Date(from_date) >= new Date(to_date)){
+            data['from_date'] = to_date;
+        } else {
+            data['to_date'] = to_date;
+        }
     }
     return data;
 }

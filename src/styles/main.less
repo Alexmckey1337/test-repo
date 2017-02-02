@@ -1,4 +1,5 @@
 body {
+   min-width: 1200px;
   font-family: "Ubuntu", sans-serif;
   font-size: 75%;
   height: 100%;
@@ -2200,12 +2201,16 @@ table input[type=checkbox],
 /***********************popup***************************************/
 .popap {
   & input {
-    width: 96% !important;
+    width: 96%;
     padding: 6px;
     border-radius: 3px;
     border: 1px solid #cdd0d4;
     height: 35px;
     box-sizing: border-box;
+    &.select_date_filter {
+      width: 7em;
+      margin-right: 1em;
+    }
     &:read-only {
       border-color: transparent;
     }
