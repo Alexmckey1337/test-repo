@@ -3,6 +3,9 @@ from __future__ import unicode_literals
 
 import binascii
 import os
+import operator
+from datetime import datetime, timedelta
+from django.db.models import Q
 
 import django_filters
 from django.conf import settings
@@ -23,6 +26,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
+from rest_framework.filters import BaseFilterBackend
 
 from account.models import CustomUser as User
 from common.filters import FieldSearchFilter
@@ -109,6 +113,27 @@ class UserViewSet(viewsets.ModelViewSet):
         return super(UserViewSet, self).dispatch(request, *args, **kwargs)
 
 
+class FilterByBirthday(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        params = request.query_params
+        from_date = params.get('from_date', None)
+        to_date = params.get('to_date', None)
+        if from_date or to_date is None:
+            return queryset
+        if from_date > to_date:
+            return Response({'message': 'Некоректный временной интервал'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        from_date = datetime.strptime(from_date, '%Y-%m-%d')
+        to_date = datetime.strptime(to_date, '%Y-%m-%d')
+        monthdays = [(from_date.month, from_date.day)]
+        while from_date <= to_date:
+            monthdays.append((from_date.month, from_date.day))
+            from_date += timedelta(days=1)
+        monthdays = (dict(zip(("born_date__month", "born_date__day"), t)) for t in monthdays)
+        query = reduce(operator.or_, (Q(**d) for d in monthdays))
+        return queryset.filter(query)
+
+
 class UserFilter(django_filters.FilterSet):
     hierarchy = django_filters.ModelChoiceFilter(name='hierarchy', queryset=Hierarchy.objects.all())
     master = django_filters.ModelMultipleChoiceFilter(name="master", queryset=User.objects.all())
@@ -158,7 +183,7 @@ class NewUserViewSet(viewsets.ModelViewSet):
         'search_country': ('country',),
         'search_city': ('city',),
     }
-    filter_class = UserFilter
+    filter_class = UserFilter, FilterByBirthday
 
     def get_queryset(self):
         user = self.request.user

@@ -42,7 +42,7 @@ def group_table(user, category_title):
             if not (hasattr(user, 'home_groups') and isinstance(user.table, Table)):
                 return result_table
         table_columns = user.table.columns.select_related('columnType').filter(columnType__title__in=[
-            'fullname', 'phone_number', 'repentance_date', 'spiritual_level', 'born_date'])
+            'fullname', 'phone_number', 'repentance_date', 'spiritual_level', 'born_date']).order_by('number')
     else:
         return result_table
     for column in table_columns:
