@@ -137,7 +137,7 @@ function getAddChurchData() {
 }
 
 function createChurchesTable(config = {}) {
-    config.search_title = $('input[name="fullsearch"]').val();
+    config.search_pastor = $('input[name="fullsearch"]').val();
     getChurches(config).then(function (data) {
         console.log(data);
         let count = data.count;

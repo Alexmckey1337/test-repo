@@ -85,8 +85,8 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
     filter_class = ChurchFilter
     field_search_fields = {
         'search_title': ('title',),
-        'search_department': ('department',),
-        'search_pastor': ('pastor',),
+        'search_department': ('department__title',),
+        'search_pastor': ('pastor__last_name',),
         'search_country': ('country',),
         'search_city': ('city',),
     }

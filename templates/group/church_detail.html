@@ -36,7 +36,9 @@
                     <li>Город: {{ church.city }}</li>
                     <li>Адрес: {{ church.address }}</li>
                     <li>Телефон: {{ church.phone_number }}</li>
-                    <li>Сайт: {{ church.website }}</li>
+                    <li>Сайт: {% if church.website %}
+                        <a href="{{ church.website }}" target="_blank">{{ church.website }}</a>
+                    {% endif %}</li>
                 </ul>
             </div>
         </div>

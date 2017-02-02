@@ -33,7 +33,7 @@
                     <li>Адрес: {{ home_group.address }}</li>
                     <li>Телефонный номер: {{ home_group.phone_number }}</li>
                     <li>Сайт: {% if home_group.website %}
-                        <a href="{{ home_group.website }}">{{ home_group.website }}</a>
+                        <a href="{{ home_group.website }}" target="_blank">{{ home_group.website }}</a>
                     {% endif %}</li>
                 </ul>
             </div>
