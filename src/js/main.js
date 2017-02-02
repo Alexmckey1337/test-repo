@@ -827,25 +827,25 @@ function filterParam() {
     search_country = $('#search_country').val();
     search_city = $('#search_city').val();
 
-    if (department !== 0) {
+    if (department && department !== 0) {
         data['department'] = department;
     }
-    if (hierarchy !== 0) {
+    if (hierarchy && hierarchy !== 0) {
         data['hierarchy'] = hierarchy;
     }
-    if (master !== 0) {
+    if (master && master !== 0) {
         data['master'] = master;
     }
-    if (search_email != "") {
+    if (search_email && search_email != "") {
         data['search_email'] = search_email;
     }
-    if (search_phone_number != "") {
+    if (search_phone_number && search_phone_number != "") {
         data['search_phone_number'] = search_phone_number;
     }
-    if (search_country != "") {
+    if (search_country && search_country != "") {
         data['search_country'] = search_country;
     }
-    if (search_city != "") {
+    if (search_city && search_city != "") {
         data['search_city'] = search_city;
     }
     return data;

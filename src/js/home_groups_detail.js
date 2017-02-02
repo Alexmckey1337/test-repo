@@ -4,33 +4,6 @@
     const HG_ID = $('#home_group').data('departament_id');
     const HG_TITLE = $('#home_group').data('departament_title');
 
-    function createHomeGroupUsersTable(config = {}) {
-        getHomeGroupUsers(ID).then(function (data) {
-            console.log(data);
-            let count = data.count;
-            let page = config['page'] || 1;
-            let pages = Math.ceil(count / CONFIG.pagination_count);
-            let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
-            let text = `Показано ${showCount} из ${count}`;
-            let tmpl = $('#databaseUsers').html();
-            let filterData = {};
-            filterData.user_table = data.table_columns;
-            filterData.results = data.results;
-            let rendered = _.template(tmpl)(filterData);
-            $('#tableUserINHomeGroups').html(rendered);
-            makeSortForm(filterData.user_table);
-            let paginationConfig = {
-                container: ".users__pagination",
-                currentPage: page,
-                pages: pages,
-                callback: createHomeGroupUsersTable
-            };
-            makePagination(paginationConfig);
-            $('.table__count').text(text);
-            $('.preloader').css('display', 'none');
-        })
-    }
-
     function addUserToHomeGroup(id, el) {
         let config = {};
         config.user_id = id;
@@ -70,7 +43,7 @@
         })
     }
 
-    createHomeGroupUsersTable();
+    createHomeGroupUsersTable({}, ID);
 
 // Events
     $('#add_userToHomeGroup').on('click', function () {
@@ -101,5 +74,8 @@
         config.department = HG_ID;
         makeUsersFromDatabaseList(config, ID);
     });
-
+ $('#sort_save').on('click', function () {
+        $('.preloader').css('display', 'block');
+        updateSettings(createHomeGroupUsersTable);
+    });
 })(jQuery);
