@@ -2,7 +2,7 @@
     "use strict";
 
     function updateUser(data, id) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.1/users/${id}/`, data, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.1/users/${id}/`, data, function () {
             let send_image = true;
             if (send_image) {
                 try {
