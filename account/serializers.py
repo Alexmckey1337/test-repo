@@ -84,7 +84,6 @@ class AddExistUserSerializer(serializers.ModelSerializer):
 
 
 class NewUserSerializer(serializers.ModelSerializer):
-    spiritual_level = ReadOnlyChoiceField(choices=User.SPIRITUAL_LEVEL_CHOICES, read_only=True)
     partnership = PartnershipSerializer(required=False)
 
     class Meta:
@@ -149,6 +148,7 @@ class UserSingleSerializer(NewUserSerializer):
     master = MasterWithHierarchySerializer(required=False, allow_null=True)
     hierarchy = HierarchyTitleSerializer()
     divisions = DivisionSerializer(many=True, read_only=True)
+    spiritual_level = ReadOnlyChoiceField(choices=User.SPIRITUAL_LEVEL_CHOICES, read_only=True)
 
 
 class UserTableSerializer(UserSingleSerializer):
