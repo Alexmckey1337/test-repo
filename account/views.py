@@ -115,6 +115,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class FilterByBirthday(BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
+        from functools import reduce
         params = request.query_params
         from_date = params.get('from_date', None)
         to_date = params.get('to_date', None)

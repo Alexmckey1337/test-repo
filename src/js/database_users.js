@@ -11,7 +11,7 @@ $('document').ready(function () {
         minDate: new Date((new Date().getFullYear()),0,1),
         maxDate: new Date((new Date().getFullYear()),11,31),
         autoClose: true
-    });
+    })
     //Events
     $('#filter_button').on('click', function () {
         $('#filterPopup').css('display', 'block');
