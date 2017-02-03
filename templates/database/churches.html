@@ -224,23 +224,23 @@
             <p class="hidden"><input type="text" id="churchID" value="<%= id %>"></p>
         </div>
    </div>
-    <div class="container">
-        <div class="col-6">
-{#            <p class="label_block">Отдел:</p>#}
-{#            <p class="label_block">Пастор:</p>#}
+    <div class="container start">
+        <div>
+            <p class="label_block">Отдел:</p>
+            <p class="label_block">Пастор:</p>
             <p class="label_block">Страна</p>
             <p class="label_block">Нас.пункт:</p>
             <p class="label_block">Адрес:</p>
             <p class="label_block">Телефон:</p>
             <p class="label_block">Сайт:</p>
         </div>
-        <div class="col-6">
-{#            <p><select name="" id="departmentSelect">#}
-{#                <option value="<%= department %>"><%= department %></option>#}
-{#            </select></p>#}
-{#            <p><select name="" id="pastorSelect">#}
-{#                <option value="<%= pastor %>"><%= pastor %></option>#}
-{#            </select></p>#}
+        <div class="col-7">
+            <div><select name="" id="departmentSelect">
+                <option value="<%= department %>"><%= department %></option>
+            </select></div>
+            <div><select name="" id="pastorSelect">
+                <option value="<%= pastor %>"><%= pastor %></option>
+            </select></div>
             <p><input type="text" id="country" value="<%=country %>"></p>
             <p><input type="text" id="city" value="<%=city %>"></p>
             <p><input type="text" id="address" value="<%=address %>"></p>

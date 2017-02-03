@@ -11,18 +11,38 @@ function getChurches(config = {}) {
     });
 }
 
-    function makePastorList(id, selector) {
-        getResponsible(id, 2).then(function (data) {
-            let options = [];
-            data.forEach(function (item) {
-                let option = document.createElement('option');
-                $(option).val(item.id).text(item.fullname);
-                options.push(option);
-            });
-
-            $(selector).html(options).prop('disabled', false);
+function makePastorList(id, selector, active = null) {
+    getResponsible(id, 2).then(function (data) {
+        let options = [];
+        data.forEach(function (item) {
+            let option = document.createElement('option');
+            $(option).val(item.id).text(item.fullname);
+            if (active == item.id) {
+                $(option).attr('selected', true);
+            }
+            options.push(option);
         });
-    }
+        $(selector).html(options).prop('disabled', false).select2();
+    });
+}
+function makeDepartmentList(selector, active = null) {
+    getDepartments().then(function (data) {
+        let options = [];
+        let department = data.results;
+        department.forEach(function (item) {
+            let option = document.createElement('option');
+            $(option).val(item.id).text(item.title);
+            if (active == item.id) {
+                $(option).attr('selected', true);
+            }
+            options.push(option);
+        });
+        $(selector).html(options).prop('disabled', false).select2().on('change', function () {
+            let id = $(this).val();
+            makePastorList(id, '#pastorSelect');
+        });
+    });
+}
 function getHomeGroups(config = {}) {
     return new Promise(function (resolve, reject) {
         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/home_groups/', config, function (data) {
@@ -281,10 +301,11 @@ function createChurchesTable(config = {}) {
                 $('#opening_date').datepicker({
                     dateFormat: 'yyyy-mm-dd'
                 });
-                makePastorList(id, '#pastorSelect');
-               setTimeout(function () {
+                makePastorList(id, '#pastorSelect', data.department);
+                makeDepartmentList('#departmentSelect', data.department);
+                setTimeout(function () {
                     $('#quickEditCartPopup').css('display', 'block');
-               }, 500)
+                }, 100)
             })
         });
 

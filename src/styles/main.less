@@ -1,20 +1,24 @@
 body {
-   min-width: 1200px;
+  min-width: 1200px;
   font-family: "Ubuntu", sans-serif;
   font-size: 75%;
   height: 100%;
   color: #656d78;
   display: none;
 }
+
 .hidden {
   display: none;
 }
+
 .inline {
   display: inline-block;
 }
+
 .text__center {
   text-align: center;
 }
+
 input:-webkit-autofill {
   -webkit-box-shadow: inset 0 0 0 50px #fff !important; /* Цвет фона */
   -webkit-text-fill-color: #999 !important; /* цвет текста */
@@ -1786,30 +1790,28 @@ td {
   transition: all .3s ease;
 }
 
-
-  .edit {
+.edit {
+  a {
+    & ~ .quick-edit {
+      height: 1em;
+      float: right;
+      display: none;
+      position: absolute;
+      left: 1em;
+      top: 0;
+      bottom: 0;
+      margin: auto;
+    }
+  }
+  &:hover {
     a {
       & ~ .quick-edit {
-        height: 1em;
-        float: right;
-        display: none;
-        position: absolute;
-        left: 1em;
-        top: 0;
-        bottom: 0;
-        margin: auto;
-      }
-    }
-    &:hover {
-      a {
-        & ~ .quick-edit {
-          display: block;
-          cursor: pointer;
-        }
+        display: block;
+        cursor: pointer;
       }
     }
   }
-
+}
 
 #tableUserINChurches, #home_group {
   & td {
@@ -2336,7 +2338,7 @@ table input[type=checkbox],
     margin-left: 100px
   }
   & label {
-    padding-left: 6px;
+    padding: 2px 6px;
   }
   & p {
     margin-bottom: 5px;
@@ -2366,7 +2368,7 @@ table input[type=checkbox],
 .pop_cont {
   position: fixed;
   max-width: 940px;
-  min-width: 570px;
+  min-width: 435px;
   height: auto;
   top: 50%;
   left: 50%;
@@ -3825,6 +3827,12 @@ span.green {
   display: flex;
   align-items: flex-start;
   justify-content: space-around;
+  &.start {
+    justify-content: flex-start;
+    & input, & select {
+      width: 18.5em !important;
+    }
+  }
   & .info {
     padding: 2em;
     & h2 {
