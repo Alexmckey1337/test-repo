@@ -388,6 +388,7 @@ function saveChurches(el) {
         phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
         website: ($(el).closest('.pop_cont').find('#web_site')).val(),
         opening_date: $($(el).closest('.pop_cont').find('#opening_date')).val() || null,
+        is_open: $('#is_open_church').is(':checked'),
         country: $($(el).closest('.pop_cont').find('#country')).val(),
         region: $($(el).closest('.pop_cont').find('#region')).val(),
         city: $($(el).closest('.pop_cont').find('#city')).val(),
