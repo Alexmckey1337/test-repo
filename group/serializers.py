@@ -1,5 +1,7 @@
 # -*- coding: utf-8
 from rest_framework import serializers
+
+from common.fields import ReadOnlyChoiceField
 from .models import Church, HomeGroup
 from account.models import CustomUser
 from account.serializers import DepartmentTitleSerializer
@@ -46,15 +48,6 @@ class HomeGroupSerializer(serializers.ModelSerializer):
 class HomeGroupListSerializer(HomeGroupSerializer):
     church = ChurchNameSerializer()
     leader = LeaderNameSerializer()
-
-
-class ReadOnlyChoiceField(serializers.ChoiceField):
-
-    def to_representation(self, value):
-        if value in ('', None):
-            return value
-        t = self.grouped_choices.get(value, value)
-        return t
 
 
 class GroupUserSerializer(serializers.ModelSerializer):
