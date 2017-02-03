@@ -7,6 +7,7 @@ import os
 from rest_framework import serializers
 
 from account.models import CustomUser as User
+from common.fields import ReadOnlyChoiceField
 from hierarchy.models import Department, Hierarchy
 from navigation.models import Table
 from partnership.models import Partnership
@@ -18,6 +19,8 @@ def generate_key():
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
+    spiritual_level = ReadOnlyChoiceField(choices=User.SPIRITUAL_LEVEL_CHOICES, read_only=True)
+
     class Meta:
         model = User
         fields = ('id', 'email', 'fullname', 'image', 'image_source', 'search_name',
@@ -81,7 +84,6 @@ class AddExistUserSerializer(serializers.ModelSerializer):
 
 
 class NewUserSerializer(serializers.ModelSerializer):
-
     partnership = PartnershipSerializer(required=False)
 
     class Meta:
@@ -132,7 +134,6 @@ class NewUserSerializer(serializers.ModelSerializer):
         return instance
 
     def create(self, validated_data):
-
         username = generate_key()[:20]
         # while User.objects.filter(username=username).exists():
         #     username = generate_key()
@@ -147,6 +148,7 @@ class UserSingleSerializer(NewUserSerializer):
     master = MasterWithHierarchySerializer(required=False, allow_null=True)
     hierarchy = HierarchyTitleSerializer()
     divisions = DivisionSerializer(many=True, read_only=True)
+    spiritual_level = ReadOnlyChoiceField(choices=User.SPIRITUAL_LEVEL_CHOICES, read_only=True)
 
 
 class UserTableSerializer(UserSingleSerializer):

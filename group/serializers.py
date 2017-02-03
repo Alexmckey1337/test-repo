@@ -1,5 +1,7 @@
 # -*- coding: utf-8
 from rest_framework import serializers
+
+from common.fields import ReadOnlyChoiceField
 from .models import Church, HomeGroup
 from account.models import CustomUser
 from account.serializers import DepartmentTitleSerializer
@@ -48,15 +50,6 @@ class HomeGroupListSerializer(HomeGroupSerializer):
     leader = LeaderNameSerializer()
 
 
-class ReadOnlyChoiceField(serializers.ChoiceField):
-
-    def to_representation(self, value):
-        if value in ('', None):
-            return value
-        t = self.grouped_choices.get(value, value)
-        return t
-
-
 class GroupUserSerializer(serializers.ModelSerializer):
     spiritual_level = ReadOnlyChoiceField(choices=CustomUser.SPIRITUAL_LEVEL_CHOICES, read_only=True)
 
@@ -98,11 +91,3 @@ class ChurchSerializer(serializers.ModelSerializer):
 class ChurchListSerializer(ChurchSerializer):
     department = DepartmentTitleSerializer()
     pastor = PastorNameSerializer()
-
-
-class ChurchDetailSerializer(serializers.ModelSerializer):
-    home_group = HomeGroupListSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Church
-        fields = ('id', 'home_group',)
