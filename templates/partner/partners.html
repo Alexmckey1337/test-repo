@@ -74,6 +74,20 @@
 {% endblock %}
 
 {% block popup %}
+    <div class="popap" id="quickEditCartPopup">
+        <div class="pop_cont">
+            <div class="popup_text">
+                <h2>Карточка пользователя</h2>
+                <span onclick="hidePopup(this)" class="close"><i class="fa fa-times" aria-hidden="true"></i></span>
+            </div>
+            <div class="popup_body">
+            </div>
+            <div class="container">
+                <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                <button onclick="saveUser(this)" class="save-user">Сохранить</button>
+            </div>
+        </div>
+    </div>
     <div id="popup" class="pop-up-splash">
         <div class="splash-screen">
             <div class="top-text">
@@ -120,4 +134,70 @@
     <script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
     <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
     <script src='{% static "js/partner_list.js" %}'></script>
+    <script type="text/template" id="quickEditCart">
+   <div class="container bb-1">
+       <div>
+            <img class="user-image" src="<%= image %>" alt="<%=id%>">
+        </div>
+        <div class="col-7">
+            <p><input type="text" class="fullname" value="<%=fullname %>"></p>
+            <p><label for="departmentSelect">Отдел церкви: </label><select id="departmentSelect">
+                <% if(department != null) { %>
+                    <option value="<%=department.id %>" selected><%=department.title %></option>
+                <% } else { %>
+                    <option value="" selected></option>
+                <% } %>
+            </select></p>
+            <div><label for="master_hierarchy">Ответственный: </label>
+                <select id="master_hierarchy">
+                    <% if(master != null) { %>
+                        <option value="<%= master.fullname %>" data-id="<%= master.id %>" data-level="<%=master.hierarchy.level%>" selected><%= master.fullname %></option>
+                    <% } %>
+                </select>
+            </div>
+            <p><label for="hierarchySelect">Статус: </label><select id="hierarchySelect">
+                <% if(hierarchy != null) { %>
+                <option value="<%=hierarchy.id %>" data-level="<%=hierarchy.level%>" selected><%=hierarchy.title %></option>
+                <% } else { %>
+                    <option value="" selected></option>
+                <% } %>
+            </select></p>
+{#            <p><label for="departmentSelect">Отдел церкви: </label><input type="text" id="departmentSelect" value="<%=fields.department.value %>" readonly></p> #}
+{#            <p><label for="master_hierarchy">Ответсвенный: </label><input type="text" id="master_hierarchy" value="<%=fields.master_hierarchy.value %>" readonly></p>#}
+{#            <p><label for="hierarchy">Статус: </label><input type="text" id="hierarchy" value="<%=fields.hierarchy.value %>" readonly></p>#}
+        </div>
+   </div>
+    <div class="container">
+        <div class="col-6">
+            <p class="label_block">Телефон:</p>
+            <p class="label_block">Домашний телефон:</p>
+            <p class="label_block">E-mail:</p>
+            <p class="label_block">Skype:</p>
+            <p class="label_block">Страна:</p>
+            <p class="label_block">Область:</p>
+            <p class="label_block">Нас.пункт:</p>
+            <p class="label_block">Адрес:</p>
+            <p class="label_block">Дата покаяния:</p>
+        </div>
+        <div class="col-6">
+            <p><input type="text" id="phone_number" value="<%=phone_number %>"></p>
+            <p><input type="text" id="extra_phone_numbers"
+                        <% if (extra_phone_numbers.lenght) { %>
+                        value="<%=extra_phone_numbers.join(', ') %>
+                <% } %>
+            </p>
+            <p><input type="text" id="email" value="<%=email %>"></p>
+            <p><input type="text" id="skype" value="<%=skype %>"></p>
+            <p><input type="text" id="country" value="<%=country %>"></p>
+            <p><input type="text" id="region" value="<%=region %>"></p>
+            <p><input type="text" id="city" value="<%=city %>"></p>
+            <p><input type="text" id="address" value="<%=address %>"></p>
+            <% if (repentance_date) { %>
+                <p><input type="text" id="repentance_date" value="<%=repentance_date.split('.').reverse().join('-') %>"></p>
+            <% } else { %>
+                <p><input type="text" id="repentance_date" value=""></p>
+            <% } %>
+        </div>
+    </div>
+</script>
 {% endblock %}

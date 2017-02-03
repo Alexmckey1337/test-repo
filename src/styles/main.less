@@ -6,7 +6,9 @@ body {
   color: #656d78;
   display: none;
 }
-
+.hidden {
+  display: none;
+}
 .inline {
   display: inline-block;
 }
@@ -2272,8 +2274,19 @@ table input[type=checkbox],
 }
 
 #quickEditCartPopup {
+  & .header {
+    width: 100%;
+    & input {
+      &.title {
+        font-size: 1.7em;
+      }
+      &.date {
+        min-width: 9em;
+      }
+    }
+  }
   & input {
-    width: auto !important;
+    width: auto;
     padding: 5px 6px;
     height: auto;
     min-width: 17em;
