@@ -246,6 +246,13 @@ function createChurchesTable(config = {}) {
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableChurches').html(rendered);
+        $('.quick-edit').on('click',function () {
+            console.log('edit');
+            let id = 1;
+            ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${id}/home_groups/`, null, function (data) {
+                console.log(data);
+            })
+        });
         makeSortForm(filterData.user_table);
         let paginationConfig = {
             container: ".users__pagination",

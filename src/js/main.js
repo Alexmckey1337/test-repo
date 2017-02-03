@@ -374,10 +374,15 @@ function saveUser(el) {
 }
 
 function makeQuickEditCart(el) {
-    let id, link;
+    let id, link, typeAPI, url;
     id = $(el).closest('td').find('a').attr('data-id');
     link = $(el).closest('td').find('a').attr('data-link');
-    let url = "/api/v1.1/users/" + id + '/';
+    typeAPI = link.split('/').filter(function(item){return item})[0];
+    if (typeAPI == "account") {
+        url = "/api/v1.1/users/" + id + '/';
+    } else {
+        return
+    }
     ajaxRequest(url, null, function (data) {
         let quickEditCartTmpl, rendered;
         quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;

@@ -116,13 +116,13 @@
                     <% if(user_table[key].active) { %>
                         <% if (key == 'fullname') { %>
                             <% if (results[index][key] != null) { %>
-                                <td><a href="<%= results[index].link %>" data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%= results[index][key] %></a><span class="quick-edit"><i class="fa fa-pencil" aria-hidden="true"></i></span></td>
+                                <td class="edit"><a href="<%= results[index].link %>" data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%= results[index][key] %></a><span class="quick-edit"><i class="fa fa-pencil" aria-hidden="true"></i></span></td>
                             <% } else { %>
                                 <td></td>
                             <% } %>
                         <% } else if(key == 'get_title') { %>
                             <% if (results[index][key] != null) { %>
-                                <td><a href="<%= results[index].link %>" data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%= results[index][key] %></a></td>
+                                <td class="edit"><a href="<%= results[index].link %>" data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%= results[index][key] %></a><span class="quick-edit"><i class="fa fa-pencil" aria-hidden="true"></i></span></td>
                             <% } else { %>
                                 <td></td>
                             <% } %>
