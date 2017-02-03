@@ -661,6 +661,82 @@ Church
     :statuscode 400: length of search request < 3
 
 
+.. http:get:: /api/v1.0/churches/(int:<church_id>)/all_users
+
+    List of users in the current ``Church`` including all users in home groups with ``id = church_id``.
+    Pagination by 30 users per page.
+
+    **Example request**
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/churches/6/all_users/ HTTP/1.1
+        Host: vocrm.org
+        Content-type: application/json
+
+    **Example response (Good request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "count": 3,
+            "links": {
+                "previous": null,
+                "next": null
+            },
+            "results": [
+                {
+                    "id": 2,
+                    "link": "/account/2/",
+                    "fullname": "Аккаунт Технический №2",
+                    "phone_number": "+38066666",
+                    "repentance_date": null,
+                    "spiritual_level": "Baby",
+                    "born_date": "01.10.1993"
+                },
+                {
+                    "id": 3,
+                    "link": "/account/3/",
+                    "fullname": "Аккаунт Технический №3",
+                    "phone_number": "",
+                    "repentance_date": null,
+                    "spiritual_level": "Baby",
+                    "born_date": "13.10.1993"
+                },
+                {
+                    "id": 4,
+                    "link": "/account/4/",
+                    "fullname": "Аккаунт Технический №4",
+                    "phone_number": "",
+                    "repentance_date": null,
+                    "spiritual_level": "Baby",
+                    "born_date": "12.10.1993"
+                },
+            ]
+        }
+
+    **Example response (Not Found)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 404 Not Found
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "detail": "Не найдено."
+        }
+
+    :statuscode 200: no error
+    :statuscode 404: there's no church
+
+
 .. http:get:: /api/v1.0/churches/(int:<church_id>)/users/
 
     Details of users without home group in single ``Church`` with ``id = church_id``.

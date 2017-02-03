@@ -98,11 +98,3 @@ class ChurchSerializer(serializers.ModelSerializer):
 class ChurchListSerializer(ChurchSerializer):
     department = DepartmentTitleSerializer()
     pastor = PastorNameSerializer()
-
-
-class ChurchDetailSerializer(serializers.ModelSerializer):
-    home_group = HomeGroupListSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Church
-        fields = ('id', 'home_group',)
