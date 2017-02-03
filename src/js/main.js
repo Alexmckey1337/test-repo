@@ -413,15 +413,10 @@ function saveChurches(el) {
 }
 
 function makeQuickEditCart(el) {
-    let id, link, typeAPI, url;
+    let id, link, url;
     id = $(el).closest('td').find('a').attr('data-id');
     link = $(el).closest('td').find('a').attr('data-link');
-    typeAPI = link.split('/').filter(function(item){return item})[0];
-    if (typeAPI == "account") {
-        url = "/api/v1.1/users/" + id + '/';
-    } else {
-        return
-    }
+    url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${id}/`;
     ajaxRequest(url, null, function (data) {
         let quickEditCartTmpl, rendered;
         quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
@@ -429,7 +424,6 @@ function makeQuickEditCart(el) {
         $('.save-user').attr('disabled', false);
         $('#quickEditCartPopup').find('.popup_body').html(rendered);
         $('#quickEditCartPopup').css('display', 'block');
-
         makeResponsibleList();
         getStatuses().then(function (data) {
             data = data.results;

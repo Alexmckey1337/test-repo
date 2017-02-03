@@ -1789,11 +1789,39 @@ td {
   text-align: left;
   transition: all .3s ease;
 }
+#church {
+  .edit {
+    a {
+      & ~ .quick-edit {
+        width: 0;
+        height: 0;
+         &:before {
+          display: none;
+        }
+      }
+    }
+  }
+}
+#tableUserINHomeGroups, #church.can_edit {
+  .edit {
+    a {
+      & ~ .quick-edit {
+        width: 1em;
+        height: 1em;
+        &:before {
+          content: '\f014';
+          display: block;
+        }
+      }
+    }
+  }
+}
 
 .edit {
   a {
     & ~ .quick-edit {
       height: 1em;
+      width: 1em;
       float: right;
       display: none;
       position: absolute;
@@ -1801,6 +1829,15 @@ td {
       top: 0;
       bottom: 0;
       margin: auto;
+      &:before {
+        content: '\f040';
+        font: 1em FontAwesome;
+      }
+      &:hover {
+        &:before {
+          color: #3caeda;
+        }
+      }
     }
   }
   &:hover {
@@ -1812,7 +1849,6 @@ td {
     }
   }
 }
-
 
 td a:hover {
   color: #3caeda;
