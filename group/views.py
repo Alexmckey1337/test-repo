@@ -93,12 +93,12 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
     pagination_class = ChurchPagination
 
     def get_serializer_class(self):
-        if self.action in 'list':
+        if self.action == 'list':
             return self.serializer_list_class
         return self.serializer_class
 
     def get_queryset(self):
-        if self.action in 'list':
+        if self.action == 'list':
             return self.queryset.annotate(
                 count_groups=Count('home_group', distinct=True),
                 count_users=Count('users', distinct=True) + Count('home_group__users', distinct=True))

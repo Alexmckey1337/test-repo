@@ -1,6 +1,11 @@
 import pytest
+from django.core.exceptions import FieldError
+from django.test import RequestFactory
 from django.urls import reverse
 from rest_framework import status
+
+from group.serializers import ChurchListSerializer, ChurchSerializer, HomeGroupSerializer, HomeGroupListSerializer
+from group.views import ChurchViewSet
 
 
 def create_church_users(church, count, user_factory):
@@ -330,10 +335,46 @@ class TestChurchViewSet:
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert not church.users.filter(id=user.id).exists()
 
+    @pytest.mark.parametrize('method,action,serializer_class', (
+            ('get', 'list', ChurchListSerializer),
+            ('post', 'create', ChurchSerializer),
+            ('get', 'retrieve', ChurchSerializer),
+            ('put', 'update', ChurchSerializer),
+            ('patch', 'partial_update', ChurchSerializer),
+    ), ids=('get-list', 'post-create', 'get-retrieve', 'put-update', 'patch-partial_update'))
+    def test_get_serializer_class(self, rf, fake_church_view_set, method, action, serializer_class):
+        method_action = getattr(rf, method)
+        request = method_action('/')
+        view = fake_church_view_set.as_view({method: action})
+
+        instance = view(request)
+
+        assert instance.get_serializer_class() == serializer_class
+
+    @pytest.mark.parametrize('annotate_field_name', ('count_groups', 'count_users'))
+    @pytest.mark.parametrize('method,action,has_field', (
+            ('get', 'list', True),
+            ('post', 'create', False),
+            ('get', 'retrieve', False),
+            ('put', 'update', False),
+            ('patch', 'partial_update', False),
+    ), ids=('get-list', 'post-create', 'get-retrieve', 'put-update', 'patch-partial_update'))
+    def test_get_queryset(self, rf, fake_church_view_set, method, action, has_field, annotate_field_name):
+        method_action = getattr(rf, method)
+        request = method_action('/')
+        view = fake_church_view_set.as_view({method: action})
+
+        instance = view(request)
+
+        if has_field:
+            instance.get_queryset().values(annotate_field_name)
+        else:
+            with pytest.raises(FieldError):
+                instance.get_queryset().values(annotate_field_name)
+
 
 @pytest.mark.django_db
 class TestHomeGroupViewSet:
-
     def test_users_one_page(self, api_login_client, home_group, home_group_factory, user_factory):
         create_home_group_users(home_group, 4, user_factory)  # users_count +4, = 4
 
@@ -459,3 +500,19 @@ class TestHomeGroupViewSet:
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert not home_group.users.filter(id=user.id).exists()
+
+    @pytest.mark.parametrize('method,action,serializer_class', (
+            ('get', 'list', HomeGroupListSerializer),
+            ('post', 'create', HomeGroupSerializer),
+            ('get', 'retrieve', HomeGroupSerializer),
+            ('put', 'update', HomeGroupSerializer),
+            ('patch', 'partial_update', HomeGroupSerializer),
+    ), ids=('get-list', 'post-create', 'get-retrieve', 'put-update', 'patch-partial_update'))
+    def test_get_serializer_class(self, rf, fake_home_group_view_set, method, action, serializer_class):
+        method_action = getattr(rf, method)
+        request = method_action('/')
+        view = fake_home_group_view_set.as_view({method: action})
+
+        instance = view(request, pk=1)
+
+        assert instance.get_serializer_class() == serializer_class
