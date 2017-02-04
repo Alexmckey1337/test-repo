@@ -1,4 +1,6 @@
-from datetime import date, datetime
+from datetime import datetime
+
+from django.utils import timezone
 from decimal import Decimal
 from json import dumps
 
@@ -69,11 +71,14 @@ class CreatePaymentMixin(PaymentCheckPermissionMixin):
         description = request.data.get('description', '')
         rate = request.data.get('rate', Decimal(1))
         currency = request.data.get('currency', purpose.currency.id)
-
+        sent_date = request.data.get('sent_date')
+        if not sent_date:
+            sent_date = timezone.now().strftime('%Y-%m-%d')
         data = {
             'sum': sum,
             'rate': rate,
             'currency_sum': currency,
+            'sent_date': sent_date,
             'description': description,
             'manager': request.user.id,
             'content_type': ContentType.objects.get_for_model(purpose_model).id,

@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 
 import pytest
@@ -27,6 +28,7 @@ class TestPartnershipViewSet:
             'sum': '10',
             'description': 'no desc',
             'rate': '1.22',
+            'sent_date': '2002-02-22',
             'currency': currency_factory().id,
         }
         response = api_login_client.post(url, data=data, format='json')
@@ -39,6 +41,7 @@ class TestPartnershipViewSet:
             assert payment.rate == Decimal(data['rate'])
             assert payment.description == data['description']
             assert payment.currency_sum_id == data['currency']
+            assert payment.sent_date == datetime.strptime(data['sent_date'], '%Y-%m-%d').date()
             assert response.data == PaymentShowSerializer(payment).data
 
     @pytest.mark.parametrize('is_responsible', (True, False))
@@ -157,6 +160,7 @@ class TestDealViewSet:
             'sum': '10',
             'description': 'no desc',
             'rate': '1.22',
+            'sent_date': '2002-02-22',
             'currency': currency_factory().id,
         }
         response = api_login_client.post(url, data=data, format='json')
@@ -169,6 +173,7 @@ class TestDealViewSet:
             assert payment.rate == Decimal(data['rate'])
             assert payment.description == data['description']
             assert payment.currency_sum_id == data['currency']
+            assert payment.sent_date == datetime.strptime(data['sent_date'], '%Y-%m-%d').date()
             assert response.data == PaymentShowSerializer(payment).data
 
     @pytest.mark.parametrize('is_responsible', (True, False))
