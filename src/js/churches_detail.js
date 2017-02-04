@@ -100,6 +100,11 @@
     });
     $('.get_info button').on('click', function () {
         let link = $(this).data('link');
+        let canEdit = $(this).data('editable');
+        $('#church').removeClass('can_edit');
+        if(canEdit) {
+            $('#church').addClass('can_edit');
+        }
         createChurchesDetailsTable({}, ID, link);
         $('.get_info button').removeClass('active');
         $(this).addClass('active');

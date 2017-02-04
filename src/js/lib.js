@@ -124,6 +124,30 @@ function saveChurchData(data, id) {
         });
     }
 }
+function deleteUserINHomeGroup(id, user_id) {
+    return new Promise(function (resolve, reject) {
+        let json = JSON.stringify({
+            "user_id": user_id
+        });
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${id}/del_user/`, json, function () {
+            resolve();
+        }, 'POST', false, {
+            'Content-Type': 'application/json'
+        });
+    })
+}
+function deleteUserINChurch(id, user_id) {
+    return new Promise(function (resolve, reject) {
+        let json = JSON.stringify({
+            "user_id": user_id
+        });
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/del_user/`, json, function () {
+            resolve();
+        }, 'POST', false, {
+            'Content-Type': 'application/json'
+        });
+    })
+}
 function createChurchesUsersTable(id, config = {}) {
     getChurchUsers(id).then(function (data) {
         console.log(data);
@@ -172,6 +196,12 @@ function createChurchesDetailsTable(config = {}, id, link) {
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINChurches').html(rendered);
+        $('.quick-edit').on('click', function () {
+            let user_id = $(this).closest('.edit').find('a').data('id');
+            deleteUserINChurch(id, user_id).then(function () {
+                createChurchesDetailsTable(config, id, link);
+            })
+        });
         makeSortForm(filterData.user_table);
         let paginationConfig = {
             container: ".users__pagination",
@@ -203,6 +233,12 @@ function createHomeGroupUsersTable(config = {}, id) {
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINHomeGroups').html(rendered);
+        $('.quick-edit').on('click', function () {
+            let user_id = $(this).closest('.edit').find('a').data('id');
+            deleteUserINHomeGroup(id, user_id).then(function () {
+                createHomeGroupUsersTable(config, id);
+            })
+        });
         makeSortForm(filterData.user_table);
         let paginationConfig = {
             container: ".users__pagination",
