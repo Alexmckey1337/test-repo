@@ -2,6 +2,7 @@ import pytest
 from pytest_factoryboy import register
 
 from account.factories import UserFactory
+from account.models import CustomUser
 from hierarchy.factories import HierarchyFactory, DepartmentFactory
 from partnership.factories import PartnerFactory
 from status.factories import DivisionFactory
@@ -61,6 +62,7 @@ def user_data(department, user, hierarchy, partner, division_factory):
             'district': 'D',
             'address': 'A',
             'department': department.id,
+            'spiritual_level': CustomUser.FATHER,
             'master': user.id,
             'hierarchy': hierarchy.id,
             'divisions': [d.id for d in division_factory.create_batch(4)],

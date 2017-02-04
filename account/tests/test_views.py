@@ -29,6 +29,7 @@ FIELD_CODES = (
     ('address', 201),
     ('divisions', 201),
     ('partner', 201),
+    ('spiritual_level', 201),
 
     # required fields
     ('first_name', 400),

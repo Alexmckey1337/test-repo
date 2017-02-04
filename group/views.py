@@ -21,7 +21,7 @@ from navigation.models import group_table
 from .models import HomeGroup, Church
 from .serializers import (
     ChurchSerializer, ChurchListSerializer,
-    HomeGroupSerializer, HomeGroupDetailSerializer, HomeGroupListSerializer, GroupUserSerializer)
+    HomeGroupSerializer, HomeGroupListSerializer, GroupUserSerializer)
 
 
 class PaginationMixin(PageNumberPagination):
@@ -108,83 +108,41 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
     def all_users(self, request, pk):
         church = self.get_object()
         all_users = CustomUser.objects.filter(Q(churches=church) | Q(home_groups__in=church.home_group.all()))
+
         page = self.paginate_queryset(all_users)
-        serializer = GroupUserSerializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        users = GroupUserSerializer(page, many=True)
+        return self.get_paginated_response(users.data)
 
     @detail_route(methods=['get'], pagination_class=HomeGroupPagination)
     def home_groups(self, request, pk):
-        serializer = HomeGroupListSerializer
         church = self.get_object()
-        queryset = HomeGroup.objects.filter(church__id=pk)
-        serializer = serializer(queryset, many=True)
-        page = self.paginate_queryset(serializer.data)
-        serializers = HomeGroupListSerializer(page, many=True)
-        return self.get_paginated_response(serializers.data)
+
+        page = self.paginate_queryset(church.home_group.all())
+        home_groups = HomeGroupListSerializer(page, many=True)
+        return self.get_paginated_response(home_groups.data)
 
     @detail_route(methods=['get'], pagination_class=GroupUsersPagination)
     def users(self, request, pk):
-        serializer = GroupUserSerializer
         church = self.get_object()
-        queryset = church.users
-        serializer = serializer(queryset, many=True)
-        page = self.paginate_queryset(serializer.data)
-        serializers = GroupUserSerializer(page, many=True)
-        return self.get_paginated_response(serializers.data)
+
+        page = self.paginate_queryset(church.users.all())
+        users = GroupUserSerializer(page, many=True)
+        return self.get_paginated_response(users.data)
 
     @list_route(methods=['get'])
     def potential_users_church(self, request):
-        params = request.query_params
-        search = params.get('search', '').strip()
-        if len(search) < 3:
-            return Response({'search': _('Length of search query must be > 2')}, status=status.HTTP_400_BAD_REQUEST)
-
-        serializer = AddExistUserSerializer
-
-        users = CustomUser.objects.filter(Q(home_groups__isnull=True) & Q(churches__isnull=True)).annotate(
-            full_name=Concat('last_name', V(' '), 'first_name', V(' '), 'middle_name'))
-        for s in map(lambda s: s.strip(), search.split(' ')):
-            users = users.filter(Q(first_name__istartswith=s) |
-                                 Q(last_name__istartswith=s) |
-                                 Q(middle_name__istartswith=s))
-
-        department_id = params.get('department', None)
-        if department_id is not None:
-            users = users.filter(department_id=department_id)
-
-        serializers = serializer(users[:30], many=True)
-
-        return Response(serializers.data)
+        users = CustomUser.objects.all()
+        return self._get_potential_users(request, self.filter_potential_users_for_church, users)
 
     @detail_route(methods=['get'])
     def potential_users_group(self, request, pk):
-        params = request.query_params
-        search = params.get('search', '').strip()
-        if len(search) < 3:
-            return Response({'search': _('Length of search query must be > 2')}, status=status.HTTP_400_BAD_REQUEST)
-
-        serializer = AddExistUserSerializer
-
-        users = CustomUser.objects. \
-            filter(Q(home_groups__isnull=True) & (Q(churches__isnull=True) | Q(churches__id=pk))). \
-            annotate(full_name=Concat('last_name', V(' '), 'first_name', V(' '), 'middle_name'))
-        for s in map(lambda s: s.strip(), search.split(' ')):
-            users = users.filter(Q(first_name__istartswith=s) |
-                                 Q(last_name__istartswith=s) |
-                                 Q(middle_name__istartswith=s))
-
-        department_id = params.get('department', None)
-        if department_id is not None:
-            users = users.filter(department_id=department_id)
-
-        serializers = serializer(users[:30], many=True)
-
-        return Response(serializers.data)
+        users = CustomUser.objects.all()
+        return self._get_potential_users(request, self.filter_potential_users_for_group, users, pk)
 
     @detail_route(methods=['post'])
     def add_user(self, request, pk):
-        user_id = request.data['user_id']
-        church = get_object_or_404(Church, pk=pk)
+        user_id = request.data.get('user_id')
+        church = self.get_object()
 
         if not user_id:
             return Response({"message": "Некоректные данные"},
@@ -213,7 +171,7 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
 
     @detail_route(methods=['post'])
     def del_user(self, request, pk):
-        user_id = request.data['user_id']
+        user_id = request.data.get('user_id')
         church = self.get_object()
 
         if not user_id:
@@ -233,6 +191,40 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
         church.users.remove(user_id)
         return Response({'message': 'Пользователь успешно удален из Церкви'},
                         status=status.HTTP_204_NO_CONTENT)
+
+    # Helpers
+
+    @staticmethod
+    def filter_potential_users_for_group(qs, pk):
+        return qs.filter(Q(home_groups__isnull=True) & (Q(churches__isnull=True) | Q(churches__id=pk)))
+
+    @staticmethod
+    def filter_potential_users_for_church(qs):
+        return qs.filter(Q(home_groups__isnull=True) & Q(churches__isnull=True))
+
+    @staticmethod
+    def _get_potential_users(request, filter, *args):
+        params = request.query_params
+        search = params.get('search', '').strip()
+        if len(search) < 3:
+            return Response({'search': _('Length of search query must be > 2')}, status=status.HTTP_400_BAD_REQUEST)
+
+        users = filter(*args).annotate(full_name=Concat('last_name', V(' '), 'first_name', V(' '), 'middle_name'))
+
+        search_queries = map(lambda s: s.strip(), search.split(' '))
+        for s in search_queries:
+            users = users.filter(
+                Q(first_name__istartswith=s) | Q(last_name__istartswith=s) | Q(middle_name__istartswith=s) |
+                Q(search_name__icontains=s)
+            )
+
+        department_id = params.get('department', None)
+        if department_id is not None:
+            users = users.filter(department_id=department_id)
+
+        serializers = AddExistUserSerializer(users[:30], many=True)
+
+        return Response(serializers.data)
 
 
 class HomeGroupFilter(django_filters.FilterSet):
@@ -278,17 +270,14 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
 
     @detail_route(methods=['get'], pagination_class=GroupUsersPagination)
     def users(self, request, pk):
-        serializer = GroupUserSerializer
         home_group = self.get_object()
-        queryset = home_group.users
-        serializer = serializer(queryset, many=True)
-        page = self.paginate_queryset(serializer.data)
-        serializers = GroupUserSerializer(page, many=True)
-        return self.get_paginated_response(serializers.data)
+        page = self.paginate_queryset(home_group.users.all())
+        users = GroupUserSerializer(page, many=True)
+        return self.get_paginated_response(users.data)
 
     @detail_route(methods=['post'])
     def add_user(self, request, pk):
-        user_id = request.data['user_id']
+        user_id = request.data.get('user_id')
         home_group = get_object_or_404(HomeGroup, pk=pk)
         church = home_group.church
 
@@ -308,13 +297,6 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
                                         'Данный пользователь уже состоит в Домашней Группе.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        """
-        if not user.churches.exists():
-            return Response({'message': 'Невозможно добавить пользователя. '
-                                        'Пользователь не состоит в Церкви'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        """
-
         if user.churches.exists() and user.churches.get().id != church.id:
             return Response({'message': 'Невозможно добавить пользователя. '
                                         'Пользователь является членом другой Церкви'},
@@ -329,8 +311,8 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
 
     @detail_route(methods=['post'])
     def del_user(self, request, pk):
-        user_id = request.data['user_id']
-        home_group = get_object_or_404(HomeGroup, pk=pk)
+        user_id = request.data.get('user_id')
+        home_group = self.get_object()
         church = home_group.church
 
         if not user_id:

@@ -20,6 +20,19 @@ class CommonGroup(models.Model):
     class Meta:
         abstract = True
 
+    def __str__(self):
+        return self.get_title
+
+    @property
+    def link(self):
+        return self.get_absolute_url()
+
+    @property
+    def get_title(self):
+        if self.title:
+            return self.title
+        return '{} {}'.format(self.city, self.owner_name)
+
 
 @python_2_unicode_compatible
 class Church(CommonGroup):
@@ -37,23 +50,12 @@ class Church(CommonGroup):
         verbose_name_plural = _('Churches')
         ordering = ['-opening_date', '-id']
 
-    def __str__(self):
-        if self.title:
-            return self.title
-        return self.get_title
-
     def get_absolute_url(self):
         return reverse('church_detail', args=(self.id,))
 
     @property
-    def link(self):
-        return self.get_absolute_url()
-
-    @property
-    def get_title(self):
-        if self.title:
-            return self.title
-        return '{} {}'.format(self.city, self.pastor.last_name)
+    def owner_name(self):
+        return self.pastor.last_name
 
 
 @python_2_unicode_compatible
@@ -70,18 +72,9 @@ class HomeGroup(CommonGroup):
         verbose_name_plural = _('Home Groups')
         ordering = ['-opening_date', '-id']
 
-    def __str__(self):
-        return self.get_title
-
     def get_absolute_url(self):
         return reverse('home_group_detail', args=(self.id,))
 
     @property
-    def link(self):
-        return self.get_absolute_url()
-
-    @property
-    def get_title(self):
-        if self.title:
-            return self.title
-        return '{} {}'.format(self.city, self.leader.last_name)
+    def owner_name(self):
+        return self.leader.last_name
