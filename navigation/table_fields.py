@@ -1,103 +1,64 @@
 from collections import OrderedDict
+from functools import wraps
 
 from navigation.models import Table, ColumnType
 
 
-def group_table(user, category_title):
-    result_table = OrderedDict()
-    if category_title == 'churches':
-        if not (hasattr(user, 'churches') and isinstance(user.table, Table)):
-            return result_table
-        table_columns = user.table.columns.select_related('columnType').filter(
-            columnType__category__title='churches').order_by('number')
+def check_user_table_exist(func_table):
+    @wraps(func_table)
+    def wrapper(user, *args, **kwargs):
+        if not (hasattr(user, 'table') and isinstance(user.table, Table)):
+            return OrderedDict()
+        return func_table(user, *args, **kwargs)
 
-    elif category_title == 'home_groups':
-        if not (hasattr(user, 'home_groups') and isinstance(user.table, Table)):
-            return result_table
-        table_columns = user.table.columns.select_related('columnType').filter(
-            columnType__category__title='home_groups').order_by('number')
-
-    elif category_title == 'group_users':
-        if not (hasattr(user, 'churches') and isinstance(user.table, Table)):
-            if not (hasattr(user, 'home_groups') and isinstance(user.table, Table)):
-                return result_table
-        table_columns = user.table.columns.select_related('columnType').filter(columnType__title__in=[
-            'fullname', 'phone_number', 'repentance_date', 'spiritual_level', 'born_date']).order_by('number')
-    else:
-        return result_table
-    for column in table_columns:
-        col = OrderedDict()
-        col['id'] = column.id
-        col['title'] = column.columnType.verbose_title
-        col['ordering_title'] = column.columnType.ordering_title
-        col['number'] = column.number
-        col['active'] = column.active
-        col['editable'] = column.columnType.editable
-        result_table[column.columnType.title] = col
-    return result_table
+    return wrapper
 
 
+@check_user_table_exist
+def group_table(user, category_title=None):
+    table_columns = _filter_group_columns(user.table.columns.select_related('columnType'), category_title)
+
+    return _get_result_table(table_columns)
+
+
+@check_user_table_exist
 def user_table(user, prefix_ordering_title=''):
-    l = OrderedDict()
-    if not (hasattr(user, 'table') and isinstance(user.table, Table)):
-        return l
-    column_types = user.table.columns.select_related('columnType').filter(
-        columnType__category__title="Общая информация").order_by('number')
-    for column in column_types:
-        d = OrderedDict()
-        d['id'] = column.id
-        d['title'] = column.columnType.verbose_title
-        d['ordering_title'] = '{}{}'.format(prefix_ordering_title, column.columnType.ordering_title)
-        d['number'] = column.number
-        d['active'] = column.active
-        d['editable'] = column.columnType.editable
-        l[column.columnType.title] = d
-    return l
+    table_columns = _filter_user_columns(user.table.columns.select_related('columnType'))
+
+    return _get_result_table(table_columns, prefix_ordering_title)
 
 
-def user_partner_table(user):
-    l = OrderedDict()
-    if not (hasattr(user, 'table') and isinstance(user.table, Table)):
-        return l
-    column_types = user.table.columns.select_related('columnType').filter(
-        columnType__category__title="partnership").exclude(
-        columnType__title__in=('count', 'result_value')).order_by('number')
-    for column in column_types.all():
-        d = OrderedDict()
-        d['id'] = column.id
-        d['title'] = column.columnType.verbose_title
-        d['ordering_title'] = column.columnType.ordering_title
-        d['number'] = column.number
-        d['active'] = column.active
-        d['editable'] = column.columnType.editable
-        l[column.columnType.title] = d
-    return l
+@check_user_table_exist
+def partner_table(user):
+    table_columns = _filter_partner_columns(user.table.columns.select_related('columnType'))
+
+    return _get_result_table(table_columns)
 
 
-def user_summit_table():
-    l = OrderedDict()
-    d = OrderedDict()
-    d['title'] = 'Код'
-    d['ordering_title'] = 'code'
-    d['number'] = 1
-    d['active'] = True
-    d['editable'] = False
-    l['code'] = d
-    d = OrderedDict()
-    d['title'] = 'Оплата'
-    d['ordering_title'] = 'value'
-    d['number'] = 2
-    d['active'] = True
-    d['editable'] = False
-    l['value'] = d
-    d = OrderedDict()
-    d['title'] = 'Примечание'
-    d['ordering_title'] = 'description'
-    d['number'] = 3
-    d['active'] = True
-    d['editable'] = False
-    l['description'] = d
-    return l
+def summit_table():
+    return OrderedDict(
+        code={
+            'title': 'Код',
+            'ordering_title': 'code',
+            'number': 1,
+            'active': True,
+            'editable': False,
+        },
+        value={
+            'title': 'Оплата',
+            'ordering_title': 'value',
+            'number': 2,
+            'active': True,
+            'editable': False,
+        },
+        description={
+            'title': 'Примечание',
+            'ordering_title': 'description',
+            'number': 3,
+            'active': True,
+            'editable': False,
+
+        })
 
 
 def event_table():
@@ -112,3 +73,41 @@ def event_table():
         d['editable'] = column.editable
         l[column.title] = d
     return l
+
+
+# Helpers
+
+
+def _get_result_table(columns_qs, prefix_ordering_title=''):
+    result_table = OrderedDict()
+    for column in columns_qs.order_by('number'):
+        result_table[column.columnType.title] = {
+            'id': column.id,
+            'title': column.columnType.verbose_title,
+            'ordering_title': '{}{}'.format(prefix_ordering_title, column.columnType.ordering_title),
+            'number': column.number,
+            'active': column.active,
+            'editable': column.columnType.editable
+        }
+    return result_table
+
+
+def _filter_group_columns(table_columns, category_title):
+    if category_title in ('churches', 'home_groups'):
+        return table_columns.filter(columnType__category__title=category_title)
+    elif category_title == 'group_users':
+        return table_columns.filter(columnType__title__in=[
+            'fullname', 'phone_number', 'repentance_date', 'spiritual_level', 'born_date'])
+    else:
+        return table_columns.none()
+
+
+def _filter_user_columns(table_columns):
+    return table_columns.filter(
+        columnType__category__title="Общая информация")
+
+
+def _filter_partner_columns(table_columns):
+    return table_columns.filter(
+        columnType__category__title="partnership").exclude(
+        columnType__title__in=('count', 'result_value'))
