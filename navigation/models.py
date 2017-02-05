@@ -9,20 +9,6 @@ from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
 
 
-def partner_table():
-    l = OrderedDict()
-    column_types = ColumnType.objects.filter(category__title="partnership").order_by('number')
-    for column in column_types.all():
-        d = OrderedDict()
-        d['get_title'] = column.verbose_title
-        d['ordering_title'] = column.ordering_title
-        d['number'] = column.number
-        d['active'] = column.active
-        d['editable'] = column.editable
-        l[column.title] = d
-    return l
-
-
 def group_table(user, category_title):
     result_table = OrderedDict()
     if category_title == 'churches':
