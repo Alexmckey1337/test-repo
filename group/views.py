@@ -17,7 +17,7 @@ from account.models import CustomUser
 from account.serializers import AddExistUserSerializer
 from common.filters import FieldSearchFilter
 from hierarchy.models import Department
-from navigation.models import group_table
+from navigation.table_fields import group_table
 from .models import HomeGroup, Church
 from .serializers import (
     ChurchSerializer, ChurchListSerializer,

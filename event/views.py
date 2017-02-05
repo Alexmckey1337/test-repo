@@ -16,7 +16,7 @@ from rest_framework import mixins
 
 from account.models import CustomUser
 from account.pagination import ShortPagination
-from navigation.models import event_table
+from navigation.table_fields import event_table
 from .models import Participation, Event, EventAnket, EventType, MeetingAttend, Meeting
 from .serializers import ParticipationSerializer, EventSerializer, EventTypeSerializer, EventAnketSerializer, \
     MeetingAttendSerializer, MeetingSerializer, UserMeetingSerializer

@@ -19,7 +19,7 @@ from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
 from account.models import CustomUser
-from navigation.models import user_table, user_summit_table
+from navigation.table_fields import user_table, user_summit_table
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.permissions import IsSupervisorOrHigh
 from summit.utils import generate_ticket
