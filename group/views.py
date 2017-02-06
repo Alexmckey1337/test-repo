@@ -61,7 +61,7 @@ class ChurchFilter(django_filters.FilterSet):
 
     class Meta:
         model = Church
-        fields = ['department', 'pastor', 'title', 'country', 'city', 'is_open', 'phone_number']
+        fields = ['department', 'pastor', 'title', 'country', 'city', 'is_open', 'phone_number',]
 
 
 class ChurchViewSet(mixins.RetrieveModelMixin,
@@ -80,7 +80,7 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
                        filters.OrderingFilter,)
 
     ordering_fields = ('title', 'city', 'department', 'home_group', 'is_open', 'opening_date',
-                       'pastor', 'phone_number', 'address')
+                       'pastor', 'phone_number', 'address',)
 
     filter_class = ChurchFilter
     field_search_fields = {
