@@ -10,6 +10,7 @@
             $('#pastor_select').html(options).prop('disabled', false);
         });
     }
+
     function createHomeGroupsTable(config = {}) {
         config.search_title = $('input[name="fullsearch"]').val();
         getHomeGroups(config).then(function (data) {
@@ -25,6 +26,23 @@
             filterData.results = data.results;
             let rendered = _.template(tmpl)(filterData);
             $('#tableHomeGroup').html(rendered);
+            $('.quick-edit').on('click', function () {
+                let id = $(this).closest('.edit').find('a').attr('data-id');
+                ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/`, null, function (data) {
+                    let quickEditCartTmpl, rendered;
+                    quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
+                    rendered = _.template(quickEditCartTmpl)(data);
+                    $('#quickEditCartPopup .popup_body').html(rendered);
+                    $('#opening_date').datepicker({
+                        dateFormat: 'yyyy-mm-dd'
+                    });
+                    // makePastorList(id, '#pastorSelect', data.department);
+                    // makeDepartmentList('#departmentSelect', data.department);
+                    setTimeout(function () {
+                        $('#quickEditCartPopup').css('display', 'block');
+                    }, 100)
+                })
+            });
             makeSortForm(filterData.user_table);
             let paginationConfig = {
                 container: ".users__pagination",
@@ -49,7 +67,7 @@
         $('#addChurch').css('display', 'block');
     });
     $('#department_select').on('change', function () {
-         $('#pastor_select').prop('disabled', true);
+        $('#pastor_select').prop('disabled', true);
         var department_id = parseInt($('#department_select').val());
         makePastorList(department_id);
     });
