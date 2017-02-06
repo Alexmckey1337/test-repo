@@ -140,7 +140,10 @@ def churches(request):
     user = request.user
     if not user.is_staff and user.hierarchy.level < 1:
         raise Http404('У Вас нет прав для просмотра данной страницы.')
-    ctx = {'departments': Department.objects.all()}
+    ctx = {
+        'departments': Department.objects.all(),
+        'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
+    }
     return render(request, 'database/churches.html', context=ctx)
 
 
@@ -176,7 +179,10 @@ def home_groups(request):
     user = request.user
     if not user.is_staff and user.hierarchy.level < 1:
         raise Http404('У Вас нет прав для просмотра данной страницы.')
-    ctx = {}
+    ctx = {
+        'churches': Church.objects.all(),
+        'leaders': CustomUser.objects.filter(hierarchy__level__gt=0),
+    }
     return render(request, 'database/home_groups.html', context=ctx)
 
 

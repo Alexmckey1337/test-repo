@@ -3,7 +3,13 @@
 
     $('#department_select').select2();
     $('#pastor_select').select2();
+    $('#departments_filter').select2();
+    $('#hierarchies_filter').select2();
+    $('#pastor_filter').select2();
     $('#added_churches_date').datepicker({
+        dateFormat: 'yyyy-mm-dd'
+    });
+     $('#search_date_open').datepicker({
         dateFormat: 'yyyy-mm-dd'
     });
 //    Events
@@ -23,6 +29,9 @@
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
         updateSettings(createChurchesTable);
+    });
+    $('#filter_button').on('click', function () {
+        $('#filterPopup').css('display', 'block');
     });
     $('input[name="fullsearch"]').on('keyup', function () {
         createChurchesTable();

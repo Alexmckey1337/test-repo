@@ -98,7 +98,7 @@ function makeDataTable(data, id) {
     var tmpl = document.getElementById('databaseUsers').innerHTML;
     var rendered = _.template(tmpl)(data);
     document.getElementById(id).innerHTML = rendered;
-    if($('.quick-edit').length) {
+    if ($('.quick-edit').length) {
         $('.quick-edit').on('click', function () {
             makeQuickEditCart(this);
         })
@@ -377,7 +377,7 @@ function saveChurches(el) {
     let $input, $select, phone_number, opening_date, data, id;
     id = parseInt($($(el).closest('.pop_cont').find('#churchID')).val());
     opening_date = $($(el).closest('.pop_cont').find('#opening_date')).val();
-    if(!opening_date && opening_date.split('-').length !== 3) {
+    if (!opening_date && opening_date.split('-').length !== 3) {
         $($(el).closest('.pop_cont').find('#opening_date')).css('border-color', 'red');
         return
     }
@@ -892,6 +892,22 @@ function refreshFilter(el) {
     })
 }
 
+function getFilterParam() {
+    let $filterFields, data = {};
+    $filterFields = $('#filterPopup select, #filterPopup input');
+    $filterFields.each(function () {
+        let prop = $(this).data('filter');
+        if ($(this).attr('type') === 'checkbox') {
+            data[prop] = $(this).is(':checked');
+        } else {
+            if($(this).val()) {
+                data[prop] = $(this).val();
+            }
+        }
+
+    });
+    return data;
+}
 function filterParam() {
     let filterPopup, data = {}, department, hierarchy, master, search_email, search_phone_number, search_country, search_city, from_date, to_date;
     filterPopup = $('#filterPopup');
@@ -925,16 +941,16 @@ function filterParam() {
     if (search_city && search_city != "") {
         data['search_city'] = search_city;
     }
-    if(from_date && from_date != "") {
-        if (new Date(from_date) >= new Date(to_date)){
+    if (from_date && from_date != "") {
+        if (new Date(from_date) >= new Date(to_date)) {
             data['to_date'] = from_date;
         } else {
             data['from_date'] = from_date;
         }
 
     }
-    if(to_date && to_date != "") {
-        if (new Date(from_date) >= new Date(to_date)){
+    if (to_date && to_date != "") {
+        if (new Date(from_date) >= new Date(to_date)) {
             data['from_date'] = to_date;
         } else {
             data['to_date'] = to_date;
@@ -945,7 +961,7 @@ function filterParam() {
 
 function applyFilter(el, callback) {
     let self = el, data;
-    data = filterParam();
+    data = getFilterParam();
     $('.preloader').css('display', 'block');
     callback(data);
     setTimeout(function () {
