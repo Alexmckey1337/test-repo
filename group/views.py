@@ -21,7 +21,7 @@ from navigation.models import group_table
 from .models import HomeGroup, Church
 from .serializers import (
     ChurchSerializer, ChurchListSerializer,
-    HomeGroupSerializer, HomeGroupDetailSerializer, HomeGroupListSerializer, GroupUserSerializer)
+    HomeGroupSerializer, HomeGroupListSerializer, GroupUserSerializer)
 
 
 class PaginationMixin(PageNumberPagination):
@@ -69,6 +69,7 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
                     mixins.CreateModelMixin,
                     mixins.ListModelMixin,
                     viewsets.GenericViewSet):
+
     queryset = Church.objects.all()
 
     serializer_class = ChurchSerializer
@@ -183,8 +184,8 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
 
     @detail_route(methods=['post'])
     def add_user(self, request, pk):
-        user_id = request.data['user_id']
-        church = get_object_or_404(Church, pk=pk)
+        user_id = request.data.get('user_id')
+        church = self.get_object()
 
         if not user_id:
             return Response({"message": "Некоректные данные"},
@@ -213,7 +214,7 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
 
     @detail_route(methods=['post'])
     def del_user(self, request, pk):
-        user_id = request.data['user_id']
+        user_id = request.data.get('user_id')
         church = self.get_object()
 
         if not user_id:
@@ -250,6 +251,7 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
                        mixins.ListModelMixin,
                        mixins.CreateModelMixin,
                        viewsets.GenericViewSet):
+
     queryset = HomeGroup.objects.all()
 
     serializer_class = HomeGroupSerializer
@@ -288,8 +290,8 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
 
     @detail_route(methods=['post'])
     def add_user(self, request, pk):
-        user_id = request.data['user_id']
-        home_group = get_object_or_404(HomeGroup, pk=pk)
+        user_id = request.data.get('user_id')
+        home_group = self.get_object()
         church = home_group.church
 
         if not user_id:
@@ -329,8 +331,8 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
 
     @detail_route(methods=['post'])
     def del_user(self, request, pk):
-        user_id = request.data['user_id']
-        home_group = get_object_or_404(HomeGroup, pk=pk)
+        user_id = request.data.get('user_id')
+        home_group = self.get_object()
         church = home_group.church
 
         if not user_id:
