@@ -49,9 +49,9 @@
             <div class="info">
                 <h2>Сводная информация:</h2>
                 <ul>
-                    <li class="mb get_info"><button data-link="home_groups">Количество Домашних групп: {{ home_groups_count }}</button></li>
-                    <li class="get_info"><button data-link="all_users">Общее количество людей: {{ church_all_users }}</button></li>
-                    <li class="mb get_info"><button class="active" data-link="users" >Люди не в домашних группах: {{ church_users }}</button></li>
+                    <li class="mb get_info"><button data-link="home_groups" data-editable="false">Количество Домашних групп: {{ home_groups_count }}</button></li>
+                    <li class="get_info"><button data-link="all_users" data-editable="false">Общее количество людей: {{ church_all_users }}</button></li>
+                    <li class="mb get_info"><button class="active" data-link="users" data-editable="true">Люди не в домашних группах: {{ church_users }}</button></li>
                     <li>Количество прихожан: {{ parishioners_count }}</li>
                     <li>Количеств Лидеров: {{ leaders_count }}</li>
                     <li>Количество Отцов: {{ fathers_count }}</li>
@@ -72,7 +72,7 @@
     {% endblock %}
 
     {% block table %}
-        <div class="table-wrap clearfix" id="church" data-id="{{ church.id }}"
+        <div class="table-wrap clearfix can_edit" id="church" data-id="{{ church.id }}"
              data-department_id="{{ church.department.id }}" data-department_title="{{ church.department }}">
             <!--Table -->
             <div class="table scrollbar-inner" id="tableUserINChurches"></div>
@@ -105,7 +105,7 @@
                 <div class="popup_body">
                     <div class="container">
                         <div>
-                            <p>Дата открития</p>
+                            <p>Дата открытия</p>
                             <p class="end__block">Название</p>
                             <p>Церковь</p>
                             <p>Лидер</p>

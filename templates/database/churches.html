@@ -65,6 +65,20 @@
 {% endblock %}
 
 {% block popup %}
+    <div class="popap" id="quickEditCartPopup">
+        <div class="pop_cont">
+            <div class="popup_text">
+                <h2>Карточка церкви</h2>
+                <span onclick="hidePopup(this)" class="close"><i class="fa fa-times" aria-hidden="true"></i></span>
+            </div>
+            <div class="popup_body">
+            </div>
+            <div class="container">
+                <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                <button onclick="saveChurches(this)" class="save-user">Сохранить</button>
+            </div>
+        </div>
+    </div>
     <div class="popap" id='filterPopup'>
         <div class="pop_cont">
             <h2 class='popup_text'>
@@ -153,7 +167,7 @@
                 <div class="popup_body">
                     <div class="container">
                         <div>
-                            <p>Дата открития</p>
+                            <p>Дата открытия</p>
                             <p>Открыта</p>
                             <p>Название</p>
                             <p class="end__block">Выбирите отдел</p>
@@ -197,4 +211,42 @@
     <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
     <script src="{% static "js/database_churches.js" %}"></script>
     <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
+    <script type="text/template" id="quickEditCart">
+   <div class="container bb-1">
+        <div class="header">
+            <p><input type="text" class="title" id="church_title" value="<%=get_title %>"></p>
+            <p><label for="is_open">Открыта</label><input type="checkbox" id="is_open_church"<% if(is_open) { %> checked <% } %> ></p>
+            <% if(opening_date) { %>
+                <p><label for="opening_date">Датат открытия</label><input type="text" class="date" id="opening_date" value="<%= opening_date.split('.').reverse().join('-') %>"></p>
+            <% } else { %>
+                <p><label for="opening_date">Датат открытия</label><input type="text" id="opening_date" class="date" value=""></p>
+            <% } %>
+            <p class="hidden"><input type="text" id="churchID" value="<%= id %>"></p>
+        </div>
+   </div>
+    <div class="container start">
+        <div>
+            <p class="label_block">Отдел:</p>
+            <p class="label_block">Пастор:</p>
+            <p class="label_block">Страна</p>
+            <p class="label_block">Нас.пункт:</p>
+            <p class="label_block">Адрес:</p>
+            <p class="label_block">Телефон:</p>
+            <p class="label_block">Сайт:</p>
+        </div>
+        <div class="col-7">
+            <div><select name="" id="departmentSelect">
+                <option value="<%= department %>"><%= department %></option>
+            </select></div>
+            <div><select name="" id="pastorSelect">
+                <option value="<%= pastor %>"><%= pastor %></option>
+            </select></div>
+            <p><input type="text" id="country" value="<%=country %>"></p>
+            <p><input type="text" id="city" value="<%=city %>"></p>
+            <p><input type="text" id="address" value="<%=address %>"></p>
+            <p><input type="text" id="phone_number" value="<%=phone_number %>"></p>
+            <p><input type="text" id="web_site" value="<%=website %>"></p>
+        </div>
+    </div>
+</script>
 {% endblock %}

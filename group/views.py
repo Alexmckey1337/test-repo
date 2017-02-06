@@ -21,7 +21,7 @@ from navigation.models import group_table
 from .models import HomeGroup, Church
 from .serializers import (
     ChurchSerializer, ChurchListSerializer,
-    HomeGroupSerializer, HomeGroupListSerializer, GroupUserSerializer)
+    HomeGroupSerializer, HomeGroupDetailSerializer, HomeGroupListSerializer, GroupUserSerializer)
 
 
 class PaginationMixin(PageNumberPagination):
@@ -184,8 +184,8 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
 
     @detail_route(methods=['post'])
     def add_user(self, request, pk):
-        user_id = request.data.get('user_id')
-        church = self.get_object()
+        user_id = request.data['user_id']
+        church = get_object_or_404(Church, pk=pk)
 
         if not user_id:
             return Response({"message": "Некоректные данные"},
@@ -234,6 +234,40 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
         church.users.remove(user_id)
         return Response({'message': 'Пользователь успешно удален из Церкви'},
                         status=status.HTTP_204_NO_CONTENT)
+
+    # Helpers
+
+    @staticmethod
+    def filter_potential_users_for_group(qs, pk):
+        return qs.filter(Q(home_groups__isnull=True) & (Q(churches__isnull=True) | Q(churches__id=pk)))
+
+    @staticmethod
+    def filter_potential_users_for_church(qs):
+        return qs.filter(Q(home_groups__isnull=True) & Q(churches__isnull=True))
+
+    @staticmethod
+    def _get_potential_users(request, filter, *args):
+        params = request.query_params
+        search = params.get('search', '').strip()
+        if len(search) < 3:
+            return Response({'search': _('Length of search query must be > 2')}, status=status.HTTP_400_BAD_REQUEST)
+
+        users = filter(*args).annotate(full_name=Concat('last_name', V(' '), 'first_name', V(' '), 'middle_name'))
+
+        search_queries = map(lambda s: s.strip(), search.split(' '))
+        for s in search_queries:
+            users = users.filter(
+                Q(first_name__istartswith=s) | Q(last_name__istartswith=s) | Q(middle_name__istartswith=s) |
+                Q(search_name__icontains=s)
+            )
+
+        department_id = params.get('department', None)
+        if department_id is not None:
+            users = users.filter(department_id=department_id)
+
+        serializers = AddExistUserSerializer(users[:30], many=True)
+
+        return Response(serializers.data)
 
 
 class HomeGroupFilter(django_filters.FilterSet):

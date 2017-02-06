@@ -22,7 +22,7 @@ class ManagerSerializer(serializers.ModelSerializer):
 class PaymentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
-        fields = ('sum', 'currency_sum', 'rate', 'description', 'manager', 'content_type', 'object_id')
+        fields = ('sum', 'currency_sum', 'sent_date', 'rate', 'description', 'manager', 'content_type', 'object_id')
 
 
 class PaymentShowSerializer(serializers.ModelSerializer):
@@ -36,5 +36,5 @@ class PaymentShowSerializer(serializers.ModelSerializer):
         fields = ('sum', 'effective_sum',
                   'sum_str', 'effective_sum_str',
                   'currency_sum', 'currency_rate', 'rate', 'description',
-                  'created_at',
+                  'created_at', 'sent_date',
                   'manager')

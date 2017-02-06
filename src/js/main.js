@@ -373,11 +373,50 @@ function saveUser(el) {
     })
 }
 
+function saveChurches(el) {
+    let $input, $select, phone_number, opening_date, data, id;
+    id = parseInt($($(el).closest('.pop_cont').find('#churchID')).val());
+    opening_date = $($(el).closest('.pop_cont').find('#opening_date')).val();
+    if(!opening_date && opening_date.split('-').length !== 3) {
+        $($(el).closest('.pop_cont').find('#opening_date')).css('border-color', 'red');
+        return
+    }
+    data = {
+        title: $($(el).closest('.pop_cont').find('#church_title')).val(),
+        pastor: $($(el).closest('.pop_cont').find('#pastorSelect')).val(),
+        department: $($(el).closest('.pop_cont').find('#departmentSelect')).val(),
+        phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
+        website: ($(el).closest('.pop_cont').find('#web_site')).val(),
+        opening_date: $($(el).closest('.pop_cont').find('#opening_date')).val() || null,
+        is_open: $('#is_open_church').is(':checked'),
+        country: $($(el).closest('.pop_cont').find('#country')).val(),
+        region: $($(el).closest('.pop_cont').find('#region')).val(),
+        city: $($(el).closest('.pop_cont').find('#city')).val(),
+        address: $($(el).closest('.pop_cont').find('#address')).val()
+    };
+    saveChurchData(data, id);
+    $(el).text("Сохранено");
+    $(el).closest('.popap').find('.close-popup').text('Закрыть');
+    $(el).attr('disabled', true);
+    $input = $(el).closest('.popap').find('input');
+    $select = $(el).closest('.popap').find('select');
+    $select.on('change', function () {
+        $(el).text("Сохранить");
+        $(el).closest('.popap').find('.close-popup').text('Отменить');
+        $(el).attr('disabled', false);
+    });
+    $input.on('change', function () {
+        $(el).text("Сохранить");
+        $(el).closest('.popap').find('.close-popup').text('Отменить');
+        $(el).attr('disabled', false);
+    })
+}
+
 function makeQuickEditCart(el) {
-    let id, link;
+    let id, link, url;
     id = $(el).closest('td').find('a').attr('data-id');
     link = $(el).closest('td').find('a').attr('data-link');
-    let url = "/api/v1.1/users/" + id + '/';
+    url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${id}/`;
     ajaxRequest(url, null, function (data) {
         let quickEditCartTmpl, rendered;
         quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
@@ -385,9 +424,7 @@ function makeQuickEditCart(el) {
         $('.save-user').attr('disabled', false);
         $('#quickEditCartPopup').find('.popup_body').html(rendered);
         $('#quickEditCartPopup').css('display', 'block');
-
         makeResponsibleList();
-
         getStatuses().then(function (data) {
             data = data.results;
             let hierarchySelect = $('#hierarchySelect').val();

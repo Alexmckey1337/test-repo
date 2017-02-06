@@ -128,7 +128,7 @@
                                 {% for ancestor in account.master.get_ancestors reversed %}
                                     {% with level=account.master.level %}
                                         <li>
-                                            <span style="font-size:1.4em;margin-right:5px;">&#11169;</span>
+                                            <span style="font-size:1.4em;margin-right:5px;">&#10551;</span>
                                             <a href="{% url 'account' ancestor.id %}">{{ ancestor }}</a>
                                         </li>
                                     {% endwith %}

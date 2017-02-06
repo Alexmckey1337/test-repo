@@ -112,7 +112,9 @@ class Payment(models.Model):
     #: Comment for payment, such as the purpose of payment
     description = models.TextField(_('Description'), blank=True)
     #: Date and time when the payment has been created
-    created_at = models.DateTimeField(_('Date created'), default=timezone.now)
+    created_at = models.DateTimeField(_('Date created'), default=timezone.now, editable=False)
+    #: Date  when the payment has been sent
+    sent_date = models.DateField(_('Sent date'), default=timezone.now)
     #: The manager who received payment
     manager = models.ForeignKey('account.CustomUser', on_delete=models.SET_NULL, related_name='checks',
                                 null=True, blank=True, verbose_name=_('Manager'))

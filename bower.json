@@ -20,6 +20,7 @@
     "air-datepicker": "^2.2.3",
     "lodash": "^4.17.2",
     "requirejs": "^2.3.2",
-    "es6-promise": "^4.0.5"
+    "es6-promise": "^4.0.5",
+    "fetch": "^2.0.2"
   }
 }

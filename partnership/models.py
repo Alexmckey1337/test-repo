@@ -129,7 +129,7 @@ class Deal(models.Model):
                                 default=Decimal('0'))
     #: Currency of value
     currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
-                                 editable=False, null=True,
+                                 null=True,
                                  default=get_default_currency)
 
     partnership = models.ForeignKey('partnership.Partnership', related_name="deals")

@@ -1,5 +1,5 @@
 body {
-   min-width: 1200px;
+  min-width: 1200px;
   font-family: "Ubuntu", sans-serif;
   font-size: 75%;
   height: 100%;
@@ -7,12 +7,18 @@ body {
   display: none;
 }
 
+.hidden {
+  display: none;
+}
+
 .inline {
   display: inline-block;
 }
+
 .text__center {
   text-align: center;
 }
+
 input:-webkit-autofill {
   -webkit-box-shadow: inset 0 0 0 50px #fff !important; /* Цвет фона */
   -webkit-text-fill-color: #999 !important; /* цвет текста */
@@ -61,7 +67,7 @@ h1 {
 h2 {
   font-family: "UbuntuMedium", sans-serif;
   font-size: 1.24em;
-  color: #ccd0d9;
+  color: #a0a0a0;
   line-height: 1.4;
 }
 
@@ -319,6 +325,8 @@ select::-ms-expand {
   transition: all .3s;
   & h3 {
     margin: 1em;
+    font-weight: 500;
+    font-family: UbuntuMedium, sans-serif;
   }
 }
 
@@ -1781,37 +1789,62 @@ td {
   text-align: left;
   transition: all .3s ease;
 }
-
-#database_users, #partnersList {
-  & td {
+#church {
+  .edit {
     a {
       & ~ .quick-edit {
-        height: 1em;
-        float: right;
-        display: none;
-        position: absolute;
-        left: 1em;
-        top: 0;
-        bottom: 0;
-        margin: auto;
+        width: 0;
+        height: 0;
+         &:before {
+          display: none;
+        }
       }
     }
-    &:hover {
-      a {
-        & ~ .quick-edit {
+  }
+}
+#tableUserINHomeGroups, #church.can_edit {
+  .edit {
+    a {
+      & ~ .quick-edit {
+        width: 1em;
+        height: 1em;
+        &:before {
+          content: '\f014';
           display: block;
-          cursor: pointer;
         }
       }
     }
   }
 }
 
-#tableUserINChurches, #home_group {
-  & td {
+.edit {
+  a {
+    & ~ .quick-edit {
+      height: 1em;
+      width: 1em;
+      float: right;
+      display: none;
+      position: absolute;
+      left: 1em;
+      top: 0;
+      bottom: 0;
+      margin: auto;
+      &:before {
+        content: '\f040';
+        font: 1em FontAwesome;
+      }
+      &:hover {
+        &:before {
+          color: #3caeda;
+        }
+      }
+    }
+  }
+  &:hover {
     a {
       & ~ .quick-edit {
-        display: none;
+        display: block;
+        cursor: pointer;
       }
     }
   }
@@ -2270,8 +2303,19 @@ table input[type=checkbox],
 }
 
 #quickEditCartPopup {
+  & .header {
+    width: 100%;
+    & input {
+      &.title {
+        font-size: 1.7em;
+      }
+      &.date {
+        min-width: 9em;
+      }
+    }
+  }
   & input {
-    width: auto !important;
+    width: auto;
     padding: 5px 6px;
     height: auto;
     min-width: 17em;
@@ -2321,7 +2365,7 @@ table input[type=checkbox],
     margin-left: 100px
   }
   & label {
-    padding-left: 6px;
+    padding: 2px 6px;
   }
   & p {
     margin-bottom: 5px;
@@ -2351,7 +2395,7 @@ table input[type=checkbox],
 .pop_cont {
   position: fixed;
   max-width: 940px;
-  min-width: 570px;
+  min-width: 435px;
   height: auto;
   top: 50%;
   left: 50%;
@@ -3467,7 +3511,6 @@ span.change[style*="display: none"] ~ span.y {
 
 .left-content li span {
   font-weight: bold;
-  white-space: pre-line; /*pre*/
 }
 
 .left-content .right-info span {
@@ -3811,6 +3854,12 @@ span.green {
   display: flex;
   align-items: flex-start;
   justify-content: space-around;
+  &.start {
+    justify-content: flex-start;
+    & input, & select {
+      width: 18.5em !important;
+    }
+  }
   & .info {
     padding: 2em;
     & h2 {
