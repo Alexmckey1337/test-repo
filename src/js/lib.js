@@ -223,6 +223,7 @@ function createChurchesDetailsTable(config = {}, id, link) {
         makePagination(paginationConfig);
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
+        orderTable.sort(createChurchesDetailsTable);
     })
 }
 
@@ -259,6 +260,7 @@ function createHomeGroupUsersTable(config = {}, id) {
         makePagination(paginationConfig);
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
+        orderTable.sort(createHomeGroupUsersTable);
     })
 }
 
@@ -369,6 +371,7 @@ function createChurchesTable(config = {}) {
         makePagination(paginationConfig);
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
+        orderTable.sort(createChurchesTable);
     });
 }
 

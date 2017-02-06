@@ -2,7 +2,6 @@
     function createHomeGroupsTable(config = {}) {
         config.search_title = $('input[name="fullsearch"]').val();
         getHomeGroups(config).then(function (data) {
-            console.log(data);
             let count = data.count;
             let page = config['page'] || 1;
             let pages = Math.ceil(count / CONFIG.pagination_count);
@@ -48,6 +47,7 @@
             makePagination(paginationConfig);
             $('.table__count').text(text);
             $('.preloader').css('display', 'none');
+            orderTable.sort(createHomeGroupsTable);
         });
     }
 
