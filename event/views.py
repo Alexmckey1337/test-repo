@@ -19,7 +19,9 @@ from account.pagination import ShortPagination
 from navigation.models import event_table
 from .models import Participation, Event, EventAnket, EventType, MeetingAttend, Meeting
 from .serializers import ParticipationSerializer, EventSerializer, EventTypeSerializer, EventAnketSerializer, \
-    MeetingAttendSerializer, MeetingSerializer, UserMeetingSerializer
+    MeetingSerializer, MeetingUserSerializer
+from group.models import HomeGroup
+from group.serializers import HomeGroupListSerializer
 
 
 class MeetingPagination(PageNumberPagination):
@@ -42,32 +44,55 @@ class MeetingViewSet(mixins.RetrieveModelMixin,
                      mixins.CreateModelMixin,
                      mixins.ListModelMixin,
                      viewsets.GenericViewSet):
+
     queryset = Meeting.objects.all()
 
     serializer_class = MeetingSerializer
     permission_classes = (IsAuthenticated,)
+    pagination_class = MeetingPagination
+
+    @list_route(methods=['get'])
+    def get_home_leaders(self, request):
+        params = request.query_params
+        leader_id = params.get('leader_id')
+
+        serializer = HomeGroupListSerializer
+
+        if not leader_id:
+            return Response({'message': 'Некоректные данные.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        home_groups = HomeGroup.objects.filter(leader__id=leader_id)
+        serializer = serializer(home_groups, many=True)
+        return Response(serializer.data)
+
+    @list_route(methods=['get'])
+    def get_home_users(self, request):
+        params = request.query_params
+        home_group_id = params.get('home_group_id')
+
+        serializer = MeetingUserSerializer
+
+        if not home_group_id:
+            return Response({'message': 'Некоректные данные'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        users = CustomUser.objects.filter(home_groups__id=home_group_id)
+        serializer = serializer(users, many=True)
+        return Response(serializer.data)
 
 
-class MeetingAttendViewSet(mixins.RetrieveModelMixin,
-                           mixins.UpdateModelMixin,
-                           mixins.CreateModelMixin,
-                           mixins.ListModelMixin,
-                           viewsets.GenericViewSet):
-    queryset = MeetingAttend.objects.all()
-
-    serializer_class = MeetingAttendSerializer
-    permission_classes = (IsAuthenticated,)
 
 
-class UserMeetingViewSet(mixins.RetrieveModelMixin,
-                         mixins.UpdateModelMixin,
-                         mixins.CreateModelMixin,
-                         mixins.ListModelMixin,
-                         viewsets.GenericViewSet):
-    queryset = CustomUser.objects.all()
 
-    serializer_class = UserMeetingSerializer
-    permission_classes = (IsAuthenticated,)
+
+
+
+
+
+
+
+
+
+
 
 
 class ParticipationPagination(PageNumberPagination):

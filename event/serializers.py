@@ -8,6 +8,52 @@ from .models import Meeting, MeetingAttend, MeetingType
 from account.models import CustomUser
 
 
+class MeetingAttendedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MeetingAttend
+        fields = ('id', 'attended', 'note', 'user', 'meeting')
+
+
+class MeetingUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'fullname', 'spiritual_level', 'phone_number', 'attends')
+
+
+class MeetingUserListSerializer(MeetingUserSerializer):
+    attends = MeetingAttendedSerializer(many=True)
+
+
+class MeetingSerializer(serializers.ModelSerializer):
+    owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(hierarchy__level=1))
+    visitors = MeetingUserListSerializer(many=True)
+
+    class Meta:
+        model = Meeting
+        fields = ('id', 'owner', 'type', 'date', 'total_sum', 'visitors')
+
+    def create(self, validated_data):
+        visitors = validated_data.pop('visitors')
+        meeting = Meeting.objects.create(**validated_data)
+        for visitor in visitors:
+            for attended in visitor['attends']:
+                MeetingAttend.objects.create(meeting_id=meeting.id, **attended)
+        return meeting
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class EventTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = EventType
@@ -30,26 +76,3 @@ class ParticipationSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Participation
         fields = ('id', 'check', 'value', 'uid', 'hierarchy_chain', 'has_disciples', 'fields',)
-
-
-class MeetingAttendSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MeetingAttend
-        fields = ('attended', 'note')
-
-
-class UserMeetingSerializer(serializers.ModelSerializer):
-    attends = MeetingAttendSerializer(many=True)
-
-    class Meta:
-        model = CustomUser
-        fields = ('id', 'fullname', 'spiritual_level', 'phone_number', 'attends')
-
-
-class MeetingSerializer(serializers.ModelSerializer):
-    owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(hierarchy__level=1))
-    visitors = UserMeetingSerializer(many=True,)
-
-    class Meta:
-        model = Meeting
-        fields = ('id', 'owner', 'type', 'date', 'total_sum', 'visitors')

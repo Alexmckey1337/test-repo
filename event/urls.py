@@ -12,9 +12,9 @@ router_v1_0.register(r'event_ankets', views.EventAnketViewSet)
 router_v1_0.register(r'events', views.EventViewSet)
 router_v1_0.register(r'participations', views.ParticipationViewSet)
 
-router_v1_0.register(r'meetings', views.MeetingViewSet)
-router_v1_0.register(r'meetings_attend', views.MeetingAttendViewSet)
-router_v1_0.register(r'meetings_visitors', views.UserMeetingViewSet, base_name='meetings_visitors')
+router_v1_0.register(r'meetings', views.MeetingViewSet, base_name='meetings')
+# router_v1_0.register(r'meetings_attend', views.MeetingAttendViewSet)
+# router_v1_0.register(r'meetings_visitors', views.UserMeetingViewSet, base_name='meetings_visitors')
 
 custom_urls = [
     # url(r'^create_event/$', views.create_event),

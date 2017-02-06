@@ -23,7 +23,7 @@ def partner_table():
     return l
 
 
-def group_table(user, category_title):
+def group_table(user, category_title, prefix_ordering_title=''):
     result_table = OrderedDict()
     if category_title == 'churches':
         if not (hasattr(user, 'churches') and isinstance(user.table, Table)):
@@ -41,15 +41,17 @@ def group_table(user, category_title):
         if not (hasattr(user, 'churches') and isinstance(user.table, Table)):
             if not (hasattr(user, 'home_groups') and isinstance(user.table, Table)):
                 return result_table
+        prefix_ordering_title = '__user'
         table_columns = user.table.columns.select_related('columnType').filter(columnType__title__in=[
             'fullname', 'phone_number', 'repentance_date', 'spiritual_level', 'born_date']).order_by('number')
+
     else:
         return result_table
     for column in table_columns:
         col = OrderedDict()
         col['id'] = column.id
         col['title'] = column.columnType.verbose_title
-        col['ordering_title'] = column.columnType.ordering_title
+        col['ordering_title'] = '{}{}'.format(prefix_ordering_title, column.columnType.ordering_title)
         col['number'] = column.number
         col['active'] = column.active
         col['editable'] = column.columnType.editable
