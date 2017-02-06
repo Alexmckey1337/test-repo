@@ -25,8 +25,8 @@
                     $('#opening_date').datepicker({
                         dateFormat: 'yyyy-mm-dd'
                     });
-                    makePastorList(id, '#editPastorSelect', data.leader);
-                    makeDepartmentList('#editDepartmentSelect', data.department).then(function (data) {
+                    makePastorList(data.department, '#editPastorSelect', data.leader);
+                    makeDepartmentList('#editDepartmentSelect', data.department).then(function () {
                         $('#editDepartmentSelect').on('change', function () {
                             $('#pastor_select').prop('disabled', true);
                             var department_id = parseInt($('#editDepartmentSelect').val());
