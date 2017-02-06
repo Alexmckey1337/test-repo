@@ -26,7 +26,7 @@ function makePastorList(id, selector, active = null) {
     });
 }
 function makeDepartmentList(selector, active = null) {
-    getDepartments().then(function (data) {
+    return getDepartments().then(function (data) {
         let options = [];
         let department = data.results;
         department.forEach(function (item) {
@@ -37,10 +37,7 @@ function makeDepartmentList(selector, active = null) {
             }
             options.push(option);
         });
-        $(selector).html(options).prop('disabled', false).select2().on('change', function () {
-            let id = $(this).val();
-            makePastorList(id, '#pastorSelect');
-        });
+        $(selector).html(options).prop('disabled', false).select2();
     });
 }
 function getHomeGroups(config = {}) {
@@ -124,6 +121,17 @@ function saveChurchData(data, id) {
         });
     }
 }
+function saveHomeGroupsData(data, id) {
+    if (id) {
+        let json = JSON.stringify(data);
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${id}/`, json, function (data) {
+            console.log(data);
+        }, 'PATCH', false, {
+            'Content-Type': 'application/json'
+        });
+    }
+}
+
 function deleteUserINHomeGroup(id, user_id) {
     return new Promise(function (resolve, reject) {
         let json = JSON.stringify({
@@ -136,6 +144,7 @@ function deleteUserINHomeGroup(id, user_id) {
         });
     })
 }
+
 function deleteUserINChurch(id, user_id) {
     return new Promise(function (resolve, reject) {
         let json = JSON.stringify({
@@ -148,6 +157,7 @@ function deleteUserINChurch(id, user_id) {
         });
     })
 }
+
 function createChurchesUsersTable(id, config = {}) {
     getChurchUsers(id).then(function (data) {
         console.log(data);
@@ -315,7 +325,6 @@ function clearAddHomeGroupData() {
 function createChurchesTable(config = {}) {
     config.search = $('input[name="fullsearch"]').val();
     getChurches(config).then(function (data) {
-        console.log(data);
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
@@ -337,8 +346,13 @@ function createChurchesTable(config = {}) {
                 $('#opening_date').datepicker({
                     dateFormat: 'yyyy-mm-dd'
                 });
-                makePastorList(id, '#pastorSelect', data.department);
-                makeDepartmentList('#departmentSelect', data.department);
+                makePastorList(data.department, '#editPastorSelect', data.pastor);
+                makeDepartmentList('#editDepartmentSelect', data.department).then(function () {
+                    $('#editDepartmentSelect').on('change', function () {
+                        let id = parseInt($(this).val());
+                        makePastorList(id, '#editPastorSelect');
+                    })
+                });
                 setTimeout(function () {
                     $('#quickEditCartPopup').css('display', 'block');
                 }, 100)
@@ -803,24 +817,6 @@ function tab_plugin() {
         });
     });
 }
-
-// //реализация jquery live event
-// function live(eventType, elementQuerySelector, cb) {
-//     document.addEventListener(eventType, function (event) {
-//         var el, index;
-//         let qs = document.querySelectorAll(elementQuerySelector);
-//         if (qs) {
-//             el = event.target,
-//                 index = -1;
-//             while (el && ((index = Array.prototype.indexOf.call(qs, el)) === -1)) {
-//                 el = el.parentElement;
-//             }
-//             if (index > -1) {
-//                 cb.call(el, event);
-//             }
-//         }
-//     });
-// }
 
 // Counter counterNotifications
 function counterNotifications() {

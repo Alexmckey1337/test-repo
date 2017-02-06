@@ -1,16 +1,4 @@
 (function ($) {
-    function makePastorList(id) {
-        getResponsible(id, 2).then(function (data) {
-            let options = [];
-            data.forEach(function (item) {
-                let option = document.createElement('option');
-                $(option).val(item.id).text(item.fullname);
-                options.push(option);
-            });
-            $('#pastor_select').html(options).prop('disabled', false);
-        });
-    }
-
     function createHomeGroupsTable(config = {}) {
         config.search_title = $('input[name="fullsearch"]').val();
         getHomeGroups(config).then(function (data) {
@@ -30,14 +18,21 @@
                 let id = $(this).closest('.edit').find('a').attr('data-id');
                 ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/`, null, function (data) {
                     let quickEditCartTmpl, rendered;
+                    console.log(data);
                     quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                     rendered = _.template(quickEditCartTmpl)(data);
                     $('#quickEditCartPopup .popup_body').html(rendered);
                     $('#opening_date').datepicker({
                         dateFormat: 'yyyy-mm-dd'
                     });
-                    // makePastorList(id, '#pastorSelect', data.department);
-                    // makeDepartmentList('#departmentSelect', data.department);
+                    makePastorList(id, '#editPastorSelect', data.leader);
+                    makeDepartmentList('#editDepartmentSelect', data.department).then(function (data) {
+                        $('#editDepartmentSelect').on('change', function () {
+                            $('#pastor_select').prop('disabled', true);
+                            var department_id = parseInt($('#editDepartmentSelect').val());
+                            makePastorList(department_id, '#editPastorSelect');
+                        });
+                    });
                     setTimeout(function () {
                         $('#quickEditCartPopup').css('display', 'block');
                     }, 100)

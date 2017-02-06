@@ -1,16 +1,4 @@
 (function ($) {
-    function makePastorList(id, selector) {
-        getResponsible(id, 2).then(function (data) {
-            let options = [];
-            data.forEach(function (item) {
-                let option = document.createElement('option');
-                $(option).val(item.id).text(item.fullname);
-                options.push(option);
-            });
-            $(selector).html(options).prop('disabled', false);
-        });
-    }
-
     createChurchesTable();
 
     $('#department_select').select2();

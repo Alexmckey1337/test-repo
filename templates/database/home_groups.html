@@ -71,7 +71,7 @@
             </div>
             <div class="container">
                 <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
-                <button onclick="saveChurches(this)" class="save-user">Сохранить</button>
+                <button onclick="saveHomeGroups(this)" class="save-user">Сохранить</button>
             </div>
         </div>
     </div>
@@ -161,13 +161,13 @@
     <script type="text/template" id="quickEditCart">
    <div class="container bb-1">
         <div class="header">
-            <p><input type="text" class="title" id="church_title" value="<%=get_title %>"></p>
+            <p><input type="text" class="title" id="home_groups_title" value="<%=get_title %>"></p>
             <% if(opening_date) { %>
                 <p><label for="opening_date">Датат открытия</label><input type="text" class="date" id="opening_date" value="<%= opening_date.split('.').reverse().join('-') %>"></p>
             <% } else { %>
                 <p><label for="opening_date">Датат открытия</label><input type="text" id="opening_date" class="date" value=""></p>
             <% } %>
-            <p class="hidden"><input type="text" id="churchID" value="<%= id %>"></p>
+            <p class="hidden"><input type="text" id="homeGroupsID" value="<%= id %>"></p>
         </div>
    </div>
     <div class="container start">
@@ -180,10 +180,10 @@
             <p class="label_block">Сайт:</p>
         </div>
         <div class="col-7">
-            <div><select name="" id="departmentSelect">
-{#                <option value="<%= department %>"><%= department %></option>#}
+            <div><select name="" id="editDepartmentSelect">
+                <option value="<%= department %>"><%= department %></option>
             </select></div>
-            <div><select name="" id="pastorSelect">
+            <div><select name="" id="editPastorSelect">
                 <option value="<%= leader %>"><%= leader %></option>
             </select></div>
             <p><input type="text" id="city" value="<%=city %>"></p>
