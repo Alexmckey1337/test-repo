@@ -231,11 +231,11 @@ function initAddNewUser(id, callback) {
                 });
                 $('#chooseRegion').html(rendered).attr('disabled', false).on('change', function () {
                     let config = {};
-                    config.country = $(this).val();
+                    config.region = $(this).val();
                     getCities(config).then(function (data) {
                         let rendered = [];
                         let option = document.createElement('option');
-                        $(option).text('Выберите регион');
+                        $(option).text('Выберите город');
                         rendered.push(option);
                         data.forEach(function (item) {
                             let option = document.createElement('option');

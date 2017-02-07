@@ -32,7 +32,7 @@ from rest_framework.filters import BaseFilterBackend
 from account.models import CustomUser as User
 from common.filters import FieldSearchFilter
 from hierarchy.models import Hierarchy, Department
-from navigation.models import user_table
+from navigation.table_fields import user_table
 from partnership.models import Partnership
 from status.models import Status, Division
 from .resources import clean_password, clean_old_password

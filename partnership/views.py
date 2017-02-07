@@ -16,7 +16,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from account.models import CustomUser as User, CustomUser
-from navigation.models import user_table, user_partner_table
+from navigation.table_fields import user_table, partner_table
 from partnership.permissions import (
     IsSupervisorOrManagerReadOnly, CanCreatePartnerPayment, CanClosePartnerDeal)
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
@@ -38,7 +38,7 @@ class PartnershipPagination(PageNumberPagination):
                 'previous': self.get_previous_link()
             },
             'count': self.page.paginator.count,
-            'common_table': user_partner_table(self.request.user),
+            'common_table': partner_table(self.request.user),
             'user_table': user_table(self.request.user, prefix_ordering_title='user__'),
             'results': data
         })

@@ -28,3 +28,9 @@ class ColumnSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Column
         fields = ('id', 'url', 'table', 'columnType', 'number', 'active',)
+
+
+class UpdateColumnSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Column
+        fields = ('id', 'number', 'active',)
