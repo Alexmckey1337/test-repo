@@ -90,6 +90,9 @@ class TestDeal:
 
         assert deal.currency != currency
 
+    def test_value_str(self, deal):
+        assert deal.value_str == '{} {}'.format(deal.value, deal.currency.short_name)
+
     def test_deal_payments(self, deal, payment_factory):
         payment_factory.create_batch(4, purpose=deal)
 
