@@ -1,43 +1,85 @@
 (function ($) {
     "use strict";
 
-    function updateUser(data, id) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.1/users/${id}/`, data, function () {
-            let send_image = true;
+    function updateUser(id) {
+        let oldForm = document.forms.editUser;
+        let formData = new FormData(oldForm);
+        if($('#division_drop').val()) {
+                formData.append('division', JSON.stringify($('#division_drop').val()));
+        }
+        if($('#partner').is(':checked')) {
+            let partner = {};
+            partner.value = parseInt(document.getElementById('val_partnerships').value) || 0;
+            partner.date = document.getElementById('partner_date').value || null;
+            partner.responsible = parseInt($("#partner_drop").val());
+            formData.append('partner', JSON.stringify(partner));
+        }
+        let send_image = true;
             if (send_image) {
                 try {
-                    let fd = new FormData(),
+                    let
                         blob;
                     let sr;
                     if (!$('input[type=file]')[0].files[0]) {
                         blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                        fd.append('file', blob);
-                        fd.append('id', id)
+                        formData.append('file', blob);
+                        formData.append('id', id)
                     } else {
                         blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
                         sr = $('input[type=file]')[0].files[0];
-                        fd.append('file', blob);
-                        fd.set('source', $('input[type=file]')[0].files[0], 'photo.jpg');
-                        fd.append('id', id)
+                        formData.append('file', blob);
+                        formData.set('source', $('input[type=file]')[0].files[0], 'photo.jpg');
+                        formData.append('id', id)
                     }
                     let xhr = new XMLHttpRequest();
                     xhr.withCredentials = true;
-                    xhr.open('POST', CONFIG.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
+                    xhr.open('PUT', `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${id}/`, true);
                     xhr.onreadystatechange = function () {
                         if (xhr.readyState == 4) {
                             if (xhr.status == 200) {
-                                window.location.href = '/account/' + id;
+                                // window.location.href = '/account/' + id;
                             }
                         }
                     };
-                    xhr.send(fd);
+                    xhr.send(formData);
                 } catch (err) {
                     console.log(err);
                 }
             }
-        }, 'PUT', true, {
-            'Content-Type': 'application/json'
-        });
+        // ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.1/users/${id}/`, formData, function () {
+        //     let send_image = true;
+        //     if (send_image) {
+        //         try {
+        //             let fd = new FormData(),
+        //                 blob;
+        //             let sr;
+        //             if (!$('input[type=file]')[0].files[0]) {
+        //                 blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+        //                 fd.append('file', blob);
+        //                 fd.append('id', id)
+        //             } else {
+        //                 blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+        //                 sr = $('input[type=file]')[0].files[0];
+        //                 fd.append('file', blob);
+        //                 fd.set('source', $('input[type=file]')[0].files[0], 'photo.jpg');
+        //                 fd.append('id', id)
+        //             }
+        //             let xhr = new XMLHttpRequest();
+        //             xhr.withCredentials = true;
+        //             xhr.open('POST', CONFIG.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
+        //             xhr.onreadystatechange = function () {
+        //                 if (xhr.readyState == 4) {
+        //                     if (xhr.status == 200) {
+        //                         // window.location.href = '/account/' + id;
+        //                     }
+        //                 }
+        //             };
+        //             xhr.send(fd);
+        //         } catch (err) {
+        //             console.log(err);
+        //         }
+        //     }
+        // }, 'PUT', true);
     }
 
     function handleFileSelect(e) {
@@ -133,7 +175,7 @@
 
             initializeCountry();
 
-            makeChooseDivision.then(function (html) {
+            makeChooseDivision().then(function (html) {
                 $('#division_drop').html(html);
                 if (divisions instanceof Array) {
                     $('#division_drop option').each(function () {
@@ -478,45 +520,6 @@
         if (!id) {
             return
         }
-        let data = {
-            "first_name": $("#first_name").val(),
-            "last_name": $("#last_name").val(),
-            "middle_name": $("#middle_name").val(),
-            "search_name": $("#search_name").val(),
-            "skype": $("#skype").val(),
-            "email": $("#email").val(),
-            "phone_number": $("#phone_number").val(),
-            "extra_phone_numbers": _.filter(_.map($("#extra_phone_numbers").val().split(","), x => x.trim()), x => !!x),
-            "born_date": $("#datepicker_born_date").val() || null,
-            "repentance_date": $("input[name='repentance_date']").val() || null,
-            "country": $('#country_drop option:selected').html() == "Не выбрано" ? '' : $('#country_drop option:selected').html(),
-            "region": $('#region_drop option:selected').html() == "Не выбрано" ? '' : $('#region_drop option:selected').html(),
-            "city": $('#town_drop option:selected').html() == "Не выбрано" ? '' : $('#town_drop option:selected').html(),
-            "district": $('#district').val(),
-            "vkontakte": $('#vkontakte').val() || '',
-            "facebook": $('#facebook').val() || '',
-            "odnoklassniki": $('#odnoklassniki').val() || '',
-            "master": parseInt($('#master_hierarchy option:selected').attr('data-id')) || null,
-            "address": $('#address').val() || '',
-            "department": parseInt($('#departmentSelect').val()),
-            "divisions": $("#division_drop").val() || [],
-            "hierarchy": parseInt($('#hierarchySelect').val()),
-            "partner": null
-        };
-        if (document.getElementById('partner') && document.getElementById('partner').checked) {
-            data.partner = {};
-            data.partner.value = parseInt(document.getElementById('val_partnerships').value) || 0;
-            data.partner.date = document.getElementById('partner_date').value || null;
-            let id_partner = parseInt($("#partner_drop option:selected").val());
-
-            //   debugger
-            if (id_partner) {
-                data.partner.responsible = id_partner
-            }
-        } else {
-            data['remove_partnership'] = 'true'; //gavnocod vlada
-        }
-        let json = JSON.stringify(data);
-        updateUser(json, id);
+        updateUser(id);
     }
 })(jQuery);

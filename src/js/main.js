@@ -130,9 +130,9 @@ function makeResponsibleList() {
         data.forEach(function (el) {
             if (id == el.id) {
                 selected = true;
-                html += "<option data-id='" + el.id + "' selected>" + el.fullname + "</option>";
+                html += "<option value='" + el.id + "' data-id='" + el.id + "' selected>" + el.fullname + "</option>";
             } else {
-                html += "<option data-id='" + el.id + "'>" + el.fullname + "</option>";
+                html += "<option value='" + el.id + "' data-id='" + el.id + "'>" + el.fullname + "</option>";
             }
         });
         if (!selected) {
@@ -143,14 +143,17 @@ function makeResponsibleList() {
     });
 }
 
-var makeChooseDivision = getDivisions().then(function (data) {
-    data = data.results;
-    let html = '';
-    for (let i = 0; i < data.length; i++) {
-        html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
-    }
-    return html
-});
+function makeChooseDivision() {
+    return getDivisions().then(function (data) {
+        data = data.results;
+        let html = '';
+        for (let i = 0; i < data.length; i++) {
+            html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+        }
+        return html
+    });
+}
+
 
 function initAddNewUser(id, callback) {
     getStatuses().then(function (data) {
@@ -222,7 +225,7 @@ function initAddNewUser(id, callback) {
             getRegions(config).then(function (data) {
                 let rendered = [];
                 let option = document.createElement('option');
-                $(option).text('Выберите регион');
+                $(option).val('').text('Выберите регион');
                 rendered.push(option);
                 data.forEach(function (item) {
                     let option = document.createElement('option');
@@ -235,7 +238,7 @@ function initAddNewUser(id, callback) {
                     getCities(config).then(function (data) {
                         let rendered = [];
                         let option = document.createElement('option');
-                        $(option).text('Выберите город');
+                        $(option).val('').text('Выберите город');
                         rendered.push(option);
                         data.forEach(function (item) {
                             let option = document.createElement('option');
@@ -839,6 +842,8 @@ function createUsersTable(config) {
         makeSortForm(data.user_table);
         $('.preloader').css('display', 'none');
         orderTable.sort(createUsersTable);
+    }).catch(function (err) {
+        console.log(err);
     });
 }
 
@@ -900,7 +905,7 @@ function getFilterParam() {
         if ($(this).attr('type') === 'checkbox') {
             data[prop] = $(this).is(':checked');
         } else {
-            if($(this).val()) {
+            if ($(this).val()) {
                 data[prop] = $(this).val();
             }
         }
