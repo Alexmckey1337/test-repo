@@ -19,13 +19,13 @@ from common.filters import FieldSearchFilter
 from hierarchy.models import Department
 from navigation.models import group_table
 from .models import HomeGroup, Church
-from .serializers import (
-    ChurchSerializer, ChurchListSerializer,
-    HomeGroupSerializer, HomeGroupDetailSerializer, HomeGroupListSerializer, GroupUserSerializer)
+from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSerializer, HomeGroupListSerializer,
+                          GroupUserSerializer)
 
 
 class PaginationMixin(PageNumberPagination):
     category = None
+    prefix_ordering_title = ''
     page_size = 30
     page_size_query_param = 'page_size'
 
@@ -37,7 +37,7 @@ class PaginationMixin(PageNumberPagination):
                 'previous': self.get_previous_link()
             },
             'count': self.page.paginator.count,
-            'table_columns': group_table(self.request.user, self.category),
+            'table_columns': group_table(self.request.user, self.category, self.prefix_ordering_title),
             'results': data,
         })
 
@@ -52,6 +52,7 @@ class HomeGroupPagination(PaginationMixin):
 
 class GroupUsersPagination(PaginationMixin):
     category = 'group_users'
+    prefix_ordering_title = '__user'
 
 
 class ChurchFilter(django_filters.FilterSet):
@@ -80,7 +81,8 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
                        filters.OrderingFilter,)
 
     ordering_fields = ('title', 'city', 'department', 'home_group', 'is_open', 'opening_date',
-                       'pastor', 'phone_number', 'address',)
+                       'pastor__last_name', 'phone_number', 'address', 'website',
+                       'count_groups', 'count_users', 'country')
 
     filter_class = ChurchFilter
     field_search_fields = {
