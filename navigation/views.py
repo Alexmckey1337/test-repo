@@ -8,7 +8,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Navigation, Table, ColumnType, Column
-from .serializers import NavigationSerializer, TableSerializer, ColumnTypeSerializer, ColumnSerializer
+from .serializers import NavigationSerializer, TableSerializer, ColumnTypeSerializer, ColumnSerializer, \
+    UpdateColumnSerializer
 
 
 class NavigationViewSet(viewsets.ModelViewSet):
@@ -37,24 +38,19 @@ class ColumnViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 def update_columns(request):
     '''POST: (id, number, active)'''
-    response_dict = dict()
-    table = None
-    if request.method == 'POST':
-        for data in request.data:
-            try:
-                object = Column.objects.get(id=data['id'])
-                table = object.table
-                for key, value in six.iteritems(data):
-                    if key == 'active' and not object.columnType.editable:
-                        pass
-                    else:
-                        setattr(object, key, value)
-                object.save()
-                # serializer = ColumnSerializer(object, context={'request': request})
-                # response_dict['data'] = serializer.data
-            except Column.DoesNotExist:
-                pass
-    response_dict['message'] = "Колонки успешно отредактирована"
-    response_dict['status'] = True
-    response_dict['column_table'] = table.user.column_table
+    column_ids = {str(data['id']): data for data in request.data}
+    columns = Column.objects.filter(
+        id__in=column_ids.keys(),
+        table__user=request.user,
+        columnType__editable=True)
+    for column_obj in columns:
+        column = UpdateColumnSerializer(column_obj, data=column_ids[str(column_obj.id)], partial=True)
+        column.is_valid(raise_exception=True)
+        column.save()
+
+    response_dict = {
+        'message': 'Колонки успешно отредактированы',
+        'status': True,
+        'column_table': request.user.column_table
+    }
     return Response(response_dict)
