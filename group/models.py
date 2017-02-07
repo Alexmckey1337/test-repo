@@ -45,6 +45,9 @@ class Church(CommonGroup):
     users = models.ManyToManyField('account.CustomUser', related_name='churches', blank=True,
                                    verbose_name=_('Users'))
 
+    def __str__(self):
+        return self.get_title
+
     class Meta:
         verbose_name = _('Church')
         verbose_name_plural = _('Churches')
@@ -66,6 +69,9 @@ class HomeGroup(CommonGroup):
                                verbose_name=_('Church'))
     users = models.ManyToManyField('account.CustomUser', related_name='home_groups', blank=True,
                                    verbose_name=_('Users'))
+
+    def __str__(self):
+        return self.get_title
 
     class Meta:
         verbose_name = _('Home Group')

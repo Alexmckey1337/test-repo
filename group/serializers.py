@@ -38,10 +38,11 @@ class HomeGroupLeaderRelatedField(serializers.PrimaryKeyRelatedField):
 
 class HomeGroupSerializer(serializers.ModelSerializer):
     leader = HomeGroupLeaderRelatedField(queryset=CustomUser.objects.filter(hierarchy__level__gt=0))
+    department = serializers.CharField(source='church.department.id', read_only=True)
 
     class Meta:
         model = HomeGroup
-        fields = ('id', 'link', 'opening_date', 'title', 'city', 'get_title',
+        fields = ('id', 'link', 'opening_date', 'title', 'city', 'department', 'get_title',
                   'church', 'leader', 'address', 'phone_number', 'website',)
 
 

@@ -16,9 +16,9 @@
         </div>
         <div class="top-buttons-wrap">
             <ul class="top-buttons">
-{#                <li>#}
-{#                    <button id="filter_button">Фильтр</button>#}
-{#                </li>#}
+                <li>
+                    <button id="filter_button">Фильтр</button>
+                </li>
                 <li>
                     <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
                 </li>
@@ -61,6 +61,20 @@
 {% endblock %}
 
 {% block popup %}
+       <div class="popap" id="quickEditCartPopup">
+        <div class="pop_cont">
+            <div class="popup_text">
+                <h2>Карточка Домашней группы</h2>
+                <span onclick="hidePopup(this)" class="close"><i class="fa fa-times" aria-hidden="true"></i></span>
+            </div>
+            <div class="popup_body">
+            </div>
+            <div class="container">
+                <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                <button onclick="saveHomeGroups(this)" class="save-user">Сохранить</button>
+            </div>
+        </div>
+    </div>
     <div class="popap" id='filterPopup'>
         <div class="pop_cont">
             <h2 class='popup_text'>
@@ -70,63 +84,46 @@
                 <div class="container">
                     <div class="col-6">
                         <p class="label_block">
-                            <label for="departments_filter">Отдел</label>
+                            <label for="church_filter">Церковь</label>
                         </p>
                         <p class="label_block">
-                            <label for="hierarchies_filter">Иерархия</label>
+                            <label for="leader_filter">Лидер</label>
                         </p>
                         <p class="label_block">
-                            <label for="masters_filter">Ответсвенный</label>
+                            <label for="search_date_open">Дата открытия</label>
                         </p>
                         <p class="label_block">
-                            <label for="search_email">Фильтр по email</label>
+                            <label for="search_phone_number">Фильтр по стране</label>
                         </p>
                         <p class="label_block">
-                            <label for="search_phone_number">Фильтр по номеру телефона</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="search_country">Фильтр по стране</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="search_city">Фильтр по городу</label>
+                            <label for="search_country">Фильтр по городу</label>
                         </p>
                     </div>
                     <div class="col-6">
                         <p class="input_block">
-                            <select class="selectdb" id="departments_filter">
-                                <option value="0">ВСЕ</option>
-                                {% for department in departments %}
-                                    <option value="{{ department.id }}">{{ department.title }}</option>
+                            <select class="selectdb" data-filter="church" id="church_filter">
+                                <option value="">ВСЕ</option>
+                                {% for church in churches %}
+                                    <option value="{{ church.id }}">{{ church.title }}</option>
                                 {% endfor %}
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" id="hierarchies_filter">
-                                <option value="0">ВСЕ</option>
-                                {% for hierarchy in hierarchies %}
-                                    <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
+                            <select class="selectdb" data-filter="leader" id="leader_filter">
+                                <option value="">ВСЕ</option>
+                                {% for leader in leaders %}
+                                    <option value="{{ leader.id }}">{{ leader.fullname }}</option>
                                 {% endfor %}
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" id="masters_filter">
-                                <option value="0">ВСЕ</option>
-                                {% for master in masters %}
-                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
-                                {% endfor %}
-                            </select>
+                            <input type="text" data-filter="opening_date" id="search_date_open">
                         </p>
                         <p class="input_block">
-                            <input type="email" placeholder="email или часть" id="search_email">
+                            <input type="text" data-filter="country" placeholder="страна или часть названия" id="search_country">
                         </p>
                         <p class="input_block">
-                            <input type="tel" placeholder="номер телефона или часть" id="search_phone_number">
-                        </p>
-                        <p class="input_block">
-                            <input type="text" placeholder="страна или часть названия" id="search_country">
-                        </p>
-                        <p class="input_block">
-                            <input type="text" placeholder="город или часть названия" id="search_city">
+                            <input type="text" data-filter="city" placeholder="город или часть названия" id="search_city">
                         </p>
                     </div>
                 </div>
@@ -136,7 +133,7 @@
                                                                                   aria-hidden="true"></i>
                     Очистить</a>
                 <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
-                <button onclick="applyFilter(this, createUsersTable)" class="apply-filter">Применить</button>
+                <button onclick="applyFilter(this, createChurchesTable)" class="apply-filter">Применить</button>
             </div>
         </div>
     </div>
@@ -144,4 +141,39 @@
 {% block extra_scripts %}
     <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
     <script src="{% static "js/database_home_groups.js" %}"></script>
+    <script type="text/template" id="quickEditCart">
+   <div class="container bb-1">
+        <div class="header">
+            <p><input type="text" class="title" id="home_groups_title" value="<%=get_title %>"></p>
+            <% if(opening_date) { %>
+                <p><label for="opening_date">Датат открытия</label><input type="text" class="date" id="opening_date" value="<%= opening_date.split('.').reverse().join('-') %>"></p>
+            <% } else { %>
+                <p><label for="opening_date">Датат открытия</label><input type="text" id="opening_date" class="date" value=""></p>
+            <% } %>
+            <p class="hidden"><input type="text" id="homeGroupsID" value="<%= id %>"></p>
+        </div>
+   </div>
+    <div class="container start">
+        <div>
+            <p class="label_block">Отдел:</p>
+            <p class="label_block">Пастор:</p>
+            <p class="label_block">Нас.пункт:</p>
+            <p class="label_block">Адрес:</p>
+            <p class="label_block">Телефон:</p>
+            <p class="label_block">Сайт:</p>
+        </div>
+        <div class="col-7">
+            <div><select name="" id="editDepartmentSelect">
+                <option value="<%= department %>"><%= department %></option>
+            </select></div>
+            <div><select name="" id="editPastorSelect">
+                <option value="<%= leader %>"><%= leader %></option>
+            </select></div>
+            <p><input type="text" id="city" value="<%=city %>"></p>
+            <p><input type="text" id="address" value="<%=address %>"></p>
+            <p><input type="text" id="phone_number" value="<%=phone_number %>"></p>
+            <p><input type="text" id="web_site" value="<%=website %>"></p>
+        </div>
+    </div>
+</script>
 {% endblock %}

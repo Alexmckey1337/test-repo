@@ -98,7 +98,7 @@ function makeDataTable(data, id) {
     var tmpl = document.getElementById('databaseUsers').innerHTML;
     var rendered = _.template(tmpl)(data);
     document.getElementById(id).innerHTML = rendered;
-    if($('.quick-edit').length) {
+    if ($('.quick-edit').length) {
         $('.quick-edit').on('click', function () {
             makeQuickEditCart(this);
         })
@@ -231,11 +231,11 @@ function initAddNewUser(id, callback) {
                 });
                 $('#chooseRegion').html(rendered).attr('disabled', false).on('change', function () {
                     let config = {};
-                    config.country = $(this).val();
+                    config.region = $(this).val();
                     getCities(config).then(function (data) {
                         let rendered = [];
                         let option = document.createElement('option');
-                        $(option).text('Выберите регион');
+                        $(option).text('Выберите город');
                         rendered.push(option);
                         data.forEach(function (item) {
                             let option = document.createElement('option');
@@ -377,14 +377,14 @@ function saveChurches(el) {
     let $input, $select, phone_number, opening_date, data, id;
     id = parseInt($($(el).closest('.pop_cont').find('#churchID')).val());
     opening_date = $($(el).closest('.pop_cont').find('#opening_date')).val();
-    if(!opening_date && opening_date.split('-').length !== 3) {
+    if (!opening_date && opening_date.split('-').length !== 3) {
         $($(el).closest('.pop_cont').find('#opening_date')).css('border-color', 'red');
         return
     }
     data = {
         title: $($(el).closest('.pop_cont').find('#church_title')).val(),
-        pastor: $($(el).closest('.pop_cont').find('#pastorSelect')).val(),
-        department: $($(el).closest('.pop_cont').find('#departmentSelect')).val(),
+        pastor: $($(el).closest('.pop_cont').find('#editPastorSelect')).val(),
+        department: $($(el).closest('.pop_cont').find('#editDepartmentSelect')).val(),
         phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
         website: ($(el).closest('.pop_cont').find('#web_site')).val(),
         opening_date: $($(el).closest('.pop_cont').find('#opening_date')).val() || null,
@@ -411,6 +411,39 @@ function saveChurches(el) {
         $(el).attr('disabled', false);
     })
 }
+
+function saveHomeGroups(el) {
+    let $input, $select, phone_number, data, id;
+    id = parseInt($($(el).closest('.pop_cont').find('#homeGroupsID')).val());
+    data = {
+        title: $($(el).closest('.pop_cont').find('#home_groups_title')).val(),
+        leader: $($(el).closest('.pop_cont').find('#editPastorSelect')).val(),
+        department: $($(el).closest('.pop_cont').find('#editDepartmentSelect')).val(),
+        phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
+        website: ($(el).closest('.pop_cont').find('#web_site')).val(),
+        opening_date: $($(el).closest('.pop_cont').find('#opening_date')).val() || null,
+        country: $($(el).closest('.pop_cont').find('#country')).val(),
+        city: $($(el).closest('.pop_cont').find('#city')).val(),
+        address: $($(el).closest('.pop_cont').find('#address')).val()
+    };
+    saveHomeGroupsData(data, id);
+    $(el).text("Сохранено");
+    $(el).closest('.popap').find('.close-popup').text('Закрыть');
+    $(el).attr('disabled', true);
+    $input = $(el).closest('.popap').find('input');
+    $select = $(el).closest('.popap').find('select');
+    $select.on('change', function () {
+        $(el).text("Сохранить");
+        $(el).closest('.popap').find('.close-popup').text('Отменить');
+        $(el).attr('disabled', false);
+    });
+    $input.on('change', function () {
+        $(el).text("Сохранить");
+        $(el).closest('.popap').find('.close-popup').text('Отменить');
+        $(el).attr('disabled', false);
+    })
+}
+
 
 function makeQuickEditCart(el) {
     let id, link, url;
@@ -859,6 +892,22 @@ function refreshFilter(el) {
     })
 }
 
+function getFilterParam() {
+    let $filterFields, data = {};
+    $filterFields = $('#filterPopup select, #filterPopup input');
+    $filterFields.each(function () {
+        let prop = $(this).data('filter');
+        if ($(this).attr('type') === 'checkbox') {
+            data[prop] = $(this).is(':checked');
+        } else {
+            if($(this).val()) {
+                data[prop] = $(this).val();
+            }
+        }
+
+    });
+    return data;
+}
 function filterParam() {
     let filterPopup, data = {}, department, hierarchy, master, search_email, search_phone_number, search_country, search_city, from_date, to_date;
     filterPopup = $('#filterPopup');
@@ -892,16 +941,16 @@ function filterParam() {
     if (search_city && search_city != "") {
         data['search_city'] = search_city;
     }
-    if(from_date && from_date != "") {
-        if (new Date(from_date) >= new Date(to_date)){
+    if (from_date && from_date != "") {
+        if (new Date(from_date) >= new Date(to_date)) {
             data['to_date'] = from_date;
         } else {
             data['from_date'] = from_date;
         }
 
     }
-    if(to_date && to_date != "") {
-        if (new Date(from_date) >= new Date(to_date)){
+    if (to_date && to_date != "") {
+        if (new Date(from_date) >= new Date(to_date)) {
             data['from_date'] = to_date;
         } else {
             data['to_date'] = to_date;
@@ -912,7 +961,7 @@ function filterParam() {
 
 function applyFilter(el, callback) {
     let self = el, data;
-    data = filterParam();
+    data = getFilterParam();
     $('.preloader').css('display', 'block');
     callback(data);
     setTimeout(function () {
