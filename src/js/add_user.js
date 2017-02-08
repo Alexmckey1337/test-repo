@@ -113,38 +113,36 @@
             $('#chooseDepartment').attr('disabled', false);
         });
 
-        makeChooseStatus.then(function (html) {
+        makeChooseStatus().then(function (html) {
             document.getElementById('chooseStatus').innerHTML = html;
         });
 
-        makeChooseDivision.then(function (html) {
+        makeChooseDivision().then(function (html) {
             document.getElementById('chooseDivision').innerHTML = html;
         });
 
-        var makeChooseManager = getManagers().then(function (data) {
+        getManagers().then(function (data) {
             let html = '<option value=""> </option><option>Не выбрано</option>';
             data.forEach(function (partnership) {
                 html += '<option value="' + partnership.id + '">' + partnership.fullname + '</option>';
             });
             return html;
-        });
-        makeChooseManager.then(function (html) {
+        }).then(function (html) {
             document.getElementById('chooseManager').innerHTML = html;
         });
-        var makeChooseResponsibleStatus = getResponsibleStatuses().then(function (data) {
+        getResponsibleStatuses().then(function (data) {
             data = data.results;
             let html = '<option value=""> </option><option>Не выбрано</option>';
             for (let i = 0; i < data.length; i++) {
                 html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
             }
             return html;
-        });
-        makeChooseResponsibleStatus.then(function (html) {
+        }).then(function (html) {
             if (document.getElementById('chooseResponsibleStatus')) {
                 document.getElementById('chooseResponsibleStatus').innerHTML = html;
             }
         });
-        var makeChooseCountryCode = getCountryCodes().then(function (data) {
+        getCountryCodes().then(function (data) {
             let codes = '<option value=""> </option>';
             for (let i = 0; i < data.length; i++) {
                 if (data[i].phone_code == 38) {
@@ -154,8 +152,7 @@
                 }
             }
             return codes;
-        });
-        makeChooseCountryCode.then(function (codes) {
+        }).then(function (codes) {
             document.getElementById('chooseCountryCode').innerHTML = codes;
             let code = $('#chooseCountryCode').val();
             $('input[name="phone_numberCode"]').val(code);

@@ -9,16 +9,6 @@
         <span>{{ summit_type.title }}</span>
     </h1>
 {% endblock %}
-<div>
-    {% block header.top.select %}
-        <select class="selectdb" id="dep_filter">
-            <option value="0">ВСЕ</option>
-            {% for department in departments %}
-                <option value="{{ department.id }}">{{ department.title }}</option>
-            {% endfor %}
-        </select>
-    {% endblock %}
-</div>
 
 {% block header.buttons.filter %}
     {% if summit_type.club_name %}
@@ -31,7 +21,23 @@
         </div>
     {% endif %}
 {% endblock %}
-
+{% block header.buttons %}
+    <div class="top-panel">
+        <div class="top-buttons-wrap">
+            <ul class="top-buttons">
+                <li>
+                    <button id="add">Добавить пользователя</button>
+                </li>
+                <li>
+                    <button id="filter_button">Фильтр</button>
+                </li>
+                <li>
+                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
 {% block header.buttons.export %}
 {% endblock %}
 
@@ -68,14 +74,17 @@
 
 {% block table %}
     <div class="table-wrap clearfix">
-        <div id="users_list" class="table scrollbar-inner"></div>
+        <div data-summit-type="{{ summit_type.id }}" id="summitUsersList" class="table scrollbar-inner"></div>
         <div class="preloader">
             <div class="gif">
             </div>
         </div>
     </div>
 {% endblock %}
-
+{% block pagination_bottom %}
+        <div class="table__count"></div>
+        <div class="pagination users__pagination"></div>
+    {% endblock %}
 {% block choose_user_modal.search_field %}
     <input id="searchUsers" type="text" placeholder="Поиск" name="unregsearch">
 {% endblock %}
@@ -193,10 +202,70 @@
 
 {% endblock %}
 
+{% block popup %}
+    <div class="popap" id='filterPopup'>
+        <div class="pop_cont">
+            <h2 class='popup_text'>
+                Фильтр
+            </h2>
+            <div class="popup_body">
+                <div class="container">
+                    <div class="col-6">
+                        <p class="label_block">
+                            <label for="departments_filter">Отдел</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="search_email">Фильтр по email</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="search_phone_number">Фильтр по номеру телефона</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="search_country">Фильтр по стране</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="search_city">Фильтр по городу</label>
+                        </p>
+                    </div>
+                    <div class="col-6">
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="user__department" id="departments_filter">
+                                <option value="">ВСЕ</option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">{{ department.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <input type="email" data-filter="user__search_email" placeholder="email или часть" id="search_email">
+                        </p>
+                        <p class="input_block">
+                            <input type="tel" data-filter="user__search_phone_number" placeholder="номер телефона или часть" id="search_phone_number">
+                        </p>
+                        <p class="input_block">
+                            <input type="text" data-filter="user__search_country" placeholder="страна или часть названия" id="search_country">
+                        </p>
+                        <p class="input_block">
+                            <input type="text" data-filter="user__search_city" placeholder="город или часть названия" id="search_city">
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <a href="#" onclick="refreshFilter(this)" class="apply-filter"><i class="fa fa-refresh"
+                                                                                  aria-hidden="true"></i>
+                    Очистить</a>
+                <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                <button onclick="applyFilter(this, createSummitUsersTable)" class="apply-filter">Применить</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
 {% block extra_scripts %}
     <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
     <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
     <script src="{% static "js/add_user.js" %}"></script>
-    <script src="{% static "js/summits.js" %}"></script>
+    <script src="{% static "js/summit.js" %}"></script>
 
 {% endblock %}

@@ -19,11 +19,11 @@
 {% block main.content %}
     <div id="summits" class="summits-wrap">
         {% for summit_type in summit_types %}
-            <div><img data-id="{{ summit_type.id }}" src="{{ summit_type.image.url }}" alt=""/></div>
+            <div><a href="{{ summit_type.id }}"><img data-id="{{ summit_type.id }}" src="{{ summit_type.image.url }}" alt=""/></a></div>
         {% endfor %}
     </div>
 {% endblock %}
 
 {% block extra_scripts %}
-    <script src="{% static "js/summits.js" %}"></script>
+    <script src="{% static "js/summits-list.js" %}"></script>
 {% endblock %}

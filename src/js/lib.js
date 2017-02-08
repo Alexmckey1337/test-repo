@@ -80,8 +80,7 @@ function getHomeGroups(config = {}) {
 function newAjaxRequest(data = {}) {
     let resData = {
         method: 'GET',
-        data: {},
-        beforeSend: {}
+        data: {}
     };
     Object.assign(resData, data);
     if (getCookie('key')) {
@@ -89,7 +88,6 @@ function newAjaxRequest(data = {}) {
     }
     return $.ajax({
         url: resData.url,
-        beforeSend: resData.beforeSend,
         data: resData.data,
         type: resData.method,
         headers: resData.headers
@@ -121,6 +119,57 @@ function getUsers(config = {}) {
         };
 
         newAjaxRequest(data)
+
+    });
+}
+
+
+function getSummitUsers(config = {}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/`,
+            data: config,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            statusCode: {
+                200: function (req) {
+                    resolve(req)
+                },
+                403: function () {
+                    reject('Вы должны авторизоватся')
+                }
+
+            },
+            fail: reject
+        };
+
+        newAjaxRequest(data)
+    });
+}
+
+function getPotencialSammitUsers(config) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_search/', config, function (data) {
+            resolve(data);
+        });
+    });
+}
+
+function registerUserToSummit(config) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/post_anket/', config, function (JSONobj) {
+        if (JSONobj.status) {
+            showPopup(JSONobj.message);
+            createSummitUsersTable();
+            getUnregisteredUsers();
+            $("#send_email").prop("checked", false);
+        } else {
+            showPopup(JSONobj.message);
+            $("#send_email").prop("checked", false);
+        }
+    }, 'POST', true, {
+        'Content-Type': 'application/json'
     });
 }
 
