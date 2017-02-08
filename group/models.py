@@ -9,6 +9,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
 
 
+@python_2_unicode_compatible
 class CommonGroup(models.Model):
     title = models.CharField(_('Title'), max_length=50, blank=True)
     opening_date = models.DateField(_('Opening Date'), default=date.today)
@@ -34,7 +35,6 @@ class CommonGroup(models.Model):
         return '{} {}'.format(self.city, self.owner_name)
 
 
-@python_2_unicode_compatible
 class Church(CommonGroup):
     department = models.ForeignKey('hierarchy.Department', related_name='churches', on_delete=models.PROTECT,
                                    verbose_name=_('Department'))
@@ -44,9 +44,6 @@ class Church(CommonGroup):
     is_open = models.BooleanField(default=False)
     users = models.ManyToManyField('account.CustomUser', related_name='churches', blank=True,
                                    verbose_name=_('Users'))
-
-    def __str__(self):
-        return self.get_title
 
     class Meta:
         verbose_name = _('Church')
@@ -61,7 +58,6 @@ class Church(CommonGroup):
         return self.pastor.last_name
 
 
-@python_2_unicode_compatible
 class HomeGroup(CommonGroup):
     leader = models.ForeignKey('account.CustomUser', related_name='home_group', on_delete=models.PROTECT,
                                verbose_name=_('Leader'))
@@ -69,9 +65,6 @@ class HomeGroup(CommonGroup):
                                verbose_name=_('Church'))
     users = models.ManyToManyField('account.CustomUser', related_name='home_groups', blank=True,
                                    verbose_name=_('Users'))
-
-    def __str__(self):
-        return self.get_title
 
     class Meta:
         verbose_name = _('Home Group')
