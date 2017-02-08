@@ -74,12 +74,9 @@ $(document).ready(function () {
     });
 
     if ($('.table-wrap')) {
-
         $("#add").on('click', function () {
             $('#addUser').css('display', 'block');
         });
-
-
         $("#popup h3 span").on('click', function () {
             $('#popup').css('display', 'none');
             $('.choose-user-wrap').css('display', 'block');
@@ -475,41 +472,6 @@ function getUsersList(path, param) {
             show_payments(id);
         });
         // Sorting
-        var orderTable = (function () {
-            function addListener() {
-                $(".table-wrap th").on('click', function () {
-                    let dataOrder;
-                    let data_order = this.getAttribute('data-order');
-                    var revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
-                    var order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
-                    if (order != '') {
-                        dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
-                    } else {
-                        dataOrder = '-' + data_order;
-                    }
-                    ordering = {};
-                    ordering[data_order] = dataOrder;
-                    let page = document.querySelector(".pag li.active") ? parseInt(document.querySelector(".pag li.active").innerHTML) : 1;
-                    let data = {
-                        'ordering': dataOrder,
-                        'page': page
-                    };
-                    if (order == data_order) {
-                        revers = (revers == '+') ? '-' : '+';
-                    } else {
-                        revers = "+"
-                    }
-                    sessionStorage.setItem('revers', revers);
-                    sessionStorage.setItem('order', data_order);
-
-                    getUsersList(path, data);
-                });
-            }
-
-            return {
-                addListener: addListener
-            }
-        })();
         orderTable.addListener();
         $('#users_list .del').on('click', function () {
             let id = $(this).attr('data-user-id'),
@@ -557,63 +519,6 @@ function getUsersList(path, param) {
             });
         });
 
-        /* Navigation*/
-
-        $(".arrow").each(function (i, el) {
-            $(el).on('click', function () {
-                let page;
-                let data = {};
-                if ($(this).hasClass('prev')) {
-                    page = parseInt($(".pag li.active").html()) > 1 ? parseInt($(".pag li.active").html()) - 1 : 1;
-                    data['page'] = page;
-                    data['summit'] = summit_id;
-                    data['ordering'] = order;
-                    data['user__department__title'] = $('input[name="searchDep"]').val();
-                    getUsersList(path, data);
-                } else {
-                    page = parseInt($(".pag li.active").html()) != pages ? parseInt($(".pag li.active").html()) + 1 : pages;
-                    data['page'] = page;
-                    data['summit'] = summit_id;
-                    data['ordering'] = order;
-                    data['user__department__title'] = $('input[name="searchDep"]').val();
-                    getUsersList(path, data);
-                }
-            });
-        });
-
-        $(".double_arrow").each(function (i, el) {
-            $(el).on('click', function () {
-                let data = {};
-                if (this.parentElement.classList.contains('prev')) {
-                    data['page'] = 1;
-                    data['summit'] = summit_id;
-                    data['ordering'] = order;
-                    getUsersList(path, data);
-                } else {
-                    data['page'] = pages;
-                    data['summit'] = summit_id;
-                    data['ordering'] = order;
-                    getUsersList(path, data);
-                }
-            });
-        });
         $('#summit_type').select2();
-        $(".table-wrap th").each(function (el) {
-            $(el).on('click', function () {
-                let data_order = this.getAttribute('data-order');
-                let status = !!ordering[data_order];
-                ordering = {};
-                ordering[data_order] = status;
-                window.order = data_order;
-                let page = $(".pag li.active") ? parseInt($(".pag li.active").html()) : 1;
-                let data = {
-                    'ordering': data_order,
-                    'page': page,
-                    'summit': summit_id
-                };
-                data['user__department__title'] = $('input[name="searchDep"]').val();
-                getUsersList(path, data)
-            });
-        });
     });
 }
