@@ -4,10 +4,13 @@ from decimal import Decimal
 from django.utils import six
 from pytest_factoryboy import register
 from rest_framework import status
+from rest_framework.permissions import AllowAny
 
 from account.factories import UserFactory
+from common.test.views import fake_dispatch
 from partnership.factories import PartnerFactory, DealFactory
 from partnership.models import Partnership
+from partnership.views import DealViewSet
 from payment.factories import PaymentFactory, PartnerPaymentFactory, DealPaymentFactory, CurrencyFactory
 
 register(UserFactory)
@@ -135,3 +138,9 @@ def partner_with_deals(partner, deal_factory):
 
     return partner
 
+
+@pytest.fixture
+def fake_deal_view_set(monkeypatch):
+    monkeypatch.setattr(DealViewSet, 'dispatch', fake_dispatch)
+
+    return DealViewSet

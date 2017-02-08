@@ -1,3 +1,6 @@
+# -*- coding: utf-8
+from __future__ import absolute_import, unicode_literals
+
 from datetime import datetime
 from decimal import Decimal
 
@@ -6,7 +9,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from partnership.models import Partnership, Deal
-from partnership.serializers import PartnershipForEditSerializer
+from partnership.serializers import PartnershipForEditSerializer, DealSerializer, DealCreateSerializer
 from payment.serializers import PaymentShowSerializer
 
 
@@ -217,3 +220,19 @@ class TestDealViewSet:
         response = api_login_supervisor_client.get(url)
 
         assert len(response.data['results']) == 30
+
+    @pytest.mark.parametrize('method,action,serializer_class', (
+            ('get', 'list', DealSerializer),
+            ('post', 'create', DealCreateSerializer),
+            ('get', 'retrieve', DealSerializer),
+            ('put', 'update', DealSerializer),
+            ('patch', 'partial_update', DealSerializer),
+    ), ids=('get-list', 'post-create', 'get-retrieve', 'put-update', 'patch-partial_update'))
+    def test_get_serializer_class(self, rf, fake_deal_view_set, method, action, serializer_class):
+        method_action = getattr(rf, method)
+        request = method_action('/')
+        view = fake_deal_view_set.as_view({method: action})
+
+        instance = view(request, pk=1)
+
+        assert instance.get_serializer_class() == serializer_class
