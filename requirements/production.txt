@@ -2,7 +2,6 @@
 
 gevent==1.2.1
 gunicorn==19.6.0
-raven
 
 # Static and Media Storage
 # ------------------------------------------------

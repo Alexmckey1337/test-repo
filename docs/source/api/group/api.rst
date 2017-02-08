@@ -94,9 +94,9 @@ Church
     :query string city: search by ``city``
     :query string is_open: search by ``is_open``
     :query string phone_number: search by ``phone_number``
-    :query string ordering: order by one of ``address``, ``city``, ``department``, ``department_id``,
-                                            ``home_group``, ``is_open``, ``opening_date``, ``pastor``,
-                                            ``phone_number``, ``title``, ``users``, ``website``, ``display_title``
+    :query string ordering: order by one of ``title``, ``city``, ``department``, ``home_group``, ``is_open``,
+                                            ``opening_date``, ``pastor``, ``phone_number``, ``title``, ``website``
+                                            ``count_groups``, ``count_users``,
 
     **Example response(Bad request)**:
 
@@ -1061,7 +1061,7 @@ _________
     :query string website: filter by ``website``
     :query string ordering: order by one of ``address``, ``church``, ``city``, ``leader``,
                                             ``opening_date``, ``phone_number``, ``title``,
-                                            ``users``, ``website``, ``home_group_title``,
+                                            ``website``,
 
     :statuscode 200: no error
     :statuscode 403: no authentication

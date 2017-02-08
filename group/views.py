@@ -25,7 +25,6 @@ from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSeria
 
 class PaginationMixin(PageNumberPagination):
     category = None
-    prefix_ordering_title = ''
     page_size = 30
     page_size_query_param = 'page_size'
 
@@ -37,7 +36,7 @@ class PaginationMixin(PageNumberPagination):
                 'previous': self.get_previous_link()
             },
             'count': self.page.paginator.count,
-            'table_columns': group_table(self.request.user, self.category, self.prefix_ordering_title),
+            'table_columns': group_table(self.request.user, self.category),
             'results': data,
         })
 
@@ -52,7 +51,6 @@ class HomeGroupPagination(PaginationMixin):
 
 class GroupUsersPagination(PaginationMixin):
     category = 'group_users'
-    prefix_ordering_title = '__user'
 
 
 class ChurchFilter(django_filters.FilterSet):
@@ -80,9 +78,13 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
                        FieldSearchFilter,
                        filters.OrderingFilter,)
 
-    ordering_fields = ('title', 'city', 'department', 'home_group', 'is_open', 'opening_date',
-                       'pastor__last_name', 'phone_number', 'address', 'website',
-                       'count_groups', 'count_users', 'country')
+    ordering_fields = ('title', 'city', 'department__title', 'home_group', 'is_open', 'opening_date',
+                       'pastor__last_name', 'phone_number', 'address', 'website', 'count_groups',
+                       'count_users', 'country')
+
+    users_ordering_fields = ('last_name', 'spiritual_level', 'phone_number', 'born_date', 'repentance_date')
+
+    home_groups_ordering_fields = ('title', 'city', 'leader', 'address', 'opening_date', 'phone_number', 'website')
 
     filter_class = ChurchFilter
     field_search_fields = {
@@ -107,28 +109,36 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
                 count_users=Count('users', distinct=True) + Count('home_group__users', distinct=True))
         return self.queryset
 
-    @detail_route(methods=['get'], pagination_class=GroupUsersPagination)
+    @detail_route(methods=['get'], pagination_class=GroupUsersPagination, ordering_fields=users_ordering_fields)
     def all_users(self, request, pk):
         church = self.get_object()
+        ordering = request.query_params.get('ordering', None)
         all_users = CustomUser.objects.filter(Q(churches=church) | Q(home_groups__in=church.home_group.all()))
-
+        if ordering:
+            all_users = all_users.order_by(ordering)
         page = self.paginate_queryset(all_users)
         users = GroupUserSerializer(page, many=True)
         return self.get_paginated_response(users.data)
 
-    @detail_route(methods=['get'], pagination_class=HomeGroupPagination)
+    @detail_route(methods=['get'], pagination_class=HomeGroupPagination, ordering_fields=home_groups_ordering_fields)
     def home_groups(self, request, pk):
         church = self.get_object()
-
-        page = self.paginate_queryset(church.home_group.all())
+        ordering = request.query_params.get('ordering', None)
+        queryset = church.home_group.all()
+        if ordering:
+            queryset = queryset.order_by(ordering)
+        page = self.paginate_queryset(queryset)
         home_groups = HomeGroupListSerializer(page, many=True)
         return self.get_paginated_response(home_groups.data)
 
-    @detail_route(methods=['get'], pagination_class=GroupUsersPagination)
+    @detail_route(methods=['get'], pagination_class=GroupUsersPagination, ordering_fields=users_ordering_fields)
     def users(self, request, pk):
         church = self.get_object()
-
-        page = self.paginate_queryset(church.users.all())
+        ordering = request.query_params.get('ordering', None)
+        queryset = church.users.all()
+        if ordering:
+            queryset = church.users.all().order_by(ordering)
+        page = self.paginate_queryset(queryset)
         users = GroupUserSerializer(page, many=True)
         return self.get_paginated_response(users.data)
 
@@ -254,7 +264,10 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
                        FieldSearchFilter,
                        filters.OrderingFilter,)
 
-    ordering_fields = ('title', 'church', 'city', 'leader', 'opening_date', 'phone_number',)
+    ordering_fields = ('title', 'church', 'leader__last_name', 'city', 'leader', 'address', 'opening_date',
+                       'phone_number', 'website', 'department')
+
+    users_ordering_fields = ('last_name', 'spiritual_level', 'phone_number', 'born_date', 'repentance_date')
 
     filter_class = HomeGroupFilter
     field_search_fields = {
@@ -271,10 +284,14 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
             return self.serializer_list_class
         return self.serializer_class
 
-    @detail_route(methods=['get'], pagination_class=GroupUsersPagination)
+    @detail_route(methods=['get'], pagination_class=GroupUsersPagination, ordering_fields=users_ordering_fields)
     def users(self, request, pk):
         home_group = self.get_object()
-        page = self.paginate_queryset(home_group.users.all())
+        ordering = request.query_params.get('ordering', None)
+        queryset = home_group.users.all()
+        if ordering:
+            queryset = queryset.order_by(ordering)
+        page = self.paginate_queryset(queryset)
         users = GroupUserSerializer(page, many=True)
         return self.get_paginated_response(users.data)
 

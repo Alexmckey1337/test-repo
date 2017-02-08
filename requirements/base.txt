@@ -31,6 +31,7 @@ Markdown==2.6.5
 Pillow==4.0.0
 psycopg2
 pytz==2016.10
+raven
 redis>=2.10.5
 reportlab
 six==1.10.0

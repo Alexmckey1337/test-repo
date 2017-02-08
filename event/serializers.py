@@ -15,19 +15,18 @@ class MeetingAttendedSerializer(serializers.ModelSerializer):
 
 
 class MeetingUserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = CustomUser
         fields = ('id', 'fullname', 'spiritual_level', 'phone_number', 'attends')
 
 
-class MeetingUserListSerializer(MeetingUserSerializer):
+class MeetingUserAttendsSerializer(MeetingUserSerializer):
     attends = MeetingAttendedSerializer(many=True)
 
 
 class MeetingSerializer(serializers.ModelSerializer):
     owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(hierarchy__level=1))
-    visitors = MeetingUserListSerializer(many=True)
+    visitors = MeetingUserAttendsSerializer(many=True)
 
     class Meta:
         model = Meeting
@@ -40,7 +39,6 @@ class MeetingSerializer(serializers.ModelSerializer):
             for attended in visitor['attends']:
                 MeetingAttend.objects.create(meeting_id=meeting.id, **attended)
         return meeting
-
 
 
 

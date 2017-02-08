@@ -45,7 +45,7 @@ def create_homegroup_columns(apps, schema_editor):
     HomeGroup_columns.objects.bulk_create([
         HomeGroup_columns(title='get_title', verbose_title='Название Группы', ordering_title='title', number=1,
                           active=True, editable=False, category_id=hg.id),
-        HomeGroup_columns(title='church', verbose_title='Церковь', ordering_title='church__title', number=2,
+        HomeGroup_columns(title='church', verbose_title='Церковь', ordering_title='church', number=2,
                           active=True, editable=True, category_id=hg.id),
         HomeGroup_columns(title='city', verbose_title='Город', ordering_title='city', number=3,
                           active=True, editable=True, category_id=hg.id),
