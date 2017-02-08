@@ -26,8 +26,8 @@
                     } else {
                         blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
                         sr = $('input[type=file]')[0].files[0];
-                        formData.append('file', blob);
-                        formData.set('source', $('input[type=file]')[0].files[0], 'photo.jpg');
+                        formData.append('image', blob);
+                        formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
                         formData.append('id', id)
                     }
                     let xhr = new XMLHttpRequest();
