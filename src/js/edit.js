@@ -1,6 +1,5 @@
 (function ($) {
     "use strict";
-
     function updateUser(id) {
         let oldForm = document.forms.editUser;
         let formData = new FormData(oldForm);
@@ -46,40 +45,6 @@
                     console.log(err);
                 }
             }
-        // ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.1/users/${id}/`, formData, function () {
-        //     let send_image = true;
-        //     if (send_image) {
-        //         try {
-        //             let fd = new FormData(),
-        //                 blob;
-        //             let sr;
-        //             if (!$('input[type=file]')[0].files[0]) {
-        //                 blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-        //                 fd.append('file', blob);
-        //                 fd.append('id', id)
-        //             } else {
-        //                 blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-        //                 sr = $('input[type=file]')[0].files[0];
-        //                 fd.append('file', blob);
-        //                 fd.set('source', $('input[type=file]')[0].files[0], 'photo.jpg');
-        //                 fd.append('id', id)
-        //             }
-        //             let xhr = new XMLHttpRequest();
-        //             xhr.withCredentials = true;
-        //             xhr.open('POST', CONFIG.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
-        //             xhr.onreadystatechange = function () {
-        //                 if (xhr.readyState == 4) {
-        //                     if (xhr.status == 200) {
-        //                         // window.location.href = '/account/' + id;
-        //                     }
-        //                 }
-        //             };
-        //             xhr.send(fd);
-        //         } catch (err) {
-        //             console.log(err);
-        //         }
-        //     }
-        // }, 'PUT', true);
     }
 
     function handleFileSelect(e) {
