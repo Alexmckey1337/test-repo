@@ -4,7 +4,7 @@
         let oldForm = document.forms.editUser;
         let formData = new FormData(oldForm);
         if($('#division_drop').val()) {
-                formData.append('division', JSON.stringify($('#division_drop').val()));
+                formData.append('divisions', JSON.stringify($('#division_drop').val()));
         }
         if($('#partner').is(':checked')) {
             let partner = {};
