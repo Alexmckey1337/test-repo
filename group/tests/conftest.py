@@ -4,7 +4,7 @@ from pytest_factoryboy import register
 from rest_framework.permissions import AllowAny
 
 from account.factories import UserFactory
-from common.test.views import fake_dispatch
+from common.test_helpers.views import fake_dispatch
 from group.factories import ChurchFactory
 from group.factories import HomeGroupFactory
 from group.views import ChurchViewSet, HomeGroupViewSet
