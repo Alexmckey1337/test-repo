@@ -2,11 +2,9 @@
 from __future__ import unicode_literals
 
 import binascii
-import os
 import operator
+import os
 from datetime import datetime, timedelta
-from django.db.models import Q
-from functools import reduce
 
 import django_filters
 from django.conf import settings
@@ -14,6 +12,7 @@ from django.contrib.auth import authenticate, login, logout as django_logout
 from django.contrib.auth import update_session_auth_hash
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMultiAlternatives
+from django.db.models import Q
 from django.template import Context
 from django.template.loader import get_template
 from django.utils import six
@@ -23,14 +22,16 @@ from rest_framework import mixins
 from rest_framework import status
 from rest_framework import viewsets, filters
 from rest_framework.decorators import api_view
+from rest_framework.filters import BaseFilterBackend
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.parsers import JSONParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
-from rest_framework.filters import BaseFilterBackend
 
 from account.models import CustomUser as User
 from common.filters import FieldSearchFilter
+from common.parsers import MultiPartAndJsonParser
 from hierarchy.models import Hierarchy, Department
 from navigation.table_fields import user_table
 from partnership.models import Partnership
@@ -38,7 +39,6 @@ from status.models import Status, Division
 from .resources import clean_password, clean_old_password
 from .serializers import UserSerializer, UserShortSerializer, UserTableSerializer, NewUserSerializer, \
     UserSingleSerializer, PartnershipSerializer
-
 
 USER_FIELDS = {
     'text_fields': {
@@ -188,6 +188,11 @@ class NewUserViewSet(viewsets.ModelViewSet):
         'search_city': ('city',),
     }
     filter_class = UserFilter
+
+    parser_classes = (MultiPartAndJsonParser, JSONParser, FormParser)
+
+    parser_list_fields = ['divisions', 'extra_phone_numbers']
+    parser_dict_fields = ['partner']
 
     def get_queryset(self):
         user = self.request.user
