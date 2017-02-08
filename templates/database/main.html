@@ -169,9 +169,10 @@
         <div class="col-6">
             <p><input type="text" id="phone_number" value="<%=phone_number %>"></p>
             <p><input type="text" id="extra_phone_numbers"
-                        <% if (extra_phone_numbers) { %>
-                        value="<%=extra_phone_numbers.join(', ') %>
+                        <% if (extra_phone_numbers instanceof Array && extra_phone_numbers.length > 0) { %>
+                        value="<%=extra_phone_numbers.join(', ') %>"
                 <% } %>
+                >
             </p>
             <p><input type="text" id="email" value="<%=email %>"></p>
             <p><input type="text" id="skype" value="<%=skype %>"></p>

@@ -94,17 +94,57 @@ function getAddNewUserData() {
     }
     return data;
 }
+
+function createSummitUsersTable(data = {}) {
+    let config = {};
+    config.summit = $('#date .active span').data('id');
+    Object.assign(config, data);
+    getSummitUsers(config).then(function (data) {
+        let filter_data = {};
+        filter_data.results = data.results.map(function (item) {
+            let data;
+            data = item.user;
+            data.ankets_id = item.id;
+            return data;
+        });
+        console.log(filter_data);
+        filter_data.user_table = data.user_table;
+        let count = data.count;
+        let page = config.page || 1;
+        let pages = Math.ceil(count / CONFIG.pagination_count);
+        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let id = "summitUsersList";
+        let text = `Показано ${showCount} из ${count}`;
+        let paginationConfig = {
+            container: ".users__pagination",
+            currentPage: page,
+            pages: pages,
+            callback: createSummitUsersTable
+        };
+        makeSammitsDataTable(filter_data, id);
+        makePagination(paginationConfig);
+        $('.table__count').text(text);
+        makeSortForm(data.user_table);
+        $('.preloader').css('display', 'none');
+        // orderTable.sort(createUsersTable);
+    });
+}
 function makeDataTable(data, id) {
     var tmpl = document.getElementById('databaseUsers').innerHTML;
     var rendered = _.template(tmpl)(data);
     document.getElementById(id).innerHTML = rendered;
-    if ($('.quick-edit').length) {
-        $('.quick-edit').on('click', function () {
-            makeQuickEditCart(this);
-        })
-    }
+    $('.quick-edit').on('click', function () {
+        makeQuickEditCart(this);
+    })
 }
-
+function makeSammitsDataTable(data, id) {
+    var tmpl = document.getElementById('databaseUsers').innerHTML;
+    var rendered = _.template(tmpl)(data);
+    document.getElementById(id).innerHTML = rendered;
+    $('.quick-edit').on('click', function () {
+        makeQuickEditSammitCart(this);
+    })
+}
 function makeSortForm(data) {
     let sortFormTmpl, obj, rendered;
     sortFormTmpl = document.getElementById("sortForm").innerHTML;
@@ -130,9 +170,9 @@ function makeResponsibleList() {
         data.forEach(function (el) {
             if (id == el.id) {
                 selected = true;
-                html += "<option data-id='" + el.id + "' selected>" + el.fullname + "</option>";
+                html += "<option value='" + el.id + "' data-id='" + el.id + "' selected>" + el.fullname + "</option>";
             } else {
-                html += "<option data-id='" + el.id + "'>" + el.fullname + "</option>";
+                html += "<option value='" + el.id + "' data-id='" + el.id + "'>" + el.fullname + "</option>";
             }
         });
         if (!selected) {
@@ -143,14 +183,17 @@ function makeResponsibleList() {
     });
 }
 
-var makeChooseDivision = getDivisions().then(function (data) {
-    data = data.results;
-    let html = '';
-    for (let i = 0; i < data.length; i++) {
-        html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
-    }
-    return html
-});
+function makeChooseDivision() {
+    return getDivisions().then(function (data) {
+        data = data.results;
+        let html = '';
+        for (let i = 0; i < data.length; i++) {
+            html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+        }
+        return html
+    });
+}
+
 
 function initAddNewUser(id, callback) {
     getStatuses().then(function (data) {
@@ -222,7 +265,7 @@ function initAddNewUser(id, callback) {
             getRegions(config).then(function (data) {
                 let rendered = [];
                 let option = document.createElement('option');
-                $(option).text('Выберите регион');
+                $(option).val('').text('Выберите регион');
                 rendered.push(option);
                 data.forEach(function (item) {
                     let option = document.createElement('option');
@@ -235,7 +278,7 @@ function initAddNewUser(id, callback) {
                     getCities(config).then(function (data) {
                         let rendered = [];
                         let option = document.createElement('option');
-                        $(option).text('Выберите город');
+                        $(option).val('').text('Выберите город');
                         rendered.push(option);
                         data.forEach(function (item) {
                             let option = document.createElement('option');
@@ -444,7 +487,19 @@ function saveHomeGroups(el) {
     })
 }
 
-
+function makeQuickEditSammitCart(el) {
+    let id, link, url;
+    id = $(el).closest('td').find('a').data('ankets');
+    link = $(el).closest('td').find('a').data('link');
+    url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${id}/`;
+    ajaxRequest(url, null, function (data) {
+        $('#summit-valueDelete').val(data.total_sum);
+        $('#member').prop("checked", data.is_member);
+       $('#popupDelete').css('display', 'block');
+    }, 'GET', true, {
+        'Content-Type': 'application/json'
+    });
+}
 function makeQuickEditCart(el) {
     let id, link, url;
     id = $(el).closest('td').find('a').attr('data-id');
@@ -727,49 +782,49 @@ document.body.addEventListener('click', function (el) {
     }
 });
 
-$(function () {
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/users/current/', null, function (data) {
-        let user_id = data.id;
-        VOCRM.user_id = data.id;
-        VOCRM.user_partnerships_info = data.partnerships_info;
-        VOCRM.column_table = data.column_table;
-        let hierarchy_chain = data['hierarchy_chain'];
-
-        // if (document.getElementById('database_users')) {
-        //     createUser();
-        // }
-
-        if (document.getElementById('users_list')) {
-            let dat = {};
-            dat['summit'] = document.querySelectorAll('#carousel li span')[0].getAttribute('data-id');
-            window.summit_id = dat['summit'];
-            getUsersList(path, dat);
-            getCurrentSetting();
-        }
-
-        if (document.getElementById('event_wrap')) {
-            getCurrentSetting();
-            init(user_id);
-        }
-
-        if (document.getElementById("add_new")) {
-            document.getElementById("add_new").setAttribute('data-id', data.id);
-        }
-
-        if (document.getElementById("report_wrap")) {
-            init_report()
-        }
-
-        if (VOCRM.user_partnerships_info && VOCRM.user_partnerships_info.is_responsible && document.querySelector('.manager_view')) {
-            document.querySelector('.manager_view').style.display = 'block'
-        }
-
-    });
-    if (document.getElementById('sort-form')) {
-        $("#sort-form").sortable({revert: true, items: "li:not([disable])", scroll: false});
-        $("#sort-form").disableSelection();
-    }
-});
+// $(function () {
+//     ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/users/current/', null, function (data) {
+//         let user_id = data.id;
+//         VOCRM.user_id = data.id;
+//         VOCRM.user_partnerships_info = data.partnerships_info;
+//         VOCRM.column_table = data.column_table;
+//         let hierarchy_chain = data['hierarchy_chain'];
+//
+//         // if (document.getElementById('database_users')) {
+//         //     createUser();
+//         // }
+//
+//         if (document.getElementById('users_list')) {
+//             let dat = {};
+//             dat['summit'] = document.querySelectorAll('#carousel li span')[0].getAttribute('data-id');
+//             window.summit_id = dat['summit'];
+//             getUsersList(path, dat);
+//             getCurrentSetting();
+//         }
+//
+//         if (document.getElementById('event_wrap')) {
+//             getCurrentSetting();
+//             init(user_id);
+//         }
+//
+//         if (document.getElementById("add_new")) {
+//             document.getElementById("add_new").setAttribute('data-id', data.id);
+//         }
+//
+//         if (document.getElementById("report_wrap")) {
+//             init_report()
+//         }
+//
+//         if (VOCRM.user_partnerships_info && VOCRM.user_partnerships_info.is_responsible && document.querySelector('.manager_view')) {
+//             document.querySelector('.manager_view').style.display = 'block'
+//         }
+//
+//     });
+//     if (document.getElementById('sort-form')) {
+//         $("#sort-form").sortable({revert: true, items: "li:not([disable])", scroll: false});
+//         $("#sort-form").disableSelection();
+//     }
+// });
 
 jQuery(function ($) {
     if ($.datepicker) {
@@ -839,6 +894,8 @@ function createUsersTable(config) {
         makeSortForm(data.user_table);
         $('.preloader').css('display', 'none');
         orderTable.sort(createUsersTable);
+    }).catch(function (err) {
+        console.log(err);
     });
 }
 
@@ -900,7 +957,7 @@ function getFilterParam() {
         if ($(this).attr('type') === 'checkbox') {
             data[prop] = $(this).is(':checked');
         } else {
-            if($(this).val()) {
+            if ($(this).val()) {
                 data[prop] = $(this).val();
             }
         }
@@ -969,14 +1026,16 @@ function applyFilter(el, callback) {
     }, 300);
 }
 
-var makeChooseStatus = getStatuses().then(function (data) {
-    data = data.results;
-    let html = "";
-    for (let i = 0; i < data.length; i++) {
-        html += '<option value="' + data[i].id + '" data-level="' + data[i].level + '">' + data[i].title + '</option>';
-    }
-    return html;
-});
+function makeChooseStatus() {
+    return getStatuses().then(function (data) {
+        data = data.results;
+        let html = "";
+        for (let i = 0; i < data.length; i++) {
+            html += '<option value="' + data[i].id + '" data-level="' + data[i].level + '">' + data[i].title + '</option>';
+        }
+        return html;
+    })
+}
 
 function makeTabs() {
     let pos = 0,
