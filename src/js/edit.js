@@ -300,69 +300,69 @@
         img.src = url;
     }
 
-    // //inialize DATABASE LOCATIONS
-    // function initializeCountry() {
-    //     getCountriesList().then(function (data) {
-    //         let selectedCountry;
-    //         selectedCountry = $('#country_drop').val();
-    //
-    //         let html = '<option value=""></option><option>Не выбрано</option>';
-    //
-    //         for (let i = 0; i < data.length; i++) {
-    //             if (selectedCountry === data[i].title) {
-    //                 html += '<option data-id="'+ data[i].id +'" value="' + data[i].title + '" selected>' + data[i].title + '</option>';
-    //             } else {
-    //                 html += '<option data-id="'+ data[i].id +'" value="' + data[i].title + '">' + data[i].title + '</option>';
-    //             }
-    //
-    //         }
-    //         document.getElementById('country_drop').innerHTML = html;
-    //         $('#country_drop').select2().on("change", initializeRegions);
-    //     })
-    // }
-    //
-    // function initializeRegions() {
-    //     //Country
-    //     let opt = {};
-    //     opt['country'] = $("#country_drop option:selected").data('id');
-    //     //console.log(opt)
-    //
-    //     ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/regions/', opt, function (data) {
-    //         if (data.length == 0) {
-    //             document.getElementById('region_drop').innerHTML = '<option value=""> </option>';
-    //             $('#town_drop').select2({tags: true});
-    //             document.getElementById('region_drop').removeAttribute('disabled');
-    //             document.getElementById('town_drop').removeAttribute('disabled');
-    //         }
-    //
-    //         let results = data;
-    //         let html = '<option value=""></option><option>Не выбрано</option>';
-    //
-    //         for (let i = 0; i < data.length; i++) {
-    //             html += '<option data-id="' + data[i].id + '" value="' + data[i].title + '">' + data[i].title + '</option>';
-    //         }
-    //         document.getElementById('region_drop').innerHTML = html;
-    //         document.getElementById('region_drop').removeAttribute('disabled');
-    //         $('#region_drop').select2({placeholder: " "}).on("change", initializeTown);
-    //     });
-    // }
-    //
-    // function initializeTown() {
-    //     let opt = {};
-    //     opt['region'] = $("#region_drop option:selected").data('id');
-    //
-    //     ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/cities/', opt, function (data) {
-    //
-    //         let results = data;
-    //         let html = '<option value=""></option><option>Не выбрано</option>';
-    //         for (let i = 0; i < data.length; i++) {
-    //             html += '<option data-id="' + data[i].id + '" value="' + data[i].title + '">' + data[i].title + '</option>';
-    //         }
-    //         document.getElementById('town_drop').innerHTML = html;
-    //         document.getElementById('town_drop').removeAttribute('disabled');
-    //         $('#town_drop').select2({tags: true, placeholder: " "});
-    //     });
-    // }
+    //inialize DATABASE LOCATIONS
+    function initializeCountry() {
+        getCountriesList().then(function (data) {
+            let selectedCountry;
+            selectedCountry = $('#country_drop').val();
+
+            let html = '<option value=""></option><option>Не выбрано</option>';
+
+            for (let i = 0; i < data.length; i++) {
+                if (selectedCountry === data[i].title) {
+                    html += '<option data-id="'+ data[i].id +'" value="' + data[i].title + '" selected>' + data[i].title + '</option>';
+                } else {
+                    html += '<option data-id="'+ data[i].id +'" value="' + data[i].title + '">' + data[i].title + '</option>';
+                }
+
+            }
+            document.getElementById('country_drop').innerHTML = html;
+            $('#country_drop').select2().on("change", initializeRegions);
+        })
+    }
+
+    function initializeRegions() {
+        //Country
+        let opt = {};
+        opt['country'] = $("#country_drop option:selected").data('id');
+        //console.log(opt)
+
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/regions/', opt, function (data) {
+            if (data.length == 0) {
+                document.getElementById('region_drop').innerHTML = '<option value=""> </option>';
+                $('#town_drop').select2({tags: true});
+                document.getElementById('region_drop').removeAttribute('disabled');
+                document.getElementById('town_drop').removeAttribute('disabled');
+            }
+
+            let results = data;
+            let html = '<option value=""></option><option>Не выбрано</option>';
+
+            for (let i = 0; i < data.length; i++) {
+                html += '<option data-id="' + data[i].id + '" value="' + data[i].title + '">' + data[i].title + '</option>';
+            }
+            document.getElementById('region_drop').innerHTML = html;
+            document.getElementById('region_drop').removeAttribute('disabled');
+            $('#region_drop').select2({placeholder: " "}).on("change", initializeTown);
+        });
+    }
+
+    function initializeTown() {
+        let opt = {};
+        opt['region'] = $("#region_drop option:selected").data('id');
+
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/cities/', opt, function (data) {
+
+            let results = data;
+            let html = '<option value=""></option><option>Не выбрано</option>';
+            for (let i = 0; i < data.length; i++) {
+                html += '<option data-id="' + data[i].id + '" value="' + data[i].title + '">' + data[i].title + '</option>';
+            }
+            document.getElementById('town_drop').innerHTML = html;
+            document.getElementById('town_drop').removeAttribute('disabled');
+            $('#town_drop').select2({tags: true, placeholder: " "});
+        });
+    }
 
 
 
