@@ -79,7 +79,7 @@
                                     <li><input placeholder="+380633333333"
                                                onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
                                                type="text" id="phone_number" name="phone_number" value="{{ account.phone_number }}"></li>
-                                    <li><input type="text" id="extra_phone_numbers" name="extra_phone_numbers"
+                                    <li><input type="text" id="extra_phone_numbers"
                                                value="{{ account.extra_phone_numbers|default:""|join:", " }}">
 
                                     </li>
@@ -215,7 +215,7 @@
                             </div>
                             <div class="right-info">
                                 <ul>
-                                    <li><input name="repentance_date" type="text" readonly="readonly"
+                                    <li><input name="repentance_date" type="text"
                                                id="repentanceDate"
                                                value="{{ account.coming_date|date:"Y-m-d"|default:"" }}"></li>
                                 </ul>

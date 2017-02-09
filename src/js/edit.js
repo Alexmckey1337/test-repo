@@ -5,6 +5,13 @@
         let formData = new FormData(oldForm);
         if($('#division_drop').val()) {
                 formData.append('divisions', JSON.stringify($('#division_drop').val()));
+        } else {
+            formData.append('divisions', JSON.stringify([]));
+        }
+        if($('#extra_phone_numbers').val()){
+             formData.append('extra_phone_numbers', JSON.stringify($('#extra_phone_numbers').val().split(',').map((item) => item.trim()) ));
+        } else {
+            formData.append('extra_phone_numbers', JSON.stringify([]));
         }
         if($('#partner').is(':checked')) {
             let partner = {};
@@ -36,7 +43,7 @@
                     xhr.onreadystatechange = function () {
                         if (xhr.readyState == 4) {
                             if (xhr.status == 200) {
-                                // window.location.href = '/account/' + id;
+                                window.location.href = '/account/' + id;
                             }
                         }
                     };

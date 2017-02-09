@@ -126,7 +126,7 @@ function createSummitUsersTable(data = {}) {
         $('.table__count').text(text);
         makeSortForm(data.user_table);
         $('.preloader').css('display', 'none');
-        // orderTable.sort(createUsersTable);
+        orderTable.sort(createSummitUsersTable);
     });
 }
 function makeDataTable(data, id) {
@@ -374,9 +374,39 @@ function initAddNewUser(id, callback) {
 
 }
 function saveUser(el) {
-    let $input, $select, fullName, first_name, last_name, middle_name, data, id;
-    let master_id = $('#master_hierarchy option:selected').attr('data-id') || "";
-    fullName = $($(el).closest('.pop_cont').find('input.fullname')).val().split(' ');
+    let $input, $select, fullName, first_name, last_name, middle_name, department, hierarchy, phone_number, data, id;
+    let send = true;
+    let $department = $($(el).closest('.pop_cont').find('#departmentSelect'));
+    department = $department.val();
+    let $hierarchy = $($(el).closest('.pop_cont').find('#hierarchySelect'));
+    hierarchy = $hierarchy.val();
+    let $master = $('#master_hierarchy');
+    let master_id = $master.val() || "";
+    let $fullname = $($(el).closest('.pop_cont').find('input.fullname'));
+    fullName = $fullname.val().split(' ');
+    let $phone_number = $($(el).closest('.pop_cont').find('#phone_number'));
+    phone_number = $phone_number.val();
+    if(!$fullname.val()) {
+        $fullname.css('border-color', 'red');
+        send = false;
+    } else {
+        $fullname.removeAttr('style');
+    }
+    if(!master_id) {
+        $('label[for="master_hierarchy"]').css('color', 'red');
+        send = false;
+    } else {
+        $('label[for="master_hierarchy"]').removeAttr('style');
+    }
+    if(!phone_number) {
+        $phone_number.css('border-color', 'red');
+        send = false;
+    } else {
+        $phone_number.removeAttr('style');
+    }
+    if(!send) {
+        return
+    }
     first_name = fullName[1];
     last_name = fullName[0];
     middle_name = fullName[2] || "";
@@ -385,11 +415,11 @@ function saveUser(el) {
         first_name: first_name,
         last_name: last_name,
         middle_name: middle_name,
-        hierarchy: $($(el).closest('.pop_cont').find('#hierarchySelect')).val(),
-        department: $($(el).closest('.pop_cont').find('#departmentSelect')).val(),
+        hierarchy: hierarchy,
+        department: department,
         master: master_id,
         skype: $($(el).closest('.pop_cont').find('#skype')).val(),
-        phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
+        phone_number: phone_number,
         extra_phone_numbers: _.filter(_.map($($(el).closest('.pop_cont').find('#extra_phone_numbers')).val().split(","), x => x.trim()), x => !!x),
         repentance_date: $($(el).closest('.pop_cont').find('#repentance_date')).val() || null,
         country: $($(el).closest('.pop_cont').find('#country')).val(),

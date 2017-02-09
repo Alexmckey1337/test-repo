@@ -44,9 +44,7 @@
 {% block pagination_top %}
     <div class="top-pag">
         <div id="carousel" class="carousel">
-
             <span class="arrow-left"></span>
-
             <div class="gallery">
                 <ul id="date" class="images">
                     {% for summit in summit_type.summits.all reversed %}
@@ -61,9 +59,7 @@
                     {% endfor %}
                 </ul>
             </div>
-
             <span class="arrow-right"></span>
-
         </div>
 
         <div class="pagination"><!--pagination -->
@@ -237,16 +233,16 @@
                             </select>
                         </p>
                         <p class="input_block">
-                            <input type="email" data-filter="user__search_email" placeholder="email или часть" id="search_email">
+                            <input type="email" data-filter="user__email" placeholder="email" id="search_email">
                         </p>
                         <p class="input_block">
-                            <input type="tel" data-filter="user__search_phone_number" placeholder="номер телефона или часть" id="search_phone_number">
+                            <input type="tel" data-filter="user__phone_number" placeholder="номер телефона" id="search_phone_number">
                         </p>
                         <p class="input_block">
-                            <input type="text" data-filter="user__search_country" placeholder="страна или часть названия" id="search_country">
+                            <input type="text" data-filter="user__country" placeholder="страна" id="search_country">
                         </p>
                         <p class="input_block">
-                            <input type="text" data-filter="user__search_city" placeholder="город или часть названия" id="search_city">
+                            <input type="text" data-filter="user__city" placeholder="город" id="search_city">
                         </p>
                     </div>
                 </div>
