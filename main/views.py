@@ -55,11 +55,10 @@ def meeting_report(request, code):
     if not request.user.hierarchy or request.user.hierarchy.level < 1:
         return redirect('/')
     ctx = {
+        'leaders': CustomUser.objects.filter(home_group__leader__id__isnull=False).distinct(),
         'meeting_type': get_object_or_404(MeetingType, code=code),
     }
-    if request.user.hierarchy.level > 1:
-        ctx['leaders'] = request.user.get_descendant_leaders()
-    return render(request, 'event/meeting_create_report.html', context=ctx)
+    return render(request, 'event/meeting_report_create.html', context=ctx)
 
 
 @login_required(login_url='entry')
@@ -157,6 +156,7 @@ def church_detail(request, church_id):
 
     ctx = {
         'church': church,
+        'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
         'church_users': church.users.count(),
         'church_all_users': church.users.count() + HomeGroup.objects.filter(church_id=church_id).aggregate(
             home_users=Count('users'))['home_users'],

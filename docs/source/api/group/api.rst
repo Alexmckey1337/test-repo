@@ -94,9 +94,9 @@ Church
     :query string city: search by ``city``
     :query string is_open: search by ``is_open``
     :query string phone_number: search by ``phone_number``
-    :query string ordering: order by one of ``address``, ``city``, ``department``, ``department_id``,
-                                            ``home_group``, ``is_open``, ``opening_date``, ``pastor``,
-                                            ``phone_number``, ``title``, ``users``, ``website``, ``display_title``
+    :query string ordering: order by one of ``title``, ``city``, ``department``, ``home_group``, ``is_open``,
+                                            ``opening_date``, ``pastor``, ``phone_number``, ``title``, ``website``
+                                            ``count_groups``, ``count_users``,
 
     **Example response(Bad request)**:
 
@@ -230,8 +230,7 @@ Church
 
 .. http:get:: /api/v1.0/churches/(int:<church_id>)/
 
-    Detail information about ``Church``. Response consists of list of home groups for requested Church
-    with ``id`` = ``church_id``.
+    Detail information about ``Church`` with ``id`` = ``church_id``.
 
     **Example request**:
 
@@ -252,44 +251,18 @@ Church
 
         {
             "id": 6,
-            "home_group": [
-                {
-                    "id": 6,
-                    "opening_date": "26.01.2017",
-                    "title": "",
-                    "get_title": "Киев П",
-                    "city": "Киев",
-                    "church": {
-                        "id": 6,
-                        "get_title": "Тествая Цервковь №1"
-                    },
-                    "leader": {
-                        "id": 15160,
-                        "fullname": "П Ростислав С"
-                    },
-                    "address": "",
-                    "phone_number": "",
-                    "website": ""
-                },
-                {
-                    "id": 8,
-                    "opening_date": "18.01.2017",
-                    "title": "Тестовая Домашняя Группа 2",
-                    "get_title": "Тестовая Домашняя Группа 2",
-                    "city": "Одесса",
-                    "church": {
-                        "id": 6,
-                        "get_title": "Тествая Цервковь №1"
-                    },
-                    "leader": {
-                        "id": 15160,
-                        "fullname": "П Ростислав С"
-                    },
-                    "address": "Гарматная",
-                    "phone_number": "093-288-23-32",
-                    "website": ""
-                }
-            ]
+            "opening_date": "01.01.2016",
+            "is_open": true,
+            "link": "/churches/6/",
+            "title": "",
+            "get_title": "Москва Аккаунт",
+            "department": 1,
+            "pastor": 5,
+            "country": "Россия",
+            "city": "Москва",
+            "address": "Горького 55",
+            "phone_number": "050-222-22-22",
+            "website": ""
         }
 
     **Example response (Not Found)**:
@@ -1088,7 +1061,7 @@ _________
     :query string website: filter by ``website``
     :query string ordering: order by one of ``address``, ``church``, ``city``, ``leader``,
                                             ``opening_date``, ``phone_number``, ``title``,
-                                            ``users``, ``website``, ``home_group_title``,
+                                            ``website``,
 
     :statuscode 200: no error
     :statuscode 403: no authentication
@@ -1223,7 +1196,7 @@ _________
 
     .. sourcecode:: http
 
-        GET /api/v1.0/ HTTP/1.1
+        GET /api/v1.0/home_groups/8/ HTTP/1.1
         Host: vocrm.org
         Accept: application/json
 
@@ -1231,31 +1204,18 @@ _________
 
     .. sourcecode:: http
 
-        HTTP/1.1 200 OK
-        Allow: GET, PUT, PATCH, HEAD, OPTIONS
-        Content-Type: application/json
-        Vary: Accept
-
         {
-            "id": 6,
-            "users": [
-                {
-                    "id": 1,
-                    "fullname": "Аккаунт Технический №1",
-                    "phone_number": "+38099664224",
-                    "repentance_date": null,
-                    "spiritual_level": 1,
-                    "born_date": null
-                },
-                {
-                    "id": 2,
-                    "fullname": "Аккаунт Технический №2",
-                    "phone_number": "+38066666",
-                    "repentance_date": null,
-                    "spiritual_level": 1,
-                    "born_date": "01.10.1993"
-                }
-            ]
+            "id": 8,
+            "link": "/home_groups/8/",
+            "opening_date": "01.01.2017",
+            "title": "Тестовая Домашняя Группа 2",
+            "city": "Одесса",
+            "get_title": "Тестовая Домашняя Группа 2",
+            "church": 6,
+            "leader": 50,
+            "address": "Гарматная",
+            "phone_number": "093-288-23-32",
+            "website": ""
         }
 
     **Example response (Forbidden)**:
