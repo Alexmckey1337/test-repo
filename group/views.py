@@ -14,8 +14,10 @@ from rest_framework.response import Response
 from account.models import CustomUser
 from account.serializers import AddExistUserSerializer
 from common.filters import FieldSearchFilter
+from common.views_mixins import ExportViewSetMixin
 from group.filters import HomeGroupFilter, ChurchFilter
 from group.pagination import ChurchPagination, HomeGroupPagination
+from group.resources import ChurchResource, HomeGroupResource
 from group.views_mixins import HomeGroupListMixin, UserListMixin, AllUserListMixin
 from .models import HomeGroup, Church
 from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSerializer, HomeGroupListSerializer)
@@ -28,7 +30,8 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
                     viewsets.GenericViewSet,
                     UserListMixin,
                     AllUserListMixin,
-                    HomeGroupListMixin):
+                    HomeGroupListMixin,
+                    ExportViewSetMixin):
     queryset = Church.objects.all()
 
     serializer_class = ChurchSerializer
@@ -52,6 +55,7 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
     }
     permission_classes = (IsAuthenticated,)
     pagination_class = ChurchPagination
+    resource_class = ChurchResource
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -168,7 +172,8 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
                        mixins.ListModelMixin,
                        mixins.CreateModelMixin,
                        viewsets.GenericViewSet,
-                       UserListMixin):
+                       UserListMixin,
+                       ExportViewSetMixin):
     queryset = HomeGroup.objects.all()
 
     serializer_class = HomeGroupSerializer
@@ -189,6 +194,7 @@ class HomeGroupViewSet(mixins.UpdateModelMixin,
     }
     permission_classes = (IsAuthenticated,)
     pagination_class = HomeGroupPagination
+    resource_class = HomeGroupResource
 
     def get_serializer_class(self):
         if self.action in 'list':
