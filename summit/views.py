@@ -19,12 +19,13 @@ from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
 from account.models import CustomUser
+from common.views_mixins import ExportViewSetMixin
 from navigation.table_fields import user_table, summit_table
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.permissions import IsSupervisorOrHigh
 from summit.utils import generate_ticket
 from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, SummitUserConsultant
-from .resources import get_fields
+from .resources import get_fields, SummitAnketResource
 from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
     SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer,
@@ -76,7 +77,7 @@ class FilterByClub(BaseFilterBackend):
 
 class SummitAnketTableViewSet(viewsets.ModelViewSet,
                               CreatePaymentMixin,
-                              ListPaymentMixin):
+                              ListPaymentMixin, ExportViewSetMixin):
     queryset = SummitAnket.objects.select_related(
         'user', 'user__hierarchy', 'user__department', 'user__master', 'summit', 'summit__type'). \
         prefetch_related('user__divisions', 'emails').annotate(
@@ -119,6 +120,8 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet,
                        'user__department__title', 'user__facebook',
                        'user__vkontakte',)
     permission_classes = (IsAuthenticated,)
+
+    resource_class = SummitAnketResource
 
     @list_route(methods=['post'], )
     def post_anket(self, request):

@@ -11,13 +11,15 @@
     </li>
 {% endblock %}
 {% block header.buttons.export %}
-    <form action="{% url "users_v1_1-export" %}" method="post">
-        <label for="fields">Fields*</label>
-        <input type="text" id="fields" name="fields" required>
-        <label for="ids">Ids</label>
-        <input type="text" id="ids" name="ids">
-        <button type="submit">Export</button>
-    </form>
+    <li>
+        <form action="{% url "users_v1_1-export" %}?hierarchy=4" method="post">
+    {#        <label for="fields">Fields*</label>#}
+    {#        <input type="text" id="fields" name="fields" required>#}
+    {#        <label for="ids">Ids</label>#}
+    {#        <input type="text" id="ids" name="ids">#}
+            <button type="submit">Export</button>
+        </form>
+    </li>
 {% endblock %}
 
 {#{% block create_user %}#}

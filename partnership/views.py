@@ -16,9 +16,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from account.models import CustomUser as User, CustomUser
+from common.views_mixins import ExportViewSetMixin
 from navigation.table_fields import user_table, partner_table
 from partnership.permissions import (
     IsSupervisorOrManagerReadOnly, CanCreatePartnerPayment, CanClosePartnerDeal)
+from partnership.resources import PartnerResource
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from .models import Partnership, Deal
 from .serializers import (
@@ -65,7 +67,8 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
                          mixins.ListModelMixin,
                          viewsets.GenericViewSet,
                          CreatePaymentMixin,
-                         ListPaymentMixin):
+                         ListPaymentMixin,
+                         ExportViewSetMixin):
     queryset = Partnership.objects.base_queryset().order_by(
         'user__last_name', 'user__first_name', 'user__middle_name')
     serializer_class = PartnershipSerializer
@@ -89,6 +92,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
     permission_classes = (IsAuthenticated,)
 
     payment_list_field = 'extra_payments'
+    resource_class = PartnerResource
 
     def get_queryset(self):
         return self.queryset.for_user(user=self.request.user)
