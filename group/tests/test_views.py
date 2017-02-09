@@ -1,11 +1,9 @@
 import pytest
 from django.core.exceptions import FieldError
-from django.test import RequestFactory
 from django.urls import reverse
 from rest_framework import status
 
 from group.serializers import ChurchListSerializer, ChurchSerializer, HomeGroupSerializer, HomeGroupListSerializer
-from group.views import ChurchViewSet
 
 
 def create_church_users(church, count, user_factory):
