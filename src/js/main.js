@@ -176,7 +176,7 @@ function makeResponsibleList() {
             }
         });
         if (!selected) {
-            html += "<option selected disabled>Выберите ответственного</option>";
+            html += "<option selected disabled value=''>Выберите ответственного</option>";
         }
         html += "";
         $("#master_hierarchy").html(html).select2();

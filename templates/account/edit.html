@@ -70,15 +70,15 @@
                             </div>
                             <div class="right-info">
                                 <ul>
-                                    <li><input type="text" id="last_name" name="first_name" value="{{ account.last_name }}"></li>
-                                    <li><input type="text" id="first_name" name="last_name" value="{{ account.first_name }}"></li>
+                                    <li><input type="text" id="last_name" name="last_name" required value="{{ account.last_name }}"></li>
+                                    <li><input type="text" id="first_name" name="first_name" required value="{{ account.first_name }}"></li>
                                     <li><input type="text" id="middle_name" name="middle_name" value="{{ account.middle_name }}"></li>
                                     <li><input type="text" id="search_name" name="search_name" value="{{ account.search_name }}"></li>
                                     <li><input type="text" id="datepicker_born_date" name="born_date"
                                                value="{{ account.born_date|date:"Y-m-d"|default:"" }}"></li>
                                     <li><input placeholder="+380633333333"
                                                onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
-                                               type="text" id="phone_number" name="phone_number" value="{{ account.phone_number }}"></li>
+                                               type="text" id="phone_number" name="phone_number" required value="{{ account.phone_number }}"></li>
                                     <li><input type="text" id="extra_phone_numbers"
                                                value="{{ account.extra_phone_numbers|default:""|join:", " }}">
 
@@ -118,7 +118,7 @@
                             </div>
                             <div class="right-info">
                                 <ul>
-                                    <li><select id="departmentSelect" name="department" style="width:205px">
+                                    <li><select id="departmentSelect" name="department" required style="width:205px">
                                         {% for department in departments %}
                                             <option value="{{ department.id }}"
                                                     {% if account.department_id == department.id %}selected{% endif %}>
@@ -127,7 +127,7 @@
                                         {% endfor %}
 
                                     </select></li>
-                                    <li><select id="hierarchySelect" name="hierarchy">
+                                    <li><select id="hierarchySelect" name="hierarchy" required>
                                         {% for hierarchy in hierarchies %}
                                             <option value="{{ hierarchy.id }}"
                                                     {% if account.hierarchy_id == hierarchy.id %}selected{% endif %}
@@ -137,7 +137,7 @@
                                         {% endfor %}
 
                                     </select></li>
-                                    <li><select id="master_hierarchy" name="master" style="width:205px">
+                                    <li><select id="master_hierarchy" name="master" required style="width:205px">
                                         <option value="{{ account.master.id }}" selected
                                                 data-id="{{ account.master.id }}">{{ account.master.fullname }}</option>
                                     </select></li>
@@ -222,6 +222,7 @@
                             </div>
                         </div>
                     </div><!--End col-3-->
+                    <button type="submit" id="sendEditUser" class="hidden"></button>
                 </form>
                 <div class="splash-bauttons">
                 </div>

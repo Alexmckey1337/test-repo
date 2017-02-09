@@ -3,17 +3,17 @@
     function updateUser(id) {
         let oldForm = document.forms.editUser;
         let formData = new FormData(oldForm);
-        if($('#division_drop').val()) {
-                formData.append('divisions', JSON.stringify($('#division_drop').val()));
+        if ($('#division_drop').val()) {
+            formData.append('divisions', JSON.stringify($('#division_drop').val()));
         } else {
             formData.append('divisions', JSON.stringify([]));
         }
-        if($('#extra_phone_numbers').val()){
-             formData.append('extra_phone_numbers', JSON.stringify($('#extra_phone_numbers').val().split(',').map((item) => item.trim()) ));
+        if ($('#extra_phone_numbers').val()) {
+            formData.append('extra_phone_numbers', JSON.stringify($('#extra_phone_numbers').val().split(',').map((item) => item.trim())));
         } else {
             formData.append('extra_phone_numbers', JSON.stringify([]));
         }
-        if($('#partner').is(':checked')) {
+        if ($('#partner').is(':checked')) {
             let partner = {};
             partner.value = parseInt(document.getElementById('val_partnerships').value) || 0;
             partner.date = document.getElementById('partner_date').value || null;
@@ -21,37 +21,29 @@
             formData.append('partner', JSON.stringify(partner));
         }
         let send_image = true;
-            if (send_image) {
-                try {
-                    let
-                        blob;
-                    let sr;
-                    if (!$('input[type=file]')[0].files[0]) {
-                        blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                        formData.append('file', blob);
-                        formData.append('id', id)
-                    } else {
-                        blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                        sr = $('input[type=file]')[0].files[0];
-                        formData.append('image', blob);
-                        formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
-                        formData.append('id', id)
-                    }
-                    let xhr = new XMLHttpRequest();
-                    xhr.withCredentials = true;
-                    xhr.open('PUT', `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${id}/`, true);
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState == 4) {
-                            if (xhr.status == 200) {
-                                window.location.href = '/account/' + id;
-                            }
-                        }
-                    };
-                    xhr.send(formData);
-                } catch (err) {
-                    console.log(err);
+        if (send_image) {
+            try {
+                let
+                    blob;
+                let sr;
+                if (!$('input[type=file]')[0].files[0]) {
+                    blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+                    formData.append('file', blob);
+                    formData.append('id', id)
+                } else {
+                    blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+                    sr = $('input[type=file]')[0].files[0];
+                    formData.append('image', blob);
+                    formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
+                    formData.append('id', id)
                 }
+                let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${id}/`;
+                let redirect = '/account/' + id;
+                ajaxSendFormData(url, formData, redirect);
+            } catch (err) {
+                console.log(err);
             }
+        }
     }
 
     function handleFileSelect(e) {
@@ -127,7 +119,7 @@
                 return
             }
 
-            if(data.partnership) {
+            if (data.partnership) {
                 $('#create_partner_info').trigger('click');
                 $('#partner').prop('disabled', true);
             }
@@ -244,7 +236,7 @@
         });
 
         $('#save').on('click', function () {
-            $('#editUser').trigger('submit');
+            $('#sendEditUser').trigger('click');
         });
         $('#editUser').on('submit', function (e) {
             e.preventDefault();
@@ -282,9 +274,9 @@
 
             for (let i = 0; i < data.length; i++) {
                 if (selectedCountry === data[i].title) {
-                    html += '<option data-id="'+ data[i].id +'" value="' + data[i].title + '" selected>' + data[i].title + '</option>';
+                    html += '<option data-id="' + data[i].id + '" value="' + data[i].title + '" selected>' + data[i].title + '</option>';
                 } else {
-                    html += '<option data-id="'+ data[i].id +'" value="' + data[i].title + '">' + data[i].title + '</option>';
+                    html += '<option data-id="' + data[i].id + '" value="' + data[i].title + '">' + data[i].title + '</option>';
                 }
 
             }
@@ -335,8 +327,6 @@
             $('#town_drop').select2({tags: true, placeholder: " "});
         });
     }
-
-
 
 
 //INITIALIZE STATUS USER

@@ -1030,3 +1030,25 @@ function getCorrectValue(value) {
     }
     return value
 }
+
+function ajaxSendFormData(url, data, redirect = false) {
+                    let xhr = new XMLHttpRequest();
+                    xhr.withCredentials = true;
+                    xhr.open('PUT', url, true);
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState == 4) {
+                            if (xhr.status == 200) {
+                                if(redirect) {
+                                    showPopup('Данные успешно обновлены');
+                                    setTimeout(function () {
+                                        window.location.href = redirect;
+                                    }, 1000);
+                                }
+                            } else {
+                                console.log(xhr);
+                                showPopup(xhr.responseText)
+                            }
+                        }
+                    };
+                    xhr.send(data);
+                }
