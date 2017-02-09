@@ -24,10 +24,14 @@ class MockDecimalField:
         return value
 
 
-@pytest.fixture
+@pytest.fixture(autouse='module')
 def decimal_with_currency_field(monkeypatch):
     monkeypatch.setattr(serializers, 'DecimalField', MockDecimalField)
-    DecimalWithCurrencyField.__bases__ = (serializers.DecimalField,)
-    # monkeypatch.setattr(DecimalWithCurrencyField, '__bases__', (MockDecimalField,))
+    # DecimalWithCurrencyField.__bases__ = (serializers.DecimalField, serializers.Field)
+    MockDecimalWithCurrencyField = type(
+        'DecimalWithCurrencyField',
+        (DecimalWithCurrencyField, serializers.DecimalField, serializers.Field),
+        dict(DecimalWithCurrencyField.__dict__))
+    MockDecimalWithCurrencyField.__bases__ = (serializers.DecimalField, serializers.Field)
 
-    return DecimalWithCurrencyField
+    return MockDecimalWithCurrencyField
