@@ -24,7 +24,7 @@ class HomeGroupFilter(django_filters.FilterSet):
 
     class Meta:
         model = HomeGroup
-        fields = ['church', 'leader', 'title', 'city', 'phone_number', 'website']
+        fields = ['church', 'leader', 'opening_date', 'city']
 
 
 class ChurchFilter(django_filters.FilterSet):
@@ -34,4 +34,4 @@ class ChurchFilter(django_filters.FilterSet):
 
     class Meta:
         model = Church
-        fields = ['department', 'pastor', 'title', 'country', 'city', 'is_open', 'phone_number']
+        fields = ['department', 'pastor', 'is_open', 'opening_date', 'country', 'city']
