@@ -25,21 +25,21 @@
             try {
                 let
                     blob;
-                let sr;
-                if (!$('input[type=file]')[0].files[0]) {
                     blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                    formData.append('file', blob);
-                    formData.append('id', id)
-                } else {
-                    blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                    sr = $('input[type=file]')[0].files[0];
                     formData.append('image', blob);
                     formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
-                    formData.append('id', id)
-                }
+                    formData.append('id', id);
                 let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${id}/`;
                 let redirect = '/account/' + id;
-                ajaxSendFormData(url, formData, redirect);
+                let config = {
+                    url: url,
+                    data: formData,
+                    redirect: redirect,
+                    method: 'PUT'
+                };
+                ajaxSendFormData(config).then(function (data) {
+                    window.location.href = `/account/${id}/`;
+                });
             } catch (err) {
                 console.log(err);
             }
@@ -77,16 +77,6 @@
             // Read in the image file as a data URL.
             reader.readAsDataURL(file);
         }
-    }
-
-    function dataURLtoBlob(dataurl) {
-        let arr = dataurl.split(',');
-        let mime = arr[0].match(/:(.*?);/)[1],
-            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-        while (n--) {
-            u8arr[n] = bstr.charCodeAt(n);
-        }
-        return new Blob([u8arr], {type: mime});
     }
 
     function init(id) {
@@ -156,8 +146,8 @@
         });
     }
 
-    $(document).ready(function () {
         init();
+
         $('#file').on('change', handleFileSelect);
         $('#file_upload').on('click', function (e) {
             e.preventDefault();
@@ -210,6 +200,8 @@
             img.cropper("destroy");
         });
 
+
+
         $("#partner_date").datepicker({
             dateFormat: "yyyy-mm-dd",
         });
@@ -242,7 +234,8 @@
             e.preventDefault();
             sendData();
         })
-    });
+
+
 
     let data_for_drop = {};
     let img = $(".crArea img");

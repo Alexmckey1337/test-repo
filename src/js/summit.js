@@ -26,6 +26,67 @@
 
     addSummitInfo();
 
+    function createUser(id) {
+        let oldForm = document.forms.createUser;
+        let formData = new FormData(oldForm);
+        if ($('#division_drop').val()) {
+            formData.append('divisions', JSON.stringify($('#chooseDivision').val()));
+        } else {
+            formData.append('divisions', JSON.stringify([]));
+        }
+        if ($('#extra_phone_numbers').val()) {
+            formData.append('extra_phone_numbers', JSON.stringify($('#extra_phone_numbers').val().split(',').map((item) => item.trim())));
+        } else {
+            formData.append('extra_phone_numbers', JSON.stringify([]));
+        }
+        if ($('#partner').is(':checked')) {
+            let partner = {};
+            partner.value = $('#partnerFrom').val() || 0;
+            partner.date = $('#partners_count').val() || null;
+            partner.responsible = parseInt($("#chooseManager").val());
+            formData.append('partner', JSON.stringify(partner));
+        }
+        let send_image = $('#file').prop("files").length || false;
+        if (send_image) {
+            try {
+                let blob;
+                blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+                formData.append('image', blob);
+                formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
+                formData.append('id', id);
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/`;
+        let config = {
+            url: url,
+            data: formData,
+            method: 'POST'
+        };
+        $('.preloader').css('display', 'block');
+        ajaxSendFormData(config).then(function (data) {
+            $('.preloader').css('display', 'none');
+            $('#createUser').find('input').each(function(){$(this).val('')});
+            $('#createUser').find('.cleared').each(function(){$(this).find('option').eq(0).attr('selected', true).select2()});
+            $('#addNewUserPopup').css('display', 'none');
+            setTimeout(function () {
+                $('.pop-up-universal').css('display', 'none').remove();
+                let id = data.id,
+                    name = data.fullname,
+                    master = data.master;
+                $('#summit-value').val("0");
+                $('#summit-value').attr('readonly', true);
+                $('#popup textarea').val("");
+                setDataForPopup(id, name, master);
+                $('#popup').css('display', 'block');
+            }, 1000)
+        }).catch(function (data) {
+            $('.preloader').css('display', 'none');
+            showPopup(data);
+        });
+    }
+
     $('body').on('click', '#carousel li span', function () {
         $('#carousel li').removeClass('active');
         $(this).parent().addClass('active')
@@ -62,8 +123,8 @@
         $('#popup-payments').css('display', '');
         $('#popup-payments table').html('');
     });
-    $('#payment-form').on("submit", function (event) {
-        event.preventDefault();
+    $('#payment-form').on("submit", function (e) {
+        e.preventDefault();
         let data = $('#payment-form').serializeArray();
         console.log(data);
         let new_data = {};
@@ -193,7 +254,6 @@
             summit_id = $('#date .active span').data('id');
         registerUser(id, summit_id, money, description);
         document.querySelector('#popup').style.display = 'none';
-        document.querySelector('.choose-user-wrap').style.display = 'block';
     });
 
     function unsubscribe(id) {
@@ -293,14 +353,14 @@
                 $('#summit-value').val("0");
                 $('#summit-value').attr('readonly', true);
                 $('#popup textarea').val("");
-                getDataForPopup(id, name, master);
+                setDataForPopup(id, name, master);
                 $('#popup').css('display', 'block');
             });
         });
     }
 
 
-    function getDataForPopup(id, name, master) {
+    function setDataForPopup(id, name, master) {
         $('#complete').attr('data-id', id);
         $('#client-name').html(name);
         $('#responsible-name').html(master);
@@ -342,5 +402,9 @@
 
     $('.quick-edit').on('click', function () {
         $('#popupDelete').css('display', 'block');
-    })
+    });
+    $('#createUser').on('submit', function (e) {
+        e.preventDefault();
+        createUser();
+    });
 })(jQuery);

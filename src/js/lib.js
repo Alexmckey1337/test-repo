@@ -971,8 +971,8 @@ function ajaxRequest(url, data, callback, method, withCredentials, headers, stat
 }
 
 function showPopup(text, title) {
-    title = title || 'Информационное сообщение';
     text = text || '';
+    title = title || 'Информационное сообщение';
     let popup = document.getElementById('create_pop');
     if (popup) {
         popup.parentElement.removeChild(popup)
@@ -1031,24 +1031,40 @@ function getCorrectValue(value) {
     return value
 }
 
-function ajaxSendFormData(url, data, redirect = false) {
-                    let xhr = new XMLHttpRequest();
-                    xhr.withCredentials = true;
-                    xhr.open('PUT', url, true);
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState == 4) {
-                            if (xhr.status == 200) {
-                                if(redirect) {
-                                    showPopup('Данные успешно обновлены');
-                                    setTimeout(function () {
-                                        window.location.href = redirect;
-                                    }, 1000);
-                                }
-                            } else {
-                                console.log(xhr);
-                                showPopup(xhr.responseText)
-                            }
-                        }
-                    };
-                    xhr.send(data);
+function ajaxSendFormData(data = {}) {
+    let sendData = {
+        method: 'POST'
+    };
+    Object.assign(sendData, data);
+
+    return new Promise(function (resolve, reject) {
+        let xhr = new XMLHttpRequest();
+        xhr.withCredentials = true;
+        xhr.open(sendData.method, sendData.url, true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    let response = JSON.parse(xhr.responseText);
+                        showPopup('Данные успешно обновлены');
+                        resolve(response);
+                } else if (xhr.status == 201) {
+                    let response = JSON.parse(xhr.responseText);
+                    resolve(response);
+                } else {
+                    reject(xhr.responseText);
                 }
+            }
+        };
+        xhr.send(sendData.data);
+    });
+}
+
+function dataURLtoBlob(dataurl) {
+    let arr = dataurl.split(',');
+    let mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], {type: mime});
+}

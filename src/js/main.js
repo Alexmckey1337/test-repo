@@ -316,53 +316,6 @@ function initAddNewUser(id, callback) {
     });
     $('#chooseCountryCode').select2();
 
-    $('#saveNew').on('click', function () {
-        console.log(getAddNewUserData());
-        let json = JSON.stringify(getAddNewUserData());
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/', json, function (data) {
-            let user_id = data.id;
-            if (data) {
-                let fd = new FormData();
-                if (!$('input[type=file]')[0].files[0]) {
-                    fd.append('id', data.id)
-                } else {
-                    fd.set('source', $('input[type=file]')[0].files[0], 'photo.jpg');
-                    let blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                    let sr = $('#edit-photo').attr('data-source');
-                    fd.append('file', blob);
-                    fd.append('id', data.id)
-                }
-                function dataURLtoBlob(dataurl) {
-                    let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-                        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-                    while (n--) {
-                        u8arr[n] = bstr.charCodeAt(n);
-                    }
-                    return new Blob([u8arr], {type: mime});
-                }
-
-                let xhr = new XMLHttpRequest();
-                xhr.withCredentials = true;
-                xhr.open('POST', CONFIG.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState == 4) {
-                        if (xhr.status == 200) {
-                            callback(user_id);
-                            setTimeout(function () {
-                                $('#addNewUserPopup').css('display', 'none');
-                            }, 100);
-                        }
-                    }
-                };
-
-                xhr.send(fd);
-            } else if (data.message) {
-                showPopup(data.message)
-            }
-        }, 'POST', true, {
-            'Content-Type': 'application/json'
-        });
-    });
     $('#partner').on('change', function () {
         let partner = $(this).is(':checked');
         if (partner) {

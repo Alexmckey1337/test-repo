@@ -1789,19 +1789,21 @@ td {
   text-align: left;
   transition: all .3s ease;
 }
+
 #church {
   .edit {
     a {
       & ~ .quick-edit {
         width: 0;
         height: 0;
-         &:before {
+        &:before {
           display: none;
         }
       }
     }
   }
 }
+
 #tableUserINHomeGroups, #church.can_edit {
   .edit {
     a {
@@ -2875,7 +2877,7 @@ button#complete {
   height: 128px;
   background: url('../img/preload.gif') no-repeat;
   transform: translateX(-50%);
-  z-index: 1;
+  z-index: 99999;
   position: relative;
 }
 
@@ -3798,7 +3800,7 @@ span.green {
     height: 35px;
     box-sizing: border-box;
     &:read-only {
-      border-color: #cdd0d4;
+      border-color: #cdd0d4 !important;
     }
   }
 }
@@ -3941,14 +3943,25 @@ select[disabled] {
   margin-top: 20px;
 }
 
-.editprofile .splash-bauttons {
-  margin: 50px 0;
-  overflow: hidden;
-  padding-bottom: 60px;
-}
+.editprofile {
+  & .splash-bauttons {
+    margin: 50px 0;
+    overflow: hidden;
+    padding-bottom: 60px;
+    & button, & a {
+      position: relative;
+      background-color: #aab2bd;
+      padding: 12px 20px 12px 45px;
+      color: #fff;
+      font-family: UbuntuMedium, sans-serif;
+      border-radius: 4px;
+      border: 0;
+      font-size: 1.1em;
+      transition: all .3s ease;
+      cursor: pointer;
+    }
 
-.editprofile .splash-bauttons button {
-  position: relative;
+  }
 }
 
 .editprofile .hasDatepicker {

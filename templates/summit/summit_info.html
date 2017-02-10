@@ -127,7 +127,7 @@
                     <p>Сумма:</p>
                     <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                            readonly="readonly" type="text" id="summit-valueDelete">
-                    <span id="changeSumDelete" class="change-summ"></span>
+{#                    <span id="changeSumDelete" class="change-summ"></span>#}
                 </div>
                 <div class="member_club_block">
                     <input type="checkbox" id="member">
@@ -180,12 +180,12 @@
                            type="text" id="code">
                     <input id="check" type="checkbox">
                 </div>
-                <div class="summa">
-                    <p>Сумма:</p>
-                    <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                           readonly="readonly" type="text" id="summit-valueNew">
-                    <span id="changeSumNew" class="change-summ"></span>
-                </div>
+{#                <div class="summa">#}
+{#                    <p>Сумма:</p>#}
+{#                    <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57"#}
+{#                           readonly="readonly" type="text" id="summit-valueNew">#}
+{#                    <span id="changeSumNew" class="change-summ"></span>#}
+{#                </div>#}
             </div>
             <textarea placeholder="Добавить коментарий"></textarea>
             <div class="splash-bauttons">
@@ -263,5 +263,4 @@
     <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
     <script src="{% static "js/add_user.js" %}"></script>
     <script src="{% static "js/summit.js" %}"></script>
-
 {% endblock %}
