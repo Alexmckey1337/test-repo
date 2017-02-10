@@ -2,11 +2,9 @@
 from __future__ import unicode_literals
 
 import binascii
-import os
 import operator
+import os
 from datetime import datetime, timedelta
-from django.db.models import Q
-from functools import reduce
 
 import django_filters
 from django.conf import settings
@@ -14,6 +12,7 @@ from django.contrib.auth import authenticate, login, logout as django_logout
 from django.contrib.auth import update_session_auth_hash
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMultiAlternatives
+from django.db.models import Q
 from django.template import Context
 from django.template.loader import get_template
 from django.utils import six
@@ -23,11 +22,11 @@ from rest_framework import mixins
 from rest_framework import status
 from rest_framework import viewsets, filters
 from rest_framework.decorators import api_view
+from rest_framework.filters import BaseFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
-from rest_framework.filters import BaseFilterBackend
 
 from account.models import CustomUser as User
 from common.filters import FieldSearchFilter
@@ -39,7 +38,6 @@ from status.models import Status, Division
 from .resources import clean_password, clean_old_password, UserResource
 from .serializers import UserSerializer, UserShortSerializer, UserTableSerializer, NewUserSerializer, \
     UserSingleSerializer, PartnershipSerializer
-
 
 USER_FIELDS = {
     'text_fields': {
@@ -225,6 +223,16 @@ class NewUserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
     def perform_create(self, serializer):
         user = serializer.save()
         self._create_partnership(user)
+
+        return user
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = self.perform_create(serializer)
+        serializer = self.serializer_single_class(user)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def _create_partnership(self, user):
         partner = self.request.data.get('partner', None)

@@ -1,6 +1,8 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from unittest import skip
+
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
@@ -179,6 +181,7 @@ class TestCreateMeetingReportPage(LoginUserMixin):
             self.meeting_type
         )
 
+    @skip("Deprecated")
     def test_leaders_in_context_with_user_hierarchy_level_eq_1(self):
         self.login_user.hierarchy = HierarchyFactory(level=1)
         self.login_user.save()
@@ -191,6 +194,7 @@ class TestCreateMeetingReportPage(LoginUserMixin):
 
         self.assertEqual(response.context.get('leaders', 'NaN'), 'NaN')
 
+    @skip("Deprecated")
     def test_leaders_in_context_with_user_hierarchy_level_more_1(self):
         self.login_user.hierarchy = HierarchyFactory(level=3)
         self.login_user.save()
