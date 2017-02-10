@@ -113,9 +113,10 @@
 {% block popup %}
     <div class="popap" id='addHomeGroup'>
         <div class="pop_cont">
-            <h2 class='popup_text'>
-                Добавление домашней группы
-            </h2>
+            <div class="popup_text">
+                <h2>Добавление домашней группы</h2>
+                <span onclick="hidePopup(this)" class="close"><i class="fa fa-times" aria-hidden="true"></i></span>
+            </div>
             <form action="" onsubmit="addHomeGroup(event, this)">
                 <div class="popup_body">
                     <div class="container">
@@ -145,8 +146,8 @@
                     </div>
                 </div>
                 <div class="container">
-                    <button type="submit" class="add-church">Создать</button>
                     <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                    <button type="submit" class="add-church">Создать</button>
                 </div>
             </form>
         </div>

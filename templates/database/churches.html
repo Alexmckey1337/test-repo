@@ -135,10 +135,12 @@
                             <input type="text" data-filter="opening_date" id="search_date_open">
                         </p>
                         <p class="input_block">
-                            <input type="text" data-filter="country" placeholder="страна или часть названия" id="search_country">
+                            <input type="text" data-filter="country" placeholder="страна или часть названия"
+                                   id="search_country">
                         </p>
                         <p class="input_block">
-                            <input type="text" data-filter="city" placeholder="город или часть названия" id="search_city">
+                            <input type="text" data-filter="city" placeholder="город или часть названия"
+                                   id="search_city">
                         </p>
                     </div>
                 </div>
@@ -154,9 +156,11 @@
     </div>
     <div class="popap" id='addChurch'>
         <div class="pop_cont">
-            <h2 class='popup_text'>
-                Создание новой церкви
-            </h2>
+            <div class="popup_text">
+                <h3>Создание новой церкви</h3>
+                <span onclick="hidePopup(this)" class="close"><i class="fa fa-times" aria-hidden="true"></i></span>
+            </div>
+
             <form action="" onsubmit="addChurch(event, this, createChurchesTable)">
                 <div class="popup_body">
                     <div class="container">
@@ -194,8 +198,8 @@
                     </div>
                 </div>
                 <div class="container">
-                    <button type="submit" class="add-church">Создать</button>
                     <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                    <button type="submit" class="add-church">Создать</button>
                 </div>
             </form>
         </div>
@@ -207,16 +211,20 @@
     <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
     <script type="text/template" id="quickEditCart">
         <div class="container bb-1">
-             <div class="header">
-                 <p><input type="text" class="title" id="church_title" value="<%=get_title %>"></p>
-                 <p><label for="is_open">Открыта</label><input type="checkbox" id="is_open_church"<% if(is_open) { %> checked <% } %> ></p>
-                 <% if(opening_date) { %>
-                     <p><label for="opening_date">Датат открытия</label><input type="text" class="date" id="opening_date" value="<%= opening_date.split('.').reverse().join('-') %>"></p>
-                 <% } else { %>
-                     <p><label for="opening_date">Датат открытия</label><input type="text" id="opening_date" class="date" value=""></p>
-                 <% } %>
-                 <p class="hidden"><input type="text" id="churchID" value="<%= id %>"></p>
-             </div>
+            <div class="header">
+                <p><input type="text" class="title" id="church_title" value="<%=get_title %>"></p>
+                <p><label for="is_open">Открыта</label><input type="checkbox" id="is_open_church"<% if(is_open) { %>
+                    checked <% } %> ></p>
+                <% if(opening_date) { %>
+                <p><label for="opening_date">Датат открытия</label><input type="text" class="date" id="opening_date"
+                                                                          value="<%= opening_date.split('.').reverse().join('-') %>">
+                </p>
+                <% } else { %>
+                <p><label for="opening_date">Датат открытия</label><input type="text" id="opening_date" class="date"
+                                                                          value=""></p>
+                <% } %>
+                <p class="hidden"><input type="text" id="churchID" value="<%= id %>"></p>
+            </div>
         </div>
         <div class="container start">
             <div>

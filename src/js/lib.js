@@ -9,10 +9,10 @@ function getChurches(config = {}) {
             },
             statusCode: {
                 200: function (req) {
-                    resolve(req)
+                    resolve(req);
                 },
                 403: function () {
-                    reject('Вы должны авторизоватся')
+                    reject('Вы должны авторизоватся');
                 }
 
             },
@@ -24,56 +24,56 @@ function getChurches(config = {}) {
 }
 
 function createHomeGroupsTable(config = {}) {
-        config.search_title = $('input[name="fullsearch"]').val();
-        getHomeGroups(config).then(function (data) {
-            let count = data.count;
-            let page = config['page'] || 1;
-            let pages = Math.ceil(count / CONFIG.pagination_count);
-            let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
-            let text = `Показано ${showCount} из ${count}`;
-            let tmpl = $('#databaseUsers').html();
-            let filterData = {};
-            filterData.user_table = data.table_columns;
-            filterData.results = data.results;
-            let rendered = _.template(tmpl)(filterData);
-            $('#tableHomeGroup').html(rendered);
-            $('.quick-edit').on('click', function () {
-                let id = $(this).closest('.edit').find('a').attr('data-id');
-                ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/`, null, function (data) {
-                    let quickEditCartTmpl, rendered;
-                    console.log(data);
-                    quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
-                    rendered = _.template(quickEditCartTmpl)(data);
-                    $('#quickEditCartPopup .popup_body').html(rendered);
-                    $('#opening_date').datepicker({
-                        dateFormat: 'yyyy-mm-dd'
+    config.search_title = $('input[name="fullsearch"]').val();
+    getHomeGroups(config).then(function (data) {
+        let count = data.count;
+        let page = config['page'] || 1;
+        let pages = Math.ceil(count / CONFIG.pagination_count);
+        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let text = `Показано ${showCount} из ${count}`;
+        let tmpl = $('#databaseUsers').html();
+        let filterData = {};
+        filterData.user_table = data.table_columns;
+        filterData.results = data.results;
+        let rendered = _.template(tmpl)(filterData);
+        $('#tableHomeGroup').html(rendered);
+        $('.quick-edit').on('click', function () {
+            let id = $(this).closest('.edit').find('a').attr('data-id');
+            ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/`, null, function (data) {
+                let quickEditCartTmpl, rendered;
+                console.log(data);
+                quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
+                rendered = _.template(quickEditCartTmpl)(data);
+                $('#quickEditCartPopup .popup_body').html(rendered);
+                $('#opening_date').datepicker({
+                    dateFormat: 'yyyy-mm-dd'
+                });
+                makePastorList(data.department, '#editPastorSelect', data.leader);
+                makeDepartmentList('#editDepartmentSelect', data.department).then(function () {
+                    $('#editDepartmentSelect').on('change', function () {
+                        $('#pastor_select').prop('disabled', true);
+                        var department_id = parseInt($('#editDepartmentSelect').val());
+                        makePastorList(department_id, '#editPastorSelect');
                     });
-                    makePastorList(data.department, '#editPastorSelect', data.leader);
-                    makeDepartmentList('#editDepartmentSelect', data.department).then(function () {
-                        $('#editDepartmentSelect').on('change', function () {
-                            $('#pastor_select').prop('disabled', true);
-                            var department_id = parseInt($('#editDepartmentSelect').val());
-                            makePastorList(department_id, '#editPastorSelect');
-                        });
-                    });
-                    setTimeout(function () {
-                        $('#quickEditCartPopup').css('display', 'block');
-                    }, 100)
-                })
-            });
-            makeSortForm(filterData.user_table);
-            let paginationConfig = {
-                container: ".users__pagination",
-                currentPage: page,
-                pages: pages,
-                callback: createHomeGroupsTable
-            };
-            makePagination(paginationConfig);
-            $('.table__count').text(text);
-            $('.preloader').css('display', 'none');
-            orderTable.sort(createHomeGroupsTable);
+                });
+                setTimeout(function () {
+                    $('#quickEditCartPopup').css('display', 'block');
+                }, 100)
+            })
         });
-    }
+        makeSortForm(filterData.user_table);
+        let paginationConfig = {
+            container: ".users__pagination",
+            currentPage: page,
+            pages: pages,
+            callback: createHomeGroupsTable
+        };
+        makePagination(paginationConfig);
+        $('.table__count').text(text);
+        $('.preloader').css('display', 'none');
+        orderTable.sort(createHomeGroupsTable);
+    });
+}
 
 function makePastorList(id, selector, active = null) {
     getResponsible(id, 2).then(function (data) {
@@ -146,7 +146,7 @@ function newAjaxRequest(data = {}) {
     })
         .statusCode(data.statusCode)
         .fail(function () {
-            data.fail("Ошибка запроса")
+            showPopup("Ошибка запроса");
         });
 }
 function getUsers(config = {}) {
@@ -440,11 +440,18 @@ function addHomeGroup(e, el) {
     e.preventDefault();
     let data = getAddHomeGroupData();
     let json = JSON.stringify(data);
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/home_groups/', json, function () {
+    let config = {
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/`,
+        data: json,
+        method: 'POST',
+        headers: {
+                'Content-Type': 'application/json'
+            }
+    };
+    newAjaxRequest(config).then(function (data) {
         clearAddHomeGroupData();
-        hidePopup(el)
-    }, 'POST', false, {
-        'Content-Type': 'application/json'
+        hidePopup(el);
+        showPopup(`Домашняя группа ${data.get_title} добавлена в базу данных`);
     });
 }
 
@@ -551,11 +558,19 @@ function addChurch(e, el, callback) {
     e.preventDefault();
     let data = getAddChurchData();
     let json = JSON.stringify(data);
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/churches/', json, function () {
+    let config = {
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/`,
+        data: json,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    };
+    newAjaxRequest(config).then(function (data) {
         clearAddChurchData();
         callback();
-    }, 'POST', false, {
-        'Content-Type': 'application/json'
+        showPopup(`Церковь ${data.get_title} добавлена в базу`);
+        console.log(data);
     });
     hidePopup(el)
 }
@@ -1097,8 +1112,8 @@ function ajaxSendFormData(data = {}) {
             if (xhr.readyState == 4) {
                 if (xhr.status == 200) {
                     let response = JSON.parse(xhr.responseText);
-                        showPopup('Данные успешно обновлены');
-                        resolve(response);
+                    showPopup('Данные успешно обновлены');
+                    resolve(response);
                 } else if (xhr.status == 201) {
                     let response = JSON.parse(xhr.responseText);
                     resolve(response);
