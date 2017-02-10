@@ -4,8 +4,8 @@ from django.db.models import Q
 from django.db.models import Value as V
 from django.db.models.functions import Concat
 from django.utils.translation import ugettext_lazy as _
+from rest_framework import filters
 from rest_framework import status
-from rest_framework import viewsets, mixins, filters
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -14,24 +14,17 @@ from rest_framework.response import Response
 from account.models import CustomUser
 from account.serializers import AddExistUserSerializer
 from common.filters import FieldSearchFilter
-from common.views_mixins import ExportViewSetMixin
+from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet
 from group.filters import HomeGroupFilter, ChurchFilter
 from group.pagination import ChurchPagination, HomeGroupPagination
 from group.resources import ChurchResource, HomeGroupResource
-from group.views_mixins import HomeGroupListMixin, UserListMixin, AllUserListMixin
+from group.views_mixins import (
+    ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin)
 from .models import HomeGroup, Church
 from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSerializer, HomeGroupListSerializer)
 
 
-class ChurchViewSet(mixins.RetrieveModelMixin,
-                    mixins.UpdateModelMixin,
-                    mixins.CreateModelMixin,
-                    mixins.ListModelMixin,
-                    viewsets.GenericViewSet,
-                    UserListMixin,
-                    AllUserListMixin,
-                    HomeGroupListMixin,
-                    ExportViewSetMixin):
+class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroupMixin, ExportViewSetMixin):
     queryset = Church.objects.all()
 
     serializer_class = ChurchSerializer
@@ -154,9 +147,8 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
         search_queries = map(lambda s: s.strip(), search.split(' '))
         for s in search_queries:
             users = users.filter(
-                Q(first_name__istartswith=s) | Q(last_name__istartswith=s) | Q(middle_name__istartswith=s) |
-                Q(search_name__icontains=s)
-            )
+                Q(first_name__istartswith=s) | Q(last_name__istartswith=s) |
+                Q(middle_name__istartswith=s) | Q(search_name__icontains=s))
 
         department_id = params.get('department', None)
         if department_id is not None:
@@ -167,13 +159,7 @@ class ChurchViewSet(mixins.RetrieveModelMixin,
         return Response(serializers.data)
 
 
-class HomeGroupViewSet(mixins.UpdateModelMixin,
-                       mixins.RetrieveModelMixin,
-                       mixins.ListModelMixin,
-                       mixins.CreateModelMixin,
-                       viewsets.GenericViewSet,
-                       UserListMixin,
-                       ExportViewSetMixin):
+class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportViewSetMixin):
     queryset = HomeGroup.objects.all()
 
     serializer_class = HomeGroupSerializer

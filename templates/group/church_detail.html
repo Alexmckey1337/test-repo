@@ -16,6 +16,21 @@
                     <button id="add_homeGroupToChurch" class="add">Добавить домашнюю группу</button>
                 </li>
                 <li>
+                    <form action="{% url "church-export-users" pk=church.id %}" method="post">
+                        <button type="submit">Export</button>
+                    </form>
+                </li>
+                <li>
+                    <form action="{% url "church-export-all-users" pk=church.id %}" method="post">
+                        <button type="submit">Export all</button>
+                    </form>
+                </li>
+                <li>
+                    <form action="{% url "church-export-groups" pk=church.id %}" method="post">
+                        <button type="submit">Export groups</button>
+                    </form>
+                </li>
+                <li>
                     <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
                 </li>
             </ul>

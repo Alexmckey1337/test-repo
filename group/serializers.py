@@ -1,11 +1,13 @@
 # -*- coding: utf-8
+from django.utils.translation import ugettext as _
 from rest_framework import serializers
 
-from common.fields import ReadOnlyChoiceField
-from .models import Church, HomeGroup
 from account.models import CustomUser
 from account.serializers import DepartmentTitleSerializer
-from django.utils.translation import ugettext as _
+from common.fields import ReadOnlyChoiceField
+from .models import Church, HomeGroup
+
+BASE_GROUP_USER_FIELDS = ('fullname', 'phone_number', 'repentance_date', 'spiritual_level', 'born_date')
 
 
 class LeaderNameSerializer(serializers.ModelSerializer):
@@ -56,8 +58,7 @@ class GroupUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('id', 'link', 'fullname', 'phone_number', 'repentance_date', 'spiritual_level',
-                  'born_date',)
+        fields = ('id', 'link') + BASE_GROUP_USER_FIELDS
 
 
 class HomeGroupDetailSerializer(serializers.ModelSerializer):
