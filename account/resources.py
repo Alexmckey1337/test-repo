@@ -6,6 +6,7 @@ from import_export.resources import ModelDeclarativeMetaclass
 
 from account.models import CustomUser as User
 from common.resources import CustomFieldsModelResource
+from group.serializers import BASE_GROUP_USER_FIELDS
 
 USER_MAIN_RESOURCE_FIELDS = ('last_name', 'first_name', 'middle_name',
                              'email', 'phone_number', 'skype', 'country', 'city', 'address',
@@ -50,7 +51,7 @@ class UserResource(CustomFieldsModelResource):
 
     def dehydrate_master_name(self, user):
         user_field = self.get_user_field(user)
-        return '%s %s %s' % (user_field.first_name, user_field.last_name, user_field.middle_name)
+        return '%s %s %s' % (user_field.master.first_name, user_field.master.last_name, user_field.master.middle_name)
 
     def dehydrate_department_title(self, user):
         user_field = self.get_user_field(user)
