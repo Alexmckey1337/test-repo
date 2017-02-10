@@ -18,14 +18,14 @@
         <div class="top-buttons-wrap">
             <ul class="top-buttons">
                 <li>
-                    <button id="add">Добавить пользователя</button>
+                    <button id="add" class="header__button">Добавить пользователя</button>
                 </li>
                 <li>
-                    <button id="filter_button">Фильтр</button>
+                    <button id="filter_button" class="header__button">Фильтр</button>
                 </li>
                 <li>
                     <form action="{% url "users_v1_1-export" %}?hierarchy=4" method="post">
-                        <button type="submit">Export</button>
+                        <button type="submit" class="download header__button">Export</button>
                     </form>
                 </li>
                 <li>
@@ -225,9 +225,10 @@
         <div class="col-6">
             <p><input type="text" id="phone_number" value="<%=phone_number %>"></p>
             <p><input type="text" id="extra_phone_numbers"
-                        <% if (extra_phone_numbers) { %>
-                        value="<%=extra_phone_numbers.join(', ') %>
+                <% if (extra_phone_numbers instanceof Array && extra_phone_numbers.length > 0) { %>
+                    value="<%=extra_phone_numbers.join(', ') %>"
                 <% } %>
+                >
             </p>
             <p><input type="text" id="email" value="<%=email %>"></p>
             <p><input type="text" id="skype" value="<%=skype %>"></p>

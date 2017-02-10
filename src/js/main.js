@@ -94,17 +94,57 @@ function getAddNewUserData() {
     }
     return data;
 }
+
+function createSummitUsersTable(data = {}) {
+    let config = {};
+    config.summit = $('#date .active span').data('id');
+    Object.assign(config, data);
+    getSummitUsers(config).then(function (data) {
+        let filter_data = {};
+        filter_data.results = data.results.map(function (item) {
+            let data;
+            data = item.user;
+            data.ankets_id = item.id;
+            return data;
+        });
+        console.log(filter_data);
+        filter_data.user_table = data.user_table;
+        let count = data.count;
+        let page = config.page || 1;
+        let pages = Math.ceil(count / CONFIG.pagination_count);
+        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let id = "summitUsersList";
+        let text = `Показано ${showCount} из ${count}`;
+        let paginationConfig = {
+            container: ".users__pagination",
+            currentPage: page,
+            pages: pages,
+            callback: createSummitUsersTable
+        };
+        makeSammitsDataTable(filter_data, id);
+        makePagination(paginationConfig);
+        $('.table__count').text(text);
+        makeSortForm(data.user_table);
+        $('.preloader').css('display', 'none');
+        orderTable.sort(createSummitUsersTable);
+    });
+}
 function makeDataTable(data, id) {
     var tmpl = document.getElementById('databaseUsers').innerHTML;
     var rendered = _.template(tmpl)(data);
     document.getElementById(id).innerHTML = rendered;
-    if ($('.quick-edit').length) {
-        $('.quick-edit').on('click', function () {
-            makeQuickEditCart(this);
-        })
-    }
+    $('.quick-edit').on('click', function () {
+        makeQuickEditCart(this);
+    })
 }
-
+function makeSammitsDataTable(data, id) {
+    var tmpl = document.getElementById('databaseUsers').innerHTML;
+    var rendered = _.template(tmpl)(data);
+    document.getElementById(id).innerHTML = rendered;
+    $('.quick-edit').on('click', function () {
+        makeQuickEditSammitCart(this);
+    })
+}
 function makeSortForm(data) {
     let sortFormTmpl, obj, rendered;
     sortFormTmpl = document.getElementById("sortForm").innerHTML;
@@ -130,27 +170,30 @@ function makeResponsibleList() {
         data.forEach(function (el) {
             if (id == el.id) {
                 selected = true;
-                html += "<option data-id='" + el.id + "' selected>" + el.fullname + "</option>";
+                html += "<option value='" + el.id + "' data-id='" + el.id + "' selected>" + el.fullname + "</option>";
             } else {
-                html += "<option data-id='" + el.id + "'>" + el.fullname + "</option>";
+                html += "<option value='" + el.id + "' data-id='" + el.id + "'>" + el.fullname + "</option>";
             }
         });
         if (!selected) {
-            html += "<option selected disabled>Выберите ответственного</option>";
+            html += "<option selected disabled value=''>Выберите ответственного</option>";
         }
         html += "";
         $("#master_hierarchy").html(html).select2();
     });
 }
 
-var makeChooseDivision = getDivisions().then(function (data) {
-    data = data.results;
-    let html = '';
-    for (let i = 0; i < data.length; i++) {
-        html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
-    }
-    return html
-});
+function makeChooseDivision() {
+    return getDivisions().then(function (data) {
+        data = data.results;
+        let html = '';
+        for (let i = 0; i < data.length; i++) {
+            html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+        }
+        return html
+    });
+}
+
 
 function initAddNewUser(id, callback) {
     getStatuses().then(function (data) {
@@ -222,7 +265,7 @@ function initAddNewUser(id, callback) {
             getRegions(config).then(function (data) {
                 let rendered = [];
                 let option = document.createElement('option');
-                $(option).text('Выберите регион');
+                $(option).val('').text('Выберите регион');
                 rendered.push(option);
                 data.forEach(function (item) {
                     let option = document.createElement('option');
@@ -235,7 +278,7 @@ function initAddNewUser(id, callback) {
                     getCities(config).then(function (data) {
                         let rendered = [];
                         let option = document.createElement('option');
-                        $(option).text('Выберите город');
+                        $(option).val('').text('Выберите город');
                         rendered.push(option);
                         data.forEach(function (item) {
                             let option = document.createElement('option');
@@ -273,53 +316,6 @@ function initAddNewUser(id, callback) {
     });
     $('#chooseCountryCode').select2();
 
-    $('#saveNew').on('click', function () {
-        console.log(getAddNewUserData());
-        let json = JSON.stringify(getAddNewUserData());
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/', json, function (data) {
-            let user_id = data.id;
-            if (data) {
-                let fd = new FormData();
-                if (!$('input[type=file]')[0].files[0]) {
-                    fd.append('id', data.id)
-                } else {
-                    fd.set('source', $('input[type=file]')[0].files[0], 'photo.jpg');
-                    let blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                    let sr = $('#edit-photo').attr('data-source');
-                    fd.append('file', blob);
-                    fd.append('id', data.id)
-                }
-                function dataURLtoBlob(dataurl) {
-                    let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-                        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-                    while (n--) {
-                        u8arr[n] = bstr.charCodeAt(n);
-                    }
-                    return new Blob([u8arr], {type: mime});
-                }
-
-                let xhr = new XMLHttpRequest();
-                xhr.withCredentials = true;
-                xhr.open('POST', CONFIG.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState == 4) {
-                        if (xhr.status == 200) {
-                            callback(user_id);
-                            setTimeout(function () {
-                                $('#addNewUserPopup').css('display', 'none');
-                            }, 100);
-                        }
-                    }
-                };
-
-                xhr.send(fd);
-            } else if (data.message) {
-                showPopup(data.message)
-            }
-        }, 'POST', true, {
-            'Content-Type': 'application/json'
-        });
-    });
     $('#partner').on('change', function () {
         let partner = $(this).is(':checked');
         if (partner) {
@@ -331,9 +327,39 @@ function initAddNewUser(id, callback) {
 
 }
 function saveUser(el) {
-    let $input, $select, fullName, first_name, last_name, middle_name, data, id;
-    let master_id = $('#master_hierarchy option:selected').attr('data-id') || "";
-    fullName = $($(el).closest('.pop_cont').find('input.fullname')).val().split(' ');
+    let $input, $select, fullName, first_name, last_name, middle_name, department, hierarchy, phone_number, data, id;
+    let send = true;
+    let $department = $($(el).closest('.pop_cont').find('#departmentSelect'));
+    department = $department.val();
+    let $hierarchy = $($(el).closest('.pop_cont').find('#hierarchySelect'));
+    hierarchy = $hierarchy.val();
+    let $master = $('#master_hierarchy');
+    let master_id = $master.val() || "";
+    let $fullname = $($(el).closest('.pop_cont').find('input.fullname'));
+    fullName = $fullname.val().split(' ');
+    let $phone_number = $($(el).closest('.pop_cont').find('#phone_number'));
+    phone_number = $phone_number.val();
+    if(!$fullname.val()) {
+        $fullname.css('border-color', 'red');
+        send = false;
+    } else {
+        $fullname.removeAttr('style');
+    }
+    if(!master_id) {
+        $('label[for="master_hierarchy"]').css('color', 'red');
+        send = false;
+    } else {
+        $('label[for="master_hierarchy"]').removeAttr('style');
+    }
+    if(!phone_number) {
+        $phone_number.css('border-color', 'red');
+        send = false;
+    } else {
+        $phone_number.removeAttr('style');
+    }
+    if(!send) {
+        return
+    }
     first_name = fullName[1];
     last_name = fullName[0];
     middle_name = fullName[2] || "";
@@ -342,11 +368,11 @@ function saveUser(el) {
         first_name: first_name,
         last_name: last_name,
         middle_name: middle_name,
-        hierarchy: $($(el).closest('.pop_cont').find('#hierarchySelect')).val(),
-        department: $($(el).closest('.pop_cont').find('#departmentSelect')).val(),
+        hierarchy: hierarchy,
+        department: department,
         master: master_id,
         skype: $($(el).closest('.pop_cont').find('#skype')).val(),
-        phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
+        phone_number: phone_number,
         extra_phone_numbers: _.filter(_.map($($(el).closest('.pop_cont').find('#extra_phone_numbers')).val().split(","), x => x.trim()), x => !!x),
         repentance_date: $($(el).closest('.pop_cont').find('#repentance_date')).val() || null,
         country: $($(el).closest('.pop_cont').find('#country')).val(),
@@ -444,7 +470,19 @@ function saveHomeGroups(el) {
     })
 }
 
-
+function makeQuickEditSammitCart(el) {
+    let id, link, url;
+    id = $(el).closest('td').find('a').data('ankets');
+    link = $(el).closest('td').find('a').data('link');
+    url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${id}/`;
+    ajaxRequest(url, null, function (data) {
+        $('#summit-valueDelete').val(data.total_sum);
+        $('#member').prop("checked", data.is_member);
+       $('#popupDelete').css('display', 'block');
+    }, 'GET', true, {
+        'Content-Type': 'application/json'
+    });
+}
 function makeQuickEditCart(el) {
     let id, link, url;
     id = $(el).closest('td').find('a').attr('data-id');
@@ -727,49 +765,49 @@ document.body.addEventListener('click', function (el) {
     }
 });
 
-$(function () {
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/users/current/', null, function (data) {
-        let user_id = data.id;
-        VOCRM.user_id = data.id;
-        VOCRM.user_partnerships_info = data.partnerships_info;
-        VOCRM.column_table = data.column_table;
-        let hierarchy_chain = data['hierarchy_chain'];
-
-        // if (document.getElementById('database_users')) {
-        //     createUser();
-        // }
-
-        if (document.getElementById('users_list')) {
-            let dat = {};
-            dat['summit'] = document.querySelectorAll('#carousel li span')[0].getAttribute('data-id');
-            window.summit_id = dat['summit'];
-            getUsersList(path, dat);
-            getCurrentSetting();
-        }
-
-        if (document.getElementById('event_wrap')) {
-            getCurrentSetting();
-            init(user_id);
-        }
-
-        if (document.getElementById("add_new")) {
-            document.getElementById("add_new").setAttribute('data-id', data.id);
-        }
-
-        if (document.getElementById("report_wrap")) {
-            init_report()
-        }
-
-        if (VOCRM.user_partnerships_info && VOCRM.user_partnerships_info.is_responsible && document.querySelector('.manager_view')) {
-            document.querySelector('.manager_view').style.display = 'block'
-        }
-
-    });
-    if (document.getElementById('sort-form')) {
-        $("#sort-form").sortable({revert: true, items: "li:not([disable])", scroll: false});
-        $("#sort-form").disableSelection();
-    }
-});
+// $(function () {
+//     ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/users/current/', null, function (data) {
+//         let user_id = data.id;
+//         VOCRM.user_id = data.id;
+//         VOCRM.user_partnerships_info = data.partnerships_info;
+//         VOCRM.column_table = data.column_table;
+//         let hierarchy_chain = data['hierarchy_chain'];
+//
+//         // if (document.getElementById('database_users')) {
+//         //     createUser();
+//         // }
+//
+//         if (document.getElementById('users_list')) {
+//             let dat = {};
+//             dat['summit'] = document.querySelectorAll('#carousel li span')[0].getAttribute('data-id');
+//             window.summit_id = dat['summit'];
+//             getUsersList(path, dat);
+//             getCurrentSetting();
+//         }
+//
+//         if (document.getElementById('event_wrap')) {
+//             getCurrentSetting();
+//             init(user_id);
+//         }
+//
+//         if (document.getElementById("add_new")) {
+//             document.getElementById("add_new").setAttribute('data-id', data.id);
+//         }
+//
+//         if (document.getElementById("report_wrap")) {
+//             init_report()
+//         }
+//
+//         if (VOCRM.user_partnerships_info && VOCRM.user_partnerships_info.is_responsible && document.querySelector('.manager_view')) {
+//             document.querySelector('.manager_view').style.display = 'block'
+//         }
+//
+//     });
+//     if (document.getElementById('sort-form')) {
+//         $("#sort-form").sortable({revert: true, items: "li:not([disable])", scroll: false});
+//         $("#sort-form").disableSelection();
+//     }
+// });
 
 jQuery(function ($) {
     if ($.datepicker) {
@@ -839,6 +877,8 @@ function createUsersTable(config) {
         makeSortForm(data.user_table);
         $('.preloader').css('display', 'none');
         orderTable.sort(createUsersTable);
+    }).catch(function (err) {
+        console.log(err);
     });
 }
 
@@ -900,7 +940,7 @@ function getFilterParam() {
         if ($(this).attr('type') === 'checkbox') {
             data[prop] = $(this).is(':checked');
         } else {
-            if($(this).val()) {
+            if ($(this).val()) {
                 data[prop] = $(this).val();
             }
         }
@@ -969,14 +1009,16 @@ function applyFilter(el, callback) {
     }, 300);
 }
 
-var makeChooseStatus = getStatuses().then(function (data) {
-    data = data.results;
-    let html = "";
-    for (let i = 0; i < data.length; i++) {
-        html += '<option value="' + data[i].id + '" data-level="' + data[i].level + '">' + data[i].title + '</option>';
-    }
-    return html;
-});
+function makeChooseStatus() {
+    return getStatuses().then(function (data) {
+        data = data.results;
+        let html = "";
+        for (let i = 0; i < data.length; i++) {
+            html += '<option value="' + data[i].id + '" data-level="' + data[i].level + '">' + data[i].title + '</option>';
+        }
+        return html;
+    })
+}
 
 function makeTabs() {
     let pos = 0,

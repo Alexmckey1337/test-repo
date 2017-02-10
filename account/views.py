@@ -24,6 +24,7 @@ from rest_framework import viewsets, filters
 from rest_framework.decorators import api_view
 from rest_framework.filters import BaseFilterBackend
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.parsers import JSONParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
@@ -31,6 +32,7 @@ from rest_framework.viewsets import GenericViewSet
 from account.models import CustomUser as User
 from common.filters import FieldSearchFilter
 from common.views_mixins import ExportViewSetMixin
+from common.parsers import MultiPartAndJsonParser
 from hierarchy.models import Hierarchy, Department
 from navigation.table_fields import user_table
 from partnership.models import Partnership
@@ -187,6 +189,11 @@ class NewUserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
         'search_city': ('city',),
     }
     filter_class = UserFilter
+
+    parser_classes = (MultiPartAndJsonParser, JSONParser, FormParser)
+
+    parser_list_fields = ['divisions', 'extra_phone_numbers']
+    parser_dict_fields = ['partner']
 
     resource_class = UserResource
 

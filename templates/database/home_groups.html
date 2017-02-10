@@ -17,11 +17,11 @@
         <div class="top-buttons-wrap">
             <ul class="top-buttons">
                 <li>
-                    <button id="filter_button">Фильтр</button>
+                    <button id="filter_button" class="header__button">Фильтр</button>
                 </li>
                 <li>
                     <form action="{% url "homegroup-export" %}" method="post">
-                        <button type="submit">Export</button>
+                        <button type="submit" class="download header__button">Export</button>
                     </form>
                 </li>
                 <li>
@@ -98,15 +98,12 @@
                             <label for="search_date_open">Дата открытия</label>
                         </p>
                         <p class="label_block">
-                            <label for="search_phone_number">Фильтр по стране</label>
-                        </p>
-                        <p class="label_block">
                             <label for="search_country">Фильтр по городу</label>
                         </p>
                     </div>
                     <div class="col-6">
                         <p class="input_block">
-                            <select class="selectdb" data-filter="church" id="church_filter">
+                            <select class="selectdb" data-filter="search_church" id="church_filter">
                                 <option value="">ВСЕ</option>
                                 {% for church in churches %}
                                     <option value="{{ church.id }}">{{ church.title }}</option>
@@ -114,7 +111,7 @@
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" data-filter="leader" id="leader_filter">
+                            <select class="selectdb" data-filter="search_leader" id="leader_filter">
                                 <option value="">ВСЕ</option>
                                 {% for leader in leaders %}
                                     <option value="{{ leader.id }}">{{ leader.fullname }}</option>
@@ -125,10 +122,7 @@
                             <input type="text" data-filter="opening_date" id="search_date_open">
                         </p>
                         <p class="input_block">
-                            <input type="text" data-filter="country" placeholder="страна или часть названия" id="search_country">
-                        </p>
-                        <p class="input_block">
-                            <input type="text" data-filter="city" placeholder="город или часть названия" id="search_city">
+                            <input type="text" data-filter="search_city" placeholder="город или часть названия" id="search_city">
                         </p>
                     </div>
                 </div>

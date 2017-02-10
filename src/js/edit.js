@@ -1,43 +1,49 @@
 (function ($) {
     "use strict";
-
-    function updateUser(data, id) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.1/users/${id}/`, data, function () {
-            let send_image = true;
-            if (send_image) {
-                try {
-                    let fd = new FormData(),
-                        blob;
-                    let sr;
-                    if (!$('input[type=file]')[0].files[0]) {
-                        blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                        fd.append('file', blob);
-                        fd.append('id', id)
-                    } else {
-                        blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                        sr = $('input[type=file]')[0].files[0];
-                        fd.append('file', blob);
-                        fd.set('source', $('input[type=file]')[0].files[0], 'photo.jpg');
-                        fd.append('id', id)
-                    }
-                    let xhr = new XMLHttpRequest();
-                    xhr.withCredentials = true;
-                    xhr.open('POST', CONFIG.DOCUMENT_ROOT + 'api/v1.0/create_user/', true);
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState == 4) {
-                            if (xhr.status == 200) {
-                                window.location.href = '/account/' + id;
-                            }
-                        }
-                    };
-                    xhr.send(fd);
-                } catch (err) {
-                    console.log(err);
-                }
+    function updateUser(id) {
+        let oldForm = document.forms.editUser;
+        let formData = new FormData(oldForm);
+        if ($('#division_drop').val()) {
+            formData.append('divisions', JSON.stringify($('#division_drop').val()));
+        } else {
+            formData.append('divisions', JSON.stringify([]));
+        }
+        if ($('#extra_phone_numbers').val()) {
+            formData.append('extra_phone_numbers', JSON.stringify($('#extra_phone_numbers').val().split(',').map((item) => item.trim())));
+        } else {
+            formData.append('extra_phone_numbers', JSON.stringify([]));
+        }
+        if ($('#partner').is(':checked')) {
+            let partner = {};
+            partner.value = parseInt(document.getElementById('val_partnerships').value) || 0;
+            partner.date = document.getElementById('partner_date').value || null;
+            partner.responsible = parseInt($("#partner_drop").val());
+            formData.append('partner', JSON.stringify(partner));
+        }
+        let send_image = true;
+        if (send_image) {
+            try {
+                let
+                    blob;
+                    blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+                    formData.append('image', blob);
+                    formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
+                    formData.append('id', id);
+                let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${id}/`;
+                let redirect = '/account/' + id;
+                let config = {
+                    url: url,
+                    data: formData,
+                    redirect: redirect,
+                    method: 'PUT'
+                };
+                ajaxSendFormData(config).then(function (data) {
+                    window.location.href = `/account/${id}/`;
+                });
+            } catch (err) {
+                console.log(err);
             }
-        }, 'PUT', true, {
-            'Content-Type': 'application/json'
-        });
+        }
     }
 
     function handleFileSelect(e) {
@@ -73,19 +79,6 @@
         }
     }
 
-    function dataURLtoBlob(dataurl) {
-        let arr = dataurl.split(',');
-        let mime = arr[0].match(/:(.*?);/)[1],
-            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-        while (n--) {
-            u8arr[n] = bstr.charCodeAt(n);
-        }
-        return new Blob([u8arr], {type: mime});
-    }
-
-    function initEvent() {
-
-    }
     function init(id) {
         id = parseInt(id || getLastId());
         if (!id) {
@@ -95,7 +88,6 @@
         $('#departmentSelect').select2();
         $('#master_hierarchy').select2();
         $("#partner_drop").select2();
-
 
         getCurrentUser(id).then(function (data) {
             let divisions = data.divisions;
@@ -117,7 +109,7 @@
                 return
             }
 
-            if(data.partnership) {
+            if (data.partnership) {
                 $('#create_partner_info').trigger('click');
                 $('#partner').prop('disabled', true);
             }
@@ -133,7 +125,7 @@
 
             initializeCountry();
 
-            makeChooseDivision.then(function (html) {
+            makeChooseDivision().then(function (html) {
                 $('#division_drop').html(html);
                 if (divisions instanceof Array) {
                     $('#division_drop option').each(function () {
@@ -154,8 +146,8 @@
         });
     }
 
-    $(document).ready(function () {
         init();
+
         $('#file').on('change', handleFileSelect);
         $('#file_upload').on('click', function (e) {
             e.preventDefault();
@@ -208,6 +200,8 @@
             img.cropper("destroy");
         });
 
+
+
         $("#partner_date").datepicker({
             dateFormat: "yyyy-mm-dd",
         });
@@ -234,9 +228,14 @@
         });
 
         $('#save').on('click', function () {
-            sendData();
+            $('#sendEditUser').trigger('click');
         });
-    });
+        $('#editUser').on('submit', function (e) {
+            e.preventDefault();
+            sendData();
+        })
+
+
 
     let data_for_drop = {};
     let img = $(".crArea img");
@@ -268,9 +267,9 @@
 
             for (let i = 0; i < data.length; i++) {
                 if (selectedCountry === data[i].title) {
-                    html += '<option value="' + data[i].id + '" selected>' + data[i].title + '</option>';
+                    html += '<option data-id="' + data[i].id + '" value="' + data[i].title + '" selected>' + data[i].title + '</option>';
                 } else {
-                    html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+                    html += '<option data-id="' + data[i].id + '" value="' + data[i].title + '">' + data[i].title + '</option>';
                 }
 
             }
@@ -282,7 +281,7 @@
     function initializeRegions() {
         //Country
         let opt = {};
-        opt['country'] = $("#country_drop").val();
+        opt['country'] = $("#country_drop option:selected").data('id');
         //console.log(opt)
 
         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/regions/', opt, function (data) {
@@ -297,7 +296,7 @@
             let html = '<option value=""></option><option>Не выбрано</option>';
 
             for (let i = 0; i < data.length; i++) {
-                html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+                html += '<option data-id="' + data[i].id + '" value="' + data[i].title + '">' + data[i].title + '</option>';
             }
             document.getElementById('region_drop').innerHTML = html;
             document.getElementById('region_drop').removeAttribute('disabled');
@@ -307,20 +306,21 @@
 
     function initializeTown() {
         let opt = {};
-        opt['region'] = $("#region_drop").val();
+        opt['region'] = $("#region_drop option:selected").data('id');
 
         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/cities/', opt, function (data) {
 
             let results = data;
             let html = '<option value=""></option><option>Не выбрано</option>';
             for (let i = 0; i < data.length; i++) {
-                html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+                html += '<option data-id="' + data[i].id + '" value="' + data[i].title + '">' + data[i].title + '</option>';
             }
             document.getElementById('town_drop').innerHTML = html;
             document.getElementById('town_drop').removeAttribute('disabled');
             $('#town_drop').select2({tags: true, placeholder: " "});
         });
     }
+
 
 //INITIALIZE STATUS USER
 
@@ -478,45 +478,6 @@
         if (!id) {
             return
         }
-        let data = {
-            "first_name": $("#first_name").val(),
-            "last_name": $("#last_name").val(),
-            "middle_name": $("#middle_name").val(),
-            "search_name": $("#search_name").val(),
-            "skype": $("#skype").val(),
-            "email": $("#email").val(),
-            "phone_number": $("#phone_number").val(),
-            "extra_phone_numbers": _.filter(_.map($("#extra_phone_numbers").val().split(","), x => x.trim()), x => !!x),
-            "born_date": $("#datepicker_born_date").val() || null,
-            "repentance_date": $("input[name='repentance_date']").val() || null,
-            "country": $('#country_drop option:selected').html() == "Не выбрано" ? '' : $('#country_drop option:selected').html(),
-            "region": $('#region_drop option:selected').html() == "Не выбрано" ? '' : $('#region_drop option:selected').html(),
-            "city": $('#town_drop option:selected').html() == "Не выбрано" ? '' : $('#town_drop option:selected').html(),
-            "district": $('#district').val(),
-            "vkontakte": $('#vkontakte').val() || '',
-            "facebook": $('#facebook').val() || '',
-            "odnoklassniki": $('#odnoklassniki').val() || '',
-            "master": parseInt($('#master_hierarchy option:selected').attr('data-id')) || null,
-            "address": $('#address').val() || '',
-            "department": parseInt($('#departmentSelect').val()),
-            "divisions": $("#division_drop").val() || [],
-            "hierarchy": parseInt($('#hierarchySelect').val()),
-            "partner": null
-        };
-        if (document.getElementById('partner') && document.getElementById('partner').checked) {
-            data.partner = {};
-            data.partner.value = parseInt(document.getElementById('val_partnerships').value) || 0;
-            data.partner.date = document.getElementById('partner_date').value || null;
-            let id_partner = parseInt($("#partner_drop option:selected").val());
-
-            //   debugger
-            if (id_partner) {
-                data.partner.responsible = id_partner
-            }
-        } else {
-            data['remove_partnership'] = 'true'; //gavnocod vlada
-        }
-        let json = JSON.stringify(data);
-        updateUser(json, id);
+        updateUser(id);
     }
 })(jQuery);

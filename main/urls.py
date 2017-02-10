@@ -32,7 +32,7 @@ urlpatterns = [
                   url(r'^account_edit/([0-9]+)/$', views.account_edit, name='account_edit'),
                   url(r'^reports/$', views.reports, name='reports'),
                   url(r'^summits/$', views.summits, name='summits'),
-                  url(r'^summit_info/([0-9]+)/$', views.summit_info, name='summit_info'),
+                  url(r'^summits/([0-9]+)/$', views.summit_info, name='summit_info'),
 
                   url(r'^databases/$', redirect_to_churches, name='churches'),
                   url(r'^databases/churches/$', views.churches, name='churches'),

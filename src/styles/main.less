@@ -849,6 +849,13 @@ h1 a {
   background: none;
 }
 
+.download::before {
+  content: "\f019" !important;
+  font: 1.4em FontAwesome;
+  color: white;
+  background: none;
+}
+
 #add::before {
   content: "\f067" !important;
   font: 1.4em FontAwesome;
@@ -1789,19 +1796,21 @@ td {
   text-align: left;
   transition: all .3s ease;
 }
+
 #church {
   .edit {
     a {
       & ~ .quick-edit {
         width: 0;
         height: 0;
-         &:before {
+        &:before {
           display: none;
         }
       }
     }
   }
 }
+
 #tableUserINHomeGroups, #church.can_edit {
   .edit {
     a {
@@ -2081,13 +2090,8 @@ table label::before,
   cursor: pointer;
   height: 21px;
   position: absolute;
-  top: 7px;
-  right: 12px;
-  background: url('../img/gear-stat.png') no-repeat;
-}
-
-#users_list > table > tbody > tr > td:nth-child(1) > span:hover {
-  background: url('../img/gear.png') no-repeat;
+  top: 0;
+  left: 1em;
 }
 
 #userinfo > tbody > tr > td:nth-child(2) span.pod:hover {
@@ -2805,6 +2809,7 @@ button#completeDelete {
 
 #popupDelete .summa-wrap .summa {
   float: left;
+  padding: 1em 0 0;
 }
 
 #deleteAnket i {
@@ -2879,7 +2884,7 @@ button#complete {
   height: 128px;
   background: url('../img/preload.gif') no-repeat;
   transform: translateX(-50%);
-  z-index: 1;
+  z-index: 99999;
   position: relative;
 }
 
@@ -3802,7 +3807,7 @@ span.green {
     height: 35px;
     box-sizing: border-box;
     &:read-only {
-      border-color: #cdd0d4;
+      border-color: #cdd0d4 !important;
     }
   }
 }
@@ -3945,14 +3950,25 @@ select[disabled] {
   margin-top: 20px;
 }
 
-.editprofile .splash-bauttons {
-  margin: 50px 0;
-  overflow: hidden;
-  padding-bottom: 60px;
-}
+.editprofile {
+  & .splash-bauttons {
+    margin: 50px 0;
+    overflow: hidden;
+    padding-bottom: 60px;
+    & button, & a {
+      position: relative;
+      background-color: #aab2bd;
+      padding: 12px 20px 12px 45px;
+      color: #fff;
+      font-family: UbuntuMedium, sans-serif;
+      border-radius: 4px;
+      border: 0;
+      font-size: 1.1em;
+      transition: all .3s ease;
+      cursor: pointer;
+    }
 
-.editprofile .splash-bauttons button {
-  position: relative;
+  }
 }
 
 .editprofile .hasDatepicker {
@@ -4848,6 +4864,18 @@ div.code input#code {
       &:nth-child(1) {
         margin-right: 15px;
       }
+    }
+  }
+}
+
+@media screen and (max-width: 1360px) {
+  .header__button {
+    text-indent: -9999px;
+    width: 1em;
+    padding-right: 1px;
+    overflow: hidden;
+    &:before {
+      text-indent: 0;
     }
   }
 }

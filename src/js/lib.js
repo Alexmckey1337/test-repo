@@ -1,13 +1,25 @@
 function getChurches(config = {}) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/churches/', config, function (data) {
-                if (data) {
-                    resolve(data);
-                } else {
-                    reject("Ошибка")
+        let data = {
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/`,
+            data: config,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            statusCode: {
+                200: function (req) {
+                    resolve(req)
+                },
+                403: function () {
+                    reject('Вы должны авторизоватся')
                 }
-            }, "GET",
-            "application/json")
+
+            },
+            fail: reject
+        };
+
+        newAjaxRequest(data)
     });
 }
 
@@ -42,27 +54,136 @@ function makeDepartmentList(selector, active = null) {
 }
 function getHomeGroups(config = {}) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/home_groups/', config, function (data) {
-            if (data) {
-                resolve(data);
-            } else {
-                reject("Ошибка")
-            }
-        })
+        let data = {
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/`,
+            data: config,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            statusCode: {
+                200: function (req) {
+                    resolve(req)
+                },
+                403: function () {
+                    reject('Вы должны авторизоватся')
+                }
+
+            },
+            fail: reject
+        };
+
+        newAjaxRequest(data)
     });
 }
 
+function newAjaxRequest(data = {}) {
+    let resData = {
+        method: 'GET',
+        data: {}
+    };
+    Object.assign(resData, data);
+    if (getCookie('key')) {
+        resData.headers['Authorization'] = 'Token ' + getCookie('key');
+    }
+    return $.ajax({
+        url: resData.url,
+        data: resData.data,
+        type: resData.method,
+        headers: resData.headers
+    })
+        .statusCode(data.statusCode)
+        .fail(function () {
+            data.fail("Ошибка запроса")
+        });
+}
 function getUsers(config = {}) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/', config, function (data) {
-            if (data) {
-                resolve(data);
-            } else {
-                reject("Ошибка")
-            }
-        })
+        let data = {
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/`,
+            data: config,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            statusCode: {
+                200: function (req) {
+                    resolve(req)
+                },
+                403: function () {
+                    reject('Вы должны авторизоватся')
+                }
+
+            },
+            fail: reject
+        };
+
+        newAjaxRequest(data)
+
     });
 }
+
+
+function getSummitUsers(config = {}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/`,
+            data: config,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            statusCode: {
+                200: function (req) {
+                    resolve(req)
+                },
+                403: function () {
+                    reject('Вы должны авторизоватся')
+                }
+
+            },
+            fail: reject
+        };
+
+        newAjaxRequest(data)
+    });
+}
+
+function getPotencialSammitUsers(config) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_search/', config, function (data) {
+            resolve(data);
+        });
+    });
+}
+
+function registerUserToSummit(config) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/post_anket/', config, function (JSONobj) {
+        if (JSONobj.status) {
+            showPopup(JSONobj.message);
+            createSummitUsersTable();
+            getUnregisteredUsers();
+            $("#send_email").prop("checked", false);
+        } else {
+            showPopup(JSONobj.message);
+            $("#send_email").prop("checked", false);
+        }
+    }, 'POST', true, {
+        'Content-Type': 'application/json'
+    });
+}
+
+// function getUsers(config = {}) {
+//     return new Promise(function (resolve, reject) {
+//         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/', config, function (data) {
+//             if (data) {
+//                 resolve(data);
+//             } else {
+//                 reject("Ошибка")
+//             }
+//         })
+//     });
+// }
 
 function getChurchUsers(id) {
     return new Promise(function (resolve, reject) {
@@ -232,7 +353,6 @@ function createHomeGroupUsersTable(config = {}, id) {
         id = $('#home_group').data('id');
     }
     getHomeGroupUsers(config, id).then(function (data) {
-        console.log(data);
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
@@ -325,7 +445,7 @@ function clearAddHomeGroupData() {
 }
 
 function createChurchesTable(config = {}) {
-    config.search = $('input[name="fullsearch"]').val();
+    config.search_title = $('input[name="fullsearch"]').val();
     getChurches(config).then(function (data) {
         let count = data.count;
         let page = config['page'] || 1;
@@ -703,7 +823,7 @@ function makePagination(config) {
 
 }
 
-function deleteCookie(name) {
+function delCookie(name) {
     setCookie(name, "", {
         expires: -1
     })
@@ -851,8 +971,8 @@ function ajaxRequest(url, data, callback, method, withCredentials, headers, stat
 }
 
 function showPopup(text, title) {
-    title = title || 'Информационное сообщение';
     text = text || '';
+    title = title || 'Информационное сообщение';
     let popup = document.getElementById('create_pop');
     if (popup) {
         popup.parentElement.removeChild(popup)
@@ -909,4 +1029,42 @@ function getCorrectValue(value) {
         }
     }
     return value
+}
+
+function ajaxSendFormData(data = {}) {
+    let sendData = {
+        method: 'POST'
+    };
+    Object.assign(sendData, data);
+
+    return new Promise(function (resolve, reject) {
+        let xhr = new XMLHttpRequest();
+        xhr.withCredentials = true;
+        xhr.open(sendData.method, sendData.url, true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    let response = JSON.parse(xhr.responseText);
+                        showPopup('Данные успешно обновлены');
+                        resolve(response);
+                } else if (xhr.status == 201) {
+                    let response = JSON.parse(xhr.responseText);
+                    resolve(response);
+                } else {
+                    reject(xhr.responseText);
+                }
+            }
+        };
+        xhr.send(sendData.data);
+    });
+}
+
+function dataURLtoBlob(dataurl) {
+    let arr = dataurl.split(',');
+    let mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], {type: mime});
 }

@@ -130,7 +130,7 @@ def summits(request):
 def summit_info(request, summit_id):
     ctx = {
         'departments': Department.objects.all(),
-        'summit_type': SummitType.objects.get(id=summit_id)
+        'summit_type': SummitType.objects.get(id=summit_id),
     }
     return render(request, 'summit/summit_info.html', context=ctx)
 
