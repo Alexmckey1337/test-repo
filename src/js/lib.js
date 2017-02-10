@@ -145,9 +145,7 @@ function newAjaxRequest(data = {}) {
         headers: resData.headers
     })
         .statusCode(data.statusCode)
-        .fail(function () {
-            showPopup("Ошибка запроса");
-        });
+        .fail(data.fail);
 }
 function getUsers(config = {}) {
     return new Promise(function (resolve, reject) {
@@ -436,19 +434,37 @@ function createHomeGroupUsersTable(config = {}, id) {
     })
 }
 
+function addHomeGroupToDataBase(config = {}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/`,
+            data: config,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            statusCode: {
+                201: function (req) {
+                    resolve(req)
+                },
+                403: function () {
+                    reject('Вы должны авторизоватся')
+                }
+
+            },
+            fail: reject
+        };
+
+        newAjaxRequest(data)
+    });
+}
+
 function addHomeGroup(e, el) {
     e.preventDefault();
     let data = getAddHomeGroupData();
     let json = JSON.stringify(data);
-    let config = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/`,
-        data: json,
-        method: 'POST',
-        headers: {
-                'Content-Type': 'application/json'
-            }
-    };
-    newAjaxRequest(config).then(function (data) {
+
+    addHomeGroupToDataBase(json).then(function (data) {
         clearAddHomeGroupData();
         hidePopup(el);
         showPopup(`Домашняя группа ${data.get_title} добавлена в базу данных`);
@@ -554,25 +570,44 @@ function createChurchesTable(config = {}) {
     });
 }
 
+function addChurchTODataBase(config) {
+        return new Promise(function (resolve, reject) {
+            let data = {
+                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/`,
+                data: config,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                statusCode: {
+                    201: function (req) {
+                        resolve(req)
+                    },
+                    403: function () {
+                        reject('Вы должны авторизоватся')
+                    }
+
+                },
+                fail: reject
+            };
+
+            newAjaxRequest(data)
+        });
+    }
+
 function addChurch(e, el, callback) {
     e.preventDefault();
     let data = getAddChurchData();
     let json = JSON.stringify(data);
-    let config = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/`,
-        data: json,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-    };
-    newAjaxRequest(config).then(function (data) {
+    addChurchTODataBase(json).then(function (data) {
+        hidePopup(el)
         clearAddChurchData();
         callback();
         showPopup(`Церковь ${data.get_title} добавлена в базу`);
-        console.log(data);
+    }).catch(function (data) {
+        hidePopup(el);
+        showPopup('Ошибка при создании домашней группы');
     });
-    hidePopup(el)
 }
 
 function getCountryCodes() {
