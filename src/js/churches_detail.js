@@ -15,6 +15,7 @@
             $('#added_home_group_pastor').html(options).prop('disabled', false);
         })
     }
+
     function addUserToChurch(id, el) {
         let config = {};
         config.user_id = id;
@@ -23,8 +24,9 @@
             createChurchesUsersTable(ID);
         }, 'POST', 'application/json');
     }
+
     function makeUsersFromDatabaseList(config = {}) {
-        getUsersTOChurch(config).then(function(data) {
+        getUsersTOChurch(config).then(function (data) {
             let users = data;
             let html = [];
             users.forEach(function (item) {
@@ -38,9 +40,9 @@
                 $(link).attr('href', '/account/' + item.id).text(item.full_name);
                 $(place).text();
                 $(col_1).addClass('col').append(link);
-                $(col_2).addClass('col').append(item.country + ', ' +  item.city);
+                $(col_2).addClass('col').append(item.country + ', ' + item.city);
                 $(rows).addClass('rows').append(col_1).append(col_2);
-                $(button).attr('data-id', item.id).text('Выбрать').on('click',function () {
+                $(button).attr('data-id', item.id).text('Выбрать').on('click', function () {
                     let id = $(this).data('id');
                     let _self = this;
                     addUserToChurch(id, _self);
@@ -62,7 +64,7 @@
 //    Events
     $('#add_homeGroupToChurch').on('click', function () {
         clearAddHomeGroupData();
-        if(!responsibleList) {
+        if (!responsibleList) {
             responsibleList = true;
             makeResponsibleList(D_ID, 2);
         }
@@ -78,7 +80,7 @@
         $(this).closest('.popup').css('display', 'none');
         $('#searchedUsers').html('');
         $('#searchUserFromDatabase').val('');
-         $('.choose-user-wrap .splash-screen').removeClass('active');
+        $('.choose-user-wrap .splash-screen').removeClass('active');
         $('#chooseUserINBases').css('display', 'block');
     });
     $('#add_new').on('click', function () {
@@ -102,7 +104,7 @@
         let link = $(this).data('link');
         let canEdit = $(this).data('editable');
         $('#church').removeClass('can_edit');
-        if(canEdit) {
+        if (canEdit) {
             $('#church').addClass('can_edit');
         }
         createChurchesDetailsTable({}, ID, link);
@@ -112,5 +114,71 @@
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
         updateSettings(createChurchesDetailsTable);
+    });
+
+    function createUser(id) {
+        let oldForm = document.forms.createUser;
+        let formData = new FormData(oldForm);
+        if ($('#division_drop').val()) {
+            formData.append('divisions', JSON.stringify($('#chooseDivision').val()));
+        } else {
+            formData.append('divisions', JSON.stringify([]));
+        }
+        if($('#phoneNumber').val()) {
+            let phoneNumber = $('#phoneNumberCode').val() + $('#phoneNumber').val();
+            formData.append('phone_number', phoneNumber)
+        }
+        if ($('#extra_phone_numbers').val()) {
+            formData.append('extra_phone_numbers', JSON.stringify($('#extra_phone_numbers').val().split(',').map((item) => item.trim())));
+        } else {
+            formData.append('extra_phone_numbers', JSON.stringify([]));
+        }
+        formData.append('department', $('#chooseDepartment').val());
+        if ($('#partner').is(':checked')) {
+            let partner = {};
+            partner.value = $('#partnerFrom').val() || 0;
+            partner.date = $('#partners_count').val() || null;
+            partner.responsible = parseInt($("#chooseManager").val());
+            formData.append('partner', JSON.stringify(partner));
+        }
+        let send_image = $('#file').prop("files").length || false;
+        if (send_image) {
+            try {
+                let blob;
+                blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+                formData.append('image', blob);
+                formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
+                formData.append('id', id);
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/`;
+        let config = {
+            url: url,
+            data: formData,
+            method: 'POST'
+        };
+        $('.preloader').css('display', 'block');
+        ajaxSendFormData(config).then(function (data) {
+            $('.preloader').css('display', 'none');
+            addUserToChurch(data.id);
+            showPopup(`${data.fullname} добален(а) в базу данных`);
+            $('#createUser').find('input').each(function () {
+                $(this).val('')
+            });
+            $('#createUser').find('.cleared').each(function () {
+                $(this).find('option').eq(0).prop('selected', true).select2()
+            });
+            $('#addNewUserPopup').css('display', 'none');
+        }).catch(function (data) {
+            $('.preloader').css('display', 'none');
+            showPopup(data);
+        });
+    }
+
+    $('#createUser').on('submit', function (e) {
+        e.preventDefault();
+        createUser();
     });
 })(jQuery);

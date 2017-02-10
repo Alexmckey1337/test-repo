@@ -34,6 +34,10 @@
         } else {
             formData.append('divisions', JSON.stringify([]));
         }
+        if($('#phoneNumber').val()) {
+            let phoneNumber = $('#phoneNumberCode').val() + $('#phoneNumber').val();
+            formData.append('phone_number', phoneNumber)
+        }
         if ($('#extra_phone_numbers').val()) {
             formData.append('extra_phone_numbers', JSON.stringify($('#extra_phone_numbers').val().split(',').map((item) => item.trim())));
         } else {
