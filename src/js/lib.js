@@ -445,7 +445,7 @@ function clearAddHomeGroupData() {
 }
 
 function createChurchesTable(config = {}) {
-    config.search = $('input[name="fullsearch"]').val();
+    config.search_title = $('input[name="fullsearch"]').val();
     getChurches(config).then(function (data) {
         let count = data.count;
         let page = config['page'] || 1;

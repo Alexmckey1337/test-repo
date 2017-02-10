@@ -113,7 +113,7 @@
                     </div>
                     <div class="col-6">
                         <p class="input_block">
-                            <select class="selectdb" data-filter="department" id="departments_filter">
+                            <select class="selectdb" data-filter="search_department" id="departments_filter">
                                 <option value="">ВСЕ</option>
                                 {% for department in departments %}
                                     <option value="{{ department.id }}">{{ department.title }}</option>
@@ -121,7 +121,7 @@
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" data-filter="pastor" id="pastor_filter">
+                            <select class="selectdb" data-filter="search_pastor" id="pastor_filter">
                                 <option value="">ВСЕ</option>
                                 {% for pastor in pastors %}
                                     <option value="{{ pastor.id }}">{{ pastor.fullname }}</option>
@@ -135,10 +135,10 @@
                             <input type="text" data-filter="opening_date" id="search_date_open">
                         </p>
                         <p class="input_block">
-                            <input type="text" data-filter="country" placeholder="страна или часть названия" id="search_country">
+                            <input type="text" data-filter="search_country" placeholder="страна или часть названия" id="search_country">
                         </p>
                         <p class="input_block">
-                            <input type="text" data-filter="city" placeholder="город или часть названия" id="search_city">
+                            <input type="text" data-filter="search_city" placeholder="город или часть названия" id="search_city">
                         </p>
                     </div>
                 </div>
