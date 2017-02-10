@@ -17,14 +17,14 @@
         <div class="top-buttons-wrap">
             <ul class="top-buttons">
                 <li>
-                    <button id="add">Добавить церковь</button>
+                    <button id="add" class="header__button">Добавить церковь</button>
                 </li>
                 <li>
-                    <button id="filter_button">Фильтр</button>
+                    <button id="filter_button" class="header__button">Фильтр</button>
                 </li>
                 <li>
                     <form action="{% url "church-export" %}" method="post">
-                        <button type="submit" class="download">Export</button>
+                        <button type="submit" class="download header__button">Export</button>
                     </form>
                 </li>
                 <li>

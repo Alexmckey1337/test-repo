@@ -848,12 +848,14 @@ h1 a {
   color: white;
   background: none;
 }
+
 .download::before {
   content: "\f019" !important;
   font: 1.4em FontAwesome;
   color: white;
   background: none;
 }
+
 #add::before {
   content: "\f067" !important;
   font: 1.4em FontAwesome;
@@ -4862,6 +4864,18 @@ div.code input#code {
       &:nth-child(1) {
         margin-right: 15px;
       }
+    }
+  }
+}
+
+@media screen and (max-width: 1360px) {
+  .header__button {
+    text-indent: -9999px;
+    width: 1em;
+    padding-right: 1px;
+    overflow: hidden;
+    &:before {
+      text-indent: 0;
     }
   }
 }
