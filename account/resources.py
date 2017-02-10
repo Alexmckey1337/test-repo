@@ -2,43 +2,63 @@
 from __future__ import unicode_literals
 
 from import_export import fields
-from import_export import resources
+from import_export.resources import ModelDeclarativeMetaclass
 
 from account.models import CustomUser as User
+from common.resources import CustomFieldsModelResource
+
+USER_MAIN_RESOURCE_FIELDS = ('last_name', 'first_name', 'middle_name',
+                             'email', 'phone_number', 'skype', 'country', 'city', 'address',
+                             'born_date', 'facebook', 'vkontakte', 'description',)
+
+USER_RESOURCE_FIELDS = USER_MAIN_RESOURCE_FIELDS + ('department_title', 'hierarchy_title', 'master_name')
 
 
-class UserResource(resources.ModelResource):
+class UserMetaclass(ModelDeclarativeMetaclass):
+    def __new__(mcs, name, bases, attrs):
+        new_class = super(UserMetaclass,
+                          mcs).__new__(mcs, name, bases, attrs)
+
+        def create_dehydrate_method(f):
+            def dehydrate_method(self, obj):
+                user_field = self.get_user_field(obj)
+                return getattr(user_field, f)
+
+            return dehydrate_method
+
+        for f in USER_MAIN_RESOURCE_FIELDS:
+            setattr(new_class, 'dehydrate_{}'.format(f), create_dehydrate_method(f))
+        return new_class
+
+
+class UserResource(CustomFieldsModelResource):
     """For excel import/export"""
     master_name = fields.Field()
     department_title = fields.Field()
     hierarchy_title = fields.Field()
 
+    user_field_name = None
+
     class Meta:
         model = User
-        # fields = ('id', 'username', 'last_name', 'first_name', 'middle_name',
-        #          'email', 'phone_number', 'skype', 'country', 'city', 'address',
-        #          'born_date', 'facebook', 'vkontakte', 'description',
-        #          'department', 'hierarchy', 'master')
-        fields = ('id', 'username', 'last_name', 'first_name', 'middle_name',
-                  'email', 'phone_number', 'skype', 'country', 'city', 'address',
-                  'department_title', 'hierarchy_title', 'master_name',
-                  'born_date', 'facebook', 'vkontakte', 'description',)
-        exclude = ('user_ptr', 'password', 'last_login', 'is_superuser', 'groups', 'user_permissions', 'is_staff',
-                   'is_active', 'date_joined', 'image', 'hierarchy_order',)
-        # fields = ('id', 'username', 'last_name', 'first_name', 'middle_name')
-        # export_order = ('id', 'username', 'last_name', 'first_name', 'middle_name',
-        #                'email', 'phone_number', 'skype', 'country', 'city', 'address',
-        #                'born_date', 'facebook', 'vkontakte', 'description',
-        #                'department', 'hierarchy', 'master')
+        fields = USER_RESOURCE_FIELDS
+
+    def get_user_field(self, user):
+        if self.user_field_name:
+            return getattr(user, self.user_field_name)
+        return user
 
     def dehydrate_master_name(self, user):
-        return '%s %s %s' % (user.first_name, user.last_name, user.middle_name)
+        user_field = self.get_user_field(user)
+        return '%s %s %s' % (user_field.first_name, user_field.last_name, user_field.middle_name)
 
     def dehydrate_department_title(self, user):
-        return user.department.title if user.department else ''
+        user_field = self.get_user_field(user)
+        return user_field.department.title if user_field.department else ''
 
     def dehydrate_hierarchy_title(self, user):
-        return user.hierarchy.title if user.hierarchy else ''
+        user_field = self.get_user_field(user)
+        return user_field.hierarchy.title if user_field.hierarchy else ''
 
 
 def clean_password(data):

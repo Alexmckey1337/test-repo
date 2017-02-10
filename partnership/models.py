@@ -156,6 +156,24 @@ class Deal(models.Model):
         super(Deal, self).save(*args, **kwargs)
 
     @property
+    def value_str(self):
+        """
+        Deal value with currency.
+
+        For example:
+        deal.value = 120
+        deal.currency.short_name = cur.
+        deal.currency.output_format = '{value} {short_name}'
+
+        Then:
+        deal.value_str == '120 cur.'
+        :return: str
+        """
+        format_data = self.currency.output_dict()
+        format_data['value'] = self.value
+        return self.currency.output_format.format(**format_data)
+
+    @property
     def month(self):
         if self.date_created:
             return '{}.{}'.format(self.date_created.year, self.date_created.month)

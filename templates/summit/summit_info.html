@@ -39,6 +39,11 @@
     </div>
 {% endblock %}
 {% block header.buttons.export %}
+    <li>
+        <form action="{% url "summit_ankets-export" %}?user__first_name=Сергей" method="post">
+            <button type="submit">Export</button>
+        </form>
+    </li>
 {% endblock %}
 
 {% block pagination_top %}

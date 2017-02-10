@@ -24,6 +24,11 @@
                     <button id="filter_button">Фильтр</button>
                 </li>
                 <li>
+                    <form action="{% url "users_v1_1-export" %}?hierarchy=4" method="post">
+                        <button type="submit">Export</button>
+                    </form>
+                </li>
+                <li>
                     <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
                 </li>
             </ul>

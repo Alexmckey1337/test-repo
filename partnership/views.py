@@ -16,13 +16,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from account.models import CustomUser as User, CustomUser
+from common.views_mixins import ExportViewSetMixin
 from navigation.table_fields import user_table, partner_table
 from partnership.permissions import (
     IsSupervisorOrManagerReadOnly, CanCreatePartnerPayment, CanClosePartnerDeal)
+from partnership.resources import PartnerResource
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from .models import Partnership, Deal
 from .serializers import (
-    DealSerializer, PartnershipSerializer,
+    DealSerializer, PartnershipSerializer, DealCreateSerializer,
     PartnershipUnregisterUserSerializer, PartnershipForEditSerializer)
 
 
@@ -65,7 +67,8 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
                          mixins.ListModelMixin,
                          viewsets.GenericViewSet,
                          CreatePaymentMixin,
-                         ListPaymentMixin):
+                         ListPaymentMixin,
+                         ExportViewSetMixin):
     queryset = Partnership.objects.base_queryset().order_by(
         'user__last_name', 'user__first_name', 'user__middle_name')
     serializer_class = PartnershipSerializer
@@ -89,6 +92,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
     permission_classes = (IsAuthenticated,)
 
     payment_list_field = 'extra_payments'
+    resource_class = PartnerResource
 
     def get_queryset(self):
         return self.queryset.for_user(user=self.request.user)
@@ -224,13 +228,20 @@ class DateFilter(filters.FilterSet):
                   'expired', 'done', 'to_date', 'from_date', ]
 
 
-class DealViewSet(viewsets.ModelViewSet, CreatePaymentMixin, ListPaymentMixin):
+class DealViewSet(mixins.RetrieveModelMixin,
+                  mixins.CreateModelMixin,
+                  mixins.UpdateModelMixin,
+                  mixins.ListModelMixin,
+                  viewsets.GenericViewSet,
+                  CreatePaymentMixin,
+                  ListPaymentMixin):
     queryset = Deal.objects.base_queryset(). \
         annotate_full_name(). \
         annotate_responsible_name(). \
         annotate_total_sum(). \
         order_by('-date_created', 'id')
     serializer_class = DealSerializer
+    serializer_create_class = DealCreateSerializer
     pagination_class = DealPagination
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
@@ -241,6 +252,11 @@ class DealViewSet(viewsets.ModelViewSet, CreatePaymentMixin, ListPaymentMixin):
                      'partnership__user__search_name',
                      'partnership__user__middle_name',)
     permission_classes = (IsSupervisorOrManagerReadOnly,)
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return self.serializer_create_class
+        return self.serializer_class
 
     def get_queryset(self):
         user = self.request.user

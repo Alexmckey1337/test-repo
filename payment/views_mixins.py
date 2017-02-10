@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.utils import timezone
 from decimal import Decimal
 from json import dumps

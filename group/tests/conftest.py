@@ -4,6 +4,7 @@ from pytest_factoryboy import register
 from rest_framework.permissions import AllowAny
 
 from account.factories import UserFactory
+from common.test_helpers.views import fake_dispatch
 from group.factories import ChurchFactory
 from group.factories import HomeGroupFactory
 from group.views import ChurchViewSet, HomeGroupViewSet
@@ -14,32 +15,6 @@ register(ChurchFactory)
 register(HomeGroupFactory)
 register(DepartmentFactory)
 register(HierarchyFactory)
-
-
-def fake_dispatch(self, request, *args, **kwargs):
-    self.args = args
-    self.kwargs = kwargs
-    request = self.initialize_request(request, *args, **kwargs)
-    self.request = request
-    self.headers = self.default_response_headers  # deprecate?
-
-    try:
-        self.initial(request, *args, **kwargs)
-
-        # Get the appropriate handler method
-        if request.method.lower() in self.http_method_names:
-            handler = getattr(self, request.method.lower(),
-                              self.http_method_not_allowed)
-        else:
-            handler = self.http_method_not_allowed
-
-        response = handler(request, *args, **kwargs)
-
-    except Exception as exc:
-        response = self.handle_exception(exc)
-
-    self.response = self.finalize_response(request, response, *args, **kwargs)
-    return self
 
 
 @pytest.fixture
@@ -85,7 +60,6 @@ def home_group(home_group_factory, church, leader):
 @pytest.fixture
 def fake_church_view_set(monkeypatch):
     monkeypatch.setattr(ChurchViewSet, 'dispatch', fake_dispatch)
-    monkeypatch.setattr(HomeGroupViewSet, 'permission_classes', (AllowAny,))
 
     return ChurchViewSet
 

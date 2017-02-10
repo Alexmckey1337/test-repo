@@ -31,12 +31,13 @@ from rest_framework.viewsets import GenericViewSet
 
 from account.models import CustomUser as User
 from common.filters import FieldSearchFilter
+from common.views_mixins import ExportViewSetMixin
 from common.parsers import MultiPartAndJsonParser
 from hierarchy.models import Hierarchy, Department
 from navigation.table_fields import user_table
 from partnership.models import Partnership
 from status.models import Status, Division
-from .resources import clean_password, clean_old_password
+from .resources import clean_password, clean_old_password, UserResource
 from .serializers import UserSerializer, UserShortSerializer, UserTableSerializer, NewUserSerializer, \
     UserSingleSerializer, PartnershipSerializer
 
@@ -158,7 +159,7 @@ class ShortUserFilter(django_filters.FilterSet):
         fields = ['level_gt', 'level_gte', 'level_lt', 'level_lte', 'department']
 
 
-class NewUserViewSet(viewsets.ModelViewSet):
+class NewUserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
     queryset = User.objects.select_related(
         'hierarchy', 'department', 'master__hierarchy').prefetch_related(
         'divisions'
@@ -194,6 +195,8 @@ class NewUserViewSet(viewsets.ModelViewSet):
     parser_list_fields = ['divisions', 'extra_phone_numbers']
     parser_dict_fields = ['partner']
 
+    resource_class = UserResource
+
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:
@@ -227,6 +230,16 @@ class NewUserViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user = serializer.save()
         self._create_partnership(user)
+
+        return user
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = self.perform_create(serializer)
+        serializer = self.serializer_single_class(user)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def _create_partnership(self, user):
         partner = self.request.data.get('partner', None)
