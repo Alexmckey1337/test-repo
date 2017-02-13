@@ -133,6 +133,9 @@ class Deal(models.Model):
                                  default=get_default_currency)
 
     partnership = models.ForeignKey('partnership.Partnership', related_name="deals")
+    responsible = models.ForeignKey('partnership.Partnership', on_delete=models.CASCADE,
+                                    related_name='disciples_deals', editable=False,
+                                    verbose_name=_('Responsible of partner'), null=True, blank=True)
     description = models.TextField(blank=True)
     done = models.BooleanField(default=False)
     expired = models.BooleanField(default=False)
@@ -145,7 +148,7 @@ class Deal(models.Model):
     objects = DealManager()
 
     class Meta:
-        ordering = ('date_created',)
+        ordering = ('-date_created',)
 
     def __str__(self):
         return "%s : %s" % (self.partnership, self.date)
@@ -153,6 +156,7 @@ class Deal(models.Model):
     def save(self, *args, **kwargs):
         if not self.id and self.partnership:
             self.currency = self.partnership.currency
+            self.responsible = self.partnership.responsible
         super(Deal, self).save(*args, **kwargs)
 
     @property
