@@ -51,6 +51,8 @@ class UserResource(CustomFieldsModelResource):
 
     def dehydrate_master_name(self, user):
         user_field = self.get_user_field(user)
+        if not user_field.master:
+            return ''
         return '%s %s %s' % (user_field.master.first_name, user_field.master.last_name, user_field.master.middle_name)
 
     def dehydrate_department_title(self, user):
