@@ -26,9 +26,11 @@ urlpatterns = [
     url(r'^api/', include('notification.urls')),
     url(r'^api/', include('partnership.urls')),
     url(r'^api/', include('report.urls')),
+
+    url(r'^api/', include('group.urls')),
+
     url(r'^api/', include('status.urls')),
     url(r'^api/', include('summit.urls')),
-    url(r'^api/', include('tv_crm.urls')),
 
     url(r'^', include('main.urls')),
     url(r'^', include('django.contrib.auth.urls')),

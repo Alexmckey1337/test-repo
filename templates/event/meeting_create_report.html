@@ -1,0 +1,75 @@
+{% load i18n %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+<h1>{% trans "Create report" %}: {{ meeting_type.name }}</h1>
+{% if request.user.hierarchy.level == 1 %}
+    {% with leader=request.user %}
+        <hr>
+        <h2>{% trans "Current leader" %}: {{ leader.fullname }}</h2>
+
+        <table class="table table-striped">
+            <tr>
+                <th>{% trans "+/-" %}</th>
+                <th>{% trans "Name" %}</th>
+                <th>
+                    {% trans "Phone" %}
+                </th>
+                <th>{% trans "Note" %}</th>
+            </tr>
+            {% for user in leader.get_children.all %}
+                <tr>
+                    <td><input type="checkbox"></td>
+                    <td>{{ user.fullname }}</td>
+                    <td>{{ user.phone_number }}</td>
+                    <td><input type="text"></td>
+                </tr>
+            {% endfor %}
+
+        </table>
+
+    {% endwith %}
+{% else %}
+    {% for leader in leaders %}
+        {% if leader.get_children.count > 0 %}
+            <hr>
+            <h2>{% trans "Current leader" %}: {{ leader.fullname }}</h2>
+
+            <table class="table table-striped">
+                <tr>
+                    <th>{% trans "+/-" %}</th>
+                    <th>{% trans "Name" %}</th>
+                    <th>
+                        {% trans "Phone" %}
+                    </th>
+                    <th>{% trans "Note" %}</th>
+                </tr>
+                {% for user in leader.get_children.all %}
+                    <tr>
+                        <td><input type="checkbox"></td>
+                        <td>{{ user.fullname }}</td>
+                        <td>{{ user.phone_number }}</td>
+                        <td><input type="text"></td>
+                    </tr>
+                {% endfor %}
+
+            </table>
+
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+</body>
+</html>

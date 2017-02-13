@@ -75,16 +75,14 @@ class FieldSearchFilter(BaseFilterBackend):
         for key in search_fields.keys():
             orm_lookups[key] = [
                 self.construct_search(six.text_type(search_field))
-                for search_field in search_fields[key]
-                ]
+                for search_field in search_fields[key]]
 
         # base = queryset
         for term_key in search_terms.keys():
             for search_term in search_terms[term_key]:
                 queries = [
                     models.Q(**{orm_lookup: search_term})
-                    for orm_lookup in orm_lookups[term_key]
-                    ]
+                    for orm_lookup in orm_lookups[term_key]]
                 queryset = queryset.filter(reduce(operator.or_, queries))
 
         # if self.must_call_distinct(queryset, search_fields):

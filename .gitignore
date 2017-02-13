@@ -4,6 +4,7 @@ node_modules/
 /.idea
 *.py[cod]
 *.sql
+*.mo
 edem/local_settings.py
 /.sift.conf
 /celerybeat-schedule

@@ -8,23 +8,28 @@
         <div class="tabs">
             <ul class="nav tabs_link">
                 <li><a href="{% url 'partner-deals' %}">Сделки</a></li>
-                <li><a href="{% url 'partner-list' %}">Список партнёров</a></li>
+                <li><a class="active" href="{% url 'partner-list' %}">Список партнёров</a></li>
                 <li><a href="{% url 'partner-stats' %}">Статистика</a></li>
             </ul>
         </div>
 
         <div class="top-buttons-wrap">
             <ul class="top-buttons">
-{#                <li>#}
-{#                    <button class="add" id="add_user_parners">Добавить пользователя</button>#}
-{#                </li>#}
+                {#                <li>#}
+                {#                    <button class="add" id="add_user_parners">Добавить пользователя</button>#}
+                {#                </li>#}
                 {% comment %}
             <li>
                 <button>Экспортировать</button>
             </li>
             {% endcomment %}
                 <li>
-                    <button id="sort-on">Изменить таблицу</button>
+                    <form action="{% url "partnerships_v1_1-export" %}" method="post">
+                        <button type="submit" class="download" class="header__button">Export</button>
+                    </form>
+                </li>
+                <li>
+                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
                 </li>
             </ul>
 
@@ -53,12 +58,7 @@
                 </div>
             {% endif %}
             <div class="top-pag">
-                <div class="pagination">
-                    <div class="pag-wrap">
-
-
-                    </div>
-                </div>
+                <div class="pagination partners__pagination"></div>
             </div>
 
             <div class="table-wrap clearfix"><!--Table -->
@@ -69,37 +69,30 @@
                     <div class="gif">
                     </div>
                 </div>
-                <div class="table scrollbar-inner" id="partnersips_list"></div>
+                <div class="table scrollbar-inner" id="partnersList"></div>
             </div><!--End Table-wrap -->
+            <div class="table__count"></div>
+            <div class="pagination partners__pagination"></div>
 
-            <div class="pagination full-width"><!--pagination -->
-                <div class="element-select">
-                    <!--<p>Показано <span>10</span> из <span>500</span></p> -->
-                </div>
-                <div class="pag-wrap">
-                    <!-- <div class="prev">
-                        <span class="double_arrow"></span>
-                        <span class="arrow"></span>
-                    </div>
-                            <ul class="pag">
-                                <li class="active">1</li>
-                                <li>2</li>
-                                <li>3</li>
-                                <li>4</li>
-                                <li>5</li>
-                                <li>6</li>
-                            </ul>
-                        <div class="next">
-                            <span class="arrow"></span>
-                            <span class="double_arrow"></span>
-                        </div> -->
-                </div>
-            </div><!--End pagination -->
         </div><!--End spisok -->
     </div><!-- End tab-content-->
 {% endblock %}
 
 {% block popup %}
+    <div class="popap" id="quickEditCartPopup">
+        <div class="pop_cont">
+            <div class="popup_text">
+                <h2>Карточка пользователя</h2>
+                <span onclick="hidePopup(this)" class="close"><i class="fa fa-times" aria-hidden="true"></i></span>
+            </div>
+            <div class="popup_body">
+            </div>
+            <div class="container">
+                <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                <button onclick="saveUser(this)" class="save-user">Сохранить</button>
+            </div>
+        </div>
+    </div>
     <div id="popup" class="pop-up-splash">
         <div class="splash-screen">
             <div class="top-text">
@@ -145,6 +138,71 @@
 {% block extra_scripts %}
     <script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
     <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
-    <script src='{% static "js/deals.js" %}'></script>
-    <script src='{% static "js/stats.js" %}'></script>
+    <script src='{% static "js/partner_list.js" %}'></script>
+    <script type="text/template" id="quickEditCart">
+   <div class="container bb-1">
+       <div>
+            <img class="user-image" src="<%= image %>" alt="<%=id%>">
+        </div>
+        <div class="col-7">
+            <p><input type="text" class="fullname" value="<%=fullname %>"></p>
+            <p><label for="departmentSelect">Отдел церкви: </label><select id="departmentSelect">
+                <% if(department != null) { %>
+                    <option value="<%=department.id %>" selected><%=department.title %></option>
+                <% } else { %>
+                    <option value="" selected></option>
+                <% } %>
+            </select></p>
+            <div><label for="master_hierarchy">Ответственный: </label>
+                <select id="master_hierarchy">
+                    <% if(master != null) { %>
+                        <option value="<%= master.fullname %>" data-id="<%= master.id %>" data-level="<%=master.hierarchy.level%>" selected><%= master.fullname %></option>
+                    <% } %>
+                </select>
+            </div>
+            <p><label for="hierarchySelect">Статус: </label><select id="hierarchySelect">
+                <% if(hierarchy != null) { %>
+                <option value="<%=hierarchy.id %>" data-level="<%=hierarchy.level%>" selected><%=hierarchy.title %></option>
+                <% } else { %>
+                    <option value="" selected></option>
+                <% } %>
+            </select></p>
+{#            <p><label for="departmentSelect">Отдел церкви: </label><input type="text" id="departmentSelect" value="<%=fields.department.value %>" readonly></p> #}
+{#            <p><label for="master_hierarchy">Ответсвенный: </label><input type="text" id="master_hierarchy" value="<%=fields.master_hierarchy.value %>" readonly></p>#}
+{#            <p><label for="hierarchy">Статус: </label><input type="text" id="hierarchy" value="<%=fields.hierarchy.value %>" readonly></p>#}
+        </div>
+   </div>
+    <div class="container">
+        <div class="col-6">
+            <p class="label_block">Телефон:</p>
+            <p class="label_block">Домашний телефон:</p>
+            <p class="label_block">E-mail:</p>
+            <p class="label_block">Skype:</p>
+            <p class="label_block">Страна:</p>
+            <p class="label_block">Область:</p>
+            <p class="label_block">Нас.пункт:</p>
+            <p class="label_block">Адрес:</p>
+            <p class="label_block">Дата покаяния:</p>
+        </div>
+        <div class="col-6">
+            <p><input type="text" id="phone_number" value="<%=phone_number %>"></p>
+            <p><input type="text" id="extra_phone_numbers"
+                        <% if (extra_phone_numbers.lenght) { %>
+                        value="<%=extra_phone_numbers.join(', ') %>
+                <% } %>
+            </p>
+            <p><input type="text" id="email" value="<%=email %>"></p>
+            <p><input type="text" id="skype" value="<%=skype %>"></p>
+            <p><input type="text" id="country" value="<%=country %>"></p>
+            <p><input type="text" id="region" value="<%=region %>"></p>
+            <p><input type="text" id="city" value="<%=city %>"></p>
+            <p><input type="text" id="address" value="<%=address %>"></p>
+            <% if (repentance_date) { %>
+                <p><input type="text" id="repentance_date" value="<%=repentance_date.split('.').reverse().join('-') %>"></p>
+            <% } else { %>
+                <p><input type="text" id="repentance_date" value=""></p>
+            <% } %>
+        </div>
+    </div>
+</script>
 {% endblock %}

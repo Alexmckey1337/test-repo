@@ -1,6 +1,7 @@
 {% extends "layout_main.html" %}
 {% load static %}
 {% load summit_tags %}
+{% load payment_tags %}
 
 {% block header.top.h1 %}
     <h1 id="summit-title">
@@ -8,16 +9,6 @@
         <span>{{ summit_type.title }}</span>
     </h1>
 {% endblock %}
-<div>
-{% block header.top.select %}
-    <select class="selectdb" id="dep_filter">
-        <option value="0">ВСЕ</option>
-        {% for department in departments %}
-            <option value="{{ department.id }}">{{ department.title }}</option>
-        {% endfor %}
-    </select>
-{% endblock %}
-</div>
 
 {% block header.buttons.filter %}
     {% if summit_type.club_name %}
@@ -30,16 +21,35 @@
         </div>
     {% endif %}
 {% endblock %}
-
+{% block header.buttons %}
+    <div class="top-panel">
+        <div class="top-buttons-wrap">
+            <ul class="top-buttons">
+                <li>
+                    <button id="add">Добавить пользователя</button>
+                </li>
+                <li>
+                    <button id="filter_button">Фильтр</button>
+                </li>
+                <li>
+                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
 {% block header.buttons.export %}
+    <li>
+        <form action="{% url "summit_ankets-export" %}?user__first_name=Сергей" method="post">
+            <button type="submit">Export</button>
+        </form>
+    </li>
 {% endblock %}
 
 {% block pagination_top %}
     <div class="top-pag">
         <div id="carousel" class="carousel">
-
             <span class="arrow-left"></span>
-
             <div class="gallery">
                 <ul id="date" class="images">
                     {% for summit in summit_type.summits.all reversed %}
@@ -54,9 +64,7 @@
                     {% endfor %}
                 </ul>
             </div>
-
             <span class="arrow-right"></span>
-
         </div>
 
         <div class="pagination"><!--pagination -->
@@ -67,14 +75,17 @@
 
 {% block table %}
     <div class="table-wrap clearfix">
-        <div id="users_list" class="table scrollbar-inner"></div>
+        <div data-summit-type="{{ summit_type.id }}" id="summitUsersList" class="table scrollbar-inner"></div>
         <div class="preloader">
             <div class="gif">
             </div>
         </div>
     </div>
 {% endblock %}
-
+{% block pagination_bottom %}
+        <div class="table__count"></div>
+        <div class="pagination users__pagination"></div>
+    {% endblock %}
 {% block choose_user_modal.search_field %}
     <input id="searchUsers" type="text" placeholder="Поиск" name="unregsearch">
 {% endblock %}
@@ -121,7 +132,7 @@
                     <p>Сумма:</p>
                     <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                            readonly="readonly" type="text" id="summit-valueDelete">
-                    <span id="changeSumDelete" class="change-summ"></span>
+{#                    <span id="changeSumDelete" class="change-summ"></span>#}
                 </div>
                 <div class="member_club_block">
                     <input type="checkbox" id="member">
@@ -137,6 +148,19 @@
                 <button id="deleteAnket"><i class="fa fa-trash-o fa-lg" aria-hidden="true"></i> Удалить</button>
                 <button id="closeDelete">Отменить</button>
                 <button id="completeDelete">Завершить</button>
+            </div>
+        </div>
+    </div>
+    {% create_payment_form %}
+    <div id="popup-payments" class="pop-up-splash">
+        <div class="splash-screen">
+            <div class="top-text">
+                <h3>Платежи</h3>
+                <span>&times;</span>
+            </div>
+            <table></table>
+            <div class="splash-bauttons">
+                <button id="close-payments">Закрыть</button>
             </div>
         </div>
     </div>
@@ -157,19 +181,16 @@
             </div>
             <div class="summa-wrap">
                 <div class="code">
-
                     <input placeholder="Номер пропуска" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                            type="text" id="code">
-
                     <input id="check" type="checkbox">
-
                 </div>
-                <div class="summa">
-                    <p>Сумма:</p>
-                    <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                           readonly="readonly" type="text" id="summit-valueNew">
-                    <span id="changeSumNew" class="change-summ"></span>
-                </div>
+{#                <div class="summa">#}
+{#                    <p>Сумма:</p>#}
+{#                    <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57"#}
+{#                           readonly="readonly" type="text" id="summit-valueNew">#}
+{#                    <span id="changeSumNew" class="change-summ"></span>#}
+{#                </div>#}
             </div>
             <textarea placeholder="Добавить коментарий"></textarea>
             <div class="splash-bauttons">
@@ -179,13 +200,72 @@
         </div>
     </div><!--End Pop-up-splash-->
     {% create_user_form %}
+
+{% endblock %}
+
+{% block popup %}
+    <div class="popap" id='filterPopup'>
+        <div class="pop_cont">
+            <h2 class='popup_text'>
+                Фильтр
+            </h2>
+            <div class="popup_body">
+                <div class="container">
+                    <div class="col-6">
+                        <p class="label_block">
+                            <label for="departments_filter">Отдел</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="search_email">Фильтр по email</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="search_phone_number">Фильтр по номеру телефона</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="search_country">Фильтр по стране</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="search_city">Фильтр по городу</label>
+                        </p>
+                    </div>
+                    <div class="col-6">
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="user__department" id="departments_filter">
+                                <option value="">ВСЕ</option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">{{ department.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <input type="email" data-filter="user__email" placeholder="email" id="search_email">
+                        </p>
+                        <p class="input_block">
+                            <input type="tel" data-filter="user__phone_number" placeholder="номер телефона" id="search_phone_number">
+                        </p>
+                        <p class="input_block">
+                            <input type="text" data-filter="user__country" placeholder="страна" id="search_country">
+                        </p>
+                        <p class="input_block">
+                            <input type="text" data-filter="user__city" placeholder="город" id="search_city">
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <a href="#" onclick="refreshFilter(this)" class="apply-filter"><i class="fa fa-refresh"
+                                                                                  aria-hidden="true"></i>
+                    Очистить</a>
+                <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                <button onclick="applyFilter(this, createSummitUsersTable)" class="apply-filter">Применить</button>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block extra_scripts %}
     <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
-    <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
-
-    <script src="{% static "js/add_user_summit.js" %}"></script>
-    <script src="{% static "js/summits.js" %}"></script>
-
+    <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
+    <script src="{% static "js/add_user.js" %}"></script>
+    <script src="{% static "js/summit.js" %}"></script>
 {% endblock %}

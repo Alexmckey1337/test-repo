@@ -2,8 +2,9 @@
 from __future__ import unicode_literals
 
 import binascii
+import operator
 import os
-import warnings
+from datetime import datetime, timedelta
 
 import django_filters
 from django.conf import settings
@@ -11,38 +12,32 @@ from django.contrib.auth import authenticate, login, logout as django_logout
 from django.contrib.auth import update_session_auth_hash
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMultiAlternatives
-from django.db.models import Case, BooleanField
-from django.db.models import Value as V
-from django.db.models import When
-from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect
+from django.db.models import Q
 from django.template import Context
 from django.template.loader import get_template
-from django.urls import reverse
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 from rest_auth.views import LogoutView as RestAuthLogoutView
 from rest_framework import mixins
 from rest_framework import status
 from rest_framework import viewsets, filters
-from rest_framework.decorators import api_view, detail_route
-from rest_framework.decorators import list_route
-from rest_framework.generics import get_object_or_404
+from rest_framework.decorators import api_view
+from rest_framework.filters import BaseFilterBackend
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.parsers import JSONParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from account.models import CustomUser as User, AdditionalPhoneNumber
-from account.models import Token
+from account.models import CustomUser as User
 from common.filters import FieldSearchFilter
+from common.views_mixins import ExportViewSetMixin
+from common.parsers import MultiPartAndJsonParser
 from hierarchy.models import Hierarchy, Department
-from navigation.models import user_table
+from navigation.table_fields import user_table
 from partnership.models import Partnership
 from status.models import Status, Division
-from summit.models import SummitType, SummitLesson, SummitAnketNote, SummitUserConsultant, AnketEmail, SummitAnket
-from tv_crm.models import LastCall
-from .resources import clean_password, clean_old_password
+from .resources import clean_password, clean_old_password, UserResource
 from .serializers import UserSerializer, UserShortSerializer, UserTableSerializer, NewUserSerializer, \
     UserSingleSerializer, PartnershipSerializer
 
@@ -66,7 +61,7 @@ USER_FIELDS = {
         'master',
     },
     'm2m': {
-        'additional_phone', 'divisions',
+        'divisions',
     }
 }
 
@@ -120,31 +115,27 @@ class UserViewSet(viewsets.ModelViewSet):
             kwargs['pk'] = request.user.pk
         return super(UserViewSet, self).dispatch(request, *args, **kwargs)
 
-    @list_route()
-    def all(self, request):
-        users = User.objects.filter(is_staff=False).all()
 
-        page = self.paginate_queryset(users)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(users, many=True)
-        return Response(serializer.data)
-
-    @list_route()
-    def disciples(self, request, *args, **kwargs):
-        from .resources import get_disciples
-        q = get_disciples(request.user)
-        q = q.order_by('-hierarchy__level')
-        queryset = self.filter_queryset(q)
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+class FilterByBirthday(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        from functools import reduce
+        params = request.query_params
+        from_date = params.get('from_date', None)
+        to_date = params.get('to_date', None)
+        if from_date is None or to_date is None:
+            return queryset
+        if from_date > to_date:
+            return Response({'message': 'Некоректный временной интервал'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        from_date = datetime.strptime(from_date, '%Y-%m-%d')
+        to_date = datetime.strptime(to_date, '%Y-%m-%d')
+        monthdays = [(from_date.month, from_date.day)]
+        while from_date <= to_date:
+            monthdays.append((from_date.month, from_date.day))
+            from_date += timedelta(days=1)
+        monthdays = (dict(zip(("born_date__month", "born_date__day"), t)) for t in monthdays)
+        query = reduce(operator.or_, (Q(**d) for d in monthdays))
+        return queryset.filter(query)
 
 
 class UserFilter(django_filters.FilterSet):
@@ -168,7 +159,7 @@ class ShortUserFilter(django_filters.FilterSet):
         fields = ['level_gt', 'level_gte', 'level_lt', 'level_lte', 'department']
 
 
-class NewUserViewSet(viewsets.ModelViewSet):
+class NewUserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
     queryset = User.objects.select_related(
         'hierarchy', 'department', 'master__hierarchy').prefetch_related(
         'divisions'
@@ -179,9 +170,12 @@ class NewUserViewSet(viewsets.ModelViewSet):
     serializer_single_class = UserSingleSerializer
 
     pagination_class = UserPagination
-    filter_backends = (filters.DjangoFilterBackend,
-                       FieldSearchFilter,
-                       filters.OrderingFilter,)
+    filter_backends = (
+        filters.DjangoFilterBackend,
+        FieldSearchFilter,
+        filters.OrderingFilter,
+        FilterByBirthday,
+    )
     permission_classes = (IsAuthenticated,)
     ordering_fields = ('first_name', 'last_name', 'middle_name',
                        'born_date', 'country', 'region', 'city', 'disrict', 'address', 'skype',
@@ -195,6 +189,13 @@ class NewUserViewSet(viewsets.ModelViewSet):
         'search_city': ('city',),
     }
     filter_class = UserFilter
+
+    parser_classes = (MultiPartAndJsonParser, JSONParser, FormParser)
+
+    parser_list_fields = ['divisions', 'extra_phone_numbers']
+    parser_dict_fields = ['partner']
+
+    resource_class = UserResource
 
     def get_queryset(self):
         user = self.request.user
@@ -214,32 +215,6 @@ class NewUserViewSet(viewsets.ModelViewSet):
             kwargs['pk'] = request.user.pk
         return super(NewUserViewSet, self).dispatch(request, *args, **kwargs)
 
-    @list_route()
-    def all(self, request):
-        users = User.objects.filter(is_staff=False).all()
-
-        page = self.paginate_queryset(users)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(users, many=True)
-        return Response(serializer.data)
-
-    @list_route()
-    def disciples(self, request, *args, **kwargs):
-        from .resources import get_disciples
-        q = get_disciples(request.user)
-        q = q.order_by('-hierarchy__level')
-        queryset = self.filter_queryset(q)
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
     def get_serializer_class(self):
         if self.action == 'list':
             return self.serializer_list_class
@@ -249,14 +224,22 @@ class NewUserViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         user = serializer.save()
-        self._create_additional_phone_number(user)
         self._update_partnership(user)
         self._update_divisions(user)
 
     def perform_create(self, serializer):
         user = serializer.save()
-        self._create_additional_phone_number(user)
         self._create_partnership(user)
+
+        return user
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = self.perform_create(serializer)
+        serializer = self.serializer_single_class(user)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def _create_partnership(self, user):
         partner = self.request.data.get('partner', None)
@@ -284,62 +267,6 @@ class NewUserViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
 
-    def _create_additional_phone_number(self, user):
-        additional_phone = self.request.data.get('additional_phones', None)
-        if additional_phone:
-            phone_number = user.additional_phones.first()
-            if phone_number:
-                phone_number.number = additional_phone
-                phone_number.save()
-            else:
-                AdditionalPhoneNumber.objects.create(user=user, number=additional_phone)
-        elif additional_phone == '':
-            phones = user.additional_phones.all()
-            for phone in phones:
-                phone.delete()
-
-    @detail_route(methods=['get'])
-    def summit_info(self, request, pk=None):
-        summit_types = set(SummitType.objects.filter(summits__ankets__user_id=pk))
-        lst = []
-        for t in summit_types:
-            json = {}
-            summits = t.summits.filter(ankets__user_id=pk)
-            json['name'] = t.title
-            json['id'] = t.id
-            json['summits'] = [
-                {
-                    'name': '{} {}'.format(t.title, summit.start_date),
-                    'id': summit.id,
-                    'description': summit.description,
-                    'value': summit.ankets.get(user_id=pk).value,
-                    'code': summit.ankets.get(user_id=pk).code,
-                    'anket_id': summit.ankets.get(user_id=pk).id,
-                    'user_fullname': summit.ankets.get(user_id=pk).user.fullname,
-                }
-                for summit in summits.all()]
-            for s in json['summits']:
-                current_user_anket = SummitAnket.objects.filter(
-                    user=request.user, summit_id=s['id'], role__gte=SummitAnket.CONSULTANT)
-                s['is_consultant'] = (
-                    current_user_anket.exists() and SummitUserConsultant.objects.filter(
-                        consultant=current_user_anket, user__user_id=pk, summit_id=s['id']).exists())
-                lessons = SummitLesson.objects.filter(summit__ankets__user_id=pk, summit_id=s['id'])
-                emails = AnketEmail.objects.filter(anket_id=s['anket_id'])
-                notes = SummitAnketNote.objects.filter(summit_anket__user_id=pk, summit_anket_id=s['anket_id'])
-                notes = notes.annotate(owner_name=Concat(
-                    'owner__last_name', V(' '), 'owner__first_name', V(' '), 'owner__middle_name'))
-                s['lessons'] = list(lessons.annotate(
-                    is_view=Case(
-                        When(viewers=s['anket_id'], then=True),
-                        default=False,
-                        output_field=BooleanField())).values())
-                s['notes'] = list(notes.values())
-                s['emails'] = list(emails.values('id', 'recipient', 'created_at'))
-            lst.append(json)
-
-        return Response(lst)
-
 
 class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
     queryset = User.objects.exclude(hierarchy__level=0).select_related(
@@ -353,6 +280,10 @@ class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
     # filter_fields = ('first_name', 'last_name', 'department', 'hierarchy')
     filter_class = ShortUserFilter
     search_fields = ('first_name', 'last_name', 'middle_name')
+
+    def get_queryset(self):
+        descendants = self.request.user.get_descendants()
+        return self.queryset.exclude(pk__in=descendants.values_list('pk', flat=True))
 
 
 class LogoutView(RestAuthLogoutView):
@@ -478,19 +409,7 @@ def _is_user_exist(data):
 def _set_for_update_user_attrs(user, data):
     for key, value in six.iteritems(data):
         # m2m
-        if key == 'additional_phone':
-            if value:
-                phone_number = user.additional_phones.first()
-                if phone_number:
-                    phone_number.number = value
-                    phone_number.save()
-                else:
-                    AdditionalPhoneNumber.objects.create(user=user, number=value)
-            else:
-                phones = user.additional_phones.all()
-                for phone in phones:
-                    phone.delete()
-        elif key == 'divisions':
+        if key == 'divisions':
             for division in user.divisions.all():
                 user.divisions.remove(division)
             for s in value:
@@ -512,9 +431,7 @@ def _set_for_update_user_attrs(user, data):
 
 def _set_for_create_user_attrs(user, data):
     for key, value in six.iteritems(data):
-        if key == 'additional_phone' and value:
-            AdditionalPhoneNumber.objects.create(user=user, number=value)
-        elif key == 'statuses':
+        if key == 'statuses':
             for s in value:
                 status = Status.objects.filter(id=s).first()
                 user.statuses.add(status)
@@ -577,8 +494,6 @@ def _add_user(data, files, request):
     user = _set_for_create_user_attrs(user, data)
     user = _set_user_image(user, files)
     user.save()
-
-    LastCall.objects.get_or_create(user=user)
 
     # serializer = UserSerializer(user, context={'request': request})
     # message['response'] = serializer.data
@@ -725,11 +640,6 @@ def login_view(request):
     return Response(response_dict)
 
 
-def logout_view(request):
-    django_logout(request)
-    return HttpResponseRedirect(reverse('entry'))
-
-
 @api_view(['POST'])
 def create_user(request):
     if request.user.is_staff:
@@ -794,112 +704,5 @@ def password_view(request, activation_key=None):
             response_dict['status'] = False
     except User.DoesNotExist:
         response_dict['message'] = "Ключ активации несуществует или устарел"
-        response_dict['status'] = False
-    return Response(response_dict)
-
-
-@api_view(['POST'])
-def ping_user_key(request):
-    data = request.data
-    get_object_or_404(Token, key=data['key'])
-    return Response({'status': 'ok'})
-
-
-# TODO delete this
-@api_view(['POST'])
-def send_password(request):
-    response_dict = dict()
-    if request.method == 'POST':
-        data = request.data
-        response_dict = _send_password_func(data['id'])
-    return Response(response_dict)
-
-
-# TODO delete this
-@api_view(['POST'])
-def download_image(request):
-    response_dict = dict()
-    data = request.data
-    files = request.FILES
-    try:
-        user = User.objects.get(id=data['id'])
-        if files:
-            if files['file'].name == 'blob':
-                photo = files['file']
-            else:
-                import os
-                ext = os.path.splitext(files['file'].name)[1]
-                valid_extensions = ['.jpg', '.png', '.jpeg']
-                if ext in valid_extensions:
-                    photo = files['file']
-                else:
-                    photo = None
-            user.image = photo
-            user.save()
-            response_dict['message'] = "Фото успешно загружено"
-            response_dict['redirect'] = False
-            response_dict['status'] = True
-    except User.DoesNotExist:
-        response_dict['message'] = "Нет такого пользователя"
-        response_dict['redirect'] = False
-        response_dict['status'] = False
-    return Response(response_dict)
-
-
-# TODO delete this
-@api_view(['POST'])
-def change_password(request):
-    """
-    Changes password for request.user
-
-    :param request: data{'password1': string, 'password2': string}
-    :return: {'message': string, 'status': boolean}
-    """
-    response_dict = dict()
-    data = request.data
-    user = request.user
-    if clean_old_password(user, data):
-        if clean_password(data):
-            user.set_password(clean_password(data))
-            user.save()
-            update_session_auth_hash(request, user)
-            response_dict['message'] = 'Пароль успешно изменен'
-            response_dict['status'] = True
-        else:
-            response_dict['message'] = 'Введенные пароли не совпадают'
-            response_dict['status'] = False
-    else:
-        response_dict['message'] = 'Вы ввели неверный пароль'
-        response_dict['status'] = False
-    return Response(response_dict)
-
-
-# TODO delete this
-@api_view(['POST'])
-def delete_user(request):
-    """
-    Deleting a user, selected by id
-
-    :param request: data{'id': int}
-    :return: {'message': string, 'status': boolean}
-    """
-    warnings.warn(
-        "`delete_user method` is deprecated", None, 2
-    )
-    response_dict = dict()
-    data = request.data
-    try:
-        user = User.objects.get(id=data['id'])
-        archons = User.objects.filter(hierarchy__level=7).all()
-        if user in archons.all():
-            response_dict['message'] = "Нельзя удалить Архонта"
-            response_dict['status'] = False
-            response_dict['redirect'] = False
-            return Response(response_dict)
-        user.delete()
-        response_dict['message'] = "Пользователь был удален успешно"
-        response_dict['status'] = True
-    except User.DoesNotExist:
-        response_dict['message'] = "Пользователь не существует"
         response_dict['status'] = False
     return Response(response_dict)

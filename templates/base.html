@@ -1,4 +1,5 @@
 {% load static %}
+{% load raven %}
 <!DOCTYPE html>
 <!--[if IE]>
 <link rel="stylesheet" type="text/css" href="css/ie.css"/>
@@ -12,12 +13,10 @@
 
 <head>
     <meta charset="UTF-8">
-
     <title>{% block title %}CRM{% endblock %}</title>
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-
     <link rel="shortcut icon" href='{% static "img/favicon.png" %}' type="image/x-icon">
 
     {% block main_styles %}
@@ -41,20 +40,61 @@
 
 {% block main_scripts %}
     <link rel="stylesheet" href='{% static "libs/air-datepicker/dist/css/datepicker.min.css" %}'>
+    <link href="{% static "libs/font-awesome/css/font-awesome.min.css" %}" rel="stylesheet">
     <script src='{% static "libs/jquery/dist/jquery.min.js" %}'></script>
     <script src='{% static "libs/jquery.scrollbar/jquery.scrollbar.min.js" %}'></script>
     <script src='{% static "libs/jquery-ui/jquery-ui.min.js" %}'></script>
     <script src='{% static "libs/select2/dist/js/select2.min.js" %}'></script>
     <script src='{% static "libs/lodash/dist/lodash.min.js" %}'></script>
     <script src='{% static "libs/es6-promise/es6-promise.min.js" %}'></script>
+    <script src='{% static "libs/fetch/fetch.js" %}'></script>
     <script src='{% static "js/lib.js" %}'></script>
     <script src='{% static "js/main.js" %}'></script>
 {% endblock %}
-
 {% block extra_scripts %}
 {% endblock %}
-{% block popup %}
-{% endblock %}
+<script type="text/template" id="showDeals">
+    <% results.forEach(function(item) { %>
+    <div class="rows-wrap" id="<%=item.id%>">
+        <% if(!item.done && can_close_deal) { %>
+            <% if((parseInt(item.total_sum) - parseInt(item.value)) >= 0 ){ %>
+                <button class="complete"
+                        data-id="<%= item.id%>"
+                        data-name="<%=item.full_name%>"
+                        data-date="<%=item.date_created%>"
+                        data-responsible="<%=item.responsible_name%>"
+                        data-total_sum="<%=item.total_sum %>"
+                        data-value="<%=item.value%>"
+                >Завершить</button>
+            <% } %>
+        <% } %>
+        <% if(!item.done && check_payment_permissions) { %>
+            <% if((parseInt(item.total_sum) - parseInt(item.value)) < 0 ){ %>
+                <button class="pay"
+                        data-id="<%=item.id%>"
+                        data-name="<%=item.full_name%>"
+                        data-date="<%=item.date_created%>"
+                        data-responsible="<%=item.responsible_name%>"
+                        data-total_sum="<%=item.total_sum %>"
+                        data-value="<%=item.value%>"
+                >Платеж</button>
+            <% } %>
+        <% } %>
+        <div class="rows">
+            <div class="col">
+                <p>
+                    <span><%=item.full_name%></span>
+                </p>
+            </div>
+            <div class="col">
+                <p>Сделка за: <span><%= item.date_created %></span></p>
+                <p>Менеджер: <span><%= item.responsible_name %></span></p>
+                <p>Сумма: <a href="#" class="show_payments" data-id="<%=item.id%>"><span><%= item.total_sum %>/<%= item.value %></span></a></p>
+            </div>
+        </div>
+    </div>
+    <% }) %>
+</script>
 <script type="text/template" id="databaseUsers">
      <table>
         <thead>
@@ -70,21 +110,31 @@
             <% for( var index in results) { %>
             <tr>
                 <% for( var key in user_table) { %>
-
                     <% if(user_table[key].active) { %>
-                        <% if (key == 'fullname' ) { %>
+                        <% if (key == 'fullname') { %>
                             <% if (results[index][key] != null) { %>
-                                <td><a href="<%= results[index].link %>" target="_blank" data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%= results[index][key] %></a><span class="quick-edit"><i class="fa fa-pencil" aria-hidden="true"></i></span></td>
+                                <td class="edit"><a href="<%= results[index].link %>"
+                                                    data-link="<%= results[index].link %>"
+                                                    data-id="<%=results[index].id %>"
+                                                    <% if(results[index].ankets_id) { %>
+                                                        data-ankets="<%= results[index].ankets_id %>"
+                                                    <% } %>><%= results[index][key] %></a><span class="quick-edit"></span></td>
                             <% } else { %>
                                 <td></td>
                             <% } %>
-                        <% } else if (key == 'master' ) { %>
+                        <% } else if(key == 'get_title') { %>
+                            <% if (results[index][key] != null) { %>
+                                <td class="edit"><a href="<%= results[index].link %>" data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%= results[index][key] %></a><span class="quick-edit"></span></td>
+                            <% } else { %>
+                                <td></td>
+                            <% } %>
+                        <% } else if (key == 'master' || key == 'pastor' || key == 'leader') { %>
                             <% if (results[index][key] != null) { %>
                                 <td><%= results[index][key].fullname %></td>
                             <% } else { %>
                                 <td></td>
                             <% } %>
-                        <% }  else if (key == 'department' || key == 'hierarchy') { %>
+                        <% }  else if (key == 'department' || key == 'hierarchy' || key == 'church' ) { %>
                             <% if (results[index][key] != null ) { %>
                                 <td><%= results[index][key].title %></td>
                             <% } else { %>
@@ -103,7 +153,14 @@
                                 <td></td>
                             <% } %>
                         <% }  else { %>
-                            <td><%=results[index][key]%></td>
+                            <td><% if (results[index][key] === true ) { %>
+                                <p class="text__center">✔</p>
+                                <% } else if (results[index][key] === false){ %>
+
+                                <% } else { %>
+                                <%= results[index][key] %>
+                                <% } %>
+                            </td>
                         <% } %>
                     <% } %>
                 <% } %>
@@ -115,7 +172,7 @@
 <script type="text/template" id="sortForm">
     <h3><%=user[0]%></h3>
         <% for( var key in user[1]) { %>
-        <li <% if(user[1][key].editable) {%>
+        <li <% if(user[1][key].editable) { %>
             class="draggable"
             <% } else { %>
                 disable
@@ -134,75 +191,28 @@
         </div>
     </div>
     <div class="columns-wrap">
-
     </div>
     <div class="splash-buttons">
+    </div>
+</script>
 
-    </div>
-</script>
-<script type="text/template" id="quickEditCart">
-   <div class="container bb-1">
-       <div>
-            <img class="user-image" src="<%= image %>" alt="<%=id%>">
-        </div>
-        <div class="col-7">
-            <p><input type="text" class="fullname" value="<%=fullname %>"></p>
-            <p><label for="departmentSelect">Отдел церкви: </label><select id="departmentSelect">
-                <% if(department != null) { %>
-                    <option value="<%=department.id %>" selected><%=department.title %></option>
-                <% } else { %>
-                    <option value="" selected></option>
-                <% } %>
-            </select></p>
-            <div><label for="master_hierarchy">Ответственный: </label>
-                <select id="master_hierarchy">
-                    <% if(master != null) { %>
-                        <option value="<%= master.fullname %>" data-id="<%= master.id %>" data-level="<%=master.hierarchy.level%>" selected><%= master.fullname %></option>
-                    <% } %>
-                </select>
-            </div>
-            <p><label for="hierarchySelect">Статус: </label><select id="hierarchySelect">
-                <% if(hierarchy != null) { %>
-                <option value="<%=hierarchy.id %>" data-level="<%=hierarchy.level%>" selected><%=hierarchy.title %></option>
-                <% } else { %>
-                    <option value="" selected></option>
-                <% } %>
-            </select></p>
-{#            <p><label for="departmentSelect">Отдел церкви: </label><input type="text" id="departmentSelect" value="<%=fields.department.value %>" readonly></p> #}
-{#            <p><label for="master_hierarchy">Ответсвенный: </label><input type="text" id="master_hierarchy" value="<%=fields.master_hierarchy.value %>" readonly></p>#}
-{#            <p><label for="hierarchy">Статус: </label><input type="text" id="hierarchy" value="<%=fields.hierarchy.value %>" readonly></p>#}
-        </div>
-   </div>
-    <div class="container">
-        <div class="col-6">
-            <p class="label_block">Телефон:</p>
-            <p class="label_block">Домашний телефон:</p>
-            <p class="label_block">E-mail:</p>
-            <p class="label_block">Skype:</p>
-            <p class="label_block">Страна:</p>
-            <p class="label_block">Область:</p>
-            <p class="label_block">Нас.пункт:</p>
-            <p class="label_block">Адрес:</p>
-            <p class="label_block">Дата покаяния:</p>
-        </div>
-        <div class="col-6">
-            <p><input type="text" id="phone_number" value="<%=phone_number %>"></p>
-            <p><input type="text" id="additional_phones"
-                      <% if(!additional_phones.length) { %>
-                      value=""
-                      <%} else { %>
-                        value="<%=additional_phones[0].number %>"
-                        <% } %> >
-            </p>
-            <p><input type="text" id="email" value="<%=email %>"></p>
-            <p><input type="text" id="skype" value="<%=skype %>"></p>
-            <p><input type="text" id="country" value="<%=country %>"></p>
-            <p><input type="text" id="region" value="<%=region %>"></p>
-            <p><input type="text" id="city" value="<%=city %>"></p>
-            <p><input type="text" id="address" value="<%=address %>"></p>
-            <p><input type="text" id="repentance_date" value="<%=repentance_date %>"></p>
-        </div>
-    </div>
-</script>
+<script>Raven.config('{% sentry_public_dsn %}').install()</script>
+{% block ws %}
+    <script src="https://cdn.rawgit.com/alertifyjs/alertify.js/v1.0.10/dist/js/alertify.js"></script>
+
+    <script>
+        socket = new WebSocket("ws://" + window.location.host + "/ws/user/{{ request.user.id }}/");
+        socket.onmessage = function (e) {
+            var data = JSON.parse(e.data);
+            if (true || +data.user_id != {{ request.user.id }}) {
+                var message_text = data.editor_name + ' создал платеж на ' + data.sum;
+                alertify.logPosition("bottom right");
+                alertify.delay(30000).maxLogItems(10).closeLogOnClick(true).log(message_text);
+            }
+        };
+        socket.onopen = function () {
+        };
+    </script>
+{% endblock %}
 </body>
 </html>

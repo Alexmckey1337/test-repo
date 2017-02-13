@@ -6,7 +6,8 @@ import os
 
 from rest_framework import serializers
 
-from account.models import CustomUser as User, AdditionalPhoneNumber
+from account.models import CustomUser as User
+from common.fields import ReadOnlyChoiceField
 from hierarchy.models import Department, Hierarchy
 from navigation.models import Table
 from partnership.models import Partnership
@@ -18,6 +19,8 @@ def generate_key():
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
+    spiritual_level = ReadOnlyChoiceField(choices=User.SPIRITUAL_LEVEL_CHOICES, read_only=True)
+
     class Meta:
         model = User
         fields = ('id', 'email', 'fullname', 'image', 'image_source', 'search_name',
@@ -66,21 +69,21 @@ class DivisionSerializer(serializers.ModelSerializer):
         fields = ('id', 'title')
 
 
-class AdditionalPhoneSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AdditionalPhoneNumber
-        fields = ('id', 'number')
-
-
 class PartnershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Partnership
         fields = ('value', 'responsible', 'date', 'user')
 
 
-class NewUserSerializer(serializers.ModelSerializer):
-    additional_phones = AdditionalPhoneSerializer(many=True, read_only=True)
+class AddExistUserSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(read_only=True)
 
+    class Meta:
+        model = User
+        fields = ('id', 'city', 'country', 'full_name')
+
+
+class NewUserSerializer(serializers.ModelSerializer):
     partnership = PartnershipSerializer(required=False)
 
     class Meta:
@@ -91,7 +94,7 @@ class NewUserSerializer(serializers.ModelSerializer):
                   'facebook', 'vkontakte', 'odnoklassniki', 'skype',
 
                   'phone_number',
-                  'additional_phones',
+                  'extra_phone_numbers',
                   'born_date',
                   'coming_date', 'repentance_date',
 
@@ -123,7 +126,6 @@ class NewUserSerializer(serializers.ModelSerializer):
         # hierarchy = validated_data.pop('hierarchy') if validated_data.get('hierarchy') else None
         # coming_date = validated_data.pop('coming_date') if validated_data.get('coming_date') else None
         # repentance_date = validated_data.pop('repentance_date') if validated_data.get('repentance_date') else None
-        validated_data.pop('additional_phones') if validated_data.get('additional_phones') else None
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -132,8 +134,6 @@ class NewUserSerializer(serializers.ModelSerializer):
         return instance
 
     def create(self, validated_data):
-        validated_data.pop('additional_phones') if validated_data.get('additional_phones') else None
-
         username = generate_key()[:20]
         # while User.objects.filter(username=username).exists():
         #     username = generate_key()
@@ -148,13 +148,14 @@ class UserSingleSerializer(NewUserSerializer):
     master = MasterWithHierarchySerializer(required=False, allow_null=True)
     hierarchy = HierarchyTitleSerializer()
     divisions = DivisionSerializer(many=True, read_only=True)
+    spiritual_level = ReadOnlyChoiceField(choices=User.SPIRITUAL_LEVEL_CHOICES, read_only=True)
 
 
 class UserTableSerializer(UserSingleSerializer):
     master = MasterNameSerializer(required=False, allow_null=True)
 
     class Meta(UserSingleSerializer.Meta):
-        required_fields = ('id', 'link')
+        required_fields = ('id', 'link', 'extra_phone_numbers')
 
     def get_field_names(self, declared_fields, info):
         # fields = getattr(self.Meta, 'fields', None)

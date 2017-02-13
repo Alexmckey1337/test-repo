@@ -10,7 +10,7 @@ from summit.models import SummitAnket, SummitUserConsultant
 register = template.Library()
 
 
-@register.inclusion_tag('partials/create_user_summit.html')
+@register.inclusion_tag('partials/create_user.html')
 def create_user_form():
     managers = Partnership.objects.filter(
         level__lte=Partnership.MANAGER).select_related('user')

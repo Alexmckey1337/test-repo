@@ -4,14 +4,13 @@ from __future__ import unicode_literals
 import binascii
 import os
 from collections import OrderedDict
-from datetime import timedelta
 
 from django.contrib.auth.models import User, UserManager
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models import signals
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from mptt.managers import TreeManager
@@ -20,7 +19,6 @@ from mptt.models import MPTTModel, TreeForeignKey
 from event.models import EventAnket
 from navigation.models import Table
 from partnership.models import Partnership
-from tv_crm.models import LastCall
 
 COMMON = ['Имя', 'Фамилия', 'Отчество', 'Email', 'Телефон', 'Дата рождения', 'Иерархия', 'Отдел',
           'Страна', 'Область', 'Населенный пункт', 'Район', 'Адрес', 'Skype', 'Vkontakte', 'Facebook', 'Отдел церкви', ]
@@ -72,6 +70,12 @@ class CustomUser(MPTTModel, User):
     hierarchy_order = models.BigIntegerField(blank=True, null=True)
     activation_key = models.CharField(max_length=40, blank=True)
 
+    extra_phone_numbers = ArrayField(
+        models.CharField(_('Number'), max_length=255),
+        verbose_name=_('Extra Phone Numbers'),
+        blank=True, null=True,
+    )
+
     BABY, JUNIOR, FATHER = 1, 2, 3
     SPIRITUAL_LEVEL_CHOICES = (
         (BABY, _('Baby')),
@@ -93,6 +97,9 @@ class CustomUser(MPTTModel, User):
 
     def get_absolute_url(self):
         return '/account/{}/'.format(self.id)
+
+    def get_descendant_leaders(self):
+        return self.get_descendants().filter(hierarchy__level=1)
 
     @property
     def link(self):
@@ -221,13 +228,6 @@ class CustomUser(MPTTModel, User):
             d['value'] = ''
         l['department'] = d
 
-        d = OrderedDict()
-        if self.additional_phones.exists():
-            d['value'] = self.additional_phones.first().number
-        else:
-            d['value'] = ''
-        l[u'additional_phone'] = d
-
         # s = OrderedDict()
         d = OrderedDict()
         d['skype'] = self.skype
@@ -312,15 +312,6 @@ class CustomUser(MPTTModel, User):
         return self.hierarchy.title
 
     @property
-    def last_week_calls(self):
-        day = timezone.now().date() - timedelta(days=7)
-        count = LastCall.objects.filter(
-            user__master=self,
-            user__hierarchy__level=4,
-            date__gte=day, date__lte=(timezone.now().date())).count()
-        return count
-
-    @property
     def attrs(self):
         l = ['Ответственный', 'Отдел', 'Город', 'Номер телефона',
              'Количество прозвонов за неделю', 'Посмотреть прозвоны']
@@ -349,21 +340,6 @@ class CustomUser(MPTTModel, User):
         #    l['is_responsible'] = True
         #    l['responsible'] = self.partnership.id
         return l
-
-
-@python_2_unicode_compatible
-class AdditionalPhoneNumber(models.Model):
-    user = models.ForeignKey('account.CustomUser', on_delete=models.CASCADE, related_name='additional_phones',
-                             verbose_name=_('User'))
-    number = models.CharField(_('Number'), max_length=255)
-
-    class Meta:
-        unique_together = ('user', 'number')
-        verbose_name = _('Additional Phone Number')
-        verbose_name_plural = _('Additional Phone Numbers')
-
-    def __str__(self):
-        return self.number
 
 
 @python_2_unicode_compatible

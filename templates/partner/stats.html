@@ -9,7 +9,7 @@
             <ul class="nav tabs_link">
                 <li><a href="{% url 'partner-deals' %}">Сделки</a></li>
                 <li><a href="{% url 'partner-list' %}">Список партнёров</a></li>
-                <li><a href="{% url 'partner-stats' %}">Статистика</a></li>
+                <li><a class="active" href="{% url 'partner-stats' %}">Статистика</a></li>
             </ul>
         </div>
 
@@ -23,9 +23,9 @@
                 <button>Экспортировать</button>
             </li>
             {% endcomment %}
-                <li>
-                    <button id="sort-on">Изменить таблицу</button>
-                </li>
+{#                <li>#}
+{#                    <button id="sort-on">Изменить таблицу</button>#}
+{#                </li>#}
             </ul>
 
         </div>
@@ -223,6 +223,5 @@
 {% block extra_scripts %}
     <script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
     <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
-    <script src='{% static "js/deals.js" %}'></script>
     <script src='{% static "js/stats.js" %}'></script>
 {% endblock %}

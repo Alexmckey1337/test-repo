@@ -1,0 +1,159 @@
+{% extends "layout_main.html" %}
+{% load static %}
+
+{% block body_id %} id="database"{% endblock %}
+
+{% block header.top.h1 %}<h1>Карточка Церкви</h1>{% endblock %}
+
+{% block header.buttons %}
+    <div class="top-panel">
+        <div class="top-buttons-wrap">
+            <ul class="top-buttons">
+                <li>
+                    <button id="add_userToChurch" class="add">Добавить пользователя</button>
+                </li>
+                <li>
+                    <button id="add_homeGroupToChurch" class="add">Добавить домашнюю группу</button>
+                </li>
+                <li>
+                    <form action="{% url "church-export-users" pk=church.id %}" method="post">
+                        <button type="submit">Export</button>
+                    </form>
+                </li>
+                <li>
+                    <form action="{% url "church-export-all-users" pk=church.id %}" method="post">
+                        <button type="submit">Export all</button>
+                    </form>
+                </li>
+                <li>
+                    <form action="{% url "church-export-groups" pk=church.id %}" method="post">
+                        <button type="submit">Export groups</button>
+                    </form>
+                </li>
+                <li>
+                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block header.buttons.export %}
+{% endblock %}
+
+{% block main.content %}
+    <h3>{{ church.get_title }}</h3>
+    <div class="container">
+        <div class="col-3">
+            <div class="info">
+                <h2>Основная информация:</h2>
+                <ul>
+                    <li>Дата открытия: {{ church.opening_date }}</li>
+                    <li>Отдел: {{ church.department }}</li>
+                    <li>Пастор: {{ church.pastor }}</li>
+                    <li>Город: {{ church.city }}</li>
+                    <li>Адрес: {{ church.address }}</li>
+                    <li>Телефон: {{ church.phone_number }}</li>
+                    <li>Сайт: {% if church.website %}
+                        <a href="{{ church.website }}" target="_blank">{{ church.website }}</a>
+                    {% endif %}</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="info">
+                <h2>Сводная информация:</h2>
+                <ul>
+                    <li class="mb get_info"><button data-link="home_groups" data-editable="false">Количество Домашних групп: {{ home_groups_count }}</button></li>
+                    <li class="get_info"><button data-link="all_users" data-editable="false">Общее количество людей: {{ church_all_users }}</button></li>
+                    <li class="mb get_info"><button class="active" data-link="users" data-editable="true">Люди не в домашних группах: {{ church_users }}</button></li>
+                    <li>Количество прихожан: {{ parishioners_count }}</li>
+                    <li>Количеств Лидеров: {{ leaders_count }}</li>
+                    <li>Количество Отцов: {{ fathers_count }}</li>
+                    <li>Количество Юношей: {{ juniors_count }}</li>
+                    <li>Количество Младенцев: {{ babies_count }}</li>
+                    <li>Количество Партнеров: {{ partners_count }}</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-3"></div>
+    </div>
+    {% block pagination_top %}
+        <div class="top-pag">
+            <div class="table__count"></div>
+            <div class="pagination users__pagination"><!--pagination -->
+            </div><!--End pagination -->
+        </div>
+    {% endblock %}
+
+    {% block table %}
+        <div class="table-wrap clearfix can_edit" id="church" data-id="{{ church.id }}"
+             data-department_id="{{ church.department.id }}" data-department_title="{{ church.department }}">
+            <!--Table -->
+            <div class="table scrollbar-inner" id="tableUserINChurches"></div>
+            <div class="query-none">
+                <p></p>
+            </div>
+        </div><!--End Table -->
+        {#        <div class="preloader">#}
+        {#            <div class="gif"></div>#}
+        {#        </div>#}
+    {% endblock %}
+
+    {% block pagination_bottom %}
+        <div class="table__count"></div>
+        <div class="pagination users__pagination"></div>
+    {% endblock %}
+{% endblock %}
+
+{% block create_user %}
+    {% include 'partials/create_user.html' %}
+{% endblock %}
+
+{% block popup %}
+    <div class="popap" id='addHomeGroup'>
+        <div class="pop_cont">
+            <div class="popup_text">
+                <h2>Добавление домашней группы</h2>
+                <span onclick="hidePopup(this)" class="close"><i class="fa fa-times" aria-hidden="true"></i></span>
+            </div>
+            <form action="" onsubmit="addHomeGroup(event, this)">
+                <div class="popup_body">
+                    <div class="container">
+                        <div>
+                            <p>Дата открытия</p>
+                            <p class="end__block">Название</p>
+                            <p>Церковь</p>
+                            <p>Лидер</p>
+                            <p>Город</p>
+                            <p>Адрес служения</p>
+                            <p>Телефон</p>
+                            <p>Сайт</p>
+                        </div>
+                        <div class="col-7">
+                            <p><input id="added_home_group_date" required></p>
+                            <p class="end__block"><input type="text" id="added_home_group_title"></p>
+                            <p id="added_home_group_church" data-id="{{ church.id }}"
+                               data-department="{{ church.department.id }}">{{ church.get_title }}</p>
+                            <p><select id="added_home_group_pastor" required>
+                                <option>Выберите пастора</option>
+                            </select></p>
+                            <p><input type="text" id="added_home_group_city" required></p>
+                            <p><input type="text" id="added_home_group_address"></p>
+                            <p><input type="tel" id="added_home_group_phone"></p>
+                            <p><input type="url" id="added_home_group_site"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="container">
+                    <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                    <button type="submit" class="add-church">Создать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+{% block extra_scripts %}
+    <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
+    <script src="{% static "js/churches_detail.js" %}"></script>
+{% endblock %}

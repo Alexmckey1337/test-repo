@@ -16,7 +16,7 @@ function authUser() {
     if (checkEmptyFields(username, password) == false) {
 
         let json = JSON.stringify(data);
-        ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/login/', json, function (JSONobj) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/login/', json, function (JSONobj) {
             //showPopup(JSONobj.message);
             if (JSONobj.status == true) {
                 //showPopup(JSONobj.message);
@@ -89,7 +89,7 @@ function sendPassToEmail(){
         };
 
     let json = JSON.stringify(data);
-    ajaxRequest(config.DOCUMENT_ROOT + 'api/v1.0/password_forgot/', json, function (JSONobj) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/password_forgot/', json, function (JSONobj) {
             showPopup(JSONobj.message);
             if (JSONobj.status == true) {
                 //showPopup(JSONobj.message);

@@ -4,28 +4,25 @@ from __future__ import unicode_literals
 from shutil import copyfile
 
 from django.conf import settings
-from import_export import resources
+from django.utils import six
 
+from account.resources import UserResource, USER_RESOURCE_FIELDS, UserMetaclass
 from hierarchy.models import Department
 from .models import SummitAnket
 
 
-class SummitAnketResource(resources.ModelResource):
+class SummitAnketResource(six.with_metaclass(UserMetaclass, UserResource)):
     """For excel import/export"""
+
+    user_field_name = 'user'
 
     class Meta:
         model = SummitAnket
-        fields = (
-            'id',
-            'user__email', 'name', 'last_name', 'first_name', 'user__middle_name', 'user__born_date',
-            'phone_number', 'code',
-            'country', 'region', 'city', 'department', 'responsible', 'image',
-            'pastor', 'bishop', 'sotnik', 'date',
-        )
-        export_order = (
-            'id', 'user__email', 'name', 'last_name', 'first_name', 'user__middle_name',
-            'user__born_date', 'phone_number', 'code',
-            'country', 'region', 'city', 'department', 'responsible', 'image',
+        fields = USER_RESOURCE_FIELDS + (
+            'name', 'code',
+            # 'last_name', 'first_name',
+            # 'phone_number',
+            # 'country', 'region', 'city', 'department', 'responsible', 'image',
             'pastor', 'bishop', 'sotnik', 'date',
         )
 
