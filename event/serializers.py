@@ -2,44 +2,40 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
-
 from .models import Event, Participation, EventType, EventAnket
 from .models import Meeting, MeetingAttend, MeetingType
 from account.models import CustomUser
 
 
-class MeetingAttendedSerializer(serializers.ModelSerializer):
+class MeetingSerializer(serializers.ModelSerializer):
+    count_visitors = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Meeting
+        fields = ('id', 'owner', 'type', 'date', 'total_sum', 'count_visitors')
+
+
+class MeetingAttendSerializer(serializers.ModelSerializer):
     class Meta:
         model = MeetingAttend
         fields = ('id', 'attended', 'note', 'user', 'meeting')
 
 
-class MeetingUserSerializer(serializers.ModelSerializer):
+class UserMeetingSerializer(serializers.ModelSerializer):
+    attends = MeetingAttendSerializer(many=True)
+
     class Meta:
         model = CustomUser
         fields = ('id', 'fullname', 'spiritual_level', 'phone_number', 'attends')
 
 
-class MeetingUserAttendsSerializer(MeetingUserSerializer):
-    attends = MeetingAttendedSerializer(many=True)
-
-
-class MeetingSerializer(serializers.ModelSerializer):
+class MeetingDetailSerializer(serializers.ModelSerializer):
     owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(hierarchy__level=1))
-    visitors = MeetingUserAttendsSerializer(many=True)
+    visitors = UserMeetingSerializer(many=True)
 
     class Meta:
         model = Meeting
         fields = ('id', 'owner', 'type', 'date', 'total_sum', 'visitors')
-
-    def create(self, validated_data):
-        visitors = validated_data.pop('visitors')
-        meeting = Meeting.objects.create(**validated_data)
-        for visitor in visitors:
-            for attended in visitor['attends']:
-                MeetingAttend.objects.create(meeting_id=meeting.id, **attended)
-        return meeting
-
 
 
 

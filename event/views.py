@@ -12,14 +12,15 @@ from rest_framework.generics import CreateAPIView, get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import mixins
+from common.views_mixins import ModelWithoutDeleteViewSet
+from django.db.models import Count
 
 from account.models import CustomUser
 from account.pagination import ShortPagination
 from navigation.table_fields import event_table
 from .models import Participation, Event, EventAnket, EventType, MeetingAttend, Meeting
-from .serializers import ParticipationSerializer, EventSerializer, EventTypeSerializer, EventAnketSerializer, \
-    MeetingSerializer, MeetingUserSerializer
+from .serializers import ParticipationSerializer, EventSerializer, EventTypeSerializer, EventAnketSerializer
+from .serializers import MeetingSerializer, MeetingDetailSerializer, MeetingAttendSerializer
 from group.models import HomeGroup
 from group.serializers import HomeGroupListSerializer
 
@@ -39,24 +40,59 @@ class MeetingPagination(PageNumberPagination):
         })
 
 
-class MeetingViewSet(mixins.RetrieveModelMixin,
-                     mixins.UpdateModelMixin,
-                     mixins.CreateModelMixin,
-                     mixins.ListModelMixin,
-                     viewsets.GenericViewSet):
-
+class MeetingViewSet(ModelWithoutDeleteViewSet):
     queryset = Meeting.objects.all()
 
-    serializer_class = MeetingSerializer
+    filter_backends = (filters.DjangoFilterBackend,
+                       filters.OrderingFilter,)
+
     permission_classes = (IsAuthenticated,)
     pagination_class = MeetingPagination
 
-    @list_route(methods=['get'])
-    def get_home_leaders(self, request):
-        params = request.query_params
-        leader_id = params.get('leader_id')
+    serializer_class = MeetingSerializer
+    serializer_retrieve_class = MeetingDetailSerializer
 
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return self.serializer_retrieve_class
+        return self.serializer_class
+
+    def get_queryset(self):
+        if self.action == 'list':
+            return self.queryset.annotate(
+                count_visitors=Count('visitors'))
+        return self.queryset
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        if not data.get('visitors'):
+            return Response({'message': 'Невозможно создать отчет. '
+                                        'Список пользователей не передан.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        visitors = data.pop('visitors')
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            with transaction.atomic():
+                meeting = serializer.save()
+                for visitor in visitors:
+                    for attend in visitor.get('attends'):
+                        MeetingAttend.objects.create(meeting_id=meeting.id,
+                                                     user_id=attend.get('user'),
+                                                     attended=attend.get('attended', False),
+                                                     note=attend.get('note', ''))
+        except IntegrityError:
+            data = {'message': 'При сохранении возникла ошибка. Попробуйте еще раз.'}
+            return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @list_route(methods=['get'])
+    def get_leader_groups(self, request):
         serializer = HomeGroupListSerializer
+        leader_id = request.query_params.get('leader_id')
 
         if not leader_id:
             return Response({'message': 'Некоректные данные.'},
@@ -65,26 +101,11 @@ class MeetingViewSet(mixins.RetrieveModelMixin,
         serializer = serializer(home_groups, many=True)
         return Response(serializer.data)
 
-    @list_route(methods=['get'])
-    def get_home_users(self, request):
-        params = request.query_params
-        home_group_id = params.get('home_group_id')
 
-        serializer = MeetingUserSerializer
+class MeetingAttendViewSet(ModelWithoutDeleteViewSet):
 
-        if not home_group_id:
-            return Response({'message': 'Некоректные данные'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        users = CustomUser.objects.filter(home_groups__id=home_group_id)
-        serializer = serializer(users, many=True)
-        return Response(serializer.data)
-
-
-
-
-
-
-
+    queryset = MeetingAttend.objects.all()
+    serializer_class = MeetingAttendSerializer
 
 
 
