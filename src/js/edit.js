@@ -233,7 +233,7 @@
         $('#editUser').on('submit', function (e) {
             e.preventDefault();
             sendData();
-        })
+        });
 
 
 

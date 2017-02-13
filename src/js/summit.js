@@ -375,6 +375,7 @@
     //    Events
     $("#add").on('click', function () {
         $('#addUser').css('display', 'block');
+        initAddNewUser();
     });
     $('input[name="fullsearch"]').keyup(function () {
         let val = $(this).val();
