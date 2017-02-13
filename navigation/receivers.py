@@ -5,14 +5,15 @@ from navigation.models import ColumnType, Table, Column
 
 
 @receiver(signals.post_save, sender=ColumnType)
-def sync_column(sender, instance, **kwargs):
-    tables = Table.objects.all()
-    user_columns = list()
-    for table in tables:
-        user_columns.append(Column(
-            table=table, columnType=instance, number=instance.number, active=instance.active))
+def sync_column(sender, instance, created, **kwargs):
+    if created:
+        tables = Table.objects.all()
+        user_columns = list()
+        for table in tables:
+            user_columns.append(Column(
+                table=table, columnType=instance, number=instance.number, active=instance.active))
 
-    Column.objects.bulk_create(user_columns)
+        Column.objects.bulk_create(user_columns)
 
 
 @receiver(signals.post_save, sender=Table)

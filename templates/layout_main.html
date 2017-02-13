@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "layout.html" %}
 {% load static %}
 
 {% block main_styles %}
@@ -18,15 +18,17 @@
     </li>
 {% endblock %}
 
-                                <div class="query">
-                                    <p>По запросу найдено <span id="total_count"></span> человек</p>
-                                </div>
-                                <div class="pag-wrap">
+{% block header.buttons.add %}
+    <li>
+        <button id="add">Добавить пользователя</button>
+    </li>
+{% endblock %}
 
-                                </div>
-                            </div><!--End pagination -->
-                        </div>
-                    {% endblock %}
+{% block header.buttons.export %}
+    <li>
+        <button class="exp">Экспортировать</button>
+    </li>
+{% endblock %}
 
 {% block header.buttons.change_table %}
     <li>
@@ -59,8 +61,25 @@
         <div class="table__count"></div>
         <div class="pagination users__pagination"></div>
     {% endblock %}
+{% endblock %}
 
-    {% block popup %}
+{% block table_sort_modal %}
+    <div class="table-sorting">
+        <div class="form-wrap scrollbar-macosx">
+            <div class="top-text">
+                <h2>Вы можете добавить столбцы и изменить их порядок</h2>
+            </div>
+            <div class="input-wrap">
+                <ul id="sort-form"></ul>
+            </div>
+            <div class="dropbox-wrap"></div>
+            <div class="butt-wrap">
+                <button id="sort-off">Отменить</button>
+                <button id="sort_save">Сохранить</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
 
 {% block add_user_modal %}
     <div class="add-user-wrap popup" id="addUser"><!--Add -user -->
