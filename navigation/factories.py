@@ -45,6 +45,7 @@ class TableFactory(factory.DjangoModelFactory):
 class UserColumnFactory(factory.DjangoModelFactory):
     class Meta:
         model = models.Column
+        django_get_or_create = ('table', 'columnType')
 
     table = factory.SubFactory(TableFactory)
     columnType = factory.SubFactory(ColumnTypeFactory)
