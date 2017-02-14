@@ -131,9 +131,9 @@ function getHomeGroups(config = {}) {
 function exportTableData(el) {
         let url, filter, filterKeys, items, count;
         url = $(el).data('url');
-        filter = getFilterParam();
+        filter = getFilterParam() ;
         filterKeys = Object.keys(filter);
-        if (filterKeys.length) {
+        if (filterKeys && filterKeys.length) {
             url += '?';
             items = filterKeys.length;
             count = 0;

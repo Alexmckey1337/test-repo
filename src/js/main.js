@@ -116,14 +116,14 @@ function initAddNewUser(config = {}) {
                     let status = $('#chooseStatus').val();
                     let department = $(this).val();
                     getResponsible(department, status).then(function (data) {
-                    let rendered = [];
-                    data.forEach(function (item) {
-                        let option = document.createElement('option');
-                        $(option).val(item.id).text(item.fullname);
-                        rendered.push(option);
-                    });
-                    $('#chooseResponsible').html(rendered).attr('disabled', false).select2();
-                })
+                        let rendered = [];
+                        data.forEach(function (item) {
+                            let option = document.createElement('option');
+                            $(option).val(item.id).text(item.fullname);
+                            rendered.push(option);
+                        });
+                        $('#chooseResponsible').html(rendered).attr('disabled', false).select2();
+                    })
                 });
             });
         });
@@ -991,14 +991,15 @@ function getFilterParam() {
     $filterFields = $('#filterPopup select, #filterPopup input');
     $filterFields.each(function () {
         let prop = $(this).data('filter');
-        if ($(this).attr('type') === 'checkbox') {
-            data[prop] = ucFirst($(this).is(':checked').toString());
-        } else {
-            if ($(this).val()) {
-                data[prop] = $(this).val();
+        if (prop) {
+            if ($(this).attr('type') === 'checkbox') {
+                data[prop] = ucFirst($(this).is(':checked').toString());
+            } else {
+                if ($(this).val()) {
+                    data[prop] = $(this).val();
+                }
             }
         }
-
     });
     return data;
 }

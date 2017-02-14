@@ -76,8 +76,11 @@
         config.department = HG_ID;
         makeUsersFromDatabaseList(config, ID);
     });
- $('#sort_save').on('click', function () {
+    $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
         updateSettings(createHomeGroupUsersTable);
+    });
+    $('#export_table').on('click', function () {
+        exportTableData(this);
     });
 })(jQuery);
