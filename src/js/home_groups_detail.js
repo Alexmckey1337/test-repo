@@ -48,7 +48,9 @@
 // Events
     $('#add_userToHomeGroup').on('click', function () {
         $('#addUser').css('display', 'block');
-        initAddNewUser(HG_ID, addUserToHomeGroup);
+        initAddNewUser({
+            getDepartments: false,
+        });
     });
     $('#choose').on('click', function () {
         $(this).closest('.popup').css('display', 'none');

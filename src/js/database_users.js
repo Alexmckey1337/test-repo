@@ -16,9 +16,6 @@ $('document').ready(function () {
     $('#filter_button').on('click', function () {
         $('#filterPopup').css('display', 'block');
     });
-    $('#add').on('click', function () {
-        $('#addNewUserPopup').css('display', 'block');
-    });
     $('.pop_cont').on('click', function (e) {
         e.stopPropagation();
     });
@@ -121,5 +118,10 @@ $('document').ready(function () {
     $('#createUser').on('submit', function (e) {
         e.preventDefault();
         createUser();
+    });
+
+    $('#add').on('click', function () {
+        $('#addNewUserPopup').css('display', 'block');
+        initAddNewUser();
     });
 });

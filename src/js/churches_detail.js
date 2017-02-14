@@ -74,7 +74,9 @@
     });
     $('#add_userToChurch').on('click', function () {
         $('#addUser').css('display', 'block');
-        initAddNewUser(D_ID, addUserToChurch);
+        initAddNewUser({
+            getDepartments: false,
+        });
     });
     $('#choose').on('click', function () {
         $(this).closest('.popup').css('display', 'none');
@@ -100,6 +102,7 @@
         config.department = D_ID;
         makeUsersFromDatabaseList(config);
     });
+
     $('.get_info button').on('click', function () {
         let link = $(this).data('link');
         let canEdit = $(this).data('editable');

@@ -6,7 +6,7 @@ const CONFIG = {
     'column_table': null
 };
 
-var VOCRM = {};
+const VOCRM = {};
 
 counterNotifications();
 
@@ -48,6 +48,180 @@ var orderTable = (function () {
         sort: addListener
     }
 })();
+
+function initAddNewUser(config = {}) {
+    let configDefault = {
+        getCountries: true,
+        getDepartments: true,
+        getStatuses: true,
+        getDivisions: true,
+        getCountryCodes: true,
+        getManagers: true,
+    };
+    Object.assign(configDefault, config);
+
+    if (configDefault.getCountries) {
+        getCountries().then(function (data) {
+            let rendered = [];
+            let option = document.createElement('option');
+            $(option).val('').text('Выберите страну').attr('disabled', true).attr('selected', true);
+            rendered.push(option);
+            data.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.title);
+                rendered.push(option);
+            });
+            $('#chooseCountry').html(rendered).on('change', function () {
+                let config = {};
+                config.country = $(this).val();
+                getRegions(config).then(function (data) {
+                    let rendered = [];
+                    let option = document.createElement('option');
+                    $(option).val('').text('Выберите регион');
+                    rendered.push(option);
+                    data.forEach(function (item) {
+                        let option = document.createElement('option');
+                        $(option).val(item.id).text(item.title);
+                        rendered.push(option);
+                    });
+                    $('#chooseRegion').html(rendered).attr('disabled', false).on('change', function () {
+                        let config = {};
+                        config.region = $(this).val();
+                        getCities(config).then(function (data) {
+                            let rendered = [];
+                            let option = document.createElement('option');
+                            $(option).val('').text('Выберите город');
+                            rendered.push(option);
+                            data.forEach(function (item) {
+                                let option = document.createElement('option');
+                                $(option).val(item.id).text(item.title);
+                                rendered.push(option);
+                            });
+                            $('#chooseCity').html(rendered).attr('disabled', false).select2();
+                        })
+                    }).select2();
+                })
+            }).select2();
+        });
+    }
+    if (configDefault.getDepartments) {
+        getDepartments().then(function (data) {
+            let departments = data.results;
+            let rendered = [];
+            departments.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.title);
+                rendered.push(option);
+                $('#chooseDepartment').html(rendered).select2().removeAttr('disabled').on('change', function () {
+                    let status = $('#chooseStatus').val();
+                    let department = $(this).val();
+                    getResponsible(department, status).then(function (data) {
+                    let rendered = [];
+                    data.forEach(function (item) {
+                        let option = document.createElement('option');
+                        $(option).val(item.id).text(item.fullname);
+                        rendered.push(option);
+                    });
+                    $('#chooseResponsible').html(rendered).attr('disabled', false).select2();
+                })
+                });
+            });
+        });
+    }
+    if (configDefault.getStatuses) {
+        getStatuses().then(function (data) {
+            let statuses = data.results;
+            let rendered = [];
+            let option = document.createElement('option');
+            $(option).text('Выбирите статус').attr('disabled', true).attr('selected', true);
+            rendered.push(option);
+            statuses.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).attr('data-level', item.level).text(item.title);
+                rendered.push(option);
+            });
+            return rendered;
+        }).then(function (rendered) {
+            $('#chooseStatus').html(rendered).select2().on('change', function () {
+                let status = $(this).val();
+                let department = $('#chooseDepartment').val();
+                getResponsible(department, status).then(function (data) {
+                    let rendered = [];
+                    data.forEach(function (item) {
+                        let option = document.createElement('option');
+                        $(option).val(item.id).text(item.fullname);
+                        rendered.push(option);
+                    });
+                    $('#chooseResponsible').html(rendered).attr('disabled', false).select2();
+                })
+            });
+        });
+    }
+    if (configDefault.getDivisions) {
+        getDivisions().then(function (data) {
+            let divisions = data.results;
+            let rendered = [];
+            divisions.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.title);
+                rendered.push(option);
+            });
+            $('#chooseDivision').html(rendered).select2();
+        });
+    }
+    if (configDefault.getCountryCodes) {
+        getCountryCodes().then(function (data) {
+            let codes = data;
+            let rendered = [];
+            codes.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.phone_code).text(item.title + ' ' + item.phone_code);
+                if (item.phone_code == '+38') {
+                    $(option).attr('selected', true);
+                }
+                rendered.push(option);
+            });
+            $('#chooseCountryCode').html(rendered).on('change', function () {
+                let code = $(this).val();
+                $('#phoneNumberCode').val(code);
+            }).trigger('change');
+        });
+    }
+    if (configDefault.getManagers) {
+        getManagers().then(function (data) {
+            let rendered = [];
+            let option = document.createElement('option');
+            $(option).val('').text('Выберите менеджера').attr('disabled', true).attr('selected', true);
+            rendered.push(option);
+            data.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.fullname);
+                rendered.push(option);
+            });
+            $('#chooseManager').html(rendered).select2();
+        });
+    }
+
+    $('#repentanceDate').datepicker({
+        dateFormat: 'yyyy-mm-dd'
+    });
+    $('#partnerFrom').datepicker({
+        dateFormat: 'yyyy-mm-dd'
+    });
+    $('#bornDate').datepicker({
+        dateFormat: 'yyyy-mm-dd'
+    });
+    $('#chooseCountryCode').select2();
+
+    $('#partner').on('change', function () {
+        let partner = $(this).is(':checked');
+        if (partner) {
+            $('.hidden-partner').css('display', 'block');
+        } else {
+            $('.hidden-partner').css('display', 'none');
+        }
+    });
+}
 
 function getAddNewUserData() {
     let data = {
@@ -195,137 +369,6 @@ function makeChooseDivision() {
 }
 
 
-function initAddNewUser(id, callback) {
-    getStatuses().then(function (data) {
-        let statuses = data.results;
-        let rendered = [];
-        let option = document.createElement('option');
-        $(option).text('Выбирите статус').attr('disabled', true).attr('selected', true);
-        rendered.push(option);
-        statuses.forEach(function (item) {
-            let option = document.createElement('option');
-            $(option).val(item.id).attr('data-level', item.level).text(item.title);
-            rendered.push(option);
-        });
-        return rendered;
-    }).then(function (rendered) {
-        $('#chooseStatus').html(rendered).select2().on('change', function () {
-            let status = $(this).val();
-            getResponsible(id, status).then(function (data) {
-                let rendered = [];
-                data.forEach(function (item) {
-                    let option = document.createElement('option');
-                    $(option).val(item.id).text(item.fullname);
-                    rendered.push(option);
-                });
-                $('#chooseResponsible').html(rendered).attr('disabled', false).select2();
-            })
-        });
-    });
-    getDivisions().then(function (data) {
-        let divisions = data.results;
-        let rendered = [];
-        divisions.forEach(function (item) {
-            let option = document.createElement('option');
-            $(option).val(item.id).text(item.title);
-            rendered.push(option);
-        });
-        $('#chooseDivision').html(rendered).select2();
-    });
-    getCountryCodes().then(function (data) {
-        let codes = data;
-        let rendered = [];
-        codes.forEach(function (item) {
-            let option = document.createElement('option');
-            $(option).val(item.phone_code).text(item.title + ' ' + item.phone_code);
-            if (item.phone_code == '+38') {
-                $(option).attr('selected', true);
-            }
-            rendered.push(option);
-        });
-        $('#chooseCountryCode').html(rendered).on('change', function () {
-            let code = $(this).val();
-            $('#phoneNumberCode').val(code);
-        }).trigger('change');
-    });
-
-    getCountries().then(function (data) {
-        let rendered = [];
-        let option = document.createElement('option');
-        $(option).val('').text('Выберите страну').attr('disabled', true).attr('selected', true);
-        rendered.push(option);
-        data.forEach(function (item) {
-            let option = document.createElement('option');
-            $(option).val(item.id).text(item.title);
-            rendered.push(option);
-        });
-        $('#chooseCountry').html(rendered).on('change', function () {
-            let config = {};
-            config.country = $(this).val();
-            getRegions(config).then(function (data) {
-                let rendered = [];
-                let option = document.createElement('option');
-                $(option).val('').text('Выберите регион');
-                rendered.push(option);
-                data.forEach(function (item) {
-                    let option = document.createElement('option');
-                    $(option).val(item.id).text(item.title);
-                    rendered.push(option);
-                });
-                $('#chooseRegion').html(rendered).attr('disabled', false).on('change', function () {
-                    let config = {};
-                    config.region = $(this).val();
-                    getCities(config).then(function (data) {
-                        let rendered = [];
-                        let option = document.createElement('option');
-                        $(option).val('').text('Выберите город');
-                        rendered.push(option);
-                        data.forEach(function (item) {
-                            let option = document.createElement('option');
-                            $(option).val(item.id).text(item.title);
-                            rendered.push(option);
-                        });
-                        $('#chooseCity').html(rendered).attr('disabled', false).select2();
-                    })
-                }).select2();
-            })
-        }).select2();
-    });
-
-    getManagers().then(function (data) {
-        let rendered = [];
-        let option = document.createElement('option');
-        $(option).val('').text('Выберите менеджера').attr('disabled', true).attr('selected', true);
-        rendered.push(option);
-        data.forEach(function (item) {
-            let option = document.createElement('option');
-            $(option).val(item.id).text(item.fullname);
-            rendered.push(option);
-        });
-        $('#chooseManager').html(rendered).select2();
-    });
-
-    $('#repentanceDate').datepicker({
-        dateFormat: 'yyyy-mm-dd'
-    });
-    $('#partnerFrom').datepicker({
-        dateFormat: 'yyyy-mm-dd'
-    });
-    $('#bornDate').datepicker({
-        dateFormat: 'yyyy-mm-dd'
-    });
-    $('#chooseCountryCode').select2();
-
-    $('#partner').on('change', function () {
-        let partner = $(this).is(':checked');
-        if (partner) {
-            $('.hidden-partner').css('display', 'block');
-        } else {
-            $('.hidden-partner').css('display', 'none');
-        }
-    });
-
-}
 function saveUser(el) {
     let $input, $select, fullName, first_name, last_name, middle_name, department, hierarchy, phone_number, data, id;
     let send = true;
@@ -339,25 +382,25 @@ function saveUser(el) {
     fullName = $fullname.val().split(' ');
     let $phone_number = $($(el).closest('.pop_cont').find('#phone_number'));
     phone_number = $phone_number.val();
-    if(!$fullname.val()) {
+    if (!$fullname.val()) {
         $fullname.css('border-color', 'red');
         send = false;
     } else {
         $fullname.removeAttr('style');
     }
-    if(!master_id) {
+    if (!master_id) {
         $('label[for="master_hierarchy"]').css('color', 'red');
         send = false;
     } else {
         $('label[for="master_hierarchy"]').removeAttr('style');
     }
-    if(!phone_number) {
+    if (!phone_number) {
         $phone_number.css('border-color', 'red');
         send = false;
     } else {
         $phone_number.removeAttr('style');
     }
-    if(!send) {
+    if (!send) {
         return
     }
     first_name = fullName[1];
@@ -478,7 +521,7 @@ function makeQuickEditSammitCart(el) {
     ajaxRequest(url, null, function (data) {
         $('#summit-valueDelete').val(data.total_sum);
         $('#member').prop("checked", data.is_member);
-       $('#popupDelete').css('display', 'block');
+        $('#popupDelete').css('display', 'block');
     }, 'GET', true, {
         'Content-Type': 'application/json'
     });
