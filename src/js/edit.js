@@ -20,7 +20,7 @@
             partner.responsible = parseInt($("#partner_drop").val());
             formData.append('partner', JSON.stringify(partner));
         }
-        let send_image = true;
+        let send_image = $('#file').prop("files").length || false;
         if (send_image) {
             try {
                 let
