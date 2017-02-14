@@ -21,7 +21,8 @@
                 </li>
                 <li>
                     <form action="{% url "homegroup-export" %}" method="post">
-                        <button type="submit" class="download header__button">Export</button>
+                        <input type="text" name="fields" class="hidden" id="export_fields">
+                        <button type="submit" id="export_table" data-url="{% url "homegroup-export" %}" class="download header__button">Export</button>
                     </form>
                 </li>
                 <li>

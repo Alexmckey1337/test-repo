@@ -329,6 +329,7 @@ function makeSortForm(data) {
     console.log(obj);
     rendered = _.template(sortFormTmpl)(obj);
     document.getElementById('sort-form').innerHTML = rendered;
+    $("#sort-form").sortable({revert: true, items: "li:not([disable])", scroll: false});
 }
 
 function makeResponsibleList() {
@@ -872,31 +873,31 @@ jQuery(function ($) {
     }
 });
 
-//old version
-function getCurrentSetting() {
-    let titles = VOCRM['column_table'];
-    let html = '';
-    for (let p in titles) {
-        if (!titles.hasOwnProperty(p)) continue;
-        let ischeck = titles[p]['active'] ? 'check' : '';
-        let isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
-        html += '<li ' + isdraggable + ' >' +
-            '<input id="' + titles[p]['ordering_title'] + '" type="checkbox">' +
-            '<label for="' + titles[p]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[p]['id'] + '">' + titles[p]['title'] + '</label>';
-        if (isdraggable == 'disable') {
-            html += '<div class="disable-opacity"></div>'
-        }
-        html += '</li>'
-    }
-
-    document.getElementById('sort-form').innerHTML = html;
-
-    $("#sort-form label").on('click', function (el) {
-        if (!this.parentElement.hasAttribute('disable')) {
-            this.classList.contains('check') ? this.classList.remove('check') : this.classList.add('check');
-        }
-    })
-}
+// //old version
+// function getCurrentSetting() {
+//     let titles = VOCRM['column_table'];
+//     let html = '';
+//     for (let p in titles) {
+//         if (!titles.hasOwnProperty(p)) continue;
+//         let ischeck = titles[p]['active'] ? 'check' : '';
+//         let isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
+//         html += '<li ' + isdraggable + ' >' +
+//             '<input id="' + titles[p]['ordering_title'] + '" type="checkbox">' +
+//             '<label for="' + titles[p]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[p]['id'] + '">' + titles[p]['title'] + '</label>';
+//         if (isdraggable == 'disable') {
+//             html += '<div class="disable-opacity"></div>'
+//         }
+//         html += '</li>'
+//     }
+//
+//     document.getElementById('sort-form').innerHTML = html;
+//
+//     $("#sort-form label").on('click', function (el) {
+//         if (!this.parentElement.hasAttribute('disable')) {
+//             this.classList.contains('check') ? this.classList.remove('check') : this.classList.add('check');
+//         }
+//     })
+// }
 
 function createUsersTable(config) {
     config["search_fio"] = $('input[name=fullsearch]').val();
@@ -991,7 +992,7 @@ function getFilterParam() {
     $filterFields.each(function () {
         let prop = $(this).data('filter');
         if ($(this).attr('type') === 'checkbox') {
-            data[prop] = $(this).is(':checked');
+            data[prop] = ucFirst($(this).is(':checked').toString());
         } else {
             if ($(this).val()) {
                 data[prop] = $(this).val();

@@ -37,14 +37,7 @@ $('document').ready(function () {
         updateSettings(createUsersTable);
     });
     $('#export_table').on('click', function () {
-        // newAjaxRequest({
-        //     url: $(this).data('url'),
-        //     method: 'POST',
-        //     data: {
-        //         fields: getDataTOExport().join(',')
-        //     }
-        // })
-        $('#export_fields').val(getDataTOExport().join(','));
+        exportTableData(this);
     });
     $('input[name="searchDep"]').keyup(function () {
         delay(function () {
@@ -79,7 +72,7 @@ $('document').ready(function () {
         } else {
             formData.append('divisions', JSON.stringify([]));
         }
-        if($('#phoneNumber').val()) {
+        if ($('#phoneNumber').val()) {
             let phoneNumber = $('#phoneNumberCode').val() + $('#phoneNumber').val();
             formData.append('phone_number', phoneNumber)
         }
@@ -117,14 +110,19 @@ $('document').ready(function () {
         ajaxSendFormData(config).then(function (data) {
             $('.preloader').css('display', 'none');
             showPopup(`${data.fullname} добален(а) в базу данных`);
-            $('#createUser').find('input').each(function() {$(this).val('')});
-            $('#createUser').find('.cleared').each(function() { $(this).find('option').eq(0).prop('selected', true).select2()} );
+            $('#createUser').find('input').each(function () {
+                $(this).val('')
+            });
+            $('#createUser').find('.cleared').each(function () {
+                $(this).find('option').eq(0).prop('selected', true).select2()
+            });
             $('#addNewUserPopup').css('display', 'none');
         }).catch(function (data) {
             $('.preloader').css('display', 'none');
             showPopup(data);
         });
     }
+
     $('#createUser').on('submit', function (e) {
         e.preventDefault();
         createUser();

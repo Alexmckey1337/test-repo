@@ -35,5 +35,8 @@
     });
     $('input[name="fullsearch"]').on('keyup', function () {
         createChurchesTable();
-    })
+    });
+    $('#export_table').on('click', function () {
+        exportTableData(this);
+    });
 })(jQuery);

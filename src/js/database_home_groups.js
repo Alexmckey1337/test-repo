@@ -27,5 +27,8 @@
     });
     $('input[name="fullsearch"]').on('keyup', function () {
         createHomeGroupsTable();
-    })
+    });
+    $('#export_table').on('click', function () {
+        exportTableData(this);
+    });
 })(jQuery);
