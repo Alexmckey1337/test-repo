@@ -36,6 +36,16 @@ $('document').ready(function () {
         $('.preloader').css('display', 'block');
         updateSettings(createUsersTable);
     });
+    $('#export_table').on('click', function () {
+        // newAjaxRequest({
+        //     url: $(this).data('url'),
+        //     method: 'POST',
+        //     data: {
+        //         fields: getDataTOExport().join(',')
+        //     }
+        // })
+        $('#export_fields').val(getDataTOExport().join(','));
+    });
     $('input[name="searchDep"]').keyup(function () {
         delay(function () {
             createUserDep();

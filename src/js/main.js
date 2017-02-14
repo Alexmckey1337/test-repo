@@ -956,6 +956,16 @@ function updateSettings(callback, path) {
     });
 }
 
+function getDataTOExport() {
+    let $fealds = $('#sort-form').find('input');
+    let filter = [];
+    $fealds.each(function () {
+        if ($(this).is(':checked')) {
+            filter.push($(this).prop('id'))
+        }
+    });
+    return filter;
+}
 function hidePopup(el) {
     if ($(el).closest('.popap').find('.save-user').length) {
         $(el).closest('.popap').find('.save-user').attr('disabled', false);
