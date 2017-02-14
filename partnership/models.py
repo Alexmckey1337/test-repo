@@ -79,6 +79,24 @@ class Partnership(models.Model):
                                        Q(object_id=self.id)))
 
     @property
+    def value_str(self):
+        """
+        Partner value with currency.
+
+        For example:
+        partnership.value = 120
+        partnership.currency.short_name = cur.
+        partnership.currency.output_format = '{value} {short_name}'
+
+        Then:
+        partnership.value_str == '120 cur.'
+        :return: str
+        """
+        format_data = self.currency.output_dict()
+        format_data['value'] = self.value
+        return self.currency.output_format.format(**format_data)
+
+    @property
     def is_responsible(self):
         return self.level <= Partnership.MANAGER
 
