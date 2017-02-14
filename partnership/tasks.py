@@ -2,8 +2,7 @@
 from __future__ import unicode_literals
 
 from datetime import datetime, date
-
-from django.core.exceptions import ObjectDoesNotExist
+from decimal import Decimal
 
 from edem.settings.celery import app
 from partnership.models import Partnership, Deal
@@ -16,18 +15,10 @@ def create_new_deals():
     current_year = current_date.year
     partnerships_without_deals = Partnership.objects \
         .filter(is_active=True) \
-        .exclude(deals__date_created__month=current_month, deals__date_created__year=current_year)
-
+        .exclude(deals__date_created__month=current_month, deals__date_created__year=current_year) \
+        .exclude(value=Decimal(0))
     for partnership in partnerships_without_deals:
-        deal = Deal(partnership=partnership, value=partnership.value)
-        try:
-            previous_deal = Deal.objects.filter(partnership=partnership).latest('date')
-        except ObjectDoesNotExist:
-            pass
-        else:
-            deal.date = previous_deal.date
-        finally:
-            deal.save()
+        Deal.objects.create(partnership=partnership, value=partnership.value)
 
 
 @app.task(name='deals_to_expired')

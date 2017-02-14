@@ -12,6 +12,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
+from django.utils.translation import ugettext_lazy as _
 import environ
 
 from account.utils import create_token
@@ -59,6 +60,7 @@ THIRD_PARTY_APPS = (
     'tinymce',
     # 'rest_auth.registration',
     'mptt',
+    'channels',
 )
 LOCAL_APPS = (
     'main',
@@ -70,9 +72,10 @@ LOCAL_APPS = (
     'status',
     'navigation',
     'partnership',
-    'tv_crm',
     'summit',
     'location',
+    'payment',
+    'group',
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -84,6 +87,7 @@ MIDDLEWARE = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'common.middleware.HardAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -158,12 +162,21 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LANGUAGES = (
+    ('ru', _('Russian')),
+    # ('uk', _('Ukrainian')),
+    # ('en', _('English')),
+)
+
 LANGUAGE_CODE = 'ru-RU'
+DEFAULT_LANGUAGE = 'ru-RU'
 USE_I18N = True
 SITE_ID = 1
 TIME_ZONE = 'Europe/Kiev'
 USE_L10N = False
 USE_TZ = True
+
+LOCALE_PATHS = (str(BASE_DIR.path('locale')),)
 
 GRAPPELLI_SWITCH_USER = True
 GRAPPELLI_INDEX_DASHBOARD = 'dashboard.CustomIndexDashboard'
@@ -315,4 +328,15 @@ LOGGING = {
             'propagate': False,
         },
     },
+}
+
+# Partnership
+
+# levels
+
+PARTNER_LEVELS = {
+    'director': 0,
+    'supervisor': 1,
+    'manager': 2,
+    'partner': 3,
 }

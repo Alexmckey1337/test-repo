@@ -14,12 +14,13 @@
     "jquery-ui": "~1",
     "select2": "~4",
     "cropper": "^2.3.4",
-    "font-awesome": "^4.7.0",
+    "font-awesome": "",
     "jquery.scrollbar": "^0.2.11",
     "reset-css": "^2.2.0",
     "air-datepicker": "^2.2.3",
     "lodash": "^4.17.2",
     "requirejs": "^2.3.2",
-    "es6-promise": "^4.0.5"
+    "es6-promise": "^4.0.5",
+    "fetch": "^2.0.2"
   }
 }

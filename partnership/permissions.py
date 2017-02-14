@@ -7,7 +7,7 @@ class IsPartnership(IsAuthenticated):
     def has_permission(self, request, view):
         if not super(IsPartnership, self).has_permission(request, view):
             return False
-        if not Partnership.objects.filter(user=request.user).exists():
+        if not hasattr(request.user, 'partnership'):
             return False
         return True
 
@@ -54,3 +54,4 @@ class IsDisciplesOf(IsPartnership):
 
 CanCreatePartnerPayment = IsSupervisorOrHigh
 CanClosePartnerDeal = IsManagerOrHigh
+CanReadPartnerPayment = IsManagerOrHigh

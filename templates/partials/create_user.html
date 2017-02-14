@@ -1,8 +1,8 @@
 {% load static %}
-<div class="pop-up-splash">
+<div class="popap" id="addNewUserPopup">
     <div class="splash-screen editprofile">
         <div class="top-text">
-            <h3><span>← </span>Добавить пользователя</h3>
+            <h3><span class="close_popup">← </span>Добавить пользователя</h3>
         </div>
         <div class="columns-wrap">
             <div class="col-1">
@@ -10,174 +10,165 @@
                     <img src="{% static "img/no-usr.jpg" %}" alt="photo">
                 </div>
                 <div class="butt-wrap">
-                    <form style="display:none" enctype="multipart/form-data" method="post">
-                        <p><input id="addFile" type="file" name="f"></p>
-                    </form>
-                    <button id="addFileButton">Загрузить</button>
+                    <input type="file" name="file" id="file">
+                    <button id="file_upload">Загрузить</button>
                     <p>Размер файла не должен превышать <br/>10 МБ.</p>
                     <p>Типы файлов, которые поддерживаются:<br/> jpg, jpeg, png.</p>
                 </div>
             </div><!--End col-1-->
 
-            <div class="col-2">
-                <div class="col-table">
-                    <div class="left-info">
-                        <ul>
-                            <li>Фамилия*</li>
-                            <li>Имя*</li>
-                            <li>Отчество</li>
-                            <li>Имя на родном языке</li>
-                            <li>Дата рождения</li>
-                            <li>Телефон*</li>
-                            <li>Доп.телефон</li>
-                            <li>E-mail</li>
-                            <li>Skype</li>
-                            <li>Страна</li>
-                            <li>Область</li>
-                            <li>Город</li>
-                            <li>Район</li>
-                            <li>Адрес</li>
-                            <li>Facebook</li>
-                            <li>Vkontakte</li>
-                            <li>Odnaklasniki</li>
-                        </ul>
+            <form action="" name="createUser" id="createUser">
+                <div class="col-2">
+                    <div class="col-table">
+                        <div class="left-info">
+                            <ul>
+                                <li>Фамилия*</li>
+                                <li>Имя*</li>
+                                <li>Отчество</li>
+                                <li>Имя на родном языке</li>
+                                <li>Дата рождения</li>
+                                <li>Телефон*</li>
+                                <li>Доп.телефон</li>
+                                <li>E-mail</li>
+                                <li>Skype</li>
+                                <li>Страна</li>
+                                <li>Область</li>
+                                <li>Город</li>
+                                <li>Район</li>
+                                <li>Адрес</li>
+                                <li>Facebook</li>
+                                <li>Vkontakte</li>
+                                <li>Odnaklasniki</li>
+                            </ul>
+                        </div>
+                        <div class="right-info">
+                            <ul>
+                                <li><input name="last_name" type="text" required></li>
+                                <li><input name="first_name" type="text" required></li>
+                                <li><input name="middle_name" type="text"></li>
+                                <li><input type="text" name="search_name" id="search_name"></li>
+                                <li><input name="born_date" type="text" id="bornDate" readonly="readonly"></li>
+                                <li class="phone">
+                                    <select style="width: 96%" name="" id="chooseCountryCode">
+                                    </select>
+                                    <input disabled id="phoneNumberCode" type="text" required>
+                                    <input id="phoneNumber" type="text" required>
+                                </li>
+                                <li><input type="text" id="extra_phone_numbers"></li>
+                                <li><input name="email" type="text"></li>
+                                <li><input name="skype" type="text"></li>
+                                <li><select style="width: 96%" name="country" id="chooseCountry">
+                                </select></li>
+                                <li><select style="width: 96%" disabled name="region" id="chooseRegion">
+                                </select></li>
+                                <li><select style="width: 96%" disabled name="city" id="chooseCity">
+                                </select></li>
+                                <li><input name="district" type="text"></li>
+                                <li><input name="address" id="address" type="text"></li>
+                                <li><input name="facebook" type="text"></li>
+                                <li><input name="vkontakte" type="text"></li>
+                                <li><input name="odnoklassniki" type="text"></li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="right-info">
-                        <ul>
-                            <li><input name="last_name" type="text" required></li>
-                            <li><input name="first_name" type="text" required></li>
-                            <li><input name="middle_name" type="text"></li>
-                            <li><input type="text" id="search_name"></li>
-                            <!--li><input type="text" id="bornDate" class="hasDatepicker"></li-->
-                            <li><input name="born_date" type="text" id="bornDate" readonly="readonly"></li>
-                            <li class="phone">
-                                <!-- <input placeholder="+380633333333" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43" name="phone_number" type="text"> -->
-                                <select style="width: 96%" name="" id="chooseCountryCode">
-                                    <!-- <option value="">Закарпатская</option> -->
-                                </select>
-                                <input disabled name="phone_numberCode" type="text" required>
-                                <input name="phone_number" type="text" required>
-                            </li>
-                            <li><input type="text" id="additional_phone"></li>
-                            <li><input name="email" type="text"></li>
-                            <li><input name="skype" type="text"></li>
-                            <li><select style="width: 96%" name="" id="chooseCountry">
-                                <!--option value="">Украина</option-->
-                            </select></li>
-                            <li><select style="width: 96%" disabled name="" id="chooseRegion">
-                                <!-- <option value="">Закарпатская</option> -->
-                            </select></li>
-                            <li><select style="width: 96%" disabled name="" id="chooseCity">
-                                <!-- <option value="">Мукачево</option> -->
-                            </select></li>
-                            <li><input name="district" type="text"></li>
-                            <li><input name="address" id="address" type="text"></li>
-                            <li><input name="fb" type="text"></li>
-                            <li><input name="vk" type="text"></li>
-                            <li><input name="ok" type="text"></li>
-                        </ul>
+                    </ul>
+                </div><!--End col-2-->
+                <div class="col-3">
+                    <div class="col-table">
+                        <div class="left-info">
+                            <ul>
+                                <li>Отдел*</li>
+                                <li>Статус*</li>
+                                <li>Ответственный*</li>
+                            </ul>
+                        </div>
+                        <div class="right-info">
+                            <ul>
+                                <li><select style="width: 96%" name="department" disabled id="chooseDepartment" class="cleared"
+                                            required>
+                                </select></li>
+                                <li><select style="width: 96%" name="hierarchy" id="chooseStatus" class="cleared" required>
+                                </select></li>
+                                </select></li>
+                                <li><select style="width: 96%" disabled name="master" id="chooseResponsible" class="cleared" required>
+                                </select></li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
-                </ul>
-            </div><!--End col-2-->
-            <div class="col-3">
-                <div class="col-table">
-                    <div class="left-info">
-                        <ul>
-                            <li>Отдел*</li>
-                            <li>Статус*</li>
-                            <li>Ответственный*</li>
-                        </ul>
+                    <div class="col-table">
+                        <div class="left-info">
+                            <ul>
+                                <li>Департамент</li>
+                            </ul>
+                        </div>
+                        <div class="right-info">
+                            <ul>
+                                <li><select style="width: 96%" id="chooseDivision" multiple="multiple">
+                                </select></li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="right-info">
-                        <ul>
-                            <li><select style="width: 96%" name="" id="chooseDepartment" value="" required>
-                            </select></li>
-                            <li><select style="width: 96%" name="" id="chooseStatus" value=""  required>
-                            </select></li>
-                            </select></li>
-                            <li><select style="width: 96%" disabled name="" id="chooseResponsible" required>
-                                <!-- <option value="">Барков Евгений Иннокентиевич</option> -->
-                            </select></li>
-                        </ul>
+                    <div class="col-table">
+                        <div class="left-info">
+                            <ul>
+                                <li>Партнёр</li>
+                            </ul>
+                            <ul class="hidden-partner" style="display:none">
+                                <li>Партнёр с</li>
+                                <li>Сумма сделки</li>
+                                <li>Менеджер</li>
+                            </ul>
+                        </div>
+                        <div class="right-info">
+                            <ul>
+                                <li><input type="checkbox" id="partner">
+                                    <label for="partner"></label>
+                                </li>
+                            </ul>
+                            <ul class="hidden-partner" style="display:none">
+                                <li><input type="text" id="partnerFrom" readonly="readonly">
+                                </li>
+                                <li><input type="number" id="partners_count"></li>
+                                <li><select style="width: 96%" id="chooseManager">
+                                </select></li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
-                <div class="col-table">
-                    <div class="left-info">
-                        <ul>
-                            <li>Департамент</li>
-                        </ul>
+                    <div class="col-table">
+                        <div class="left-info">
+                            <ul>
+                                <li>Дата покаяния</li>
+                            </ul>
+                        </div>
+                        <div class="right-info">
+                            <ul>
+                                <li><input name="repentance_date" type="text" readonly="readonly"
+                                           id="repentanceDate">
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="right-info">
-                        <ul>
-                            <li><select style="width: 96%" name="" id="chooseDivision" multiple="multiple">
-                                <!-- <option value="">Департамент</option> -->
-                            </select></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-table">
-                    <div class="left-info">
-                        <ul>
-                            <li>Партнёр</li>
-                        </ul>
-                        <ul class="hidden-partner" style="display:none">
-                            <li>Партнёр с</li>
-                            <li>Сумма сделки</li>
-                            <li>Менеджер</li>
-                        </ul>
-                    </div>
-                    <div class="right-info">
-                        <ul>
-                            <li><input type="checkbox" id="partner">
-                                <label for="partner"></label>
-                            </li>
-                        </ul>
-                        <ul class="hidden-partner" style="display:none">
-                            <li><input name="partnership_date" type="text" id="partnerFrom" readonly="readonly">
-                            </li>
-                            <li><input name="value" type="number" id="summa_partner"></li>
-                            <li><select style="width: 96%" name="" id="chooseManager">
-                                <!-- <option value="">Языкин Богдан Евлампиевич</option> -->
-                            </select></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-table">
-                    <div class="left-info">
-                        <ul>
-                            <li>Дата покаяния</li>
-                        </ul>
-                    </div>
-                    <div class="right-info">
-                        <ul>
-                            <li><input name="repentance_date" type="text" readonly="readonly"
-                                       id="repentanceDate">
-                            </li>
-                        </ul>
-                    </div>
-                </div>
 
-            </div><!--End col-3-->
-            <div class="splash-bauttons">
-                <button class="close">Отменить</button>
-                <button id="saveNew">Сохранить</button>
-            </div>
+                </div><!--End col-3-->
+                <div class="splash-bauttons">
+                    <a class="close_popup">Отменить</a>
+                    <button id="saveNew" type="submit">Сохранить</button>
+                </div>
+            </form>
         </div><!--End colums-wrap-->
     </div>
 </div>
-
 <div id="impPopup">
     <div class="splash-screen">
         <div class="top-text">
             <h3>Редактирование картинки</h3>
-            <span>×</span>
+            <span class="close">×</span>
         </div>
         <div class="crArea">
             <img src="" alt="">
         </div>
         <div class="splash-buttons">
-            <button class="cr">Изменить</button>
+            <button class="cr" id="editCropImg">Изменить</button>
         </div>
     </div>
 </div>

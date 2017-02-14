@@ -6,6 +6,9 @@ CustomUser
 ----------
 
 
+List of users
+~~~~~~~~~~~~~
+
 .. http:get:: /api/v1.1/users/
 
    List of the users for table (order by ``last_name``, ``first_name``, ``middle_name``).
@@ -239,6 +242,9 @@ CustomUser
    :statuscode 200: no error
 
 
+Create user, ``application/json``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 .. http:post:: /api/v1.1/users/
 
    Create new user.
@@ -263,7 +269,7 @@ CustomUser
         "vkontakte": "http://vk.com/test",
         "odnoklassniki": "http://ok.com/test",
         "skype": "skype",
-        "additional_phones": "26426264",
+        "extra_phone_numbers": ["26426264"],
         "born_date": "2000-02-20",
         "coming_date": "2002-02-20",
         "repentance_date": "2020-02-22",
@@ -305,11 +311,8 @@ CustomUser
         "odnoklassniki": "http://ok.com/test",
         "skype": "skype",
         "phone_number": "573135171",
-        "additional_phones": [
-          {
-            "id": 5491,
-            "number": "26426264"
-          }
+        "extra_phone_numbers": [
+            "26426264"
         ],
         "born_date": "20.02.2000",
         "coming_date": "20.02.2002",
@@ -376,7 +379,7 @@ CustomUser
    :form odnoklassniki: odnoklassiniki url
    :form skype: login of skype
    :form phone_number: phone number, **required**
-   :form additional_phones: additional phone number
+   :form extra_phone_numbers: additional phone numbers
    :form born_date: born date
    :form coming_date: coming date
    :form repentance_date: repentance date
@@ -396,14 +399,16 @@ CustomUser
    :form partner[date]: date when the user became a partner
    :reqheader Accept: the response content type depends on
                                                               :mailheader:`Accept` header
-   :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
-                            ``application/json``, ``multipart/form-data``
+   :reqheader Content-Type: ``application/json``
    :resheader Content-Type: this depends on :mailheader:`Accept`
                             header of request
    :statuscode 201: success create
    :statuscode 403: user is not authenticated
    :statuscode 400: bad request
 
+
+Update user, ``application/json``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. http:put:: /api/v1.1/users/<user_id>/
 
@@ -429,7 +434,7 @@ CustomUser
         "vkontakte": "http://vk.com/test",
         "odnoklassniki": "http://ok.com/test",
         "skype": "skype",
-        "additional_phones": "26426264",
+        "extra_phone_numbers": ["26426264"],
         "born_date": "2000-02-20",
         "coming_date": "2002-02-20",
         "repentance_date": "2020-02-22",
@@ -471,11 +476,8 @@ CustomUser
         "odnoklassniki": "http://ok.com/test",
         "skype": "skype",
         "phone_number": "573135171",
-        "additional_phones": [
-          {
-            "id": 5491,
-            "number": "26426264"
-          }
+        "extra_phone_numbers": [
+            "26426264"
         ],
         "born_date": "20.02.2000",
         "coming_date": "20.02.2002",
@@ -542,7 +544,7 @@ CustomUser
    :form odnoklassniki: odnoklassiniki url
    :form skype: login of skype
    :form phone_number: phone number, **required**
-   :form additional_phones: additional phone number
+   :form extra_phone_numbers: additional phone numbers
    :form born_date: born date
    :form coming_date: coming date
    :form repentance_date: repentance date
@@ -562,14 +564,16 @@ CustomUser
    :form partner[date]: date when the user became a partner
    :reqheader Accept: the response content type depends on
                                                         :mailheader:`Accept` header
-   :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
-                            ``application/json``, ``multipart/form-data``
+   :reqheader Content-Type: ``application/json``
    :resheader Content-Type: this depends on :mailheader:`Accept`
                             header of request
    :statuscode 201: success create
    :statuscode 403: user is not authenticated
    :statuscode 400: bad request
 
+
+Partial update user, ``application/json``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. http:patch:: /api/v1.1/users/(int:user_id)/
 
@@ -607,11 +611,8 @@ CustomUser
         "odnoklassniki": "ok",
         "skype": "iskype",
         "phone_number": "+3846266646",
-        "additional_phones": [
-          {
-            "id": 9,
-            "number": "+3843333338"
-          }
+        "extra_phone_numbers": [
+            "+3843333338"
         ],
         "born_date": "08.11.2016",
         "coming_date": "01.12.2016",
@@ -674,7 +675,7 @@ CustomUser
    :form odnoklassniki: odnoklassiniki url
    :form skype: login of skype
    :form phone_number: phone number
-   :form additional_phones: additional phone number
+   :form extra_phone_numbers: additional phone numbers
    :form born_date: born date
    :form coming_date: coming date
    :form repentance_date: repentance date
@@ -688,14 +689,475 @@ CustomUser
    :form master: id of master
    :reqheader Accept: the response content type depends on
                                                   :mailheader:`Accept` header
-   :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
-                            ``application/json``, ``multipart/form-data``
+   :reqheader Content-Type: ``application/json``
    :resheader Content-Type: this depends on :mailheader:`Accept`
                             header of request
    :statuscode 200: success update
    :statuscode 403: user is not authenticated
    :statuscode 404: there's no summit
 
+
+Create new user, ``multipart/form-data``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:post:: /api/v1.1/users/
+
+   Create new user.
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      POST /api/v1.1/users/13350/ HTTP/1.1
+      Host: vocrm.org
+      Accept: application/json
+      Content-Type:  multipart/form-data; boundary=42940404204
+
+        --42940404204
+        Content-Disposition: form-data; name="email"
+
+        example@email.com
+        --42940404204
+        Content-Disposition: form-data; name="first_name"
+
+        first
+        --42940404204
+        Content-Disposition: form-data; name="last_name"
+
+        last
+        --42940404204
+        Content-Disposition: form-data; name="middle_name"
+
+        middle
+        --42940404204
+        Content-Disposition: form-data; name="born_date"
+
+        2000-02-20
+        --42940404204
+        Content-Disposition: form-data; name="department"
+
+        1
+        --42940404204
+        Content-Disposition: form-data; name="divisions"
+
+        [1,2,3]
+        --42940404204
+        Content-Disposition: form-data; name="extra_phone_numbers"
+
+        ["26426264"]
+        --42940404204
+        Content-Disposition: form-data; name="partner"
+
+        {"value":30,"responsible":4,"date":"2020-02-20"}
+        --42940404204--
+
+   **Example response (Good request)**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 201 Created
+      Vary: Accept, Cookie
+      Allow: GET, POST, HEAD, OPTIONS
+      Content-Type: application/json
+
+      {
+        "id": 15183,
+        "email": "example@email.com",
+        "first_name": "first",
+        "last_name": "last",
+        "middle_name": "middle",
+        "extra_phone_numbers": [
+            "26426264"
+        ],
+        "born_date": "20.02.2000",
+        "image": null,
+        "image_source": null,
+        "department": 1,
+        "divisions": [
+          1,
+          2,
+          3
+        ],
+        "partnership": {
+          "value": 30,
+          "responsible": 4,
+          "date": "20.02.2020",
+          "user": 15183
+        },
+        "fullname": "last first middle"
+      }
+
+   **Example response (Bad request 1)**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 403 Forbidden
+      Vary: Accept, Cookie
+      Allow: GET, POST, HEAD, OPTIONS
+      Content-Type: application/json
+
+      {
+        "detail": "Учетные данные не были предоставлены."
+      }
+
+   **Example response (Bad request 2)**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 400 Bad Request
+      Vary: Accept, Cookie
+      Allow: GET, POST, HEAD, OPTIONS
+      Content-Type: application/json
+
+      {
+        "first_name": [
+          "Это поле обязательно."
+        ]
+      }
+
+   :form email: user email
+   :form first_name: first name, **required**
+   :form last_name: last name, **required**
+   :form middle_name: middle name
+   :form search_name: search name
+   :form facebook: facebook url
+   :form vkontakte: vkontakte url
+   :form odnoklassniki: odnoklassiniki url
+   :form skype: login of skype
+   :form phone_number: phone number, **required**
+   :form extra_phone_numbers: additional phone numbers, format == ``["1111","2222"]``
+   :form born_date: born date
+   :form coming_date: coming date
+   :form repentance_date: repentance date
+   :form country: country
+   :form city: city
+   :form region: region
+   :form district: district
+   :form address: address
+   :form image: user photo
+   :form department: id of user department, **required**
+   :form hierarchy: id of hierarchy, **required**
+   :form master: id of master, **required**
+   :form divisions: list of ids of divisions, format == ``[1,"2",3]``
+   :form partner: partnership fields, format == ``{"value":11,"responsible":2,"date":"2000-02-22"}``
+   :reqheader Accept: the response content type depends on
+                                                              :mailheader:`Accept` header
+   :reqheader Content-Type: ``multipart/form-data``
+   :resheader Content-Type: this depends on :mailheader:`Accept`
+                            header of request
+   :statuscode 201: success create
+   :statuscode 403: user is not authenticated
+   :statuscode 400: bad request
+
+
+Update user, ``multipart/form-data``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:put:: /api/v1.1/users/<user_id>/
+
+   Update of user with ``id = user_id``.
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      PUT /api/v1.1/users/13350/ HTTP/1.1
+      Host: vocrm.org
+      Accept: application/json
+      Content-Type:  multipart/form-data; boundary=42940404204
+
+        --42940404204
+        Content-Disposition: form-data; name="email"
+
+        example@email.com
+        --42940404204
+        Content-Disposition: form-data; name="first_name"
+
+        first
+        --42940404204
+        Content-Disposition: form-data; name="last_name"
+
+        last
+        --42940404204
+        Content-Disposition: form-data; name="middle_name"
+
+        middle
+        --42940404204
+        Content-Disposition: form-data; name="born_date"
+
+        2000-02-20
+        --42940404204
+        Content-Disposition: form-data; name="department"
+
+        1
+        --42940404204
+        Content-Disposition: form-data; name="divisions"
+
+        [1,2,3]
+        --42940404204
+        Content-Disposition: form-data; name="extra_phone_numbers"
+
+        ["26426264"]
+        --42940404204
+        Content-Disposition: form-data; name="partner"
+
+        {"value":30,"responsible":4,"date":"2020-02-20"}
+        --42940404204--
+
+   **Example response (Good request)**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 201 Created
+      Vary: Accept, Cookie
+      Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      Content-Type: application/json
+
+      {
+        "id": 15183,
+        "email": "example@email.com",
+        "first_name": "first",
+        "last_name": "last",
+        "middle_name": "middle",
+        "extra_phone_numbers": [
+            "26426264"
+        ],
+        "born_date": "20.02.2000",
+        "image": null,
+        "image_source": null,
+        "department": 1,
+        "divisions": [
+          1,
+          2,
+          3
+        ],
+        "partnership": {
+          "value": 30,
+          "responsible": 4,
+          "date": "20.02.2020",
+          "user": 15183
+        },
+        "fullname": "last first middle"
+      }
+
+   **Example response (Bad request 1)**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 403 Forbidden
+      Vary: Accept, Cookie
+      Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      Content-Type: application/json
+
+      {
+        "detail": "Учетные данные не были предоставлены."
+      }
+
+   **Example response (Bad request 2)**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 400 Bad Request
+      Vary: Accept, Cookie
+      Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      Content-Type: application/json
+
+      {
+        "first_name": [
+          "Это поле обязательно."
+        ]
+      }
+
+   :form email: user email
+   :form first_name: first name, **required**
+   :form last_name: last name, **required**
+   :form middle_name: middle name
+   :form search_name: search name
+   :form facebook: facebook url
+   :form vkontakte: vkontakte url
+   :form odnoklassniki: odnoklassiniki url
+   :form skype: login of skype
+   :form phone_number: phone number, **required**
+   :form extra_phone_numbers: additional phone numbers, format == ``["1111","2222"]``
+   :form born_date: born date
+   :form coming_date: coming date
+   :form repentance_date: repentance date
+   :form country: country
+   :form city: city
+   :form region: region
+   :form district: district
+   :form address: address
+   :form image: user photo
+   :form department: id of user department, **required**
+   :form hierarchy: id of hierarchy, **required**
+   :form master: id of master, **required**
+   :form divisions: list of ids of divisions, format == ``[1,"2",3]``
+   :form partner: partnership fields, format == ``{"value":11,"responsible":2,"date":"2000-02-22"}``
+   :reqheader Accept: the response content type depends on
+                                                        :mailheader:`Accept` header
+   :reqheader Content-Type: ``multipart/form-data``
+   :resheader Content-Type: this depends on :mailheader:`Accept`
+                            header of request
+   :statuscode 201: success create
+   :statuscode 403: user is not authenticated
+   :statuscode 400: bad request
+
+
+Partial update user, ``multipart/form-data``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:patch:: /api/v1.1/users/(int:user_id)/
+
+   Partial update user data.
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      PATCH /api/v1.1/users/13350/ HTTP/1.1
+      Host: vocrm.org
+      Accept: application/json
+      Content-Type:  multipart/form-data; boundary=42940404204
+
+        --42940404204
+        Content-Disposition: form-data; name="email"
+
+        example@email.com
+        --42940404204
+        Content-Disposition: form-data; name="first_name"
+
+        new
+        --42940404204
+        Content-Disposition: form-data; name="last_name"
+
+        name
+        --42940404204
+        Content-Disposition: form-data; name="middle_name"
+
+        other
+        --42940404204
+        Content-Disposition: form-data; name="divisions"
+
+        ["6","4"]
+        --42940404204
+        Content-Disposition: form-data; name="extra_phone_numbers"
+
+        ["+3843333338"]
+        --42940404204
+        Content-Disposition: form-data; name="partner"
+
+        {"value":255,"responsible":1,"date":"2000-02-22"}
+        --42940404204--
+
+   **Example response (Good request)**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Vary: Accept, Cookie
+      Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      Content-Type: application/json
+
+      {
+        "id": 13350,
+        "email": "old@email.com",
+        "first_name": "new",
+        "last_name": "name",
+        "middle_name": "other",
+        "facebook": "fb",
+        "vkontakte": "vk",
+        "odnoklassniki": "ok",
+        "skype": "iskype",
+        "phone_number": "+3846266646",
+        "extra_phone_numbers": [
+            "+3843333338"
+        ],
+        "born_date": "08.11.2016",
+        "coming_date": "01.12.2016",
+        "repentance_date": "02.12.2016",
+        "country": "Италия",
+        "region": "Regione Autonoma Friuli Venezia Giulia",
+        "city": "Adria",
+        "district": "",
+        "address": " address",
+        "image": "http://vocrm.org/media/images/blob_khTQWMg",
+        "image_source": "http://vocrm.org/media/images/photo_foIDR7k.jpg",
+        "department": 4,
+        "master": 11021,
+        "hierarchy": 2,
+        "divisions": [
+          6,
+          4
+        ],
+        "partnership": {
+          "id": 3810,
+          "value": 255,
+          "responsible": 1,
+          "date": "22.02.2000",
+        },
+        "fullname": "name new other"
+      }
+
+   **Example response (Bad request 1)**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 403 Forbidden
+      Vary: Accept, Cookie
+      Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      Content-Type: application/json
+
+      {
+        "detail": "Учетные данные не были предоставлены."
+      }
+
+   **Example response (Bad request 2)**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 404 Not Found
+      Vary: Accept, Cookie
+      Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      Content-Type: application/json
+
+      {
+        "detail": "Не найдено."
+      }
+
+   :form email: user email
+   :form first_name: first name
+   :form last_name: last name
+   :form middle_name: middle name
+   :form search_name: search name
+   :form facebook: facebook url
+   :form vkontakte: vkontakte url
+   :form odnoklassniki: odnoklassiniki url
+   :form skype: login of skype
+   :form phone_number: phone number
+   :form extra_phone_numbers: additional phone numbers, format == ``["1111","2222"]``
+   :form born_date: born date
+   :form coming_date: coming date
+   :form repentance_date: repentance date
+   :form country: country
+   :form city: city
+   :form district: district
+   :form divisions: list of ids of divisions, format == ``[1,"2",3]``
+   :form address: address
+   :form image: user photo
+   :form department: id of user department
+   :form hierarchy: id of hierarchy
+   :form master: id of master
+   :reqheader Accept: the response content type depends on
+                                                  :mailheader:`Accept` header
+   :reqheader Content-Type: ``multipart/form-data``
+   :resheader Content-Type: this depends on :mailheader:`Accept`
+                            header of request
+   :statuscode 200: success update
+   :statuscode 403: user is not authenticated
+   :statuscode 404: there's no summit
+
+Export user data
+~~~~~~~~~~~~~~~~
 
 .. http:post:: /api/v1.1/users/export/
 
@@ -748,7 +1210,7 @@ CustomUser
    :query int hierarchy: filter by ``hierarchy_id``
    :query int master: filter by ``master_id``
    :query int department: filter by ``department_id``
-   :query string search_fio: search by ``last_name``, ``first_name``, ``middle_name``
+   :query string search_fio: search by ``last_name``, ``first_name``, ``middle_name``, ``search_name``
    :query string search_email: search by ``email``
    :query string search_phone_number: search by main ``phone_number``
    :query string search_country: search by ``country``
@@ -761,6 +1223,8 @@ CustomUser
                             header of request
    :statuscode 200: success export
 
+List users for select
+~~~~~~~~~~~~~~~~~~~~~
 
 .. http:get:: /api/v1.0/short_users/
 
@@ -816,4 +1280,3 @@ CustomUser
    :resheader Content-Type: this depends on :mailheader:`Accept`
                             header of request
    :statuscode 200: no error
-

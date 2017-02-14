@@ -1,103 +1,8 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from collections import OrderedDict
-
 from django.db import models
-from django.db.models import signals
-from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
-
-
-def partner_table():
-    l = OrderedDict()
-    column_types = ColumnType.objects.filter(category__title="partnership").order_by('number')
-    for column in column_types.all():
-        d = OrderedDict()
-        d['title'] = column.verbose_title
-        d['ordering_title'] = column.ordering_title
-        d['number'] = column.number
-        d['active'] = column.active
-        d['editable'] = column.editable
-        l[column.title] = d
-    return l
-
-
-def user_table(user):
-    l = OrderedDict()
-    if not (hasattr(user, 'table') and isinstance(user.table, Table)):
-        return l
-    column_types = user.table.columns.select_related('columnType').filter(
-        columnType__category__title="Общая информация").order_by('number')
-    for column in column_types:
-        d = OrderedDict()
-        d['id'] = column.id
-        d['title'] = column.columnType.verbose_title
-        d['ordering_title'] = column.columnType.ordering_title
-        d['number'] = column.number
-        d['active'] = column.active
-        d['editable'] = column.columnType.editable
-        l[column.columnType.title] = d
-    return l
-
-
-def user_partner_table(user):
-    l = OrderedDict()
-    if not (hasattr(user, 'table') and isinstance(user.table, Table)):
-        return l
-    column_types = user.table.columns.select_related('columnType').filter(
-        columnType__category__title="partnership").exclude(
-        columnType__title__in=('count', 'result_value')).order_by('number')
-    for column in column_types.all():
-        d = OrderedDict()
-        d['id'] = column.id
-        d['title'] = column.columnType.verbose_title
-        d['ordering_title'] = column.columnType.ordering_title
-        d['number'] = column.number
-        d['active'] = column.active
-        d['editable'] = column.columnType.editable
-        l[column.columnType.title] = d
-    return l
-
-
-def user_summit_table():
-    l = OrderedDict()
-    d = OrderedDict()
-    d['title'] = 'Код'
-    d['ordering_title'] = 'code'
-    d['number'] = 1
-    d['active'] = True
-    d['editable'] = False
-    l['code'] = d
-    d = OrderedDict()
-    d['title'] = 'Оплата'
-    d['ordering_title'] = 'value'
-    d['number'] = 2
-    d['active'] = True
-    d['editable'] = False
-    l['value'] = d
-    d = OrderedDict()
-    d['title'] = 'Примечание'
-    d['ordering_title'] = 'description'
-    d['number'] = 3
-    d['active'] = True
-    d['editable'] = False
-    l['description'] = d
-    return l
-
-
-def event_table():
-    l = OrderedDict()
-    column_types = ColumnType.objects.filter(category__title="events").order_by('number')
-    for column in column_types.all():
-        d = OrderedDict()
-        d['title'] = column.verbose_title
-        d['ordering_title'] = column.ordering_title
-        d['number'] = column.number
-        d['active'] = column.active
-        d['editable'] = column.editable
-        l[column.title] = d
-    return l
 
 
 @python_2_unicode_compatible
@@ -168,27 +73,4 @@ class Column(models.Model):
 
     class Meta:
         ordering = ['number']
-
-
-@receiver(signals.post_save, sender=ColumnType)
-def sync_column(sender, instance, **kwargs):
-    if instance.category.common:
-        tables = Table.objects.all()
-        for table in tables:
-            column = Column.objects.create(table=table,
-                                           columnType=instance,
-                                           number=instance.number,
-                                           active=instance.active)
-            column.save()
-
-
-@receiver(signals.post_save, sender=Table)
-def sync_table(sender, instance, **kwargs):
-    if not instance.columns.all():
-        column_types = ColumnType.objects.filter(category__common=True).all()
-        for columnType in column_types.all():
-            column = Column.objects.create(table=instance,
-                                           columnType=columnType,
-                                           number=columnType.number,
-                                           active=columnType.active)
-            column.save()
+        unique_together = ('table', 'columnType')

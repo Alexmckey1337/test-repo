@@ -4,7 +4,7 @@ import logging
 import raven
 # from django.utils import six
 
-from .base import *
+from .base import *  # noqa
 
 # from boto.s3.connection import OrdinaryCallingFormat
 

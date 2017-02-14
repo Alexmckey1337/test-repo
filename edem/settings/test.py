@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from .base import *  # noqa
 
 DEBUG = False
-TEMPLATES[0]['OPTIONS']['debug'] = False
+TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
 
 SECRET_KEY = env('DJANGO_SECRET_KEY', default='CHANGEME!!!')
 
@@ -21,24 +21,12 @@ CACHES = {
         'LOCATION': ''
     }
 }
+INSTALLED_APPS += (
+    'raven.contrib.django.raven_compat',
+)
 
 TEST_RUNNER = 'edem.runner.PytestTestRunner'
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'crm_db',
-#         'USER': 'crm_user',
-#         'PASSWORD': 'crm_pass',
-#         'HOST': 'localhost',
-#         'TEST': {
-#             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#             'NAME': 'test_crm',
-#             'USER': 'crm_user',
-#             'PASSWORD': '123456',
-#         }
-#     }
-# }
 PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.MD5PasswordHasher',
 )
@@ -52,3 +40,9 @@ TEMPLATES[0]['OPTIONS']['loaders'] = [
         'django.template.loaders.app_directories.Loader',
     ]),
 ]
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "asgiref.inmemory.ChannelLayer",
+        "ROUTING": "edem.routing.channel_routing",
+    },
+}

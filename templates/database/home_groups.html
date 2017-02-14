@@ -1,0 +1,178 @@
+{% extends "layout_main.html" %}
+{% load static %}
+
+{% block body_id %} id="database"{% endblock %}
+
+{% block header.top.h1 %}<h1>База данных / Домашние группы</h1>{% endblock %}
+
+{% block header.buttons %}
+    <div class="top-panel">
+        <div class="tabs">
+            <ul class="nav tabs_link">
+                <li><a href="{% url 'churches' %}">Церкви</a></li>
+                <li><a class="active" href="{% url 'home_groups' %}">Домашние группы</a></li>
+                <li><a href="{% url 'people' %}">Люди</a></li>
+            </ul>
+        </div>
+        <div class="top-buttons-wrap">
+            <ul class="top-buttons">
+                <li>
+                    <button id="filter_button" class="header__button">Фильтр</button>
+                </li>
+                <li>
+                    <form action="{% url "homegroup-export" %}" method="post">
+                        <button type="submit" class="download header__button">Export</button>
+                    </form>
+                </li>
+                <li>
+                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block header.buttons.export %}
+
+{% endblock %}
+
+{% block main.content %}
+    {% block pagination_top %}
+        <div class="top-pag">
+            <div class="table__count"></div>
+            <div class="pagination users__pagination"><!--pagination -->
+            </div><!--End pagination -->
+        </div>
+    {% endblock %}
+
+    {% block table %}
+        <div class="table-wrap  clearfix" id="churches"><!--Table -->
+            <div class="table scrollbar-inner" id="tableHomeGroup"></div>
+
+        </div><!--End Table -->
+        <div class="preloader">
+            <div class="gif"></div>
+        </div>
+    {% endblock %}
+
+    {% block pagination_bottom %}
+        <div class="table__count"></div>
+        <div class="pagination users__pagination"></div>
+    {% endblock %}
+{% endblock %}
+
+{% block create_user %}
+    {% include 'partials/create_user.html' %}
+{% endblock %}
+
+{% block popup %}
+       <div class="popap" id="quickEditCartPopup">
+        <div class="pop_cont">
+            <div class="popup_text">
+                <h2>Карточка Домашней группы</h2>
+                <span onclick="hidePopup(this)" class="close"><i class="fa fa-times" aria-hidden="true"></i></span>
+            </div>
+            <div class="popup_body">
+            </div>
+            <div class="container">
+                <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                <button onclick="saveHomeGroups(this)" class="save-user">Сохранить</button>
+            </div>
+        </div>
+    </div>
+    <div class="popap" id='filterPopup'>
+        <div class="pop_cont">
+            <h2 class='popup_text'>
+                Фильтр
+            </h2>
+            <div class="popup_body">
+                <div class="container">
+                    <div class="col-6">
+                        <p class="label_block">
+                            <label for="church_filter">Церковь</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="leader_filter">Лидер</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="search_date_open">Дата открытия</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="search_country">Фильтр по городу</label>
+                        </p>
+                    </div>
+                    <div class="col-6">
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="church" id="church_filter">
+                                <option value="">ВСЕ</option>
+                                {% for church in churches %}
+                                    <option value="{{ church.id }}">{{ church.get_title }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="leader" id="leader_filter">
+                                <option value="">ВСЕ</option>
+                                {% for leader in leaders %}
+                                    <option value="{{ leader.id }}">{{ leader.fullname }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <input type="text" data-filter="opening_date" id="search_date_open">
+                        </p>
+                        <p class="input_block">
+                            <input type="text" data-filter="city" placeholder="город или часть названия" id="search_city">
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <a href="#" onclick="refreshFilter(this)" class="apply-filter"><i class="fa fa-refresh"
+                                                                                  aria-hidden="true"></i>
+                    Очистить</a>
+                <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                <button onclick="applyFilter(this, createHomeGroupsTable)" class="apply-filter">Применить</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block extra_scripts %}
+    <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
+    <script src="{% static "js/database_home_groups.js" %}"></script>
+    <script type="text/template" id="quickEditCart">
+   <div class="container bb-1">
+        <div class="header">
+            <p><input type="text" class="title" id="home_groups_title" value="<%=get_title %>"></p>
+            <% if(opening_date) { %>
+                <p><label for="opening_date">Дата открытия</label><input type="text" class="date" id="opening_date" value="<%= opening_date.split('.').reverse().join('-') %>"></p>
+            <% } else { %>
+                <p><label for="opening_date">Датат открытия</label><input type="text" id="opening_date" class="date" value=""></p>
+            <% } %>
+            <p class="hidden"><input type="text" id="homeGroupsID" value="<%= id %>"></p>
+        </div>
+   </div>
+    <div class="container start">
+        <div>
+            <p class="label_block">Отдел:</p>
+            <p class="label_block">Пастор:</p>
+            <p class="label_block">Нас.пункт:</p>
+            <p class="label_block">Адрес:</p>
+            <p class="label_block">Телефон:</p>
+            <p class="label_block">Сайт:</p>
+        </div>
+        <div class="col-7">
+            <div><select name="" id="editDepartmentSelect">
+                <option value="<%= department %>"><%= department %></option>
+            </select></div>
+            <div><select name="" id="editPastorSelect">
+                <option value="<%= leader %>"><%= leader %></option>
+            </select></div>
+            <p><input type="text" id="city" value="<%=city %>"></p>
+            <p><input type="text" id="address" value="<%=address %>"></p>
+            <p><input type="text" id="phone_number" value="<%=phone_number %>"></p>
+            <p><input type="text" id="web_site" value="<%=website %>"></p>
+        </div>
+    </div>
+</script>
+{% endblock %}

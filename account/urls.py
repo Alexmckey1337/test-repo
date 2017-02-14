@@ -14,7 +14,6 @@ router_v1_1 = routers.DefaultRouter()
 router_v1_1.register(r'users', views.NewUserViewSet, base_name='users_v1_1')
 
 custom_urls = [
-    url(r'^ping_user_key/$', views.ping_user_key),
     url(r'^login/$', views.login_view),
     url(r'^create_user/$', views.create_user),
     url(r'^logout/$', views.LogoutView.as_view(), name="logout"),
