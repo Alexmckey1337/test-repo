@@ -1,4 +1,5 @@
 from django.utils.translation import ugettext_lazy as _
+from import_export import fields
 
 from account.models import CustomUser
 from common.resources import CustomFieldsModelResource
@@ -47,10 +48,11 @@ class HomeGroupResource(CustomFieldsModelResource):
 
 class GroupUserResource(CustomFieldsModelResource):
     """For excel import/export"""
+    fullname = fields.Field()
 
     class Meta:
         model = CustomUser
-        fields = BASE_GROUP_USER_FIELDS
+        fields = BASE_GROUP_USER_FIELDS + ('fullname',)
 
     def dehydrate_master(self, user):
         return '%s %s %s' % (user.master.first_name, user.master.last_name, user.master.middle_name)
@@ -63,3 +65,6 @@ class GroupUserResource(CustomFieldsModelResource):
 
     def dehydrate_spiritual_level(self, user):
         return user.get_spiritual_level_display()
+
+    def dehydrate_fullname(self, user):
+        return user.fullname
