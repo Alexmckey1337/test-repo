@@ -6,13 +6,15 @@ from import_export.resources import ModelDeclarativeMetaclass
 
 from account.models import CustomUser as User
 from common.resources import CustomFieldsModelResource
-from group.serializers import BASE_GROUP_USER_FIELDS
 
-USER_MAIN_RESOURCE_FIELDS = ('last_name', 'first_name', 'middle_name',
+USER_MAIN_RESOURCE_FIELDS = ('last_name', 'first_name', 'middle_name', 'region',
                              'email', 'phone_number', 'skype', 'country', 'city', 'address',
-                             'born_date', 'facebook', 'vkontakte', 'description',)
+                             'born_date', 'facebook', 'vkontakte', 'description',
+                             'repentance_date', 'district',
+                             )
 
-USER_RESOURCE_FIELDS = USER_MAIN_RESOURCE_FIELDS + ('department_title', 'hierarchy_title', 'master_name')
+USER_RESOURCE_FIELDS = USER_MAIN_RESOURCE_FIELDS + (
+    'department', 'hierarchy', 'master', 'spiritual_level', 'divisions', 'fullname',)
 
 
 class UserMetaclass(ModelDeclarativeMetaclass):
@@ -34,9 +36,8 @@ class UserMetaclass(ModelDeclarativeMetaclass):
 
 class UserResource(CustomFieldsModelResource):
     """For excel import/export"""
-    master_name = fields.Field()
-    department_title = fields.Field()
-    hierarchy_title = fields.Field()
+    divisions = fields.Field()
+    fullname = fields.Field()
 
     user_field_name = None
 
@@ -49,19 +50,31 @@ class UserResource(CustomFieldsModelResource):
             return getattr(user, self.user_field_name)
         return user
 
-    def dehydrate_master_name(self, user):
+    def dehydrate_master(self, user):
         user_field = self.get_user_field(user)
         if not user_field.master:
             return ''
-        return '%s %s %s' % (user_field.master.first_name, user_field.master.last_name, user_field.master.middle_name)
+        return '%s %s %s' % (user_field.master.last_name, user_field.master.first_name, user_field.master.middle_name)
 
-    def dehydrate_department_title(self, user):
+    def dehydrate_department(self, user):
         user_field = self.get_user_field(user)
         return user_field.department.title if user_field.department else ''
 
-    def dehydrate_hierarchy_title(self, user):
+    def dehydrate_hierarchy(self, user):
         user_field = self.get_user_field(user)
         return user_field.hierarchy.title if user_field.hierarchy else ''
+
+    def dehydrate_spiritual_level(self, user):
+        user_field = self.get_user_field(user)
+        return user_field.get_spiritual_level_display()
+
+    def dehydrate_divisions(self, user):
+        user_field = self.get_user_field(user)
+        return ', '.join(user_field.divisions.values_list('title', flat=True))
+
+    def dehydrate_fullname(self, user):
+        user_field = self.get_user_field(user)
+        return user_field.fullname
 
 
 def clean_password(data):
