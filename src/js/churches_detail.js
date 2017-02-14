@@ -105,6 +105,7 @@
 
     $('.get_info button').on('click', function () {
         let link = $(this).data('link');
+        let exportUrl = $(this).data('export-url');
         let canEdit = $(this).data('editable');
         $('#church').removeClass('can_edit');
         if (canEdit) {
@@ -113,6 +114,7 @@
         createChurchesDetailsTable({}, ID, link);
         $('.get_info button').removeClass('active');
         $(this).addClass('active');
+        $('#export_table').attr('data-url', exportUrl);
     });
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
@@ -183,5 +185,8 @@
     $('#createUser').on('submit', function (e) {
         e.preventDefault();
         createUser();
+    });
+    $('#export_table').on('click', function () {
+        exportTableData(this);
     });
 })(jQuery);
