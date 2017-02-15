@@ -136,7 +136,7 @@ function createCSV(data) {
     }
     let type = data.getResponseHeader('Content-Type') + ';charset=UTF-8';
     return {
-        file: new Blob(["sep=;\n" + data.responseText], {type: type, endings: 'native'}),
+        file: new Blob(["\ufeff\n" + data.responseText], {type: type, endings: 'native'}),
         filename: filename
     };
 }
