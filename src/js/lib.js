@@ -145,7 +145,7 @@ function exportTableData(el) {
     let _self = el;
     return new Promise(function (resolve, reject) {
         let url, filter, filterKeys, items, count;
-        url = $(_self).data('url');
+        url = $(_self).attr('data-export-url');
         filter = getFilterParam();
         filterKeys = Object.keys(filter);
         if (filterKeys && filterKeys.length) {
@@ -160,7 +160,6 @@ function exportTableData(el) {
                 }
             })
         }
-        // $(el).closest('form').attr('action', url);
         let data = {
             url: url,
             method: 'POST',

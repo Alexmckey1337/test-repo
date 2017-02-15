@@ -9,7 +9,7 @@
     $('#added_churches_date').datepicker({
         dateFormat: 'yyyy-mm-dd'
     });
-     $('#search_date_open').datepicker({
+    $('#search_date_open').datepicker({
         dateFormat: 'yyyy-mm-dd'
     });
 //    Events
@@ -22,7 +22,7 @@
         }, 100);
     });
     $('#department_select').on('change', function () {
-         $('#pastor_select').prop('disabled', true);
+        $('#pastor_select').prop('disabled', true);
         var department_id = parseInt($('#department_select').val());
         makePastorList(department_id, '#pastor_select');
     });
@@ -37,6 +37,15 @@
         createChurchesTable();
     });
     $('#export_table').on('click', function () {
-        exportTableData(this);
+        $('.preloader').css('display', 'block');
+        exportTableData(this)
+            .then(function () {
+                $('.preloader').css('display', 'none');
+            })
+            .catch(function () {
+                showPopup('Ошибка при загрузке файла');
+                $('.preloader').css('display', 'none');
+            });
+        ;
     });
 })(jQuery);

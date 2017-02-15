@@ -13,10 +13,7 @@
                     <button id="add_userToHomeGroup" class="add">Добавить пользователя</button>
                 </li>
                 <li>
-                    <form action="{% url "homegroup-export-users" pk=home_group.id %}" method="post">
-                        <input type="text" name="fields" class="hidden" id="export_fields">
-                        <button type="submit" id="export_table" data-url="{% url "homegroup-export-users" pk=home_group.id %}"" class="download header__button">Export</button>
-                    </form>
+                    <button id="export_table" data-export-url="{% url "homegroup-export-users" pk=home_group.id %}" class="download header__button">Export</button>
                 </li>
                 <li>
                     <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>

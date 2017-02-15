@@ -81,6 +81,14 @@
         updateSettings(createHomeGroupUsersTable);
     });
     $('#export_table').on('click', function () {
-        exportTableData(this);
+        $('.preloader').css('display', 'none');
+        exportTableData(this)
+            .then(function () {
+                $('.preloader').css('display', 'none');
+            })
+            .catch(function () {
+                showPopup('Ошибка при загрузке файла');
+                $('.preloader').css('display', 'none');
+            });
     });
 })(jQuery);
