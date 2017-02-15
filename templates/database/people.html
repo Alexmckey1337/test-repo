@@ -23,10 +23,10 @@
                     <button id="filter_button" class="header__button">Фильтр</button>
                 </li>
                 <li>
-                    <form action="{% url "users_v1_1-export" %}" method="post">
-                        <input type="text" name="fields" class="hidden" id="export_fields">
-                        <button type="submit" id="export_table" data-url="{% url "users_v1_1-export" %}" class="download header__button">Export</button>
-                    </form>
+                    <button id="export_table" data-export-url="{% url "users_v1_1-export" %}" class="download header__button">Export</button>
+{#                    <form action="{% url "users_v1_1-export" %}" method="post">#}
+{#                        <input type="text" name="fields" class="hidden" id="export_fields">#}
+{#                    </form>#}
                 </li>
                 <li>
                     <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>

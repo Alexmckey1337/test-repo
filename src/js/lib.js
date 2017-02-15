@@ -6,17 +6,17 @@ function getChurches(config = {}) {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
         };
         let status = {
-                200: function (req) {
-                    resolve(req);
-                },
-                403: function () {
-                    reject('Вы должны авторизоватся');
-                }
+            200: function (req) {
+                resolve(req);
+            },
+            403: function () {
+                reject('Вы должны авторизоватся');
+            }
 
-            };
+        };
         newAjaxRequest(data, status, reject)
     });
 }
@@ -113,14 +113,14 @@ function getHomeGroups(config = {}) {
             },
         };
         let status = {
-                200: function (req) {
-                    resolve(req)
-                },
-                403: function () {
-                    reject('Вы должны авторизоватся')
-                }
-            };
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
 
+        };
         newAjaxRequest(data, status, reject)
     });
 }
@@ -141,10 +141,51 @@ function exportTableData(el) {
                 }
             })
         }
-        $(el).closest('form').attr('action', url);
-        $('#export_fields').val(getDataTOExport().join(','));
+        let data = {
+            url: url,
+            method: 'POST',
+            data: {
+                fields: getDataTOExport().join(',')
+            }
+        };
+        let status = {
+            200: function (data, statusText, req) {
+                // check for a filename
+                let file = createCSV(req);
+                if (typeof window.navigator.msSaveBlob !== 'undefined') {
+                    // IE workaround for "HTML7007"
+                    window.navigator.msSaveBlob(file.file, file.filename);
+                } else {
+                    let URL = window.URL || window.webkitURL;
+                    let downloadUrl = URL.createObjectURL(file.file);
+
+                    if (file.filename) {
+                        // use HTML5 a[download] attribute to specify filename
+                        let a = document.createElement("a");
+                        // safari doesn't support this yet
+                        if (typeof a.download === 'undefined') {
+                            window.location = downloadUrl;
+                        } else {
+                            a.href = downloadUrl;
+                            a.download = file.filename;
+                            document.body.appendChild(a);
+                            a.click();
+                        }
+                    } else {
+                        window.location = downloadUrl;
+                    }
+
+                    setTimeout(function () {
+                        URL.revokeObjectURL(downloadUrl);
+                    }, 100); // cleanup
+                    resolve(req);
+                }
+            }
+        };
+        newAjaxRequest(data, status, reject);
+    });
 }
-function newAjaxRequest(data = {}, status, fail) {
+function newAjaxRequest(data = {}, codes, fail) {
     let resData = {
         method: 'GET',
         data: {}
@@ -153,10 +194,11 @@ function newAjaxRequest(data = {}, status, fail) {
     if (getCookie('key')) {
         resData.headers['Authorization'] = 'Token ' + getCookie('key');
     }
-    return $.ajax(resData)
-        .statusCode(status)
+    $.ajax(resData)
+        .statusCode(codes)
         .fail(fail);
 }
+
 function getUsers(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
@@ -168,17 +210,15 @@ function getUsers(config = {}) {
             }
         };
         let status = {
-                200: function (req) {
-                    resolve(req)
-                },
-                403: function () {
-                    reject('Вы должны авторизоватся')
-                }
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
 
-            };
-
+        };
         newAjaxRequest(data, status, reject)
-
     });
 }
 
@@ -191,17 +231,17 @@ function getSummitUsers(config = {}) {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
         };
         let status = {
-                200: function (req) {
-                    resolve(req)
-                },
-                403: function () {
-                    reject('Вы должны авторизоватся')
-                }
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
 
-            };
+        };
         newAjaxRequest(data, status, reject)
     });
 }
@@ -229,18 +269,6 @@ function registerUserToSummit(config) {
         'Content-Type': 'application/json'
     });
 }
-
-// function getUsers(config = {}) {
-//     return new Promise(function (resolve, reject) {
-//         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/', config, function (data) {
-//             if (data) {
-//                 resolve(data);
-//             } else {
-//                 reject("Ошибка")
-//             }
-//         })
-//     });
-// }
 
 function getChurchUsers(id) {
     return new Promise(function (resolve, reject) {
@@ -452,14 +480,14 @@ function addHomeGroupToDataBase(config = {}) {
             }
         };
         let status = {
-                201: function (req) {
-                    resolve(req)
-                },
-                403: function () {
-                    reject('Вы должны авторизоватся')
-                }
+            201: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
 
-            };
+        };
         newAjaxRequest(data, status, reject)
     });
 }
@@ -576,27 +604,27 @@ function createChurchesTable(config = {}) {
 }
 
 function addChurchTODataBase(config) {
-        return new Promise(function (resolve, reject) {
-            let data = {
-                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/`,
-                data: config,
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            };
-            let status = {
-                    201: function (req) {
-                        resolve(req)
-                    },
-                    403: function () {
-                        reject('Вы должны авторизоватся')
-                    }
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/`,
+            data: config,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+        let status = {
+            201: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
 
-                };
-            newAjaxRequest(data, status, reject)
-        });
-    }
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}
 
 function addChurch(e, el, callback) {
     e.preventDefault();

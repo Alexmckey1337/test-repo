@@ -29,7 +29,14 @@
         createHomeGroupsTable();
     });
     $('#export_table').on('click', function () {
-        showPopup('Запрос на создание файла отправлен, через несколько секунд файл появится в списке загрузок');
-        exportTableData(this);
+        $('.preloader').css('display', 'block');
+        exportTableData(this)
+        .then(function () {
+                $('.preloader').css('display', 'none');
+            })
+            .catch(function () {
+                showPopup('Ошибка при загрузке файла');
+                $('.preloader').css('display', 'none');
+        });;
     });
 })(jQuery);
