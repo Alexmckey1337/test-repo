@@ -81,6 +81,7 @@
         updateSettings(createHomeGroupUsersTable);
     });
     $('#export_table').on('click', function () {
+        showPopup('Запрос на создание файла отправлен, через несколько секунд файл появится в списке загрузок');
         exportTableData(this);
     });
 })(jQuery);

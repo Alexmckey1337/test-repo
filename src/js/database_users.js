@@ -37,6 +37,7 @@ $('document').ready(function () {
         updateSettings(createUsersTable);
     });
     $('#export_table').on('click', function () {
+        showPopup('Запрос на создание файла отправлен, через несколько секунд файл появится в списке загрузок');
         exportTableData(this);
     });
     $('input[name="searchDep"]').keyup(function () {
