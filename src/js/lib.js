@@ -87,6 +87,7 @@ function makePastorList(id, selector, active = null) {
         $(selector).html(options).prop('disabled', false).select2();
     });
 }
+
 function makeDepartmentList(selector, active = null) {
     return getDepartments().then(function (data) {
         let options = [];
@@ -102,6 +103,7 @@ function makeDepartmentList(selector, active = null) {
         $(selector).html(options).prop('disabled', false).select2();
     });
 }
+
 function getHomeGroups(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
@@ -124,10 +126,27 @@ function getHomeGroups(config = {}) {
         newAjaxRequest(data, status, reject)
     });
 }
+function createCSV(data) {
+    let filename = "";
+    let disposition = data.getResponseHeader('Content-Disposition');
+    if (disposition && disposition.indexOf('attachment') !== -1) {
+        let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        let matches = filenameRegex.exec(disposition);
+        if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+    }
+    let type = data.getResponseHeader('Content-Type') + ';charset=UTF-8';
+    return {
+        file: new Blob(["\ufeff" + data.responseText], {type: type, endings: 'native'}),
+        filename: filename
+    };
+}
+
 function exportTableData(el) {
+    let _self = el;
+    return new Promise(function (resolve, reject) {
         let url, filter, filterKeys, items, count;
-        url = $(el).data('url');
-        filter = getFilterParam() ;
+        url = $(_self).attr('data-export-url');
+        filter = getFilterParam();
         filterKeys = Object.keys(filter);
         if (filterKeys && filterKeys.length) {
             url += '?';
@@ -188,7 +207,7 @@ function exportTableData(el) {
 function newAjaxRequest(data = {}, codes, fail) {
     let resData = {
         method: 'GET',
-        data: {}
+        data: data
     };
     Object.assign(resData, data);
     if (getCookie('key')) {
@@ -221,7 +240,6 @@ function getUsers(config = {}) {
         newAjaxRequest(data, status, reject)
     });
 }
-
 
 function getSummitUsers(config = {}) {
     return new Promise(function (resolve, reject) {
@@ -327,6 +345,7 @@ function saveChurchData(data, id) {
         });
     }
 }
+
 function saveHomeGroupsData(data, id) {
     if (id) {
         let json = JSON.stringify(data);
@@ -1129,7 +1148,7 @@ function showPopup(text, title) {
 
 function getParameterByName(name, url) {
     if (!url) url = window.location.href;
-    url = url.toLowerCase(); // This is just to avoid case sensitiveness  
+    url = url.toLowerCase(); // This is just to avoid case sensitiveness
     name = name.replace(/[\[\]]/g, "\\$&").toLowerCase();// This is just to avoid case sensitiveness for query parameter name
     let regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
         results = regex.exec(url);
@@ -1203,8 +1222,8 @@ function dataURLtoBlob(dataurl) {
 }
 
 function ucFirst(str) {
-  // только пустая строка в логическом контексте даст false
-  if (!str) return str;
+    // только пустая строка в логическом контексте даст false
+    if (!str) return str;
 
-  return str[0].toUpperCase() + str.slice(1);
+    return str[0].toUpperCase() + str.slice(1);
 }
