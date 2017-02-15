@@ -6,6 +6,9 @@ Church
 ------
 
 
+List of churches
+~~~~~~~~~~~~~~~~
+
 .. http:get:: /api/v1.0/churches/
 
     List of Churches (order by ``opening_date``, ``id``).
@@ -114,6 +117,9 @@ Church
 
     :statuscode 200: no error
     :statuscode 403: user is not authenticated
+
+Create new church
+~~~~~~~~~~~~~~~~~
 
 .. http:post:: /api/v1.0/churches/
 
@@ -228,6 +234,9 @@ Church
     :statuscode 403: user is not authenticated
 
 
+Detail church info
+~~~~~~~~~~~~~~~~~~
+
 .. http:get:: /api/v1.0/churches/(int:<church_id>)/
 
     Detail information about ``Church`` with ``id`` = ``church_id``.
@@ -295,6 +304,9 @@ Church
     :statuscode 403: user is not authenticated
     :statuscode 404: there's no church
 
+
+Update church
+~~~~~~~~~~~~~
 
 .. http:put:: /api/v1.0/churches/(int:<church_id>)/
 .. http:patch:: /api/v1.0/churches/(int:<church_id>)/
@@ -442,6 +454,9 @@ Church
     :statuscode 404: there's no church
 
 
+List home groups by church
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 .. http:get:: /api/v1.0/churches/(int:<church_id>)/home_groups
 
     Details of ``Home Groups`` in selected ``Churhc`` with ``id = church_id``.
@@ -510,6 +525,9 @@ Church
     :statuscode 404: there's no church
 
 
+Potential users of church
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
 .. http:get:: /api/v1.0/churches/potential_users_church/
 
     List of users for append to current church, only 30.
@@ -572,6 +590,9 @@ Church
     :statuscode 400: length of search request < 3
 
 
+Potential users of group
+~~~~~~~~~~~~~~~~~~~~~~~~
+
 .. http:get:: /api/v1.0/churches/(int:<church_id>)/potential_users_group/
 
     List of users for append to group of current church, only 30.
@@ -633,6 +654,9 @@ Church
     :statuscode 200: no error
     :statuscode 400: length of search request < 3
 
+
+All users of church and groups
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. http:get:: /api/v1.0/churches/(int:<church_id>)/all_users
 
@@ -709,6 +733,9 @@ Church
     :statuscode 200: no error
     :statuscode 404: there's no church
 
+
+List of users of church
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. http:get:: /api/v1.0/churches/(int:<church_id>)/users/
 
@@ -788,6 +815,9 @@ Church
     :statuscode 200: no error
     :statuscode 403: user is not authenticated
 
+
+Add user to church
+~~~~~~~~~~~~~~~~~~
 
 .. http:post:: /api/v1.0/churches/(int:<church_id>)/add_user/
 
@@ -892,6 +922,9 @@ Church
     :statuscode 403: user is not authenticated
 
 
+Del user from church
+~~~~~~~~~~~~~~~~~~~~
+
 .. http:post:: /api/v1.0/churches/(<int:church_id>)/del_user
 
     Remove user from ``church`` with ``id = church_id``.
@@ -967,8 +1000,11 @@ Church
 
 
 HomeGroup
-_________
+---------
 
+
+List of home groups
+~~~~~~~~~~~~~~~~~~~
 
 .. http:get:: /api/v1.1/home_groups/
 
@@ -1066,6 +1102,9 @@ _________
     :statuscode 200: no error
     :statuscode 403: no authentication
 
+
+Create home group
+~~~~~~~~~~~~~~~~~
 
 .. http:post:: /api/v1.0/home_groups/
 
@@ -1187,6 +1226,9 @@ _________
     :statuscode 403: user is not authenticated
 
 
+Detail home group info
+~~~~~~~~~~~~~~~~~~~~~~
+
 .. http:get:: /api/v1.0/home_group/(int:<home_group_id>)/
 
     Detail information about ``Home Group``. Response consists of list of users for requested Home Group
@@ -1196,13 +1238,19 @@ _________
 
     .. sourcecode:: http
 
-        GET /api/v1.0/home_groups/8/ HTTP/1.1
+        GET /api/v1.0/home_groups/8 HTTP/1.1
         Host: vocrm.org
         Accept: application/json
 
     **Example response (Good request)**:
 
     .. sourcecode:: http
+
+
+        HTTP/1.1 200 OK
+        Allow: GET, PUT, PATCH, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
 
         {
             "id": 8,
@@ -1248,6 +1296,9 @@ _________
     :statuscode 403: no authentication
     :statuscode 404: there's no home groups
 
+
+Update home group
+~~~~~~~~~~~~~~~~~
 
 .. http:put:: /api/v1.0/home_group/(int:<home_group_id>)/
 .. http:patch:: /api/v1.0/home_group/(int:<home_group_id>)/
@@ -1385,6 +1436,9 @@ _________
     :statuscode 403: user is not authenticated
 
 
+List of users of home group
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 .. http:get:: /api/v1.0/home_groups/(int:<home_group_id>)/users
 
     List of the users of ``Home Group`` with ``id = home_group_id``.
@@ -1471,6 +1525,9 @@ _________
     :statuscode 403: user is not authenticated
     :statuscode 404: there's no home_group
 
+
+Add user to home group
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. http:post:: /api/v1.0/home_groups/6/add_user
 
@@ -1583,6 +1640,9 @@ _________
     :statuscode 400: bad request
     :statuscode 403: no authentication
 
+
+Del user from home group
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. http:post:: /api/v1.0/home_groups/(int:<home_group_id>)/del_user
 
