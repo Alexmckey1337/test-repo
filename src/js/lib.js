@@ -7,7 +7,8 @@ function getChurches(config = {}) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            statusCode: {
+        };
+let status = {
                 200: function (req) {
                     resolve(req);
                 },
@@ -15,11 +16,8 @@ function getChurches(config = {}) {
                     reject('Вы должны авторизоватся');
                 }
 
-            },
-            fail: reject
-        };
-
-        newAjaxRequest(data)
+            };
+        newAjaxRequest(data, status, reject)
     });
 }
 
@@ -89,6 +87,7 @@ function makePastorList(id, selector, active = null) {
         $(selector).html(options).prop('disabled', false).select2();
     });
 }
+
 function makeDepartmentList(selector, active = null) {
     return getDepartments().then(function (data) {
         let options = [];
@@ -104,6 +103,7 @@ function makeDepartmentList(selector, active = null) {
         $(selector).html(options).prop('disabled', false).select2();
     });
 }
+
 function getHomeGroups(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
@@ -113,97 +113,88 @@ function getHomeGroups(config = {}) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            statusCode: {
-                200: function (req) {
-                    resolve(req)
-                },
-                403: function () {
-                    reject('Вы должны авторизоватся')
-                }
-
-            },
-            fail: reject
         };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
 
-        newAjaxRequest(data)
+        };
+        newAjaxRequest(data, status, reject)
     });
 }
-function exportTableData(el) {
-        let url, filter, filterKeys, items, count;
-        url = $(el).data('url');
-        filter = getFilterParam() ;
-        filterKeys = Object.keys(filter);
-        if (filterKeys && filterKeys.length) {
-            url += '?';
-            items = filterKeys.length;
-            count = 0;
-            filterKeys.forEach(function (key) {
-                count++;
-                url += key + '=' + filter[key];
-                if (count != items) {
-                    url += '&';
-                }
-            })
-        }
-        $(el).closest('form').attr('action', url);
-        // newAjaxRequest({
-        //     url: url,
-        //     method: 'POST',
-        //     data: {
-        //         fields: getDataTOExport().join(',')
-        //     },
-        //     headers : {"Content-Transfer-Encoding": "binary"},
-        //     statusCode: {
-        //         200: function (data, textStatus, res) {
-        //             console.log(textStatus);
-        //             console.log(res);
-        //             // check for a filename
-        //             let filename = "";
-        //             let disposition = res.getResponseHeader('Content-Disposition');
-        //             console.log(disposition);
-        //             if (disposition && disposition.indexOf('attachment') !== -1) {
-        //                 let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-        //                 let matches = filenameRegex.exec(disposition);
-        //                 if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
-        //             }
-        //
-        //             let type = res.getResponseHeader('Content-Type') + ';charset=charset=utf-8;base64';
-        //             console.log(type);
-        //             let blob = new Blob([data], {type: type});
-        //             if (typeof window.navigator.msSaveBlob !== 'undefined') {
-        //                 // IE workaround for "HTML7007: One or more blob URLs were revoked by closing the blob for which they were created. These URLs will no longer resolve as the data backing the URL has been freed."
-        //                 window.navigator.msSaveBlob(blob, filename);
-        //             } else {
-        //                 let URL = window.URL || window.webkitURL;
-        //                 let downloadUrl = URL.createObjectURL(blob);
-        //
-        //                 if (filename) {
-        //                     // use HTML5 a[download] attribute to specify filename
-        //                     let a = document.createElement("a");
-        //                     // safari doesn't support this yet
-        //                     if (typeof a.download === 'undefined') {
-        //                         window.location = downloadUrl;
-        //                     } else {
-        //                         a.href = downloadUrl;
-        //                         a.download = filename;
-        //                         document.body.appendChild(a);
-        //                         a.click();
-        //                     }
-        //                 } else {
-        //                     window.location = downloadUrl;
-        //                 }
-        //
-        //                 setTimeout(function () {
-        //                     URL.revokeObjectURL(downloadUrl);
-        //                 }, 100); // cleanup
-        //             }
-        //         }
-        //     }
-        // });
 
-        $('#export_fields').val(getDataTOExport().join(','));
+function exportTableData(el) {
+    let url, filter, filterKeys, items, count;
+    url = $(el).data('url');
+    filter = getFilterParam();
+    filterKeys = Object.keys(filter);
+    if (filterKeys && filterKeys.length) {
+        url += '?';
+        items = filterKeys.length;
+        count = 0;
+        filterKeys.forEach(function (key) {
+            count++;
+            url += key + '=' + filter[key];
+            if (count != items) {
+                url += '&';
+            }
+        })
+    }
+    // $(el).closest('form').attr('action', url);
+    let resData = {
+        url: url,
+        method: 'POST',
+        dataType: 'binary',
+        data: {
+            fields: getDataTOExport().join(',')
+        },
+        responseType: 'arraybuffer',
+        headers: {"Content-Transfer-Encoding": "binary"},
+    };
+    let status = {
+        200: function (data, textStatus, res) {
+            // check for a filename
+            let filename = "";
+            let blob = new Blob([data], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+            if (typeof window.navigator.msSaveBlob !== 'undefined') {
+                // IE workaround for "HTML7007: One or more blob URLs were revoked by closing the blob for which they were created. These URLs will no longer resolve as the data backing the URL has been freed."
+                window.navigator.msSaveBlob(blob, filename);
+            } else {
+                let URL = window.URL || window.webkitURL;
+                let downloadUrl = URL.createObjectURL(blob);
+
+                if (filename) {
+                    // use HTML5 a[download] attribute to specify filename
+                    let a = document.createElement("a");
+                    // safari doesn't support this yet
+                    if (typeof a.download === 'undefined') {
+                        window.location = downloadUrl;
+                    } else {
+                        a.href = downloadUrl;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                    }
+                } else {
+                    window.location = downloadUrl;
+                }
+
+                setTimeout(function () {
+                    URL.revokeObjectURL(downloadUrl);
+                }, 100); // cleanup
+            }
+        }
+    };
+    newAjaxRequest(resData, status);
+
+    // $('#export_fields').val(getDataTOExport().join(','));
 }
-function newAjaxRequest(data = {}) {
+
+function newAjaxRequest(data = {}, success, fail) {
     let resData = {
         method: 'GET',
         data: {}
@@ -212,15 +203,11 @@ function newAjaxRequest(data = {}) {
     if (getCookie('key')) {
         resData.headers['Authorization'] = 'Token ' + getCookie('key');
     }
-    return $.ajax({
-        url: resData.url,
-        data: resData.data,
-        type: resData.method,
-        headers: resData.headers
-    })
-        .statusCode(data.statusCode)
-        .fail(data.fail);
+    return $.ajax(resData)
+        .statusCode(success)
+        .fail(fail);
 }
+
 function getUsers(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
@@ -229,24 +216,20 @@ function getUsers(config = {}) {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
-            },
-            statusCode: {
-                200: function (req) {
-                    resolve(req)
-                },
-                403: function () {
-                    reject('Вы должны авторизоватся')
-                }
-
-            },
-            fail: reject
+            }
         };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
 
-        newAjaxRequest(data)
-
+        };
+        newAjaxRequest(data, status, reject)
     });
 }
-
 
 function getSummitUsers(config = {}) {
     return new Promise(function (resolve, reject) {
@@ -257,19 +240,17 @@ function getSummitUsers(config = {}) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            statusCode: {
-                200: function (req) {
-                    resolve(req)
-                },
-                403: function () {
-                    reject('Вы должны авторизоватся')
-                }
-
-            },
-            fail: reject
         };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
 
-        newAjaxRequest(data)
+        };
+        newAjaxRequest(data, status, reject)
     });
 }
 
@@ -296,18 +277,6 @@ function registerUserToSummit(config) {
         'Content-Type': 'application/json'
     });
 }
-
-// function getUsers(config = {}) {
-//     return new Promise(function (resolve, reject) {
-//         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/', config, function (data) {
-//             if (data) {
-//                 resolve(data);
-//             } else {
-//                 reject("Ошибка")
-//             }
-//         })
-//     });
-// }
 
 function getChurchUsers(id) {
     return new Promise(function (resolve, reject) {
@@ -366,6 +335,7 @@ function saveChurchData(data, id) {
         });
     }
 }
+
 function saveHomeGroupsData(data, id) {
     if (id) {
         let json = JSON.stringify(data);
@@ -516,20 +486,18 @@ function addHomeGroupToDataBase(config = {}) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
-            },
-            statusCode: {
-                201: function (req) {
-                    resolve(req)
-                },
-                403: function () {
-                    reject('Вы должны авторизоватся')
-                }
-
-            },
-            fail: reject
+            }
         };
+        let status = {
+            201: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
 
-        newAjaxRequest(data)
+        };
+        newAjaxRequest(data, status, reject)
     });
 }
 
@@ -645,36 +613,34 @@ function createChurchesTable(config = {}) {
 }
 
 function addChurchTODataBase(config) {
-        return new Promise(function (resolve, reject) {
-            let data = {
-                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/`,
-                data: config,
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                statusCode: {
-                    201: function (req) {
-                        resolve(req)
-                    },
-                    403: function () {
-                        reject('Вы должны авторизоватся')
-                    }
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/`,
+            data: config,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+        let status = {
+            201: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
 
-                },
-                fail: reject
-            };
-
-            newAjaxRequest(data)
-        });
-    }
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}
 
 function addChurch(e, el, callback) {
     e.preventDefault();
     let data = getAddChurchData();
     let json = JSON.stringify(data);
     addChurchTODataBase(json).then(function (data) {
-        hidePopup(el)
+        hidePopup(el);
         clearAddChurchData();
         callback();
         showPopup(`Церковь ${data.get_title} добавлена в базу`);
@@ -1246,8 +1212,8 @@ function dataURLtoBlob(dataurl) {
 }
 
 function ucFirst(str) {
-  // только пустая строка в логическом контексте даст false
-  if (!str) return str;
+    // только пустая строка в логическом контексте даст false
+    if (!str) return str;
 
-  return str[0].toUpperCase() + str.slice(1);
+    return str[0].toUpperCase() + str.slice(1);
 }
