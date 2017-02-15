@@ -61,6 +61,8 @@ class BaseExportViewSetMixin(object):
         response['Content-Disposition'] = 'attachment; filename=%s' % (
             self.get_export_filename(self.file_format),
         )
+        response['Content-Length'] = len(export_data)
+        response['Content-Transfer-Encoding'] = 'binary'
 
         return response
 

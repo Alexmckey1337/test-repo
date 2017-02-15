@@ -8,15 +8,15 @@ function getChurches(config = {}) {
                 'Content-Type': 'application/json'
             },
         };
-let status = {
-                200: function (req) {
-                    resolve(req);
-                },
-                403: function () {
-                    reject('Вы должны авторизоватся');
-                }
+        let status = {
+            200: function (req) {
+                resolve(req);
+            },
+            403: function () {
+                reject('Вы должны авторизоватся');
+            }
 
-            };
+        };
         newAjaxRequest(data, status, reject)
     });
 }
@@ -145,21 +145,26 @@ function exportTableData(el) {
         })
     }
     // $(el).closest('form').attr('action', url);
-    let resData = {
+    let data = {
         url: url,
         method: 'POST',
         dataType: 'binary',
         data: {
             fields: getDataTOExport().join(',')
-        },
-        responseType: 'arraybuffer',
-        headers: {"Content-Transfer-Encoding": "binary"},
+        }
     };
     let status = {
-        200: function (data, textStatus, res) {
+        200: function (res) {
             // check for a filename
             let filename = "";
-            let blob = new Blob([data], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+            let disposition = res.getResponseHeader('Content-Disposition');
+            if (disposition && disposition.indexOf('attachment') !== -1) {
+                let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                let matches = filenameRegex.exec(disposition);
+                if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+            }
+            let type = res.getResponseHeader('Content-Type');
+            let blob = new Blob([res.responseText], {type: type});
             if (typeof window.navigator.msSaveBlob !== 'undefined') {
                 // IE workaround for "HTML7007: One or more blob URLs were revoked by closing the blob for which they were created. These URLs will no longer resolve as the data backing the URL has been freed."
                 window.navigator.msSaveBlob(blob, filename);
@@ -189,7 +194,10 @@ function exportTableData(el) {
             }
         }
     };
-    newAjaxRequest(resData, status);
+    let fail = function (err) {
+        console.log(err);
+    };
+    newAjaxRequest(data, status, fail);
 
     // $('#export_fields').val(getDataTOExport().join(','));
 }
