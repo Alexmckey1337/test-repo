@@ -61,7 +61,7 @@ class BaseExportViewSetMixin(object):
         response['Content-Disposition'] = 'attachment; filename=%s' % (
             self.get_export_filename(self.file_format),
         )
-
+        response['Content-Encoding'] = 'UTF-8'
         return response
 
 
