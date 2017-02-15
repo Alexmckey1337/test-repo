@@ -37,7 +37,10 @@ $('document').ready(function () {
         updateSettings(createUsersTable);
     });
     $('#export_table').on('click', function () {
-        exportTableData(this);
+        $('.preloader').css('display', 'block');
+        exportTableData(this).then(function () {
+            $('.preloader').css('display', 'none');
+        });
     });
     $('input[name="searchDep"]').keyup(function () {
         delay(function () {

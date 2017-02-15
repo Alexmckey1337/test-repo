@@ -126,93 +126,96 @@ function getHomeGroups(config = {}) {
         newAjaxRequest(data, status, reject)
     });
 }
-
-function exportTableData(el) {
-    let url, filter, filterKeys, items, count;
-    url = $(el).data('url');
-    filter = getFilterParam();
-    filterKeys = Object.keys(filter);
-    if (filterKeys && filterKeys.length) {
-        url += '?';
-        items = filterKeys.length;
-        count = 0;
-        filterKeys.forEach(function (key) {
-            count++;
-            url += key + '=' + filter[key];
-            if (count != items) {
-                url += '&';
-            }
-        })
+function createCSV(data) {
+    let filename = "";
+    let disposition = data.getResponseHeader('Content-Disposition');
+    if (disposition && disposition.indexOf('attachment') !== -1) {
+        let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        let matches = filenameRegex.exec(disposition);
+        if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
     }
-    // $(el).closest('form').attr('action', url);
-    let data = {
-        url: url,
-        method: 'POST',
-        dataType: 'binary',
-        data: {
-            fields: getDataTOExport().join(',')
-        }
+    let type = data.getResponseHeader('Content-Type') + ';charset=UTF-8';
+    return {
+        file: new Blob(["\ufeff" + data.responseText], {type: type, endings: 'native'}),
+        filename: filename
     };
-    let status = {
-        200: function (res) {
-            // check for a filename
-            let filename = "";
-            let disposition = res.getResponseHeader('Content-Disposition');
-            if (disposition && disposition.indexOf('attachment') !== -1) {
-                let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-                let matches = filenameRegex.exec(disposition);
-                if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
-            }
-            let type = res.getResponseHeader('Content-Type');
-            let blob = new Blob([res.responseText], {type: type});
-            if (typeof window.navigator.msSaveBlob !== 'undefined') {
-                // IE workaround for "HTML7007: One or more blob URLs were revoked by closing the blob for which they were created. These URLs will no longer resolve as the data backing the URL has been freed."
-                window.navigator.msSaveBlob(blob, filename);
-            } else {
-                let URL = window.URL || window.webkitURL;
-                let downloadUrl = URL.createObjectURL(blob);
-
-                if (filename) {
-                    // use HTML5 a[download] attribute to specify filename
-                    let a = document.createElement("a");
-                    // safari doesn't support this yet
-                    if (typeof a.download === 'undefined') {
-                        window.location = downloadUrl;
-                    } else {
-                        a.href = downloadUrl;
-                        a.download = filename;
-                        document.body.appendChild(a);
-                        a.click();
-                    }
-                } else {
-                    window.location = downloadUrl;
-                }
-
-                setTimeout(function () {
-                    URL.revokeObjectURL(downloadUrl);
-                }, 100); // cleanup
-            }
-        }
-    };
-    let fail = function (err) {
-        console.log(err);
-    };
-    newAjaxRequest(data, status, fail);
-
-    // $('#export_fields').val(getDataTOExport().join(','));
 }
 
-function newAjaxRequest(data = {}, success, fail) {
+function exportTableData(el) {
+    let _self = el;
+    return new Promise(function (resolve, reject) {
+        let url, filter, filterKeys, items, count;
+        url = $(_self).data('url');
+        filter = getFilterParam();
+        filterKeys = Object.keys(filter);
+        if (filterKeys && filterKeys.length) {
+            url += '?';
+            items = filterKeys.length;
+            count = 0;
+            filterKeys.forEach(function (key) {
+                count++;
+                url += key + '=' + filter[key];
+                if (count != items) {
+                    url += '&';
+                }
+            })
+        }
+        // $(el).closest('form').attr('action', url);
+        let data = {
+            url: url,
+            method: 'POST',
+            data: {
+                fields: getDataTOExport().join(',')
+            }
+        };
+        let status = {
+            200: function (data, statusText, req) {
+                // check for a filename
+                let file = createCSV(req);
+                if (typeof window.navigator.msSaveBlob !== 'undefined') {
+                    // IE workaround for "HTML7007"
+                    window.navigator.msSaveBlob(file.file, file.filename);
+                } else {
+                    let URL = window.URL || window.webkitURL;
+                    let downloadUrl = URL.createObjectURL(file.file);
+
+                    if (file.filename) {
+                        // use HTML5 a[download] attribute to specify filename
+                        let a = document.createElement("a");
+                        // safari doesn't support this yet
+                        if (typeof a.download === 'undefined') {
+                            window.location = downloadUrl;
+                        } else {
+                            a.href = downloadUrl;
+                            a.download = file.filename;
+                            document.body.appendChild(a);
+                            a.click();
+                        }
+                    } else {
+                        window.location = downloadUrl;
+                    }
+
+                    setTimeout(function () {
+                        URL.revokeObjectURL(downloadUrl);
+                    }, 100); // cleanup
+                    resolve(req);
+                }
+            }
+        };
+        newAjaxRequest(data, status, reject);
+    });
+}
+function newAjaxRequest(data = {}, codes, fail) {
     let resData = {
         method: 'GET',
-        data: {}
+        data: data
     };
     Object.assign(resData, data);
     if (getCookie('key')) {
         resData.headers['Authorization'] = 'Token ' + getCookie('key');
     }
-    return $.ajax(resData)
-        .statusCode(success)
+    $.ajax(resData)
+        .statusCode(codes)
         .fail(fail);
 }
 
