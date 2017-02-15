@@ -6,6 +6,7 @@
     $('#departments_filter').select2();
     $('#hierarchies_filter').select2();
     $('#pastor_filter').select2();
+    $('#search_is_open').select2();
     $('#added_churches_date').datepicker({
         dateFormat: 'yyyy-mm-dd'
     });

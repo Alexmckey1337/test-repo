@@ -127,7 +127,12 @@
                             </select>
                         </p>
                         <p class="input_block">
-                            <input type="checkbox" data-filter="is_open" id="search_is_open">
+                            <select name="search_is_open" data-filter="is_open" id="search_is_open">
+                                <option value="1">ВСЕ</option>
+                                <option value="2">ДА</option>
+                                <option value="3">НЕТ</option>
+                            </select>
+{#                            <input type="checkbox" data-filter="is_open" id="search_is_open">#}
                         </p>
                         <p class="input_block">
                             <input type="text" data-filter="opening_date" id="search_date_open">
