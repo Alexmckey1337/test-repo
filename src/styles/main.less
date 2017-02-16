@@ -2714,10 +2714,13 @@ table input[type=checkbox],
   align-items: center;
   & > div {
     & input {
-      padding: 0.3em;
+      padding: .3em;
+      &#sent_date {
+        width: 7em;
+      }
     }
     & select {
-      padding: 0.3em;
+      padding: .37em 2em .37em .3em;
     }
   }
   & .summa {
@@ -2733,6 +2736,12 @@ table input[type=checkbox],
   & .currency {
     & select {
       width: 9em;
+    }
+  }
+  & .result {
+    & b {
+      font-weight: 700;
+      text-transform: uppercase;
     }
   }
 }

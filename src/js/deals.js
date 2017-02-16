@@ -19,6 +19,35 @@ $(document).ready(function () {
         getDoneDeals(config);
         getUndoneDeals(config);
     });
+    function sumChangeListener(currencyName) {
+        let $form = $('#payment-form');
+        let $new_payment_sum = $form.find('#new_payment_sum') || 0;
+        let $new_payment_rate = $form.find('#new_payment_rate') || 1;
+        let $in_user_currency = $form.find('#in_user_currency');
+        let sum = $new_payment_sum.val();
+        let rate = $new_payment_rate.val();
+        let userPay = parseFloat(sum) * parseFloat(rate);
+        $in_user_currency.text(parseInt(userPay) + currencyName);
+        $form.on('keypress', function (e) {
+            return e.keyCode != 13;
+        });
+        $new_payment_sum.on('change', function () {
+            sumChangeListener(currencyName)
+        });
+        $new_payment_sum.on('keypress', function (e) {
+            if (e.keyCode == 13) {
+                sumChangeListener(currencyName)
+            }
+        });
+        $new_payment_rate.on('change', function () {
+            sumChangeListener(currencyName)
+        });
+        $new_payment_rate.on('keypress', function (e) {
+            if (e.keyCode == 13) {
+                sumChangeListener(currencyName)
+            }
+        });
+    }
 
     $("#close-payment").on('click', function () {
         $('#popup-create_payment').css('display', 'none');
@@ -155,11 +184,13 @@ $(document).ready(function () {
                 let id = $(this).data('id');
                 let value = parseInt($(this).data('value'));
                 let total_sum = parseInt($(this).data('total_sum'));
+                let currencyName = $(this).data('currency-name');
                 let diff = value - total_sum;
                 diff = diff > 0 ? diff : 0;
                 $('#new_payment_sum').val(diff);
                 $('#complete-payment').attr('data-id', id);
                 $('#popup-create_payment').css('display', 'block');
+                sumChangeListener(currencyName);
             });
             $("button.complete").on('click', function () {
                 $('#complete').attr('data-id', $(this).data('id'));
@@ -232,10 +263,12 @@ $(document).ready(function () {
                 let value = parseInt($(this).data('value'));
                 let total_sum = parseInt($(this).data('total_sum'));
                 let diff = value - total_sum;
+                let currencyName = $(this).data('currency-name');
                 diff = diff > 0 ? diff : 0;
                 $('#new_payment_sum').val(diff);
                 $('#complete-payment').attr('data-id', id);
                 $('#popup-create_payment').css('display', 'block');
+                sumChangeListener(currencyName);
             });
             $("button.complete").on('click', function () {
                 let client_name = $(this).attr('data-name'),
@@ -284,6 +317,10 @@ $(document).ready(function () {
             sortExpiredDeals(expired_from_date, expired_to_date);
         }
     }).datepicker("setDate", new Date());
-
+    $('#sent_date').datepicker({
+        dateFormat: "yyyy-mm-dd",
+        startDate: new Date(),
+        autoClose: true
+    }).data('datepicker').selectDate(new Date());
 });
 

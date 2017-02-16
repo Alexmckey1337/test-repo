@@ -3,7 +3,7 @@
 {% load partner_tags %}
 {% load payment_tags %}
 
-{% block header.top.h1 %}<h1 xmlns="http://www.w3.org/1999/html">Партнёрство</h1>{% endblock %}
+{% block header.top.h1 %}<h1>Партнёрство</h1>{% endblock %}
 
 {% block header.buttons %}
     <div class="top-panel">
@@ -15,19 +15,8 @@
             </ul>
         </div>
         <div class="top-buttons-wrap">
-            <ul class="top-buttons">
-{#                <li>#}
-{#                    <button class="add" id="add_user_parners">Добавить пользователя</button>#}
-{#                </li>#}
-                {% comment %}
-            <li>
-                <button>Экспортировать</button>
-            </li>
-            {% endcomment %}
-{#                <li>#}
-{#                    <button id="sort-on">Изменить таблицу</button>#}
-{#                </li>#}
-            </ul>
+{#            <ul class="top-buttons">#}
+{#            </ul>#}
         </div>
     </div>
 {% endblock %}
@@ -135,4 +124,48 @@
     <script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
     <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
     <script src='{% static "js/deals.js" %}'></script>
+    <script type="text/template" id="showDeals">
+    <% results.forEach(function(item) { %>
+    <div class="rows-wrap" id="<%=item.id%>">
+        <% if(!item.done && can_close_deal) { %>
+            <% if((parseInt(item.total_sum) - parseInt(item.value)) >= 0 ){ %>
+                <button class="complete"
+                        data-id="<%= item.id%>"
+                        data-name="<%=item.full_name%>"
+                        data-date="<%=item.date_created%>"
+                        data-responsible="<%=item.responsible_name%>"
+                        data-total_sum="<%=item.total_sum %>"
+                        data-value="<%=item.value%>"
+                        data-currency-name="<%=item.currency.short_name %>"
+                >Завершить</button>
+            <% } %>
+        <% } %>
+        <% if(!item.done && check_payment_permissions) { %>
+            <% if((parseInt(item.total_sum) - parseInt(item.value)) < 0 ){ %>
+                <button class="pay"
+                        data-id="<%=item.id%>"
+                        data-name="<%=item.full_name%>"
+                        data-date="<%=item.date_created%>"
+                        data-responsible="<%=item.responsible_name%>"
+                        data-total_sum="<%=item.total_sum %>"
+                        data-value="<%=item.value%>"
+                        data-currency-name="<%=item.currency.short_name %>"
+                >Платеж</button>
+            <% } %>
+        <% } %>
+        <div class="rows">
+            <div class="col">
+                <p>
+                    <span><%=item.full_name%></span>
+                </p>
+            </div>
+            <div class="col">
+                <p>Сделка за: <span><%= item.date_created %></span></p>
+                <p>Менеджер: <span><%= item.responsible_name %></span></p>
+                <p>Сумма: <a href="#" class="show_payments" data-id="<%=item.id%>"><span><%= item.total_sum %>/<%= item.value %></span></a></p>
+            </div>
+        </div>
+    </div>
+    <% }) %>
+</script>
 {% endblock %}
