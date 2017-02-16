@@ -18,7 +18,6 @@ body {
 .text__center {
   text-align: center;
 }
-
 input:-webkit-autofill {
   -webkit-box-shadow: inset 0 0 0 50px #fff !important; /* Цвет фона */
   -webkit-text-fill-color: #999 !important; /* цвет текста */
@@ -193,10 +192,12 @@ select::-ms-expand {
   cursor: default;
 }
 
-.logo div:nth-child(1) {
+.logo div {
+  & a {
+    color: #fff;
+  }
   font-size: 2.8em;
   font-family: "UbuntuLight", sans-serif;
-  color: #fff;
 }
 
 .logo div:nth-child(2) {

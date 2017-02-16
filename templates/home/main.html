@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 {% load static %}
+{% block main_styles %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "css/home.css" %}">
+{% endblock %}
 {% load summit_tags %}
 {% block body_id %} id="database"{% endblock %}
 
@@ -13,15 +17,41 @@
 
 {% endblock %}
 
-{#{% block create_user %}#}
-{#    {% include 'partials/create_user.html' %}#}
-{#{% endblock %}#}
-
+{% block main.content %}
+    <div class="main__container">
+        <div class="grid_block">
+            <div class="col-sm-4">
+                <h2>База данных</h2>
+                <ul>
+                    <li><a href="{% url 'churches' %}">Церкви</a></li>
+                    <li><a href="{% url 'home_groups' %}">Домашние группы</a></li>
+                    <li><a href="{% url 'people' %}">Люди</a></li>
+                </ul>
+            </div>
+            <div class="col-sm-4">
+                <h2>Партнёрство</h2>
+                <ul>
+                    <li><a href="{% url 'partner-deals' %}">Сделки</a></li>
+                    <li><a href="{% url 'partner-list' %}">Список партнёров</a></li>
+                    <li><a href="{% url 'partner-stats' %}">Статистика</a></li>
+                </ul>
+            </div>
+            <div class="col-sm-4">
+                <h2>Саммиты</h2>
+                <ul>
+                    {% for summit in summits %}
+                        <li><a href="{% url 'summits' %}{{ summit.id }}">{{ summit.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
 
 {% block popup %}
     {% create_user_form %}
 
 {% endblock %}
 {% block extra_scripts %}
-    <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
+    <script src="{% static "js/main.js" %}"></script>
 {% endblock %}

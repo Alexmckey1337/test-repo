@@ -227,6 +227,7 @@ def index(request):
     user = request.user
     ctx = {
         'departments': Department.objects.all(),
+        'summits': SummitType.objects.all(),
         'hierarchies': Hierarchy.objects.order_by('level'),
     }
     if user.is_staff:

@@ -7,17 +7,12 @@
             <div id="sidebar">
                 <div class="scrollbar-macosx">
                     <div class="logo">
-                        <div><span>V</span><span>O</span></div>
+                        <div><a href="/"><span>V</span><span>O</span></a></div>
                         <div><span>C</span><span>R</span><span>M</span></div>
                     </div>
                     <ul id="nav-sidebar">
                         <li><a data-title="База данных" href="{% url 'churches' %}" id="databases__item">База данных</a>
                         </li>
-                        {% comment %}
-                        <li><a data-title="Все отчеты" href="{% url 'reports' %}">Все отчеты</a></li>
-                        <li><a data-title="События" href="{% url 'events' %}">События</a></li>
-                        {% endcomment %}
-                        {#                        <li><a data-title="Церкви" href="{% url 'churches' %}" id="churches__item">Церкви</a></li>#}
                         <li><a data-title="Партнёрство" href="{% url 'partner' %}" id="partners__item">Партнёрство</a>
                         </li>
                         <li><a data-title="Саммиты" href="{% url 'summits' %}" id="summits__item">Саммиты</a></li>
@@ -84,28 +79,14 @@
                                         </li>
                                     {% endblock %}
                                     {% block header.search %}
-                                        <li>
-                                        </li>
+
                                     {% endblock %}
                                 {% endblock %}
                             </ul><!--End Top -->
                         {% endblock %}
 
                         {% block header.buttons %}
-                            <div class="top-buttons-wrap">
 
-                                <ul class="top-buttons">
-                                    {% block header.buttons.filter %}{% endblock %}
-
-                                    {% block header.buttons.add %}{% endblock %}
-
-                                    {% block header.buttons.export %}{% endblock %}
-
-                                    {% block header.buttons.change_table %}{% endblock %}
-
-                                    {% block header.buttons.extra %}{% endblock %}
-                                </ul>
-                            </div>
                         {% endblock %}
 
                         {% block header_user_drop %}
@@ -152,7 +133,9 @@
                     </div>
                 {% endblock %}
 
-                {% block main.content %}{% endblock %}
+                {% block main.content %}
+
+                {% endblock %}
             </div>
         {% endblock main %}
 
