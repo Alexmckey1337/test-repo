@@ -63,7 +63,11 @@ def meeting_report(request, code):
 
 @login_required(login_url='entry')
 def partner(request):
-    return render(request, 'partner/partners.html')
+    ctx = {
+        'departments': Department.objects.all(),
+        'hierarchies': Hierarchy.objects.order_by('level'),
+    }
+    return render(request, 'partner/partners.html', context=ctx)
 
 
 @login_required(login_url='entry')

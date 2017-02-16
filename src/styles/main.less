@@ -2297,13 +2297,16 @@ table input[type=checkbox],
   }
 }
 
-.apply-filter {
+.apply-filter, .clear-filter {
   padding: 12px 20px;
   &.refresh {
     i {
       transform: rotate(180deg);
       transition: transform 0.7s;
     }
+  }
+  & i {
+    color: #FFF;
   }
 }
 

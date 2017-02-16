@@ -809,95 +809,25 @@ document.body.addEventListener('click', function (el) {
     }
 });
 
-// $(function () {
-//     ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/users/current/', null, function (data) {
-//         let user_id = data.id;
-//         VOCRM.user_id = data.id;
-//         VOCRM.user_partnerships_info = data.partnerships_info;
-//         VOCRM.column_table = data.column_table;
-//         let hierarchy_chain = data['hierarchy_chain'];
-//
-//         // if (document.getElementById('database_users')) {
-//         //     createUser();
-//         // }
-//
-//         if (document.getElementById('users_list')) {
-//             let dat = {};
-//             dat['summit'] = document.querySelectorAll('#carousel li span')[0].getAttribute('data-id');
-//             window.summit_id = dat['summit'];
-//             getUsersList(path, dat);
-//             getCurrentSetting();
-//         }
-//
-//         if (document.getElementById('event_wrap')) {
-//             getCurrentSetting();
-//             init(user_id);
-//         }
-//
-//         if (document.getElementById("add_new")) {
-//             document.getElementById("add_new").setAttribute('data-id', data.id);
-//         }
-//
-//         if (document.getElementById("report_wrap")) {
-//             init_report()
-//         }
-//
-//         if (VOCRM.user_partnerships_info && VOCRM.user_partnerships_info.is_responsible && document.querySelector('.manager_view')) {
-//             document.querySelector('.manager_view').style.display = 'block'
-//         }
-//
-//     });
-//     if (document.getElementById('sort-form')) {
-//         $("#sort-form").sortable({revert: true, items: "li:not([disable])", scroll: false});
-//         $("#sort-form").disableSelection();
+// jQuery(function ($) {
+//     if ($.datepicker) {
+//         $.datepicker.regional['ru'] = {
+//             monthNames: ['Январь', 'Февраль', 'Март', 'Апрель',
+//                 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь',
+//                 'Октябрь', 'Ноябрь', 'Декабрь'
+//             ],
+//             monthNamesShort: ['Январь', 'Февраль', 'Март', 'Апрель',
+//                 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь',
+//                 'Октябрь', 'Ноябрь', 'Декабрь'],
+//             changeMonth: true,
+//             changeYear: true,
+//             dayNamesMin: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+//             firstDay: 1,
+//             dateFormat: "yy-mm-dd"
+//         };
+//         $.datepicker.setDefaults($.datepicker.regional['ru']);
 //     }
 // });
-
-jQuery(function ($) {
-    if ($.datepicker) {
-        $.datepicker.regional['ru'] = {
-            monthNames: ['Январь', 'Февраль', 'Март', 'Апрель',
-                'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь',
-                'Октябрь', 'Ноябрь', 'Декабрь'
-            ],
-            monthNamesShort: ['Январь', 'Февраль', 'Март', 'Апрель',
-                'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь',
-                'Октябрь', 'Ноябрь', 'Декабрь'],
-            changeMonth: true,
-            changeYear: true,
-            dayNamesMin: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
-            firstDay: 1,
-            dateFormat: "yy-mm-dd"
-        };
-        $.datepicker.setDefaults($.datepicker.regional['ru']);
-    }
-});
-
-// //old version
-// function getCurrentSetting() {
-//     let titles = VOCRM['column_table'];
-//     let html = '';
-//     for (let p in titles) {
-//         if (!titles.hasOwnProperty(p)) continue;
-//         let ischeck = titles[p]['active'] ? 'check' : '';
-//         let isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
-//         html += '<li ' + isdraggable + ' >' +
-//             '<input id="' + titles[p]['ordering_title'] + '" type="checkbox">' +
-//             '<label for="' + titles[p]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[p]['id'] + '">' + titles[p]['title'] + '</label>';
-//         if (isdraggable == 'disable') {
-//             html += '<div class="disable-opacity"></div>'
-//         }
-//         html += '</li>'
-//     }
-//
-//     document.getElementById('sort-form').innerHTML = html;
-//
-//     $("#sort-form label").on('click', function (el) {
-//         if (!this.parentElement.hasAttribute('disable')) {
-//             this.classList.contains('check') ? this.classList.remove('check') : this.classList.add('check');
-//         }
-//     })
-// }
 
 function createUsersTable(config) {
     config["search_fio"] = $('input[name=fullsearch]').val();
@@ -976,13 +906,13 @@ function hidePopup(el) {
 }
 
 function refreshFilter(el) {
-    var input = $(el).closest('.popap').find('input');
+    let $input = $(el).closest('.popap').find('input');
     $(el).addClass('refresh');
     setTimeout(function () {
         $(el).removeClass('refresh');
     }, 700);
-    Array.from(input).forEach(function (item) {
-        $(item).val('')
+    $input.each(function () {
+        $(this).val('')
     })
 }
 

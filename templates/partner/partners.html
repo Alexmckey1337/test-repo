@@ -15,18 +15,13 @@
 
         <div class="top-buttons-wrap">
             <ul class="top-buttons">
-                {#                <li>#}
-                {#                    <button class="add" id="add_user_parners">Добавить пользователя</button>#}
-                {#                </li>#}
-                {% comment %}
-            <li>
-                <button>Экспортировать</button>
-            </li>
-            {% endcomment %}
                 <li>
-                    <form action="{% url "partnerships_v1_1-export" %}" method="post">
-                        <button type="submit" class="download" class="header__button">Export</button>
-                    </form>
+                    <button id="filter_button" class="header__button">Фильтр</button>
+                </li>
+                <li>
+                    <button type="submit" id="export_table" data-export-url="{% url "partnerships_v1_1-export" %}"
+                            class="download header__button">Export
+                    </button>
                 </li>
                 <li>
                     <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
@@ -41,22 +36,6 @@
 
     {% get_simple_managers as managers %}
     <div class="content">
-
-        <div id="spisok">
-            {% if request.user.is_partner_supervisor_or_high %}
-                <div class="row">
-                    <div class="col-4">
-                        <div class="accountable_filter">
-                            <select name="accountable" id="accountable">
-                                <option value="0" selected>Все</option>
-                                {% for manager in managers %}
-                                    <option value="{{ manager.id }}">{{ manager.fullname }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
             <div class="top-pag">
                 <div class="pagination partners__pagination"></div>
             </div>
@@ -73,12 +52,89 @@
             </div><!--End Table-wrap -->
             <div class="table__count"></div>
             <div class="pagination partners__pagination"></div>
-
-        </div><!--End spisok -->
     </div><!-- End tab-content-->
 {% endblock %}
 
 {% block popup %}
+    <div class="popap" id='filterPopup'>
+        <div class="pop_cont">
+            <h2 class='popup_text'>
+                Фильтр
+            </h2>
+            <div class="popup_body">
+                <div class="container">
+                    <div class="col-6">
+                        <p class="label_block">
+                            <label for="departments_filter">Отдел</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="hierarchies_filter">Иерархия</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="masters_filter">Ответсвенный</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="search_email">Фильтр по email</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="search_phone_number">Фильтр по номеру телефона</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="search_country">Фильтр по стране</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="search_city">Фильтр по городу</label>
+                        </p>
+                    </div>
+                    <div class="col-6">
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="department" id="departments_filter">
+                                <option value="">ВСЕ</option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">{{ department.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="hierarchy" id="hierarchies_filter">
+                                <option value="">ВСЕ</option>
+                                {% for hierarchy in hierarchies %}
+                                    <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="master" id="masters_filter">
+                                <option value="">ВСЕ</option>
+                                {% for master in masters %}
+                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <input type="email" data-filter="search_email" placeholder="email или часть" id="search_email">
+                        </p>
+                        <p class="input_block">
+                            <input type="tel" data-filter="search_phone_number" placeholder="номер телефона или часть" id="search_phone_number">
+                        </p>
+                        <p class="input_block">
+                            <input type="text" data-filter="search_country" placeholder="страна или часть названия" id="search_country">
+                        </p>
+                        <p class="input_block">
+                            <input type="text" data-filter="search_city" placeholder="город или часть названия" id="search_city">
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
+                                                                                  aria-hidden="true"></i>
+                    Очистить</button>
+                <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                <button onclick="applyFilter(this, createUsersTable)" class="apply-filter">Применить</button>
+            </div>
+        </div>
+    </div>
     <div class="popap" id="quickEditCartPopup">
         <div class="pop_cont">
             <div class="popup_text">
@@ -140,69 +196,74 @@
     <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
     <script src='{% static "js/partner_list.js" %}'></script>
     <script type="text/template" id="quickEditCart">
-   <div class="container bb-1">
-       <div>
-            <img class="user-image" src="<%= image %>" alt="<%=id%>">
-        </div>
-        <div class="col-7">
-            <p><input type="text" class="fullname" value="<%=fullname %>"></p>
-            <p><label for="departmentSelect">Отдел церкви: </label><select id="departmentSelect">
-                <% if(department != null) { %>
-                    <option value="<%=department.id %>" selected><%=department.title %></option>
-                <% } else { %>
-                    <option value="" selected></option>
-                <% } %>
-            </select></p>
-            <div><label for="master_hierarchy">Ответственный: </label>
-                <select id="master_hierarchy">
-                    <% if(master != null) { %>
-                        <option value="<%= master.fullname %>" data-id="<%= master.id %>" data-level="<%=master.hierarchy.level%>" selected><%= master.fullname %></option>
-                    <% } %>
-                </select>
+        <div class="container bb-1">
+            <div>
+                <img class="user-image" src="<%= image %>" alt="<%=id%>">
             </div>
-            <p><label for="hierarchySelect">Статус: </label><select id="hierarchySelect">
-                <% if(hierarchy != null) { %>
-                <option value="<%=hierarchy.id %>" data-level="<%=hierarchy.level%>" selected><%=hierarchy.title %></option>
-                <% } else { %>
+            <div class="col-7">
+                <p><input type="text" class="fullname" value="<%=fullname %>"></p>
+                <p><label for="departmentSelect">Отдел церкви: </label><select id="departmentSelect">
+                    <% if(department != null) { %>
+                    <option value="<%=department.id %>" selected><%=department.title %></option>
+                    <% } else { %>
                     <option value="" selected></option>
-                <% } %>
-            </select></p>
-{#            <p><label for="departmentSelect">Отдел церкви: </label><input type="text" id="departmentSelect" value="<%=fields.department.value %>" readonly></p> #}
-{#            <p><label for="master_hierarchy">Ответсвенный: </label><input type="text" id="master_hierarchy" value="<%=fields.master_hierarchy.value %>" readonly></p>#}
-{#            <p><label for="hierarchy">Статус: </label><input type="text" id="hierarchy" value="<%=fields.hierarchy.value %>" readonly></p>#}
+                    <% } %>
+                </select></p>
+                <div><label for="master_hierarchy">Ответственный: </label>
+                    <select id="master_hierarchy">
+                        <% if(master != null) { %>
+                        <option value="<%= master.fullname %>" data-id="<%= master.id %>"
+                                data-level="<%=master.hierarchy.level%>" selected><%= master.fullname %>
+                        </option>
+                        <% } %>
+                    </select>
+                </div>
+                <p><label for="hierarchySelect">Статус: </label><select id="hierarchySelect">
+                    <% if(hierarchy != null) { %>
+                    <option value="<%=hierarchy.id %>" data-level="<%=hierarchy.level%>" selected><%=hierarchy.title
+                        %>
+                    </option>
+                    <% } else { %>
+                    <option value="" selected></option>
+                    <% } %>
+                </select></p>
+                {#            <p><label for="departmentSelect">Отдел церкви: </label><input type="text" id="departmentSelect" value="<%=fields.department.value %>" readonly></p> #}
+                {#            <p><label for="master_hierarchy">Ответсвенный: </label><input type="text" id="master_hierarchy" value="<%=fields.master_hierarchy.value %>" readonly></p>#}
+                {#            <p><label for="hierarchy">Статус: </label><input type="text" id="hierarchy" value="<%=fields.hierarchy.value %>" readonly></p>#}
+            </div>
         </div>
-   </div>
-    <div class="container">
-        <div class="col-6">
-            <p class="label_block">Телефон:</p>
-            <p class="label_block">Домашний телефон:</p>
-            <p class="label_block">E-mail:</p>
-            <p class="label_block">Skype:</p>
-            <p class="label_block">Страна:</p>
-            <p class="label_block">Область:</p>
-            <p class="label_block">Нас.пункт:</p>
-            <p class="label_block">Адрес:</p>
-            <p class="label_block">Дата покаяния:</p>
-        </div>
-        <div class="col-6">
-            <p><input type="text" id="phone_number" value="<%=phone_number %>"></p>
-            <p><input type="text" id="extra_phone_numbers"
-                        <% if (extra_phone_numbers.lenght) { %>
-                        value="<%=extra_phone_numbers.join(', ') %>
-                <% } %>
-            </p>
-            <p><input type="text" id="email" value="<%=email %>"></p>
-            <p><input type="text" id="skype" value="<%=skype %>"></p>
-            <p><input type="text" id="country" value="<%=country %>"></p>
-            <p><input type="text" id="region" value="<%=region %>"></p>
-            <p><input type="text" id="city" value="<%=city %>"></p>
-            <p><input type="text" id="address" value="<%=address %>"></p>
-            <% if (repentance_date) { %>
-                <p><input type="text" id="repentance_date" value="<%=repentance_date.split('.').reverse().join('-') %>"></p>
-            <% } else { %>
+        <div class="container">
+            <div class="col-6">
+                <p class="label_block">Телефон:</p>
+                <p class="label_block">Домашний телефон:</p>
+                <p class="label_block">E-mail:</p>
+                <p class="label_block">Skype:</p>
+                <p class="label_block">Страна:</p>
+                <p class="label_block">Область:</p>
+                <p class="label_block">Нас.пункт:</p>
+                <p class="label_block">Адрес:</p>
+                <p class="label_block">Дата покаяния:</p>
+            </div>
+            <div class="col-6">
+                <p><input type="text" id="phone_number" value="<%=phone_number %>"></p>
+                <p><input type="text" id="extra_phone_numbers"
+                    <% if (extra_phone_numbers.lenght) { %>
+                    value="<%=extra_phone_numbers.join(', ') %>
+                    <% } %>
+                </p>
+                <p><input type="text" id="email" value="<%=email %>"></p>
+                <p><input type="text" id="skype" value="<%=skype %>"></p>
+                <p><input type="text" id="country" value="<%=country %>"></p>
+                <p><input type="text" id="region" value="<%=region %>"></p>
+                <p><input type="text" id="city" value="<%=city %>"></p>
+                <p><input type="text" id="address" value="<%=address %>"></p>
+                <% if (repentance_date) { %>
+                <p><input type="text" id="repentance_date" value="<%=repentance_date.split('.').reverse().join('-') %>">
+                </p>
+                <% } else { %>
                 <p><input type="text" id="repentance_date" value=""></p>
-            <% } %>
+                <% } %>
+            </div>
         </div>
-    </div>
-</script>
+    </script>
 {% endblock %}
