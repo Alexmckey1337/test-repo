@@ -72,7 +72,7 @@ class DivisionSerializer(serializers.ModelSerializer):
 class PartnershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Partnership
-        fields = ('value', 'responsible', 'date', 'user')
+        fields = ('value', 'responsible', 'date', 'user', 'currency')
 
 
 class AddExistUserSerializer(serializers.ModelSerializer):

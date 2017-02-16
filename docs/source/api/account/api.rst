@@ -286,6 +286,7 @@ Create user, ``application/json``
         "partner": {
           "value": 30,
           "responsible": 4,
+          "currency": 1,
           "date": "2020-02-20"
         }
       }
@@ -335,6 +336,7 @@ Create user, ``application/json``
         "partnership": {
           "value": 30,
           "responsible": 4,
+          "currency": 1,
           "date": "20.02.2020",
           "user": 15183
         },
@@ -396,6 +398,7 @@ Create user, ``application/json``
    :form partner: dict of partnership fields
    :form partner[value]: sum of partner's contribution
    :form partner[responsible]: responsible of partner
+   :form partner[currency]: currency of partner
    :form partner[date]: date when the user became a partner
    :reqheader Accept: the response content type depends on
                                                               :mailheader:`Accept` header
@@ -451,6 +454,7 @@ Update user, ``application/json``
         "partner": {
           "value": 30,
           "responsible": 4,
+          "currency": 1,
           "date": "2020-02-20"
         }
       }
@@ -500,6 +504,7 @@ Update user, ``application/json``
         "partnership": {
           "value": 30,
           "responsible": 4,
+          "currency": 1,
           "date": "20.02.2020",
           "user": 15183
         },
@@ -561,6 +566,7 @@ Update user, ``application/json``
    :form partner: dict of partnership fields
    :form partner[value]: sum of partner's contribution
    :form partner[responsible]: responsible of partner
+   :form partner[currency]: currency of partner
    :form partner[date]: date when the user became a partner
    :reqheader Accept: the response content type depends on
                                                         :mailheader:`Accept` header
@@ -634,6 +640,7 @@ Partial update user, ``application/json``
         "partnership": {
           "id": 3810,
           "value": 255,
+          "currency": 1,
           "responsible": 1
         },
         "fullname": "name new other"
@@ -748,7 +755,7 @@ Create new user, ``multipart/form-data``
         --42940404204
         Content-Disposition: form-data; name="partner"
 
-        {"value":30,"responsible":4,"date":"2020-02-20"}
+        {"value":30,"responsible":4,"currency":1,"date":"2020-02-20"}
         --42940404204--
 
    **Example response (Good request)**:
@@ -781,6 +788,7 @@ Create new user, ``multipart/form-data``
         "partnership": {
           "value": 30,
           "responsible": 4,
+          "currency": 1,
           "date": "20.02.2020",
           "user": 15183
         },
@@ -839,7 +847,7 @@ Create new user, ``multipart/form-data``
    :form hierarchy: id of hierarchy, **required**
    :form master: id of master, **required**
    :form divisions: list of ids of divisions, format == ``[1,"2",3]``
-   :form partner: partnership fields, format == ``{"value":11,"responsible":2,"date":"2000-02-22"}``
+   :form partner: partnership fields, format == ``{"value":11,"responsible":2,"currency":1,"date":"2000-02-22"}``
    :reqheader Accept: the response content type depends on
                                                               :mailheader:`Accept` header
    :reqheader Content-Type: ``multipart/form-data``
@@ -901,7 +909,7 @@ Update user, ``multipart/form-data``
         --42940404204
         Content-Disposition: form-data; name="partner"
 
-        {"value":30,"responsible":4,"date":"2020-02-20"}
+        {"value":30,"responsible":4,"currency":1,"date":"2020-02-20"}
         --42940404204--
 
    **Example response (Good request)**:
@@ -934,6 +942,7 @@ Update user, ``multipart/form-data``
         "partnership": {
           "value": 30,
           "responsible": 4,
+          "currency": 1,
           "date": "20.02.2020",
           "user": 15183
         },
@@ -992,7 +1001,7 @@ Update user, ``multipart/form-data``
    :form hierarchy: id of hierarchy, **required**
    :form master: id of master, **required**
    :form divisions: list of ids of divisions, format == ``[1,"2",3]``
-   :form partner: partnership fields, format == ``{"value":11,"responsible":2,"date":"2000-02-22"}``
+   :form partner: partnership fields, format == ``{"value":11,"currency":1,"responsible":2,"date":"2000-02-22"}``
    :reqheader Accept: the response content type depends on
                                                         :mailheader:`Accept` header
    :reqheader Content-Type: ``multipart/form-data``
@@ -1046,7 +1055,7 @@ Partial update user, ``multipart/form-data``
         --42940404204
         Content-Disposition: form-data; name="partner"
 
-        {"value":255,"responsible":1,"date":"2000-02-22"}
+        {"value":255,"responsible":1,"currency":1,"date":"2000-02-22"}
         --42940404204--
 
    **Example response (Good request)**:
@@ -1093,6 +1102,7 @@ Partial update user, ``multipart/form-data``
           "id": 3810,
           "value": 255,
           "responsible": 1,
+          "currency": 1,
           "date": "22.02.2000",
         },
         "fullname": "name new other"
