@@ -237,7 +237,7 @@ def index(request):
         ctx['masters'] = user.get_descendants(include_self=True).filter(is_active=True, hierarchy__level__gte=1)
     else:
         ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
-    return render(request, 'database/main.html', context=ctx)
+    return render(request, 'home/main.html', context=ctx)
 
 
 @login_required(login_url='entry')
