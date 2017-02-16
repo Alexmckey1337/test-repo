@@ -112,14 +112,16 @@ $('document').ready(function () {
         $('.preloader').css('display', 'block');
         ajaxSendFormData(config).then(function (data) {
             $('.preloader').css('display', 'none');
+            $(oldForm).find()
             showPopup(`${data.fullname} добален(а) в базу данных`);
             $('#createUser').find('input').each(function () {
-                $(this).val('')
+                $(this).val('button[type="submit"]').attr('disabled', false);
             });
             $('#createUser').find('.cleared').each(function () {
                 $(this).find('option').eq(0).prop('selected', true).select2()
             });
             $('#addNewUserPopup').css('display', 'none');
+
         }).catch(function (data) {
             $('.preloader').css('display', 'none');
             showPopup(data);
@@ -128,6 +130,7 @@ $('document').ready(function () {
 
     $('#createUser').on('submit', function (e) {
         e.preventDefault();
+        $(this).find('button[type="submit"]').attr('disabled', true);
         createUser();
     });
 
