@@ -34,7 +34,6 @@
 
 {% block main.content %}
 
-    {% get_simple_managers as managers %}
     <div class="content">
             <div class="top-pag">
                 <div class="pagination partners__pagination"></div>
@@ -54,8 +53,8 @@
             <div class="pagination partners__pagination"></div>
     </div><!-- End tab-content-->
 {% endblock %}
-
 {% block popup %}
+    {% get_simple_managers as managers %}
     <div class="popap" id='filterPopup'>
         <div class="pop_cont">
             <h2 class='popup_text'>
@@ -71,7 +70,7 @@
                             <label for="hierarchies_filter">Иерархия</label>
                         </p>
                         <p class="label_block">
-                            <label for="masters_filter">Ответсвенный</label>
+                            <label for="masters_filter">Менеджер</label>
                         </p>
                         <p class="label_block">
                             <label for="search_email">Фильтр по email</label>
@@ -88,7 +87,7 @@
                     </div>
                     <div class="col-6">
                         <p class="input_block">
-                            <select class="selectdb" data-filter="department" id="departments_filter">
+                            <select class="select_db" data-filter="department" id="departments_filter">
                                 <option value="">ВСЕ</option>
                                 {% for department in departments %}
                                     <option value="{{ department.id }}">{{ department.title }}</option>
@@ -96,7 +95,7 @@
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" data-filter="hierarchy" id="hierarchies_filter">
+                            <select class="select_db" data-filter="hierarchy" id="hierarchies_filter">
                                 <option value="">ВСЕ</option>
                                 {% for hierarchy in hierarchies %}
                                     <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
@@ -104,10 +103,10 @@
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" data-filter="master" id="masters_filter">
+                            <select class="select_db" data-filter="responsible" id="masters_filter">
                                 <option value="">ВСЕ</option>
-                                {% for master in masters %}
-                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
+                                {% for manager in managers %}
+                                    <option value="{{ manager.id }}">{{ manager.fullname }}</option>
                                 {% endfor %}
                             </select>
                         </p>
@@ -131,7 +130,7 @@
                                                                                   aria-hidden="true"></i>
                     Очистить</button>
                 <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
-                <button onclick="applyFilter(this, createUsersTable)" class="apply-filter">Применить</button>
+                <button onclick="applyFilter(this, getPartners)" class="apply-filter">Применить</button>
             </div>
         </div>
     </div>

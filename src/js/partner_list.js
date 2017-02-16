@@ -21,4 +21,5 @@
     $('#filter_button').on('click', function () {
         $('#filterPopup').css('display', 'block');
     });
+    $('.select_db').select2();
 }());
