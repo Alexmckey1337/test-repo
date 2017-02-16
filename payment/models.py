@@ -105,9 +105,9 @@ class Payment(models.Model):
                                       verbose_name=_('Rate currency'),
                                       related_name='rate_payments')
     #: Rate of currency
-    rate = models.DecimalField(_('Rate'), max_digits=12, decimal_places=2, default=Decimal(1))
+    rate = models.DecimalField(_('Rate'), max_digits=12, decimal_places=3, default=Decimal(1))
     #: Sum of the payment
-    effective_sum = models.DecimalField(_('Effective sum'), max_digits=12, decimal_places=2,
+    effective_sum = models.DecimalField(_('Effective sum'), max_digits=12, decimal_places=3,
                                         null=True, blank=True, editable=False)
     #: Comment for payment, such as the purpose of payment
     description = models.TextField(_('Description'), blank=True)

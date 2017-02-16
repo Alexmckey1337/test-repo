@@ -492,3 +492,30 @@ Summit
    :statuscode 404: there's no summit
    :statuscode 400: bad request — selected summit don't have anket with id = ``anket_id``
    :statuscode 403: current user is not ``Supervisor`` of this summit
+
+Create anket payment
+~~~~~~~~~~~~~~~~~~~~
+
+.. http:post:: /api/v1.0/summit_ankets/(int:anket_id)/create_payment/
+
+   Create new payment for ``Summit Anket``.
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      POST /api/v1.0/summit_ankets/4/create_payment/ HTTP/1.1
+      Host: vocrm.org
+      Accept: application/json
+      content-type: application/json
+      content-length: 100
+
+      {
+        "sum": "153",
+        "description": "last",
+        "rate": "1.24",
+        "currency": 1,
+        "sent_date": "2000-02-22"
+      }
+
+   .. include:: ../payment/partials/create_payment.rst

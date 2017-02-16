@@ -163,7 +163,7 @@
                         <div class="right-info">
                             <ul>
                                 <li><span id="coming_date_">{{ account.partnership.date|date:"j b Y" }}</span></li>
-                                <li><span id="partner_val">{{ account.partnership.value }}</span></li>
+                                <li><span id="partner_val">{{ account.partnership.value_str }}</span></li>
                                 <li><span id="responsible">{{ account.partnership.responsible }}</span></li>
                             </ul>
                         </div>
@@ -207,12 +207,12 @@
                         </div>
                         <div style="display:block;padding:10px;">
                             <div style="display: inline-block; width: 49%;">
-                                <button id="create_new_payment" style="display:block;">
+                                <button data-currency-id="{{ account.partnership.currency.id }}" id="create_new_payment" style="display:block;">
                                     Добавить платеж
                                 </button>
                             </div>
                             <div style="display: inline-block; width: 49%;">
-                                <button id="create_new_deal" style="display:block;">
+                                <button data-currency-id="{{ account.partnership.currency.id }}" id="create_new_deal" style="display:block;">
                                     Добавить сделку
                                 </button>
                             </div>

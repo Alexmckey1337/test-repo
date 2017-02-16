@@ -10,7 +10,7 @@ from payment.models import Payment, Currency
 class CurrencySerializer(serializers.ModelSerializer):
     class Meta:
         model = Currency
-        fields = ('name', 'code', 'short_name', 'symbol')
+        fields = ('id', 'name', 'code', 'short_name', 'symbol')
 
 
 class ManagerSerializer(serializers.ModelSerializer):
