@@ -62,46 +62,46 @@
             </h2>
             <div class="popup_body">
                 <div class="container">
-                    <div class="col-6">
-                        <p class="label_block">
-                            <label for="departments_filter">Отдел</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="hierarchies_filter">Иерархия</label>
-                        </p>
+                    <div class="col-3">
+{#                        <p class="label_block">#}
+{#                            <label for="departments_filter">Отдел</label>#}
+{#                        </p>#}
+{#                        <p class="label_block">#}
+{#                            <label for="hierarchies_filter">Иерархия</label>#}
+{#                        </p>#}
                         <p class="label_block">
                             <label for="masters_filter">Менеджер</label>
                         </p>
-                        <p class="label_block">
-                            <label for="search_email">Фильтр по email</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="search_phone_number">Фильтр по номеру телефона</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="search_country">Фильтр по стране</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="search_city">Фильтр по городу</label>
-                        </p>
+{#                        <p class="label_block">#}
+{#                            <label for="search_email">Фильтр по email</label>#}
+{#                        </p>#}
+{#                        <p class="label_block">#}
+{#                            <label for="search_phone_number">Фильтр по номеру телефона</label>#}
+{#                        </p>#}
+{#                        <p class="label_block">#}
+{#                            <label for="search_country">Фильтр по стране</label>#}
+{#                        </p>#}
+{#                        <p class="label_block">#}
+{#                            <label for="search_city">Фильтр по городу</label>#}
+{#                        </p>#}
                     </div>
-                    <div class="col-6">
-                        <p class="input_block">
-                            <select class="select_db" data-filter="department" id="departments_filter">
-                                <option value="">ВСЕ</option>
-                                {% for department in departments %}
-                                    <option value="{{ department.id }}">{{ department.title }}</option>
-                                {% endfor %}
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="select_db" data-filter="hierarchy" id="hierarchies_filter">
-                                <option value="">ВСЕ</option>
-                                {% for hierarchy in hierarchies %}
-                                    <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
-                                {% endfor %}
-                            </select>
-                        </p>
+                    <div class="col-7">
+{#                        <p class="input_block">#}
+{#                            <select class="select_db" data-filter="department" id="departments_filter">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                                {% for department in departments %}#}
+{#                                    <option value="{{ department.id }}">{{ department.title }}</option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <select class="select_db" data-filter="hierarchy" id="hierarchies_filter">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                                {% for hierarchy in hierarchies %}#}
+{#                                    <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </p>#}
                         <p class="input_block">
                             <select class="select_db" data-filter="responsible" id="masters_filter">
                                 <option value="">ВСЕ</option>
@@ -110,18 +110,18 @@
                                 {% endfor %}
                             </select>
                         </p>
-                        <p class="input_block">
-                            <input type="email" data-filter="search_email" placeholder="email или часть" id="search_email">
-                        </p>
-                        <p class="input_block">
-                            <input type="tel" data-filter="search_phone_number" placeholder="номер телефона или часть" id="search_phone_number">
-                        </p>
-                        <p class="input_block">
-                            <input type="text" data-filter="search_country" placeholder="страна или часть названия" id="search_country">
-                        </p>
-                        <p class="input_block">
-                            <input type="text" data-filter="search_city" placeholder="город или часть названия" id="search_city">
-                        </p>
+{#                        <p class="input_block">#}
+{#                            <input type="email" data-filter="search_email" placeholder="email или часть" id="search_email">#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <input type="tel" data-filter="search_phone_number" placeholder="номер телефона или часть" id="search_phone_number">#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <input type="text" data-filter="search_country" placeholder="страна или часть названия" id="search_country">#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <input type="text" data-filter="search_city" placeholder="город или часть названия" id="search_city">#}
+{#                        </p>#}
                     </div>
                 </div>
             </div>
