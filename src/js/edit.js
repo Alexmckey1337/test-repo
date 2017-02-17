@@ -30,14 +30,7 @@
                 formData.append('image', blob);
                 formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
                 formData.append('id', id);
-                let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${id}/`;
-                let redirect = '/account/' + id;
-                let config = {
-                    url: url,
-                    data: formData,
-                    redirect: redirect,
-                    method: 'PUT'
-                };
+
             } catch (err) {
                 console.log(err);
             }
@@ -97,7 +90,14 @@
         $("#partner_drop").select2();
 
         getCurrentUser(id).then(function (data) {
+            let currency = data.partnership.currency;
             let divisions = data.divisions;
+            let $currencyOption = $('#payment_currency').find('option');
+            $currencyOption.each(function () {
+                if($(this).val() == currency) {
+                    $(this).prop('selected', true);
+                }
+            });
             if (data.image) {
                 $(".anketa-photo img").attr('src', data.image);
                 convertImgToDataURLviaCanvas($(".anketa-photo img").attr('src'), function (data64) {
