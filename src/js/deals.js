@@ -19,9 +19,17 @@ $(document).ready(function () {
         getDoneDeals(config);
         getUndoneDeals(config);
     });
+
+    function sumCurrency(sumEl, rateEl, currencyEl, currencyName) {
+            let sum = sumEl.val();
+            let rate = rateEl.val();
+            let userPay = parseFloat(sum) * parseFloat(rate);
+            currencyEl.text(parseInt(userPay) + currencyName);
+        }
     function sumChangeListener(currencyName, currencyID) {
-        let $currency = $('#new_payment_currency').find('option');
-        $currency.each(function () {
+        let $currencies = $('#new_payment_currency');
+        let $currencyOptions = $currencies.find('option');
+        $currencyOptions.each(function () {
             $(this).prop('selected', false);
             if ($(this).val() == currencyID) {
                 $(this).prop('selected', true);
@@ -31,27 +39,31 @@ $(document).ready(function () {
         let $new_payment_sum = $form.find('#new_payment_sum') || 0;
         let $new_payment_rate = $form.find('#new_payment_rate') || 1;
         let $in_user_currency = $form.find('#in_user_currency');
-        let sum = $new_payment_sum.val();
-        let rate = $new_payment_rate.val();
-        let userPay = parseFloat(sum) * parseFloat(rate);
-        $in_user_currency.text(parseInt(userPay) + currencyName);
+        $currencies.on('change', function () {
+            if ($(this).val() != currencyID) {
+                $('#new_payment_rate').prop('readonly', false);
+            } else {
+                $('#new_payment_rate').prop('readonly', true);
+            }
+        });
+        sumCurrency($new_payment_sum, $new_payment_rate, $in_user_currency, currencyName);
         $form.on('keypress', function (e) {
             return e.keyCode != 13;
         });
         $new_payment_sum.on('change', function () {
-            sumChangeListener(currencyName, currencyID)
+            sumCurrency($new_payment_sum, $new_payment_rate, $in_user_currency, currencyName);
         });
         $new_payment_sum.on('keypress', function (e) {
             if (e.keyCode == 13) {
-                sumChangeListener(currencyName, currencyID)
+                sumCurrency($new_payment_sum, $new_payment_rate, $in_user_currency, currencyName);
             }
         });
         $new_payment_rate.on('change', function () {
-            sumChangeListener(currencyName, currencyID)
+            sumCurrency($new_payment_sum, $new_payment_rate, $in_user_currency, currencyName);
         });
         $new_payment_rate.on('keypress', function (e) {
             if (e.keyCode == 13) {
-                sumChangeListener(currencyName, currencyID)
+                sumCurrency($new_payment_sum, $new_payment_rate, $in_user_currency, currencyName);
             }
         });
     }
@@ -332,6 +344,7 @@ $(document).ready(function () {
     $('#sent_date').datepicker({
         dateFormat: "yyyy-mm-dd",
         startDate: new Date(),
+        maxDate: new Date(),
         autoClose: true
     }).data('datepicker').selectDate(new Date());
 });

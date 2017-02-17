@@ -897,7 +897,10 @@ function getDataTOExport() {
     });
     return filter;
 }
-function hidePopup(el) {
+function hidePopup(e, el) {
+    e = e || window.event;
+
+    e.preventDefault();
     if ($(el).closest('.popap').find('.save-user').length) {
         $(el).closest('.popap').find('.save-user').attr('disabled', false);
         $(el).closest('.popap').find('.save-user').text('Сохранить');
