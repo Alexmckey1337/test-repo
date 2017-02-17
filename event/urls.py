@@ -13,7 +13,9 @@ router_v1_0 = routers.DefaultRouter()
 # router_v1_0.register(r'participations', views.ParticipationViewSet)
 
 router_v1_0.register(r'meetings', views.MeetingViewSet)
-router_v1_0.register(r'meetings_attend', views.MeetingAttendViewSet)
+router_v1_0.register(r'church_reports', views.ChurchReportViewSet)
+
+# router_v1_0.register(r'meetings_attend', views.MeetingAttendViewSet)
 # router_v1_0.register(r'meetings_visitors', views.UserMeetingViewSet, base_name='meetings_visitors')
 
 custom_urls = [

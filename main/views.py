@@ -35,19 +35,23 @@ def events(request):
 
 
 @login_required(login_url='entry')
-def meeting_types(request):
+def meetings(request):
+    if not request.user.hierarchy or request.user.hierarchy.level < 1:
+        return redirect('/')
+    ctx = {
+
+    }
+    return render(request, 'event/meetings_list.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def meetings_types(request):
+    if not request.user.hierarchy or request.user.hierarchy.level < 1:
+        return redirect('/')
     ctx = {
         'meeting_types': MeetingType.objects.all(),
     }
     return render(request, 'event/meeting_types.html', context=ctx)
-
-
-@login_required(login_url='entry')
-def meeting_type_detail(request, code):
-    ctx = {
-        'meeting_type': get_object_or_404(MeetingType, code=code),
-    }
-    return render(request, 'event/meeting_type_detail.html', context=ctx)
 
 
 @login_required(login_url='entry')
@@ -59,6 +63,36 @@ def meeting_report(request, code):
         'meeting_type': get_object_or_404(MeetingType, code=code),
     }
     return render(request, 'event/meeting_report_create.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def meetings_statistics(request):
+    if not request.user.hierarchy or request.user.hierarchy.level < 1:
+        return redirect('/')
+    ctx = {
+
+    }
+    return render(request, 'event/meeting_statistics.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def church_report(request):
+    if not request.user.hierarchy or request.user.hierarchy.level < 2:
+        return redirect('/')
+    ctx = {
+        'pastors': CustomUser.objects.filter(church__pastor__id__isnull=False).distinct(),
+    }
+    return render(request, 'event/church_report_create.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def churches_statistics(request):
+    if not request.user.hierarchy or request.user.hierarchy.level < 2:
+        return redirect('/')
+    ctx = {
+
+    }
+    return render(request, 'event/churches_statistics.html', context=ctx)
 
 
 @login_required(login_url='entry')

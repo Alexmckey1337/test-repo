@@ -3,26 +3,27 @@ from __future__ import unicode_literals
 
 import django_filters
 from django.db import transaction, IntegrityError
+from django.db.models import IntegerField, Sum, When, Case, Value
 from django.utils import six
+
 from rest_framework import status
 from rest_framework import viewsets, filters
 from rest_framework.decorators import api_view
 from rest_framework.decorators import list_route
-from rest_framework.generics import CreateAPIView, get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from common.views_mixins import ModelWithoutDeleteViewSet
-from django.db.models import Count
+from rest_framework.generics import get_object_or_404
 
-from account.models import CustomUser
 from account.pagination import ShortPagination
 from navigation.table_fields import event_table
-from .models import Participation, Event, EventAnket, EventType, MeetingAttend, Meeting
+from common.views_mixins import ModelWithoutDeleteViewSet
+from .models import Participation, Event, EventAnket, EventType, MeetingAttend, Meeting, ChurchReport
+from group.models import HomeGroup, Church
 from .serializers import ParticipationSerializer, EventSerializer, EventTypeSerializer, EventAnketSerializer
-from .serializers import MeetingSerializer, MeetingDetailSerializer, MeetingAttendSerializer
-from group.models import HomeGroup
-from group.serializers import HomeGroupListSerializer
+from .serializers import (MeetingListSerializer, MeetingDetailSerializer, MeetingSerializer,
+                          ChurchReportSerializer, ChurchReportListSerializer)
+from group.serializers import HomeGroupListSerializer, ChurchListSerializer
 
 
 class MeetingPagination(PageNumberPagination):
@@ -50,44 +51,63 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
     pagination_class = MeetingPagination
 
     serializer_class = MeetingSerializer
+    serializer_list_class = MeetingListSerializer
     serializer_retrieve_class = MeetingDetailSerializer
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return self.serializer_retrieve_class
+        if self.action == 'list':
+            return self.serializer_list_class
         return self.serializer_class
 
     def get_queryset(self):
         if self.action == 'list':
             return self.queryset.annotate(
-                count_visitors=Count('visitors'))
+                visitors_attended=Sum(Case(When(attends__attended=True, then=1),
+                                           output_field=IntegerField(), default=0)),
+                visitors_absent=Sum(Case(When(attends__attended=False, then=1),
+                                         output_field=IntegerField(), default=0)))
         return self.queryset
 
     def create(self, request, *args, **kwargs):
         data = request.data
+        home_group_id = data.get('home_group')
+        leader_id = data.get('owner')
+
+        home_group = get_object_or_404(HomeGroup, pk=home_group_id)
+
+        if home_group.leader.id != leader_id:
+            return Response({'message': 'Невозможно создать отчет. '
+                                        'Указанный пользователь не является лидером данной Домашней Группы.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         if not data.get('visitors'):
             return Response({'message': 'Невозможно создать отчет. '
-                                        'Список пользователей не передан.'},
+                                        'Список присутствующих не передан.'},
                             status=status.HTTP_400_BAD_REQUEST)
+
         visitors = data.pop('visitors')
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
+        valid_attends = [user.id for user in home_group.users.all()]
+        meeting = self.get_serializer(data=data)
+        meeting.is_valid(raise_exception=True)
 
         try:
             with transaction.atomic():
-                meeting = serializer.save()
+                new_meeting = meeting.save()
                 for visitor in visitors:
                     for attend in visitor.get('attends'):
-                        MeetingAttend.objects.create(meeting_id=meeting.id,
-                                                     user_id=attend.get('user'),
-                                                     attended=attend.get('attended', False),
-                                                     note=attend.get('note', ''))
+                        if attend.get('user') in valid_attends:
+                            MeetingAttend.objects.create(meeting_id=new_meeting.id,
+                                                         user_id=attend.get('user'),
+                                                         attended=attend.get('attended', False),
+                                                         note=attend.get('note', ''))
         except IntegrityError:
             data = {'message': 'При сохранении возникла ошибка. Попробуйте еще раз.'}
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        headers = self.get_success_headers(meeting.data)
+        return Response(meeting.data, status=status.HTTP_201_CREATED, headers=headers)
 
     @list_route(methods=['get'])
     def get_leader_groups(self, request):
@@ -98,14 +118,72 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             return Response({'message': 'Некоректные данные.'},
                             status=status.HTTP_400_BAD_REQUEST)
         home_groups = HomeGroup.objects.filter(leader__id=leader_id)
-        serializer = serializer(home_groups, many=True)
-        return Response(serializer.data)
+        home_groups_list = serializer(home_groups, many=True)
+        return Response(home_groups_list.data)
 
 
-class MeetingAttendViewSet(ModelWithoutDeleteViewSet):
+class ChurchReportViewSet(ModelWithoutDeleteViewSet):
+    queryset = ChurchReport.objects.all()
 
-    queryset = MeetingAttend.objects.all()
-    serializer_class = MeetingAttendSerializer
+    filter_backends = (filters.DjangoFilterBackend,
+                       filters.OrderingFilter,)
+
+    permission_classes = (IsAuthenticated,)
+    pagination_class = MeetingPagination
+
+    serializer_class = ChurchReportSerializer
+    serializer_list_class = ChurchReportListSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return self.serializer_list_class
+        return self.serializer_class
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        pastor_id = data.get('pastor')
+        church_id = data.get('church')
+
+        church = get_object_or_404(Church, pk=church_id)
+
+        if church.pastor.id != pastor_id:
+            return Response({'message': 'Невозможно создать отчет. '
+                                        'Данный пользователь не является пастором данной Церкви.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        report = self.get_serializer(data=request.data)
+        report.is_valid(raise_exception=True)
+        self.perform_create(report)
+        headers = self.get_success_headers(report.data)
+        return Response(report.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @list_route(methods=['get'])
+    def get_pastor_churches(self, request):
+        serializer = ChurchListSerializer
+        pastor_id = request.query_params.get('pastor_id')
+        if not pastor_id:
+            return Response({'message': 'Некоректные данные.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        churches = Church.objects.filter(pastor__id=pastor_id)
+        churches_list = serializer(churches, many=True)
+        return Response(churches_list.data)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -229,7 +307,7 @@ def update_participation(request):
             response_dict['status'] = False
     return Response(response_dict)
 
-
+"""
 class CreateMeetingView(CreateAPIView):
     serializer_class = MeetingSerializer
 
@@ -259,3 +337,4 @@ class CreateMeetingView(CreateAPIView):
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+"""

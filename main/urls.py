@@ -25,9 +25,14 @@ urlpatterns = [
                   url(r'^partner/list/$', views.partner, name='partner-list'),
                   url(r'^partner/deals/$', views.deals, name='partner-deals'),
                   url(r'^partner/stats/$', views.stats, name='partner-stats'),
-                  url(r'^meeting_types/$', views.meeting_types, name='meeting_type-list'),
-                  url(r'^meeting_types/(?P<code>[-_\w]+)/$', views.meeting_type_detail, name='meeting_type-detail'),
-                  url(r'^meeting_types/(?P<code>[-_\w]+)/report/$', views.meeting_report, name='meeting-report'),
+
+                  url(r'^meetings/$', views.meetings, name='meeting-list'),
+                  url(r'^meetings_types/$', views.meetings_types, name='meeting_type-list'),
+                  url(r'^meetings_types/(?P<code>[-_\w]+)/report/$', views.meeting_report, name='meeting-report'),
+                  url(r'^meetings_statistics/$', views.meetings_statistics, name='meetings_statistics'),
+                  url(r'^church_report/$', views.church_report, name='church-report'),
+                  url(r'^churches_statistics', views.churches_statistics, name='churches-statistics'),
+
                   url(r'^account/([0-9]+)/$', views.account, name='account'),
                   url(r'^account_edit/([0-9]+)/$', views.account_edit, name='account_edit'),
                   url(r'^reports/$', views.reports, name='reports'),

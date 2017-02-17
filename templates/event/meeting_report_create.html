@@ -1,3 +1,8 @@
 <h1>Подача отчета <i>{{ meeting_type }}</i></h1>
 
-Лидеры {{ leaders }}
+<h2>Список лидеров</h2>
+
+{% for leader in leaders %}
+    <li>{{ leader }}</li>
+{% endfor %}
+
