@@ -40,11 +40,13 @@ $(document).ready(function () {
         let $new_payment_sum = $form.find('#new_payment_sum') || 0;
         let $new_payment_rate = $form.find('#new_payment_rate') || 1;
         let $in_user_currency = $form.find('#in_user_currency');
+        $('#new_payment_rate').prop('readonly', true);
+
         $currencies.on('change', function () {
             if ($(this).val() != currencyID) {
                 $('#new_payment_rate').prop('readonly', false);
             } else {
-                $('#new_payment_rate').prop('readonly', true).val('1.000');
+                $('#new_payment_rate').prop('readonly', true).val('1.000').trigger('change');
             }
         });
         sumCurrency($new_payment_sum, $new_payment_rate, $in_user_currency, currencyName);
