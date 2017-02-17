@@ -128,7 +128,7 @@
     <% results.forEach(function(item) { %>
     <div class="rows-wrap" id="<%=item.id%>">
         <% if(!item.done && can_close_deal) { %>
-            <% if((parseInt(item.total_sum) - parseInt(item.value)) >= 0 ){ %>
+            <% if((parseInt(item.total_sum.match(/\d+/)) - parseInt(item.value.match(/\d+/))) >= 0 ){ %>
                 <button class="complete"
                         data-id="<%= item.id%>"
                         data-name="<%=item.full_name%>"
@@ -142,7 +142,7 @@
             <% } %>
         <% } %>
         <% if(!item.done && check_payment_permissions) { %>
-            <% if((parseInt(item.total_sum) - parseInt(item.value)) < 0 ){ %>
+            <% if((parseInt(item.total_sum.match(/\d+/)) - parseInt(item.value.match(/\d+/))) < 0 ){ %>
                 <button class="pay"
                         data-id="<%=item.id%>"
                         data-name="<%=item.full_name%>"
