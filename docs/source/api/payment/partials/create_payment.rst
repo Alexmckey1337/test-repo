@@ -81,11 +81,12 @@
      "detail": "Не найдено."
    }
 
-:form sum: sum of payment, **required**
-:form rate: rate of ``sum`` -> ``effective_sum``, default == 1
+:form sum: sum of payment, integer, **required**
+:form rate: rate of ``sum`` -> ``effective_sum``, decimal,
+            format ``123.456`` or ``123.45`` or ``123.4`` or ``123``, default == 1
 :form description: description for payment, optional
 :form currency: currency_id of ``sum``, default like as currency of purpose of the payment
-:form sent_date: date of payment, default == today
+:form sent_date: date of payment, format ``2015-03-24``, default == today
 
 :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
                          ``application/json``, ``multipart/form-data``
