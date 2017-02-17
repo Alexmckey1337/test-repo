@@ -36,6 +36,7 @@ $(document).ready(function () {
             }
         });
         let $form = $('#payment-form');
+        $form.find('#new_payment_rate').val('1.000');
         let $new_payment_sum = $form.find('#new_payment_sum') || 0;
         let $new_payment_rate = $form.find('#new_payment_rate') || 1;
         let $in_user_currency = $form.find('#in_user_currency');
