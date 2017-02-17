@@ -91,15 +91,15 @@
                                     <li><input type="text" id="email" name="email" value="{{ account.email }}"></li>
                                     <li><input type="text" id="skype" name="skype" value="{{ account.skype }}"></li>
                                     <li>
-                                        <select id="country_drop" name="country" style="width:205px">
+                                        <select id="country_drop" name="country">
                                             <option value="{{ account.country }}"
                                                     selected>{{ account.country }}</option>
                                         </select>
                                     </li>
-                                    <li><select id="region_drop" name="region" disabled style="width:205px">
+                                    <li><select id="region_drop" name="region" disabled>
                                         <option value="{{ account.region }}">{{ account.region }}</option>
                                     </select></li>
-                                    <li><select id="town_drop" name="city" disabled style="width:205px">
+                                    <li><select id="town_drop" name="city" disabled>
                                         <option value="{{ account.city }}">{{ account.city }}</option>
                                     </select></li>
                                     <li><input type="text" id="district" name="district" value="{{ account.district }}">
