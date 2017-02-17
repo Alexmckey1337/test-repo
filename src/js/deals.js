@@ -43,7 +43,7 @@ $(document).ready(function () {
             if ($(this).val() != currencyID) {
                 $('#new_payment_rate').prop('readonly', false);
             } else {
-                $('#new_payment_rate').prop('readonly', true);
+                $('#new_payment_rate').prop('readonly', true).val('1.000');
             }
         });
         sumCurrency($new_payment_sum, $new_payment_rate, $in_user_currency, currencyName);
