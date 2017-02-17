@@ -10,6 +10,7 @@
                 <div class="summa">
                     <label for="new_payment_sum">Сумма:</label>
                     <input maxlength="6"
+                           min="0"
                            onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
                            name="sum"
                            type="number" id="new_payment_sum"
