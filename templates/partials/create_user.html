@@ -84,13 +84,16 @@
                         </div>
                         <div class="right-info">
                             <ul>
-                                <li><select style="width: 96%" name="department" disabled id="chooseDepartment" class="cleared"
+                                <li><select style="width: 96%" name="department" disabled id="chooseDepartment"
+                                            class="cleared"
                                             required>
                                 </select></li>
-                                <li><select style="width: 96%" name="hierarchy" id="chooseStatus" class="cleared" required>
+                                <li><select style="width: 96%" name="hierarchy" id="chooseStatus" class="cleared"
+                                            required>
                                 </select></li>
                                 </select></li>
-                                <li><select style="width: 96%" disabled name="master" id="chooseResponsible" class="cleared" required>
+                                <li><select style="width: 96%" disabled name="master" id="chooseResponsible"
+                                            class="cleared" required>
                                 </select></li>
                             </ul>
                         </div>
@@ -128,7 +131,17 @@
                             <ul class="hidden-partner" style="display:none">
                                 <li><input type="text" id="partnerFrom" readonly="readonly">
                                 </li>
-                                <li><input type="number" id="partners_count"></li>
+                                <li>
+                                    <input type="number" id="val_partnerships">
+                                    <select id="payment_currency" required>
+                                        {% for currency in currencies %}
+                                            <option value="{{ currency.id }}"
+                                                    {% if currency == purpose.currency %}selected{% endif %}>
+                                                {{ currency.short_name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </li>
                                 <li><select style="width: 96%" id="chooseManager">
                                 </select></li>
                             </ul>

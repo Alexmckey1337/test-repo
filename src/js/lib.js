@@ -1227,7 +1227,6 @@ function ajaxSendFormData(data = {}) {
         method: 'POST'
     };
     Object.assign(sendData, data);
-
     return new Promise(function (resolve, reject) {
         let xhr = new XMLHttpRequest();
         xhr.withCredentials = true;

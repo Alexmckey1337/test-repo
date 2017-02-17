@@ -86,7 +86,8 @@ $('document').ready(function () {
         }
         if ($('#partner').is(':checked')) {
             let partner = {};
-            partner.value = $('#partnerFrom').val() || 0;
+            partner.value = parseInt($('#partnerFrom').val()) || 0;
+            partner.currency = parseInt($('#payment_currency').val());
             partner.date = $('#partners_count').val() || null;
             partner.responsible = parseInt($("#chooseManager").val());
             formData.append('partner', JSON.stringify(partner));
@@ -112,7 +113,6 @@ $('document').ready(function () {
         $('.preloader').css('display', 'block');
         ajaxSendFormData(config).then(function (data) {
             $('.preloader').css('display', 'none');
-            $(oldForm).find()
             showPopup(`${data.fullname} добален(а) в базу данных`);
             $('#createUser').find('input').each(function () {
                 $(this).val('button[type="submit"]').attr('disabled', false);

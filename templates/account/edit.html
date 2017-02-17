@@ -70,15 +70,20 @@
                             </div>
                             <div class="right-info">
                                 <ul>
-                                    <li><input type="text" id="last_name" name="last_name" required value="{{ account.last_name }}"></li>
-                                    <li><input type="text" id="first_name" name="first_name" required value="{{ account.first_name }}"></li>
-                                    <li><input type="text" id="middle_name" name="middle_name" value="{{ account.middle_name }}"></li>
-                                    <li><input type="text" id="search_name" name="search_name" value="{{ account.search_name }}"></li>
+                                    <li><input type="text" id="last_name" name="last_name" required
+                                               value="{{ account.last_name }}"></li>
+                                    <li><input type="text" id="first_name" name="first_name" required
+                                               value="{{ account.first_name }}"></li>
+                                    <li><input type="text" id="middle_name" name="middle_name"
+                                               value="{{ account.middle_name }}"></li>
+                                    <li><input type="text" id="search_name" name="search_name"
+                                               value="{{ account.search_name }}"></li>
                                     <li><input type="text" id="datepicker_born_date" name="born_date"
                                                value="{{ account.born_date|date:"Y-m-d"|default:"" }}"></li>
                                     <li><input placeholder="+380633333333"
                                                onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
-                                               type="text" id="phone_number" name="phone_number" required value="{{ account.phone_number }}"></li>
+                                               type="text" id="phone_number" name="phone_number" required
+                                               value="{{ account.phone_number }}"></li>
                                     <li><input type="text" id="extra_phone_numbers"
                                                value="{{ account.extra_phone_numbers|default:""|join:", " }}">
 
@@ -97,11 +102,16 @@
                                     <li><select id="town_drop" name="city" disabled style="width:205px">
                                         <option value="{{ account.city }}">{{ account.city }}</option>
                                     </select></li>
-                                    <li><input type="text" id="district" name="district" value="{{ account.district }}"></li>
-                                    <li><input type="text" id="address" name="address" value="{{ account.address }}"></li>
-                                    <li><input type="text" id="facebook" name="facebook" value="{{ account.facebook }}"></li>
-                                    <li><input type="text" id="vkontakte" name="vkontakte" value="{{ account.vkontakte }}"></li>
-                                    <li><input type="text" id="odnoklassniki" name="odnoklassniki" value="{{ account.odnoklassniki }}"></li>
+                                    <li><input type="text" id="district" name="district" value="{{ account.district }}">
+                                    </li>
+                                    <li><input type="text" id="address" name="address" value="{{ account.address }}">
+                                    </li>
+                                    <li><input type="text" id="facebook" name="facebook" value="{{ account.facebook }}">
+                                    </li>
+                                    <li><input type="text" id="vkontakte" name="vkontakte"
+                                               value="{{ account.vkontakte }}"></li>
+                                    <li><input type="text" id="odnoklassniki" name="odnoklassniki"
+                                               value="{{ account.odnoklassniki }}"></li>
                                 </ul>
                             </div>
                         </div>
@@ -157,7 +167,7 @@
                             </div>
                             <div class="right-info">
                                 <ul>
-                                    <li><select id="division_drop"  style="width:205px" multiple=""></select></li>
+                                    <li><select id="division_drop" style="width:205px" multiple=""></select></li>
                                 </ul>
                             </div>
                         </div>
@@ -195,6 +205,14 @@
                                         <li><input type="text" id="val_partnerships" maxlength="6"
                                                    onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                                                    value="{{ account.partnership.value }}">
+                                            <select id="payment_currency" required>
+                                                {% for currency in currencies %}
+                                                    <option value="{{ currency.id }}"
+                                                            {% if currency == purpose.currency %}selected{% endif %}>
+                                                        {{ currency.short_name }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
                                         </li>
                                         <li id="partner_name"><select id="partner_drop" style="width:205px">
                                             {% for partner in partners %}

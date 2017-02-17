@@ -4,6 +4,7 @@ from hierarchy.models import Department
 from hierarchy.models import Hierarchy
 from location.models import Country
 from partnership.models import Partnership
+from payment.models import Currency
 from status.models import Division
 from summit.models import SummitAnket, SummitUserConsultant
 
@@ -18,13 +19,14 @@ def create_user_form():
     departments = Department.objects.all()
     hierarchies = Hierarchy.objects.all()
     divisions = Division.objects.all()
-
+    currencies = Currency.objects.all()
     ctx = {
         'managers': managers,
         'countries': countries,
         'departments': departments,
         'hierarchies': hierarchies,
         'divisions': divisions,
+        'currencies': currencies
     }
     return ctx
 

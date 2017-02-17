@@ -1,5 +1,4 @@
 (function ($) {
-
     function handleFileSelect(e) {
         e.preventDefault();
         let files = e.target.files; // FileList object

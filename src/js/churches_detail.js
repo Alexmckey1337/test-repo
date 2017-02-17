@@ -141,7 +141,8 @@
         formData.append('department', $('#chooseDepartment').val());
         if ($('#partner').is(':checked')) {
             let partner = {};
-            partner.value = $('#partnerFrom').val() || 0;
+            partner.value = parseInt($('#partnerFrom').val()) || 0;
+            partner.currency = parseInt($('#payment_currency').val());
             partner.date = $('#partners_count').val() || null;
             partner.responsible = parseInt($("#chooseManager").val());
             formData.append('partner', JSON.stringify(partner));

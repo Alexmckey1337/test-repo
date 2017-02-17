@@ -19,6 +19,7 @@ from location.models import Country, Region, City
 from partnership.models import Partnership
 from status.models import Division
 from summit.models import SummitType
+from payment.models import Currency
 
 
 def entry(request):
@@ -104,6 +105,7 @@ def account(request, id):
 def account_edit(request, user_id):
     user = get_object_or_404(CustomUser, pk=user_id)
     has_perm = CanAccountObjectEdit().has_object_permission(request, None, user)
+    currencies = Currency.objects.all()
     if not has_perm:
         if user_id:
             get_object_or_404(CustomUser, pk=user_id)
@@ -118,6 +120,7 @@ def account_edit(request, user_id):
         'regions': Region.objects.filter(country__title=user.country),
         'cities': City.objects.filter(region__title=user.region),
         'partners': Partnership.objects.filter(level__lte=Partnership.MANAGER),
+        'currencies': currencies
     }
     return render(request, 'account/edit.html', context=ctx)
 
@@ -155,6 +158,7 @@ def churches(request):
 def church_detail(request, church_id):
     user = request.user
     church = get_object_or_404(Church, id=church_id)
+    currencies = Currency.objects.all()
     if not user.is_staff and user.hierarchy.level < 1:
         raise Http404('У Вас нет прав для просмотра данной страницы.')
 
@@ -174,6 +178,7 @@ def church_detail(request, church_id):
         'babies_count': church.users.filter(spiritual_level=CustomUser.BABY).count() + HomeGroup.objects.filter(
             church__id=church_id).filter(users__spiritual_level=1).count(),
         'partners_count': church.users.filter(partnership__is_active=True).count(),
+        'currencies': currencies
     }
     return render(request, 'group/church_detail.html', context=ctx)
 
@@ -211,9 +216,11 @@ def home_group_detail(request, group_id):
 @login_required(login_url='entry')
 def people(request):
     user = request.user
+    currencies = Currency.objects.all()
     ctx = {
         'departments': Department.objects.all(),
         'hierarchies': Hierarchy.objects.order_by('level'),
+        'currencies': currencies
     }
     if user.is_staff:
         ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
