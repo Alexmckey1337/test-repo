@@ -8,17 +8,12 @@
 
 {% block header.top.h1 %}<h1>Анкета пользователя</h1>{% endblock %}
 
-{% block header.search %}
-    <li></li>
-{% endblock %}
-
 {% block header.buttons.add %}
 {% endblock %}
 
-{% block header.buttons.export %}
-{% endblock %}
 
 {% block header.buttons.change_table %}
+
 {% endblock %}
 
 {% block header.buttons.extra %}
@@ -207,12 +202,14 @@
                         </div>
                         <div style="display:block;padding:10px;">
                             <div style="display: inline-block; width: 49%;">
-                                <button data-currency-id="{{ account.partnership.currency.id }}" id="create_new_payment" style="display:block;">
+                                <button data-currency-id="{{ account.partnership.currency.id }}" id="create_new_payment"
+                                        style="display:block;">
                                     Добавить платеж
                                 </button>
                             </div>
                             <div style="display: inline-block; width: 49%;">
-                                <button data-currency-id="{{ account.partnership.currency.id }}" id="create_new_deal" style="display:block;">
+                                <button data-currency-id="{{ account.partnership.currency.id }}" id="create_new_deal"
+                                        style="display:block;">
                                     Добавить сделку
                                 </button>
                             </div>
@@ -450,20 +447,21 @@
             <div class="summa-wrap">
                 <div class="summa">
                     <p>Сумма:</p>
-                    <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
+                    <input maxlength="6"
+                           onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
                            type="text" id="new_deal_sum">
                 </div>
                 <div class="summa">
                     <p>Дата:</p>
                     <input type="text" id="new_deal_date" required></div>
-                </div>
+            </div>
             <textarea maxlength="40" placeholder="Добавить коментарий"></textarea>
             <div class="splash-bauttons">
                 <button id="close-deal">Отменить</button>
                 <button id="send_new_deal" data-partner="{{ account.partnership.id }}">Завершить</button>
             </div>
-            </div>
         </div>
+    </div>
     </div>
     {{ block.super }}
 {% endblock %}

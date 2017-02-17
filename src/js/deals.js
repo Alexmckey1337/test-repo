@@ -19,7 +19,14 @@ $(document).ready(function () {
         getDoneDeals(config);
         getUndoneDeals(config);
     });
-    function sumChangeListener(currencyName) {
+    function sumChangeListener(currencyName, currencyID) {
+        let $currency = $('#new_payment_currency').find('option');
+        $currency.each(function () {
+            $(this).prop('selected', false);
+            if ($(this).val() == currencyID) {
+                $(this).prop('selected', true);
+            }
+        });
         let $form = $('#payment-form');
         let $new_payment_sum = $form.find('#new_payment_sum') || 0;
         let $new_payment_rate = $form.find('#new_payment_rate') || 1;
@@ -32,24 +39,27 @@ $(document).ready(function () {
             return e.keyCode != 13;
         });
         $new_payment_sum.on('change', function () {
-            sumChangeListener(currencyName)
+            sumChangeListener(currencyName, currencyID)
         });
         $new_payment_sum.on('keypress', function (e) {
             if (e.keyCode == 13) {
-                sumChangeListener(currencyName)
+                sumChangeListener(currencyName, currencyID)
             }
         });
         $new_payment_rate.on('change', function () {
-            sumChangeListener(currencyName)
+            sumChangeListener(currencyName, currencyID)
         });
         $new_payment_rate.on('keypress', function (e) {
             if (e.keyCode == 13) {
-                sumChangeListener(currencyName)
+                sumChangeListener(currencyName, currencyID)
             }
         });
     }
 
-    $("#close-payment").on('click', function () {
+    $("#close-payment").on('click', function (e) {
+        e.preventDefault();
+        $('#new_payment_rate').val(1);
+        $('#in_user_currency').text('');
         $('#popup-create_payment').css('display', 'none');
     });
 
@@ -185,12 +195,13 @@ $(document).ready(function () {
                 let value = parseInt($(this).data('value'));
                 let total_sum = parseInt($(this).data('total_sum'));
                 let currencyName = $(this).data('currency-name');
+                let currencyID = $(this).data('currency-id');
                 let diff = value - total_sum;
                 diff = diff > 0 ? diff : 0;
                 $('#new_payment_sum').val(diff);
                 $('#complete-payment').attr('data-id', id);
                 $('#popup-create_payment').css('display', 'block');
-                sumChangeListener(currencyName);
+                sumChangeListener(currencyName, currencyID);
             });
             $("button.complete").on('click', function () {
                 $('#complete').attr('data-id', $(this).data('id'));
@@ -264,11 +275,12 @@ $(document).ready(function () {
                 let total_sum = parseInt($(this).data('total_sum'));
                 let diff = value - total_sum;
                 let currencyName = $(this).data('currency-name');
+                let currencyID = $(this).data('currency-id');
                 diff = diff > 0 ? diff : 0;
                 $('#new_payment_sum').val(diff);
                 $('#complete-payment').attr('data-id', id);
                 $('#popup-create_payment').css('display', 'block');
-                sumChangeListener(currencyName);
+                sumChangeListener(currencyName, currencyID);
             });
             $("button.complete").on('click', function () {
                 let client_name = $(this).attr('data-name'),
