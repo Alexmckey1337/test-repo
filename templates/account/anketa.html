@@ -183,6 +183,10 @@
                             </ul>
                         </div>
                     </li>
+                <li>Церковь {% for parishioner in account.churches.all %}{{ parishioner }}{% endfor %}</li>
+                <li>Пастор {% for pastor in account.church.all %}{{ pastor }}{% endfor %}</li>
+                <li>Домашняя группа {% for parishioner in account.home_groups.all %}{{ parishioner }}{% endfor %}</li>
+                <li>Лидер {% for leader in account.home_group.all %}{{ leader }}{% endfor %}</li>
                 </ul>
             </div><!--End left-content -->
         </div>

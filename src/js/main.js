@@ -15,7 +15,8 @@ $(window).on('hashchange', function () {
 });
 
 // Sorting
-var orderTable = (function () {
+
+let orderTable = (function () {
     function addListener(callback) {
         $(".table-wrap th").on('click', function () {
             let dataOrder;
@@ -666,7 +667,7 @@ $("#pag li ").click(function (e) {
     $(this).addClass('active');
 });
 
-$("body").on('click', '#pag li', function (e) {
+$('body').on('click', '#pag li', function (e) {
     e.preventDefault();
     $("#pag li").removeClass('active');
     $(this).addClass('active');
