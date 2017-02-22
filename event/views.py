@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import django_filters
 from django.db import transaction, IntegrityError
-from django.db.models import IntegerField, Sum, When, Case, Value
+from django.db.models import IntegerField, Sum, When, Case, Count
 from django.utils import six
 
 from rest_framework import status
@@ -16,13 +16,15 @@ from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 
 from account.pagination import ShortPagination
+from account.models import CustomUser
 from navigation.table_fields import event_table
 from common.views_mixins import ModelWithoutDeleteViewSet
+from common.filters import FieldSearchFilter
 from .models import Participation, Event, EventAnket, EventType, MeetingAttend, Meeting, ChurchReport
 from group.models import HomeGroup, Church
 from .serializers import ParticipationSerializer, EventSerializer, EventTypeSerializer, EventAnketSerializer
 from .serializers import (MeetingListSerializer, MeetingDetailSerializer, MeetingSerializer,
-                          ChurchReportSerializer, ChurchReportListSerializer)
+                          ChurchReportSerializer, ChurchReportListSerializer, MeetingStatisticsSerializer)
 from group.serializers import HomeGroupListSerializer, ChurchListSerializer
 
 
@@ -41,18 +43,33 @@ class MeetingPagination(PageNumberPagination):
         })
 
 
+class MeetingFilter(django_filters.FilterSet):
+    from_date = django_filters.DateFilter(name="date", lookup_type='gte')
+    to_date = django_filters.DateFilter(name="date", lookup_type='lte')
+
+    class Meta:
+        model = Meeting
+        fields = ['type', 'home_group', 'from_date', 'to_date']
+
+
 class MeetingViewSet(ModelWithoutDeleteViewSet):
     queryset = Meeting.objects.all()
-
-    filter_backends = (filters.DjangoFilterBackend,
-                       filters.OrderingFilter,)
-
-    permission_classes = (IsAuthenticated,)
-    pagination_class = MeetingPagination
 
     serializer_class = MeetingSerializer
     serializer_list_class = MeetingListSerializer
     serializer_retrieve_class = MeetingDetailSerializer
+
+    filter_backends = (filters.DjangoFilterBackend,
+                       FieldSearchFilter,
+                       filters.OrderingFilter,)
+
+    filter_class = MeetingFilter
+    permission_classes = (IsAuthenticated,)
+    pagination_class = MeetingPagination
+
+    field_search_fields = {
+        'search_date': ('date',)
+    }
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -121,6 +138,25 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         home_groups_list = serializer(home_groups, many=True)
         return Response(home_groups_list.data)
 
+    @list_route(methods=['get'])
+    def statistics(self, request):
+        serializer = MeetingStatisticsSerializer
+        queryset = self.filter_queryset(self.queryset)
+        statistics = queryset.aggregate(
+            total_visitors=Count('visitors'),
+            total_visits=Sum(Case(When(attends__attended=True, then=1),
+                                  output_field=IntegerField(), default=0)),
+            total_absents=Sum(Case(When(attends__attended=False, then=1),
+                                   output_field=IntegerField(), default=0)))
+        statistics.update(queryset.aggregate(total_donations=Sum('total_sum')))
+
+        from_date = request.query_params.get('from_date')
+        to_date = request.query_params.get('to_date')
+        statistics['new_repentance'] = CustomUser.objects.filter(repentance_date__range=[from_date, to_date]).count()
+
+        statistics = serializer(statistics)
+        return Response(statistics.data)
+
 
 class ChurchReportViewSet(ModelWithoutDeleteViewSet):
     queryset = ChurchReport.objects.all()
@@ -168,6 +204,10 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
         churches = Church.objects.filter(pastor__id=pastor_id)
         churches_list = serializer(churches, many=True)
         return Response(churches_list.data)
+
+    @list_route(methods=['get'])
+    def statistics(self, request):
+        pass
 
 
 

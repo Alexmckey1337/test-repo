@@ -7,7 +7,6 @@ from .models import Meeting, MeetingAttend, MeetingType, ChurchReport
 from account.models import CustomUser
 from group.models import HomeGroup, Church
 from group.serializers import LeaderNameSerializer, PastorNameSerializer, ChurchNameSerializer
-from django.utils.translation import ugettext as _
 
 
 class MeetingTypeSerializer(serializers.ModelSerializer):
@@ -32,7 +31,7 @@ class MeetingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Meeting
-        fields = ('id', 'date', 'home_group', 'owner',  'type', 'visitors_attended',
+        fields = ('id', 'date', 'type', 'home_group', 'owner', 'visitors_attended',
                   'visitors_absent', 'total_sum')
 
 
@@ -56,6 +55,18 @@ class MeetingDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Meeting
         fields = ('id', 'owner', 'type', 'date', 'total_sum', 'attends')
+
+
+class MeetingStatisticsSerializer(serializers.ModelSerializer):
+    total_visitors = serializers.IntegerField()
+    new_repentance = serializers.IntegerField()
+    total_visits = serializers.IntegerField()
+    total_absents = serializers.IntegerField()
+    total_donations = serializers.DecimalField(max_digits=13, decimal_places=0)
+
+    class Meta:
+        model = Meeting
+        fields = ('total_visitors', 'new_repentance', 'total_visits', 'total_absents', 'total_donations')
 
 
 class ChurchReportSerializer(serializers.ModelSerializer):
