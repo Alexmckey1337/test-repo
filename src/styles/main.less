@@ -14,7 +14,20 @@ body {
 .inline {
   display: inline-block;
 }
-
+.inline__button {
+  display: inline;
+  width: auto !important;
+  float: none !important;
+  background-color: transparent !important;
+  border: 0;
+  padding: 0;
+  color: inherit !important;
+  margin: 0 !important;
+  font-size: inherit !important;
+  &:before {
+    display: none !important;
+  }
+}
 .text__center {
   text-align: center;
 }
@@ -216,7 +229,7 @@ select::-ms-expand {
   padding-top: 0
 }
 
-#sidebar ul li a {
+#sidebar ul li a, #sidebar ul li button {
   display: block;
   width: 120px;
   font-size: 1.2em;
@@ -224,6 +237,7 @@ select::-ms-expand {
   text-decoration: none;
   transition: color .1s ease;
   padding: 35px 30px 40px 90px;
+  background: transparent;
 }
 
 #sidebar ul li {
@@ -234,7 +248,7 @@ select::-ms-expand {
   list-style-type: none;
 }
 
-#sidebar ul li a {
+#sidebar ul li a, #sidebar ul li button {
   &:before {
     content: '';
     color: #CECECE;
@@ -1178,8 +1192,7 @@ li.current a {
 .rows .col p {
   float: left;
   display: block;
-  padding: 5px;
-  padding-left: 12px;
+  padding: 5px 5px 5px 12px;
   font-size: 1.1em;
 }
 
@@ -1197,6 +1210,7 @@ li.current a {
 
 .col:last-child p:last-child {
   width: 150px;
+  line-height: 1.5;
 }
 
 .rows p span {
@@ -1233,12 +1247,6 @@ li.current a {
   display: none;
 }
 
-/*
-.rows-wrap:hover button,
-.rows-wrap button:hover {
-	background-color: #44c1f2;
-}
-*/
 button#completeDelete {
   position: relative;
 }
@@ -1298,9 +1306,6 @@ button#completeDelete::before,
   border-left: none;
 }
 
-/* #visiting {
-	overflow: hidden;
-} */
 .tabs-names {
   background-color: #f2f5fa;
   overflow: hidden;
@@ -1545,9 +1550,6 @@ th {
   cursor: pointer;
 }
 
-/*#database th {*/
-/*vertical-align: initial;*/
-/*}*/
 th span {
   display: inline-block;
 }
@@ -1556,28 +1558,6 @@ th span.ups {
   cursor: pointer;
 }
 
-/*
-.table th::after {
-  content: "";
-  width: 10px;
-  height: 9px;
-  display: block;
-  position: absolute;
-  top: 23px;
-  right: 8px;
-  background: url(../img/sprite-sidebar.png);
-  background-position: -121px 43px;
-  cursor: pointer;
-}
-th.down::after,th.up::after {
-	background-position: -119px 35px;
-}
-
-th.up::after {
-	transform:rotate(180deg);
-	-ms-transform:rotate(180deg);
-}
-*/
 #database th.up:first-child, #deals-new th.up:first-child {
   padding-left: 40px;
   position: relative;
@@ -1629,8 +1609,6 @@ th.up label {
   top: -8px;
   width: 190px;
   border-radius: 3px;
-  /*border: none;
-  background-color: #f6f7fb;*/
 }
 
 #deals-new .up__search-block_text:focus {
@@ -1655,20 +1633,6 @@ th.up label {
   top: 14px;
   left: -5px;
 }
-
-//.close:after,
-//#deals-new .close::after {
-//    display: inline;
-//    position: absolute;
-//    top: 10px;
-//    left: 7px;
-//    z-index: 2;
-//    content: '\d7';
-//    font-size: 23px;
-//    line-height: 15px;
-//    color: white;
-//    cursor: pointer;
-//}
 
 .email ~ .close::after {
   top: 6px;
@@ -1766,7 +1730,6 @@ th.up label {
   color: #fff;
 }
 
-/*ups ups-active*/
 span.ups {
   display: inline-block;
   width: 10px;
@@ -1784,7 +1747,6 @@ span.ups-active {
   transform: rotate(180deg);
 }
 
-/**/
 td {
   font-family: "Ubuntu", sans-serif;
   border: 1px solid #E2E2E2;
@@ -1898,9 +1860,6 @@ table tr:first-child td {
   display: block;
 }
 
-/*#deals-new .table td:hover {
-	color: #fff;
-}*/
 #deals-new .table tbody tr:hover a, #deals-new .table tbody tr:hover textarea,
 #deals-new .table tbody tr:hover td {
   color: #fff;
@@ -1920,7 +1879,6 @@ table tr:first-child td {
 }
 
 #partnersips_list {
-
   & th {
     cursor: pointer;
     & ::after {
@@ -1984,7 +1942,6 @@ table tr:first-child td {
   position: relative;
   border-radius: 3px;
   cursor: pointer;
-  /* transition: all .3s ease; */
 }
 
 #deals-new #sort-form li:nth-child(1) {
