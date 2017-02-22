@@ -1383,39 +1383,40 @@ function initLocationSelect(config) {
         let list = makeCountriesList(data, selectCountry);
         $countrySelector.html(list);
     }).then(function () {
+        if(!selectCountry) return;
         let config = {};
         config.country = $countrySelector.find(':selected').data('id');
         getRegions(config).then(function (data) {
             let list = makeRegionsList(data, selectRegion);
             $regionSelector.html(list);
         }).then(function () {
+            if (!selectCity) return;
             let config = {};
-            config.region = $regionSelector.find(':selected').data('id');;
+            config.region = $regionSelector.find(':selected').data('id');
             getCities(config).then(function (data) {
                 let list = makeCityList(data, selectCity);
                 $citySelector.html(list);
-            }).then(function () {
-                $countrySelector.on('change', function () {
-                    let config = {};
-                    config.country = $countrySelector.find(':selected').data('id');
-                    selectCountry = $countrySelector.find(':selected').val();
-                    getRegions(config).then(function (data) {
-                        let list = makeRegionsList(data, selectRegion);
-                        $regionSelector.html(list);
-                    }).then(function () {
-                        $citySelector.html('');
-                    })
-                });
-                $regionSelector.on('change', function () {
-                    let config = {};
-                    config.region = $regionSelector.find(':selected').data('id');
-                    selectRegion = $regionSelector.find(':selected').val();
-                    getCities(config).then(function (data) {
-                        let list = makeCityList(data, selectCity);
-                        $citySelector.html(list);
-                    })
-                })
             });
         })
-    })
+    });
+    $countrySelector.on('change', function () {
+        let config = {};
+        config.country = $countrySelector.find(':selected').data('id');
+        selectCountry = $countrySelector.find(':selected').val();
+        getRegions(config).then(function (data) {
+            let list = makeRegionsList(data, selectRegion);
+            $regionSelector.html(list);
+        }).then(function () {
+            $citySelector.html('');
+        })
+    });
+    $regionSelector.on('change', function () {
+        let config = {};
+        config.region = $regionSelector.find(':selected').data('id');
+        selectRegion = $regionSelector.find(':selected').val();
+        getCities(config).then(function (data) {
+            let list = makeCityList(data, selectCity);
+            $citySelector.html(list);
+        })
+    });
 }
