@@ -14,6 +14,7 @@ body {
 .inline {
   display: inline-block;
 }
+
 .inline__button {
   display: inline;
   width: auto !important;
@@ -28,9 +29,11 @@ body {
     display: none !important;
   }
 }
+
 .text__center {
   text-align: center;
 }
+
 input:-webkit-autofill {
   -webkit-box-shadow: inset 0 0 0 50px #fff !important; /* Цвет фона */
   -webkit-text-fill-color: #999 !important; /* цвет текста */
@@ -120,12 +123,12 @@ button {
     font-weight: 300;
   }
 }
+
 .popup_body {
   & button.close-popup, & button.save-user {
-  padding: 12px 20px 12px 20px;
+    padding: 12px 20px 12px 20px;
+  }
 }
-}
-
 
 button:hover {
   background-color: #3caeda;
@@ -229,7 +232,7 @@ select::-ms-expand {
   padding-top: 0
 }
 
-#sidebar ul li a, #sidebar ul li button {
+#sidebar ul li a {
   display: block;
   width: 120px;
   font-size: 1.2em;
@@ -248,34 +251,82 @@ select::-ms-expand {
   list-style-type: none;
 }
 
-#sidebar ul li a, #sidebar ul li button {
-  &:before {
-    content: '';
-    color: #CECECE;
-    font: 2em FontAwesome;
-    position: absolute;
-    top: 26px;
-    left: 29px;
-    width: 32px;
-    height: 34px;
-  }
-  &:hover:before {
-    color: #3caeda;
-  }
-  &#databases__item:before {
-    content: '\f1c0';
-  }
-  &#churches__item:before {
-    content: '\f0c0';
-  }
-  &#partners__item:before {
-    content: '\f2b5';
-  }
-  &#summits__item:before {
-    content: '\f274';
-  }
-  &#turn_aside:before {
-    content: '\f100';
+#sidebar {
+  & ul {
+    & li {
+      &#move-sidebar {
+        position: fixed;
+        width: 240px;
+        left: 0;
+        bottom: 0;
+        background-color: #444b56;
+        transition: width .3s, color .3s;
+        &.active {
+          overflow: hidden;
+          width: 90px;
+          & button {
+            color: transparent;
+            &:before {
+              content: '\f101 ';
+            }
+          }
+        }
+        & button {
+          text-align: left;
+          display: block;
+          width: 240px;
+          font-size: 1.2em;
+          color: #fff;
+          padding: 35px 30px 40px 90px;
+          background-color: transparent;
+          transition: color .1s ease;
+          &:before {
+            content: '\f100';
+            color: #CECECE;
+            font: 2em FontAwesome;
+            position: absolute;
+            top: 25px;
+            left: 30px;
+          }
+        }
+      }
+      & a, #sidebar & button {
+        &:before {
+          content: '';
+          color: #CECECE;
+          font: 2em FontAwesome;
+          position: absolute;
+          top: 25px;
+          left: 30px;
+        }
+        &:hover:before {
+          color: #3caeda;
+        }
+        &#databases__item:before {
+          content: '\f1c0';
+        }
+        &#churches__item:before {
+          content: '\f0c0';
+        }
+        &#partners__item:before {
+          content: '\f2b5';
+        }
+        &#summits__item:before {
+          content: '\f274';
+        }
+        &#turn_aside {
+          &.active {
+            &:before {
+              transform: rotate(180deg);
+            }
+          }
+          &:before {
+            top: 0 !important;
+            content: '\f100';
+          }
+        }
+      }
+    }
   }
 }
 
@@ -297,16 +348,6 @@ select::-ms-expand {
   height: 100%;
 }
 
-#sidebar ul li:last-child {
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  background-color: #444b56;
-  width: 240px;
-  transition: width 0.3s;
-  overflow: hidden;
-}
-
 #sidebar.toggle-sidebar {
   width: 90px;
 }
@@ -317,19 +358,6 @@ select::-ms-expand {
 
 #sidebar.toggle-sidebar .logo div {
   display: block;
-}
-
-#sidebar li:last-child a:before {
-  transform-origin: center;
-}
-
-#sidebar.toggle-sidebar li:last-child a:before {
-  top: 20px;
-  transform: rotate(180deg);
-}
-
-#sidebar.toggle-sidebar li:last-child {
-  width: 90px;
 }
 
 #sidebar.toggle-sidebar ~ .main-wrap {
@@ -429,7 +457,7 @@ select::-ms-expand {
   cursor: pointer;
 }
 
-.search, .searchDep {
+.search {
   height: 40px;
   width: 50%;
   border-radius: 3px;
@@ -442,16 +470,6 @@ select::-ms-expand {
   margin-top: 5px;
 }
 
-.searchDep {
-  width: 70%;
-  display: none;
-}
-
-/*
-#database .search, #deals-new .search {
-	display: none; 
-}
-*/
 .filter {
   display: none;
   position: absolute;
@@ -1279,10 +1297,6 @@ button#completeDelete::before,
   background: url('../img/sprite-pag.png') no-repeat 0 0;
   cursor: pointer;
   vertical-align: sub;
-}
-
-#tabs-slider li:last-child .arrow {
-  background-position: -14px 0;
 }
 
 .arrow-left, .arrow-right {
