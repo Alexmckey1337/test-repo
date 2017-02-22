@@ -96,7 +96,10 @@ def account(request, id):
     if not has_perm:
         raise PermissionDenied
     ctx = {
-        'account': user
+        'account': user,
+        'departments': Department.objects.all(),
+        'hierarchies': Hierarchy.objects.order_by('level'),
+        'divisions': Division.objects.all(),
     }
     return render(request, 'account/anketa.html', context=ctx)
 

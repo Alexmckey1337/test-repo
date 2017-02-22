@@ -1235,7 +1235,6 @@ function ajaxSendFormData(data = {}) {
             if (xhr.readyState == 4) {
                 if (xhr.status == 200) {
                     let response = JSON.parse(xhr.responseText);
-                    showPopup('Данные успешно обновлены');
                     resolve(response);
                 } else if (xhr.status == 201) {
                     let response = JSON.parse(xhr.responseText);
