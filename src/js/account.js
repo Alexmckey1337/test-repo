@@ -335,6 +335,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
             }
         });
     });
+
     initLocationSelect({
         country: 'selectCountry',
         region: 'selectRegion',

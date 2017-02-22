@@ -1323,6 +1323,7 @@ function initRegionANDCity() {
         })
     });
 }
+
 function makeCountriesList(data, selectCountry) {
     let rendered = [];
     let option = document.createElement('option');
@@ -1338,6 +1339,7 @@ function makeCountriesList(data, selectCountry) {
     });
     return rendered
 }
+
 function makeRegionsList(data, selectRegion) {
     let rendered = [];
     let option = document.createElement('option');
@@ -1353,6 +1355,7 @@ function makeRegionsList(data, selectRegion) {
     });
     return rendered
 }
+
 function makeCityList(data, selectCity) {
     let rendered = [];
     let option = document.createElement('option');
@@ -1368,6 +1371,7 @@ function makeCityList(data, selectCity) {
     });
     return rendered
 }
+
 function initLocationSelect(config) {
     let $countrySelector = $('#' + config.country);
     let $regionSelector = $('#' + config.region);
@@ -1380,23 +1384,20 @@ function initLocationSelect(config) {
         $countrySelector.html(list);
     }).then(function () {
         let config = {};
-        let countryID = $countrySelector.find(':selected').data('id');
-        config.country = countryID;
+        config.country = $countrySelector.find(':selected').data('id');
         getRegions(config).then(function (data) {
             let list = makeRegionsList(data, selectRegion);
             $regionSelector.html(list);
         }).then(function () {
             let config = {};
-            let regionID = $regionSelector.find(':selected').data('id');
-            config.region = regionID;
+            config.region = $regionSelector.find(':selected').data('id');;
             getCities(config).then(function (data) {
                 let list = makeCityList(data, selectCity);
                 $citySelector.html(list);
             }).then(function () {
                 $countrySelector.on('change', function () {
                     let config = {};
-                    let countryID = $countrySelector.find(':selected').data('id');
-                    config.country = countryID;
+                    config.country = $countrySelector.find(':selected').data('id');
                     selectCountry = $countrySelector.find(':selected').val();
                     getRegions(config).then(function (data) {
                         let list = makeRegionsList(data, selectRegion);
@@ -1407,8 +1408,7 @@ function initLocationSelect(config) {
                 });
                 $regionSelector.on('change', function () {
                     let config = {};
-                    let regionID = $regionSelector.find(':selected').data('id');
-                    config.region = regionID;
+                    config.region = $regionSelector.find(':selected').data('id');
                     selectRegion = $regionSelector.find(':selected').val();
                     getCities(config).then(function (data) {
                         let list = makeCityList(data, selectCity);
