@@ -164,7 +164,7 @@
             <div class="col">
                 <p>Сделка за: <span><%= item.date_created %></span></p>
                 <p>Менеджер: <span><%= item.responsible_name %></span></p>
-                <p>Сумма: <a href="#" class="show_payments" data-id="<%=item.id%>"><span><%= item.total_sum %>/<%= item.value %></span></a></p>
+                <p>Сумма: <button class="show_payments inline__button" data-id="<%=item.id%>"><span><%= item.total_sum %>/<%= item.value %></span></button></p>
             </div>
         </div>
     </div>
