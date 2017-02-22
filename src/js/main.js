@@ -258,12 +258,10 @@ $('.close-popup').on('click', function (e) {
 (function ($) {
     $("#turn_aside").click(function () {
         if (!$("#sidebar").hasClass('toggle-sidebar')) {
-            console.log($("#sidebar").hasClass('toggle-sidebar'));
             $("#sidebar").addClass('toggle-sidebar');
             $('#move-sidebar').addClass('active');
             document.cookie = 'state=active;path=/';
         } else {
-            console.log('remove');
             $("#sidebar").removeClass('toggle-sidebar');
             $('#move-sidebar').removeClass('active');
             deleteCookie('state');
