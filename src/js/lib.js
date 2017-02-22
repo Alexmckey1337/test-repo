@@ -1393,8 +1393,29 @@ function initLocationSelect(config) {
                 let list = makeCityList(data, selectCity);
                 $citySelector.html(list);
             }).then(function () {
-                console.log('All load');
+                $countrySelector.on('change', function () {
+                    let config = {};
+                    let countryID = $countrySelector.find(':selected').data('id');
+                    config.country = countryID;
+                    selectCountry = $countrySelector.find(':selected').val();
+                    getRegions(config).then(function (data) {
+                        let list = makeRegionsList(data, selectRegion);
+                        $regionSelector.html(list);
+                    }).then(function () {
+                        $citySelector.html('');
+                    })
+                });
+                $regionSelector.on('change', function () {
+                    let config = {};
+                    let regionID = $regionSelector.find(':selected').data('id');
+                    config.region = regionID;
+                    selectRegion = $regionSelector.find(':selected').val();
+                    getCities(config).then(function (data) {
+                        let list = makeCityList(data, selectCity);
+                        $citySelector.html(list);
+                    })
+                })
             });
-        });
+        })
     })
 }
