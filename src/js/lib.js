@@ -1419,3 +1419,754 @@ function initLocationSelect(config) {
         })
     })
 }
+function createSummitUsersTable(data = {}) {
+    let config = {};
+    config.summit = $('#date .active span').data('id');
+    Object.assign(config, data);
+    getSummitUsers(config).then(function (data) {
+        let filter_data = {};
+        filter_data.results = data.results.map(function (item) {
+            let data;
+            data = item.user;
+            data.ankets_id = item.id;
+            return data;
+        });
+        console.log(filter_data);
+        filter_data.user_table = data.user_table;
+        let count = data.count;
+        let page = config.page || 1;
+        let pages = Math.ceil(count / CONFIG.pagination_count);
+        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let id = "summitUsersList";
+        let text = `Показано ${showCount} из ${count}`;
+        let paginationConfig = {
+            container: ".users__pagination",
+            currentPage: page,
+            pages: pages,
+            callback: createSummitUsersTable
+        };
+        makeSammitsDataTable(filter_data, id);
+        makePagination(paginationConfig);
+        $('.table__count').text(text);
+        makeSortForm(data.user_table);
+        $('.preloader').css('display', 'none');
+        orderTable.sort(createSummitUsersTable);
+    });
+}
+
+function makeDataTable(data, id) {
+    var tmpl = document.getElementById('databaseUsers').innerHTML;
+    var rendered = _.template(tmpl)(data);
+    document.getElementById(id).innerHTML = rendered;
+    $('.quick-edit').on('click', function () {
+        makeQuickEditCart(this);
+    })
+}
+
+function makeSammitsDataTable(data, id) {
+    var tmpl = document.getElementById('databaseUsers').innerHTML;
+    var rendered = _.template(tmpl)(data);
+    document.getElementById(id).innerHTML = rendered;
+    $('.quick-edit').on('click', function () {
+        makeQuickEditSammitCart(this);
+    })
+}
+
+function makeSortForm(data) {
+    let sortFormTmpl, obj, rendered;
+    sortFormTmpl = document.getElementById("sortForm").innerHTML;
+    obj = {};
+    obj.user = [];
+    obj.user.push("Фильтр");
+    obj.user.push(data);
+    console.log(obj);
+    rendered = _.template(sortFormTmpl)(obj);
+    document.getElementById('sort-form').innerHTML = rendered;
+    $("#sort-form").sortable({revert: true, items: "li:not([disable])", scroll: false});
+}
+
+function makeResponsibleList() {
+    let department = $('#departmentSelect').val();
+    let hierarchy = $('#hierarchySelect option:selected').attr('data-level');
+    getResponsible(department, hierarchy).then(function (data) {
+        let id = $('#master_hierarchy option:selected').attr('data-id');
+        if (!id) {
+            id = $('#master_hierarchy option').attr('data-id');
+        }
+        let selected = false;
+        let html = "";
+        data.forEach(function (el) {
+            if (id == el.id) {
+                selected = true;
+                html += "<option value='" + el.id + "' data-id='" + el.id + "' selected>" + el.fullname + "</option>";
+            } else {
+                html += "<option value='" + el.id + "' data-id='" + el.id + "'>" + el.fullname + "</option>";
+            }
+        });
+        if (!selected) {
+            html += "<option selected disabled value=''>Выберите ответственного</option>";
+        }
+        html += "";
+        $("#master_hierarchy").html(html).select2();
+    });
+}
+
+function makeChooseDivision() {
+    return getDivisions().then(function (data) {
+        data = data.results;
+        let html = '';
+        for (let i = 0; i < data.length; i++) {
+            html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+        }
+        return html
+    });
+}
+
+function initAddNewUser(config = {}) {
+    let configDefault = {
+        getCountries: true,
+        getDepartments: true,
+        getStatuses: true,
+        getDivisions: true,
+        getCountryCodes: true,
+        getManagers: true,
+    };
+    Object.assign(configDefault, config);
+
+    if (configDefault.getCountries) {
+        getCountries().then(function (data) {
+            let rendered = [];
+            let option = document.createElement('option');
+            $(option).val('').text('Выберите страну').attr('disabled', true).attr('selected', true);
+            rendered.push(option);
+            data.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.title);
+                rendered.push(option);
+            });
+            $('#chooseCountry').html(rendered).on('change', function () {
+                let config = {};
+                config.country = $(this).val();
+                getRegions(config).then(function (data) {
+                    let rendered = [];
+                    let option = document.createElement('option');
+                    $(option).val('').text('Выберите регион');
+                    rendered.push(option);
+                    data.forEach(function (item) {
+                        let option = document.createElement('option');
+                        $(option).val(item.id).text(item.title);
+                        rendered.push(option);
+                    });
+                    $('#chooseRegion').html(rendered).attr('disabled', false).on('change', function () {
+                        let config = {};
+                        config.region = $(this).val();
+                        getCities(config).then(function (data) {
+                            let rendered = [];
+                            let option = document.createElement('option');
+                            $(option).val('').text('Выберите город');
+                            rendered.push(option);
+                            data.forEach(function (item) {
+                                let option = document.createElement('option');
+                                $(option).val(item.id).text(item.title);
+                                rendered.push(option);
+                            });
+                            $('#chooseCity').html(rendered).attr('disabled', false).select2();
+                        })
+                    }).select2();
+                })
+            }).select2();
+        });
+    }
+    if (configDefault.getDepartments) {
+        getDepartments().then(function (data) {
+            let departments = data.results;
+            let rendered = [];
+            departments.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.title);
+                rendered.push(option);
+                $('#chooseDepartment').html(rendered).select2().removeAttr('disabled').on('change', function () {
+                    let status = $('#chooseStatus').val();
+                    let department = $(this).val();
+                    getResponsible(department, status).then(function (data) {
+                        let rendered = [];
+                        data.forEach(function (item) {
+                            let option = document.createElement('option');
+                            $(option).val(item.id).text(item.fullname);
+                            rendered.push(option);
+                        });
+                        $('#chooseResponsible').html(rendered).attr('disabled', false).select2();
+                    })
+                });
+            });
+        });
+    }
+    if (configDefault.getStatuses) {
+        getStatuses().then(function (data) {
+            let statuses = data.results;
+            let rendered = [];
+            let option = document.createElement('option');
+            $(option).text('Выбирите статус').attr('disabled', true).attr('selected', true);
+            rendered.push(option);
+            statuses.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).attr('data-level', item.level).text(item.title);
+                rendered.push(option);
+            });
+            return rendered;
+        }).then(function (rendered) {
+            $('#chooseStatus').html(rendered).select2().on('change', function () {
+                let status = $(this).val();
+                let department = $('#chooseDepartment').val();
+                getResponsible(department, status).then(function (data) {
+                    let rendered = [];
+                    data.forEach(function (item) {
+                        let option = document.createElement('option');
+                        $(option).val(item.id).text(item.fullname);
+                        rendered.push(option);
+                    });
+                    $('#chooseResponsible').html(rendered).attr('disabled', false).select2();
+                })
+            });
+        });
+    }
+    if (configDefault.getDivisions) {
+        getDivisions().then(function (data) {
+            let divisions = data.results;
+            let rendered = [];
+            divisions.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.title);
+                rendered.push(option);
+            });
+            $('#chooseDivision').html(rendered).select2();
+        });
+    }
+    if (configDefault.getCountryCodes) {
+        getCountryCodes().then(function (data) {
+            let codes = data;
+            let rendered = [];
+            codes.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.phone_code).text(item.title + ' ' + item.phone_code);
+                if (item.phone_code == '+38') {
+                    $(option).attr('selected', true);
+                }
+                rendered.push(option);
+            });
+            $('#chooseCountryCode').html(rendered).on('change', function () {
+                let code = $(this).val();
+                $('#phoneNumberCode').val(code);
+            }).trigger('change');
+        });
+    }
+    if (configDefault.getManagers) {
+        getManagers().then(function (data) {
+            let rendered = [];
+            let option = document.createElement('option');
+            $(option).val('').text('Выберите менеджера').attr('disabled', true).attr('selected', true);
+            rendered.push(option);
+            data.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.fullname);
+                rendered.push(option);
+            });
+            $('#chooseManager').html(rendered).select2();
+        });
+    }
+
+    $('#repentanceDate').datepicker({
+        dateFormat: 'yyyy-mm-dd'
+    });
+    $('#partnerFrom').datepicker({
+        dateFormat: 'yyyy-mm-dd'
+    });
+    $('#bornDate').datepicker({
+        dateFormat: 'yyyy-mm-dd'
+    });
+    $('#chooseCountryCode').select2();
+
+    $('#partner').on('change', function () {
+        let partner = $(this).is(':checked');
+        if (partner) {
+            $('.hidden-partner').css('display', 'block');
+        } else {
+            $('.hidden-partner').css('display', 'none');
+        }
+    });
+}
+
+
+function saveUser(el) {
+    let $input, $select, fullName, first_name, last_name, middle_name, department, hierarchy, phone_number, data, id;
+    let send = true;
+    let $department = $($(el).closest('.pop_cont').find('#departmentSelect'));
+    department = $department.val();
+    let $hierarchy = $($(el).closest('.pop_cont').find('#hierarchySelect'));
+    hierarchy = $hierarchy.val();
+    let $master = $('#master_hierarchy');
+    let master_id = $master.val() || "";
+    let $fullname = $($(el).closest('.pop_cont').find('input.fullname'));
+    fullName = $fullname.val().split(' ');
+    let $phone_number = $($(el).closest('.pop_cont').find('#phone_number'));
+    phone_number = $phone_number.val();
+    if (!$fullname.val()) {
+        $fullname.css('border-color', 'red');
+        send = false;
+    } else {
+        $fullname.removeAttr('style');
+    }
+    if (!master_id) {
+        $('label[for="master_hierarchy"]').css('color', 'red');
+        send = false;
+    } else {
+        $('label[for="master_hierarchy"]').removeAttr('style');
+    }
+    if (!phone_number) {
+        $phone_number.css('border-color', 'red');
+        send = false;
+    } else {
+        $phone_number.removeAttr('style');
+    }
+    if (!send) {
+        return
+    }
+    first_name = fullName[1];
+    last_name = fullName[0];
+    middle_name = fullName[2] || "";
+    data = {
+        email: $($(el).closest('.pop_cont').find('#email')).val(),
+        first_name: first_name,
+        last_name: last_name,
+        middle_name: middle_name,
+        hierarchy: hierarchy,
+        department: department,
+        master: master_id,
+        skype: $($(el).closest('.pop_cont').find('#skype')).val(),
+        phone_number: phone_number,
+        extra_phone_numbers: _.filter(_.map($($(el).closest('.pop_cont').find('#extra_phone_numbers')).val().split(","), x => x.trim()), x => !!x),
+        repentance_date: $($(el).closest('.pop_cont').find('#repentance_date')).val() || null,
+        country: $($(el).closest('.pop_cont').find('#country')).val(),
+        region: $($(el).closest('.pop_cont').find('#region')).val(),
+        city: $($(el).closest('.pop_cont').find('#city')).val(),
+        address: $($(el).closest('.pop_cont').find('#address')).val()
+    };
+    id = $(el).closest('.pop_cont').find('img').attr('alt');
+    saveUserData(data, id);
+    $(el).text("Сохранено");
+    $(el).closest('.popap').find('.close-popup').text('Закрыть');
+    $(el).attr('disabled', true);
+    $input = $(el).closest('.popap').find('input');
+    $select = $(el).closest('.popap').find('select');
+    $select.on('change', function () {
+        $(el).text("Сохранить");
+        $(el).closest('.popap').find('.close-popup').text('Отменить');
+        $(el).attr('disabled', false);
+    });
+    $input.on('change', function () {
+        $(el).text("Сохранить");
+        $(el).closest('.popap').find('.close-popup').text('Отменить');
+        $(el).attr('disabled', false);
+    })
+}
+
+function saveChurches(el) {
+    let $input, $select, phone_number, opening_date, data, id;
+    id = parseInt($($(el).closest('.pop_cont').find('#churchID')).val());
+    opening_date = $($(el).closest('.pop_cont').find('#opening_date')).val();
+    if (!opening_date && opening_date.split('-').length !== 3) {
+        $($(el).closest('.pop_cont').find('#opening_date')).css('border-color', 'red');
+        return
+    }
+    data = {
+        title: $($(el).closest('.pop_cont').find('#church_title')).val(),
+        pastor: $($(el).closest('.pop_cont').find('#editPastorSelect')).val(),
+        department: $($(el).closest('.pop_cont').find('#editDepartmentSelect')).val(),
+        phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
+        website: ($(el).closest('.pop_cont').find('#web_site')).val(),
+        opening_date: $($(el).closest('.pop_cont').find('#opening_date')).val() || null,
+        is_open: $('#is_open_church').is(':checked'),
+        country: $($(el).closest('.pop_cont').find('#country')).val(),
+        region: $($(el).closest('.pop_cont').find('#region')).val(),
+        city: $($(el).closest('.pop_cont').find('#city')).val(),
+        address: $($(el).closest('.pop_cont').find('#address')).val()
+    };
+    saveChurchData(data, id);
+    $(el).text("Сохранено");
+    $(el).closest('.popap').find('.close-popup').text('Закрыть');
+    $(el).attr('disabled', true);
+    $input = $(el).closest('.popap').find('input');
+    $select = $(el).closest('.popap').find('select');
+    $select.on('change', function () {
+        $(el).text("Сохранить");
+        $(el).closest('.popap').find('.close-popup').text('Отменить');
+        $(el).attr('disabled', false);
+    });
+    $input.on('change', function () {
+        $(el).text("Сохранить");
+        $(el).closest('.popap').find('.close-popup').text('Отменить');
+        $(el).attr('disabled', false);
+    })
+}
+
+function saveHomeGroups(el) {
+    let $input, $select, phone_number, data, id;
+    id = parseInt($($(el).closest('.pop_cont').find('#homeGroupsID')).val());
+    data = {
+        title: $($(el).closest('.pop_cont').find('#home_groups_title')).val(),
+        leader: $($(el).closest('.pop_cont').find('#editPastorSelect')).val(),
+        department: $($(el).closest('.pop_cont').find('#editDepartmentSelect')).val(),
+        phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
+        website: ($(el).closest('.pop_cont').find('#web_site')).val(),
+        opening_date: $($(el).closest('.pop_cont').find('#opening_date')).val() || null,
+        country: $($(el).closest('.pop_cont').find('#country')).val(),
+        city: $($(el).closest('.pop_cont').find('#city')).val(),
+        address: $($(el).closest('.pop_cont').find('#address')).val()
+    };
+    saveHomeGroupsData(data, id);
+    $(el).text("Сохранено");
+    $(el).closest('.popap').find('.close-popup').text('Закрыть');
+    $(el).attr('disabled', true);
+    $input = $(el).closest('.popap').find('input');
+    $select = $(el).closest('.popap').find('select');
+    $select.on('change', function () {
+        $(el).text("Сохранить");
+        $(el).closest('.popap').find('.close-popup').text('Отменить');
+        $(el).attr('disabled', false);
+    });
+    $input.on('change', function () {
+        $(el).text("Сохранить");
+        $(el).closest('.popap').find('.close-popup').text('Отменить');
+        $(el).attr('disabled', false);
+    })
+}
+
+function makeQuickEditSammitCart(el) {
+    let id, link, url;
+    id = $(el).closest('td').find('a').data('ankets');
+    link = $(el).closest('td').find('a').data('link');
+    url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${id}/`;
+    ajaxRequest(url, null, function (data) {
+        $('#summit-valueDelete').val(data.total_sum);
+        $('#member').prop("checked", data.is_member);
+        $('#popupDelete').css('display', 'block');
+    }, 'GET', true, {
+        'Content-Type': 'application/json'
+    });
+}
+
+function makeQuickEditCart(el) {
+    let id, link, url;
+    id = $(el).closest('td').find('a').attr('data-id');
+    link = $(el).closest('td').find('a').attr('data-link');
+    url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${id}/`;
+    ajaxRequest(url, null, function (data) {
+        let quickEditCartTmpl, rendered;
+        quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
+        rendered = _.template(quickEditCartTmpl)(data);
+        $('.save-user').attr('disabled', false);
+        $('#quickEditCartPopup').find('.popup_body').html(rendered);
+        $('#quickEditCartPopup').css('display', 'block');
+        makeResponsibleList();
+        getStatuses().then(function (data) {
+            data = data.results;
+            let hierarchySelect = $('#hierarchySelect').val();
+            let html = "";
+            for (let i = 0; i < data.length; i++) {
+                if (hierarchySelect === data[i].title || hierarchySelect == data[i].id) {
+                    html += '<option value="' + data[i].id + '"' + 'selected' + ' data-level="' + data[i].level + '">' + data[i].title + '</option>';
+                } else {
+                    html += '<option value="' + data[i].id + '" data-level="' + data[i].level + '" >' + data[i].title + '</option>';
+                }
+            }
+            $('#hierarchySelect').html(html);
+        });
+        getDepartments().then(function (data) {
+            data = data.results;
+            let departmentSelect = $('#departmentSelect').val();
+            let html = "";
+            for (let i = 0; i < data.length; i++) {
+                if (departmentSelect == data[i].title || departmentSelect == data[i].id) {
+                    html += '<option value="' + data[i].id + '"' + 'selected' + '>' + data[i].title + '</option>';
+                } else {
+                    html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
+                }
+            }
+            $('#departmentSelect').html(html);
+        });
+
+        $('#departmentSelect').on('change', makeResponsibleList);
+        $('#hierarchySelect').on('change', makeResponsibleList);
+
+        $("#repentance_date").datepicker({
+            dateFormat: "yyyy-mm-dd"
+        })
+    }, 'GET', true, {
+        'Content-Type': 'application/json'
+    });
+}
+
+function setCookie(name, value, options) {
+    options = options || {};
+    let expires = options.expires;
+    if (typeof expires == "number" && expires) {
+        let d = new Date();
+        d.setTime(d.getTime() + expires * 1000);
+        expires = options.expires = d;
+    }
+    if (expires && expires.toUTCString) {
+        options.expires = expires.toUTCString();
+    }
+
+    value = encodeURIComponent(value);
+
+    let updatedCookie = name + "=" + value;
+
+    for (let propName in options) {
+        updatedCookie += "; " + propName;
+        let propValue = options[propName];
+        if (propValue !== true) {
+            updatedCookie += "=" + propValue;
+        }
+    }
+    document.cookie = updatedCookie;
+}
+
+
+function createUsersTable(config) {
+    config["search_fio"] = $('input[name=fullsearch]').val();
+    Object.assign(config, filterParam());
+    getUsers(config).then(function (data) {
+        let count = data.count;
+        let page = config['page'] || 1;
+        let pages = Math.ceil(count / CONFIG.pagination_count);
+        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let id = "database_users";
+        let text = `Показано ${showCount} из ${count}`;
+        let paginationConfig = {
+            container: ".users__pagination",
+            currentPage: page,
+            pages: pages,
+            callback: createUsersTable
+        };
+        makeDataTable(data, id);
+        makePagination(paginationConfig);
+        $('.table__count').text(text);
+        makeSortForm(data.user_table);
+        $('.preloader').css('display', 'none');
+        orderTable.sort(createUsersTable);
+    }).catch(function (err) {
+        console.log(err);
+    });
+}
+
+function updateSettings(callback, path) {
+    let data = [];
+    let iteration = 1;
+    $("#sort-form input").each(function () {
+        let item = {};
+        item['id'] = $(this).val();
+        item['number'] = iteration++;
+        item['active'] = $(this).prop('checked');
+        data.push(item);
+    });
+    let json = JSON.stringify(data);
+
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/update_columns/', json, function (JSONobj) {
+        $(".bgsort").remove();
+        VOCRM['column_table'] = JSONobj['column_table'];
+
+        if (callback) {
+            var param = {};
+            if (path !== undefined) {
+                let extendParam = $.extend({}, param, filterParam());
+                callback(extendParam);
+            } else {
+                let param = filterParam();
+                callback(param);
+            }
+        }
+    }, 'POST', true, {
+        'Content-Type': 'application/json'
+    });
+}
+
+function getDataTOExport() {
+    let $fealds = $('#sort-form').find('input');
+    let filter = [];
+    $fealds.each(function () {
+        if ($(this).is(':checked')) {
+            filter.push($(this).prop('id'))
+        }
+    });
+    return filter;
+}
+
+function hidePopup(el) {
+    if ($(el).closest('.popap').find('.save-user').length) {
+        $(el).closest('.popap').find('.save-user').attr('disabled', false);
+        $(el).closest('.popap').find('.save-user').text('Сохранить');
+    }
+    $(el).closest('.popap').css('display', 'none');
+}
+
+function refreshFilter(el) {
+    let $input = $(el).closest('.popap').find('input');
+    $(el).addClass('refresh');
+    setTimeout(function () {
+        $(el).removeClass('refresh');
+    }, 700);
+    $input.each(function () {
+        $(this).val('')
+    })
+}
+
+function getFilterParam() {
+    let $filterFields, data = {};
+    $filterFields = $('#filterPopup select, #filterPopup input');
+    $filterFields.each(function () {
+        let prop = $(this).data('filter');
+        if (prop) {
+            if ($(this).attr('type') === 'checkbox') {
+                data[prop] = ucFirst($(this).is(':checked').toString());
+            } else {
+                if ($(this).val()) {
+                    data[prop] = $(this).val();
+                }
+            }
+        }
+    });
+    return data;
+}
+
+function filterParam() {
+    let filterPopup, data = {}, department, hierarchy, master, search_email, search_phone_number, search_country, search_city, from_date, to_date;
+    filterPopup = $('#filterPopup');
+    department = parseInt($('#departments_filter').val());
+    hierarchy = parseInt($('#hierarchies_filter').val());
+    master = parseInt($('#masters_filter').val());
+    search_email = $('#search_email').val();
+    search_phone_number = $('#search_phone_number').val();
+    search_country = $('#search_country').val();
+    search_city = $('#search_city').val();
+    from_date = $('#date_from').val();
+    to_date = $('#date_to').val();
+    if (department && department !== 0) {
+        data['department'] = department;
+    }
+    if (hierarchy && hierarchy !== 0) {
+        data['hierarchy'] = hierarchy;
+    }
+    if (master && master !== 0) {
+        data['master'] = master;
+    }
+    if (search_email && search_email != "") {
+        data['search_email'] = search_email;
+    }
+    if (search_phone_number && search_phone_number != "") {
+        data['search_phone_number'] = search_phone_number;
+    }
+    if (search_country && search_country != "") {
+        data['search_country'] = search_country;
+    }
+    if (search_city && search_city != "") {
+        data['search_city'] = search_city;
+    }
+    if (from_date && from_date != "") {
+        if (new Date(from_date) >= new Date(to_date)) {
+            data['to_date'] = from_date;
+        } else {
+            data['from_date'] = from_date;
+        }
+
+    }
+    if (to_date && to_date != "") {
+        if (new Date(from_date) >= new Date(to_date)) {
+            data['from_date'] = to_date;
+        } else {
+            data['to_date'] = to_date;
+        }
+    }
+    return data;
+}
+
+function applyFilter(el, callback) {
+    let self = el, data;
+    data = getFilterParam();
+    $('.preloader').css('display', 'block');
+    callback(data);
+    setTimeout(function () {
+        hidePopup(self);
+    }, 300);
+}
+
+function makeTabs() {
+    let pos = 0,
+        tabs = document.getElementById('tabs'),
+        tabsContent = document.getElementsByClassName('tabs-cont');
+
+    for (let i = 0; i < tabs.children.length; i++) {
+        tabs.children[i].setAttribute('data-page', pos);
+        pos++;
+    }
+
+    showPage(0);
+
+    tabs.onclick = function (event) {
+        event.preventDefault();
+        return showPage(parseInt(event.target.parentElement.getAttribute("data-page")));
+    };
+
+    function showPage(i) {
+        for (let k = 0; k < tabsContent.length; k++) {
+            tabsContent[k].style.display = 'none';
+            tabs.children[k].classList.remove('current');
+        }
+        tabsContent[i].style.display = 'block';
+        tabs.children[i].classList.add('current');
+
+        let done = document.getElementById('period_done'),
+            expired = document.getElementById('period_expired'),
+            unpag = document.querySelectorAll('.undone-pagination'),
+            expag = document.querySelectorAll('.expired-pagination'),
+            dpag = document.querySelectorAll('.done-pagination');
+
+        if (document.querySelectorAll('a[href="#overdue"]')[0].parentElement.classList.contains('current')) {
+            done.style.display = 'none';
+            expired.style.display = 'block';
+            Array.prototype.forEach.call(expag, function (el) {
+                el.style.display = 'block';
+            });
+            Array.prototype.forEach.call(unpag, function (el) {
+                el.style.display = 'none';
+            });
+            Array.prototype.forEach.call(dpag, function (el) {
+                el.style.display = 'none';
+            });
+        } else if (document.querySelectorAll('a[href="#completed"]')[0].parentElement.classList.contains('current')) {
+            done.style.display = 'block';
+            expired.style.display = '';
+            Array.prototype.forEach.call(expag, function (el) {
+                el.style.display = 'none';
+            });
+            Array.prototype.forEach.call(unpag, function (el) {
+                el.style.display = 'none';
+            });
+            Array.prototype.forEach.call(dpag, function (el) {
+                el.style.display = 'block';
+            });
+        } else if (document.querySelectorAll('a[href="#incomplete"]')[0].parentElement.classList.contains('current')) {
+            done.style.display = '';
+            expired.style.display = '';
+            Array.prototype.forEach.call(expag, function (el) {
+                el.style.display = 'none';
+            });
+            Array.prototype.forEach.call(unpag, function (el) {
+                el.style.display = 'block';
+            });
+            Array.prototype.forEach.call(dpag, function (el) {
+                el.style.display = 'none';
+            });
+        }
+    }
+}
