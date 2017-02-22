@@ -4,8 +4,7 @@ from django.db.models import Q
 from django.db.models import Value as V
 from django.db.models.functions import Concat
 from django.utils.translation import ugettext_lazy as _
-from rest_framework import filters
-from rest_framework import status
+from rest_framework import status, exceptions, filters
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -72,31 +71,39 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
         users = CustomUser.objects.all()
         return self._get_potential_users(request, self.filter_potential_users_for_group, users, pk)
 
+    @staticmethod
+    def _validate_user_for_add_user(user_id):
+        if not user_id:
+            raise exceptions.ValidationError("Некоректные данные")
+        user = CustomUser.objects.filter(id=user_id)
+        if not user.exists():
+            raise exceptions.ValidationError(
+                _('Невозможно добавить пользователя. Данного пользователя не существует.'))
+        user = user.get()
+        if user.churches.exists():
+            raise exceptions.ValidationError(
+                _('Невозможно добавить пользователя. Данный пользователь уже состоит в Церкви.'))
+        if user.home_groups.exists():
+            raise exceptions.ValidationError(
+                _('Невозможно добавить пользователя. Данный пользователь уже состоит в Домашней Группе.'))
+
+    @staticmethod
+    def _validate_user_for_del_user(user_id, church):
+        if not user_id:
+            raise exceptions.ValidationError("Некоректные данные")
+        if not CustomUser.objects.filter(id=user_id).exists():
+            raise exceptions.ValidationError(
+                _('Невозможно удалить пользователя. Данного пользователя не существует.'))
+        if not church.users.filter(id=user_id).exists():
+            raise exceptions.ValidationError(
+                _('Невозможно удалить пользователя. Пользователь не принадлежит к данной Церкви.'))
+
     @detail_route(methods=['post'])
     def add_user(self, request, pk):
         user_id = request.data.get('user_id')
         church = self.get_object()
 
-        if not user_id:
-            return Response({"message": "Некоректные данные"},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        user = CustomUser.objects.filter(id=user_id)
-        if not user.exists():
-            return Response({'message': 'Невозможно добавить пользователя. '
-                                        'Данного пользователя не существует.'},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        user = user.get()
-        if user.churches.exists():
-            return Response({'message': 'Невозможно добавить пользователя. '
-                                        'Данный пользователь уже состоит в Церкви.'},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        if user.home_groups.exists():
-            return Response({'message': 'Невозможно добавить пользователя. '
-                                        'Данный пользователь уже состоит в Домашней Группе.'},
-                            status=status.HTTP_400_BAD_REQUEST)
+        self._validate_user_for_add_user(user_id)
 
         church.users.add(user_id)
         return Response({'message': 'Пользователь успешно добавлен.'},
@@ -107,19 +114,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
         user_id = request.data.get('user_id')
         church = self.get_object()
 
-        if not user_id:
-            return Response({"message": "Некоректные данные"},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        if not CustomUser.objects.filter(id=user_id).exists():
-            return Response({'message': 'Невозможно удалить пользователя. '
-                                        'Данного пользователя не существует.'},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        if not church.users.filter(id=user_id).exists():
-            return Response({'message': 'Невозможно удалить пользователя. '
-                                        'Пользователь не принадлежит к данной Церкви.'},
-                            status=status.HTTP_400_BAD_REQUEST)
+        self._validate_user_for_del_user(user_id, church)
 
         church.users.remove(user_id)
         return Response({'message': 'Пользователь успешно удален из Церкви'},

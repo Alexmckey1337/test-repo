@@ -18,8 +18,7 @@ from django.template.loader import get_template
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 from rest_auth.views import LogoutView as RestAuthLogoutView
-from rest_framework import mixins
-from rest_framework import status
+from rest_framework import status, exceptions, mixins
 from rest_framework import viewsets, filters
 from rest_framework.decorators import api_view
 from rest_framework.filters import BaseFilterBackend
@@ -125,8 +124,7 @@ class FilterByBirthday(BaseFilterBackend):
         if from_date is None or to_date is None:
             return queryset
         if from_date > to_date:
-            return Response({'message': 'Некоректный временной интервал'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            raise exceptions.ValidationError(detail=_('Некоректный временной интервал'))
         from_date = datetime.strptime(from_date, '%Y-%m-%d')
         to_date = datetime.strptime(to_date, '%Y-%m-%d')
         monthdays = [(from_date.month, from_date.day)]
