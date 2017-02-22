@@ -89,43 +89,43 @@ function makePastorList(id, selector, active = null) {
 }
 
 function getPartners(config) {
-        config.search = $('input[name=fullsearch]').val();
-        getPartnersList(config).then(function (response) {
-            let page = config['page'] || 1;
-            let count = response.count;
-            let pages = Math.ceil(count / CONFIG.pagination_count);
-            let data = {};
-            let id = "partnersList";
-            let text = `Показано ${CONFIG.pagination_count} из ${count}`;
-            let common_table = Object.keys(response.common_table);
-            data.user_table = response.user_table;
-            common_table.forEach(function (item) {
-                data.user_table[item] = response.common_table[item];
-            });
-            data.results = response.results.map(function (item) {
-                let result = item.user;
-                common_table.forEach(function (key) {
-                    result[key] = item[key];
-                });
-                return result;
-            });
-            data.count = response.count;
-            makeDataTable(data, id);
-
-            $('.preloader').css('display', 'none');
-
-            let paginationConfig = {
-                container: ".partners__pagination",
-                currentPage: page,
-                pages: pages,
-                callback: getPartners
-            };
-            makePagination(paginationConfig);
-            $('.table__count').text(text);
-            makeSortForm(response.user_table);
-            orderTable.sort(getPartners);
+    config.search = $('input[name=fullsearch]').val();
+    getPartnersList(config).then(function (response) {
+        let page = config['page'] || 1;
+        let count = response.count;
+        let pages = Math.ceil(count / CONFIG.pagination_count);
+        let data = {};
+        let id = "partnersList";
+        let text = `Показано ${CONFIG.pagination_count} из ${count}`;
+        let common_table = Object.keys(response.common_table);
+        data.user_table = response.user_table;
+        common_table.forEach(function (item) {
+            data.user_table[item] = response.common_table[item];
         });
-    }
+        data.results = response.results.map(function (item) {
+            let result = item.user;
+            common_table.forEach(function (key) {
+                result[key] = item[key];
+            });
+            return result;
+        });
+        data.count = response.count;
+        makeDataTable(data, id);
+
+        $('.preloader').css('display', 'none');
+
+        let paginationConfig = {
+            container: ".partners__pagination",
+            currentPage: page,
+            pages: pages,
+            callback: getPartners
+        };
+        makePagination(paginationConfig);
+        $('.table__count').text(text);
+        makeSortForm(response.user_table);
+        orderTable.sort(getPartners);
+    });
+}
 
 function makeDepartmentList(selector, active = null) {
     return getDepartments().then(function (data) {
@@ -175,7 +175,7 @@ function createCSV(data) {
     }
     let type = data.getResponseHeader('Content-Type') + ';charset=UTF-8';
     return {
-        file: new Blob(["\ufeff"  + data.responseText], {type: type, endings: 'native'}),
+        file: new Blob(["\ufeff" + data.responseText], {type: type, endings: 'native'}),
         filename: filename
     };
 }
@@ -1263,4 +1263,138 @@ function ucFirst(str) {
     if (!str) return str;
 
     return str[0].toUpperCase() + str.slice(1);
+}
+function initRegionANDCity() {
+    let selectRegion = $('#selectRegion').val();
+    let config = {};
+    config.country = $('#selectCountry').find(':selected').data('id');
+    getRegions(config).then(function (data) {
+        let rendered = [];
+        let option = document.createElement('option');
+        $(option).val('').text('Выберите регион').attr('disabled', true).attr('selected', true);
+        rendered.push(option);
+        data.forEach(function (item) {
+            let option = document.createElement('option');
+            $(option).val(item.title).text(item.title).attr('data-id', item.id);
+            if (item.title == selectRegion) {
+                $(option).attr('selected', true);
+            }
+            rendered.push(option);
+        });
+        $('#selectRegion').html(rendered).on('change', function () {
+            selectRegion = $(this).val();
+            let config = {};
+            config.region = $(this).find(':selected').data('id');
+            getCities(config).then(function (data) {
+                let rendered = [];
+                let option = document.createElement('option');
+                $(option).val('').text('Выберите город').attr('disabled', true).attr('selected', true);
+                rendered.push(option);
+                data.forEach(function (item) {
+                    let option = document.createElement('option');
+                    $(option).val(item.title).text(item.title).attr('data-id', item.id);
+                    if (item.title == selectCity) {
+                        $(option).attr('selected', true)
+                    }
+                    rendered.push(option);
+                });
+                $('#selectCity').html(rendered).attr('disabled', false);
+            })
+        });
+        let config = {};
+        config.region = $('#selectRegion').find(':selected').data('id');
+        return config;
+    }).then(function (config) {
+        getCities(config).then(function (data) {
+            let selectCity = $('#selectCity').val();
+            let rendered = [];
+            let option = document.createElement('option');
+            $(option).val('').text('Выберите город').attr('disabled', true).attr('selected', true);
+            rendered.push(option);
+            data.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.title).attr('data-id', item.id);
+                if (item.title == selectCity) {
+                    $(option).attr('selected', true)
+                }
+                rendered.push(option);
+            });
+            $('#selectCity').html(rendered).attr('disabled', false);
+        })
+    });
+}
+function makeCountriesList(data, selectCountry) {
+    let rendered = [];
+    let option = document.createElement('option');
+    $(option).val('').text('Выберите страну').attr('disabled', true).attr('selected', true);
+    rendered.push(option);
+    data.forEach(function (item) {
+        let option = document.createElement('option');
+        $(option).val(item.title).text(item.title).attr('data-id', item.id);
+        if (item.title == selectCountry) {
+            $(option).attr('selected', true);
+        }
+        rendered.push(option);
+    });
+    return rendered
+}
+function makeRegionsList(data, selectRegion) {
+    let rendered = [];
+    let option = document.createElement('option');
+    $(option).val('').text('Выберите регион').attr('disabled', true).attr('selected', true);
+    rendered.push(option);
+    data.forEach(function (item) {
+        let option = document.createElement('option');
+        $(option).val(item.title).text(item.title).attr('data-id', item.id);
+        if (item.title == selectRegion) {
+            $(option).attr('selected', true);
+        }
+        rendered.push(option);
+    });
+    return rendered
+}
+function makeCityList(data, selectCity) {
+    let rendered = [];
+    let option = document.createElement('option');
+    $(option).val('').text('Выберите город').attr('disabled', true).attr('selected', true);
+    rendered.push(option);
+    data.forEach(function (item) {
+        let option = document.createElement('option');
+        $(option).val(item.title).text(item.title).attr('data-id', item.id);
+        if (item.title == selectCity) {
+            $(option).attr('selected', true);
+        }
+        rendered.push(option);
+    });
+    return rendered
+}
+function initLocationSelect(config) {
+    let $countrySelector = $('#' + config.country);
+    let $regionSelector = $('#' + config.region);
+    let $citySelector = $('#' + config.city);
+    let selectCountry = $countrySelector.val();
+    let selectRegion = $regionSelector.val();
+    let selectCity = $citySelector.val();
+    getCountries().then(function (data) {
+        let list = makeCountriesList(data, selectCountry);
+        $countrySelector.html(list);
+    }).then(function () {
+        let config = {};
+        let countryID = $countrySelector.find(':selected').data('id');
+        config.country = countryID;
+        getRegions(config).then(function (data) {
+            let list = makeRegionsList(data, selectRegion);
+            $regionSelector.html(list);
+        }).then(function () {
+            let config = {};
+            let regionID = $regionSelector.find(':selected').data('id');
+            config.region = regionID;
+            getCities(config).then(function (data) {
+                let list = makeCityList(data, selectCity);
+                $citySelector.html(list);
+            }).then(function () {
+                console.log('All load');
+            });
+        });
+    })
 }

@@ -34,65 +34,6 @@ function makeResponsibleList(department, status) {
         $('#selectResponsible').html(rendered);
     })
 }
-function initRegionANDCity() {
-    let selectRegion = $('#selectRegion').val();
-    let config = {};
-    config.country = $('#selectCountry').find(':selected').data('id');
-    getRegions(config).then(function (data) {
-        let rendered = [];
-        let option = document.createElement('option');
-        $(option).val('').text('Выберите регион').attr('disabled', true).attr('selected', true);
-        rendered.push(option);
-        data.forEach(function (item) {
-            let option = document.createElement('option');
-            $(option).val(item.title).text(item.title).attr('data-id', item.id);
-            if (item.title == selectRegion) {
-                $(option).attr('selected', true);
-            }
-            rendered.push(option);
-        });
-        $('#selectRegion').html(rendered).on('change', function () {
-            selectRegion = $(this).val();
-            let config = {};
-            config.region = $(this).find(':selected').data('id');
-            getCities(config).then(function (data) {
-                let rendered = [];
-                let option = document.createElement('option');
-                $(option).val('').text('Выберите город').attr('disabled', true).attr('selected', true);
-                rendered.push(option);
-                data.forEach(function (item) {
-                    let option = document.createElement('option');
-                    $(option).val(item.title).text(item.title).attr('data-id', item.id);
-                    if (item.title == selectCity) {
-                        $(option).attr('selected', true)
-                    }
-                    rendered.push(option);
-                });
-                $('#selectCity').html(rendered).attr('disabled', false);
-            })
-        });
-        let config = {};
-        config.region = $('#selectRegion').find(':selected').data('id');
-        return config;
-    }).then(function (config) {
-        getCities(config).then(function (data) {
-            let selectCity = $('#selectCity').val();
-            let rendered = [];
-            let option = document.createElement('option');
-            $(option).val('').text('Выберите город').attr('disabled', true).attr('selected', true);
-            rendered.push(option);
-            data.forEach(function (item) {
-                let option = document.createElement('option');
-                $(option).val(item.id).text(item.title).attr('data-id', item.id);
-                if (item.title == selectCity) {
-                    $(option).attr('selected', true)
-                }
-                rendered.push(option);
-            });
-            $('#selectCity').html(rendered).attr('disabled', false);
-        })
-    });
-}
 let id = getLastId();
 // init();
 $('.b-red').on('click', function () {
@@ -394,46 +335,10 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
             }
         });
     });
-    getCountries().then(function (data) {
-        let rendered = [];
-        let selectCountry = $('#selectCountry').val();
-        let selectRegion = $('#selectRegion').val();
-        let selectCity = $('#selectCity').val();
-        let option = document.createElement('option');
-        $(option).val('').text('Выберите страну').attr('disabled', true).attr('selected', true);
-        rendered.push(option);
-        data.forEach(function (item) {
-            let option = document.createElement('option');
-            $(option).val(item.title).text(item.title).attr('data-id', item.id);
-            if (item.title == selectCountry) {
-                $(option).attr('selected', true);
-            }
-            rendered.push(option);
-        });
-        $('#selectCountry').html(rendered).on('change', function () {
-            selectCountry = $(this).find(':selected').text();
-            let selectRegion = $('#selectRegion').val();
-            let config = {};
-            config.country = $(this).find(':selected').data('id');
-            getRegions(config).then(function (data) {
-                let rendered = [];
-                let option = document.createElement('option');
-                $(option).val('').text('Выберите регион').attr('disabled', true).attr('selected', true);
-                rendered.push(option);
-                data.forEach(function (item) {
-                    let option = document.createElement('option');
-                    $(option).val(item.title).text(item.title).attr('data-id', item.id);
-                    if (item.title == selectRegion) {
-                        $(option).attr('selected', true);
-                    }
-                    rendered.push(option);
-                });
-                $('#selectRegion').html(rendered).attr('disabled', false);
-                $('#selectCity').html('');
-            })
-        });
-    }).then(function () {
-        initRegionANDCity();
+    initLocationSelect({
+        country: 'selectCountry',
+        region: 'selectRegion',
+        city: 'selectCity'
     });
     $('#selectDepartment').on('change', function () {
         let status = $('#selectHierarchy').val();
