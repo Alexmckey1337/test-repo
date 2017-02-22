@@ -369,7 +369,6 @@ select::-ms-expand {
   padding-left: 240px;
   transition: all .3s;
   & h3 {
-    margin: 1em;
     font-weight: 500;
     font-family: UbuntuMedium, sans-serif;
   }
@@ -3482,26 +3481,12 @@ span.change[style*="display: none"] ~ span.y {
   float: left;
 }
 
-.right-info-r {
-  width: 50%;
-  float: right;
-  padding-right: 2px;
-}
-
 .left-info {
   text-align: right;
 }
 
 .right-info {
   text-align: left;
-}
-
-.left-content > ul {
-  display: block;
-  border: 1px solid #cdd0d4;
-  border-radius: 3px;
-  background-color: #f2f5fa;
-  margin-bottom: 20px;
 }
 
 .left-content > ul > li {
@@ -3531,30 +3516,118 @@ span.change[style*="display: none"] ~ span.y {
 }
 
 .user-fio {
-  overflow: hidden;
+  & .right-info-r {
+    width: 60%;
+    float: right;
+    padding: 1.5em 0 .5em;
+    & h3#fullname {
+      font: ~'calc(1em + 0.3vw)' "UbuntuMedium", sans-serif;
+      & ~ h4 {
+        font-size: 1.2em;
+        margin-top: .5em;
+        line-height: 1.5em;
+      }
+    }
+    & #social {
+      padding-top: 0.7em;
+      & .a-social {
+        float: left;
+        height: 2em;
+        overflow: hidden;
+        & a {
+          & i {
+            color: #cdd0d4;
+            font-size: 1.5em;
+            line-height: 1.5em;
+            padding-right: 0.5em;
+          }
+          &:hover i {
+            color: #3caeda;
+          }
+        }
+      }
+    }
+  }
+  & .anketa-photo {
+    position: relative;
+    top: 1em;
+    left: 3%;
+    width: 0;
+    height: 0;
+    padding: 15%;
+    border-radius: 100%;
+    border: 3px solid #43b0db;
+    box-shadow: 0 0 0 5px #b3d7e8;
+  }
 }
 
-.user-fio h3#fullname {
-  font-family: "UbuntuMedium", sans-serif;
-  & ~ h4 {
-    font-size: 1.2em;
-    margin-top: .5em;
-    line-height: 1.5em;
+.left-content {
+  & > .right-info {
+    display: block;
+    width: 100%;
+    border: 1px solid #cdd0d4;
+    border-radius: 3px;
+    background-color: #f2f5fa;
+    margin-bottom: 20px;
+    & > li {
+      padding: 1.5em 1em;
+      & .right-info__block {
+        position: relative;
+        border: 1px solid transparent;
+        border-radius: 7px;
+        padding-top: 1.7em;
+        & button {
+          position: absolute;
+          padding: 0;
+          background: transparent;
+          border: 0;
+          top: 0;
+          font-size: 1.5em;
+          &.edit {
+            right: 1.5em;
+          }
+          &.save__info {
+            right: 0;
+          }
+        }
+        &:hover {
+          //border-color: #656d78;
+        }
+        & label {
+          display: block;
+          width: ~'calc(40% - 7px)';
+          float: left;
+          text-align: right;
+          box-sizing: border-box;
+          & i {
+            font-size: 1.5em;
+          }
+        }
+        & input, & select {
+          display: block;
+          width: ~'calc(60% - 3px)';
+          float: right;
+          text-align: left;
+          &:read-only {
+            border: 0;
+            background: transparent;
+          }
+          &:disabled {
+            &[multiple] {
+              height: 1em;
+            }
+          }
+          &[multiple] {
+            height: 5em;
+          }
+        }
+      }
+    }
   }
 }
 
 .anketa h3 {
   font-size: 1.6em;
-}
-
-.user-fio .right-info-r {
-  padding: 40px 0;
-}
-
-.right-info-r i {
-  color: #cdd0d4;
-  font-size: 1.2em;
-  padding-right: 5px;
 }
 
 .user-fiowrap {
@@ -3589,20 +3662,6 @@ span.change[style*="display: none"] ~ span.y {
 #account_view .a-socials[data-href] {
   cursor: pointer;
   display: block;
-}
-
-.anketa-photo {
-  position: absolute;
-  top: 26px;
-  left: 3%;
-  width: 160px;
-  height: 160px;
-  margin: 0 auto;
-  border-radius: 100%;
-  border: 3px solid #43b0db;
-  overflow: hidden;
-  box-shadow: 0 0 0 5px rgba(179, 215, 232, 1);
-  transition: all .3s ease;
 }
 
 .anketa-photo:hover {

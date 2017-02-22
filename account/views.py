@@ -20,7 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_auth.views import LogoutView as RestAuthLogoutView
 from rest_framework import status, exceptions, mixins
 from rest_framework import viewsets, filters
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, detail_route
 from rest_framework.filters import BaseFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser, FormParser
@@ -30,8 +30,8 @@ from rest_framework.viewsets import GenericViewSet
 
 from account.models import CustomUser as User
 from common.filters import FieldSearchFilter
-from common.views_mixins import ExportViewSetMixin
 from common.parsers import MultiPartAndJsonParser
+from common.views_mixins import ExportViewSetMixin
 from hierarchy.models import Hierarchy, Department
 from navigation.table_fields import user_table
 from partnership.models import Partnership
@@ -239,6 +239,40 @@ class NewUserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+    @detail_route(methods=['post'])
+    def set_divisions(self, request, pk=None):
+        user = self.get_object()
+
+        self._check_divisions(request.data)
+
+        user.divisions.set(request.data.get('divisions'))
+        return Response({'detail': _('Divisions list has been updated.')})
+
+    @detail_route(methods=['post'])
+    def create_partner(self, request, pk=None):
+        user = self.get_non_partner_user()
+        partner_data = self.get_partner_data(request, user)
+
+        serializer = PartnershipSerializer(data=partner_data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @detail_route(methods=['put'])
+    def update_partner(self, request, pk=None):
+        user = self.get_partner_user()
+        partner_data = self.get_partner_data(request, user)
+
+        partner_obj = user.partnership
+        serializer = PartnershipSerializer(partner_obj, data=partner_data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data)
+
+    # Helpers
+
     def _create_partnership(self, user):
         partner = self.request.data.get('partner', None)
         if partner is not None and isinstance(partner, dict):
@@ -264,6 +298,45 @@ class NewUserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
             serializer = PartnershipSerializer(partner_obj, data=partner)
             serializer.is_valid(raise_exception=True)
             serializer.save()
+
+    @staticmethod
+    def _check_divisions(data):
+        if not isinstance(data, dict):
+            raise exceptions.ValidationError(detail=_('Data is incorrect.'))
+        divisions_list = data.get('divisions', None)
+        if divisions_list is None:
+            raise exceptions.ValidationError(detail=_('Field "divisions" is required.'))
+        if not isinstance(divisions_list, (list, tuple)):
+            raise exceptions.ValidationError(detail=_('Field "divisions" must be list.'))
+        exist_divisions = set(Division.objects.filter(pk__in=divisions_list).values_list('id', flat=True))
+        not_exist_divisions = set(divisions_list) - exist_divisions
+        if not_exist_divisions:
+            not_exist_str = ", ".join([str(d) for d in not_exist_divisions])
+            raise exceptions.ValidationError(detail=_('Divisions [%s] does not exist.' % not_exist_str))
+
+    @staticmethod
+    def _check_partner_data(data):
+        if not isinstance(data, dict):
+            raise exceptions.ValidationError(detail=_('Data is incorrect.'))
+
+    def get_partner_user(self):
+        user = self.get_object()
+        if not hasattr(user, 'partnership'):
+            raise exceptions.ValidationError(detail=_('Partner does not exist.'))
+        return user
+
+    def get_non_partner_user(self):
+        user = self.get_object()
+        if hasattr(user, 'partnership'):
+            raise exceptions.ValidationError(detail=_('Partner is already exist.'))
+        return user
+
+    def get_partner_data(self, request, user):
+        partner_data = request.data
+        self._check_partner_data(partner_data)
+        partner_data['user'] = user
+
+        return partner_data
 
 
 class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):

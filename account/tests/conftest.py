@@ -5,9 +5,11 @@ from account.factories import UserFactory
 from account.models import CustomUser
 from hierarchy.factories import HierarchyFactory, DepartmentFactory
 from partnership.factories import PartnerFactory
+from payment.factories import CurrencyFactory
 from status.factories import DivisionFactory
 
 register(UserFactory)
+register(CurrencyFactory)
 register(HierarchyFactory)
 register(DepartmentFactory)
 register(DivisionFactory)
@@ -72,3 +74,13 @@ def user_data(department, user, hierarchy, partner, division_factory):
                 'date': '2020-04-04',
             },
         }
+
+
+@pytest.fixture
+def divisions(division_factory):
+    return division_factory.create_batch(2)
+
+
+@pytest.fixture
+def currency(currency_factory):
+    return currency_factory()
