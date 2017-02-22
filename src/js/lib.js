@@ -1278,7 +1278,6 @@ function createSummitUsersTable(data = {}) {
             data.ankets_id = item.id;
             return data;
         });
-        console.log(filter_data);
         filter_data.user_table = data.user_table;
         let count = data.count;
         let page = config.page || 1;
