@@ -1,13 +1,12 @@
-import datetime
 import copy
+import datetime
+from decimal import Decimal
 
 import pytest
-from decimal import Decimal
 from django.urls import reverse
 from rest_framework import status
 
 from account.models import CustomUser
-
 
 FIELD_CODES = (
     # optional fields
@@ -351,9 +350,12 @@ class TestNewUserViewSet:
         create_user_data['department_id'] = create_user_data.pop('department')
         create_user_data['hierarchy_id'] = create_user_data.pop('hierarchy')
         create_user_data['master_id'] = create_user_data.pop('master')
-        create_user_data['born_date'] = datetime.date(*map(lambda d: int(d), create_user_data['born_date'].split('-')))
-        create_user_data['coming_date'] = datetime.date(*map(lambda d: int(d), create_user_data['coming_date'].split('-')))
-        create_user_data['repentance_date'] = datetime.date(*map(lambda d: int(d), create_user_data['repentance_date'].split('-')))
+        create_user_data['born_date'] = datetime.date(
+            *map(lambda d: int(d), create_user_data['born_date'].split('-')))
+        create_user_data['coming_date'] = datetime.date(
+            *map(lambda d: int(d), create_user_data['coming_date'].split('-')))
+        create_user_data['repentance_date'] = datetime.date(
+            *map(lambda d: int(d), create_user_data['repentance_date'].split('-')))
 
         user = user_factory(**create_user_data)
         partner_factory(
@@ -367,5 +369,128 @@ class TestNewUserViewSet:
 
         api_client.force_login(user=staff_user)
         response = api_client.put(url, data=user_data, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+
+    @pytest.mark.parametrize("data,code", [
+        ([1, 2], status.HTTP_400_BAD_REQUEST),
+        ({'d': [1, 2]}, status.HTTP_400_BAD_REQUEST),
+        ({'divisions': '1,2'}, status.HTTP_400_BAD_REQUEST),
+        ({'divisions': [111, 222]}, status.HTTP_400_BAD_REQUEST),
+        (None, status.HTTP_200_OK)
+    ], ids=['non_dict', 'without_divisions', 'divisions_not_list', 'incorrect_divisions_id', 'correct'])
+    def test_set_divisions_code(self, api_client, staff_user, user, divisions, data, code):
+        url = reverse('users_v1_1-set-divisions', kwargs={'pk': user.id})
+
+        data = data or {'divisions': [d.id for d in divisions]}
+
+        api_client.force_login(user=staff_user)
+        response = api_client.post(url, data=data, format='json')
+
+        assert response.status_code == code
+
+    def test_set_divisions(self, api_client, staff_user, user, divisions):
+        url = reverse('users_v1_1-set-divisions', kwargs={'pk': user.id})
+
+        data = {'divisions': [d.id for d in divisions]}
+
+        api_client.force_login(user=staff_user)
+        api_client.post(url, data=data, format='json')
+
+        assert list(user.divisions.values_list('id', flat=True)) == data['divisions']
+
+    def test_create_partner_already_exist(self, api_client, staff_user, partner, currency):
+        user = partner.user
+        url = reverse('users_v1_1-create-partner', kwargs={'pk': user.id})
+
+        partner_data = {
+            'value': 100,
+            'date': '2000-11-13',
+            'currency': currency.id
+        }
+
+        api_client.force_login(user=staff_user)
+        response = api_client.post(url, data=partner_data, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_create_partner_with_incorrect_data_format(self, api_client, staff_user, user):
+        url = reverse('users_v1_1-create-partner', kwargs={'pk': user.id})
+
+        partner_data = 'incorrect'
+
+        api_client.force_login(user=staff_user)
+        response = api_client.post(url, data=partner_data, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_create_partner_with_incorrect_data(self, api_client, staff_user, user):
+        url = reverse('users_v1_1-create-partner', kwargs={'pk': user.id})
+
+        partner_data = {
+            'value'
+        }
+
+        api_client.force_login(user=staff_user)
+        response = api_client.post(url, data=partner_data, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_create_partner_with_correct_data(self, api_client, staff_user, user):
+        url = reverse('users_v1_1-create-partner', kwargs={'pk': user.id})
+
+        partner_data = {}
+
+        api_client.force_login(user=staff_user)
+        response = api_client.post(url, data=partner_data, format='json')
+
+        assert response.status_code == status.HTTP_201_CREATED
+
+    def test_update_partner_does_not_exist(self, api_client, staff_user, user, currency):
+        url = reverse('users_v1_1-update-partner', kwargs={'pk': user.id})
+
+        partner_data = {
+            'value': 100,
+            'date': '2000-11-13',
+            'currency': currency.id
+        }
+
+        api_client.force_login(user=staff_user)
+        response = api_client.put(url, data=partner_data, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_update_partner_with_incorrect_data_format(self, api_client, staff_user, partner):
+        user = partner.user
+        url = reverse('users_v1_1-update-partner', kwargs={'pk': user.id})
+
+        partner_data = 'incorrect'
+
+        api_client.force_login(user=staff_user)
+        response = api_client.put(url, data=partner_data, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_update_partner_with_incorrect_data(self, api_client, staff_user, partner):
+        user = partner.user
+        url = reverse('users_v1_1-update-partner', kwargs={'pk': user.id})
+
+        partner_data = {
+            'value'
+        }
+
+        api_client.force_login(user=staff_user)
+        response = api_client.put(url, data=partner_data, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_update_partner_with_correct_data(self, api_client, staff_user, partner):
+        user = partner.user
+        url = reverse('users_v1_1-update-partner', kwargs={'pk': user.id})
+
+        partner_data = {}
+
+        api_client.force_login(user=staff_user)
+        response = api_client.put(url, data=partner_data, format='json')
 
         assert response.status_code == status.HTTP_200_OK
