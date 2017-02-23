@@ -3,6 +3,7 @@
     const ID = $('#home_group').data('id');
     const HG_ID = $('#home_group').data('departament_id');
     const HG_TITLE = $('#home_group').data('departament_title');
+    const CH_ID = $('#home_group').data('church-id');
 
     function addUserToHomeGroup(id, el) {
         let config = {};
@@ -14,7 +15,7 @@
     }
 
     function makeUsersFromDatabaseList(config = {}, id) {
-        getUsersTOHomeGroup(config, id).then(function (data) {
+        getUsersTOHomeGroup(config, CH_ID).then(function (data) {
             let users = data;
             let html = [];
             users.forEach(function (item) {

@@ -165,6 +165,7 @@ function getHomeGroups(config = {}) {
         newAjaxRequest(data, status, reject)
     });
 }
+
 function createCSV(data) {
     let filename = "";
     let disposition = data.getResponseHeader('Content-Disposition');
@@ -1387,12 +1388,12 @@ function initAddNewUser(config = {}) {
             rendered.push(option);
             data.forEach(function (item) {
                 let option = document.createElement('option');
-                $(option).val(item.id).text(item.title);
+                $(option).val(item.title).text(item.title).attr('data-id', item.id);
                 rendered.push(option);
             });
             $('#chooseCountry').html(rendered).on('change', function () {
                 let config = {};
-                config.country = $(this).val();
+                config.country = $(this).find(':selected').data('id');
                 getRegions(config).then(function (data) {
                     let rendered = [];
                     let option = document.createElement('option');
@@ -1400,12 +1401,12 @@ function initAddNewUser(config = {}) {
                     rendered.push(option);
                     data.forEach(function (item) {
                         let option = document.createElement('option');
-                        $(option).val(item.id).text(item.title);
+                        $(option).val(item.title).text(item.title).attr('data-id', item.id);
                         rendered.push(option);
                     });
                     $('#chooseRegion').html(rendered).attr('disabled', false).on('change', function () {
                         let config = {};
-                        config.region = $(this).val();
+                        config.region = $(this).find(':selected').data('id');
                         getCities(config).then(function (data) {
                             let rendered = [];
                             let option = document.createElement('option');
@@ -1413,7 +1414,7 @@ function initAddNewUser(config = {}) {
                             rendered.push(option);
                             data.forEach(function (item) {
                                 let option = document.createElement('option');
-                                $(option).val(item.id).text(item.title);
+                                $(option).val(item.title).text(item.title).attr('data-id', item.id);
                                 rendered.push(option);
                             });
                             $('#chooseCity').html(rendered).attr('disabled', false).select2();

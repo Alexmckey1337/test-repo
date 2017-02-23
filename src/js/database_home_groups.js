@@ -9,13 +9,13 @@
     });
 //    Events
     $('#add').on('click', function () {
-        var department_id = parseInt($('#department_select').val());
+        let department_id = parseInt($('#department_select').val());
         makePastorList(department_id);
         $('#addChurch').css('display', 'block');
     });
     $('#department_select').on('change', function () {
         $('#pastor_select').prop('disabled', true);
-        var department_id = parseInt($('#department_select').val());
+        let department_id = parseInt($('#department_select').val());
         makePastorList(department_id);
     });
     $('#sort_save').on('click', function () {
