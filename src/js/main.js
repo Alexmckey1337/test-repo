@@ -165,7 +165,6 @@ $(".tabs-nav li a:first").click();
 
 $(document).ready(function () {
     $('body').on('mouseover', '.toggle-sidebar .menu__item', function (el) {
-        //if (el.target.className == '#move-sidebar a') {return};
         if ($(this).parent().is('#move-sidebar')) {
             return
         }

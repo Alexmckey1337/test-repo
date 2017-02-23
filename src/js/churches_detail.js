@@ -66,7 +66,7 @@
         clearAddHomeGroupData();
         if (!responsibleList) {
             responsibleList = true;
-            makeResponsibleList(D_ID, 2);
+            makeResponsibleList(D_ID, 1);
         }
         setTimeout(function () {
             $('#addHomeGroup').css('display', 'block');
@@ -129,7 +129,7 @@
         } else {
             formData.append('divisions', JSON.stringify([]));
         }
-        if($('#phoneNumber').val()) {
+        if($('#phoneNumberCode').val() && $('#phoneNumber').val()) {
             let phoneNumber = $('#phoneNumberCode').val() + $('#phoneNumber').val();
             formData.append('phone_number', phoneNumber)
         }
