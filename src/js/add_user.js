@@ -11,7 +11,7 @@
             }
             let reader = new FileReader();
             // Closure to capture the file information.
-            reader.onload = (function (theFile) {
+            reader.onload = (function () {
                 return function (e) {
                     document.querySelector("#impPopup img").src = e.target.result;
                     document.querySelector("#impPopup").style.display = 'block';

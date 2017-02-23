@@ -121,7 +121,7 @@
         updateSettings(createChurchesDetailsTable);
     });
 
-    function createUser(id) {
+    function createNewUser(id) {
         let oldForm = document.forms.createUser;
         let formData = new FormData(oldForm);
         if ($('#division_drop').val()) {
@@ -185,7 +185,7 @@
 
     $('#createUser').on('submit', function (e) {
         e.preventDefault();
-        createUser();
+        createNewUser();
     });
     $('#export_table').on('click', function () {
         $('.preloader').css('display', 'block');
