@@ -1699,7 +1699,6 @@ function initAddNewUser(config = {}) {
     });
 }
 
-
 function saveUser(el) {
     let $input, $select, fullName, first_name, last_name, middle_name, department, hierarchy, phone_number, data, id;
     let send = true;
