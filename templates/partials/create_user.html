@@ -17,7 +17,7 @@
                 </div>
             </div><!--End col-1-->
 
-            <form action="" name="createUser" id="createUser">
+            <form action="./" name="createUser" id="createUser" novalidate>
                 <div class="col-2">
                     <div class="col-table">
                         <div class="left-info">
@@ -43,25 +43,25 @@
                         </div>
                         <div class="right-info">
                             <ul>
-                                <li><input name="last_name" type="text" required></li>
-                                <li><input name="first_name" type="text" required></li>
+                                <li><input name="last_name" type="text" data-validation="length" data-validation-length="min3"></li>
+                                <li><input name="first_name" type="text" data-validation="length" data-validation-length="min3"></li>
                                 <li><input name="middle_name" type="text"></li>
                                 <li><input type="text" name="search_name" id="search_name"></li>
                                 <li><input name="born_date" type="text" id="bornDate" readonly="readonly"></li>
                                 <li class="phone">
                                     <select style="width: 96%" name="" id="chooseCountryCode">
                                     </select>
-                                    <input disabled id="phoneNumberCode" type="text" required>
-                                    <input id="phoneNumber" type="text" required>
+                                    <input id="phoneNumberCode" type="text" readonly data-validation="required">
+                                    <input id="phoneNumber" type="text" required data-validation="required">
                                 </li>
                                 <li><input type="text" id="extra_phone_numbers"></li>
                                 <li><input name="email" type="text"></li>
                                 <li><input name="skype" type="text"></li>
-                                <li><select style="width: 96%" name="country" id="chooseCountry">
+                                <li><select name="country" id="chooseCountry">
                                 </select></li>
-                                <li><select style="width: 96%" disabled name="region" id="chooseRegion">
+                                <li><select disabled name="region" id="chooseRegion">
                                 </select></li>
-                                <li><select style="width: 96%" disabled name="city" id="chooseCity">
+                                <li><select disabled name="city" id="chooseCity">
                                 </select></li>
                                 <li><input name="district" type="text"></li>
                                 <li><input name="address" id="address" type="text"></li>
@@ -84,16 +84,16 @@
                         </div>
                         <div class="right-info">
                             <ul>
-                                <li><select style="width: 96%" name="department" disabled id="chooseDepartment"
+                                <li><select name="department" disabled id="chooseDepartment"
                                             class="cleared"
-                                            required>
+                                            data-validation="required">
                                 </select></li>
-                                <li><select style="width: 96%" name="hierarchy" id="chooseStatus" class="cleared"
-                                            required>
+                                <li><select name="hierarchy" id="chooseStatus" class="cleared"
+                                            data-validation="required">
                                 </select></li>
                                 </select></li>
-                                <li><select style="width: 96%" disabled name="master" id="chooseResponsible"
-                                            class="cleared" required>
+                                <li><select disabled name="master" id="chooseResponsible"
+                                            class="cleared" data-validation="required">
                                 </select></li>
                             </ul>
                         </div>

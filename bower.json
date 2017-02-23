@@ -22,5 +22,9 @@
     "requirejs": "^2.3.2",
     "es6-promise": "^4.0.5",
     "fetch": "^2.0.2"
+  },
+  "devDependencies": {
+    "bootstrap-validator": "^0.11.9",
+    "jquery-form-validator": "^2.3.54"
   }
 }

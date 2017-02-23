@@ -89,10 +89,10 @@
         let department_id = $('#church').data('department_id');
         let department_title = $('#church').data('department_title');
         let option = document.createElement('option');
-        $(option).val(department_id).text(department_title).attr('selected', true);
+        $(option).val(department_id).text(department_title).attr('selected', true).attr('required', false);
         $(this).closest('.popup').css('display', 'none');
         $('#addNewUserPopup').css('display', 'block');
-        $('#chooseDepartment').append(option);
+        $('#chooseDepartment').html(option);
     });
     $('#searchUserFromDatabase').on('keyup', function () {
         let search = $(this).val();

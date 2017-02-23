@@ -1,9 +1,72 @@
 (function ($) {
     let tableUserINHomeGroups;
+    let $createUserForm = $('#createUser');
     const ID = $('#home_group').data('id');
     const HG_ID = $('#home_group').data('departament_id');
     const HG_TITLE = $('#home_group').data('departament_title');
     const CH_ID = $('#home_group').data('church-id');
+
+    function createNewUser(id) {
+        let oldForm = document.forms.createUser;
+        let formData = new FormData(oldForm);
+        if ($('#division_drop').val()) {
+            formData.append('divisions', JSON.stringify($('#chooseDivision').val()));
+        } else {
+            formData.append('divisions', JSON.stringify([]));
+        }
+        if ($('#phoneNumberCode').val() && $('#phoneNumber').val()) {
+            let phoneNumber = $('#phoneNumberCode').val() + $('#phoneNumber').val();
+            formData.append('phone_number', phoneNumber)
+        }
+        if ($('#extra_phone_numbers').val()) {
+            formData.append('extra_phone_numbers', JSON.stringify($('#extra_phone_numbers').val().split(',').map((item) => item.trim())));
+        } else {
+            formData.append('extra_phone_numbers', JSON.stringify([]));
+        }
+        formData.append('department', $('#chooseDepartment').val());
+        if ($('#partner').is(':checked')) {
+            let partner = {};
+            partner.value = parseInt($('#partnerFrom').val()) || 0;
+            partner.currency = parseInt($('#payment_currency').val());
+            partner.date = $('#partners_count').val() || null;
+            partner.responsible = parseInt($("#chooseManager").val());
+            formData.append('partner', JSON.stringify(partner));
+        }
+        let send_image = $('#file').prop("files").length || false;
+        if (send_image) {
+            try {
+                let blob;
+                blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+                formData.append('image', blob);
+                formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
+                formData.append('id', id);
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/`;
+        let config = {
+            url: url,
+            data: formData,
+            method: 'POST'
+        };
+        $('.preloader').css('display', 'block');
+        ajaxSendFormData(config).then(function (data) {
+            $('.preloader').css('display', 'none');
+            addUserToHomeGroup(data.id);
+            showPopup(`${data.fullname} добален(а) в базу данных`);
+            $createUserForm.find('input').each(function () {
+                $(this).val('')
+            });
+            $createUserForm.find('.cleared').each(function () {
+                $(this).find('option').eq(0).prop('selected', true).select2()
+            });
+            $('#addNewUserPopup').css('display', 'none');
+        }).catch(function (data) {
+            $('.preloader').css('display', 'none');
+            showPopup(data);
+        });
+    }
 
     function addUserToHomeGroup(id, el) {
         let config = {};
@@ -67,7 +130,7 @@
         $(option).val(departament_id).text(departament_title).attr('selected', true);
         $(this).closest('.popup').css('display', 'none');
         $('#addNewUserPopup').css('display', 'block');
-        $('#chooseDepartment').append(option);
+        $('#chooseDepartment').html(option).attr('required', false);
     });
     $('#searchUserFromDatabase').on('keyup', function () {
         let search = $(this).val();
@@ -91,5 +154,16 @@
                 showPopup('Ошибка при загрузке файла');
                 $('.preloader').css('display', 'none');
             });
+    });
+    // $createUserForm.on('submit', function (e) {
+    //     e.preventDefault();
+    //
+    // });
+    $.validate({
+        lang: 'ru',
+        onSuccess: function ($form) {
+            createNewUser();
+            return false; // Will stop the submission of the form
+        },
     });
 })(jQuery);
