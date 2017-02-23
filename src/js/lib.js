@@ -1384,6 +1384,7 @@ function initLocationSelect(config) {
         $countrySelector.html(list);
     }).then(function () {
         if(!selectCountry) return;
+        console.log('selectCountry');
         let config = {};
         config.country = $countrySelector.find(':selected').data('id');
         getRegions(config).then(function (data) {
@@ -1391,6 +1392,7 @@ function initLocationSelect(config) {
             $regionSelector.html(list);
         }).then(function () {
             if (!selectCity) return;
+            console.log(selectCity);
             let config = {};
             config.region = $regionSelector.find(':selected').data('id');
             getCities(config).then(function (data) {
