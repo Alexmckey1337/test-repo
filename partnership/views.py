@@ -218,13 +218,13 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
 
 
 class DateFilter(filters.FilterSet):
-    to_date = django_filters.DateFilter(name="date", lookup_type='lte')
-    from_date = django_filters.DateFilter(name="date", lookup_type='gte')
+    to_date = django_filters.DateFilter(name="date_created", lookup_type='lte')
+    from_date = django_filters.DateFilter(name="date_created", lookup_type='gte')
 
     class Meta:
         model = Deal
         fields = ['partnership__responsible__user',
-                  'partnership__user', 'value', 'date',
+                  'partnership__user', 'value', 'date_created', 'date',
                   'expired', 'done', 'to_date', 'from_date', ]
 
 
