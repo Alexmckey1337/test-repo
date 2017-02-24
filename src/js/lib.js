@@ -39,7 +39,6 @@ function createHomeGroupsTable(config = {}) {
             let id = $(this).closest('.edit').find('a').attr('data-id');
             ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/`, null, function (data) {
                 let quickEditCartTmpl, rendered;
-                console.log(data);
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
                 $('#quickEditCartPopup .popup_body').html(rendered);
@@ -384,7 +383,6 @@ function saveUserData(data, id) {
     if (id) {
         let json = JSON.stringify(data);
         ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.1/users/${id}/`, json, function (data) {
-            console.log(data);
         }, 'PATCH', false, {
             'Content-Type': 'application/json'
         });
@@ -395,7 +393,6 @@ function saveChurchData(data, id) {
     if (id) {
         let json = JSON.stringify(data);
         ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/`, json, function (data) {
-            console.log(data);
         }, 'PATCH', false, {
             'Content-Type': 'application/json'
         });
@@ -406,7 +403,6 @@ function saveHomeGroupsData(data, id) {
     if (id) {
         let json = JSON.stringify(data);
         ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${id}/`, json, function (data) {
-            console.log(data);
         }, 'PATCH', false, {
             'Content-Type': 'application/json'
         });
@@ -441,7 +437,6 @@ function deleteUserINChurch(id, user_id) {
 
 function createChurchesUsersTable(id, config = {}) {
     getChurchUsers(id).then(function (data) {
-        console.log(data);
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
@@ -475,7 +470,6 @@ function createChurchesDetailsTable(config = {}, id, link) {
         link = $('.get_info .active').data('link');
     }
     getChurchDetails(id, link, config).then(function (data) {
-        console.log(data);
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
@@ -561,14 +555,13 @@ function addHomeGroupToDataBase(config = {}) {
             403: function () {
                 reject('Вы должны авторизоватся')
             }
-
         };
         newAjaxRequest(data, status, reject)
     });
 }
 
-function addHomeGroup(e, el) {
-    e.preventDefault();
+
+function addHomeGroup(el) {
     let data = getAddHomeGroupData();
     let json = JSON.stringify(data);
 
@@ -648,9 +641,9 @@ function createChurchesTable(config = {}) {
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
                 $('#quickEditCartPopup .popup_body').html(rendered);
-                console.log('opening_date');
                 $('#opening_date').datepicker({
-                    dateFormat: 'yyyy-mm-dd'
+                    dateFormat: 'yyyy-mm-dd',
+                    autoClose: true
                 });
                 makePastorList(data.department, '#editPastorSelect', data.pastor);
                 makeDepartmentList('#editDepartmentSelect', data.department).then(function () {
@@ -1343,7 +1336,6 @@ function makeSortForm(data) {
     obj.user = [];
     obj.user.push("Фильтр");
     obj.user.push(data);
-    console.log(obj);
     rendered = _.template(sortFormTmpl)(obj);
     document.getElementById('sort-form').innerHTML = rendered;
     $("#sort-form").sortable({revert: true, items: "li:not([disable])", scroll: false});
@@ -1618,7 +1610,7 @@ function saveUser(el) {
     id = $(el).closest('.pop_cont').find('img').attr('alt');
     saveUserData(data, id);
     $(el).text("Сохранено");
-    $(el).closest('.popap').find('.close-popup').text('Закрыть');
+    $(el).closest('.popap').find('.close-popup.change__text').text('Закрыть');
     $(el).attr('disabled', true);
     $input = $(el).closest('.popap').find('input');
     $select = $(el).closest('.popap').find('select');
@@ -1657,7 +1649,7 @@ function saveChurches(el) {
     };
     saveChurchData(data, id);
     $(el).text("Сохранено");
-    $(el).closest('.popap').find('.close-popup').text('Закрыть');
+    $(el).closest('.popap').find('.close-popup.change__text').text('Закрыть');
     $(el).attr('disabled', true);
     $input = $(el).closest('.popap').find('input');
     $select = $(el).closest('.popap').find('select');
@@ -1689,7 +1681,7 @@ function saveHomeGroups(el) {
     };
     saveHomeGroupsData(data, id);
     $(el).text("Сохранено");
-    $(el).closest('.popap').find('.close-popup').text('Закрыть');
+    $(el).closest('.popap').find('.close-popup.change__text').text('Закрыть');
     $(el).attr('disabled', true);
     $input = $(el).closest('.popap').find('input');
     $select = $(el).closest('.popap').find('select');

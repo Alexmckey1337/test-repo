@@ -4,10 +4,12 @@
     $('#pastor_select').select2();
     $('.selectdb').select2();
     $('#search_date_open').datepicker({
-        dateFormat: 'yyyy-mm-dd'
+        dateFormat: 'yyyy-mm-dd',
+        autoClose: true
     });
     $('#opening_date').datepicker({
-        dateFormat: 'yyyy-mm-dd'
+        dateFormat: 'yyyy-mm-dd',
+        autoClose: true
     });
 //    Events
     $('#add').on('click', function () {

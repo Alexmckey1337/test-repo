@@ -67,13 +67,6 @@ $('document').ready(function () {
             $(this).removeAttr('disabled');
         });
     });
-    $.validate({
-        lang: 'ru',
-        onSuccess: function () {
-            createNewUser();
-            return false; // Will stop the submission of the form
-        },
-    });
     function createNewUser() {
         let oldForm = document.forms.createUser;
         let formData = new FormData(oldForm);
@@ -135,14 +128,18 @@ $('document').ready(function () {
         });
     }
 
-    // $('#createUser').on('submit', function (e) {
-    //     e.preventDefault();
-    //     $(this).find('button[type="submit"]').attr('disabled', true);
-    //     createUser();
-    // });
-
     $('#add').on('click', function () {
         $('#addNewUserPopup').css('display', 'block');
         initAddNewUser();
+    });
+    $.validate({
+        lang: 'ru',
+        form: '#createUser',
+        onSuccess: function () {
+            if ($(form).attr('name') == 'createUser') {
+                createNewUser();
+            }
+            return false; // Will stop the submission of the form
+        },
     });
 });

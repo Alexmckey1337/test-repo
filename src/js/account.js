@@ -109,6 +109,7 @@ $("#create_new_deal").on('click', function () {
         dateFormat: "yy-mm-dd",
         maxDate: new Date(),
         yearRange: '2010:+0',
+        autoClose: true,
         onSelect: function (date) {
         }
     }).mousedown(function () {

@@ -59,7 +59,8 @@
 
     $('#added_home_group_pastor').select2();
     $('#added_home_group_date').datepicker({
-        dateFormat: 'yyyy-mm-dd'
+        dateFormat: 'yyyy-mm-dd',
+        autoClose: true
     });
 //    Events
     $('#add_homeGroupToChurch').on('click', function () {
@@ -198,10 +199,17 @@
                 $('.preloader').css('display', 'none');
         });
     });
+    $('#addHomeGroup').on('submit', function (e) {
+        e.preventDefault();
+        addHomeGroup(this);
+    });
     $.validate({
         lang: 'ru',
-        onSuccess: function () {
-            createNewUser();
+        form : '#createUser',
+        onSuccess: function (form) {
+            if($(form).attr('name') == 'createUser') {
+                createNewUser();
+            }
             return false; // Will stop the submission of the form
         },
     });

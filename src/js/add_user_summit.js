@@ -51,22 +51,21 @@ $(document).ready(function () {
         img.cropper("destroy");
     });
 
-    $.datepicker.setDefaults($.datepicker.regional["ru"]);
-
-    $("#partnerFrom").datepicker().mousedown(function () {
-        $('#ui-datepicker-div').toggle();
+    $("#bornDate").datepicker({
+        dateFormat: 'yyyy-mm-dd',
+        autoClose: true
     });
-
-    $("#bornDate").datepicker({dateFormat: 'yyyy-mm-dd'});
 
     $("#firsVisit").datepicker().datepicker({
         setDate: new Date(),
-        dateFormat: 'yyyy-mm-dd'
+        dateFormat: 'yyyy-mm-dd',
+        autoClose: true
     });
 
     $("#repentanceDate").datepicker({
         setDate: new Date(),
-        dateFormat: 'yyyy-mm-dd'
+        dateFormat: 'yyyy-mm-dd',
+        autoClose: true
     });
 
     $('#partner').click(function () {
