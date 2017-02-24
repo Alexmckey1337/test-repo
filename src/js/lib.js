@@ -649,7 +649,8 @@ function createChurchesTable(config = {}) {
                 $('#quickEditCartPopup .popup_body').html(rendered);
                 console.log('opening_date');
                 $('#opening_date').datepicker({
-                    dateFormat: 'yyyy-mm-dd'
+                    dateFormat: 'yyyy-mm-dd',
+                    autoClose: true
                 });
                 makePastorList(data.department, '#editPastorSelect', data.pastor);
                 makeDepartmentList('#editDepartmentSelect', data.department).then(function () {

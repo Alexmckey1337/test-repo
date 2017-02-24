@@ -253,17 +253,29 @@ $('.close-popup').on('click', function (e) {
     e.preventDefault();
     hidePopup(this);
 });
+function setSidebarPosition() {
+    console.log('sidebar');
+    let $sidebar = $("#sidebar");
+    let $moveSidebar = $('#move-sidebar');
+    if (!$sidebar.hasClass('toggle-sidebar')) {
+        setTimeout(function () {
+            $sidebar.addClass('toggle-sidebar');
+            $moveSidebar.addClass('active');
+            document.cookie = 'state=active;path=/';
+        }, 100)
+    } else {
+        setTimeout(function () {
+            $sidebar.removeClass('toggle-sidebar');
+            $moveSidebar.removeClass('active');
+            deleteCookie('state');
+        }, 100)
+    }
+}
 
 (function ($) {
-    $("#turn_aside").click(function () {
-        if (!$("#sidebar").hasClass('toggle-sidebar')) {
-            $("#sidebar").addClass('toggle-sidebar');
-            $('#move-sidebar').addClass('active');
-            document.cookie = 'state=active;path=/';
-        } else {
-            $("#sidebar").removeClass('toggle-sidebar');
-            $('#move-sidebar').removeClass('active');
-            deleteCookie('state');
-        }
+    $().dblclick(() => false);
+    $("#turn_aside").on('click', function (e) {
+        e.preventDefault();
+        setSidebarPosition()
     });
 })(jQuery);
