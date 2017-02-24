@@ -20,148 +20,156 @@
             <form action="./" name="createUser" id="createUser" novalidate>
                 <div class="col-2">
                     <div class="col-table">
-                        <div class="left-info">
-                            <ul>
-                                <li>Фамилия*</li>
-                                <li>Имя*</li>
-                                <li>Отчество</li>
-                                <li>Имя на родном языке</li>
-                                <li>Дата рождения</li>
-                                <li>Телефон*</li>
-                                <li>Доп.телефон</li>
-                                <li>E-mail</li>
-                                <li>Skype</li>
-                                <li>Страна</li>
-                                <li>Область</li>
-                                <li>Город</li>
-                                <li>Район</li>
-                                <li>Адрес</li>
-                                <li>Facebook</li>
-                                <li>Vkontakte</li>
-                                <li>Odnaklasniki</li>
-                            </ul>
-                        </div>
-                        <div class="right-info">
-                            <ul>
-                                <li><input name="last_name" type="text" data-validation="length" data-validation-length="min3"></li>
-                                <li><input name="first_name" type="text" data-validation="length" data-validation-length="min3"></li>
-                                <li><input name="middle_name" type="text"></li>
-                                <li><input type="text" name="search_name" id="search_name"></li>
-                                <li><input name="born_date" type="text" id="bornDate" readonly="readonly"></li>
-                                <li class="phone">
-                                    <select style="width: 96%" name="" id="chooseCountryCode">
-                                    </select>
+                        <ul>
+                            <li class="clearfix">
+                                <label for="last_name">Фамилия*</label>
+                                <input name="last_name" type="text" data-validation="length"
+                                       data-validation-length="min3">
+                            </li>
+                            <li class="clearfix">
+                                <label for="first_name">Имя*</label>
+                                <input name="first_name" type="text" data-validation="length"
+                                       data-validation-length="min3">
+                            </li>
+                            <li class="clearfix">
+                                <label for="middle_name">Отчество</label>
+                                <input name="middle_name" type="text">
+                            </li>
+                            <li class="clearfix">
+                                <label for="search_name">Имя на родном языке</label>
+                                <input type="text" name="search_name" id="search_name">
+                            </li>
+                            <li class="clearfix">
+                                <label for="born_date">Дата рождения</label>
+                                <input name="born_date" type="text" id="bornDate" readonly="readonly">
+                            </li>
+                            <li class="clearfix">
+                                <label>Телефон*</label>
+                                <div class="phone">
+                                    <select style="width: 96%" name="" id="chooseCountryCode"></select>
                                     <input id="phoneNumberCode" type="text" readonly data-validation="required">
                                     <input id="phoneNumber" type="text" required data-validation="required">
-                                </li>
-                                <li><input type="text" id="extra_phone_numbers"></li>
-                                <li><input name="email" type="text"></li>
-                                <li><input name="skype" type="text"></li>
-                                <li><select name="country" id="chooseCountry">
-                                </select></li>
-                                <li><select disabled name="region" id="chooseRegion">
-                                </select></li>
-                                <li><select disabled name="city" id="chooseCity">
-                                </select></li>
-                                <li><input name="district" type="text"></li>
-                                <li><input name="address" id="address" type="text"></li>
-                                <li><input name="facebook" type="text"></li>
-                                <li><input name="vkontakte" type="text"></li>
-                                <li><input name="odnoklassniki" type="text"></li>
-                            </ul>
-                        </div>
+                                </div>
+                            </li>
+                            <li class="clearfix">
+                                <label for="extra_phone_numbers">Доп.телефон</label>
+                                <input type="text" id="extra_phone_numbers">
+                            </li>
+                            <li class="clearfix">
+                                <label for="email">E-mail</label>
+                                <input name="email" type="text">
+                            </li>
+                            <li class="clearfix">
+                                <label for="skype">Skype</label>
+                                <input name="skype" type="text">
+                            </li>
+                            <li class="clearfix">
+                                <label for="country">Страна</label>
+                                <select name="country" id="chooseCountry"></select>
+                            </li>
+                            <li class="clearfix">
+                                <label for="district">Область</label>
+                                <select disabled name="region" id="chooseRegion"></select>
+                            </li>
+                            <li class="clearfix">
+                                <label for="city">Город</label>
+                                <select disabled name="city" id="chooseCity"></select>
+                            </li>
+                            <li class="clearfix">
+                                <label for="district">Район</label>
+                                <input name="district" type="text">
+                            </li>
+                            <li class="clearfix">
+                                <label for="address">Адрес</label>
+                                <input name="address" id="address" type="text">
+                            </li>
+                            <li class="clearfix">
+                                <label for="facebook">Facebook</label>
+                                <input name="facebook" type="text">
+                            </li>
+                            <li class="clearfix">
+                                <label for="vkontakte">Vkontakte</label>
+                                <input name="vkontakte" type="text">
+                            </li>
+                            <li class="clearfix">
+                                <label for="odnaklasniki">Odnaklasniki</label>
+                                <input name="odnoklassniki" type="text">
+                            </li>
+                        </ul>
                     </div>
-                    </ul>
                 </div><!--End col-2-->
                 <div class="col-3">
                     <div class="col-table">
-                        <div class="left-info">
-                            <ul>
-                                <li>Отдел*</li>
-                                <li>Статус*</li>
-                                <li>Ответственный*</li>
-                            </ul>
-                        </div>
-                        <div class="right-info">
-                            <ul>
-                                <li><select name="department" disabled id="chooseDepartment"
-                                            class="cleared"
-                                            data-validation="required">
-                                </select></li>
-                                <li><select name="hierarchy" id="chooseStatus" class="cleared"
-                                            data-validation="required">
-                                </select></li>
-                                </select></li>
-                                <li><select disabled name="master" id="chooseResponsible"
-                                            class="cleared" data-validation="required">
-                                </select></li>
-                            </ul>
-                        </div>
+                        <ul>
+                            <li class="clearfix">
+                                <label for="department">Отдел*</label>
+                                <select name="department" disabled id="chooseDepartment"
+                                        class="cleared"
+                                        data-validation="required">
+                                </select>
+                            </li>
+                            <li class="clearfix">
+                                <label for="hierarchy">Статус*</label>
+                                <select name="hierarchy" id="chooseStatus" class="cleared"
+                                        data-validation="required">
+                                </select>
+                            </li>
+                            <li class="clearfix">
+                                <label for="master">Ответственный*</label>
+                                <select disabled name="master" id="chooseResponsible"
+                                        class="cleared" data-validation="required">
+                                </select>
+                            </li>
+                        </ul>
                     </div>
                     <div class="col-table">
-                        <div class="left-info">
-                            <ul>
-                                <li>Департамент</li>
-                            </ul>
-                        </div>
-                        <div class="right-info">
-                            <ul>
-                                <li><select style="width: 96%" id="chooseDivision" multiple="multiple">
-                                </select></li>
-                            </ul>
-                        </div>
+                        <ul>
+                            <li class="clearfix">
+                                <label for="">Департамент</label>
+                                <select id="chooseDivision" multiple="multiple"></select>
+                            </li>
+                        </ul>
                     </div>
                     <div class="col-table">
-                        <div class="left-info">
-                            <ul>
-                                <li>Партнёр</li>
-                            </ul>
-                            <ul class="hidden-partner" style="display:none">
-                                <li>Партнёр с</li>
-                                <li>Сумма сделки</li>
-                                <li>Менеджер</li>
-                            </ul>
-                        </div>
-                        <div class="right-info">
-                            <ul>
-                                <li><input type="checkbox" id="partner">
-                                    <label for="partner"></label>
-                                </li>
-                            </ul>
-                            <ul class="hidden-partner" style="display:none">
-                                <li><input type="text" id="partnerFrom" readonly="readonly">
-                                </li>
-                                <li>
+                        <ul>
+                            <li class="clearfix">
+                                <label for="partner">Партнёр</label>
+                                <input type="checkbox" id="partner">
+                            </li>
+                        </ul>
+                        <ul class="hidden-partner">
+                            <li class="clearfix">
+                                <label>Партнёр с</label>
+                                <input type="text" id="partnerFrom" readonly="readonly">
+                            </li>
+                            <li class="clearfix">
+                                <label>Сумма сделки</label>
+                                <div>
                                     <input type="number" id="val_partnerships">
                                     <select id="payment_currency" required>
-                                        {% for currency in currencies %}
-                                            <option value="{{ currency.id }}"
-                                                    {% if currency == purpose.currency %}selected{% endif %}>
-                                                {{ currency.short_name }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </li>
-                                <li><select style="width: 96%" id="chooseManager">
-                                </select></li>
-                            </ul>
-                        </div>
+                                    {% for currency in currencies %}
+                                        <option value="{{ currency.id }}"
+                                                {% if currency == purpose.currency %}selected{% endif %}>
+                                            {{ currency.short_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                </div>
+                            </li>
+                            <li class="clearfix">
+                                <label>Менеджер</label>
+                                <select style="width: 96%" id="chooseManager"></select>
+                            </li>
+                        </ul>
                     </div>
                     <div class="col-table">
-                        <div class="left-info">
-                            <ul>
-                                <li>Дата покаяния</li>
-                            </ul>
-                        </div>
-                        <div class="right-info">
-                            <ul>
-                                <li><input name="repentance_date" type="text" readonly="readonly"
-                                           id="repentanceDate">
-                                </li>
-                            </ul>
-                        </div>
+                        <ul>
+                            <li>
+                                <label for="repentance_date">Дата покаяния</label>
+                                <input name="" type="text" readonly="readonly" id="repentanceDate">
+                            </li>
+                        </ul>
                     </div>
-
                 </div><!--End col-3-->
                 <div class="splash-bauttons">
                     <a class="close_popup">Отменить</a>

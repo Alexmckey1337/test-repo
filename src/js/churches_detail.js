@@ -198,4 +198,11 @@
                 $('.preloader').css('display', 'none');
         });
     });
+    $.validate({
+        lang: 'ru',
+        onSuccess: function () {
+            createNewUser();
+            return false; // Will stop the submission of the form
+        },
+    });
 })(jQuery);

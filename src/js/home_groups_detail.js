@@ -155,13 +155,10 @@
                 $('.preloader').css('display', 'none');
             });
     });
-    // $createUserForm.on('submit', function (e) {
-    //     e.preventDefault();
-    //
-    // });
+
     $.validate({
         lang: 'ru',
-        onSuccess: function ($form) {
+        onSuccess: function () {
             createNewUser();
             return false; // Will stop the submission of the form
         },

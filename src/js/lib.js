@@ -1453,7 +1453,7 @@ function initAddNewUser(config = {}) {
             let statuses = data.results;
             let rendered = [];
             let option = document.createElement('option');
-            $(option).text('Выбирите статус').attr('disabled', true).attr('selected', true);
+            $(option).text('Выберите статус').attr('disabled', true).attr('selected', true);
             rendered.push(option);
             statuses.forEach(function (item) {
                 let option = document.createElement('option');

@@ -1993,7 +1993,6 @@ table tr:first-child td {
   background: url('../img/dots-ico.png') no-repeat;
 }
 
-.editprofile label,
 table label,
 .account label,
 #sort-form label {
@@ -2020,7 +2019,6 @@ td label {
   left: 8px;
 }
 
-.editprofile label::before,
 table label::before,
 .account label::before,
 #sort-form label::before {
@@ -2120,13 +2118,14 @@ input:checked ~ label.disable:before {
 
 }
 
-.editprofile input[type=checkbox],
 table input[type=checkbox],
 .account input[type=checkbox],
 #sort-form input[type=checkbox] {
   display: none;
 }
-
+.hidden-partner {
+  display: none;
+}
 .dropbox-wrap {
   margin-top: 10px;
   margin-bottom: 10px;
@@ -2216,36 +2215,48 @@ table input[type=checkbox],
 
 /***********************popup***************************************/
 .popap {
+  & .popup_body {
+    & input {
+      width: 90%;
+      height: 30px;
+      border: 1px solid #cdd0d4;
+      border-radius: 3px;
+      padding: 0 .5em;
+    }
+    & .select2 {
+      width: 96% !important;
+    }
+  }
   & input {
     &#phoneNumberCode {
       position: absolute;
-      left: 17%;
+      left: 38px;
       top: 0;
-      width: 19% !important;
+      width: 62px !important;
       border-radius: 3px;
       padding: 6px 4px;
     }
     &#phoneNumber {
       position: absolute;
-      left: 38%;
+      right: 0;
       top: 0;
-      width: 58% !important;
+      width: ~'calc(100% - 100px)' !important;
     }
-    &:not([type=checkbox]) {
-      width: 96%;
-      padding: 6px;
-      border-radius: 3px;
-      border: 1px solid #cdd0d4;
-      height: 35px;
-      box-sizing: border-box;
-      &.select_date_filter {
-        width: 7em;
-        margin-right: 1em;
-      }
-      &:read-only {
-        border-color: transparent;
-      }
-    }
+    //&:not([type=checkbox]) {
+    //  width: 96%;
+    //  padding: 6px;
+    //  border-radius: 3px;
+    //  border: 1px solid #cdd0d4;
+    //  height: 35px;
+    //  box-sizing: border-box;
+    //  &.select_date_filter {
+    //    width: 7em;
+    //    margin-right: 1em;
+    //  }
+    //  &:read-only {
+    //    border-color: transparent;
+    //  }
+    //}
     & select {
       padding: 4px 27px 4px 7px;
       &:disabled {
@@ -3815,11 +3826,19 @@ span.green {
     font-family: "UbuntuBold", sans-serif;
     height: 35px;
     box-sizing: border-box;
+    &[type=checkbox] {
+      width: 1em !important;
+      height: 1em !important;
+      float: left;
+      margin: 0.7em;
+      cursor: pointer;
+    }
     &:read-only {
       border-color: #cdd0d4 !important;
     }
     &#val_partnerships {
       width: 50% !important;
+      float: left !important;
     }
     &#payment_currency {
       width: 44% !important;
@@ -3931,11 +3950,37 @@ span.green {
 }
 
 .col-table {
+  padding: 2em;
   border: 1px solid #cdd0d4;
   border-radius: 3px;
-  padding: 10px 25px 15px 0;
   background-color: #f2f5fa;
   overflow: hidden;
+  & li {
+    margin-bottom: .5em;
+    & .phone {
+      & .select2 {
+        width: 100px !important;
+        float: left;
+      }
+    }
+    & .help-block {
+      text-align: right;
+      display: block;
+      padding-top: 40px;
+    }
+    & label {
+      display: block;
+      width: 40%;
+      float: left;
+      text-align: right;
+      font-size: 1.2em;
+      line-height: 35px;
+    }
+    & input, & select, & .select2, & div {
+      width: 55% !important;
+      float: right;
+    }
+  }
 }
 
 .editprofile .left-info ul li {
@@ -3992,13 +4037,13 @@ select[disabled] {
   cursor: pointer;
 }
 
-.editprofile label {
+label[for="partner"] {
   display: inline-block;
   width: 20px;
   height: 35px;
 }
 
-.editprofile label::before {
+label[for="partner"]::before {
   top: 6px;
   right: 0;
 }
@@ -4058,10 +4103,6 @@ input[type='file'] {
 
 .select2-selection__arrow b {
   display: none;
-}
-
-.select2 {
-  width: 96% !important;
 }
 
 .select2-container--default .select2-selection--single, .select2-container--default .select2-selection--multiple {
@@ -4387,14 +4428,8 @@ div.butt-wrap > p:nth-child(3) {
   padding-left: 30px;
 }
 
-.phone .select2-selection.select2-selection--single {
-  width: 15.5% !important;
-  border-left: none !important;
-  border-right: none !important;
-}
-
 .phone .select2-container--default .select2-selection--single .select2-selection__arrow {
-  left: -1px;
+  left: 0;
 }
 
 .phone {

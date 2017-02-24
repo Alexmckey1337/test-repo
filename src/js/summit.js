@@ -26,7 +26,7 @@
 
     addSummitInfo();
 
-    function createUser(id) {
+    function createNewUser(id) {
         let oldForm = document.forms.createUser;
         let formData = new FormData(oldForm);
         if ($('#division_drop').val()) {
@@ -409,8 +409,15 @@
     $('.quick-edit').on('click', function () {
         $('#popupDelete').css('display', 'block');
     });
-    $('#createUser').on('submit', function (e) {
-        e.preventDefault();
-        createUser();
+    // $('#createUser').on('submit', function (e) {
+    //     e.preventDefault();
+    //     createUser();
+    // });
+    $.validate({
+        lang: 'ru',
+        onSuccess: function () {
+            createNewUser();
+            return false; // Will stop the submission of the form
+        },
     });
 })(jQuery);

@@ -1,4 +1,5 @@
 $('document').ready(function () {
+    let $createUser = $('#createUser');
 
     createUsersTable({});
 
@@ -66,8 +67,14 @@ $('document').ready(function () {
             $(this).removeAttr('disabled');
         });
     });
-
-    function createUser(id) {
+    $.validate({
+        lang: 'ru',
+        onSuccess: function () {
+            createNewUser();
+            return false; // Will stop the submission of the form
+        },
+    });
+    function createNewUser() {
         let oldForm = document.forms.createUser;
         let formData = new FormData(oldForm);
         if ($('#division_drop').val()) {
@@ -114,10 +121,10 @@ $('document').ready(function () {
         ajaxSendFormData(config).then(function (data) {
             $('.preloader').css('display', 'none');
             showPopup(`${data.fullname} добален(а) в базу данных`);
-            $('#createUser').find('input').each(function () {
-                $(this).val('button[type="submit"]').attr('disabled', false);
+            $createUser.find('input').each(function () {
+                $(this).val('').attr('disabled', false);
             });
-            $('#createUser').find('.cleared').each(function () {
+            $createUser.find('.cleared').each(function () {
                 $(this).find('option').eq(0).prop('selected', true).select2()
             });
             $('#addNewUserPopup').css('display', 'none');
@@ -128,11 +135,11 @@ $('document').ready(function () {
         });
     }
 
-    $('#createUser').on('submit', function (e) {
-        e.preventDefault();
-        $(this).find('button[type="submit"]').attr('disabled', true);
-        createUser();
-    });
+    // $('#createUser').on('submit', function (e) {
+    //     e.preventDefault();
+    //     $(this).find('button[type="submit"]').attr('disabled', true);
+    //     createUser();
+    // });
 
     $('#add').on('click', function () {
         $('#addNewUserPopup').css('display', 'block');
