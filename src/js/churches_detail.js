@@ -29,27 +29,37 @@
         getUsersTOChurch(config).then(function (data) {
             let users = data;
             let html = [];
-            users.forEach(function (item) {
+            if (users.length) {
+                users.forEach(function (item) {
+                    let rows_wrap = document.createElement('div');
+                    let rows = document.createElement('div');
+                    let col_1 = document.createElement('div');
+                    let col_2 = document.createElement('div');
+                    let place = document.createElement('p');
+                    let link = document.createElement('a');
+                    let button = document.createElement('button');
+                    $(link).attr('href', '/account/' + item.id).text(item.full_name);
+                    $(place).text();
+                    $(col_1).addClass('col').append(link);
+                    $(col_2).addClass('col').append(item.country + ', ' + item.city);
+                    $(rows).addClass('rows').append(col_1).append(col_2);
+                    $(button).attr('data-id', item.id).text('Выбрать').on('click', function () {
+                        let id = $(this).data('id');
+                        let _self = this;
+                        addUserToChurch(id, _self);
+                    });
+                    $(rows_wrap).addClass('rows-wrap').append(button).append(rows);
+                    html.push(rows_wrap);
+                });
+            } else {
                 let rows_wrap = document.createElement('div');
                 let rows = document.createElement('div');
                 let col_1 = document.createElement('div');
-                let col_2 = document.createElement('div');
-                let place = document.createElement('p');
-                let link = document.createElement('a');
-                let button = document.createElement('button');
-                $(link).attr('href', '/account/' + item.id).text(item.full_name);
-                $(place).text();
-                $(col_1).addClass('col').append(link);
-                $(col_2).addClass('col').append(item.country + ', ' + item.city);
-                $(rows).addClass('rows').append(col_1).append(col_2);
-                $(button).attr('data-id', item.id).text('Выбрать').on('click', function () {
-                    let id = $(this).data('id');
-                    let _self = this;
-                    addUserToChurch(id, _self);
-                });
-                $(rows_wrap).addClass('rows-wrap').append(button).append(rows);
+                $(col_1).text('Пользователь не найден');
+                $(rows).addClass('rows').append(col_1);
+                $(rows_wrap).addClass('rows-wrap').append(rows);
                 html.push(rows_wrap);
-            });
+            }
             $('#searchedUsers').html(html);
             $('.choose-user-wrap .splash-screen').addClass('active');
         })
@@ -130,7 +140,7 @@
         } else {
             formData.append('divisions', JSON.stringify([]));
         }
-        if($('#phoneNumberCode').val() && $('#phoneNumber').val()) {
+        if ($('#phoneNumberCode').val() && $('#phoneNumber').val()) {
             let phoneNumber = $('#phoneNumberCode').val() + $('#phoneNumber').val();
             formData.append('phone_number', phoneNumber)
         }
@@ -197,7 +207,7 @@
             .catch(function () {
                 showPopup('Ошибка при загрузке файла');
                 $('.preloader').css('display', 'none');
-        });
+            });
     });
     $('#addHomeGroup').on('submit', function (e) {
         e.preventDefault();
@@ -205,9 +215,9 @@
     });
     $.validate({
         lang: 'ru',
-        form : '#createUser',
+        form: '#createUser',
         onSuccess: function (form) {
-            if($(form).attr('name') == 'createUser') {
+            if ($(form).attr('name') == 'createUser') {
                 createNewUser();
             }
             return false; // Will stop the submission of the form
