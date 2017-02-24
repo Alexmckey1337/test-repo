@@ -331,11 +331,12 @@ $(document).ready(function () {
         dateFormat: "yyyy-mm-dd",
         maxDate: new Date(),
         autoClose: true,
+        setDate: '-1m',
         onSelect: function (date) {
             let doneToDate = $('#done_datepicker_to').val();
             sortDoneDeals(date, doneToDate);
         }
-    }).datepicker("setDate", '-1m');
+    });
 
     $("#done_datepicker_to").datepicker({
         dateFormat: "yyyy-mm-dd",

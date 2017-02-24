@@ -90,14 +90,19 @@
         $("#partner_drop").select2();
 
         getCurrentUser(id).then(function (data) {
-            let currency = data.partnership.currency;
-            let divisions = data.divisions;
+            console.log(data);
+            let currency;
             let $currencyOption = $('#payment_currency').find('option');
-            $currencyOption.each(function () {
-                if($(this).val() == currency) {
-                    $(this).prop('selected', true);
-                }
-            });
+            if (data.partnership) {
+                currency = data.partnership.currency;
+                $('#create_partner').trigger('click').attr('disabled', true);
+                $currencyOption.each(function () {
+                    if ($(this).val() == currency) {
+                        $(this).prop('selected', true);
+                    }
+                });
+            }
+            let divisions = data.divisions;
             if (data.image) {
                 $(".anketa-photo img").attr('src', data.image);
                 convertImgToDataURLviaCanvas($(".anketa-photo img").attr('src'), function (data64) {
@@ -207,24 +212,19 @@
         img.cropper("destroy");
     });
 
-
     $("#partner_date").datepicker({
         dateFormat: "yyyy-mm-dd",
     });
 
-    $('#create_partner_info').on('click', function () {
-        let el = document.getElementById('partner_wrap');
-        let create_el = document.getElementById('create_partner');
+    $('#create_partner').on('change', function () {
+        let $partnerWrap = $('#partner_wrap');
         if (this.checked) {
-            el.style.display = 'block';
-            create_el.style.display = 'none';
-            $('#partner').attr('checked', true);
+            $partnerWrap.css('display', 'block');
         } else {
-            el.style.display = 'none';
-            create_el.style.display = 'block';
-            $('#partner').attr('checked', false);
+            $partnerWrap.css('display', 'none');
         }
     });
+
     $('#revert_edit').on('click', function () {
         let id = parseInt(id || getLastId());
         if (!id) {
@@ -236,6 +236,7 @@
     $('#save').on('click', function () {
         $('#sendEditUser').trigger('click');
     });
+
     $('#editUser').on('submit', function (e) {
         e.preventDefault();
         sendData();
