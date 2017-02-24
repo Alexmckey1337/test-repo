@@ -166,20 +166,20 @@ def church_detail(request, church_id):
         'church': church,
         'currencies': currencies,
 
-        # 'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
-        # 'church_users': church.users.count(),
-        # 'church_all_users': church.users.count() + HomeGroup.objects.filter(church_id=church_id).aggregate(
-        #     home_users=Count('users'))['home_users'],
-        # 'parishioners_count': church.users.filter(hierarchy__level=0).count(),
-        # 'leaders_count': church.users.filter(hierarchy__level=1).count(),
-        # 'home_groups_count': church.home_group.count(),
-        # 'fathers_count': church.users.filter(spiritual_level=CustomUser.FATHER).count() + HomeGroup.objects.filter(
-        #     church__id=church_id).filter(users__spiritual_level=3).count(),
-        # 'juniors_count': church.users.filter(spiritual_level=CustomUser.JUNIOR).count() + HomeGroup.objects.filter(
-        #     church__id=church_id).filter(users__spiritual_level=2).count(),
-        # 'babies_count': church.users.filter(spiritual_level=CustomUser.BABY).count() + HomeGroup.objects.filter(
-        #     church__id=church_id).filter(users__spiritual_level=1).count(),
-        # 'partners_count': church.users.filter(partnership__is_active=True).count(),
+        'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
+        'church_users': church.users.count(),
+        'church_all_users': church.users.count() + HomeGroup.objects.filter(church_id=church_id).aggregate(
+            home_users=Count('users'))['home_users'],
+        'parishioners_count': church.users.filter(hierarchy__level=0).count(),
+        'leaders_count': church.users.filter(hierarchy__level=1).count(),
+        'home_groups_count': church.home_group.count(),
+        'fathers_count': church.users.filter(spiritual_level=CustomUser.FATHER).count() + HomeGroup.objects.filter(
+            church__id=church_id).filter(users__spiritual_level=3).count(),
+        'juniors_count': church.users.filter(spiritual_level=CustomUser.JUNIOR).count() + HomeGroup.objects.filter(
+            church__id=church_id).filter(users__spiritual_level=2).count(),
+        'babies_count': church.users.filter(spiritual_level=CustomUser.BABY).count() + HomeGroup.objects.filter(
+            church__id=church_id).filter(users__spiritual_level=1).count(),
+        'partners_count': church.users.filter(partnership__is_active=True).count(),
 
     }
     return render(request, 'group/church_detail.html', context=ctx)
@@ -206,11 +206,11 @@ def home_group_detail(request, group_id):
 
     ctx = {
         'home_group': home_group,
-        # 'users_count': home_group.users.count(),
-        # 'fathers_count': home_group.users.filter(spiritual_level=CustomUser.FATHER).count(),
-        # 'juniors_count': home_group.users.filter(spiritual_level=CustomUser.JUNIOR).count(),
-        # 'babies_count': home_group.users.filter(spiritual_level=CustomUser.BABY).count(),
-        # 'partners_count': home_group.users.filter(partnership__is_active=True).count(),
+        'users_count': home_group.users.count(),
+        'fathers_count': home_group.users.filter(spiritual_level=CustomUser.FATHER).count(),
+        'juniors_count': home_group.users.filter(spiritual_level=CustomUser.JUNIOR).count(),
+        'babies_count': home_group.users.filter(spiritual_level=CustomUser.BABY).count(),
+        'partners_count': home_group.users.filter(partnership__is_active=True).count(),
     }
     return render(request, 'group/home_group_detail.html', context=ctx)
 
