@@ -1610,7 +1610,7 @@ function saveUser(el) {
     id = $(el).closest('.pop_cont').find('img').attr('alt');
     saveUserData(data, id);
     $(el).text("Сохранено");
-    $(el).closest('.popap').find('.close-popup').text('Закрыть');
+    $(el).closest('.popap').find('.close-popup.change__text').text('Закрыть');
     $(el).attr('disabled', true);
     $input = $(el).closest('.popap').find('input');
     $select = $(el).closest('.popap').find('select');
@@ -1649,7 +1649,7 @@ function saveChurches(el) {
     };
     saveChurchData(data, id);
     $(el).text("Сохранено");
-    $(el).closest('.popap').find('.close-popup').text('Закрыть');
+    $(el).closest('.popap').find('.close-popup.change__text').text('Закрыть');
     $(el).attr('disabled', true);
     $input = $(el).closest('.popap').find('input');
     $select = $(el).closest('.popap').find('select');
@@ -1681,7 +1681,7 @@ function saveHomeGroups(el) {
     };
     saveHomeGroupsData(data, id);
     $(el).text("Сохранено");
-    $(el).closest('.popap').find('.close-popup').text('Закрыть');
+    $(el).closest('.popap').find('.close-popup.change__text').text('Закрыть');
     $(el).attr('disabled', true);
     $input = $(el).closest('.popap').find('input');
     $select = $(el).closest('.popap').find('select');

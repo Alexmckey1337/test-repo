@@ -135,18 +135,13 @@ button:hover {
 }
 
 select {
-  background: url('../img/select.png') no-repeat;
-  background-position: right center;
-  background-color: #fff;
+  min-width: 60%;
+  height: 25px;
+  padding: 5px;
+  background: url(../img/select.png) right center no-repeat #fff;
   border-radius: 3px;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  text-indent: 0.01px;
-  text-overflow: '';
-  -ms-appearance: none;
-  appearance: none !important;
-  cursor: pointer;
-  text-align: center;
+  border: 1px solid #cdd0d4;
+  appearance: none;
 }
 
 .ui-datepicker-title select {
@@ -2123,9 +2118,11 @@ table input[type=checkbox],
 #sort-form input[type=checkbox] {
   display: none;
 }
+
 .hidden-partner {
   display: none;
 }
+
 .dropbox-wrap {
   margin-top: 10px;
   margin-bottom: 10px;
