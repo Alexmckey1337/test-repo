@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^api/', include('navigation.urls')),
     url(r'^api/', include('notification.urls')),
     url(r'^api/', include('partnership.urls')),
+    url(r'^api/', include('payment.urls')),
     url(r'^api/', include('report.urls')),
 
     url(r'^api/', include('group.urls')),

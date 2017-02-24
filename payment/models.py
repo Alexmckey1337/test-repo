@@ -20,6 +20,21 @@ def get_default_currency():
     return None
 
 
+class AbstractPaymentPurpose(models.Model):
+    class Meta:
+        abstract = True
+
+    def update_after_cancel_payment(self):
+        pass
+
+    update_after_cancel_payment.alters_data = True
+
+    def update_value(self):
+        pass
+
+    update_value.alters_data = True
+
+
 @python_2_unicode_compatible
 class Currency(models.Model):
     #: Name of currency, e.g. Dollar USA, Гривня, Euro, Рубль
@@ -155,7 +170,7 @@ class Payment(models.Model):
     def save(self, *args, **kwargs):
         if not self.effective_sum or kwargs.get('update_eff_sum', True):
             self.update_effective_sum(save=False)
-        if self.id is None and self.purpose and hasattr(self.purpose, 'currency'):
+        if self.purpose and hasattr(self.purpose, 'currency'):
             self.currency_rate = self.purpose.currency
         if 'update_eff_sum' in kwargs:
             kwargs.pop('update_eff_sum')
@@ -163,6 +178,15 @@ class Payment(models.Model):
         if hasattr(self.purpose, 'update_value') and callable(self.purpose.update_value):
             # TODO не обрабатывает изменение (не пересчитывает предыдущего purpose, только нового)
             self.purpose.update_value()
+
+    def get_data_for_deal_purpose_update(self):
+        old = {
+            'purpose': self.purpose,
+            'sum': self.sum,
+            'rate': self.rate,
+            'object_id': self.object_id
+        }
+        return old
 
     def __str__(self):
         return '{}: {}'.format(self.created_at.strftime('%d %B %Y %H:%M'), self.purpose or 'UNKNOWN')
