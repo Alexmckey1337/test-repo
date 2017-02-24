@@ -43,9 +43,6 @@ function createHomeGroupsTable(config = {}) {
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
                 $('#quickEditCartPopup .popup_body').html(rendered);
-                $('#opening_date').datepicker({
-                    dateFormat: 'yyyy-mm-dd'
-                });
                 makeLeaderList(data.department, '#editPastorSelect', data.leader);
                 makeDepartmentList('#editDepartmentSelect', data.department).then(function () {
                     $('#editDepartmentSelect').on('change', function () {
@@ -55,6 +52,10 @@ function createHomeGroupsTable(config = {}) {
                     });
                 });
                 setTimeout(function () {
+                    $('.date').datepicker({
+                        dateFormat: 'yyyy-mm-dd',
+                        autoClose: true
+                    });
                     $('#quickEditCartPopup').css('display', 'block');
                 }, 100)
             })
@@ -104,43 +105,43 @@ function makeLeaderList(id, selector, active = null) {
 }
 
 function getPartners(config) {
-        config.search = $('input[name=fullsearch]').val();
-        getPartnersList(config).then(function (response) {
-            let page = config['page'] || 1;
-            let count = response.count;
-            let pages = Math.ceil(count / CONFIG.pagination_count);
-            let data = {};
-            let id = "partnersList";
-            let text = `Показано ${CONFIG.pagination_count} из ${count}`;
-            let common_table = Object.keys(response.common_table);
-            data.user_table = response.user_table;
-            common_table.forEach(function (item) {
-                data.user_table[item] = response.common_table[item];
-            });
-            data.results = response.results.map(function (item) {
-                let result = item.user;
-                common_table.forEach(function (key) {
-                    result[key] = item[key];
-                });
-                return result;
-            });
-            data.count = response.count;
-            makeDataTable(data, id);
-
-            $('.preloader').css('display', 'none');
-
-            let paginationConfig = {
-                container: ".partners__pagination",
-                currentPage: page,
-                pages: pages,
-                callback: getPartners
-            };
-            makePagination(paginationConfig);
-            $('.table__count').text(text);
-            makeSortForm(response.user_table);
-            orderTable.sort(getPartners);
+    config.search = $('input[name=fullsearch]').val();
+    getPartnersList(config).then(function (response) {
+        let page = config['page'] || 1;
+        let count = response.count;
+        let pages = Math.ceil(count / CONFIG.pagination_count);
+        let data = {};
+        let id = "partnersList";
+        let text = `Показано ${CONFIG.pagination_count} из ${count}`;
+        let common_table = Object.keys(response.common_table);
+        data.user_table = response.user_table;
+        common_table.forEach(function (item) {
+            data.user_table[item] = response.common_table[item];
         });
-    }
+        data.results = response.results.map(function (item) {
+            let result = item.user;
+            common_table.forEach(function (key) {
+                result[key] = item[key];
+            });
+            return result;
+        });
+        data.count = response.count;
+        makeDataTable(data, id);
+
+        $('.preloader').css('display', 'none');
+
+        let paginationConfig = {
+            container: ".partners__pagination",
+            currentPage: page,
+            pages: pages,
+            callback: getPartners
+        };
+        makePagination(paginationConfig);
+        $('.table__count').text(text);
+        makeSortForm(response.user_table);
+        orderTable.sort(getPartners);
+    });
+}
 
 function makeDepartmentList(selector, active = null) {
     return getDepartments().then(function (data) {
@@ -191,7 +192,7 @@ function createCSV(data) {
     }
     let type = data.getResponseHeader('Content-Type') + ';charset=UTF-8';
     return {
-        file: new Blob(["\ufeff"  + data.responseText], {type: type, endings: 'native'}),
+        file: new Blob(["\ufeff" + data.responseText], {type: type, endings: 'native'}),
         filename: filename
     };
 }
@@ -647,6 +648,7 @@ function createChurchesTable(config = {}) {
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
                 $('#quickEditCartPopup .popup_body').html(rendered);
+                console.log('opening_date');
                 $('#opening_date').datepicker({
                     dateFormat: 'yyyy-mm-dd'
                 });

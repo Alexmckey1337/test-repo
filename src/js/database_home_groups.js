@@ -1,6 +1,5 @@
 (function ($) {
     createHomeGroupsTable();
-
     $('#department_select').select2();
     $('#pastor_select').select2();
     $('.selectdb').select2();
