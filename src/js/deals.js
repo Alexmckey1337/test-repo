@@ -21,11 +21,12 @@ $(document).ready(function () {
     });
 
     function sumCurrency(sumEl, rateEl, currencyEl, currencyName) {
-            let sum = sumEl.val();
-            let rate = rateEl.val();
-            let userPay = parseFloat(sum) * parseFloat(rate);
-            currencyEl.text(parseInt(userPay) + currencyName);
-        }
+        let sum = sumEl.val();
+        let rate = rateEl.val();
+        let userPay = parseFloat(sum) * parseFloat(rate);
+        currencyEl.text(parseInt(userPay) + currencyName);
+    }
+
     function sumChangeListener(currencyName, currencyID) {
         let $currencies = $('#new_payment_currency');
         let $currencyOptions = $currencies.find('option');
@@ -310,45 +311,69 @@ $(document).ready(function () {
         })
     }
 
+    function sortDoneDeals(from, to) {
+        let config = {};
+        config["to_date"] = to;
+        config["from_date"] = from;
+        getDoneDeals(config);
+    }
+
+    function sortExpiredDeals(from, to) {
+        let config = {};
+        config["to_date"] = to;
+        config["from_date"] = from;
+        getExpiredDeals(config);
+    }
+
     $.datepicker.setDefaults($.datepicker.regional["ru"]);
+
     $("#done_datepicker_from").datepicker({
         dateFormat: "yyyy-mm-dd",
         maxDate: new Date(),
+        autoClose: true,
         onSelect: function (date) {
-            window.done_from_date = date;
-            sortDoneDeals(done_from_date, done_to_date);
+            let doneToDate = $('#done_datepicker_to').val();
+            sortDoneDeals(date, doneToDate);
         }
     }).datepicker("setDate", '-1m');
 
     $("#done_datepicker_to").datepicker({
         dateFormat: "yyyy-mm-dd",
+        setDate: new Date(),
+        autoClose: true,
         onSelect: function (date) {
-            window.done_to_date = date;
-            sortDoneDeals(done_from_date, done_to_date);
+            console.log(date);
+            let doneFromDate = $('#done_datepicker_from').val();
+            sortDoneDeals(doneFromDate, date);
         }
-    }).datepicker("setDate", new Date());
+    });
 
     $("#expired_datepicker_from").datepicker({
-        dateFormat: "yy-mm-dd",
+        dateFormat: "yyyy-mm-dd",
         maxDate: new Date(),
+        setDate: '-1m',
+        autoClose: true,
         onSelect: function (date) {
-            window.expired_from_date = date;
-            sortExpiredDeals(expired_from_date, expired_to_date);
+            let expiredToDate = $('#expired_to_date').val();
+            sortExpiredDeals(date, expiredToDate);
         }
-    }).datepicker("setDate", '-1m');
+    });
 
     $("#expired_datepicker_to").datepicker({
         dateFormat: "yy-mm-dd",
+        maxDate: new Date(),
+        setDate: '-1m',
+        autoClose: true,
         onSelect: function (date) {
-            window.expired_to_date = date;
-            sortExpiredDeals(expired_from_date, expired_to_date);
+            let expiredFromDate = $('#expired_from_date').val();
+            sortExpiredDeals(expiredFromDate, date);
         }
-    }).datepicker("setDate", new Date());
+    });
     $('#sent_date').datepicker({
         dateFormat: "yyyy-mm-dd",
         startDate: new Date(),
         maxDate: new Date(),
         autoClose: true
-    }).data('datepicker').selectDate(new Date());
+    });
 });
 
