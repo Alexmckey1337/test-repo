@@ -415,8 +415,11 @@
     // });
     $.validate({
         lang: 'ru',
+        form : '#createUser',
         onSuccess: function () {
-            createNewUser();
+            if($(form).attr('name') == 'createUser') {
+                createNewUser();
+            }
             return false; // Will stop the submission of the form
         },
     });

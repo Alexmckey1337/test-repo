@@ -8,14 +8,16 @@
     $('#pastor_filter').select2();
     $('#search_is_open').select2();
     $('#added_churches_date').datepicker({
-        dateFormat: 'yyyy-mm-dd'
+        dateFormat: 'yyyy-mm-dd',
+        autoClose: true
     });
     $('#search_date_open').datepicker({
-        dateFormat: 'yyyy-mm-dd'
+        dateFormat: 'yyyy-mm-dd',
+        autoClose: true
     });
 //    Events
     $('#add').on('click', function () {
-        var department_id = parseInt($('#department_select').val());
+        let department_id = parseInt($('#department_select').val());
         clearAddChurchData();
         makePastorList(department_id, '#pastor_select');
         setTimeout(function () {
@@ -47,6 +49,5 @@
                 showPopup('Ошибка при загрузке файла');
                 $('.preloader').css('display', 'none');
             });
-        ;
     });
 })(jQuery);

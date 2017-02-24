@@ -561,14 +561,13 @@ function addHomeGroupToDataBase(config = {}) {
             403: function () {
                 reject('Вы должны авторизоватся')
             }
-
         };
         newAjaxRequest(data, status, reject)
     });
 }
 
-function addHomeGroup(e, el) {
-    e.preventDefault();
+
+function addHomeGroup(el) {
     let data = getAddHomeGroupData();
     let json = JSON.stringify(data);
 
