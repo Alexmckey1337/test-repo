@@ -7,6 +7,9 @@
     $('#search_date_open').datepicker({
         dateFormat: 'yyyy-mm-dd'
     });
+    $('#opening_date').datepicker({
+        dateFormat: 'yyyy-mm-dd'
+    });
 //    Events
     $('#add').on('click', function () {
         let department_id = parseInt($('#department_select').val());
@@ -37,6 +40,6 @@
             .catch(function () {
                 showPopup('Ошибка при загрузке файла');
                 $('.preloader').css('display', 'none');
-        });;
+        });
     });
 })(jQuery);

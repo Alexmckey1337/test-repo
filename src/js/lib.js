@@ -46,12 +46,12 @@ function createHomeGroupsTable(config = {}) {
                 $('#opening_date').datepicker({
                     dateFormat: 'yyyy-mm-dd'
                 });
-                makePastorList(data.department, '#editPastorSelect', data.leader);
+                makeLeaderList(data.department, '#editPastorSelect', data.leader);
                 makeDepartmentList('#editDepartmentSelect', data.department).then(function () {
                     $('#editDepartmentSelect').on('change', function () {
                         $('#pastor_select').prop('disabled', true);
                         var department_id = parseInt($('#editDepartmentSelect').val());
-                        makePastorList(department_id, '#editPastorSelect');
+                        makeLeaderList(department_id, '#editPastorSelect');
                     });
                 });
                 setTimeout(function () {
@@ -75,6 +75,21 @@ function createHomeGroupsTable(config = {}) {
 
 function makePastorList(id, selector, active = null) {
     getResponsible(id, 2).then(function (data) {
+        let options = [];
+        data.forEach(function (item) {
+            let option = document.createElement('option');
+            $(option).val(item.id).text(item.fullname);
+            if (active == item.id) {
+                $(option).attr('selected', true);
+            }
+            options.push(option);
+        });
+        $(selector).html(options).prop('disabled', false).select2();
+    });
+}
+
+function makeLeaderList(id, selector, active = null) {
+    getResponsible(id, 1).then(function (data) {
         let options = [];
         data.forEach(function (item) {
             let option = document.createElement('option');
