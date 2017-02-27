@@ -64,19 +64,22 @@
     $("#bornDate").datepicker({
         minDate: new Date(new Date().setFullYear(new Date().getFullYear() - 120)),
         maxDate: new Date(),
-        dateFormat: 'yyyy-mm-dd'
+        dateFormat: 'yyyy-mm-dd',
+        autoClose: true,
     });
 
     $("#firsVisit").datepicker().datepicker({
         dateFormat: 'yyyy-mm-dd',
         maxDate: new Date(),
-        setDate: new Date()
+        setDate: new Date(),
+        autoClose: true,
     });
 
     $("#repentanceDate").datepicker({
         dateFormat: 'yyyy-mm-dd',
         maxDate: new Date(),
-        setDate: new Date()
+        setDate: new Date(),
+        autoClose: true,
     });
 
     $('#partner').click(function () {
