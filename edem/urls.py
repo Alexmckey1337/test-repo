@@ -45,3 +45,8 @@ if settings.DEBUG:
         ]
     except ImportError:
         pass
+
+if not settings.DEBUG:
+    handler404 = 'common.errors_views.page_not_found'
+    handler403 = 'common.errors_views.permission_denied'
+    handler400 = 'common.errors_views.bad_request'

@@ -11,6 +11,7 @@ from django.db import models
 from django.db.models import signals
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from mptt.managers import TreeManager
@@ -96,7 +97,7 @@ class CustomUser(MPTTModel, User):
         parent_attr = 'master'
 
     def get_absolute_url(self):
-        return '/account/{}/'.format(self.id)
+        return reverse('account', args=(self.id,))
 
     def get_descendant_leaders(self):
         return self.get_descendants().filter(hierarchy__level=1)
