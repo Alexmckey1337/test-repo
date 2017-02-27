@@ -13,7 +13,7 @@
         } else {
             formData.append('extra_phone_numbers', JSON.stringify([]));
         }
-        if ($('#partner').is(':checked')) {
+        if ($('#create_partner').is(':checked')) {
             let partner = {};
             partner.value = parseInt(document.getElementById('val_partnerships').value) || 0;
             partner.currency = parseInt(document.getElementById('payment_currency').value);
@@ -42,7 +42,7 @@
             method: 'PUT'
         };
         ajaxSendFormData(config).then(function () {
-            window.location.href = `/account/${id}/`;
+            // window.location.href = `/account/${id}/`;
         });
     }
 
