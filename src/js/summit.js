@@ -45,9 +45,9 @@
         }
         if ($('#partner').is(':checked')) {
             let partner = {};
-            partner.value = parseInt($('#partnerFrom').val()) || 0;
+            partner.value = parseInt($('#val_partnerships').val()) || 0;
             partner.currency = parseInt($('#payment_currency').val());
-            partner.date = $('#partners_count').val() || null;
+            partner.date = $('#partnerFrom').val() || null;
             partner.responsible = parseInt($("#chooseManager").val());
             formData.append('partner', JSON.stringify(partner));
         }
