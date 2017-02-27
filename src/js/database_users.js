@@ -132,10 +132,11 @@ $('document').ready(function () {
         $('#addNewUserPopup').css('display', 'block');
         initAddNewUser();
     });
+
     $.validate({
         lang: 'ru',
         form: '#createUser',
-        onSuccess: function () {
+        onSuccess: function (form) {
             if ($(form).attr('name') == 'createUser') {
                 createNewUser();
             }

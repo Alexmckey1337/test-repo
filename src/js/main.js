@@ -273,6 +273,10 @@ function setSidebarPosition() {
 }
 
 (function ($) {
+    let $createUser = $('#createUser');
+    $createUser.on('submit', function (e) {
+        e.preventDefault();
+    });
     $().dblclick(() => false);
     $("#turn_aside").on('click', function (e) {
         e.preventDefault();
