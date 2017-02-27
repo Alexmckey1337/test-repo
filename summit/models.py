@@ -11,7 +11,7 @@ from django.db.models import Sum
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
-from payment.models import get_default_currency
+from payment.models import get_default_currency, AbstractPaymentPurpose
 
 
 @python_2_unicode_compatible
@@ -130,7 +130,7 @@ class CustomUserAbstract(models.Model):
 
 
 @python_2_unicode_compatible
-class SummitAnket(CustomUserAbstract):
+class SummitAnket(CustomUserAbstract, AbstractPaymentPurpose):
     user = models.ForeignKey('account.CustomUser', related_name='summit_ankets')
     summit = models.ForeignKey('Summit', related_name='ankets', verbose_name='Саммит',
                                blank=True, null=True)
@@ -192,6 +192,11 @@ class SummitAnket(CustomUserAbstract):
         else:
             value = 0
         return value
+
+    def update_after_cancel_payment(self):
+        self.update_value()
+
+    update_after_cancel_payment.alters_data = True
 
     def update_value(self):
         self.value = self.calculate_value()

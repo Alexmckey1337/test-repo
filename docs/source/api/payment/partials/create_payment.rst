@@ -2,84 +2,84 @@
 
 .. sourcecode:: http
 
-   HTTP/1.1 201 Created
-   Vary: Accept, Cookie
-   Allow: POST,OPTIONS
-   Content-Type: application/json
+    HTTP/1.1 201 Created
+    Vary: Accept, Cookie
+    Allow: POST,OPTIONS
+    Content-Type: application/json
 
-   {
-     "sum": "153",
-     "effective_sum": "189.72",
-     "sum_str": "$153",
-     "effective_sum_str": "189.72 грн.",
-     "currency_sum": {
-       "id": 1,
-       "name": "Доллар США",
-       "code": "usd",
-       "short_name": "дол.",
-       "symbol": "$"
-     },
-     "currency_rate": {
-       "id": 2,
-       "name": "Гривна",
-       "code": "uah",
-       "short_name": "грн.",
-       "symbol": "₴"
-     },
-     "rate": "1.24",
-     "description": "last",
-     "created_at": "16.02.2017 15:44",
-     "sent_date": "22.02.2000",
-     "manager": {
-       "id": 13885,
-       "first_name": "Bruce",
-       "last_name": "Lee",
-       "middle_name": ""
-     }
-   }
+    {
+      "sum": "153",
+      "effective_sum": "189.72",
+      "sum_str": "$153",
+      "effective_sum_str": "189.72 грн.",
+      "currency_sum": {
+        "id": 1,
+        "name": "Доллар США",
+        "code": "usd",
+        "short_name": "дол.",
+        "symbol": "$"
+      },
+      "currency_rate": {
+        "id": 2,
+        "name": "Гривна",
+        "code": "uah",
+        "short_name": "грн.",
+        "symbol": "₴"
+      },
+      "rate": "1.24",
+      "description": "last",
+      "created_at": "16.02.2017 15:44",
+      "sent_date": "22.02.2000",
+      "manager": {
+        "id": 13885,
+        "first_name": "Bruce",
+        "last_name": "Lee",
+        "middle_name": ""
+      }
+    }
 
 **Example response (Bad request 1)**:
 
 .. sourcecode:: http
 
-   HTTP/1.1 400 Bad Request
-   Vary: Accept, Cookie
-   Allow: POST,OPTIONS
-   Content-Type: application/json
+    HTTP/1.1 400 Bad Request
+    Vary: Accept, Cookie
+    Allow: POST,OPTIONS
+    Content-Type: application/json
 
-   {
-     "currency_sum": [
-       "Недопустимый первичный ключ \"12\" - объект не существует."
-     ]
-   }
+    {
+      "currency_sum": [
+        "Недопустимый первичный ключ \"12\" - объект не существует."
+      ]
+    }
 
 **Example response (Bad request 2)**:
 
 .. sourcecode:: http
 
-   HTTP/1.1 400 Bad Request
-   Vary: Accept, Cookie
-   Allow: POST,OPTIONS
-   Content-Type: application/json
+    HTTP/1.1 400 Bad Request
+    Vary: Accept, Cookie
+    Allow: POST,OPTIONS
+    Content-Type: application/json
 
-   {
-     "rate": [
-       "Убедитесь что в числе не больше 3 знаков в дробной части."
-     ]
-   }
+    {
+      "rate": [
+        "Убедитесь что в числе не больше 3 знаков в дробной части."
+      ]
+    }
 
 **Example response (Bad request 3)**:
 
 .. sourcecode:: http
 
-   HTTP/1.1 404 Not Found
-   Vary: Accept, Cookie
-   Allow: POST,OPTIONS
-   Content-Type: application/json
+    HTTP/1.1 404 Not Found
+    Vary: Accept, Cookie
+    Allow: POST,OPTIONS
+    Content-Type: application/json
 
-   {
-     "detail": "Не найдено."
-   }
+    {
+      "detail": "Не найдено."
+    }
 
 :form sum: sum of payment, integer, **required**
 :form rate: rate of ``sum`` -> ``effective_sum``, decimal,

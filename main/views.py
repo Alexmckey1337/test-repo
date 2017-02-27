@@ -164,6 +164,8 @@ def church_detail(request, church_id):
 
     ctx = {
         'church': church,
+        'currencies': currencies,
+
         'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
         'church_users': church.users.count(),
         'church_all_users': church.users.count() + HomeGroup.objects.filter(church_id=church_id).aggregate(
@@ -178,7 +180,7 @@ def church_detail(request, church_id):
         'babies_count': church.users.filter(spiritual_level=CustomUser.BABY).count() + HomeGroup.objects.filter(
             church__id=church_id).filter(users__spiritual_level=1).count(),
         'partners_count': church.users.filter(partnership__is_active=True).count(),
-        'currencies': currencies
+
     }
     return render(request, 'group/church_detail.html', context=ctx)
 

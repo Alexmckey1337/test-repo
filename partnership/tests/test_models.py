@@ -117,3 +117,10 @@ class TestDeal:
 
     def test_total_payed_without_payments(self, deal):
         assert deal.total_payed == 0
+
+    def test_update_after_cancel_payment(self, deal_factory):
+        deal = deal_factory(done=True)
+
+        assert deal.done
+        deal.update_after_cancel_payment()
+        assert not deal.done

@@ -999,6 +999,41 @@ Del user from church
     :statuscode 403: user is not authenticated
 
 
+Statistics of churches
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/churches/<id>/get_church_stats
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/home_groups/ HTTP/1.1
+        Host: vocrm.org
+        Content-type: application/json
+
+    **Example response (Good Request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "church_users": 2,
+            "church_all_users": 13,
+            "parishioners_count": 0,
+            "leaders_count": 0,
+            "home_groups_count": 3,
+            "fathers_count": 1,
+            "juniors_count": 1,
+            "babies_count": 11,
+            "partners_count": 1
+        }
+
+
 HomeGroup
 ---------
 
@@ -1006,7 +1041,7 @@ HomeGroup
 List of home groups
 ~~~~~~~~~~~~~~~~~~~
 
-.. http:get:: /api/v1.1/home_groups/
+.. http:get:: /api/v1.0/home_groups/
 
     List of the home groups. (order by ``opening_data``, ``id``).
     Displaying title of Home Group is ``get_title``.
@@ -1016,7 +1051,7 @@ List of home groups
 
     .. sourcecode:: http
 
-        GET /api/v1.1/home_groups/ HTTP/1.1
+        GET /api/v1.0/home_groups/ HTTP/1.1
         Host: vocrm.org
         Content-type: application/json
 
@@ -1743,3 +1778,34 @@ Del user from home group
     :statuscode 400: bad request
     :statuscode 403: user is not authenticated
     :statuscode 404: there's no home group
+
+
+Statistics of home groups
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/home_groups/<id>/get_home_group_stats
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/home_groups/ HTTP/1.1
+        Host: vocrm.org
+        Content-type: application/json
+
+    **Example response (Good Request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "users_count": 3,
+            "fathers_count": 0,
+            "juniors_count": 0,
+            "babies_count": 3,
+            "partners_count": 3
+        }

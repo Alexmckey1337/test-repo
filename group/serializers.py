@@ -93,3 +93,33 @@ class ChurchSerializer(serializers.ModelSerializer):
 class ChurchListSerializer(ChurchSerializer):
     department = DepartmentTitleSerializer()
     pastor = PastorNameSerializer()
+
+
+class ChurchStatsSerializer(serializers.ModelSerializer):
+    church_users = serializers.IntegerField()
+    church_all_users = serializers.IntegerField()
+    parishioners_count = serializers.IntegerField()
+    leaders_count = serializers.IntegerField()
+    home_groups_count = serializers.IntegerField()
+    fathers_count = serializers.IntegerField()
+    juniors_count = serializers.IntegerField()
+    babies_count = serializers.IntegerField()
+    partners_count = serializers.IntegerField()
+
+    class Meta:
+        model = Church
+        fields = ('church_users', 'church_all_users', 'parishioners_count', 'leaders_count',
+                  'leaders_count', 'home_groups_count', 'fathers_count', 'juniors_count',
+                  'babies_count', 'partners_count')
+
+
+class HomeGroupStatsSerializer(serializers.ModelSerializer):
+    users_count = serializers.IntegerField()
+    fathers_count = serializers.IntegerField()
+    juniors_count = serializers.IntegerField()
+    babies_count = serializers.IntegerField()
+    partners_count = serializers.IntegerField()
+
+    class Meta:
+        model = HomeGroup
+        fields = ('users_count', 'fathers_count', 'juniors_count', 'babies_count', 'partners_count')

@@ -20,7 +20,8 @@ from group.resources import ChurchResource, HomeGroupResource
 from group.views_mixins import (
     ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin)
 from .models import HomeGroup, Church
-from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSerializer, HomeGroupListSerializer)
+from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSerializer, HomeGroupListSerializer,
+                          ChurchStatsSerializer, HomeGroupStatsSerializer)
 
 
 class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroupMixin, ExportViewSetMixin):
@@ -31,7 +32,8 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
 
     filter_backends = (filters.DjangoFilterBackend,
                        FieldSearchFilter,
-                       filters.OrderingFilter,)
+                       filters.OrderingFilter,
+                       )
 
     ordering_fields = ('title', 'city', 'department__title', 'home_group', 'is_open', 'opening_date',
                        'pastor__last_name', 'phone_number', 'address', 'website', 'count_groups',
@@ -153,6 +155,28 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
             raise exceptions.ValidationError(
                 _('Невозможно удалить пользователя. Пользователь не принадлежит к данной Церкви.'))
 
+    @detail_route(methods=['GET'])
+    def get_church_stats(self, request, pk):
+        stats = {}
+        church = get_object_or_404(Church, pk=pk)
+        stats['church_users'] = church.users.count()
+        stats['church_all_users'] = (church.users.count() + HomeGroup.objects.filter(church_id=pk).aggregate(
+            home_users=Count('users'))['home_users'])
+        stats['parishioners_count'] = church.users.filter(hierarchy__level=0).count()
+        stats['leaders_count'] = church.users.filter(hierarchy__level=1).count()
+        stats['home_groups_count'] = church.home_group.count()
+        stats['fathers_count'] = church.users.filter(spiritual_level=CustomUser.FATHER).count() + \
+                                 HomeGroup.objects.filter(church__id=pk).filter(users__spiritual_level=3).count()
+        stats['juniors_count'] = church.users.filter(spiritual_level=CustomUser.JUNIOR).count() + \
+                                 HomeGroup.objects.filter(church__id=pk).filter(users__spiritual_level=2).count()
+        stats['babies_count'] = church.users.filter(spiritual_level=CustomUser.BABY).count() + \
+                                HomeGroup.objects.filter(church__id=pk).filter(users__spiritual_level=1).count()
+        stats['partners_count'] = church.users.filter(partnership__is_active=True).count()
+
+        serializer = ChurchStatsSerializer
+        stats = serializer(stats)
+        return Response(stats.data)
+
 
 class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportViewSetMixin):
     queryset = HomeGroup.objects.all()
@@ -243,3 +267,17 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         if not home_group.users.filter(id=user_id).exists():
             raise exceptions.ValidationError(
                 _('Невозможно удалить пользователя. Пользователь не принадлежит к данной Домашней Группе.'))
+
+    @detail_route(methods=["GET"])
+    def get_home_group_stats(self, request, pk):
+        stats = {}
+        home_group = get_object_or_404(HomeGroup, pk=pk)
+        stats['users_count'] = home_group.users.count()
+        stats['fathers_count'] = home_group.users.filter(spiritual_level=CustomUser.FATHER).count()
+        stats['juniors_count'] = home_group.users.filter(spiritual_level=CustomUser.JUNIOR).count()
+        stats['babies_count'] = home_group.users.filter(spiritual_level=CustomUser.BABY).count()
+        stats['partners_count'] = home_group.users.filter(partnership__is_active=True).count()
+
+        serializer = HomeGroupStatsSerializer
+        stats = serializer(stats)
+        return Response(stats.data)

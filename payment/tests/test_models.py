@@ -108,6 +108,16 @@ class TestPayment:
         payment = payment_factory(currency_sum=cur1, currency_rate=cur2, rate=Decimal(2))
         assert payment.effective_sum_str == '400 cur2'
 
+    def test_get_data_for_deal_purpose_update(self, payment_factory, deal):
+        payment = payment_factory(purpose=deal, sum=Decimal(120), rate=Decimal(1.246))
+        data = {
+            'purpose': deal,
+            'sum': Decimal(120),
+            'rate': Decimal(1.246),
+            'object_id': deal.id
+        }
+        assert payment.get_data_for_deal_purpose_update() == data
+
 
 @pytest.mark.django_db
 class TestCurrency:
