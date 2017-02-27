@@ -42,7 +42,7 @@
             method: 'PUT'
         };
         ajaxSendFormData(config).then(function () {
-            // window.location.href = `/account/${id}/`;
+            window.location.href = `/account/${id}/`;
         });
     }
 
