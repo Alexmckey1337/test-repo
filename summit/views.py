@@ -381,7 +381,7 @@ class SummitTypeViewSet(viewsets.ModelViewSet):
 
 
 class SummitUnregisterFilter(filters_new.FilterSet):
-    summit_id = filters_new.CharFilter(name="summit_ankets__summit__id")
+    summit_id = filters_new.CharFilter(name="summit_ankets__summit__id", exclude=True)
 
     class Meta:
         model = CustomUser
