@@ -1312,8 +1312,8 @@ function createSummitUsersTable(data = {}) {
 }
 
 function makeDataTable(data, id) {
-    var tmpl = document.getElementById('databaseUsers').innerHTML;
-    var rendered = _.template(tmpl)(data);
+    let tmpl = document.getElementById('databaseUsers').innerHTML;
+    let rendered = _.template(tmpl)(data);
     document.getElementById(id).innerHTML = rendered;
     $('.quick-edit').on('click', function () {
         makeQuickEditCart(this);
