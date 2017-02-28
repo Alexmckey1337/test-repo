@@ -16,13 +16,26 @@
         })
     }
 
-    function addUserToChurch(id, el) {
+    function addUserToChurch(data) {
+        let id = data.id;
         let config = {};
         config.user_id = id;
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${ID}/add_user/`, config, function () {
-            $(el).attr('disabled', true).text('Добавлен');
-            createChurchesUsersTable(ID);
-        }, 'POST', 'application/json');
+        return new Promise(function (resolve, reject) {
+            let data = {
+                method: 'POST',
+                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${ID}/add_user/`,
+                data: config
+            };
+            let status = {
+                201: function (req) {
+                    resolve(req)
+                },
+                403: function () {
+                    reject('Вы должны авторизоватся')
+                }
+            };
+            newAjaxRequest(data, status, reject);
+        });
     }
 
     function makeUsersFromDatabaseList(config = {}) {
@@ -46,7 +59,12 @@
                     $(button).attr('data-id', item.id).text('Выбрать').on('click', function () {
                         let id = $(this).data('id');
                         let _self = this;
-                        addUserToChurch(id, _self);
+                        let config = {};
+                        config.id = id;
+                        addUserToChurch(config).then(function (data) {
+                            $(_self).text('Добавлен').attr('disabled', true);
+                            createChurchesUsersTable(ID);
+                        });
                     });
                     $(rows_wrap).addClass('rows-wrap').append(button).append(rows);
                     html.push(rows_wrap);
@@ -103,7 +121,7 @@
         $(option).val(department_id).text(department_title).attr('selected', true).attr('required', false);
         $(this).closest('.popup').css('display', 'none');
         $('#addNewUserPopup').css('display', 'block');
-        $('#chooseDepartment').html(option);
+        $('#chooseDepartment').html(option).attr('disabled', false);
     });
     $('#searchUserFromDatabase').on('keyup', function () {
         let search = $(this).val();
@@ -131,73 +149,6 @@
         $('.preloader').css('display', 'block');
         updateSettings(createChurchesDetailsTable);
     });
-
-    function createNewUser(id) {
-        let oldForm = document.forms.createUser;
-        let formData = new FormData(oldForm);
-        if ($('#division_drop').val()) {
-            formData.append('divisions', JSON.stringify($('#chooseDivision').val()));
-        } else {
-            formData.append('divisions', JSON.stringify([]));
-        }
-        if ($('#phoneNumberCode').val() && $('#phoneNumber').val()) {
-            let phoneNumber = $('#phoneNumberCode').val() + $('#phoneNumber').val();
-            formData.append('phone_number', phoneNumber)
-        }
-        if ($('#extra_phone_numbers').val()) {
-            formData.append('extra_phone_numbers', JSON.stringify($('#extra_phone_numbers').val().split(',').map((item) => item.trim())));
-        } else {
-            formData.append('extra_phone_numbers', JSON.stringify([]));
-        }
-        formData.append('department', $('#chooseDepartment').val());
-        if ($('#partner').is(':checked')) {
-            let partner = {};
-            partner.value = parseInt($('#val_partnerships').val()) || 0;
-            partner.currency = parseInt($('#payment_currency').val());
-            partner.date = $('#partnerFrom').val() || null;
-            partner.responsible = parseInt($("#chooseManager").val());
-            formData.append('partner', JSON.stringify(partner));
-        }
-        let send_image = $('#file').prop("files").length || false;
-        if (send_image) {
-            try {
-                let blob;
-                blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                formData.append('image', blob);
-                formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
-                formData.append('id', id);
-            } catch (err) {
-                console.log(err);
-            }
-        }
-        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/`;
-        let config = {
-            url: url,
-            data: formData,
-            method: 'POST'
-        };
-        $('.preloader').css('display', 'block');
-        ajaxSendFormData(config).then(function (data) {
-            $('.preloader').css('display', 'none');
-            addUserToChurch(data.id);
-            showPopup(`${data.fullname} добален(а) в базу данных`);
-            $('#createUser').find('input').each(function () {
-                $(this).val('')
-            });
-            $('#createUser').find('.cleared').each(function () {
-                $(this).find('option').eq(0).prop('selected', true).select2()
-            });
-            $('#addNewUserPopup').css('display', 'none');
-        }).catch(function (data) {
-            $('.preloader').css('display', 'none');
-            showPopup(data);
-        });
-    }
-
-    $('#createUser').on('submit', function (e) {
-        e.preventDefault();
-        createNewUser();
-    });
     $('#export_table').on('click', function () {
         $('.preloader').css('display', 'block');
         exportTableData(this)
@@ -218,7 +169,7 @@
         form: '#createUser',
         onSuccess: function (form) {
             if ($(form).attr('name') == 'createUser') {
-                createNewUser();
+                createNewUser(addUserToChurch);
             }
             return false; // Will stop the submission of the form
         },
