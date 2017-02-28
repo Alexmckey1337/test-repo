@@ -81,7 +81,12 @@
         setDate: new Date(),
         autoClose: true,
     });
-
+    $('#partnerFrom').datepicker({
+        dateFormat: 'yyyy-mm-dd',
+        maxDate: new Date(),
+        setDate: new Date(),
+        autoClose: true,
+    });
     $('#partner').click(function () {
         $('.hidden-partner').toggle()
     });
