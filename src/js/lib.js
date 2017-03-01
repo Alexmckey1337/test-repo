@@ -1290,6 +1290,10 @@ function createSummitUsersTable(data = {}) {
             return data;
         });
         filter_data.user_table = data.user_table;
+        let common_table = Object.keys(data.common_table);
+        common_table.forEach(function (item) {
+            filter_data.user_table[item] = data.common_table[item];
+        });
         let count = data.count;
         let page = config.page || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);

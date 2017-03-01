@@ -342,8 +342,7 @@
         createSummitUsersTable(config);
     });
     $('#sort_save').on('click', function () {
-        let path =
-            $('.preloader').css('display', 'block');
+        $('.preloader').css('display', 'block');
         updateSettings(createSummitUsersTable);
         $(".table-sorting").animate({
             right: '-300px'
