@@ -1,18 +1,18 @@
-import datetime
 import copy
+import datetime
+from decimal import Decimal
+from functools import partial, partialmethod
 
 import pytest
-from decimal import Decimal
 from django.urls import reverse
 from rest_framework import status
 
 from account.models import CustomUser
-
+from account.tests.conftest import get_values, change_field
 
 FIELD_CODES = (
     # optional fields
     ('email', 201),
-    ('middle_name', 201),
     ('search_name', 201),
     ('facebook', 201),
     ('vkontakte', 201),
@@ -34,14 +34,47 @@ FIELD_CODES = (
     # required fields
     ('first_name', 400),
     ('last_name', 400),
+    ('middle_name', 400),
     ('phone_number', 400),
     ('department', 400),
     ('master', 400),
     ('hierarchy', 400),
 )
 
+CHANGE_FIELD = (
+    # non unique
+    ('email', 400),
+    ('search_name', 400),
+    ('facebook', 400),
+    ('vkontakte', 400),
+    ('odnoklassniki', 400),
+    ('skype', 400),
+    ('extra_phone_numbers', 400),
+    ('born_date', 400),
+    ('coming_date', 400),
+    ('repentance_date', 400),
+    ('country', 400),
+    ('region', 400),
+    ('city', 400),
+    ('district', 400),
+    ('address', 400),
+    ('divisions', 400),
+    ('partner', 400),
+    ('spiritual_level', 400),
+    ('department', 400),
+    ('master', 400),
+    ('hierarchy', 400),
+
+    # unique
+    ('first_name', 201),
+    ('last_name', 201),
+    ('middle_name', 201),
+    ('phone_number', 201),
+)
+
 
 @pytest.mark.django_db
+@pytest.mark.hh
 class TestNewUserViewSet:
     def test_partial_update_main_info(self, user, api_login_client, user_factory):
         url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
@@ -324,36 +357,62 @@ class TestNewUserViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert response.data['count'] == 22
 
-    def test_create_user_with_all_fields(self, api_client, staff_user, user_data):
+    def test_create_user_with_all_fields(self, request, api_client, staff_user, user_data):
         url = reverse('users_v1_1-list')
 
         api_client.force_login(user=staff_user)
+        user_data = get_values(user_data, request)
         response = api_client.post(url, data=user_data, format='json')
 
         assert response.status_code == status.HTTP_201_CREATED
 
     @pytest.mark.parametrize(
         "field,code", FIELD_CODES, ids=[f[0] for f in FIELD_CODES])
-    def test_create_user_without_one_field(self, api_client, staff_user, user_data, field, code):
+    def test_create_user_without_one_field(self, request, api_client, staff_user, user_data, field, code):
         url = reverse('users_v1_1-list')
 
         user_data.pop(field)
+        user_data = get_values(user_data, request)
         api_client.force_login(user=staff_user)
         response = api_client.post(url, data=user_data, format='json')
 
         assert response.status_code == code
 
-    def test_update_user_with_all_fields(self, api_client, staff_user, user_data, user_factory, partner_factory):
+    @pytest.mark.parametrize(
+        "field,code", CHANGE_FIELD, ids=[f[0] for f in CHANGE_FIELD])
+    def test_create_user_uniq_fields(
+            self, request, api_client, staff_user,
+            user_data, field, code):
+
+        _user_data = get_values(user_data, request)
+
+        changed_data = copy.deepcopy(user_data)
+        _changed_data = get_values(changed_data, request)
+
+        _changed_data[field] = change_field(_changed_data[field], changed_data[field], request)
+
+        url = reverse('users_v1_1-list')
+
+        api_client.force_login(user=staff_user)
+        api_client.post(url, data=_user_data, format='json')
+        response = api_client.post(url, data=_changed_data, format='json')
+
+        assert response.status_code == code
+
+    def test_update_user_with_all_fields(self, request, api_client, staff_user, user_data, user_factory,
+                                         partner_factory):
+        user_data = get_values(user_data, request)
         create_user_data = copy.deepcopy(user_data)
         divisions = create_user_data.pop('divisions')
         partner = create_user_data.pop('partner')
 
+        strptime = lambda d: datetime.datetime.strptime(d, '%Y-%m-%d')
         create_user_data['department_id'] = create_user_data.pop('department')
         create_user_data['hierarchy_id'] = create_user_data.pop('hierarchy')
         create_user_data['master_id'] = create_user_data.pop('master')
-        create_user_data['born_date'] = datetime.date(*map(lambda d: int(d), create_user_data['born_date'].split('-')))
-        create_user_data['coming_date'] = datetime.date(*map(lambda d: int(d), create_user_data['coming_date'].split('-')))
-        create_user_data['repentance_date'] = datetime.date(*map(lambda d: int(d), create_user_data['repentance_date'].split('-')))
+        create_user_data['born_date'] = strptime(create_user_data['born_date'])
+        create_user_data['coming_date'] = strptime(create_user_data['coming_date'])
+        create_user_data['repentance_date'] = strptime(create_user_data['repentance_date'])
 
         user = user_factory(**create_user_data)
         partner_factory(
