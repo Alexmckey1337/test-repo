@@ -62,6 +62,7 @@ $('document').ready(function () {
     });
 
     $('#add').on('click', function () {
+        $('body').addClass('no_scroll');
         $('#addNewUserPopup').css('display', 'block');
         initAddNewUser();
     });

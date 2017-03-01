@@ -75,9 +75,12 @@ $('.reset_hard_user').on('click', function (e) {
 });
 
 $('.close_popup').on('click', function () {
+    let $body = $('body');
+    if($body.hasClass('no_scroll')) {
+        $body.removeClass('no_scroll');
+    }
     $(this).closest('.popap').css('display', 'none');
 });
-
 /*search animate width*/
 $('.top input').click(function () {
     $('.top .search').animate({width: "80%"});
