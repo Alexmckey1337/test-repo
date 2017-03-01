@@ -1387,8 +1387,12 @@ function initAddNewUser(config = {}) {
         getCountryCodes: true,
         getManagers: true,
     };
+    let $form = $('#createUser'),
+        $input = $form.find('input');
+    $input.each(function () {
+        $(this).val('');
+    });
     Object.assign(configDefault, config);
-
     if (configDefault.getCountries) {
         getCountries().then(function (data) {
             let rendered = [];
@@ -1437,23 +1441,26 @@ function initAddNewUser(config = {}) {
         getDepartments().then(function (data) {
             let departments = data.results;
             let rendered = [];
+            let option = document.createElement('option');
+            $(option).text('Выберите департамент').attr('disabled', true).attr('selected', true);
+            rendered.push(option);
             departments.forEach(function (item) {
                 let option = document.createElement('option');
                 $(option).val(item.id).text(item.title);
                 rendered.push(option);
-                $('#chooseDepartment').html(rendered).select2().removeAttr('disabled').on('change', function () {
-                    let status = $('#chooseStatus').val();
-                    let department = $(this).val();
-                    getResponsible(department, status).then(function (data) {
-                        let rendered = [];
-                        data.forEach(function (item) {
-                            let option = document.createElement('option');
-                            $(option).val(item.id).text(item.fullname);
-                            rendered.push(option);
-                        });
-                        $('#chooseResponsible').html(rendered).attr('disabled', false).select2();
-                    })
-                });
+            });
+            $('#chooseDepartment').html(rendered).select2().removeAttr('disabled').on('change', function () {
+                let status = $('#chooseStatus').val();
+                let department = $(this).val();
+                getResponsible(department, status).then(function (data) {
+                    let rendered = [];
+                    data.forEach(function (item) {
+                        let option = document.createElement('option');
+                        $(option).val(item.id).text(item.fullname);
+                        rendered.push(option);
+                    });
+                    $('#chooseResponsible').html(rendered).attr('disabled', false).select2();
+                })
             });
         });
     }
@@ -2027,7 +2034,11 @@ function makeTabs() {
     }
 }
 function createNewUser(callback) {
-    let $createUser = $('#createUser');
+    let $createUser = $('#createUser'),
+        $phoneNumber = $('#phoneNumber'),
+        $extraPhoneNumbers = $('#extra_phone_numbers'),
+        $preloader = $('.preloader');
+
     let oldForm = document.forms.createUser;
     let formData = new FormData(oldForm);
     if ($('#division_drop').val()) {
@@ -2035,12 +2046,12 @@ function createNewUser(callback) {
     } else {
         formData.append('divisions', JSON.stringify([]));
     }
-    if ($('#phoneNumber').val()) {
-        let phoneNumber = $('#phoneNumberCode').val() + $('#phoneNumber').val();
+    if ($phoneNumber.val()) {
+        let phoneNumber = $('#phoneNumberCode').val() + $phoneNumber.val();
         formData.append('phone_number', phoneNumber)
     }
-    if ($('#extra_phone_numbers').val()) {
-        formData.append('extra_phone_numbers', JSON.stringify($('#extra_phone_numbers').val().split(',').map((item) => item.trim())));
+    if ($extraPhoneNumbers.val()) {
+        formData.append('extra_phone_numbers', JSON.stringify($extraPhoneNumbers.val().split(',').map((item) => item.trim())));
     } else {
         formData.append('extra_phone_numbers', JSON.stringify([]));
     }
@@ -2069,9 +2080,9 @@ function createNewUser(callback) {
         data: formData,
         method: 'POST'
     };
-    $('.preloader').css('display', 'block');
-    ajaxSendFormData(config).then(function (data) {
-        $('.preloader').css('display', 'none');
+    $preloader.css('display', 'block');
+    return ajaxSendFormData(config).then(function (data) {
+        $preloader.css('display', 'none');
         showPopup(`${data.fullname} добален(а) в базу данных`);
         $createUser.find('input').each(function () {
             $(this).val('').attr('disabled', false);
@@ -2084,7 +2095,7 @@ function createNewUser(callback) {
             callback(data);
         }
     }).catch(function (data) {
-        $('.preloader').css('display', 'none');
+        $preloader.css('display', 'none');
         showPopup(data);
     });
 }

@@ -41,11 +41,6 @@ $('document').ready(function () {
             $('.preloader').css('display', 'none');
         });
     });
-    $('input[name="searchDep"]').keyup(function () {
-        delay(function () {
-            createUserDep();
-        }, 1500);
-    });
 
     $('#quickEditCartPopup').find('.close').on('click', function () {
         let $input = $(this).closest('.pop_cont').find('input');
@@ -76,7 +71,10 @@ $('document').ready(function () {
         form: '#createUser',
         onSuccess: function (form) {
             if ($(form).attr('name') == 'createUser') {
-                createNewUser(null);
+                $(form).find('#saveNew').attr('disabled', true);
+                createNewUser(null).then(function() {
+                    $(form).find('#saveNew').attr('disabled', false);
+                });
             }
             return false; // Will stop the submission of the form
         },

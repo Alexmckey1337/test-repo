@@ -169,9 +169,12 @@
         form: '#createUser',
         onSuccess: function (form) {
             if ($(form).attr('name') == 'createUser') {
-                createNewUser(addUserToChurch);
+                $(form).find('#saveNew').attr('disabled', true);
+                createNewUser(addUserToChurch).then(function() {
+                    $(form).find('#saveNew').attr('disabled', false);
+                });
             }
             return false; // Will stop the submission of the form
-        },
+        }
     });
 })(jQuery);

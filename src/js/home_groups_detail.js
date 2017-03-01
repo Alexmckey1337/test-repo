@@ -126,9 +126,12 @@
         form: '#createUser',
         onSuccess: function (form) {
             if ($(form).attr('name') == 'createUser') {
-                createNewUser(addUserToHomeGroup)
+                $(form).find('#saveNew').attr('disabled', true);
+                createNewUser(addUserToHomeGroup).then(function() {
+                    $(form).find('#saveNew').attr('disabled', false);
+                });
             }
             return false; // Will stop the submission of the form
-        },
+        }
     });
 })(jQuery);
