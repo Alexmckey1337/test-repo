@@ -5,6 +5,7 @@ import binascii
 import os
 
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from account.models import CustomUser as User
 from common.fields import ReadOnlyChoiceField
@@ -132,6 +133,14 @@ class NewUserSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class UserCreateSerializer(NewUserSerializer):
+    class Meta(NewUserSerializer.Meta):
+        validators = (UniqueTogetherValidator(
+            queryset=User.objects.all(),
+            fields=['phone_number', 'first_name', 'last_name', 'middle_name']
+        ),)
 
     def create(self, validated_data):
         username = generate_key()[:20]

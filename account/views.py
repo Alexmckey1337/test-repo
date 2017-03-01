@@ -21,7 +21,7 @@ from common.views_mixins import ExportViewSetMixin
 from navigation.table_fields import user_table
 from .resources import UserResource
 from .serializers import UserShortSerializer, UserTableSerializer, NewUserSerializer, \
-    UserSingleSerializer, PartnershipSerializer
+    UserSingleSerializer, PartnershipSerializer, UserCreateSerializer
 
 
 class UserPagination(PageNumberPagination):
@@ -48,6 +48,7 @@ class NewUserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
 
     serializer_class = NewUserSerializer
     serializer_list_class = UserTableSerializer
+    serializer_create_class = UserCreateSerializer
     serializer_single_class = UserSingleSerializer
 
     pagination_class = UserPagination
@@ -101,6 +102,8 @@ class NewUserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
             return self.serializer_list_class
         if self.action == 'retrieve':
             return self.serializer_single_class
+        if self.action == 'create':
+            return self.serializer_create_class
         return self.serializer_class
 
     def perform_update(self, serializer):
