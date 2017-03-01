@@ -1450,17 +1450,17 @@ function initAddNewUser(config = {}) {
                 rendered.push(option);
             });
             $('#chooseDepartment').html(rendered).select2().removeAttr('disabled').on('change', function () {
-                let status = $('#chooseStatus').val();
+                let status = $('#chooseStatus').find('option').filter(':selected').data('level');
                 let department = $(this).val();
                 getResponsible(department, status).then(function (data) {
-                    let rendered = [];
-                    data.forEach(function (item) {
-                        let option = document.createElement('option');
-                        $(option).val(item.id).text(item.fullname);
-                        rendered.push(option);
-                    });
-                    $('#chooseResponsible').html(rendered).attr('disabled', false).select2();
-                })
+                        let rendered = [];
+                        data.forEach(function (item) {
+                            let option = document.createElement('option');
+                            $(option).val(item.id).text(item.fullname);
+                            rendered.push(option);
+                        });
+                        $('#chooseResponsible').html(rendered).attr('disabled', false).select2();
+                    })
             });
         });
     }
@@ -1479,17 +1479,17 @@ function initAddNewUser(config = {}) {
             return rendered;
         }).then(function (rendered) {
             $('#chooseStatus').html(rendered).select2().on('change', function () {
-                let status = $(this).val();
+                let status = $(this).find('option').filter(':selected').data('level');
                 let department = $('#chooseDepartment').val();
                 getResponsible(department, status).then(function (data) {
-                    let rendered = [];
-                    data.forEach(function (item) {
-                        let option = document.createElement('option');
-                        $(option).val(item.id).text(item.fullname);
-                        rendered.push(option);
-                    });
-                    $('#chooseResponsible').html(rendered).attr('disabled', false).select2();
-                })
+                        let rendered = [];
+                        data.forEach(function (item) {
+                            let option = document.createElement('option');
+                            $(option).val(item.id).text(item.fullname);
+                            rendered.push(option);
+                        });
+                        $('#chooseResponsible').html(rendered).attr('disabled', false).select2();
+                    })
             });
         });
     }
