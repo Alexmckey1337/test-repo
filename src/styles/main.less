@@ -4536,15 +4536,17 @@ div.code input#code {
 
 .input-group {
   float: left;
-  width: 37%;
-  max-width: 350px;
+  width: auto;
+  margin-right: 3em;
   position: relative;
   &.date input {
-    width: 80%;
     height: 33px;
     border-radius: 3px;
     border: 1px solid #cdd0d4;
     padding: 0 1em;
+  }
+  & .select2-container .select2-selection--single .select2-selection__rendered {
+    padding-right: 40px;
   }
   & .fa {
     font-size: 2em;
