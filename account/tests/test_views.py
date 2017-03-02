@@ -74,7 +74,6 @@ CHANGE_FIELD = (
 
 
 @pytest.mark.django_db
-@pytest.mark.hh
 class TestNewUserViewSet:
     def test_partial_update_main_info(self, user, api_login_client, user_factory):
         url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
@@ -418,7 +417,7 @@ class TestNewUserViewSet:
         partner_factory(
             user=user,
             value=Decimal(partner['value']),
-            date=datetime.date(*map(lambda d: int(d), partner['date'].split('-'))),
+            date=strptime(partner['date']),
             responsible_id=partner['responsible'])
         user.divisions.set(divisions)
 
@@ -426,5 +425,36 @@ class TestNewUserViewSet:
 
         api_client.force_login(user=staff_user)
         response = api_client.put(url, data=user_data, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.django_db
+@pytest.mark.hh
+class TestExistUserListViewSet:
+    def test_without_params(self, api_client, user):
+        url = reverse('exist_users-list')
+
+        api_client.force_login(user=user)
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    @pytest.mark.parametrize('field', ['search_last_name', 'search_email', 'search_phone_number'])
+    @pytest.mark.parametrize('value', ['', '2', '24', '246', '2468'])
+    def test_with_param_length_less_than_5(self, api_client, user, field, value):
+        url = reverse('exist_users-list')
+
+        api_client.force_login(user=user)
+        response = api_client.get(url, data={field: value}, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    @pytest.mark.parametrize('field', ['search_last_name', 'search_email', 'search_phone_number'])
+    def test_with_param_length_more_than_5(self, api_client, user, field):
+        url = reverse('exist_users-list')
+
+        api_client.force_login(user=user)
+        response = api_client.get(url, data={field: 'value'}, format='json')
 
         assert response.status_code == status.HTTP_200_OK
