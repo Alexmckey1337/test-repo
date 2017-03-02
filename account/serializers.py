@@ -4,8 +4,11 @@ from __future__ import unicode_literals
 import binascii
 import os
 
+from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
+from rest_framework.exceptions import ValidationError
+from rest_framework.validators import UniqueTogetherValidator, qs_exists
 
 from account.models import CustomUser as User
 from common.fields import ReadOnlyChoiceField
@@ -135,9 +138,32 @@ class NewUserSerializer(serializers.ModelSerializer):
         return instance
 
 
+class UniqueFIOTelWithIdsValidator(UniqueTogetherValidator):
+    message = _('Пользователь с такими ФИО и телефоном уже существует.')
+
+    def __call__(self, attrs):
+        self.enforce_required_fields(attrs)
+        queryset = self.queryset
+        queryset = self.filter_queryset(attrs, queryset)
+        queryset = self.exclude_current_instance(attrs, queryset)
+
+        # Ignore validation if any field is None
+        checked_values = [
+            value for field, value in attrs.items() if field in self.fields
+            ]
+        if None not in checked_values and qs_exists(queryset):
+            ids = list(queryset.values_list('id', flat=True))
+            data = dict(zip(self.fields, checked_values))
+            raise ValidationError({'message': self.message,
+                                   'data': data,
+                                   'ids': ids,
+                                   'users': [reverse('account', args=(pk,)) for pk in ids]
+                                   },)
+
+
 class UserCreateSerializer(NewUserSerializer):
     class Meta(NewUserSerializer.Meta):
-        validators = (UniqueTogetherValidator(
+        validators = (UniqueFIOTelWithIdsValidator(
             queryset=User.objects.all(),
             fields=['phone_number', 'first_name', 'last_name', 'middle_name']
         ),)
