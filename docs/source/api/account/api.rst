@@ -352,6 +352,35 @@ Create user, ``application/json``
           "detail": "Учетные данные не были предоставлены."
         }
 
+    **Example response (User already exist)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Vary: Accept, Cookie
+        Allow: GET, POST, HEAD, OPTIONS
+        Content-Type: application/json
+
+        {
+          "message": [
+            "Пользователь с такими ФИО и телефоном уже существует."
+          ],
+          "data": {
+            "phone_number": "first",
+            "first_name": "last",
+            "last_name": "",
+            "middle_name": "62642626"
+          },
+          "ids": [
+            "15709",
+            "15710"
+          ],
+          "users": [
+            "/account/15709/",
+            "/account/15710/"
+          ]
+        }
+
     **Example response (Bad request 2)**:
 
     .. sourcecode:: http
@@ -796,6 +825,35 @@ Create new user, ``multipart/form-data``
 
         {
           "detail": "Учетные данные не были предоставлены."
+        }
+
+    **Example response (User already exist)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Vary: Accept, Cookie
+        Allow: GET, POST, HEAD, OPTIONS
+        Content-Type: application/json
+
+        {
+          "message": [
+            "Пользователь с такими ФИО и телефоном уже существует."
+          ],
+          "data": {
+            "phone_number": "first",
+            "first_name": "last",
+            "last_name": "",
+            "middle_name": "62642626"
+          },
+          "ids": [
+            "15709",
+            "15710"
+          ],
+          "users": [
+            "/account/15709/",
+            "/account/15710/"
+          ]
         }
 
     **Example response (Bad request 2)**:
