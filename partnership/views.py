@@ -2,11 +2,16 @@
 from __future__ import unicode_literals
 
 from collections import OrderedDict
-from datetime import datetime
 
 import django_filters
-from django.db.models import Case, IntegerField, DecimalField, Sum, Value, When
+from decimal import Decimal
+
+from django.contrib.postgres.aggregates import ArrayAgg
+from django.db.models import Case, IntegerField, DecimalField, Sum, Value, When, Count, BooleanField
+from django.db.models import F
+from django.db.models.functions import Coalesce
 from django.db.models.functions import Concat
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import api_view, list_route, detail_route
@@ -14,6 +19,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
 
 from account.models import CustomUser as User, CustomUser
 from common.views_mixins import ExportViewSetMixin
@@ -21,6 +27,7 @@ from navigation.table_fields import user_table, partner_table
 from partnership.permissions import (
     IsSupervisorOrManagerReadOnly, CanCreatePartnerPayment, CanClosePartnerDeal)
 from partnership.resources import PartnerResource
+from payment.models import Currency
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from .models import Partnership, Deal
 from .serializers import (
@@ -148,6 +155,100 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
 
         return Response(stat)
 
+    @list_route(methods=['get'])
+    def stats_payments(self, request):
+        request_partner_id = request.query_params.get('partner_id')
+
+        current_user = request.user
+        current_partner = get_object_or_404(Partnership, user=current_user)
+
+        self.check_stats_permissions(current_partner)
+
+        if current_partner.level == Partnership.MANAGER or not request_partner_id:
+            partnership = current_partner
+        else:
+            partnership = get_object_or_404(Partnership, id=request_partner_id)
+
+        month = self.request.query_params.get('month', timezone.now().month)
+        year = self.request.query_params.get('year', timezone.now().year)
+
+        deals = partnership.disciples_deals
+        disciples_deals = deals.filter(
+            date_created__month=month, date_created__year=year)
+        # disciples_deals = Deal.objects.all()  # for test, del this
+        deals_annotate = disciples_deals.annotate(
+            total_sum=Coalesce(Sum('payments__effective_sum'), Value(0)))
+
+        paid = deals_annotate.filter(total_sum__gte=F('value')).count()
+        unpaid = deals_annotate.filter(total_sum__lt=F('value'), total_sum=Decimal(0)).count()
+        partial_paid = deals_annotate.filter(total_sum__lt=F('value'), total_sum__gt=Decimal(0)).count()
+        result = {
+            'sum': {},
+            'deals': {
+                'paid_count': paid,
+                'unpaid_count': unpaid,
+                'partial_paid_count': partial_paid
+            }
+        }
+
+        closed_count = disciples_deals.aggregate(
+            closed_count=Sum(
+                Case(When(done=True, then=1), default=0,
+                     output_field=IntegerField())
+            ),
+            unclosed_count=Sum(
+                Case(When(done=False, then=1), default=0,
+                     output_field=IntegerField())
+            ))
+        result['deals'].update(closed_count)
+
+        paid = set(deals_annotate.filter(total_sum__gte=F('value')).aggregate(p=ArrayAgg('partnership'))['p'])
+        unpaid = set(deals_annotate.filter(
+            total_sum__lt=F('value'),
+            total_sum=Decimal(0)).aggregate(p=ArrayAgg('partnership'))['p'])
+        partial_paid = set(deals_annotate.filter(
+            total_sum__lt=F('value'),
+            total_sum__gt=Decimal(0)).aggregate(p=ArrayAgg('partnership'))['p'])
+        paid_count = len(paid - unpaid - partial_paid)
+        unpaid_count = len(unpaid - partial_paid - paid)
+        partial_paid_count = len(partial_paid | (paid & unpaid))
+
+        closed = set(disciples_deals.filter(done=True).aggregate(p=ArrayAgg('partnership'))['p'])
+        unclosed = set(disciples_deals.filter(done=False).aggregate(p=ArrayAgg('partnership'))['p'])
+        closed_count = len(closed - unclosed)
+        unclosed_count = len(unclosed)
+
+        result['partners'] = {
+            'paid_count': paid_count,
+            'unpaid_count': unpaid_count,
+            'partial_paid_count': partial_paid_count,
+            'closed_count': closed_count,
+            'unclosed_count': unclosed_count
+        }
+
+        currencies = set(
+            disciples_deals.aggregate(currency_codes=ArrayAgg('currency__code'))['currency_codes'])
+
+        for c in Currency.objects.filter(code__in=currencies):
+            total_paid_sum = deals_annotate.filter(currency=c).aggregate(
+                sum_planed=Coalesce(Sum('value'), Value(0)),
+                sum_paid=Coalesce(Sum('total_sum'), Value(0)))
+            closed_paid_sum = deals_annotate.filter(currency=c, done=True).aggregate(
+                sum_planed=Coalesce(Sum('value'), Value(0)),
+                sum_paid=Coalesce(Sum('total_sum'), Value(0)))
+            result['sum'][c.code] = {
+                'currency_name': c.name,
+                'total_paid_sum': total_paid_sum,
+                'closed_paid_sum': closed_paid_sum
+            }
+
+        return Response(result)
+
+    @staticmethod
+    def check_stats_permissions(current_partner):
+        if current_partner.level > Partnership.MANAGER:
+            raise PermissionDenied({'detail': 'Статистику можно просматривать только менеджерам.'})
+
     @staticmethod
     def _get_partners_stats(partners):
         stat_keys = ('total_deals', 'paid_deals', 'unpaid_deals',
@@ -172,8 +273,8 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
 
     def _get_partners_list(self, partnership):
 
-        month = self.request.query_params.get('month', datetime.now().month)
-        year = self.request.query_params.get('year', datetime.now().year)
+        month = self.request.query_params.get('month', timezone.now().month)
+        year = self.request.query_params.get('year', timezone.now().year)
         partners = list(partnership.disciples.annotate(
             total_deals=Sum(
                 Case(When(deals__date_created__month=month, deals__date_created__year=year,
