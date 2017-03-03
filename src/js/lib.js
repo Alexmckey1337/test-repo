@@ -1243,6 +1243,7 @@ function ajaxSendFormData(data = {}) {
         xhr.withCredentials = true;
         xhr.open(sendData.method, sendData.url, true);
         xhr.onreadystatechange = function () {
+            console.log(xhr);
             if (xhr.readyState == 4) {
                 if (xhr.status == 200) {
                     let response = JSON.parse(xhr.responseText);
@@ -1251,6 +1252,10 @@ function ajaxSendFormData(data = {}) {
                 } else if (xhr.status == 201) {
                     let response = JSON.parse(xhr.responseText);
                     resolve(response);
+                } else if (xhr.status == 400) {
+                    let response = JSON.parse(xhr.responseText);
+                    showPopup(xhr.responseText);
+                    reject(response);
                 } else {
                     reject(xhr.responseText);
                 }
