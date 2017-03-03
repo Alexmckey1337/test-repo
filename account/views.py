@@ -21,7 +21,7 @@ from common.views_mixins import ExportViewSetMixin
 from navigation.table_fields import user_table
 from .resources import UserResource
 from .serializers import UserShortSerializer, UserTableSerializer, NewUserSerializer, \
-    UserSingleSerializer, PartnershipSerializer, UserCreateSerializer
+    UserSingleSerializer, PartnershipSerializer, ExistUserSerializer, UserCreateSerializer
 
 
 class UserPagination(PageNumberPagination):
@@ -168,6 +168,32 @@ class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
     def get_queryset(self):
         descendants = self.request.user.get_descendants()
         return self.queryset.exclude(pk__in=descendants.values_list('pk', flat=True))
+
+
+class ExistUserListViewSet(mixins.ListModelMixin, GenericViewSet):
+    queryset = User.objects.exclude(hierarchy__level=0).select_related(
+        'hierarchy').order_by()
+    serializer_class = ExistUserSerializer
+    pagination_class = None
+    permission_classes = (IsAuthenticated,)
+    filter_backends = (FieldSearchFilter,)
+    field_search_fields = {
+        'search_last_name': ('last_name',),
+        'search_email': ('email',),
+        'search_phone_number': ('phone_number',),
+    }
+
+    def list(self, request, *args, **kwargs):
+        params = self.field_search_fields.keys()
+        for f in params:
+            param = request.query_params.get(f, '')
+            if param and len(param) < 5:
+                return Response({'detail': _('Min length of %s == 4' % f)}, status=status.HTTP_400_BAD_REQUEST)
+        if not len(['go' for p in params if len(request.query_params.get(p, '')) > 0]):
+            return Response(
+                {'detail': _('One of [%s] parameters is required' % ', '.join(params))},
+                status=status.HTTP_400_BAD_REQUEST)
+        return super(ExistUserListViewSet, self).list(request, *args, **kwargs)
 
 
 class LogoutView(RestAuthLogoutView):
