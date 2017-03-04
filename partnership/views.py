@@ -6,10 +6,9 @@ from decimal import Decimal
 
 import django_filters
 from django.contrib.postgres.aggregates import ArrayAgg
-from django.db.models import Case, IntegerField, DecimalField, Sum, Value, When
+from django.db.models import Case, IntegerField, Sum, Value, When
 from django.db.models import F
 from django.db.models.functions import Coalesce
-from django.db.models.functions import Concat
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import filters, mixins, status, viewsets
@@ -297,41 +296,6 @@ class DealViewSet(mixins.RetrieveModelMixin,
         if Partnership.objects.get(user=user).level < Partnership.MANAGER:
             return self.queryset
         return self.queryset.filter(partnership__responsible__user=user)
-
-
-@api_view(['POST'])
-def create_partnership(request):
-    '''POST: (user, responsible, value)'''
-
-    response_dict = dict()
-    if request.method == 'POST':
-        data = request.data
-        user_id = data['user']
-        responsible_partnership_id = None
-        if 'responsible' in data.keys():
-            responsible_partnership_id = data['responsible']
-        value = data['value']
-        date = data['date']
-        try:
-            Partnership.objects.get(user__id=user_id)
-            response_dict['message'] = "Этот пользователь уже имеет партнерство."
-            response_dict['status'] = False
-        except Partnership.DoesNotExist:
-            try:
-                user = User.objects.get(id=user_id)
-                responsible_partnership = Partnership.objects.filter(id=responsible_partnership_id).first()
-                object = Partnership.objects.create(user=user, responsible=responsible_partnership, value=value,
-                                                    date=date)
-                if object:
-                    serializer = PartnershipSerializer(object, context={'request': request})
-                    response_dict['data'] = serializer.data
-                    response_dict['message'] = "Партнерство успешно добавлено."
-                    response_dict['status'] = True
-            except User.DoesNotExist:
-                response_dict['data'] = []
-                response_dict['message'] = "Пользователя не существует."
-                response_dict['status'] = False
-    return Response(response_dict)
 
 
 class PartnershipsUnregisterUserViewSet(viewsets.ModelViewSet):
