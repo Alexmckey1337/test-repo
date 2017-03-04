@@ -9,8 +9,8 @@ from rest_framework.compat import is_authenticated
 class DealQuerySet(models.query.QuerySet):
     def base_queryset(self):
         return self.select_related(
-            'partnership', 'partnership__responsible',
-            'partnership__responsible__user', 'currency')
+            'partnership', 'responsible', 'responsible__user',
+            'partnership__user', 'currency')
 
     def annotate_full_name(self):
         return self.annotate(
@@ -22,8 +22,8 @@ class DealQuerySet(models.query.QuerySet):
     def annotate_responsible_name(self):
         return self.annotate(
             responsible_name=Concat(
-                'partnership__responsible__user__last_name', V(' '),
-                'partnership__responsible__user__first_name'
+                'responsible__user__last_name', V(' '),
+                'responsible__user__first_name'
             ))
 
     def annotate_total_sum(self):
