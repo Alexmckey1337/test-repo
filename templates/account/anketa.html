@@ -95,7 +95,8 @@
                                     <li class="clearfix">
                                         <label for="extra_phone_numbers"><i class="fa fa-phone"
                                                                             aria-hidden="true"></i></label>
-                                        <input type="text" id="extra_phone_numbers" value="{% if account.extra_phone_numbers %}{{ account.extra_phone_numbers|default:""|join:", " }}{% endif %}"
+                                        <input type="text" id="extra_phone_numbers" value="
+                                                {% if account.extra_phone_numbers %}{{ account.extra_phone_numbers|default:""|join:", " }}{% endif %}"
                                                readonly>
                                     </li>
                                     <li class="clearfix">
@@ -127,7 +128,8 @@
                                     <li class="clearfix">
                                         <label for="country">Страна:</label>
                                         <select type="text" name="country" id="selectCountry" readonly disabled>
-                                            <option value="{{ account.country }}" selected>{{ account.country }}</option>
+                                            <option value="{{ account.country }}"
+                                                    selected>{{ account.country }}</option>
                                         </select>
                                     </li>
                                     <li class="clearfix">
@@ -144,14 +146,15 @@
                                     </li>
                                     <li class="clearfix">
                                         <label for="address">Адрес:</label>
-                                        <input type="text" name="address" value="{{ account.address }}" readonly disabled>
+                                        <input type="text" name="address" value="{{ account.address }}" readonly
+                                               disabled>
                                     </li>
                                 </ul>
                             </form>
                         </div>
                     </li>
                     <li>
-                    <div class="right-info__block">
+                        <div class="right-info__block">
                             <form action="/" name="editHierarchy">
                                 <button class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></button>
                                 <button class="save__info" type="submit"><i class="fa fa-floppy-o"
@@ -161,10 +164,10 @@
                                         <label for="department">Отдел:</label>
                                         <select type="text" name="department" id="selectDepartment" readonly disabled>
                                             {% for department in departments %}
-                                            <option value="{{ department.id }}"
-                                                    {% if account.department_id == department.id %}selected{% endif %}>
-                                                {{ department.title }}
-                                            </option>
+                                                <option value="{{ department.id }}"
+                                                        {% if account.department_id == department.id %}selected{% endif %}>
+                                                    {{ department.title }}
+                                                </option>
                                             {% endfor %}
                                         </select>
                                     </li>
@@ -172,12 +175,12 @@
                                         <label for="hierarchy">Статус:</label>
                                         <select type="text" name="hierarchy" id="selectHierarchy" readonly disabled>
                                             {% for hierarchy in hierarchies %}
-                                            <option value="{{ hierarchy.id }}"
-                                                    {% if account.hierarchy_id == hierarchy.id %}selected{% endif %}
-                                                    data-level="{{ hierarchy.level }}">
-                                                {{ hierarchy.title }}
-                                            </option>
-                                        {% endfor %}
+                                                <option value="{{ hierarchy.id }}"
+                                                        {% if account.hierarchy_id == hierarchy.id %}selected{% endif %}
+                                                        data-level="{{ hierarchy.level }}">
+                                                    {{ hierarchy.title }}
+                                                </option>
+                                            {% endfor %}
                                         </select>
                                     </li>
                                     <li class="clearfix">
@@ -191,7 +194,7 @@
                         </div>
                     </li>
                     <li>
-                    <div class="right-info__block">
+                        <div class="right-info__block">
                             <form action="/" name="editDepartament">
                                 <button class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></button>
                                 <button class="save__info" type="submit"><i class="fa fa-floppy-o"
@@ -200,12 +203,12 @@
                                     <li class="clearfix">
                                         <label for="division">Департамент:</label>
                                         <select type="text" id="divisions" readonly disabled multiple>
-                                         <option value="">Выбирите Департамент</option>
+                                            <option value="">Выбирите Департамент</option>
                                             {% for division in divisions %}
-                                            <option value="{{ division.id }}"
-                                                    {% if division in account.divisions.all %}selected{% endif %}>
-                                                {{ division.title }}
-                                            </option>
+                                                <option value="{{ division.id }}"
+                                                        {% if division in account.divisions.all %}selected{% endif %}>
+                                                    {{ division.title }}
+                                                </option>
                                             {% endfor %}
                                         </select>
                                     </li>
@@ -250,14 +253,16 @@
                                 <ul>
                                     <li class="clearfix">
                                         <label for="coming_date">Первое посещение</label>
-                                        <input type="text" name="coming_date" value="{{ account.coming_date|date:"Y-m-d" }}"
+                                        <input type="text" name="coming_date"
+                                               value="{{ account.coming_date|date:"Y-m-d" }}"
                                                class="datepicker-here"
                                                data-date-format="yyyy-mm-dd"
                                                data-language='ru' readonly disabled>
                                     </li>
                                     <li class="clearfix">
                                         <label for="repentance_date">Покаяние:</label>
-                                        <input type="text" name="repentance_date" value="{% if account.repentance_date %}{{account.repentance_date|date:"Y-m-d" }} {% else %}Не покаялся{% endif %}"
+                                        <input type="text" name="repentance_date" value="
+                                                {% if account.repentance_date %}{{ account.repentance_date|date:"Y-m-d" }} {% else %}Не покаялся{% endif %}"
                                                class="datepicker-here"
                                                data-date-format="yyyy-mm-dd"
                                                data-language='ru'
@@ -267,18 +272,37 @@
                             </form>
                         </div>
                     </li>
-
-                    {% if account.home_groups.exists %}
-                        <li>Церковь {{ account.home_groups.get.church.get_title }}</li>
-                        <li>Домашняя группа{{ account.home_groups.get }}</li>
-                        <li>Лидер {{ account.home_groups.get.leader.fullname }}</li>
-                    {% elif account.churches.exists %}
-                        <li>Церковь {{ account.churches.get }}</li>
-                        <li>Пастор {{ account.churches.get.pastor.fullname }}</li>
-                    {% else %}
-                        <li>Пользователь не состоит ни в церкви ни в домашней группе</li>
-                    {% endif %}
-
+                    <li>
+                        <div class="right-info__block">
+                            <form action="/" name="editChurches">
+                                <button class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                <button class="save__info" type="submit"><i class="fa fa-floppy-o"
+                                                                            aria-hidden="true"></i></button>
+                                <ul>
+                                        {% if account.home_groups.exists %}
+                                            <li class="clearfix"><label for="church_title">Церковь</label>
+                                                <input type="text" name="church_title" value="{{ account.home_groups.get.church.get_title }}" readonly disabled>
+                                            </li>
+                                            <li class="clearfix"><label for="home_groups">Домашняя группа</label>
+                                                <input type="text" name="home_groups" value="{{ account.home_groups.get }}" readonly disabled>
+                                            </li>
+                                            <li class="clearfix"><label for="leader">Лидер</label>
+                                                <input type="text" name="home_groups" value="{{ account.home_groups.get.leader.fullname }}" readonly disabled>
+                                            </li>
+                                        {% elif account.churches.exists %}
+                                            <li class="clearfix"><label for="church_title">Церковь</label>
+                                                <input type="text" name="church_title" value="{{ account.churches.get }}" readonly disabled>
+                                            </li>
+                                            <li class="clearfix"><label for="church_title">Пастор</label>
+                                                <input type="text" name="church_title" value="{{ account.churches.get.pastor.fullname }}" readonly disabled>
+                                            </li>
+                                        {% else %}
+                                            <li class="clearfix">Пользователь не состоит ни в церкви ни в домашней группе</li>
+                                        {% endif %}
+                                </ul>
+                            </form>
+                        </div>
+                    </li>
                 </ul>
             </div><!--End left-content -->
         </div>
