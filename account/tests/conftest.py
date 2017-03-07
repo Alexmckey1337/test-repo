@@ -7,13 +7,19 @@ from account.factories import UserFactory
 from account.models import CustomUser
 from hierarchy.factories import HierarchyFactory, DepartmentFactory
 from partnership.factories import PartnerFactory
+from payment.factories import CurrencyFactory
 from status.factories import DivisionFactory
+from summit.factories import SummitFactory, SummitTypeFactory, SummitAnketFactory
 
 register(UserFactory)
 register(HierarchyFactory)
 register(DepartmentFactory)
 register(DivisionFactory)
 register(PartnerFactory)
+register(SummitFactory)
+register(SummitTypeFactory)
+register(SummitAnketFactory)
+register(CurrencyFactory)
 
 
 class Factory:
@@ -82,6 +88,26 @@ def partner(partner_factory):
 @pytest.fixture
 def staff_user(user_factory):
     return user_factory(username='staff', is_staff=True)
+
+
+@pytest.fixture
+def currency(currency_factory):
+    return currency_factory()
+
+
+@pytest.fixture
+def summit_type(summit_type_factory):
+    return summit_type_factory()
+
+
+@pytest.fixture
+def summit(summit_factory, summit_type, currency):
+    return summit_factory(type=summit_type, currency=currency)
+
+
+@pytest.fixture
+def anket(summit_anket_factory, user, summit):
+    return summit_anket_factory(user=user, summit=summit)
 
 
 @pytest.fixture

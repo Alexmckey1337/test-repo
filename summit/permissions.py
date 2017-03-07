@@ -44,5 +44,5 @@ class IsSupervisorOrConsultantReadOnly(IsConsultantReadOnly):
     def has_object_permission(self, request, view, summit):
         return (
             super(IsSupervisorOrConsultantReadOnly, self).has_object_permission(request, view, summit) or
-            IsSupervisorOrHigh().has_permission(request, view)
+            IsSupervisorOrHigh().has_object_permission(request, view)
         )
