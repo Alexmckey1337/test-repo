@@ -22,7 +22,7 @@ from account.models import CustomUser
 from common.views_mixins import ExportViewSetMixin
 from navigation.table_fields import user_table, summit_table
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
-from summit.permissions import IsSupervisorOrHigh
+from summit.permissions import IsSupervisorOrHigh, IsSupervisorOrConsultantReadOnly
 from summit.utils import generate_ticket
 from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, SummitUserConsultant
 from .resources import get_fields, SummitAnketResource
@@ -122,6 +122,11 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet,
     permission_classes = (IsAuthenticated,)
 
     resource_class = SummitAnketResource
+
+    def get_queryset(self):
+        summit_ids = set(self.request.user.summit_ankets.filter(
+            role__gte=SummitAnket.CONSULTANT).values_list('summit_id', flat=True))
+        return self.queryset.filter(summit__in=summit_ids)
 
     @list_route(methods=['post'], )
     def post_anket(self, request):
