@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from account.filters import FilterByBirthday, UserFilter, ShortUserFilter
+from account.filters import FilterByBirthday, UserFilter, ShortUserFilter, FilterMasterTree
 from account.models import CustomUser as User
 from common.filters import FieldSearchFilter
 from common.parsers import MultiPartAndJsonParser
@@ -57,6 +57,7 @@ class NewUserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
         FieldSearchFilter,
         filters.OrderingFilter,
         FilterByBirthday,
+        FilterMasterTree,
     )
     permission_classes = (IsAuthenticated,)
     ordering_fields = ('first_name', 'last_name', 'middle_name',
