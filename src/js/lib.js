@@ -293,8 +293,7 @@ function exportTableData(el) {
 }
 function newAjaxRequest(data = {}, codes, fail) {
     let resData = {
-        method: 'GET',
-        data: data
+        method: 'GET'
     };
     Object.assign(resData, data);
     if (getCookie('key')) {
@@ -760,7 +759,9 @@ function getCountryCodes() {
 }
 
 function getRegions(config = {}) {
+    console.log(config);
     return new Promise(function (resolve, reject) {
+        console.log(config);
         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/regions/', config, function (data) {
             if (data) {
                 resolve(data);
@@ -1312,65 +1313,6 @@ function ucFirst(str) {
 
     return str[0].toUpperCase() + str.slice(1);
 }
-function initRegionANDCity() {
-    let selectRegion = $('#selectRegion').val();
-    let config = {};
-    config.country = $('#selectCountry').find(':selected').data('id');
-    getRegions(config).then(function (data) {
-        let rendered = [];
-        let option = document.createElement('option');
-        $(option).val('').text('Выберите регион').attr('disabled', true).attr('selected', true);
-        rendered.push(option);
-        data.forEach(function (item) {
-            let option = document.createElement('option');
-            $(option).val(item.title).text(item.title).attr('data-id', item.id);
-            if (item.title == selectRegion) {
-                $(option).attr('selected', true);
-            }
-            rendered.push(option);
-        });
-        $('#selectRegion').html(rendered).on('change', function () {
-            selectRegion = $(this).val();
-            let config = {};
-            config.region = $(this).find(':selected').data('id');
-            getCities(config).then(function (data) {
-                let rendered = [];
-                let option = document.createElement('option');
-                $(option).val('').text('Выберите город').attr('disabled', true).attr('selected', true);
-                rendered.push(option);
-                data.forEach(function (item) {
-                    let option = document.createElement('option');
-                    $(option).val(item.title).text(item.title).attr('data-id', item.id);
-                    if (item.title == selectCity) {
-                        $(option).attr('selected', true)
-                    }
-                    rendered.push(option);
-                });
-                $('#selectCity').html(rendered).attr('disabled', false);
-            })
-        });
-        let config = {};
-        config.region = $('#selectRegion').find(':selected').data('id');
-        return config;
-    }).then(function (config) {
-        getCities(config).then(function (data) {
-            let selectCity = $('#selectCity').val();
-            let rendered = [];
-            let option = document.createElement('option');
-            $(option).val('').text('Выберите город').attr('disabled', true).attr('selected', true);
-            rendered.push(option);
-            data.forEach(function (item) {
-                let option = document.createElement('option');
-                $(option).val(item.id).text(item.title).attr('data-id', item.id);
-                if (item.title == selectCity) {
-                    $(option).attr('selected', true)
-                }
-                rendered.push(option);
-            });
-            $('#selectCity').html(rendered).attr('disabled', false);
-        })
-    });
-}
 
 function makeCountriesList(data, selectCountry) {
     let rendered = [];
@@ -1433,20 +1375,21 @@ function initLocationSelect(config) {
             let list = makeCountriesList(data, selectCountry);
             $countrySelector.html(list);
         }
-    }).then(function () {
-        if (!selectCountry) return null;
+        return $countrySelector.find(':selected').data('id');
+    }).then(function (id) {
+        if (!selectCountry || !id) return null;
         let config = {};
-        config.country = $countrySelector.find(':selected').data('id');
-        console.log(config.country);
+        config.country = id;
         getRegions(config).then(function (data) {
             if (typeof data == "object") {
                 let list = makeRegionsList(data, selectRegion);
                 $regionSelector.html(list);
             }
-        }).then(function () {
-            if (!selectRegion && !selectCountry) return null;
+            return $regionSelector.find(':selected').data('id')
+        }).then(function (id) {
+            if (!selectRegion || !id) return null;
             let config = {};
-            config.region = $regionSelector.find(':selected').data('id');
+            config.region = id;
             getCities(config).then(function (data) {
                 if (typeof data == "object") {
                     let list = makeCityList(data, selectCity);
