@@ -1462,14 +1462,14 @@ function initAddNewUser(config = {}) {
                 let status = $('#chooseStatus').find('option').filter(':selected').data('level');
                 let department = $(this).val();
                 getResponsible(department, status).then(function (data) {
-                        let rendered = [];
-                        data.forEach(function (item) {
-                            let option = document.createElement('option');
-                            $(option).val(item.id).text(item.fullname);
-                            rendered.push(option);
-                        });
-                        $('#chooseResponsible').html(rendered).attr('disabled', false).select2();
-                    })
+                    let rendered = [];
+                    data.forEach(function (item) {
+                        let option = document.createElement('option');
+                        $(option).val(item.id).text(item.fullname);
+                        rendered.push(option);
+                    });
+                    $('#chooseResponsible').html(rendered).attr('disabled', false).select2();
+                })
             });
         });
     }
@@ -1491,14 +1491,14 @@ function initAddNewUser(config = {}) {
                 let status = $(this).find('option').filter(':selected').data('level');
                 let department = $('#chooseDepartment').val();
                 getResponsible(department, status).then(function (data) {
-                        let rendered = [];
-                        data.forEach(function (item) {
-                            let option = document.createElement('option');
-                            $(option).val(item.id).text(item.fullname);
-                            rendered.push(option);
-                        });
-                        $('#chooseResponsible').html(rendered).attr('disabled', false).select2();
-                    })
+                    let rendered = [];
+                    data.forEach(function (item) {
+                        let option = document.createElement('option');
+                        $(option).val(item.id).text(item.fullname);
+                        rendered.push(option);
+                    });
+                    $('#chooseResponsible').html(rendered).attr('disabled', false).select2();
+                })
             });
         });
     }
@@ -1836,11 +1836,13 @@ function updateSettings(callback, path) {
     let data = [];
     let iteration = 1;
     $("#sort-form input").each(function () {
-        let item = {};
-        item['id'] = $(this).val();
-        item['number'] = iteration++;
-        item['active'] = $(this).prop('checked');
-        data.push(item);
+        if ($(this).data('editable') == 'true') {
+            let item = {};
+            item['id'] = $(this).val();
+            item['number'] = iteration++;
+            item['active'] = $(this).prop('checked');
+            data.push(item);
+        }
     });
     let json = JSON.stringify(data);
 
