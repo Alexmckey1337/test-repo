@@ -1,7 +1,6 @@
 import copy
 import datetime
 from decimal import Decimal
-from functools import partial, partialmethod
 
 import pytest
 from django.urls import reverse
@@ -200,6 +199,25 @@ class TestNewUserViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert response.data['count'] == 50
 
+    def test_user_list_filter_by_master_tree(self, api_login_client, user_factory):
+        user = user_factory()  # count: + 0, = 0, all_users_count: +1, = 1
+
+        user_factory.create_batch(3, master=user)  # count: + 3, = 3, all_users_count: +3, = 4
+        second_level_user = user_factory(master=user)  # count: + 1, = 4, all_users_count: +1, = 5
+        user_factory.create_batch(8, master=second_level_user)  # count: + 8, = 12, all_users_count: +8, = 13
+
+        user_factory.create_batch(15)  # count: + 0, = 12, all_users_count: +15, = 28
+        other_user = user_factory()  # count: + 0, = 12, all_users_count: +1, = 29
+        user_factory.create_batch(32, master=other_user)  # count: + 0, = 12, all_users_count: + 32, = 61
+
+        url = reverse('users_v1_1-list')
+
+        api_login_client.force_login(user=user_factory(is_staff=True))
+        response = api_login_client.get(url, data={'master_tree': user.id}, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 12
+
     def test_user_search_by_fio(self, api_login_client, user_factory):
         user_factory.create_batch(10)
         user_factory(last_name='searchlast', first_name='searchfirst')
@@ -382,7 +400,6 @@ class TestNewUserViewSet:
     def test_create_user_uniq_fields(
             self, request, api_client, staff_user,
             user_data, field, code):
-
         _user_data = get_values(user_data, request)
 
         changed_data = copy.deepcopy(user_data)
@@ -430,7 +447,6 @@ class TestNewUserViewSet:
 
 
 @pytest.mark.django_db
-@pytest.mark.hh
 class TestExistUserListViewSet:
     def test_without_params(self, api_client, user):
         url = reverse('exist_users-list')

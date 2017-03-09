@@ -11,7 +11,7 @@
     });
 
     function filterByMonth(params = {}) {
-        let url = '/api/v1.1/partnerships/stats/?',
+        let url = '/api/v1.1/partnerships/stats_payments/?',
             partner_id = $('#stats_manager').val();
         if (partner_id) {
             params.partner_id = partner_id;
@@ -22,38 +22,39 @@
                 return response.json();
             })
             .then(function (data) {
-                for (let k in data) {
-                    if (!data.hasOwnProperty(k)) continue;
-                    if (k != 'partners' && k != 'unpaid_sum_deals') {
-                        document.getElementById(k).innerHTML = data[k];
-                    }
+                let deals, partners;
+                let total_partners = 0;
+                let total_deals = 0;
+
+                partners = data.partners;
+                deals = data.deals;
+
+                for (let k in partners) {
+                    if (!partners.hasOwnProperty(k)) continue;
+                    document.getElementById(`partners_${k}`).innerHTML = partners[k];
+                    total_partners += partners[k];
                 }
-
-                let percent = data['paid_sum_deals'] / data['planned_sum_deals'] * 100;
-                document.getElementById('percent_paid_sum_deals').innerHTML = percent.toFixed(1) + '%';
-
-                return data.partners;
-            }).then(function (partners) {
-            $('#partners_table tbody tr').remove();
-            let tr = '';
-            partners.forEach(function (partner) {
-                if (partner.is_paid) {
-                    tr += '<tr class="success">'
-                } else {
-                    tr += '<tr class="danger">'
+                for (let k in deals) {
+                    if (!deals.hasOwnProperty(k)) continue;
+                    document.getElementById(`deals_${k}`).innerHTML = deals[k];
+                    total_deals += deals[k];
                 }
-                tr += '<td>' + partner.partner_name + '</td>';
-                tr += '<td>' + partner.total_deals + '</td>';
-                tr += '<td>' + partner.paid_deals + '</td>';
-                tr += '<td>' + partner.unpaid_deals + '</td>';
-                tr += '<td>' + partner.paid_sum_deals + '</td>';
-                tr += '<td>' + partner.unpaid_sum_deals + '</td>';
-                tr += '<td>' + partner.value + '</td>';
-                tr += '</tr>';
-            });
-            $('#partners_table tbody').append(tr)
+                document.getElementById('total_partners').innerHTML = ''+total_partners/2;
+                document.getElementById('total_deals').innerHTML = ''+total_deals/2;
 
-        })
+                return data.sum;
+            })
+            .then(function (sum) {
+                let a = '';
+                for (let code in sum) {
+                    if (!sum.hasOwnProperty(code)) continue;
+                    let tmpl = $('#stats_money').html();
+                    let rendered = _.template(tmpl)(sum[code]);
+                    a += rendered;
+                    console.log(sum[code]);
+                }
+                $('.deaals').html(a);
+            })
             .catch(alert);
     }
 

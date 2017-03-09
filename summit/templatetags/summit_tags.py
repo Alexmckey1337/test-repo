@@ -43,3 +43,10 @@ def is_consultant_for_user(context, summit, user_to, user_from=None):
             consultant=user_from_anket, user__user=user_to, summit=summit).exists())
 
     return is_consultant
+
+
+@register.simple_tag
+def available_summits(summit_type, user):
+    return summit_type.summits.filter(
+        ankets__user=user,
+        ankets__role__gte=SummitAnket.CONSULTANT).distinct()

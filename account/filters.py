@@ -2,12 +2,13 @@ import operator
 from datetime import datetime, timedelta
 
 import django_filters
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions
 from rest_framework.filters import BaseFilterBackend
 
-from account.models import CustomUser as User
+from account.models import CustomUser as User, CustomUser
 from hierarchy.models import Hierarchy, Department
 
 
@@ -30,6 +31,24 @@ class FilterByBirthday(BaseFilterBackend):
         monthdays = (dict(zip(("born_date__month", "born_date__day"), t)) for t in monthdays)
         query = reduce(operator.or_, (Q(**d) for d in monthdays))
         return queryset.filter(query)
+
+
+class FilterMasterTree(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        master_id = request.query_params.get('master_tree', None)
+        try:
+            master = CustomUser.objects.get(pk=master_id)
+        except ObjectDoesNotExist:
+            return queryset
+
+        if master.is_leaf_node():
+            return queryset.none()
+
+        master_tree_id = master.tree_id
+        master_left = master.lft
+        master_right = master.rght
+
+        return queryset.exclude(pk=master).filter(tree_id=master_tree_id, lft__gte=master_left, rght__lte=master_right)
 
 
 class UserFilter(django_filters.FilterSet):

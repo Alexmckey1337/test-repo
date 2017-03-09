@@ -20,6 +20,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from event.models import EventAnket
 from navigation.models import Table
 from partnership.models import Partnership
+from summit.models import SummitType, SummitAnket
 
 COMMON = ['Имя', 'Фамилия', 'Отчество', 'Email', 'Телефон', 'Дата рождения', 'Иерархия', 'Отдел',
           'Страна', 'Область', 'Населенный пункт', 'Район', 'Адрес', 'Skype', 'Vkontakte', 'Facebook', 'Отдел церкви', ]
@@ -135,6 +136,10 @@ class CustomUser(MPTTModel, User):
     @property
     def has_disciples(self):
         return self.disciples.exists()
+
+    def available_summit_types(self):
+        return SummitType.objects.filter(summits__ankets__user=self,
+                                         summits__ankets__role__gte=SummitAnket.CONSULTANT).distinct()
 
     @property
     def column_table(self):
