@@ -44,6 +44,7 @@
                 <div class="user-fiowrap">
                     <div class="user-fio">
                         <div class="right-info-r">
+                        <button class="edit" id="editNameBtn" data-edit-block="editNameBlock"><i class="fa fa-pencil" aria-hidden="true"></i></button>
                             <hgroup>
                                 <h3 id="fullname">{{ account.fullname }}</h3>
                                 {% if account.search_name %}
@@ -79,10 +80,38 @@
                     </div>
                 </div>
                 <ul class="right-info">
-                    <li>
+                    <li class="hidden" id="editNameBlock">
+                        <div class="right-info__block">
+                            <form action="/" name="editName" data-action="update-user">
+                                <button class="save__info" type="submit"><i class="fa fa-floppy-o"
+                                                                            aria-hidden="true"></i></button>
+                                <ul>
+                                    <li class="clearfix">
+                                        <label for="first_name">Имя</label>
+                                        <input type="text" name="first_name" value="{{ account.first_name }}"
+                                               readonly>
+                                    </li>
+                                    <li class="clearfix">
+                                        <label for="last_name">Фамилия</label>
+                                        <input type="text" name="last_name" value="{{ account.last_name }}"
+                                               readonly>
+                                    </li>
+                                    <li class="clearfix">
+                                        <label for="middle_name">Отчество</label>
+                                        <input type="email" name="middle_name" value="{{ account.middle_name }}" readonly>
+                                    </li>
+                                    <li class="clearfix">
+                                        <label for="search_name">Имя на родном языке</label>
+                                        <input type="text" name="search_name" value="{{ account.search_name }}" readonly>
+                                    </li>
+                                </ul>
+                            </form>
+                        </div>
+                    </li>
+                    <li id="editContact">
                         <div class="right-info__block">
                             <form action="/" name="editContact" data-action="update-user">
-                                <button class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                <button class="edit" data-edit-block="editContact"><i class="fa fa-pencil" aria-hidden="true"></i></button>
                                 <button class="save__info" type="submit"><i class="fa fa-floppy-o"
                                                                             aria-hidden="true"></i></button>
                                 <ul>
@@ -95,8 +124,7 @@
                                     <li class="clearfix">
                                         <label for="extra_phone_numbers"><i class="fa fa-phone"
                                                                             aria-hidden="true"></i></label>
-                                        <input type="text" id="extra_phone_numbers" value="
-                                                {% if account.extra_phone_numbers %}{{ account.extra_phone_numbers|default:""|join:", " }}{% endif %}"
+                                        <input type="text" id="extra_phone_numbers" value="{% if account.extra_phone_numbers %}{{ account.extra_phone_numbers|default:""|join:", " }}{% endif %}"
                                                readonly>
                                     </li>
                                     <li class="clearfix">
@@ -111,10 +139,35 @@
                             </form>
                         </div>
                     </li>
-                    <li>
+                    <li id="editSocial">
+                        <div class="right-info__block">
+                            <form action="/" name="editSocial" data-action="update-user">
+                                <button class="edit" data-edit-block="editSocial"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                <button class="save__info" type="submit"><i class="fa fa-floppy-o"
+                                                                            aria-hidden="true"></i></button>
+                                <ul>
+                                    <li class="clearfix">
+                                        <label for="facebook">Facebook</label>
+                                        <input type="text" id="facebook" value="{{ account.facebook }}"
+                                               readonly>
+                                    </li>
+                                    <li class="clearfix">
+                                        <label for="vkontakte">Vkontakte</label>
+                                        <input type="text" name="vkontakte" value="{{ account.vkontakte }}"
+                                               readonly>
+                                    </li>
+                                    <li class="clearfix">
+                                        <label for="odnoklassniki">Одноклассники</label>
+                                        <input type="email" name="odnoklassniki" value="{{ account.odnoklassniki }}" readonly>
+                                    </li>
+                                </ul>
+                            </form>
+                        </div>
+                    </li>
+                    <li id="editLocation">
                         <div class="right-info__block">
                             <form action="/" name="editLocation" data-action="update-user">
-                                <button class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                <button class="edit" data-edit-block="editLocation"><i class="fa fa-pencil" aria-hidden="true"></i></button>
                                 <button class="save__info" type="submit"><i class="fa fa-floppy-o"
                                                                             aria-hidden="true"></i></button>
                                 <ul>
@@ -152,10 +205,10 @@
                             </form>
                         </div>
                     </li>
-                    <li>
+                    <li id="editHierarchy">
                         <div class="right-info__block">
                             <form action="/" name="editHierarchy" data-action="update-user">
-                                <button class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                <button class="edit" data-edit-block="editHierarchy"><i class="fa fa-pencil" aria-hidden="true"></i></button>
                                 <button class="save__info" type="submit"><i class="fa fa-floppy-o"
                                                                             aria-hidden="true"></i></button>
                                 <ul>
@@ -192,10 +245,10 @@
                             </form>
                         </div>
                     </li>
-                    <li>
+                    <li id="editDepartament">
                         <div class="right-info__block">
                             <form action="/" name="editDepartament" data-action="update-user">
-                                <button class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                <button class="edit" data-edit-block="editDepartament"><i class="fa fa-pencil" aria-hidden="true"></i></button>
                                 <button class="save__info" type="submit"><i class="fa fa-floppy-o"
                                                                             aria-hidden="true"></i></button>
                                 <ul>
@@ -215,16 +268,16 @@
                             </form>
                         </div>
                     </li>
-                    <li id="parntership_info">
+                    <li id="editPartnership">
                         <div class="right-info__block">
                             <form action="/" name="editPartnership" data-action="update-user" id="partnership">
-                                <button class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                <button class="edit" data-edit-block="editPartnership"><i class="fa fa-pencil" aria-hidden="true"></i></button>
                                 <button class="save__info" type="submit"><i class="fa fa-floppy-o"
                                                                             aria-hidden="true"></i></button>
                                 <ul>
                                     <li><label for="partnershipCheck">Партнер</label>
                                         {% if account.partnership %}
-                                        <input type="checkbox" id="partnershipCheck" class="no__edit" checked disabled>
+                                        <input type="checkbox" id="partnershipCheck" data-block="partner" class="no__edit" checked disabled>
                                         {%  else %}
                                         <input type="checkbox" id="partnershipCheck" readonly disabled>
                                     {% endif %}</li>
@@ -265,10 +318,10 @@
                             </form>
                         </div>
                     </li>
-                    <li>
+                    <li id="editVisit">
                         <div class="right-info__block">
                             <form action="/" name="editVisit" data-action="update-user">
-                                <button class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                <button class="edit" data-edit-block="editVisit"><i class="fa fa-pencil" aria-hidden="true"></i></button>
                                 <button class="save__info" type="submit"><i class="fa fa-floppy-o"
                                                                             aria-hidden="true"></i></button>
                                 <ul>
@@ -290,10 +343,10 @@
                             </form>
                         </div>
                     </li>
-                    <li>
+                    <li id="editChurches">
                         <div class="right-info__block">
                             <form action="/" name="editChurches" data-action="update-church">
-                                <button class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                <button class="edit" data-edit-block="editChurches"><i class="fa fa-pencil" aria-hidden="true"></i></button>
                                 <button class="save__info" type="submit"><i class="fa fa-floppy-o"
                                                                             aria-hidden="true"></i></button>
                                 <ul>

@@ -382,7 +382,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     makeChurches();
     $('.edit').on('click', function (e) {
         e.preventDefault();
-        let $block = $(this).closest('.right-info__block');
+        let $block = $('#' + $(this).data('edit-block'));
         let $input = $block.find('input, select');
         let $hiddenBlock = $(this).parent().find('.hidden');
         $hiddenBlock.each(function () {
@@ -406,9 +406,14 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         let action = thisForm.data('action');
         let form = document.forms[formName];
         let formData = new FormData(form);
-
         if (action == 'update-user') {
-            $input.each(function () {
+            if($input.is(':checkbox')) {
+                let $newInput = $input.filter(":not(':checkbox')");
+                $newInput.each(function () {
+
+                });
+            } else {
+                $input.each(function () {
                 if (!$(this).attr('name')) {
                     let id = $(this).attr('id');
                     if ($('#' + id).val() instanceof Array) {
@@ -422,6 +427,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                     }
                 }
             });
+            }
             updateUser(ID, formData);
         } else if (action == 'update-church') {
             let church_id = $('#church_list').val();
@@ -472,6 +478,11 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
             startDate: date,
             dateFormat: 'yyyy-mm-dd'
         })
+    });
+    $('#editNameBtn').on('click', function () {
+        $('#editNameBlock').css({
+            display: 'block',
+        });
     })
 })
 (jQuery);
