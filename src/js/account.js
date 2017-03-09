@@ -34,10 +34,10 @@ function makeResponsibleList(department, status) {
         $('#selectResponsible').html(rendered);
     })
 }
-let id = getLastId();
+const ID = getLastId();
 // init();
 $('.b-red').on('click', function () {
-    window.location.href = `/account_edit/${id}/`;
+    window.location.href = `/account_edit/${ID}/`;
 });
 $('.hard-login').on('click', function () {
     let user = $(this).data('user-id');
@@ -149,7 +149,15 @@ $("#id_deal_date").datepicker({
 }).mousedown(function () {
     $('#ui-datepicker-div').toggle();
 });
+$('#partnershipCheck').on('click', function () {
 
+    let $partnershipBlock = $('#partnershipBlock');
+    if ($(this).is(':checked')) {
+        $partnershipBlock.removeClass('hidden');
+    } else {
+        $partnershipBlock.addClass('hidden');
+    }
+});
 $("#send_note").on('click', function (e) {
     e.preventDefault();
     let box = $(this).closest(".note-box");
@@ -182,7 +190,7 @@ if ($("#tabs2 li")) {
 
 $('#deleteUser').click(function () {
     let id = $(this).attr('data-id');
-    $('#yes').attr('data-id', id);
+    $('#yes').attr('data-id', ID);
     $('.add-user-wrap').show();
 });
 
@@ -292,14 +300,100 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
 }
 
 (function ($) {
+    let $selectDepartment = $('#selectDepartment');
+
+    function makeHomeGroupsList(ID) {
+        let churchID = ID || $('#church_list').val();
+        if(churchID && typeof parseInt(churchID) == "number") {
+            return getHomeGroupsINChurches(churchID)
+        }
+        return new Promise(function (reject) {
+            reject(null);
+        })
+    }
+
+    makeHomeGroupsList().then(function (data) {
+        if(!results) {
+            return null
+        }
+        let homeGroupsID = $('#home_groups_list').val();
+        let results = data.results;
+        let options = [];
+        let option = document.createElement('option');
+        $(option).val('').text('Выбирите домашнюю группу').attr('selected', true).attr('disabled', true);
+        options.push(option);
+        results.forEach(function (item) {
+            let option = document.createElement('option');
+            $(option).val(item.id).text(item.get_title);
+            if (homeGroupsID == item.id) {
+                $(option).attr('selected', true);
+            }
+            options.push(option);
+        });
+        $('#home_groups_list').html(options);
+    });
+
+    function makeChurches() {
+        let departmentID = $selectDepartment.val();
+        if(departmentID && typeof parseInt(departmentID) == "number") {
+            getChurchesINDepartament(departmentID).then(function (data) {
+            let selectedChurchID = $(church_list).val();
+            let results = data.results;
+            let options = [];
+            let option = document.createElement('option');
+            $(option).val('').text('Выбирите домашнюю группу').attr('selected', true).attr('disabled', true);
+            options.push(option);
+            results.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.get_title);
+                if (selectedChurchID == item.id) {
+                    $(option).attr('selected', true);
+                }
+                options.push(option);
+            });
+            $('#church_list').html(options).on('change', function () {
+                let churchID = $(this).val();
+                if(churchID && typeof parseInt(churchID)  == "number") {
+                    makeHomeGroupsList(churchID).then(function (data) {
+                    let results = data.results;
+                    let options = [];
+                    let option = document.createElement('option');
+                    $(option).val('').text('Выбирите домашнюю группу').attr('selected', true).attr('disabled', true);
+                    options.push(option);
+                    results.forEach(function (item) {
+                        let option = document.createElement('option');
+                        $(option).val(item.id).text(item.get_title);
+                        options.push(option);
+                    });
+                    $('#home_groups_list').html(options);
+                });
+                }
+            });
+        });
+        }
+    }
+
+    $selectDepartment.on('change', function () {
+        let option = document.createElement('option');
+        $(option).val('').text('Выбирите домашнюю группу').attr('selected', true);
+        makeChurches();
+        $('#home_groups_list').html(option);
+    });
+    makeChurches();
     $('.edit').on('click', function (e) {
         e.preventDefault();
         let $block = $(this).closest('.right-info__block');
         let $input = $block.find('input, select');
+        let $hiddenBlock = $(this).parent().find('.hidden');
+        $hiddenBlock.each(function () {
+            $(this).removeClass('hidden');
+        });
         $input.each(function () {
-            $(this).attr('readonly', false);
-            if ($(this).attr('disabled')) {
-                $(this).attr('disabled', false);
+            if (!$(this).hasClass('no__edit')) {
+                $(this).attr('readonly', false);
+                if ($(this).attr('disabled')) {
+                    $(this).attr('disabled', false);
+                }
             }
         })
     });
@@ -307,26 +401,41 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         e.preventDefault();
         let $block = $(this).closest('.right-info__block');
         let $input = $block.find('input, select');
-        let formName = $(this).closest('form').attr('name');
+        let thisForm = $(this).closest('form');
+        let formName = thisForm.attr('name');
+        let action = thisForm.data('action');
         let form = document.forms[formName];
         let formData = new FormData(form);
 
-        $input.each(function () {
-            if (!$(this).attr('name')) {
-                let id = $(this).attr('id');
-                if($('#' + id).val() instanceof Array) {
-                    formData.append(id, JSON.stringify($('#' + id).val()));
-                } else {
-                    if ($('#' + id).val()) {
-                    formData.append(id, JSON.stringify($('#' + id).val().split(',').map((item) => item.trim())));
-                } else {
-                    formData.append(id, JSON.stringify([]));
+        if (action == 'update-user') {
+            $input.each(function () {
+                if (!$(this).attr('name')) {
+                    let id = $(this).attr('id');
+                    if ($('#' + id).val() instanceof Array) {
+                        formData.append(id, JSON.stringify($('#' + id).val()));
+                    } else {
+                        if ($('#' + id).val()) {
+                            formData.append(id, JSON.stringify($('#' + id).val().split(',').map((item) => item.trim())));
+                        } else {
+                            formData.append(id, JSON.stringify([]));
+                        }
+                    }
                 }
-                }
+            });
+            updateUser(ID, formData);
+        } else if (action == 'update-church') {
+            let church_id = $('#church_list').val();
+            let home_groups_id = $('#home_groups_list').val();
+            if (!!home_groups_id) {
+                addUserToHomeGroup(ID, church_id, home_groups_id);
+            } else if (!!church_id) {
+                addUserToChurch(ID, church_id);
             }
-        });
 
-        updateUser(id, formData);
+            console.log('update-church');
+
+        }
+
 
         $input.each(function () {
             $(this).attr('readonly', true);
@@ -341,6 +450,9 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         region: 'selectRegion',
         city: 'selectCity'
     });
+    $('.datepicker-here').datepicker({
+        autoClose: true
+    });
     $('#selectDepartment').on('change', function () {
         let status = $('#selectHierarchy').val();
         let department = $(this).val();
@@ -350,6 +462,16 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         let department = $('#selectDepartment').val();
         let status = $(this).val();
         makeResponsibleList(department, status);
+    });
+    $('.sel__date').each(function () {
+        let $el = $(this);
+        let date = $el.val() ? new Date($el.val().split('-').join(', ')) : new Date();
+        console.log(date);
+        $el.datepicker({
+            autoClose: true,
+            startDate: date,
+            dateFormat: 'yyyy-mm-dd'
+        })
     })
 })
 (jQuery);

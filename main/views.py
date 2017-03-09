@@ -93,6 +93,7 @@ def partner_stats(request):
 def account(request, id):
     user = get_object_or_404(CustomUser, pk=id)
     has_perm = CanAccountObjectRead().has_object_permission(request, None, user)
+    currencies = Currency.objects.all()
     if not has_perm:
         raise PermissionDenied
     ctx = {
@@ -100,6 +101,9 @@ def account(request, id):
         'departments': Department.objects.all(),
         'hierarchies': Hierarchy.objects.order_by('level'),
         'divisions': Division.objects.all(),
+        'currencies': currencies,
+        'partners': Partnership.objects.filter(level__lte=Partnership.MANAGER),
+        'churches': Church.objects.all()
     }
     return render(request, 'account/anketa.html', context=ctx)
 

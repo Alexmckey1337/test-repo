@@ -214,7 +214,8 @@
                                                 {% endfor %}
                                             </select>
                                         </li>
-                                        <li id="partner_name"><select id="partner_drop" style="width:205px">
+                                        <li id="partner_name">
+                                            <select id="partner_drop" style="width:205px">
                                             {% for partner in partners %}
                                                 <option value="{{ partner.id }}"
                                                         {% if account.partnership.responsible.id == partner.id %}selected{% endif %}>{{ partner.user.fullname }}</option>

@@ -269,4 +269,5 @@ $('.close-popup').on('click', function (e) {
             deleteCookie('state');
         }
     });
+
 })(jQuery);

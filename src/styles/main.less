@@ -3593,7 +3593,7 @@ span.change[style*="display: none"] ~ span.y {
         &:hover {
           //border-color: #656d78;
         }
-        & label {
+        & label, & .label__block {
           display: block;
           width: ~'calc(40% - 7px)';
           float: left;
@@ -3603,11 +3603,25 @@ span.change[style*="display: none"] ~ span.y {
             font-size: 1.5em;
           }
         }
-        & input, & select {
+        & input:not([type="checkbox"]),
+        & select,
+        & .output__block {
           display: block;
           width: ~'calc(60% - 3px)';
           float: right;
           text-align: left;
+          &#payment_value {
+            width: 25%;
+            max-width: 7em;
+            float: left;
+            margin-left: 0.3em;
+          }
+          &#payment_currency {
+            width: 25%;
+            max-width: 7em;
+            float: left;
+            margin-left: 0.3em;
+          }
           &:read-only {
             border: 0;
             background: transparent;
@@ -3619,6 +3633,12 @@ span.change[style*="display: none"] ~ span.y {
           }
           &[multiple] {
             height: 5em;
+          }
+        }
+        & input[type="checkbox"] {
+          margin-left: 0.4em;
+          &:not([disabled]) {
+            cursor: pointer;
           }
         }
       }

@@ -20,7 +20,18 @@ function getChurches(config = {}) {
         newAjaxRequest(data, status, reject)
     });
 }
-
+function addUserToChurch(user_id, id) {
+    let config = {};
+    config.user_id = user_id;
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/add_user/`, config, function () {
+    }, 'POST', 'application/json');
+}
+function addUserToHomeGroup(user_id, c_id) {
+    let config = {};
+    config.user_id = user_id;
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${c_id}/add_user/`, config, function () {
+    }, 'POST', 'application/json');
+}
 function createHomeGroupsTable(config = {}) {
     config.search_title = $('input[name="fullsearch"]').val();
     getHomeGroups(config).then(function (data) {
@@ -142,7 +153,44 @@ function makeDepartmentList(selector, active = null) {
         $(selector).html(options).prop('disabled', false).select2();
     });
 }
+function getChurchesINDepartament(id) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches?department=${id}`,
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
 
+        };
+        newAjaxRequest(data, status, reject)
+    })
+}
+function getHomeGroupsINChurches(id) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${id}/home_groups`,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}
 function getHomeGroups(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
@@ -1379,25 +1427,31 @@ function initLocationSelect(config) {
     let selectCountry = $countrySelector.val();
     let selectRegion = $regionSelector.val();
     let selectCity = $citySelector.val();
+    console.log(selectCountry);
     getCountries().then(function (data) {
-        let list = makeCountriesList(data, selectCountry);
-        $countrySelector.html(list);
+        if (typeof data == "object") {
+            let list = makeCountriesList(data, selectCountry);
+            $countrySelector.html(list);
+        }
     }).then(function () {
-        if(!selectCountry) return;
-        console.log('selectCountry');
+        if (!selectCountry) return null;
         let config = {};
         config.country = $countrySelector.find(':selected').data('id');
+        console.log(config.country);
         getRegions(config).then(function (data) {
-            let list = makeRegionsList(data, selectRegion);
-            $regionSelector.html(list);
+            if (typeof data == "object") {
+                let list = makeRegionsList(data, selectRegion);
+                $regionSelector.html(list);
+            }
         }).then(function () {
-            if (!selectCity) return;
-            console.log(selectCity);
+            if (!selectRegion && !selectCountry) return null;
             let config = {};
             config.region = $regionSelector.find(':selected').data('id');
             getCities(config).then(function (data) {
-                let list = makeCityList(data, selectCity);
-                $citySelector.html(list);
+                if (typeof data == "object") {
+                    let list = makeCityList(data, selectCity);
+                    $citySelector.html(list);
+                }
             });
         })
     });

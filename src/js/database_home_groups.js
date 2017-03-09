@@ -9,7 +9,7 @@
     });
 //    Events
     $('#add').on('click', function () {
-        var department_id = parseInt($('#department_select').val());
+        let department_id = parseInt($('#department_select').val());
         makePastorList(department_id);
         $('#addChurch').css('display', 'block');
     });
