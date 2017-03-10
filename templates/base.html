@@ -137,7 +137,7 @@
             <% } else { %>
                 disable
             <% } %> >
-            <input type="checkbox" id="<%=key%>" <% if(user[1][key].active) { %>
+            <input type="checkbox" id="<%=key%>" data-editable="<%= user[1][key].editable %>" <% if(user[1][key].active) { %>
             checked
             <% }%> value="<%=user[1][key].id %>">
             <label for="<%=key%>"><%=user[1][key].title%></label>
