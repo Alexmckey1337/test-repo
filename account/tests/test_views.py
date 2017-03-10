@@ -296,18 +296,6 @@ class TestNewUserViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert response.data['count'] == 8
 
-    def test_current_user_as_pk_v1_0(self, api_login_client, user_factory):
-        user_factory.create_batch(10)
-        current_user = user_factory(is_staff=True)
-
-        url = reverse('customuser-detail', kwargs={'pk': 'current'})
-
-        api_login_client.force_login(user=current_user)
-        response = api_login_client.get(url, format='json')
-
-        assert response.status_code == status.HTTP_200_OK
-        assert response.data['id'] == current_user.id
-
     def test_current_user_as_pk(self, api_login_client, user_factory):
         user_factory.create_batch(10)
         current_user = user_factory(is_staff=True)

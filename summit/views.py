@@ -22,7 +22,7 @@ from account.models import CustomUser
 from common.views_mixins import ExportViewSetMixin
 from navigation.table_fields import user_table, summit_table
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
-from summit.permissions import IsSupervisorOrHigh, IsSupervisorOrConsultantReadOnly
+from summit.permissions import IsSupervisorOrHigh
 from summit.utils import generate_ticket
 from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, SummitUserConsultant
 from .resources import get_fields, SummitAnketResource

@@ -209,27 +209,6 @@ class Participation(models.Model):
                 master_participation.recount()
         return self
 
-    @property
-    def fields(self):
-        l = self.user.user.fields
-        d = OrderedDict()
-        d['value'] = self.check
-        l['check'] = d
-
-        d = OrderedDict()
-        d['value'] = self.value
-        l['value'] = d
-
-        d = OrderedDict()
-        d['value'] = self.count
-        l['count'] = d
-
-        d = OrderedDict()
-        d['value'] = self.count_as_leader
-        l['count_as_leader'] = d
-
-        return l
-
 
 @receiver(signals.post_save, sender=Event)
 def sync_event(sender, instance, **kwargs):

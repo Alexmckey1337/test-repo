@@ -22,17 +22,6 @@ def generate_key():
     return binascii.hexlify(os.urandom(20)).decode()
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    spiritual_level = ReadOnlyChoiceField(choices=User.SPIRITUAL_LEVEL_CHOICES, read_only=True)
-
-    class Meta:
-        model = User
-        fields = ('id', 'email', 'fullname', 'image', 'image_source', 'search_name',
-                  'hierarchy_name', 'has_disciples', 'hierarchy_order', 'column_table',
-                  'fields', 'division_fields', 'hierarchy_chain', 'partnerships_info',
-                  'spiritual_level')
-
-
 class DepartmentTitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
@@ -87,7 +76,7 @@ class AddExistUserSerializer(serializers.ModelSerializer):
         fields = ('id', 'city', 'country', 'full_name')
 
 
-class NewUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     partnership = PartnershipSerializer(required=False)
 
     class Meta:
@@ -160,8 +149,8 @@ class UniqueFIOTelWithIdsValidator(UniqueTogetherValidator):
                                    },)
 
 
-class UserCreateSerializer(NewUserSerializer):
-    class Meta(NewUserSerializer.Meta):
+class UserCreateSerializer(UserSerializer):
+    class Meta(UserSerializer.Meta):
         validators = (UniqueFIOTelWithIdsValidator(
             queryset=User.objects.all(),
             fields=['phone_number', 'first_name', 'last_name', 'middle_name']
@@ -174,10 +163,10 @@ class UserCreateSerializer(NewUserSerializer):
 
         validated_data['username'] = username
 
-        return super(NewUserSerializer, self).create(validated_data)
+        return super(UserSerializer, self).create(validated_data)
 
 
-class UserSingleSerializer(NewUserSerializer):
+class UserSingleSerializer(UserSerializer):
     departments = DepartmentTitleSerializer(many=True, read_only=True)
     master = MasterWithHierarchySerializer(required=False, allow_null=True)
     hierarchy = HierarchyTitleSerializer()

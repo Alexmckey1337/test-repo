@@ -22,19 +22,6 @@ from navigation.models import Table
 from partnership.models import Partnership
 from summit.models import SummitType, SummitAnket
 
-COMMON = ['Имя', 'Фамилия', 'Отчество', 'Email', 'Телефон', 'Дата рождения', 'Иерархия', 'Отдел',
-          'Страна', 'Область', 'Населенный пункт', 'Район', 'Адрес', 'Skype', 'Vkontakte', 'Facebook', 'Отдел церкви', ]
-
-
-def get_hierarchy_chain(obj, l):
-    d = OrderedDict()
-    d['value'] = obj.get_full_name()
-    d['id'] = obj.id
-    l.append(d)
-    master = obj.master
-    if master:
-        get_hierarchy_chain(master, l)
-
 
 class CustomUserManager(TreeManager, UserManager):
     use_in_migrations = False
@@ -126,16 +113,6 @@ class CustomUser(MPTTModel, User):
     def is_partner_director(self):
         return self.partnership and self.partnership.level == Partnership.DIRECTOR
 
-    @property
-    def hierarchy_chain(self):
-        l = list()
-        get_hierarchy_chain(self, l)
-        return l
-
-    @property
-    def has_disciples(self):
-        return self.disciples.exists()
-
     def available_summit_types(self):
         return SummitType.objects.filter(summits__ankets__user=self,
                                          summits__ankets__role__gte=SummitAnket.CONSULTANT).distinct()
@@ -157,136 +134,7 @@ class CustomUser(MPTTModel, User):
         return l
 
     @property
-    def fields(self):
-        l = OrderedDict()
-
-        d = OrderedDict()
-        d['value'] = self.id
-        l['id'] = d
-
-        d = OrderedDict()
-        d['value'] = self.fullname
-        l['fullname'] = d
-
-        d = OrderedDict()
-        d['value'] = self.short_fullname
-        l['short_fullname'] = d
-
-        d = OrderedDict()
-        d['value'] = self.email
-        l['email'] = d
-
-        d = OrderedDict()
-        if self.born_date:
-
-            d['value'] = self.born_date
-        else:
-            d['value'] = ''
-        l['born_date'] = d
-
-        d = OrderedDict()
-        d['value'] = self.phone_number
-        l['phone_number'] = d
-
-        d = OrderedDict()
-        d['value'] = self.country
-        l['country'] = d
-
-        d = OrderedDict()
-        d['value'] = self.region
-        l['region'] = d
-
-        d = OrderedDict()
-        d['value'] = self.city
-        l['city'] = d
-
-        d = OrderedDict()
-        d['value'] = self.district
-        l['district'] = d
-
-        d = OrderedDict()
-        d['value'] = self.address
-        l['address'] = d
-
-        d = OrderedDict()
-        d['value'] = ''
-        if self.hierarchy:
-            d['value'] = self.hierarchy.title
-        l['hierarchy'] = d
-
-        d = OrderedDict()
-        d['value'] = ''
-        if self.master:
-            d['value'] = self.master.fullname
-        l['master'] = d
-
-        d = OrderedDict()
-        d['value'] = ''
-        if self.master:
-            d['value'] = self.master.hierarchy.title
-        l['master_hierarchy'] = d
-
-        d = OrderedDict()
-        if self.department:
-            d['value'] = ''.join(self.departments.values_list('title', flat=True))
-        else:
-            d['value'] = ''
-        l['department'] = d
-
-        # s = OrderedDict()
-        d = OrderedDict()
-        d['skype'] = self.skype
-        d['vkontakte'] = self.vkontakte
-        d['facebook'] = self.facebook
-        d['odnoklassniki'] = self.odnoklassniki
-        l['social'] = d
-
-        d = OrderedDict()
-        d['value'] = self.repentance_date
-        l['repentance_date'] = d
-
-        d = OrderedDict()
-        d['value'] = self.coming_date
-        l['coming_date'] = d
-
-        d = OrderedDict()
-        sl = list()
-        if self.divisions:
-            for division in self.divisions.all():
-                sl.append(division.title)
-            d['value'] = ','.join(sl)
-        else:
-            d['value'] = ''
-        l['divisions'] = d
-
-        d = OrderedDict()
-        d['value'] = self.description
-        l['description'] = d
-        return l
-
-    @property
-    def division_fields(self):
-        l = OrderedDict()
-        for division in self.divisions.all():
-            d = OrderedDict()
-            d['value'] = True
-            l[division.title] = d
-        return l
-
-    @property
     def master_short_fullname(self):
-        s = ''
-        if self.master:
-            if len(self.master.last_name) > 0:
-                s = s + self.master.last_name + ' '
-            if len(self.master.first_name) > 0:
-                s = s + self.master.first_name[0] + '.'
-            if len(self.master.middle_name) > 0:
-                s = s + self.master.middle_name[0] + '.'
-        return s
-
-    @property
-    def short_fullname(self):
         s = ''
         if self.master:
             if len(self.master.last_name) > 0:
@@ -311,40 +159,6 @@ class CustomUser(MPTTModel, User):
     @property
     def fullname(self):
         return ' '.join(map(lambda name: name.strip(), (self.last_name, self.first_name, self.middle_name)))
-
-    @property
-    def hierarchy_name(self):
-        return self.hierarchy.title
-
-    @property
-    def attrs(self):
-        l = ['Ответственный', 'Отдел', 'Город', 'Номер телефона',
-             'Количество прозвонов за неделю', 'Посмотреть прозвоны']
-        return l
-
-    @property
-    def department_title(self):
-        l = ''.join(self.department.values_list('title', flat=True))
-        return l
-
-    @property
-    def partnerships_info(self):
-        l = OrderedDict()
-        try:
-            p = self.partnership
-            if p and p.level <= Partnership.MANAGER:
-                l['is_responsible'] = True
-                l['responsible'] = self.partnership.id
-            else:
-                l['is_responsible'] = False
-                l['responsible'] = self.partnership.id
-        except Exception:
-            l['is_responsible'] = False
-            l['responsible'] = ''
-        # if self.partnership and self.partnership.level <= Partnership.MANAGER:
-        #    l['is_responsible'] = True
-        #    l['responsible'] = self.partnership.id
-        return l
 
 
 @python_2_unicode_compatible

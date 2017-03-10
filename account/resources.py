@@ -133,11 +133,3 @@ def manage(level):
         return "Низя"
     return "Оки"
 
-
-def get_disciples(user):
-    disciples = user.disciples.all()
-    queryset = disciples
-    for disciple in disciples.all():
-        if disciple.has_disciples:
-            queryset = queryset | get_disciples(disciple)
-    return queryset

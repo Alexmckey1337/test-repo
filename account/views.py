@@ -20,7 +20,7 @@ from common.parsers import MultiPartAndJsonParser
 from common.views_mixins import ExportViewSetMixin
 from navigation.table_fields import user_table
 from .resources import UserResource
-from .serializers import UserShortSerializer, UserTableSerializer, NewUserSerializer, \
+from .serializers import UserShortSerializer, UserTableSerializer, UserSerializer, \
     UserSingleSerializer, PartnershipSerializer, ExistUserSerializer, UserCreateSerializer
 
 
@@ -46,7 +46,7 @@ class NewUserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
         'divisions', 'departments'
     ).filter(is_active=True).order_by('last_name', 'first_name', 'middle_name')
 
-    serializer_class = NewUserSerializer
+    serializer_class = UserSerializer
     serializer_list_class = UserTableSerializer
     serializer_create_class = UserCreateSerializer
     serializer_single_class = UserSingleSerializer
