@@ -20,7 +20,18 @@ function getChurches(config = {}) {
         newAjaxRequest(data, status, reject)
     });
 }
-
+function addUserToChurch(user_id, id) {
+    let config = {};
+    config.user_id = user_id;
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/add_user/`, config, function () {
+    }, 'POST', 'application/json');
+}
+function addUserToHomeGroup(user_id, c_id) {
+    let config = {};
+    config.user_id = user_id;
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${c_id}/add_user/`, config, function () {
+    }, 'POST', 'application/json');
+}
 function createHomeGroupsTable(config = {}) {
     config.search_title = $('input[name="fullsearch"]').val();
     getHomeGroups(config).then(function (data) {
@@ -127,7 +138,7 @@ function getPartners(config) {
         data.count = response.count;
         makeDataTable(data, id);
 
-        $('.preloader').css('display', 'none');
+            $('.preloader').css('display', 'none');
 
         let paginationConfig = {
             container: ".partners__pagination",
@@ -157,7 +168,44 @@ function makeDepartmentList(selector, active = null) {
         $(selector).html(options).prop('disabled', false).select2();
     });
 }
+function getChurchesINDepartament(id) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches?department=${id}`,
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
 
+        };
+        newAjaxRequest(data, status, reject)
+    })
+}
+function getHomeGroupsINChurches(id) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${id}/home_groups`,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}
 function getHomeGroups(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
@@ -180,7 +228,6 @@ function getHomeGroups(config = {}) {
         newAjaxRequest(data, status, reject)
     });
 }
-
 function createCSV(data) {
     let filename = "";
     let disposition = data.getResponseHeader('Content-Disposition');
@@ -261,8 +308,7 @@ function exportTableData(el) {
 }
 function newAjaxRequest(data, codes, fail) {
     let resData = {
-        method: 'GET',
-        data: {}
+        method: 'GET'
     };
     Object.assign(resData, data);
     if (getCookie('key')) {
@@ -1243,11 +1289,9 @@ function ajaxSendFormData(data = {}) {
         xhr.withCredentials = true;
         xhr.open(sendData.method, sendData.url, true);
         xhr.onreadystatechange = function () {
-            console.log(xhr);
             if (xhr.readyState == 4) {
                 if (xhr.status == 200) {
                     let response = JSON.parse(xhr.responseText);
-                    showPopup('Данные успешно обновлены');
                     resolve(response);
                 } else if (xhr.status == 201) {
                     let response = JSON.parse(xhr.responseText);
@@ -1282,6 +1326,111 @@ function ucFirst(str) {
     return str[0].toUpperCase() + str.slice(1);
 }
 
+function makeCountriesList(data, selectCountry) {
+    let rendered = [];
+    let option = document.createElement('option');
+    $(option).val('').text('Выберите страну').attr('disabled', true).attr('selected', true);
+    rendered.push(option);
+    data.forEach(function (item) {
+        let option = document.createElement('option');
+        $(option).val(item.title).text(item.title).attr('data-id', item.id);
+        if (item.title == selectCountry) {
+            $(option).attr('selected', true);
+        }
+        rendered.push(option);
+    });
+    return rendered
+}
+
+function makeRegionsList(data, selectRegion) {
+    let rendered = [];
+    let option = document.createElement('option');
+    $(option).val('').text('Выберите регион').attr('disabled', true).attr('selected', true);
+    rendered.push(option);
+    data.forEach(function (item) {
+        let option = document.createElement('option');
+        $(option).val(item.title).text(item.title).attr('data-id', item.id);
+        if (item.title == selectRegion) {
+            $(option).attr('selected', true);
+        }
+        rendered.push(option);
+    });
+    return rendered
+}
+
+function makeCityList(data, selectCity) {
+    let rendered = [];
+    let option = document.createElement('option');
+    $(option).val('').text('Выберите город').attr('disabled', true).attr('selected', true);
+    rendered.push(option);
+    data.forEach(function (item) {
+        let option = document.createElement('option');
+        $(option).val(item.title).text(item.title).attr('data-id', item.id);
+        if (item.title == selectCity) {
+            $(option).attr('selected', true);
+        }
+        rendered.push(option);
+    });
+    return rendered
+}
+
+function initLocationSelect(config) {
+    let $countrySelector = $('#' + config.country);
+    let $regionSelector = $('#' + config.region);
+    let $citySelector = $('#' + config.city);
+    let selectCountry = $countrySelector.val();
+    let selectRegion = $regionSelector.val();
+    let selectCity = $citySelector.val();
+    console.log(selectCountry);
+    getCountries().then(function (data) {
+        if (typeof data == "object") {
+            let list = makeCountriesList(data, selectCountry);
+            $countrySelector.html(list);
+        }
+        return $countrySelector.find(':selected').data('id');
+    }).then(function (id) {
+        if (!selectCountry || !id) return null;
+        let config = {};
+        config.country = id;
+        getRegions(config).then(function (data) {
+            if (typeof data == "object") {
+                let list = makeRegionsList(data, selectRegion);
+                $regionSelector.html(list);
+            }
+            return $regionSelector.find(':selected').data('id')
+        }).then(function (id) {
+            if (!selectRegion || !id) return null;
+            let config = {};
+            config.region = id;
+            getCities(config).then(function (data) {
+                if (typeof data == "object") {
+                    let list = makeCityList(data, selectCity);
+                    $citySelector.html(list);
+                }
+            });
+        })
+    });
+    $countrySelector.on('change', function () {
+        let config = {};
+        config.country = $countrySelector.find(':selected').data('id');
+        selectCountry = $countrySelector.find(':selected').val();
+        getRegions(config).then(function (data) {
+            let list = makeRegionsList(data, selectRegion);
+            $regionSelector.html(list);
+        }).then(function () {
+            $citySelector.html('');
+        })
+    });
+    $regionSelector.on('change', function () {
+        let config = {};
+        config.region = $regionSelector.find(':selected').data('id');
+        selectRegion = $regionSelector.find(':selected').val();
+        getCities(config).then(function (data) {
+            let list = makeCityList(data, selectCity);
+            $citySelector.html(list);
+        })
+    });
+}
 function createSummitUsersTable(data = {}) {
     let config = {};
     config.summit = $('#date .active span').data('id');
@@ -1567,7 +1716,6 @@ function initAddNewUser(config = {}) {
         }
     });
 }
-
 
 function saveUser(el) {
     let $input, $select, fullName, first_name, last_name, middle_name, department, hierarchy, phone_number, data, id;

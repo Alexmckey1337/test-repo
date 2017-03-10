@@ -285,4 +285,5 @@ function setSidebarPosition() {
         e.preventDefault();
         setSidebarPosition()
     });
+
 })(jQuery);

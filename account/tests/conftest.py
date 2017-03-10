@@ -12,6 +12,7 @@ from status.factories import DivisionFactory
 from summit.factories import SummitFactory, SummitTypeFactory, SummitAnketFactory
 
 register(UserFactory)
+register(CurrencyFactory)
 register(HierarchyFactory)
 register(DepartmentFactory)
 register(DivisionFactory)
@@ -143,3 +144,13 @@ def user_data(partner):
             'date': '2020-04-04',
         },
     }
+
+
+@pytest.fixture
+def divisions(division_factory):
+    return division_factory.create_batch(2)
+
+
+@pytest.fixture
+def currency(currency_factory):
+    return currency_factory()
