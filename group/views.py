@@ -191,7 +191,9 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
         if not Department.objects.filter(id=department_id).exists():
             raise exceptions.ValidationError(_('Отдела с id=%s не существует.' % department_id))
 
-        pastors = CustomUser.objects.filter(church__pastor__id__isnull=False).distinct()
+        pastors = CustomUser.objects.filter(church__pastor__id__isnull=False).filter(
+            church__department__id=department_id).distinct()
+
         pastors = self.serializer_class(pastors, many=True)
         return Response(pastors.data)
 
@@ -317,6 +319,8 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         if not Church.objects.filter(id=church_id).exists():
             raise exceptions.ValidationError(_('Церкви с id=%s не существует.' % church_id))
 
-        leaders = CustomUser.objects.filter(home_group__leader__id__isnull=False).distinct()
+        leaders = CustomUser.objects.filter(home_group__leader__id__isnull=False).filter(
+            home_group__church__id=church_id).distinct()
+
         leaders = self.serializer_class(leaders, many=True)
         return Response(leaders.data)
