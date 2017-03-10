@@ -36,6 +36,7 @@ class FilterByBirthday(BaseFilterBackend):
 class FilterMasterTree(BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         master_id = request.query_params.get('master_tree', None)
+
         try:
             master = CustomUser.objects.get(pk=master_id)
         except ObjectDoesNotExist:
