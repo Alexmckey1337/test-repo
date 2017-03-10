@@ -20,3 +20,4 @@ public/static/
 /edem/settings/dev.py
 /.env
 /deploy
+/.cache/
