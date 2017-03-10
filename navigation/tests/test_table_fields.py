@@ -26,7 +26,7 @@ def test_any_table_when_user_dont_have_table(table, table_name):
 def test_group_table_churches(table, category_title):
     table_columns = group_table(table.user, category_title)
     category = Category.objects.filter(title=category_title)
-    assert list(table_columns.keys()) == list(
+    assert set(table_columns.keys()) == set(
         category.values_list('columnTypes__title', flat=True))
 
 
