@@ -94,20 +94,20 @@
                             <% } else { %>
                                 <td></td>
                             <% } %>
-                        <% }  else if (key == 'department' || key == 'hierarchy' || key == 'church' ) { %>
+                        <% }  else if (key == 'hierarchy' || key == 'church' ) { %>
                             <% if (results[index][key] != null ) { %>
                                 <td><%= results[index][key].title %></td>
                             <% } else { %>
                                 <td></td>
                             <% } %>
-                        <% }  else if (key == 'divisions') { %>
+                        <% }  else if (key == 'departments' || key == 'divisions') { %>
                             <% if ( Array.isArray(results[index][key]) && results[index][key].length != 0) { %>
                                 <% if (results[index][key].length == 1) { %>
                                     <td><%= results[index][key][0].title %></td>
                                 <% }  else { %>
-                                    <td><%= results[index][key].reduce(function(sum, item) {
-                                            return sum.title + ', ' + item.title
-                                        }) %></td>
+                                    <td><%= results[index][key].reduce(function(sum, item, i) {
+                                            return i < results[index][key].length - 1 ? sum + item.title + ', ' : sum + item.title
+                                        }, "") %></td>
                                 <% } %>
                             <% } else { %>
                                 <td></td>

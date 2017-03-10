@@ -133,7 +133,7 @@ def user_data(partner):
         'city': 'C',
         'district': 'D',
         'address': 'A',
-        'department': Factory('department_factory'),
+        'departments': FactoryList('department_factory', 1),
         'spiritual_level': CustomUser.FATHER,
         'master': Factory('user_factory'),
         'hierarchy': Factory('hierarchy_factory'),

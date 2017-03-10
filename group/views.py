@@ -19,9 +19,11 @@ from group.pagination import ChurchPagination, HomeGroupPagination
 from group.resources import ChurchResource, HomeGroupResource
 from group.views_mixins import (
     ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin)
+from hierarchy.models import Department
 from .models import HomeGroup, Church
 from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSerializer, HomeGroupListSerializer,
-                          ChurchStatsSerializer, HomeGroupStatsSerializer)
+                          ChurchStatsSerializer, HomeGroupStatsSerializer, AllChurchesListSerializer,
+                          AllHomeGroupsListSerializer, PastorNameSerializer, LeaderNameSerializer)
 
 
 class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroupMixin, ExportViewSetMixin):
@@ -122,7 +124,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
 
         department_id = params.get('department', None)
         if department_id is not None:
-            users = users.filter(department_id=department_id)
+            users = users.filter(departments__id=department_id)
 
         serializers = AddExistUserSerializer(users[:30], many=True)
 
@@ -177,6 +179,24 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
         stats = serializer(stats)
         return Response(stats.data)
 
+    @list_route(methods=['GET'], serializer_class=AllChurchesListSerializer)
+    def all(self, request):
+        all_churches = self.serializer_class(Church.objects.all(), many=True)
+        return Response(all_churches.data)
+
+    @list_route(methods=['GET'], serializer_class=PastorNameSerializer)
+    def get_pastors_by_department(self, request):
+        department_id = request.query_params.get('department_id')
+
+        if not Department.objects.filter(id=department_id).exists():
+            raise exceptions.ValidationError(_('Отдела с id=%s не существует.' % department_id))
+
+        pastors = CustomUser.objects.filter(church__pastor__id__isnull=False).filter(
+            church__department__id=department_id).distinct()
+
+        pastors = self.serializer_class(pastors, many=True)
+        return Response(pastors.data)
+
 
 class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportViewSetMixin):
     queryset = HomeGroup.objects.all()
@@ -205,6 +225,11 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         if self.action in 'list':
             return self.serializer_list_class
         return self.serializer_class
+
+    def get_queryset(self):
+        if self.action == 'list':
+            return self.queryset.annotate(count_users=Count('users'))
+        return self.queryset
 
     @detail_route(methods=['post'])
     def add_user(self, request, pk):
@@ -281,3 +306,21 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         serializer = HomeGroupStatsSerializer
         stats = serializer(stats)
         return Response(stats.data)
+
+    @list_route(methods=['GET'], serializer_class=AllHomeGroupsListSerializer)
+    def all(self, request):
+        all_home_groups = self.serializer_class(HomeGroup.objects.all(), many=True)
+        return Response(all_home_groups.data)
+
+    @list_route(methods=['GET'], serializer_class=LeaderNameSerializer)
+    def get_leaders_by_church(self, request):
+        church_id = request.query_params.get('church_id')
+
+        if not Church.objects.filter(id=church_id).exists():
+            raise exceptions.ValidationError(_('Церкви с id=%s не существует.' % church_id))
+
+        leaders = CustomUser.objects.filter(home_group__leader__id__isnull=False).filter(
+            home_group__church__id=church_id).distinct()
+
+        leaders = self.serializer_class(leaders, many=True)
+        return Response(leaders.data)

@@ -22,17 +22,6 @@ def generate_key():
     return binascii.hexlify(os.urandom(20)).decode()
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    spiritual_level = ReadOnlyChoiceField(choices=User.SPIRITUAL_LEVEL_CHOICES, read_only=True)
-
-    class Meta:
-        model = User
-        fields = ('id', 'email', 'fullname', 'image', 'image_source', 'search_name',
-                  'hierarchy_name', 'has_disciples', 'hierarchy_order', 'column_table',
-                  'fields', 'division_fields', 'hierarchy_chain', 'partnerships_info',
-                  'spiritual_level')
-
-
 class DepartmentTitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
@@ -87,7 +76,7 @@ class AddExistUserSerializer(serializers.ModelSerializer):
         fields = ('id', 'city', 'country', 'full_name')
 
 
-class NewUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     partnership = PartnershipSerializer(required=False)
 
     class Meta:
@@ -106,7 +95,7 @@ class NewUserSerializer(serializers.ModelSerializer):
                   # #################################################
                   'image', 'image_source',
 
-                  'department', 'master', 'hierarchy',
+                  'departments', 'master', 'hierarchy',
                   'divisions',
                   'partnership',
                   # read_only
@@ -118,22 +107,21 @@ class NewUserSerializer(serializers.ModelSerializer):
             'phone_number': {'required': True},
 
             'hierarchy': {'required': True},
-            'department': {'required': True},
+            'departments': {'required': True},
             'master': {'required': True},
 
             'divisions': {'required': False},
         }
 
     def update(self, instance, validated_data):
-        # department = validated_data.pop('department') if validated_data.get('department') else None
-        # master = validated_data.pop('master') if validated_data.get('master') else None
-        # hierarchy = validated_data.pop('hierarchy') if validated_data.get('hierarchy') else None
-        # coming_date = validated_data.pop('coming_date') if validated_data.get('coming_date') else None
-        # repentance_date = validated_data.pop('repentance_date') if validated_data.get('repentance_date') else None
+        departments = validated_data.pop('departments', None)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
+
+        if departments is not None and isinstance(departments, (list, tuple)):
+            instance.departments.set(departments)
 
         return instance
 
@@ -161,8 +149,8 @@ class UniqueFIOTelWithIdsValidator(UniqueTogetherValidator):
                                    },)
 
 
-class UserCreateSerializer(NewUserSerializer):
-    class Meta(NewUserSerializer.Meta):
+class UserCreateSerializer(UserSerializer):
+    class Meta(UserSerializer.Meta):
         validators = (UniqueFIOTelWithIdsValidator(
             queryset=User.objects.all(),
             fields=['phone_number', 'first_name', 'last_name', 'middle_name']
@@ -175,11 +163,11 @@ class UserCreateSerializer(NewUserSerializer):
 
         validated_data['username'] = username
 
-        return super(NewUserSerializer, self).create(validated_data)
+        return super(UserSerializer, self).create(validated_data)
 
 
-class UserSingleSerializer(NewUserSerializer):
-    department = DepartmentTitleSerializer()
+class UserSingleSerializer(UserSerializer):
+    departments = DepartmentTitleSerializer(many=True, read_only=True)
     master = MasterWithHierarchySerializer(required=False, allow_null=True)
     hierarchy = HierarchyTitleSerializer()
     divisions = DivisionSerializer(many=True, read_only=True)

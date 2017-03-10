@@ -20,7 +20,7 @@ class ChurchAllUserFilter(BaseFilterBackend):
 class HomeGroupFilter(django_filters.FilterSet):
     church = django_filters.ModelChoiceFilter(name='church', queryset=Church.objects.all())
     leader = django_filters.ModelChoiceFilter(name='leader', queryset=CustomUser.objects.filter(
-        hierarchy__level__gt=0))
+        home_group__leader__id__isnull=False).distinct())
 
     class Meta:
         model = HomeGroup
@@ -30,7 +30,7 @@ class HomeGroupFilter(django_filters.FilterSet):
 class ChurchFilter(django_filters.FilterSet):
     department = django_filters.ModelChoiceFilter(name='department', queryset=Department.objects.all())
     pastor = django_filters.ModelChoiceFilter(name='pastor', queryset=CustomUser.objects.filter(
-        hierarchy__level__gt=1))
+        church__pastor__id__isnull=False).distinct())
 
     class Meta:
         model = Church

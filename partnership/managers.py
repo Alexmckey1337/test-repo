@@ -50,9 +50,9 @@ class DealManager(models.Manager):
 class PartnerQuerySet(models.query.QuerySet):
     def base_queryset(self):
         return self.select_related(
-            'user', 'user__hierarchy', 'user__department', 'user__master', 'responsible__user',
+            'user', 'user__hierarchy', 'user__master', 'responsible__user',
             'currency') \
-            .prefetch_related('user__divisions')
+            .prefetch_related('user__divisions', 'user__departments')
 
     def annotate_full_name(self):
         return self.annotate(

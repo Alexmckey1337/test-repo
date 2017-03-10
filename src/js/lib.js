@@ -869,9 +869,14 @@ function getCurrentUser(id) {
     })
 }
 
-function getResponsible(id, level, search = "") {
+function getResponsible(ids, level, search = "") {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/short_users/?department=' + id + '&level_gte=' + level + '&search=' + search, null, function (data) {
+        let url = CONFIG.DOCUMENT_ROOT + 'api/v1.0/short_users/?level_gte=' + level + '&search=' + search;
+        ids.forEach(function(id){
+            console.log(id);
+            url +='&department=' + id;
+        });
+        ajaxRequest(url, null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1718,10 +1723,10 @@ function initAddNewUser(config = {}) {
 }
 
 function saveUser(el) {
-    let $input, $select, fullName, first_name, last_name, middle_name, department, hierarchy, phone_number, data, id;
+    let $input, $select, fullName, first_name, last_name, middle_name, departments, hierarchy, phone_number, data, id;
     let send = true;
     let $department = $($(el).closest('.pop_cont').find('#departmentSelect'));
-    department = $department.val();
+    departments = $department.val();
     let $hierarchy = $($(el).closest('.pop_cont').find('#hierarchySelect'));
     hierarchy = $hierarchy.val();
     let $master = $('#master_hierarchy');
@@ -1760,7 +1765,7 @@ function saveUser(el) {
         last_name: last_name,
         middle_name: middle_name,
         hierarchy: hierarchy,
-        department: department,
+        departments: departments,
         master: master_id,
         skype: $($(el).closest('.pop_cont').find('#skype')).val(),
         phone_number: phone_number,
@@ -1906,7 +1911,7 @@ function makeQuickEditCart(el) {
             let departmentSelect = $('#departmentSelect').val();
             let html = "";
             for (let i = 0; i < data.length; i++) {
-                if (departmentSelect == data[i].title || departmentSelect == data[i].id) {
+                if (departmentSelect.indexOf(""+data[i].title) != -1 || departmentSelect.indexOf(""+data[i].id) != -1) {
                     html += '<option value="' + data[i].id + '"' + 'selected' + '>' + data[i].title + '</option>';
                 } else {
                     html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
@@ -1984,7 +1989,7 @@ function updateSettings(callback, path) {
     let data = [];
     let iteration = 1;
     $("#sort-form input").each(function () {
-        if ($(this).data('editable') == 'true') {
+        if ($(this).data('editable')) {
             let item = {};
             item['id'] = $(this).val();
             item['number'] = iteration++;

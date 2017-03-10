@@ -44,7 +44,6 @@ VERBOSE_FIELDS = {'Имя': 'user__first_name',
                   'Фамилия': 'user__last_name',
                   'Отчество': 'user__middle_name',
                   'Иерархия': 'user__hierarchy',
-                  'Отдел': 'user__department',
                   'Страна': 'user__country',
                   'Город': 'user__city',
                   'Примечание': 'description',
@@ -209,27 +208,6 @@ class Participation(models.Model):
             if master_participation:
                 master_participation.recount()
         return self
-
-    @property
-    def fields(self):
-        l = self.user.user.fields
-        d = OrderedDict()
-        d['value'] = self.check
-        l['check'] = d
-
-        d = OrderedDict()
-        d['value'] = self.value
-        l['value'] = d
-
-        d = OrderedDict()
-        d['value'] = self.count
-        l['count'] = d
-
-        d = OrderedDict()
-        d['value'] = self.count_as_leader
-        l['count_as_leader'] = d
-
-        return l
 
 
 @receiver(signals.post_save, sender=Event)

@@ -14,7 +14,7 @@ USER_MAIN_RESOURCE_FIELDS = ('last_name', 'first_name', 'middle_name', 'region',
                              )
 
 USER_RESOURCE_FIELDS = USER_MAIN_RESOURCE_FIELDS + (
-    'department', 'hierarchy', 'master', 'spiritual_level', 'divisions', 'fullname',)
+    'departments', 'hierarchy', 'master', 'spiritual_level', 'divisions', 'fullname',)
 
 
 class UserMetaclass(ModelDeclarativeMetaclass):
@@ -56,9 +56,9 @@ class UserResource(CustomFieldsModelResource):
             return ''
         return '%s %s %s' % (user_field.master.last_name, user_field.master.first_name, user_field.master.middle_name)
 
-    def dehydrate_department(self, user):
+    def dehydrate_departments(self, user):
         user_field = self.get_user_field(user)
-        return user_field.department.title if user_field.department else ''
+        return ', '.join(user_field.departments.values_list('title', flat=True))
 
     def dehydrate_hierarchy(self, user):
         user_field = self.get_user_field(user)
@@ -133,11 +133,3 @@ def manage(level):
         return "Низя"
     return "Оки"
 
-
-def get_disciples(user):
-    disciples = user.disciples.all()
-    queryset = disciples
-    for disciple in disciples.all():
-        if disciple.has_disciples:
-            queryset = queryset | get_disciples(disciple)
-    return queryset

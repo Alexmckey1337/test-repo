@@ -22,33 +22,18 @@ class SummitAnketResource(six.with_metaclass(UserMetaclass, UserResource)):
             'name', 'code',
             # 'last_name', 'first_name',
             # 'phone_number',
-            # 'country', 'region', 'city', 'department', 'responsible', 'image',
+            # 'country', 'region', 'city', 'responsible', 'image',
             'pastor', 'bishop', 'sotnik', 'date',
         )
-
-
-def fill():
-    i = 0
-    ankets = SummitAnket.objects.filter(protected=False).all()
-    for anket in ankets.all().order_by('id'):
-        anket.name = anket.user.short
-        summit_id = 4000000 + i
-        summit_id_str = '0%i' % summit_id
-        anket.code = summit_id_str
-        anket.save()
-        i += 1
 
 
 def get_pastor(user):
     if user.hierarchy.level == 3:
         return user
-        # print("%s, %s" % (user.short, user.hierarchy.level))
     if user.master:
         if user.master.hierarchy.level == 3:
-            # print("got master %s, finish" % user.master.short)
             return user.master
         else:
-            # print("got master %s, continue" % user.master.short)
             return get_pastor(user.master)
     else:
         # print("no master, stop")
@@ -58,13 +43,10 @@ def get_pastor(user):
 def get_bishop(user):
     if user.hierarchy.level == 4:
         return user
-    # print("%s, %s" % (user.short, user.hierarchy.level))
     if user.master:
         if user.master.hierarchy.level == 4:
-            # print("got master %s, finish" % user.master.short)
             return user.master
         else:
-            # print("got master %s, continue" % user.master.short)
             return get_bishop(user.master)
     else:
         # print("no master, stop")
@@ -74,13 +56,10 @@ def get_bishop(user):
 def get_sot(user):
     if user.hierarchy.level == 2:
         return user
-    # print("%s, %s" % (user.short, user.hierarchy.level))
     if user.master:
         if user.master.hierarchy.level == 2:
-            # print("got master %s, finish" % user.master.short)
             return user.master
         else:
-            # print("got master %s, continue" % user.master.short)
             return get_sot(user.master)
     else:
         return None
@@ -99,7 +78,7 @@ def find_pastor(anket):
     else:
         anket.bishop = ""
     anket.date = user.date_joined
-    anket.department = user.department.title
+    anket.department = ', '.join(user.department.values_list('title', flat=True))
     anket.save()
 
 
@@ -114,7 +93,6 @@ def find_sot(anket):
 
 
 def get_fields(anket):
-    d = Department.objects.get(id=2)
     anket.name = anket.user.short
     anket.country = anket.user.country
     anket.region = anket.user.region
@@ -126,7 +104,6 @@ def get_fields(anket):
         summit_id = 4000000 + anket.id
         summit_id_str = '0%i' % summit_id
         anket.code = summit_id_str
-    # print(anket.code)
     find_pastor(anket)
     find_sot(anket)
     if anket.pastor:
@@ -135,76 +112,5 @@ def get_fields(anket):
         anket.responsible = anket.sotnik
     else:
         anket.responsible = anket.bishop
-    if anket.user.department == d:
-        anket.responsible = anket.bishop
     anket.image = "%s.jpg" % anket.code
     anket.save()
-
-
-def doch():
-    from hierarchy.models import Department
-    d = Department.objects.get(id=2)
-    ankets = SummitAnket.objects.filter(user__department=d).all()
-    for anket in ankets:
-        anket.responsible = anket.bishop
-        anket.save()
-
-
-def make_table():
-    ankets = SummitAnket.objects.all()
-    for anket in ankets.all().order_by('id'):
-        get_fields(anket)
-    print('OK')
-
-
-def make_table_prt():
-    ankets = SummitAnket.objects.filter(protected=True).all()
-    for anket in ankets.all().order_by('id'):
-        print(anket.code)
-        find_pastor(anket)
-        find_sot(anket)
-        if anket.pastor:
-            anket.responsible = anket.pastor
-        elif anket.sotnik:
-            anket.responsible = anket.sotnik
-        else:
-            anket.responsible = anket.bishop
-        anket.image = "%s.jpg" % anket.code
-        anket.save()
-    print('OK')
-
-
-def make_table_fix():
-    ankets = SummitAnket.objects.all()
-    for anket in ankets.all().order_by('id'):
-        anket.name = anket.user.short
-        anket.country = anket.user.country
-        anket.region = anket.user.region
-        anket.phone_number = anket.user.phone_number
-        anket.save()
-        print(anket.name)
-    print('OK')
-
-
-def check_images():
-    ankets = SummitAnket.objects.all().order_by('id')[:2367]
-    i = 0
-    for anket in ankets.all():
-        if not anket.user.image:
-            i += 1
-            print(anket.user.id)
-    print(i)
-
-
-def copy_images():
-    ankets = SummitAnket.objects.all().order_by('id')
-    destination_folder = '/summit_images/'
-    for anket in ankets.all():
-        if anket.user.image:
-            path = anket.user.image.path
-            if anket.code == '':
-                pass
-            else:
-                destination = settings.MEDIA_ROOT + destination_folder + anket.code + '.jpg'
-                copyfile(path, destination)
-                print('copied %s' % anket.code)
