@@ -143,10 +143,10 @@
                             <ul>
                                 <li class="clearfix">
                                     <label for="">Отдел*</label>
-                                    <select id="departmentSelect" name="department" required style="width:205px">
+                                    <select id="departmentSelect" multiple required style="width:205px">
                                         {% for department in departments %}
                                             <option value="{{ department.id }}"
-                                                    {% if account.department_id == department.id %}selected{% endif %}>
+                                                    {% if department in account.departments.all %}selected{% endif %}>
                                                 {{ department.title }}
                                             </option>
                                         {% endfor %}

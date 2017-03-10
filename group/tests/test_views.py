@@ -216,10 +216,12 @@ class TestChurchViewSet:
             self, api_login_client, church, user_factory, department, department_factory,
             is_detail, url_name):
 
-        user_factory.create_batch(4, first_name='batman', last_name='loki',
-                                  department=department)  # users count +4, = 4
-        user_factory.create_batch(6, first_name='batman', last_name='loki',
-                                  department=department_factory())  # users count +0, = 4
+        users = user_factory.create_batch(4, first_name='batman', last_name='loki')  # users count +4, = 4
+        for u in users:
+            u.departments.set([department])
+        users = user_factory.create_batch(6, first_name='batman', last_name='loki')  # users count +0, = 4
+        for u in users:
+            u.departments.set([department_factory()])
 
         if is_detail:
             url = reverse(url_name, kwargs={'pk': church.id})

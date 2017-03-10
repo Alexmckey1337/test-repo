@@ -42,8 +42,8 @@ class UserPagination(PageNumberPagination):
 
 class NewUserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
     queryset = User.objects.select_related(
-        'hierarchy', 'department', 'master__hierarchy').prefetch_related(
-        'divisions'
+        'hierarchy', 'master__hierarchy').prefetch_related(
+        'divisions', 'departments'
     ).filter(is_active=True).order_by('last_name', 'first_name', 'middle_name')
 
     serializer_class = NewUserSerializer
@@ -62,7 +62,7 @@ class NewUserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
     permission_classes = (IsAuthenticated,)
     ordering_fields = ('first_name', 'last_name', 'middle_name',
                        'born_date', 'country', 'region', 'city', 'disrict', 'address', 'skype',
-                       'phone_number', 'email', 'hierarchy__level', 'department__title',
+                       'phone_number', 'email', 'hierarchy__level',
                        'facebook', 'vkontakte', 'hierarchy_order', 'master__last_name',)
     field_search_fields = {
         'search_fio': ('last_name', 'first_name', 'middle_name', 'search_name'),
@@ -75,7 +75,7 @@ class NewUserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
 
     parser_classes = (MultiPartAndJsonParser, JSONParser, FormParser)
 
-    parser_list_fields = ['divisions', 'extra_phone_numbers']
+    parser_list_fields = ['departments', 'divisions', 'extra_phone_numbers']
     parser_dict_fields = ['partner']
 
     resource_class = UserResource
@@ -88,8 +88,8 @@ class NewUserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
             return self.queryset.none()
         if user.hierarchy.level < 2:
             return user.get_descendants(include_self=True).select_related(
-                'hierarchy', 'department', 'master__hierarchy').prefetch_related(
-                'divisions'
+                'hierarchy', 'master__hierarchy').prefetch_related(
+                'divisions', 'departments'
             ).filter(is_active=True).order_by('last_name', 'first_name', 'middle_name')
         return self.queryset.all()
 
@@ -162,7 +162,7 @@ class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
                        filters.OrderingFilter,)
-    # filter_fields = ('first_name', 'last_name', 'department', 'hierarchy')
+    # filter_fields = ('first_name', 'last_name', 'hierarchy')
     filter_class = ShortUserFilter
     search_fields = ('first_name', 'last_name', 'middle_name')
 

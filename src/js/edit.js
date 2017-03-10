@@ -8,6 +8,11 @@
         } else {
             formData.append('divisions', JSON.stringify([]));
         }
+        if ($('#departmentSelect').val()) {
+            formData.append('departments', JSON.stringify($('#departmentSelect').val()));
+        } else {
+            formData.append('departments', JSON.stringify([]));
+        }
         if ($('#extra_phone_numbers').val()) {
             formData.append('extra_phone_numbers', JSON.stringify($('#extra_phone_numbers').val().split(',').map((item) => item.trim())));
         } else {
