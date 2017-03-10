@@ -44,7 +44,8 @@
                 <div class="user-fiowrap">
                     <div class="user-fio">
                         <div class="right-info-r">
-                        <button class="edit" id="editNameBtn" data-edit-block="editNameBlock"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                            <button class="edit" id="editNameBtn" data-edit-block="editNameBlock"><i
+                                    class="fa fa-pencil" aria-hidden="true"></i></button>
                             <hgroup>
                                 <h3 id="fullname">{{ account.fullname }}</h3>
                                 {% if account.search_name %}
@@ -98,11 +99,21 @@
                                     </li>
                                     <li class="clearfix">
                                         <label for="middle_name">Отчество</label>
-                                        <input type="email" name="middle_name" value="{{ account.middle_name }}" readonly>
+                                        <input type="email" name="middle_name" value="{{ account.middle_name }}"
+                                               readonly>
                                     </li>
                                     <li class="clearfix">
                                         <label for="search_name">Имя на родном языке</label>
-                                        <input type="text" name="search_name" value="{{ account.search_name }}" readonly>
+                                        <input type="text" name="search_name" value="{{ account.search_name }}"
+                                               readonly>
+                                    </li>
+                                    <li class="clearfix">
+                                        <label for="search_name">Фото</label>
+                                        <input type="file" id="file">
+                                    </li>
+                                    <li class="clearfix">
+                                        <p>Размер файла не должен превышать 10 МБ.</p>
+                                        <p>Типы файлов, которые поддерживаются: jpg, jpeg, png.</p>
                                     </li>
                                 </ul>
                             </form>
@@ -111,7 +122,8 @@
                     <li id="editContact">
                         <div class="right-info__block">
                             <form action="/" name="editContact" data-action="update-user">
-                                <button class="edit" data-edit-block="editContact"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                <button class="edit" data-edit-block="editContact"><i class="fa fa-pencil"
+                                                                                      aria-hidden="true"></i></button>
                                 <button class="save__info" type="submit"><i class="fa fa-floppy-o"
                                                                             aria-hidden="true"></i></button>
                                 <ul>
@@ -124,7 +136,8 @@
                                     <li class="clearfix">
                                         <label for="extra_phone_numbers"><i class="fa fa-phone"
                                                                             aria-hidden="true"></i></label>
-                                        <input type="text" id="extra_phone_numbers" value="{% if account.extra_phone_numbers %}{{ account.extra_phone_numbers|default:""|join:", " }}{% endif %}"
+                                        <input type="text" id="extra_phone_numbers" value="
+                                                {% if account.extra_phone_numbers %}{{ account.extra_phone_numbers|default:""|join:", " }}{% endif %}"
                                                readonly>
                                     </li>
                                     <li class="clearfix">
@@ -142,7 +155,8 @@
                     <li id="editSocial">
                         <div class="right-info__block">
                             <form action="/" name="editSocial" data-action="update-user">
-                                <button class="edit" data-edit-block="editSocial"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                <button class="edit" data-edit-block="editSocial"><i class="fa fa-pencil"
+                                                                                     aria-hidden="true"></i></button>
                                 <button class="save__info" type="submit"><i class="fa fa-floppy-o"
                                                                             aria-hidden="true"></i></button>
                                 <ul>
@@ -158,7 +172,8 @@
                                     </li>
                                     <li class="clearfix">
                                         <label for="odnoklassniki">Одноклассники</label>
-                                        <input type="email" name="odnoklassniki" value="{{ account.odnoklassniki }}" readonly>
+                                        <input type="email" name="odnoklassniki" value="{{ account.odnoklassniki }}"
+                                               readonly>
                                     </li>
                                 </ul>
                             </form>
@@ -167,7 +182,8 @@
                     <li id="editLocation">
                         <div class="right-info__block">
                             <form action="/" name="editLocation" data-action="update-user">
-                                <button class="edit" data-edit-block="editLocation"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                <button class="edit" data-edit-block="editLocation"><i class="fa fa-pencil"
+                                                                                       aria-hidden="true"></i></button>
                                 <button class="save__info" type="submit"><i class="fa fa-floppy-o"
                                                                             aria-hidden="true"></i></button>
                                 <ul>
@@ -208,7 +224,8 @@
                     <li id="editHierarchy">
                         <div class="right-info__block">
                             <form action="/" name="editHierarchy" data-action="update-user">
-                                <button class="edit" data-edit-block="editHierarchy"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                <button class="edit" data-edit-block="editHierarchy"><i class="fa fa-pencil"
+                                                                                        aria-hidden="true"></i></button>
                                 <button class="save__info" type="submit"><i class="fa fa-floppy-o"
                                                                             aria-hidden="true"></i></button>
                                 <ul>
@@ -248,7 +265,9 @@
                     <li id="editDepartament">
                         <div class="right-info__block">
                             <form action="/" name="editDepartament" data-action="update-user">
-                                <button class="edit" data-edit-block="editDepartament"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                <button class="edit" data-edit-block="editDepartament"><i class="fa fa-pencil"
+                                                                                          aria-hidden="true"></i>
+                                </button>
                                 <button class="save__info" type="submit"><i class="fa fa-floppy-o"
                                                                             aria-hidden="true"></i></button>
                                 <ul>
@@ -271,16 +290,28 @@
                     <li id="editPartnership">
                         <div class="right-info__block">
                             <form action="/" name="editPartnership" data-action="update-user" id="partnership">
-                                <button class="edit" data-edit-block="editPartnership"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                <button class="edit" data-edit-block="editPartnership"><i class="fa fa-pencil"
+                                                                                          aria-hidden="true"></i>
+                                </button>
                                 <button class="save__info" type="submit"><i class="fa fa-floppy-o"
                                                                             aria-hidden="true"></i></button>
                                 <ul>
-                                    <li><label for="partnershipCheck">Партнер</label>
-                                        {% if account.partnership %}
-                                        <input type="checkbox" id="partnershipCheck" data-block="partner" class="no__edit" checked disabled>
-                                        {%  else %}
-                                        <input type="checkbox" id="partnershipCheck" readonly disabled>
-                                    {% endif %}</li>
+                                    <li>
+                                        <label for="partnershipCheck">
+                                            {% if account.partnership %}
+                                                Активный
+                                                {% else %}
+                                                Партнер
+                                            {% endif %}
+                                        </label>
+                                        {% if account.partnership.is_active %}
+                                            <input type="checkbox" id="partnershipCheck" data-block="partner"
+                                                   checked disabled>
+                                        {% else %}
+                                            <input type="checkbox" id="partnershipCheck" readonly disabled>
+                                        {% endif %}
+                                        <span></span>
+                                    </li>
                                 </ul>
                                 <ul id="partnershipBlock" {% if not account.partnership %}
                                     class="hidden"
@@ -289,24 +320,26 @@
                                         <label for="division">Партнёр с:</label>
                                         <input type="text"
                                                class="sel__date"
+                                               data-id="date"
                                                value="{{ account.partnership.date|date:"Y-m-d" }}"
                                                readonly disabled>
                                     </li>
                                     <li class="clearfix">
                                         <label for="division">Сумма сделки:</label>
-                                        <input type="text" value="{{ account.partnership.value }}" id="payment_value" readonly disabled>
-                                        <select id="payment_currency" required readonly disabled>
-                                                {% for currency in currencies %}
-                                                    <option value="{{ currency.id }}"
-                                                            {% if currency == account.partnership.currency %}selected{% endif %}>
-                                                        {{ currency.short_name }}
-                                                    </option>
-                                                {% endfor %}
-                                            </select>
+                                        <input type="text" data-id="value" value="{{ account.partnership.value }}" id="payment_value"
+                                               readonly disabled>
+                                        <select id="payment_currency" data-id="currency" required readonly disabled>
+                                            {% for currency in currencies %}
+                                                <option value="{{ currency.id }}"
+                                                        {% if currency == account.partnership.currency %}selected{% endif %}>
+                                                    {{ currency.short_name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
                                     </li>
                                     <li class="clearfix">
                                         <label for="division">Менеджер:</label>
-                                        <select id="partner_drop" readonly disabled>
+                                        <select id="responsible" data-id="responsible" readonly disabled>
                                             <option value="">Выберите менеджера</option>
                                             {% for partner in partners %}
                                                 <option value="{{ partner.id }}"
@@ -321,7 +354,8 @@
                     <li id="editVisit">
                         <div class="right-info__block">
                             <form action="/" name="editVisit" data-action="update-user">
-                                <button class="edit" data-edit-block="editVisit"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                <button class="edit" data-edit-block="editVisit"><i class="fa fa-pencil"
+                                                                                    aria-hidden="true"></i></button>
                                 <button class="save__info" type="submit"><i class="fa fa-floppy-o"
                                                                             aria-hidden="true"></i></button>
                                 <ul>
@@ -346,61 +380,67 @@
                     <li id="editChurches">
                         <div class="right-info__block">
                             <form action="/" name="editChurches" data-action="update-church">
-                                <button class="edit" data-edit-block="editChurches"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                <button class="edit" data-edit-block="editChurches"><i class="fa fa-pencil"
+                                                                                       aria-hidden="true"></i></button>
                                 <button class="save__info" type="submit"><i class="fa fa-floppy-o"
                                                                             aria-hidden="true"></i></button>
                                 <ul>
-                                        {% if account.home_groups.exists %}
-                                            <li class="clearfix">
-                                                <label for="church_title">Церковь</label>
-                                                <select type="text" id="church_list" name="church_title" readonly disabled>
-                                                    <option value="{{ account.home_groups.get.church.id }}">{{ account.home_groups.get.church.get_title }}</option>
-                                                </select>
-                                            </li>
-                                            <li class="clearfix">
-                                                <label for="home_groups">Домашняя группа</label>
-                                                <select type="text" id="home_groups_list" name="church_title" readonly disabled>
-                                                    <option value="{{ account.home_groups.get.id }}">{{ account.home_groups.get }}</option>
-                                                </select>
-                                            </li>
-                                            <li class="clearfix">
-                                                <p class="label__block">Лидер</p>
-                                                <p class="output__block">{{ account.home_groups.get.leader.fullname }}</p>
-                                            </li>
-                                        {% elif account.churches.exists %}
-                                            <li class="clearfix"><label for="church_title">Церковь</label>
-                                                <select type="text" id="church_list" name="church_title" readonly disabled>
-                                                    <option value="{{ account.churches.get.id }}">{{ account.churches.get }}</option>
-                                                </select>
-                                            </li>
-                                            <li class="clearfix hidden">
-                                                <label for="home_groups">Домашняя группа</label>
-                                                 <select type="text" id="home_groups_list" name="home_groups" readonly disabled>
-                                                     <option value="">Выбирите домашнюю группу</option>
-                                                 </select>
-                                            </li>
-                                            <li class="clearfix">
-                                                <p class="label__block">Пастор</p>
-                                                <p class="output__block">{{ account.churches.get.pastor.fullname }}</p>
-                                            </li>
-                                        {% else %}
-                                            <li class="clearfix">Пользователь не состоит ни в церкви ни в домашней группе</li>
-                                            <li class="clearfix hidden">
-                                                <label for="church_title">Церковь</label>
-                                                <select type="text" id="church_list" name="churches_title" value="" readonly disabled>
-                                                    <option value="">Выберите церковь</option>
-{#                                                    {% for church in churches %}#}
-{#                                                        <option value="{{ church.id }}">{{ church.get_title }}</option>#}
-{#                                                    {% endfor %}#}
-                                                </select>
-                                            </li>
-                                             <li class="clearfix hidden">
-                                                <label for="home_groups">Домашняя группа</label>
-                                                 <select type="text" id="home_groups_list" name="home_groups" readonly disabled>
-                                                     <option value="">Выбирите домашнюю группу</option>
-                                                 </select>
-                                            </li>
-                                        {% endif %}
+                                    {% if account.home_groups.exists %}
+                                        <li class="clearfix">
+                                            <label for="church_title">Церковь</label>
+                                            <select type="text" id="church_list" name="church_title" readonly disabled>
+                                                <option value="{{ account.home_groups.get.church.id }}">{{ account.home_groups.get.church.get_title }}</option>
+                                            </select>
+                                        </li>
+                                        <li class="clearfix">
+                                            <label for="home_groups">Домашняя группа</label>
+                                            <select type="text" id="home_groups_list" name="church_title" readonly
+                                                    disabled>
+                                                <option value="{{ account.home_groups.get.id }}">{{ account.home_groups.get }}</option>
+                                            </select>
+                                        </li>
+                                        <li class="clearfix">
+                                            <p class="label__block">Лидер</p>
+                                            <p class="output__block">{{ account.home_groups.get.leader.fullname }}</p>
+                                        </li>
+                                    {% elif account.churches.exists %}
+                                        <li class="clearfix"><label for="church_title">Церковь</label>
+                                            <select type="text" id="church_list" name="church_title" readonly disabled>
+                                                <option value="{{ account.churches.get.id }}">{{ account.churches.get }}</option>
+                                            </select>
+                                        </li>
+                                        <li class="clearfix hidden">
+                                            <label for="home_groups">Домашняя группа</label>
+                                            <select type="text" id="home_groups_list" name="home_groups" readonly
+                                                    disabled>
+                                                <option value="">Выбирите домашнюю группу</option>
+                                            </select>
+                                        </li>
+                                        <li class="clearfix">
+                                            <p class="label__block">Пастор</p>
+                                            <p class="output__block">{{ account.churches.get.pastor.fullname }}</p>
+                                        </li>
+                                    {% else %}
+                                        <li class="clearfix">Пользователь не состоит ни в церкви ни в домашней группе
+                                        </li>
+                                        <li class="clearfix hidden">
+                                            <label for="church_title">Церковь</label>
+                                            <select type="text" id="church_list" name="churches_title" value="" readonly
+                                                    disabled>
+                                                <option value="">Выберите церковь</option>
+                                                {#                                                    {% for church in churches %}#}
+                                                {#                                                        <option value="{{ church.id }}">{{ church.get_title }}</option>#}
+                                                {#                                                    {% endfor %}#}
+                                            </select>
+                                        </li>
+                                        <li class="clearfix hidden">
+                                            <label for="home_groups">Домашняя группа</label>
+                                            <select type="text" id="home_groups_list" name="home_groups" readonly
+                                                    disabled>
+                                                <option value="">Выбирите домашнюю группу</option>
+                                            </select>
+                                        </li>
+                                    {% endif %}
                                 </ul>
                             </form>
                         </div>
@@ -686,6 +726,19 @@
             </div>
         </div>
     </div>
+    <div id="impPopup">
+        <div class="splash-screen">
+            <div class="top-text">
+                <h3>Редактирование картинки</h3>
+                <span class="close">×</span>
+            </div>
+            <div class="crArea">
+                <img src="" alt="">
+            </div>
+            <div class="splash-buttons">
+                <button class="cr" id="editCropImg">Изменить</button>
+            </div>
+        </div>
     </div>
     {{ block.super }}
 {% endblock %}
@@ -693,5 +746,6 @@
 {% block extra_scripts %}
     <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.16.0/moment.min.js"></script>
+    <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
     <script src="{% static "js/account.js" %}"></script>
 {% endblock %}

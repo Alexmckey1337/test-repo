@@ -52,12 +52,10 @@
 
         // Loop through the FileList and render image files as thumbnails.
         for (let i = 0, file; file = files[i]; i++) {
-
             // Only process image files.
             if (!file.type.match('image.*')) {
                 continue;
             }
-
             let reader = new FileReader();
 
             // Closure to capture the file information.
@@ -94,7 +92,7 @@
             let divisions = data.divisions;
             let $currencyOption = $('#payment_currency').find('option');
             $currencyOption.each(function () {
-                if($(this).val() == currency) {
+                if ($(this).val() == currency) {
                     $(this).prop('selected', true);
                 }
             });
@@ -193,14 +191,14 @@
         img.cropper({
             aspectRatio: 1 / 1,
             built: function () {
-                img.cropper("setCropBoxData", {width: "100", height: "50"});
+                img.cropper("setCropBoxData", {width: "100", height: "100"});
             }
         });
     });
 
     $('#editCropImg').on('click', function () {
         let imgUrl;
-        imgUrl = img.cropper('getCroppedCanvas').toDataURL('image/jpeg');
+        imgUrl = img.cropper('crop').cropper('getCroppedCanvas').toDataURL('image/jpeg');
         $('#impPopup').fadeOut();
         $('#edit-photo').attr('data-source', document.querySelector("#impPopup img").src);
         $('.anketa-photo').html('<img src="' + imgUrl + '" />');
@@ -262,7 +260,7 @@
         img.src = url;
     }
 
-    //inialize DATABASE LOCATIONS
+    //  initialize DATABASE LOCATIONS
     function initializeCountry() {
         getCountriesList().then(function (data) {
             let selectedCountry;
