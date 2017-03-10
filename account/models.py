@@ -61,8 +61,7 @@ class CustomUser(MPTTModel, User):
     image = models.ImageField(upload_to='images/', blank=True)
     image_source = models.ImageField(upload_to='images/', blank=True)
     description = models.TextField(blank=True)
-    department = models.ForeignKey('hierarchy.Department', related_name='users', null=True, blank=True,
-                                   on_delete=models.SET_NULL)
+    departments = models.ManyToManyField('hierarchy.Department', related_name='userss')
     hierarchy = models.ForeignKey('hierarchy.Hierarchy', related_name='users', null=True, blank=True,
                                   on_delete=models.SET_NULL)
     master = TreeForeignKey('self', related_name='disciples', null=True, blank=True,
@@ -229,7 +228,7 @@ class CustomUser(MPTTModel, User):
 
         d = OrderedDict()
         if self.department:
-            d['value'] = self.department.title
+            d['value'] = ''.join(self.departments.values_list('title', flat=True))
         else:
             d['value'] = ''
         l['department'] = d
@@ -325,7 +324,7 @@ class CustomUser(MPTTModel, User):
 
     @property
     def department_title(self):
-        l = self.department.title
+        l = ''.join(self.department.values_list('title', flat=True))
         return l
 
     @property

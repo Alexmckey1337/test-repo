@@ -164,12 +164,12 @@ class ParticipationViewSet(viewsets.ModelViewSet):
     search_fields = ('user__user__first_name', 'user__user__last_name', 'user__user__middle_name',
                      'user__user__country', 'user__user__region', 'user__user__city', 'user__user__district',
                      'user__user__address', 'user__user__skype', 'user__user__phone_number',
-                     'user__user__hierarchy__title', 'user__user__department__title',
+                     'user__user__hierarchy__title',
                      'user__user__email',)
     ordering_fields = ('user__user__first_name', 'user__user__last_name', 'user__user__hierarchy__level',
                        'user__user__country', 'user__user__region', 'user__user__city', 'user__user__district',
                        'user__user__address', 'user__user__skype', 'user__user__phone_number',
-                       'user__user__hierarchy__title', 'user__user__department__title',
+                       'user__user__hierarchy__title',
                        'user__user__email',)
     permission_classes = (IsAuthenticated,)
 

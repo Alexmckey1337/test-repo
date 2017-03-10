@@ -183,9 +183,11 @@
         </div>
         <div class="col-7">
             <p><input type="text" class="fullname" value="<%=fullname %>"></p>
-            <p><label for="departmentSelect">Отдел церкви: </label><select id="departmentSelect">
-                <% if(department != null) { %>
-                    <option value="<%=department.id %>" selected><%=department.title %></option>
+            <p><label for="departmentSelect">Отдел церкви: </label><select id="departmentSelect" multiple>
+                <% if(departments.length > 0) { %>
+                    <% departments.forEach(function(department) { %>
+                        <option value="<%=department.id %>" selected><%=department.title %></option>
+                    <% }) %>
                 <% } else { %>
                     <option value="" selected></option>
                 <% } %>

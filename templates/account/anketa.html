@@ -115,7 +115,7 @@
                         </div>
                         <div class="right-info">
                             <ul>
-                                <li><span id="department">{{ account.department }}</span></li>
+                                <li><span id="department">{{ account.departments.all|join:", " }}</span></li>
                                 <li><span id="hierarchy">{{ account.hierarchy }}</span></li>
                                 <li><span id="master">
                                     {% if account.master %}

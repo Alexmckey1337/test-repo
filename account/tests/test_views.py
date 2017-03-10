@@ -35,7 +35,7 @@ FIELD_CODES = (
     ('last_name', 400),
     ('middle_name', 400),
     ('phone_number', 400),
-    ('department', 400),
+    ('departments', 400),
     ('master', 400),
     ('hierarchy', 400),
 )
@@ -60,7 +60,7 @@ CHANGE_FIELD = (
     ('divisions', 400),
     ('partner', 400),
     ('spiritual_level', 400),
-    ('department', 400),
+    ('departments', 400),
     ('master', 400),
     ('hierarchy', 400),
 
@@ -122,24 +122,26 @@ class TestNewUserViewSet:
     def test_partial_update_master_hierarchy_department(self, user, api_login_client, user_factory,
                                                         hierarchy_factory, department_factory):
         master = user_factory(username='master')
-        hierachy = hierarchy_factory()
+        hierarchy = hierarchy_factory()
         department = department_factory()
 
         url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
 
         data = {
             'master': master.id,
-            'hierarchy': hierachy.id,
-            'department': department.id,
+            'hierarchy': hierarchy.id,
+            'departments': [department.id],
         }
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.patch(url, data=data, format='json')
 
         assert response.status_code == status.HTTP_200_OK
 
+        departments = data.pop('departments')
         user_dict = dict(list(CustomUser.objects.filter(username='testuser').values(*data.keys()))[0])
 
         assert user_dict == data
+        assert departments == list(user.departments.values_list('id', flat=True))
 
     def test_user_list_filter_by_hierarchy(self, api_login_client, user_factory, hierarchy_factory):
         other_hierarchy = hierarchy_factory()
@@ -158,8 +160,12 @@ class TestNewUserViewSet:
     def test_user_list_filter_by_department(self, api_login_client, user_factory, department_factory):
         other_department = department_factory()
         department = department_factory()
-        user_factory.create_batch(10, department=department)
-        user_factory.create_batch(20, department=other_department)
+        users = user_factory.create_batch(10)
+        for u in users:
+            u.departments.set([department])
+        users = user_factory.create_batch(20)
+        for u in users:
+            u.departments.set([other_department])
 
         url = reverse('users_v1_1-list')
 
@@ -420,10 +426,10 @@ class TestNewUserViewSet:
         user_data = get_values(user_data, request)
         create_user_data = copy.deepcopy(user_data)
         divisions = create_user_data.pop('divisions')
+        departments = create_user_data.pop('departments')
         partner = create_user_data.pop('partner')
 
         strptime = lambda d: datetime.datetime.strptime(d, '%Y-%m-%d')
-        create_user_data['department_id'] = create_user_data.pop('department')
         create_user_data['hierarchy_id'] = create_user_data.pop('hierarchy')
         create_user_data['master_id'] = create_user_data.pop('master')
         create_user_data['born_date'] = strptime(create_user_data['born_date'])
@@ -437,6 +443,7 @@ class TestNewUserViewSet:
             date=strptime(partner['date']),
             responsible_id=partner['responsible'])
         user.divisions.set(divisions)
+        user.departments.set(departments)
 
         url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
 

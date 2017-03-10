@@ -57,8 +57,8 @@ class GroupUserResource(CustomFieldsModelResource):
     def dehydrate_master(self, user):
         return '%s %s %s' % (user.master.first_name, user.master.last_name, user.master.middle_name)
 
-    def dehydrate_department(self, user):
-        return user.department.title if user.department else ''
+    def dehydrate_departments(self, user):
+        return ', '.join(user.departments.values_list('title', flat=True))
 
     def dehydrate_hierarchy(self, user):
         return user.hierarchy.title if user.hierarchy else ''

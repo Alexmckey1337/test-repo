@@ -122,7 +122,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
 
         department_id = params.get('department', None)
         if department_id is not None:
-            users = users.filter(department_id=department_id)
+            users = users.filter(departments__id=department_id)
 
         serializers = AddExistUserSerializer(users[:30], many=True)
 

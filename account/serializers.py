@@ -76,7 +76,7 @@ class DivisionSerializer(serializers.ModelSerializer):
 class PartnershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Partnership
-        fields = ('value', 'responsible', 'date', 'user', 'currency')
+        fields = ('value', 'responsible', 'date', 'user', 'currency', 'is_active')
 
 
 class AddExistUserSerializer(serializers.ModelSerializer):
@@ -106,7 +106,7 @@ class NewUserSerializer(serializers.ModelSerializer):
                   # #################################################
                   'image', 'image_source',
 
-                  'department', 'master', 'hierarchy',
+                  'departments', 'master', 'hierarchy',
                   'divisions',
                   'partnership',
                   # read_only
@@ -118,22 +118,21 @@ class NewUserSerializer(serializers.ModelSerializer):
             'phone_number': {'required': True},
 
             'hierarchy': {'required': True},
-            'department': {'required': True},
+            'departments': {'required': True},
             'master': {'required': True},
 
             'divisions': {'required': False},
         }
 
     def update(self, instance, validated_data):
-        # department = validated_data.pop('department') if validated_data.get('department') else None
-        # master = validated_data.pop('master') if validated_data.get('master') else None
-        # hierarchy = validated_data.pop('hierarchy') if validated_data.get('hierarchy') else None
-        # coming_date = validated_data.pop('coming_date') if validated_data.get('coming_date') else None
-        # repentance_date = validated_data.pop('repentance_date') if validated_data.get('repentance_date') else None
+        departments = validated_data.pop('departments', None)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
+
+        if departments is not None and isinstance(departments, (list, tuple)):
+            instance.departments.set(departments)
 
         return instance
 
@@ -179,7 +178,7 @@ class UserCreateSerializer(NewUserSerializer):
 
 
 class UserSingleSerializer(NewUserSerializer):
-    department = DepartmentTitleSerializer()
+    departments = DepartmentTitleSerializer(many=True, read_only=True)
     master = MasterWithHierarchySerializer(required=False, allow_null=True)
     hierarchy = HierarchyTitleSerializer()
     divisions = DivisionSerializer(many=True, read_only=True)

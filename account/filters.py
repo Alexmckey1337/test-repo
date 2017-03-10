@@ -54,7 +54,7 @@ class FilterMasterTree(BaseFilterBackend):
 class UserFilter(django_filters.FilterSet):
     hierarchy = django_filters.ModelChoiceFilter(name='hierarchy', queryset=Hierarchy.objects.all())
     master = django_filters.ModelMultipleChoiceFilter(name="master", queryset=User.objects.all())
-    department = django_filters.ModelChoiceFilter(name="department", queryset=Department.objects.all())
+    department = django_filters.ModelChoiceFilter(name="departments", queryset=Department.objects.all())
 
     class Meta:
         model = User
@@ -66,6 +66,7 @@ class ShortUserFilter(django_filters.FilterSet):
     level_gte = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='gte')
     level_lt = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='lt')
     level_lte = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='lte')
+    department = django_filters.ModelMultipleChoiceFilter(name="departments", queryset=Department.objects.all())
 
     class Meta:
         model = User

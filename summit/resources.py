@@ -22,7 +22,7 @@ class SummitAnketResource(six.with_metaclass(UserMetaclass, UserResource)):
             'name', 'code',
             # 'last_name', 'first_name',
             # 'phone_number',
-            # 'country', 'region', 'city', 'department', 'responsible', 'image',
+            # 'country', 'region', 'city', 'responsible', 'image',
             'pastor', 'bishop', 'sotnik', 'date',
         )
 
@@ -99,7 +99,7 @@ def find_pastor(anket):
     else:
         anket.bishop = ""
     anket.date = user.date_joined
-    anket.department = user.department.title
+    anket.department = ', '.join(user.department.values_list('title', flat=True))
     anket.save()
 
 
@@ -135,16 +135,14 @@ def get_fields(anket):
         anket.responsible = anket.sotnik
     else:
         anket.responsible = anket.bishop
-    if anket.user.department == d:
+    if anket.user.department == d.title:
         anket.responsible = anket.bishop
     anket.image = "%s.jpg" % anket.code
     anket.save()
 
 
 def doch():
-    from hierarchy.models import Department
-    d = Department.objects.get(id=2)
-    ankets = SummitAnket.objects.filter(user__department=d).all()
+    ankets = SummitAnket.objects.none()
     for anket in ankets:
         anket.responsible = anket.bishop
         anket.save()
