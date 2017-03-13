@@ -967,6 +967,7 @@ h1 a {
     }
   }
 }
+
 .tab-status {
   & li {
     & button {
@@ -3611,8 +3612,21 @@ span.change[style*="display: none"] ~ span.y {
       top: 0;
       font-size: 1.5em;
       &.edit {
-        right: 0;
-        top: 1em
+        right: 1em;
+        top: 1em;
+        &:before {
+          content: '\f040';
+          color: #656d78;
+          font: 100 1em FontAwesome;
+          position: absolute;
+          left: 0;
+          top: 0;
+        }
+        &.active {
+          &:before {
+            content: '\f00d';
+          }
+        }
       }
     }
   }
@@ -3638,10 +3652,43 @@ span.change[style*="display: none"] ~ span.y {
           top: 0;
           font-size: 1.5em;
           &.edit {
-            right: 1.5em;
+            &.active {
+              right: 2.25em;
+            }
+            right: 1em;
+            & + .save__info {
+              display: none;
+            }
+            &.active + .save__info {
+              display: block;
+            }
+            &:before {
+              content: '\f040';
+              color: #656d78;
+              font: normal 1em FontAwesome;
+              position: absolute;
+              left: 0;
+              top: 0;
+            }
+            &.active {
+              &:before {
+                content: '\f00d';
+              }
+            }
           }
+
           &.save__info {
             right: 0;
+            width: 1em;
+            height: 1em;
+            &:before {
+              content: '\f00c';
+              color: #656d78;
+              font: normal 1.1em FontAwesome;
+              position: absolute;
+              left: 0;
+              top: 0;
+            }
           }
         }
         &:hover {
@@ -3656,6 +3703,9 @@ span.change[style*="display: none"] ~ span.y {
           & i {
             font-size: 1.5em;
           }
+        }
+        & .sel__date {
+          width: 7em;
         }
         & input:not([type="checkbox"]),
         & select,
