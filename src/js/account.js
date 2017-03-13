@@ -308,7 +308,7 @@
     (function ($) {
         let $img = $(".crArea img");
 
-        let $selectDepartment = $('#selectDepartment');
+        let $selectDepartment = $('#departments');
 
         function makeHomeGroupsList(ID) {
             let churchID = ID || $('#church_list').val();
