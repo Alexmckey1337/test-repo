@@ -48,7 +48,7 @@ class CustomUser(MPTTModel, User):
     image = models.ImageField(upload_to='images/', blank=True)
     image_source = models.ImageField(upload_to='images/', blank=True)
     description = models.TextField(blank=True)
-    departments = models.ManyToManyField('hierarchy.Department', related_name='userss')
+    departments = models.ManyToManyField('hierarchy.Department', related_name='users')
     hierarchy = models.ForeignKey('hierarchy.Hierarchy', related_name='users', null=True, blank=True,
                                   on_delete=models.SET_NULL)
     master = TreeForeignKey('self', related_name='disciples', null=True, blank=True,

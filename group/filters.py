@@ -28,7 +28,7 @@ class HomeGroupFilter(django_filters.FilterSet):
 
 
 class ChurchFilter(django_filters.FilterSet):
-    department = django_filters.ModelChoiceFilter(name='department', queryset=Department.objects.all())
+    department = django_filters.ModelMultipleChoiceFilter(name="department", queryset=Department.objects.all())
     pastor = django_filters.ModelChoiceFilter(name='pastor', queryset=CustomUser.objects.filter(
         church__pastor__id__isnull=False).distinct())
 

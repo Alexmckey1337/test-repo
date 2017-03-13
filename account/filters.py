@@ -1,5 +1,6 @@
 import operator
 from datetime import datetime, timedelta
+from functools import reduce
 
 import django_filters
 from django.core.exceptions import ObjectDoesNotExist
@@ -14,22 +15,25 @@ from hierarchy.models import Hierarchy, Department
 
 class FilterByBirthday(BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        from functools import reduce
         params = request.query_params
         from_date = params.get('from_date', None)
         to_date = params.get('to_date', None)
+
         if from_date is None or to_date is None:
             return queryset
         if from_date > to_date:
-            raise exceptions.ValidationError(detail=_('Некоректный временной интервал'))
+            raise exceptions.ValidationError(detail=_('Некоректный временной интервал.'))
+
         from_date = datetime.strptime(from_date, '%Y-%m-%d')
         to_date = datetime.strptime(to_date, '%Y-%m-%d')
         monthdays = [(from_date.month, from_date.day)]
         while from_date <= to_date:
             monthdays.append((from_date.month, from_date.day))
             from_date += timedelta(days=1)
+
         monthdays = (dict(zip(("born_date__month", "born_date__day"), t)) for t in monthdays)
         query = reduce(operator.or_, (Q(**d) for d in monthdays))
+
         return queryset.filter(query)
 
 
