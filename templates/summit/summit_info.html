@@ -5,7 +5,7 @@
 
 {% block header.top.h1 %}
     <h1 id="summit-title">
-        <a href="{% url 'summits' %}">САММИТЫ | </a>
+        <a href="{% url 'summit:list' %}">САММИТЫ | </a>
         <span>{{ summit_type.title }}</span>
     </h1>
 {% endblock %}

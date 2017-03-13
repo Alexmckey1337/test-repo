@@ -39,7 +39,7 @@
     const ID = getLastId();
 
     $('.b-red').on('click', function () {
-        window.location.href = `/account_edit/${ID}/`;
+        window.location.href = `/account/${ID}/edit/`;
     });
     $('.hard-login').on('click', function () {
         let user = $(this).data('user-id');
