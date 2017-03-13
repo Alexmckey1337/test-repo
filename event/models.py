@@ -254,7 +254,7 @@ class MeetingType(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('meeting_type-detail', kwargs={'code': self.code})
+        return reverse('meeting_type:detail', kwargs={'code': self.code})
 
 
 @python_2_unicode_compatible

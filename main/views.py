@@ -7,11 +7,9 @@ from django.db.models import Count
 from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
 
 from account.models import CustomUser
 from event.models import MeetingType
-from hierarchy.models import Department
 from account.permissions import CanAccountObjectRead, CanAccountObjectEdit
 from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
@@ -115,8 +113,7 @@ def account_edit(request, user_id):
     currencies = Currency.objects.all()
     if not has_perm:
         if user_id:
-            get_object_or_404(CustomUser, pk=user_id)
-            return redirect(reverse('account', args=(user_id,)))
+            return redirect(user.get_absolute_url)
         raise PermissionDenied
     ctx = {
         'account': user,

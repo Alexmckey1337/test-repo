@@ -38,7 +38,7 @@
                 <ul>
                     <li>Дата открытия: {{ church.opening_date }}</li>
                     <li>Отдел: {{ church.department }}</li>
-                    <li>Пастор: <a href="/account/{{ church.pastor.id }}">{{ church.pastor }}</a></li>
+                    <li>Пастор: <a href="{{ church.pastor.get_absolute_url }}">{{ church.pastor }}</a></li>
                     <li>Город: {{ church.city }}</li>
                     <li>Адрес: {{ church.address }}</li>
                     <li>Телефон: {{ church.phone_number }}</li>

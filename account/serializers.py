@@ -145,7 +145,7 @@ class UniqueFIOTelWithIdsValidator(UniqueTogetherValidator):
             raise ValidationError({'message': self.message,
                                    'data': data,
                                    'ids': ids,
-                                   'users': [reverse('account', args=(pk,)) for pk in ids]
+                                   'users': [reverse('account:detail', args=(pk,)) for pk in ids]
                                    },)
 
 

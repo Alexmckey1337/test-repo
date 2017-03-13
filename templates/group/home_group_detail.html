@@ -35,7 +35,7 @@
                 <ul>
                     <li>Дата открытия: {{ home_group.opening_date }}</li>
                     <li>Церковь: <a href="/churches/{{ home_group.church.id }}">{{ home_group.church }}</a></li>
-                    <li>Лидер: <a href="/account/{{ home_group.leader.id }}">{{ home_group.leader }}</a></li>
+                    <li>Лидер: <a href="{{ home_group.leader.get_absolute_url }}">{{ home_group.leader }}</a></li>
                     <li>Адрес: {{ home_group.address }}</li>
                     <li>Телефонный номер: {{ home_group.phone_number }}</li>
                     <li>Сайт: {% if home_group.website %}

@@ -84,7 +84,7 @@ class CustomUser(MPTTModel, User):
         parent_attr = 'master'
 
     def get_absolute_url(self):
-        return reverse('account', args=(self.id,))
+        return reverse('account:detail', args=(self.id,))
 
     def get_descendant_leaders(self):
         return self.get_descendants().filter(hierarchy__level=1)

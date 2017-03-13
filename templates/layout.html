@@ -11,11 +11,11 @@
                         <div><span>C</span><span>R</span><span>M</span></div>
                     </div>
                     <ul id="nav-sidebar">
-                        <li><a data-title="База данных" href="{% url 'churches' %}" id="databases__item" class="menu__item">База данных</a>
+                        <li><a data-title="База данных" href="{% url 'db:main' %}" id="databases__item" class="menu__item">База данных</a>
                         </li>
-                        <li><a data-title="Партнёрство" href="{% url 'partner' %}" id="partners__item" class="menu__item">Партнёрство</a>
+                        <li><a data-title="Партнёрство" href="{% url 'partner:main' %}" id="partners__item" class="menu__item">Партнёрство</a>
                         </li>
-                        <li><a data-title="Саммиты" href="{% url 'summits' %}" id="summits__item" class="menu__item">Саммиты</a></li>
+                        <li><a data-title="Саммиты" href="{% url 'summit:list' %}" id="summits__item" class="menu__item">Саммиты</a></li>
                         <li id="move-sidebar"><button data-title="Развернуть" id="turn_aside" class="menu__item">Свернуть</button></li>
                     </ul>
                 </div>
@@ -118,7 +118,7 @@
                                             <ul>
                                                 {% for notification in notifications %}
                                                     <li>
-                                                        <a href="{% url "account" notification.uid %}">{{ notification.fullname }}</a>
+                                                        <a href="{% url "account:detail" notification.uid %}">{{ notification.fullname }}</a>
                                                     </li>
                                                 {% endfor %}
                                             </ul>

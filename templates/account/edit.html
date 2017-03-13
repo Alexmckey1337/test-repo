@@ -172,7 +172,7 @@
                                     </select>
                                 </li>
                                 {% if account.master.hierarchy.level <= account.hierarchy.level %}
-                                    <li>Сейчас: <a href="{% url 'account' account.master.id %}" style="color:red;">
+                                    <li>Сейчас: <a href="{{ account.master.get_absolute_url }}" style="color:red;">
                                         {{ account.master }} - {{ account.master.hierarchy }}
                                     </a></li>
                                 {% endif %}
