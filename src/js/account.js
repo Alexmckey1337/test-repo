@@ -37,7 +37,7 @@
     }
 
     const ID = getLastId();
-// init();
+
     $('.b-red').on('click', function () {
         window.location.href = `/account_edit/${ID}/`;
     });
@@ -489,7 +489,7 @@
         $('.datepicker-here').datepicker({
             autoClose: true
         });
-        $('#selectDepartment').on('change', function () {
+        $('#departments').on('change', function () {
             let status = $('#selectHierarchy').val();
             let department = $(this).val();
             makeResponsibleList(department, status);
@@ -551,5 +551,7 @@
             reader.readAsDataURL(file);
         }
     }
+        $('#divisions').select2();
+        $('#departments').select2();
     })
     (jQuery);

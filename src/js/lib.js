@@ -138,7 +138,7 @@ function getPartners(config) {
         data.count = response.count;
         makeDataTable(data, id);
 
-            $('.preloader').css('display', 'none');
+        $('.preloader').css('display', 'none');
 
         let paginationConfig = {
             container: ".partners__pagination",
@@ -872,10 +872,11 @@ function getCurrentUser(id) {
 function getResponsible(ids, level, search = "") {
     return new Promise(function (resolve, reject) {
         let url = CONFIG.DOCUMENT_ROOT + 'api/v1.0/short_users/?level_gte=' + level + '&search=' + search;
-        ids.forEach(function(id){
-            console.log(id);
-            url +='&department=' + id;
-        });
+        if (ids instanceof Array) {
+            ids.forEach(function (id) {
+                url += '&department=' + id;
+            });
+        }
         ajaxRequest(url, null, function (data) {
             if (data) {
                 resolve(data);
@@ -1911,7 +1912,7 @@ function makeQuickEditCart(el) {
             let departmentSelect = $('#departmentSelect').val();
             let html = "";
             for (let i = 0; i < data.length; i++) {
-                if (departmentSelect.indexOf(""+data[i].title) != -1 || departmentSelect.indexOf(""+data[i].id) != -1) {
+                if (departmentSelect.indexOf("" + data[i].title) != -1 || departmentSelect.indexOf("" + data[i].id) != -1) {
                     html += '<option value="' + data[i].id + '"' + 'selected' + '>' + data[i].title + '</option>';
                 } else {
                     html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';

@@ -231,10 +231,10 @@
                                 <ul>
                                     <li class="clearfix">
                                         <label for="department">Отдел:</label>
-                                        <select type="text" name="department" id="selectDepartment" readonly disabled>
+                                        <select type="text" id="departments" multiple readonly disabled>
                                             {% for department in departments %}
                                                 <option value="{{ department.id }}"
-                                                        {% if account.department_id == department.id %}selected{% endif %}>
+                                                        {% if department in account.departments.all %}selected{% endif %}>
                                                     {{ department.title }}
                                                 </option>
                                             {% endfor %}
@@ -255,7 +255,7 @@
                                     <li class="clearfix">
                                         <label for="master">Ответственный:</label>
                                         <select type="text" name="master" id="selectResponsible" readonly disabled>
-                                            <option value="{{ account.master }}">{{ account.master }}</option>
+                                            <option value="{{ account.master.id }}">{{ account.master }}</option>
                                         </select>
                                     </li>
                                 </ul>
@@ -274,7 +274,6 @@
                                     <li class="clearfix">
                                         <label for="division">Департамент:</label>
                                         <select type="text" id="divisions" readonly disabled multiple>
-                                            <option value="">Выбирите Департамент</option>
                                             {% for division in divisions %}
                                                 <option value="{{ division.id }}"
                                                         {% if division in account.divisions.all %}selected{% endif %}>
