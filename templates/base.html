@@ -100,7 +100,13 @@
                             <% } else { %>
                                 <td></td>
                             <% } %>
-                        <% }  else if (key == 'departments' || key == 'divisions') { %>
+                        <% }  else if (key == 'department') { %>
+                                <% if (results[index][key] != null ) { %>
+                                <td><%= results[index][key].title %></td>
+                                <% } else { %>
+                                <td></td>
+                                <% } %>
+                            <% }else if (key == 'departments' || key == 'divisions') { %>
                             <% if ( Array.isArray(results[index][key]) && results[index][key].length != 0) { %>
                                 <% if (results[index][key].length == 1) { %>
                                     <td><%= results[index][key][0].title %></td>

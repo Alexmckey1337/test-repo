@@ -170,8 +170,22 @@ function makeDepartmentList(selector, active = null) {
 }
 function getChurchesINDepartament(id) {
     return new Promise(function (resolve, reject) {
+        let url;
+        if(id instanceof Array) {
+            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches?`;
+            let i = 0;
+            id.forEach(function (item) {
+                i++;
+                url += `department=${item}`;
+                if (id.length != i) {
+                    url += '&';
+                }
+            })
+        } else {
+            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches?department=${id}`;
+        }
         let data = {
-            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches?department=${id}`,
+            url: url,
         };
         let status = {
             200: function (req) {

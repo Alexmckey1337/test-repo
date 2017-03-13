@@ -11,6 +11,12 @@
   & .select2-container--default {
     width: ~'calc(60% - 3px)' !important;
     float: right;
+    & .selection {
+      min-width: 100%;
+      & .select2-selection {
+        width: 100%;
+      }
+    }
     & .select2-selection__rendered {
 
     }

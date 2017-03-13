@@ -136,9 +136,9 @@
                                     <li class="clearfix">
                                         <label for="extra_phone_numbers"><i class="fa fa-phone"
                                                                             aria-hidden="true"></i></label>
-                                        <input type="text" id="extra_phone_numbers" value="
-                                                {% if account.extra_phone_numbers %}{{ account.extra_phone_numbers|default:""|join:", " }}{% endif %}"
-                                               readonly>
+                                        <input type="text" id="extra_phone_numbers" value="{% if account.extra_phone_numbers %}
+                                            {{ account.extra_phone_numbers|default:""|join:", " }}
+                                        {% endif %}" readonly>
                                     </li>
                                     <li class="clearfix">
                                         <label for="email"><i class="fa fa-envelope"></i></label>
@@ -480,25 +480,25 @@
                         <div class="tab-status" id="tabStatus">
                             <ul id="tabs1">
                                 <li data-tab="1">
-                                    <a href="#incomplete">Незавершённые (<span id="incomplete-count">
+                                    <button>Незавершённые (<span id="incomplete-count">
                                         {% with count=account.partnership.undone_deals_count %}
                                             {% if count > 2 %}2 из {% endif %}{{ count }}
                                         {% endwith %}
-                                    </span>)</a>
+                                    </span>)</button>
                                 </li>
                                 <li data-tab="2">
-                                    <a href="#overdue">Просроченные(<span id="overdue-count">
+                                    <button href="#overdue">Просроченные(<span id="overdue-count">
                                         {% with count=account.partnership.expired_deals_count %}
                                             {% if count > 2 %}2 из {% endif %}{{ count }}
                                         {% endwith %}
-                                    </span>)</a>
+                                    </span>)</button>
                                 </li>
                                 <li data-tab="3">
-                                    <a href="#completed">Завершённые(<span id="completed-count">
+                                    <button href="#completed">Завершённые(<span id="completed-count">
                                         {% with count=account.partnership.done_deals_count %}
                                             {% if count > 2 %}2 из {% endif %}{{ count }}
                                         {% endwith %}
-                                    </span>)</a>
+                                    </span>)</button>
                                 </li>
                             </ul>
                         </div>
