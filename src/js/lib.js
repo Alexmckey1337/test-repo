@@ -20,18 +20,21 @@ function getChurches(config = {}) {
         newAjaxRequest(data, status, reject)
     });
 }
+
 function addUserToChurch(user_id, id) {
     let config = {};
     config.user_id = user_id;
     ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/add_user/`, config, function () {
     }, 'POST', 'application/json');
 }
+
 function addUserToHomeGroup(user_id, c_id) {
     let config = {};
     config.user_id = user_id;
     ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${c_id}/add_user/`, config, function () {
     }, 'POST', 'application/json');
 }
+
 function createHomeGroupsTable(config = {}) {
     config.search_title = $('input[name="fullsearch"]').val();
     getHomeGroups(config).then(function (data) {
@@ -168,10 +171,11 @@ function makeDepartmentList(selector, active = null) {
         $(selector).html(options).prop('disabled', false).select2();
     });
 }
+
 function getChurchesINDepartament(id) {
     return new Promise(function (resolve, reject) {
         let url;
-        if(id instanceof Array) {
+        if (id instanceof Array) {
             url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches?`;
             let i = 0;
             id.forEach(function (item) {
@@ -199,6 +203,7 @@ function getChurchesINDepartament(id) {
         newAjaxRequest(data, status, reject)
     })
 }
+
 function getHomeGroupsINChurches(id) {
     return new Promise(function (resolve, reject) {
         let data = {
@@ -220,6 +225,7 @@ function getHomeGroupsINChurches(id) {
         newAjaxRequest(data, status, reject)
     });
 }
+
 function getHomeGroups(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
@@ -242,6 +248,7 @@ function getHomeGroups(config = {}) {
         newAjaxRequest(data, status, reject)
     });
 }
+
 function createCSV(data) {
     let filename = "";
     let disposition = data.getResponseHeader('Content-Disposition');
@@ -320,6 +327,7 @@ function exportTableData(el) {
         newAjaxRequest(data, status, reject);
     });
 }
+
 function newAjaxRequest(data, codes, fail) {
     let resData = {
         method: 'GET'
@@ -619,7 +627,6 @@ function addHomeGroupToDataBase(config = {}) {
         newAjaxRequest(data, status, reject)
     });
 }
-
 
 function addHomeGroup(el) {
     let data = getAddHomeGroupData();
@@ -1401,7 +1408,6 @@ function initLocationSelect(config) {
     let selectCountry = $countrySelector.val();
     let selectRegion = $regionSelector.val();
     let selectCity = $citySelector.val();
-    console.log(selectCountry);
     getCountries().then(function (data) {
         if (typeof data == "object") {
             let list = makeCountriesList(data, selectCountry);
@@ -1451,20 +1457,24 @@ function initLocationSelect(config) {
         })
     });
 }
+
 function createSummitUsersTable(data = {}) {
     let config = {};
     config.summit = $('#date .active span').data('id');
     Object.assign(config, data);
     getSummitUsers(config).then(function (data) {
         let filter_data = {};
+        let common_table = Object.keys(data.common_table);
         filter_data.results = data.results.map(function (item) {
             let data;
             data = item.user;
             data.ankets_id = item.id;
+            common_table.forEach(function (field) {
+                data[field] = item[field];
+            });
             return data;
         });
         filter_data.user_table = data.user_table;
-        let common_table = Object.keys(data.common_table);
         common_table.forEach(function (item) {
             filter_data.user_table[item] = data.common_table[item];
         });
@@ -1972,7 +1982,6 @@ function setCookie(name, value, options) {
     document.cookie = updatedCookie;
 }
 
-
 function createUsersTable(config) {
     config["search_fio"] = $('input[name=fullsearch]').val();
     Object.assign(config, filterParam());
@@ -2212,6 +2221,7 @@ function makeTabs() {
         }
     }
 }
+
 function createNewUser(callback) {
     let $createUser = $('#createUser'),
         $phoneNumber = $('#phoneNumber'),

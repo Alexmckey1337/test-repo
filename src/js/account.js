@@ -1,4 +1,4 @@
-function updateUser(id, data) {
+function updateUser(id, data, success) {
     let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${id}/`;
     let config = {
         url: url,
@@ -6,7 +6,10 @@ function updateUser(id, data) {
         method: 'PATCH'
     };
     return ajaxSendFormData(config).then(function (data) {
-        showPopup('Данные успешно обновлены');
+        $(success).text('Сохранено');
+        setTimeout(function () {
+            $(success).text('');
+        }, 3000);
         return data;
     }).catch(function (data) {
         let errObj = JSON.parse(data);
@@ -20,7 +23,6 @@ function updateUser(id, data) {
             });
             msg += '; ';
         }
-
         showPopup(msg);
     });
 }
@@ -59,7 +61,6 @@ $('#send_need').on('click', function () {
     let need = JSON.stringify({'need_text': need_text});
     ajaxRequest(url, need, function () {
         showPopup('Нужда сохранена.');
-
     }, 'PUT', true, {
         'Content-Type': 'application/json'
     })
@@ -67,7 +68,7 @@ $('#send_need').on('click', function () {
 $("#close-payment").on('click', function () {
     $('#popup-create_payment').css('display', 'none');
 });
-$("#popup-create_payment .top-text span").on('click', function (el) {
+$("#popup-create_payment .top-text span").on('click', function () {
     $('#new_payment_sum').val('');
     $('#popup-create_payment textarea').val('');
     $('#popup-create_payment').css('display', '');
@@ -106,7 +107,7 @@ $("#create_new_deal").on('click', function () {
     $('#popup-create_deal').css('display', 'block');
 });
 
-$('#send_new_deal').on('click', function (el) {
+$('#send_new_deal').on('click', function () {
     let description = $('#popup-create_deal textarea').val();
     let value = $('#new_deal_sum').val();
     let date = $('#new_deal_date').val();
@@ -391,6 +392,13 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     makeChurches();
     $('.edit').on('click', function (e) {
         e.preventDefault();
+        let $edit = $('.edit');
+        let noEdit = false;
+        $edit.each(function () {
+            if ($(this).hasClass('active')) {
+                noEdit = true;
+            }
+        });
         let $block = $('#' + $(this).data('edit-block'));
         let $input = $block.find('input, select');
         let $hiddenBlock = $(this).parent().find('.hidden');
@@ -406,15 +414,19 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
             });
             $(this).removeClass('active');
         } else {
-            $input.each(function () {
-                if (!$(this).hasClass('no__edit')) {
-                    $(this).attr('readonly', false);
-                    if ($(this).attr('disabled')) {
-                        $(this).attr('disabled', false);
+            if (noEdit) {
+                showPopup("Сначала сохраните или отмените изменения в другом блоке")
+            } else {
+                $input.each(function () {
+                    if (!$(this).hasClass('no__edit')) {
+                        $(this).attr('readonly', false);
+                        if ($(this).attr('disabled')) {
+                            $(this).attr('disabled', false);
+                        }
                     }
-                }
-            });
-            $(this).addClass('active');
+                });
+                $(this).addClass('active');
+            }
         }
     });
     $('.save__info').on('click', function (e) {
@@ -424,6 +436,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         let $block = $(this).closest('.right-info__block');
         let $input = $block.find('input, select');
         let thisForm = $(this).closest('form');
+        let success = $(this).closest('.right-info__block').find('.success__block');
         let formName = thisForm.attr('name');
         let action = thisForm.data('action');
         let form = document.forms[formName];
@@ -440,7 +453,11 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                 let $newInput = $input.filter(":not(':checkbox')");
                 $newInput.each(function () {
                     let id = $(this).data('id');
-                    partnerData[id] = $(this).val();
+                    if ($(this).hasClass('sel__date')) {
+                        partnerData[id] = $(this).val().trim().split('.').reverse().join('-');
+                    } else {
+                        partnerData[id] = $(this).val();
+                    }
                 });
                 formData.append('partner', JSON.stringify(partnerData));
             } else {
@@ -467,7 +484,11 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                             formData.append(id, JSON.stringify($('#' + id).val()));
                         } else {
                             if ($('#' + id).val()) {
-                                formData.append(id, JSON.stringify($('#' + id).val().split(',').map((item) => item.trim())));
+                                if ($('#' + id).hasClass('sel__date')) {
+                                    formData.append(id, $('#' + id).val().trim().split('.').reverse().join('-'));
+                                } else {
+                                    formData.append(id, JSON.stringify($('#' + id).val().trim().split(',').map((item) => item.trim())));
+                                }
                             } else {
                                 formData.append(id, JSON.stringify([]));
                             }
@@ -475,7 +496,8 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                     }
                 });
             }
-            updateUser(ID, formData).then(function (data) {
+            console.log($(success));
+            updateUser(ID, formData, success).then(function (data) {
                 if (hidden) {
                     let editBtn = $(_self).closest('.hidden').data('edit');
                     $('#' + editBtn).trigger('click');
@@ -521,11 +543,12 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     });
     $('.sel__date').each(function () {
         let $el = $(this);
-        let date = $el.val() ? new Date($el.val().split('-').join(', ')) : new Date();
+        console.log($el.val());
+        let date = ($el.val() && $el.val() != 'Не покаялся') ? new Date($el.val().split('-').join(', ')) : new Date();
         $el.datepicker({
             autoClose: true,
             startDate: date,
-            dateFormat: 'yyyy-mm-dd'
+            dateFormat: 'dd.mm.yyyy'
         })
     });
     $('#editNameBtn').on('click', function () {

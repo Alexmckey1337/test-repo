@@ -82,6 +82,7 @@
                 <ul class="right-info">
                     <li class="hidden" id="editNameBlock" data-edit="editNameBtn">
                         <div class="right-info__block">
+                            <div class="success__block"></div>
                             <form action="/" name="editName" data-action="update-user">
                                 <button class="save__info after__hidden" type="submit"></button>
                                 <ul>
@@ -119,6 +120,7 @@
                     </li>
                     <li id="editContact">
                         <div class="right-info__block">
+                            <div class="success__block"></div>
                             <form action="/" name="editContact" data-action="update-user">
                                 <button class="edit" data-edit-block="editContact"></button>
                                 <button class="save__info" type="submit"></button>
@@ -150,6 +152,7 @@
                     </li>
                     <li id="editSocial">
                         <div class="right-info__block">
+                            <div class="success__block"></div>
                             <form action="/" name="editSocial" data-action="update-user">
                                 <button class="edit" data-edit-block="editSocial"></button>
                                 <button class="save__info" type="submit"></button>
@@ -175,15 +178,16 @@
                     </li>
                     <li id="editLocation">
                         <div class="right-info__block">
+                            <div class="success__block"></div>
                             <form action="/" name="editLocation" data-action="update-user">
                                 <button class="edit" data-edit-block="editLocation"></button>
                                 <button class="save__info" type="submit"></button>
                                 <ul>
                                     <li class="clearfix">
                                         <label for="born_date">Дата рождения:</label>
-                                        <input type="text" name="born_date"
+                                        <input type="text" id="born_date"
                                                class="sel__date"
-                                               value="{{ account.born_date|date:"Y-m-d" }}" readonly disabled>
+                                               value="{{ account.born_date|date:"d.m.Y"}}" readonly disabled>
                                     </li>
                                     <li class="clearfix">
                                         <label for="country">Страна:</label>
@@ -215,6 +219,7 @@
                     </li>
                     <li id="editHierarchy">
                         <div class="right-info__block">
+                            <div class="success__block"></div>
                             <form action="/" name="editHierarchy" data-action="update-user">
                                 <button class="edit" data-edit-block="editHierarchy"></button>
                                 <button class="save__info" type="submit"></button>
@@ -254,6 +259,7 @@
                     </li>
                     <li id="editDepartament">
                         <div class="right-info__block">
+                            <div class="success__block"></div>
                             <form action="/" name="editDepartament" data-action="update-user">
                                 <button class="edit" data-edit-block="editDepartament"></button>
                                 <button class="save__info" type="submit"></button>
@@ -275,6 +281,7 @@
                     </li>
                     <li id="editPartnership">
                         <div class="right-info__block">
+                            <div class="success__block"></div>
                             <form action="/" name="editPartnership" data-action="update-user" id="partnership">
                                 <button class="edit" data-edit-block="editPartnership"></button>
                                 <button class="save__info" type="submit"></button>
@@ -300,11 +307,11 @@
                                     class="hidden"
                                 {% endif %}>
                                     <li class="clearfix">
-                                        <label for="division">Партнёр с:</label>
+                                        <label for="partner_with">Партнёр с:</label>
                                         <input type="text"
                                                class="sel__date"
                                                data-id="date"
-                                               value="{{ account.partnership.date|date:"Y-m-d" }}"
+                                               value="{{ account.partnership.date|date:"d.m.Y" }}"
                                                readonly disabled>
                                     </li>
                                     <li class="clearfix">
@@ -336,22 +343,16 @@
                     </li>
                     <li id="editVisit">
                         <div class="right-info__block">
+                            <div class="success__block"></div>
                             <form action="/" name="editVisit" data-action="update-user">
                                 <button class="edit" data-edit-block="editVisit"></button>
                                 <button class="save__info" type="submit"></button>
                                 <ul>
                                     <li class="clearfix">
-                                        <label for="coming_date">Первое посещение</label>
-                                        <input type="text" name="coming_date"
-                                               class="sel__date"
-                                               value="{{ account.coming_date|date:"Y-m-d" }}"
-                                               readonly disabled>
-                                    </li>
-                                    <li class="clearfix">
                                         <label for="repentance">Покаяние:</label>
-                                        <input type="text" name="repentance"
+                                        <input type="text" id="repentance_date" data-id="repentance"
                                                class="sel__date"
-                                               value="{% if account.repentance_date %}{{ account.repentance_date|date:"Y-m-d" }} {% else %}Не покаялся{% endif %}"
+                                               value="{% if account.repentance_date %}{{ account.repentance_date|date:"d.m.Y"}}{% else %}Не покаялся{% endif %}"
                                                readonly disabled>
                                     </li>
                                 </ul>
@@ -360,6 +361,7 @@
                     </li>
                     <li id="editChurches">
                         <div class="right-info__block">
+                            <div class="success__block"></div>
                             <form action="/" name="editChurches" data-action="update-church">
                                 <button class="edit" data-edit-block="editChurches"></button>
                                 <button class="save__info" type="submit"></button>
