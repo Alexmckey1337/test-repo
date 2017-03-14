@@ -490,13 +490,16 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                                     formData.append(id, JSON.stringify($('#' + id).val().trim().split(',').map((item) => item.trim())));
                                 }
                             } else {
-                                formData.append(id, JSON.stringify([]));
+                                if ($('#' + id).hasClass('sel__date')) {
+                                    formData.append(id, '');
+                                } else {
+                                    formData.append(id, JSON.stringify([]));
+                                }
                             }
                         }
                     }
                 });
             }
-            console.log($(success));
             updateUser(ID, formData, success).then(function (data) {
                 if (hidden) {
                     let editBtn = $(_self).closest('.hidden').data('edit');
