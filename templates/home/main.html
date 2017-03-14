@@ -23,24 +23,24 @@
             <div class="col-sm-4">
                 <h2>База данных</h2>
                 <ul>
-                    <li><a href="{% url 'churches' %}">Церкви</a></li>
-                    <li><a href="{% url 'home_groups' %}">Домашние группы</a></li>
-                    <li><a href="{% url 'people' %}">Люди</a></li>
+                    <li><a href="{% url 'db:churches' %}">Церкви</a></li>
+                    <li><a href="{% url 'db:home_groups' %}">Домашние группы</a></li>
+                    <li><a href="{% url 'db:people' %}">Люди</a></li>
                 </ul>
             </div>
             <div class="col-sm-4">
                 <h2>Партнёрство</h2>
                 <ul>
-                    <li><a href="{% url 'partner-deals' %}">Сделки</a></li>
-                    <li><a href="{% url 'partner-list' %}">Список партнёров</a></li>
-                    <li><a href="{% url 'partner-stats' %}">Статистика</a></li>
+                    <li><a href="{% url 'partner:deals' %}">Сделки</a></li>
+                    <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
+                    <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
                 </ul>
             </div>
             <div class="col-sm-4">
                 <h2>Саммиты</h2>
                 <ul>
                     {% for summit in summits %}
-                        <li><a href="{% url 'summits' %}{{ summit.id }}">{{ summit.title }}</a></li>
+                        <li><a href="{% url 'summit:detail' summit.id %}">{{ summit.title }}</a></li>
                     {% endfor %}
                 </ul>
             </div>
