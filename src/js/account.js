@@ -76,23 +76,70 @@ $("#popup-create_payment .top-text span").on('click', function () {
 $('#payment-form').on("submit", function (event) {
     event.preventDefault();
     let data = $('#payment-form').serializeArray();
+    let userID;
     let new_data = {};
     data.forEach(function (field) {
-        new_data[field.name] = field.value
+        if (field.name == 'sent_date') {
+            new_data[field.name] = field.value.trim().split('.').reverse().join('-');
+        } else if (field.name != 'id') {
+            new_data[field.name] = field.value
+        } else {
+            userID = field.value;
+        }
     });
-    let id = new_data.id,
-        sum = new_data.sum,
-        description = new_data.description,
-        rate = new_data.rate,
-        currency = new_data.currency;
-    console.log(id, sum, description, rate, currency);
-    create_payment(id, sum, description, rate, currency);
+    if (userID) {
+        createPayment({
+            data: new_data
+        }, userID).then(function (data) {
+            console.log(data);
+        });
+    }
+    // create_payment(id, sum, description, rate, currency);
+
     $('#new_payment_sum').val('');
     $('#popup-create_payment textarea').val('');
     $('#popup-create_payment').css('display', 'none');
 });
 $("#create_new_payment").on('click', function () {
     $('#popup-create_payment').css('display', 'block');
+});
+$("#change-password").on('click', function () {
+    $('#popup-change_password').css('display', 'block');
+});
+$("#close-password").on('click', function () {
+    $('#popup-change_password').css('display', 'none');
+});
+$('#change-password-form').on('submit', function (event) {
+    event.preventDefault();
+    let data = $('#change-password-form').serializeArray();
+    let new_data = {};
+    data.forEach(function (field) {
+        new_data[field.name] = field.value
+    });
+    $('.password-error').html('');
+    ajaxRequest(`${CONFIG.DOCUMENT_ROOT}rest-auth/password/change/`, JSON.stringify(new_data), function (JSONobj) {
+        window.location.href = `/entry/?next=${window.location.pathname}`;
+    }, 'POST', true, {
+        'Content-Type': 'application/json'
+    }, {
+        400: function (data) {
+            data = data.responseJSON;
+            for (let field in data) {
+                if (!data.hasOwnProperty(field)) continue;
+                $(`#error-${field}`).html(data[field]);
+            }
+        },
+        403: function (data) {
+            data = data.responseJSON;
+            for (let field in data) {
+                if (!data.hasOwnProperty(field)) continue;
+                $(`#error-${field}`).html(data[field]);
+            }
+        }
+    });
+});
+$("#popup-change_password .top-text span").on('click', function (el) {
+    $('#popup-change_password').css('display', 'none');
 });
 
 $("#close-deal").on('click', function () {
@@ -490,13 +537,16 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                                     formData.append(id, JSON.stringify($('#' + id).val().trim().split(',').map((item) => item.trim())));
                                 }
                             } else {
-                                formData.append(id, JSON.stringify([]));
+                                if ($('#' + id).hasClass('sel__date')) {
+                                    formData.append(id, '');
+                                } else {
+                                    formData.append(id, JSON.stringify([]));
+                                }
                             }
                         }
                     }
                 });
             }
-            console.log($(success));
             updateUser(ID, formData, success).then(function (data) {
                 if (hidden) {
                     let editBtn = $(_self).closest('.hidden').data('edit');
@@ -603,5 +653,9 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
 
     $('#divisions').select2();
     $('#departments').select2();
+    $('#sent_date').datepicker({
+        autoClose: true,
+        dateFormat: 'dd.mm.yyyy'
+    })
 })
 (jQuery);

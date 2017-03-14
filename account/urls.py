@@ -11,7 +11,7 @@ router_v1_0.register(r'short_users', views.UserShortViewSet, base_name='short_us
 router_v1_0.register(r'exist_users', views.ExistUserListViewSet, base_name='exist_users')
 
 router_v1_1 = routers.DefaultRouter()
-router_v1_1.register(r'users', views.NewUserViewSet, base_name='users_v1_1')
+router_v1_1.register(r'users', views.UserViewSet, base_name='users_v1_1')
 
 custom_urls = [
     url(r'^login/$', old_views.login_view),

@@ -2288,3 +2288,25 @@ function createNewUser(callback) {
         showPopup(data);
     });
 }
+
+function createPayment(data, id) {
+    let resData = {
+        method: 'POST',
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.1/partnerships/${id}/create_payment/`
+    };
+    Object.assign(resData, data);
+    if (getCookie('key')) {
+        resData.headers['Authorization'] = 'Token ' + getCookie('key');
+    }
+    return new Promise(function (resolve, reject) {
+        let codes = {
+            201: function (data) {
+                resolve(data);
+            },
+            400: function (data) {
+                reject(data);
+            }
+        };
+        newAjaxRequest(resData, codes, reject);
+    });
+}
