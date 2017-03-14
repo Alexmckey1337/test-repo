@@ -1,3 +1,17 @@
+let getUrlParameter = function getUrlParameter(sParam) {
+    let sPageURL = decodeURIComponent(window.location.search.substring(1)),
+        sURLVariables = sPageURL.split('&'),
+        sParameterName,
+        i;
+
+    for (i = 0; i < sURLVariables.length; i++) {
+        sParameterName = sURLVariables[i].split('=');
+
+        if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : sParameterName[1];
+        }
+    }
+};
 function authUser() {
     let username = document.getElementById('login').value;
     let password = document.getElementById('psw').value;
@@ -15,12 +29,19 @@ function authUser() {
     };
     if (checkEmptyFields(username, password) == false) {
 
+        let next;
         let json = JSON.stringify(data);
         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/login/', json, function (JSONobj) {
             //showPopup(JSONobj.message);
             if (JSONobj.status == true) {
                 //showPopup(JSONobj.message);
-                window.location.href = '/';
+                next = getUrlParameter('next');
+                console.log(next);
+                if (next) {
+                    window.location.href = next;
+                } else {
+                    window.location.href = '/';
+                }
             } else {
                 //loginError(JSONobj.message);
                 //alert(JSONobj.message)

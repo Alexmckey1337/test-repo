@@ -92,6 +92,44 @@
     $("#create_new_payment").on('click', function () {
         $('#popup-create_payment').css('display', 'block');
     });
+    $("#change-password").on('click', function () {
+        $('#popup-change_password').css('display', 'block');
+    });
+    $("#close-password").on('click', function () {
+        $('#popup-change_password').css('display', 'none');
+    });
+    $('#change-password-form').on('submit', function (event) {
+        event.preventDefault();
+        let data = $('#change-password-form').serializeArray();
+        let new_data = {};
+        data.forEach(function (field) {
+            new_data[field.name] = field.value
+        });
+        $('.password-error').html('');
+        ajaxRequest(`${CONFIG.DOCUMENT_ROOT}rest-auth/password/change/`, JSON.stringify(new_data), function (JSONobj) {
+            window.location.href = `/entry/?next=${window.location.pathname}`;
+        }, 'POST', true, {
+            'Content-Type': 'application/json'
+        }, {
+            400: function (data) {
+                data = data.responseJSON;
+                for (let field in data) {
+                    if (!data.hasOwnProperty(field)) continue;
+                    $(`#error-${field}`).html(data[field]);
+                }
+            },
+            403: function (data) {
+                data = data.responseJSON;
+                for (let field in data) {
+                    if (!data.hasOwnProperty(field)) continue;
+                    $(`#error-${field}`).html(data[field]);
+                }
+            }
+        });
+    });
+    $("#popup-change_password .top-text span").on('click', function (el) {
+        $('#popup-change_password').css('display', 'none');
+    });
 
     $("#close-deal").on('click', function () {
         $('#popup-create_deal').css('display', 'none');
