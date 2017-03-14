@@ -1,8 +1,18 @@
 {% extends "layout_main.html" %}
+{% load i18n %}
 {% load static %}
 {% load summit_tags %}
 {% load payment_tags %}
 {% load mptt_tags %}
+
+{% block extra_styles %}
+    <style>
+        .password-error {
+            color: red;
+            font-size:0.9em;
+        }
+    </style>
+{% endblock %}
 
 {% block main.attr %} class="main-wrap anketa"  id="account_view"{% endblock %}
 
@@ -19,6 +29,11 @@
 {% endblock %}
 
 {% block header.buttons.extra %}
+    {% if user == account %}
+        <li>
+            <button id="change-password">{% trans "Change password" %}</button>
+        </li>
+    {% endif %}
     {% if user.is_staff or user.partnership.level < 2 or account in user.get_descendants.all %}
 {#        <li>#}
 {#            <button class="b-red">Редактировать</button>#}
@@ -707,6 +722,41 @@
             </div>
         </div>
     </div>
+    {% if user == account %}
+    <div id="popup-change_password" class="pop-up-splash">
+        <div class="splash-screen">
+            <div class="top-text">
+                <h3>Изменить пароль</h3>
+                <span>&times;</span>
+            </div>
+            <form id="change-password-form" action="{% url "rest_password_change" %}" method="post">
+            <div class="summa-wrap">
+                <div class="summa">
+                    <p>{% trans "Old password" %}:</p>
+                    <input type="password" name="old_password" id="old_password" required>
+                    <span id="error-old_password" class="password-error"></span>
+                </div>
+                <div class="summa">
+                    <p>{% trans "New password" %}:</p>
+                    <input type="password" name="new_password1" id="new_password1" required>
+                    <span id="error-new_password1" class="password-error"></span>
+                </div>
+                <div class="summa">
+                    <p>{% trans "New password confirmation" %}:</p>
+                    <input type="password" name="new_password2" id="new_password2" required>
+                    <span id="error-new_password2" class="password-error"></span>
+                </div>
+            </div>
+            <div class="splash-buttons">
+                <button id="close-password">{% trans "Cancel" %}</button>
+                <button type="submit" id="submit_password" data-partner="{{ account.partnership.id }}">
+                    {% trans "Change password" %}
+                </button>
+            </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
     <div id="impPopup">
         <div class="splash-screen">
             <div class="top-text">

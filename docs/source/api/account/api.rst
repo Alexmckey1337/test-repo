@@ -53,6 +53,7 @@ List of users
                 "title": "Пастор"
               },
               "country": "Молдова",
+              "description": "Add new desc",
               "region": "",
               "city": "Кишинев",
               "district": "",
@@ -221,7 +222,7 @@ List of users
 
     :query int page: page number (one of ``int`` or ``last``). default is 1
     :query int hierarchy: filter by ``hierarchy_id``
-   :query int master: filter by ``master_id``, returned children of master
+    :query int master: filter by ``master_id``, returned children of master
     :query int master_tree: filter by ``master_id``, returned descendants of master
     :query int department: filter by ``department_id``
     :query int page_size: page size, default is 30
@@ -262,6 +263,7 @@ Create user, ``application/json``
           "last_name": "last",
           "middle_name": "middle",
           "search_name": "search",
+          "description": "desc",
           "facebook": "http://fb.com/test",
           "vkontakte": "http://vk.com/test",
           "odnoklassniki": "http://ok.com/test",
@@ -304,6 +306,7 @@ Create user, ``application/json``
           "last_name": "last",
           "middle_name": "middle",
           "search_name": "search",
+          "description": "desc",
           "facebook": "http://fb.com/test",
           "vkontakte": "http://vk.com/test",
           "odnoklassniki": "http://ok.com/test",
@@ -402,6 +405,7 @@ Create user, ``application/json``
     :form last_name: last name, **required**
     :form middle_name: middle name
     :form search_name: search name
+    :form description: note
     :form facebook: facebook url
     :form vkontakte: vkontakte url
     :form odnoklassniki: odnoklassiniki url
@@ -457,6 +461,7 @@ Update user, ``application/json``
           "last_name": "last",
           "middle_name": "middle",
           "search_name": "search",
+          "description": "desc",
           "facebook": "http://fb.com/test",
           "vkontakte": "http://vk.com/test",
           "odnoklassniki": "http://ok.com/test",
@@ -499,6 +504,7 @@ Update user, ``application/json``
           "last_name": "last",
           "middle_name": "middle",
           "search_name": "search",
+          "description": "desc",
           "facebook": "http://fb.com/test",
           "vkontakte": "http://vk.com/test",
           "odnoklassniki": "http://ok.com/test",
@@ -568,6 +574,7 @@ Update user, ``application/json``
     :form last_name: last name, **required**
     :form middle_name: middle name
     :form search_name: search name
+    :form description: note
     :form facebook: facebook url
     :form vkontakte: vkontakte url
     :form odnoklassniki: odnoklassiniki url
@@ -634,6 +641,7 @@ Partial update user, ``application/json``
           "first_name": "new",
           "last_name": "name",
           "middle_name": "other",
+          "description": "desc",
           "facebook": "fb",
           "vkontakte": "vk",
           "odnoklassniki": "ok",
@@ -699,6 +707,7 @@ Partial update user, ``application/json``
     :form last_name: last name
     :form middle_name: middle name
     :form search_name: search name
+    :form description: note
     :form facebook: facebook url
     :form vkontakte: vkontakte url
     :form odnoklassniki: odnoklassiniki url
@@ -757,6 +766,10 @@ Create new user, ``multipart/form-data``
 
           middle
           --42940404204
+          Content-Disposition: form-data; name="description"
+
+          desc
+          --42940404204
           Content-Disposition: form-data; name="born_date"
 
           2000-02-20
@@ -793,6 +806,7 @@ Create new user, ``multipart/form-data``
           "first_name": "first",
           "last_name": "last",
           "middle_name": "middle",
+          "description": "desc",
           "extra_phone_numbers": [
               "26426264"
           ],
@@ -877,6 +891,7 @@ Create new user, ``multipart/form-data``
     :form last_name: last name, **required**
     :form middle_name: middle name
     :form search_name: search name
+    :form description: note
     :form facebook: facebook url
     :form vkontakte: vkontakte url
     :form odnoklassniki: odnoklassiniki url
@@ -938,6 +953,10 @@ Update user, ``multipart/form-data``
 
           middle
           --42940404204
+          Content-Disposition: form-data; name="description"
+
+          desc
+          --42940404204
           Content-Disposition: form-data; name="born_date"
 
           2000-02-20
@@ -974,6 +993,7 @@ Update user, ``multipart/form-data``
           "first_name": "first",
           "last_name": "last",
           "middle_name": "middle",
+          "description": "desc",
           "extra_phone_numbers": [
               "26426264"
           ],
@@ -1029,6 +1049,7 @@ Update user, ``multipart/form-data``
     :form last_name: last name, **required**
     :form middle_name: middle name
     :form search_name: search name
+    :form description: note
     :form facebook: facebook url
     :form vkontakte: vkontakte url
     :form odnoklassniki: odnoklassiniki url
@@ -1118,6 +1139,7 @@ Partial update user, ``multipart/form-data``
           "first_name": "new",
           "last_name": "name",
           "middle_name": "other",
+          "description": "desc",
           "facebook": "fb",
           "vkontakte": "vk",
           "odnoklassniki": "ok",
@@ -1184,6 +1206,7 @@ Partial update user, ``multipart/form-data``
     :form last_name: last name
     :form middle_name: middle name
     :form search_name: search name
+    :form description: note
     :form facebook: facebook url
     :form vkontakte: vkontakte url
     :form odnoklassniki: odnoklassiniki url

@@ -13,6 +13,7 @@ FIELD_CODES = (
     # optional fields
     ('email', 201),
     ('search_name', 201),
+    ('description', 201),
     ('facebook', 201),
     ('vkontakte', 201),
     ('odnoklassniki', 201),
@@ -44,6 +45,7 @@ CHANGE_FIELD = (
     # non unique
     ('email', 400),
     ('search_name', 400),
+    ('description', 400),
     ('facebook', 400),
     ('vkontakte', 400),
     ('odnoklassniki', 400),

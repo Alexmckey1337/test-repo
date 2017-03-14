@@ -40,7 +40,7 @@ class UserPagination(PageNumberPagination):
         })
 
 
-class NewUserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
+class UserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
     queryset = User.objects.select_related(
         'hierarchy', 'master__hierarchy').prefetch_related(
         'divisions', 'departments'
@@ -96,7 +96,7 @@ class NewUserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
     def dispatch(self, request, *args, **kwargs):
         if kwargs.get('pk') == 'current' and request.user.is_authenticated():
             kwargs['pk'] = request.user.pk
-        return super(NewUserViewSet, self).dispatch(request, *args, **kwargs)
+        return super(UserViewSet, self).dispatch(request, *args, **kwargs)
 
     def get_serializer_class(self):
         if self.action == 'list':
