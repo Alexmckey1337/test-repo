@@ -76,17 +76,26 @@ $("#popup-create_payment .top-text span").on('click', function () {
 $('#payment-form').on("submit", function (event) {
     event.preventDefault();
     let data = $('#payment-form').serializeArray();
+    let userID;
     let new_data = {};
     data.forEach(function (field) {
-        new_data[field.name] = field.value
+        if (field.name == 'sent_date') {
+            new_data[field.name] = field.value.trim().split('.').reverse().join('-');
+        } else if (field.name != 'id') {
+            new_data[field.name] = field.value
+        } else {
+            userID = field.value;
+        }
     });
-    let id = new_data.id,
-        sum = new_data.sum,
-        description = new_data.description,
-        rate = new_data.rate,
-        currency = new_data.currency;
-    console.log(id, sum, description, rate, currency);
-    create_payment(id, sum, description, rate, currency);
+    if (userID) {
+        createPayment({
+            data: new_data
+        }, userID).then(function (data) {
+            console.log(data);
+        });
+    }
+    // create_payment(id, sum, description, rate, currency);
+
     $('#new_payment_sum').val('');
     $('#popup-create_payment textarea').val('');
     $('#popup-create_payment').css('display', 'none');
@@ -606,5 +615,9 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
 
     $('#divisions').select2();
     $('#departments').select2();
+    $('#sent_date').datepicker({
+        autoClose: true,
+        dateFormat: 'dd.mm.yyyy'
+    })
 })
 (jQuery);
