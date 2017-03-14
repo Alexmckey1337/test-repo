@@ -119,6 +119,7 @@ def user_data(partner):
         'last_name': 'test_last',
         'middle_name': 'test_middle',
         'search_name': 'test_search',
+        'description': 'bla bla bla',
         'facebook': 'http://fb.com/test',
         'vkontakte': 'http://vk.com/test',
         'odnoklassniki': 'http://ok.com/test',

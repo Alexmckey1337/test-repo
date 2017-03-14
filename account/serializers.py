@@ -85,6 +85,7 @@ class UserSerializer(serializers.ModelSerializer):
                   # 'username',
                   'email', 'first_name', 'last_name', 'middle_name', 'search_name',
                   'facebook', 'vkontakte', 'odnoklassniki', 'skype',
+                  'description',
 
                   'phone_number',
                   'extra_phone_numbers',
@@ -178,7 +179,7 @@ class UserTableSerializer(UserSingleSerializer):
     master = MasterNameSerializer(required=False, allow_null=True)
 
     class Meta(UserSingleSerializer.Meta):
-        required_fields = ('id', 'link', 'extra_phone_numbers')
+        required_fields = ('id', 'link', 'extra_phone_numbers', 'description')
 
     def get_field_names(self, declared_fields, info):
         # fields = getattr(self.Meta, 'fields', None)
