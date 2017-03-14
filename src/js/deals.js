@@ -145,8 +145,10 @@ $(document).ready(function () {
                 "sum": sum,
                 "description": description,
                 "rate": $('#new_payment_rate').val(),
-                "currency": $('#new_payment_currency').val()
+                "currency": $('#new_payment_currency').val(),
+                "sent_date": $('#sent_date').val()
             };
+            console.log(data);
             let json = JSON.stringify(data);
             ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/deals/${id}/create_payment/`, json, function (JSONobj) {
                 init();

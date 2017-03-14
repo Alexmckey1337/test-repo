@@ -706,14 +706,14 @@
             </div>
             <div class="summa-wrap">
                 <div class="summa">
-                    <p>Сумма:</p>
+                    <label>Сумма:</label>
                     <input maxlength="6"
                            onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
                            type="text" id="new_deal_sum">
                 </div>
-                <div class="summa">
-                    <p>Дата:</p>
-                    <input type="text" id="new_deal_date" required></div>
+                <div class="date">
+                    <label>Дата:</label>
+                    <input type="text" id="new_deal_date" class="sel__date" required></div>
             </div>
             <textarea maxlength="40" placeholder="Добавить коментарий"></textarea>
             <div class="splash-bauttons">

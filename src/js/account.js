@@ -100,6 +100,7 @@ $('#payment-form').on("submit", function (event) {
     $('#popup-create_payment textarea').val('');
     $('#popup-create_payment').css('display', 'none');
 });
+
 $("#create_new_payment").on('click', function () {
     $('#popup-create_payment').css('display', 'block');
 });
@@ -163,7 +164,7 @@ $('#send_new_deal').on('click', function () {
         let url = CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/';
 
         let deal = JSON.stringify({
-            'date_created': date,
+            'date_created': date.trim().split('.').reverse().join('-'),
             'value': value,
             'description': description,
             'partnership': $(this).data('partner')
