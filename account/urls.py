@@ -18,7 +18,6 @@ custom_urls = [
     url(r'^logout/$', views.LogoutView.as_view(), name="logout"),
     url(r'^password_forgot/$', old_views.password_forgot, ),
     url(r'^password_view/$', old_views.password_view, ),
-    url(r'^password_view/(?P<activation_key>\w+)/$', old_views.password_view),
 ]
 
 urlpatterns = [
