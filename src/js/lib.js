@@ -517,6 +517,7 @@ function createChurchesUsersTable(id, config = {}) {
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINChurches').html(rendered);
         makeSortForm(filterData.user_table);
+        console.log(id);
         let paginationConfig = {
             container: ".users__pagination",
             currentPage: page,
@@ -1033,6 +1034,7 @@ function getPayment(id) {
 }
 
 function makePagination(config) {
+    console.log(config);
     let container = document.createElement('div'),
         input = document.createElement('input'),
         text = document.createElement('span'),
@@ -2301,6 +2303,46 @@ function createPayment(data, id) {
     return new Promise(function (resolve, reject) {
         let codes = {
             201: function (data) {
+                resolve(data);
+            },
+            400: function (data) {
+                reject(data);
+            }
+        };
+        newAjaxRequest(resData, codes, reject);
+    });
+}
+
+function getChurchStats(id) {
+    let resData = {
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${id}/get_church_stats/`
+    };
+    if (getCookie('key')) {
+        resData.headers['Authorization'] = 'Token ' + getCookie('key');
+    }
+    return new Promise(function (resolve, reject) {
+        let codes = {
+            200: function (data) {
+                resolve(data);
+            },
+            400: function (data) {
+                reject(data);
+            }
+        };
+        newAjaxRequest(resData, codes, reject);
+    });
+}
+
+function getHomeGroupStats(id) {
+    let resData = {
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/get_home_group_stats/`
+    };
+    if (getCookie('key')) {
+        resData.headers['Authorization'] = 'Token ' + getCookie('key');
+    }
+    return new Promise(function (resolve, reject) {
+        let codes = {
+            200: function (data) {
                 resolve(data);
             },
             400: function (data) {

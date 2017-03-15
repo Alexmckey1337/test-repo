@@ -1,4 +1,4 @@
-function updateUser(id, data, success) {
+function updateUser(id, data, success = null) {
     let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${id}/`;
     let config = {
         url: url,
@@ -6,10 +6,12 @@ function updateUser(id, data, success) {
         method: 'PATCH'
     };
     return ajaxSendFormData(config).then(function (data) {
-        $(success).text('Сохранено');
-        setTimeout(function () {
-            $(success).text('');
-        }, 3000);
+        if (success) {
+            $(success).text('Сохранено');
+            setTimeout(function () {
+                $(success).text('');
+            }, 3000);
+        }
         return data;
     }).catch(function (data) {
         let errObj = JSON.parse(data);
@@ -65,6 +67,13 @@ $('#send_need').on('click', function () {
         'Content-Type': 'application/json'
     })
 });
+$('#sendNote').on('click', function () {
+    let _self = this;
+    let id = $(_self).data('id');
+    let resData = new FormData();
+    resData.append('description', $('#id_note_text').val());
+    updateUser(id, resData);
+});
 $("#close-payment").on('click', function () {
     $('#popup-create_payment').css('display', 'none');
 });
@@ -100,6 +109,7 @@ $('#payment-form').on("submit", function (event) {
     $('#popup-create_payment textarea').val('');
     $('#popup-create_payment').css('display', 'none');
 });
+
 $("#create_new_payment").on('click', function () {
     $('#popup-create_payment').css('display', 'block');
 });
@@ -163,7 +173,7 @@ $('#send_new_deal').on('click', function () {
         let url = CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/';
 
         let deal = JSON.stringify({
-            'date_created': date,
+            'date_created': date.trim().split('.').reverse().join('-'),
             'value': value,
             'description': description,
             'partnership': $(this).data('partner')

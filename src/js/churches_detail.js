@@ -63,6 +63,12 @@
                         config.id = id;
                         addUserToChurch(config).then(function (data) {
                             $(_self).text('Добавлен').attr('disabled', true);
+                            getChurchStats(ID).then(function (data) {
+                                let keys = Object.keys(data);
+                                keys.forEach(function (item) {
+                                    $('#' + item).text(data[item]);
+                                })
+                            });
                             createChurchesUsersTable(ID);
                         });
                     });

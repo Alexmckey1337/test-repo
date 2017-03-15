@@ -52,6 +52,12 @@
                         let _self = this;
                         addUserToHomeGroup(config).then(function (data) {
                             $(_self).text('Добавлен').attr('disabled', true);
+                            getHomeGroupStats(ID).then(function (data) {
+                                let keys = Object.keys(data);
+                                keys.forEach(function (item) {
+                                    $('#' + item).text(data[item]);
+                                })
+                            });
                             createHomeGroupUsersTable();
                         });
                     });

@@ -52,15 +52,15 @@
             <div class="info">
                 <h2>Сводная информация:</h2>
                 <ul>
-                    <li class="mb get_info"><button data-link="home_groups" data-export-url="{% url "church-export-groups" pk=church.id %}" data-editable="false">Количество Домашних групп: {{ home_groups_count }}</button></li>
-                    <li class="get_info"><button data-link="all_users" data-export-url="{% url "church-export-all-users" pk=church.id %}" data-editable="false">Общее количество людей: {{ church_all_users }}</button></li>
-                    <li class="mb get_info"><button class="active" data-export-url="{% url "church-export-users" pk=church.id %}" data-link="users" data-editable="true">Люди не в домашних группах: {{ church_users }}</button></li>
-                    <li>Количество прихожан: {{ parishioners_count }}</li>
-                    <li>Количеств Лидеров: {{ leaders_count }}</li>
-                    <li>Количество Отцов: {{ fathers_count }}</li>
-                    <li>Количество Юношей: {{ juniors_count }}</li>
-                    <li>Количество Младенцев: {{ babies_count }}</li>
-                    <li>Количество Партнеров: {{ partners_count }}</li>
+                    <li class="mb get_info"><button data-link="home_groups" data-export-url="{% url "church-export-groups" pk=church.id %}" data-editable="false">Количество Домашних групп: <span id="home_groups_count">{{ home_groups_count }}</span></button></li>
+                    <li class="get_info"><button data-link="all_users" data-export-url="{% url "church-export-all-users" pk=church.id %}" data-editable="false">Общее количество людей: <span id="church_all_users">{{ church_all_users }}</span></button></li>
+                    <li class="mb get_info"><button class="active" data-export-url="{% url "church-export-users" pk=church.id %}" data-link="users" data-editable="true">Люди не в домашних группах: <span id="church_users">{{ church_users }}</span></button></li>
+                    <li>Количество прихожан: <span id="parishioners_count">{{ parishioners_count }}</span></li>
+                    <li>Количеств Лидеров: <span id="leaders_count">{{ leaders_count }}</span></li>
+                    <li>Количество Отцов: <span id="fathers_count">{{ fathers_count }}</span></li>
+                    <li>Количество Юношей: <span id="juniors_count">{{ juniors_count }}</span></li>
+                    <li>Количество Младенцев: <span id="babies_count">{{ babies_count }}</span></li>
+                    <li>Количество Партнеров: <span id="partners_count">{{ partners_count }}</span></li>
                 </ul>
             </div>
         </div>

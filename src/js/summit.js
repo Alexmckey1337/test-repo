@@ -75,25 +75,34 @@
         $('#popup-payments').css('display', '');
         $('#popup-payments table').html('');
     });
+
     $('#payment-form').on("submit", function (e) {
-        e.preventDefault();
-        let data = $('#payment-form').serializeArray();
-        console.log(data);
-        let new_data = {};
-        data.forEach(function (field) {
+    e.preventDefault();
+    let data = $('#payment-form').serializeArray();
+    let userID;
+    let new_data = {};
+    data.forEach(function (field) {
+        if (field.name == 'sent_date') {
+            new_data[field.name] = field.value.trim().split('.').reverse().join('-');
+        } else if (field.name != 'id') {
             new_data[field.name] = field.value
-        });
-        let id = new_data.id,
-            sum = new_data.sum,
-            description = new_data.description,
-            rate = new_data.rate,
-            currency = new_data.currency;
-        console.log(id, sum, description, rate, currency);
-        create_payment(id, sum, description, rate, currency);
-        $('#new_payment_sum').val('');
-        $('#popup-create_payment textarea').val('');
-        $('#popup-create_payment').css('display', 'none');
+        } else {
+            userID = field.value;
+        }
     });
+    if (userID) {
+        createPayment({
+            data: new_data
+        }, userID).then(function (data) {
+            console.log(data);
+        });
+    }
+    // create_payment(id, sum, description, rate, currency);
+
+    $('#new_payment_sum').val('');
+    $('#popup-create_payment textarea').val('');
+    $('#popup-create_payment').css('display', 'none');
+});
 
     $(".add-user-wrap .top-text span").on('click', function () {
         $('.add-user-wrap').css('display', '');
