@@ -94,6 +94,9 @@
                             <label for="departments_filter">Отдел</label>
                         </p>
                         <p class="label_block">
+                            <label for="tree_filter">Ветка</label>
+                        </p>
+                        <p class="label_block">
                             <label for="hierarchies_filter">Пастор</label>
                         </p>
                         <p class="label_block">
@@ -115,6 +118,14 @@
                                 <option value="">ВСЕ</option>
                                 {% for department in departments %}
                                     <option value="{{ department.id }}">{{ department.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                    <p class="input_block">
+                            <select class="selectdb" data-filter="master_tree" id="tree_filter">
+                                <option value="">ВСЕ</option>
+                                {% for master in masters %}
+                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
                                 {% endfor %}
                             </select>
                         </p>
