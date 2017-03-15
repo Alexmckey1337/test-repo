@@ -14,7 +14,7 @@ from account.models import CustomUser
 from account.serializers import AddExistUserSerializer
 from common.filters import FieldSearchFilter
 from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet
-from group.filters import HomeGroupFilter, ChurchFilter
+from group.filters import HomeGroupFilter, ChurchFilter, FilterChurchMasterTree, FilterHomeGroupMasterTree
 from group.pagination import ChurchPagination, HomeGroupPagination
 from group.resources import ChurchResource, HomeGroupResource
 from group.views_mixins import (
@@ -35,6 +35,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
     filter_backends = (filters.DjangoFilterBackend,
                        FieldSearchFilter,
                        filters.OrderingFilter,
+                       FilterChurchMasterTree,
                        )
 
     ordering_fields = ('title', 'city', 'department__title', 'home_group', 'is_open', 'opening_date',
@@ -44,11 +45,8 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
     filter_class = ChurchFilter
     field_search_fields = {
         'search_title': ('title',),
-        'search_department': ('department__title',),
-        'search_pastor': ('pastor__last_name', 'pastor__first_name', 'pastor__middle_name'),
-        'search_country': ('country',),
-        'search_city': ('city',),
     }
+
     permission_classes = (IsAuthenticated,)
     pagination_class = ChurchPagination
     resource_class = ChurchResource
@@ -158,7 +156,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
                 _('Невозможно удалить пользователя. Пользователь не принадлежит к данной Церкви.'))
 
     @detail_route(methods=['GET'])
-    def get_church_stats(self, request, pk):
+    def statistics(self, request, pk):
         stats = {}
         church = get_object_or_404(Church, pk=pk)
         stats['church_users'] = church.users.count()
@@ -206,17 +204,18 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
 
     filter_backends = (filters.DjangoFilterBackend,
                        FieldSearchFilter,
-                       filters.OrderingFilter,)
+                       filters.OrderingFilter,
+                       FilterHomeGroupMasterTree,
+                       )
+
     ordering_fields = ('title', 'church', 'leader__last_name', 'city', 'leader', 'address', 'opening_date',
-                       'phone_number', 'website', 'department')
+                       'phone_number', 'website', 'department', 'count_users')
 
     filter_class = HomeGroupFilter
     field_search_fields = {
-        'search_title': ('title',),
-        'search_church': ('church__title',),
-        'search_leader': ('leader__last_name', 'leader__first_name', 'leader__middle_name'),
-        'search_city': ('city',),
+        'search_title': ('title',)
     }
+
     permission_classes = (IsAuthenticated,)
     pagination_class = HomeGroupPagination
     resource_class = HomeGroupResource
@@ -294,7 +293,7 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
                 _('Невозможно удалить пользователя. Пользователь не принадлежит к данной Домашней Группе.'))
 
     @detail_route(methods=["GET"])
-    def get_home_group_stats(self, request, pk):
+    def statistics(self, request, pk):
         stats = {}
         home_group = get_object_or_404(HomeGroup, pk=pk)
         stats['users_count'] = home_group.users.count()

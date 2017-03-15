@@ -10,6 +10,7 @@ from group.serializers import HomeGroupListSerializer, GroupUserSerializer
 
 GROUP_USER_ORDERING_FIELDS = ('last_name', 'spiritual_level', 'leader__last_name' 'phone_number', 'born_date',
                               'repentance_date', 'id')
+
 HOME_GROUP_ORDERING_FIELDS = ('title', 'city', 'leader__last_name', 'address', 'opening_date', 'phone_number',
                               'website', 'id')
 

@@ -1,4 +1,5 @@
 import django_filters
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from rest_framework.filters import BaseFilterBackend
 from rest_framework.generics import get_object_or_404
@@ -28,10 +29,48 @@ class HomeGroupFilter(django_filters.FilterSet):
 
 
 class ChurchFilter(django_filters.FilterSet):
-    department = django_filters.ModelChoiceFilter(name='department', queryset=Department.objects.all())
+    department = django_filters.ModelMultipleChoiceFilter(name="department", queryset=Department.objects.all())
     pastor = django_filters.ModelChoiceFilter(name='pastor', queryset=CustomUser.objects.filter(
         church__pastor__id__isnull=False).distinct())
 
     class Meta:
         model = Church
         fields = ['department', 'pastor', 'is_open', 'opening_date', 'country', 'city']
+
+
+class CommonGroupMasterTreeFilter(BaseFilterBackend):
+    model = None
+    level = None
+    search = None
+
+    def filter_queryset(self, request, queryset, view):
+        master_id = request.query_params.get('master_tree', None)
+
+        try:
+            master = CustomUser.objects.get(pk=master_id)
+        except ObjectDoesNotExist:
+            return queryset
+
+        if master.is_leaf_node():
+            return queryset.none()
+
+        master_tree_id = master.tree_id
+        master_left = master.lft
+        master_right = master.rght
+
+        users = CustomUser.objects.exclude(pk=master).filter(hierarchy__level__gte=self.level).filter(
+            tree_id=master_tree_id, lft__gte=master_left, rght__lte=master_right)
+
+        return self.model.objects.filter(**{self.search: [user.id for user in users]})
+
+
+class FilterChurchMasterTree(CommonGroupMasterTreeFilter):
+    model = Church
+    level = 2
+    search = 'pastor__id__in'
+
+
+class FilterHomeGroupMasterTree(CommonGroupMasterTreeFilter):
+    model = HomeGroup
+    level = 1
+    search = 'leader__id__in'
