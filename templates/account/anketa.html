@@ -457,8 +457,8 @@
                     <div class="note_wrapper clearfix" id="summitWrapper">
                         <div>
                             <label for="">Добавить примечание</label>
-                            <textarea name="need_note" id="id_note_text" rows="5" cols="50">{{ account.partnership.need_text }}</textarea>
-                            <button id="send_note" data-partner="{{ account.partnership.id }}">
+                            <textarea name="need_note" id="id_note_text" rows="5" cols="50">{{ account.description }}</textarea>
+                            <button id="sendNote" data-id="{{ account.id }}">
                                 Сохранить
                             </button>
                         </div>

@@ -1,4 +1,4 @@
-function updateUser(id, data, success) {
+function updateUser(id, data, success = null) {
     let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${id}/`;
     let config = {
         url: url,
@@ -6,10 +6,12 @@ function updateUser(id, data, success) {
         method: 'PATCH'
     };
     return ajaxSendFormData(config).then(function (data) {
-        $(success).text('Сохранено');
-        setTimeout(function () {
-            $(success).text('');
-        }, 3000);
+        if (success) {
+            $(success).text('Сохранено');
+            setTimeout(function () {
+                $(success).text('');
+            }, 3000);
+        }
         return data;
     }).catch(function (data) {
         let errObj = JSON.parse(data);
@@ -64,6 +66,13 @@ $('#send_need').on('click', function () {
     }, 'PUT', true, {
         'Content-Type': 'application/json'
     })
+});
+$('#sendNote').on('click', function () {
+    let _self = this;
+    let id = $(_self).data('id');
+    let resData = new FormData();
+    resData.append('description', $('#id_note_text').val());
+    updateUser(id, resData);
 });
 $("#close-payment").on('click', function () {
     $('#popup-create_payment').css('display', 'none');
