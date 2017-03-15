@@ -1002,13 +1002,13 @@ Del user from church
 Statistics of churches
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. http:get:: /api/v1.0/churches/<id>/get_church_stats
+.. http:get:: /api/v1.0/churches/<id>/statistics
 
     **Example request**:
 
     .. sourcecode:: http
 
-        GET /api/v1.0/home_groups/ HTTP/1.1
+        GET /api/v1.0/churches/18/statistics HTTP/1.1
         Host: vocrm.org
         Content-type: application/json
 
@@ -1022,16 +1022,109 @@ Statistics of churches
         Vary: Accept
 
         {
-            "church_users": 2,
-            "church_all_users": 13,
-            "parishioners_count": 0,
-            "leaders_count": 0,
+            "church_users": 9,
+            "church_all_users": 24,
+            "parishioners_count": 11,
+            "leaders_count": 2,
             "home_groups_count": 3,
             "fathers_count": 1,
             "juniors_count": 1,
-            "babies_count": 11,
-            "partners_count": 1
+            "babies_count": 22,
+            "partners_count": 12
         }
+
+
+All Church objects without pagination
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/churches/all
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/churches/all HTTP/1.1
+        Host: vocrm.org
+        Content-type: application/json
+
+    **Example response (Good Request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        [
+            {
+                "id": 27,
+                "get_title": "Третья Церковь"
+            },
+            {
+                "id": 26,
+                "get_title": "Вторая Церковь"
+            },
+            {
+                "id": 25,
+                "get_title": "Курлык Курлык"
+            },
+            {
+                "id": 18,
+                "get_title": "Певая Церковь"
+            },
+            {
+                "id": 19,
+                "get_title": "Вторая Церковь"
+            }
+        ]
+
+
+Available pastors filtered by department
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/churches/get_pastors_by_department/?department_id=<int(department_id)>
+
+    **Example request**
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/churches/get_pastors_by_department/?department_id=2 HTTP/1.1
+        Host: vocrm.org
+        Content-type: application/json
+
+    **Example response (Good Request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        [
+            {
+                "id": 10,
+                "fullname": "Аккаунт Технический №10"
+            }
+        ]
+
+    **Example response (Bad Request, with incorrect department_id)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        [
+            "Отдела с id=13 не существует."
+        ]
+
+    :statuscode 200: no error
+    :statuscode 400: bad request
+
 
 
 HomeGroup
@@ -1783,13 +1876,13 @@ Del user from home group
 Statistics of home groups
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. http:get:: /api/v1.0/home_groups/<id>/get_home_group_stats
+.. http:get:: /api/v1.0/home_groups/<id>/statistics
 
     **Example request**:
 
     .. sourcecode:: http
 
-        GET /api/v1.0/home_groups/ HTTP/1.1
+        GET /api/v1.0/home_groups/14/statistics HTTP/1.1
         Host: vocrm.org
         Content-type: application/json
 
@@ -1803,9 +1896,117 @@ Statistics of home groups
         Vary: Accept
 
         {
-            "users_count": 3,
+            "users_count": 6,
             "fathers_count": 0,
             "juniors_count": 0,
-            "babies_count": 3,
+            "babies_count": 6,
             "partners_count": 3
         }
+
+    **Example response (Not Found with not exists Home Group <id>)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 404 Not Found
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "detail": "Не найдено."
+        }
+
+    :statuscode 200: no error
+    :statuscode 404: Home Group object with <id> not found
+
+
+All HomeGroup objects without pagination
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/home_groups/all
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/home_groups/all HTTP/1.1
+        Host: vocrm.org
+        Content-type: application/json
+
+    **Example response (Good Request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        [
+            {
+                "id": 18,
+                "get_title": "Домашнаяя Группа №3"
+            },
+            {
+                "id": 17,
+                "get_title": "Киев П"
+            },
+            {
+                "id": 14,
+                "get_title": "Домашняя Группа №1"
+            },
+            {
+                "id": 16,
+                "get_title": "Домашняя Группа №2"
+            }
+        ]
+
+
+Available Home Group leaders filtered selected church
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/home_groups/get_leaders_by_department/?church_id=<int(church_id)>
+
+    **Example request**
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/homr_groups/get_leaders_by_church/?church_id=18 HTTP/1.1
+        Host: vocrm.org
+        Content-type: application/json
+
+    **Example response (Good Request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        [
+            {
+                "id": 15160,
+                "fullname": "П Ростислав С"
+            },
+            {
+                "id": 50,
+                "fullname": "Болжеларская Марина Александровна"
+            }
+        ]
+
+    **Example response (Bad Request, with incorrect church_id)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        [
+            "Церкви с id=500 не существует."
+        ]
+
+    :statuscode 200: no error
+    :statuscode 400: bad request
