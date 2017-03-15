@@ -1,5 +1,6 @@
 (function ($) {
     createHomeGroupsTable();
+    let $churchFilter = $('#church_filter');
     $('#department_select').select2();
     $('#pastor_select').select2();
     $('.selectdb').select2();
@@ -43,4 +44,23 @@
                 $('.preloader').css('display', 'none');
         });
     });
+    $churchFilter.on('change', function () {
+        let churchesID = $(this).val();
+        if(!churchesID) {
+            churchesID = null;
+        }
+        getLeadersByChurch(churchesID).then(function (data) {
+                let options = [];
+                let option = document.createElement('option');
+                $(option).text('ВСЕ');
+                options.push(option);
+                data.forEach(function (item) {
+                    let option = document.createElement('option');
+                    $(option).val(item.id).text(item.fullname);
+                    options.push(option);
+                });
+                console.log(options);
+                $('#leader_filter').html(options);
+            });
+    })
 })(jQuery);

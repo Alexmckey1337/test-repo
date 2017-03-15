@@ -372,8 +372,7 @@
                                         <label for="repentance">Покаяние:</label>
                                         <input type="text" id="repentance_date" data-id="repentance"
                                                class="sel__date"
-                                               value="
-                                                       {% if account.repentance_date %}{{ account.repentance_date|date:"d.m.Y" }}{% else %}Не покаялся{% endif %}"
+                                               value="{% if account.repentance_date %}{{ account.repentance_date|date:"d.m.Y" }}{% else %}Не покаялся{% endif %}"
                                                readonly disabled>
                                     </li>
                                 </ul>

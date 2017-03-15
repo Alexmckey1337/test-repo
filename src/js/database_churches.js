@@ -1,9 +1,10 @@
 (function ($) {
+    let $departmentsFilter = $('#departments_filter');
     createChurchesTable();
 
     $('#department_select').select2();
     $('#pastor_select').select2();
-    $('#departments_filter').select2();
+    $departmentsFilter.select2();
     $('#hierarchies_filter').select2();
     $('#pastor_filter').select2();
     $('#search_is_open').select2();
@@ -50,4 +51,23 @@
                 $('.preloader').css('display', 'none');
             });
     });
+    $departmentsFilter.on('change', function () {
+        let departamentID = $(this).val();
+        if(!departamentID) {
+            departamentID = null;
+        }
+        getPastorsByDepartment(departamentID).then(function (data) {
+            let options = [];
+            let option = document.createElement('option');
+            $(option).text('ВСЕ');
+            options.push(option);
+            data.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.fullname);
+                options.push(option);
+            });
+            console.log(options);
+            $('#pastor_filter').html(options);
+        });
+    })
 })(jQuery);

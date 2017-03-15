@@ -207,7 +207,7 @@ function getChurchesINDepartament(id) {
 function getHomeGroupsINChurches(id) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${id}/home_groups`,
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/all/?church_id=${id}`,
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -1037,7 +1037,6 @@ function getPayment(id) {
 }
 
 function makePagination(config) {
-    console.log(config);
     let container = document.createElement('div'),
         input = document.createElement('input'),
         text = document.createElement('span'),
@@ -2340,6 +2339,52 @@ function getHomeGroupStats(id) {
     let resData = {
         url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/get_home_group_stats/`
     };
+    if (getCookie('key')) {
+        resData.headers['Authorization'] = 'Token ' + getCookie('key');
+    }
+    return new Promise(function (resolve, reject) {
+        let codes = {
+            200: function (data) {
+                resolve(data);
+            },
+            400: function (data) {
+                reject(data);
+            }
+        };
+        newAjaxRequest(resData, codes, reject);
+    });
+}
+
+function getPastorsByDepartment(id) {
+    let resData = {};
+    if(id) {
+        resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/get_pastors_by_department/?department_id=${id}`;
+    } else {
+        resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/get_pastors_by_department/`;
+    }
+    if (getCookie('key')) {
+        resData.headers['Authorization'] = 'Token ' + getCookie('key');
+    }
+    return new Promise(function (resolve, reject) {
+        let codes = {
+            200: function (data) {
+                resolve(data);
+            },
+            400: function (data) {
+                reject(data);
+            }
+        };
+        newAjaxRequest(resData, codes, reject);
+    });
+}
+
+function getLeadersByChurch(id) {
+    let resData = {};
+    if(id) {
+        resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/?church_id=${id}`
+    } else {
+        resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/`
+    }
     if (getCookie('key')) {
         resData.headers['Authorization'] = 'Token ' + getCookie('key');
     }

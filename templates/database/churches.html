@@ -3,7 +3,7 @@
 
 {% block body_id %} id="database"{% endblock %}
 
-{% block header.top.h1 %}<h1>База данных / Церкви</h1>{% endblock %}
+{% block header.top.h1 %}<h1>База данных / Церкви{{ church_all_pastors.count }}</h1>{% endblock %}
 
 {% block header.buttons %}
     <div class="top-panel">
@@ -119,9 +119,10 @@
                             </select>
                         </p>
                         <p class="input_block">
+
                             <select class="selectdb" data-filter="pastor" id="pastor_filter">
                                 <option value="">ВСЕ</option>
-                                {% for pastor in pastors %}
+                                {% for pastor in church_all_pastors %}
                                     <option value="{{ pastor.id }}">{{ pastor.fullname }}</option>
                                 {% endfor %}
                             </select>

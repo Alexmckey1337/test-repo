@@ -153,7 +153,7 @@ def churches(request):
         raise Http404('У Вас нет прав для просмотра данной страницы.')
     ctx = {
         'departments': Department.objects.all(),
-        'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
+        'church_all_pastors': CustomUser.objects.filter(church__pastor__id__isnull=False).distinct(),
     }
     return render(request, 'database/churches.html', context=ctx)
 
@@ -169,8 +169,7 @@ def church_detail(request, church_id):
     ctx = {
         'church': church,
         'currencies': currencies,
-        'pastors': CustomUser.objects.filter(church__pastor__id__isnull=False).distinct(),
-
+        'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
         'church_users': church.users.count(),
         'church_all_users': church.users.count() + HomeGroup.objects.filter(church_id=church_id).aggregate(
             home_users=Count('users'))['home_users'],
