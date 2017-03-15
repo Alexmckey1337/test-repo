@@ -9,8 +9,12 @@
     <div class="top-panel">
         <div class="tabs">
             <ul class="nav tabs_link">
-                <li><a href="{% url 'db:churches' %}">Церкви</a></li>
-                <li><a href="{% url 'db:home_groups' %}">Домашние группы</a></li>
+                {% if user.can_see_churches %}
+                    <li><a href="{% url 'db:churches' %}">Церкви</a></li>
+                {% endif %}
+                {% if user.can_see_home_groups %}
+                    <li><a href="{% url 'db:home_groups' %}">Домашние группы</a></li>
+                {% endif %}
                 <li><a class="active" href="{% url 'db:people' %}">Люди</a></li>
             </ul>
         </div>
@@ -24,9 +28,6 @@
                 </li>
                 <li>
                     <button id="export_table" data-export-url="{% url "users_v1_1-export" %}" class="download header__button">Export</button>
-{#                    <form action="{% url "users_v1_1-export" %}" method="post">#}
-{#                        <input type="text" name="fields" class="hidden" id="export_fields">#}
-{#                    </form>#}
                 </li>
                 <li>
                     <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>

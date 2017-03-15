@@ -17,6 +17,7 @@ from django.utils.translation import ugettext_lazy as _
 from mptt.managers import TreeManager
 from mptt.models import MPTTModel, TreeForeignKey
 
+from account.permissions import can_see_churches, can_see_home_groups
 from event.models import EventAnket
 from navigation.models import Table
 from partnership.models import Partnership
@@ -159,6 +160,16 @@ class CustomUser(MPTTModel, User):
     @property
     def fullname(self):
         return ' '.join(map(lambda name: name.strip(), (self.last_name, self.first_name, self.middle_name)))
+
+    # permissions
+
+    def can_see_churches(self):
+        request = type('Request', (), {'user': self})
+        return can_see_churches(request)
+
+    def can_see_home_groups(self):
+        request = type('Request', (), {'user': self})
+        return can_see_home_groups(request)
 
 
 @python_2_unicode_compatible

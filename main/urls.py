@@ -15,13 +15,15 @@ def redirect_to_deals(request):
 
 
 def redirect_to_churches(request):
+    if not request.user.can_see_churches():
+        return redirect(reverse('db:people'))
     return redirect(reverse('db:churches'))
 
 database_patterns = [
     url(r'^$', redirect_to_churches, name='main'),
     url(r'^people/$', views.people, name='people'),
-    url(r'^churches/$', views.churches, name='churches'),
-    url(r'^home_groups/$', views.home_groups, name='home_groups'),
+    url(r'^churches/$', views.ChurchListView.as_view(), name='churches'),
+    url(r'^home_groups/$', views.HomeGroupListView.as_view(), name='home_groups'),
 ]
 partner_patterns = [
     url(r'^$', redirect_to_deals, name='main'),
@@ -53,8 +55,8 @@ urlpatterns = [
     url(r'^meeting_types/', include(meeting_patterns, namespace='meeting_type')),
     url(r'^summits/', include(summit_patterns, namespace='summit')),
 
-    url(r'^churches/([0-9]+)/$', views.church_detail, name='church_detail'),
-    url(r'^home_groups/([0-9]+)/$', views.home_group_detail, name='home_group_detail'),
+    url(r'^churches/(?P<pk>\d+)/$', views.ChurchDetailView.as_view(), name='church_detail'),
+    url(r'^home_groups/(?P<pk>\d+)/$', views.HomeGroupDetailView.as_view(), name='home_group_detail'),
 
 
     url(r'^password_view/(?P<activation_key>\w+)/$', views.edit_pass, name='password_view'),

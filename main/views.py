@@ -2,30 +2,33 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count
-from django.http import Http404
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views import View
+from django.views.generic import DetailView
+from django.views.generic import ListView
 
 from account.models import CustomUser
-from event.models import MeetingType
 from account.permissions import CanAccountObjectRead, CanAccountObjectEdit
+from event.models import MeetingType
 from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
 from location.models import Country, Region, City
 from partnership.models import Partnership
+from payment.models import Currency
 from status.models import Division
 from summit.models import SummitType
-from payment.models import Currency
 
 
 def entry(request):
     return render(request, 'login/login.html')
 
 
-def edit_pass(request, activation_key=None):
-    return render(request, 'login/editpass.html')
+def edit_pass(request):
+    return render(request, 'login/edit_password.html')
 
 
 @login_required(login_url='entry')
@@ -83,7 +86,7 @@ def stats(request):
 def partner_stats(request):
     partner = request.user.partnership
     if not partner or partner.level > Partnership.MANAGER:
-        raise Http404('Статистику можно просматривать только менеджерам.')
+        return HttpResponseForbidden('Статистику можно просматривать только менеджерам.')
     return render(request, 'partner/partner_stats.html')
 
 
@@ -146,31 +149,118 @@ def summit_info(request, summit_id):
     return render(request, 'summit/summit_info.html', context=ctx)
 
 
-@login_required(login_url='entry')
-def churches(request):
-    user = request.user
-    if not user.is_staff and user.hierarchy.level < 1:
-        raise Http404('У Вас нет прав для просмотра данной страницы.')
-    ctx = {
-        'departments': Department.objects.all(),
-        'church_all_pastors': CustomUser.objects.filter(church__pastor__id__isnull=False).distinct(),
-        'masters': CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1),
-    }
-    return render(request, 'database/churches.html', context=ctx)
+class CanSeeChurchesView(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_churches():
+            return HttpResponseForbidden('У Вас нет прав для просмотра данной страницы.')
+        return super(CanSeeChurchesView, self).dispatch(request, *args, **kwargs)
+
+
+class CanSeeHomeGroupsView(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_home_groups():
+            return HttpResponseForbidden('У Вас нет прав для просмотра данной страницы.')
+        return super(CanSeeHomeGroupsView, self).dispatch(request, *args, **kwargs)
+
+
+class ChurchListView(LoginRequiredMixin, CanSeeChurchesView, ListView):
+    model = Church
+    context_object_name = 'churches'
+    template_name = 'database/churches.html'
+    login_url = 'entry'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ChurchListView, self).get_context_data(**kwargs)
+
+        ctx['departments'] = Department.objects.all()
+        ctx['church_all_pastors'] = CustomUser.objects.filter(church__pastor__id__isnull=False).distinct()
+        ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
+
+        return ctx
+
+
+class HomeGroupListView(LoginRequiredMixin, CanSeeHomeGroupsView, ListView):
+    model = HomeGroup
+    context_object_name = 'home_groups'
+    template_name = 'database/home_groups.html'
+    login_url = 'entry'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(HomeGroupListView, self).get_context_data(**kwargs)
+
+        ctx['churches'] = Church.objects.all()
+        ctx['leaders'] = CustomUser.objects.filter(home_group__leader__id__isnull=False).distinct()
+        ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
+
+        return ctx
+
+
+class ChurchDetailView(LoginRequiredMixin, CanSeeChurchesView, DetailView):
+    model = Church
+    context_object_name = 'church'
+    template_name = 'group/church_detail.html'
+    login_url = 'entry'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ChurchDetailView, self).get_context_data(**kwargs)
+
+        extra_context = {
+            'currencies': Currency.objects.all(),
+            'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
+            'church_users': self.object.users.count(),
+            'church_all_users': self.object.users.count() + HomeGroup.objects.filter(
+                church_id=self.object.id).aggregate(home_users=Count('users'))['home_users'],
+            'parishioners_count': self.object.users.filter(hierarchy__level=0).count(),
+            'leaders_count': self.object.users.filter(hierarchy__level=1).count(),
+            'home_groups_count': self.object.home_group.count(),
+            'fathers_count': self.object.users.filter(
+                spiritual_level=CustomUser.FATHER).count() + HomeGroup.objects.filter(
+                church__id=self.object.id).filter(users__spiritual_level=3).count(),
+            'juniors_count': self.object.users.filter(
+                spiritual_level=CustomUser.JUNIOR).count() + HomeGroup.objects.filter(
+                church__id=self.object.id).filter(users__spiritual_level=2).count(),
+            'babies_count': self.object.users.filter(
+                spiritual_level=CustomUser.BABY).count() + HomeGroup.objects.filter(
+                church__id=self.object.id).filter(users__spiritual_level=1).count(),
+            'partners_count': self.object.users.filter(partnership__is_active=True).count(),
+        }
+        ctx.update(extra_context)
+
+        return ctx
+
+
+class HomeGroupDetailView(LoginRequiredMixin, CanSeeHomeGroupsView, DetailView):
+    model = HomeGroup
+    context_object_name = 'home_group'
+    template_name = 'group/home_group_detail.html'
+    login_url = 'entry'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(HomeGroupDetailView, self).get_context_data(**kwargs)
+
+        extra_context = {
+            'users_count': self.object.users.count(),
+            'fathers_count': self.object.users.filter(spiritual_level=CustomUser.FATHER).count(),
+            'juniors_count': self.object.users.filter(spiritual_level=CustomUser.JUNIOR).count(),
+            'babies_count': self.object.users.filter(spiritual_level=CustomUser.BABY).count(),
+            'partners_count': self.object.users.filter(partnership__is_active=True).count(),
+        }
+        ctx.update(extra_context)
+
+        return ctx
 
 
 @login_required(login_url='entry')
 def church_detail(request, church_id):
-    user = request.user
+    if not request.user.can_see_churches():
+        return HttpResponseForbidden('У Вас нет прав для просмотра данной страницы.')
     church = get_object_or_404(Church, id=church_id)
-    currencies = Currency.objects.all()
-    if not user.is_staff and user.hierarchy.level < 1:
-        raise Http404('У Вас нет прав для просмотра данной страницы.')
 
     ctx = {
         'church': church,
-        'currencies': currencies,
-        'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
+        'currencies': Currency.objects.all(),
+        'pastors': CustomUser.objects.filter(church__pastor__id__isnull=False).distinct(),
+
         'church_users': church.users.count(),
         'church_all_users': church.users.count() + HomeGroup.objects.filter(church_id=church_id).aggregate(
             home_users=Count('users'))['home_users'],
@@ -191,24 +281,10 @@ def church_detail(request, church_id):
 
 
 @login_required(login_url='entry')
-def home_groups(request):
-    user = request.user
-    if not user.is_staff and user.hierarchy.level < 1:
-        raise Http404('У Вас нет прав для просмотра данной страницы.')
-    ctx = {
-        'churches': Church.objects.all(),
-        'leaders': CustomUser.objects.filter(home_group__leader__id__isnull=False).distinct(),
-        'masters': CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1),
-    }
-    return render(request, 'database/home_groups.html', context=ctx)
-
-
-@login_required(login_url='entry')
 def home_group_detail(request, group_id):
-    user = request.user
+    if not request.user.can_see_home_groups():
+        return HttpResponseForbidden('У Вас нет прав для просмотра данной страницы.')
     home_group = get_object_or_404(HomeGroup, id=group_id)
-    if not user.is_staff and user.hierarchy.level < 1:
-        raise Http404('У Вас нет прав для просмотра данной страницы.')
 
     ctx = {
         'home_group': home_group,

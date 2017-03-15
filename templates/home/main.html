@@ -23,8 +23,12 @@
             <div class="col-sm-4">
                 <h2>База данных</h2>
                 <ul>
-                    <li><a href="{% url 'db:churches' %}">Церкви</a></li>
-                    <li><a href="{% url 'db:home_groups' %}">Домашние группы</a></li>
+                    {% if user.can_see_churches %}
+                        <li><a href="{% url 'db:churches' %}">Церкви</a></li>
+                    {% endif %}
+                    {% if user.can_see_home_groups %}
+                        <li><a href="{% url 'db:home_groups' %}">Домашние группы</a></li>
+                    {% endif %}
                     <li><a href="{% url 'db:people' %}">Люди</a></li>
                 </ul>
             </div>
