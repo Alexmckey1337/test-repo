@@ -182,8 +182,16 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
 
     @list_route(methods=['GET'], serializer_class=AllChurchesListSerializer)
     def all(self, request):
-        all_churches = self.serializer_class(Church.objects.all(), many=True)
-        return Response(all_churches.data)
+
+        if not request.query_params.get('department_id'):
+            raise exceptions.ValidationError(_("Не корректный запрос. Департамент не передан."))
+
+        departments = request.query_params.lists()
+        departments = [x for x in departments][0][1]
+
+        churches = Church.objects.filter(department_id__in=departments)
+        churches = self.serializer_class(churches, many=True)
+        return Response(churches.data)
 
     @list_route(methods=['GET'], serializer_class=PastorNameSerializer)
     def get_pastors_by_department(self, request):
@@ -311,15 +319,19 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
 
     @list_route(methods=['GET'], serializer_class=AllHomeGroupsListSerializer)
     def all(self, request):
-        all_home_groups = self.serializer_class(HomeGroup.objects.all(), many=True)
-        return Response(all_home_groups.data)
+        church_id = request.query_params.get('church_id')
+
+        if not church_id:
+            raise exceptions.ValidationError(_("Не корректный запрос. Церковь не передана."))
+
+        home_groups = HomeGroup.objects.filter(church_id=church_id)
+        home_groups = self.serializer_class(home_groups, many=True)
+
+        return Response(home_groups.data)
 
     @list_route(methods=['GET'], serializer_class=LeaderNameSerializer)
     def get_leaders_by_church(self, request):
         church_id = request.query_params.get('church_id')
-
-        if not Church.objects.filter(id=church_id).exists():
-            raise exceptions.ValidationError(_('Церкви с id=%s не существует.' % church_id))
 
         leaders = CustomUser.objects.filter(home_group__leader__id__isnull=False).filter(
             home_group__church__id=church_id).distinct()
