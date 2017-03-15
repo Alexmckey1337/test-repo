@@ -3881,11 +3881,27 @@ span.change[style*="display: none"] ~ span.y {
 }
 
 .a-sdelki,
-.a-sammits {
+.a-sammits,
+.a-note {
   overflow: hidden;
   border: 1px solid #cdd0d4;
   margin-top: 30px;
   border-radius: 3px;
+  & .note_wrapper {
+    padding: 10px;
+    & label {
+      display: block;
+      margin-bottom: .7em;
+    }
+    & textarea {
+      width: 100%;
+    }
+    & #send_note {
+      margin-left: auto;
+      margin-top: .7em;
+      display: block;
+    }
+  }
 }
 
 //#account_view .a-sdelki {

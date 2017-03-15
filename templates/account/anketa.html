@@ -9,7 +9,7 @@
     <style>
         .password-error {
             color: red;
-            font-size:0.9em;
+            font-size: 0.9em;
         }
     </style>
 {% endblock %}
@@ -35,9 +35,9 @@
         </li>
     {% endif %}
     {% if user.is_staff or user.partnership.level < 2 or account in user.get_descendants.all %}
-{#        <li>#}
-{#            <button class="b-red">Редактировать</button>#}
-{#        </li>#}
+        {#        <li>#}
+        {#            <button class="b-red">Редактировать</button>#}
+        {#        </li>#}
     {% endif %}
     {% if request.real_user or request.user.is_superuser %}
         {% if request.hard_user.id == account.id %}
@@ -149,7 +149,8 @@
                                     <li class="clearfix">
                                         <label for="extra_phone_numbers"><i class="fa fa-phone"
                                                                             aria-hidden="true"></i></label>
-                                        <input type="text" id="extra_phone_numbers" value="{% if account.extra_phone_numbers %}
+                                        <input type="text" id="extra_phone_numbers"
+                                               value="{% if account.extra_phone_numbers %}
                                             {{ account.extra_phone_numbers|default:""|join:", " }}
                                         {% endif %}" readonly>
                                     </li>
@@ -202,7 +203,7 @@
                                         <label for="born_date">Дата рождения:</label>
                                         <input type="text" id="born_date"
                                                class="sel__date"
-                                               value="{{ account.born_date|date:"d.m.Y"}}" readonly disabled>
+                                               value="{{ account.born_date|date:"d.m.Y" }}" readonly disabled>
                                     </li>
                                     <li class="clearfix">
                                         <label for="country">Страна:</label>
@@ -305,7 +306,7 @@
                                         <label for="partnershipCheck">
                                             {% if account.partnership %}
                                                 Активный
-                                                {% else %}
+                                            {% else %}
                                                 Партнер
                                             {% endif %}
                                         </label>
@@ -331,7 +332,8 @@
                                     </li>
                                     <li class="clearfix">
                                         <label for="division">Сумма сделки:</label>
-                                        <input type="text" data-id="value" value="{{ account.partnership.value }}" id="payment_value"
+                                        <input type="text" data-id="value" value="{{ account.partnership.value }}"
+                                               id="payment_value"
                                                readonly disabled>
                                         <select id="payment_currency" data-id="currency" required readonly disabled>
                                             {% for currency in currencies %}
@@ -367,7 +369,8 @@
                                         <label for="repentance">Покаяние:</label>
                                         <input type="text" id="repentance_date" data-id="repentance"
                                                class="sel__date"
-                                               value="{% if account.repentance_date %}{{ account.repentance_date|date:"d.m.Y"}}{% else %}Не покаялся{% endif %}"
+                                               value="
+                                                       {% if account.repentance_date %}{{ account.repentance_date|date:"d.m.Y" }}{% else %}Не покаялся{% endif %}"
                                                readonly disabled>
                                     </li>
                                 </ul>
@@ -447,6 +450,20 @@
 
         <div class="right-contentwrap">
             <div class="right-content">
+                <div class="a-note">
+                    <div class="top-s">
+                        <h3>Примечания</h3>
+                    </div>
+                    <div class="note_wrapper clearfix" id="summitWrapper">
+                        <div>
+                            <label for="">Добавить примечание</label>
+                            <textarea name="need_note" id="id_note_text" rows="5" cols="50">{{ account.partnership.need_text }}</textarea>
+                            <button id="send_note" data-partner="{{ account.partnership.id }}">
+                                Сохранить
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 {% if account.partnership %}
                     <div class="a-sdelki" id="Sdelki">
                         <div class="top-s">
@@ -454,7 +471,7 @@
                         </div>
                         <div style="display:block;padding:10px;">
                             <label for="id_need_text" style="display:block;">Нужда</label>
-                            <textarea name="need_text" id="id_need_text" rows="4"
+                            <textarea name="need_text" id="id_need_text" rows="5"
                                       style="width:100%;margin:10px 0;">{{ account.partnership.need_text }}</textarea>
                             <button id="send_need" data-partner="{{ account.partnership.id }}" style="display:block;">
                                 Сохранить нужду
@@ -481,21 +498,24 @@
                                         {% with count=account.partnership.undone_deals_count %}
                                             {% if count > 2 %}2 из {% endif %}{{ count }}
                                         {% endwith %}
-                                    </span>)</button>
+                                    </span>)
+                                    </button>
                                 </li>
                                 <li data-tab="2">
                                     <button href="#overdue">Просроченные(<span id="overdue-count">
                                         {% with count=account.partnership.expired_deals_count %}
                                             {% if count > 2 %}2 из {% endif %}{{ count }}
                                         {% endwith %}
-                                    </span>)</button>
+                                    </span>)
+                                    </button>
                                 </li>
                                 <li data-tab="3">
                                     <button href="#completed">Завершённые(<span id="completed-count">
                                         {% with count=account.partnership.done_deals_count %}
                                             {% if count > 2 %}2 из {% endif %}{{ count }}
                                         {% endwith %}
-                                    </span>)</button>
+                                    </span>)
+                                    </button>
                                 </li>
                             </ul>
                         </div>
@@ -723,39 +743,39 @@
         </div>
     </div>
     {% if user == account %}
-    <div id="popup-change_password" class="pop-up-splash">
-        <div class="splash-screen">
-            <div class="top-text">
-                <h3>Изменить пароль</h3>
-                <span>&times;</span>
-            </div>
-            <form id="change-password-form" action="{% url "rest_password_change" %}" method="post">
-            <div class="summa-wrap">
-                <div class="summa">
-                    <p>{% trans "Old password" %}:</p>
-                    <input type="password" name="old_password" id="old_password" required>
-                    <span id="error-old_password" class="password-error"></span>
+        <div id="popup-change_password" class="pop-up-splash">
+            <div class="splash-screen">
+                <div class="top-text">
+                    <h3>Изменить пароль</h3>
+                    <span>&times;</span>
                 </div>
-                <div class="summa">
-                    <p>{% trans "New password" %}:</p>
-                    <input type="password" name="new_password1" id="new_password1" required>
-                    <span id="error-new_password1" class="password-error"></span>
-                </div>
-                <div class="summa">
-                    <p>{% trans "New password confirmation" %}:</p>
-                    <input type="password" name="new_password2" id="new_password2" required>
-                    <span id="error-new_password2" class="password-error"></span>
-                </div>
+                <form id="change-password-form" action="{% url "rest_password_change" %}" method="post">
+                    <div class="summa-wrap">
+                        <div class="summa">
+                            <p>{% trans "Old password" %}:</p>
+                            <input type="password" name="old_password" id="old_password" required>
+                            <span id="error-old_password" class="password-error"></span>
+                        </div>
+                        <div class="summa">
+                            <p>{% trans "New password" %}:</p>
+                            <input type="password" name="new_password1" id="new_password1" required>
+                            <span id="error-new_password1" class="password-error"></span>
+                        </div>
+                        <div class="summa">
+                            <p>{% trans "New password confirmation" %}:</p>
+                            <input type="password" name="new_password2" id="new_password2" required>
+                            <span id="error-new_password2" class="password-error"></span>
+                        </div>
+                    </div>
+                    <div class="splash-buttons">
+                        <button id="close-password">{% trans "Cancel" %}</button>
+                        <button type="submit" id="submit_password" data-partner="{{ account.partnership.id }}">
+                            {% trans "Change password" %}
+                        </button>
+                    </div>
+                </form>
             </div>
-            <div class="splash-buttons">
-                <button id="close-password">{% trans "Cancel" %}</button>
-                <button type="submit" id="submit_password" data-partner="{{ account.partnership.id }}">
-                    {% trans "Change password" %}
-                </button>
-            </div>
-            </form>
         </div>
-    </div>
     {% endif %}
     <div id="impPopup">
         <div class="splash-screen">

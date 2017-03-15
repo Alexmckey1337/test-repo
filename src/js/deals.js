@@ -100,6 +100,8 @@ $(document).ready(function () {
         let id = $(this).find('button[type="submit"]').attr('data-id'),
             sum = $('#new_payment_sum').val(),
             description = $('#popup-create_payment textarea').val();
+        let data = $(this).serializeArray();
+        console.log(data);
         createPayment(id, sum, description).then(function () {
             $('#' + id + ' > .rows').css({
                 'background-color': '#dfedd6',
@@ -148,7 +150,6 @@ $(document).ready(function () {
                 "currency": $('#new_payment_currency').val(),
                 "sent_date": $('#sent_date').val()
             };
-            console.log(data);
             let json = JSON.stringify(data);
             ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/deals/${id}/create_payment/`, json, function (JSONobj) {
                 init();
@@ -218,6 +219,7 @@ $(document).ready(function () {
                 diff = diff > 0 ? diff : 0;
                 $('#new_payment_sum').val(diff);
                 $('#complete-payment').attr('data-id', id);
+                $('#purpose-id').val(id);
                 $('#popup-create_payment').css('display', 'block');
                 sumChangeListener(currencyName, currencyID);
             });
@@ -297,6 +299,7 @@ $(document).ready(function () {
                 diff = diff > 0 ? diff : 0;
                 $('#new_payment_sum').val(diff);
                 $('#complete-payment').attr('data-id', id);
+                $('#purpose-id').val(id);
                 $('#popup-create_payment').css('display', 'block');
                 sumChangeListener(currencyName, currencyID);
             });

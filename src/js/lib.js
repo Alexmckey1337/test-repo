@@ -2310,3 +2310,43 @@ function createPayment(data, id) {
         newAjaxRequest(resData, codes, reject);
     });
 }
+
+function getChurchStats(id) {
+    let resData = {
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${id}/get_church_stats/`
+    };
+    if (getCookie('key')) {
+        resData.headers['Authorization'] = 'Token ' + getCookie('key');
+    }
+    return new Promise(function (resolve, reject) {
+        let codes = {
+            200: function (data) {
+                resolve(data);
+            },
+            400: function (data) {
+                reject(data);
+            }
+        };
+        newAjaxRequest(resData, codes, reject);
+    });
+}
+
+function getHomeGroupStats(id) {
+    let resData = {
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/get_home_group_stats/`
+    };
+    if (getCookie('key')) {
+        resData.headers['Authorization'] = 'Token ' + getCookie('key');
+    }
+    return new Promise(function (resolve, reject) {
+        let codes = {
+            200: function (data) {
+                resolve(data);
+            },
+            400: function (data) {
+                reject(data);
+            }
+        };
+        newAjaxRequest(resData, codes, reject);
+    });
+}
