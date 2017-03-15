@@ -10,13 +10,7 @@ from .models import Church, HomeGroup
 BASE_GROUP_USER_FIELDS = ('fullname', 'phone_number', 'repentance_date', 'spiritual_level', 'born_date')
 
 
-class LeaderNameSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ('id', 'fullname',)
-
-
-class PastorNameSerializer(serializers.ModelSerializer):
+class UserNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('id', 'fullname',)
@@ -51,7 +45,7 @@ class HomeGroupSerializer(serializers.ModelSerializer):
 
 class HomeGroupListSerializer(HomeGroupSerializer):
     church = ChurchNameSerializer()
-    leader = LeaderNameSerializer()
+    leader = UserNameSerializer()
 
 
 class GroupUserSerializer(serializers.ModelSerializer):
@@ -93,7 +87,7 @@ class ChurchSerializer(serializers.ModelSerializer):
 
 class ChurchListSerializer(ChurchSerializer):
     department = DepartmentTitleSerializer()
-    pastor = PastorNameSerializer()
+    pastor = UserNameSerializer()
 
 
 class ChurchStatsSerializer(serializers.ModelSerializer):
