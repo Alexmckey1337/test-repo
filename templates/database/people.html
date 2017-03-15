@@ -1,75 +1,37 @@
-{% extends "layout_main.html" %}
+{% extends "layout_database.html" %}
 {% load static %}
-
-{% block body_id %} id="database"{% endblock %}
 
 {% block header.top.h1 %}<h1>База данных / Люди</h1>{% endblock %}
 
-{% block header.buttons %}
-    <div class="top-panel">
-        <div class="tabs">
-            <ul class="nav tabs_link">
-                {% if user.can_see_churches %}
-                    <li><a href="{% url 'db:churches' %}">Церкви</a></li>
-                {% endif %}
-                {% if user.can_see_home_groups %}
-                    <li><a href="{% url 'db:home_groups' %}">Домашние группы</a></li>
-                {% endif %}
-                <li><a class="active" href="{% url 'db:people' %}">Люди</a></li>
-            </ul>
-        </div>
-        <div class="top-buttons-wrap">
-            <ul class="top-buttons">
-                <li>
-                    <button id="add" class="header__button">Добавить пользователя</button>
-                </li>
-                <li>
-                    <button id="filter_button" class="header__button">Фильтр</button>
-                </li>
-                <li>
-                    <button id="export_table" data-export-url="{% url "users_v1_1-export" %}" class="download header__button">Export</button>
-                </li>
-                <li>
-                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
-                </li>
-            </ul>
-        </div>
+{% block header.buttons.top %}
+    <div class="top-buttons-wrap">
+        <ul class="top-buttons">
+            <li>
+                <button id="add" class="header__button">Добавить пользователя</button>
+            </li>
+            <li>
+                <button id="filter_button" class="header__button">Фильтр</button>
+            </li>
+            <li>
+                <button id="export_table" data-export-url="{% url "users_v1_1-export" %}" class="download header__button">Export</button>
+            </li>
+            <li>
+                <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
+            </li>
+        </ul>
     </div>
 {% endblock %}
 
-{% block header.buttons.export %}
-
-{% endblock %}
-
-{% block main.content %}
-    {% block pagination_top %}
-        <div class="top-pag">
-            <div class="table__count"></div>
-            <div class="pagination users__pagination"><!--pagination -->
-            </div><!--End pagination -->
+{% block table %}
+    <div class="table-wrap  clearfix" id="database_users"><!--Table -->
+        <div class="table scrollbar-inner" id="baseUsers"></div>
+        <div class="query-none">
+            <p></p>
         </div>
-    {% endblock %}
-
-    {% block table %}
-        <div class="table-wrap  clearfix" id="database_users"><!--Table -->
-            <div class="table scrollbar-inner" id="baseUsers"></div>
-            <div class="query-none">
-                <p></p>
-            </div>
-        </div><!--End Table -->
-        <div class="preloader">
-            <div class="gif"></div>
-        </div>
-    {% endblock %}
-
-    {% block pagination_bottom %}
-        <div class="table__count"></div>
-        <div class="pagination users__pagination"></div>
-    {% endblock %}
-{% endblock %}
-
-{% block create_user %}
-    {% include 'partials/create_user.html' %}
+    </div><!--End Table -->
+    <div class="preloader">
+        <div class="gif"></div>
+    </div>
 {% endblock %}
 
 {% block popup %}

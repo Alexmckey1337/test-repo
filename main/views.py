@@ -10,6 +10,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.views.generic import DetailView
 from django.views.generic import ListView
+from django.views.generic.base import ContextMixin, TemplateView
 
 from account.models import CustomUser
 from account.permissions import CanAccountObjectRead, CanAccountObjectEdit
@@ -187,25 +188,58 @@ def summit_info(request, summit_id):
 # database
 
 
-class CanSeeChurchesView(View):
+class CanSeeChurchesMixin(View):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.can_see_churches():
             raise PermissionDenied
-        return super(CanSeeChurchesView, self).dispatch(request, *args, **kwargs)
+        return super(CanSeeChurchesMixin, self).dispatch(request, *args, **kwargs)
 
 
-class CanSeeHomeGroupsView(View):
+class CanSeeHomeGroupsMixin(View):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.can_see_home_groups():
             raise PermissionDenied
-        return super(CanSeeHomeGroupsView, self).dispatch(request, *args, **kwargs)
+        return super(CanSeeHomeGroupsMixin, self).dispatch(request, *args, **kwargs)
 
 
-class ChurchListView(LoginRequiredMixin, CanSeeChurchesView, ListView):
-    model = Church
-    context_object_name = 'churches'
+class TabsMixin(ContextMixin):
+    active_tab = None
+
+    def get_context_data(self, **kwargs):
+        return super(TabsMixin, self).get_context_data(**{'active_tab': self.active_tab})
+
+
+class PeopleListView(LoginRequiredMixin, TabsMixin, TemplateView):
+    template_name = 'database/people.html'
+    login_url = 'entry'
+    active_tab = 'people'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(PeopleListView, self).get_context_data(**kwargs)
+        extra_ctx = {
+            'departments': Department.objects.all(),
+            'hierarchies': Hierarchy.objects.order_by('level'),
+            'currencies': Currency.objects.all()
+        }
+        user = self.request.user
+        if user.is_staff:
+            extra_ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
+        elif not user.hierarchy:
+            extra_ctx['masters'] = list()
+        elif user.hierarchy.level < 2:
+            extra_ctx['masters'] = user.get_descendants(
+                include_self=True).filter(is_active=True, hierarchy__level__gte=1)
+        else:
+            extra_ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
+        ctx.update(extra_ctx)
+
+        return ctx
+
+
+class ChurchListView(LoginRequiredMixin, TabsMixin, CanSeeChurchesMixin, TemplateView):
     template_name = 'database/churches.html'
     login_url = 'entry'
+    active_tab = 'churches'
 
     def get_context_data(self, **kwargs):
         ctx = super(ChurchListView, self).get_context_data(**kwargs)
@@ -217,11 +251,10 @@ class ChurchListView(LoginRequiredMixin, CanSeeChurchesView, ListView):
         return ctx
 
 
-class HomeGroupListView(LoginRequiredMixin, CanSeeHomeGroupsView, ListView):
-    model = HomeGroup
-    context_object_name = 'home_groups'
+class HomeGroupListView(LoginRequiredMixin, TabsMixin, CanSeeHomeGroupsMixin, TemplateView):
     template_name = 'database/home_groups.html'
     login_url = 'entry'
+    active_tab = 'home_groups'
 
     def get_context_data(self, **kwargs):
         ctx = super(HomeGroupListView, self).get_context_data(**kwargs)
@@ -233,7 +266,7 @@ class HomeGroupListView(LoginRequiredMixin, CanSeeHomeGroupsView, ListView):
         return ctx
 
 
-class ChurchDetailView(LoginRequiredMixin, CanSeeChurchesView, DetailView):
+class ChurchDetailView(LoginRequiredMixin, CanSeeChurchesMixin, DetailView):
     model = Church
     context_object_name = 'church'
     template_name = 'group/church_detail.html'
@@ -267,7 +300,7 @@ class ChurchDetailView(LoginRequiredMixin, CanSeeChurchesView, DetailView):
         return ctx
 
 
-class HomeGroupDetailView(LoginRequiredMixin, CanSeeHomeGroupsView, DetailView):
+class HomeGroupDetailView(LoginRequiredMixin, CanSeeHomeGroupsMixin, DetailView):
     model = HomeGroup
     context_object_name = 'home_group'
     template_name = 'group/home_group_detail.html'
@@ -286,26 +319,6 @@ class HomeGroupDetailView(LoginRequiredMixin, CanSeeHomeGroupsView, DetailView):
         ctx.update(extra_context)
 
         return ctx
-
-
-@login_required(login_url='entry')
-def people(request):
-    user = request.user
-    currencies = Currency.objects.all()
-    ctx = {
-        'departments': Department.objects.all(),
-        'hierarchies': Hierarchy.objects.order_by('level'),
-        'currencies': currencies
-    }
-    if user.is_staff:
-        ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
-    elif not user.hierarchy:
-        ctx['masters'] = list()
-    elif user.hierarchy.level < 2:
-        ctx['masters'] = user.get_descendants(include_self=True).filter(is_active=True, hierarchy__level__gte=1)
-    else:
-        ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
-    return render(request, 'database/people.html', context=ctx)
 
 
 @login_required(login_url='entry')

@@ -28,7 +28,7 @@ def redirect_to_churches(request):
 
 database_patterns = [
     url(r'^$', redirect_to_churches, name='main'),
-    url(r'^people/$', views.people, name='people'),
+    url(r'^people/$', views.PeopleListView.as_view(), name='people'),
     url(r'^churches/$', views.ChurchListView.as_view(), name='churches'),
     url(r'^home_groups/$', views.HomeGroupListView.as_view(), name='home_groups'),
 ]
