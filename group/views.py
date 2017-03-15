@@ -162,8 +162,10 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
         stats['church_users'] = church.users.count()
         stats['church_all_users'] = (church.users.count() + HomeGroup.objects.filter(church_id=pk).aggregate(
             home_users=Count('users'))['home_users'])
-        stats['parishioners_count'] = church.users.filter(hierarchy__level=0).count()
-        stats['leaders_count'] = church.users.filter(hierarchy__level=1).count()
+        stats['parishioners_count'] = church.users.filter(hierarchy__level=0).count() + HomeGroup.objects.filter(
+            church__id=pk).filter(users__hierarchy__level=0).count()
+        stats['leaders_count'] = church.users.filter(hierarchy__level=1).count() + HomeGroup.objects.filter(
+            church__id=pk).filter(users__hierarchy__level=1).count()
         stats['home_groups_count'] = church.home_group.count()
         stats['fathers_count'] = church.users.filter(spiritual_level=CustomUser.FATHER).count() + \
                                  HomeGroup.objects.filter(church__id=pk).filter(users__spiritual_level=3).count()
@@ -171,7 +173,8 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
                                  HomeGroup.objects.filter(church__id=pk).filter(users__spiritual_level=2).count()
         stats['babies_count'] = church.users.filter(spiritual_level=CustomUser.BABY).count() + \
                                 HomeGroup.objects.filter(church__id=pk).filter(users__spiritual_level=1).count()
-        stats['partners_count'] = church.users.filter(partnership__is_active=True).count()
+        stats['partners_count'] = church.users.filter(partnership__is_active=True).count() + HomeGroup.objects.filter(
+            church__id=pk).filter(users__partnership__is_active=True).count()
 
         serializer = ChurchStatsSerializer
         stats = serializer(stats)
