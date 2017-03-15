@@ -32,14 +32,22 @@
                     <li><a href="{% url 'db:people' %}">Люди</a></li>
                 </ul>
             </div>
-            <div class="col-sm-4">
-                <h2>Партнёрство</h2>
-                <ul>
-                    <li><a href="{% url 'partner:deals' %}">Сделки</a></li>
-                    <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
-                    <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
-                </ul>
-            </div>
+            {% if user.can_see_any_partner_block %}
+                <div class="col-sm-4">
+                    <h2>Партнёрство</h2>
+                    <ul>
+                        {% if can_see_deals %}
+                            <li><a href="{% url 'partner:deals' %}">Сделки</a></li>
+                        {% endif %}
+                        {% if can_see_partners %}
+                            <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
+                        {% endif %}
+                        {% if can_see_stats %}
+                            <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            {% endif %}
             <div class="col-sm-4">
                 <h2>Саммиты</h2>
                 <ul>

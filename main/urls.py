@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.conf.urls import url, include
 from django.conf.urls.static import static
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 from django.urls import reverse
 
@@ -11,7 +12,13 @@ from main import views
 
 
 def redirect_to_deals(request):
-    return redirect(reverse('partner:deals'))
+    if request.user.can_see_deals():
+        return redirect(reverse('partner:deals'))
+    if request.user.can_see_partners():
+        return redirect(reverse('partner:list'))
+    if request.user.can_see_partner_stats():
+        return redirect(reverse('partner:stats'))
+    raise PermissionDenied
 
 
 def redirect_to_churches(request):
@@ -27,9 +34,9 @@ database_patterns = [
 ]
 partner_patterns = [
     url(r'^$', redirect_to_deals, name='main'),
-    url(r'^list/$', views.partner, name='list'),
-    url(r'^deals/$', views.deals, name='deals'),
-    url(r'^stats/$', views.stats, name='stats'),
+    url(r'^list/$', views.PartnerListView.as_view(), name='list'),
+    url(r'^deals/$', views.DealListView.as_view(), name='deals'),
+    url(r'^stats/$', views.PartnerStatisticsListView.as_view(), name='stats'),
 ]
 account_patterns = [
     url(r'^(\d+)/$', views.account, name='detail'),

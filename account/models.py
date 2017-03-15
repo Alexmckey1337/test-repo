@@ -21,6 +21,7 @@ from account.permissions import can_see_churches, can_see_home_groups
 from event.models import EventAnket
 from navigation.models import Table
 from partnership.models import Partnership
+from partnership.permissions import can_see_partners, can_see_partner_stats, can_see_deals
 from summit.models import SummitType, SummitAnket
 
 
@@ -161,15 +162,37 @@ class CustomUser(MPTTModel, User):
     def fullname(self):
         return ' '.join(map(lambda name: name.strip(), (self.last_name, self.first_name, self.middle_name)))
 
-    # permissions
+    # PERMISSIONS
+
+    def _perm_req(self):
+        return type('Request', (), {'user': self})
+
+    # database block
 
     def can_see_churches(self):
-        request = type('Request', (), {'user': self})
+        request = self._perm_req()
         return can_see_churches(request)
 
     def can_see_home_groups(self):
-        request = type('Request', (), {'user': self})
+        request = self._perm_req()
         return can_see_home_groups(request)
+
+    # partner block
+
+    def can_see_partners(self):
+        request = self._perm_req()
+        return can_see_partners(request)
+
+    def can_see_deals(self):
+        request = self._perm_req()
+        return can_see_deals(request)
+
+    def can_see_partner_stats(self):
+        request = self._perm_req()
+        return can_see_partner_stats(request)
+
+    def can_see_any_partner_block(self):
+        return any((self.can_see_partners(), self.can_see_deals(), self.can_see_partner_stats()))
 
 
 @python_2_unicode_compatible

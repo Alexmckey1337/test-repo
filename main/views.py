@@ -17,7 +17,7 @@ from event.models import MeetingType
 from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
 from location.models import Country, Region, City
-from partnership.models import Partnership
+from partnership.models import Partnership, Deal
 from payment.models import Currency
 from status.models import Division
 from summit.models import SummitType
@@ -63,31 +63,63 @@ def meeting_report(request, code):
     return render(request, 'event/meeting_report_create.html', context=ctx)
 
 
-@login_required(login_url='entry')
-def partner(request):
-    ctx = {
-        'departments': Department.objects.all(),
-        'hierarchies': Hierarchy.objects.order_by('level'),
-    }
-    return render(request, 'partner/partners.html', context=ctx)
+# partner
 
 
-@login_required(login_url='entry')
-def deals(request):
-    return render(request, 'partner/deals.html')
+class CanSeePartnersView(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_churches():
+            return HttpResponseForbidden('У Вас нет прав для просмотра данной страницы.')
+        return super(CanSeePartnersView, self).dispatch(request, *args, **kwargs)
 
 
-@login_required(login_url='entry')
-def stats(request):
-    return render(request, 'partner/stats.html')
+class CanSeeDealsView(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_churches():
+            return HttpResponseForbidden('У Вас нет прав для просмотра данной страницы.')
+        return super(CanSeeDealsView, self).dispatch(request, *args, **kwargs)
 
 
-@login_required(login_url='entry')
-def partner_stats(request):
-    partner = request.user.partnership
-    if not partner or partner.level > Partnership.MANAGER:
-        return HttpResponseForbidden('Статистику можно просматривать только менеджерам.')
-    return render(request, 'partner/partner_stats.html')
+class CanSeePartnerStatsView(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_churches():
+            return HttpResponseForbidden('У Вас нет прав для просмотра данной страницы.')
+        return super(CanSeePartnerStatsView, self).dispatch(request, *args, **kwargs)
+
+
+class PartnerListView(LoginRequiredMixin, CanSeePartnersView, ListView):
+    model = Partnership
+    context_object_name = 'partners'
+    template_name = 'partner/partners.html'
+    login_url = 'entry'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(PartnerListView, self).get_context_data(**kwargs)
+
+        extra_context = {
+            'departments': Department.objects.all(),
+            'hierarchies': Hierarchy.objects.order_by('level'),
+        }
+
+        ctx.update(extra_context)
+        return ctx
+
+
+class DealListView(LoginRequiredMixin, CanSeeDealsView, ListView):
+    model = Deal
+    context_object_name = 'deals'
+    template_name = 'partner/deals.html'
+    login_url = 'entry'
+
+
+class PartnerStatisticsListView(LoginRequiredMixin, CanSeePartnerStatsView, ListView):
+    model = Partnership
+    context_object_name = 'partners'
+    template_name = 'partner/stats.html'
+    login_url = 'entry'
+
+
+# account
 
 
 @login_required(login_url='entry')
@@ -132,6 +164,9 @@ def account_edit(request, user_id):
     return render(request, 'account/edit.html', context=ctx)
 
 
+# account
+
+
 @login_required(login_url='entry')
 def summits(request):
     ctx = {
@@ -147,6 +182,9 @@ def summit_info(request, summit_id):
         'summit_type': SummitType.objects.get(id=summit_id),
     }
     return render(request, 'summit/summit_info.html', context=ctx)
+
+
+# database
 
 
 class CanSeeChurchesView(View):
@@ -248,53 +286,6 @@ class HomeGroupDetailView(LoginRequiredMixin, CanSeeHomeGroupsView, DetailView):
         ctx.update(extra_context)
 
         return ctx
-
-
-@login_required(login_url='entry')
-def church_detail(request, church_id):
-    if not request.user.can_see_churches():
-        return HttpResponseForbidden('У Вас нет прав для просмотра данной страницы.')
-    church = get_object_or_404(Church, id=church_id)
-
-    ctx = {
-        'church': church,
-        'currencies': Currency.objects.all(),
-        'pastors': CustomUser.objects.filter(church__pastor__id__isnull=False).distinct(),
-
-        'church_users': church.users.count(),
-        'church_all_users': church.users.count() + HomeGroup.objects.filter(church_id=church_id).aggregate(
-            home_users=Count('users'))['home_users'],
-        'parishioners_count': church.users.filter(hierarchy__level=0).count() + HomeGroup.objects.filter(
-            church__id=church_id).filter(users__hierarchy__level=0).count(),
-        'leaders_count': church.users.filter(hierarchy__level=1).count() + HomeGroup.objects.filter(
-            church__id=church_id).filter(users__hierarchy__level=1).count(),
-        'home_groups_count': church.home_group.count(),
-        'fathers_count': church.users.filter(spiritual_level=CustomUser.FATHER).count() + HomeGroup.objects.filter(
-            church__id=church_id).filter(users__spiritual_level=3).count(),
-        'juniors_count': church.users.filter(spiritual_level=CustomUser.JUNIOR).count() + HomeGroup.objects.filter(
-            church__id=church_id).filter(users__spiritual_level=2).count(),
-        'babies_count': church.users.filter(spiritual_level=CustomUser.BABY).count() + HomeGroup.objects.filter(
-            church__id=church_id).filter(users__spiritual_level=1).count(),
-        'partners_count': church.users.filter(partnership__is_active=True).count(),
-    }
-    return render(request, 'group/church_detail.html', context=ctx)
-
-
-@login_required(login_url='entry')
-def home_group_detail(request, group_id):
-    if not request.user.can_see_home_groups():
-        return HttpResponseForbidden('У Вас нет прав для просмотра данной страницы.')
-    home_group = get_object_or_404(HomeGroup, id=group_id)
-
-    ctx = {
-        'home_group': home_group,
-        'users_count': home_group.users.count(),
-        'fathers_count': home_group.users.filter(spiritual_level=CustomUser.FATHER).count(),
-        'juniors_count': home_group.users.filter(spiritual_level=CustomUser.JUNIOR).count(),
-        'babies_count': home_group.users.filter(spiritual_level=CustomUser.BABY).count(),
-        'partners_count': home_group.users.filter(partnership__is_active=True).count(),
-    }
-    return render(request, 'group/home_group_detail.html', context=ctx)
 
 
 @login_required(login_url='entry')
