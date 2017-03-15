@@ -23,7 +23,7 @@ from hierarchy.models import Department
 from .models import HomeGroup, Church
 from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSerializer, HomeGroupListSerializer,
                           ChurchStatsSerializer, HomeGroupStatsSerializer, AllChurchesListSerializer,
-                          AllHomeGroupsListSerializer, PastorNameSerializer, LeaderNameSerializer)
+                          AllHomeGroupsListSerializer, UserNameSerializer)
 
 
 class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroupMixin, ExportViewSetMixin):
@@ -159,20 +159,29 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
     def statistics(self, request, pk):
         stats = {}
         church = get_object_or_404(Church, pk=pk)
+
         stats['church_users'] = church.users.count()
+
         stats['church_all_users'] = (church.users.count() + HomeGroup.objects.filter(church_id=pk).aggregate(
             home_users=Count('users'))['home_users'])
+
         stats['parishioners_count'] = church.users.filter(hierarchy__level=0).count() + HomeGroup.objects.filter(
             church__id=pk).filter(users__hierarchy__level=0).count()
+
         stats['leaders_count'] = church.users.filter(hierarchy__level=1).count() + HomeGroup.objects.filter(
             church__id=pk).filter(users__hierarchy__level=1).count()
+
         stats['home_groups_count'] = church.home_group.count()
+
         stats['fathers_count'] = church.users.filter(spiritual_level=CustomUser.FATHER).count() + \
                                  HomeGroup.objects.filter(church__id=pk).filter(users__spiritual_level=3).count()
+
         stats['juniors_count'] = church.users.filter(spiritual_level=CustomUser.JUNIOR).count() + \
                                  HomeGroup.objects.filter(church__id=pk).filter(users__spiritual_level=2).count()
+
         stats['babies_count'] = church.users.filter(spiritual_level=CustomUser.BABY).count() + \
                                 HomeGroup.objects.filter(church__id=pk).filter(users__spiritual_level=1).count()
+
         stats['partners_count'] = church.users.filter(partnership__is_active=True).count() + HomeGroup.objects.filter(
             church__id=pk).filter(users__partnership__is_active=True).count()
 
@@ -193,7 +202,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
         churches = self.serializer_class(churches, many=True)
         return Response(churches.data)
 
-    @list_route(methods=['GET'], serializer_class=PastorNameSerializer)
+    @list_route(methods=['GET'], serializer_class=UserNameSerializer)
     def get_pastors_by_department(self, request):
         department_id = request.query_params.get('department_id')
         pastors = CustomUser.objects.filter(church__pastor__id__isnull=False).distinct()
@@ -333,7 +342,7 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
 
         return Response(home_groups.data)
 
-    @list_route(methods=['GET'], serializer_class=LeaderNameSerializer)
+    @list_route(methods=['GET'], serializer_class=UserNameSerializer)
     def get_leaders_by_church(self, request):
         church_id = request.query_params.get('church_id')
         leaders = CustomUser.objects.filter(home_group__leader__id__isnull=False).distinct()
