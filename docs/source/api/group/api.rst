@@ -93,13 +93,9 @@ List of churches
     :query int pastor: filter by ``pastor_id``
     :query int page_size: page size, default is 30
     :query string title: search by ``title``
-    :query string country: search by ``country``
-    :query string city: search by ``city``
-    :query string is_open: search by ``is_open``
-    :query string phone_number: search by ``phone_number``
     :query string ordering: order by one of ``title``, ``city``, ``department``, ``home_group``, ``is_open``,
                                             ``opening_date``, ``pastor``, ``phone_number``, ``title``, ``website``
-                                            ``count_groups``, ``count_users``,
+                                            ``count_groups``, ``count_users``, ``country``
 
     **Example response(Bad request)**:
 
@@ -223,7 +219,7 @@ Create new church
     :form title: title
     :form department: department id, **required**
     :form pastor: pastor id, **required**
-    :form country: "", **required**
+    :form country: country, **required**
     :form city: city
     :form address: address
     :form phone_number: phone number
@@ -1034,16 +1030,16 @@ Statistics of churches
         }
 
 
-All Church objects without pagination
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+All Church objects without pagination, filtered by department
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. http:get:: /api/v1.0/churches/all
+.. http:get:: /api/v1.0/churches/all/?department_id=<int(department_id)>
 
     **Example request**:
 
     .. sourcecode:: http
 
-        GET /api/v1.0/churches/all HTTP/1.1
+        GET /api/v1.0/churches/all/?department_id=1 HTTP/1.1
         Host: vocrm.org
         Content-type: application/json
 
@@ -1058,16 +1054,8 @@ All Church objects without pagination
 
         [
             {
-                "id": 27,
-                "get_title": "Третья Церковь"
-            },
-            {
                 "id": 26,
                 "get_title": "Вторая Церковь"
-            },
-            {
-                "id": 25,
-                "get_title": "Курлык Курлык"
             },
             {
                 "id": 18,
@@ -1078,6 +1066,22 @@ All Church objects without pagination
                 "get_title": "Вторая Церковь"
             }
         ]
+
+    **Example response (Bad Request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        [
+            "Некорректный запрос. Департамент не передан."
+        ]
+
+    :statuscode 200: no error
+    :statuscode 400: bad request
 
 
 Available pastors filtered by department
@@ -1225,7 +1229,7 @@ List of home groups
     :query string website: filter by ``website``
     :query string ordering: order by one of ``address``, ``church``, ``city``, ``leader``,
                                             ``opening_date``, ``phone_number``, ``title``,
-                                            ``website``,
+                                            ``website``, ``count_users``
 
     :statuscode 200: no error
     :statuscode 403: no authentication
@@ -1342,6 +1346,7 @@ Create home group
 
     :form opening_date: home group opening date, **required**
     :form title: title
+    :form country: country, **required**
     :form city: city, **required**
     :form church: church id, **required**
     :form leader: leader id, **required**
@@ -1920,16 +1925,16 @@ Statistics of home groups
     :statuscode 404: Home Group object with <id> not found
 
 
-All HomeGroup objects without pagination
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+All HomeGroup objects without pagination filtered by selected church
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. http:get:: /api/v1.0/home_groups/all
+.. http:get:: /api/v1.0/home_groups/all/?church_id
 
     **Example request**:
 
     .. sourcecode:: http
 
-        GET /api/v1.0/home_groups/all HTTP/1.1
+        GET /api/v1.0/home_groups/all/?church_id=18 HTTP/1.1
         Host: vocrm.org
         Content-type: application/json
 
@@ -1944,10 +1949,6 @@ All HomeGroup objects without pagination
 
         [
             {
-                "id": 18,
-                "get_title": "Домашнаяя Группа №3"
-            },
-            {
                 "id": 17,
                 "get_title": "Киев П"
             },
@@ -1960,6 +1961,22 @@ All HomeGroup objects without pagination
                 "get_title": "Домашняя Группа №2"
             }
         ]
+
+    **Example response (Bad Request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        [
+            "Не корректный запрос. Церковь не передана."
+        ]
+
+    :statuscode 200: no error
+    :statuscode 404: Home Group object with <id> not found
 
 
 Available Home Group leaders filtered selected church

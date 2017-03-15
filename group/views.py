@@ -193,7 +193,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
     def all(self, request):
 
         if not request.query_params.get('department_id'):
-            raise exceptions.ValidationError(_("Не корректный запрос. Департамент не передан."))
+            raise exceptions.ValidationError(_("Некорректный запрос. Департамент не передан."))
 
         departments = request.query_params.lists()
         departments = [x for x in departments][0][1]
@@ -335,7 +335,7 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         church_id = request.query_params.get('church_id')
 
         if not church_id:
-            raise exceptions.ValidationError(_("Не корректный запрос. Церковь не передана."))
+            raise exceptions.ValidationError(_("Некорректный запрос. Церковь не передана."))
 
         home_groups = HomeGroup.objects.filter(church_id=church_id)
         home_groups = self.serializer_class(home_groups, many=True)
