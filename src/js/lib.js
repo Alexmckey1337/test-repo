@@ -532,13 +532,16 @@ function createChurchesUsersTable(id, config = {}) {
 }
 
 function createChurchesDetailsTable(config = {}, id, link) {
-    if (id === undefined) {
+    if (config.id === undefined) {
         id = $('#church').attr('data-id');
+    } else {
+        id = config.id;
     }
     if (link === undefined) {
         link = $('.get_info .active').data('link');
     }
     getChurchDetails(id, link, config).then(function (data) {
+        console.log(id);
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
@@ -562,7 +565,7 @@ function createChurchesDetailsTable(config = {}, id, link) {
             currentPage: page,
             pages: pages,
             id: id,
-            callback: createChurchesUsersTable
+            callback: createChurchesDetailsTable
         };
         makePagination(paginationConfig);
         $('.table__count').text(text);
