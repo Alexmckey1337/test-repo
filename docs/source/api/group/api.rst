@@ -1962,7 +1962,7 @@ All HomeGroup objects without pagination filtered by selected church
             }
         ]
 
-    **Example response (Bad Request)**:
+    **Example response (Bad Request, without church_id)**:
 
     .. sourcecode:: http
 
@@ -1976,19 +1976,19 @@ All HomeGroup objects without pagination filtered by selected church
         ]
 
     :statuscode 200: no error
-    :statuscode 404: Home Group object with <id> not found
+    :statuscode 404: Home Group object with id=<id> is not found
 
 
-Available Home Group leaders filtered selected church
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Available Home Group leaders filtered by selected church
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. http:get:: /api/v1.0/home_groups/get_leaders_by_department/?church_id=<int(church_id)>
+.. http:get:: /api/v1.0/home_groups/get_leaders_by_church/?church_id=<int(church_id)>
 
     **Example request**
 
     .. sourcecode:: http
 
-        GET /api/v1.0/homr_groups/get_leaders_by_church/?church_id=18 HTTP/1.1
+        GET /api/v1.0/home_groups/get_leaders_by_church/?church_id=18 HTTP/1.1
         Host: vocrm.org
         Content-type: application/json
 
