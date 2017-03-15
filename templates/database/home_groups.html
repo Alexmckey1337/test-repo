@@ -90,6 +90,9 @@
                             <label for="church_filter">Церковь</label>
                         </p>
                         <p class="label_block">
+                            <label for="tree_filter">Ветка</label>
+                        </p>
+                        <p class="label_block">
                             <label for="leader_filter">Лидер</label>
                         </p>
                         <p class="label_block">
@@ -105,6 +108,14 @@
                                 <option value="">ВСЕ</option>
                                 {% for church in churches %}
                                     <option value="{{ church.id }}">{{ church.get_title }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                    <p class="input_block">
+                            <select class="selectdb" data-filter="master_tree" id="church_filter">
+                                <option value="">ВСЕ</option>
+                                {% for master in masters %}
+                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
                                 {% endfor %}
                             </select>
                         </p>

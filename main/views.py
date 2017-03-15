@@ -154,6 +154,7 @@ def churches(request):
     ctx = {
         'departments': Department.objects.all(),
         'church_all_pastors': CustomUser.objects.filter(church__pastor__id__isnull=False).distinct(),
+        'masters': CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1),
     }
     return render(request, 'database/churches.html', context=ctx)
 
@@ -197,6 +198,7 @@ def home_groups(request):
     ctx = {
         'churches': Church.objects.all(),
         'leaders': CustomUser.objects.filter(home_group__leader__id__isnull=False).distinct(),
+        'masters': CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1),
     }
     return render(request, 'database/home_groups.html', context=ctx)
 

@@ -608,7 +608,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     $('.sel__date').each(function () {
         let $el = $(this);
         console.log($el.val());
-        let date = ($el.val() && $el.val() != 'Не покаялся') ? new Date($el.val().split('-').join(', ')) : new Date();
+        let date = ($el.val() && $el.val() != 'Не покаялся') ? new Date($el.val().split('.').reverse().join(', ')) : new Date();
         $el.datepicker({
             autoClose: true,
             startDate: date,

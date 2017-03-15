@@ -4,6 +4,7 @@
 
     $('#department_select').select2();
     $('#pastor_select').select2();
+    $('#tree_filter').select2();
     $departmentsFilter.select2();
     $('#hierarchies_filter').select2();
     $('#pastor_filter').select2();
