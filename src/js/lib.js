@@ -2356,9 +2356,12 @@ function getHomeGroupStats(id) {
 }
 
 function getPastorsByDepartment(id) {
-    let resData = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/get_pastors_by_department/?department_id=${id}`
-    };
+    let resData = {};
+    if(id) {
+        resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/get_pastors_by_department/?department_id=${id}`;
+    } else {
+        resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/get_pastors_by_department/`;
+    }
     if (getCookie('key')) {
         resData.headers['Authorization'] = 'Token ' + getCookie('key');
     }
@@ -2376,9 +2379,12 @@ function getPastorsByDepartment(id) {
 }
 
 function getLeadersByChurch(id) {
-    let resData = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/?church_id=${id}`
-    };
+    let resData = {};
+    if(id) {
+        resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/?church_id=${id}`
+    } else {
+        resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/`
+    }
     if (getCookie('key')) {
         resData.headers['Authorization'] = 'Token ' + getCookie('key');
     }

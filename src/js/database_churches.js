@@ -53,20 +53,21 @@
     });
     $departmentsFilter.on('change', function () {
         let departamentID = $(this).val();
-        if(departamentID) {
-            getPastorsByDepartment(departamentID).then(function (data) {
-                let options = [];
-                let option = document.createElement('option');
-                $(option).text('ВСЕ');
-                options.push(option);
-                data.forEach(function (item) {
-                    let option = document.createElement('option');
-                    $(option).val(item.id).text(item.fullname);
-                    options.push(option);
-                });
-                console.log(options);
-                $('#pastor_filter').html(options);
-            });
+        if(!departamentID) {
+            departamentID = null;
         }
+        getPastorsByDepartment(departamentID).then(function (data) {
+            let options = [];
+            let option = document.createElement('option');
+            $(option).text('ВСЕ');
+            options.push(option);
+            data.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.fullname);
+                options.push(option);
+            });
+            console.log(options);
+            $('#pastor_filter').html(options);
+        });
     })
 })(jQuery);

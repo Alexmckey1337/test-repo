@@ -46,8 +46,10 @@
     });
     $churchFilter.on('change', function () {
         let churchesID = $(this).val();
-        if(churchesID) {
-            getLeadersByChurch(churchesID).then(function (data) {
+        if(!churchesID) {
+            churchesID = null;
+        }
+        getLeadersByChurch(churchesID).then(function (data) {
                 let options = [];
                 let option = document.createElement('option');
                 $(option).text('ВСЕ');
@@ -60,6 +62,5 @@
                 console.log(options);
                 $('#leader_filter').html(options);
             });
-        }
     })
 })(jQuery);
