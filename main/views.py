@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.views.generic import DetailView
@@ -69,21 +69,21 @@ def meeting_report(request, code):
 class CanSeePartnersView(View):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.can_see_churches():
-            return HttpResponseForbidden('У Вас нет прав для просмотра данной страницы.')
+            raise PermissionDenied
         return super(CanSeePartnersView, self).dispatch(request, *args, **kwargs)
 
 
 class CanSeeDealsView(View):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.can_see_churches():
-            return HttpResponseForbidden('У Вас нет прав для просмотра данной страницы.')
+            raise PermissionDenied
         return super(CanSeeDealsView, self).dispatch(request, *args, **kwargs)
 
 
 class CanSeePartnerStatsView(View):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.can_see_churches():
-            return HttpResponseForbidden('У Вас нет прав для просмотра данной страницы.')
+            raise PermissionDenied
         return super(CanSeePartnerStatsView, self).dispatch(request, *args, **kwargs)
 
 
@@ -190,14 +190,14 @@ def summit_info(request, summit_id):
 class CanSeeChurchesView(View):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.can_see_churches():
-            return HttpResponseForbidden('У Вас нет прав для просмотра данной страницы.')
+            raise PermissionDenied
         return super(CanSeeChurchesView, self).dispatch(request, *args, **kwargs)
 
 
 class CanSeeHomeGroupsView(View):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.can_see_home_groups():
-            return HttpResponseForbidden('У Вас нет прав для просмотра данной страницы.')
+            raise PermissionDenied
         return super(CanSeeHomeGroupsView, self).dispatch(request, *args, **kwargs)
 
 
