@@ -422,12 +422,11 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                     let churchID = $(this).val();
                     if (churchID && typeof parseInt(churchID) == "number") {
                         makeHomeGroupsList(churchID).then(function (data) {
-                            let results = data.results;
                             let options = [];
                             let option = document.createElement('option');
                             $(option).val('').text('Выбирите домашнюю группу').attr('selected', true).attr('disabled', true);
                             options.push(option);
-                            results.forEach(function (item) {
+                            data.forEach(function (item) {
                                 let option = document.createElement('option');
                                 $(option).val(item.id).text(item.get_title);
                                 options.push(option);
@@ -537,17 +536,22 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                             return;
                         }
                         let id = $(this).attr('id');
-                        if ($('#' + id).val() instanceof Array) {
+                        let $val = $('#' + id);
+                        if ($val.val() instanceof Array) {
                             formData.append(id, JSON.stringify($('#' + id).val()));
                         } else {
-                            if ($('#' + id).val()) {
-                                if ($('#' + id).hasClass('sel__date')) {
-                                    formData.append(id, $('#' + id).val().trim().split('.').reverse().join('-'));
+                            if ($val.val()) {
+                                if ($val.hasClass('sel__date')) {
+                                    if($val.val() == "Не покаялся") {
+                                        formData.append(id, "");
+                                    } else {
+                                        formData.append(id, $('#' + id).val().trim().split('.').reverse().join('-'));
+                                    }
                                 } else {
                                     formData.append(id, JSON.stringify($('#' + id).val().trim().split(',').map((item) => item.trim())));
                                 }
                             } else {
-                                if ($('#' + id).hasClass('sel__date')) {
+                                if ($val.hasClass('sel__date')) {
                                     formData.append(id, '');
                                 } else {
                                     formData.append(id, JSON.stringify([]));
