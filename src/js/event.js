@@ -30,8 +30,8 @@ function getEventsList(){
 */
 		 Array.prototype.forEach.call(document.querySelectorAll('.event-hover'), function(el) {
 		        el.addEventListener('click', function() {
-                    let id = this.parentElement.getAttribute('data-id')
-                    let title = this.parentElement.getAttribute('data-tittle')
+                    let id = this.parentElement.getAttribute('data-id');
+                    let title = this.parentElement.getAttribute('data-tittle');
 		            document.location.href = '/event_info?id=' + id +'&title=' + title
 		        })
     	});

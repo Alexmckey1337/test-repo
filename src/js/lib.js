@@ -517,6 +517,7 @@ function createChurchesUsersTable(id, config = {}) {
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINChurches').html(rendered);
         makeSortForm(filterData.user_table);
+        console.log(id);
         let paginationConfig = {
             container: ".users__pagination",
             currentPage: page,
@@ -1033,6 +1034,7 @@ function getPayment(id) {
 }
 
 function makePagination(config) {
+    console.log(config);
     let container = document.createElement('div'),
         input = document.createElement('input'),
         text = document.createElement('span'),
