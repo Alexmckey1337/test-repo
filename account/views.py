@@ -57,7 +57,7 @@ class UserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
         FieldSearchFilter,
         filters.OrderingFilter,
         FilterByBirthday,
-        FilterMasterTree,
+        FilterMasterTreeWithSelf,
     )
     permission_classes = (IsAuthenticated,)
     ordering_fields = ('first_name', 'last_name', 'middle_name',
