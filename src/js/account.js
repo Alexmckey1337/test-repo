@@ -489,7 +489,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                             $(this).attr('disabled', false);
                         }
                         $(this).attr('readonly', false);
-                        if ($(this).is('select')) {
+                        if ($(this).is('select') && $(this).is(':not(.no_select)')) {
                             $(this).select2();
                         }
                     }

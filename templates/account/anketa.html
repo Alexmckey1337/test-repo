@@ -336,7 +336,7 @@
                                         <input type="text" data-id="value" value="{{ account.partnership.value }}"
                                                id="payment_value"
                                                readonly disabled>
-                                        <select id="payment_currency" data-id="currency" required readonly disabled>
+                                        <select id="payment_currency" class="no_select" data-id="currency" required readonly disabled>
                                             {% for currency in currencies %}
                                                 <option value="{{ currency.id }}"
                                                         {% if currency == account.partnership.currency %}selected{% endif %}>

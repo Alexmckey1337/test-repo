@@ -106,7 +106,7 @@
                 $(option).val(item.id).text(item.fullname);
                 options.push(option);
             });
-            $('#masters_filter').html(options);
+            $('#pastor_filter').html(options);
         });
     });
 })(jQuery);
