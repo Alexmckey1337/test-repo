@@ -6,7 +6,7 @@ from location.models import Country
 from partnership.models import Partnership
 from payment.models import Currency
 from status.models import Division
-from summit.models import SummitAnket, SummitUserConsultant
+from summit.models import SummitAnket, SummitUserConsultant, Summit
 
 register = template.Library()
 
@@ -46,7 +46,11 @@ def is_consultant_for_user(context, summit, user_to, user_from=None):
 
 
 @register.simple_tag
-def available_summits(summit_type, user):
-    return summit_type.summits.filter(
-        ankets__user=user,
-        ankets__role__gte=SummitAnket.CONSULTANT).distinct()
+def available_summits(user, summit_type=None):
+    qs_filter = {
+        'ankets__user': user,
+        'ankets__role__gte': SummitAnket.CONSULTANT
+    }
+    if summit_type:
+        return summit_type.summits.filter(**qs_filter).distinct()
+    return Summit.objects.filter(**qs_filter).distinct()

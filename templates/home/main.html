@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% load i18n %}
 {% load static %}
 {% block main_styles %}
     {{ block.super }}
@@ -36,13 +37,13 @@
                 <div class="col-sm-4">
                     <h2>Партнёрство</h2>
                     <ul>
-                        {% if can_see_deals %}
+                        {% if user.can_see_deals %}
                             <li><a href="{% url 'partner:deals' %}">Сделки</a></li>
                         {% endif %}
-                        {% if can_see_partners %}
+                        {% if user.can_see_partners %}
                             <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
                         {% endif %}
-                        {% if can_see_stats %}
+                        {% if user.can_see_partner_stats %}
                             <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
                         {% endif %}
                     </ul>
@@ -51,8 +52,10 @@
             <div class="col-sm-4">
                 <h2>Саммиты</h2>
                 <ul>
-                    {% for summit in summits %}
+                    {% for summit in user.available_summit_types %}
                         <li><a href="{% url 'summit:detail' summit.id %}">{{ summit.title }}</a></li>
+                    {% empty %}
+                        <li>{% trans "Нет доступных саммитов." %}</li>
                     {% endfor %}
                 </ul>
             </div>

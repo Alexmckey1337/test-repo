@@ -67,28 +67,28 @@ def meeting_report(request, code):
 # partner
 
 
-class CanSeePartnersView(View):
+class CanSeePartnersMixin(View):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.can_see_churches():
             raise PermissionDenied
-        return super(CanSeePartnersView, self).dispatch(request, *args, **kwargs)
+        return super(CanSeePartnersMixin, self).dispatch(request, *args, **kwargs)
 
 
-class CanSeeDealsView(View):
+class CanSeeDealsMixin(View):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.can_see_churches():
             raise PermissionDenied
-        return super(CanSeeDealsView, self).dispatch(request, *args, **kwargs)
+        return super(CanSeeDealsMixin, self).dispatch(request, *args, **kwargs)
 
 
-class CanSeePartnerStatsView(View):
+class CanSeePartnerStatsMixin(View):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.can_see_churches():
             raise PermissionDenied
-        return super(CanSeePartnerStatsView, self).dispatch(request, *args, **kwargs)
+        return super(CanSeePartnerStatsMixin, self).dispatch(request, *args, **kwargs)
 
 
-class PartnerListView(LoginRequiredMixin, CanSeePartnersView, ListView):
+class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, ListView):
     model = Partnership
     context_object_name = 'partners'
     template_name = 'partner/partners.html'
@@ -106,14 +106,14 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersView, ListView):
         return ctx
 
 
-class DealListView(LoginRequiredMixin, CanSeeDealsView, ListView):
+class DealListView(LoginRequiredMixin, CanSeeDealsMixin, ListView):
     model = Deal
     context_object_name = 'deals'
     template_name = 'partner/deals.html'
     login_url = 'entry'
 
 
-class PartnerStatisticsListView(LoginRequiredMixin, CanSeePartnerStatsView, ListView):
+class PartnerStatisticsListView(LoginRequiredMixin, CanSeePartnerStatsMixin, ListView):
     model = Partnership
     context_object_name = 'partners'
     template_name = 'partner/stats.html'
@@ -165,7 +165,32 @@ def account_edit(request, user_id):
     return render(request, 'account/edit.html', context=ctx)
 
 
-# account
+# summit
+
+
+class CanSeeSummitTypeMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        summit_type = kwargs.get('pk')
+        if not (summit_type and request.user.can_see_summit_type(summit_type)):
+            raise PermissionDenied
+        return super(CanSeeSummitTypeMixin, self).dispatch(request, *args, **kwargs)
+
+
+class SummitTypeView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
+    model = SummitType
+    context_object_name = 'summit_type'
+    template_name = 'summit/summit_info.html'
+    login_url = 'entry'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(SummitTypeView, self).get_context_data(**kwargs)
+
+        extra_context = {
+            'departments': Department.objects.all(),
+        }
+
+        ctx.update(extra_context)
+        return ctx
 
 
 @login_required(login_url='entry')
@@ -174,15 +199,6 @@ def summits(request):
         'summit_types': SummitType.objects.exclude(id=3)
     }
     return render(request, 'summit/summits.html', context=ctx)
-
-
-@login_required(login_url='entry')
-def summit_info(request, summit_id):
-    ctx = {
-        'departments': Department.objects.all(),
-        'summit_type': SummitType.objects.get(id=summit_id),
-    }
-    return render(request, 'summit/summit_info.html', context=ctx)
 
 
 # database

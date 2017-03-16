@@ -14,7 +14,7 @@ from summit.templatetags.summit_tags import available_summits, is_consultant_for
 def test_available_summits(user, summit_anket_factory, role, count):
     anket = summit_anket_factory(user=user, role=role)
 
-    assert available_summits(anket.summit.type, user).count() == count
+    assert available_summits(user, anket.summit.type).count() == count
 
 
 @pytest.mark.django_db

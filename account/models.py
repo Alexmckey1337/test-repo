@@ -23,6 +23,7 @@ from navigation.models import Table
 from partnership.models import Partnership
 from partnership.permissions import can_see_partners, can_see_partner_stats, can_see_deals
 from summit.models import SummitType, SummitAnket
+from summit.permissions import can_see_summit, can_see_summit_type, can_see_any_summit, can_see_any_summit_type
 
 
 class CustomUserManager(TreeManager, UserManager):
@@ -193,6 +194,24 @@ class CustomUser(MPTTModel, User):
 
     def can_see_any_partner_block(self):
         return any((self.can_see_partners(), self.can_see_deals(), self.can_see_partner_stats()))
+
+    # summit block
+
+    def can_see_summit(self, summit_id):
+        request = self._perm_req()
+        return can_see_summit(request, summit_id)
+
+    def can_see_summit_type(self, summit_type):
+        request = self._perm_req()
+        return can_see_summit_type(request, summit_type)
+
+    def can_see_any_summit(self):
+        request = self._perm_req()
+        return can_see_any_summit(request)
+
+    def can_see_any_summit_type(self):
+        request = self._perm_req()
+        return can_see_any_summit_type(request)
 
 
 @python_2_unicode_compatible
