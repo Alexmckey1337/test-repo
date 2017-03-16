@@ -58,7 +58,7 @@ class CommonGroupMasterTreeFilter(BaseFilterBackend):
         master_left = master.lft
         master_right = master.rght
 
-        users = CustomUser.objects.exclude(pk=master).filter(hierarchy__level__gte=self.level).filter(
+        users = CustomUser.objects.filter(hierarchy__level__gte=self.level).filter(
             tree_id=master_tree_id, lft__gte=master_left, rght__lte=master_right)
 
         return self.model.objects.filter(**{self.search: [user.id for user in users]})
