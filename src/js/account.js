@@ -30,14 +30,20 @@ function updateUser(id, data, success = null) {
 }
 
 function makeResponsibleList(department, status) {
+    let $selectResponsible = $('#selectResponsible');
+    let activeMaster = $selectResponsible.val();
+    console.log(activeMaster);
     getResponsible(department, status).then(function (data) {
         let rendered = [];
         data.forEach(function (item) {
             let option = document.createElement('option');
             $(option).val(item.id).text(item.fullname);
+            if (activeMaster == item.id) {
+                $(option).attr('selected', true);
+            }
             rendered.push(option);
         });
-        $('#selectResponsible').html(rendered);
+        $selectResponsible.html(rendered);
     })
 }
 
@@ -180,7 +186,6 @@ $('#send_new_deal').on('click', function () {
         });
         ajaxRequest(url, deal, function (data) {
             showPopup('Сделка создана.');
-
             $('#popup-create_deal textarea').val('');
             $('#new_deal_sum').val('');
             $('#new_deal_date').val('');
@@ -456,16 +461,21 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
             }
         });
         let $block = $('#' + $(this).data('edit-block'));
-        let $input = $block.find('input, select');
+        let $input = $block.find('input:not(.select2-search__field), select');
         let $hiddenBlock = $(this).parent().find('.hidden');
         $hiddenBlock.each(function () {
             $(this).removeClass('hidden');
         });
         if ($(this).hasClass('active')) {
-            $input.each(function () {
-                $(this).attr('readonly', true);
+            $input.each(function (i, el) {
                 if (!$(this).attr('disabled')) {
                     $(this).attr('disabled', true);
+                }
+                $(this).attr('readonly', true);
+                if ($(el).is('select')) {
+                    if ($(this).is(':not([multiple])')) {
+                        $(this).select2('destroy');
+                    }
                 }
             });
             $(this).removeClass('active');
@@ -475,9 +485,12 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
             } else {
                 $input.each(function () {
                     if (!$(this).hasClass('no__edit')) {
-                        $(this).attr('readonly', false);
                         if ($(this).attr('disabled')) {
                             $(this).attr('disabled', false);
+                        }
+                        $(this).attr('readonly', false);
+                        if ($(this).is('select')) {
+                            $(this).select2();
                         }
                     }
                 });
@@ -490,7 +503,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         $(this).closest('form').find('.edit').removeClass('active');
         let _self = this;
         let $block = $(this).closest('.right-info__block');
-        let $input = $block.find('input, select');
+        let $input = $block.find('input:not(.select2-search__field), select');
         let thisForm = $(this).closest('form');
         let success = $(this).closest('.right-info__block').find('.success__block');
         let formName = thisForm.attr('name');
@@ -542,7 +555,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                         } else {
                             if ($val.val()) {
                                 if ($val.hasClass('sel__date')) {
-                                    if($val.val() == "Не покаялся") {
+                                    if ($val.val() == "Не покаялся") {
                                         formData.append(id, "");
                                     } else {
                                         formData.append(id, $('#' + id).val().trim().split('.').reverse().join('-'));
@@ -580,9 +593,14 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         }
 
         $input.each(function () {
-            $(this).attr('readonly', true);
             if (!$(this).attr('disabled')) {
                 $(this).attr('disabled', true);
+            }
+            $(this).attr('readonly', true);
+            if ($(this).is('select')) {
+                if ($(this).is(':not([multiple])')) {
+                    $(this).select2('destroy');
+                }
             }
         });
     });
@@ -600,6 +618,8 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         let department = $(this).val();
         makeResponsibleList(department, status);
     });
+    // after fix
+    makeResponsibleList($('#departments').val(), $('#selectHierarchy').val());
     $('#selectHierarchy').on('change', function () {
         let department = $('#selectDepartment').val();
         let status = $(this).val();
@@ -607,7 +627,6 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     });
     $('.sel__date').each(function () {
         let $el = $(this);
-        console.log($el.val());
         let date = ($el.val() && $el.val() != 'Не покаялся') ? new Date($el.val().split('.').reverse().join(', ')) : new Date();
         $el.datepicker({
             autoClose: true,

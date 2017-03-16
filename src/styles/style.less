@@ -3660,9 +3660,9 @@ span.change[style*="display: none"] ~ span.y {
           font-size: 1.5em;
           &.edit {
             &.active {
-              right: 2.25em;
+              right: 1.25em;
             }
-            right: 1em;
+            right: 0;
             & + .save__info {
               display: none;
             }
@@ -3704,6 +3704,8 @@ span.change[style*="display: none"] ~ span.y {
         & label, & .label__block {
           display: block;
           width: ~'calc(40% - 7px)';
+          height: 1.7em;
+          line-height: 1.7em;
           float: left;
           text-align: right;
           box-sizing: border-box;
@@ -3718,10 +3720,10 @@ span.change[style*="display: none"] ~ span.y {
         & select,
         & .output__block {
           display: block;
-          width: ~'calc(60% - 3px)';
+          width: ~'calc(60% - 12px)';
           height: auto;
-          min-height: 1em;
-          padding: 0;
+          min-height: 1.5em;
+          padding: 0 0.3em;
           float: right;
           text-align: left;
           &#payment_value {
@@ -3959,7 +3961,7 @@ span.change[style*="display: none"] ~ span.y {
 }
 
 .anketa .col:last-child p:nth-child(2) {
-  width: 100px;
+  min-width: 120px;
 }
 
 .anketa .rows:nth-child(1) {
@@ -5217,4 +5219,7 @@ div.code input#code {
       text-indent: 0;
     }
   }
+}
+.select2-container .select2-selection--single .select2-selection__rendered  {
+  padding-right: 0 !important;
 }
