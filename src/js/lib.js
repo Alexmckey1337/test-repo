@@ -2404,13 +2404,11 @@ function getPastorsByDepartment(id) {
     });
 }
 
-function getLeadersByChurch(id) {
-    let resData = {};
-    if(id) {
-        resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/?church_id=${id}`
-    } else {
-        resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/`
-    }
+function getLeadersByChurch(config = {}) {
+    let resData = {
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/`,
+        data: config
+    };
     if (getCookie('key')) {
         resData.headers['Authorization'] = 'Token ' + getCookie('key');
     }

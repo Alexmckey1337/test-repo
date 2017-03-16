@@ -37,34 +37,58 @@
     $('#export_table').on('click', function () {
         $('.preloader').css('display', 'block');
         exportTableData(this)
-        .then(function () {
+            .then(function () {
                 $('.preloader').css('display', 'none');
             })
             .catch(function () {
                 showPopup('Ошибка при загрузке файла');
                 $('.preloader').css('display', 'none');
-        });
+            });
     });
     $churchFilter.on('change', function () {
         let churchesID = $(this).val();
-        if(!churchesID) {
-            churchesID = null;
+        let config = {};
+        if (churchesID) {
+            config = {
+                church_id: churchesID
+            }
         }
-        getLeadersByChurch(churchesID).then(function (data) {
-                let options = [];
+        getLeadersByChurch(config).then(function (data) {
+            let options = [];
+            let option = document.createElement('option');
+            $(option).text('ВСЕ').attr('selected', true);
+            options.push(option);
+            data.forEach(function (item) {
                 let option = document.createElement('option');
-                $(option).text('ВСЕ');
+                $(option).val(item.id).text(item.fullname);
                 options.push(option);
-                data.forEach(function (item) {
-                    let option = document.createElement('option');
-                    $(option).val(item.id).text(item.fullname);
-                    options.push(option);
-                });
-                console.log(options);
-                $('#leader_filter').html(options);
             });
-    }).
-$treeFilter.on('change', function () {
-        
+            $('#tree_filter').html(options);
+            return options
+        }).then(function (data) {
+            console.log(data);
+            // $('#leader_filter').html(data);
+        });
+    });
+    $treeFilter.on('change', function () {
+        let masterTreeID = $(this).val();
+        let config = {};
+        if (masterTreeID) {
+            config = {
+                master_tree: masterTreeID
+            }
+        }
+        getLeadersByChurch(config).then(function (data) {
+            let options = [];
+            let option = document.createElement('option');
+            $(option).text('ВСЕ').attr('selected', true);
+            options.push(option);
+            data.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.fullname);
+                options.push(option);
+            });
+            $('#leader_filter').html(options);
+        });
     })
 })(jQuery);
