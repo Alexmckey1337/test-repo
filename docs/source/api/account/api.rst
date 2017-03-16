@@ -223,7 +223,7 @@ List of users
     :query int page: page number (one of ``int`` or ``last``). default is 1
     :query int hierarchy: filter by ``hierarchy_id``
     :query int master: filter by ``master_id``, returned children of master
-    :query int master_tree: filter by ``master_id``, returned descendants of master
+    :query int master_tree: filter by ``master_id``, returned descendants of master and self master
     :query int department: filter by ``department_id``
     :query int page_size: page size, default is 30
     :query string search_fio: search by ``last_name``, ``first_name``, ``middle_name``, ``search_name``
@@ -1285,7 +1285,7 @@ Export user data
 
     :query int hierarchy: filter by ``hierarchy_id``
     :query int master: filter by ``master_id``, returned children of master
-    :query int master_tree: filter by ``master_id``, returned descendants of master
+    :query int master_tree: filter by ``master_id``, returned descendants of master and self master
     :query int department: filter by ``department_id``
     :query string search_fio: search by ``last_name``, ``first_name``, ``middle_name``, ``search_name``
     :query string search_email: search by ``email``
@@ -1348,6 +1348,7 @@ List users for select
     :query int level_lt: filter by ``hierarchy__level`` -> ``user.hierarchy.level < level_lt``
     :query int level_lte: filter by ``hierarchy__level`` -> ``user.hierarchy.level <= level_lte``
     :query int department: filter by ``department_id``
+    :query int master_tree: filter by ``master_id``, returned descendants of master and self master
     :query string search: search by ``last_name``, ``first_name``, ``middle_name``
 
     :statuscode 200: no error

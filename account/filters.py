@@ -37,7 +37,9 @@ class FilterByBirthday(BaseFilterBackend):
         return queryset.filter(query)
 
 
-class FilterMasterTree(BaseFilterBackend):
+class BaseFilterMasterTree(BaseFilterBackend):
+    include_self_master = False
+
     def filter_queryset(self, request, queryset, view):
         master_id = request.query_params.get('master_tree', None)
 
@@ -53,7 +55,18 @@ class FilterMasterTree(BaseFilterBackend):
         master_left = master.lft
         master_right = master.rght
 
-        return queryset.exclude(pk=master).filter(tree_id=master_tree_id, lft__gte=master_left, rght__lte=master_right)
+        qs = queryset.filter(tree_id=master_tree_id, lft__gte=master_left, rght__lte=master_right)
+        if self.include_self_master:
+            return qs
+        return qs.exclude(pk=master)
+
+
+class FilterMasterTree(BaseFilterMasterTree):
+    include_self_master = False
+
+
+class FilterMasterTreeWithSelf(BaseFilterMasterTree):
+    include_self_master = True
 
 
 class UserFilter(django_filters.FilterSet):

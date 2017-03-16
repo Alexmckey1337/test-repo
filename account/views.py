@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from account.filters import FilterByBirthday, UserFilter, ShortUserFilter, FilterMasterTree
+from account.filters import FilterByBirthday, UserFilter, ShortUserFilter, FilterMasterTree, FilterMasterTreeWithSelf
 from account.models import CustomUser as User
 from common.filters import FieldSearchFilter
 from common.parsers import MultiPartAndJsonParser
@@ -161,6 +161,7 @@ class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
     permission_classes = (IsAuthenticated,)
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
+                       FilterMasterTreeWithSelf,
                        filters.OrderingFilter,)
     # filter_fields = ('first_name', 'last_name', 'hierarchy')
     filter_class = ShortUserFilter
