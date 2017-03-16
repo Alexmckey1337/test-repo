@@ -1,6 +1,7 @@
 (function ($) {
     createHomeGroupsTable();
     let $churchFilter = $('#church_filter');
+    let $treeFilter = $('#tree_filter');
     $('#department_select').select2();
     $('#pastor_select').select2();
     $('.selectdb').select2();
@@ -62,5 +63,8 @@
                 console.log(options);
                 $('#leader_filter').html(options);
             });
+    }).
+$treeFilter.on('change', function () {
+        
     })
 })(jQuery);

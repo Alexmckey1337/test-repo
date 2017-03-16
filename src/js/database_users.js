@@ -1,6 +1,7 @@
 $('document').ready(function () {
+    let $departmentsFilter = $('#departments_filter');
+    let $treeFilter = $("#tree_filter");
     createUsersTable({});
-
     $('.selectdb').select2();
     $('.select_date_filter').datepicker({
         dateFormat: 'yyyy-mm-dd',
@@ -73,11 +74,66 @@ $('document').ready(function () {
         onSuccess: function (form) {
             if ($(form).attr('name') == 'createUser') {
                 $(form).find('#saveNew').attr('disabled', true);
-                createNewUser(null).then(function() {
+                createNewUser(null).then(function () {
                     $(form).find('#saveNew').attr('disabled', false);
                 });
             }
             return false; // Will stop the submission of the form
         },
     });
+    $departmentsFilter.on('change', function () {
+        let departamentID = $(this).val();
+        let config = {
+            level_gte: 2
+        };
+        if (!departamentID) {
+            departamentID = null;
+        } else {
+            config.department = departamentID;
+        }
+        getShortUsers(config).then(function (data) {
+            let options = [];
+            let option = document.createElement('option');
+            $(option).text('ВСЕ');
+            options.push(option);
+            data.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.fullname);
+                options.push(option);
+            });
+            $('#tree_filter').html(options);
+        });
+        getPastorsByDepartment(departamentID).then(function (data) {
+            let options = [];
+            let option = document.createElement('option');
+            $(option).text('ВСЕ');
+            options.push(option);
+            data.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.fullname);
+                options.push(option);
+            });
+            $('#masters_filter').html(options);
+        });
+    });
+    $treeFilter.on('change', function () {
+                let config = {};
+                if ($(this).val() != "ВСЕ") {
+                    config = {
+                        master_tree: $(this).val()
+                    };
+                }
+                getShortUsers(config).then(function (data) {
+                    let options = [];
+                    let option = document.createElement('option');
+                    $(option).text('ВСЕ');
+                    options.push(option);
+                    data.forEach(function (item) {
+                        let option = document.createElement('option');
+                        $(option).val(item.id).text(item.fullname);
+                        options.push(option);
+                    });
+                    $('#masters_filter').html(options);
+                });
+            });
 });

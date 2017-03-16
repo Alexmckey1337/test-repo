@@ -2103,12 +2103,15 @@ function getFilterParam() {
     let $filterFields, data = {};
     $filterFields = $('#filterPopup select, #filterPopup input');
     $filterFields.each(function () {
+        if($(this).val() == "ВСЕ") {
+            return
+        }
         let prop = $(this).data('filter');
         if (prop) {
             if ($(this).attr('type') === 'checkbox') {
                 data[prop] = ucFirst($(this).is(':checked').toString());
             } else {
-                if ($(this).val() && $(this).val() != "ВСЕ") {
+                if ($(this).val()) {
                     data[prop] = $(this).val();
                 }
             }
