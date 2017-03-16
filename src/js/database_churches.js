@@ -1,5 +1,7 @@
 (function ($) {
     let $departmentsFilter = $('#departments_filter');
+    let $treeFilter = ('#tree_filter');
+
     createChurchesTable();
 
     $('#department_select').select2();
@@ -54,9 +56,43 @@
     });
     $departmentsFilter.on('change', function () {
         let departamentID = $(this).val();
+        let config  = {
+            level_gte: 2
+        };
         if(!departamentID) {
             departamentID = null;
+        } else {
+             config.department = departamentID;
         }
+        getShortUsers(config).then(function (data) {
+            let options = [];
+            let option = document.createElement('option');
+            $(option).text('ВСЕ');
+            options.push(option);
+            data.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.fullname);
+                options.push(option);
+            });
+            $('#tree_filter').html(options).on('change', function () {
+        console.log('yes');
+        let config = {
+            master_tree: $(this).val()
+        };
+        getShortUsers(config).then(function (data) {
+            let options = [];
+            let option = document.createElement('option');
+            $(option).text('ВСЕ');
+            options.push(option);
+            data.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.fullname);
+                options.push(option);
+            });
+            $('#pastor_filter').html(options);
+        });
+    });
+        });
         getPastorsByDepartment(departamentID).then(function (data) {
             let options = [];
             let option = document.createElement('option');
@@ -67,8 +103,8 @@
                 $(option).val(item.id).text(item.fullname);
                 options.push(option);
             });
-            console.log(options);
             $('#pastor_filter').html(options);
         });
-    })
+    });
+
 })(jQuery);

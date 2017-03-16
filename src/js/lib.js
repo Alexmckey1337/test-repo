@@ -364,6 +364,29 @@ function getUsers(config = {}) {
     });
 }
 
+function getShortUsers(config = {}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/short_users/`,
+            data: config,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}
+
 function getSummitUsers(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
@@ -2085,7 +2108,7 @@ function getFilterParam() {
             if ($(this).attr('type') === 'checkbox') {
                 data[prop] = ucFirst($(this).is(':checked').toString());
             } else {
-                if ($(this).val()) {
+                if ($(this).val() && $(this).val() != "ВСЕ") {
                     data[prop] = $(this).val();
                 }
             }
