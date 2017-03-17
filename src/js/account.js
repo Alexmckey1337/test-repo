@@ -577,7 +577,9 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
             updateUser(ID, formData, success).then(function (data) {
                 if (hidden) {
                     let editBtn = $(_self).closest('.hidden').data('edit');
-                    $('#' + editBtn).trigger('click');
+                    setTimeout(function () {
+                        $('#' + editBtn).trigger('click');
+                    }, 1500)
                 }
                 $('#fullname').text(data.fullname);
             });

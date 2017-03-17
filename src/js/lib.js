@@ -2117,6 +2117,9 @@ function getFilterParam() {
             }
         }
     });
+    if('master_tree' in data && ('pastor' in data || 'master' in data || 'leader' in data)) {
+        delete data.master_tree;
+    }
     return data;
 }
 
