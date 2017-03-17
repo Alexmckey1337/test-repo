@@ -32,7 +32,6 @@ function updateUser(id, data, success = null) {
 function makeResponsibleList(department, status) {
     let $selectResponsible = $('#selectResponsible');
     let activeMaster = $selectResponsible.val();
-    console.log(activeMaster);
     getResponsible(department, status).then(function (data) {
         let rendered = [];
         data.forEach(function (item) {
@@ -106,7 +105,7 @@ $('#payment-form').on("submit", function (event) {
         createPayment({
             data: new_data
         }, userID).then(function (data) {
-            console.log(data);
+
         });
     }
     // create_payment(id, sum, description, rate, currency);
