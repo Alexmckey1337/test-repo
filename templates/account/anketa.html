@@ -380,10 +380,10 @@
                     <li id="editChurches">
                         <div class="right-info__block">
                             <div class="success__block"></div>
-                            <form action="/" name="editChurches" data-action="update-church">
+                            <form action="/" name="editChurches" id="editChurches" data-action="update-church">
                                 <button class="edit" data-edit-block="editChurches"></button>
                                 <button class="save__info" type="submit"></button>
-                                <ul>
+                                <ul {% if account.home_groups.exists or account.churches.exists %}class="exists"{% endif %}>
                                     {% if account.home_groups.exists %}
                                         <li class="clearfix">
                                             <label for="church_title">Церковь</label>
@@ -420,8 +420,7 @@
                                             <p class="output__block">{{ account.churches.get.pastor.fullname }}</p>
                                         </li>
                                     {% else %}
-                                        <li class="clearfix">Пользователь не состоит ни в церкви ни в домашней группе
-                                        </li>
+                                        <li class="clearfix no_church_in">Пользователь не состоит ни в церкви ни в домашней группе</li>
                                         <li class="clearfix hidden">
                                             <label for="church_title">Церковь</label>
                                             <select type="text" id="church_list" name="churches_title" value="" readonly

@@ -584,12 +584,32 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                 $('#fullname').text(data.fullname);
             });
         } else if (action == 'update-church') {
+            let $existBlock = $('#editChurches').find('ul');
+            let exist = $existBlock.hasClass('exists');
             let church_id = $('#church_list').val();
             let home_groups_id = $('#home_groups_list').val();
             if (!!home_groups_id) {
-                addUserToHomeGroup(ID, church_id, home_groups_id);
+                addUserToHomeGroup(ID, home_groups_id, exist).then(function (data) {
+                    let success = $('.success__block');
+                        $(success).text('Сохранено');
+                        setTimeout(function () {
+                            $(success).text('');
+                            $('.no_church_in').text('');
+                        }, 3000);
+                }).catch(function (data) {
+                    showPopup(JSON.parse(data.responseText));
+                });
             } else if (!!church_id) {
-                addUserToChurch(ID, church_id);
+                addUserToChurch(ID, church_id, exist).then(function (data) {
+                    let success = $('.success__block');
+                        $(success).text('Сохранено');
+                        setTimeout(function () {
+                            $(success).text('');
+                            $('.no_church_in').text('');
+                        }, 3000);
+                }).catch(function (data) {
+                    showPopup(JSON.parse(data.responseText));
+                });
             }
 
         }
@@ -685,7 +705,6 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
             reader.readAsDataURL(file);
         }
     }
-
     $('#divisions').select2();
     $('#departments').select2();
     $('#sent_date').datepicker({

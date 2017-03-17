@@ -21,18 +21,62 @@ function getChurches(config = {}) {
     });
 }
 
-function addUserToChurch(user_id, id) {
-    let config = {};
-    config.user_id = user_id;
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/add_user/`, config, function () {
-    }, 'POST', 'application/json');
+function addUserToChurch(user_id, id, exist = false) {
+    let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${id}/add_user/`;
+    let config = {
+        url: url,
+        method: "POST",
+        data: {
+            user_id: user_id
+        }
+    };
+
+    if(exist) {
+        config.method = "PUT";
+    }
+    // ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/add_user/`, config, function () {
+    // }, 'POST', 'application/json');
+
+    return new Promise(function (resolve, reject) {
+        let codes = {
+            201: function (data) {
+                resolve(data);
+            },
+            400: function (data) {
+                reject(data)
+            }
+        };
+        newAjaxRequest(config, codes, reject)
+    });
 }
 
-function addUserToHomeGroup(user_id, c_id) {
-    let config = {};
-    config.user_id = user_id;
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${c_id}/add_user/`, config, function () {
-    }, 'POST', 'application/json');
+function addUserToHomeGroup(user_id, h_id, exist = false) {
+    let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${h_id}/add_user/`;
+    let config = {
+        url: url,
+        method: "POST",
+        data: {
+            user_id: user_id
+        }
+    };
+    if(exist) {
+        config.method = "PUT";
+    }
+    // ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${h_id}/add_user/`, config, function () {
+    // }, 'POST', 'application/json');
+
+    return new Promise(function (resolve, reject) {
+        let codes = {
+            201: function (data) {
+                resolve(data);
+            },
+            400: function (data) {
+                reject(data)
+            }
+        };
+        newAjaxRequest(config, codes, reject)
+    });
+
 }
 
 function createHomeGroupsTable(config = {}) {
@@ -2103,7 +2147,7 @@ function getFilterParam() {
     let $filterFields, data = {};
     $filterFields = $('#filterPopup select, #filterPopup input');
     $filterFields.each(function () {
-        if($(this).val() == "ВСЕ") {
+        if ($(this).val() == "ВСЕ") {
             return
         }
         let prop = $(this).data('filter');
@@ -2117,7 +2161,7 @@ function getFilterParam() {
             }
         }
     });
-    if('master_tree' in data && ('pastor' in data || 'master' in data || 'leader' in data)) {
+    if ('master_tree' in data && ('pastor' in data || 'master' in data || 'leader' in data)) {
         delete data.master_tree;
     }
     return data;
@@ -2387,7 +2431,7 @@ function getHomeGroupStats(id) {
 
 function getPastorsByDepartment(id) {
     let resData = {};
-    if(id) {
+    if (id) {
         resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/get_pastors_by_department/?department_id=${id}`;
     } else {
         resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/get_pastors_by_department/`;
