@@ -64,10 +64,8 @@
                         <div class="right-info-r">
                             <button class="edit" id="editNameBtn" data-edit-block="editNameBlock"></button>
                             <hgroup>
-                                <h3 id="fullname">{{ account.fullname }}</h3>
-                                {% if account.search_name %}
-                                    <h4>{{ account.search_name }}</h4>
-                                {% endif %}
+                                <h3 id="fullName">{{ account.fullname }}</h3>
+                                <h4 id="searchName">{% if account.search_name %}{{ account.search_name }}{% endif %}</h4>
                             </hgroup>
                             <div id="social">
                                 {% if account.facebook %}

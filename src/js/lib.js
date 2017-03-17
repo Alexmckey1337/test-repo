@@ -51,7 +51,7 @@ function addUserToChurch(user_id, id, exist = false) {
 }
 
 function addUserToHomeGroup(user_id, h_id, exist = false) {
-    let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${h_id}/add_user/`;
+    let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/homeт_groups/${h_id}/add_user/`;
     let config = {
         url: url,
         method: "POST",

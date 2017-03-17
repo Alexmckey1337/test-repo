@@ -3843,8 +3843,16 @@ span.change[style*="display: none"] ~ span.y {
   }
 }
 
-.anketa h3 {
-  font-size: 1.6em;
+.anketa {
+  & hgroup {
+    & h3 {
+      font-size: 1.6em;
+    }
+    & h4 {
+      font-size: 1.25em;
+      margin-top: 0.3em;
+    }
+  }
 }
 
 .user-fiowrap {
@@ -3886,7 +3894,7 @@ span.change[style*="display: none"] ~ span.y {
   border-radius: 50%;
   overflow: hidden;
   &:hover {
-     box-shadow: 0 0 0 5px rgba(67, 176, 219, 1);
+    box-shadow: 0 0 0 5px rgba(67, 176, 219, 1);
   }
   & img {
     width: 100%;
@@ -5231,6 +5239,7 @@ div.code input#code {
     }
   }
 }
-.select2-container .select2-selection--single .select2-selection__rendered  {
+
+.select2-container .select2-selection--single .select2-selection__rendered {
   padding-right: 0 !important;
 }

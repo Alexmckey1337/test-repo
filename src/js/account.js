@@ -581,7 +581,8 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                         $('#' + editBtn).trigger('click');
                     }, 1500)
                 }
-                $('#fullname').text(data.fullname);
+                $('#fullName').text(data.fullname);
+                $('#searchName').text(data.search_name);
             });
         } else if (action == 'update-church') {
             let $existBlock = $('#editChurches').find('ul');
