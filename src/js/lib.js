@@ -2391,7 +2391,7 @@ function createPayment(data, id) {
 
 function getChurchStats(id) {
     let resData = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${id}/get_church_stats/`
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${id}/statistics/`
     };
     if (getCookie('key')) {
         resData.headers['Authorization'] = 'Token ' + getCookie('key');
@@ -2411,7 +2411,7 @@ function getChurchStats(id) {
 
 function getHomeGroupStats(id) {
     let resData = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/get_home_group_stats/`
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/statistics/`
     };
     if (getCookie('key')) {
         resData.headers['Authorization'] = 'Token ' + getCookie('key');
