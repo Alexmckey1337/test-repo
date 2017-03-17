@@ -1657,8 +1657,8 @@ function initAddNewUser(config = {}) {
             let departments = data.results;
             let rendered = [];
             let option = document.createElement('option');
-            $(option).text('Выберите департамент').attr('disabled', true).attr('selected', true);
-            rendered.push(option);
+            // $(option).text('Выберите департамент').attr('disabled', true).attr('selected', true);
+            // rendered.push(option);
             departments.forEach(function (item) {
                 let option = document.createElement('option');
                 $(option).val(item.id).text(item.title);
@@ -2268,6 +2268,7 @@ function createNewUser(callback) {
     } else {
         formData.append('divisions', JSON.stringify([]));
     }
+    formData.append('departments', JSON.stringify($('#chooseDepartment').val()));
     if ($phoneNumber.val()) {
         let phoneNumber = $('#phoneNumberCode').val() + $phoneNumber.val();
         formData.append('phone_number', phoneNumber)

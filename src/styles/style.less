@@ -3881,14 +3881,18 @@ span.change[style*="display: none"] ~ span.y {
   display: block;
 }
 
-.anketa-photo:hover {
+.anketa-photo {
   border: 3px solid #b3d7e8;
-  box-shadow: 0 0 0 5px rgba(67, 176, 219, 1);
-}
-
-.anketa-photo img {
-  width: 100%;
-  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  &:hover {
+     box-shadow: 0 0 0 5px rgba(67, 176, 219, 1);
+  }
+  & img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+  }
 }
 
 .a-sdelki,
