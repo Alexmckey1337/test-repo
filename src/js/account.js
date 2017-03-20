@@ -391,7 +391,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         let results = data.results;
         let options = [];
         let option = document.createElement('option');
-        $(option).val('').text('Выбирите домашнюю группу').attr('selected', true).attr('disabled', true);
+        $(option).val('').text('Выберите домашнюю группу').attr('selected', true).attr('disabled', true);
         options.push(option);
         results.forEach(function (item) {
             let option = document.createElement('option');
@@ -412,7 +412,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                 let results = data.results;
                 let options = [];
                 let option = document.createElement('option');
-                $(option).val('').text('Выбирите домашнюю группу').attr('selected', true).attr('disabled', true);
+                $(option).val('').text('Выберите домашнюю группу').attr('selected', true).attr('disabled', true);
                 options.push(option);
                 results.forEach(function (item) {
                     let option = document.createElement('option');
@@ -428,7 +428,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                         makeHomeGroupsList(churchID).then(function (data) {
                             let options = [];
                             let option = document.createElement('option');
-                            $(option).val('').text('Выбирите домашнюю группу').attr('selected', true).attr('disabled', true);
+                            $(option).val('').text('Выберите домашнюю группу').attr('selected', true).attr('disabled', true);
                             options.push(option);
                             data.forEach(function (item) {
                                 let option = document.createElement('option');
@@ -445,7 +445,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
 
     $selectDepartment.on('change', function () {
         let option = document.createElement('option');
-        $(option).val('').text('Выбирите домашнюю группу').attr('selected', true);
+        $(option).val('').text('Выберите домашнюю группу').attr('selected', true);
         makeChurches();
         $('#home_groups_list').html(option);
     });

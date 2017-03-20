@@ -547,8 +547,8 @@
                                         <p><span>{{ account.fullname }}</span></p>
                                     </div>
                                     <div class="col">
-                                        <p>Дата создания:<span>{{ deal.date_created }}</span></p>
-                                        <p>Сумма<span>{{ deal.total_sum }}/{{ deal.value }}₴</span></p></div>
+                                        <p>Дата создания: <span>{{ deal.date_created }}</span></p>
+                                        <p>Сумма <span>{{ deal.total_sum|cut:".000"}}/{{ deal.value }}₴</span></p></div>
                                 </div>
                             {% endfor %}
                         </div>
@@ -560,7 +560,7 @@
                         {% for payment in account.partnership.extra_payments.all %}
                             <div class="rows">
                                 <div style="padding:10px 6px;">
-                                    <p>{{ payment.effective_sum_str }} — {{ payment.created_at|date:"d.m.Y H:i:s" }}
+                                    <p>{{ payment.effective_sum_str|cut:".000" }} — {{ payment.created_at|date:"d.m.Y H:i:s" }}
                                         — Принял: {{ payment.manager.fullname }}
                                     </p>
                                 </div>
@@ -574,7 +574,7 @@
                         {% for payment in account.partnership.deal_payments.all %}
                             <div class="rows">
                                 <div style="padding:10px 6px;">
-                                    <p>{{ payment.effective_sum_str }} — {{ payment.created_at|date:"d.m.Y H:i:s" }}
+                                    <p>{{ payment.effective_sum_str|cut:".000" }} — {{ payment.created_at|date:"d.m.Y H:i:s" }}
                                         — Принял: {{ payment.manager.fullname }}
                                     </p>
                                 </div>
