@@ -598,7 +598,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                         $(success).text('');
                         $('.no_church_in').text('');
                     }, 3000);
-                    $existBlock.removeClass('no__exists');
+                    $existBlock.addClass('no__exists');
                 }).catch(function (data) {
                     showPopup(JSON.parse(data.responseText));
                 });
@@ -610,7 +610,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                         $(success).text('');
                         $('.no_church_in').text('');
                     }, 3000);
-                    $existBlock.removeClass('no__exists');
+                    $existBlock.addClass('no__exists');
                 }).catch(function (data) {
                     showPopup(JSON.parse(data.responseText));
                 });
