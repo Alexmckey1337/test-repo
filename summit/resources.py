@@ -78,7 +78,7 @@ def find_pastor(anket):
     else:
         anket.bishop = ""
     anket.date = user.date_joined
-    anket.department = ', '.join(user.department.values_list('title', flat=True))
+    anket.department = ', '.join(user.departments.values_list('title', flat=True))
     anket.save()
 
 
