@@ -589,7 +589,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
             let home_groups_id = $('#home_groups_list').val();
             if (!!home_groups_id) {
                 addUserToHomeGroup(ID, home_groups_id, exist).then(function (data) {
-                    let success = $('.success__block');
+                    let success = $(_self).closest('.right-info__block').find('.success__block');
                         $(success).text('Сохранено');
                         setTimeout(function () {
                             $(success).text('');
@@ -600,7 +600,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                 });
             } else if (!!church_id) {
                 addUserToChurch(ID, church_id, exist).then(function (data) {
-                    let success = $('.success__block');
+                    let success = $(_self).closest('.right-info__block').find('.success__block');
                         $(success).text('Сохранено');
                         setTimeout(function () {
                             $(success).text('');

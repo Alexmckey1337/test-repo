@@ -30,13 +30,9 @@ function addUserToChurch(user_id, id, exist = false) {
             user_id: user_id
         }
     };
-
     if (exist) {
         config.method = "PUT";
     }
-    // ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/add_user/`, config, function () {
-    // }, 'POST', 'application/json');
-
     return new Promise(function (resolve, reject) {
         let codes = {
             201: function (data) {
@@ -50,8 +46,8 @@ function addUserToChurch(user_id, id, exist = false) {
     });
 }
 
-function addUserToHomeGroup(user_id, h_id, exist = false) {
-    let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/homeт_groups/${h_id}/add_user/`;
+function addUserToHomeGroup(user_id, hg_id, exist = false) {
+    let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${hg_id}/add_user/`;
     let config = {
         url: url,
         method: "POST",
@@ -62,9 +58,6 @@ function addUserToHomeGroup(user_id, h_id, exist = false) {
     if (exist) {
         config.method = "PUT";
     }
-    // ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${h_id}/add_user/`, config, function () {
-    // }, 'POST', 'application/json');
-
     return new Promise(function (resolve, reject) {
         let codes = {
             201: function (data) {
@@ -76,7 +69,6 @@ function addUserToHomeGroup(user_id, h_id, exist = false) {
         };
         newAjaxRequest(config, codes, reject)
     });
-
 }
 
 function createHomeGroupsTable(config = {}) {
@@ -1977,7 +1969,7 @@ function makeQuickEditSammitCart(el) {
     });
     $('#deleteAnket').attr('data-id', id).attr('data-ankets', id)
         .on('click', function () {
-            
+
         });
 }
 
