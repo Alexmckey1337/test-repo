@@ -381,7 +381,7 @@
                             <form action="/" name="editChurches" id="editChurches" data-action="update-church">
                                 <button class="edit" data-edit-block="editChurches"></button>
                                 <button class="save__info" type="submit"></button>
-                                <ul {% if account.home_groups.exists or account.churches.exists %}class="no__exists"{% endif %}>
+                                <ul {% if account.home_groups.exists or account.churches.exists %}class="exists"{% endif %}>
                                     {% if account.home_groups.exists %}
                                         <li class="clearfix">
                                             <label for="church_title">Церковь</label>
@@ -437,6 +437,16 @@
                                             </select>
                                         </li>
                                     {% endif %}
+                                    <li class="clearfix">
+                                        <label for="spiritual_level">Духовный уровень</label>
+                                            <select type="text" id="spiritual_level" name="spiritual_level" readonly
+                                                    disabled>
+                                                <option>Выберите духовный уровень</option>
+                                                {% for spiritual_level in spiritual_levels %}
+                                                    <option value="{{ spiritual_level.id }}" {% if spiritual_level.id == account.spiritual_level %}selected{% endif %}>{{ spiritual_level.title }}</option>
+                                                {% endfor %}
+                                            </select>
+                                    </li>
                                 </ul>
                             </form>
                         </div>

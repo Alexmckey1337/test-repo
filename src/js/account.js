@@ -453,6 +453,10 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     $('.edit').on('click', function (e) {
         e.preventDefault();
         let $edit = $('.edit');
+        let exists = $edit.closest('form').find('ul').hasClass('exists');
+        if(!exists) {
+            console.log(exists);
+        }
         let noEdit = false;
         $edit.each(function () {
             if ($(this).hasClass('active')) {
@@ -587,7 +591,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
             });
         } else if (action == 'update-church') {
             let $existBlock = $('#editChurches').find('ul');
-            let noExist = $existBlock.hasClass('no__exists');
+            let noExist = $existBlock.hasClass('exists');
             let church_id = $('#church_list').val();
             let home_groups_id = $('#home_groups_list').val();
             if (!!home_groups_id) {
@@ -598,7 +602,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                         $(success).text('');
                         $('.no_church_in').text('');
                     }, 3000);
-                    $existBlock.addClass('no__exists');
+                    $existBlock.addClass('exists');
                 }).catch(function (data) {
                     showPopup(JSON.parse(data.responseText));
                 });
@@ -610,7 +614,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                         $(success).text('');
                         $('.no_church_in').text('');
                     }, 3000);
-                    $existBlock.addClass('no__exists');
+                    $existBlock.addClass('exists');
                 }).catch(function (data) {
                     showPopup(JSON.parse(data.responseText));
                 });

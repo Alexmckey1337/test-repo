@@ -21,7 +21,7 @@ function getChurches(config = {}) {
     });
 }
 
-function addUserToChurch(user_id, id, noExist = false) {
+function addUserToChurch(user_id, id, exist = false) {
     let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${id}/add_user/`;
     let config = {
         url: url,
@@ -30,7 +30,7 @@ function addUserToChurch(user_id, id, noExist = false) {
             user_id: user_id
         }
     };
-    if (noExist) {
+    if (exist) {
         config.method = "PUT";
     }
     return new Promise(function (resolve, reject) {
@@ -46,7 +46,7 @@ function addUserToChurch(user_id, id, noExist = false) {
     });
 }
 
-function addUserToHomeGroup(user_id, hg_id, noExist = false) {
+function addUserToHomeGroup(user_id, hg_id, exist = false) {
     let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${hg_id}/add_user/`;
     let config = {
         url: url,
@@ -55,7 +55,7 @@ function addUserToHomeGroup(user_id, hg_id, noExist = false) {
             user_id: user_id
         }
     };
-    if (noExist) {
+    if (exist) {
         config.method = "PUT";
     }
     return new Promise(function (resolve, reject) {
