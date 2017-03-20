@@ -381,7 +381,7 @@
                             <form action="/" name="editChurches" id="editChurches" data-action="update-church">
                                 <button class="edit" data-edit-block="editChurches"></button>
                                 <button class="save__info" type="submit"></button>
-                                <ul {% if account.home_groups.exists or account.churches.exists %}class="exists"{% endif %}>
+                                <ul {% if not account.home_groups.exists or not account.churches.exists %}class="no__exists"{% endif %}>
                                     {% if account.home_groups.exists %}
                                         <li class="clearfix">
                                             <label for="church_title">Церковь</label>
@@ -433,7 +433,7 @@
                                             <label for="home_groups">Домашняя группа</label>
                                             <select type="text" id="home_groups_list" name="home_groups" readonly
                                                     disabled>
-                                                <option value="">Выбирите домашнюю группу</option>
+                                                <option value="">Выберите домашнюю группу</option>
                                             </select>
                                         </li>
                                     {% endif %}

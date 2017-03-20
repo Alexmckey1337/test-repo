@@ -412,7 +412,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                 let results = data.results;
                 let options = [];
                 let option = document.createElement('option');
-                $(option).val('').text('Выберите домашнюю группу').attr('selected', true).attr('disabled', true);
+                $(option).val('').text('Выберите церковь').attr('selected', true).attr('disabled', true);
                 options.push(option);
                 results.forEach(function (item) {
                     let option = document.createElement('option');
@@ -445,7 +445,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
 
     $selectDepartment.on('change', function () {
         let option = document.createElement('option');
-        $(option).val('').text('Выберите домашнюю группу').attr('selected', true);
+        $(option).val('').text('Выберите церковь').attr('selected', true);
         makeChurches();
         $('#home_groups_list').html(option);
     });
@@ -587,28 +587,30 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
             });
         } else if (action == 'update-church') {
             let $existBlock = $('#editChurches').find('ul');
-            let exist = $existBlock.hasClass('exists');
+            let noExist = $existBlock.hasClass('no__exists');
             let church_id = $('#church_list').val();
             let home_groups_id = $('#home_groups_list').val();
             if (!!home_groups_id) {
-                addUserToHomeGroup(ID, home_groups_id, exist).then(function (data) {
+                addUserToHomeGroup(ID, home_groups_id, noExist).then(function (data) {
                     let success = $(_self).closest('.right-info__block').find('.success__block');
                     $(success).text('Сохранено');
                     setTimeout(function () {
                         $(success).text('');
                         $('.no_church_in').text('');
                     }, 3000);
+                    $existBlock.removeClass('no__exists');
                 }).catch(function (data) {
                     showPopup(JSON.parse(data.responseText));
                 });
             } else if (!!church_id) {
-                addUserToChurch(ID, church_id, exist).then(function (data) {
+                addUserToChurch(ID, church_id, noExist).then(function (data) {
                     let success = $(_self).closest('.right-info__block').find('.success__block');
                     $(success).text('Сохранено');
                     setTimeout(function () {
                         $(success).text('');
                         $('.no_church_in').text('');
                     }, 3000);
+                    $existBlock.removeClass('no__exists');
                 }).catch(function (data) {
                     showPopup(JSON.parse(data.responseText));
                 });
