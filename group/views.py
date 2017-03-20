@@ -73,14 +73,32 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
         users = CustomUser.objects.all()
         return self._get_potential_users(request, self.filter_potential_users_for_group, users, pk)
 
-    @detail_route(methods=['post'])
+    @detail_route(methods=['post', 'put'])
     def add_user(self, request, pk):
         user_id = request.data.get('user_id')
         church = self.get_object()
 
-        self._validate_user_for_add_user(user_id)
+        if not user_id:
+            raise exceptions.ValidationError(
+                _("Некоректные данные. Первичный ключ не передан."))
 
-        church.users.add(user_id)
+        user = CustomUser.objects.filter(id=user_id)
+        if not user.exists():
+            raise exceptions.ValidationError(
+                _('Невозможно добавить пользователя. Данного пользователя не существует.'))
+
+        if request.method == 'PUT':
+            if user.churches.exists():
+                old_church_id = user.churches.get().id
+                old_church = Church.objects.get(id=old_church_id)
+                old_church.users.remove(user)
+
+            church.users.add(user)
+
+        if request.method == 'POST':
+            self._validate_user_for_add_user(user_id, user)
+            church.users.add(user_id)
+
         return Response({'message': 'Пользователь успешно добавлен.'},
                         status=status.HTTP_201_CREATED)
 
@@ -129,14 +147,9 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
         return Response(serializers.data)
 
     @staticmethod
-    def _validate_user_for_add_user(user_id):
-        if not user_id:
-            raise exceptions.ValidationError("Некоректные данные")
-        user = CustomUser.objects.filter(id=user_id)
-        if not user.exists():
-            raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя. Данного пользователя не существует.'))
+    def _validate_user_for_add_user(user_id, user):
         user = user.get()
+
         if user.churches.exists():
             raise exceptions.ValidationError(
                 _('Невозможно добавить пользователя. Данный пользователь уже состоит в Церкви.'))
