@@ -87,19 +87,31 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
             raise exceptions.ValidationError(
                 _('Невозможно добавить пользователя. Данного пользователя не существует.'))
 
+        user = user.get()
+
         if request.method == 'PUT':
+            if not user.churches.exists() and not user.home_groups.exists():
+                raise exceptions.ValidationError(
+                    _('Невозможно добавить пользователя методом PUT. Данный пользователь не состоит ни Церкви ни '
+                      'в Домашней Группе.'))
+
             if user.churches.exists():
                 old_church_id = user.churches.get().id
-                old_church = Church.objects.get(id=old_church_id)
+                old_church = get_object_or_404(Church, pk = old_church_id)
                 old_church.users.remove(user)
+
+            if user.home_groups.exists():
+                old_home_group = user.home_groups.get().id
+                old_home_group = get_object_or_404(HomeGroup, pk=old_home_group)
+                old_home_group.users.remove(user)
 
             church.users.add(user)
 
         if request.method == 'POST':
-            self._validate_user_for_add_user(user_id, user)
+            self._validate_user_for_add_user(user)
             church.users.add(user_id)
 
-        return Response({'message': 'Пользователь успешно добавлен.'},
+        return Response({'message': _('Пользователь успешно добавлен.')},
                         status=status.HTTP_201_CREATED)
 
     @detail_route(methods=['post'])
@@ -110,7 +122,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
         self._validate_user_for_del_user(user_id, church)
 
         church.users.remove(user_id)
-        return Response({'message': 'Пользователь успешно удален из Церкви'},
+        return Response({'message': _('Пользователь успешно удален из Церкви')},
                         status=status.HTTP_204_NO_CONTENT)
 
     # Helpers
@@ -147,15 +159,13 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
         return Response(serializers.data)
 
     @staticmethod
-    def _validate_user_for_add_user(user_id, user):
-        user = user.get()
-
+    def _validate_user_for_add_user(user):
         if user.churches.exists():
             raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя. Данный пользователь уже состоит в Церкви.'))
+                _('Невозможно добавить пользователя методом POST. Данный пользователь уже состоит в Церкви.'))
         if user.home_groups.exists():
             raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя. Данный пользователь уже состоит в Домашней Группе.'))
+                _('Невозможно добавить пользователя методом POST. Данный пользователь уже состоит в Домашней Группе.'))
 
     @staticmethod
     def _validate_user_for_del_user(user_id, church):
