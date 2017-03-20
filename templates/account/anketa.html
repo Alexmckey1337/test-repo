@@ -371,6 +371,16 @@
                                                value="{% if account.repentance_date %}{{ account.repentance_date|date:"d.m.Y" }}{% else %}Не покаялся{% endif %}"
                                                readonly disabled>
                                     </li>
+                                    <li class="clearfix">
+                                        <label for="spiritual_level">Духовный уровень:</label>
+                                            <select type="text" id="spiritual_level" name="spiritual_level" readonly
+                                                    disabled>
+                                                <option>Выберите духовный уровень</option>
+                                                {% for spiritual_level in spiritual_levels %}
+                                                    <option value="{{ spiritual_level.id }}" {% if spiritual_level.id == account.spiritual_level %}selected{% endif %}>{{ spiritual_level.title }}</option>
+                                                {% endfor %}
+                                            </select>
+                                    </li>
                                 </ul>
                             </form>
                         </div>
@@ -437,16 +447,6 @@
                                             </select>
                                         </li>
                                     {% endif %}
-                                    <li class="clearfix">
-                                        <label for="spiritual_level">Духовный уровень</label>
-                                            <select type="text" id="spiritual_level" name="spiritual_level" readonly
-                                                    disabled>
-                                                <option>Выберите духовный уровень</option>
-                                                {% for spiritual_level in spiritual_levels %}
-                                                    <option value="{{ spiritual_level.id }}" {% if spiritual_level.id == account.spiritual_level %}selected{% endif %}>{{ spiritual_level.title }}</option>
-                                                {% endfor %}
-                                            </select>
-                                    </li>
                                 </ul>
                             </form>
                         </div>
