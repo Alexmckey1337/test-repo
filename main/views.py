@@ -69,21 +69,21 @@ def meeting_report(request, code):
 
 class CanSeePartnersMixin(View):
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.can_see_churches():
+        if not request.user.can_see_partners():
             raise PermissionDenied
         return super(CanSeePartnersMixin, self).dispatch(request, *args, **kwargs)
 
 
 class CanSeeDealsMixin(View):
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.can_see_churches():
+        if not request.user.can_see_deals():
             raise PermissionDenied
         return super(CanSeeDealsMixin, self).dispatch(request, *args, **kwargs)
 
 
 class CanSeePartnerStatsMixin(View):
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.can_see_churches():
+        if not request.user.can_see_partner_stats():
             raise PermissionDenied
         return super(CanSeePartnerStatsMixin, self).dispatch(request, *args, **kwargs)
 
