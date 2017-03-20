@@ -442,6 +442,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
             });
         }
     }
+
     $selectDepartment.on('change', function () {
         let option = document.createElement('option');
         $(option).val('').text('Выбирите домашнюю группу').attr('selected', true);
@@ -472,7 +473,9 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                 $(this).attr('readonly', true);
                 if ($(el).is('select')) {
                     if ($(this).is(':not([multiple])')) {
-                        $(this).select2('destroy');
+                        if (!$(this).is('.no_select')) {
+                            $(this).select2('destroy');
+                        }
                     }
                 }
             });
@@ -590,22 +593,22 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
             if (!!home_groups_id) {
                 addUserToHomeGroup(ID, home_groups_id, exist).then(function (data) {
                     let success = $(_self).closest('.right-info__block').find('.success__block');
-                        $(success).text('Сохранено');
-                        setTimeout(function () {
-                            $(success).text('');
-                            $('.no_church_in').text('');
-                        }, 3000);
+                    $(success).text('Сохранено');
+                    setTimeout(function () {
+                        $(success).text('');
+                        $('.no_church_in').text('');
+                    }, 3000);
                 }).catch(function (data) {
                     showPopup(JSON.parse(data.responseText));
                 });
             } else if (!!church_id) {
                 addUserToChurch(ID, church_id, exist).then(function (data) {
                     let success = $(_self).closest('.right-info__block').find('.success__block');
-                        $(success).text('Сохранено');
-                        setTimeout(function () {
-                            $(success).text('');
-                            $('.no_church_in').text('');
-                        }, 3000);
+                    $(success).text('Сохранено');
+                    setTimeout(function () {
+                        $(success).text('');
+                        $('.no_church_in').text('');
+                    }, 3000);
                 }).catch(function (data) {
                     showPopup(JSON.parse(data.responseText));
                 });
@@ -620,7 +623,9 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
             $(this).attr('readonly', true);
             if ($(this).is('select')) {
                 if ($(this).is(':not([multiple])')) {
-                    $(this).select2('destroy');
+                    if (!$(this).is('.no_select')) {
+                        $(this).select2('destroy');
+                    }
                 }
             }
         });
@@ -704,6 +709,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
             reader.readAsDataURL(file);
         }
     }
+
     $('#divisions').select2();
     $('#departments').select2();
     $('#sent_date').datepicker({

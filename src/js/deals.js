@@ -174,7 +174,7 @@ $(document).ready(function () {
             let payments_table = '';
             let sum, date_time;
             data.forEach(function (payment) {
-                sum = payment.effective_sum_str;
+                sum = payment.effective_sum_str.replace('.000', '');
                 date_time = payment.created_at;
                 payments_table += `<tr><td>${sum}</td><td>${date_time}</td></tr>`
             });
