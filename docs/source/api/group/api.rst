@@ -566,7 +566,7 @@ Potential users of church
           }
         ]
 
-    **Example response (Bad Requst)**:
+    **Example response (Bad Request)**:
 
     .. sourcecode:: http
 
