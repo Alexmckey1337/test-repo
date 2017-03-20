@@ -493,7 +493,7 @@
                                 <li data-tab="1">
                                     <button>Незавершённые (<span id="incomplete-count">
                                         {% with count=account.partnership.undone_deals_count %}
-                                            {% if count > 2 %}2 из {% endif %}{{ count }}
+                                            {% if count > 20 %}20 из {% endif %}{{ count }}
                                         {% endwith %}
                                     </span>)
                                     </button>
@@ -501,7 +501,7 @@
                                 <li data-tab="2">
                                     <button href="#overdue">Просроченные(<span id="overdue-count">
                                         {% with count=account.partnership.expired_deals_count %}
-                                            {% if count > 2 %}2 из {% endif %}{{ count }}
+                                            {% if count > 20 %}20 из {% endif %}{{ count }}
                                         {% endwith %}
                                     </span>)
                                     </button>
@@ -509,7 +509,7 @@
                                 <li data-tab="3">
                                     <button href="#completed">Завершённые(<span id="completed-count">
                                         {% with count=account.partnership.done_deals_count %}
-                                            {% if count > 2 %}2 из {% endif %}{{ count }}
+                                            {% if count > 20 %}20 из {% endif %}{{ count }}
                                         {% endwith %}
                                     </span>)
                                     </button>
@@ -517,7 +517,7 @@
                             </ul>
                         </div>
                         <div class="sdelki-content clearfix" data-tab-content="1">
-                            {% for deal in account.partnership.undone_deals|slice:":2" %}
+                            {% for deal in account.partnership.undone_deals|slice:":20" %}
                                 <div class="rows">
                                     <div class="col">
                                         <p><span>{{ account.fullname }}</span></p>
@@ -529,7 +529,7 @@
                             {% endfor %}
                         </div>
                         <div class="sdelki-content clearfix" data-tab-content="2">
-                            {% for deal in account.partnership.expired_deals|slice:":2" %}
+                            {% for deal in account.partnership.expired_deals|slice:":20" %}
                                 <div class="rows">
                                     <div class="col">
                                         <p><span>{{ account.fullname }}</span></p>
@@ -541,7 +541,7 @@
                             {% endfor %}
                         </div>
                         <div class="sdelki-content clearfix" data-tab-content="3">
-                            {% for deal in account.partnership.done_deals|slice:":2" %}
+                            {% for deal in account.partnership.done_deals|slice:":20" %}
                                 <div class="rows">
                                     <div class="col">
                                         <p><span>{{ account.fullname }}</span></p>
