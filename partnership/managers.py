@@ -29,6 +29,13 @@ class DealQuerySet(models.query.QuerySet):
     def annotate_total_sum(self):
         return self.annotate(total_sum=Coalesce(Sum('payments__effective_sum'), V(0)))
 
+    def for_user(self, user):
+        if not is_authenticated(user) or not hasattr(user, 'partnership'):
+            return self.none()
+        if user.partnership.level < settings.PARTNER_LEVELS['manager']:
+            return self
+        return self.filter(partnership__responsible__user=user)
+
 
 class DealManager(models.Manager):
     def get_queryset(self):
@@ -45,6 +52,9 @@ class DealManager(models.Manager):
 
     def annotate_total_sum(self):
         return self.get_queryset().annotate_total_sum()
+
+    def for_user(self, user):
+        return self.get_queryset().for_user(user=user)
 
 
 class PartnerQuerySet(models.query.QuerySet):

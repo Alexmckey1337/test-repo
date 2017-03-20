@@ -224,7 +224,7 @@ class TestNewUserViewSet:
         response = api_login_client.get(url, data={'master_tree': user.id}, format='json')
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.data['count'] == 12
+        assert response.data['count'] == 13
 
     def test_user_search_by_fio(self, api_login_client, user_factory):
         user_factory.create_batch(10)

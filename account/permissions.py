@@ -6,7 +6,7 @@ from partnership.permissions import IsSupervisorOrHigh, IsDisciplesOf
 class HasHierarchyLevelMixin:
     @staticmethod
     def level_gte(request, level):
-        return request.user.hierarchy.level >= level
+        return request.user.hierarchy and request.user.hierarchy.level >= level
 
 
 class IsStaffPermissionMixin:
