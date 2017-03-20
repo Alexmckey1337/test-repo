@@ -30,7 +30,7 @@ from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from .models import Partnership, Deal
 from .serializers import (
     DealSerializer, PartnershipSerializer, DealCreateSerializer,
-    PartnershipUnregisterUserSerializer, PartnershipForEditSerializer)
+    PartnershipUnregisterUserSerializer, PartnershipForEditSerializer, PartnershipTableSerializer)
 
 
 class PartnershipPagination(PageNumberPagination):
@@ -194,6 +194,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
     queryset = Partnership.objects.base_queryset().order_by(
         'user__last_name', 'user__first_name', 'user__middle_name')
     serializer_class = PartnershipSerializer
+    serializer_read_class = PartnershipTableSerializer
     pagination_class = PartnershipPagination
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
@@ -214,6 +215,11 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
 
     payment_list_field = 'extra_payments'
     resource_class = PartnerResource
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return self.serializer_read_class
+        return self.serializer_class
 
     def get_queryset(self):
         return self.queryset.for_user(user=self.request.user)

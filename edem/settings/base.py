@@ -128,7 +128,8 @@ TEMPLATES = [
                 'django.template.context_processors.static',
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
-                'notification.context_processor.notifications'
+                'notification.context_processor.notifications',
+                'account.context_processor.spiritual_levels'
             ],
         },
     },
