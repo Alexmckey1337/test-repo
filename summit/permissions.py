@@ -46,10 +46,12 @@ class IsConsultantOrHigh(IsSummitMember):
 
 class IsSummitTypeConsultantOrHigh(IsSummitTypeMember):
     def has_object_permission(self, request, view, summit_type):
-        return (
-            super(IsSummitTypeConsultantOrHigh, self).has_object_permission(request, view, summit_type) and
-            SummitAnket.objects.get(user=request.user, summit__type=summit_type).role >= SummitAnket.CONSULTANT
-        )
+        if not super(IsSummitTypeConsultantOrHigh, self).has_object_permission(request, view, summit_type):
+            return False
+        for anket in SummitAnket.objects.filter(user=request.user, summit__type=summit_type):
+            if anket.role >= SummitAnket.CONSULTANT:
+                return True
+        return False
 
     def has_permission(self, request, view):
         return (

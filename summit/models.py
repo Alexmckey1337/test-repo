@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from datetime import date
 from decimal import Decimal
 
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -12,6 +13,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from payment.models import get_default_currency, AbstractPaymentPurpose
+from summit.managers import AnketManager
 
 
 @python_2_unicode_compatible
@@ -148,7 +150,10 @@ class SummitAnket(CustomUserAbstract, AbstractPaymentPurpose):
 
     visited = models.BooleanField(default=False)
 
-    VISITOR, CONSULTANT, SUPERVISOR = 10, 20, 30
+    VISITOR = settings.SUMMIT_ANKET_ROLES['visitor']
+    CONSULTANT = settings.SUMMIT_ANKET_ROLES['consultant']
+    SUPERVISOR = settings.SUMMIT_ANKET_ROLES['supervisor']
+
     ROLES = (
         (VISITOR, _('Visitor')),
         (CONSULTANT, _('Consultant')),
@@ -162,6 +167,8 @@ class SummitAnket(CustomUserAbstract, AbstractPaymentPurpose):
 
     #: Payments of the current anket
     payments = GenericRelation('payment.Payment', related_query_name='summit_ankets')
+
+    objects = AnketManager()
 
     class Meta:
         ordering = ('summit__type', '-summit__start_date')

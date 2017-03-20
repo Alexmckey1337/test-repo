@@ -221,8 +221,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
         if not request.query_params.get('department_id'):
             raise exceptions.ValidationError(_("Некорректный запрос. Департамент не передан."))
 
-        departments = request.query_params.lists()
-        departments = [x for x in departments][0][1]
+        departments = request.query_params.getlist('department_id')
 
         churches = Church.objects.filter(department_id__in=departments)
         churches = self.serializer_class(churches, many=True)

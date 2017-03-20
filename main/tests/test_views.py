@@ -13,7 +13,6 @@ from hierarchy.factories import HierarchyFactory, DepartmentFactory
 from hierarchy.models import Department, Hierarchy
 
 
-
 class LoginUserMixin(TestCase):
     def setUp(self):
         self.url = '/'

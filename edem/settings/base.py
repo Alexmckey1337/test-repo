@@ -341,6 +341,12 @@ PARTNER_LEVELS = {
     'partner': 3,
 }
 
+SUMMIT_ANKET_ROLES = {
+    'visitor': 10,
+    'consultant': 20,
+    'supervisor': 30
+}
+
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "asgi_redis.RedisChannelLayer",
