@@ -442,7 +442,6 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
             });
         }
     }
-
     $selectDepartment.on('change', function () {
         let option = document.createElement('option');
         $(option).val('').text('Выбирите домашнюю группу').attr('selected', true);

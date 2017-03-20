@@ -362,9 +362,10 @@
         $('#filterPopup').css('display', 'block');
     });
 
-    $('.quick-edit').on('click', function () {
-        $('#popupDelete').css('display', 'block');
-    });
+    // $('.quick-edit').on('click', function () {
+    //
+    //     $('#popupDelete').css('display', 'block');
+    // });
 
     $.validate({
         lang: 'ru',

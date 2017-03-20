@@ -31,7 +31,7 @@ function addUserToChurch(user_id, id, exist = false) {
         }
     };
 
-    if(exist) {
+    if (exist) {
         config.method = "PUT";
     }
     // ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/add_user/`, config, function () {
@@ -59,7 +59,7 @@ function addUserToHomeGroup(user_id, h_id, exist = false) {
             user_id: user_id
         }
     };
-    if(exist) {
+    if (exist) {
         config.method = "PUT";
     }
     // ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${h_id}/add_user/`, config, function () {
@@ -1963,10 +1963,11 @@ function saveHomeGroups(el) {
 }
 
 function makeQuickEditSammitCart(el) {
-    let id, link, url;
-    id = $(el).closest('td').find('a').data('ankets');
+    let anketsID, id, link, url;
+    anketsID = $(el).closest('td').find('a').data('ankets');
+    id = $(el).closest('td').find('a').data('id');
     link = $(el).closest('td').find('a').data('link');
-    url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${id}/`;
+    url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${anketsID}/`;
     ajaxRequest(url, null, function (data) {
         $('#summit-valueDelete').val(data.total_sum);
         $('#member').prop("checked", data.is_member);
@@ -1974,6 +1975,10 @@ function makeQuickEditSammitCart(el) {
     }, 'GET', true, {
         'Content-Type': 'application/json'
     });
+    $('#deleteAnket').attr('data-id', id).attr('data-ankets', id)
+        .on('click', function () {
+            
+        });
 }
 
 function makeQuickEditCart(el) {
