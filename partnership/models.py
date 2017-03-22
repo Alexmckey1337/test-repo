@@ -15,11 +15,11 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from partnership.managers import DealManager, PartnerManager
-from payment.models import Payment, get_default_currency
+from payment.models import Payment, get_default_currency, AbstractPaymentPurpose
 
 
 @python_2_unicode_compatible
-class Partnership(models.Model):
+class Partnership(AbstractPaymentPurpose):
     user = models.OneToOneField('account.CustomUser', related_name='partnership')
     value = models.DecimalField(max_digits=12, decimal_places=0,
                                 default=Decimal('0'))
@@ -79,6 +79,24 @@ class Partnership(models.Model):
                                        Q(object_id=self.id)))
 
     @property
+    def value_str(self):
+        """
+        Partner value with currency.
+
+        For example:
+        partnership.value = 120
+        partnership.currency.short_name = cur.
+        partnership.currency.output_format = '{value} {short_name}'
+
+        Then:
+        partnership.value_str == '120 cur.'
+        :return: str
+        """
+        format_data = self.currency.output_dict()
+        format_data['value'] = self.value
+        return self.currency.output_format.format(**format_data)
+
+    @property
     def is_responsible(self):
         return self.level <= Partnership.MANAGER
 
@@ -124,7 +142,7 @@ class Partnership(models.Model):
 
 
 @python_2_unicode_compatible
-class Deal(models.Model):
+class Deal(AbstractPaymentPurpose):
     value = models.DecimalField(max_digits=12, decimal_places=0,
                                 default=Decimal('0'))
     #: Currency of value
@@ -158,6 +176,12 @@ class Deal(models.Model):
             self.currency = self.partnership.currency
             self.responsible = self.partnership.responsible
         super(Deal, self).save(*args, **kwargs)
+
+    def update_after_cancel_payment(self):
+        self.done = False
+        self.save()
+
+    update_after_cancel_payment.alters_data = True
 
     @property
     def value_str(self):

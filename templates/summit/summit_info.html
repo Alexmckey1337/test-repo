@@ -5,7 +5,7 @@
 
 {% block header.top.h1 %}
     <h1 id="summit-title">
-        <a href="{% url 'summits' %}">САММИТЫ | </a>
+        <a href="{% url 'summit:list' %}">САММИТЫ | </a>
         <span>{{ summit_type.title }}</span>
     </h1>
 {% endblock %}
@@ -52,7 +52,8 @@
             <span class="arrow-left"></span>
             <div class="gallery">
                 <ul id="date" class="images">
-                    {% for summit in summit_type.summits.all reversed %}
+                {% available_summits user summit_type as summits %}
+                    {% for summit in summits reversed %}
                         <li{% if forloop.first %} class="active"{% endif %}>
                             <span data-id={{ summit.id }}>
                                 {% if summit.description %}
@@ -230,7 +231,7 @@
                     </div>
                     <div class="col-6">
                         <p class="input_block">
-                            <select class="selectdb" data-filter="user__department" id="departments_filter">
+                            <select class="selectdb" data-filter="user__departments" id="departments_filter">
                                 <option value="">ВСЕ</option>
                                 {% for department in departments %}
                                     <option value="{{ department.id }}">{{ department.title }}</option>
@@ -253,10 +254,10 @@
                 </div>
             </div>
             <div class="container">
-                <a href="#" onclick="refreshFilter(this)" class="apply-filter"><i class="fa fa-refresh"
+                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
                                                                                   aria-hidden="true"></i>
-                    Очистить</a>
-                <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                    Очистить</button>
+                <button class="close-popup">Отменить</button>
                 <button onclick="applyFilter(this, createSummitUsersTable)" class="apply-filter">Применить</button>
             </div>
         </div>
@@ -265,7 +266,6 @@
 
 {% block extra_scripts %}
     <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
-    <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
     <script src="{% static "js/add_user.js" %}"></script>
     <script src="{% static "js/summit.js" %}"></script>
 {% endblock %}

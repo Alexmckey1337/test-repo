@@ -22,74 +22,22 @@
         });
     }
 
+    function addUserToSummit(data) {
+        let id = data.id,
+            name = data.fullname,
+            master = data.master.fullname;
+        let $summitVal = $('#summit-value');
+        let $popup = $('#popup');
+        $summitVal.val("0");
+        $summitVal.attr('readonly', true);
+        $popup.find('textarea').val('');
+        setDataForPopup(id, name, master);
+        $popup.css('display', 'block');
+    }
+
     createSummitUsersTable();
 
     addSummitInfo();
-
-    function createUser(id) {
-        let oldForm = document.forms.createUser;
-        let formData = new FormData(oldForm);
-        if ($('#division_drop').val()) {
-            formData.append('divisions', JSON.stringify($('#chooseDivision').val()));
-        } else {
-            formData.append('divisions', JSON.stringify([]));
-        }
-        if($('#phoneNumber').val()) {
-            let phoneNumber = $('#phoneNumberCode').val() + $('#phoneNumber').val();
-            formData.append('phone_number', phoneNumber)
-        }
-        if ($('#extra_phone_numbers').val()) {
-            formData.append('extra_phone_numbers', JSON.stringify($('#extra_phone_numbers').val().split(',').map((item) => item.trim())));
-        } else {
-            formData.append('extra_phone_numbers', JSON.stringify([]));
-        }
-        if ($('#partner').is(':checked')) {
-            let partner = {};
-            partner.value = $('#partnerFrom').val() || 0;
-            partner.date = $('#partners_count').val() || null;
-            partner.responsible = parseInt($("#chooseManager").val());
-            formData.append('partner', JSON.stringify(partner));
-        }
-        let send_image = $('#file').prop("files").length || false;
-        if (send_image) {
-            try {
-                let blob;
-                blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                formData.append('image', blob);
-                formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
-                formData.append('id', id);
-            } catch (err) {
-                console.log(err);
-            }
-        }
-        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/`;
-        let config = {
-            url: url,
-            data: formData,
-            method: 'POST'
-        };
-        $('.preloader').css('display', 'block');
-        ajaxSendFormData(config).then(function (data) {
-            $('.preloader').css('display', 'none');
-            $('#createUser').find('input').each(function(){$(this).val('')});
-            $('#createUser').find('.cleared').each(function(){$(this).find('option').eq(0).attr('selected', true).select2()});
-            $('#addNewUserPopup').css('display', 'none');
-            setTimeout(function () {
-                $('.pop-up-universal').css('display', 'none').remove();
-                let id = data.id,
-                    name = data.fullname,
-                    master = data.master;
-                $('#summit-value').val("0");
-                $('#summit-value').attr('readonly', true);
-                $('#popup textarea').val("");
-                setDataForPopup(id, name, master);
-                $('#popup').css('display', 'block');
-            }, 1000)
-        }).catch(function (data) {
-            $('.preloader').css('display', 'none');
-            showPopup(data);
-        });
-    }
 
     $('body').on('click', '#carousel li span', function () {
         $('#carousel li').removeClass('active');
@@ -127,25 +75,34 @@
         $('#popup-payments').css('display', '');
         $('#popup-payments table').html('');
     });
+
     $('#payment-form').on("submit", function (e) {
-        e.preventDefault();
-        let data = $('#payment-form').serializeArray();
-        console.log(data);
-        let new_data = {};
-        data.forEach(function (field) {
+    e.preventDefault();
+    let data = $('#payment-form').serializeArray();
+    let userID;
+    let new_data = {};
+    data.forEach(function (field) {
+        if (field.name == 'sent_date') {
+            new_data[field.name] = field.value.trim().split('.').reverse().join('-');
+        } else if (field.name != 'id') {
             new_data[field.name] = field.value
-        });
-        let id = new_data.id,
-            sum = new_data.sum,
-            description = new_data.description,
-            rate = new_data.rate,
-            currency = new_data.currency;
-        console.log(id, sum, description, rate, currency);
-        create_payment(id, sum, description, rate, currency);
-        $('#new_payment_sum').val('');
-        $('#popup-create_payment textarea').val('');
-        $('#popup-create_payment').css('display', 'none');
+        } else {
+            userID = field.value;
+        }
     });
+    if (userID) {
+        createPayment({
+            data: new_data
+        }, userID).then(function (data) {
+            console.log(data);
+        });
+    }
+    // create_payment(id, sum, description, rate, currency);
+
+    $('#new_payment_sum').val('');
+    $('#popup-create_payment textarea').val('');
+    $('#popup-create_payment').css('display', 'none');
+});
 
     $(".add-user-wrap .top-text span").on('click', function () {
         $('.add-user-wrap').css('display', '');
@@ -375,7 +332,9 @@
     //    Events
     $("#add").on('click', function () {
         $('#addUser').css('display', 'block');
+        initAddNewUser();
     });
+
     $('input[name="fullsearch"]').keyup(function () {
         let val = $(this).val();
         delay(function () {
@@ -393,8 +352,7 @@
         createSummitUsersTable(config);
     });
     $('#sort_save').on('click', function () {
-        let path =
-            $('.preloader').css('display', 'block');
+        $('.preloader').css('display', 'block');
         updateSettings(createSummitUsersTable);
         $(".table-sorting").animate({
             right: '-300px'
@@ -404,11 +362,22 @@
         $('#filterPopup').css('display', 'block');
     });
 
-    $('.quick-edit').on('click', function () {
-        $('#popupDelete').css('display', 'block');
-    });
-    $('#createUser').on('submit', function (e) {
-        e.preventDefault();
-        createUser();
+    // $('.quick-edit').on('click', function () {
+    //
+    //     $('#popupDelete').css('display', 'block');
+    // });
+
+    $.validate({
+        lang: 'ru',
+        form: '#createUser',
+        onSuccess: function (form) {
+            if ($(form).attr('name') == 'createUser') {
+                $(form).find('#saveNew').attr('disabled', true);
+                createNewUser(addUserToSummit).then(function() {
+                    $(form).find('#saveNew').attr('disabled', false);
+                });
+            }
+            return false; // Will stop the submission of the form
+        }
     });
 })(jQuery);

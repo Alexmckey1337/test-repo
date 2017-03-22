@@ -14,7 +14,7 @@ class ModelWithoutDeleteViewSet(mixins.UpdateModelMixin, mixins.RetrieveModelMix
 class BaseExportViewSetMixin(object):
     resource_class = None
     queryset = None
-    file_format = base_formats.XLSX()
+    file_format = base_formats.CSV()
 
     def get_queryset(self):
         raise NotImplementedError(".get_queryset() must be overridden.")
@@ -54,14 +54,14 @@ class BaseExportViewSetMixin(object):
     def get_response(self, queryset, fields, resource_class=None):
         resource_class = resource_class or self.get_resource_class()
         data = resource_class().export(queryset, custom_export_fields=fields)
-        export_data = self.file_format.export_data(data)
+        export_data = self.file_format.export_data(data, delimiter=';')
         content_type = self.file_format.get_content_type()
         response = HttpResponse(export_data, content_type=content_type)
 
         response['Content-Disposition'] = 'attachment; filename=%s' % (
             self.get_export_filename(self.file_format),
         )
-
+        response['Content-Encoding'] = 'UTF-8'
         return response
 
 

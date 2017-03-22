@@ -17,11 +17,11 @@ class CustomUserAdmin(UserAdmin, MPTTModelAdmin, ImportExportModelAdmin):
     list_display = ('fullname', 'email', 'date_joined',
                     'is_staff', 'is_active')
     list_editable = ('is_active',)
-    list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups', 'department',)
+    list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups', 'departments',)
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {'fields': (
-            'email', 'first_name', 'last_name', 'middle_name', 'search_name', 'master', 'department', 'hierarchy',
+            'email', 'first_name', 'last_name', 'middle_name', 'search_name', 'master', 'departments', 'hierarchy',
             'phone_number', 'extra_phone_numbers', 'skype', 'facebook', 'vkontakte', 'image', 'born_date',
             'country', 'region', 'city', 'district', 'address',
             'description', 'repentance_date', 'coming_date', 'hierarchy_order',

@@ -1,52 +1,63 @@
-=======
-Partner
-=======
+================
+Partner REST API
+================
 
-REST API partner
-----------------
+Partnership
+-----------
 
-.. http:get:: /users/(int:user_id)/posts/(tag)
+Create partner payment
+~~~~~~~~~~~~~~~~~~~~~~
 
-   The posts tagged with `tag` that the user (`user_id`) wrote.
+.. http:post:: /api/v1.1/partnerships/(int:partner_id)/create_payment/
+
+   Create new payment for ``Partner``.
 
    **Example request**:
 
    .. sourcecode:: http
 
-      GET /users/123/posts/web HTTP/1.1
-      Host: example.com
-      Accept: application/json, text/javascript
+      POST /api/v1.1/partnerships/4/create_payment/ HTTP/1.1
+      Host: vocrm.org
+      Accept: application/json
+      content-type: application/json
+      content-length: 100
 
-   **Example response**:
+      {
+        "sum": "153",
+        "description": "last",
+        "rate": "1.24",
+        "currency": 1,
+        "sent_date": "2000-02-22"
+      }
+
+   .. include:: ../payment/partials/create_payment.rst
+
+Deal
+----
+
+Create deal payment
+~~~~~~~~~~~~~~~~~~~
+
+.. http:post:: /api/v1.0/deals/(int:deal_id)/create_payment/
+
+   Create new payment for ``Deal``.
+
+   **Example request**:
 
    .. sourcecode:: http
 
-      HTTP/1.1 200 OK
-      Vary: Accept
-      Content-Type: text/javascript
+      POST /api/v1.0/deals/4/create_payment/ HTTP/1.1
+      Host: vocrm.org
+      Accept: application/json
+      content-type: application/json
+      content-length: 100
 
-      [
-        {
-          "post_id": 12345,
-          "author_id": 123,
-          "tags": ["server", "web"],
-          "subject": "I tried Nginx"
-        },
-        {
-          "post_id": 12346,
-          "author_id": 123,
-          "tags": ["html5", "standards", "web"],
-          "subject": "We go to HTML 5"
-        }
-      ]
+      {
+        "sum": "153",
+        "description": "last",
+        "rate": "1.24",
+        "currency": 1,
+        "sent_date": "2000-02-22"
+      }
 
-   :query sort: one of ``hit``, ``created-at``
-   :query offset: offset number. default is 0
-   :query limit: limit number. default is 30
-   :reqheader Accept: the response content type depends on
-                          :mailheader:`Accept` header
-   :reqheader Authorization: optional OAuth token to authenticate
-   :resheader Content-Type: this depends on :mailheader:`Accept`
-                            header of request
-   :statuscode 200: no error
-   :statuscode 404: there's no user
+   .. include:: ../payment/partials/create_payment.rst

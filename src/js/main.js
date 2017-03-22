@@ -6,7 +6,7 @@ const CONFIG = {
     'column_table': null
 };
 
-var VOCRM = {};
+const VOCRM = {};
 
 counterNotifications();
 
@@ -15,7 +15,8 @@ $(window).on('hashchange', function () {
 });
 
 // Sorting
-var orderTable = (function () {
+
+let orderTable = (function () {
     function addListener(callback) {
         $(".table-wrap th").on('click', function () {
             let dataOrder;
@@ -49,516 +50,6 @@ var orderTable = (function () {
     }
 })();
 
-function getAddNewUserData() {
-    let data = {
-        "email": $("input[name='email']").val(),
-        "first_name": $("input[name='first_name']").val(),
-        "last_name": $("input[name='last_name']").val(),
-        "middle_name": $("input[name='middle_name']").val(),
-        "search_name": $('#search_name').val(),
-        "born_date": $("input[name='born_date']").val() || null,
-        "phone_number": $("input[name='phone_numberCode']").val() + '' + $("input[name='phone_number']").val(),
-        "extra_phone_numbers": _.filter(_.map($("#extra_phone_numbers").val().split(","), x => x.trim()), x => !!x),
-        "vkontakte": $("input[name='vk']").val(),
-        "facebook": $("input[name='fb']").val(),
-        "odnoklassniki": $("input[name='ok']").val(),
-        "address": $("input[name='address']").val(),
-        "skype": $("input[name='skype']").val(),
-        "district": $("input[name='district']").val(),
-        "region": $('#chooseRegion option:selected').html() == 'Не выбрано' ? '' : $('#chooseRegion option:selected').text(),
-        'divisions': $('#chooseDivision').val() || [],
-        'hierarchy': parseInt($("#chooseStatus").val()),
-        'department': parseInt($("#chooseDepartment").val()),
-        'master': parseInt($("#chooseResponsible").val()),
-        'city': $('#chooseCity option:selected').html() == 'Не выбрано' ? '' : $('#chooseCity option:selected').text(),
-        'country': $('#chooseCountry option:selected').text() == 'Выберите страну' ? '' : $('#chooseCountry option:selected').text()
-    };
-    if ($('#partner').prop('checked')) {
-        if (!$('#summa_partner').val()) {
-            $('#summa_partner').css('border', '1px solid #d46a6a');
-            return
-        }
-        if (!$('#chooseManager').val()) {
-            $('#chooseManager').css('border', '1px solid #d46a6a');
-            return
-        }
-        if (!$('#partnerFrom').val()) {
-            $('#partnerFrom').css('border', '1px solid #d46a6a');
-            return
-        }
-        data.partner = {
-            "value": ($('#summa_partner').val()) ? parseInt($('#summa_partner').val()) : 0,
-            "responsible": ($('#chooseManager').val()) ? parseInt($('#chooseManager').val()) : null,
-            "date": $('#partnerFrom').val()
-        }
-    }
-    return data;
-}
-
-function createSummitUsersTable(data = {}) {
-    let config = {};
-    config.summit = $('#date .active span').data('id');
-    Object.assign(config, data);
-    getSummitUsers(config).then(function (data) {
-        let filter_data = {};
-        filter_data.results = data.results.map(function (item) {
-            let data;
-            data = item.user;
-            data.ankets_id = item.id;
-            return data;
-        });
-        console.log(filter_data);
-        filter_data.user_table = data.user_table;
-        let count = data.count;
-        let page = config.page || 1;
-        let pages = Math.ceil(count / CONFIG.pagination_count);
-        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
-        let id = "summitUsersList";
-        let text = `Показано ${showCount} из ${count}`;
-        let paginationConfig = {
-            container: ".users__pagination",
-            currentPage: page,
-            pages: pages,
-            callback: createSummitUsersTable
-        };
-        makeSammitsDataTable(filter_data, id);
-        makePagination(paginationConfig);
-        $('.table__count').text(text);
-        makeSortForm(data.user_table);
-        $('.preloader').css('display', 'none');
-        orderTable.sort(createSummitUsersTable);
-    });
-}
-function makeDataTable(data, id) {
-    var tmpl = document.getElementById('databaseUsers').innerHTML;
-    var rendered = _.template(tmpl)(data);
-    document.getElementById(id).innerHTML = rendered;
-    $('.quick-edit').on('click', function () {
-        makeQuickEditCart(this);
-    })
-}
-function makeSammitsDataTable(data, id) {
-    var tmpl = document.getElementById('databaseUsers').innerHTML;
-    var rendered = _.template(tmpl)(data);
-    document.getElementById(id).innerHTML = rendered;
-    $('.quick-edit').on('click', function () {
-        makeQuickEditSammitCart(this);
-    })
-}
-function makeSortForm(data) {
-    let sortFormTmpl, obj, rendered;
-    sortFormTmpl = document.getElementById("sortForm").innerHTML;
-    obj = {};
-    obj.user = [];
-    obj.user.push("Фильтр");
-    obj.user.push(data);
-    console.log(obj);
-    rendered = _.template(sortFormTmpl)(obj);
-    document.getElementById('sort-form').innerHTML = rendered;
-}
-
-function makeResponsibleList() {
-    let department = $('#departmentSelect').val();
-    let hierarchy = $('#hierarchySelect option:selected').attr('data-level');
-    getResponsible(department, hierarchy).then(function (data) {
-        let id = $('#master_hierarchy option:selected').attr('data-id');
-        if (!id) {
-            id = $('#master_hierarchy option').attr('data-id');
-        }
-        var selected = false;
-        var html = "";
-        data.forEach(function (el) {
-            if (id == el.id) {
-                selected = true;
-                html += "<option value='" + el.id + "' data-id='" + el.id + "' selected>" + el.fullname + "</option>";
-            } else {
-                html += "<option value='" + el.id + "' data-id='" + el.id + "'>" + el.fullname + "</option>";
-            }
-        });
-        if (!selected) {
-            html += "<option selected disabled value=''>Выберите ответственного</option>";
-        }
-        html += "";
-        $("#master_hierarchy").html(html).select2();
-    });
-}
-
-function makeChooseDivision() {
-    return getDivisions().then(function (data) {
-        data = data.results;
-        let html = '';
-        for (let i = 0; i < data.length; i++) {
-            html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
-        }
-        return html
-    });
-}
-
-
-function initAddNewUser(id, callback) {
-    getStatuses().then(function (data) {
-        let statuses = data.results;
-        let rendered = [];
-        let option = document.createElement('option');
-        $(option).text('Выбирите статус').attr('disabled', true).attr('selected', true);
-        rendered.push(option);
-        statuses.forEach(function (item) {
-            let option = document.createElement('option');
-            $(option).val(item.id).attr('data-level', item.level).text(item.title);
-            rendered.push(option);
-        });
-        return rendered;
-    }).then(function (rendered) {
-        $('#chooseStatus').html(rendered).select2().on('change', function () {
-            let status = $(this).val();
-            getResponsible(id, status).then(function (data) {
-                let rendered = [];
-                data.forEach(function (item) {
-                    let option = document.createElement('option');
-                    $(option).val(item.id).text(item.fullname);
-                    rendered.push(option);
-                });
-                $('#chooseResponsible').html(rendered).attr('disabled', false).select2();
-            })
-        });
-    });
-    getDivisions().then(function (data) {
-        let divisions = data.results;
-        let rendered = [];
-        divisions.forEach(function (item) {
-            let option = document.createElement('option');
-            $(option).val(item.id).text(item.title);
-            rendered.push(option);
-        });
-        $('#chooseDivision').html(rendered).select2();
-    });
-    getCountryCodes().then(function (data) {
-        let codes = data;
-        let rendered = [];
-        codes.forEach(function (item) {
-            let option = document.createElement('option');
-            $(option).val(item.phone_code).text(item.title + ' ' + item.phone_code);
-            if (item.phone_code == '+38') {
-                $(option).attr('selected', true);
-            }
-            rendered.push(option);
-        });
-        $('#chooseCountryCode').html(rendered).on('change', function () {
-            let code = $(this).val();
-            $('#phoneNumberCode').val(code);
-        }).trigger('change');
-    });
-
-    getCountries().then(function (data) {
-        let rendered = [];
-        let option = document.createElement('option');
-        $(option).val('').text('Выберите страну').attr('disabled', true).attr('selected', true);
-        rendered.push(option);
-        data.forEach(function (item) {
-            let option = document.createElement('option');
-            $(option).val(item.id).text(item.title);
-            rendered.push(option);
-        });
-        $('#chooseCountry').html(rendered).on('change', function () {
-            let config = {};
-            config.country = $(this).val();
-            getRegions(config).then(function (data) {
-                let rendered = [];
-                let option = document.createElement('option');
-                $(option).val('').text('Выберите регион');
-                rendered.push(option);
-                data.forEach(function (item) {
-                    let option = document.createElement('option');
-                    $(option).val(item.id).text(item.title);
-                    rendered.push(option);
-                });
-                $('#chooseRegion').html(rendered).attr('disabled', false).on('change', function () {
-                    let config = {};
-                    config.region = $(this).val();
-                    getCities(config).then(function (data) {
-                        let rendered = [];
-                        let option = document.createElement('option');
-                        $(option).val('').text('Выберите город');
-                        rendered.push(option);
-                        data.forEach(function (item) {
-                            let option = document.createElement('option');
-                            $(option).val(item.id).text(item.title);
-                            rendered.push(option);
-                        });
-                        $('#chooseCity').html(rendered).attr('disabled', false).select2();
-                    })
-                }).select2();
-            })
-        }).select2();
-    });
-
-    getManagers().then(function (data) {
-        let rendered = [];
-        let option = document.createElement('option');
-        $(option).val('').text('Выберите менеджера').attr('disabled', true).attr('selected', true);
-        rendered.push(option);
-        data.forEach(function (item) {
-            let option = document.createElement('option');
-            $(option).val(item.id).text(item.fullname);
-            rendered.push(option);
-        });
-        $('#chooseManager').html(rendered).select2();
-    });
-
-    $('#repentanceDate').datepicker({
-        dateFormat: 'yyyy-mm-dd'
-    });
-    $('#partnerFrom').datepicker({
-        dateFormat: 'yyyy-mm-dd'
-    });
-    $('#bornDate').datepicker({
-        dateFormat: 'yyyy-mm-dd'
-    });
-    $('#chooseCountryCode').select2();
-
-    $('#partner').on('change', function () {
-        let partner = $(this).is(':checked');
-        if (partner) {
-            $('.hidden-partner').css('display', 'block');
-        } else {
-            $('.hidden-partner').css('display', 'none');
-        }
-    });
-
-}
-function saveUser(el) {
-    let $input, $select, fullName, first_name, last_name, middle_name, department, hierarchy, phone_number, data, id;
-    let send = true;
-    let $department = $($(el).closest('.pop_cont').find('#departmentSelect'));
-    department = $department.val();
-    let $hierarchy = $($(el).closest('.pop_cont').find('#hierarchySelect'));
-    hierarchy = $hierarchy.val();
-    let $master = $('#master_hierarchy');
-    let master_id = $master.val() || "";
-    let $fullname = $($(el).closest('.pop_cont').find('input.fullname'));
-    fullName = $fullname.val().split(' ');
-    let $phone_number = $($(el).closest('.pop_cont').find('#phone_number'));
-    phone_number = $phone_number.val();
-    if(!$fullname.val()) {
-        $fullname.css('border-color', 'red');
-        send = false;
-    } else {
-        $fullname.removeAttr('style');
-    }
-    if(!master_id) {
-        $('label[for="master_hierarchy"]').css('color', 'red');
-        send = false;
-    } else {
-        $('label[for="master_hierarchy"]').removeAttr('style');
-    }
-    if(!phone_number) {
-        $phone_number.css('border-color', 'red');
-        send = false;
-    } else {
-        $phone_number.removeAttr('style');
-    }
-    if(!send) {
-        return
-    }
-    first_name = fullName[1];
-    last_name = fullName[0];
-    middle_name = fullName[2] || "";
-    data = {
-        email: $($(el).closest('.pop_cont').find('#email')).val(),
-        first_name: first_name,
-        last_name: last_name,
-        middle_name: middle_name,
-        hierarchy: hierarchy,
-        department: department,
-        master: master_id,
-        skype: $($(el).closest('.pop_cont').find('#skype')).val(),
-        phone_number: phone_number,
-        extra_phone_numbers: _.filter(_.map($($(el).closest('.pop_cont').find('#extra_phone_numbers')).val().split(","), x => x.trim()), x => !!x),
-        repentance_date: $($(el).closest('.pop_cont').find('#repentance_date')).val() || null,
-        country: $($(el).closest('.pop_cont').find('#country')).val(),
-        region: $($(el).closest('.pop_cont').find('#region')).val(),
-        city: $($(el).closest('.pop_cont').find('#city')).val(),
-        address: $($(el).closest('.pop_cont').find('#address')).val()
-    };
-    id = $(el).closest('.pop_cont').find('img').attr('alt');
-    saveUserData(data, id);
-    $(el).text("Сохранено");
-    $(el).closest('.popap').find('.close-popup').text('Закрыть');
-    $(el).attr('disabled', true);
-    $input = $(el).closest('.popap').find('input');
-    $select = $(el).closest('.popap').find('select');
-    $select.on('change', function () {
-        $(el).text("Сохранить");
-        $(el).closest('.popap').find('.close-popup').text('Отменить');
-        $(el).attr('disabled', false);
-    });
-    $input.on('change', function () {
-        $(el).text("Сохранить");
-        $(el).closest('.popap').find('.close-popup').text('Отменить');
-        $(el).attr('disabled', false);
-    })
-}
-
-function saveChurches(el) {
-    let $input, $select, phone_number, opening_date, data, id;
-    id = parseInt($($(el).closest('.pop_cont').find('#churchID')).val());
-    opening_date = $($(el).closest('.pop_cont').find('#opening_date')).val();
-    if (!opening_date && opening_date.split('-').length !== 3) {
-        $($(el).closest('.pop_cont').find('#opening_date')).css('border-color', 'red');
-        return
-    }
-    data = {
-        title: $($(el).closest('.pop_cont').find('#church_title')).val(),
-        pastor: $($(el).closest('.pop_cont').find('#editPastorSelect')).val(),
-        department: $($(el).closest('.pop_cont').find('#editDepartmentSelect')).val(),
-        phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
-        website: ($(el).closest('.pop_cont').find('#web_site')).val(),
-        opening_date: $($(el).closest('.pop_cont').find('#opening_date')).val() || null,
-        is_open: $('#is_open_church').is(':checked'),
-        country: $($(el).closest('.pop_cont').find('#country')).val(),
-        region: $($(el).closest('.pop_cont').find('#region')).val(),
-        city: $($(el).closest('.pop_cont').find('#city')).val(),
-        address: $($(el).closest('.pop_cont').find('#address')).val()
-    };
-    saveChurchData(data, id);
-    $(el).text("Сохранено");
-    $(el).closest('.popap').find('.close-popup').text('Закрыть');
-    $(el).attr('disabled', true);
-    $input = $(el).closest('.popap').find('input');
-    $select = $(el).closest('.popap').find('select');
-    $select.on('change', function () {
-        $(el).text("Сохранить");
-        $(el).closest('.popap').find('.close-popup').text('Отменить');
-        $(el).attr('disabled', false);
-    });
-    $input.on('change', function () {
-        $(el).text("Сохранить");
-        $(el).closest('.popap').find('.close-popup').text('Отменить');
-        $(el).attr('disabled', false);
-    })
-}
-
-function saveHomeGroups(el) {
-    let $input, $select, phone_number, data, id;
-    id = parseInt($($(el).closest('.pop_cont').find('#homeGroupsID')).val());
-    data = {
-        title: $($(el).closest('.pop_cont').find('#home_groups_title')).val(),
-        leader: $($(el).closest('.pop_cont').find('#editPastorSelect')).val(),
-        department: $($(el).closest('.pop_cont').find('#editDepartmentSelect')).val(),
-        phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
-        website: ($(el).closest('.pop_cont').find('#web_site')).val(),
-        opening_date: $($(el).closest('.pop_cont').find('#opening_date')).val() || null,
-        country: $($(el).closest('.pop_cont').find('#country')).val(),
-        city: $($(el).closest('.pop_cont').find('#city')).val(),
-        address: $($(el).closest('.pop_cont').find('#address')).val()
-    };
-    saveHomeGroupsData(data, id);
-    $(el).text("Сохранено");
-    $(el).closest('.popap').find('.close-popup').text('Закрыть');
-    $(el).attr('disabled', true);
-    $input = $(el).closest('.popap').find('input');
-    $select = $(el).closest('.popap').find('select');
-    $select.on('change', function () {
-        $(el).text("Сохранить");
-        $(el).closest('.popap').find('.close-popup').text('Отменить');
-        $(el).attr('disabled', false);
-    });
-    $input.on('change', function () {
-        $(el).text("Сохранить");
-        $(el).closest('.popap').find('.close-popup').text('Отменить');
-        $(el).attr('disabled', false);
-    })
-}
-
-function makeQuickEditSammitCart(el) {
-    let id, link, url;
-    id = $(el).closest('td').find('a').data('ankets');
-    link = $(el).closest('td').find('a').data('link');
-    url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${id}/`;
-    ajaxRequest(url, null, function (data) {
-        $('#summit-valueDelete').val(data.total_sum);
-        $('#member').prop("checked", data.is_member);
-       $('#popupDelete').css('display', 'block');
-    }, 'GET', true, {
-        'Content-Type': 'application/json'
-    });
-}
-function makeQuickEditCart(el) {
-    let id, link, url;
-    id = $(el).closest('td').find('a').attr('data-id');
-    link = $(el).closest('td').find('a').attr('data-link');
-    url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${id}/`;
-    ajaxRequest(url, null, function (data) {
-        let quickEditCartTmpl, rendered;
-        quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
-        rendered = _.template(quickEditCartTmpl)(data);
-        $('.save-user').attr('disabled', false);
-        $('#quickEditCartPopup').find('.popup_body').html(rendered);
-        $('#quickEditCartPopup').css('display', 'block');
-        makeResponsibleList();
-        getStatuses().then(function (data) {
-            data = data.results;
-            let hierarchySelect = $('#hierarchySelect').val();
-            let html = "";
-            for (let i = 0; i < data.length; i++) {
-                if (hierarchySelect === data[i].title || hierarchySelect == data[i].id) {
-                    html += '<option value="' + data[i].id + '"' + 'selected' + ' data-level="' + data[i].level + '">' + data[i].title + '</option>';
-                } else {
-                    html += '<option value="' + data[i].id + '" data-level="' + data[i].level + '" >' + data[i].title + '</option>';
-                }
-            }
-            $('#hierarchySelect').html(html);
-        });
-        getDepartments().then(function (data) {
-            data = data.results;
-            let departmentSelect = $('#departmentSelect').val();
-            let html = "";
-            for (let i = 0; i < data.length; i++) {
-                if (departmentSelect == data[i].title || departmentSelect == data[i].id) {
-                    html += '<option value="' + data[i].id + '"' + 'selected' + '>' + data[i].title + '</option>';
-                } else {
-                    html += '<option value="' + data[i].id + '">' + data[i].title + '</option>';
-                }
-            }
-            $('#departmentSelect').html(html);
-        });
-
-        $('#departmentSelect').on('change', makeResponsibleList);
-        $('#hierarchySelect').on('change', makeResponsibleList);
-
-        $("#repentance_date").datepicker({
-            dateFormat: "yyyy-mm-dd"
-        })
-    }, 'GET', true, {
-        'Content-Type': 'application/json'
-    });
-}
-
-function setCookie(name, value, options) {
-    options = options || {};
-    let expires = options.expires;
-    if (typeof expires == "number" && expires) {
-        let d = new Date();
-        d.setTime(d.getTime() + expires * 1000);
-        expires = options.expires = d;
-    }
-    if (expires && expires.toUTCString) {
-        options.expires = expires.toUTCString();
-    }
-
-    value = encodeURIComponent(value);
-
-    let updatedCookie = name + "=" + value;
-
-    for (let propName in options) {
-        updatedCookie += "; " + propName;
-        let propValue = options[propName];
-        if (propValue !== true) {
-            updatedCookie += "=" + propValue;
-        }
-    }
-    document.cookie = updatedCookie;
-}
 $('.close').on('click', function () {
     if ($(this).closest('.pop-up-splash')) {
         $(this).closest('.pop-up-splash').css('display', 'none');
@@ -567,6 +58,7 @@ $('.close').on('click', function () {
         $(this).closest('.popup').css('display', 'none');
     }
 });
+
 $('#logout_button').on('click', function (e) {
     e.preventDefault();
     ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/logout/', null, function (data) {
@@ -576,15 +68,19 @@ $('#logout_button').on('click', function (e) {
         'Content-Type': 'application/json'
     })
 });
+
 $('.reset_hard_user').on('click', function (e) {
     deleteCookie('hard_user_id');
     window.location.reload();
 });
 
 $('.close_popup').on('click', function () {
+    let $body = $('body');
+    if($body.hasClass('no_scroll')) {
+        $body.removeClass('no_scroll');
+    }
     $(this).closest('.popap').css('display', 'none');
 });
-
 /*search animate width*/
 $('.top input').click(function () {
     $('.top .search').animate({width: "80%"});
@@ -622,7 +118,7 @@ $("#pag li ").click(function (e) {
     $(this).addClass('active');
 });
 
-$("body").on('click', '#pag li', function (e) {
+$('body').on('click', '#pag li', function (e) {
     e.preventDefault();
     $("#pag li").removeClass('active');
     $(this).addClass('active');
@@ -671,15 +167,14 @@ $('.tabs-nav li').click(function (e) {
 $(".tabs-nav li a:first").click();
 
 $(document).ready(function () {
-    $('body').on('mouseover', '.toggle-sidebar a', function (el) {
-        //if (el.target.className == '#move-sidebar a') {return};
+    $('body').on('mouseover', '.toggle-sidebar .menu__item', function (el) {
         if ($(this).parent().is('#move-sidebar')) {
             return
         }
         let hint = '<div id="hint">' + $(this).attr('data-title') + '</hint>';
         $('body').append(hint);
-        let a = ($(this).offset().top - $(window).scrollTop()) + ($(this).outerHeight() / 2) - $('#hint').outerHeight() / 2;
-        $('#hint').css('top', a).fadeIn();
+        let position = ($(this).offset().top - $(window).scrollTop()) + ($(this).outerHeight() / 2) - $('#hint').outerHeight() / 2;
+        $('#hint').css('top', position).fadeIn();
     });
 
 
@@ -689,7 +184,7 @@ $(document).ready(function () {
         }
     });
 
-    $('body').on('mouseout', '.toggle-sidebar a', function (el) {
+    $('body').on('mouseout', '.toggle-sidebar .menu__item', function (el) {
         $('#hint').detach();
     });
     if ($('.scrollbar-inner').length || $('.scrollbar-macosx').length) {
@@ -700,16 +195,6 @@ $(document).ready(function () {
     $.extend($.datepicker, {
         _checkOffset: function (inst, offset, isFixed) {
             return offset
-        }
-    });
-
-    $("#move-sidebar").click(function () {
-        if (!$("#sidebar").hasClass('toggle-sidebar')) {
-            $("#sidebar").addClass('toggle-sidebar');
-            document.cookie = 'state=active;path=/';
-        } else {
-            $("#sidebar").removeClass('toggle-sidebar')
-            deleteCookie('state');
         }
     });
 
@@ -729,8 +214,10 @@ $(document).ready(function () {
 window.onload = function () {
     if (opened('state')) {
         $("#sidebar").addClass('toggle-sidebar');
+        $('#move-sidebar').addClass('active');
     } else {
         $("#sidebar").removeClass('toggle-sidebar');
+        $('#move-sidebar').removeClass('active');
     }
     $('body').show();
 };
@@ -746,7 +233,7 @@ function deleteCookie(name) {
     document.cookie = name + '=active;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }
 
-//Cкрывать элементы когда клик по другой части области экрана
+//Hide element after click in another area display
 document.body.addEventListener('click', function (el) {
     if (el.target == document.querySelector(".userImgWrap") || el.target == document.querySelector(".userImgWrap img")) {
         document.querySelector(".photo-hover").style.display == 'block' ? document.querySelector(".photo-hover").style.display = 'none' :
@@ -765,328 +252,38 @@ document.body.addEventListener('click', function (el) {
     }
 });
 
-// $(function () {
-//     ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/users/current/', null, function (data) {
-//         let user_id = data.id;
-//         VOCRM.user_id = data.id;
-//         VOCRM.user_partnerships_info = data.partnerships_info;
-//         VOCRM.column_table = data.column_table;
-//         let hierarchy_chain = data['hierarchy_chain'];
-//
-//         // if (document.getElementById('database_users')) {
-//         //     createUser();
-//         // }
-//
-//         if (document.getElementById('users_list')) {
-//             let dat = {};
-//             dat['summit'] = document.querySelectorAll('#carousel li span')[0].getAttribute('data-id');
-//             window.summit_id = dat['summit'];
-//             getUsersList(path, dat);
-//             getCurrentSetting();
-//         }
-//
-//         if (document.getElementById('event_wrap')) {
-//             getCurrentSetting();
-//             init(user_id);
-//         }
-//
-//         if (document.getElementById("add_new")) {
-//             document.getElementById("add_new").setAttribute('data-id', data.id);
-//         }
-//
-//         if (document.getElementById("report_wrap")) {
-//             init_report()
-//         }
-//
-//         if (VOCRM.user_partnerships_info && VOCRM.user_partnerships_info.is_responsible && document.querySelector('.manager_view')) {
-//             document.querySelector('.manager_view').style.display = 'block'
-//         }
-//
-//     });
-//     if (document.getElementById('sort-form')) {
-//         $("#sort-form").sortable({revert: true, items: "li:not([disable])", scroll: false});
-//         $("#sort-form").disableSelection();
-//     }
-// });
-
-jQuery(function ($) {
-    if ($.datepicker) {
-        $.datepicker.regional['ru'] = {
-            monthNames: ['Январь', 'Февраль', 'Март', 'Апрель',
-                'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь',
-                'Октябрь', 'Ноябрь', 'Декабрь'
-            ],
-            monthNamesShort: ['Январь', 'Февраль', 'Март', 'Апрель',
-                'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь',
-                'Октябрь', 'Ноябрь', 'Декабрь'],
-            changeMonth: true,
-            changeYear: true,
-            dayNamesMin: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
-            firstDay: 1,
-            dateFormat: "yy-mm-dd"
-        };
-        $.datepicker.setDefaults($.datepicker.regional['ru']);
-    }
+$('.close-popup').on('click', function (e) {
+    e.preventDefault();
+    hidePopup(this);
 });
-
-//old version
-function getCurrentSetting() {
-    let titles = VOCRM['column_table'];
-    let html = '';
-    for (let p in titles) {
-        if (!titles.hasOwnProperty(p)) continue;
-        let ischeck = titles[p]['active'] ? 'check' : '';
-        let isdraggable = titles[p]['editable'] ? 'draggable' : 'disable';
-        html += '<li ' + isdraggable + ' >' +
-            '<input id="' + titles[p]['ordering_title'] + '" type="checkbox">' +
-            '<label for="' + titles[p]['ordering_title'] + '"  class="' + ischeck + '" id= "' + titles[p]['id'] + '">' + titles[p]['title'] + '</label>';
-        if (isdraggable == 'disable') {
-            html += '<div class="disable-opacity"></div>'
-        }
-        html += '</li>'
+function setSidebarPosition() {
+    console.log('sidebar');
+    let $sidebar = $("#sidebar");
+    let $moveSidebar = $('#move-sidebar');
+    if (!$sidebar.hasClass('toggle-sidebar')) {
+        setTimeout(function () {
+            $sidebar.addClass('toggle-sidebar');
+            $moveSidebar.addClass('active');
+            document.cookie = 'state=active;path=/';
+        }, 100)
+    } else {
+        setTimeout(function () {
+            $sidebar.removeClass('toggle-sidebar');
+            $moveSidebar.removeClass('active');
+            deleteCookie('state');
+        }, 100)
     }
-
-    document.getElementById('sort-form').innerHTML = html;
-
-    $("#sort-form label").on('click', function (el) {
-        if (!this.parentElement.hasAttribute('disable')) {
-            this.classList.contains('check') ? this.classList.remove('check') : this.classList.add('check');
-        }
-    })
 }
 
-function createUsersTable(config) {
-    config["search_fio"] = $('input[name=fullsearch]').val();
-    Object.assign(config, filterParam());
-    getUsers(config).then(function (data) {
-        let count = data.count;
-        let page = config['page'] || 1;
-        let pages = Math.ceil(count / CONFIG.pagination_count);
-        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
-        let id = "database_users";
-        let text = `Показано ${showCount} из ${count}`;
-        let paginationConfig = {
-            container: ".users__pagination",
-            currentPage: page,
-            pages: pages,
-            callback: createUsersTable
-        };
-        makeDataTable(data, id);
-        makePagination(paginationConfig);
-        $('.table__count').text(text);
-        makeSortForm(data.user_table);
-        $('.preloader').css('display', 'none');
-        orderTable.sort(createUsersTable);
-    }).catch(function (err) {
-        console.log(err);
+(function ($) {
+    let $createUser = $('#createUser');
+    $createUser.on('submit', function (e) {
+        e.preventDefault();
     });
-}
-
-function updateSettings(callback, path) {
-    let data = [];
-    let iteration = 1;
-    $("#sort-form input").each(function () {
-        let item = {};
-        item['id'] = $(this).val();
-        item['number'] = iteration++;
-        item['active'] = $(this).prop('checked');
-        data.push(item);
+    $().dblclick(() => false);
+    $("#turn_aside").on('click', function (e) {
+        e.preventDefault();
+        setSidebarPosition()
     });
-    let json = JSON.stringify(data);
 
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/update_columns/', json, function (JSONobj) {
-        $(".bgsort").remove();
-        VOCRM['column_table'] = JSONobj['column_table'];
-
-        if (callback) {
-            var param = {};
-            if (path !== undefined) {
-                let extendParam = $.extend({}, param, filterParam());
-                callback(extendParam);
-            } else {
-                let param = filterParam();
-                callback(param);
-            }
-        }
-    }, 'POST', true, {
-        'Content-Type': 'application/json'
-    });
-}
-
-function hidePopup(el) {
-    if ($(el).closest('.popap').find('.save-user').length) {
-        $(el).closest('.popap').find('.save-user').attr('disabled', false);
-        $(el).closest('.popap').find('.save-user').text('Сохранить');
-    }
-    $(el).closest('.popap').css('display', 'none');
-}
-
-function refreshFilter(el) {
-    var input = $(el).closest('.popap').find('input');
-    $(el).addClass('refresh');
-    setTimeout(function () {
-        $(el).removeClass('refresh');
-    }, 700);
-    Array.from(input).forEach(function (item) {
-        $(item).val('')
-    })
-}
-
-function getFilterParam() {
-    let $filterFields, data = {};
-    $filterFields = $('#filterPopup select, #filterPopup input');
-    $filterFields.each(function () {
-        let prop = $(this).data('filter');
-        if ($(this).attr('type') === 'checkbox') {
-            data[prop] = $(this).is(':checked');
-        } else {
-            if ($(this).val()) {
-                data[prop] = $(this).val();
-            }
-        }
-
-    });
-    return data;
-}
-function filterParam() {
-    let filterPopup, data = {}, department, hierarchy, master, search_email, search_phone_number, search_country, search_city, from_date, to_date;
-    filterPopup = $('#filterPopup');
-    department = parseInt($('#departments_filter').val());
-    hierarchy = parseInt($('#hierarchies_filter').val());
-    master = parseInt($('#masters_filter').val());
-    search_email = $('#search_email').val();
-    search_phone_number = $('#search_phone_number').val();
-    search_country = $('#search_country').val();
-    search_city = $('#search_city').val();
-    from_date = $('#date_from').val();
-    to_date = $('#date_to').val();
-    if (department && department !== 0) {
-        data['department'] = department;
-    }
-    if (hierarchy && hierarchy !== 0) {
-        data['hierarchy'] = hierarchy;
-    }
-    if (master && master !== 0) {
-        data['master'] = master;
-    }
-    if (search_email && search_email != "") {
-        data['search_email'] = search_email;
-    }
-    if (search_phone_number && search_phone_number != "") {
-        data['search_phone_number'] = search_phone_number;
-    }
-    if (search_country && search_country != "") {
-        data['search_country'] = search_country;
-    }
-    if (search_city && search_city != "") {
-        data['search_city'] = search_city;
-    }
-    if (from_date && from_date != "") {
-        if (new Date(from_date) >= new Date(to_date)) {
-            data['to_date'] = from_date;
-        } else {
-            data['from_date'] = from_date;
-        }
-
-    }
-    if (to_date && to_date != "") {
-        if (new Date(from_date) >= new Date(to_date)) {
-            data['from_date'] = to_date;
-        } else {
-            data['to_date'] = to_date;
-        }
-    }
-    return data;
-}
-
-function applyFilter(el, callback) {
-    let self = el, data;
-    data = getFilterParam();
-    $('.preloader').css('display', 'block');
-    callback(data);
-    setTimeout(function () {
-        hidePopup(self);
-    }, 300);
-}
-
-function makeChooseStatus() {
-    return getStatuses().then(function (data) {
-        data = data.results;
-        let html = "";
-        for (let i = 0; i < data.length; i++) {
-            html += '<option value="' + data[i].id + '" data-level="' + data[i].level + '">' + data[i].title + '</option>';
-        }
-        return html;
-    })
-}
-
-function makeTabs() {
-    let pos = 0,
-        tabs = document.getElementById('tabs'),
-        tabsContent = document.getElementsByClassName('tabs-cont');
-
-    for (let i = 0; i < tabs.children.length; i++) {
-        tabs.children[i].setAttribute('data-page', pos);
-        pos++;
-    }
-
-    showPage(0);
-
-    tabs.onclick = function (event) {
-        event.preventDefault();
-        return showPage(parseInt(event.target.parentElement.getAttribute("data-page")));
-    };
-
-    function showPage(i) {
-        for (let k = 0; k < tabsContent.length; k++) {
-            tabsContent[k].style.display = 'none';
-            tabs.children[k].classList.remove('current');
-        }
-        tabsContent[i].style.display = 'block';
-        tabs.children[i].classList.add('current');
-
-        let done = document.getElementById('period_done'),
-            expired = document.getElementById('period_expired'),
-            unpag = document.querySelectorAll('.undone-pagination'),
-            expag = document.querySelectorAll('.expired-pagination'),
-            dpag = document.querySelectorAll('.done-pagination');
-
-        if (document.querySelectorAll('a[href="#overdue"]')[0].parentElement.classList.contains('current')) {
-            done.style.display = 'none';
-            expired.style.display = 'block';
-            Array.prototype.forEach.call(expag, function (el) {
-                el.style.display = 'block';
-            });
-            Array.prototype.forEach.call(unpag, function (el) {
-                el.style.display = 'none';
-            });
-            Array.prototype.forEach.call(dpag, function (el) {
-                el.style.display = 'none';
-            });
-        } else if (document.querySelectorAll('a[href="#completed"]')[0].parentElement.classList.contains('current')) {
-            done.style.display = 'block';
-            expired.style.display = '';
-            Array.prototype.forEach.call(expag, function (el) {
-                el.style.display = 'none';
-            });
-            Array.prototype.forEach.call(unpag, function (el) {
-                el.style.display = 'none';
-            });
-            Array.prototype.forEach.call(dpag, function (el) {
-                el.style.display = 'block';
-            });
-        } else if (document.querySelectorAll('a[href="#incomplete"]')[0].parentElement.classList.contains('current')) {
-            done.style.display = '';
-            expired.style.display = '';
-            Array.prototype.forEach.call(expag, function (el) {
-                el.style.display = 'none';
-            });
-            Array.prototype.forEach.call(unpag, function (el) {
-                el.style.display = 'block';
-            });
-            Array.prototype.forEach.call(dpag, function (el) {
-                el.style.display = 'none';
-            });
-        }
-    }
-}
+})(jQuery);

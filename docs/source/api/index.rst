@@ -9,5 +9,6 @@ Contents:
 
    summit/api
    partner/api
+   payment/api
    account/api
    group/api

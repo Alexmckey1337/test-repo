@@ -11,27 +11,19 @@ from django.db import models
 from django.db.models import signals
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from mptt.managers import TreeManager
 from mptt.models import MPTTModel, TreeForeignKey
 
+from account.permissions import can_see_churches, can_see_home_groups
 from event.models import EventAnket
 from navigation.models import Table
 from partnership.models import Partnership
-
-COMMON = ['Имя', 'Фамилия', 'Отчество', 'Email', 'Телефон', 'Дата рождения', 'Иерархия', 'Отдел',
-          'Страна', 'Область', 'Населенный пункт', 'Район', 'Адрес', 'Skype', 'Vkontakte', 'Facebook', 'Отдел церкви', ]
-
-
-def get_hierarchy_chain(obj, l):
-    d = OrderedDict()
-    d['value'] = obj.get_full_name()
-    d['id'] = obj.id
-    l.append(d)
-    master = obj.master
-    if master:
-        get_hierarchy_chain(master, l)
+from partnership.permissions import can_see_partners, can_see_partner_stats, can_see_deals
+from summit.models import SummitType, SummitAnket
+from summit.permissions import can_see_summit, can_see_summit_type, can_see_any_summit, can_see_any_summit_type
 
 
 class CustomUserManager(TreeManager, UserManager):
@@ -45,7 +37,7 @@ class CustomUser(MPTTModel, User):
     #: Field for name in the native language of the user
     search_name = models.CharField(_('Field for search by name'), max_length=255, blank=True)
 
-    phone_number = models.CharField(max_length=13, blank=True)
+    phone_number = models.CharField(max_length=23, blank=True)
     skype = models.CharField(max_length=50, blank=True)
     country = models.CharField(max_length=50, blank=True)
     region = models.CharField(max_length=50, blank=True)
@@ -59,8 +51,7 @@ class CustomUser(MPTTModel, User):
     image = models.ImageField(upload_to='images/', blank=True)
     image_source = models.ImageField(upload_to='images/', blank=True)
     description = models.TextField(blank=True)
-    department = models.ForeignKey('hierarchy.Department', related_name='users', null=True, blank=True,
-                                   on_delete=models.SET_NULL)
+    departments = models.ManyToManyField('hierarchy.Department', related_name='users')
     hierarchy = models.ForeignKey('hierarchy.Hierarchy', related_name='users', null=True, blank=True,
                                   on_delete=models.SET_NULL)
     master = TreeForeignKey('self', related_name='disciples', null=True, blank=True,
@@ -96,7 +87,7 @@ class CustomUser(MPTTModel, User):
         parent_attr = 'master'
 
     def get_absolute_url(self):
-        return '/account/{}/'.format(self.id)
+        return reverse('account:detail', args=(self.id,))
 
     def get_descendant_leaders(self):
         return self.get_descendants().filter(hierarchy__level=1)
@@ -125,15 +116,9 @@ class CustomUser(MPTTModel, User):
     def is_partner_director(self):
         return self.partnership and self.partnership.level == Partnership.DIRECTOR
 
-    @property
-    def hierarchy_chain(self):
-        l = list()
-        get_hierarchy_chain(self, l)
-        return l
-
-    @property
-    def has_disciples(self):
-        return self.disciples.exists()
+    def available_summit_types(self):
+        return SummitType.objects.filter(summits__ankets__user=self,
+                                         summits__ankets__role__gte=SummitAnket.CONSULTANT).distinct()
 
     @property
     def column_table(self):
@@ -152,136 +137,7 @@ class CustomUser(MPTTModel, User):
         return l
 
     @property
-    def fields(self):
-        l = OrderedDict()
-
-        d = OrderedDict()
-        d['value'] = self.id
-        l['id'] = d
-
-        d = OrderedDict()
-        d['value'] = self.fullname
-        l['fullname'] = d
-
-        d = OrderedDict()
-        d['value'] = self.short_fullname
-        l['short_fullname'] = d
-
-        d = OrderedDict()
-        d['value'] = self.email
-        l['email'] = d
-
-        d = OrderedDict()
-        if self.born_date:
-
-            d['value'] = self.born_date
-        else:
-            d['value'] = ''
-        l['born_date'] = d
-
-        d = OrderedDict()
-        d['value'] = self.phone_number
-        l['phone_number'] = d
-
-        d = OrderedDict()
-        d['value'] = self.country
-        l['country'] = d
-
-        d = OrderedDict()
-        d['value'] = self.region
-        l['region'] = d
-
-        d = OrderedDict()
-        d['value'] = self.city
-        l['city'] = d
-
-        d = OrderedDict()
-        d['value'] = self.district
-        l['district'] = d
-
-        d = OrderedDict()
-        d['value'] = self.address
-        l['address'] = d
-
-        d = OrderedDict()
-        d['value'] = ''
-        if self.hierarchy:
-            d['value'] = self.hierarchy.title
-        l['hierarchy'] = d
-
-        d = OrderedDict()
-        d['value'] = ''
-        if self.master:
-            d['value'] = self.master.fullname
-        l['master'] = d
-
-        d = OrderedDict()
-        d['value'] = ''
-        if self.master:
-            d['value'] = self.master.hierarchy.title
-        l['master_hierarchy'] = d
-
-        d = OrderedDict()
-        if self.department:
-            d['value'] = self.department.title
-        else:
-            d['value'] = ''
-        l['department'] = d
-
-        # s = OrderedDict()
-        d = OrderedDict()
-        d['skype'] = self.skype
-        d['vkontakte'] = self.vkontakte
-        d['facebook'] = self.facebook
-        d['odnoklassniki'] = self.odnoklassniki
-        l['social'] = d
-
-        d = OrderedDict()
-        d['value'] = self.repentance_date
-        l['repentance_date'] = d
-
-        d = OrderedDict()
-        d['value'] = self.coming_date
-        l['coming_date'] = d
-
-        d = OrderedDict()
-        sl = list()
-        if self.divisions:
-            for division in self.divisions.all():
-                sl.append(division.title)
-            d['value'] = ','.join(sl)
-        else:
-            d['value'] = ''
-        l['divisions'] = d
-
-        d = OrderedDict()
-        d['value'] = self.description
-        l['description'] = d
-        return l
-
-    @property
-    def division_fields(self):
-        l = OrderedDict()
-        for division in self.divisions.all():
-            d = OrderedDict()
-            d['value'] = True
-            l[division.title] = d
-        return l
-
-    @property
     def master_short_fullname(self):
-        s = ''
-        if self.master:
-            if len(self.master.last_name) > 0:
-                s = s + self.master.last_name + ' '
-            if len(self.master.first_name) > 0:
-                s = s + self.master.first_name[0] + '.'
-            if len(self.master.middle_name) > 0:
-                s = s + self.master.middle_name[0] + '.'
-        return s
-
-    @property
-    def short_fullname(self):
         s = ''
         if self.master:
             if len(self.master.last_name) > 0:
@@ -307,39 +163,55 @@ class CustomUser(MPTTModel, User):
     def fullname(self):
         return ' '.join(map(lambda name: name.strip(), (self.last_name, self.first_name, self.middle_name)))
 
-    @property
-    def hierarchy_name(self):
-        return self.hierarchy.title
+    # PERMISSIONS
 
-    @property
-    def attrs(self):
-        l = ['Ответственный', 'Отдел', 'Город', 'Номер телефона',
-             'Количество прозвонов за неделю', 'Посмотреть прозвоны']
-        return l
+    def _perm_req(self):
+        return type('Request', (), {'user': self})
 
-    @property
-    def department_title(self):
-        l = self.department.title
-        return l
+    # database block
 
-    @property
-    def partnerships_info(self):
-        l = OrderedDict()
-        try:
-            p = self.partnership
-            if p and p.level <= Partnership.MANAGER:
-                l['is_responsible'] = True
-                l['responsible'] = self.partnership.id
-            else:
-                l['is_responsible'] = False
-                l['responsible'] = self.partnership.id
-        except Exception:
-            l['is_responsible'] = False
-            l['responsible'] = ''
-        # if self.partnership and self.partnership.level <= Partnership.MANAGER:
-        #    l['is_responsible'] = True
-        #    l['responsible'] = self.partnership.id
-        return l
+    def can_see_churches(self):
+        request = self._perm_req()
+        return can_see_churches(request)
+
+    def can_see_home_groups(self):
+        request = self._perm_req()
+        return can_see_home_groups(request)
+
+    # partner block
+
+    def can_see_partners(self):
+        request = self._perm_req()
+        return can_see_partners(request)
+
+    def can_see_deals(self):
+        request = self._perm_req()
+        return can_see_deals(request)
+
+    def can_see_partner_stats(self):
+        request = self._perm_req()
+        return can_see_partner_stats(request)
+
+    def can_see_any_partner_block(self):
+        return any((self.can_see_partners(), self.can_see_deals(), self.can_see_partner_stats()))
+
+    # summit block
+
+    def can_see_summit(self, summit_id):
+        request = self._perm_req()
+        return can_see_summit(request, summit_id)
+
+    def can_see_summit_type(self, summit_type):
+        request = self._perm_req()
+        return can_see_summit_type(request, summit_type)
+
+    def can_see_any_summit(self):
+        request = self._perm_req()
+        return can_see_any_summit(request)
+
+    def can_see_any_summit_type(self):
+        request = self._perm_req()
+        return can_see_any_summit_type(request)
 
 
 @python_2_unicode_compatible

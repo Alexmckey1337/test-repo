@@ -13,7 +13,6 @@ from hierarchy.factories import HierarchyFactory, DepartmentFactory
 from hierarchy.models import Department, Hierarchy
 
 
-
 class LoginUserMixin(TestCase):
     def setUp(self):
         self.url = '/'
@@ -112,7 +111,7 @@ class TestDatabasePage(LoginUserMixin):
 class TestMeetingTypeListPage(LoginUserMixin):
     def setUp(self):
         super(TestMeetingTypeListPage, self).setUp()
-        self.url = reverse('meeting_type-list')
+        self.url = reverse('meeting_type:list')
 
     def test_meeting_types_in_context(self):
         response = self.client.get(self.url)
@@ -127,7 +126,7 @@ class TestMeetingTypeDetailPage(LoginUserMixin):
     def setUp(self):
         super(TestMeetingTypeDetailPage, self).setUp()
         self.meeting_type = MeetingTypeFactory()
-        self.url = reverse('meeting_type-detail', kwargs={'code': self.meeting_type.code})
+        self.url = reverse('meeting_type:detail', kwargs={'code': self.meeting_type.code})
 
     def test_meeting_type_in_context(self):
         response = self.client.get(self.url)
@@ -142,7 +141,7 @@ class TestCreateMeetingReportPage(LoginUserMixin):
     def setUp(self):
         super(TestCreateMeetingReportPage, self).setUp()
         self.meeting_type = MeetingTypeFactory()
-        self.url = reverse('meeting-report', kwargs={'code': self.meeting_type.code})
+        self.url = reverse('meeting_type:report', kwargs={'code': self.meeting_type.code})
 
     def test_with_login_user(self):
         pass

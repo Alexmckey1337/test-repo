@@ -65,7 +65,7 @@ class CreatePaymentMixin(PaymentCheckPermissionMixin):
         purpose = get_object_or_404(purpose_model, pk=pk)
         self.check_payment_permissions(request, purpose)
 
-        sum = request.data['sum']
+        sum = request.data.get('sum', None)
         description = request.data.get('description', '')
         rate = request.data.get('rate', Decimal(1))
         currency = request.data.get('currency', purpose.currency.id)

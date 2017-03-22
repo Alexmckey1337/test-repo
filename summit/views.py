@@ -79,8 +79,8 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet,
                               CreatePaymentMixin,
                               ListPaymentMixin, ExportViewSetMixin):
     queryset = SummitAnket.objects.select_related(
-        'user', 'user__hierarchy', 'user__department', 'user__master', 'summit', 'summit__type'). \
-        prefetch_related('user__divisions', 'emails').annotate(
+        'user', 'user__hierarchy', 'user__master', 'summit', 'summit__type'). \
+        prefetch_related('user__divisions', 'user__departments', 'emails').annotate(
         total_sum=Coalesce(Sum('payments__effective_sum'), V(0))).order_by(
         'user__last_name', 'user__first_name', 'user__middle_name')
     serializer_class = SummitAnketSerializer
@@ -93,7 +93,7 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet,
     filter_fields = ('user',
                      'summit', 'visited',
                      'user__master',
-                     'user__department__title',
+                     'user__departments',
                      'user__first_name', 'user__last_name',
                      'user__middle_name', 'user__born_date', 'user__country',
                      'user__region', 'user__city', 'user__district',
@@ -108,7 +108,6 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet,
                      'user__hierarchy__title',
                      'user__phone_number',
                      'user__city',
-                     'user__department__title',
                      'user__master__last_name',
                      'user__email',
                      )
@@ -117,11 +116,16 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet,
                        'user__region', 'user__city', 'user__district',
                        'user__address', 'user__skype', 'user__phone_number',
                        'user__email', 'user__hierarchy__level',
-                       'user__department__title', 'user__facebook',
+                       'user__facebook',
                        'user__vkontakte',)
     permission_classes = (IsAuthenticated,)
 
     resource_class = SummitAnketResource
+
+    def get_queryset(self):
+        summit_ids = set(self.request.user.summit_ankets.filter(
+            role__gte=SummitAnket.CONSULTANT).values_list('summit_id', flat=True))
+        return self.queryset.filter(summit__in=summit_ids)
 
     @list_route(methods=['post'], )
     def post_anket(self, request):
@@ -242,8 +246,8 @@ class SummitLessonViewSet(viewsets.ModelViewSet):
 
 
 class SummitAnketWithNotesViewSet(viewsets.ModelViewSet):
-    queryset = SummitAnket.objects.select_related('user', 'user__hierarchy', 'user__department', 'user__master'). \
-        prefetch_related('user__divisions', 'notes')
+    queryset = SummitAnket.objects.select_related('user', 'user__hierarchy', 'user__master'). \
+        prefetch_related('user__divisions', 'user__departments', 'notes')
     serializer_class = SummitAnketWithNotesSerializer
     pagination_class = None
     filter_backends = (filters.DjangoFilterBackend,)
@@ -381,7 +385,7 @@ class SummitTypeViewSet(viewsets.ModelViewSet):
 
 
 class SummitUnregisterFilter(filters_new.FilterSet):
-    summit_id = filters_new.CharFilter(name="summit_ankets__summit__id")
+    summit_id = filters_new.CharFilter(name="summit_ankets__summit__id", exclude=True)
 
     class Meta:
         model = CustomUser

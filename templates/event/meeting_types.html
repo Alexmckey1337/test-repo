@@ -15,7 +15,7 @@
 
 <ul>
     {% for meeting_type in meeting_types %}
-        <li><a href="{% url "meeting-report" code=meeting_type.code %}">{{ meeting_type.name }}</a></li>
+        <li><a href="{% url "meeting_type:report" code=meeting_type.code %}">{{ meeting_type.name }}</a></li>
     {% endfor %}
 </ul>
 

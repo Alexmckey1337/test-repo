@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+{% load i18n %}
+{% load static %}
+{% block main_styles %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "css/home.css" %}">
+{% endblock %}
+{% load summit_tags %}
+{% block body_id %} id="database"{% endblock %}
+
+{% block header.top.h1 %}<h1>Дэшборд</h1>{% endblock %}
+
+{% block header.buttons.filter %}
+
+{% endblock %}
+
+{% block header.buttons.export %}
+
+{% endblock %}
+
+{% block main.content %}
+    <div class="main__container">
+        <div class="grid_block">
+            <div class="col-sm-4">
+                <h2>База данных</h2>
+                <ul>
+                    {% if user.can_see_churches %}
+                        <li><a href="{% url 'db:churches' %}">Церкви</a></li>
+                    {% endif %}
+                    {% if user.can_see_home_groups %}
+                        <li><a href="{% url 'db:home_groups' %}">Домашние группы</a></li>
+                    {% endif %}
+                    <li><a href="{% url 'db:people' %}">Люди</a></li>
+                </ul>
+            </div>
+            {% if user.can_see_any_partner_block %}
+                <div class="col-sm-4">
+                    <h2>Партнёрство</h2>
+                    <ul>
+                        {% if user.can_see_deals %}
+                            <li><a href="{% url 'partner:deals' %}">Сделки</a></li>
+                        {% endif %}
+                        {% if user.can_see_partners %}
+                            <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
+                        {% endif %}
+                        {% if user.can_see_partner_stats %}
+                            <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            {% endif %}
+            <div class="col-sm-4">
+                <h2>Саммиты</h2>
+                <ul>
+                    {% for summit in user.available_summit_types %}
+                        <li><a href="{% url 'summit:detail' summit.id %}">{{ summit.title }}</a></li>
+                    {% empty %}
+                        <li>{% trans "Нет доступных саммитов." %}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block popup %}
+    {% create_user_form %}
+
+{% endblock %}
+{% block extra_scripts %}
+
+{% endblock %}

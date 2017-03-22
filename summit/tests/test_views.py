@@ -221,11 +221,34 @@ class TestSummitAnketTableViewSet:
         assert note.text == data['text']
         assert response.data == SummitAnketNoteSerializer(note).data
 
-    def test_notes(self, api_login_client, anket, anket_note_factory):
+    def test_notes(self, api_client, summit_anket_factory, anket, anket_note_factory):
         anket_note_factory.create_batch(6)
+        consultant_anket = summit_anket_factory(summit=anket.summit, role=SummitAnket.CONSULTANT)
         url = reverse('summit_ankets-notes', kwargs={'pk': anket.id})
 
-        response = api_login_client.get(url, format='json')
+        api_client.force_login(consultant_anket.user)
+        response = api_client.get(url, format='json')
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data == SummitAnketNoteSerializer(anket.notes.all(), many=True).data
+
+    @pytest.mark.parametrize(
+        'role,count', [
+            (SummitAnket.SUPERVISOR, 5),
+            (SummitAnket.CONSULTANT, 5),
+            (SummitAnket.VISITOR, 0),
+        ], ids=['supervisor', 'consultant', 'visitor'])
+    def test_filter_ankets_by_current_user(
+            self, api_client, user_factory, summit_factory, summit_anket_factory, role, count):
+        user = user_factory()
+
+        summit = summit_factory()
+        summit_anket_factory.create_batch(4, summit=summit)
+        summit_anket_factory(user=user, summit=summit, role=role)
+
+        url = reverse('summit_ankets-list')
+        api_client.force_login(user)
+
+        response = api_client.get(url, format='json')
+
+        assert len(response.data['results']) == count

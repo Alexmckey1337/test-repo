@@ -2,21 +2,24 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count
-from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
+from django.views import View
+from django.views.generic import DetailView
+from django.views.generic import ListView
+from django.views.generic.base import ContextMixin, TemplateView
 
 from account.models import CustomUser
-from event.models import MeetingType
-from hierarchy.models import Department
 from account.permissions import CanAccountObjectRead, CanAccountObjectEdit
+from event.models import MeetingType
 from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
 from location.models import Country, Region, City
-from partnership.models import Partnership
+from partnership.models import Partnership, Deal
+from payment.models import Currency
 from status.models import Division
 from summit.models import SummitType
 
@@ -25,8 +28,8 @@ def entry(request):
     return render(request, 'login/login.html')
 
 
-def edit_pass(request, activation_key=None):
-    return render(request, 'login/editpass.html')
+def edit_pass(request):
+    return render(request, 'login/edit_password.html')
 
 
 @login_required(login_url='entry')
@@ -61,37 +64,80 @@ def meeting_report(request, code):
     return render(request, 'event/meeting_report_create.html', context=ctx)
 
 
-@login_required(login_url='entry')
-def partner(request):
-    return render(request, 'partner/partners.html')
+# partner
 
 
-@login_required(login_url='entry')
-def deals(request):
-    return render(request, 'partner/deals.html')
+class CanSeePartnersMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_partners():
+            raise PermissionDenied
+        return super(CanSeePartnersMixin, self).dispatch(request, *args, **kwargs)
 
 
-@login_required(login_url='entry')
-def stats(request):
-    return render(request, 'partner/stats.html')
+class CanSeeDealsMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_deals():
+            raise PermissionDenied
+        return super(CanSeeDealsMixin, self).dispatch(request, *args, **kwargs)
 
 
-@login_required(login_url='entry')
-def partner_stats(request):
-    partner = request.user.partnership
-    if not partner or partner.level > Partnership.MANAGER:
-        raise Http404('Статистику можно просматривать только менеджерам.')
-    return render(request, 'partner/partner_stats.html')
+class CanSeePartnerStatsMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_partner_stats():
+            raise PermissionDenied
+        return super(CanSeePartnerStatsMixin, self).dispatch(request, *args, **kwargs)
+
+
+class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, ListView):
+    model = Partnership
+    context_object_name = 'partners'
+    template_name = 'partner/partners.html'
+    login_url = 'entry'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(PartnerListView, self).get_context_data(**kwargs)
+
+        extra_context = {
+            'departments': Department.objects.all(),
+            'hierarchies': Hierarchy.objects.order_by('level'),
+        }
+
+        ctx.update(extra_context)
+        return ctx
+
+
+class DealListView(LoginRequiredMixin, CanSeeDealsMixin, ListView):
+    model = Deal
+    context_object_name = 'deals'
+    template_name = 'partner/deals.html'
+    login_url = 'entry'
+
+
+class PartnerStatisticsListView(LoginRequiredMixin, CanSeePartnerStatsMixin, ListView):
+    model = Partnership
+    context_object_name = 'partners'
+    template_name = 'partner/stats.html'
+    login_url = 'entry'
+
+
+# account
 
 
 @login_required(login_url='entry')
 def account(request, id):
     user = get_object_or_404(CustomUser, pk=id)
     has_perm = CanAccountObjectRead().has_object_permission(request, None, user)
+    currencies = Currency.objects.all()
     if not has_perm:
         raise PermissionDenied
     ctx = {
-        'account': user
+        'account': user,
+        'departments': Department.objects.all(),
+        'hierarchies': Hierarchy.objects.order_by('level'),
+        'divisions': Division.objects.all(),
+        'currencies': currencies,
+        'partners': Partnership.objects.filter(level__lte=Partnership.MANAGER),
+        'churches': Church.objects.all()
     }
     return render(request, 'account/anketa.html', context=ctx)
 
@@ -100,10 +146,10 @@ def account(request, id):
 def account_edit(request, user_id):
     user = get_object_or_404(CustomUser, pk=user_id)
     has_perm = CanAccountObjectEdit().has_object_permission(request, None, user)
+    currencies = Currency.objects.all()
     if not has_perm:
         if user_id:
-            get_object_or_404(CustomUser, pk=user_id)
-            return redirect(reverse('account', args=(user_id,)))
+            return redirect(user.get_absolute_url)
         raise PermissionDenied
     ctx = {
         'account': user,
@@ -114,8 +160,37 @@ def account_edit(request, user_id):
         'regions': Region.objects.filter(country__title=user.country),
         'cities': City.objects.filter(region__title=user.region),
         'partners': Partnership.objects.filter(level__lte=Partnership.MANAGER),
+        'currencies': currencies
     }
     return render(request, 'account/edit.html', context=ctx)
+
+
+# summit
+
+
+class CanSeeSummitTypeMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        summit_type = kwargs.get('pk')
+        if not (summit_type and request.user.can_see_summit_type(summit_type)):
+            raise PermissionDenied
+        return super(CanSeeSummitTypeMixin, self).dispatch(request, *args, **kwargs)
+
+
+class SummitTypeView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
+    model = SummitType
+    context_object_name = 'summit_type'
+    template_name = 'summit/summit_info.html'
+    login_url = 'entry'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(SummitTypeView, self).get_context_data(**kwargs)
+
+        extra_context = {
+            'departments': Department.objects.all(),
+        }
+
+        ctx.update(extra_context)
+        return ctx
 
 
 @login_required(login_url='entry')
@@ -126,100 +201,140 @@ def summits(request):
     return render(request, 'summit/summits.html', context=ctx)
 
 
-@login_required(login_url='entry')
-def summit_info(request, summit_id):
-    ctx = {
-        'departments': Department.objects.all(),
-        'summit_type': SummitType.objects.get(id=summit_id),
-    }
-    return render(request, 'summit/summit_info.html', context=ctx)
+# database
 
 
-@login_required(login_url='entry')
-def churches(request):
-    user = request.user
-    if not user.is_staff and user.hierarchy.level < 1:
-        raise Http404('У Вас нет прав для просмотра данной страницы.')
-    ctx = {
-        'departments': Department.objects.all(),
-        'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
-    }
-    return render(request, 'database/churches.html', context=ctx)
+class CanSeeChurchesMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_churches():
+            raise PermissionDenied
+        return super(CanSeeChurchesMixin, self).dispatch(request, *args, **kwargs)
 
 
-@login_required(login_url='entry')
-def church_detail(request, church_id):
-    user = request.user
-    church = get_object_or_404(Church, id=church_id)
-    if not user.is_staff and user.hierarchy.level < 1:
-        raise Http404('У Вас нет прав для просмотра данной страницы.')
-
-    ctx = {
-        'church': church,
-        'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
-        'church_users': church.users.count(),
-        'church_all_users': church.users.count() + HomeGroup.objects.filter(church_id=church_id).aggregate(
-            home_users=Count('users'))['home_users'],
-        'parishioners_count': church.users.filter(hierarchy__level=0).count(),
-        'leaders_count': church.users.filter(hierarchy__level=1).count(),
-        'home_groups_count': church.home_group.count(),
-        'fathers_count': church.users.filter(spiritual_level=CustomUser.FATHER).count() + HomeGroup.objects.filter(
-            church__id=church_id).filter(users__spiritual_level=3).count(),
-        'juniors_count': church.users.filter(spiritual_level=CustomUser.JUNIOR).count() + HomeGroup.objects.filter(
-            church__id=church_id).filter(users__spiritual_level=2).count(),
-        'babies_count': church.users.filter(spiritual_level=CustomUser.BABY).count() + HomeGroup.objects.filter(
-            church__id=church_id).filter(users__spiritual_level=1).count(),
-        'partners_count': church.users.filter(partnership__is_active=True).count(),
-    }
-    return render(request, 'group/church_detail.html', context=ctx)
+class CanSeeHomeGroupsMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_home_groups():
+            raise PermissionDenied
+        return super(CanSeeHomeGroupsMixin, self).dispatch(request, *args, **kwargs)
 
 
-@login_required(login_url='entry')
-def home_groups(request):
-    user = request.user
-    if not user.is_staff and user.hierarchy.level < 1:
-        raise Http404('У Вас нет прав для просмотра данной страницы.')
-    ctx = {
-        'churches': Church.objects.all(),
-        'leaders': CustomUser.objects.filter(hierarchy__level__gt=0),
-    }
-    return render(request, 'database/home_groups.html', context=ctx)
+class TabsMixin(ContextMixin):
+    active_tab = None
+
+    def get_context_data(self, **kwargs):
+        return super(TabsMixin, self).get_context_data(**{'active_tab': self.active_tab})
 
 
-@login_required(login_url='entry')
-def home_group_detail(request, group_id):
-    user = request.user
-    home_group = get_object_or_404(HomeGroup, id=group_id)
-    if not user.is_staff and user.hierarchy.level < 1:
-        raise Http404('У Вас нет прав для просмотра данной страницы.')
+class PeopleListView(LoginRequiredMixin, TabsMixin, TemplateView):
+    template_name = 'database/people.html'
+    login_url = 'entry'
+    active_tab = 'people'
 
-    ctx = {
-        'home_group': home_group,
-        'users_count': home_group.users.count(),
-        'fathers_count': home_group.users.filter(spiritual_level=CustomUser.FATHER).count(),
-        'juniors_count': home_group.users.filter(spiritual_level=CustomUser.JUNIOR).count(),
-        'babies_count': home_group.users.filter(spiritual_level=CustomUser.BABY).count(),
-        'partners_count': home_group.users.filter(partnership__is_active=True).count(),
-    }
-    return render(request, 'group/home_group_detail.html', context=ctx)
+    def get_context_data(self, **kwargs):
+        ctx = super(PeopleListView, self).get_context_data(**kwargs)
+        extra_ctx = {
+            'departments': Department.objects.all(),
+            'hierarchies': Hierarchy.objects.order_by('level'),
+            'currencies': Currency.objects.all()
+        }
+        user = self.request.user
+        if user.is_staff:
+            extra_ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
+        elif not user.hierarchy:
+            extra_ctx['masters'] = list()
+        elif user.hierarchy.level < 2:
+            extra_ctx['masters'] = user.get_descendants(
+                include_self=True).filter(is_active=True, hierarchy__level__gte=1)
+        else:
+            extra_ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
+        ctx.update(extra_ctx)
+
+        return ctx
 
 
-@login_required(login_url='entry')
-def people(request):
-    user = request.user
-    ctx = {
-        'departments': Department.objects.all(),
-        'hierarchies': Hierarchy.objects.order_by('level'),
-    }
-    if user.is_staff:
+class ChurchListView(LoginRequiredMixin, TabsMixin, CanSeeChurchesMixin, TemplateView):
+    template_name = 'database/churches.html'
+    login_url = 'entry'
+    active_tab = 'churches'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ChurchListView, self).get_context_data(**kwargs)
+
+        ctx['departments'] = Department.objects.all()
+        ctx['church_all_pastors'] = CustomUser.objects.filter(church__pastor__id__isnull=False).distinct()
         ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
-    elif not user.hierarchy:
-        ctx['masters'] = list()
-    elif user.hierarchy.level < 2:
-        ctx['masters'] = user.get_descendants(include_self=True).filter(is_active=True, hierarchy__level__gte=1)
-    else:
+
+        return ctx
+
+
+class HomeGroupListView(LoginRequiredMixin, TabsMixin, CanSeeHomeGroupsMixin, TemplateView):
+    template_name = 'database/home_groups.html'
+    login_url = 'entry'
+    active_tab = 'home_groups'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(HomeGroupListView, self).get_context_data(**kwargs)
+
+        ctx['churches'] = Church.objects.all()
+        ctx['leaders'] = CustomUser.objects.filter(home_group__leader__id__isnull=False).distinct()
         ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
-    return render(request, 'database/people.html', context=ctx)
+
+        return ctx
+
+
+class ChurchDetailView(LoginRequiredMixin, CanSeeChurchesMixin, DetailView):
+    model = Church
+    context_object_name = 'church'
+    template_name = 'group/church_detail.html'
+    login_url = 'entry'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ChurchDetailView, self).get_context_data(**kwargs)
+
+        extra_context = {
+            'currencies': Currency.objects.all(),
+            'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
+            'church_users': self.object.users.count(),
+            'church_all_users': self.object.users.count() + HomeGroup.objects.filter(
+                church_id=self.object.id).aggregate(home_users=Count('users'))['home_users'],
+            'parishioners_count': self.object.users.filter(hierarchy__level=0).count(),
+            'leaders_count': self.object.users.filter(hierarchy__level=1).count(),
+            'home_groups_count': self.object.home_group.count(),
+            'fathers_count': self.object.users.filter(
+                spiritual_level=CustomUser.FATHER).count() + HomeGroup.objects.filter(
+                church__id=self.object.id).filter(users__spiritual_level=3).count(),
+            'juniors_count': self.object.users.filter(
+                spiritual_level=CustomUser.JUNIOR).count() + HomeGroup.objects.filter(
+                church__id=self.object.id).filter(users__spiritual_level=2).count(),
+            'babies_count': self.object.users.filter(
+                spiritual_level=CustomUser.BABY).count() + HomeGroup.objects.filter(
+                church__id=self.object.id).filter(users__spiritual_level=1).count(),
+            'partners_count': self.object.users.filter(partnership__is_active=True).count(),
+        }
+        ctx.update(extra_context)
+
+        return ctx
+
+
+class HomeGroupDetailView(LoginRequiredMixin, CanSeeHomeGroupsMixin, DetailView):
+    model = HomeGroup
+    context_object_name = 'home_group'
+    template_name = 'group/home_group_detail.html'
+    login_url = 'entry'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(HomeGroupDetailView, self).get_context_data(**kwargs)
+
+        extra_context = {
+            'users_count': self.object.users.count(),
+            'fathers_count': self.object.users.filter(spiritual_level=CustomUser.FATHER).count(),
+            'juniors_count': self.object.users.filter(spiritual_level=CustomUser.JUNIOR).count(),
+            'babies_count': self.object.users.filter(spiritual_level=CustomUser.BABY).count(),
+            'partners_count': self.object.users.filter(partnership__is_active=True).count(),
+        }
+        ctx.update(extra_context)
+
+        return ctx
 
 
 @login_required(login_url='entry')
@@ -227,6 +342,7 @@ def index(request):
     user = request.user
     ctx = {
         'departments': Department.objects.all(),
+        'summits': SummitType.objects.all(),
         'hierarchies': Hierarchy.objects.order_by('level'),
     }
     if user.is_staff:
@@ -237,7 +353,7 @@ def index(request):
         ctx['masters'] = user.get_descendants(include_self=True).filter(is_active=True, hierarchy__level__gte=1)
     else:
         ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
-    return render(request, 'database/main.html', context=ctx)
+    return render(request, 'home/main.html', context=ctx)
 
 
 @login_required(login_url='entry')

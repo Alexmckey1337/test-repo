@@ -20,7 +20,62 @@ $(document).ready(function () {
         getUndoneDeals(config);
     });
 
-    $("#close-payment").on('click', function () {
+    function sumCurrency(sumEl, rateEl, currencyEl, currencyName) {
+        let sum = sumEl.val();
+        let rate = rateEl.val();
+        let userPay = parseFloat(sum) * parseFloat(rate);
+        currencyEl.text(parseInt(userPay) + currencyName);
+    }
+
+    function sumChangeListener(currencyName, currencyID) {
+        let $currencies = $('#new_payment_currency');
+        let $currencyOptions = $currencies.find('option');
+        $currencyOptions.each(function () {
+            $(this).prop('selected', false);
+            if ($(this).val() == currencyID) {
+                $(this).prop('selected', true);
+            }
+        });
+        let $form = $('#payment-form');
+        $form.find('#new_payment_rate').val('1.000');
+        let $new_payment_sum = $form.find('#new_payment_sum') || 0;
+        let $new_payment_rate = $form.find('#new_payment_rate') || 1;
+        let $in_user_currency = $form.find('#in_user_currency');
+        $('#new_payment_rate').prop('readonly', true);
+
+        $currencies.on('change', function () {
+            if ($(this).val() != currencyID) {
+                $('#new_payment_rate').prop('readonly', false);
+            } else {
+                $('#new_payment_rate').prop('readonly', true).val('1.000').trigger('change');
+            }
+        });
+        sumCurrency($new_payment_sum, $new_payment_rate, $in_user_currency, currencyName);
+        $form.on('keypress', function (e) {
+            return e.keyCode != 13;
+        });
+        $new_payment_sum.on('change', function () {
+            sumCurrency($new_payment_sum, $new_payment_rate, $in_user_currency, currencyName);
+        });
+        $new_payment_sum.on('keypress', function (e) {
+            if (e.keyCode == 13) {
+                sumCurrency($new_payment_sum, $new_payment_rate, $in_user_currency, currencyName);
+            }
+        });
+        $new_payment_rate.on('change', function () {
+            sumCurrency($new_payment_sum, $new_payment_rate, $in_user_currency, currencyName);
+        });
+        $new_payment_rate.on('keypress', function (e) {
+            if (e.keyCode == 13) {
+                sumCurrency($new_payment_sum, $new_payment_rate, $in_user_currency, currencyName);
+            }
+        });
+    }
+
+    $("#close-payment").on('click', function (e) {
+        e.preventDefault();
+        $('#new_payment_rate').val(1);
+        $('#in_user_currency').text('');
         $('#popup-create_payment').css('display', 'none');
     });
 
@@ -45,6 +100,8 @@ $(document).ready(function () {
         let id = $(this).find('button[type="submit"]').attr('data-id'),
             sum = $('#new_payment_sum').val(),
             description = $('#popup-create_payment textarea').val();
+        let data = $(this).serializeArray();
+        console.log(data);
         createPayment(id, sum, description).then(function () {
             $('#' + id + ' > .rows').css({
                 'background-color': '#dfedd6',
@@ -90,7 +147,8 @@ $(document).ready(function () {
                 "sum": sum,
                 "description": description,
                 "rate": $('#new_payment_rate').val(),
-                "currency": $('#new_payment_currency').val()
+                "currency": $('#new_payment_currency').val(),
+                "sent_date": $('#sent_date').val()
             };
             let json = JSON.stringify(data);
             ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/deals/${id}/create_payment/`, json, function (JSONobj) {
@@ -116,7 +174,7 @@ $(document).ready(function () {
             let payments_table = '';
             let sum, date_time;
             data.forEach(function (payment) {
-                sum = payment.effective_sum_str;
+                sum = payment.effective_sum_str.replace('.000', '');
                 date_time = payment.created_at;
                 payments_table += `<tr><td>${sum}</td><td>${date_time}</td></tr>`
             });
@@ -155,11 +213,15 @@ $(document).ready(function () {
                 let id = $(this).data('id');
                 let value = parseInt($(this).data('value'));
                 let total_sum = parseInt($(this).data('total_sum'));
+                let currencyName = $(this).data('currency-name');
+                let currencyID = $(this).data('currency-id');
                 let diff = value - total_sum;
                 diff = diff > 0 ? diff : 0;
                 $('#new_payment_sum').val(diff);
                 $('#complete-payment').attr('data-id', id);
+                $('#purpose-id').val(id);
                 $('#popup-create_payment').css('display', 'block');
+                sumChangeListener(currencyName, currencyID);
             });
             $("button.complete").on('click', function () {
                 $('#complete').attr('data-id', $(this).data('id'));
@@ -232,10 +294,14 @@ $(document).ready(function () {
                 let value = parseInt($(this).data('value'));
                 let total_sum = parseInt($(this).data('total_sum'));
                 let diff = value - total_sum;
+                let currencyName = $(this).data('currency-name');
+                let currencyID = $(this).data('currency-id');
                 diff = diff > 0 ? diff : 0;
                 $('#new_payment_sum').val(diff);
                 $('#complete-payment').attr('data-id', id);
+                $('#purpose-id').val(id);
                 $('#popup-create_payment').css('display', 'block');
+                sumChangeListener(currencyName, currencyID);
             });
             $("button.complete").on('click', function () {
                 let client_name = $(this).attr('data-name'),
@@ -250,40 +316,70 @@ $(document).ready(function () {
         })
     }
 
+    function sortDoneDeals(from, to) {
+        let config = {};
+        config["to_date"] = to;
+        config["from_date"] = from;
+        getDoneDeals(config);
+    }
+
+    function sortExpiredDeals(from, to) {
+        let config = {};
+        config["to_date"] = to;
+        config["from_date"] = from;
+        getExpiredDeals(config);
+    }
+
     $.datepicker.setDefaults($.datepicker.regional["ru"]);
+
     $("#done_datepicker_from").datepicker({
         dateFormat: "yyyy-mm-dd",
         maxDate: new Date(),
+        autoClose: true,
+        setDate: '-1m',
         onSelect: function (date) {
-            window.done_from_date = date;
-            sortDoneDeals(done_from_date, done_to_date);
+            let doneToDate = $('#done_datepicker_to').val();
+            sortDoneDeals(date, doneToDate);
         }
-    }).datepicker("setDate", '-1m');
+    });
 
     $("#done_datepicker_to").datepicker({
         dateFormat: "yyyy-mm-dd",
+        setDate: new Date(),
+        autoClose: true,
         onSelect: function (date) {
-            window.done_to_date = date;
-            sortDoneDeals(done_from_date, done_to_date);
+            console.log(date);
+            let doneFromDate = $('#done_datepicker_from').val();
+            sortDoneDeals(doneFromDate, date);
         }
-    }).datepicker("setDate", new Date());
+    });
 
     $("#expired_datepicker_from").datepicker({
-        dateFormat: "yy-mm-dd",
+        dateFormat: "yyyy-mm-dd",
         maxDate: new Date(),
+        setDate: '-1m',
+        autoClose: true,
         onSelect: function (date) {
-            window.expired_from_date = date;
-            sortExpiredDeals(expired_from_date, expired_to_date);
+            let expiredToDate = $('#expired_to_date').val();
+            sortExpiredDeals(date, expiredToDate);
         }
-    }).datepicker("setDate", '-1m');
+    });
 
     $("#expired_datepicker_to").datepicker({
         dateFormat: "yy-mm-dd",
+        maxDate: new Date(),
+        setDate: '-1m',
+        autoClose: true,
         onSelect: function (date) {
-            window.expired_to_date = date;
-            sortExpiredDeals(expired_from_date, expired_to_date);
+            let expiredFromDate = $('#expired_from_date').val();
+            sortExpiredDeals(expiredFromDate, date);
         }
-    }).datepicker("setDate", new Date());
-
+    });
+    $('#sent_date').datepicker({
+        dateFormat: "yyyy-mm-dd",
+        startDate: new Date(),
+        maxDate: new Date(),
+        autoClose: true
+    });
 });
 

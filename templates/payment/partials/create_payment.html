@@ -10,27 +10,34 @@
                 <div class="summa">
                     <label for="new_payment_sum">Сумма:</label>
                     <input maxlength="6"
+                           min="0"
                            onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
                            name="sum"
-                           type="text" id="new_payment_sum"
+                           type="number" id="new_payment_sum"
+                           step="1"
                            required>
-                </div>
-                <div class="rate">
-                    <label for="new_payment_rate">Курс:</label>
-                    <input type="number" name="rate" id="new_payment_rate" value="1" min="0" step="0.01" required>
-                </div>
-                <div class="currency">
-                    <label for="new_payment_currency">Валюта:</label>
+
                     <select name="currency" id="new_payment_currency" required>
-                        <option value="">---------</option>
                         {% for currency in currencies %}
                             <option value="{{ currency.id }}"
                                     {% if currency == purpose.currency %}selected{% endif %}>
-                                {{ currency.name }}
+                                {{ currency.short_name }}
                             </option>
                         {% endfor %}
                     </select>
                 </div>
+                <div class="rate">
+                    <label for="new_payment_rate">Курс:</label>
+                    <input type="number" name="rate" id="new_payment_rate" value="1.000" min="0" step="0.001" readonly required>
+                </div>
+                <div class="result">
+                    <b>Итого:</b> <span id="in_user_currency">0</span>
+                </div>
+                <div class="sent_date">
+                    <label for="sent_date">Дата:</label>
+                    <input type="text" name="sent_date" id="sent_date" readonly required>
+                </div>
+
             </div>
             <textarea name="description" maxlength="40" placeholder="Добавить коментарий"></textarea>
             <div class="splash-bauttons">

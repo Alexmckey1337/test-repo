@@ -3,6 +3,12 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from partnership.permissions import IsSupervisorOrHigh, IsDisciplesOf
 
 
+class HasHierarchyLevelMixin:
+    @staticmethod
+    def level_gte(request, level):
+        return request.user.hierarchy and request.user.hierarchy.level >= level
+
+
 class IsStaffPermissionMixin:
     @staticmethod
     def _is_staff(request, view):
@@ -54,7 +60,6 @@ class CanAccountObjectRead(IsAuthenticated,
                            IsPartnerSupervisorPermissionMixin,
                            IsAncestorOfPermissionMixin,
                            IsDisciplesOfPermissionMixin):
-
     def has_permission(self, request, view):
         return (
             self._is_staff(request, view) or
@@ -80,3 +85,23 @@ class CanAccountObjectEdit(IsAuthenticated,
             self._is_partner_supervisor(request, view) or
             self._is_ancestor_of(request, view, account, True)
         )
+
+
+class CanSeeChurches(IsAuthenticated, IsStaffPermissionMixin, HasHierarchyLevelMixin):
+    def has_permission(self, request, view):
+        return (
+            self._is_staff(request, view) or self.level_gte(request, 1)
+        )
+
+
+CanSeeHomeGroups = CanSeeChurches
+
+
+def can_see_churches(request, view=None):
+    has_perm = CanSeeChurches()
+    return has_perm.has_permission(request, view)
+
+
+def can_see_home_groups(request, view=None):
+    has_perm = CanSeeHomeGroups()
+    return has_perm.has_permission(request, view)

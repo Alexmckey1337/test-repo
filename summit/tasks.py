@@ -9,13 +9,6 @@ from django.core.files import File
 from edem.settings.celery import app
 from summit.models import SummitAnket
 from summit.utils import generate_ticket
-from .resources import make_table
-
-
-@app.task(name='generate')
-def generate():
-    make_table()
-    return True
 
 
 @app.task(ignore_result=True, max_retries=10, default_retry_delay=10 * 60)
