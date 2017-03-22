@@ -1,11 +1,8 @@
-{% extends "layout_main.html" %}
+{% extends "layout.html" %}
 {% load static %}
 
-{% block header.top.h1 %}<h1 id="summit-title"></h1>{% endblock %}
+{% block header.top.h1 %}<h1>Саммиты</h1>{% endblock %}
 
-{% block header.search %}
-    <li></li>
-{% endblock %}
 
 {% block header.buttons.add %}
 {% endblock %}
@@ -18,7 +15,7 @@
 
 {% block main.content %}
     <div id="summits" class="summits-wrap">
-        {% for summit_type in summit_types %}
+        {% for summit_type in user.available_summit_types %}
             <div><a href="{{ summit_type.id }}"><img data-id="{{ summit_type.id }}" src="{{ summit_type.image.url }}" alt=""/></a></div>
         {% endfor %}
     </div>

@@ -10,6 +10,7 @@
 {% endblock %}
 
 {% block header.buttons.add %}
+
 {% endblock %}
 
 {% block header.buttons.export %}
@@ -46,88 +47,114 @@
                 <form action="" name="editUser" id="editUser">
                     <div class="col-2">
                         <div class="col-table">
-                            <div class="left-info">
-                                <ul>
-                                    <li>Фамилия*</li>
-                                    <li>Имя*</li>
-                                    <li>Отчество</li>
-                                    <li>Имя на родном языке</li>
-                                    <li>Дата рождения</li>
-                                    <li>Телефон*</li>
-                                    <li>Доп.телефон</li>
-                                    <li>E-mail</li>
-                                    <li>Skype</li>
-                                    <li>Страна</li>
-                                    <li>Область</li>
-                                    <li>Город</li>
-                                    <li>Район</li>
-                                    <li>Адрес</li>
-                                    <li>Facebook</li>
-                                    <li>Vkontakte</li>
-                                    <li>Одноклассники</li>
-
-                                </ul>
-                            </div>
-                            <div class="right-info">
-                                <ul>
-                                    <li><input type="text" id="last_name" name="last_name" required value="{{ account.last_name }}"></li>
-                                    <li><input type="text" id="first_name" name="first_name" required value="{{ account.first_name }}"></li>
-                                    <li><input type="text" id="middle_name" name="middle_name" value="{{ account.middle_name }}"></li>
-                                    <li><input type="text" id="search_name" name="search_name" value="{{ account.search_name }}"></li>
-                                    <li><input type="text" id="datepicker_born_date" name="born_date"
-                                               value="{{ account.born_date|date:"Y-m-d"|default:"" }}"></li>
-                                    <li><input placeholder="+380633333333"
-                                               onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
-                                               type="text" id="phone_number" name="phone_number" required value="{{ account.phone_number }}"></li>
-                                    <li><input type="text" id="extra_phone_numbers"
-                                               value="{{ account.extra_phone_numbers|default:""|join:", " }}">
-
-                                    </li>
-                                    <li><input type="text" id="email" name="email" value="{{ account.email }}"></li>
-                                    <li><input type="text" id="skype" name="skype" value="{{ account.skype }}"></li>
-                                    <li>
-                                        <select id="country_drop" name="country" style="width:205px">
-                                            <option value="{{ account.country }}"
-                                                    selected>{{ account.country }}</option>
-                                        </select>
-                                    </li>
-                                    <li><select id="region_drop" name="region" disabled style="width:205px">
+                            <ul>
+                                <li class="clearfix">
+                                    <label for="">Фамилия*</label>
+                                    <input type="text" id="last_name" name="last_name" required
+                                           value="{{ account.last_name }}">
+                                </li>
+                                <li class="clearfix">
+                                    <label for="">Имя*</label>
+                                    <input type="text" id="first_name" name="first_name" required
+                                           value="{{ account.first_name }}">
+                                </li>
+                                <li class="clearfix">
+                                    <label for="">Отчество</label>
+                                    <input type="text" id="middle_name" name="middle_name"
+                                           value="{{ account.middle_name }}">
+                                </li>
+                                <li class="clearfix">
+                                    <label for="">Имя на родном языке</label>
+                                    <input type="text" id="search_name" name="search_name"
+                                           value="{{ account.search_name }}">
+                                </li>
+                                <li class="clearfix">
+                                    <label for="">Дата рождения</label>
+                                    <input type="text" id="datepicker_born_date" name="born_date"
+                                           value="{{ account.born_date|date:"Y-m-d"|default:"" }}">
+                                </li>
+                                <li class="clearfix">
+                                    <label for="">Телефон*</label>
+                                    <input placeholder="+380633333333"
+                                           onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
+                                           type="text" id="phone_number" name="phone_number" required
+                                           value="{{ account.phone_number }}">
+                                </li>
+                                <li class="clearfix">
+                                    <label for="">Доп.телефон</label>
+                                    <input type="text" id="extra_phone_numbers"
+                                           value="{{ account.extra_phone_numbers|default:""|join:", " }}">
+                                </li>
+                                <li class="clearfix">
+                                    <label for="">E-mail</label>
+                                    <input type="text" id="email" name="email" value="{{ account.email }}">
+                                </li>
+                                <li class="clearfix">
+                                    <label for="">Skype</label>
+                                    <input type="text" id="skype" name="skype" value="{{ account.skype }}">
+                                </li>
+                                <li class="clearfix">
+                                    <label for="">Страна</label>
+                                    <select id="country_drop" name="country">
+                                        <option value="{{ account.country }}"
+                                                selected>{{ account.country }}</option>
+                                    </select>
+                                </li>
+                                <li class="clearfix">
+                                    <label for="">Область</label>
+                                    <select id="region_drop" name="region" disabled>
                                         <option value="{{ account.region }}">{{ account.region }}</option>
-                                    </select></li>
-                                    <li><select id="town_drop" name="city" disabled style="width:205px">
+                                    </select>
+                                </li>
+                                <li class="clearfix">
+                                    <label for="">Город</label>
+                                    <select id="town_drop" name="city" disabled>
                                         <option value="{{ account.city }}">{{ account.city }}</option>
-                                    </select></li>
-                                    <li><input type="text" id="district" name="district" value="{{ account.district }}"></li>
-                                    <li><input type="text" id="address" name="address" value="{{ account.address }}"></li>
-                                    <li><input type="text" id="facebook" name="facebook" value="{{ account.facebook }}"></li>
-                                    <li><input type="text" id="vkontakte" name="vkontakte" value="{{ account.vkontakte }}"></li>
-                                    <li><input type="text" id="odnoklassniki" name="odnoklassniki" value="{{ account.odnoklassniki }}"></li>
-                                </ul>
-                            </div>
+                                    </select>
+                                </li>
+                                <li class="clearfix">
+                                    <label for="">Район</label>
+                                    <input type="text" id="district" name="district" value="{{ account.district }}">
+                                </li>
+                                <li class="clearfix">
+                                    <label for="">Адрес</label>
+                                    <input type="text" id="address" name="address" value="{{ account.address }}">
+                                </li>
+                                <li class="clearfix">
+                                    <label for="">Facebook</label>
+                                    <input type="text" id="facebook" name="facebook" value="{{ account.facebook }}">
+                                </li>
+                                <li class="clearfix">
+                                    <label for="">Vkontakte</label>
+                                    <input type="text" id="vkontakte" name="vkontakte"
+                                           value="{{ account.vkontakte }}">
+                                </li>
+                                <li class="clearfix">
+                                    <label for="">Одноклассники</label>
+                                    <input type="text" id="odnoklassniki" name="odnoklassniki"
+                                           value="{{ account.odnoklassniki }}">
+                                </li>
+                            </ul>
                         </div>
                         </ul>
                     </div><!--End col-2-->
                     <div class="col-3">
                         <div class="col-table">
-                            <div class="left-info">
-                                <ul>
-                                    <li>Отдел*</li>
-                                    <li>Статус*</li>
-                                    <li>Ответственный*</li>
-                                </ul>
-                            </div>
-                            <div class="right-info">
-                                <ul>
-                                    <li><select id="departmentSelect" name="department" required style="width:205px">
+                            <ul>
+                                <li class="clearfix">
+                                    <label for="">Отдел*</label>
+                                    <select id="departmentSelect" multiple required style="width:205px">
                                         {% for department in departments %}
                                             <option value="{{ department.id }}"
-                                                    {% if account.department_id == department.id %}selected{% endif %}>
+                                                    {% if department in account.departments.all %}selected{% endif %}>
                                                 {{ department.title }}
                                             </option>
                                         {% endfor %}
-
-                                    </select></li>
-                                    <li><select id="hierarchySelect" name="hierarchy" required>
+                                    </select>
+                                </li>
+                                <li class="clearfix">
+                                    <label for="">Статус*</label>
+                                    <select id="hierarchySelect" name="hierarchy" required>
                                         {% for hierarchy in hierarchies %}
                                             <option value="{{ hierarchy.id }}"
                                                     {% if account.hierarchy_id == hierarchy.id %}selected{% endif %}
@@ -135,91 +162,83 @@
                                                 {{ hierarchy.title }}
                                             </option>
                                         {% endfor %}
-
-                                    </select></li>
-                                    <li><select id="master_hierarchy" name="master" required style="width:205px">
+                                    </select>
+                                </li>
+                                <li class="clearfix">
+                                    <label for="">Ответственный*</label>
+                                    <select id="master_hierarchy" name="master" required style="width:205px">
                                         <option value="{{ account.master.id }}" selected
                                                 data-id="{{ account.master.id }}">{{ account.master.fullname }}</option>
-                                    </select></li>
-                                    {% if account.master.hierarchy.level <= account.hierarchy.level %}
-                                        <li>Сейчас: <a href="{% url 'account' account.master.id %}" style="color:red;">
-                                            {{ account.master }} - {{ account.master.hierarchy }}
-                                        </a></li>
-                                    {% endif %}
-                                </ul>
-                            </div>
+                                    </select>
+                                </li>
+                                {% if account.master.hierarchy.level <= account.hierarchy.level %}
+                                    <li>Сейчас: <a href="{{ account.master.get_absolute_url }}" style="color:red;">
+                                        {{ account.master }} - {{ account.master.hierarchy }}
+                                    </a></li>
+                                {% endif %}
+                            </ul>
                         </div>
                         <div class="col-table ">
-                            <div class="left-info">
-                                <ul>
-                                    <li>Департамент</li>
-                                </ul>
-                            </div>
-                            <div class="right-info">
-                                <ul>
-                                    <li><select id="division_drop"  style="width:205px" multiple=""></select></li>
-                                </ul>
-                            </div>
+                            <ul>
+                                <li class="clearfix">
+                                    <label for="">Департамент</label>
+                                    <select id="division_drop" multiple></select>
+                                </li>
+                            </ul>
                         </div>
-                        <div class="col-table manager_view">
-                            <div id="create_partner">
-                                <div class="left-info">
+                        <div class="col-table">
+                            <div>
+                                <ul>
+                                    <li class="clearfix">
+                                        <label for="">Партнёр</label>
+                                        <input type="checkbox" id="create_partner">
+                                    </li>
+                                </ul>
+                                <div id="partner_wrap">
                                     <ul>
-                                        <li>Партнёр</li>
-                                    </ul>
-                                </div>
-                                <div class="right-info">
-                                    <ul>
-                                        <li><input type="checkbox" id="create_partner_info">
-                                            <label for="create_partner_info"></label>
+                                        <li class="clearfix">
+                                            <label for="">Партнёр с</label>
+                                            <input type="text" id="partner_date"
+                                                   value="{{ account.partnership.date|date:"Y-m-d"|default:"" }}">
                                         </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div id="partner_wrap">
-                                <div class="left-info">
-                                    <ul>
-                                        <li>Партнёр</li>
-                                        <li>Партнёр с</li>
-                                        <li>Сумма сделки</li>
-                                        <li>Менеджер</li>
-                                    </ul>
-                                </div>
-                                <div class="right-info">
-                                    <ul>
-                                        <li><input type="checkbox" id="partner">
-                                            <label for="partner"></label>
+                                        <li class="clearfix">
+                                            <label for="">Сумма сделки</label>
+                                            <div>
+                                                <input type="text" id="val_partnerships" maxlength="6"
+                                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                                                        value="{{ account.partnership.value }}">
+                                                <select id="payment_currency" required>
+                                                    {% for currency in currencies %}
+                                                        <option value="{{ currency.id }}"
+                                                                {% if currency == purpose.currency %}selected{% endif %}>
+                                                            {{ currency.short_name }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
                                         </li>
-                                        <li><input type="text" id="partner_date"
-                                                   value="{{ account.partnership.date|date:"Y-m-d"|default:"" }}"></li>
-                                        <li><input type="text" id="val_partnerships" maxlength="6"
-                                                   onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                                                   value="{{ account.partnership.value }}">
-                                        </li>
-                                        <li id="partner_name"><select id="partner_drop" style="width:205px">
-                                            {% for partner in partners %}
-                                                <option value="{{ partner.id }}"
-                                                        {% if account.partnership.responsible.id == partner.id %}selected{% endif %}>{{ partner.user.fullname }}</option>
-                                            {% endfor %}
-                                        </select>
+                                        <li class="clearfix">
+                                            <label for="">Менеджер</label>
+                                            <select id="partner_drop" style="width:205px">
+                                                {% for partner in partners %}
+                                                    <option value="{{ partner.id }}"
+                                                            {% if account.partnership.responsible.id == partner.id %}selected{% endif %}>{{ partner.user.fullname }}</option>
+                                                {% endfor %}
+                                            </select>
                                         </li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                         <div class="col-table">
-                            <div class="left-info">
                                 <ul>
-                                    <li>Дата покаяния</li>
-                                </ul>
-                            </div>
-                            <div class="right-info">
-                                <ul>
-                                    <li><input name="repentance_date" type="text"
+                                    <li class="clearfix">
+                                        <label for="">Дата покаяния</label>
+                                        <input name="repentance_date" type="text"
                                                id="repentanceDate"
-                                               value="{{ account.coming_date|date:"Y-m-d"|default:"" }}"></li>
+                                               value="{{ account.coming_date|date:"Y-m-d"|default:"" }}">
+                                    </li>
                                 </ul>
-                            </div>
                         </div>
                     </div><!--End col-3-->
                     <button type="submit" id="sendEditUser" class="hidden"></button>
@@ -251,6 +270,5 @@
 
 {% block extra_scripts %}
     <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
-    <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
     <script src="{% static "js/edit.js" %}"></script>
 {% endblock %}

@@ -7,21 +7,18 @@
             <div id="sidebar">
                 <div class="scrollbar-macosx">
                     <div class="logo">
-                        <div><span>V</span><span>O</span></div>
+                        <div><a data-title="Дэшборд" href="/"><span>V</span><span>O</span></a></div>
                         <div><span>C</span><span>R</span><span>M</span></div>
                     </div>
                     <ul id="nav-sidebar">
-                        <li><a data-title="База данных" href="{% url 'churches' %}" id="databases__item">База данных</a>
+                        <li><a data-title="База данных" href="{% url 'db:main' %}" id="databases__item" class="menu__item">База данных</a>
                         </li>
-                        {% comment %}
-                        <li><a data-title="Все отчеты" href="{% url 'reports' %}">Все отчеты</a></li>
-                        <li><a data-title="События" href="{% url 'events' %}">События</a></li>
-                        {% endcomment %}
-                        {#                        <li><a data-title="Церкви" href="{% url 'churches' %}" id="churches__item">Церкви</a></li>#}
-                        <li><a data-title="Партнёрство" href="{% url 'partner' %}" id="partners__item">Партнёрство</a>
+                        {% if user.can_see_any_partner_block %}
+                            <li><a data-title="Партнёрство" href="{% url 'partner:main' %}" id="partners__item" class="menu__item">Партнёрство</a>
+                        {% endif %}
                         </li>
-                        <li><a data-title="Саммиты" href="{% url 'summits' %}" id="summits__item">Саммиты</a></li>
-                        <li id="move-sidebar"><a data-title="Развернуть" href="#" id="turn_aside">Свернуть</a></li>
+                        <li><a data-title="Саммиты" href="{% url 'summit:list' %}" id="summits__item" class="menu__item">Саммиты</a></li>
+                        <li id="move-sidebar"><button data-title="Развернуть" id="turn_aside" class="menu__item">Свернуть</button></li>
                     </ul>
                 </div>
             </div>
@@ -31,12 +28,12 @@
             <div{% block main.attr %} class="main-wrap"{% endblock %}>
                 {% if request.hard_user %}
                     <h1 style="padding-left: 1em;"><strong>Real User:</strong>
-                        <a href="{% url 'account' request.real_user.id %}">
+                        <a href="{{ request.real_user.get_absolute_url }}">
                             {{ request.real_user }}
                         </a>
                     </h1>
                     <h1 style="padding-left: 1em;"><strong>Hard User:</strong>
-                        <a href="{% url 'account' request.hard_user.id %}">
+                        <a href="{{ request.hard_user.get_absolute_url }}">
                             {{ request.hard_user }}
                         </a>
                         -
@@ -44,7 +41,7 @@
                     </h1>
                 {% elif request.user.is_superuser %}
                     <h1 style="padding-left: 1em;"><strong>User:</strong>
-                        <a href="{% url 'account' request.user.id %}">
+                        <a href="{{ request.user.get_absolute_url }}">
                             {{ request.user }}
                         </a>
                     </h1>
@@ -84,35 +81,21 @@
                                         </li>
                                     {% endblock %}
                                     {% block header.search %}
-                                        <li>
-                                        </li>
+
                                     {% endblock %}
                                 {% endblock %}
                             </ul><!--End Top -->
                         {% endblock %}
 
                         {% block header.buttons %}
-                            <div class="top-buttons-wrap">
 
-                                <ul class="top-buttons">
-                                    {% block header.buttons.filter %}{% endblock %}
-
-                                    {% block header.buttons.add %}{% endblock %}
-
-                                    {% block header.buttons.export %}{% endblock %}
-
-                                    {% block header.buttons.change_table %}{% endblock %}
-
-                                    {% block header.buttons.extra %}{% endblock %}
-                                </ul>
-                            </div>
                         {% endblock %}
 
                         {% block header_user_drop %}
                             <div class="user-hover photo-hover">
                                 <div class="hover-wrapper">
                                     <div class="top-box">
-                                        <a href="{% url "account" request.user.id %}">
+                                        <a href="{{ request.user.get_absolute_url }}">
                                             <span></span>
                                             <p>Мой профиль</p>
                                         </a>
@@ -137,7 +120,7 @@
                                             <ul>
                                                 {% for notification in notifications %}
                                                     <li>
-                                                        <a href="{% url "account" notification.uid %}">{{ notification.fullname }}</a>
+                                                        <a href="{% url "account:detail" notification.uid %}">{{ notification.fullname }}</a>
                                                     </li>
                                                 {% endfor %}
                                             </ul>
@@ -152,7 +135,9 @@
                     </div>
                 {% endblock %}
 
-                {% block main.content %}{% endblock %}
+                {% block main.content %}
+
+                {% endblock %}
             </div>
         {% endblock main %}
 

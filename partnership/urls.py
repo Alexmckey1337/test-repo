@@ -15,7 +15,6 @@ router_v1_0.register(r'partnerships_unregister_search', views.PartnershipsUnregi
                      base_name='partnerships_unregister_search')
 
 custom_urls = [
-    url(r'^create_partnership/$', views.create_partnership),
 ]
 
 urlpatterns = [

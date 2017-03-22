@@ -15,3 +15,11 @@ class PartnerResource(six.with_metaclass(UserMetaclass, UserResource)):
     class Meta:
         model = Partnership
         fields = USER_RESOURCE_FIELDS + ('responsible', 'value')
+
+    def dehydrate_responsible(self, partner):
+        if not partner.responsible:
+            return ''
+        return partner.responsible.fullname
+
+    def dehydrate_value(self, partner):
+        return partner.value_str

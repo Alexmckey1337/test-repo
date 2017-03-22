@@ -1,0 +1,51 @@
+{% extends "layout_main.html" %}
+
+{% block body_id %} id="database"{% endblock %}
+
+{% block header.buttons %}
+    <div class="top-panel">
+        {% block header.tabs %}
+            <div class="tabs">
+                <ul class="nav tabs_link">
+                    {% if user.can_see_churches %}
+                        <li><a{% if active_tab == 'churches' %} class="active"{% endif %}
+                                href="{% url 'db:churches' %}">Церкви</a></li>
+                    {% endif %}
+                    {% if user.can_see_home_groups %}
+                        <li><a{% if active_tab == 'home_groups' %} class="active"{% endif %}
+                                href="{% url 'db:home_groups' %}">Домашние группы</a></li>
+                    {% endif %}
+                    <li><a{% if active_tab == 'people' %} class="active"{% endif %}
+                            href="{% url 'db:people' %}">Люди</a></li>
+                </ul>
+            </div>
+        {% endblock %}
+
+        {% block header.buttons.top %}
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% block header.buttons.export %}{% endblock %}
+
+{% block main.content %}
+    {% block pagination_top %}
+        <div class="top-pag">
+            <div class="table__count"></div>
+            <div class="pagination users__pagination">
+            </div>
+        </div>
+    {% endblock %}
+
+    {% block table %}
+    {% endblock %}
+
+    {% block pagination_bottom %}
+        <div class="table__count"></div>
+        <div class="pagination users__pagination"></div>
+    {% endblock %}
+{% endblock %}
+
+{% block create_user %}
+    {% include 'partials/create_user.html' %}
+{% endblock %}

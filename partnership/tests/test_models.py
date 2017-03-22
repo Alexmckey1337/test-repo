@@ -67,6 +67,9 @@ class TestPartnership:
     def test_expired_deals(self, partner_with_deals):
         assert [deal.expired for deal in partner_with_deals.expired_deals] == [True for _ in range(8)]
 
+    def test_value_str(self, partner):
+        assert partner.value_str == '{} {}'.format(partner.value, partner.currency.short_name)
+
 
 @pytest.mark.django_db
 class TestDeal:
@@ -114,3 +117,10 @@ class TestDeal:
 
     def test_total_payed_without_payments(self, deal):
         assert deal.total_payed == 0
+
+    def test_update_after_cancel_payment(self, deal_factory):
+        deal = deal_factory(done=True)
+
+        assert deal.done
+        deal.update_after_cancel_payment()
+        assert not deal.done

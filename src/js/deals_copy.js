@@ -291,10 +291,10 @@ function updateDeals(deal, value, description) {
 }
 
 function sortDoneDeals(from, to) {
-    let json = {};
-    json["to_date"] = to;
-    json["from_date"] = from;
-    getDoneDeals(json);
+    let config = {};
+    config["to_date"] = to;
+    config["from_date"] = from;
+    getDoneDeals(config);
 }
 
 function sortExpiredDeals(from, to) {

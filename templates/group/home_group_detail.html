@@ -13,9 +13,7 @@
                     <button id="add_userToHomeGroup" class="add">Добавить пользователя</button>
                 </li>
                 <li>
-                    <form action="{% url "homegroup-export-users" pk=home_group.id %}" method="post">
-                        <button type="submit">Export</button>
-                    </form>
+                    <button id="export_table" data-export-url="{% url "homegroup-export-users" pk=home_group.id %}" class="download header__button">Export</button>
                 </li>
                 <li>
                     <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
@@ -36,8 +34,8 @@
                 <h2>Основная информация:</h2>
                 <ul>
                     <li>Дата открытия: {{ home_group.opening_date }}</li>
-                    <li>Церковь: {{ home_group.church }}</li>
-                    <li>Лидер: {{ home_group.leader }}</li>
+                    <li>Церковь: <a href="/churches/{{ home_group.church.id }}">{{ home_group.church }}</a></li>
+                    <li>Лидер: <a href="{{ home_group.leader.get_absolute_url }}">{{ home_group.leader }}</a></li>
                     <li>Адрес: {{ home_group.address }}</li>
                     <li>Телефонный номер: {{ home_group.phone_number }}</li>
                     <li>Сайт: {% if home_group.website %}
@@ -50,11 +48,11 @@
             <div class="info">
                 <h2>Сводная информация:</h2>
                 <ul>
-                    <li>Количество людей: {{ users_count }}</li>
-                    <li>Количество Отцов: {{ fathers_count }}</li>
-                    <li>Количество Юношей: {{ juniors_count }}</li>
-                    <li>Количество Младенцев: {{ babies_count }}</li>
-                    <li>Количество Партнеров: {{ partners_count }}</li>
+                    <li>Количество людей: <span id="users_count">{{ users_count }}</span></li>
+                    <li>Количество Отцов: <span id="fathers_count">{{ fathers_count }}</span></li>
+                    <li>Количество Юношей: <span id="juniors_count">{{ juniors_count }}</span></li>
+                    <li>Количество Младенцев: <span id="babies_count">{{ babies_count }}</span></li>
+                    <li>Количество Партнеров: <span id="partners_count">{{ partners_count }}</span></li>
                 </ul>
             </div>
         </div>
@@ -69,7 +67,7 @@
     {% endblock %}
 
     {% block table %}
-        <div class="table-wrap  clearfix" id="home_group" data-id="{{ home_group.id }}" data-departament_id="{{ home_group.church.department.id }}" data-departament_title="{{ home_group.church.department }}"><!--Table -->
+        <div class="table-wrap  clearfix" id="home_group" data-id="{{ home_group.id }}" data-departament_id="{{ home_group.church.department.id }}" data-departament_title="{{ home_group.church.department }}" data-church-id="{{ home_group.church.id }}"><!--Table -->
             <div class="table scrollbar-inner" id="tableUserINHomeGroups"></div>
             <div class="query-none">
                 <p></p>
@@ -162,10 +160,10 @@
                 </div>
             </div>
             <div class="container">
-                <a href="#" onclick="refreshFilter(this)" class="apply-filter"><i class="fa fa-refresh"
-                                                                                  aria-hidden="true"></i>
-                    Очистить</a>
-                <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                <button onclick="refreshFilter(this)" class="clear-filter">
+                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                    Очистить</button>
+                <button class="close-popup">Отменить</button>
                 <button onclick="applyFilter(this, createUsersTable)" class="apply-filter">Применить</button>
             </div>
         </div>
@@ -213,7 +211,7 @@
                 </div>
                 <div class="container">
                     <button type="submit" class="add-church">Создать</button>
-                    <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                    <button class="close-popup">Отменить</button>
                 </div>
             </form>
         </div>
@@ -221,5 +219,7 @@
 {% endblock %}
 {% block extra_scripts %}
     <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
+    <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
+    <script src="{% static "js/add_user.js" %}"></script>
     <script src="{% static "js/home_groups_detail.js" %}"></script>
 {% endblock %}
