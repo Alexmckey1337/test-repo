@@ -1388,8 +1388,9 @@ function ajaxSendFormData(data = {}) {
                     resolve(response);
                 } else if (xhr.status == 400) {
                     let response = JSON.parse(xhr.responseText);
-                    showPopup(xhr.responseText);
                     reject(response);
+                } else if (xhr.status == 404) {
+                    reject("У вас нет прав для редактирования");
                 } else {
                     reject(xhr.responseText);
                 }
