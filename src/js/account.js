@@ -14,18 +14,33 @@ function updateUser(id, data, success = null) {
         }
         return data;
     }).catch(function (data) {
-        let errObj = JSON.parse(data);
         let msg = "";
-        for (let key in errObj) {
-            msg += key;
-            msg += ': ';
-            errObj[key].forEach(function (item) {
-                msg += item;
-                msg += ' ';
-            });
-            msg += '; ';
+        if (typeof data == "string") {
+            msg += data;
+        } else {
+            let errObj = null;
+            if (typeof data != 'object') {
+                errObj = JSON.parse(data);
+            } else {
+                errObj = data;
+            }
+            for (let key in errObj) {
+                msg += key;
+                msg += ': ';
+                if (errObj[key] instanceof Array) {
+                    errObj[key].forEach(function (item) {
+                        msg += item;
+                        msg += ' ';
+                    });
+                } else {
+                    msg += errObj[key];
+                }
+                msg += '; ';
+            }
         }
+
         showPopup(msg);
+        return false;
     });
 }
 
@@ -454,7 +469,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         e.preventDefault();
         let $edit = $('.edit');
         let exists = $edit.closest('form').find('ul').hasClass('exists');
-        if(!exists) {
+        if (!exists) {
             console.log(exists);
         }
         let noEdit = false;
@@ -588,6 +603,8 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                 }
                 $('#fullName').text(data.fullname);
                 $('#searchName').text(data.search_name);
+            }).catch(function (data) {
+                console.log(data);
             });
         } else if (action == 'update-church') {
             let $existBlock = $('#editChurches').find('ul');
