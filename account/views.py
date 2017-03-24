@@ -87,10 +87,12 @@ class UserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
         if not user.hierarchy:
             return self.queryset.none()
         if user.hierarchy.level < 2:
-            return user.get_descendants(include_self=True).select_related(
-                'hierarchy', 'master__hierarchy').prefetch_related(
-                'divisions', 'departments'
-            ).filter(is_active=True).order_by('last_name', 'first_name', 'middle_name')
+            if self.action in ('list', 'retrieve'):
+                return user.get_descendants(include_self=True).select_related(
+                    'hierarchy', 'master__hierarchy').prefetch_related(
+                    'divisions', 'departments'
+                ).filter(is_active=True).order_by('last_name', 'first_name', 'middle_name')
+            return self.queryset
         return self.queryset.all()
 
     def dispatch(self, request, *args, **kwargs):
