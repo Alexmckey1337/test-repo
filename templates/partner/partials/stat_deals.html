@@ -11,7 +11,7 @@
     {% for deal in deals %}
         <tr>
             <td>{{ deal.date_created|date:"d b Y" }}</td>
-            <td>{{ deal.full_name }}</td>
+            <td><a href="{{ deal.partnership.user.get_absolute_url }}">{{ deal.full_name }}</a></td>
             <td>{{ deal.total_sum }}</td>
             <td>{{ deal.value }}</td>
             <td>{{ deal.currency.name }}</td>
