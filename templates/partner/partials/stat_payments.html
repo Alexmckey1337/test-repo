@@ -1,0 +1,25 @@
+{% load i18n %}
+<h2>{% trans "Payments" %}</h2>
+<table>
+    <tr>
+        <th>{% trans "Sent date" %}</th>
+        <th>{% trans "Payer" %}</th>
+        <th>{% trans "Sum" %}</th>
+        <th>{% trans "Effective sum" %}</th>
+        <th>{% trans "Rate" %}</th>
+        <th>{% trans "Manager" %}</th>
+        <th>{% trans "Date created" %}</th>
+    </tr>
+    {% for payment in payments %}
+        <tr>
+            <td>{{ payment.sent_date|date:"d b Y" }}</td>
+            <td>{{ payment.payer }}</td>
+            <td>{{ payment.sum_str }}</td>
+            <td>{{ payment.effective_sum_str }}</td>
+            <td>{{ payment.rate }}</td>
+            <td>{{ payment.manager }}</td>
+            <td>{{ payment.created_at|date:"d b Y H:i:s" }}</td>
+        </tr>
+    {% endfor %}
+    <tr></tr>
+</table>

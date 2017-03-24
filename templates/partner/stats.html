@@ -4,6 +4,19 @@
 {% load partner_tags %}
 {% block header.top.h1 %}<h1 xmlns="http://www.w3.org/1999/html">Партнёрство</h1>{% endblock %}
 
+{% block extra_styles %}
+    {{ block.super }}
+    <style>
+    .details {
+        text-decoration: underline;
+        cursor: pointer;
+    }
+    #ohoho {
+        margin-bottom: 40px;
+    }
+    </style>
+{% endblock %}
+
 {% block header.buttons %}
     <div class="top-panel">
         <div class="tabs">
@@ -113,7 +126,7 @@
                 <div class="panel panel-success">
                     <div class="panel-heading">
                         <h3 class="panel-title">
-                            Статистика сделок
+                            Статистика сделок - <span id="detail-deals" class="details">{% trans "Detail" %}</span>
                         </h3>
                     </div>
                     <div class="panel-body">
@@ -172,10 +185,12 @@
                         </div>
                     </div>
                 </div>
+                <h1 style="text-align: center;">{% trans "Payments" %} - <span id="detail-payments" class="details">{% trans "Detail" %}</span></h1>
                 <div class="deaals"></div>
             </div>
         </div><!--End stats -->
     </div><!-- End tab-content-->
+    <div id="ohoho"></div>
 {% endblock %}
 
 {% block popup %}

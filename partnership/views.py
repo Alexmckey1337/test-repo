@@ -5,6 +5,7 @@ from collections import OrderedDict
 from decimal import Decimal
 
 import django_filters
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models import Case, IntegerField, Sum, Value, When
 from django.db.models import F
@@ -12,11 +13,12 @@ from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import filters, mixins, status, viewsets
-from rest_framework.decorators import api_view, list_route, detail_route
+from rest_framework.decorators import list_route, detail_route
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 
 from account.models import CustomUser as User, CustomUser
@@ -25,7 +27,8 @@ from navigation.table_fields import user_table, partner_table
 from partnership.permissions import (
     CanCreatePartnerPayment, CanClosePartnerDeal, IsManagerOrHigh)
 from partnership.resources import PartnerResource
-from payment.models import Currency
+from payment.models import Currency, Payment
+from payment.serializers import PaymentShowSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from .models import Partnership, Deal
 from .serializers import (
@@ -86,6 +89,41 @@ class PartnerStatMixin:
         stats['sum'] = self.stats_by_sum(deals, deals_with_sum)
 
         return Response(stats)
+
+    @list_route(methods=['get'], renderer_classes=(TemplateHTMLRenderer,))
+    def stat_deals(self, request):
+        current_partner = get_object_or_404(Partnership, user=request.user)
+
+        self.check_stats_permissions(current_partner)
+
+        deals = self.get_deals_of_partner(request, current_partner)
+        deals = self.filter_deals_by_month(request, deals)
+        deals = deals.base_queryset(). \
+            annotate_full_name(). \
+            annotate_responsible_name(). \
+            annotate_total_sum(). \
+            order_by('-date_created', 'id')
+        #
+        # serializer = DealSerializer(deals, many=True)
+
+        return Response({'deals': deals}, template_name='partner/partials/stat_deals.html')
+
+    @list_route(methods=['get'], renderer_classes=(TemplateHTMLRenderer,))
+    def stat_payments(self, request):
+        current_partner = get_object_or_404(Partnership, user=request.user)
+
+        self.check_stats_permissions(current_partner)
+
+        deals = self.get_deals_of_partner(request, current_partner)
+        deals = self.filter_deals_by_month(request, deals)
+        deals_ids = set(deals.values_list('id', flat=True))
+        content_type = ContentType.objects.get_for_model(Deal)
+        payments = Payment.objects.filter(
+            content_type=content_type, object_id__in=deals_ids)
+        #
+        # serializer = PaymentShowSerializer(payments, many=True)
+
+        return Response({'payments': payments}, template_name='partner/partials/stat_payments.html')
 
     # Helpers
 
