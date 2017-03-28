@@ -27,7 +27,7 @@ class Partnership(AbstractPaymentPurpose):
     currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
                                  default=get_default_currency, null=True)
     date = models.DateField(default=date.today)
-    need_text = models.CharField(_('Need text'), max_length=300, blank=True)
+    need_text = models.CharField(_('Need text'), max_length=600, blank=True)
 
     is_active = models.BooleanField(_('Is active?'), default=True)
 

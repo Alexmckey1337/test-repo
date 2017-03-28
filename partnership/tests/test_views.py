@@ -6,10 +6,12 @@ from decimal import Decimal
 
 import pytest
 from django.urls import reverse
-from rest_framework import status
+from rest_framework import status, permissions
 
+from account.models import CustomUser
 from partnership.models import Partnership, Deal
 from partnership.serializers import PartnershipForEditSerializer, DealSerializer, DealCreateSerializer
+from partnership.views import PartnershipViewSet
 from payment.serializers import PaymentShowSerializer
 
 
@@ -143,6 +145,181 @@ class TestPartnershipViewSet:
         response = api_login_supervisor_client.get(url)
 
         assert len(response.data['results']) == 30
+
+    def test_user_list_filter_by_hierarchy(self, monkeypatch, api_login_client, user_factory, partner_factory, hierarchy_factory):
+        monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
+        other_hierarchy = hierarchy_factory()
+        hierarchy = hierarchy_factory()
+        partner_factory.create_batch(10, user__hierarchy=hierarchy)
+        partner_factory.create_batch(20, user__hierarchy=other_hierarchy)
+
+        url = reverse('partnerships_v1_1-list')
+
+        api_login_client.force_login(user=user_factory(is_staff=True))
+        response = api_login_client.get('{}?hierarchy={}'.format(url, hierarchy.id), format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 10
+
+    def test_user_list_filter_by_department(self, monkeypatch, api_login_client, partner_factory, user_factory, department_factory):
+        monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
+        other_department = department_factory()
+        department = department_factory()
+        partners = partner_factory.create_batch(10)
+        for partner in partners:
+            partner.user.departments.set([department])
+        partners = partner_factory.create_batch(20)
+        for partner in partners:
+            partner.user.departments.set([other_department])
+
+        url = reverse('partnerships_v1_1-list')
+
+        api_login_client.force_login(user=user_factory(is_staff=True))
+        response = api_login_client.get('{}?department={}'.format(url, department.id), format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 10
+
+    def test_user_list_filter_by_master(self, monkeypatch, api_login_client, partner_factory, user_factory):
+        monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
+        master = partner_factory(user__username='master')
+        partner_factory.create_batch(10, user__master=master.user)
+        partner_factory.create_batch(20)
+
+        url = reverse('partnerships_v1_1-list')
+
+        api_login_client.force_login(user=user_factory(is_staff=True))
+        response = api_login_client.get('{}?master={}'.format(url, master.user.id), format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 10
+
+    def test_user_list_filter_by_multi_master(self, monkeypatch, api_login_client, partner_factory, user_factory):
+        monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
+        master = partner_factory(user__username='master')
+        other_master = partner_factory(user__username='other_master')
+        partner_factory.create_batch(10, user__master=master.user)
+        partner_factory.create_batch(40, user__master=other_master.user)
+        partner_factory.create_batch(20)
+
+        url = reverse('partnerships_v1_1-list')
+
+        api_login_client.force_login(user=user_factory(is_staff=True))
+        response = api_login_client.get(
+            '{}?master={}&master={}'.format(url, master.user.id, other_master.user.id),
+            format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 50
+
+    def test_user_list_filter_by_master_tree(self, monkeypatch, api_login_client, partner_factory, user_factory):
+        monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
+        partner = partner_factory()  # count: + 0, = 0, all_users_count: +1, = 1
+
+        partner_factory.create_batch(3, user__master=partner.user)  # count: + 3, = 3, all_users_count: +3, = 4
+        second_level_partner = partner_factory(user__master=partner.user)  # count: + 1, = 4, all_users_count: +1, = 5
+        partner_factory.create_batch(
+            8, user__master=second_level_partner.user)  # count: + 8, = 12, all_users_count: +8, = 13
+
+        partner_factory.create_batch(15)  # count: + 0, = 12, all_users_count: +15, = 28
+        other_partner = partner_factory()  # count: + 0, = 12, all_users_count: +1, = 29
+        partner_factory.create_batch(
+            32, user__master=other_partner.user)  # count: + 0, = 12, all_users_count: + 32, = 61
+
+        url = reverse('partnerships_v1_1-list')
+
+        api_login_client.force_login(user=user_factory(is_staff=True))
+        response = api_login_client.get(url, data={'master_tree': partner.user.id}, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 13
+
+    def test_user_search_by_fio(self, monkeypatch, api_login_client, partner_factory, user_factory):
+        monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
+        partner_factory.create_batch(10)
+        partner_factory(user__last_name='searchlast', user__first_name='searchfirst')
+
+        url = reverse('partnerships_v1_1-list')
+
+        api_login_client.force_login(user=user_factory(is_staff=True))
+        response = api_login_client.get(
+            '{}?search_fio={}'.format(url, 'searchfirst searchlast'),
+            format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 1
+
+    def test_user_search_by_email(self, monkeypatch, api_login_client, partner_factory, user_factory):
+        monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
+        partner_factory.create_batch(10)
+        partner_factory(user__email='mysupermail@test.com')
+        partner_factory(user__email='test@mysupermail.com')
+
+        url = reverse('partnerships_v1_1-list')
+
+        api_login_client.force_login(user=user_factory(is_staff=True))
+        response = api_login_client.get(
+            '{}?search_email={}'.format(url, 'mysupermail'),
+            format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 2
+
+    def test_user_search_by_phone(self, monkeypatch, api_login_client, partner_factory, user_factory):
+        monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
+        partner_factory.create_batch(10)
+        partner_factory(user__phone_number='+380990002246')
+        partner_factory(user__phone_number='+380992299000')
+
+        url = reverse('partnerships_v1_1-list')
+
+        api_login_client.force_login(user=user_factory(is_staff=True))
+        response = api_login_client.get(
+            '{}?search_phone_number={}'.format(url, '99000'),
+            format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 2
+
+    def test_user_search_by_country(self, monkeypatch, api_login_client, partner_factory, user_factory):
+        monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
+        partner_factory.create_batch(10)
+        partner_factory.create_batch(8, user__country='Ukraine')
+
+        url = reverse('partnerships_v1_1-list')
+
+        api_login_client.force_login(user=user_factory(is_staff=True))
+        response = api_login_client.get(
+            '{}?search_country={}'.format(url, 'Ukraine'),
+            format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 8
+
+    def test_user_search_by_city(self, monkeypatch, api_login_client, partner_factory, user_factory):
+        monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
+        partner_factory.create_batch(10)
+        partner_factory.create_batch(8, user__city='Tokio')
+
+        url = reverse('partnerships_v1_1-list')
+
+        api_login_client.force_login(user=user_factory(is_staff=True))
+        response = api_login_client.get(
+            '{}?search_city={}'.format(url, 'Tokio'),
+            format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 8
 
 
 @pytest.mark.django_db

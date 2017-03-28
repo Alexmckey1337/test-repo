@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from account.filters import FilterByBirthday, UserFilter, ShortUserFilter, FilterMasterTree, FilterMasterTreeWithSelf
+from account.filters import FilterByUserBirthday, UserFilter, ShortUserFilter, FilterMasterTree, FilterMasterTreeWithSelf
 from account.models import CustomUser as User
 from common.filters import FieldSearchFilter
 from common.parsers import MultiPartAndJsonParser
@@ -56,7 +56,7 @@ class UserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
         filters.DjangoFilterBackend,
         FieldSearchFilter,
         filters.OrderingFilter,
-        FilterByBirthday,
+        FilterByUserBirthday,
         FilterMasterTreeWithSelf,
     )
     permission_classes = (IsAuthenticated,)

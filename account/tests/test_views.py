@@ -75,7 +75,7 @@ CHANGE_FIELD = (
 
 
 @pytest.mark.django_db
-class TestNewUserViewSet:
+class TestUserViewSet:
     def test_partial_update_main_info(self, user, api_login_client, user_factory):
         url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
 
