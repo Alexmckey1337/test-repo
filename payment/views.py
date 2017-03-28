@@ -2,12 +2,13 @@
 from __future__ import unicode_literals
 
 from django.db.models import Q
-from rest_framework import mixins
+from rest_framework import mixins, filters
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 
+from common.filters import FieldSearchFilter
 from partnership.models import Partnership, Deal
-from payment.filters import PaymentFilterByPurpose
+from payment.filters import PaymentFilterByPurpose, PaymentFilter, FilterByDealFIO
 from payment.serializers import PaymentUpdateSerializer, PaymentShowSerializer
 from summit.models import SummitAnket
 from .models import Payment
@@ -71,3 +72,28 @@ class PaymentListView(mixins.ListModelMixin, GenericAPIView):
             (Q(content_type__model='partnership') & Q(object_id__in=partner_ids)) |
             (Q(content_type__model='summitanket') & Q(object_id__in=anket_ids))
         )
+
+
+class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentShowSerializer
+    permission_classes = (IsAuthenticated,)
+
+    filter_backends = (filters.DjangoFilterBackend,
+                       FieldSearchFilter,
+                       FilterByDealFIO,
+                       filters.OrderingFilter,)
+    field_search_fields = {
+        'search_description': ('description',),
+    }
+    filter_class = PaymentFilter
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def get_queryset(self):
+        user = self.request.user
+
+        deal_ids = Deal.objects.for_user(user).values_list('id', flat=True)
+
+        return self.queryset.filter(content_type__model='deal', object_id__in=deal_ids)

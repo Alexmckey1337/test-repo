@@ -115,7 +115,6 @@ class TestFilterByPartnerBirthday:
         )
         assert filter_qs.count() == 5
 
-    @pytest.mark.hh
     def test_with_from_date_more_than_to_date(self):
         with pytest.raises(exceptions.ValidationError):
             FilterByPartnerBirthday().filter_queryset(
