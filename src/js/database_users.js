@@ -103,7 +103,8 @@ $('document').ready(function () {
             });
             $('#tree_filter').html(options);
         });
-        getPastorsByDepartment(departamentID).then(function (data) {
+        if($('#tree_filter').val() == "ВСЕ") {
+            getResponsible(departamentID, 2).then(function (data) {
             let options = [];
             let option = document.createElement('option');
             $(option).text('ВСЕ');
@@ -115,6 +116,20 @@ $('document').ready(function () {
             });
             $('#masters_filter').html(options);
         });
+        } else {
+            getPastorsByDepartment(departamentID).then(function (data) {
+            let options = [];
+            let option = document.createElement('option');
+            $(option).text('ВСЕ');
+            options.push(option);
+            data.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.fullname);
+                options.push(option);
+            });
+            $('#masters_filter').html(options);
+        });
+        }
     });
     $treeFilter.on('change', function () {
                 let config = {};
