@@ -151,7 +151,7 @@
                                         <label for="extra_phone_numbers"><i class="fa fa-phone"
                                                                             aria-hidden="true"></i></label>
                                         <input type="text" id="extra_phone_numbers"
-                                               value="{% if account.extra_phone_numbers %}{{ account.extra_phone_numbers|default:""|join:", " }}g{% endif %}" readonly>
+                                               value="{% if account.extra_phone_numbers %}{{ account.extra_phone_numbers|default:""|join:", " }}{% endif %}" readonly>
                                     </li>
                                     <li class="clearfix">
                                         <label for="email"><i class="fa fa-envelope"></i></label>

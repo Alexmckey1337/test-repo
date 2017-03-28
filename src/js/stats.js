@@ -51,9 +51,10 @@
                     let tmpl = $('#stats_money').html();
                     let rendered = _.template(tmpl)(sum[code]);
                     a += rendered;
-                    console.log(sum[code]);
                 }
                 $('.deaals').html(a);
+
+                $('#ohoho').html('');
             })
             .catch(alert);
     }
@@ -77,6 +78,70 @@
                 month = date[0];
                 year = date[1];
                 filterByMonth({month: month, year: year});
+            }
+        }
+    });
+    function renderDealTable(params = {}) {
+        let url = '/api/v1.1/partnerships/stat_deals/?',
+            partner_id = $('#stats_manager').val();
+        if (partner_id) {
+            params.partner_id = partner_id;
+        }
+        ajaxRequest(url + $.param(params), null, function (data) {
+            $('#ohoho').html(data);
+        });
+    }
+    function renderPaymentTable(params = {}) {
+        let url = '/api/v1.1/partnerships/stat_payments/?',
+            partner_id = $('#stats_manager').val();
+        if (partner_id) {
+            params.partner_id = partner_id;
+        }
+        ajaxRequest(url + $.param(params), null, function (data) {
+            $('#ohoho').html(data);
+        });
+    }
+    $('#detail-payments').on('click', function () {
+        let date, month, year;
+        date = $('#date_field_stats').val();
+        if (date) {
+            date = date.split('/');
+            if (date.length == 2) {
+                month = date[0];
+                year = date[1];
+                renderPaymentTable({month: month, year: year})
+            } else {
+
+                alert('Неверный формат даты')
+            }
+        } else {
+            date = moment().format('MM/YYYY').split('/');
+            if (date.length == 2) {
+                month = date[0];
+                year = date[1];
+                renderPaymentTable({month: month, year: year});
+            }
+        }
+    });
+    $('#detail-deals').on('click', function () {
+        let date, month, year;
+        date = $('#date_field_stats').val();
+        if (date) {
+            date = date.split('/');
+            if (date.length == 2) {
+                month = date[0];
+                year = date[1];
+                renderDealTable({month: month, year: year})
+            } else {
+
+                alert('Неверный формат даты')
+            }
+        } else {
+            date = moment().format('MM/YYYY').split('/');
+            if (date.length == 2) {
+                month = date[0];
+                year = date[1];
+                renderDealTable({month: month, year: year});
             }
         }
     });

@@ -2,7 +2,6 @@
 from __future__ import absolute_import, unicode_literals
 
 import json
-from decimal import Decimal
 
 import pytest
 from rest_framework import status
@@ -179,3 +178,22 @@ class TestPaymentUpdateDestroyView:
         anket.refresh_from_db()
         new_value = anket.value
         assert old_value > new_value
+
+
+@pytest.mark.django_db
+@pytest.mark.urls('payment.tests.urls')
+class TestPaymentListView:
+    def test_list_payment(self, rf, allow_any_payment_list_view):
+        request = rf.get('/payments/')
+        view = allow_any_payment_list_view.as_view()
+        response = view(request)
+
+        assert response.status_code == status.HTTP_200_OK
+
+    @pytest.mark.parametrize('purpose', ['deal', 'partnership', 'summitanket'])
+    def test_list_payment_with_filter(self, rf, allow_any_payment_list_view, purpose):
+        request = rf.get('/payments/', {'purpose': purpose})
+        view = allow_any_payment_list_view.as_view()
+        response = view(request)
+
+        assert response.status_code == status.HTTP_200_OK
