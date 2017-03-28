@@ -313,8 +313,9 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
             home_group.users.add(user)
 
         if request.method == 'POST':
-            self._validate_user_for_add_user(user)
+            self._validate_user_for_add_user(user, home_group)
             home_group.users.add(user_id)
+            user.churches.through.objects.filter(customuser_id=user_id).delete()
 
         return Response({'message': 'Пользователь успешно добавлен.'},
                         status=status.HTTP_201_CREATED)
@@ -329,18 +330,17 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
 
         home_group.users.remove(user_id)
         church.users.add(user_id)
-        return Response({'message': 'Пользователь успешно удален.'},
-                        status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     # Helpers
 
     @staticmethod
-    def _validate_user_for_add_user(user):
+    def _validate_user_for_add_user(user, home_group):
         if user.home_groups.exists():
             raise exceptions.ValidationError(
                 _('Невозможно добавить пользователя методом POST. Данный пользователь уже состоит в Домашней Группе.'))
 
-        if user.churches.exists():
+        if user.churches.exclude(id=home_group.church_id).exists():
             raise exceptions.ValidationError(
                 _('Невозможно добавить пользователя методом POST. Пользователь является членом другой Церкви'))
 
