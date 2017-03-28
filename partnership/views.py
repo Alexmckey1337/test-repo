@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from collections import OrderedDict
 from decimal import Decimal
 
-import django_filters
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models import Case, IntegerField, Sum, Value, When
@@ -22,13 +21,14 @@ from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 
 from account.models import CustomUser as User, CustomUser
+from common.filters import FieldSearchFilter
 from common.views_mixins import ExportViewSetMixin
 from navigation.table_fields import user_table, partner_table
+from partnership.filters import FilterByPartnerBirthday, DateFilter, FilterPartnerMasterTreeWithSelf, PartnerUserFilter
 from partnership.permissions import (
     CanCreatePartnerPayment, CanClosePartnerDeal, IsManagerOrHigh)
 from partnership.resources import PartnerResource
 from payment.models import Currency, Payment
-from payment.serializers import PaymentShowSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from .models import Partnership, Deal
 from .serializers import (
@@ -235,13 +235,11 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
     serializer_read_class = PartnershipTableSerializer
     pagination_class = PartnershipPagination
     filter_backends = (filters.DjangoFilterBackend,
-                       filters.SearchFilter,
+                       FieldSearchFilter,
+                       FilterByPartnerBirthday,
+                       FilterPartnerMasterTreeWithSelf,
                        filters.OrderingFilter,)
     filter_fields = ('user', 'responsible__user', 'responsible')
-    search_fields = ('user__first_name', 'user__last_name', 'user__middle_name', 'user__search_name',
-                     'user__country', 'user__region', 'user__city', 'user__district',
-                     'user__address', 'user__skype', 'user__phone_number', 'user__hierarchy__title',
-                     'user__email',)
     ordering_fields = ('user__first_name', 'user__last_name', 'user__master__last_name',
                        'user__middle_name', 'user__born_date', 'user__country',
                        'user__region', 'user__city', 'user__disrict',
@@ -249,7 +247,15 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
                        'user__email', 'user__hierarchy__level',
                        'user__facebook',
                        'user__vkontakte', 'value', 'responsible__user__last_name')
+    field_search_fields = {
+        'search_fio': ('user__last_name', 'user__first_name', 'user__middle_name', 'user__search_name'),
+        'search_email': ('user__email',),
+        'search_phone_number': ('user__phone_number',),
+        'search_country': ('user__country',),
+        'search_city': ('user__city',),
+    }
     permission_classes = (IsAuthenticated,)
+    filter_class = PartnerUserFilter
 
     payment_list_field = 'extra_payments'
     resource_class = PartnerResource
@@ -291,17 +297,6 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         partnership.save()
 
         return Response({'need_text': text})
-
-
-class DateFilter(filters.FilterSet):
-    to_date = django_filters.DateFilter(name="date_created", lookup_type='lte')
-    from_date = django_filters.DateFilter(name="date_created", lookup_type='gte')
-
-    class Meta:
-        model = Deal
-        fields = ['partnership__responsible__user',
-                  'partnership__user', 'value', 'date_created', 'date',
-                  'expired', 'done', 'to_date', 'from_date', ]
 
 
 class DealViewSet(mixins.RetrieveModelMixin,

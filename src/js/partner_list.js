@@ -1,5 +1,7 @@
 (function () {
     "use strict";
+    let $departmentsFilter = $('#departments_filter');
+    let $treeFilter = $("#tree_filter");
     $('#export_table').on('click', function () {
         $('.preloader').css('display', 'block');
         exportTableData(this).then(function () {
@@ -12,6 +14,7 @@
             page: 1
         });
     });
+
     getPartners({});
 
     $('#sort_save').on('click', function () {
@@ -21,5 +24,76 @@
     $('#filter_button').on('click', function () {
         $('#filterPopup').css('display', 'block');
     });
-    $('.select_db').select2();
+    $departmentsFilter.on('change', function () {
+        let departamentID = $(this).val();
+        let config = {
+            level_gte: 2
+        };
+        if (!departamentID) {
+            departamentID = null;
+        } else {
+            config.department = departamentID;
+        }
+        getShortUsers(config).then(function (data) {
+            let options = [];
+            let option = document.createElement('option');
+            $(option).text('ВСЕ');
+            options.push(option);
+            data.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.fullname);
+                options.push(option);
+            });
+            $('#tree_filter').html(options);
+        }).then(function () {
+            if ($('#tree_filter').val() == "ВСЕ") {
+                getResponsible(departamentID, 2).then(function (data) {
+                    let options = [];
+                    let option = document.createElement('option');
+                    $(option).text('ВСЕ');
+                    options.push(option);
+                    data.forEach(function (item) {
+                        let option = document.createElement('option');
+                        $(option).val(item.id).text(item.fullname);
+                        options.push(option);
+                    });
+                    $('#masters_filter').html(options);
+                });
+            } else {
+                getPastorsByDepartment(departamentID).then(function (data) {
+                    let options = [];
+                    let option = document.createElement('option');
+                    $(option).text('ВСЕ');
+                    options.push(option);
+                    data.forEach(function (item) {
+                        let option = document.createElement('option');
+                        $(option).val(item.id).text(item.fullname);
+                        options.push(option);
+                    });
+                    $('#masters_filter').html(options);
+                });
+            }
+        });
+    });
+    $treeFilter.on('change', function () {
+        let config = {};
+        if ($(this).val() != "ВСЕ") {
+            config = {
+                master_tree: $(this).val()
+            };
+        }
+        getShortUsers(config).then(function (data) {
+            let options = [];
+            let option = document.createElement('option');
+            $(option).text('ВСЕ');
+            options.push(option);
+            data.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.fullname);
+                options.push(option);
+            });
+            $('#masters_filter').html(options);
+        });
+    });
+    $('.selectdb').select2();
 }());

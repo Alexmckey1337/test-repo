@@ -155,6 +155,7 @@ function makeLeaderList(id, selector, active = null) {
 
 function getPartners(config) {
     config.search = $('input[name=fullsearch]').val();
+    Object.assign(config, getFilterParam());
     getPartnersList(config).then(function (response) {
         let page = config['page'] || 1;
         let count = response.count;
@@ -459,7 +460,7 @@ function registerUserToSummit(config) {
         if (JSONobj.status) {
             showPopup(JSONobj.message);
             createSummitUsersTable();
-            getUnregisteredUsers();
+            // getUnregisteredUsers();
             $("#send_email").prop("checked", false);
         } else {
             showPopup(JSONobj.message);
@@ -2053,7 +2054,7 @@ function setCookie(name, value, options) {
 
 function createUsersTable(config) {
     config["search_fio"] = $('input[name=fullsearch]').val();
-    Object.assign(config, filterParam());
+    Object.assign(config, getFilterParam());
     getUsers(config).then(function (data) {
         let count = data.count;
         let page = config['page'] || 1;
@@ -2085,7 +2086,7 @@ function updateSettings(callback, path) {
         if ($(this).data('editable')) {
             let item = {};
             item['id'] = $(this).val();
-            item['number'] = iteration++;
+            item['number'] = ++iteration;
             item['active'] = $(this).prop('checked');
             data.push(item);
         }
@@ -2097,12 +2098,12 @@ function updateSettings(callback, path) {
         VOCRM['column_table'] = JSONobj['column_table'];
 
         if (callback) {
-            var param = {};
+            let param = {};
             if (path !== undefined) {
-                let extendParam = $.extend({}, param, filterParam());
+                let extendParam = $.extend({}, param, getFilterParam());
                 callback(extendParam);
             } else {
-                let param = filterParam();
+                let param = getFilterParam();
                 callback(param);
             }
         }
@@ -2166,53 +2167,7 @@ function getFilterParam() {
 }
 
 function filterParam() {
-    let filterPopup, data = {}, department, hierarchy, master, search_email, search_phone_number, search_country, search_city, from_date, to_date;
-    filterPopup = $('#filterPopup');
-    department = parseInt($('#departments_filter').val());
-    hierarchy = parseInt($('#hierarchies_filter').val());
-    master = parseInt($('#masters_filter').val());
-    search_email = $('#search_email').val();
-    search_phone_number = $('#search_phone_number').val();
-    search_country = $('#search_country').val();
-    search_city = $('#search_city').val();
-    from_date = $('#date_from').val();
-    to_date = $('#date_to').val();
-    if (department && department !== 0) {
-        data['department'] = department;
-    }
-    if (hierarchy && hierarchy !== 0) {
-        data['hierarchy'] = hierarchy;
-    }
-    if (master && master !== 0) {
-        data['master'] = master;
-    }
-    if (search_email && search_email != "") {
-        data['search_email'] = search_email;
-    }
-    if (search_phone_number && search_phone_number != "") {
-        data['search_phone_number'] = search_phone_number;
-    }
-    if (search_country && search_country != "") {
-        data['search_country'] = search_country;
-    }
-    if (search_city && search_city != "") {
-        data['search_city'] = search_city;
-    }
-    if (from_date && from_date != "") {
-        if (new Date(from_date) >= new Date(to_date)) {
-            data['to_date'] = from_date;
-        } else {
-            data['from_date'] = from_date;
-        }
-
-    }
-    if (to_date && to_date != "") {
-        if (new Date(from_date) >= new Date(to_date)) {
-            data['from_date'] = to_date;
-        } else {
-            data['to_date'] = to_date;
-        }
-    }
+    let data = getFilterParam();
     return data;
 }
 

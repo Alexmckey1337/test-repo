@@ -1,11 +1,18 @@
 import operator
+from datetime import datetime, timedelta
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models import Q
 from django.db.models.constants import LOOKUP_SEP
 from django.template import loader
 from django.utils import six
+from django.utils.translation import ugettext_lazy as _
+from rest_framework import exceptions
 from rest_framework.compat import template_render
 from rest_framework.filters import BaseFilterBackend
+
+from account.models import CustomUser
 
 if six.PY3:
     from functools import reduce
@@ -110,3 +117,58 @@ class FieldSearchFilter(BaseFilterBackend):
 
     def get_fields(self, view):
         return [view.field_search_fields.keys()] if hasattr(view, 'field_search_fields') else []
+
+
+class BaseFilterByBirthday(BaseFilterBackend):
+    born_date_field = ''
+
+    def filter_queryset(self, request, queryset, view):
+        params = request.query_params
+        from_date = params.get('from_date', None)
+        to_date = params.get('to_date', None)
+
+        if not (from_date and to_date):
+            return queryset
+        from_date = datetime.strptime(from_date, '%Y-%m-%d')
+        to_date = datetime.strptime(to_date, '%Y-%m-%d')
+        if from_date > to_date:
+            raise exceptions.ValidationError(detail=_('Некоректный временной интервал.'))
+
+        monthdays = [(from_date.month, from_date.day)]
+        while from_date <= to_date:
+            monthdays.append((from_date.month, from_date.day))
+            from_date += timedelta(days=1)
+
+        monthdays = (dict(zip((
+            "%s__month" % self.born_date_field,
+            "%s__day" % self.born_date_field), t)) for t in monthdays)
+        query = reduce(operator.or_, (Q(**d) for d in monthdays))
+
+        return queryset.filter(query)
+
+
+class BaseFilterMasterTree(BaseFilterBackend):
+    include_self_master = False
+    user_field_prefix = ''
+
+    def filter_queryset(self, request, queryset, view):
+        master_id = request.query_params.get('master_tree', None)
+
+        try:
+            master = CustomUser.objects.get(pk=master_id)
+        except ObjectDoesNotExist:
+            return queryset
+
+        if master.is_leaf_node():
+            return queryset.none()
+
+        filter_by_master_tree = {
+            '%stree_id' % self.user_field_prefix: master.tree_id,
+            '%slft__gte' % self.user_field_prefix: master.lft,
+            '%srght__lte' % self.user_field_prefix: master.rght,
+        }
+
+        qs = queryset.filter(**filter_by_master_tree)
+        if self.include_self_master:
+            return qs
+        return qs.exclude(pk=master)
