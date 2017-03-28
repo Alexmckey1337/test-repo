@@ -100,7 +100,18 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, ListView):
         extra_context = {
             'departments': Department.objects.all(),
             'hierarchies': Hierarchy.objects.order_by('level'),
+            'currencies': Currency.objects.all()
         }
+        user = self.request.user
+        if user.is_staff:
+            extra_context['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
+        elif not user.hierarchy:
+            extra_context['masters'] = list()
+        elif user.hierarchy.level < 2:
+            extra_context['masters'] = user.get_descendants(
+                include_self=True).filter(is_active=True, hierarchy__level__gte=1)
+        else:
+            extra_context['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
 
         ctx.update(extra_context)
         return ctx

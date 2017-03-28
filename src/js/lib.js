@@ -155,6 +155,7 @@ function makeLeaderList(id, selector, active = null) {
 
 function getPartners(config) {
     config.search = $('input[name=fullsearch]').val();
+    Object.assign(config, getFilterParam());
     getPartnersList(config).then(function (response) {
         let page = config['page'] || 1;
         let count = response.count;
@@ -2085,7 +2086,7 @@ function updateSettings(callback, path) {
         if ($(this).data('editable')) {
             let item = {};
             item['id'] = $(this).val();
-            item['number'] = iteration++;
+            item['number'] = ++iteration;
             item['active'] = $(this).prop('checked');
             data.push(item);
         }
@@ -2162,7 +2163,6 @@ function getFilterParam() {
     if ('master_tree' in data && ('pastor' in data || 'master' in data || 'leader' in data)) {
         delete data.master_tree;
     }
-    console.log(data);
     return data;
 }
 
