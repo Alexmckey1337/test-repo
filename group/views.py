@@ -1,4 +1,5 @@
 # -*- coding: utf-8
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
 from django.db.models import Q
 from django.db.models import Value as V
@@ -283,17 +284,15 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
     def add_user(self, request, pk):
         user_id = request.data.get('user_id')
         home_group = get_object_or_404(HomeGroup, pk=pk)
-        church = home_group.church
 
         if not user_id:
             raise exceptions.ValidationError(_("Некоректные данные"))
 
-        user = CustomUser.objects.filter(id=user_id)
-        if not user.exists():
+        try:
+            user = CustomUser.objects.get(id=user_id)
+        except ObjectDoesNotExist:
             raise exceptions.ValidationError(
                 _('Невозможно добавить пользователя. Данного пользователя не существует.'))
-
-        user = user.get()
 
         if request.method == 'PUT':
             if not user.churches.exists() and not user.home_groups.exists():

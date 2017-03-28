@@ -1,64 +1,12 @@
-import operator
-from datetime import datetime, timedelta
-from functools import reduce
-
 import django_filters
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q
-from django.utils.translation import ugettext_lazy as _
-from rest_framework import exceptions
-from rest_framework.filters import BaseFilterBackend
 
-from account.models import CustomUser as User, CustomUser
+from account.models import CustomUser as User
+from common.filters import BaseFilterByBirthday, BaseFilterMasterTree
 from hierarchy.models import Hierarchy, Department
 
 
-class FilterByBirthday(BaseFilterBackend):
-    def filter_queryset(self, request, queryset, view):
-        params = request.query_params
-        from_date = params.get('from_date', None)
-        to_date = params.get('to_date', None)
-
-        if from_date is None or to_date is None:
-            return queryset
-        if from_date > to_date:
-            raise exceptions.ValidationError(detail=_('Некоректный временной интервал.'))
-
-        from_date = datetime.strptime(from_date, '%Y-%m-%d')
-        to_date = datetime.strptime(to_date, '%Y-%m-%d')
-        monthdays = [(from_date.month, from_date.day)]
-        while from_date <= to_date:
-            monthdays.append((from_date.month, from_date.day))
-            from_date += timedelta(days=1)
-
-        monthdays = (dict(zip(("born_date__month", "born_date__day"), t)) for t in monthdays)
-        query = reduce(operator.or_, (Q(**d) for d in monthdays))
-
-        return queryset.filter(query)
-
-
-class BaseFilterMasterTree(BaseFilterBackend):
-    include_self_master = False
-
-    def filter_queryset(self, request, queryset, view):
-        master_id = request.query_params.get('master_tree', None)
-
-        try:
-            master = CustomUser.objects.get(pk=master_id)
-        except ObjectDoesNotExist:
-            return queryset
-
-        if master.is_leaf_node():
-            return queryset.none()
-
-        master_tree_id = master.tree_id
-        master_left = master.lft
-        master_right = master.rght
-
-        qs = queryset.filter(tree_id=master_tree_id, lft__gte=master_left, rght__lte=master_right)
-        if self.include_self_master:
-            return qs
-        return qs.exclude(pk=master)
+class FilterByUserBirthday(BaseFilterByBirthday):
+    born_date_field = 'born_date'
 
 
 class FilterMasterTree(BaseFilterMasterTree):

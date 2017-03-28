@@ -28,7 +28,7 @@ List of users
 
         HTTP/1.1 200 OK
         Vary: Accept, Cookie
-        Allow: GET,POST,HEAD,OPTIONS
+        Allow: GET,HEAD,OPTIONS
         Content-Type: application/json
 
         {
