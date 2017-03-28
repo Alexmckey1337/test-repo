@@ -37,11 +37,12 @@ class PaymentManager(IsAuthenticated):
 
 class PaymentManagerOrSupervisor(BasePermission):
     def has_object_permission(self, request, view, payment):
-        content_type = payment.content_type
         if PaymentManager().has_object_permission(request, view, payment):
             return True
-        if content_type.app_label == 'summit' and content_type.model == 'summitanket':
+
+        content_type = payment.content_type
+        if content_type and content_type.app_label == 'summit' and content_type.model == 'summitanket':
             return IsSummitSupervisorOrHigh().has_object_permission(request, view, payment.purpose.summit)
-        if content_type.app_label == 'partnership' and content_type.model in ('partnership', 'deal'):
+        if content_type and content_type.app_label == 'partnership' and content_type.model in ('partnership', 'deal'):
             return IsPartnerSupervisorOrHigh().has_permission(request, view)
         return False

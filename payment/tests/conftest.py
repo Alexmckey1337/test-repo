@@ -7,7 +7,7 @@ from account.factories import UserFactory
 from partnership.factories import PartnerFactory, DealFactory
 from payment.factories import SummitAnketPaymentFactory, PartnerPaymentFactory, DealPaymentFactory, PaymentFactory, \
     CurrencyFactory
-from payment.views import PaymentUpdateDestroyView
+from payment.views import PaymentUpdateDestroyView, PaymentListView
 from summit.factories import SummitAnketFactory
 from summit.models import SummitAnket
 
@@ -126,3 +126,10 @@ def allow_any_payment_update_destroy_view(monkeypatch):
     monkeypatch.setattr(PaymentUpdateDestroyView, 'permission_classes', (permissions.AllowAny,))
 
     return PaymentUpdateDestroyView
+
+
+@pytest.fixture
+def allow_any_payment_list_view(monkeypatch):
+    monkeypatch.setattr(PaymentListView, 'permission_classes', (permissions.AllowAny,))
+
+    return PaymentListView
