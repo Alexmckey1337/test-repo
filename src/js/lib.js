@@ -154,8 +154,7 @@ function makeLeaderList(id, selector, active = null) {
 }
 
 function getPartners(config) {
-    config.search = $('input[name=fullsearch]').val();
-    Object.assign(config, getFilterParam());
+    config.search_fio = $('input[name=fullsearch]').val();
     getPartnersList(config).then(function (response) {
         let page = config['page'] || 1;
         let count = response.count;
