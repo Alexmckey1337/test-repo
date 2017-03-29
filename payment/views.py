@@ -76,6 +76,8 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
                        FieldSearchFilter,
                        FilterByDealFIO,
                        filters.OrderingFilter,)
+    ordering_fields = ('sum', 'effective_sum', 'currency_sum__name', 'currency_rate__name', 'created_at', 'sent_date',
+                       'manager__last_name')
     field_search_fields = {
         'search_description': ('description',),
     }
