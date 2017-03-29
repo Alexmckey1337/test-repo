@@ -4,12 +4,13 @@ from __future__ import unicode_literals
 from django.db.models import Q
 from rest_framework import mixins, filters
 from rest_framework.generics import GenericAPIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
 from common.filters import FieldSearchFilter
 from partnership.models import Partnership, Deal
 from payment.filters import PaymentFilterByPurpose, PaymentFilter, FilterByDealFIO
-from payment.serializers import PaymentUpdateSerializer, PaymentShowSerializer
+from payment.serializers import PaymentUpdateSerializer, PaymentShowSerializer, PaymentDealShowSerializer
 from summit.models import SummitAnket
 from .models import Payment
 from .permissions import PaymentManagerOrSupervisor
@@ -63,20 +64,12 @@ class PaymentListView(mixins.ListModelMixin, GenericAPIView):
     def get_queryset(self):
         user = self.request.user
 
-        deal_ids = Deal.objects.for_user(user).values_list('id', flat=True)
-        partner_ids = Partnership.objects.for_user(user).values_list('id', flat=True)
-        anket_ids = SummitAnket.objects.for_user(user).values_list('id', flat=True)
-
-        return self.queryset.filter(
-            (Q(content_type__model='deal') & Q(object_id__in=deal_ids)) |
-            (Q(content_type__model='partnership') & Q(object_id__in=partner_ids)) |
-            (Q(content_type__model='summitanket') & Q(object_id__in=anket_ids))
-        )
+        return self.queryset.for_user_by_all(user)
 
 
 class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
-    queryset = Payment.objects.all()
-    serializer_class = PaymentShowSerializer
+    queryset = Payment.objects.base_queryset()
+    serializer_class = PaymentDealShowSerializer
     permission_classes = (IsAuthenticated,)
 
     filter_backends = (filters.DjangoFilterBackend,
@@ -94,6 +87,4 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
     def get_queryset(self):
         user = self.request.user
 
-        deal_ids = Deal.objects.for_user(user).values_list('id', flat=True)
-
-        return self.queryset.filter(content_type__model='deal', object_id__in=deal_ids)
+        return self.queryset.for_user_by_deal(user).add_deal_fio()

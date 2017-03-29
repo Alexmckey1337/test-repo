@@ -11,6 +11,8 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
+from payment.managers import PaymentManager
+
 
 def get_default_currency():
     if Currency.objects.filter(code='uah').exists():
@@ -139,6 +141,8 @@ class Payment(models.Model):
     object_id = models.PositiveIntegerField(blank=True, null=True)
     #: Purpose of payment
     purpose = GenericForeignKey()
+
+    objects = PaymentManager()
 
     class Meta:
         ordering = ('-created_at',)
