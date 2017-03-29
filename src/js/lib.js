@@ -155,6 +155,7 @@ function makeLeaderList(id, selector, active = null) {
 
 function getPartners(config) {
     config.search_fio = $('input[name=fullsearch]').val();
+    Object.assign(config, getFilterParam());
     getPartnersList(config).then(function (response) {
         let page = config['page'] || 1;
         let count = response.count;
@@ -424,6 +425,7 @@ function getShortUsers(config = {}) {
 }
 
 function getSummitUsers(config = {}) {
+    Object.assign(config, getFilterParam());
     return new Promise(function (resolve, reject) {
         let data = {
             url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/`,
@@ -563,6 +565,7 @@ function deleteUserINChurch(id, user_id) {
 }
 
 function createChurchesUsersTable(id, config = {}) {
+    Object.assign(config, getFilterParam());
     getChurchUsers(id).then(function (data) {
         let count = data.count;
         let page = config['page'] || 1;
@@ -634,6 +637,7 @@ function createChurchesDetailsTable(config = {}, id, link) {
 }
 
 function createHomeGroupUsersTable(config = {}, id) {
+    Object.assign(config, getFilterParam());
     if (id === undefined) {
         id = $('#home_group').data('id');
     }
