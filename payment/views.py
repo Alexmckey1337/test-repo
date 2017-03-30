@@ -9,7 +9,8 @@ from rest_framework.permissions import IsAuthenticated
 
 from common.filters import FieldSearchFilter
 from partnership.models import Partnership, Deal
-from payment.filters import PaymentFilterByPurpose, PaymentFilter, FilterByDealFIO
+from payment.filters import PaymentFilterByPurpose, PaymentFilter, FilterByDealFIO, FilterByDealDate, \
+    FilterByDealManagerFIO
 from payment.serializers import PaymentUpdateSerializer, PaymentShowSerializer, PaymentDealShowSerializer
 from summit.models import SummitAnket
 from .models import Payment
@@ -75,6 +76,8 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
     filter_backends = (filters.DjangoFilterBackend,
                        FieldSearchFilter,
                        FilterByDealFIO,
+                       FilterByDealDate,
+                       FilterByDealManagerFIO,
                        filters.OrderingFilter,)
     ordering_fields = ('sum', 'effective_sum', 'currency_sum__name', 'currency_rate__name', 'created_at', 'sent_date',
                        'manager__last_name')

@@ -44,15 +44,44 @@ class PaymentQuerySet(models.query.QuerySet):
             (Q(content_type__model='summitanket') & Q(object_id__in=anket_ids))
         )
 
+    """
+        CONCAT(auth_user.last_name, ' ', auth_user.first_name, ' ', account_customuser.middle_name) as purpose_fio,
+        partnership_deal.date_created as purpose_date,
+        CONCAT(au2.last_name, ' ', au2.first_name, ' ', a2.middle_name) as purpose_manager_fio
+    """
+
     def add_deal_fio(self):
         return self.extra(
             select={
                 'purpose_fio': '''
-                    SELECT CONCAT(auth_user.last_name, ' ', auth_user.first_name, ' ', account_customuser.middle_name) as purpose_fio
+                    SELECT
+                    CONCAT(auth_user.last_name, ' ', auth_user.first_name, ' ', account_customuser.middle_name) as purpose_fio
                     FROM partnership_deal
+                    
                     JOIN partnership_partnership ON partnership_deal.partnership_id = partnership_partnership.id
                     JOIN account_customuser ON partnership_partnership.user_id = account_customuser.user_ptr_id
                     JOIN auth_user ON account_customuser.user_ptr_id = auth_user.id
+                    
+                    WHERE partnership_deal.id = payment_payment.object_id'''
+            }).extra(
+            select={
+                'purpose_date': '''
+                    SELECT
+                    partnership_deal.date_created as purpose_date
+                    FROM partnership_deal
+                    
+                    WHERE partnership_deal.id = payment_payment.object_id'''
+            }).extra(
+            select={
+                'purpose_manager_fio': '''
+                    SELECT
+                    CONCAT(au2.last_name, ' ', au2.first_name, ' ', a2.middle_name) as purpose_manager_fio
+                    FROM partnership_deal
+                    
+                    JOIN partnership_partnership p2 on partnership_deal.responsible_id = p2.id
+                    JOIN account_customuser a2 ON p2.user_id = a2.user_ptr_id
+                    JOIN auth_user au2 ON a2.user_ptr_id = au2.id
+                    
                     WHERE partnership_deal.id = payment_payment.object_id'''
             })
 

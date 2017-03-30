@@ -1,4 +1,5 @@
 import operator
+from datetime import datetime, date
 
 import django_filters
 from django.db import models
@@ -55,6 +56,71 @@ class FilterByDealFIO(BaseFilterBackend):
 
         deals = self.get_deals(request)
         for search_term in purpose_fio.replace(',', ' ').split():
+            queries = [
+                models.Q(**{orm_lookup: search_term})
+                for orm_lookup in orm_lookups]
+            deals = deals.filter(reduce(operator.or_, queries))
+
+        deal_ids = deals.values_list('id', flat=True)
+
+        return queryset.filter(content_type__model='deal', object_id__in=deal_ids)
+
+
+class FilterByDealDate(BaseFilterBackend):
+    include_self_master = False
+
+    def get_deals(self, request):
+        return Deal.objects.for_user(request.user)
+
+    def filter_queryset(self, request, queryset, view):
+        date_from = request.query_params.get('purpose_date_from', None)
+        date_to = request.query_params.get('purpose_date_to', None)
+        if not (date_from or date_to):
+            return queryset
+        date_from = datetime.strptime(date_from, "%Y-%m-%d") if date_from else None
+        date_from = date(date_from.year, date_from.month, 1) if date_from else None
+        date_to = datetime.strptime(date_to, "%Y-%m-%d") if date_to else None
+        last_day = 31
+        while date_to is not None:
+            try:
+                date_to = date(date_to.year, date_to.month, last_day) if date_to else None
+            except ValueError:
+                last_day -= 1
+            else:
+                break
+
+        deals = self.get_deals(request)
+        if date_from and date_to:
+            deals = deals.filter(date_created__range=(date_from, date_to))
+        elif date_from:
+            deals = deals.filter(date_created__gte=date_from)
+        elif date_to:
+            deals = deals.filter(date_created__lte=date_to)
+
+        deal_ids = deals.values_list('id', flat=True)
+
+        return queryset.filter(content_type__model='deal', object_id__in=deal_ids)
+
+
+class FilterByDealManagerFIO(BaseFilterBackend):
+    include_self_master = False
+
+    def get_deals(self, request):
+        return Deal.objects.for_user(request.user)
+
+    def filter_queryset(self, request, queryset, view):
+        manager_fio = request.query_params.get('search_purpose_manager_fio', None)
+        if not manager_fio:
+            return queryset
+
+        orm_lookups = [
+            'responsible__user__first_name__icontains',
+            'responsible__user__last_name__icontains',
+            'responsible__user__middle_name__icontains',
+            'responsible__user__search_name__icontains']
+
+        deals = self.get_deals(request)
+        for search_term in manager_fio.replace(',', ' ').split():
             queries = [
                 models.Q(**{orm_lookup: search_term})
                 for orm_lookup in orm_lookups]
