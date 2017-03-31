@@ -249,7 +249,9 @@ List of deal payments
                 "middle_name": ""
               },
               "purpose": "/api/v1.0/deals/16495/",
-              "purpose_fio": "I Am User"
+              "purpose_fio": "I Am User",
+              "purpose_date": "12.2016",
+              "purpose_manager_fio": "Iam Your Manager"
             },
             {
               "id": 8613,
@@ -282,7 +284,9 @@ List of deal payments
                 "middle_name": ""
               },
               "purpose": "/api/v1.0/deals/27087/",
-              "purpose_fio": "And Iam Too"
+              "purpose_fio": "And Iam Too",
+              "purpose_date": "10.2016",
+              "purpose_manager_fio": "Lukeiam Your Father"
             }
           ]
         }
@@ -300,8 +304,11 @@ List of deal payments
     :query string create_to: filter by created date of payment, ``created_at <= create_to``
     :query string sent_from: filter by sent date of payment, ``sent_date >= sent_from``
     :query string sent_to: filter by sent date of payment, ``sent_date <= sent_to``
+    :query string purpose_date_from: filter by ``date_created`` of deal
+    :query string purpose_date_to: filter by ``date_created`` of deal
     :query string search_description: search by ``description``
-    :query string search_purpose_fio: search by ``fio`` of purpose.user
+    :query string search_purpose_fio: search by ``fio`` of deal.user
+    :query string search_purpose_manager_fio: search by ``fio`` of deal.responsible.user
     :query string ordering: order by one of ``sum``, ``effective_sum``, ``currency_sum__name``,
                         ``currency_rate__name``, ``created_at``, ``sent_date``,
                         ``manager__last_name``
