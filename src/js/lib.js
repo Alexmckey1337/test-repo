@@ -1099,6 +1099,119 @@ function getPayment(id) {
     })
 }
 
+function getPaymentsDeals(config) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/payments/deal/`,
+            method: 'GET',
+            data: config,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}
+
+function makePayments(config = {}) {
+    config.search_purpose_fio = $('input[name=fullsearch]').val();
+    Object.assign(config, getFilterParam());
+    return getPaymentsDeals(config).then(function (response) {
+        console.log(config);
+        let page = config['page'] || 1;
+        let count = response.count;
+        let pages = Math.ceil(count / CONFIG.pagination_count);
+        let data = {};
+        let id = "paymentsList";
+        let text = `Показано ${CONFIG.pagination_count} из ${count}`;
+
+        data.count = response.count;
+        data.table_columns = {};
+        data.table_columns.sum_str = {
+            active: true,
+            editable: true,
+            id: '',
+            number: '',
+            ordering_title: 'sum',
+            title: 'Сумма'
+        };
+        data.table_columns.created_at = {
+            active: true,
+            editable: true,
+            id: '',
+            number: '',
+            ordering_title: 'created_at',
+            title: 'Дата создания'
+        };
+        data.table_columns.sent_date = {
+            active: true,
+            editable: true,
+            id: '',
+            number: '',
+            ordering_title: '',
+            title: 'Дата отправки'
+        };
+        data.table_columns.purpose_fio = {
+            active: true,
+            editable: true,
+            id: '',
+            number: '',
+            ordering_title: 'sent_date',
+            title: 'Плательщик'
+        };
+        data.table_columns.purpose_manager_fio = {
+            active: true,
+            editable: true,
+            id: '',
+            number: '',
+            ordering_title: '',
+            title: 'Отвественый'
+        };
+        data.table_columns.manager = {
+            active: true,
+            editable: true,
+            id: '',
+            number: '',
+            ordering_title: 'manager__last_name',
+            title: 'Менеджер'
+        };
+        data.table_columns.description = {
+            active: true,
+            editable: true,
+            id: '',
+            number: '',
+            ordering_title: '',
+            title: 'Примечание'
+        };
+    data.results = response.results;
+    makePaymentsTable(data, id);
+
+    let paginationConfig = {
+        container: ".payments__pagination",
+        currentPage: page,
+        pages: pages,
+        callback: makePayments
+    };
+    makePagination(paginationConfig);
+    $('.table__count').text(text);
+    // makeSortForm(response.user_table);
+    orderTable.sort(makePayments);
+    $('.preloader').hide();
+    return data;
+}
+)
+;
+}
+
 function makePagination(config) {
     let container = document.createElement('div'),
         input = document.createElement('input'),
@@ -1573,6 +1686,15 @@ function makeDataTable(data, id) {
     document.getElementById(id).innerHTML = rendered;
     $('.quick-edit').on('click', function () {
         makeQuickEditCart(this);
+    })
+}
+
+function makePaymentsTable(data, id) {
+    let tmpl = document.getElementById('databasePayments').innerHTML;
+    let rendered = _.template(tmpl)(data);
+    document.getElementById(id).innerHTML = rendered;
+    $('.quick-edit').on('click', function () {
+        // makeQuickEditPayments(this);
     })
 }
 

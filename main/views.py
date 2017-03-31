@@ -131,6 +131,19 @@ class PartnerStatisticsListView(LoginRequiredMixin, CanSeePartnerStatsMixin, Lis
     login_url = 'entry'
 
 
+# TODO amirr
+class PartnerPaymentsListView(LoginRequiredMixin, TemplateView):
+    template_name = 'partner/payments.html'
+    login_url = 'entry'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(PartnerPaymentsListView, self).get_context_data(**kwargs)
+
+        ctx['currencies'] = Currency.objects.all()
+        ctx['managers'] = CustomUser.objects.filter(checks__isnull=False)
+
+        return ctx
+
 # account
 
 

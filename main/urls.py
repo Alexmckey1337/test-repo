@@ -19,6 +19,9 @@ def redirect_to_deals(request):
         return redirect(reverse('partner:list'))
     if request.user.can_see_partner_stats():
         return redirect(reverse('partner:stats'))
+    # TODO amirr
+    if request.user.can_see_partner_stats():
+        return redirect(reverse('partner:payments'))
     raise PermissionDenied
 
 
@@ -38,6 +41,7 @@ partner_patterns = [
     url(r'^list/$', views.PartnerListView.as_view(), name='list'),
     url(r'^deals/$', views.DealListView.as_view(), name='deals'),
     url(r'^stats/$', views.PartnerStatisticsListView.as_view(), name='stats'),
+    url(r'^payments/$', views.PartnerPaymentsListView.as_view(), name='payments'),
 ]
 account_patterns = [
     url(r'^(\d+)/$', views.account, name='detail'),
