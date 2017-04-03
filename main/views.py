@@ -17,7 +17,7 @@ from event.models import MeetingType
 from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
 from location.models import Country, Region, City
-from partnership.models import Partnership, Deal
+from partnership.models import Partnership
 from payment.models import Currency
 from status.models import Division
 from summit.models import SummitType
@@ -142,6 +142,7 @@ class PartnerPaymentsListView(LoginRequiredMixin, CanSeeDealPaymentsMixin, Templ
         ctx['managers'] = CustomUser.objects.filter(checks__isnull=False).distinct()
 
         return ctx
+
 
 # account
 

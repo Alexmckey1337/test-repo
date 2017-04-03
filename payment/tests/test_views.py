@@ -234,7 +234,8 @@ class TestPaymentDealListView:
     def test_filter_by_effective_sum(self, monkeypatch, api_client, deal_payment_factory):
         monkeypatch.setattr(PaymentDealListView, 'permission_classes', (permissions.AllowAny,))
         monkeypatch.setattr(
-            PaymentDealListView, 'get_queryset', lambda self: self.queryset.filter(content_type__model='deal').add_deal_fio())
+            PaymentDealListView, 'get_queryset',
+            lambda self: self.queryset.filter(content_type__model='deal').add_deal_fio())
         deal_payment_factory(effective_sum=Decimal(100), sum=Decimal(100))
         deal_payment_factory(effective_sum=Decimal(200), sum=Decimal(200))
         deal_payment_factory(effective_sum=Decimal(300), sum=Decimal(300))

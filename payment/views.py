@@ -1,18 +1,14 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from django.db.models import Q
 from rest_framework import mixins, filters
 from rest_framework.generics import GenericAPIView
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
 from common.filters import FieldSearchFilter
-from partnership.models import Partnership, Deal
 from payment.filters import PaymentFilterByPurpose, PaymentFilter, FilterByDealFIO, FilterByDealDate, \
     FilterByDealManagerFIO
 from payment.serializers import PaymentUpdateSerializer, PaymentShowSerializer, PaymentDealShowSerializer
-from summit.models import SummitAnket
 from .models import Payment
 from .permissions import PaymentManagerOrSupervisor
 
