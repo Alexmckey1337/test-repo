@@ -17,6 +17,13 @@ $(window).on('hashchange', function () {
 // Sorting
 
 let orderTable = (function () {
+    let savePath = sessionStorage.getItem('path');
+    let path = window.location.pathname;
+    if(savePath != path) {
+        sessionStorage.setItem('path', path);
+        sessionStorage.setItem('revers', '');
+        sessionStorage.setItem('order', '');
+    }
     function addListener(callback) {
         $(".table-wrap th").on('click', function () {
             let dataOrder;
