@@ -45,11 +45,17 @@ class PurposeRelatedField(serializers.RelatedField):
         raise Exception('Unexpected type of tagged object')
 
 
+class DealRelatedField(serializers.RelatedField):
+    def to_representation(self, value):
+        return reverse('deal-detail', kwargs={'pk': value})
+
+
 class PaymentShowSerializer(serializers.ModelSerializer):
     currency_sum = CurrencySerializer()
     currency_rate = CurrencySerializer()
     manager = ManagerSerializer()
     created_at = serializers.DateTimeField(format='%d.%m.%Y %H:%M')
+    sent_date = serializers.DateTimeField(format='%d.%m.%Y')
     purpose = PurposeRelatedField(read_only=True)
 
     class Meta:
@@ -59,3 +65,18 @@ class PaymentShowSerializer(serializers.ModelSerializer):
                   'currency_sum', 'currency_rate', 'rate', 'description',
                   'created_at', 'sent_date',
                   'manager', 'purpose')
+
+
+class PaymentDealShowSerializer(PaymentShowSerializer):
+    purpose = DealRelatedField(read_only=True, source='object_id')
+    purpose_fio = serializers.CharField()
+    purpose_date = serializers.DateField(format="%m.%Y")
+    purpose_manager_fio = serializers.CharField()
+
+    class Meta:
+        model = Payment
+        fields = ('id', 'sum', 'effective_sum',
+                  'sum_str', 'effective_sum_str',
+                  'currency_sum', 'currency_rate', 'rate', 'description',
+                  'created_at', 'sent_date',
+                  'manager', 'purpose', 'purpose_fio', 'purpose_date', 'purpose_manager_fio')

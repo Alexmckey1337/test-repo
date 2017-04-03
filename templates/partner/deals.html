@@ -12,6 +12,7 @@
                 <li><a class="active" href="{% url 'partner:deals' %}">Сделки</a></li>
                 <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
                 <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
+                <li><a href="{% url 'partner:payments' %}">Таблица платежей</a></li>
             </ul>
         </div>
         <div class="top-buttons-wrap">
@@ -124,6 +125,9 @@
     <script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
     <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
     <script src='{% static "js/deals.js" %}'></script>
+    {% block template_tables %}
+
+    {% endblock %}
     <script type="text/template" id="showDeals">
     <% results.forEach(function(item) { %>
     <div class="rows-wrap" id="<%=item.id%>">

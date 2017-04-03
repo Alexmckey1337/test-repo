@@ -7,7 +7,8 @@ from payment import views
 payment_urlpatterns = [
     url(r'^payments/(?P<pk>\d+)/$', views.PaymentUpdateDestroyView.as_view(), name='payment-delete'),
     url(r'^payments/(?P<pk>\d+)/$', views.PaymentUpdateDestroyView.as_view(), name='payment-update'),
-    url(r'^payments/$', views.PaymentListView.as_view(), name='payment-list')
+    url(r'^payments/$', views.PaymentListView.as_view(), name='payment-list'),
+    url(r'^payments/deal/$', views.PaymentDealListView.as_view(), name='payment-deal-list'),
 ]
 
 urlpatterns = [

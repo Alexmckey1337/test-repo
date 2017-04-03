@@ -108,7 +108,6 @@ class TestPaymentManagerOrSupervisor:
 
         assert PaymentManagerOrSupervisor().has_object_permission(request, None, deal_payment) == has_perm
 
-    @pytest.mark.hh
     def test_has_object_permission_for_other(self, monkeypatch, user, payment):
         monkeypatch.setattr(PaymentManager, 'has_object_permission', lambda *args: False)
         request = type('Request', (), {'user': user})

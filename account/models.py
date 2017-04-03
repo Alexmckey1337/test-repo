@@ -20,7 +20,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from account.permissions import can_see_churches, can_see_home_groups
 from navigation.models import Table
 from partnership.models import Partnership
-from partnership.permissions import can_see_partners, can_see_partner_stats, can_see_deals
+from partnership.permissions import can_see_partners, can_see_partner_stats, can_see_deals, can_see_deal_payments
 from summit.models import SummitType, SummitAnket
 from summit.permissions import can_see_summit, can_see_summit_type, can_see_any_summit, can_see_any_summit_type
 
@@ -191,8 +191,13 @@ class CustomUser(MPTTModel, User):
         request = self._perm_req()
         return can_see_partner_stats(request)
 
+    def can_see_deal_payments(self):
+        request = self._perm_req()
+        return can_see_deal_payments(request)
+
     def can_see_any_partner_block(self):
-        return any((self.can_see_partners(), self.can_see_deals(), self.can_see_partner_stats()))
+        return any((self.can_see_partners(), self.can_see_deals(),
+                    self.can_see_partner_stats(), self.can_see_deal_payments))
 
     # summit block
 

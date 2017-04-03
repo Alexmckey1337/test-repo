@@ -1575,6 +1575,9 @@ th {
   vertical-align: middle;
   white-space: pre;
   cursor: pointer;
+  &[data-order="no_ordering"] {
+    cursor: default;
+  }
 }
 
 th span {
@@ -2237,11 +2240,11 @@ table input[type=checkbox],
       border: 1px solid #cdd0d4;
       border-radius: 3px;
       padding: 0 .5em;
-      &#date_from, &#date_to {
+      &#date_from, &#date_to, &.select_from_filter, &.select_to_filter {
         width: ~'calc(45% - 12px)';
         float: left;
       }
-      &#date_from {
+      &#date_from, &.select_from_filter {
         margin-right: 10px;
       }
       &[type=checkbox] {
