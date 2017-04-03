@@ -1575,6 +1575,9 @@ th {
   vertical-align: middle;
   white-space: pre;
   cursor: pointer;
+  &[data-order="no_ordering"] {
+    cursor: default;
+  }
 }
 
 th span {
