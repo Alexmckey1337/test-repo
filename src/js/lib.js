@@ -1200,7 +1200,14 @@ function makePayments(config = {}) {
                 ordering_title: 'no_ordering',
                 title: 'Плательщик'
             };
-
+            data.table_columns.purpose_date = {
+                active: true,
+                editable: true,
+                id: '',
+                number: '',
+                ordering_title: 'no_ordering',
+                title: 'Дата сделки'
+            };
             data.table_columns.purpose_manager_fio = {
                 active: true,
                 editable: true,
