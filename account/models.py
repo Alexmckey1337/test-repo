@@ -18,7 +18,6 @@ from mptt.managers import TreeManager
 from mptt.models import MPTTModel, TreeForeignKey
 
 from account.permissions import can_see_churches, can_see_home_groups
-from event.models import EventAnket
 from navigation.models import Table
 from partnership.models import Partnership
 from partnership.permissions import can_see_partners, can_see_partner_stats, can_see_deals

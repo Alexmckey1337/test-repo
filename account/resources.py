@@ -7,14 +7,14 @@ from import_export.resources import ModelDeclarativeMetaclass
 from account.models import CustomUser as User
 from common.resources import CustomFieldsModelResource
 
-USER_MAIN_RESOURCE_FIELDS = ('last_name', 'first_name', 'middle_name', 'region',
-                             'email', 'phone_number', 'skype', 'country', 'city', 'address',
-                             'born_date', 'facebook', 'vkontakte', 'description',
-                             'repentance_date', 'district',
-                             )
+USER_MAIN_RESOURCE_FIELDS = (
+    'last_name', 'first_name', 'middle_name', 'region',
+    'email', 'phone_number', 'skype', 'country', 'city', 'address',
+    'born_date', 'facebook', 'vkontakte', 'description',
+    'repentance_date', 'district')
 
 USER_RESOURCE_FIELDS = USER_MAIN_RESOURCE_FIELDS + (
-    'departments', 'hierarchy', 'master', 'spiritual_level', 'divisions', 'fullname',)
+    'departments', 'hierarchy', 'master', 'spiritual_level', 'divisions', 'fullname')
 
 
 class UserMetaclass(ModelDeclarativeMetaclass):
@@ -132,4 +132,3 @@ def manage(level):
     else:
         return "Низя"
     return "Оки"
-

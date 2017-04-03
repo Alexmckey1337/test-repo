@@ -8,7 +8,6 @@ import pytest
 from django.urls import reverse
 from rest_framework import status, permissions
 
-from account.models import CustomUser
 from partnership.models import Partnership, Deal
 from partnership.serializers import PartnershipForEditSerializer, DealSerializer, DealCreateSerializer
 from partnership.views import PartnershipViewSet
@@ -146,7 +145,8 @@ class TestPartnershipViewSet:
 
         assert len(response.data['results']) == 30
 
-    def test_user_list_filter_by_hierarchy(self, monkeypatch, api_login_client, user_factory, partner_factory, hierarchy_factory):
+    def test_user_list_filter_by_hierarchy(
+            self, monkeypatch, api_login_client, user_factory, partner_factory, hierarchy_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
         monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
         other_hierarchy = hierarchy_factory()
@@ -162,7 +162,8 @@ class TestPartnershipViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert response.data['count'] == 10
 
-    def test_user_list_filter_by_department(self, monkeypatch, api_login_client, partner_factory, user_factory, department_factory):
+    def test_user_list_filter_by_department(
+            self, monkeypatch, api_login_client, partner_factory, user_factory, department_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
         monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
         other_department = department_factory()

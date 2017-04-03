@@ -63,5 +63,6 @@ class PaidStatusListFilter(admin.SimpleListFilter):
             ids = [a.id for a in queryset if not a.is_full_paid]
             return queryset.filter(id__in=ids)
         if self.value() == 'partial':
-            ids = [a.id for a in queryset.annotate(total_sum=Sum('payments__effective_sum')).filter(total_sum__gt=Decimal(0)) if not a.is_full_paid]
+            ids = [a.id for a in queryset.annotate(
+                total_sum=Sum('payments__effective_sum')).filter(total_sum__gt=Decimal(0)) if not a.is_full_paid]
             return queryset.filter(id__in=ids)

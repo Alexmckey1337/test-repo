@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import datetime
-from collections import OrderedDict
 from datetime import date
 
 from django.core.urlresolvers import reverse

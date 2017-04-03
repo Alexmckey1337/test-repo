@@ -137,9 +137,7 @@ class UniqueFIOTelWithIdsValidator(UniqueTogetherValidator):
         queryset = self.exclude_current_instance(attrs, queryset)
 
         # Ignore validation if any field is None
-        checked_values = [
-            value for field, value in attrs.items() if field in self.fields
-            ]
+        checked_values = [value for field, value in attrs.items() if field in self.fields]
         if None not in checked_values and qs_exists(queryset):
             ids = list(queryset.values_list('id', flat=True))
             data = dict(zip(self.fields, checked_values))
