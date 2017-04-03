@@ -1,6 +1,7 @@
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 from partnership.permissions import IsSupervisorOrHigh, IsDisciplesOf
+from summit.permissions import IsSupervisorOrHigh as IsSummitSupervisorOrHigh
 
 
 class HasHierarchyLevelMixin:
@@ -81,6 +82,7 @@ class CanAccountObjectEdit(IsAuthenticated,
                            IsAncestorOfPermissionMixin):
     def has_object_permission(self, request, view, account):
         return (
+            super(CanAccountObjectEdit, self).has_permission(request, view) and
             self._is_staff(request, view) or
             self._is_partner_supervisor(request, view) or
             self._is_ancestor_of(request, view, account, True)
@@ -90,7 +92,43 @@ class CanAccountObjectEdit(IsAuthenticated,
 class CanSeeChurches(IsAuthenticated, IsStaffPermissionMixin, HasHierarchyLevelMixin):
     def has_permission(self, request, view):
         return (
+            super(CanSeeChurches, self).has_permission(request, view) and
             self._is_staff(request, view) or self.level_gte(request, 1)
+        )
+
+
+class CanCreateUser(IsAuthenticated, IsStaffPermissionMixin):
+    def has_permission(self, request, view):
+        """
+        Checking that the current user has the right to create a new user
+        """
+        return (
+            super(CanCreateUser, self).has_permission(request, view) and
+            (self._is_staff(request, view) or request.user.is_leader_or_high or
+             IsSupervisorOrHigh().has_permission(request, view) or
+             IsSummitSupervisorOrHigh().has_permission(request, view))
+        )
+
+
+class CanExportUserList(IsAuthenticated, IsStaffPermissionMixin):
+    def has_permission(self, request, view):
+        """
+        Checking that the current user has the right to export list of users
+        """
+        return (
+            super(CanExportUserList, self).has_permission(request, view) and
+            self._is_staff(request, view) or request.user.is_pastor_or_high
+        )
+
+
+class CanSeeUserList(IsAuthenticated, IsStaffPermissionMixin):
+    def has_permission(self, request, view):
+        """
+        Checking that the current user has the right to see list of users
+        """
+        return (
+            super(CanSeeUserList, self).has_permission(request, view) and
+            self._is_staff(request, view) or request.user.is_leaf_node
         )
 
 
@@ -104,4 +142,28 @@ def can_see_churches(request, view=None):
 
 def can_see_home_groups(request, view=None):
     has_perm = CanSeeHomeGroups()
+    return has_perm.has_permission(request, view)
+
+
+def can_create_user(request, view=None):
+    """
+    Checking that the request.user has the right to create a new user
+    """
+    has_perm = CanCreateUser()
+    return has_perm.has_permission(request, view)
+
+
+def can_export_user_list(request, view=None):
+    """
+    Checking that the request.user has the right to export list of users
+    """
+    has_perm = CanExportUserList()
+    return has_perm.has_permission(request, view)
+
+
+def can_see_user_list(request, view=None):
+    """
+    Checking that the request.user has the right to see list of users
+    """
+    has_perm = CanSeeUserList()
     return has_perm.has_permission(request, view)

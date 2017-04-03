@@ -1,7 +1,7 @@
 from django.conf import settings
 
 from account.abstact_models import UserPermission
-from partnership.permissions import can_see_partners, can_see_deals, can_see_partner_stats
+from partnership.permissions import can_see_partners, can_see_deals, can_see_partner_stats, can_see_deal_payments
 
 
 class PartnerUserPermission(UserPermission):
@@ -16,12 +16,19 @@ class PartnerUserPermission(UserPermission):
         request = self._perm_req()
         return can_see_deals(request)
 
+    def can_see_deal_payments(self):
+        request = self._perm_req()
+        return can_see_deal_payments(request)
+
     def can_see_partner_stats(self):
         request = self._perm_req()
         return can_see_partner_stats(request)
 
     def can_see_any_partner_block(self):
-        return any((self.can_see_partners(), self.can_see_deals(), self.can_see_partner_stats()))
+        return any((self.can_see_partners(),
+                    self.can_see_deals(),
+                    self.can_see_partner_stats(),
+                    self.can_see_deal_payments()))
 
     @property
     def is_partner(self):

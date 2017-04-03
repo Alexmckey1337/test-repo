@@ -15,6 +15,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from account.filters import FilterByUserBirthday, UserFilter, ShortUserFilter, FilterMasterTreeWithSelf
 from account.models import CustomUser as User
+from account.permissions import CanSeeUserList, CanCreateUser
 from common.filters import FieldSearchFilter
 from common.parsers import MultiPartAndJsonParser
 from common.views_mixins import ExportViewSetMixin
@@ -60,6 +61,9 @@ class UserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
         FilterMasterTreeWithSelf,
     )
     permission_classes = (IsAuthenticated,)
+    permission_list_classes = (CanSeeUserList,)
+    permission_create_classes = (CanCreateUser,)
+
     ordering_fields = ('first_name', 'last_name', 'middle_name',
                        'born_date', 'country', 'region', 'city', 'disrict', 'address', 'skype',
                        'phone_number', 'email', 'hierarchy__level',
@@ -80,6 +84,18 @@ class UserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
 
     resource_class = UserResource
 
+    def dispatch(self, request, *args, **kwargs):
+        if kwargs.get('pk') == 'current' and request.user.is_authenticated():
+            kwargs['pk'] = request.user.pk
+        return super(UserViewSet, self).dispatch(request, *args, **kwargs)
+
+    def get_permissions(self):
+        if self.action == 'list':
+            return [permission() for permission in self.permission_list_classes]
+        if self.action == 'create':
+            return [permission() for permission in self.permission_create_classes]
+        return super(UserViewSet, self).get_permissions()
+
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:
@@ -94,11 +110,6 @@ class UserViewSet(viewsets.ModelViewSet, ExportViewSetMixin):
                 ).filter(is_active=True).order_by('last_name', 'first_name', 'middle_name')
             return self.queryset
         return self.queryset.all()
-
-    def dispatch(self, request, *args, **kwargs):
-        if kwargs.get('pk') == 'current' and request.user.is_authenticated():
-            kwargs['pk'] = request.user.pk
-        return super(UserViewSet, self).dispatch(request, *args, **kwargs)
 
     def get_serializer_class(self):
         if self.action == 'list':

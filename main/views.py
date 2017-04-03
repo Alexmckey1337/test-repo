@@ -228,6 +228,13 @@ def summits(request):
 # database
 
 
+class CanSeeUserList(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_user_list():
+            raise PermissionDenied
+        return super(CanSeeUserList, self).dispatch(request, *args, **kwargs)
+
+
 class CanSeeChurchesMixin(View):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.can_see_churches():
@@ -249,7 +256,7 @@ class TabsMixin(ContextMixin):
         return super(TabsMixin, self).get_context_data(**{'active_tab': self.active_tab})
 
 
-class PeopleListView(LoginRequiredMixin, TabsMixin, TemplateView):
+class PeopleListView(LoginRequiredMixin, TabsMixin, CanSeeUserList, TemplateView):
     template_name = 'database/people.html'
     login_url = 'entry'
     active_tab = 'people'
