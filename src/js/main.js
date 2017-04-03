@@ -21,6 +21,9 @@ let orderTable = (function () {
         $(".table-wrap th").on('click', function () {
             let dataOrder;
             let data_order = this.getAttribute('data-order');
+            if(data_order == "no_ordering") {
+                return
+            }
             let page = $('.pagination__input').val();
             let revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
             let order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';

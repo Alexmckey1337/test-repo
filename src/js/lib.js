@@ -1157,7 +1157,7 @@ function makePayments(config = {}) {
             editable: true,
             id: '',
             number: '',
-            ordering_title: '',
+            ordering_title: 'sent_date',
             title: 'Дата отправки'
         };
         data.table_columns.purpose_fio = {
@@ -1165,7 +1165,7 @@ function makePayments(config = {}) {
             editable: true,
             id: '',
             number: '',
-            ordering_title: 'sent_date',
+            ordering_title: 'no_ordering',
             title: 'Плательщик'
         };
         data.table_columns.purpose_manager_fio = {
@@ -1189,7 +1189,7 @@ function makePayments(config = {}) {
             editable: true,
             id: '',
             number: '',
-            ordering_title: '',
+            ordering_title: 'no_ordering',
             title: 'Примечание'
         };
     data.results = response.results;
