@@ -1,12 +1,28 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from django.db import models
 from datetime import date
 
+from django.db import models
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
+
+from account.abstact_models import UserPermission
+from account.permissions import can_see_churches, can_see_home_groups
+
+
+class GroupUserPermission(UserPermission):
+    class Meta:
+        abstract = True
+
+    def can_see_churches(self):
+        request = self._perm_req()
+        return can_see_churches(request)
+
+    def can_see_home_groups(self):
+        request = self._perm_req()
+        return can_see_home_groups(request)
 
 
 @python_2_unicode_compatible
