@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import django_filters
 from django.db import transaction, IntegrityError
 from django.utils import six
+from rest_framework import mixins
 from rest_framework import status
 from rest_framework import viewsets, filters
 from rest_framework.decorators import api_view
@@ -12,16 +13,16 @@ from rest_framework.generics import CreateAPIView, get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import mixins
 
 from account.models import CustomUser
 from account.pagination import ShortPagination
-from navigation.table_fields import event_table
-from .models import Participation, Event, EventAnket, EventType, MeetingAttend, Meeting
-from .serializers import ParticipationSerializer, EventSerializer, EventTypeSerializer, EventAnketSerializer, \
-    MeetingSerializer, MeetingUserSerializer
 from group.models import HomeGroup
 from group.serializers import HomeGroupListSerializer
+from navigation.table_fields import event_table
+from .models import Participation, Event, EventAnket, EventType, MeetingAttend, Meeting
+from .serializers import (
+    ParticipationSerializer, EventSerializer, EventTypeSerializer, EventAnketSerializer,
+    MeetingSerializer, MeetingUserSerializer)
 
 
 class MeetingPagination(PageNumberPagination):
@@ -44,7 +45,6 @@ class MeetingViewSet(mixins.RetrieveModelMixin,
                      mixins.CreateModelMixin,
                      mixins.ListModelMixin,
                      viewsets.GenericViewSet):
-
     queryset = Meeting.objects.all()
 
     serializer_class = MeetingSerializer
@@ -78,21 +78,6 @@ class MeetingViewSet(mixins.RetrieveModelMixin,
         users = CustomUser.objects.filter(home_groups__id=home_group_id)
         serializer = serializer(users, many=True)
         return Response(serializer.data)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 class ParticipationPagination(PageNumberPagination):

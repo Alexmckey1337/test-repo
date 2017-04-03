@@ -1,13 +1,9 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from shutil import copyfile
-
-from django.conf import settings
 from django.utils import six
 
 from account.resources import UserResource, USER_RESOURCE_FIELDS, UserMetaclass
-from hierarchy.models import Department
 from .models import SummitAnket
 
 

@@ -4,7 +4,6 @@ from decimal import Decimal
 from django.utils import six
 from pytest_factoryboy import register
 from rest_framework import status
-from rest_framework.permissions import AllowAny
 
 from account.factories import UserFactory
 from common.test_helpers.views import fake_dispatch

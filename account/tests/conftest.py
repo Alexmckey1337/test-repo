@@ -150,8 +150,3 @@ def user_data(partner):
 @pytest.fixture
 def divisions(division_factory):
     return division_factory.create_batch(2)
-
-
-@pytest.fixture
-def currency(currency_factory):
-    return currency_factory()

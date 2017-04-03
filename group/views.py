@@ -200,14 +200,14 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
 
         stats['home_groups_count'] = church.home_group.count()
 
-        stats['fathers_count'] = church.users.filter(spiritual_level=CustomUser.FATHER).count() + \
-                                 HomeGroup.objects.filter(church__id=pk).filter(users__spiritual_level=3).count()
+        stats['fathers_count'] = (church.users.filter(spiritual_level=CustomUser.FATHER).count() +
+                                  HomeGroup.objects.filter(church__id=pk).filter(users__spiritual_level=3).count())
 
-        stats['juniors_count'] = church.users.filter(spiritual_level=CustomUser.JUNIOR).count() + \
-                                 HomeGroup.objects.filter(church__id=pk).filter(users__spiritual_level=2).count()
+        stats['juniors_count'] = (church.users.filter(spiritual_level=CustomUser.JUNIOR).count() +
+                                  HomeGroup.objects.filter(church__id=pk).filter(users__spiritual_level=2).count())
 
-        stats['babies_count'] = church.users.filter(spiritual_level=CustomUser.BABY).count() + \
-                                HomeGroup.objects.filter(church__id=pk).filter(users__spiritual_level=1).count()
+        stats['babies_count'] = (church.users.filter(spiritual_level=CustomUser.BABY).count() +
+                                 HomeGroup.objects.filter(church__id=pk).filter(users__spiritual_level=1).count())
 
         stats['partners_count'] = church.users.filter(partnership__is_active=True).count() + HomeGroup.objects.filter(
             church__id=pk).filter(users__partnership__is_active=True).count()

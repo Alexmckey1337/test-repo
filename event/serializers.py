@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 
 from .models import Event, Participation, EventType, EventAnket
-from .models import Meeting, MeetingAttend, MeetingType
+from .models import Meeting, MeetingAttend
 from account.models import CustomUser
 
 
@@ -39,17 +39,6 @@ class MeetingSerializer(serializers.ModelSerializer):
             for attended in visitor['attends']:
                 MeetingAttend.objects.create(meeting_id=meeting.id, **attended)
         return meeting
-
-
-
-
-
-
-
-
-
-
-
 
 
 class EventTypeSerializer(serializers.HyperlinkedModelSerializer):
