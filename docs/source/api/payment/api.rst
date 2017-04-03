@@ -187,5 +187,133 @@ Update payment
     :statuscode 403: user don't have permissions for update payment
     :statuscode 400: bad request
 
+
+List of deal payments
+~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/payments/deal/
+
+    List of the deal payments for table.
+    Pagination by 30 payment per page.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/v1.1/payments/deal/?page_size=2 HTTP/1.1
+        Host: vocrm.org
+        Accept: application/json
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {
+          "count": 6415,
+          "next": "http://vocrm.org/api/v1.0/payments/deal/?page=2&page_size=2",
+          "previous": null,
+          "results": [
+            {
+              "id": 8614,
+              "sum": "44",
+              "effective_sum": "44.000",
+              "sum_str": "44 грн.",
+              "effective_sum_str": "44.000 грн.",
+              "currency_sum": {
+                "id": 2,
+                "name": "Гривна",
+                "code": "uah",
+                "short_name": "грн.",
+                "symbol": "₴"
+              },
+              "currency_rate": {
+                "id": 2,
+                "name": "Гривна",
+                "code": "uah",
+                "short_name": "грн.",
+                "symbol": "₴"
+              },
+              "rate": "1.000",
+              "description": "",
+              "created_at": "14.03.2017 11:33",
+              "sent_date": "14.03.2017",
+              "manager": {
+                "id": 13885,
+                "first_name": "Manager",
+                "last_name": "Your",
+                "middle_name": ""
+              },
+              "purpose": "/api/v1.0/deals/16495/",
+              "purpose_fio": "I Am User",
+              "purpose_date": "12.2016",
+              "purpose_manager_fio": "Iam Your Manager"
+            },
+            {
+              "id": 8613,
+              "sum": "40",
+              "effective_sum": "56.000",
+              "sum_str": "40 €",
+              "effective_sum_str": "56.000 грн.",
+              "currency_sum": {
+                "id": 3,
+                "name": "Евро",
+                "code": "eur",
+                "short_name": "eвр.",
+                "symbol": "€"
+              },
+              "currency_rate": {
+                "id": 2,
+                "name": "Гривна",
+                "code": "uah",
+                "short_name": "грн.",
+                "symbol": "₴"
+              },
+              "rate": "1.400",
+              "description": "",
+              "created_at": "14.03.2017 11:33",
+              "sent_date": "14.03.2017",
+              "manager": {
+                "id": 13885,
+                "first_name": "Super",
+                "last_name": "Man",
+                "middle_name": ""
+              },
+              "purpose": "/api/v1.0/deals/27087/",
+              "purpose_fio": "And Iam Too",
+              "purpose_date": "10.2016",
+              "purpose_manager_fio": "Lukeiam Your Father"
+            }
+          ]
+        }
+
+    :query int page: page number (one of ``int`` or ``last``). default is 1
+    :query int sum_from: filter by ``sum``, returned payments with ``sum >= sum_from``
+    :query int sum_to: filter by ``sum``, returned payments with ``sum <= sum_to``
+    :query int eff_sum_from: filter by ``effective_sum``, returned payments with ``effective_sum >= eff_sum_from``
+    :query int eff_sum_to: filter by ``effective_sum``, returned payments with ``effective_sum <= eff_sum_to``
+    :query int currency_sum: filter by ``currency_sum.id``, returned payments with currency.id of sum == ``currency_sum``
+    :query int currency_rate: filter by ``currency_rate.id``,
+                              returned payments with currency.id of effective sum == ``currency_rate``
+    :query int manager: filter by ``manager.id``
+    :query string create_from: filter by created date of payment, ``created_at >= create_from``
+    :query string create_to: filter by created date of payment, ``created_at <= create_to``
+    :query string sent_from: filter by sent date of payment, ``sent_date >= sent_from``
+    :query string sent_to: filter by sent date of payment, ``sent_date <= sent_to``
+    :query string purpose_date_from: filter by ``date_created`` of deal
+    :query string purpose_date_to: filter by ``date_created`` of deal
+    :query string search_description: search by ``description``
+    :query string search_purpose_fio: search by ``fio`` of deal.user
+    :query string search_purpose_manager_fio: search by ``fio`` of deal.responsible.user
+    :query string ordering: order by one of ``sum``, ``effective_sum``, ``currency_sum__name``,
+                        ``currency_rate__name``, ``created_at``, ``sent_date``,
+                        ``manager__last_name``
+
+    :statuscode 200: no error
+
 Currency
 --------

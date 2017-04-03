@@ -6,10 +6,10 @@ $(document).ready(function() {
          // this.innerHTML = this.innerHTML =='Свернуть таблицу' ? 'Полная таблица': 'Свернуть таблицу'
 
          if(   this.innerHTML =='Свернуть таблицу'  ){
-              this.innerHTML = 'Полная таблица'
+              this.innerHTML = 'Полная таблица';
              getWeekShortReports('api/v1.0/week_reports/', 'report_week');
          }else{
-              this.innerHTML = 'Свернуть таблицу'
+              this.innerHTML = 'Свернуть таблицу';
              getWeekReports('api/v1.0/week_reports/', 'report_week');
          }
 

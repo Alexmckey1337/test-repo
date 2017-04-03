@@ -1,3 +1,20 @@
+function getOrderingData() {
+    let revers, order, savePath;
+    let path = window.location.pathname;
+    revers = window.sessionStorage.getItem('revers');
+    order = window.sessionStorage.getItem('order');
+    savePath = window.sessionStorage.getItem('path');
+    if (savePath != path) {
+        return
+    }
+    if (revers && order) {
+        revers = (revers == "+") ? "" : revers;
+        return {
+            ordering: revers + order
+        }
+    }
+}
+
 function getChurches(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
@@ -73,6 +90,8 @@ function addUserToHomeGroup(user_id, hg_id, exist = false) {
 
 function createHomeGroupsTable(config = {}) {
     config.search_title = $('input[name="fullsearch"]').val();
+    Object.assign(config, getFilterParam());
+    Object.assign(config, getOrderingData());
     getHomeGroups(config).then(function (data) {
         let count = data.count;
         let page = config['page'] || 1;
@@ -156,6 +175,7 @@ function makeLeaderList(id, selector, active = null) {
 function getPartners(config) {
     config.search_fio = $('input[name=fullsearch]').val();
     Object.assign(config, getFilterParam());
+    Object.assign(config, getOrderingData());
     getPartnersList(config).then(function (response) {
         let page = config['page'] || 1;
         let count = response.count;
@@ -602,6 +622,7 @@ function createChurchesDetailsTable(config = {}, id, link) {
     if (link === undefined) {
         link = $('.get_info .active').data('link');
     }
+    Object.assign(config, getOrderingData());
     getChurchDetails(id, link, config).then(function (data) {
         console.log(id);
         let count = data.count;
@@ -637,7 +658,7 @@ function createChurchesDetailsTable(config = {}, id, link) {
 }
 
 function createHomeGroupUsersTable(config = {}, id) {
-    Object.assign(config, getFilterParam());
+    Object.assign(config, getOrderingData());
     if (id === undefined) {
         id = $('#home_group').data('id');
     }
@@ -756,6 +777,8 @@ function clearAddHomeGroupData() {
 
 function createChurchesTable(config = {}) {
     config.search_title = $('input[name="fullsearch"]').val();
+    Object.assign(config, getFilterParam());
+    Object.assign(config, getOrderingData());
     getChurches(config).then(function (data) {
         let count = data.count;
         let page = config['page'] || 1;
@@ -1097,6 +1120,128 @@ function getPayment(id) {
             }
         })
     })
+}
+
+function getPaymentsDeals(config) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/payments/deal/`,
+            method: 'GET',
+            data: config,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}
+
+function makePayments(config = {}) {
+    config.search_purpose_fio = $('input[name=fullsearch]').val();
+    Object.assign(config, getFilterParam());
+    Object.assign(config, getOrderingData());
+    return getPaymentsDeals(config).then(function (response) {
+            console.log(config);
+            let page = config['page'] || 1;
+            let count = response.count;
+            let pages = Math.ceil(count / CONFIG.pagination_count);
+            let data = {};
+            let id = "paymentsList";
+            let text = `Показано ${CONFIG.pagination_count} из ${count}`;
+
+            data.count = response.count;
+            data.table_columns = {};
+            data.table_columns.sent_date = {
+                active: true,
+                editable: true,
+                id: '',
+                number: '',
+                ordering_title: 'sent_date',
+                title: 'Дата отправки'
+            };
+            data.table_columns.sum_str = {
+                active: true,
+                editable: true,
+                id: '',
+                number: '',
+                ordering_title: 'sum',
+                title: 'Сумма'
+            };
+            data.table_columns.manager = {
+                active: true,
+                editable: true,
+                id: '',
+                number: '',
+                ordering_title: 'manager__last_name',
+                title: 'Менеджер'
+            };
+            data.table_columns.description = {
+                active: true,
+                editable: true,
+                id: '',
+                number: '',
+                ordering_title: 'no_ordering',
+                title: 'Примечание'
+            };
+            data.table_columns.purpose_fio = {
+                active: true,
+                editable: true,
+                id: '',
+                number: '',
+                ordering_title: 'no_ordering',
+                title: 'Плательщик'
+            };
+            data.table_columns.purpose_date = {
+                active: true,
+                editable: true,
+                id: '',
+                number: '',
+                ordering_title: 'no_ordering',
+                title: 'Дата сделки'
+            };
+            data.table_columns.purpose_manager_fio = {
+                active: true,
+                editable: true,
+                id: '',
+                number: '',
+                ordering_title: 'no_ordering',
+                title: 'Отвественый'
+            };
+            data.table_columns.created_at = {
+                active: true,
+                editable: true,
+                id: '',
+                number: '',
+                ordering_title: 'created_at',
+                title: 'Дата создания'
+            };
+            data.results = response.results;
+            makePaymentsTable(data, id);
+
+            let paginationConfig = {
+                container: ".payments__pagination",
+                currentPage: page,
+                pages: pages,
+                callback: makePayments
+            };
+            makePagination(paginationConfig);
+            $('.table__count').text(text);
+            // makeSortForm(response.user_table);
+            orderTable.sort(makePayments);
+            $('.preloader').hide();
+            return data;
+        }
+    )
+        ;
 }
 
 function makePagination(config) {
@@ -1530,6 +1675,7 @@ function createSummitUsersTable(data = {}) {
     let config = {};
     config.summit = $('#date .active span').data('id');
     Object.assign(config, data);
+    Object.assign(config, getOrderingData());
     getSummitUsers(config).then(function (data) {
         let filter_data = {};
         let common_table = Object.keys(data.common_table);
@@ -1573,6 +1719,15 @@ function makeDataTable(data, id) {
     document.getElementById(id).innerHTML = rendered;
     $('.quick-edit').on('click', function () {
         makeQuickEditCart(this);
+    })
+}
+
+function makePaymentsTable(data, id) {
+    let tmpl = document.getElementById('databasePayments').innerHTML;
+    let rendered = _.template(tmpl)(data);
+    document.getElementById(id).innerHTML = rendered;
+    $('.quick-edit').on('click', function () {
+        // makeQuickEditPayments(this);
     })
 }
 
@@ -2058,6 +2213,7 @@ function setCookie(name, value, options) {
 function createUsersTable(config) {
     config["search_fio"] = $('input[name=fullsearch]').val();
     Object.assign(config, getFilterParam());
+    Object.assign(config, getOrderingData());
     getUsers(config).then(function (data) {
         let count = data.count;
         let page = config['page'] || 1;

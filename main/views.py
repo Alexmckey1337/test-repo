@@ -9,7 +9,6 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.views.generic import DetailView
-from django.views.generic import ListView
 from django.views.generic.base import ContextMixin, TemplateView
 
 from account.models import CustomUser
@@ -18,7 +17,7 @@ from event.models import MeetingType
 from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
 from location.models import Country, Region, City
-from partnership.models import Partnership, Deal
+from partnership.models import Partnership
 from payment.models import Currency
 from status.models import Division
 from summit.models import SummitType
@@ -81,6 +80,13 @@ class CanSeeDealsMixin(View):
         return super(CanSeeDealsMixin, self).dispatch(request, *args, **kwargs)
 
 
+class CanSeeDealPaymentsMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_deal_payments():
+            raise PermissionDenied
+        return super(CanSeeDealPaymentsMixin, self).dispatch(request, *args, **kwargs)
+
+
 class CanSeePartnerStatsMixin(View):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.can_see_partner_stats():
@@ -88,9 +94,7 @@ class CanSeePartnerStatsMixin(View):
         return super(CanSeePartnerStatsMixin, self).dispatch(request, *args, **kwargs)
 
 
-class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, ListView):
-    model = Partnership
-    context_object_name = 'partners'
+class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, TemplateView):
     template_name = 'partner/partners.html'
     login_url = 'entry'
 
@@ -117,18 +121,27 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, ListView):
         return ctx
 
 
-class DealListView(LoginRequiredMixin, CanSeeDealsMixin, ListView):
-    model = Deal
-    context_object_name = 'deals'
+class DealListView(LoginRequiredMixin, CanSeeDealsMixin, TemplateView):
     template_name = 'partner/deals.html'
     login_url = 'entry'
 
 
-class PartnerStatisticsListView(LoginRequiredMixin, CanSeePartnerStatsMixin, ListView):
-    model = Partnership
-    context_object_name = 'partners'
+class PartnerStatisticsListView(LoginRequiredMixin, CanSeePartnerStatsMixin, TemplateView):
     template_name = 'partner/stats.html'
     login_url = 'entry'
+
+
+class PartnerPaymentsListView(LoginRequiredMixin, CanSeeDealPaymentsMixin, TemplateView):
+    template_name = 'partner/payments.html'
+    login_url = 'entry'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(PartnerPaymentsListView, self).get_context_data(**kwargs)
+
+        ctx['currencies'] = Currency.objects.all()
+        ctx['managers'] = CustomUser.objects.filter(checks__isnull=False).distinct()
+
+        return ctx
 
 
 # account

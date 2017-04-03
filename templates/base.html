@@ -55,6 +55,7 @@
 {% endblock %}
 {% block extra_scripts %}
 {% endblock %}
+{% block template_tables %}
 <script type="text/template" id="databaseUsers">
      <table>
         <thead>
@@ -136,6 +137,7 @@
         </tbody>
     </table>
 </script>
+{% endblock %}
 <script type="text/template" id="sortForm">
     <h3><%=user[0]%></h3>
         <% for( var key in user[1]) { %>
