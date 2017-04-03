@@ -140,7 +140,7 @@ class PartnerPaymentsListView(LoginRequiredMixin, TemplateView):
         ctx = super(PartnerPaymentsListView, self).get_context_data(**kwargs)
 
         ctx['currencies'] = Currency.objects.all()
-        ctx['managers'] = CustomUser.objects.filter(checks__isnull=False)
+        ctx['managers'] = CustomUser.objects.filter(checks__isnull=False).distinct()
 
         return ctx
 
