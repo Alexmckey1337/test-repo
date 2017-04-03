@@ -19,8 +19,7 @@ def redirect_to_deals(request):
         return redirect(reverse('partner:list'))
     if request.user.can_see_partner_stats():
         return redirect(reverse('partner:stats'))
-    # TODO amirr
-    if request.user.can_see_partner_stats():
+    if request.user.can_see_deal_payments():
         return redirect(reverse('partner:payments'))
     raise PermissionDenied
 

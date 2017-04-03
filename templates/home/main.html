@@ -46,6 +46,9 @@
                         {% if user.can_see_partner_stats %}
                             <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
                         {% endif %}
+                        {% if user.can_see_deal_payments %}
+                            <li><a href="{% url 'partner:payments' %}">{% trans "Payments" %}</a></li>
+                        {% endif %}
                     </ul>
                 </div>
             {% endif %}
