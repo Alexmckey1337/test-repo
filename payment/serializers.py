@@ -25,13 +25,14 @@ class ManagerSerializer(serializers.ModelSerializer):
 class PaymentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
-        fields = ('sum', 'currency_sum', 'sent_date', 'rate', 'description', 'manager', 'content_type', 'object_id')
+        fields = ('sum', 'currency_sum', 'sent_date', 'rate', 'operation',
+                  'description', 'manager', 'content_type', 'object_id')
 
 
 class PaymentUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
-        fields = ('sum', 'currency_sum', 'sent_date', 'rate', 'description', 'object_id')
+        fields = ('sum', 'currency_sum', 'sent_date', 'rate', 'operation', 'description', 'object_id')
 
 
 class PurposeRelatedField(serializers.RelatedField):
@@ -61,7 +62,7 @@ class PaymentShowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = ('id', 'sum', 'effective_sum',
-                  'sum_str', 'effective_sum_str',
+                  'sum_str', 'effective_sum_str', 'operation',
                   'currency_sum', 'currency_rate', 'rate', 'description',
                   'created_at', 'sent_date',
                   'manager', 'purpose')
@@ -76,7 +77,7 @@ class PaymentDealShowSerializer(PaymentShowSerializer):
     class Meta:
         model = Payment
         fields = ('id', 'sum', 'effective_sum',
-                  'sum_str', 'effective_sum_str',
+                  'sum_str', 'effective_sum_str', 'operation',
                   'currency_sum', 'currency_rate', 'rate', 'description',
                   'created_at', 'sent_date',
                   'manager', 'purpose', 'purpose_fio', 'purpose_date', 'purpose_manager_fio')

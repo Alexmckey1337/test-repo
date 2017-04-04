@@ -123,6 +123,9 @@ class Payment(models.Model):
                                       related_name='rate_payments')
     #: Rate of currency
     rate = models.DecimalField(_('Rate'), max_digits=12, decimal_places=3, default=Decimal(1))
+    #: Rate operation
+    operation = models.CharField(_('Operation'), max_length=1, default='*',
+                                 choices=(('*', _('Multiplication')), ('/', _('Division'))))
     #: Sum of the payment
     effective_sum = models.DecimalField(_('Effective sum'), max_digits=12, decimal_places=3,
                                         null=True, blank=True, editable=False)
@@ -162,6 +165,8 @@ class Payment(models.Model):
         return self.currency_rate.output_format.format(**format_data)
 
     def calculate_effective_sum(self):
+        if self.operation == '/':
+            return self.sum / self.rate
         return self.sum * self.rate
 
     def update_effective_sum(self, save=True):

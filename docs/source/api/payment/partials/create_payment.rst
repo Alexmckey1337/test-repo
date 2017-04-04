@@ -30,6 +30,7 @@
       "description": "last",
       "created_at": "16.02.2017 15:44",
       "sent_date": "22.02.2000",
+      "operation": "*",
       "manager": {
         "id": 13885,
         "first_name": "Bruce",
@@ -84,6 +85,8 @@
 :form sum: sum of payment, integer, **required**
 :form rate: rate of ``sum`` -> ``effective_sum``, decimal,
             format ``123.456`` or ``123.45`` or ``123.4`` or ``123``, default == 1
+:form operation: one of (``*``, ``/``), ``*`` => effective_sum = sum * rate,
+                                        ``/`` => effective_sum = sum / rate
 :form description: description for payment, optional
 :form currency: currency_id of ``sum``, default like as currency of purpose of the payment
 :form sent_date: date of payment, format ``2015-03-24``, default == today
