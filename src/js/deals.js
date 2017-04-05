@@ -22,10 +22,6 @@ $(document).ready(function () {
 
     function sumCurrency(sum, operation, rate, currencyEl, currencyName) {
         let userPay;
-        console.log(sum);
-        console.log(operation);
-        console.log(rate);
-        console.log(currencyName);
         if (operation == "*") {
             userPay = parseFloat(sum) * parseFloat(rate);
         } else if (operation == "/") {
