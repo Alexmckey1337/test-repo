@@ -2340,7 +2340,7 @@ function applyFilter(el, callback) {
     }, 300);
 }
 
-function makeTabs() {
+function makeTabs(page = 0) {
     let pos = 0,
         tabs = document.getElementById('tabs'),
         tabsContent = document.getElementsByClassName('tabs-cont');
@@ -2350,7 +2350,7 @@ function makeTabs() {
         pos++;
     }
 
-    showPage(0);
+    showPage(page);
 
     tabs.onclick = function (event) {
         event.preventDefault();

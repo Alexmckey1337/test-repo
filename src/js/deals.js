@@ -3,11 +3,27 @@ $(document).ready(function () {
 
     function init() {
         let config = {};
-        config["page"] = '1';
+        config["page"] = 1;
         getExpiredDeals(config);
         getDoneDeals(config);
         getUndoneDeals(config);
         makeTabs();
+    }
+    function update() {
+        let $tabs = $('#tabs');
+        let $currentLi = $tabs.find('li.current');
+        let currentLiNum = $currentLi.index();
+        let current = $currentLi.find('a').attr('href');
+        let $tabsCont = $('.tabs-cont');
+        let page = $tabsCont.eq(currentLiNum).find('.pagination__input').val();
+        let config = {};
+        config["page"] = page || 1;
+        if(current === '#incomplete') {
+            getUndoneDeals(config);
+        } else if(current === '#overdue') {
+            getExpiredDeals(config);
+        }
+        makeTabs(currentLiNum);
     }
 
     init();
@@ -170,7 +186,7 @@ $(document).ready(function () {
         };
         let config = JSON.stringify(data);
         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/' + id + '/', config, function () {
-            init();
+            update();
             document.getElementById('popup').style.display = '';
         }, 'PATCH', true, {
             'Content-Type': 'application/json'
@@ -194,7 +210,7 @@ $(document).ready(function () {
             };
             let json = JSON.stringify(data);
             ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/deals/${id}/create_payment/`, json, function (JSONobj) {
-                init();
+                update();
                 showPopup('Оплата прошла успешно.');
                 setTimeout(function () {
                     resolve()
