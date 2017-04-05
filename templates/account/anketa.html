@@ -486,12 +486,6 @@
                         </div>
                         <div style="display:block;padding:10px;">
                             <div style="display: inline-block; width: 49%;">
-                                <button data-currency-id="{{ account.partnership.currency.id }}" id="create_new_payment"
-                                        style="display:block;">
-                                    Добавить платеж
-                                </button>
-                            </div>
-                            <div style="display: inline-block; width: 49%;">
                                 <button data-currency-id="{{ account.partnership.currency.id }}" id="create_new_deal"
                                         style="display:block;">
                                     Добавить сделку
@@ -562,20 +556,6 @@
                                 </div>
                             {% endfor %}
                         </div>
-                        <div class="rows" data-summit-id="{{ anket_group.grouper.id }}">
-                            <div style="padding:10px 15px;">
-                                <p>Платежи вне сделок</p>
-                            </div>
-                        </div>
-                        {% for payment in account.partnership.extra_payments.all %}
-                            <div class="rows">
-                                <div style="padding:10px 6px;">
-                                    <p>{{ payment.effective_sum_str|cut:".000" }} — {{ payment.created_at|date:"d.m.Y H:i:s" }}
-                                        — Принял: {{ payment.manager.fullname }}
-                                    </p>
-                                </div>
-                            </div>
-                        {% endfor %}
                         <div class="rows" data-summit-id="{{ anket_group.grouper.id }}">
                             <div style="padding:10px 15px;">
                                 <p>Платежи за сделки</p>

@@ -26,6 +26,7 @@ Create partner payment
         "sum": "153",
         "description": "last",
         "rate": "1.24",
+        "operation": "*",
         "currency": 1,
         "sent_date": "2000-02-22"
       }
@@ -328,6 +329,7 @@ Create deal payment
         "sum": "153",
         "description": "last",
         "rate": "1.24",
+        "operation": "*",
         "currency": 1,
         "sent_date": "2000-02-22"
       }

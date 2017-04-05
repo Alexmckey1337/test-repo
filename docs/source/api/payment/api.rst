@@ -29,6 +29,7 @@ Create payment
           "description": "last",
           "rate": "1.24",
           "currency": 1,
+          "operation": "*",
           "sent_date": "2000-02-22"
         }
 
@@ -113,6 +114,7 @@ Update payment
           "currency_sum": 2,
           "sent_date": "2017-02-03",
           "rate": 1,
+          "operation": "*",
           "description": "hello",
           "object_id": 19479
         }
@@ -131,6 +133,7 @@ Update payment
           "currency_sum": 2,
           "sent_date": "03.02.2017",
           "rate": "1.000",
+          "operation": "*",
           "description": "hello",
           "object_id": 19479
         }
@@ -177,6 +180,8 @@ Update payment
     :form sum: sum of payment, integer, optional
     :form rate: rate of ``sum`` -> ``effective_sum``, decimal,
                 format ``123.456`` or ``123.45`` or ``123.4`` or ``123``, optional
+    :form operation: one of (``*``, ``/``), ``*`` => effective_sum = sum * rate,
+                                            ``/`` => effective_sum = sum / rate
     :form description: description for payment, optional
     :form currency_sum: currency_id of ``sum``, optional
     :form sent_date: date of payment, format ``2015-03-24``, optional
@@ -239,6 +244,7 @@ List of deal payments
                 "symbol": "₴"
               },
               "rate": "1.000",
+              "operation": "*",
               "description": "",
               "created_at": "14.03.2017 11:33",
               "sent_date": "14.03.2017",
@@ -274,6 +280,7 @@ List of deal payments
                 "symbol": "₴"
               },
               "rate": "1.400",
+              "operation": "*",
               "description": "",
               "created_at": "14.03.2017 11:33",
               "sent_date": "14.03.2017",

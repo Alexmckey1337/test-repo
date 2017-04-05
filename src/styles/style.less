@@ -2730,6 +2730,7 @@ table input[type=checkbox],
   display: flex;
   justify-content: space-around;
   align-items: center;
+  user-select: none;
   & > div {
     & input {
       padding: .3em;
@@ -2750,6 +2751,21 @@ table input[type=checkbox],
   & .rate {
     & input {
       width: 5em;
+    }
+    & label[for="operation"] {
+      cursor: pointer;
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      padding: .5em;
+    }
+    & #operation {
+      width: 1em;
+      height: 1em;
+      padding: 0;
+      border: 0;
+      background: 0 0;
+      user-select: none;
     }
   }
   & .currency {
