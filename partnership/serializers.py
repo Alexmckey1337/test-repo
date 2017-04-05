@@ -42,6 +42,12 @@ class DealCreateSerializer(serializers.ModelSerializer):
                   )
 
 
+class DealUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Deal
+        fields = ('done', 'description')
+
+
 class DealSerializer(DealCreateSerializer):
     date = serializers.DateField(format=None, input_formats=None, read_only=True)
     date_created = serializers.DateField(input_formats=None)

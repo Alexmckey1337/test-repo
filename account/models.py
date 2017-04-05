@@ -22,7 +22,6 @@ from group.models import GroupUserPermission
 from navigation.models import Table
 from partnership.abstract_models import PartnerUserPermission
 from summit.abstract_models import SummitUserPermission
-from summit.models import SummitType, SummitAnket
 
 
 class CustomUserManager(TreeManager, UserManager):
@@ -75,7 +74,8 @@ class CustomUser(MPTTModel, User, GroupUserPermission, PartnerUserPermission, Su
         (JUNIOR, _('Junior')),
         (FATHER, _('Father')),
     )
-    spiritual_level = models.PositiveSmallIntegerField(_('Spiritual Level'), choices=SPIRITUAL_LEVEL_CHOICES, default=1)
+    spiritual_level = models.PositiveSmallIntegerField(
+        _('Spiritual Level'), choices=SPIRITUAL_LEVEL_CHOICES, default=1)
 
     objects = CustomUserManager()
 
@@ -97,10 +97,6 @@ class CustomUser(MPTTModel, User, GroupUserPermission, PartnerUserPermission, Su
     @property
     def link(self):
         return self.get_absolute_url()
-
-    def available_summit_types(self):
-        return SummitType.objects.filter(summits__ankets__user=self,
-                                         summits__ankets__role__gte=SummitAnket.CONSULTANT).distinct()
 
     @property
     def column_table(self):

@@ -5,6 +5,8 @@ from import_export.formats import base_formats
 from rest_framework import viewsets, mixins
 from rest_framework.decorators import list_route
 
+from partnership.permissions import CanExportPartnerList
+
 
 class ModelWithoutDeleteViewSet(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin,
                                 mixins.CreateModelMixin, viewsets.GenericViewSet):
@@ -66,10 +68,19 @@ class BaseExportViewSetMixin(object):
 
 
 class ExportViewSetMixin(BaseExportViewSetMixin):
-    @list_route(methods=['post'])
-    def export(self, request, *args, **kwargs):
+    def _export(self, request, *args, **kwargs):
         fields = self.get_export_fields(request.data)
 
         queryset = self.get_export_queryset(request)
 
         return self.get_response(queryset, fields)
+
+    @list_route(methods=['post'])
+    def export(self, request, *args, **kwargs):
+        return self._export(request, *args, **kwargs)
+
+
+class PartnerExportViewSetMixin(ExportViewSetMixin):
+    @list_route(methods=['post'], permission_classes=(CanExportPartnerList,))
+    def export(self, request, *args, **kwargs):
+        return self._export(request, *args, **kwargs)

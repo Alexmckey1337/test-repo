@@ -1,4 +1,5 @@
 from account.abstact_models import UserPermission
+from summit.models import SummitType, SummitAnket
 from summit.permissions import can_see_summit, can_see_summit_type, can_see_any_summit, can_see_any_summit_type
 
 
@@ -21,3 +22,7 @@ class SummitUserPermission(UserPermission):
     def can_see_any_summit_type(self):
         request = self._perm_req()
         return can_see_any_summit_type(request)
+
+    def available_summit_types(self):
+        return SummitType.objects.filter(summits__ankets__user=self,
+                                         summits__ankets__role__gte=SummitAnket.CONSULTANT).distinct()

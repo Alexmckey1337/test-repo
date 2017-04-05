@@ -1,233 +1,33 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from collections import OrderedDict
-from decimal import Decimal
-
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.aggregates import ArrayAgg
-from django.db.models import Case, IntegerField, Sum, Value, When
-from django.db.models import F
-from django.db.models.functions import Coalesce
-from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
-from rest_framework import filters, mixins, status, viewsets
+from rest_framework import exceptions, filters, mixins, status, viewsets
 from rest_framework.decorators import list_route, detail_route
-from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import get_object_or_404
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 
 from account.models import CustomUser as User, CustomUser
 from common.filters import FieldSearchFilter
-from common.views_mixins import ExportViewSetMixin
-from navigation.table_fields import user_table, partner_table
+from common.views_mixins import PartnerExportViewSetMixin
 from partnership.filters import FilterByPartnerBirthday, DateFilter, FilterPartnerMasterTreeWithSelf, PartnerUserFilter
-from partnership.permissions import (
-    CanCreatePartnerPayment, CanClosePartnerDeal, IsManagerOrHigh)
+from partnership.mixins import PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin
+from partnership.pagination import PartnershipPagination, DealPagination
+from partnership.permissions import CanSeeDeals, CanSeePartners, CanCreateDeals, CanUpdateDeals
 from partnership.resources import PartnerResource
-from payment.models import Currency, Payment
-from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from .models import Partnership, Deal
 from .serializers import (
-    DealSerializer, PartnershipSerializer, DealCreateSerializer,
-    PartnershipUnregisterUserSerializer, PartnershipForEditSerializer, PartnershipTableSerializer)
-
-
-class PartnershipPagination(PageNumberPagination):
-    page_size = 30
-    page_size_query_param = 'page_size'
-    max_page_size = 30
-
-    def get_paginated_response(self, data):
-        return Response({
-            'links': {
-                'next': self.get_next_link(),
-                'previous': self.get_previous_link()
-            },
-            'count': self.page.paginator.count,
-            'common_table': partner_table(self.request.user),
-            'user_table': user_table(self.request.user, prefix_ordering_title='user__'),
-            'results': data
-        })
-
-
-class DealPagination(PageNumberPagination):
-    page_size = 30
-    page_size_query_param = 'page_size'
-    max_page_size = 30
-
-    def get_paginated_response(self, data):
-        return Response(OrderedDict([
-            ('check_payment_permissions', CanCreatePartnerPayment().has_permission(self.request, None)),
-            ('can_close_deal', CanClosePartnerDeal().has_permission(self.request, None)),
-            ('count', self.page.paginator.count),
-            ('next', self.get_next_link()),
-            ('previous', self.get_previous_link()),
-            ('results', data)
-        ]))
-
-
-class PartnerStatMixin:
-    @list_route(methods=['get'])
-    def stats_payments(self, request):
-        current_partner = get_object_or_404(Partnership, user=request.user)
-
-        self.check_stats_permissions(current_partner)
-
-        deals = self.get_deals_of_partner(request, current_partner)
-        deals = self.filter_deals_by_month(request, deals)
-        # deals = Deal.objects.all()  # for test, del this
-        stats = dict()
-
-        deals_with_sum = deals.annotate_total_sum()
-
-        stats['deals'] = self.stats_by_deals(deals, deals_with_sum)
-        stats['partners'] = self.stats_by_partners(deals, deals_with_sum)
-        stats['sum'] = self.stats_by_sum(deals, deals_with_sum)
-
-        return Response(stats)
-
-    @list_route(methods=['get'], renderer_classes=(TemplateHTMLRenderer,))
-    def stat_deals(self, request):
-        current_partner = get_object_or_404(Partnership, user=request.user)
-
-        self.check_stats_permissions(current_partner)
-
-        deals = self.get_deals_of_partner(request, current_partner)
-        deals = self.filter_deals_by_month(request, deals)
-        deals = deals.base_queryset(). \
-            annotate_full_name(). \
-            annotate_responsible_name(). \
-            annotate_total_sum(). \
-            order_by('-date_created', 'id')
-        #
-        # serializer = DealSerializer(deals, many=True)
-
-        return Response({'deals': deals}, template_name='partner/partials/stat_deals.html')
-
-    @list_route(methods=['get'], renderer_classes=(TemplateHTMLRenderer,))
-    def stat_payments(self, request):
-        current_partner = get_object_or_404(Partnership, user=request.user)
-
-        self.check_stats_permissions(current_partner)
-
-        deals = self.get_deals_of_partner(request, current_partner)
-        deals = self.filter_deals_by_month(request, deals)
-        deals_ids = set(deals.values_list('id', flat=True))
-        content_type = ContentType.objects.get_for_model(Deal)
-        payments = Payment.objects.filter(
-            content_type=content_type, object_id__in=deals_ids)
-        #
-        # serializer = PaymentShowSerializer(payments, many=True)
-
-        return Response({'payments': payments}, template_name='partner/partials/stat_payments.html')
-
-    # Helpers
-
-    @staticmethod
-    def check_stats_permissions(current_partner):
-        if current_partner.level > Partnership.MANAGER:
-            raise PermissionDenied({'detail': _('Статистику можно просматривать только менеджерам.')})
-
-    @staticmethod
-    def get_deals_of_partner(request, current_partner):
-        request_partner_id = request.query_params.get('partner_id')
-
-        if current_partner.level == Partnership.MANAGER or not request_partner_id:
-            return current_partner.disciples_deals
-        if request_partner_id == 'all':
-            return Deal.objects.filter(responsible__isnull=False)
-        partner = get_object_or_404(Partnership, id=request_partner_id)
-        return partner.disciples_deals
-
-    @staticmethod
-    def filter_deals_by_month(request, deals):
-        month = request.query_params.get('month', timezone.now().month)
-        year = request.query_params.get('year', timezone.now().year)
-
-        return deals.filter(date_created__month=month, date_created__year=year)
-
-    @staticmethod
-    def stats_by_deals(deals, deals_with_sum):
-        paid = deals_with_sum.filter(total_sum__gte=F('value')).count()
-        unpaid = deals_with_sum.filter(total_sum__lt=F('value'), total_sum=Decimal(0)).count()
-        partial_paid = deals_with_sum.filter(total_sum__lt=F('value'), total_sum__gt=Decimal(0)).count()
-        deals_result = {
-            'paid_count': paid,
-            'unpaid_count': unpaid,
-            'partial_paid_count': partial_paid
-        }
-
-        closed_count = deals.aggregate(
-            closed_count=Sum(
-                Case(When(done=True, then=1), default=0,
-                     output_field=IntegerField())
-            ),
-            unclosed_count=Sum(
-                Case(When(done=False, then=1), default=0,
-                     output_field=IntegerField())
-            ))
-        deals_result.update(closed_count)
-
-        return deals_result
-
-    @staticmethod
-    def stats_by_partners(deals, deals_with_sum):
-        paid = set(deals_with_sum.filter(total_sum__gte=F('value')).aggregate(p=ArrayAgg('partnership'))['p'])
-        unpaid = set(deals_with_sum.filter(
-            total_sum__lt=F('value'),
-            total_sum=Decimal(0)).aggregate(p=ArrayAgg('partnership'))['p'])
-        partial_paid = set(deals_with_sum.filter(
-            total_sum__lt=F('value'),
-            total_sum__gt=Decimal(0)).aggregate(p=ArrayAgg('partnership'))['p'])
-        paid_count = len(paid - unpaid - partial_paid)
-        unpaid_count = len(unpaid - partial_paid - paid)
-        partial_paid_count = len(partial_paid | (paid & unpaid))
-
-        closed = set(deals.filter(done=True).aggregate(p=ArrayAgg('partnership'))['p'])
-        unclosed = set(deals.filter(done=False).aggregate(p=ArrayAgg('partnership'))['p'])
-        closed_count = len(closed - unclosed)
-        unclosed_count = len(unclosed)
-
-        return {
-            'paid_count': paid_count,
-            'unpaid_count': unpaid_count,
-            'partial_paid_count': partial_paid_count,
-            'closed_count': closed_count,
-            'unclosed_count': unclosed_count
-        }
-
-    @staticmethod
-    def stats_by_sum(deals, deals_with_sum):
-        sum = dict()
-        currencies = set(
-            deals.aggregate(currency_codes=ArrayAgg('currency__code'))['currency_codes'])
-
-        for c in Currency.objects.filter(code__in=currencies):
-            total_paid_sum = deals_with_sum.filter(currency=c).aggregate(
-                sum_planed=Coalesce(Sum('value'), Value(0)),
-                sum_paid=Coalesce(Sum('total_sum'), Value(0)))
-            closed_paid_sum = deals_with_sum.filter(currency=c, done=True).aggregate(
-                sum_planed=Coalesce(Sum('value'), Value(0)),
-                sum_paid=Coalesce(Sum('total_sum'), Value(0)))
-            sum[c.code] = {
-                'currency_name': c.name,
-                'total_paid_sum': total_paid_sum,
-                'closed_paid_sum': closed_paid_sum
-            }
-        return sum
+    DealSerializer, PartnershipSerializer, DealCreateSerializer, PartnershipUnregisterUserSerializer,
+    PartnershipForEditSerializer, PartnershipTableSerializer, DealUpdateSerializer)
 
 
 class PartnershipViewSet(mixins.RetrieveModelMixin,
                          mixins.UpdateModelMixin,
                          mixins.ListModelMixin,
                          viewsets.GenericViewSet,
-                         CreatePaymentMixin,
-                         ListPaymentMixin,
-                         ExportViewSetMixin,
+                         PartnerExportViewSetMixin,
                          PartnerStatMixin):
     queryset = Partnership.objects.base_queryset().order_by(
         'user__last_name', 'user__first_name', 'user__middle_name')
@@ -255,6 +55,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         'search_city': ('user__city',),
     }
     permission_classes = (IsAuthenticated,)
+    permission_list_classes = (CanSeePartners,)
     filter_class = PartnerUserFilter
 
     payment_list_field = 'extra_payments'
@@ -268,7 +69,12 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
     def get_queryset(self):
         return self.queryset.for_user(user=self.request.user)
 
-    @list_route()
+    def get_permissions(self):
+        if self.action in ('list', 'retrieve'):
+            return [permission() for permission in self.permission_list_classes]
+        return super(PartnershipViewSet, self).get_permissions()
+
+    @list_route(permission_classes=(CanSeePartners,))
     def simple(self, request):
         partnerships = Partnership.objects.select_related('user').filter(
             level__lte=Partnership.MANAGER).values_list(
@@ -277,7 +83,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         return Response(partnerships)
 
     # TODO deprecated
-    @list_route()
+    @list_route(permission_classes=(CanSeePartners,))
     def for_edit(self, request):
         user_id = request.query_params.get('user')
         user = get_object_or_404(CustomUser, pk=user_id)
@@ -289,6 +95,8 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
     # TODO deprecated
     @detail_route(methods=['put'])
     def update_need(self, request, pk=None):
+        if not request.user.can_update_partner_need:
+            raise exceptions.PermissionDenied(detail=_('You do not have permission to update need of this partner.'))
         text = request.data.get('need_text', None)
         if text is None:
             return Response({'detail': _("'need_text' is required field.")}, status=status.HTTP_400_BAD_REQUEST)
@@ -304,8 +112,8 @@ class DealViewSet(mixins.RetrieveModelMixin,
                   mixins.UpdateModelMixin,
                   mixins.ListModelMixin,
                   viewsets.GenericViewSet,
-                  CreatePaymentMixin,
-                  ListPaymentMixin):
+                  DealCreatePaymentMixin,
+                  DealListPaymentMixin):
     queryset = Deal.objects.base_queryset(). \
         annotate_full_name(). \
         annotate_responsible_name(). \
@@ -313,6 +121,7 @@ class DealViewSet(mixins.RetrieveModelMixin,
         order_by('-date_created', 'id')
     serializer_class = DealSerializer
     serializer_create_class = DealCreateSerializer
+    serializer_update_class = DealUpdateSerializer
     pagination_class = DealPagination
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
@@ -322,18 +131,39 @@ class DealViewSet(mixins.RetrieveModelMixin,
                      'partnership__user__last_name',
                      'partnership__user__search_name',
                      'partnership__user__middle_name',)
-    permission_classes = (IsManagerOrHigh,)
+    permission_classes = (CanSeeDeals,)
+    permission_list_classes = (CanSeeDeals,)
+    permission_create_classes = (CanCreateDeals,)
+    permission_update_classes = (CanUpdateDeals,)
 
     def get_serializer_class(self):
         if self.action == 'create':
             return self.serializer_create_class
+        if self.action in ('update', 'partial_update'):
+            return self.serializer_update_class
         return self.serializer_class
 
     def get_queryset(self):
-        user = self.request.user
-        if Partnership.objects.get(user=user).level < Partnership.MANAGER:
-            return self.queryset
-        return self.queryset.filter(partnership__responsible__user=user)
+        return self.queryset.for_user(user=self.request.user)
+
+    def get_permissions(self):
+        if self.action in ('list', 'retrieve'):
+            return [permission() for permission in self.permission_list_classes]
+        if self.action == 'create':
+            return [permission() for permission in self.permission_create_classes]
+        if self.action in ('update', 'partial_update'):
+            return [permission() for permission in self.permission_update_classes]
+        return super(DealViewSet, self).get_permissions()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            partner = Partnership.objects.get(id=request.data.get('partnership'))
+        except ObjectDoesNotExist:
+            raise exceptions.ValidationError(detail=_('Partner does not exist.'))
+        if not request.user.can_create_deal_for_partner(partner):
+            raise exceptions.PermissionDenied(detail=_('You do not have permission to create deal for this partner.'))
+
+        return super(DealViewSet, self).create(request, *args, **kwargs)
 
 
 class PartnershipsUnregisterUserViewSet(viewsets.ModelViewSet):

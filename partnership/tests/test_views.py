@@ -9,64 +9,14 @@ from django.urls import reverse
 from rest_framework import status, permissions
 
 from partnership.models import Partnership, Deal
-from partnership.serializers import PartnershipForEditSerializer, DealSerializer, DealCreateSerializer
+from partnership.serializers import PartnershipForEditSerializer, DealSerializer, DealCreateSerializer, \
+    DealUpdateSerializer
 from partnership.views import PartnershipViewSet
 from payment.serializers import PaymentShowSerializer
 
 
 @pytest.mark.django_db
 class TestPartnershipViewSet:
-    @pytest.mark.parametrize('is_responsible', (True, False))
-    def test_create_payment(self, api_client, creator, is_responsible, partner, currency_factory):
-        url = reverse('partnerships_v1_1-create-payment', kwargs={'pk': partner.id})
-        code = creator['code'][0] if is_responsible else creator['code'][1]
-
-        if is_responsible:
-            partner.responsible = creator['partner']
-            partner.save()
-
-        api_client.force_login(creator['partner'].user)
-        api_login_client = api_client
-
-        data = {
-            'sum': '10',
-            'description': 'no desc',
-            'rate': '1.22',
-            'sent_date': '2002-02-22',
-            'currency': currency_factory().id,
-        }
-        response = api_login_client.post(url, data=data, format='json')
-
-        assert response.status_code == code
-
-        if code == status.HTTP_201_CREATED:
-            payment = partner.extra_payments.get()
-            assert payment.sum == Decimal(data['sum'])
-            assert payment.rate == Decimal(data['rate'])
-            assert payment.description == data['description']
-            assert payment.currency_sum_id == data['currency']
-            assert payment.sent_date == datetime.strptime(data['sent_date'], '%Y-%m-%d').date()
-            assert response.data == PaymentShowSerializer(payment).data
-
-    @pytest.mark.parametrize('is_responsible', (True, False))
-    def test_payments(self, api_client, viewer, is_responsible, partner, payment_factory):
-        payment_factory.create_batch(6, purpose=partner)
-        url = reverse('partnerships_v1_1-payments', kwargs={'pk': partner.id})
-        code = viewer['code'][0] if is_responsible else viewer['code'][1]
-
-        if is_responsible:
-            partner.responsible = viewer['partner']
-            partner.save()
-
-        api_client.force_login(viewer['partner'].user)
-        api_login_client = api_client
-
-        response = api_login_client.get(url, format='json')
-
-        assert response.status_code == code
-        if code == status.HTTP_200_OK:
-            assert response.data == PaymentShowSerializer(partner.extra_payments.all(), many=True).data
-
     def test_simple(self, api_login_client, partner_factory):
         partner_factory(level=Partnership.MANAGER + 1)
         partner_factory.create_batch(2, level=Partnership.MANAGER)
@@ -147,7 +97,7 @@ class TestPartnershipViewSet:
 
     def test_user_list_filter_by_hierarchy(
             self, monkeypatch, api_login_client, user_factory, partner_factory, hierarchy_factory):
-        monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
+        monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
         monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
         other_hierarchy = hierarchy_factory()
         hierarchy = hierarchy_factory()
@@ -164,7 +114,7 @@ class TestPartnershipViewSet:
 
     def test_user_list_filter_by_department(
             self, monkeypatch, api_login_client, partner_factory, user_factory, department_factory):
-        monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
+        monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
         monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
         other_department = department_factory()
         department = department_factory()
@@ -184,7 +134,7 @@ class TestPartnershipViewSet:
         assert response.data['count'] == 10
 
     def test_user_list_filter_by_master(self, monkeypatch, api_login_client, partner_factory, user_factory):
-        monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
+        monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
         monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
         master = partner_factory(user__username='master')
         partner_factory.create_batch(10, user__master=master.user)
@@ -199,7 +149,7 @@ class TestPartnershipViewSet:
         assert response.data['count'] == 10
 
     def test_user_list_filter_by_multi_master(self, monkeypatch, api_login_client, partner_factory, user_factory):
-        monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
+        monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
         monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
         master = partner_factory(user__username='master')
         other_master = partner_factory(user__username='other_master')
@@ -218,7 +168,7 @@ class TestPartnershipViewSet:
         assert response.data['count'] == 50
 
     def test_user_list_filter_by_master_tree(self, monkeypatch, api_login_client, partner_factory, user_factory):
-        monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
+        monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
         monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
         partner = partner_factory()  # count: + 0, = 0, all_users_count: +1, = 1
 
@@ -241,7 +191,7 @@ class TestPartnershipViewSet:
         assert response.data['count'] == 13
 
     def test_user_search_by_fio(self, monkeypatch, api_login_client, partner_factory, user_factory):
-        monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
+        monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
         monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
         partner_factory.create_batch(10)
         partner_factory(user__last_name='searchlast', user__first_name='searchfirst')
@@ -257,7 +207,7 @@ class TestPartnershipViewSet:
         assert response.data['count'] == 1
 
     def test_user_search_by_email(self, monkeypatch, api_login_client, partner_factory, user_factory):
-        monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
+        monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
         monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
         partner_factory.create_batch(10)
         partner_factory(user__email='mysupermail@test.com')
@@ -274,7 +224,7 @@ class TestPartnershipViewSet:
         assert response.data['count'] == 2
 
     def test_user_search_by_phone(self, monkeypatch, api_login_client, partner_factory, user_factory):
-        monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
+        monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
         monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
         partner_factory.create_batch(10)
         partner_factory(user__phone_number='+380990002246')
@@ -291,7 +241,7 @@ class TestPartnershipViewSet:
         assert response.data['count'] == 2
 
     def test_user_search_by_country(self, monkeypatch, api_login_client, partner_factory, user_factory):
-        monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
+        monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
         monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
         partner_factory.create_batch(10)
         partner_factory.create_batch(8, user__country='Ukraine')
@@ -307,7 +257,7 @@ class TestPartnershipViewSet:
         assert response.data['count'] == 8
 
     def test_user_search_by_city(self, monkeypatch, api_login_client, partner_factory, user_factory):
-        monkeypatch.setattr(PartnershipViewSet, 'permission_classes', (permissions.AllowAny,))
+        monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
         monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
         partner_factory.create_batch(10)
         partner_factory.create_batch(8, user__city='Tokio')
@@ -403,12 +353,13 @@ class TestDealViewSet:
             ('get', 'list', DealSerializer),
             ('post', 'create', DealCreateSerializer),
             ('get', 'retrieve', DealSerializer),
-            ('put', 'update', DealSerializer),
-            ('patch', 'partial_update', DealSerializer),
+            ('put', 'update', DealUpdateSerializer),
+            ('patch', 'partial_update', DealUpdateSerializer),
     ), ids=('get-list', 'post-create', 'get-retrieve', 'put-update', 'patch-partial_update'))
-    def test_get_serializer_class(self, rf, fake_deal_view_set, method, action, serializer_class):
+    def test_get_serializer_class(self, rf, partner, fake_deal_view_set, method, action, serializer_class):
         method_action = getattr(rf, method)
         request = method_action('/')
+        request.user = partner.user
         view = fake_deal_view_set.as_view({method: action})
 
         instance = view(request, pk=1)

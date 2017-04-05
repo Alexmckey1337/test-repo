@@ -130,38 +130,40 @@
                             </li>
                         </ul>
                     </div>
-                    <div class="col-table">
-                        <ul>
-                            <li class="clearfix">
-                                <label for="partner">Партнёр</label>
-                                <input type="checkbox" id="partner">
-                            </li>
-                        </ul>
-                        <ul class="hidden-partner">
-                            <li class="clearfix">
-                                <label>Партнёр с</label>
-                                <input type="text" id="partnerFrom" readonly="readonly">
-                            </li>
-                            <li class="clearfix">
-                                <label>Сумма сделки</label>
-                                <div>
-                                    <input type="number" id="val_partnerships">
-                                    <select id="payment_currency" required>
-                                    {% for currency in currencies %}
-                                        <option value="{{ currency.id }}"
-                                                {% if currency == purpose.currency %}selected{% endif %}>
-                                            {{ currency.short_name }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                                </div>
-                            </li>
-                            <li class="clearfix">
-                                <label>Менеджер</label>
-                                <select style="width: 96%" id="chooseManager"></select>
-                            </li>
-                        </ul>
-                    </div>
+                    {% if request.user.is_partner %}
+                        <div class="col-table">
+                            <ul>
+                                <li class="clearfix">
+                                    <label for="partner">Партнёр</label>
+                                    <input type="checkbox" id="partner">
+                                </li>
+                            </ul>
+                            <ul class="hidden-partner">
+                                <li class="clearfix">
+                                    <label>Партнёр с</label>
+                                    <input type="text" id="partnerFrom" readonly="readonly">
+                                </li>
+                                <li class="clearfix">
+                                    <label>Сумма сделки</label>
+                                    <div>
+                                        <input type="number" id="val_partnerships">
+                                        <select id="payment_currency" required>
+                                        {% for currency in currencies %}
+                                            <option value="{{ currency.id }}"
+                                                    {% if currency == purpose.currency %}selected{% endif %}>
+                                                {{ currency.short_name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    </div>
+                                </li>
+                                <li class="clearfix">
+                                    <label>Менеджер</label>
+                                    <select style="width: 96%" id="chooseManager"></select>
+                                </li>
+                            </ul>
+                        </div>
+                    {% endif %}
                     <div class="col-table">
                         <ul>
                             <li>

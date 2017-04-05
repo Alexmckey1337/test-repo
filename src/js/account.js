@@ -85,6 +85,11 @@ $('#send_need').on('click', function () {
         showPopup('Нужда сохранена.');
     }, 'PUT', true, {
         'Content-Type': 'application/json'
+    }, {
+        400: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail);
+        }
     })
 });
 $('#sendNote').on('click', function () {

@@ -59,8 +59,7 @@ class CreatePaymentMixin(PaymentCheckPermissionMixin):
     def get_object(self):  # pragma: no cover
         raise NotImplementedError()
 
-    @detail_route(methods=['post'])
-    def create_payment(self, request, pk=None):
+    def _create_payment(self, request, pk=None):
         purpose_model = self.get_queryset().model
         purpose = get_object_or_404(purpose_model, pk=pk)
         self.check_payment_permissions(request, purpose)
@@ -101,6 +100,10 @@ class CreatePaymentMixin(PaymentCheckPermissionMixin):
 
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+    @detail_route(methods=['post'])
+    def create_payment(self, request, pk=None):
+        return self._create_payment(request, pk)
+
 
 class ListPaymentMixin(PaymentCheckPermissionMixin):
     list_payment_serializer = PaymentShowSerializer
@@ -112,8 +115,7 @@ class ListPaymentMixin(PaymentCheckPermissionMixin):
     def get_object(self):  # pragma: no cover
         raise NotImplementedError()
 
-    @detail_route(methods=['get'])
-    def payments(self, request, pk=None):
+    def _payments(self, request, pk=None):
         purpose_model = self.get_queryset().model
         purpose = get_object_or_404(purpose_model, pk=pk)
         self.check_payment_permissions(request, purpose)
@@ -123,3 +125,7 @@ class ListPaymentMixin(PaymentCheckPermissionMixin):
         serializer = self.list_payment_serializer(queryset, many=True)
 
         return Response(serializer.data)
+
+    @detail_route(methods=['get'])
+    def payments(self, request, pk=None):
+        return self._payments(request, pk)

@@ -6,8 +6,9 @@ from collections import namedtuple
 import pytest
 from django.contrib.auth.models import User
 
+from account.models import CustomUser
 from partnership.models import Deal, Partnership
-from partnership.permissions import IsManagerReadOnly, IsSupervisorOrHigh as IsPartnerSupervisorOrHigh, IsDisciplesOf
+from partnership.permissions import IsManagerReadOnly, IsDisciplesOf
 from payment.permissions import PaymentPermission, PaymentManager, PaymentManagerOrSupervisor
 from summit.models import SummitAnket
 from summit.permissions import IsConsultantReadOnly, IsSupervisorOrHigh as IsSummitSupervisorOrHigh
@@ -36,22 +37,24 @@ class TestPaymentPermission:
     @pytest.mark.parametrize('view', [type('View', (), {'get_queryset': lambda: Qs(Deal)}),
                                       type('View', (), {'get_queryset': lambda: Qs(Partnership)})],
                              ids=['deal', 'partner'])
-    @pytest.mark.parametrize('is_supervisor', [lambda self, a, b: True, lambda self, a, b: False],
-                             ids=['supervisor', 'non supervisor'])
+    @pytest.mark.parametrize(
+        'is_supervisor,has_perm', [(property(lambda s: True), True), (property(lambda s: False), False)],
+        ids=['supervisor', 'non supervisor'])
     @pytest.mark.parametrize('is_disciples', [lambda self, a, b, c: True, lambda self, a, b, c: False],
                              ids=['disciples', 'non disciples'])
     @pytest.mark.parametrize('is_manager', [lambda self, a, b: True, lambda self, a, b: False],
                              ids=['manager', 'non manager'])
     def test_has_object_permission_for_partner_or_deal(
-            self, monkeypatch, is_manager, is_disciples, is_supervisor, view):
+            self, user, monkeypatch, is_manager, is_disciples, is_supervisor, has_perm, view):
         monkeypatch.setattr(IsManagerReadOnly, 'has_permission', is_manager)
         monkeypatch.setattr(IsDisciplesOf, 'has_object_permission', is_disciples)
-        monkeypatch.setattr(IsPartnerSupervisorOrHigh, 'has_permission', is_supervisor)
+        monkeypatch.setattr(CustomUser, 'is_partner_supervisor_or_high', is_supervisor)
+        request = type('Request', (), {'user': user})
         partner = type('Purpose', (), {'user': None})
         purpose = type('Purpose', (), {'user': None, 'partnership': partner})
 
-        assert (PaymentPermission().has_object_permission(None, view, purpose) ==
-                is_supervisor(*blank_args(3)) or (is_disciples(*blank_args(4)) and is_manager(*blank_args(3))))
+        assert (PaymentPermission().has_object_permission(request, view, purpose) ==
+                has_perm or (is_disciples(*blank_args(4)) and is_manager(*blank_args(3))))
 
     def test_has_object_permission_for_other(self):
         view = type('View', (), {'get_queryset': lambda: Qs(User)})
@@ -89,21 +92,21 @@ class TestPaymentManagerOrSupervisor:
         assert PaymentManagerOrSupervisor().has_object_permission(request, None, summit_anket_payment) == has_perm
 
     @pytest.mark.parametrize(
-        'is_supervisor,has_perm', [(lambda self, a, b: True, True), (lambda self, a, b: False, False)],
+        'is_supervisor,has_perm', [(property(lambda s: True), True), (property(lambda s: False), False)],
         ids=['supervisor', 'non supervisor'])
     def test_has_object_permission_for_partner(self, monkeypatch, user, partner_payment, is_supervisor, has_perm):
         monkeypatch.setattr(PaymentManager, 'has_object_permission', lambda *args: False)
-        monkeypatch.setattr(IsPartnerSupervisorOrHigh, 'has_permission', is_supervisor)
+        monkeypatch.setattr(CustomUser, 'is_partner_supervisor_or_high', is_supervisor)
         request = type('Request', (), {'user': user})
 
         assert PaymentManagerOrSupervisor().has_object_permission(request, None, partner_payment) == has_perm
 
     @pytest.mark.parametrize(
-        'is_supervisor,has_perm', [(lambda self, a, b: True, True), (lambda self, a, b: False, False)],
+        'is_supervisor,has_perm', [(property(lambda s: True), True), (property(lambda s: False), False)],
         ids=['supervisor', 'non supervisor'])
     def test_has_object_permission_for_deal(self, monkeypatch, user, deal_payment, is_supervisor, has_perm):
         monkeypatch.setattr(PaymentManager, 'has_object_permission', lambda *args: False)
-        monkeypatch.setattr(IsPartnerSupervisorOrHigh, 'has_permission', is_supervisor)
+        monkeypatch.setattr(CustomUser, 'is_partner_supervisor_or_high', is_supervisor)
         request = type('Request', (), {'user': user})
 
         assert PaymentManagerOrSupervisor().has_object_permission(request, None, deal_payment) == has_perm
