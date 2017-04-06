@@ -34,4 +34,4 @@ class PartnerUserFilter(django_filters.FilterSet):
 
     class Meta:
         model = Partnership
-        fields = ['master', 'hierarchy', 'department']
+        fields = ['master', 'hierarchy', 'department', 'user', 'responsible__user', 'responsible']
