@@ -27,7 +27,7 @@ def entry(request):
     return render(request, 'login/login.html')
 
 
-def edit_pass(request):
+def edit_pass(request, activation_key=None):
     return render(request, 'login/edit_password.html')
 
 
