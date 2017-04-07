@@ -2173,6 +2173,7 @@ function makeQuickEditSammitCart(el) {
     url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${anketID}/`;
     ajaxRequest(url, null, function (data) {
         $('#fullNameCard').text(data.user.fullname);
+        $('#userDescription').val(data.description);
         $('#summit-valueDelete').val(data.total_sum);
         $('#member').prop("checked", data.is_member);
         $('#userID').val(data.user.id);
