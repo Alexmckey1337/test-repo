@@ -38,6 +38,41 @@ function getChurches(config = {}) {
     });
 }
 
+function predeliteAnket(id) {
+    let config = {
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${id}/predelete/`,
+    };
+    return new Promise((resolve, reject) => {
+        let codes = {
+            200: function (data) {
+                resolve(data);
+            },
+            400: function (data) {
+                reject(data)
+            }
+        };
+        newAjaxRequest(config, codes, reject);
+    })
+}
+
+function deleteSummitProfile(id) {
+    let config = {
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${id}/`,
+        method: "DELETE"
+    };
+    return new Promise((resolve, reject) => {
+        let codes = {
+            204: function () {
+                resolve('Пользователь удален из саммита');
+            },
+            400: function (data) {
+                reject(data)
+            }
+        };
+        newAjaxRequest(config, codes, reject);
+    })
+}
+
 function addUserToChurch(user_id, id, exist = false) {
     let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${id}/add_user/`;
     let config = {
@@ -1481,6 +1516,17 @@ function showPopup(text, title) {
     });
 }
 
+function showPopupHTML(block) {
+    let popup = document.createElement('div');
+    popup.className = "pop-up-universal";
+    $(popup).append(block);
+    $('body').append(popup);
+
+    $('#close_pop').on('click', function () {
+        $(popup).hide().remove();
+    });
+}
+
 function getParameterByName(name, url) {
     if (!url) url = window.location.href;
     url = url.toLowerCase(); // This is just to avoid case sensitiveness
@@ -1672,10 +1718,15 @@ function initLocationSelect(config) {
 }
 
 function createSummitUsersTable(data = {}) {
-    let config = {};
-    config.summit = $('#date .active span').data('id');
+    let page = data.page || $('.pagination__input').val();
+    let summitType = data.summit || $('#summitsTypes').find('.active').data('id');
+    let config = {
+        page: page,
+        summit: summitType
+    };
     Object.assign(config, data);
     Object.assign(config, getOrderingData());
+
     getSummitUsers(config).then(function (data) {
         let filter_data = {};
         let common_table = Object.keys(data.common_table);
@@ -2115,22 +2166,21 @@ function saveHomeGroups(el) {
 }
 
 function makeQuickEditSammitCart(el) {
-    let anketsID, id, link, url;
-    anketsID = $(el).closest('td').find('a').data('ankets');
+    let anketID, id, link, url;
+    anketID = $(el).closest('td').find('a').data('ankets');
     id = $(el).closest('td').find('a').data('id');
     link = $(el).closest('td').find('a').data('link');
-    url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${anketsID}/`;
+    url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${anketID}/`;
     ajaxRequest(url, null, function (data) {
+        $('#fullNameCard').text(data.user.fullname);
         $('#summit-valueDelete').val(data.total_sum);
         $('#member').prop("checked", data.is_member);
-        $('#popupDelete').css('display', 'block');
+        $('#userID').val(data.user.id);
+        $('#preDeleteAnket').attr('data-id', data.user.id).attr('data-anket', data.id);
+        $('#popupParticipantInfo').css('display', 'block');
     }, 'GET', true, {
         'Content-Type': 'application/json'
     });
-    $('#deleteAnket').attr('data-id', id).attr('data-ankets', id)
-        .on('click', function () {
-
-        });
 }
 
 function makeQuickEditCart(el) {
@@ -2280,6 +2330,9 @@ function getDataTOExport() {
         }
     });
     return filter;
+}
+function closePopup(el) {
+    $(el).closest('.pop-up-splash').hide();
 }
 
 function hidePopup(el) {
