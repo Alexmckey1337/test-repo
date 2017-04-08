@@ -3,6 +3,7 @@ import os
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login
+from django.core.exceptions import MultipleObjectsReturned
 from django.core.mail import EmailMultiAlternatives
 from django.template import Context
 from django.template.loader import get_template
@@ -44,22 +45,28 @@ def login_view(request):
     response_dict = dict()
     data = request.data
     try:
-        user = User.objects.get(email=data['email'])
-        user = authenticate(username=user.username, password=data['password'])
-        if user is not None:
-            if user.is_active:
-                login(request, user)
-                response_dict['uid'] = user.id
-                response_dict['message'] = "Добро пожаловать"
-                response_dict['status'] = True
-            else:
-                response_dict['message'] = "Вы не имеете доступ"
-                response_dict['status'] = False
-        else:
-            response_dict['message'] = "Неверный пароль или email"
-            response_dict['status'] = False
+        user = User.objects.get(email=data['email'], can_login=True)
     except User.DoesNotExist:
+        if User.objects.get(email=data['email']).exists():
+            response_dict['message'] = _('Вы не имеете право для входа на сайт.')
+            response_dict['status'] = False
+            return Response(response_dict)
         response_dict['message'] = "Пользователя с таким email не существует"
+        response_dict['status'] = False
+        return Response(response_dict)
+    except MultipleObjectsReturned:
+        response_dict['message'] = "Есть несколько пользователей с таким email"
+        response_dict['status'] = False
+        return Response(response_dict)
+
+    user = authenticate(username=user.username, password=data['password'])
+    if user is not None:
+        login(request, user)
+        response_dict['uid'] = user.id
+        response_dict['message'] = "Добро пожаловать"
+        response_dict['status'] = True
+    else:
+        response_dict['message'] = "Неверный пароль или email"
         response_dict['status'] = False
     return Response(response_dict)
 
@@ -72,9 +79,15 @@ def password_forgot(request):
         return Response(data={'detail': _('Поле email обязательно')},
                         status=status.HTTP_400_BAD_REQUEST)
     try:
-        user = User.objects.get(email=email)
+        user = User.objects.get(email=email, can_login=True)
     except User.DoesNotExist:
+        if User.objects.get(email=email).exists():
+            return Response(data={'detail': _('Вы не имеете право для входа на сайт.')},
+                            status=status.HTTP_400_BAD_REQUEST)
         return Response(data={'detail': _('Пользователя с таким email не существует')},
+                        status=status.HTTP_400_BAD_REQUEST)
+    except MultipleObjectsReturned:
+        return Response(data={'detail': _("Есть несколько пользователей с таким email")},
                         status=status.HTTP_400_BAD_REQUEST)
     send_email_for_renewal_password(user)
 
