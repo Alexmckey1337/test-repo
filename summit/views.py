@@ -7,9 +7,8 @@ from dbmail import send_db_mail
 from django.db.models import Sum, Value as V
 from django.db.models.functions import Coalesce
 from django.http import HttpResponse
-from rest_framework import mixins
-from rest_framework import status
-from rest_framework import viewsets, filters
+from django.utils.translation import ugettext_lazy as _
+from rest_framework import exceptions, viewsets, filters, status, mixins
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.filters import BaseFilterBackend
 from rest_framework.generics import get_object_or_404
@@ -21,6 +20,7 @@ from rest_framework.settings import api_settings
 from account.models import CustomUser
 from common.views_mixins import ExportViewSetMixin
 from navigation.table_fields import user_table, summit_table
+from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.permissions import IsSupervisorOrHigh
 from summit.utils import generate_ticket
@@ -29,7 +29,8 @@ from .resources import get_fields, SummitAnketResource
 from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
     SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer,
-    SummitTypeForAppSerializer, SummitAnketForAppSerializer)
+    SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitShortSerializer, SummitAnketShortSerializer,
+    SummitLessonShortSerializer)
 
 
 def get_success_headers(data):
@@ -121,6 +122,33 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet,
     permission_classes = (IsAuthenticated,)
 
     resource_class = SummitAnketResource
+
+    def perform_destroy(self, anket):
+        if anket.payments.exists():
+            payments = PaymentShowWithUrlSerializer(
+                anket.payments.all(), many=True, context={'request': self.request}).data
+            raise exceptions.ValidationError({
+                'detail': _('Summit profile has payments. Please, remove them before deleting profile.'),
+                'payments': payments,
+            })
+        anket.delete()
+
+    @detail_route(methods=['get'], )
+    def predelete(self, request, pk=None):
+        profile = self.get_object()
+        lessons = profile.all_lessons.all()
+        consultant_on = Summit.objects.filter(id__in=profile.consultees.values_list('summit_id', flat=True))
+        consultees = SummitAnket.objects.filter(id__in=profile.consultees.values_list('user_id', flat=True))
+        consultants = SummitAnket.objects.filter(id__in=profile.consultants.values_list('consultant_id', flat=True))
+        notes = profile.notes.all()
+
+        return Response({
+            'notes': SummitAnketNoteSerializer(notes, many=True).data,
+            'lessons': SummitLessonShortSerializer(lessons, many=True).data,
+            'summits': SummitShortSerializer(consultant_on, many=True).data,
+            'users': SummitAnketShortSerializer(consultees, many=True).data,
+            'consultants': SummitAnketShortSerializer(consultants, many=True).data,
+        })
 
     def get_queryset(self):
         summit_ids = set(self.request.user.summit_ankets.filter(

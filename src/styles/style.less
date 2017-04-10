@@ -2725,6 +2725,38 @@ table input[type=checkbox],
   }
 }
 
+.splash-screen {
+  & .wrap {
+    padding: 2em 3em;
+  }
+  & h2 {
+    margin: 0.5em 2em;
+  }
+}
+
+.list__item {
+  & dt, & dd {
+    display: inline-block;
+    line-height: 1.5;
+    font-size: 1.2em;
+  }
+  & dt {
+    font-weight: 700;
+    margin-right: .35em;
+    &:first-letter {
+      text-transform: uppercase;
+    }
+
+    &:after {
+      content: ':';
+      margin-left: 0.15em;
+    }
+  }
+  & dd {
+    margin-right: 1em;
+  }
+}
+
 .input__wrap {
   height: 5em;
   display: flex;
@@ -2870,10 +2902,16 @@ button#completeDelete {
   background-color: #3caeda;
 }
 
-#deleteAnket {
+.delete_btn {
   float: left;
   padding: 12px 20px 12px 10px;
   background-color: #3caeda;
+  &:before {
+    content: '\f014';
+    font: 1.2em FontAwesome;
+    color: #656d78;
+    padding-right: .5em;
+  }
 }
 
 #popupDelete .summa-wrap .summa {
