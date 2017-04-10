@@ -278,9 +278,10 @@
     $('#complete').on('click', function () {
         let id = $(this).attr('data-id'),
             money = $('#summit-value').val(),
-            description = $('#popup textarea').val(),
-            summit_id = $('#date .active span').data('id');
-        registerUser(id, summit_id, money, description);
+            description = $('#popup textarea').val();
+
+        registerUser(id, SUMMIT_ID, money, description);
+
         document.querySelector('#popup').style.display = 'none';
     });
 
@@ -316,8 +317,8 @@
             "summit_id": summit_id,
             "value": money,
             "description": description,
-            "visited": member_club,
-            "send_email": send_email
+            "visited": member_club || false,
+            "send_email": send_email,
         };
 
         let json = JSON.stringify(data);
