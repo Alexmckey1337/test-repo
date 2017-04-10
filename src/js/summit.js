@@ -1,5 +1,6 @@
 (function ($) {
-    const SUMMIT_ID = $('#summitUsersList').data('summit-type');
+    const SUMMIT_TYPE_ID = $('#summitUsersList').data('summit-type');
+
     function addSummitInfo() {
         let width = 150,
             count = 1,
@@ -258,9 +259,10 @@
     });
 
     $('#applyChanges').on('click', function () {
+        let summit_id = $('#summitsTypes').find('.active').data('id');
         let sendData = {
             send_email: false,
-            summit_id: SUMMIT_ID
+            summit_id: summit_id
         };
 
         let formData = $('#participantInfoForm').serializeArray();
@@ -278,9 +280,9 @@
     $('#complete').on('click', function () {
         let id = $(this).attr('data-id'),
             money = $('#summit-value').val(),
-            description = $('#popup textarea').val();
-
-        registerUser(id, SUMMIT_ID, money, description);
+            description = $('#popup textarea').val(),
+            summit_id = $('#summitsTypes').find('.active').data('id');
+        registerUser(id, summit_id, money, description);
 
         document.querySelector('#popup').style.display = 'none';
     });
