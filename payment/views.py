@@ -64,6 +64,20 @@ class PaymentListView(mixins.ListModelMixin, GenericAPIView):
         return self.queryset.for_user_by_all(user)
 
 
+class PaymentDetailView(mixins.RetrieveModelMixin, GenericAPIView):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentShowSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def get_queryset(self):
+        user = self.request.user
+
+        return self.queryset.for_user_by_all(user)
+
+
 class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
     queryset = Payment.objects.base_queryset()
     serializer_class = PaymentDealShowSerializer

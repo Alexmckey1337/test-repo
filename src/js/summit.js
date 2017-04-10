@@ -1,4 +1,5 @@
 (function ($) {
+    const SUMMIT_ID = $('#summitUsersList').data('summit-type');
     function addSummitInfo() {
         let width = 150,
             count = 1,
@@ -172,11 +173,67 @@
         $('#summit-valueDelete').focus();
     });
 
-    $('#deleteAnket').on('click', function () {
-        let summitAnket = $(this).attr('data-anket');
-        $('yes').attr('data-anket', summitAnket);
-        $('#deletePopup').css('display', 'block');
-        $('#popupDelete').css('display', '');
+    $('#preDeleteAnket').on('click', function () {
+        let _self = this;
+        let anketID = $(this).attr('data-anket');
+        let fullName = $('#fullNameCard').text();
+        predeliteAnket(anketID).then(function (data) {
+            $(_self).closest('.pop-up-splash').hide();
+            let div = document.createElement('div');
+            let mainBlock = document.createElement('div');
+            let topText = document.createElement('div');
+            let title = document.createElement('h3');
+            let closePopup = document.createElement('span');
+            let body = document.createElement('div');
+            let user = document.createElement('h2');
+            $(closePopup).addClass('close').addClass('close-popup').text('×').on('click', function () {
+                $(this).closest('.pop-up-universal').hide().remove();
+            });
+            $(title).text('Подтверждение удаления');
+            $(topText).addClass('top-text').append(title).append(closePopup);
+
+            $(mainBlock).addClass('splash-screen').append(topText);
+
+            $(body).addClass('wrap');
+            $(user).text(fullName);
+            $(mainBlock).append(user);
+            let keys = Object.keys(data);
+            let list = document.createElement('dl');
+            $(list).addClass('list__item');
+            keys.forEach(function (item) {
+                let dt = document.createElement('dt');
+                let dd = document.createElement('dd');
+                $(dt).text(item);
+                console.log(data[item]);
+                // data[item].forEach(function (i) {
+                //     $(dd).text(i.length)
+                // });
+                $(dd).text(data[item].length);
+                $(list).append(dt).append(dd);
+            });
+            $(body).append(list);
+            $(mainBlock).append(body);
+            let splashButtons = document.createElement('div');
+            let deleteBtn = document.createElement('button');
+            $(deleteBtn)
+                .addClass('delete_btn')
+                .attr('id', 'deleteAnket')
+                .text('Подтвердить удаление')
+                .on('click', function () {
+                deleteSummitProfile(anketID).then(function (msg) {
+                    $(div).hide().remove();
+                    setTimeout(() => showPopup(msg), 100);
+                    createSummitUsersTable();
+                });
+            });
+            $(splashButtons).addClass('splash-buttons wrap').append(deleteBtn);
+            $(mainBlock).append(splashButtons);
+            $(div).append(mainBlock);
+            showPopupHTML(div);
+        }).catch(function (err) {
+            console.log(err);
+        });
+         // closePopup(this);
     });
 
     $('yes').on('click', function () {
@@ -200,20 +257,31 @@
         $('#deletePopup').hide();
     });
 
-    $('#completeDelete').on('click', function () {
-        let id = this.attr('data-id'),
-            money = $('#summit-valueDelete').val(),
-            description = $('#popupDelete textarea').val();
-        registerUser(id, summit_id, money, description);
-        $('#popupDelete').css('display', 'none');
+    $('#applyChanges').on('click', function () {
+        let sendData = {
+            send_email: false,
+            summit_id: SUMMIT_ID
+        };
+
+        let formData = $('#participantInfoForm').serializeArray();
+        let data = {};
+
+         formData.forEach(function (item) {
+            data[item.name] = (item.value == 'on') ? true : item.value;
+        });
+
+        Object.assign(sendData, data);
+        updateSummitParticipant(sendData);
+        closePopup(this);
     });
 
     $('#complete').on('click', function () {
         let id = $(this).attr('data-id'),
             money = $('#summit-value').val(),
-            description = $('#popup textarea').val(),
-            summit_id = $('#date .active span').data('id');
-        registerUser(id, summit_id, money, description);
+            description = $('#popup textarea').val();
+
+        registerUser(id, SUMMIT_ID, money, description);
+
         document.querySelector('#popup').style.display = 'none';
     });
 
@@ -228,6 +296,19 @@
         });
     }
 
+    function updateSummitParticipant(data) {
+        // let member_club = $("#member").prop("checked");
+        // let send_email = $("#send_email").prop("checked");
+        // let data = {
+        //     "user_id": id,
+        //     "summit_id": summit_id,
+        //     "description": description,
+        //     "visited": member_club,
+        //     "send_email": send_email
+        // };
+        registerUserToSummit(JSON.stringify(data));
+    }
+
     function registerUser(id, summit_id, money, description) {
         let member_club = $("#member").prop("checked");
         let send_email = $("#send_email").prop("checked");
@@ -236,8 +317,8 @@
             "summit_id": summit_id,
             "value": money,
             "description": description,
-            "visited": member_club,
-            "send_email": send_email
+            "visited": member_club || false,
+            "send_email": send_email,
         };
 
         let json = JSON.stringify(data);
@@ -361,11 +442,6 @@
     $('#filter_button').on('click', function () {
         $('#filterPopup').css('display', 'block');
     });
-
-    // $('.quick-edit').on('click', function () {
-    //
-    //     $('#popupDelete').css('display', 'block');
-    // });
 
     $.validate({
         lang: 'ru',
