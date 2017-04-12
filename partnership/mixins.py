@@ -9,17 +9,20 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 
+from common.views_mixins import ExportViewSetMixin
 from partnership.models import Partnership, Deal
-from partnership.permissions import CanSeePartnerStatistics, CanCreatePartnerPayment, CanSeeDealPayments
+from partnership.permissions import CanSeePartnerStatistics, CanCreatePartnerPayment, CanSeeDealPayments, \
+    CanExportPartnerList
 from payment.models import Payment, Currency
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 
 
 class PartnerStatMixin:
-    @list_route(methods=['get'], permission_classes=(CanSeePartnerStatistics,))
+    @list_route(methods=['get'], permission_classes=(IsAuthenticated, CanSeePartnerStatistics))
     def stats_payments(self, request):
         current_partner = get_object_or_404(Partnership, user=request.user)
 
@@ -39,7 +42,7 @@ class PartnerStatMixin:
         return Response(stats)
 
     @list_route(methods=['get'], renderer_classes=(TemplateHTMLRenderer,),
-                permission_classes=(CanSeePartnerStatistics,))
+                permission_classes=(IsAuthenticated, CanSeePartnerStatistics))
     def stat_deals(self, request):
         current_partner = get_object_or_404(Partnership, user=request.user)
 
@@ -58,7 +61,7 @@ class PartnerStatMixin:
         return Response({'deals': deals}, template_name='partner/partials/stat_deals.html')
 
     @list_route(methods=['get'], renderer_classes=(TemplateHTMLRenderer,),
-                permission_classes=(CanSeePartnerStatistics,))
+                permission_classes=(IsAuthenticated, CanSeePartnerStatistics))
     def stat_payments(self, request):
         current_partner = get_object_or_404(Partnership, user=request.user)
 
@@ -172,12 +175,18 @@ class PartnerStatMixin:
 
 
 class DealCreatePaymentMixin(CreatePaymentMixin):
-    @detail_route(methods=['post'], permission_classes=(CanCreatePartnerPayment,))
+    @detail_route(methods=['post'], permission_classes=(IsAuthenticated, CanCreatePartnerPayment))
     def create_payment(self, request, pk=None):
         return self._create_payment(request, pk)
 
 
 class DealListPaymentMixin(ListPaymentMixin):
-    @detail_route(methods=['get'], permission_classes=(CanSeeDealPayments,))
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, CanSeeDealPayments))
     def payments(self, request, pk=None):
         return self._payments(request, pk)
+
+
+class PartnerExportViewSetMixin(ExportViewSetMixin):
+    @list_route(methods=['post'], permission_classes=(IsAuthenticated, CanExportPartnerList,))
+    def export(self, request, *args, **kwargs):
+        return self._export(request, *args, **kwargs)

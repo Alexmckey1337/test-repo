@@ -1,3 +1,6 @@
+# -*- coding: utf-8
+from __future__ import unicode_literals
+
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS, BasePermission
 
 from summit.models import SummitAnket
@@ -67,9 +70,10 @@ class IsSupervisorOrHigh(IsSummitMember):
         )
 
     def has_permission(self, request, view):
-        return (
-            super(IsSupervisorOrHigh, self).has_permission(request, view) and
-            SummitAnket.objects.filter(user=request.user, role__gte=SummitAnket.SUPERVISOR).exists())
+        """
+        Checking that the ``request.user`` is supervisor (or higher) of at least one summit
+        """
+        return is_any_summit_supervisor_or_high(request.user)
 
 
 class IsSummitTypeSupervisorOrHigh(IsSummitTypeMember):
@@ -154,3 +158,10 @@ def can_see_summit_block(current_user, user):
     Use for ``/account/<user.id>/`` page. Checking that the ``current_user`` has the right to see summit block
     """
     return AccountCanSeeSummitBlock().can_see(current_user, user)
+
+
+def is_any_summit_supervisor_or_high(user):
+    """
+    Checking that the user is supervisor (or higher) of at least one summit
+    """
+    return SummitAnket.objects.filter(user=user, role__gte=SummitAnket.SUPERVISOR).exists()

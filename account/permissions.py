@@ -1,165 +1,72 @@
-from rest_framework.permissions import IsAuthenticated, BasePermission
+from rest_framework.permissions import BasePermission
 
-from partnership.permissions import IsDisciplesOf
-from summit.permissions import IsSupervisorOrHigh as IsSummitSupervisorOrHigh
-
-
-class HasHierarchyLevelMixin:
-    @staticmethod
-    def level_gte(request, level):
-        return request.user.hierarchy and request.user.hierarchy.level >= level
+from summit.permissions import is_any_summit_supervisor_or_high
 
 
-class IsDisciplesOfPermissionMixin:
-    @staticmethod
-    def _is_disciples_of(request, view, account):
-        return IsDisciplesOf().has_object_permission(request, view, account)
+class CanSeeAccountPage(BasePermission):
+    def has_object_permission(self, request, view, user):
+        return can_see_account_page(request.user, user)
 
 
-class IsDescendantOfPermissionMixin:
-    @staticmethod
-    def _is_descendant_of(request, view, account, include_self=False):
-        return IsDescendantOf().has_object_permission(request, view, account, include_self)
-
-
-class IsDescendantOf(IsAuthenticated):
-    def has_object_permission(self, request, view, account, include_self=False):
-        return (
-            super(IsDescendantOf, self).has_permission(request, view) and
-            request.user.is_descendant_of(account, include_self=include_self)
-        )
-
-
-class IsAncestorOfPermissionMixin:
-    @staticmethod
-    def _is_ancestor_of(request, view, account, include_self=False):
-        return IsAncestorOf().has_object_permission(request, view, account, include_self)
-
-
-class IsAncestorOf(IsAuthenticated):
-    def has_object_permission(self, request, view, account, include_self=False):
-        return (
-            super(IsAncestorOf, self).has_permission(request, view) and
-            request.user.is_ancestor_of(account, include_self=include_self)
-        )
-
-
-class CanAccountObjectRead(IsAuthenticated,
-                           IsAncestorOfPermissionMixin,
-                           IsDisciplesOfPermissionMixin):
-    def has_permission(self, request, view):
-        return (
-            request.user.is_staff or
-            request.user.is_partner_supervisor_or_high
-        )
-
-    def has_object_permission(self, request, view, account):
-        return (
-            request.user.is_staff or
-            request.user.is_partner_supervisor_or_high or
-            self._is_ancestor_of(request, view, account, True) or
-            self._is_disciples_of(request, view, account)
-        )
-
-
-class CanAccountObjectEdit(IsAuthenticated, IsAncestorOfPermissionMixin):
-    def has_object_permission(self, request, view, account):
-        return (
-            super(CanAccountObjectEdit, self).has_permission(request, view) and
-            request.user.is_staff or
-            request.user.is_partner_supervisor_or_high or
-            self._is_ancestor_of(request, view, account, True)
-        )
-
-
-class CanCreateUser(IsAuthenticated):
+class CanCreateUser(BasePermission):
     def has_permission(self, request, view):
         """
         Checking that the ``request.user`` has the right to create a new user
         """
-        return (
-            super(CanCreateUser, self).has_permission(request, view) and
-            (request.user.is_staff or request.user.is_leader_or_high or
-             request.user.is_partner_supervisor_or_high or
-             IsSummitSupervisorOrHigh().has_permission(request, view))
-        )
+        return can_create_user(request.user)
 
 
-class CanExportUserList(IsAuthenticated):
+class CanExportUserList(BasePermission):
     def has_permission(self, request, view):
         """
         Checking that the ``request.user`` has the right to export list of users
         """
-        return (
-            super(CanExportUserList, self).has_permission(request, view) and
-            request.user.is_staff or request.user.is_pastor_or_high
-        )
+        return can_export_user_list(request.user)
 
 
-class CanSeeUserList(IsAuthenticated):
+class CanSeeUserList(BasePermission):
     def has_permission(self, request, view):
         """
         Checking that the ``request.user`` has the right to see list of users
         """
-        return (
-            super(CanSeeUserList, self).has_permission(request, view) and
-            request.user.is_staff or request.user.is_leaf_node
-        )
+        return can_see_user_list(request.user)
 
 
-class AccountCanEditStatusBlock(BasePermission):
-    def can_edit(self, current_user, user):
-        """
-        Use for ``/account/<user.id>/`` page. Checking that the ``current_user`` has the right to edit fields:
-
-        - department
-        - status
-        - master
-        - divisions
-        """
-        return (
-            current_user.is_partner_supervisor_or_high or
-            current_user.is_summit_any_supervisor_or_high or
-            current_user.is_ancestor_of(user)
-        )
-
-
-class AccountCanEditDescriptionBlock(BasePermission):
-    def can_edit(self, current_user, user):
-        """
-        Use for ``/account/<user.id>/`` page. Checking that the ``current_user`` has the right to edit fields:
-
-        - description
-        """
-        return (
-            current_user.is_partner_supervisor_or_high or
-            current_user.is_summit_any_supervisor_or_high or
-            current_user.is_ancestor_of(user)
-        )
-
-
-def can_create_user(request, view=None):
+def can_see_account_page(current_user, user):
     """
-    Checking that the ``request.user`` has the right to create a new user
+    Checking that the ``current_user`` has the right to see page ``/account/<user.id>/``
     """
-    has_perm = CanCreateUser()
-    return has_perm.has_permission(request, view)
+    return (
+        current_user.is_staff or
+        current_user.is_partner_supervisor_or_high or
+        current_user.is_ancestor_of(user, include_self=True) or
+        current_user.is_partner_responsible_of(user)
+    )
 
 
-def can_export_user_list(request, view=None):
+def can_create_user(user):
     """
-    Checking that the ``request.user`` has the right to export list of users
+    Checking that the ``user`` has the right to create a new user
     """
-    has_perm = CanExportUserList()
-    return has_perm.has_permission(request, view)
+    return (
+        user.is_staff or user.is_leader_or_high or
+        user.is_partner_supervisor_or_high or
+        is_any_summit_supervisor_or_high(user)
+    )
 
 
-def can_see_user_list(request, view=None):
+def can_export_user_list(user):
     """
-    Checking that the ``request.user`` has the right to see list of users
+    Checking that the ``user`` has the right to export list of users
     """
-    has_perm = CanSeeUserList()
-    return has_perm.has_permission(request, view)
+    return user.is_staff or user.is_pastor_or_high
+
+
+def can_see_user_list(user):
+    """
+    Checking that the ``user`` has the right to see list of users
+    """
+    return user.is_staff or user.is_leaf_node
 
 
 # Account page: ``/account/<user_id>/``
@@ -174,7 +81,11 @@ def can_edit_status_block(current_user, user):
     - master
     - divisions
     """
-    return AccountCanEditStatusBlock().can_edit(current_user, user)
+    return (
+        current_user.is_partner_supervisor_or_high or
+        current_user.is_summit_any_supervisor_or_high or
+        current_user.is_ancestor_of(user)
+    )
 
 
 def can_edit_description_block(current_user, user):
@@ -183,4 +94,8 @@ def can_edit_description_block(current_user, user):
 
     - description
     """
-    return AccountCanEditDescriptionBlock().can_edit(current_user, user)
+    return (
+        current_user.is_partner_supervisor_or_high or
+        current_user.is_summit_any_supervisor_or_high or
+        current_user.is_ancestor_of(user)
+    )

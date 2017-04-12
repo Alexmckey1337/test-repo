@@ -19,11 +19,10 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 from account.permissions import (
     can_create_user, can_export_user_list, can_see_user_list, can_edit_status_block,
-    can_edit_description_block)
+    can_edit_description_block, can_see_account_page)
 from summit.permissions import can_edit_summit_block, can_see_summit_block
-from group.permissions import can_edit_church_block, can_see_church_block
 from partnership.permissions import can_edit_partner_block, can_see_partner_block, can_see_deal_block
-from group.models import GroupUserPermission
+from group.abstract_models import GroupUserPermission
 from navigation.models import Table
 from partnership.abstract_models import PartnerUserPermission
 from summit.abstract_models import SummitUserPermission
@@ -204,26 +203,29 @@ class CustomUser(MPTTModel, User, GroupUserPermission, PartnerUserPermission, Su
 
     # PERMISSIONS
 
+    def can_see_account_page(self, user):
+        """
+        Checking that the ``self`` user has the right to see page ``/account/<user.id>/``
+        """
+        return can_see_account_page(self, user)
+
     def can_create_user(self):
         """
-        Checking that the user has the right to create a new user
+        Checking that the ``self`` user has the right to create a new user
         """
-        request = self._perm_req()
-        return can_create_user(request)
+        return can_create_user(self)
 
     def can_export_user_list(self):
         """
-        Checking that the user has the right to export list of users
+        Checking that the ``self`` user has the right to export list of users
         """
-        request = self._perm_req()
-        return can_export_user_list(request)
+        return can_export_user_list(self)
 
     def can_see_user_list(self):
         """
-        Checking that the user has the right to see list of users
+        Checking that the ``self`` user has the right to see list of users
         """
-        request = self._perm_req()
-        return can_see_user_list(request)
+        return can_see_user_list(self)
 
     # Account page: /account/<user_id>/
 
@@ -266,25 +268,6 @@ class CustomUser(MPTTModel, User, GroupUserPermission, PartnerUserPermission, Su
         to see partner block of ``user``
         """
         return can_see_partner_block(self, user)
-
-    def can_edit_church_block(self, user):
-        """
-        Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
-        to edit fields of ``user``:
-
-        - repentance_date
-        - spiritual_level
-        - church
-        - home_group
-        """
-        return can_edit_church_block(self, user)
-
-    def can_see_church_block(self, user):
-        """
-        Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
-        to see church block of ``user``
-        """
-        return can_see_church_block(self, user)
 
     def can_edit_summit_block(self, user):
         """

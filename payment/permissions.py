@@ -2,9 +2,8 @@
 from __future__ import unicode_literals
 
 from django.contrib.contenttypes.models import ContentType
-from rest_framework.permissions import BasePermission, IsAuthenticated
+from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
 
-from partnership.permissions import IsManagerReadOnly, IsDisciplesOf
 from summit.permissions import IsConsultantReadOnly, IsSupervisorOrHigh as IsSummitSupervisorOrHigh
 
 
@@ -18,21 +17,20 @@ class PaymentPermission(BasePermission):
                 IsSummitSupervisorOrHigh().has_object_permission(request, view, purpose))
         if content_type.app_label == 'partnership' and content_type.model == 'partnership':
             return (
-                (IsManagerReadOnly().has_permission(request, view) and
-                 IsDisciplesOf().has_object_permission(request, view, purpose.user)) or
+                (request.user.is_partner_manager_or_high and request.method in SAFE_METHODS and
+                 request.user.is_partner_responsible_of(purpose.user)) or
                 request.user.is_partner_supervisor_or_high)
         if content_type.app_label == 'partnership' and content_type.model == 'deal':
             return (
-                (IsManagerReadOnly().has_permission(request, view) and
-                 IsDisciplesOf().has_object_permission(request, view, purpose.partnership.user)) or
+                (request.user.is_partner_manager_or_high and request.method in SAFE_METHODS and
+                 request.user.is_partner_responsible_of(purpose.partnership.user)) or
                 request.user.is_partner_supervisor_or_high)
         return False
 
 
-class PaymentManager(IsAuthenticated):
+class PaymentManager(BasePermission):
     def has_object_permission(self, request, view, payment):
-        return (super(PaymentManager, self).has_permission(request, view) and
-                payment.manager == request.user)
+        return payment.manager == request.user
 
 
 class PaymentManagerOrSupervisor(BasePermission):

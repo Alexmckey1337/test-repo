@@ -9,6 +9,7 @@ from rest_framework import exceptions
 from rest_framework import status
 from rest_framework.decorators import detail_route
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
@@ -26,7 +27,7 @@ def get_success_headers(data):
 
 
 class PaymentCheckPermissionMixin:
-    payment_permission_classes = (PaymentPermission,)
+    payment_permission_classes = (IsAuthenticated, PaymentPermission,)
     payment_permission_message = None
     payment_permission_invalid_object_message = _("This object don't have payments.")
 

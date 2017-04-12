@@ -44,7 +44,6 @@ partner_patterns = [
 ]
 account_patterns = [
     url(r'^(\d+)/$', views.account, name='detail'),
-    url(r'^(\d+)/edit/$', views.account_edit, name='edit'),
 ]
 meeting_patterns = [
     url(r'^$', views.meeting_types, name='list'),  # meeting_type-list

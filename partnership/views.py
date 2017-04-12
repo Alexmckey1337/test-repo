@@ -9,11 +9,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from common.filters import FieldSearchFilter
-from common.views_mixins import PartnerExportViewSetMixin
 from partnership.filters import FilterByPartnerBirthday, DateFilter, FilterPartnerMasterTreeWithSelf, PartnerUserFilter
-from partnership.mixins import PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin
+from partnership.mixins import PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin, PartnerExportViewSetMixin
 from partnership.pagination import PartnershipPagination, DealPagination
-from partnership.permissions import CanSeeDeals, CanSeePartners, CanCreateDeals, CanUpdateDeals
+from partnership.permissions import CanSeeDeals, CanSeePartners, CanCreateDeals, CanUpdateDeals, CanUpdatePartner
 from partnership.resources import PartnerResource
 from .models import Partnership, Deal
 from .serializers import (
@@ -52,7 +51,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         'search_city': ('user__city',),
     }
     permission_classes = (IsAuthenticated,)
-    permission_list_classes = (CanSeePartners,)
+    permission_list_classes = (IsAuthenticated, CanSeePartners)
     filter_class = PartnerUserFilter
 
     payment_list_field = 'extra_payments'
@@ -71,7 +70,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             return [permission() for permission in self.permission_list_classes]
         return super(PartnershipViewSet, self).get_permissions()
 
-    @list_route(permission_classes=(CanSeePartners,))
+    @list_route(permission_classes=(IsAuthenticated, CanSeePartners))
     def simple(self, request):
         """
         Returns a list of partners with level >= ``manager`` (``manager``, ``supervisor``, ``director``).
@@ -86,7 +85,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         return Response(partnerships)
 
     # TODO deprecated
-    @detail_route(methods=['put'])
+    @detail_route(methods=['put'], permission_classes=(IsAuthenticated, CanUpdatePartner))
     def update_need(self, request, pk=None):
         """
         Update the text of the partner's needs.
@@ -131,10 +130,10 @@ class DealViewSet(mixins.RetrieveModelMixin,
                      'partnership__user__last_name',
                      'partnership__user__search_name',
                      'partnership__user__middle_name',)
-    permission_classes = (CanSeeDeals,)
-    permission_list_classes = (CanSeeDeals,)
-    permission_create_classes = (CanCreateDeals,)
-    permission_update_classes = (CanUpdateDeals,)
+    permission_classes = (IsAuthenticated, CanSeeDeals)
+    permission_list_classes = (IsAuthenticated, CanSeeDeals)
+    permission_create_classes = (IsAuthenticated, CanCreateDeals)
+    permission_update_classes = (IsAuthenticated, CanUpdateDeals)
 
     def get_serializer_class(self):
         if self.action == 'create':

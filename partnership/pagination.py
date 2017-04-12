@@ -4,7 +4,6 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from navigation.table_fields import partner_table, user_table
-from partnership.permissions import CanCreatePartnerPayment, CanClosePartnerDeal
 
 
 class PartnershipPagination(PageNumberPagination):
@@ -32,8 +31,8 @@ class DealPagination(PageNumberPagination):
 
     def get_paginated_response(self, data):
         return Response(OrderedDict([
-            ('check_payment_permissions', CanCreatePartnerPayment().has_permission(self.request, None)),
-            ('can_close_deal', CanClosePartnerDeal().has_permission(self.request, None)),
+            ('check_payment_permissions', self.request.user.can_create_partner_payments()),
+            ('can_close_deal', self.request.user.can_close_partner_deals()),
             ('count', self.page.paginator.count),
             ('next', self.get_next_link()),
             ('previous', self.get_previous_link()),

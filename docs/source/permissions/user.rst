@@ -75,6 +75,10 @@ Update need field of partner:
 Permissions
 ~~~~~~~~~~~
 
+Classes
+"""""""
+Use with django-rest-framework
+
 .. autoclass:: account.permissions.CanCreateUser
     :members:
     :noindex:
@@ -84,26 +88,6 @@ Permissions
     :noindex:
 
 .. autoclass:: account.permissions.CanSeeUserList
-    :members:
-    :noindex:
-
-.. autoclass:: account.permissions.AccountCanEditStatusBlock
-    :members:
-    :noindex:
-
-.. autoclass:: group.permissions.AccountCanEditChurchBlock
-    :members:
-    :noindex:
-
-.. autoclass:: group.permissions.AccountCanSeeChurchBlock
-    :members:
-    :noindex:
-
-.. autoclass:: group.permissions.CanSeeHomeGroups
-    :members:
-    :noindex:
-
-.. autoclass:: group.permissions.CanSeeChurches
     :members:
     :noindex:
 
@@ -135,10 +119,6 @@ Permissions
     :members:
     :noindex:
 
-.. autoclass:: partnership.permissions.CanClosePartnerDeal
-    :members:
-    :noindex:
-
 .. autoclass:: partnership.permissions.CanCreatePartnerPayment
     :members:
     :noindex:
@@ -151,16 +131,38 @@ Permissions
     :members:
     :noindex:
 
-.. autoclass:: partnership.permissions.AccountCanEditPartnerBlock
-    :members:
+
+Functions
+"""""""""
+
+.. autofunction:: account.permissions.can_see_account_page
     :noindex:
 
-.. autoclass:: partnership.permissions.AccountCanSeePartnerBlock
-    :members:
+.. autofunction:: account.permissions.can_create_user
     :noindex:
 
-.. autoclass:: partnership.permissions.AccountCanSeeDealBlock
-    :members:
+.. autofunction:: account.permissions.can_export_user_list
+    :noindex:
+
+.. autofunction:: account.permissions.can_see_user_list
+    :noindex:
+
+.. autofunction:: account.permissions.can_edit_status_block
+    :noindex:
+
+.. autofunction:: account.permissions.can_edit_description_block
+    :noindex:
+
+.. autofunction:: group.permissions.can_see_churches
+    :noindex:
+
+.. autofunction:: group.permissions.can_see_home_groups
+    :noindex:
+
+.. autofunction:: group.permissions.can_see_church_block
+    :noindex:
+
+.. autofunction:: group.permissions.can_edit_church_block
     :noindex:
 
 

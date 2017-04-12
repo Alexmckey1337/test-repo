@@ -16,7 +16,7 @@ from .permissions import PaymentManagerOrSupervisor
 class PaymentUpdateDestroyView(mixins.UpdateModelMixin, mixins.DestroyModelMixin, GenericAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentUpdateSerializer
-    permission_classes = (PaymentManagerOrSupervisor,)
+    permission_classes = (IsAuthenticated, PaymentManagerOrSupervisor)
 
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)

@@ -37,10 +37,10 @@ class TestPartnershipViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert Partnership.objects.get(id=partner.id).need_text == 'new text'
 
-    def test_update_need_without_need_text(self, api_login_client, partner):
+    def test_update_need_without_need_text(self, api_login_supervisor_client, partner):
         url = reverse('partner-update-need', kwargs={'pk': partner.id})
 
-        response = api_login_client.put(url, data={})
+        response = api_login_supervisor_client.put(url, data={})
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
