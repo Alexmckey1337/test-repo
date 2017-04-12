@@ -56,9 +56,3 @@ class DealSerializer(DealCreateSerializer):
                   'full_name', 'responsible_name',
                   'total_sum', 'currency',
                   )
-
-
-class PartnershipUnregisterUserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ('id', 'fullname')

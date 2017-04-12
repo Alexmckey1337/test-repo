@@ -7,12 +7,10 @@ from rest_framework import routers
 from partnership import views
 
 router_v1_1 = routers.DefaultRouter()
-router_v1_1.register(r'partnerships', views.PartnershipViewSet, base_name='partnerships_v1_1')
+router_v1_1.register(r'partnerships', views.PartnershipViewSet, base_name='partner')
 
 router_v1_0 = routers.DefaultRouter()
 router_v1_0.register(r'deals', views.DealViewSet)
-router_v1_0.register(r'partnerships_unregister_search', views.PartnershipsUnregisterUserViewSet,
-                     base_name='partnerships_unregister_search')
 
 custom_urls = [
 ]

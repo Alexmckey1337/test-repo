@@ -22,7 +22,7 @@ class TestPartnershipViewSet:
         partner_factory.create_batch(2, level=Partnership.MANAGER)
         partner_factory.create_batch(4, level=Partnership.MANAGER - 1)
 
-        url = reverse('partnerships_v1_1-simple')
+        url = reverse('partner-simple')
 
         response = api_login_client.get(url, format='json')
 
@@ -30,7 +30,7 @@ class TestPartnershipViewSet:
         assert len(response.data) == 6
 
     def test_update_need_with_need_text(self, api_login_supervisor_client, partner):
-        url = reverse('partnerships_v1_1-update-need', kwargs={'pk': partner.id})
+        url = reverse('partner-update-need', kwargs={'pk': partner.id})
 
         response = api_login_supervisor_client.put(url, data={'need_text': 'new text'})
 
@@ -38,7 +38,7 @@ class TestPartnershipViewSet:
         assert Partnership.objects.get(id=partner.id).need_text == 'new text'
 
     def test_update_need_without_need_text(self, api_login_client, partner):
-        url = reverse('partnerships_v1_1-update-need', kwargs={'pk': partner.id})
+        url = reverse('partner-update-need', kwargs={'pk': partner.id})
 
         response = api_login_client.put(url, data={})
 
@@ -46,7 +46,7 @@ class TestPartnershipViewSet:
 
     def test_update_field(self, api_login_supervisor_client, partner, field_value):
         field, values = field_value
-        url = reverse('partnerships_v1_1-detail', kwargs={'pk': partner.id})
+        url = reverse('partner-detail', kwargs={'pk': partner.id})
 
         setattr(partner, field, values[0])
         partner.save()
@@ -58,7 +58,7 @@ class TestPartnershipViewSet:
 
     def test_list_of_partners_less_30(self, partner_factory, api_login_supervisor_client):
         partner_factory.create_batch(11)
-        url = reverse('partnerships_v1_1-list')
+        url = reverse('partner-list')
 
         response = api_login_supervisor_client.get(url)
 
@@ -66,7 +66,7 @@ class TestPartnershipViewSet:
 
     def test_list_of_partners_eq_30(self, partner_factory, api_login_supervisor_client):
         partner_factory.create_batch(30 - Partnership.objects.count())
-        url = reverse('partnerships_v1_1-list')
+        url = reverse('partner-list')
 
         response = api_login_supervisor_client.get(url)
 
@@ -74,7 +74,7 @@ class TestPartnershipViewSet:
 
     def test_list_of_partners_more_30(self, partner_factory, api_login_supervisor_client):
         partner_factory.create_batch(40)
-        url = reverse('partnerships_v1_1-list')
+        url = reverse('partner-list')
 
         response = api_login_supervisor_client.get(url)
 
@@ -89,7 +89,7 @@ class TestPartnershipViewSet:
         partner_factory.create_batch(10, user__hierarchy=hierarchy)
         partner_factory.create_batch(20, user__hierarchy=other_hierarchy)
 
-        url = reverse('partnerships_v1_1-list')
+        url = reverse('partner-list')
 
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.get('{}?hierarchy={}'.format(url, hierarchy.id), format='json')
@@ -110,7 +110,7 @@ class TestPartnershipViewSet:
         for partner in partners:
             partner.user.departments.set([other_department])
 
-        url = reverse('partnerships_v1_1-list')
+        url = reverse('partner-list')
 
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.get('{}?department={}'.format(url, department.id), format='json')
@@ -125,7 +125,7 @@ class TestPartnershipViewSet:
         partner_factory.create_batch(10, user__master=master.user)
         partner_factory.create_batch(20)
 
-        url = reverse('partnerships_v1_1-list')
+        url = reverse('partner-list')
 
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.get('{}?master={}'.format(url, master.user.id), format='json')
@@ -142,7 +142,7 @@ class TestPartnershipViewSet:
         partner_factory.create_batch(40, user__master=other_master.user)
         partner_factory.create_batch(20)
 
-        url = reverse('partnerships_v1_1-list')
+        url = reverse('partner-list')
 
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.get(
@@ -167,7 +167,7 @@ class TestPartnershipViewSet:
         partner_factory.create_batch(
             32, user__master=other_partner.user)  # count: + 0, = 12, all_users_count: + 32, = 61
 
-        url = reverse('partnerships_v1_1-list')
+        url = reverse('partner-list')
 
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.get(url, data={'master_tree': partner.user.id}, format='json')
@@ -181,7 +181,7 @@ class TestPartnershipViewSet:
         partner_factory.create_batch(10)
         partner_factory(user__last_name='searchlast', user__first_name='searchfirst')
 
-        url = reverse('partnerships_v1_1-list')
+        url = reverse('partner-list')
 
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.get(
@@ -198,7 +198,7 @@ class TestPartnershipViewSet:
         partner_factory(user__email='mysupermail@test.com')
         partner_factory(user__email='test@mysupermail.com')
 
-        url = reverse('partnerships_v1_1-list')
+        url = reverse('partner-list')
 
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.get(
@@ -215,7 +215,7 @@ class TestPartnershipViewSet:
         partner_factory(user__phone_number='+380990002246')
         partner_factory(user__phone_number='+380992299000')
 
-        url = reverse('partnerships_v1_1-list')
+        url = reverse('partner-list')
 
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.get(
@@ -231,7 +231,7 @@ class TestPartnershipViewSet:
         partner_factory.create_batch(10)
         partner_factory.create_batch(8, user__country='Ukraine')
 
-        url = reverse('partnerships_v1_1-list')
+        url = reverse('partner-list')
 
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.get(
@@ -247,7 +247,7 @@ class TestPartnershipViewSet:
         partner_factory.create_batch(10)
         partner_factory.create_batch(8, user__city='Tokio')
 
-        url = reverse('partnerships_v1_1-list')
+        url = reverse('partner-list')
 
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.get(

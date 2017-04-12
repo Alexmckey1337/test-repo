@@ -19,8 +19,7 @@ from partnership.permissions import CanSeeDeals, CanSeePartners, CanCreateDeals,
 from partnership.resources import PartnerResource
 from .models import Partnership, Deal
 from .serializers import (
-    DealSerializer, PartnershipSerializer, DealCreateSerializer, PartnershipUnregisterUserSerializer,
-    PartnershipTableSerializer, DealUpdateSerializer)
+    DealSerializer, PartnershipSerializer, DealCreateSerializer, PartnershipTableSerializer, DealUpdateSerializer)
 
 
 class PartnershipViewSet(mixins.RetrieveModelMixin,
@@ -167,17 +166,3 @@ class DealViewSet(mixins.RetrieveModelMixin,
             raise exceptions.PermissionDenied(detail=_('You do not have permission to create deal for this partner.'))
 
         return super(DealViewSet, self).create(request, *args, **kwargs)
-
-
-class PartnershipsUnregisterUserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.filter(partnership__isnull=True)
-    serializer_class = PartnershipUnregisterUserSerializer
-    filter_backends = (filters.DjangoFilterBackend,
-                       filters.SearchFilter,
-                       filters.DjangoFilterBackend,)
-    filter_fields = ('partnership',)
-    search_fields = ('first_name', 'last_name', 'middle_name',
-                     # 'country', 'region', 'city', 'district',
-                     # 'address', 'email',
-                     )
-    permission_classes = (IsAuthenticated,)
