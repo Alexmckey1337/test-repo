@@ -9,7 +9,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
 
 from account.abstact_models import UserPermission
-from account.permissions import can_see_churches, can_see_home_groups
+from group.permissions import can_see_churches, can_see_home_groups
 
 
 class GroupUserPermission(UserPermission):
@@ -17,10 +17,16 @@ class GroupUserPermission(UserPermission):
         abstract = True
 
     def can_see_churches(self):
+        """
+        Checking that the ``self`` user has the right to see list of churches
+        """
         request = self._perm_req()
         return can_see_churches(request)
 
     def can_see_home_groups(self):
+        """
+        Checking that the ``self`` user has the right to see list of home groups
+        """
         request = self._perm_req()
         return can_see_home_groups(request)
 

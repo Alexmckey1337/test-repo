@@ -17,7 +17,12 @@ from django.utils.translation import ugettext_lazy as _
 from mptt.managers import TreeManager
 from mptt.models import MPTTModel, TreeForeignKey
 
-from account.permissions import can_create_user, can_export_user_list, can_see_user_list
+from account.permissions import (
+    can_create_user, can_export_user_list, can_see_user_list, can_edit_status_block,
+    can_edit_description_block)
+from summit.permissions import can_edit_summit_block, can_see_summit_block
+from group.permissions import can_edit_church_block, can_see_church_block
+from partnership.permissions import can_edit_partner_block, can_see_partner_block, can_see_deal_block
 from group.models import GroupUserPermission
 from navigation.models import Table
 from partnership.abstract_models import PartnerUserPermission
@@ -219,6 +224,88 @@ class CustomUser(MPTTModel, User, GroupUserPermission, PartnerUserPermission, Su
         """
         request = self._perm_req()
         return can_see_user_list(request)
+
+    # Account page: /account/<user_id>/
+
+    def can_edit_status_block(self, user):
+        """
+        Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
+        to edit fields of ``user``:
+    
+        - department
+        - status
+        - master
+        - divisions
+        """
+        return can_edit_status_block(self, user)
+
+    def can_edit_description_block(self, user):
+        """
+        Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
+        to edit fields of ``user``:
+    
+        - description
+        """
+        return can_edit_description_block(self, user)
+
+    def can_edit_partner_block(self, user):
+        """
+        Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
+        to edit fields of ``user``:
+    
+        - partnership.is_active
+        - partnership.date
+        - partnership.value and partnership.currency
+        - partnership.responsible
+        """
+        return can_edit_partner_block(self, user)
+
+    def can_see_partner_block(self, user):
+        """
+        Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
+        to see partner block of ``user``
+        """
+        return can_see_partner_block(self, user)
+
+    def can_edit_church_block(self, user):
+        """
+        Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
+        to edit fields of ``user``:
+    
+        - repentance_date
+        - spiritual_level
+        - church
+        - home_group
+        """
+        return can_edit_church_block(self, user)
+
+    def can_see_church_block(self, user):
+        """
+        Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
+        to see church block of ``user``
+        """
+        return can_see_church_block(self, user)
+
+    def can_edit_summit_block(self, user):
+        """
+        Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
+        to edit summit block of ``user``
+        """
+        return can_edit_summit_block(self, user)
+
+    def can_see_summit_block(self, user):
+        """
+        Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
+        to see summit block of ``user``
+        """
+        return can_see_summit_block(self, user)
+
+    def can_see_deal_block(self, user):
+        """
+        Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
+        to see deals block of ``user``
+        """
+        return can_see_deal_block(self, user)
 
 
 @python_2_unicode_compatible

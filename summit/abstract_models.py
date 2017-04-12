@@ -26,3 +26,7 @@ class SummitUserPermission(UserPermission):
     def available_summit_types(self):
         return SummitType.objects.filter(summits__ankets__user=self,
                                          summits__ankets__role__gte=SummitAnket.CONSULTANT).distinct()
+
+    def is_summit_any_supervisor_or_high(self):
+        # TODO
+        return False

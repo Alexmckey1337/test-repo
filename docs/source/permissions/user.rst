@@ -87,6 +87,34 @@ Permissions
     :members:
     :noindex:
 
+.. autoclass:: account.permissions.AccountCanEditStatusBlock
+    :members:
+    :noindex:
+
+.. autoclass:: group.permissions.AccountCanEditChurchBlock
+    :members:
+    :noindex:
+
+.. autoclass:: group.permissions.AccountCanSeeChurchBlock
+    :members:
+    :noindex:
+
+.. autoclass:: group.permissions.CanSeeHomeGroups
+    :members:
+    :noindex:
+
+.. autoclass:: group.permissions.CanSeeChurches
+    :members:
+    :noindex:
+
+.. autoclass:: summit.permissions.AccountCanEditSummitBlock
+    :members:
+    :noindex:
+
+.. autoclass:: summit.permissions.AccountCanSeeSummitBlock
+    :members:
+    :noindex:
+
 .. autoclass:: partnership.permissions.CanSeePartners
     :members:
     :noindex:
@@ -123,6 +151,18 @@ Permissions
     :members:
     :noindex:
 
+.. autoclass:: partnership.permissions.AccountCanEditPartnerBlock
+    :members:
+    :noindex:
+
+.. autoclass:: partnership.permissions.AccountCanSeePartnerBlock
+    :members:
+    :noindex:
+
+.. autoclass:: partnership.permissions.AccountCanSeeDealBlock
+    :members:
+    :noindex:
+
 
 Model methods of permission
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -130,5 +170,8 @@ Model methods of permission
 .. autoclass:: account.models.CustomUser
     :members: can_create_user, can_export_user_list, can_see_user_list, can_see_partners, can_see_deals,
               can_see_deal_payments, can_see_partner_stats, can_close_partner_deals, can_create_deal_for_partner,
-              can_create_partner_payments, can_see_any_partner_block, can_export_partner_list, can_update_partner_need
+              can_create_partner_payments, can_see_any_partner_block, can_export_partner_list,
+              can_update_partner_need, can_edit_status_block, can_edit_description_block, can_edit_partner_block,
+              can_see_partner_block, can_edit_church_block, can_see_church_block, can_edit_summit_block,
+              can_see_summit_block, can_see_deal_block, can_see_churches, can_see_home_groups
     :noindex:

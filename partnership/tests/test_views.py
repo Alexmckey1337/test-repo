@@ -17,7 +17,8 @@ from payment.serializers import PaymentShowSerializer
 
 @pytest.mark.django_db
 class TestPartnershipViewSet:
-    def test_simple(self, api_login_client, partner_factory):
+    def test_simple(self, monkeypatch, api_login_client, partner_factory):
+        monkeypatch.setattr(PartnershipViewSet, 'get_permissions', lambda self: [permissions.AllowAny()])
         partner_factory(level=Partnership.MANAGER + 1)
         partner_factory.create_batch(2, level=Partnership.MANAGER)
         partner_factory.create_batch(4, level=Partnership.MANAGER - 1)
@@ -29,15 +30,43 @@ class TestPartnershipViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 6
 
-    def test_for_edit_user_is_partner(self, api_login_client, partner):
+    def test_for_edit_user_is_partner_partner(self, api_client, partner_partner, partner):
         url = reverse('partnerships_v1_1-for-edit')
 
-        response = api_login_client.get(url, data={'user': partner.user_id})
+        api_client.force_login(partner_partner.user)
+        response = api_client.get(url, data={'user': partner.user_id})
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_for_edit_user_is_partner_manager(self, api_client, partner_manager, partner):
+        url = reverse('partnerships_v1_1-for-edit')
+
+        api_client.force_login(partner_manager.user)
+        response = api_client.get(url, data={'user': partner.user_id})
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data == PartnershipForEditSerializer(partner).data
 
-    def test_for_edit_user_is_not_partner(self, api_login_client, user_factory):
+    def test_for_edit_user_is_partner_supervisor(self, api_client, partner_supervisor, partner):
+        url = reverse('partnerships_v1_1-for-edit')
+
+        api_client.force_login(partner_supervisor.user)
+        response = api_client.get(url, data={'user': partner.user_id})
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == PartnershipForEditSerializer(partner).data
+
+    def test_for_edit_user_is_partner_director(self, api_client, partner_director, partner):
+        url = reverse('partnerships_v1_1-for-edit')
+
+        api_client.force_login(partner_director.user)
+        response = api_client.get(url, data={'user': partner.user_id})
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == PartnershipForEditSerializer(partner).data
+
+    def test_for_edit_user_is_not_partner(self, monkeypatch, api_login_client, user_factory):
+        monkeypatch.setattr(PartnershipViewSet, 'get_permissions', lambda self: [permissions.AllowAny()])
         url = reverse('partnerships_v1_1-for-edit')
 
         response = api_login_client.get(url, data={'user': user_factory().id})

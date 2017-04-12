@@ -1,4 +1,4 @@
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, BasePermission
 
 from partnership.permissions import IsDisciplesOf
 from summit.permissions import IsSupervisorOrHigh as IsSummitSupervisorOrHigh
@@ -62,8 +62,7 @@ class CanAccountObjectRead(IsAuthenticated,
         )
 
 
-class CanAccountObjectEdit(IsAuthenticated,
-                           IsAncestorOfPermissionMixin):
+class CanAccountObjectEdit(IsAuthenticated, IsAncestorOfPermissionMixin):
     def has_object_permission(self, request, view, account):
         return (
             super(CanAccountObjectEdit, self).has_permission(request, view) and
@@ -73,18 +72,10 @@ class CanAccountObjectEdit(IsAuthenticated,
         )
 
 
-class CanSeeChurches(IsAuthenticated, HasHierarchyLevelMixin):
-    def has_permission(self, request, view):
-        return (
-            super(CanSeeChurches, self).has_permission(request, view) and
-           request.user.is_staff or self.level_gte(request, 1)
-        )
-
-
 class CanCreateUser(IsAuthenticated):
     def has_permission(self, request, view):
         """
-        Checking that the current user has the right to create a new user
+        Checking that the ``request.user`` has the right to create a new user
         """
         return (
             super(CanCreateUser, self).has_permission(request, view) and
@@ -97,7 +88,7 @@ class CanCreateUser(IsAuthenticated):
 class CanExportUserList(IsAuthenticated):
     def has_permission(self, request, view):
         """
-        Checking that the current user has the right to export list of users
+        Checking that the ``request.user`` has the right to export list of users
         """
         return (
             super(CanExportUserList, self).has_permission(request, view) and
@@ -108,7 +99,7 @@ class CanExportUserList(IsAuthenticated):
 class CanSeeUserList(IsAuthenticated):
     def has_permission(self, request, view):
         """
-        Checking that the current user has the right to see list of users
+        Checking that the ``request.user`` has the right to see list of users
         """
         return (
             super(CanSeeUserList, self).has_permission(request, view) and
@@ -116,22 +107,40 @@ class CanSeeUserList(IsAuthenticated):
         )
 
 
-CanSeeHomeGroups = CanSeeChurches
+class AccountCanEditStatusBlock(BasePermission):
+    def can_edit(self, current_user, user):
+        """
+        Use for ``/account/<user.id>/`` page. Checking that the ``current_user`` has the right to edit fields:
+
+        - department
+        - status
+        - master
+        - divisions
+        """
+        return (
+            current_user.is_partner_supervisor_or_high or
+            current_user.is_summit_any_supervisor_or_high or
+            current_user.is_ancestor_of(user)
+        )
 
 
-def can_see_churches(request, view=None):
-    has_perm = CanSeeChurches()
-    return has_perm.has_permission(request, view)
+class AccountCanEditDescriptionBlock(BasePermission):
+    def can_edit(self, current_user, user):
+        """
+        Use for ``/account/<user.id>/`` page. Checking that the ``current_user`` has the right to edit fields:
 
-
-def can_see_home_groups(request, view=None):
-    has_perm = CanSeeHomeGroups()
-    return has_perm.has_permission(request, view)
+        - description
+        """
+        return (
+            current_user.is_partner_supervisor_or_high or
+            current_user.is_summit_any_supervisor_or_high or
+            current_user.is_ancestor_of(user)
+        )
 
 
 def can_create_user(request, view=None):
     """
-    Checking that the request.user has the right to create a new user
+    Checking that the ``request.user`` has the right to create a new user
     """
     has_perm = CanCreateUser()
     return has_perm.has_permission(request, view)
@@ -139,7 +148,7 @@ def can_create_user(request, view=None):
 
 def can_export_user_list(request, view=None):
     """
-    Checking that the request.user has the right to export list of users
+    Checking that the ``request.user`` has the right to export list of users
     """
     has_perm = CanExportUserList()
     return has_perm.has_permission(request, view)
@@ -147,7 +156,33 @@ def can_export_user_list(request, view=None):
 
 def can_see_user_list(request, view=None):
     """
-    Checking that the request.user has the right to see list of users
+    Checking that the ``request.user`` has the right to see list of users
     """
     has_perm = CanSeeUserList()
     return has_perm.has_permission(request, view)
+
+
+# Account page: ``/account/<user_id>/``
+
+
+def can_edit_status_block(current_user, user):
+    """
+    Use for ``/account/<user.id>/`` page. Checking that the ``current_user`` has the right to edit fields:
+
+    - department
+    - status
+    - master
+    - divisions
+    """
+    return AccountCanEditStatusBlock().can_edit(current_user, user)
+
+
+def can_edit_description_block(current_user, user):
+    """
+    Use for ``/account/<user.id>/`` page. Checking that the ``current_user`` has the right to edit fields:
+
+    - description
+    """
+    return AccountCanEditDescriptionBlock().can_edit(current_user, user)
+
+

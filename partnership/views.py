@@ -76,6 +76,12 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
 
     @list_route(permission_classes=(CanSeePartners,))
     def simple(self, request):
+        """
+        Returns a list of partners with level >= ``manager`` (``manager``, ``supervisor``, ``director``)
+
+        :param request: rest_framework.Request
+        :return: list of dicts, e.g. [{'id': 124, 'fullname': Ivanov Ivan Ivanovich}, ...]
+        """
         partnerships = Partnership.objects.select_related('user').filter(
             level__lte=Partnership.MANAGER).values_list(
             'id', 'user__last_name', 'user__first_name', 'user__middle_name')
