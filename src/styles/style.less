@@ -3604,10 +3604,14 @@ span.change[style*="display: none"] ~ span.y {
   border-bottom: none;
 }
 
-.left-content li {
+.left-content ul > li {
   padding: 5px 3px;
   font-size: 1em;
   line-height: 1.4;
+  & > ul {
+    width: 65%;
+    float: right;
+  }
 }
 
 .left-content li span {
@@ -3777,6 +3781,7 @@ span.change[style*="display: none"] ~ span.y {
             font-size: 1.5em;
           }
         }
+
         & .sel__date {
           width: 7em;
         }
