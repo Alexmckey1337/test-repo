@@ -267,19 +267,22 @@ $('.close-popup').on('click', function (e) {
     hidePopup(this);
 });
 function setSidebarPosition() {
-    console.log('sidebar');
     let $sidebar = $("#sidebar");
     let $moveSidebar = $('#move-sidebar');
     if (!$sidebar.hasClass('toggle-sidebar')) {
         setTimeout(function () {
             $sidebar.addClass('toggle-sidebar');
+            document.documentElement.style.setProperty('--lsb_width', '90px');
             $moveSidebar.addClass('active');
+
             document.cookie = 'state=active;path=/';
         }, 100)
     } else {
         setTimeout(function () {
             $sidebar.removeClass('toggle-sidebar');
+            document.documentElement.style.setProperty('--lsb_width', '240px');
             $moveSidebar.removeClass('active');
+
             deleteCookie('state');
         }, 100)
     }
