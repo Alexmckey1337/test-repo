@@ -9,8 +9,7 @@ from django.urls import reverse
 from rest_framework import status, permissions
 
 from partnership.models import Partnership, Deal
-from partnership.serializers import PartnershipForEditSerializer, DealSerializer, DealCreateSerializer, \
-    DealUpdateSerializer
+from partnership.serializers import DealSerializer, DealCreateSerializer, DealUpdateSerializer
 from partnership.views import PartnershipViewSet
 from payment.serializers import PaymentShowSerializer
 
@@ -29,49 +28,6 @@ class TestPartnershipViewSet:
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 6
-
-    def test_for_edit_user_is_partner_partner(self, api_client, partner_partner, partner):
-        url = reverse('partnerships_v1_1-for-edit')
-
-        api_client.force_login(partner_partner.user)
-        response = api_client.get(url, data={'user': partner.user_id})
-
-        assert response.status_code == status.HTTP_403_FORBIDDEN
-
-    def test_for_edit_user_is_partner_manager(self, api_client, partner_manager, partner):
-        url = reverse('partnerships_v1_1-for-edit')
-
-        api_client.force_login(partner_manager.user)
-        response = api_client.get(url, data={'user': partner.user_id})
-
-        assert response.status_code == status.HTTP_200_OK
-        assert response.data == PartnershipForEditSerializer(partner).data
-
-    def test_for_edit_user_is_partner_supervisor(self, api_client, partner_supervisor, partner):
-        url = reverse('partnerships_v1_1-for-edit')
-
-        api_client.force_login(partner_supervisor.user)
-        response = api_client.get(url, data={'user': partner.user_id})
-
-        assert response.status_code == status.HTTP_200_OK
-        assert response.data == PartnershipForEditSerializer(partner).data
-
-    def test_for_edit_user_is_partner_director(self, api_client, partner_director, partner):
-        url = reverse('partnerships_v1_1-for-edit')
-
-        api_client.force_login(partner_director.user)
-        response = api_client.get(url, data={'user': partner.user_id})
-
-        assert response.status_code == status.HTTP_200_OK
-        assert response.data == PartnershipForEditSerializer(partner).data
-
-    def test_for_edit_user_is_not_partner(self, monkeypatch, api_login_client, user_factory):
-        monkeypatch.setattr(PartnershipViewSet, 'get_permissions', lambda self: [permissions.AllowAny()])
-        url = reverse('partnerships_v1_1-for-edit')
-
-        response = api_login_client.get(url, data={'user': user_factory().id})
-
-        assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_update_need_with_need_text(self, api_login_supervisor_client, partner):
         url = reverse('partnerships_v1_1-update-need', kwargs={'pk': partner.id})

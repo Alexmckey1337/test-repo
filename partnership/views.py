@@ -20,7 +20,7 @@ from partnership.resources import PartnerResource
 from .models import Partnership, Deal
 from .serializers import (
     DealSerializer, PartnershipSerializer, DealCreateSerializer, PartnershipUnregisterUserSerializer,
-    PartnershipForEditSerializer, PartnershipTableSerializer, DealUpdateSerializer)
+    PartnershipTableSerializer, DealUpdateSerializer)
 
 
 class PartnershipViewSet(mixins.RetrieveModelMixin,
@@ -77,7 +77,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
     @list_route(permission_classes=(CanSeePartners,))
     def simple(self, request):
         """
-        Returns a list of partners with level >= ``manager`` (``manager``, ``supervisor``, ``director``)
+        Returns a list of partners with level >= ``manager`` (``manager``, ``supervisor``, ``director``).
 
         :param request: rest_framework.Request
         :return: list of dicts, e.g. [{'id': 124, 'fullname': Ivanov Ivan Ivanovich}, ...]
@@ -89,18 +89,15 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         return Response(partnerships)
 
     # TODO deprecated
-    @list_route(permission_classes=(CanSeePartners,))
-    def for_edit(self, request):
-        user_id = request.query_params.get('user')
-        user = get_object_or_404(CustomUser, pk=user_id)
-        partnership = get_object_or_404(Partnership, user=user)
-
-        data = PartnershipForEditSerializer(partnership).data
-        return Response(data)
-
-    # TODO deprecated
     @detail_route(methods=['put'])
     def update_need(self, request, pk=None):
+        """
+        Update the text of the partner's needs.
+
+        :param request: rest_framework.Request
+        :param pk: id of partner
+        :return: dict with need_text, e.g. {'need_text': 'i am update text'}
+        """
         if not request.user.can_update_partner_need:
             raise exceptions.PermissionDenied(detail=_('You do not have permission to update need of this partner.'))
         text = request.data.get('need_text', None)

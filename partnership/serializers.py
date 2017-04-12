@@ -10,14 +10,6 @@ from payment.serializers import CurrencySerializer
 from .models import Partnership, Deal
 
 
-class PartnershipForEditSerializer(serializers.ModelSerializer):
-    responsible_id = serializers.PrimaryKeyRelatedField(source='responsible', read_only=True)
-
-    class Meta:
-        model = Partnership
-        fields = ('date', 'responsible_id', 'value')
-
-
 class PartnershipSerializer(serializers.ModelSerializer):
     date = serializers.DateField(format=None, input_formats=None)
     responsible = serializers.StringRelatedField()
