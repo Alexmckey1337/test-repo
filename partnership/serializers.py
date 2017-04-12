@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from account.models import CustomUser
 from account.serializers import UserTableSerializer
 from common.fields import DecimalWithCurrencyField
 from payment.serializers import CurrencySerializer

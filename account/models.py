@@ -231,7 +231,7 @@ class CustomUser(MPTTModel, User, GroupUserPermission, PartnerUserPermission, Su
         """
         Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
         to edit fields of ``user``:
-    
+
         - department
         - status
         - master
@@ -243,7 +243,7 @@ class CustomUser(MPTTModel, User, GroupUserPermission, PartnerUserPermission, Su
         """
         Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
         to edit fields of ``user``:
-    
+
         - description
         """
         return can_edit_description_block(self, user)
@@ -252,7 +252,7 @@ class CustomUser(MPTTModel, User, GroupUserPermission, PartnerUserPermission, Su
         """
         Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
         to edit fields of ``user``:
-    
+
         - partnership.is_active
         - partnership.date
         - partnership.value and partnership.currency
@@ -271,7 +271,7 @@ class CustomUser(MPTTModel, User, GroupUserPermission, PartnerUserPermission, Su
         """
         Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
         to edit fields of ``user``:
-    
+
         - repentance_date
         - spiritual_level
         - church

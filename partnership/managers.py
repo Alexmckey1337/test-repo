@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.db import models
 from django.db.models import Value as V, Sum
 from django.db.models.functions import Concat, Coalesce

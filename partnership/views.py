@@ -5,11 +5,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions, filters, mixins, status, viewsets
 from rest_framework.decorators import list_route, detail_route
-from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from account.models import CustomUser as User, CustomUser
 from common.filters import FieldSearchFilter
 from common.views_mixins import PartnerExportViewSetMixin
 from partnership.filters import FilterByPartnerBirthday, DateFilter, FilterPartnerMasterTreeWithSelf, PartnerUserFilter

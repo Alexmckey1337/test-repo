@@ -184,5 +184,3 @@ def can_edit_description_block(current_user, user):
     - description
     """
     return AccountCanEditDescriptionBlock().can_edit(current_user, user)
-
-
