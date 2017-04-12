@@ -2,8 +2,10 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.conf.urls.static import static
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 from django.urls import reverse
 
@@ -11,43 +13,63 @@ from main import views
 
 
 def redirect_to_deals(request):
-    return redirect(reverse('partner-deals'))
+    if request.user.can_see_deals():
+        return redirect(reverse('partner:deals'))
+    if request.user.can_see_partners():
+        return redirect(reverse('partner:list'))
+    if request.user.can_see_partner_stats():
+        return redirect(reverse('partner:stats'))
+    if request.user.can_see_deal_payments():
+        return redirect(reverse('partner:payments'))
+    raise PermissionDenied
 
 
 def redirect_to_churches(request):
-    return redirect(reverse('churches'))
+    if not request.user.can_see_churches():
+        return redirect(reverse('db:people'))
+    return redirect(reverse('db:churches'))
 
+database_patterns = [
+    url(r'^$', login_required(redirect_to_churches, login_url='entry'), name='main'),
+    url(r'^people/$', views.PeopleListView.as_view(), name='people'),
+    url(r'^churches/$', views.ChurchListView.as_view(), name='churches'),
+    url(r'^home_groups/$', views.HomeGroupListView.as_view(), name='home_groups'),
+]
+partner_patterns = [
+    url(r'^$', login_required(redirect_to_deals, login_url='entry'), name='main'),
+    url(r'^list/$', views.PartnerListView.as_view(), name='list'),
+    url(r'^deals/$', views.DealListView.as_view(), name='deals'),
+    url(r'^stats/$', views.PartnerStatisticsListView.as_view(), name='stats'),
+    url(r'^payments/$', views.PartnerPaymentsListView.as_view(), name='payments'),
+]
+account_patterns = [
+    url(r'^(\d+)/$', views.account, name='detail'),
+    url(r'^(\d+)/edit/$', views.account_edit, name='edit'),
+]
+meeting_patterns = [
+    url(r'^$', views.meeting_types, name='list'),  # meeting_type-list
+    url(r'^(?P<code>[-_\w]+)/$', views.meeting_type_detail, name='detail'),  # meeting_type-detail
+    url(r'^(?P<code>[-_\w]+)/report/$', views.meeting_report, name='report'),  # meeting-report
+]
+summit_patterns = [
+    url(r'^$', views.summits, name='list'),
+    url(r'^(?P<pk>\d+)/$', views.SummitTypeView.as_view(), name='detail'),
+]
 
 urlpatterns = [
-                  url(r'^entry/$', views.entry, name='entry'),
-                  url(r'^events/$', views.events, name='events'),
-                  url(r'^partner/$', redirect_to_deals, name='partner'),
-                  url(r'^partner/list/$', views.partner, name='partner-list'),
-                  url(r'^partner/deals/$', views.deals, name='partner-deals'),
-                  url(r'^partner/stats/$', views.stats, name='partner-stats'),
+    url(r'^$', views.index, name='index'),
+    url(r'^entry/$', views.entry, name='entry'),
 
-                  url(r'^meetings/$', views.meetings, name='meeting-list'),
-                  url(r'^meetings_types/$', views.meetings_types, name='meeting_type-list'),
-                  url(r'^meetings_types/(?P<code>[-_\w]+)/report/$', views.meeting_report, name='meeting-report'),
-                  url(r'^meetings_statistics/$', views.meetings_statistics, name='meetings_statistics'),
-                  url(r'^church_report/$', views.church_report, name='church-report'),
-                  url(r'^churches_statistics', views.churches_statistics, name='churches-statistics'),
+    url(r'^db/', include(database_patterns, namespace='db')),
+    url(r'^account/', include(account_patterns, namespace='account')),
+    url(r'^partner/', include(partner_patterns, namespace='partner')),
+    url(r'^meeting_types/', include(meeting_patterns, namespace='meeting_type')),
+    url(r'^summits/', include(summit_patterns, namespace='summit')),
 
-                  url(r'^account/([0-9]+)/$', views.account, name='account'),
-                  url(r'^account_edit/([0-9]+)/$', views.account_edit, name='account_edit'),
-                  url(r'^reports/$', views.reports, name='reports'),
-                  url(r'^summits/$', views.summits, name='summits'),
-                  url(r'^summits/([0-9]+)/$', views.summit_info, name='summit_info'),
+    url(r'^churches/(?P<pk>\d+)/$', views.ChurchDetailView.as_view(), name='church_detail'),
+    url(r'^home_groups/(?P<pk>\d+)/$', views.HomeGroupDetailView.as_view(), name='home_group_detail'),
 
-                  url(r'^databases/$', redirect_to_churches, name='churches'),
-                  url(r'^databases/churches/$', views.churches, name='churches'),
-                  url(r'^databases/people/$', views.people, name='people'),
-                  url(r'^databases/home_groups/$', views.home_groups, name='home_groups'),
-                  url(r'^churches/([0-9]+)/$', views.church_detail, name='church_detail'),
-                  url(r'^home_groups/([0-9]+)/$', views.home_group_detail, name='home_group_detail'),
 
-                  url(r'^$', views.index, name='index'),
-                  url(r'^event_info/$', views.event_info, name='event_info'),
-                  url(r'^password_view/(?P<activation_key>\w+)/$', views.edit_pass, name='password_view'),
-
-              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    url(r'^password_view/(?P<activation_key>\w+)/$', views.edit_pass, name='password_view'),
+]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -128,7 +128,8 @@ TEMPLATES = [
                 'django.template.context_processors.static',
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
-                'notification.context_processor.notifications'
+                'notification.context_processor.notifications',
+                'account.context_processor.spiritual_levels'
             ],
         },
     },
@@ -235,7 +236,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = 'testzormail@gmail.com'
 
-########## CELERY
+#  CELERY
 INSTALLED_APPS += ('edem.settings.celery.CeleryConfig',)
 # if you are not using the django database broker (e.g. rabbitmq, redis, memcached), you can remove the next line.
 INSTALLED_APPS += ('kombu.transport.django',)
@@ -339,4 +340,20 @@ PARTNER_LEVELS = {
     'supervisor': 1,
     'manager': 2,
     'partner': 3,
+}
+
+SUMMIT_ANKET_ROLES = {
+    'visitor': 10,
+    'consultant': 20,
+    'supervisor': 30
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+        "ROUTING": "edem.routing.channel_routing",
+    },
 }

@@ -45,7 +45,7 @@ def summit_table():
             'active': True,
             'editable': False,
         },
-        value={
+        total_sum={
             'title': 'Оплата',
             'ordering_title': 'value',
             'number': 2,

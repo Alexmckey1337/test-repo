@@ -6,6 +6,9 @@ Church
 ------
 
 
+List of churches
+~~~~~~~~~~~~~~~~
+
 .. http:get:: /api/v1.0/churches/
 
     List of Churches (order by ``opening_date``, ``id``).
@@ -90,13 +93,9 @@ Church
     :query int pastor: filter by ``pastor_id``
     :query int page_size: page size, default is 30
     :query string title: search by ``title``
-    :query string country: search by ``country``
-    :query string city: search by ``city``
-    :query string is_open: search by ``is_open``
-    :query string phone_number: search by ``phone_number``
     :query string ordering: order by one of ``title``, ``city``, ``department``, ``home_group``, ``is_open``,
                                             ``opening_date``, ``pastor``, ``phone_number``, ``title``, ``website``
-                                            ``count_groups``, ``count_users``,
+                                            ``count_groups``, ``count_users``, ``country``
 
     **Example response(Bad request)**:
 
@@ -114,6 +113,9 @@ Church
 
     :statuscode 200: no error
     :statuscode 403: user is not authenticated
+
+Create new church
+~~~~~~~~~~~~~~~~~
 
 .. http:post:: /api/v1.0/churches/
 
@@ -217,7 +219,7 @@ Church
     :form title: title
     :form department: department id, **required**
     :form pastor: pastor id, **required**
-    :form country: "", **required**
+    :form country: country, **required**
     :form city: city
     :form address: address
     :form phone_number: phone number
@@ -227,6 +229,9 @@ Church
     :statuscode 400: bad request
     :statuscode 403: user is not authenticated
 
+
+Detail church info
+~~~~~~~~~~~~~~~~~~
 
 .. http:get:: /api/v1.0/churches/(int:<church_id>)/
 
@@ -295,6 +300,9 @@ Church
     :statuscode 403: user is not authenticated
     :statuscode 404: there's no church
 
+
+Update church
+~~~~~~~~~~~~~
 
 .. http:put:: /api/v1.0/churches/(int:<church_id>)/
 .. http:patch:: /api/v1.0/churches/(int:<church_id>)/
@@ -442,6 +450,9 @@ Church
     :statuscode 404: there's no church
 
 
+List home groups by church
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 .. http:get:: /api/v1.0/churches/(int:<church_id>)/home_groups
 
     Details of ``Home Groups`` in selected ``Churhc`` with ``id = church_id``.
@@ -510,6 +521,9 @@ Church
     :statuscode 404: there's no church
 
 
+Potential users of church
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
 .. http:get:: /api/v1.0/churches/potential_users_church/
 
     List of users for append to current church, only 30.
@@ -552,7 +566,7 @@ Church
           }
         ]
 
-    **Example response (Bad Requst)**:
+    **Example response (Bad Request)**:
 
     .. sourcecode:: http
 
@@ -571,6 +585,9 @@ Church
     :statuscode 200: no error
     :statuscode 400: length of search request < 3
 
+
+Potential users of group
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. http:get:: /api/v1.0/churches/(int:<church_id>)/potential_users_group/
 
@@ -633,6 +650,9 @@ Church
     :statuscode 200: no error
     :statuscode 400: length of search request < 3
 
+
+All users of church and groups
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. http:get:: /api/v1.0/churches/(int:<church_id>)/all_users
 
@@ -709,6 +729,9 @@ Church
     :statuscode 200: no error
     :statuscode 404: there's no church
 
+
+List of users of church
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. http:get:: /api/v1.0/churches/(int:<church_id>)/users/
 
@@ -788,6 +811,9 @@ Church
     :statuscode 200: no error
     :statuscode 403: user is not authenticated
 
+
+Add user to church
+~~~~~~~~~~~~~~~~~~
 
 .. http:post:: /api/v1.0/churches/(int:<church_id>)/add_user/
 
@@ -892,6 +918,9 @@ Church
     :statuscode 403: user is not authenticated
 
 
+Del user from church
+~~~~~~~~~~~~~~~~~~~~
+
 .. http:post:: /api/v1.0/churches/(<int:church_id>)/del_user
 
     Remove user from ``church`` with ``id = church_id``.
@@ -966,11 +995,150 @@ Church
     :statuscode 403: user is not authenticated
 
 
+Statistics of churches
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/churches/<id>/statistics
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/churches/18/statistics HTTP/1.1
+        Host: vocrm.org
+        Content-type: application/json
+
+    **Example response (Good Request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "church_users": 9,
+            "church_all_users": 24,
+            "parishioners_count": 11,
+            "leaders_count": 2,
+            "home_groups_count": 3,
+            "fathers_count": 1,
+            "juniors_count": 1,
+            "babies_count": 22,
+            "partners_count": 12
+        }
+
+
+All Church objects without pagination, filtered by department
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/churches/all/?department_id=<int(department_id)>
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/churches/all/?department_id=1 HTTP/1.1
+        Host: vocrm.org
+        Content-type: application/json
+
+    **Example response (Good Request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        [
+            {
+                "id": 26,
+                "get_title": "Вторая Церковь"
+            },
+            {
+                "id": 18,
+                "get_title": "Певая Церковь"
+            },
+            {
+                "id": 19,
+                "get_title": "Вторая Церковь"
+            }
+        ]
+
+    **Example response (Bad Request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        [
+            "Некорректный запрос. Департамент не передан."
+        ]
+
+    :statuscode 200: no error
+    :statuscode 400: bad request
+
+
+Available pastors filtered by department
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/churches/get_pastors_by_department/?department_id=<int(department_id)>
+
+    **Example request**
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/churches/get_pastors_by_department/?department_id=2 HTTP/1.1
+        Host: vocrm.org
+        Content-type: application/json
+
+    **Example response (Good Request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        [
+            {
+                "id": 10,
+                "fullname": "Аккаунт Технический №10"
+            }
+        ]
+
+    **Example response (Bad Request, with incorrect department_id)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        [
+            "Отдела с id=13 не существует."
+        ]
+
+    :statuscode 200: no error
+    :statuscode 400: bad request
+
+
+
 HomeGroup
-_________
+---------
 
 
-.. http:get:: /api/v1.1/home_groups/
+List of home groups
+~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/home_groups/
 
     List of the home groups. (order by ``opening_data``, ``id``).
     Displaying title of Home Group is ``get_title``.
@@ -980,7 +1148,7 @@ _________
 
     .. sourcecode:: http
 
-        GET /api/v1.1/home_groups/ HTTP/1.1
+        GET /api/v1.0/home_groups/ HTTP/1.1
         Host: vocrm.org
         Content-type: application/json
 
@@ -1061,11 +1229,14 @@ _________
     :query string website: filter by ``website``
     :query string ordering: order by one of ``address``, ``church``, ``city``, ``leader``,
                                             ``opening_date``, ``phone_number``, ``title``,
-                                            ``website``,
+                                            ``website``, ``count_users``
 
     :statuscode 200: no error
     :statuscode 403: no authentication
 
+
+Create home group
+~~~~~~~~~~~~~~~~~
 
 .. http:post:: /api/v1.0/home_groups/
 
@@ -1175,6 +1346,7 @@ _________
 
     :form opening_date: home group opening date, **required**
     :form title: title
+    :form country: country, **required**
     :form city: city, **required**
     :form church: church id, **required**
     :form leader: leader id, **required**
@@ -1187,6 +1359,9 @@ _________
     :statuscode 403: user is not authenticated
 
 
+Detail home group info
+~~~~~~~~~~~~~~~~~~~~~~
+
 .. http:get:: /api/v1.0/home_group/(int:<home_group_id>)/
 
     Detail information about ``Home Group``. Response consists of list of users for requested Home Group
@@ -1196,13 +1371,19 @@ _________
 
     .. sourcecode:: http
 
-        GET /api/v1.0/home_groups/8/ HTTP/1.1
+        GET /api/v1.0/home_groups/8 HTTP/1.1
         Host: vocrm.org
         Accept: application/json
 
     **Example response (Good request)**:
 
     .. sourcecode:: http
+
+
+        HTTP/1.1 200 OK
+        Allow: GET, PUT, PATCH, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
 
         {
             "id": 8,
@@ -1248,6 +1429,9 @@ _________
     :statuscode 403: no authentication
     :statuscode 404: there's no home groups
 
+
+Update home group
+~~~~~~~~~~~~~~~~~
 
 .. http:put:: /api/v1.0/home_group/(int:<home_group_id>)/
 .. http:patch:: /api/v1.0/home_group/(int:<home_group_id>)/
@@ -1385,6 +1569,9 @@ _________
     :statuscode 403: user is not authenticated
 
 
+List of users of home group
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 .. http:get:: /api/v1.0/home_groups/(int:<home_group_id>)/users
 
     List of the users of ``Home Group`` with ``id = home_group_id``.
@@ -1471,6 +1658,9 @@ _________
     :statuscode 403: user is not authenticated
     :statuscode 404: there's no home_group
 
+
+Add user to home group
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. http:post:: /api/v1.0/home_groups/6/add_user
 
@@ -1584,6 +1774,9 @@ _________
     :statuscode 403: no authentication
 
 
+Del user from home group
+~~~~~~~~~~~~~~~~~~~~~~~~
+
 .. http:post:: /api/v1.0/home_groups/(int:<home_group_id>)/del_user
 
     Delete user from ``Home Group`` with ``id`` = ``home_group_id``.
@@ -1683,3 +1876,154 @@ _________
     :statuscode 400: bad request
     :statuscode 403: user is not authenticated
     :statuscode 404: there's no home group
+
+
+Statistics of home groups
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/home_groups/<id>/statistics
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/home_groups/14/statistics HTTP/1.1
+        Host: vocrm.org
+        Content-type: application/json
+
+    **Example response (Good Request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "users_count": 6,
+            "fathers_count": 0,
+            "juniors_count": 0,
+            "babies_count": 6,
+            "partners_count": 3
+        }
+
+    **Example response (Not Found with not exists Home Group <id>)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 404 Not Found
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "detail": "Не найдено."
+        }
+
+    :statuscode 200: no error
+    :statuscode 404: Home Group object with <id> not found
+
+
+All HomeGroup objects without pagination filtered by selected church
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/home_groups/all/?church_id
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/home_groups/all/?church_id=18 HTTP/1.1
+        Host: vocrm.org
+        Content-type: application/json
+
+    **Example response (Good Request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        [
+            {
+                "id": 17,
+                "get_title": "Киев П"
+            },
+            {
+                "id": 14,
+                "get_title": "Домашняя Группа №1"
+            },
+            {
+                "id": 16,
+                "get_title": "Домашняя Группа №2"
+            }
+        ]
+
+    **Example response (Bad Request, without church_id)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        [
+            "Не корректный запрос. Церковь не передана."
+        ]
+
+    :statuscode 200: no error
+    :statuscode 404: Home Group object with id=<id> is not found
+
+
+Available Home Group leaders filtered by selected church
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/home_groups/get_leaders_by_church/?church_id=<int(church_id)>
+
+    **Example request**
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/home_groups/get_leaders_by_church/?church_id=18 HTTP/1.1
+        Host: vocrm.org
+        Content-type: application/json
+
+    **Example response (Good Request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        [
+            {
+                "id": 15160,
+                "fullname": "П Ростислав С"
+            },
+            {
+                "id": 50,
+                "fullname": "Болжеларская Марина Александровна"
+            }
+        ]
+
+    **Example response (Bad Request, with incorrect church_id)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        [
+            "Церкви с id=500 не существует."
+        ]
+
+    :statuscode 200: no error
+    :statuscode 400: bad request

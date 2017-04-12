@@ -4,7 +4,11 @@ from __future__ import unicode_literals
 import binascii
 import os
 
+from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+from rest_framework.validators import UniqueTogetherValidator, qs_exists
 
 from account.models import CustomUser as User
 from common.fields import ReadOnlyChoiceField
@@ -16,17 +20,6 @@ from status.models import Division
 
 def generate_key():
     return binascii.hexlify(os.urandom(20)).decode()
-
-
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    spiritual_level = ReadOnlyChoiceField(choices=User.SPIRITUAL_LEVEL_CHOICES, read_only=True)
-
-    class Meta:
-        model = User
-        fields = ('id', 'email', 'fullname', 'image', 'image_source', 'search_name',
-                  'hierarchy_name', 'has_disciples', 'hierarchy_order', 'column_table',
-                  'fields', 'division_fields', 'hierarchy_chain', 'partnerships_info',
-                  'spiritual_level')
 
 
 class DepartmentTitleSerializer(serializers.ModelSerializer):
@@ -72,7 +65,7 @@ class DivisionSerializer(serializers.ModelSerializer):
 class PartnershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Partnership
-        fields = ('value', 'responsible', 'date', 'user')
+        fields = ('value', 'responsible', 'date', 'user', 'currency', 'is_active')
 
 
 class AddExistUserSerializer(serializers.ModelSerializer):
@@ -83,7 +76,7 @@ class AddExistUserSerializer(serializers.ModelSerializer):
         fields = ('id', 'city', 'country', 'full_name')
 
 
-class NewUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     partnership = PartnershipSerializer(required=False)
 
     class Meta:
@@ -92,6 +85,7 @@ class NewUserSerializer(serializers.ModelSerializer):
                   # 'username',
                   'email', 'first_name', 'last_name', 'middle_name', 'search_name',
                   'facebook', 'vkontakte', 'odnoklassniki', 'skype',
+                  'description',
 
                   'phone_number',
                   'extra_phone_numbers',
@@ -102,7 +96,7 @@ class NewUserSerializer(serializers.ModelSerializer):
                   # #################################################
                   'image', 'image_source',
 
-                  'department', 'master', 'hierarchy',
+                  'departments', 'master', 'hierarchy',
                   'divisions',
                   'partnership',
                   # read_only
@@ -114,24 +108,52 @@ class NewUserSerializer(serializers.ModelSerializer):
             'phone_number': {'required': True},
 
             'hierarchy': {'required': True},
-            'department': {'required': True},
+            'departments': {'required': True},
             'master': {'required': True},
 
             'divisions': {'required': False},
         }
 
     def update(self, instance, validated_data):
-        # department = validated_data.pop('department') if validated_data.get('department') else None
-        # master = validated_data.pop('master') if validated_data.get('master') else None
-        # hierarchy = validated_data.pop('hierarchy') if validated_data.get('hierarchy') else None
-        # coming_date = validated_data.pop('coming_date') if validated_data.get('coming_date') else None
-        # repentance_date = validated_data.pop('repentance_date') if validated_data.get('repentance_date') else None
+        departments = validated_data.pop('departments', None)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
 
+        if departments is not None and isinstance(departments, (list, tuple)):
+            instance.departments.set(departments)
+
         return instance
+
+
+class UniqueFIOTelWithIdsValidator(UniqueTogetherValidator):
+    message = _('Пользователь с такими ФИО и телефоном уже существует.')
+
+    def __call__(self, attrs):
+        self.enforce_required_fields(attrs)
+        queryset = self.queryset
+        queryset = self.filter_queryset(attrs, queryset)
+        queryset = self.exclude_current_instance(attrs, queryset)
+
+        # Ignore validation if any field is None
+        checked_values = [value for field, value in attrs.items() if field in self.fields]
+        if None not in checked_values and qs_exists(queryset):
+            ids = list(queryset.values_list('id', flat=True))
+            data = dict(zip(self.fields, checked_values))
+            raise ValidationError({'message': self.message,
+                                   'data': data,
+                                   'ids': ids,
+                                   'users': [reverse('account:detail', args=(pk,)) for pk in ids]
+                                   },)
+
+
+class UserCreateSerializer(UserSerializer):
+    class Meta(UserSerializer.Meta):
+        validators = (UniqueFIOTelWithIdsValidator(
+            queryset=User.objects.all(),
+            fields=['phone_number', 'first_name', 'last_name', 'middle_name']
+        ),)
 
     def create(self, validated_data):
         username = generate_key()[:20]
@@ -140,11 +162,11 @@ class NewUserSerializer(serializers.ModelSerializer):
 
         validated_data['username'] = username
 
-        return super(NewUserSerializer, self).create(validated_data)
+        return super(UserSerializer, self).create(validated_data)
 
 
-class UserSingleSerializer(NewUserSerializer):
-    department = DepartmentTitleSerializer()
+class UserSingleSerializer(UserSerializer):
+    departments = DepartmentTitleSerializer(many=True, read_only=True)
     master = MasterWithHierarchySerializer(required=False, allow_null=True)
     hierarchy = HierarchyTitleSerializer()
     divisions = DivisionSerializer(many=True, read_only=True)
@@ -155,7 +177,7 @@ class UserTableSerializer(UserSingleSerializer):
     master = MasterNameSerializer(required=False, allow_null=True)
 
     class Meta(UserSingleSerializer.Meta):
-        required_fields = ('id', 'link', 'extra_phone_numbers')
+        required_fields = ('id', 'link', 'extra_phone_numbers', 'description')
 
     def get_field_names(self, declared_fields, info):
         # fields = getattr(self.Meta, 'fields', None)
@@ -179,3 +201,9 @@ class UserShortSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'fullname', 'hierarchy')
+
+
+class ExistUserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'fullname', 'phone_number', 'email', 'link')

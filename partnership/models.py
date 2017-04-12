@@ -15,11 +15,11 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from partnership.managers import DealManager, PartnerManager
-from payment.models import Payment, get_default_currency
+from payment.models import Payment, get_default_currency, AbstractPaymentPurpose
 
 
 @python_2_unicode_compatible
-class Partnership(models.Model):
+class Partnership(AbstractPaymentPurpose):
     user = models.OneToOneField('account.CustomUser', related_name='partnership')
     value = models.DecimalField(max_digits=12, decimal_places=0,
                                 default=Decimal('0'))
@@ -27,7 +27,7 @@ class Partnership(models.Model):
     currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
                                  default=get_default_currency, null=True)
     date = models.DateField(default=date.today)
-    need_text = models.CharField(_('Need text'), max_length=300, blank=True)
+    need_text = models.CharField(_('Need text'), max_length=600, blank=True)
 
     is_active = models.BooleanField(_('Is active?'), default=True)
 
@@ -79,6 +79,24 @@ class Partnership(models.Model):
                                        Q(object_id=self.id)))
 
     @property
+    def value_str(self):
+        """
+        Partner value with currency.
+
+        For example:
+        partnership.value = 120
+        partnership.currency.short_name = cur.
+        partnership.currency.output_format = '{value} {short_name}'
+
+        Then:
+        partnership.value_str == '120 cur.'
+        :return: str
+        """
+        format_data = self.currency.output_dict()
+        format_data['value'] = self.value
+        return self.currency.output_format.format(**format_data)
+
+    @property
     def is_responsible(self):
         return self.level <= Partnership.MANAGER
 
@@ -124,7 +142,7 @@ class Partnership(models.Model):
 
 
 @python_2_unicode_compatible
-class Deal(models.Model):
+class Deal(AbstractPaymentPurpose):
     value = models.DecimalField(max_digits=12, decimal_places=0,
                                 default=Decimal('0'))
     #: Currency of value
@@ -133,6 +151,9 @@ class Deal(models.Model):
                                  default=get_default_currency)
 
     partnership = models.ForeignKey('partnership.Partnership', related_name="deals")
+    responsible = models.ForeignKey('partnership.Partnership', on_delete=models.CASCADE,
+                                    related_name='disciples_deals', editable=False,
+                                    verbose_name=_('Responsible of partner'), null=True, blank=True)
     description = models.TextField(blank=True)
     done = models.BooleanField(default=False)
     expired = models.BooleanField(default=False)
@@ -145,7 +166,7 @@ class Deal(models.Model):
     objects = DealManager()
 
     class Meta:
-        ordering = ('date_created',)
+        ordering = ('-date_created',)
 
     def __str__(self):
         return "%s : %s" % (self.partnership, self.date)
@@ -153,7 +174,14 @@ class Deal(models.Model):
     def save(self, *args, **kwargs):
         if not self.id and self.partnership:
             self.currency = self.partnership.currency
+            self.responsible = self.partnership.responsible
         super(Deal, self).save(*args, **kwargs)
+
+    def update_after_cancel_payment(self):
+        self.done = False
+        self.save()
+
+    update_after_cancel_payment.alters_data = True
 
     @property
     def value_str(self):

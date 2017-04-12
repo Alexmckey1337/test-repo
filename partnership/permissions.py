@@ -52,6 +52,28 @@ class IsDisciplesOf(IsPartnership):
         )
 
 
+CanSeePartners = IsManagerOrHigh
+CanSeeDeals = IsManagerOrHigh
+CanSeeDealPayments = IsManagerOrHigh
+CanSeePartnerStatistics = IsManagerOrHigh
+
+
 CanCreatePartnerPayment = IsSupervisorOrHigh
 CanClosePartnerDeal = IsManagerOrHigh
 CanReadPartnerPayment = IsManagerOrHigh
+
+
+def can_see_partners(request, view=None):
+    return CanSeePartners().has_permission(request, view)
+
+
+def can_see_deals(request, view=None):
+    return CanSeeDeals().has_permission(request, view)
+
+
+def can_see_partner_stats(request, view=None):
+    return CanSeePartnerStatistics().has_permission(request, view)
+
+
+def can_see_deal_payments(request, view=None):
+    return CanSeeDealPayments().has_permission(request, view)

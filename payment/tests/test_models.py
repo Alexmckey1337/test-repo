@@ -78,14 +78,31 @@ class TestPayment:
     def test_payer_without_purpose(self, payment):
         assert payment.payer is None
 
-    def test_calculate_effective_sum(self, payment):
+    def test_calculate_effective_sum_default(self, payment):
         assert payment.calculate_effective_sum() == payment.sum * payment.rate
 
-    def test_update_effective_sum_with_save(self, payment):
+    def test_calculate_effective_sum_multiplication(self, payment):
+        payment.operation = '*'
+        payment.save()
+        assert payment.calculate_effective_sum() == payment.sum * payment.rate
+
+    def test_calculate_effective_sum_division(self, payment):
+        payment.operation = '/'
+        payment.save()
+        assert payment.calculate_effective_sum() == payment.sum / payment.rate
+
+    @pytest.mark.parametrize('operation', ['*', '/', '+', '-', '%', '^'])
+    def test_update_effective_sum_with_save(self, payment, operation):
         payment.sum = Decimal('100')
-        payment.rate = Decimal('1.24')
+        payment.rate = Decimal('2.5')
+        payment.operation = operation
         payment.update_effective_sum()
-        assert payment.effective_sum == 124
+        if operation == '*':
+            assert payment.effective_sum == 250
+        elif operation == '/':
+            assert payment.effective_sum == 40
+        else:
+            assert payment.effective_sum == 250
 
     def test_update_effective_sum_without_save(self, payment):
         old_effective_sum = payment.effective_sum
@@ -107,6 +124,16 @@ class TestPayment:
         cur2 = currency_factory(short_name='cur2')
         payment = payment_factory(currency_sum=cur1, currency_rate=cur2, rate=Decimal(2))
         assert payment.effective_sum_str == '400 cur2'
+
+    def test_get_data_for_deal_purpose_update(self, payment_factory, deal):
+        payment = payment_factory(purpose=deal, sum=Decimal(120), rate=Decimal(1.246))
+        data = {
+            'purpose': deal,
+            'sum': Decimal(120),
+            'rate': Decimal(1.246),
+            'object_id': deal.id
+        }
+        assert payment.get_data_for_deal_purpose_update() == data
 
 
 @pytest.mark.django_db

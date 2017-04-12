@@ -30,6 +30,10 @@ class PartnershipSerializer(serializers.ModelSerializer):
                   )
 
 
+class PartnershipTableSerializer(PartnershipSerializer):
+    value = DecimalWithCurrencyField(max_digits=12, decimal_places=0, read_only=True, currency_field='currency')
+
+
 class DealCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Deal

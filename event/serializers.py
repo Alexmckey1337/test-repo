@@ -95,17 +95,6 @@ class ChurchReportListSerializer(ChurchReportSerializer):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 class EventTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = EventType

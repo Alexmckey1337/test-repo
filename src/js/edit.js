@@ -8,42 +8,47 @@
         } else {
             formData.append('divisions', JSON.stringify([]));
         }
+        if ($('#departmentSelect').val()) {
+            formData.append('departments', JSON.stringify($('#departmentSelect').val()));
+        } else {
+            formData.append('departments', JSON.stringify([]));
+        }
         if ($('#extra_phone_numbers').val()) {
             formData.append('extra_phone_numbers', JSON.stringify($('#extra_phone_numbers').val().split(',').map((item) => item.trim())));
         } else {
             formData.append('extra_phone_numbers', JSON.stringify([]));
         }
-        if ($('#partner').is(':checked')) {
+        if ($('#create_partner').is(':checked')) {
             let partner = {};
             partner.value = parseInt(document.getElementById('val_partnerships').value) || 0;
+            partner.currency = parseInt(document.getElementById('payment_currency').value);
             partner.date = document.getElementById('partner_date').value || null;
             partner.responsible = parseInt($("#partner_drop").val());
             formData.append('partner', JSON.stringify(partner));
         }
-        let send_image = true;
+        let send_image = $('#file').prop("files").length || false;
         if (send_image) {
             try {
                 let
                     blob;
-                    blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                    formData.append('image', blob);
-                    formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
-                    formData.append('id', id);
-                let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${id}/`;
-                let redirect = '/account/' + id;
-                let config = {
-                    url: url,
-                    data: formData,
-                    redirect: redirect,
-                    method: 'PUT'
-                };
-                ajaxSendFormData(config).then(function (data) {
-                    window.location.href = `/account/${id}/`;
-                });
+                blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+                formData.append('image', blob);
+                formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
+                formData.append('id', id);
+
             } catch (err) {
                 console.log(err);
             }
         }
+        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${id}/`;
+        let config = {
+            url: url,
+            data: formData,
+            method: 'PUT'
+        };
+        ajaxSendFormData(config).then(function () {
+            window.location.href = `/account/${id}/`;
+        });
     }
 
     function handleFileSelect(e) {
@@ -90,6 +95,18 @@
         $("#partner_drop").select2();
 
         getCurrentUser(id).then(function (data) {
+            console.log(data);
+            let currency;
+            let $currencyOption = $('#payment_currency').find('option');
+            if (data.partnership) {
+                currency = data.partnership.currency;
+                $('#create_partner').trigger('click').attr('disabled', true);
+                $currencyOption.each(function () {
+                    if ($(this).val() == currency) {
+                        $(this).prop('selected', true);
+                    }
+                });
+            }
             let divisions = data.divisions;
             if (data.image) {
                 $(".anketa-photo img").attr('src', data.image);
@@ -146,95 +163,89 @@
         });
     }
 
-        init();
+    init();
 
-        $('#file').on('change', handleFileSelect);
-        $('#file_upload').on('click', function (e) {
-            e.preventDefault();
-            $('#file').click();
-        });
+    $('#file').on('change', handleFileSelect);
+    $('#file_upload').on('click', function (e) {
+        e.preventDefault();
+        $('#file').click();
+    });
 
-        $('#impPopup').click(function (el) {
-            if (el.target != this) {
-                return
-            }
-            $(this).fadeOut();
-            $('input[type=file]').val('');
-            img.cropper("destroy")
-        });
+    $('#impPopup').click(function (el) {
+        if (el.target != this) {
+            return
+        }
+        $(this).fadeOut();
+        $('input[type=file]').val('');
+        img.cropper("destroy")
+    });
 
-        $('#impPopup .close').on('click', function () {
-            $('#impPopup').fadeOut();
-            $('#file').val('');
-            img.cropper("destroy");
-        });
+    $('#impPopup .close').on('click', function () {
+        $('#impPopup').fadeOut();
+        $('#file').val('');
+        img.cropper("destroy");
+    });
 
-        $('#phone_number').click(function () {
-            if ($(this).val().length === 0) {
-                $(this).val('+')
-            }
-        });
+    $('#phone_number').click(function () {
+        if ($(this).val().length === 0) {
+            $(this).val('+')
+        }
+    });
 
-        $('#edit-photo').click(function () {
-            if ($(this).attr('data-source') !== 'null') {
-                document.querySelector("#impPopup img").src = $(this).attr('data-source');
-            } else {
-                document.querySelector("#impPopup img").src = $('#edit-photo img').attr('src');
-            }
-            document.querySelector("#impPopup").style.display = 'block';
+    $('#edit-photo').click(function () {
+        if ($(this).attr('data-source') !== 'null') {
+            document.querySelector("#impPopup img").src = $(this).attr('data-source');
+        } else {
+            document.querySelector("#impPopup img").src = $('#edit-photo img').attr('src');
+        }
+        document.querySelector("#impPopup").style.display = 'block';
 
-            img.cropper({
-                aspectRatio: 1 / 1,
-                built: function () {
-                    img.cropper("setCropBoxData", {width: "100", height: "50"});
-                }
-            });
-        });
-
-        $('#editCropImg').on('click', function () {
-            let imgUrl;
-            imgUrl = img.cropper('getCroppedCanvas').toDataURL('image/jpeg');
-            $('#impPopup').fadeOut();
-            $('#edit-photo').attr('data-source', document.querySelector("#impPopup img").src);
-            $('.anketa-photo').html('<img src="' + imgUrl + '" />');
-            img.cropper("destroy");
-        });
-
-
-
-        $("#partner_date").datepicker({
-            dateFormat: "yyyy-mm-dd",
-        });
-
-        $('#create_partner_info').on('click', function () {
-            let el = document.getElementById('partner_wrap');
-            let create_el = document.getElementById('create_partner');
-            if (this.checked) {
-                el.style.display = 'block';
-                create_el.style.display = 'none';
-                $('#partner').attr('checked', true);
-            } else {
-                el.style.display = 'none';
-                create_el.style.display = 'block';
-                $('#partner').attr('checked', false);
+        img.cropper({
+            aspectRatio: 1 / 1,
+            built: function () {
+                img.cropper("setCropBoxData", {width: "100", height: "50"});
             }
         });
-        $('#revert_edit').on('click', function () {
-            let id = parseInt(id || getLastId());
-            if (!id) {
-                return
-            }
-            window.location.href = '/account/' + id
-        });
+    });
 
-        $('#save').on('click', function () {
-            $('#sendEditUser').trigger('click');
-        });
-        $('#editUser').on('submit', function (e) {
-            e.preventDefault();
-            sendData();
-        })
+    $('#editCropImg').on('click', function () {
+        let imgUrl;
+        imgUrl = img.cropper('getCroppedCanvas').toDataURL('image/jpeg');
+        $('#impPopup').fadeOut();
+        $('#edit-photo').attr('data-source', document.querySelector("#impPopup img").src);
+        $('.anketa-photo').html('<img src="' + imgUrl + '" />');
+        img.cropper("destroy");
+    });
 
+    $("#partner_date").datepicker({
+        dateFormat: "yyyy-mm-dd",
+    });
+
+    $('#create_partner').on('change', function () {
+        let $partnerWrap = $('#partner_wrap');
+        if (this.checked) {
+            $partnerWrap.css('display', 'block');
+        } else {
+            $partnerWrap.css('display', 'none');
+        }
+    });
+
+    $('#revert_edit').on('click', function () {
+        let id = parseInt(id || getLastId());
+        if (!id) {
+            return
+        }
+        window.location.href = '/account/' + id
+    });
+
+    $('#save').on('click', function () {
+        $('#sendEditUser').trigger('click');
+    });
+
+    $('#editUser').on('submit', function (e) {
+        e.preventDefault();
+        sendData();
+    });
 
 
     let data_for_drop = {};

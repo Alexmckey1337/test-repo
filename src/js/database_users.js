@@ -1,7 +1,7 @@
 $('document').ready(function () {
-
+    let $departmentsFilter = $('#departments_filter');
+    let $treeFilter = $("#tree_filter");
     createUsersTable({});
-
     $('.selectdb').select2();
     $('.select_date_filter').datepicker({
         dateFormat: 'yyyy-mm-dd',
@@ -15,9 +15,6 @@ $('document').ready(function () {
     //Events
     $('#filter_button').on('click', function () {
         $('#filterPopup').css('display', 'block');
-    });
-    $('#add').on('click', function () {
-        $('#addNewUserPopup').css('display', 'block');
     });
     $('.pop_cont').on('click', function (e) {
         e.stopPropagation();
@@ -39,10 +36,11 @@ $('document').ready(function () {
         $('.preloader').css('display', 'block');
         updateSettings(createUsersTable);
     });
-    $('input[name="searchDep"]').keyup(function () {
-        delay(function () {
-            createUserDep();
-        }, 1500);
+    $('#export_table').on('click', function () {
+        $('.preloader').css('display', 'block');
+        exportTableData(this).then(function () {
+            $('.preloader').css('display', 'none');
+        });
     });
 
     $('#quickEditCartPopup').find('.close').on('click', function () {
@@ -64,58 +62,94 @@ $('document').ready(function () {
         });
     });
 
-    function createUser(id) {
-        let oldForm = document.forms.createUser;
-        let formData = new FormData(oldForm);
-        if ($('#division_drop').val()) {
-            formData.append('divisions', JSON.stringify($('#chooseDivision').val()));
-        } else {
-            formData.append('divisions', JSON.stringify([]));
-        }
-        if ($('#extra_phone_numbers').val()) {
-            formData.append('extra_phone_numbers', JSON.stringify($('#extra_phone_numbers').val().split(',').map((item) => item.trim())));
-        } else {
-            formData.append('extra_phone_numbers', JSON.stringify([]));
-        }
-        if ($('#partner').is(':checked')) {
-            let partner = {};
-            partner.value = $('#partnerFrom').val() || 0;
-            partner.date = $('#partners_count').val() || null;
-            partner.responsible = parseInt($("#chooseManager").val());
-            formData.append('partner', JSON.stringify(partner));
-        }
-        let send_image = $('#file').prop("files").length || false;
-        if (send_image) {
-            try {
-                let blob;
-                blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                formData.append('image', blob);
-                formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
-                formData.append('id', id);
-            } catch (err) {
-                console.log(err);
+    $('#add').on('click', function () {
+        $('body').addClass('no_scroll');
+        $('#addNewUserPopup').css('display', 'block');
+        initAddNewUser();
+    });
+
+    $.validate({
+        lang: 'ru',
+        form: '#createUser',
+        onSuccess: function (form) {
+            if ($(form).attr('name') == 'createUser') {
+                $(form).find('#saveNew').attr('disabled', true);
+                createNewUser(null).then(function () {
+                    $(form).find('#saveNew').attr('disabled', false);
+                });
             }
-        }
-        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/`;
+            return false; // Will stop the submission of the form
+        },
+    });
+    $departmentsFilter.on('change', function () {
+        let departamentID = $(this).val();
         let config = {
-            url: url,
-            data: formData,
-            method: 'POST'
+            level_gte: 2
         };
-        $('.preloader').css('display', 'block');
-        ajaxSendFormData(config).then(function (data) {
-            $('.preloader').css('display', 'none');
-            showPopup(`${data.fullname} добален(а) в базу данных`);
-            $('#createUser').find('input').each(function() {$(this).val('')});
-            $('#createUser').find('.cleared').each(function() { $(this).find('option').eq(0).prop('selected', true).select2()} );
-            $('#addNewUserPopup').css('display', 'none');
-        }).catch(function (data) {
-            $('.preloader').css('display', 'none');
-            showPopup(data);
+        if (!departamentID) {
+            departamentID = null;
+        } else {
+            config.department = departamentID;
+        }
+        getShortUsers(config).then(function (data) {
+            let options = [];
+            let option = document.createElement('option');
+            $(option).text('ВСЕ');
+            options.push(option);
+            data.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.fullname);
+                options.push(option);
+            });
+            $('#tree_filter').html(options);
+        }).then(function () {
+            if ($('#tree_filter').val() == "ВСЕ") {
+                getResponsible(departamentID, 2).then(function (data) {
+                    let options = [];
+                    let option = document.createElement('option');
+                    $(option).text('ВСЕ');
+                    options.push(option);
+                    data.forEach(function (item) {
+                        let option = document.createElement('option');
+                        $(option).val(item.id).text(item.fullname);
+                        options.push(option);
+                    });
+                    $('#masters_filter').html(options);
+                });
+            } else {
+                getPastorsByDepartment(departamentID).then(function (data) {
+                    let options = [];
+                    let option = document.createElement('option');
+                    $(option).text('ВСЕ');
+                    options.push(option);
+                    data.forEach(function (item) {
+                        let option = document.createElement('option');
+                        $(option).val(item.id).text(item.fullname);
+                        options.push(option);
+                    });
+                    $('#masters_filter').html(options);
+                });
+            }
         });
-    }
-    $('#createUser').on('submit', function (e) {
-        e.preventDefault();
-        createUser();
+    });
+    $treeFilter.on('change', function () {
+        let config = {};
+        if ($(this).val() != "ВСЕ") {
+            config = {
+                master_tree: $(this).val()
+            };
+        }
+        getShortUsers(config).then(function (data) {
+            let options = [];
+            let option = document.createElement('option');
+            $(option).text('ВСЕ');
+            options.push(option);
+            data.forEach(function (item) {
+                let option = document.createElement('option');
+                $(option).val(item.id).text(item.fullname);
+                options.push(option);
+            });
+            $('#masters_filter').html(options);
+        });
     });
 });

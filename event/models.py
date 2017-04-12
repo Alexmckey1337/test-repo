@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import datetime
-from collections import OrderedDict
 from datetime import date
 
 from django.core.urlresolvers import reverse
@@ -44,7 +43,6 @@ VERBOSE_FIELDS = {'Имя': 'user__first_name',
                   'Фамилия': 'user__last_name',
                   'Отчество': 'user__middle_name',
                   'Иерархия': 'user__hierarchy',
-                  'Отдел': 'user__department',
                   'Страна': 'user__country',
                   'Город': 'user__city',
                   'Примечание': 'description',
@@ -210,27 +208,6 @@ class Participation(models.Model):
                 master_participation.recount()
         return self
 
-    @property
-    def fields(self):
-        l = self.user.user.fields
-        d = OrderedDict()
-        d['value'] = self.check
-        l['check'] = d
-
-        d = OrderedDict()
-        d['value'] = self.value
-        l['value'] = d
-
-        d = OrderedDict()
-        d['value'] = self.count
-        l['count'] = d
-
-        d = OrderedDict()
-        d['value'] = self.count_as_leader
-        l['count_as_leader'] = d
-
-        return l
-
 
 @receiver(signals.post_save, sender=Event)
 def sync_event(sender, instance, **kwargs):
@@ -276,7 +253,7 @@ class MeetingType(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('meeting_type-detail', kwargs={'code': self.code})
+        return reverse('meeting_type:detail', kwargs={'code': self.code})
 
 
 @python_2_unicode_compatible

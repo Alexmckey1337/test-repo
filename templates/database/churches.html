@@ -1,72 +1,37 @@
-{% extends "layout_main.html" %}
+{% extends "layout_database.html" %}
 {% load static %}
-
-{% block body_id %} id="database"{% endblock %}
 
 {% block header.top.h1 %}<h1>База данных / Церкви</h1>{% endblock %}
 
-{% block header.buttons %}
-    <div class="top-panel">
-        <div class="tabs">
-            <ul class="nav tabs_link">
-                <li><a class="active" href="{% url 'churches' %}">Церкви</a></li>
-                <li><a href="{% url 'home_groups' %}">Домашние группы</a></li>
-                <li><a href="{% url 'people' %}">Люди</a></li>
-            </ul>
-        </div>
-        <div class="top-buttons-wrap">
-            <ul class="top-buttons">
-                <li>
-                    <button id="add" class="header__button">Добавить церковь</button>
-                </li>
-                <li>
-                    <button id="filter_button" class="header__button">Фильтр</button>
-                </li>
-                <li>
-                    <form action="{% url "church-export" %}" method="post">
-                        <button type="submit" class="download header__button">Export</button>
-                    </form>
-                </li>
-                <li>
-                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
-                </li>
-            </ul>
-        </div>
+{% block header.buttons.top %}
+    <div class="top-buttons-wrap">
+        <ul class="top-buttons">
+            <li>
+                <button id="add" class="header__button">Добавить церковь</button>
+            </li>
+            <li>
+                <button id="filter_button" class="header__button">Фильтр</button>
+            </li>
+            <li>
+                <button id="export_table" data-export-url="{% url "church-export" %}" class="download header__button">Export</button>
+            </li>
+            <li>
+                <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
+            </li>
+        </ul>
     </div>
 {% endblock %}
 
-{% block header.buttons.export %}
-{% endblock %}
-
-{% block main.content %}
-    {% block pagination_top %}
-        <div class="top-pag">
-            <div class="table__count"></div>
-            <div class="pagination users__pagination"><!--pagination -->
-            </div><!--End pagination -->
+{% block table %}
+    <div class="table-wrap  clearfix" id="churches"><!--Table -->
+        <div class="table scrollbar-inner" id="tableChurches"></div>
+        <div class="query-none">
+            <p></p>
         </div>
-    {% endblock %}
-
-    {% block table %}
-        <div class="table-wrap  clearfix" id="churches"><!--Table -->
-            <div class="table scrollbar-inner" id="tableChurches"></div>
-            <div class="query-none">
-                <p></p>
-            </div>
-        </div><!--End Table -->
-        <div class="preloader">
-            <div class="gif"></div>
-        </div>
-    {% endblock %}
-
-    {% block pagination_bottom %}
-        <div class="table__count"></div>
-        <div class="pagination users__pagination"></div>
-    {% endblock %}
-{% endblock %}
-
-{% block create_user %}
-    {% include 'partials/create_user.html' %}
+    </div><!--End Table -->
+    <div class="preloader">
+        <div class="gif"></div>
+    </div>
 {% endblock %}
 
 {% block popup %}
@@ -74,12 +39,12 @@
         <div class="pop_cont">
             <div class="popup_text">
                 <h2>Карточка церкви</h2>
-                <span onclick="hidePopup(this)" class="close"><i class="fa fa-times" aria-hidden="true"></i></span>
+                <span class="close close-popup"><i class="fa fa-times" aria-hidden="true"></i></span>
             </div>
             <div class="popup_body">
             </div>
             <div class="container">
-                <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                <button class="close-popup change__text">Отменить</button>
                 <button onclick="saveChurches(this)" class="save-user">Сохранить</button>
             </div>
         </div>
@@ -94,6 +59,9 @@
                     <div class="col-6">
                         <p class="label_block">
                             <label for="departments_filter">Отдел</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="tree_filter">Ветка</label>
                         </p>
                         <p class="label_block">
                             <label for="hierarchies_filter">Пастор</label>
@@ -120,43 +88,61 @@
                                 {% endfor %}
                             </select>
                         </p>
+                    <p class="input_block">
+                            <select class="selectdb" data-filter="master_tree" id="tree_filter">
+                                <option value="">ВСЕ</option>
+                                {% for master in masters %}
+                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
                         <p class="input_block">
+
                             <select class="selectdb" data-filter="pastor" id="pastor_filter">
                                 <option value="">ВСЕ</option>
-                                {% for pastor in pastors %}
+                                {% for pastor in church_all_pastors %}
                                     <option value="{{ pastor.id }}">{{ pastor.fullname }}</option>
                                 {% endfor %}
                             </select>
                         </p>
                         <p class="input_block">
-                            <input type="checkbox" data-filter="is_open" id="search_is_open">
+                            <select name="search_is_open" data-filter="is_open" id="search_is_open">
+                                <option value="1">ВСЕ</option>
+                                <option value="2">ДА</option>
+                                <option value="3">НЕТ</option>
+                            </select>
+{#                            <input type="checkbox" data-filter="is_open" id="search_is_open">#}
                         </p>
                         <p class="input_block">
                             <input type="text" data-filter="opening_date" id="search_date_open">
                         </p>
                         <p class="input_block">
-                            <input type="text" data-filter="country" placeholder="страна или часть названия" id="search_country">
+                            <input type="text" data-filter="country" placeholder="страна или часть названия"
+                                   id="search_country">
                         </p>
                         <p class="input_block">
-                            <input type="text" data-filter="city" placeholder="город или часть названия" id="search_city">
+                            <input type="text" data-filter="city" placeholder="город или часть названия"
+                                   id="search_city">
                         </p>
                     </div>
                 </div>
             </div>
             <div class="container">
-                <a href="#" onclick="refreshFilter(this)" class="apply-filter"><i class="fa fa-refresh"
+                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
                                                                                   aria-hidden="true"></i>
-                    Очистить</a>
-                <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
+                    Очистить</button>
+                <button class="close-popup">Отменить</button>
                 <button onclick="applyFilter(this, createChurchesTable)" class="apply-filter">Применить</button>
             </div>
         </div>
     </div>
     <div class="popap" id='addChurch'>
         <div class="pop_cont">
-            <h2 class='popup_text'>
-                Создание новой церкви
-            </h2>
+            <div class="popup_text">
+                <h3>Создание новой церкви</h3>
+                <span class="close close-popup"><i class="fa fa-times" aria-hidden="true"></i></span>
+            </div>
+
             <form action="" onsubmit="addChurch(event, this, createChurchesTable)">
                 <div class="popup_body">
                     <div class="container">
@@ -180,7 +166,6 @@
                                 {% for item in departments %}
                                     <option value="{{ item.id }}">{{ item.title }}</option>
                                 {% endfor %}
-
                             </select></p>
                             <p><input type="text" id="added_churches_country" required></p>
                             <p><input type="text" id="added_churches_city" required></p>
@@ -194,29 +179,32 @@
                     </div>
                 </div>
                 <div class="container">
+                    <button class="close-popup">Отменить</button>
                     <button type="submit" class="add-church">Создать</button>
-                    <button onclick="hidePopup(this)" class="close-popup">Отменить</button>
                 </div>
             </form>
         </div>
     </div>
 {% endblock %}
 {% block extra_scripts %}
-    <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
     <script src="{% static "js/database_churches.js" %}"></script>
     <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
     <script type="text/template" id="quickEditCart">
         <div class="container bb-1">
-             <div class="header">
-                 <p><input type="text" class="title" id="church_title" value="<%=get_title %>"></p>
-                 <p><label for="is_open">Открыта</label><input type="checkbox" id="is_open_church"<% if(is_open) { %> checked <% } %> ></p>
-                 <% if(opening_date) { %>
-                     <p><label for="opening_date">Датат открытия</label><input type="text" class="date" id="opening_date" value="<%= opening_date.split('.').reverse().join('-') %>"></p>
-                 <% } else { %>
-                     <p><label for="opening_date">Датат открытия</label><input type="text" id="opening_date" class="date" value=""></p>
-                 <% } %>
-                 <p class="hidden"><input type="text" id="churchID" value="<%= id %>"></p>
-             </div>
+            <div class="header">
+                <p><input type="text" class="title" id="church_title" value="<%=get_title %>"></p>
+                <p><label for="is_open">Открыта</label><input type="checkbox" id="is_open_church"<% if(is_open) { %>
+                    checked <% } %> ></p>
+                <% if(opening_date) { %>
+                <p><label for="opening_date">Датат открытия</label><input type="text" class="date" id="opening_date"
+                                                                          value="<%= opening_date.split('.').reverse().join('-') %>">
+                </p>
+                <% } else { %>
+                <p><label for="opening_date">Датат открытия</label><input type="text" id="opening_date" class="date"
+                                                                          value=""></p>
+                <% } %>
+                <p class="hidden"><input type="text" id="churchID" value="<%= id %>"></p>
+            </div>
         </div>
         <div class="container start">
             <div>

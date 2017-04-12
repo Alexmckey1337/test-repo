@@ -1,4 +1,5 @@
 (function ($) {
+    const SUMMIT_ID = $('#summitUsersList').data('summit-type');
     function addSummitInfo() {
         let width = 150,
             count = 1,
@@ -22,70 +23,22 @@
         });
     }
 
+    function addUserToSummit(data) {
+        let id = data.id,
+            name = data.fullname,
+            master = data.master.fullname;
+        let $summitVal = $('#summit-value');
+        let $popup = $('#popup');
+        $summitVal.val("0");
+        $summitVal.attr('readonly', true);
+        $popup.find('textarea').val('');
+        setDataForPopup(id, name, master);
+        $popup.css('display', 'block');
+    }
+
     createSummitUsersTable();
 
     addSummitInfo();
-
-    function createUser(id) {
-        let oldForm = document.forms.createUser;
-        let formData = new FormData(oldForm);
-        if ($('#division_drop').val()) {
-            formData.append('divisions', JSON.stringify($('#chooseDivision').val()));
-        } else {
-            formData.append('divisions', JSON.stringify([]));
-        }
-        if ($('#extra_phone_numbers').val()) {
-            formData.append('extra_phone_numbers', JSON.stringify($('#extra_phone_numbers').val().split(',').map((item) => item.trim())));
-        } else {
-            formData.append('extra_phone_numbers', JSON.stringify([]));
-        }
-        if ($('#partner').is(':checked')) {
-            let partner = {};
-            partner.value = $('#partnerFrom').val() || 0;
-            partner.date = $('#partners_count').val() || null;
-            partner.responsible = parseInt($("#chooseManager").val());
-            formData.append('partner', JSON.stringify(partner));
-        }
-        let send_image = $('#file').prop("files").length || false;
-        if (send_image) {
-            try {
-                let blob;
-                blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                formData.append('image', blob);
-                formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
-                formData.append('id', id);
-            } catch (err) {
-                console.log(err);
-            }
-        }
-        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/`;
-        let config = {
-            url: url,
-            data: formData,
-            method: 'POST'
-        };
-        $('.preloader').css('display', 'block');
-        ajaxSendFormData(config).then(function (data) {
-            $('.preloader').css('display', 'none');
-            $('#createUser').find('input').each(function(){$(this).val('')});
-            $('#createUser').find('.cleared').each(function(){$(this).find('option').eq(0).attr('selected', true).select2()});
-            $('#addNewUserPopup').css('display', 'none');
-            setTimeout(function () {
-                $('.pop-up-universal').css('display', 'none').remove();
-                let id = data.id,
-                    name = data.fullname,
-                    master = data.master;
-                $('#summit-value').val("0");
-                $('#summit-value').attr('readonly', true);
-                $('#popup textarea').val("");
-                setDataForPopup(id, name, master);
-                $('#popup').css('display', 'block');
-            }, 1000)
-        }).catch(function (data) {
-            $('.preloader').css('display', 'none');
-            showPopup(data);
-        });
-    }
 
     $('body').on('click', '#carousel li span', function () {
         $('#carousel li').removeClass('active');
@@ -123,25 +76,34 @@
         $('#popup-payments').css('display', '');
         $('#popup-payments table').html('');
     });
+
     $('#payment-form').on("submit", function (e) {
-        e.preventDefault();
-        let data = $('#payment-form').serializeArray();
-        console.log(data);
-        let new_data = {};
-        data.forEach(function (field) {
+    e.preventDefault();
+    let data = $('#payment-form').serializeArray();
+    let userID;
+    let new_data = {};
+    data.forEach(function (field) {
+        if (field.name == 'sent_date') {
+            new_data[field.name] = field.value.trim().split('.').reverse().join('-');
+        } else if (field.name != 'id') {
             new_data[field.name] = field.value
-        });
-        let id = new_data.id,
-            sum = new_data.sum,
-            description = new_data.description,
-            rate = new_data.rate,
-            currency = new_data.currency;
-        console.log(id, sum, description, rate, currency);
-        create_payment(id, sum, description, rate, currency);
-        $('#new_payment_sum').val('');
-        $('#popup-create_payment textarea').val('');
-        $('#popup-create_payment').css('display', 'none');
+        } else {
+            userID = field.value;
+        }
     });
+    if (userID) {
+        createPayment({
+            data: new_data
+        }, userID).then(function (data) {
+            console.log(data);
+        });
+    }
+    // create_payment(id, sum, description, rate, currency);
+
+    $('#new_payment_sum').val('');
+    $('#popup-create_payment textarea').val('');
+    $('#popup-create_payment').css('display', 'none');
+});
 
     $(".add-user-wrap .top-text span").on('click', function () {
         $('.add-user-wrap').css('display', '');
@@ -211,11 +173,67 @@
         $('#summit-valueDelete').focus();
     });
 
-    $('#deleteAnket').on('click', function () {
-        let summitAnket = $(this).attr('data-anket');
-        $('yes').attr('data-anket', summitAnket);
-        $('#deletePopup').css('display', 'block');
-        $('#popupDelete').css('display', '');
+    $('#preDeleteAnket').on('click', function () {
+        let _self = this;
+        let anketID = $(this).attr('data-anket');
+        let fullName = $('#fullNameCard').text();
+        predeliteAnket(anketID).then(function (data) {
+            $(_self).closest('.pop-up-splash').hide();
+            let div = document.createElement('div');
+            let mainBlock = document.createElement('div');
+            let topText = document.createElement('div');
+            let title = document.createElement('h3');
+            let closePopup = document.createElement('span');
+            let body = document.createElement('div');
+            let user = document.createElement('h2');
+            $(closePopup).addClass('close').addClass('close-popup').text('×').on('click', function () {
+                $(this).closest('.pop-up-universal').hide().remove();
+            });
+            $(title).text('Подтверждение удаления');
+            $(topText).addClass('top-text').append(title).append(closePopup);
+
+            $(mainBlock).addClass('splash-screen').append(topText);
+
+            $(body).addClass('wrap');
+            $(user).text(fullName);
+            $(mainBlock).append(user);
+            let keys = Object.keys(data);
+            let list = document.createElement('dl');
+            $(list).addClass('list__item');
+            keys.forEach(function (item) {
+                let dt = document.createElement('dt');
+                let dd = document.createElement('dd');
+                $(dt).text(item);
+                console.log(data[item]);
+                // data[item].forEach(function (i) {
+                //     $(dd).text(i.length)
+                // });
+                $(dd).text(data[item].length);
+                $(list).append(dt).append(dd);
+            });
+            $(body).append(list);
+            $(mainBlock).append(body);
+            let splashButtons = document.createElement('div');
+            let deleteBtn = document.createElement('button');
+            $(deleteBtn)
+                .addClass('delete_btn')
+                .attr('id', 'deleteAnket')
+                .text('Подтвердить удаление')
+                .on('click', function () {
+                deleteSummitProfile(anketID).then(function (msg) {
+                    $(div).hide().remove();
+                    setTimeout(() => showPopup(msg), 100);
+                    createSummitUsersTable();
+                });
+            });
+            $(splashButtons).addClass('splash-buttons wrap').append(deleteBtn);
+            $(mainBlock).append(splashButtons);
+            $(div).append(mainBlock);
+            showPopupHTML(div);
+        }).catch(function (err) {
+            console.log(err);
+        });
+         // closePopup(this);
     });
 
     $('yes').on('click', function () {
@@ -239,12 +257,22 @@
         $('#deletePopup').hide();
     });
 
-    $('#completeDelete').on('click', function () {
-        let id = this.attr('data-id'),
-            money = $('#summit-valueDelete').val(),
-            description = $('#popupDelete textarea').val();
-        registerUser(id, summit_id, money, description);
-        $('#popupDelete').css('display', 'none');
+    $('#applyChanges').on('click', function () {
+        let sendData = {
+            send_email: false,
+            summit_id: SUMMIT_ID
+        };
+
+        let formData = $('#participantInfoForm').serializeArray();
+        let data = {};
+
+         formData.forEach(function (item) {
+            data[item.name] = (item.value == 'on') ? true : item.value;
+        });
+
+        Object.assign(sendData, data);
+        updateSummitParticipant(sendData);
+        closePopup(this);
     });
 
     $('#complete').on('click', function () {
@@ -265,6 +293,19 @@
         }, 'DELETE', true, {
             'Content-Type': 'application/json'
         });
+    }
+
+    function updateSummitParticipant(data) {
+        // let member_club = $("#member").prop("checked");
+        // let send_email = $("#send_email").prop("checked");
+        // let data = {
+        //     "user_id": id,
+        //     "summit_id": summit_id,
+        //     "description": description,
+        //     "visited": member_club,
+        //     "send_email": send_email
+        // };
+        registerUserToSummit(JSON.stringify(data));
     }
 
     function registerUser(id, summit_id, money, description) {
@@ -371,7 +412,9 @@
     //    Events
     $("#add").on('click', function () {
         $('#addUser').css('display', 'block');
+        initAddNewUser();
     });
+
     $('input[name="fullsearch"]').keyup(function () {
         let val = $(this).val();
         delay(function () {
@@ -389,8 +432,7 @@
         createSummitUsersTable(config);
     });
     $('#sort_save').on('click', function () {
-        let path =
-            $('.preloader').css('display', 'block');
+        $('.preloader').css('display', 'block');
         updateSettings(createSummitUsersTable);
         $(".table-sorting").animate({
             right: '-300px'
@@ -400,11 +442,17 @@
         $('#filterPopup').css('display', 'block');
     });
 
-    $('.quick-edit').on('click', function () {
-        $('#popupDelete').css('display', 'block');
-    });
-    $('#createUser').on('submit', function (e) {
-        e.preventDefault();
-        createUser();
+    $.validate({
+        lang: 'ru',
+        form: '#createUser',
+        onSuccess: function (form) {
+            if ($(form).attr('name') == 'createUser') {
+                $(form).find('#saveNew').attr('disabled', true);
+                createNewUser(addUserToSummit).then(function() {
+                    $(form).find('#saveNew').attr('disabled', false);
+                });
+            }
+            return false; // Will stop the submission of the form
+        }
     });
 })(jQuery);

@@ -11,6 +11,8 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
+from payment.managers import PaymentManager
+
 
 def get_default_currency():
     if Currency.objects.filter(code='uah').exists():
@@ -18,6 +20,21 @@ def get_default_currency():
     if Currency.objects.exists():
         return Currency.objects.first().id
     return None
+
+
+class AbstractPaymentPurpose(models.Model):
+    class Meta:
+        abstract = True
+
+    def update_after_cancel_payment(self):
+        pass
+
+    update_after_cancel_payment.alters_data = True
+
+    def update_value(self):
+        pass
+
+    update_value.alters_data = True
 
 
 @python_2_unicode_compatible
@@ -105,9 +122,12 @@ class Payment(models.Model):
                                       verbose_name=_('Rate currency'),
                                       related_name='rate_payments')
     #: Rate of currency
-    rate = models.DecimalField(_('Rate'), max_digits=12, decimal_places=2, default=Decimal(1))
+    rate = models.DecimalField(_('Rate'), max_digits=12, decimal_places=3, default=Decimal(1))
+    #: Rate operation
+    operation = models.CharField(_('Operation'), max_length=1, default='*',
+                                 choices=(('*', _('Multiplication')), ('/', _('Division'))))
     #: Sum of the payment
-    effective_sum = models.DecimalField(_('Effective sum'), max_digits=12, decimal_places=2,
+    effective_sum = models.DecimalField(_('Effective sum'), max_digits=12, decimal_places=3,
                                         null=True, blank=True, editable=False)
     #: Comment for payment, such as the purpose of payment
     description = models.TextField(_('Description'), blank=True)
@@ -124,6 +144,8 @@ class Payment(models.Model):
     object_id = models.PositiveIntegerField(blank=True, null=True)
     #: Purpose of payment
     purpose = GenericForeignKey()
+
+    objects = PaymentManager()
 
     class Meta:
         ordering = ('-created_at',)
@@ -143,6 +165,8 @@ class Payment(models.Model):
         return self.currency_rate.output_format.format(**format_data)
 
     def calculate_effective_sum(self):
+        if self.operation == '/':
+            return self.sum / self.rate
         return self.sum * self.rate
 
     def update_effective_sum(self, save=True):
@@ -155,7 +179,7 @@ class Payment(models.Model):
     def save(self, *args, **kwargs):
         if not self.effective_sum or kwargs.get('update_eff_sum', True):
             self.update_effective_sum(save=False)
-        if self.id is None and self.purpose and hasattr(self.purpose, 'currency'):
+        if self.purpose and hasattr(self.purpose, 'currency'):
             self.currency_rate = self.purpose.currency
         if 'update_eff_sum' in kwargs:
             kwargs.pop('update_eff_sum')
@@ -163,6 +187,15 @@ class Payment(models.Model):
         if hasattr(self.purpose, 'update_value') and callable(self.purpose.update_value):
             # TODO не обрабатывает изменение (не пересчитывает предыдущего purpose, только нового)
             self.purpose.update_value()
+
+    def get_data_for_deal_purpose_update(self):
+        old = {
+            'purpose': self.purpose,
+            'sum': self.sum,
+            'rate': self.rate,
+            'object_id': self.object_id
+        }
+        return old
 
     def __str__(self):
         return '{}: {}'.format(self.created_at.strftime('%d %B %Y %H:%M'), self.purpose or 'UNKNOWN')

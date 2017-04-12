@@ -5,27 +5,26 @@ import django_filters
 from django.db import transaction, IntegrityError
 from django.db.models import IntegerField, Sum, When, Case, Count
 from django.utils import six
-
 from rest_framework import status
 from rest_framework import viewsets, filters
 from rest_framework.decorators import api_view
 from rest_framework.decorators import list_route
+from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.generics import get_object_or_404
 
-from account.pagination import ShortPagination
 from account.models import CustomUser
-from navigation.table_fields import event_table
-from common.views_mixins import ModelWithoutDeleteViewSet
+from account.pagination import ShortPagination
 from common.filters import FieldSearchFilter
-from .models import Participation, Event, EventAnket, EventType, MeetingAttend, Meeting, ChurchReport
+from common.views_mixins import ModelWithoutDeleteViewSet
 from group.models import HomeGroup, Church
-from .serializers import ParticipationSerializer, EventSerializer, EventTypeSerializer, EventAnketSerializer
+from group.serializers import HomeGroupListSerializer, ChurchListSerializer
+from navigation.table_fields import event_table
+from .models import Participation, Event, EventAnket, EventType, MeetingAttend, Meeting, ChurchReport
 from .serializers import (MeetingListSerializer, MeetingDetailSerializer, MeetingSerializer,
                           ChurchReportSerializer, ChurchReportListSerializer, MeetingStatisticsSerializer)
-from group.serializers import HomeGroupListSerializer, ChurchListSerializer
+from .serializers import ParticipationSerializer, EventSerializer, EventTypeSerializer, EventAnketSerializer
 
 
 class MeetingPagination(PageNumberPagination):
@@ -210,30 +209,6 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
         pass
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class ParticipationPagination(PageNumberPagination):
     page_size = 30
     page_size_query_param = 'page_size'
@@ -303,12 +278,12 @@ class ParticipationViewSet(viewsets.ModelViewSet):
     search_fields = ('user__user__first_name', 'user__user__last_name', 'user__user__middle_name',
                      'user__user__country', 'user__user__region', 'user__user__city', 'user__user__district',
                      'user__user__address', 'user__user__skype', 'user__user__phone_number',
-                     'user__user__hierarchy__title', 'user__user__department__title',
+                     'user__user__hierarchy__title',
                      'user__user__email',)
     ordering_fields = ('user__user__first_name', 'user__user__last_name', 'user__user__hierarchy__level',
                        'user__user__country', 'user__user__region', 'user__user__city', 'user__user__district',
                        'user__user__address', 'user__user__skype', 'user__user__phone_number',
-                       'user__user__hierarchy__title', 'user__user__department__title',
+                       'user__user__hierarchy__title',
                        'user__user__email',)
     permission_classes = (IsAuthenticated,)
 
@@ -346,6 +321,7 @@ def update_participation(request):
             response_dict['message'] = "Участие не существует."
             response_dict['status'] = False
     return Response(response_dict)
+
 
 """
 class CreateMeetingView(CreateAPIView):

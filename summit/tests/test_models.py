@@ -6,10 +6,8 @@ from decimal import Decimal
 
 import pytest
 from django.core.exceptions import ValidationError
-from django.test import TestCase
 
 from account.factories import UserFactory
-from summit.factories import SummitAnketFactory, AnketNoteFactory
 
 
 @pytest.mark.django_db

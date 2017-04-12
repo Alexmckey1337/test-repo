@@ -96,8 +96,7 @@
                     </div>
                     <div class="right-info">
                         <ul>
-                            <li><select style="width: 96%" name="" id="chooseDepartment">
-                                <option value=""></option>
+                            <li><select multiple style="width: 96%" name="" id="chooseDepartment">
                                 {% for department in departments %}
                                     <option value="{{ department.id }}">{{ department.title }}</option>
                                 {% endfor %}

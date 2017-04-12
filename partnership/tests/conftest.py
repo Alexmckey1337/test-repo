@@ -4,16 +4,18 @@ from decimal import Decimal
 from django.utils import six
 from pytest_factoryboy import register
 from rest_framework import status
-from rest_framework.permissions import AllowAny
 
 from account.factories import UserFactory
 from common.test_helpers.views import fake_dispatch
+from hierarchy.factories import DepartmentFactory, HierarchyFactory
 from partnership.factories import PartnerFactory, DealFactory
 from partnership.models import Partnership
 from partnership.views import DealViewSet
 from payment.factories import PaymentFactory, PartnerPaymentFactory, DealPaymentFactory, CurrencyFactory
 
 register(UserFactory)
+register(DepartmentFactory)
+register(HierarchyFactory)
 register(PartnerFactory)
 register(DealFactory)
 register(PaymentFactory)

@@ -4,8 +4,9 @@ from hierarchy.models import Department
 from hierarchy.models import Hierarchy
 from location.models import Country
 from partnership.models import Partnership
+from payment.models import Currency
 from status.models import Division
-from summit.models import SummitAnket, SummitUserConsultant
+from summit.models import SummitAnket, SummitUserConsultant, Summit
 
 register = template.Library()
 
@@ -18,13 +19,14 @@ def create_user_form():
     departments = Department.objects.all()
     hierarchies = Hierarchy.objects.all()
     divisions = Division.objects.all()
-
+    currencies = Currency.objects.all()
     ctx = {
         'managers': managers,
         'countries': countries,
         'departments': departments,
         'hierarchies': hierarchies,
         'divisions': divisions,
+        'currencies': currencies
     }
     return ctx
 
@@ -41,3 +43,14 @@ def is_consultant_for_user(context, summit, user_to, user_from=None):
             consultant=user_from_anket, user__user=user_to, summit=summit).exists())
 
     return is_consultant
+
+
+@register.simple_tag
+def available_summits(user, summit_type=None):
+    qs_filter = {
+        'ankets__user': user,
+        'ankets__role__gte': SummitAnket.CONSULTANT
+    }
+    if summit_type:
+        return summit_type.summits.filter(**qs_filter).distinct()
+    return Summit.objects.filter(**qs_filter).distinct()

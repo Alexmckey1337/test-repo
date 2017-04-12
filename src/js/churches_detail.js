@@ -15,39 +15,75 @@
             $('#added_home_group_pastor').html(options).prop('disabled', false);
         })
     }
-    function addUserToChurch(id, el) {
+
+    function addUserToChurch(data) {
+        let id = data.id;
         let config = {};
         config.user_id = id;
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${ID}/add_user/`, config, function () {
-            $(el).attr('disabled', true).text('Добавлен');
-            createChurchesUsersTable(ID);
-        }, 'POST', 'application/json');
+        return new Promise(function (resolve, reject) {
+            let data = {
+                method: 'POST',
+                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${ID}/add_user/`,
+                data: config
+            };
+            let status = {
+                201: function (req) {
+                    resolve(req)
+                },
+                403: function () {
+                    reject('Вы должны авторизоватся')
+                }
+            };
+            newAjaxRequest(data, status, reject);
+        });
     }
+
     function makeUsersFromDatabaseList(config = {}) {
-        getUsersTOChurch(config).then(function(data) {
+        getUsersTOChurch(config).then(function (data) {
             let users = data;
             let html = [];
-            users.forEach(function (item) {
+            if (users.length) {
+                users.forEach(function (item) {
+                    let rows_wrap = document.createElement('div');
+                    let rows = document.createElement('div');
+                    let col_1 = document.createElement('div');
+                    let col_2 = document.createElement('div');
+                    let place = document.createElement('p');
+                    let link = document.createElement('a');
+                    let button = document.createElement('button');
+                    $(link).attr('href', '/account/' + item.id).text(item.full_name);
+                    $(place).text();
+                    $(col_1).addClass('col').append(link);
+                    $(col_2).addClass('col').append(item.country + ', ' + item.city);
+                    $(rows).addClass('rows').append(col_1).append(col_2);
+                    $(button).attr('data-id', item.id).text('Выбрать').on('click', function () {
+                        let id = $(this).data('id');
+                        let _self = this;
+                        let config = {};
+                        config.id = id;
+                        addUserToChurch(config).then(function (data) {
+                            $(_self).text('Добавлен').attr('disabled', true);
+                            getChurchStats(ID).then(function (data) {
+                                let keys = Object.keys(data);
+                                keys.forEach(function (item) {
+                                    $('#' + item).text(data[item]);
+                                })
+                            });
+                            createChurchesUsersTable(ID);
+                        });
+                    });
+                    $(rows_wrap).addClass('rows-wrap').append(button).append(rows);
+                    html.push(rows_wrap);
+                });
+            } else {
                 let rows_wrap = document.createElement('div');
                 let rows = document.createElement('div');
                 let col_1 = document.createElement('div');
-                let col_2 = document.createElement('div');
-                let place = document.createElement('p');
-                let link = document.createElement('a');
-                let button = document.createElement('button');
-                $(link).attr('href', '/account/' + item.id).text(item.full_name);
-                $(place).text();
-                $(col_1).addClass('col').append(link);
-                $(col_2).addClass('col').append(item.country + ', ' +  item.city);
-                $(rows).addClass('rows').append(col_1).append(col_2);
-                $(button).attr('data-id', item.id).text('Выбрать').on('click',function () {
-                    let id = $(this).data('id');
-                    let _self = this;
-                    addUserToChurch(id, _self);
-                });
-                $(rows_wrap).addClass('rows-wrap').append(button).append(rows);
+                $(col_1).text('Пользователь не найден');
+                $(rows).addClass('rows').append(col_1);
+                $(rows_wrap).addClass('rows-wrap').append(rows);
                 html.push(rows_wrap);
-            });
+            }
             $('#searchedUsers').html(html);
             $('.choose-user-wrap .splash-screen').addClass('active');
         })
@@ -57,14 +93,15 @@
 
     $('#added_home_group_pastor').select2();
     $('#added_home_group_date').datepicker({
-        dateFormat: 'yyyy-mm-dd'
+        dateFormat: 'yyyy-mm-dd',
+        autoClose: true
     });
 //    Events
     $('#add_homeGroupToChurch').on('click', function () {
         clearAddHomeGroupData();
-        if(!responsibleList) {
+        if (!responsibleList) {
             responsibleList = true;
-            makeResponsibleList(D_ID, 2);
+            makeResponsibleList(D_ID, 1);
         }
         setTimeout(function () {
             $('#addHomeGroup').css('display', 'block');
@@ -72,23 +109,25 @@
     });
     $('#add_userToChurch').on('click', function () {
         $('#addUser').css('display', 'block');
-        initAddNewUser(D_ID, addUserToChurch);
+        initAddNewUser({
+            getDepartments: false,
+        });
     });
     $('#choose').on('click', function () {
         $(this).closest('.popup').css('display', 'none');
         $('#searchedUsers').html('');
         $('#searchUserFromDatabase').val('');
-         $('.choose-user-wrap .splash-screen').removeClass('active');
+        $('.choose-user-wrap .splash-screen').removeClass('active');
         $('#chooseUserINBases').css('display', 'block');
     });
     $('#add_new').on('click', function () {
         let department_id = $('#church').data('department_id');
         let department_title = $('#church').data('department_title');
         let option = document.createElement('option');
-        $(option).val(department_id).text(department_title).attr('selected', true);
+        $(option).val(department_id).text(department_title).attr('selected', true).attr('required', false);
         $(this).closest('.popup').css('display', 'none');
         $('#addNewUserPopup').css('display', 'block');
-        $('#chooseDepartment').append(option);
+        $('#chooseDepartment').html(option).attr('disabled', false);
     });
     $('#searchUserFromDatabase').on('keyup', function () {
         let search = $(this).val();
@@ -98,19 +137,50 @@
         config.department = D_ID;
         makeUsersFromDatabaseList(config);
     });
+
     $('.get_info button').on('click', function () {
         let link = $(this).data('link');
+        let exportUrl = $(this).data('export-url');
         let canEdit = $(this).data('editable');
         $('#church').removeClass('can_edit');
-        if(canEdit) {
+        if (canEdit) {
             $('#church').addClass('can_edit');
         }
         createChurchesDetailsTable({}, ID, link);
         $('.get_info button').removeClass('active');
         $(this).addClass('active');
+        $('#export_table').attr('data-export-url', exportUrl);
     });
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
         updateSettings(createChurchesDetailsTable);
+    });
+    $('#export_table').on('click', function () {
+        $('.preloader').css('display', 'block');
+        exportTableData(this)
+            .then(function () {
+                $('.preloader').css('display', 'none');
+            })
+            .catch(function () {
+                showPopup('Ошибка при загрузке файла');
+                $('.preloader').css('display', 'none');
+            });
+    });
+    $('#addHomeGroup').on('submit', function (e) {
+        e.preventDefault();
+        addHomeGroup(this);
+    });
+    $.validate({
+        lang: 'ru',
+        form: '#createUser',
+        onSuccess: function (form) {
+            if ($(form).attr('name') == 'createUser') {
+                $(form).find('#saveNew').attr('disabled', true);
+                createNewUser(addUserToChurch).then(function() {
+                    $(form).find('#saveNew').attr('disabled', false);
+                });
+            }
+            return false; // Will stop the submission of the form
+        }
     });
 })(jQuery);

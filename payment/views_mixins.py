@@ -65,9 +65,10 @@ class CreatePaymentMixin(PaymentCheckPermissionMixin):
         purpose = get_object_or_404(purpose_model, pk=pk)
         self.check_payment_permissions(request, purpose)
 
-        sum = request.data['sum']
+        sum = request.data.get('sum', None)
         description = request.data.get('description', '')
         rate = request.data.get('rate', Decimal(1))
+        operation = request.data.get('operation', '*')
         currency = request.data.get('currency', purpose.currency.id)
         sent_date = request.data.get('sent_date')
         if not sent_date:
@@ -75,12 +76,13 @@ class CreatePaymentMixin(PaymentCheckPermissionMixin):
         data = {
             'sum': sum,
             'rate': rate,
+            'operation': operation,
             'currency_sum': currency,
             'sent_date': sent_date,
             'description': description,
             'manager': request.user.id,
             'content_type': ContentType.objects.get_for_model(purpose_model).id,
-            'object_id': pk
+            'object_id': pk,
         }
         serializer = self.create_payment_serializer(data=data)
         serializer.is_valid(raise_exception=True)
