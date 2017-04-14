@@ -225,9 +225,11 @@ window.onload = function () {
     if (opened('state')) {
         $("#sidebar").addClass('toggle-sidebar');
         $('#move-sidebar').addClass('active');
+        document.documentElement.style.setProperty('--lsb_width', '90px');
     } else {
         $("#sidebar").removeClass('toggle-sidebar');
         $('#move-sidebar').removeClass('active');
+        document.documentElement.style.setProperty('--lsb_width', '240px');
     }
     $('body').show();
 };
@@ -274,7 +276,6 @@ function setSidebarPosition() {
             $sidebar.addClass('toggle-sidebar');
             document.documentElement.style.setProperty('--lsb_width', '90px');
             $moveSidebar.addClass('active');
-
             document.cookie = 'state=active;path=/';
         }, 100)
     } else {
@@ -282,7 +283,6 @@ function setSidebarPosition() {
             $sidebar.removeClass('toggle-sidebar');
             document.documentElement.style.setProperty('--lsb_width', '240px');
             $moveSidebar.removeClass('active');
-
             deleteCookie('state');
         }, 100)
     }
