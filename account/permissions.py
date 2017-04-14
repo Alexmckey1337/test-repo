@@ -66,7 +66,7 @@ def can_see_user_list(user):
     """
     Checking that the ``user`` has the right to see list of users
     """
-    return user.is_staff or user.is_leaf_node
+    return user.is_staff or not user.is_leaf_node()
 
 
 # Account page: ``/account/<user_id>/``
@@ -83,7 +83,7 @@ def can_edit_status_block(current_user, user):
     """
     return (
         current_user.is_partner_supervisor_or_high or
-        current_user.is_summit_any_supervisor_or_high or
+        current_user.is_any_summit_supervisor_or_high or
         current_user.is_ancestor_of(user)
     )
 
@@ -96,6 +96,6 @@ def can_edit_description_block(current_user, user):
     """
     return (
         current_user.is_partner_supervisor_or_high or
-        current_user.is_summit_any_supervisor_or_high or
+        current_user.is_any_summit_supervisor_or_high or
         current_user.is_ancestor_of(user)
     )

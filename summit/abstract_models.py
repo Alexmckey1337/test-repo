@@ -1,6 +1,7 @@
 from account.abstact_models import UserPermission
 from summit.models import SummitType, SummitAnket
-from summit.permissions import can_see_summit, can_see_summit_type, can_see_any_summit, can_see_any_summit_type
+from summit.permissions import can_see_summit, can_see_summit_type, can_see_any_summit, can_see_any_summit_type, \
+    is_any_summit_supervisor_or_high
 
 
 class SummitUserPermission(UserPermission):
@@ -27,6 +28,7 @@ class SummitUserPermission(UserPermission):
         return SummitType.objects.filter(summits__ankets__user=self,
                                          summits__ankets__role__gte=SummitAnket.CONSULTANT).distinct()
 
-    def is_summit_any_supervisor_or_high(self):
+    @property
+    def is_any_summit_supervisor_or_high(self):
         # TODO
-        return False
+        return is_any_summit_supervisor_or_high(self)

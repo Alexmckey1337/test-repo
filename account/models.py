@@ -143,23 +143,23 @@ class CustomUser(MPTTModel, User, GroupUserPermission, PartnerUserPermission, Su
 
     @property
     def is_congregation(self):
-        return self.hierarchy and self.hierarchy.level == 0
+        return self.hierarchy is not None and self.hierarchy.level == 0
 
     @property
     def is_leader(self):
-        return self.hierarchy and self.hierarchy.level == 1
+        return self.hierarchy is not None and self.hierarchy.level == 1
 
     @property
     def is_leader_or_high(self):
-        return self.hierarchy and self.hierarchy.level >= 1
+        return self.hierarchy is not None and self.hierarchy.level >= 1
 
     @property
     def is_pastor(self):
-        return self.hierarchy and self.hierarchy.level == 2
+        return self.hierarchy is not None and self.hierarchy.level == 2
 
     @property
     def is_pastor_or_high(self):
-        return self.hierarchy and self.hierarchy.level >= 2
+        return self.hierarchy is not None and self.hierarchy.level >= 2
 
     @property
     def is_sotnik(self):
@@ -171,35 +171,35 @@ class CustomUser(MPTTModel, User, GroupUserPermission, PartnerUserPermission, Su
 
     @property
     def is_bishop(self):
-        return self.hierarchy and self.hierarchy.level == 4
+        return self.hierarchy is not None and self.hierarchy.level == 4
 
     @property
     def is_bishop_or_high(self):
-        return self.hierarchy and self.hierarchy.level >= 4
+        return self.hierarchy is not None and self.hierarchy.level >= 4
 
     @property
     def is_senior_bishop(self):
-        return self.hierarchy and self.hierarchy.level == 5
+        return self.hierarchy is not None and self.hierarchy.level == 5
 
     @property
     def is_senior_bishop_or_high(self):
-        return self.hierarchy and self.hierarchy.level >= 5
+        return self.hierarchy is not None and self.hierarchy.level >= 5
 
     @property
     def is_apostle(self):
-        return self.hierarchy and self.hierarchy.level == 6
+        return self.hierarchy is not None and self.hierarchy.level == 6
 
     @property
     def is_apostle_or_high(self):
-        return self.hierarchy and self.hierarchy.level >= 6
+        return self.hierarchy is not None and self.hierarchy.level >= 6
 
     @property
     def is_archon(self):
-        return self.hierarchy and self.hierarchy.level == 7
+        return self.hierarchy is not None and self.hierarchy.level == 7
 
     @property
     def is_archon_or_high(self):
-        return self.hierarchy and self.hierarchy.level >= 7
+        return self.hierarchy is not None and self.hierarchy.level >= 7
 
     # PERMISSIONS
 
