@@ -26,8 +26,6 @@ from group.abstract_models import GroupUserPermission
 from navigation.models import Table
 from partnership.abstract_models import PartnerUserPermission
 from summit.abstract_models import SummitUserPermission
-from partnership.models import Partnership
-from summit.models import SummitType, SummitAnket
 from summit.permissions import can_see_any_summit_ticket, can_see_summit_ticket
 
 

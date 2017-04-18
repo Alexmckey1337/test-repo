@@ -73,12 +73,34 @@ class SummitAnketForTicketSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'code', 'user', 'is_active')
 
 
-class SummitAnketWithNotesSerializer(serializers.ModelSerializer):
-    notes = SummitAnketNoteSerializer(many=True, read_only=True)
+class SummitShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Summit
+        fields = ('id', 'start_date', 'end_date', 'title', 'description')
+
+
+class SummitUnregisterUserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'city', 'fullname', 'country', 'master_short_fullname')
+
+
+class SummitLessonSerializer(serializers.ModelSerializer):
+    viewers = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
-        model = SummitAnket
-        fields = ('code', 'notes')
+        model = SummitLesson
+        fields = ('summit', 'name', 'viewers')
+        # extra_kwargs = {'viewers': {'required': False}}
+
+
+class SummitLessonShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SummitLesson
+        fields = ('summit', 'name')
+
+
+# UNUSED
 
 
 class SummitSerializer(serializers.HyperlinkedModelSerializer):
@@ -90,16 +112,21 @@ class SummitSerializer(serializers.HyperlinkedModelSerializer):
                   'full_cost', 'special_cost')
 
 
-class SummitShortSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Summit
-        fields = ('id', 'start_date', 'end_date', 'title', 'description')
-
-
 class SummitTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = SummitType
         fields = ('id', 'title', 'image')
+
+
+class SummitAnketWithNotesSerializer(serializers.ModelSerializer):
+    notes = SummitAnketNoteSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = SummitAnket
+        fields = ('code', 'notes')
+
+
+# FOR APP
 
 
 class SummitTicketSerializer(serializers.ModelSerializer):
@@ -139,24 +166,3 @@ class SummitAnketForAppSerializer(serializers.ModelSerializer):
     class Meta:
         model = SummitAnket
         fields = ('id', 'user', 'code', 'value', 'is_member')
-
-
-class SummitUnregisterUserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'city', 'fullname', 'country', 'master_short_fullname')
-
-
-class SummitLessonSerializer(serializers.ModelSerializer):
-    viewers = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-
-    class Meta:
-        model = SummitLesson
-        fields = ('summit', 'name', 'viewers')
-        # extra_kwargs = {'viewers': {'required': False}}
-
-
-class SummitLessonShortSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SummitLesson
-        fields = ('summit', 'name')

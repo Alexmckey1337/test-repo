@@ -1,30 +1,27 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-import django_filters
-import rest_framework_filters as filters_new
 from dbmail import send_db_mail
 from django.db.models import Sum, Value as V, Case, When, BooleanField
-from django.db.models.functions import Coalesce, Concat
+from django.db.models.functions import Coalesce
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions, viewsets, filters, status, mixins
 from rest_framework.decorators import list_route, detail_route, api_view
-from rest_framework.filters import BaseFilterBackend
 from rest_framework.generics import get_object_or_404
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
 from account.models import CustomUser
 from common.views_mixins import ExportViewSetMixin
-from navigation.table_fields import user_table, summit_table
 from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
+from summit.filters import FilterByClub, ProductFilter, SummitUnregisterFilter
+from summit.pagination import SummitPagination
 from summit.permissions import IsSupervisorOrHigh
 from summit.utils import generate_ticket
-from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, SummitUserConsultant, SummitTicket
+from .models import Summit, SummitAnket, SummitType, SummitLesson, SummitUserConsultant, SummitTicket
 from .resources import get_fields, SummitAnketResource
 from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
@@ -39,42 +36,6 @@ def get_success_headers(data):
         return {'Location': data[api_settings.URL_FIELD_NAME]}
     except (TypeError, KeyError):
         return {}
-
-
-class SummitPagination(PageNumberPagination):
-    page_size = 30
-    page_size_query_param = 'page_size'
-    max_page_size = 30
-
-    def get_paginated_response(self, data):
-        return Response({
-            'links': {
-                'next': self.get_next_link(),
-                'previous': self.get_previous_link()
-            },
-            'count': self.page.paginator.count,
-            'common_table': summit_table(),
-            'user_table': user_table(self.request.user, prefix_ordering_title='user__'),
-            'results': data
-        })
-
-
-class FilterByClub(BaseFilterBackend):
-    def filter_queryset(self, request, queryset, view):
-        """
-        Return a filtered queryset.
-        """
-        params = request.query_params
-        summit_id = params.get('summit')
-        is_member = params.get('is_member', None)
-        if summit_id and is_member in ('true', 'false'):
-            is_member = True if is_member == 'true' else False
-            summit_type = Summit.objects.get(id=summit_id).type
-            users = summit_type.summits.filter(ankets__visited=True).values_list('ankets__user', flat=True)
-            if is_member:
-                return queryset.filter(user__id__in=set(users))
-            return queryset.exclude(user__id__in=set(users))
-        return queryset
 
 
 class SummitAnketTableViewSet(viewsets.ModelViewSet,
@@ -274,13 +235,38 @@ class SummitLessonViewSet(viewsets.ModelViewSet):
         return Response({'lesson': lesson.name, 'lesson_id': pk, 'anket_id': anket_id, 'checked': False})
 
 
-class SummitAnketWithNotesViewSet(viewsets.ModelViewSet):
-    queryset = SummitAnket.objects.select_related('user', 'user__hierarchy', 'user__master'). \
-        prefetch_related('user__divisions', 'user__departments', 'notes')
-    serializer_class = SummitAnketWithNotesSerializer
+class SummitUnregisterUserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = SummitUnregisterUserSerializer
+    filter_backends = (filters.SearchFilter,
+                       filters.DjangoFilterBackend,)
+    permission_classes = (IsAuthenticated,)
+    filter_class = SummitUnregisterFilter
+    search_fields = ('first_name', 'last_name', 'middle_name',)
+
+
+# FOR APP
+
+
+class SummitTypeForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = SummitType.objects.prefetch_related('summits')
+    serializer_class = SummitTypeForAppSerializer
+    permission_classes = (AllowAny,)
     pagination_class = None
+
+
+class SummitAnketForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = SummitAnket.objects.select_related('user').order_by('id')
+    serializer_class = SummitAnketForAppSerializer
     filter_backends = (filters.DjangoFilterBackend,)
-    filter_fields = ('user',)
+    # filter_fields = ('summit', 'id')
+    # filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+    filter_class = ProductFilter
+    permission_classes = (AllowAny,)
+    pagination_class = None
+
+
+# UNUSED
 
 
 class SummitViewSet(viewsets.ReadOnlyModelViewSet):
@@ -364,33 +350,6 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(data, status=status.HTTP_204_NO_CONTENT)
 
 
-class SummitTypeForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    queryset = SummitType.objects.prefetch_related('summits')
-    serializer_class = SummitTypeForAppSerializer
-    permission_classes = (AllowAny,)
-    pagination_class = None
-
-
-class ProductFilter(django_filters.FilterSet):
-    min_id = django_filters.NumberFilter(name="id", lookup_expr='gte')
-    max_id = django_filters.NumberFilter(name="id", lookup_expr='lte')
-
-    class Meta:
-        model = SummitAnket
-        fields = ['summit', 'min_id', 'max_id']
-
-
-class SummitAnketForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    queryset = SummitAnket.objects.select_related('user').order_by('id')
-    serializer_class = SummitAnketForAppSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
-    # filter_fields = ('summit', 'id')
-    # filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    filter_class = ProductFilter
-    permission_classes = (AllowAny,)
-    pagination_class = None
-
-
 class SummitTicketViewSet(viewsets.ModelViewSet):
     queryset = SummitTicket.objects.all()
     serializer_class = SummitTicketSerializer
@@ -434,30 +393,13 @@ class SummitTypeViewSet(viewsets.ModelViewSet):
         return Response(data)
 
 
-class SummitUnregisterFilter(filters_new.FilterSet):
-    summit_id = filters_new.CharFilter(name="summit_ankets__summit__id", exclude=True)
-
-    class Meta:
-        model = CustomUser
-        fields = ['summit_id']
-
-
-class SummitUnregisterUserViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
-    serializer_class = SummitUnregisterUserSerializer
-    filter_backends = (filters.SearchFilter,
-                       filters.DjangoFilterBackend,)
-    permission_classes = (IsAuthenticated,)
-    filter_class = SummitUnregisterFilter
-    search_fields = ('first_name', 'last_name', 'middle_name',)
-
-
-class SummitAnketNoteViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = SummitAnketNote.objects.all()
-    serializer_class = SummitAnketNoteSerializer
+class SummitAnketWithNotesViewSet(viewsets.ModelViewSet):
+    queryset = SummitAnket.objects.select_related('user', 'user__hierarchy', 'user__master'). \
+        prefetch_related('user__divisions', 'user__departments', 'notes')
+    serializer_class = SummitAnketWithNotesSerializer
+    pagination_class = None
     filter_backends = (filters.DjangoFilterBackend,)
-    filter_fields = ('summit_anket',)
-    permission_classes = (IsAuthenticated,)
+    filter_fields = ('user',)
 
 
 def generate_code(request):
