@@ -597,6 +597,9 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                 });
             }
             updateUser(ID, formData, success).then(function (data) {
+                if(formName === 'editHierarchy') {
+                    $('.is-hidden__after-edit').html('');
+                }
                 if (hidden) {
                     let editBtn = $(_self).closest('.hidden').data('edit');
                     setTimeout(function () {

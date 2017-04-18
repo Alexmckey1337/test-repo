@@ -1,20 +1,22 @@
 (function ($) {
-    const SUMMIT_ID = $('#summitUsersList').data('summit-type');
-    function addSummitInfo() {
+    const SUMMIT_TYPE_ID = $('#summitUsersList').data('summit-type');
+
+    function makeSummitInfo() {
         let width = 150,
             count = 1,
             position = 0,
             $carousel = $('#carousel'),
             $list = $carousel.find('ul'),
             $listElements;
-
-        $listElements = $list.find('li');
-        $carousel.find('.arrow-left').on('click', function () {
+            $listElements = $list.find('li');
+            $carousel.find('.arrow-left').on('click', function () {
             position = Math.min(position + width * count, 0);
+
             $($list).css({
                 marginLeft: position + 'px'
             });
         });
+
         $carousel.find('.arrow-right').on('click', function () {
             position = Math.max(position - width * count, -width * ($listElements.length - 3));
             $($list).css({
@@ -25,23 +27,23 @@
 
     function addUserToSummit(data) {
         let id = data.id,
-            name = data.fullname,
-            master = data.master.fullname;
+            fullName = data.fullname,
+            masterFullName = data.master.fullname;
         let $summitVal = $('#summit-value');
         let $popup = $('#popup');
         $summitVal.val("0");
         $summitVal.attr('readonly', true);
         $popup.find('textarea').val('');
-        setDataForPopup(id, name, master);
-        $popup.css('display', 'block');
+        setDataForPopup(id, fullName, masterFullName);
+        $popup.show();
     }
 
     createSummitUsersTable();
 
-    addSummitInfo();
+    makeSummitInfo();
 
     $('body').on('click', '#carousel li span', function () {
-        $('#carousel li').removeClass('active');
+        $('#carousel').find('li').removeClass('active');
         $(this).parent().addClass('active')
     });
 
@@ -78,32 +80,32 @@
     });
 
     $('#payment-form').on("submit", function (e) {
-    e.preventDefault();
-    let data = $('#payment-form').serializeArray();
-    let userID;
-    let new_data = {};
-    data.forEach(function (field) {
-        if (field.name == 'sent_date') {
-            new_data[field.name] = field.value.trim().split('.').reverse().join('-');
-        } else if (field.name != 'id') {
-            new_data[field.name] = field.value
-        } else {
-            userID = field.value;
-        }
-    });
-    if (userID) {
-        createPayment({
-            data: new_data
-        }, userID).then(function (data) {
-            console.log(data);
+        e.preventDefault();
+        let data = $('#payment-form').serializeArray();
+        let userID;
+        let new_data = {};
+        data.forEach(function (field) {
+            if (field.name == 'sent_date') {
+                new_data[field.name] = field.value.trim().split('.').reverse().join('-');
+            } else if (field.name != 'id') {
+                new_data[field.name] = field.value
+            } else {
+                userID = field.value;
+            }
         });
-    }
-    // create_payment(id, sum, description, rate, currency);
+        if (userID) {
+            createPayment({
+                data: new_data
+            }, userID).then(function (data) {
+                console.log(data);
+            });
+        }
+        // create_payment(id, sum, description, rate, currency);
 
-    $('#new_payment_sum').val('');
-    $('#popup-create_payment textarea').val('');
-    $('#popup-create_payment').css('display', 'none');
-});
+        $('#new_payment_sum').val('');
+        $('#popup-create_payment textarea').val('');
+        $('#popup-create_payment').css('display', 'none');
+    });
 
     $(".add-user-wrap .top-text span").on('click', function () {
         $('.add-user-wrap').css('display', '');
@@ -220,12 +222,12 @@
                 .attr('id', 'deleteAnket')
                 .text('Подтвердить удаление')
                 .on('click', function () {
-                deleteSummitProfile(anketID).then(function (msg) {
-                    $(div).hide().remove();
-                    setTimeout(() => showPopup(msg), 100);
-                    createSummitUsersTable();
+                    deleteSummitProfile(anketID).then(function (msg) {
+                        $(div).hide().remove();
+                        setTimeout(() => showPopup(msg), 100);
+                        createSummitUsersTable();
+                    });
                 });
-            });
             $(splashButtons).addClass('splash-buttons wrap').append(deleteBtn);
             $(mainBlock).append(splashButtons);
             $(div).append(mainBlock);
@@ -233,13 +235,13 @@
         }).catch(function (err) {
             console.log(err);
         });
-         // closePopup(this);
+        // closePopup(this);
     });
 
     $('yes').on('click', function () {
-        let summitAnket = $(this).attr('data-anket');
+        let summitAnketID = $(this).attr('data-anket');
         $('#deletePopup').css('display', '');
-        unsubscribe(summitAnket);
+        unsubscribeOfSummit(summitAnketID);
     });
 
     $('#deletePopup').click(function (el) {
@@ -258,15 +260,16 @@
     });
 
     $('#applyChanges').on('click', function () {
+        let summit_id = $('#summitsTypes').find('.active').data('id');
         let sendData = {
             send_email: false,
-            summit_id: SUMMIT_ID
+            summit_id: summit_id
         };
 
         let formData = $('#participantInfoForm').serializeArray();
         let data = {};
 
-         formData.forEach(function (item) {
+        formData.forEach(function (item) {
             data[item.name] = (item.value == 'on') ? true : item.value;
         });
 
@@ -279,12 +282,13 @@
         let id = $(this).attr('data-id'),
             money = $('#summit-value').val(),
             description = $('#popup textarea').val(),
-            summit_id = $('#date .active span').data('id');
+            summit_id = $('#summitsTypes').find('.active').data('id');
         registerUser(id, summit_id, money, description);
+
         document.querySelector('#popup').style.display = 'none';
     });
 
-    function unsubscribe(id) {
+    function unsubscribeOfSummit(id) {
         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/' + id + '/', null, function () {
             let data = {};
             data['summit'] = summit_id;
@@ -316,8 +320,8 @@
             "summit_id": summit_id,
             "value": money,
             "description": description,
-            "visited": member_club,
-            "send_email": send_email
+            "visited": member_club || false,
+            "send_email": send_email,
         };
 
         let json = JSON.stringify(data);
@@ -448,7 +452,7 @@
         onSuccess: function (form) {
             if ($(form).attr('name') == 'createUser') {
                 $(form).find('#saveNew').attr('disabled', true);
-                createNewUser(addUserToSummit).then(function() {
+                createNewUser(addUserToSummit).then(function () {
                     $(form).find('#saveNew').attr('disabled', false);
                 });
             }
