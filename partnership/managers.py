@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.db import models
 from django.db.models import Value as V, Sum
 from django.db.models.functions import Concat, Coalesce
@@ -32,7 +31,7 @@ class DealQuerySet(models.query.QuerySet):
     def for_user(self, user):
         if not is_authenticated(user) or not hasattr(user, 'partnership'):
             return self.none()
-        if user.partnership.level < settings.PARTNER_LEVELS['manager']:
+        if user.is_partner_supervisor_or_high:
             return self
         return self.filter(partnership__responsible__user=user)
 
@@ -74,7 +73,7 @@ class PartnerQuerySet(models.query.QuerySet):
     def for_user(self, user):
         if not is_authenticated(user) or not hasattr(user, 'partnership'):
             return self.none()
-        if user.partnership.level < settings.PARTNER_LEVELS['manager']:
+        if user.is_partner_supervisor_or_high:
             return self
         return self.filter(responsible__user=user)
 

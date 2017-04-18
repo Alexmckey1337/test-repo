@@ -40,7 +40,7 @@ class PurposeRelatedField(serializers.RelatedField):
         if isinstance(value, Deal):
             return reverse('deal-detail', kwargs={'pk': value.id})
         elif isinstance(value, Partnership):
-            return reverse('partnerships_v1_1-detail', kwargs={'pk': value.id})
+            return reverse('partner-detail', kwargs={'pk': value.id})
         elif isinstance(value, SummitAnket):
             return reverse('summit_ankets-detail', kwargs={'pk': value.id})
         raise Exception('Unexpected type of tagged object')

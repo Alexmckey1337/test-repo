@@ -63,9 +63,6 @@ function makeResponsibleList(department, status) {
 
 const ID = getLastId();
 
-$('.b-red').on('click', function () {
-    window.location.href = `/account_edit/${ID}/`;
-});
 $('.hard-login').on('click', function () {
     let user = $(this).data('user-id');
     setCookie('hard_user_id', user, {path: '/'});
@@ -85,6 +82,11 @@ $('#send_need').on('click', function () {
         showPopup('Нужда сохранена.');
     }, 'PUT', true, {
         'Content-Type': 'application/json'
+    }, {
+        400: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail);
+        }
     })
 });
 $('#sendNote').on('click', function () {

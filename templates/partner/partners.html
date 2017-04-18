@@ -19,7 +19,7 @@
                     <button id="filter_button" class="header__button">Фильтр</button>
                 </li>
                 <li>
-                    <button type="submit" id="export_table" data-export-url="{% url "partnerships_v1_1-export" %}"
+                    <button type="submit" id="export_table" data-export-url="{% url "partner-export" %}"
                             class="download header__button">Export
                     </button>
                 </li>
@@ -63,9 +63,11 @@
             <div class="popup_body">
                 <div class="container">
                     <div class="col-6">
-                        <p class="label_block">
-                            <label for="masters_filter">Менеджер</label>
-                        </p>
+                        {% if request.user.is_partner_supervisor_or_high %}
+                            <p class="label_block">
+                                <label for="masters_filter">Менеджер</label>
+                            </p>
+                        {% endif %}
                         <p class="label_block">
                             <label for="departments_filter">Отдел</label>
                         </p>
@@ -92,14 +94,16 @@
                         </p>
                     </div>
                     <div class="col-6">
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="responsible" id="masters_filter">
-                                <option value="">ВСЕ</option>
-                                {% for manager in managers %}
-                                    <option value="{{ manager.id }}">{{ manager.fullname }}</option>
-                                {% endfor %}
-                            </select>
-                        </p>
+                        {% if request.user.is_partner_supervisor_or_high %}
+                            <p class="input_block">
+                                <select class="selectdb" data-filter="responsible" id="masters_filter">
+                                    <option value="">ВСЕ</option>
+                                    {% for manager in managers %}
+                                        <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                                    {% endfor %}
+                                </select>
+                            </p>
+                        {% endif %}
                         <p class="input_block">
                             <select class="selectdb" data-filter="department" id="departments_filter">
                                 <option value="">ВСЕ</option>

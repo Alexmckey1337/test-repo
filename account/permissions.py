@@ -1,107 +1,101 @@
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import BasePermission
 
-from partnership.permissions import IsSupervisorOrHigh, IsDisciplesOf
-
-
-class HasHierarchyLevelMixin:
-    @staticmethod
-    def level_gte(request, level):
-        return request.user.hierarchy and request.user.hierarchy.level >= level
+from summit.permissions import is_any_summit_supervisor_or_high
 
 
-class IsStaffPermissionMixin:
-    @staticmethod
-    def _is_staff(request, view):
-        return IsAdminUser().has_permission(request, view)
+class CanSeeAccountPage(BasePermission):
+    def has_object_permission(self, request, view, user):
+        return can_see_account_page(request.user, user)
 
 
-class IsPartnerSupervisorPermissionMixin:
-    @staticmethod
-    def _is_partner_supervisor(request, view):
-        return IsSupervisorOrHigh().has_permission(request, view)
-
-
-class IsDisciplesOfPermissionMixin:
-    @staticmethod
-    def _is_disciples_of(request, view, account):
-        return IsDisciplesOf().has_object_permission(request, view, account)
-
-
-class IsDescendantOfPermissionMixin:
-    @staticmethod
-    def _is_descendant_of(request, view, account, include_self=False):
-        return IsDescendantOf().has_object_permission(request, view, account, include_self)
-
-
-class IsDescendantOf(IsAuthenticated):
-    def has_object_permission(self, request, view, account, include_self=False):
-        return (
-            super(IsDescendantOf, self).has_permission(request, view) and
-            request.user.is_descendant_of(account, include_self=include_self)
-        )
-
-
-class IsAncestorOfPermissionMixin:
-    @staticmethod
-    def _is_ancestor_of(request, view, account, include_self=False):
-        return IsAncestorOf().has_object_permission(request, view, account, include_self)
-
-
-class IsAncestorOf(IsAuthenticated):
-    def has_object_permission(self, request, view, account, include_self=False):
-        return (
-            super(IsAncestorOf, self).has_permission(request, view) and
-            request.user.is_ancestor_of(account, include_self=include_self)
-        )
-
-
-class CanAccountObjectRead(IsAuthenticated,
-                           IsStaffPermissionMixin,
-                           IsPartnerSupervisorPermissionMixin,
-                           IsAncestorOfPermissionMixin,
-                           IsDisciplesOfPermissionMixin):
+class CanCreateUser(BasePermission):
     def has_permission(self, request, view):
-        return (
-            self._is_staff(request, view) or
-            self._is_partner_supervisor(request, view)
-        )
-
-    def has_object_permission(self, request, view, account):
-        return (
-            self._is_staff(request, view) or
-            self._is_partner_supervisor(request, view) or
-            self._is_ancestor_of(request, view, account, True) or
-            self._is_disciples_of(request, view, account)
-        )
+        """
+        Checking that the ``request.user`` has the right to create a new user
+        """
+        return can_create_user(request.user)
 
 
-class CanAccountObjectEdit(IsAuthenticated,
-                           IsStaffPermissionMixin,
-                           IsPartnerSupervisorPermissionMixin,
-                           IsAncestorOfPermissionMixin):
-    def has_object_permission(self, request, view, account):
-        return (
-            self._is_staff(request, view) or
-            self._is_partner_supervisor(request, view) or
-            self._is_ancestor_of(request, view, account, True)
-        )
-
-
-class CanSeeChurches(IsAuthenticated, IsStaffPermissionMixin, HasHierarchyLevelMixin):
+class CanExportUserList(BasePermission):
     def has_permission(self, request, view):
-        return (
-            self._is_staff(request, view) or self.level_gte(request, 1)
-        )
+        """
+        Checking that the ``request.user`` has the right to export list of users
+        """
+        return can_export_user_list(request.user)
 
 
-CanSeeHomeGroups = CanSeeChurches
+class CanSeeUserList(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to see list of users
+        """
+        return can_see_user_list(request.user)
 
 
-def can_see_churches(request, view=None):
-    has_perm = CanSeeChurches()
-    return has_perm.has_permission(request, view)
+def can_see_account_page(current_user, user):
+    """
+    Checking that the ``current_user`` has the right to see page ``/account/<user.id>/``
+    """
+    return (
+        current_user.is_staff or
+        current_user.is_partner_supervisor_or_high or
+        current_user.is_ancestor_of(user, include_self=True) or
+        current_user.is_partner_responsible_of(user)
+    )
 
 
-def can_see_home_groups(request, view=None):
-    has_perm = CanSeeHomeGroups()
-    return has_perm.has_permission(request, view)
+def can_create_user(user):
+    """
+    Checking that the ``user`` has the right to create a new user
+    """
+    return (
+        user.is_staff or user.is_leader_or_high or
+        user.is_partner_supervisor_or_high or
+        is_any_summit_supervisor_or_high(user)
+    )
+
+
+def can_export_user_list(user):
+    """
+    Checking that the ``user`` has the right to export list of users
+    """
+    return user.is_staff or user.is_pastor_or_high
+
+
+def can_see_user_list(user):
+    """
+    Checking that the ``user`` has the right to see list of users
+    """
+    return user.is_staff or not user.is_leaf_node()
+
+
+# Account page: ``/account/<user_id>/``
+
+
+def can_edit_status_block(current_user, user):
+    """
+    Use for ``/account/<user.id>/`` page. Checking that the ``current_user`` has the right to edit fields:
+
+    - department
+    - status
+    - master
+    - divisions
+    """
+    return (
+        current_user.is_partner_supervisor_or_high or
+        current_user.is_any_summit_supervisor_or_high or
+        current_user.is_ancestor_of(user)
+    )
+
+
+def can_edit_description_block(current_user, user):
+    """
+    Use for ``/account/<user.id>/`` page. Checking that the ``current_user`` has the right to edit fields:
+
+    - description
+    """
+    return (
+        current_user.is_partner_supervisor_or_high or
+        current_user.is_any_summit_supervisor_or_high or
+        current_user.is_ancestor_of(user)
+    )

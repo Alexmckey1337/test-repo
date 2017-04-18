@@ -12,11 +12,9 @@ from django.views.generic import DetailView
 from django.views.generic.base import ContextMixin, TemplateView
 
 from account.models import CustomUser
-from account.permissions import CanAccountObjectRead, CanAccountObjectEdit
 from event.models import MeetingType
 from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
-from location.models import Country, Region, City
 from partnership.models import Partnership
 from payment.models import Currency
 from status.models import Division
@@ -150,9 +148,8 @@ class PartnerPaymentsListView(LoginRequiredMixin, CanSeeDealPaymentsMixin, Templ
 @login_required(login_url='entry')
 def account(request, id):
     user = get_object_or_404(CustomUser, pk=id)
-    has_perm = CanAccountObjectRead().has_object_permission(request, None, user)
     currencies = Currency.objects.all()
-    if not has_perm:
+    if not request.user.can_see_account_page(user):
         raise PermissionDenied
     ctx = {
         'account': user,
@@ -164,29 +161,6 @@ def account(request, id):
         'churches': Church.objects.all()
     }
     return render(request, 'account/anketa.html', context=ctx)
-
-
-@login_required(login_url='entry')
-def account_edit(request, user_id):
-    user = get_object_or_404(CustomUser, pk=user_id)
-    has_perm = CanAccountObjectEdit().has_object_permission(request, None, user)
-    currencies = Currency.objects.all()
-    if not has_perm:
-        if user_id:
-            return redirect(user.get_absolute_url)
-        raise PermissionDenied
-    ctx = {
-        'account': user,
-        'departments': Department.objects.all(),
-        'hierarchies': Hierarchy.objects.order_by('level'),
-        'divisions': Division.objects.all(),
-        'countries': Country.objects.all(),
-        'regions': Region.objects.filter(country__title=user.country),
-        'cities': City.objects.filter(region__title=user.region),
-        'partners': Partnership.objects.filter(level__lte=Partnership.MANAGER),
-        'currencies': currencies
-    }
-    return render(request, 'account/edit.html', context=ctx)
 
 
 # summit
@@ -228,6 +202,13 @@ def summits(request):
 # database
 
 
+class CanSeeUserListMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_user_list():
+            raise PermissionDenied
+        return super(CanSeeUserListMixin, self).dispatch(request, *args, **kwargs)
+
+
 class CanSeeChurchesMixin(View):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.can_see_churches():
@@ -249,7 +230,7 @@ class TabsMixin(ContextMixin):
         return super(TabsMixin, self).get_context_data(**{'active_tab': self.active_tab})
 
 
-class PeopleListView(LoginRequiredMixin, TabsMixin, TemplateView):
+class PeopleListView(LoginRequiredMixin, TabsMixin, CanSeeUserListMixin, TemplateView):
     template_name = 'database/people.html'
     login_url = 'entry'
     active_tab = 'people'
