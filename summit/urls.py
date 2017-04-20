@@ -21,6 +21,7 @@ router_app.register(r'users', views.SummitAnketForAppViewSet, base_name='users')
 
 custom_urls = [
     url(r'^generate_code/.+\.pdf', views.generate_code, name='generate_code'),
+    url(r'^generate_summit_tickets/.+\.pdf', views.generate_summit_tickets, name='generate_code'),
 ]
 
 urlpatterns = [

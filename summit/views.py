@@ -23,7 +23,7 @@ from navigation.table_fields import user_table, summit_table
 from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.permissions import IsSupervisorOrHigh
-from summit.utils import generate_ticket
+from summit.utils import generate_ticket, generate_ticket_by_summit
 from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, SummitUserConsultant
 from .resources import get_fields, SummitAnketResource
 from .serializers import (
@@ -442,6 +442,19 @@ def generate_code(request):
     code = request.GET.get('code', '00000000')
 
     pdf = generate_ticket(code)
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment;'
+
+    response.write(pdf)
+
+    return response
+
+
+def generate_summit_tickets(request):
+    summit_id = request.GET.get('summit_id', 1)
+
+    pdf = generate_ticket_by_summit(summit_id)
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment;'

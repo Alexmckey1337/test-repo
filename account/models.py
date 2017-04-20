@@ -158,6 +158,12 @@ class CustomUser(MPTTModel, User):
             s = s + self.middle_name[0] + '.'
         return s
 
+    def get_pastor(self):
+        return self.master
+
+    def get_bishop(self):
+        return self.master
+
     @property
     def fullname(self):
         return ' '.join(map(lambda name: name.strip(), (self.last_name, self.first_name, self.middle_name)))
