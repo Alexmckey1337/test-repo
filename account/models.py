@@ -159,10 +159,20 @@ class CustomUser(MPTTModel, User):
         return s
 
     def get_pastor(self):
-        return self.master
+        master = self.master
+        while master is not None:
+            if master.hierarchy.level == 2:
+                return master
+            master = master.master
+        return None
 
     def get_bishop(self):
-        return self.master
+        master = self.master
+        while master is not None:
+            if master.hierarchy.level == 4:
+                return master
+            master = master.master
+        return None
 
     @property
     def fullname(self):

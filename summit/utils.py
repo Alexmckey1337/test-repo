@@ -85,14 +85,20 @@ def create_ticket_page(c, code, logo, photo, w, h, user):
     c.drawString(750 * w / 2241, 925 * w / 2241, user.last_name if user else 'No name')
     c.drawString(750 * w / 2241, 775 * w / 2241, user.first_name if user else 'No name')
     c.setFillColor(HexColor('0x66787f'))
+
     c.setFont('FreeSansIt', 51 * w / 2241)
-    c.drawString(450 * w / 2241, 485 * w / 2241, '(пастор)')
-    c.drawString(450 * w / 2241, 335 * w / 2241, '(епископ)')
+    if user and user.get_pastor():
+        c.drawString(450 * w / 2241, 485 * w / 2241, '(пастор)')
+    if user and user.get_bishop():
+        c.drawString(450 * w / 2241, 335 * w / 2241, '(епископ)')
+
     c.setFont('FreeSansIt', 76 * w / 2241)
-    c.drawString(750 * w / 2241, 485 * w / 2241, '{} {}'.format(
-        user.get_pastor().last_name, user.get_pastor().first_name) if user and user.get_pastor() else 'Нет пастора')
-    c.drawString(750 * w / 2241, 335 * w / 2241, '{} {}'.format(
-        user.get_bishop().last_name, user.get_bishop().first_name) if user and user.get_bishop() else 'Нет епископа')
+    if user and user.get_pastor():
+        c.drawString(750 * w / 2241, 485 * w / 2241, '{} {}'.format(
+            user.get_pastor().last_name, user.get_pastor().first_name) if user and user.get_pastor() else '')
+    if user and user.get_bishop():
+        c.drawString(750 * w / 2241, 335 * w / 2241, '{} {}'.format(
+            user.get_bishop().last_name, user.get_bishop().first_name) if user and user.get_bishop() else '')
 
     c.setFillColorRGB(1, 1, 1)
     barcode_font_size = 140 * w / 2241
