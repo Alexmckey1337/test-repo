@@ -1,79 +1,211 @@
-from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
+# -*- coding: utf-8
+from __future__ import unicode_literals
 
-from partnership.models import Partnership
+from rest_framework.permissions import BasePermission
 
 
-class IsPartnership(IsAuthenticated):
+class CanSeePartners(BasePermission):
     def has_permission(self, request, view):
-        if not super(IsPartnership, self).has_permission(request, view):
-            return False
-        if not hasattr(request.user, 'partnership'):
-            return False
+        """
+        Checking that the ``request.user`` has the right to see list of partners
+        """
+        return can_see_partners(request.user)
+
+
+class CanExportPartnerList(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to export list of partners
+        """
+        return can_export_partner_list(request.user)
+
+
+class CanSeeDeals(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to see list of deals
+        """
+        return can_see_deals(request.user)
+
+
+class CanCreateDeals(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to create new deal
+        """
+        return request.user.is_partner_manager_or_high
+
+
+class CanUpdatePartner(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to update partners
+        """
+        return request.user.is_partner_manager_or_high
+
+
+class CanUpdateDeals(BasePermission):
+    def has_object_permission(self, request, view, deal):
+        """
+        Checking that the ``request.user`` has the right to update ``deal``
+        """
+        return can_update_deal(request.user, deal)
+
+
+class CanSeeDealPayments(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to see list of payments by deals
+        """
+        return can_see_deal_payments(request.user)
+
+
+class CanSeePartnerStatistics(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to see statistic of partners
+        """
+        return can_see_partner_stats(request.user)
+
+
+class CanSeePartnerPayments(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to see partner's payments
+        """
+        return can_see_partner_payments(request.user)
+
+
+class CanCreatePartnerPayment(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to create payment by partnership
+        """
+        return can_create_partner_payments(request.user)
+
+    def has_object_permission(self, request, view, partner):
+        """
+        Checking that the ``request.user`` has the right to create payment for certain ``partner``
+        """
+        return can_create_payment_for_partner(request.user, partner)
+
+
+def can_see_partners(user):
+    """
+    Checking that the ``user`` has the right to see list of partners
+    """
+    return user.is_partner_manager_or_high
+
+
+def can_export_partner_list(user):
+    """
+    Checking that the ``user`` has the right to export list of partners
+    """
+    return user.is_partner_manager_or_high
+
+
+def can_see_deals(user):
+    """
+    Checking that the ``user`` has the right to see list of deals
+    """
+    return user.is_partner_manager_or_high
+
+
+def can_see_partner_stats(user):
+    """
+    Checking that the ``user`` has the right to see statistic of partners
+    """
+    return user.is_partner_manager_or_high
+
+
+def can_see_deal_payments(user):
+    """
+    Checking that the ``user`` has the right to see list of payments by deals
+    """
+    return user.is_partner_manager_or_high
+
+
+def can_close_partner_deals(user):
+    """
+    Checking that the ``request.user`` has the right to close deals of partnership
+    """
+    return user.is_partner_manager_or_high
+
+
+def can_create_partner_payments(user):
+    """
+    Checking that the ``request.user`` has the right to create payments by deals
+    """
+    return user.is_partner_supervisor_or_high
+
+
+def can_create_payment_for_partner(user, partner):
+    """
+    Checking that the ``request.user`` has the right to create payment for certain ``partner``
+    """
+    return user.is_partner_supervisor_or_high
+
+
+def can_create_deal_for_partner(user, partner):
+    """
+    Checking that the ``user`` has the right to create deal for certain ``partner``
+    """
+    if user.is_partner_supervisor_or_high:
         return True
+    return user.is_partner_manager and user.partnership.disciples.filter(id=partner.id).exists()
 
 
-class IsManagerOrHigh(IsPartnership):
-    def has_permission(self, request, view):
-        return (
-            super(IsManagerOrHigh, self).has_permission(request, view) and
-            request.user.partnership.level < Partnership.PARTNER
-        )
+def can_update_partner_need(user, partner):
+    """
+    Checking that the ``user`` has the right to update need field of certain ``partner``
+    """
+    if user.is_partner_supervisor_or_high:
+        return True
+    return user.is_partner_manager and user.partnership.disciples.filter(id=partner.id).exists()
 
 
-class IsSupervisorOrHigh(IsPartnership):
-    def has_permission(self, request, view):
-        return (
-            super(IsSupervisorOrHigh, self).has_permission(request, view) and
-            request.user.partnership.level < Partnership.MANAGER
-        )
+def can_edit_partner_block(current_user, user):
+    """
+    Use for ``/account/<user.id>/`` page. Checking that the ``current_user`` has the right to edit fields:
+
+    - partnership.is_active
+    - partnership.date
+    - partnership.value and partnership.currency
+    - partnership.responsible
+    """
+    return current_user.is_partner_supervisor_or_high
 
 
-class IsManagerReadOnly(IsPartnership):
-    def has_permission(self, request, view):
-        return (
-            super(IsManagerReadOnly, self).has_permission(request, view) and
-            request.user.partnership.level < Partnership.PARTNER and request.method in SAFE_METHODS
-        )
+def can_see_partner_block(current_user, user):
+    """
+    Use for ``/account/<user.id>/`` page. Checking that the ``current_user`` has the right to see partner block
+    """
+    return (
+        current_user.is_partner_supervisor_or_high or
+        current_user.is_ancestor_of(user) or
+        current_user.is_partner_responlible_of(user)
+    )
 
 
-class IsSupervisorOrManagerReadOnly(IsManagerReadOnly):
-    def has_permission(self, request, view):
-        return (
-            super(IsSupervisorOrManagerReadOnly, self).has_permission(request, view) or
-            IsSupervisorOrHigh().has_permission(request, view)
-        )
+def can_see_deal_block(current_user, user):
+    """
+    Use for ``/account/<user.id>/`` page. Checking that the ``current_user`` has the right to see deals block
+    """
+    return True
 
 
-class IsDisciplesOf(IsPartnership):
-    def has_object_permission(self, request, view, account):
-        return (
-            super(IsDisciplesOf, self).has_permission(request, view) and
-            request.user.partnership.disciples.filter(user=account).exists()
-        )
+def can_update_deal(user, deal):
+    """
+    Checking that the ``user`` has the right to update ``deal``
+    """
+    if user.is_partner_supervisor_or_high:
+        return True
+    partner = deal.partnership
+    return user.is_partner_manager and user.partnership.disciples.filter(id=partner.id).exists()
 
 
-CanSeePartners = IsManagerOrHigh
-CanSeeDeals = IsManagerOrHigh
-CanSeeDealPayments = IsManagerOrHigh
-CanSeePartnerStatistics = IsManagerOrHigh
-
-
-CanCreatePartnerPayment = IsSupervisorOrHigh
-CanClosePartnerDeal = IsManagerOrHigh
-CanReadPartnerPayment = IsManagerOrHigh
-
-
-def can_see_partners(request, view=None):
-    return CanSeePartners().has_permission(request, view)
-
-
-def can_see_deals(request, view=None):
-    return CanSeeDeals().has_permission(request, view)
-
-
-def can_see_partner_stats(request, view=None):
-    return CanSeePartnerStatistics().has_permission(request, view)
-
-
-def can_see_deal_payments(request, view=None):
-    return CanSeeDealPayments().has_permission(request, view)
+def can_see_partner_payments(user):
+    """
+    Checking that the ``user`` has the right to see partner's payments
+    """
+    return user.is_partner_manager_or_high

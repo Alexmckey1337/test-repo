@@ -11,142 +11,152 @@
                         <div><span>C</span><span>R</span><span>M</span></div>
                     </div>
                     <ul id="nav-sidebar">
-                        <li><a data-title="База данных" href="{% url 'db:main' %}" id="databases__item" class="menu__item">База данных</a>
+                        <li><a data-title="База данных" href="{% url 'db:main' %}" id="databases__item"
+                               class="menu__item">База данных</a>
                         </li>
                         {% if user.can_see_any_partner_block %}
-                            <li><a data-title="Партнёрство" href="{% url 'partner:main' %}" id="partners__item" class="menu__item">Партнёрство</a>
+                            <li><a data-title="Партнёрство" href="{% url 'partner:main' %}" id="partners__item"
+                                   class="menu__item">Партнёрство</a>
                         {% endif %}
                         </li>
-                        <li><a data-title="Саммиты" href="{% url 'summit:list' %}" id="summits__item" class="menu__item">Саммиты</a></li>
-                        <li id="move-sidebar"><button data-title="Развернуть" id="turn_aside" class="menu__item">Свернуть</button></li>
+                        <li><a data-title="Саммиты" href="{% url 'summit:list' %}" id="summits__item"
+                               class="menu__item">Саммиты</a></li>
+                        <li id="move-sidebar">
+                            <button data-title="Развернуть" id="turn_aside" class="menu__item">Свернуть</button>
+                        </li>
                     </ul>
                 </div>
             </div>
         {% endblock sidebar %}
+        <div id="container">
+            {% block main %}
+                <div id="header">
+                <div{% block main.attr %} {% endblock %}>
+                    {% if request.hard_user %}
+                        <h1 style="padding-left: 1em;"><strong>Real User:</strong>
+                            <a href="{{ request.real_user.get_absolute_url }}">
+                                {{ request.real_user }}
+                            </a>
+                        </h1>
+                        <h1 style="padding-left: 1em;"><strong>Hard User:</strong>
+                            <a href="{{ request.hard_user.get_absolute_url }}">
+                                {{ request.hard_user }}
+                            </a>
+                            -
+                            <a class="reset_hard_user" href="" style="color:darkred;">Сбросить</a>
+                        </h1>
+                    {% elif request.user.is_superuser %}
+                        <h1 style="padding-left: 1em;"><strong>User:</strong>
+                            <a href="{{ request.user.get_absolute_url }}">
+                                {{ request.user }}
+                            </a>
+                        </h1>
+                    {% endif %}
+                    {% block header %}
+                        <div class="header">
 
-        {% block main %}
-            <div{% block main.attr %} class="main-wrap"{% endblock %}>
-                {% if request.hard_user %}
-                    <h1 style="padding-left: 1em;"><strong>Real User:</strong>
-                        <a href="{{ request.real_user.get_absolute_url }}">
-                            {{ request.real_user }}
-                        </a>
-                    </h1>
-                    <h1 style="padding-left: 1em;"><strong>Hard User:</strong>
-                        <a href="{{ request.hard_user.get_absolute_url }}">
-                            {{ request.hard_user }}
-                        </a>
-                        -
-                        <a class="reset_hard_user" href="" style="color:darkred;">Сбросить</a>
-                    </h1>
-                {% elif request.user.is_superuser %}
-                    <h1 style="padding-left: 1em;"><strong>User:</strong>
-                        <a href="{{ request.user.get_absolute_url }}">
-                            {{ request.user }}
-                        </a>
-                    </h1>
-                {% endif %}
-                {% block header %}
-                    <div class="header">
-
-                        {% block header.top %}
-                            <ul class="top">
-                                {% block header.top.left %}
-                                    <li>
-                                        {% block header.top.h1 %}{% endblock %}
-                                        {% block header.top.select %}
+                            {% block header.top %}
+                                <ul class="top">
+                                    {% block header.top.left %}
+                                        <li>
+                                            {% block header.top.h1 %}{% endblock %}
+                                            {% block header.top.select %}
+                                            {% endblock %}
+                                        </li>
+                                    {% endblock %}
+                                    {% block header.top.right %}
+                                        {% block header.user.button %}
+                                            <li class="userImgWrap">
+                                                <div class="userimg">
+                                                    {% if request.user.image %}
+                                                        <img src="{{ request.user.image.url }}" alt="userphoto"/>
+                                                    {% else %}
+                                                        <img src="{% static "img/no-usr.jpg" %}" alt="userphoto"/>
+                                                    {% endif %}
+                                                </div>
+                                            </li>
                                         {% endblock %}
-                                    </li>
-                                {% endblock %}
-                                {% block header.top.right %}
-                                    {% block header.user.button %}
-                                        <li class="userImgWrap">
-                                            <div class="userimg">
-                                                {% if request.user.image %}
-                                                    <img src="{{ request.user.image.url }}" alt="userphoto"/>
+                                        {% block header.notification.button %}
+                                            <li class="sms">
+                                                {% if notifications.exists %}
+                                                    <span>{{ notifications.count }}</span>
                                                 {% else %}
-                                                    <img src="{% static "img/no-usr.jpg" %}" alt="userphoto"/>
+                                                    <span style="display:none;"></span>
                                                 {% endif %}
-                                            </div>
-                                        </li>
+                                                <span></span>
+                                            </li>
+                                        {% endblock %}
+                                        {% block header.search %}
+
+                                        {% endblock %}
                                     {% endblock %}
-                                    {% block header.notification.button %}
-                                        <li class="sms">
+                                </ul><!--End Top -->
+                            {% endblock %}
+
+                            {% block header.buttons %}
+
+                            {% endblock %}
+
+                            {% block header_user_drop %}
+                                <div class="user-hover photo-hover">
+                                    <div class="hover-wrapper">
+                                        <div class="top-box">
+                                            <a href="{{ request.user.get_absolute_url }}">
+                                                <span></span>
+                                                <p>Мой профиль</p>
+                                            </a>
+                                        </div>
+                                        <div class="bottom-box"><a id="logout_button">
+                                            <span></span>
+                                            <p>Выйти</p></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endblock %}
+
+                            {% block header_notification_drop %}
+                                <div class="user-hover massage-hover">
+                                    <div class="hover-wrapper">
+                                        <div class="top-box">
+                                            <p>У Вас <span></span> незавершённых сделок</p>
+                                        </div>
+                                        <div class="bottom-box">
                                             {% if notifications.exists %}
-                                                <span>{{ notifications.count }}</span>
+                                                <p>Сегодня день рождения у:</p>
+                                                <ul>
+                                                    {% for notification in notifications %}
+                                                        <li>
+                                                            <a href="{% url "account:detail" notification.uid %}">{{ notification.fullname }}</a>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
                                             {% else %}
-                                                <span style="display:none;"></span>
+                                                <p>На сегодня нет уведомлений</p>
                                             {% endif %}
-                                            <span></span>
-                                        </li>
-                                    {% endblock %}
-                                    {% block header.search %}
-
-                                    {% endblock %}
-                                {% endblock %}
-                            </ul><!--End Top -->
-                        {% endblock %}
-
-                        {% block header.buttons %}
-
-                        {% endblock %}
-
-                        {% block header_user_drop %}
-                            <div class="user-hover photo-hover">
-                                <div class="hover-wrapper">
-                                    <div class="top-box">
-                                        <a href="{{ request.user.get_absolute_url }}">
-                                            <span></span>
-                                            <p>Мой профиль</p>
-                                        </a>
-                                    </div>
-                                    <div class="bottom-box"><a id="logout_button">
-                                        <span></span>
-                                        <p>Выйти</p></a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        {% endblock %}
+                            {% endblock %}
 
-                        {% block header_notification_drop %}
-                            <div class="user-hover massage-hover">
-                                <div class="hover-wrapper">
-                                    <div class="top-box">
-                                        <p>У Вас <span></span> незавершённых сделок</p>
-                                    </div>
-                                    <div class="bottom-box">
-                                        {% if notifications.exists %}
-                                            <p>Сегодня день рождения у:</p>
-                                            <ul>
-                                                {% for notification in notifications %}
-                                                    <li>
-                                                        <a href="{% url "account:detail" notification.uid %}">{{ notification.fullname }}</a>
-                                                    </li>
-                                                {% endfor %}
-                                            </ul>
-                                        {% else %}
-                                            <p>На сегодня нет уведомлений</p>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        {% endblock %}
+                        </div>
+                    {% endblock %}
 
-                    </div>
-                {% endblock %}
-
+                </div>
+            {% endblock main %}
+            </div>
+            <div id="main">
                 {% block main.content %}
-
                 {% endblock %}
             </div>
-        {% endblock main %}
-
-        {% block table_sort_modal %}{% endblock %}
-
-        {% block add_user_modal %}{% endblock %}
-
-        {% block choose_user_modal %}{% endblock %}
+        </div>
     </div>
+    <div id="right-sidebar">
+            {% block table_sort_modal %}{% endblock %}
+    </div>
+
+    {% block add_user_modal %}{% endblock %}
+
+    {% block choose_user_modal %}{% endblock %}
 
     {% block create_user %}{% endblock %}
 

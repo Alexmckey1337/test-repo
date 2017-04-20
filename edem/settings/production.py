@@ -22,6 +22,24 @@ MIDDLEWARE = RAVEN_MIDDLEWARE + MIDDLEWARE
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+
+if os.environ.get('USE_DOCKER') == 'yes':
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "asgi_redis.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [("redis", 6379)],
+            },
+            "ROUTING": "edem.routing.channel_routing",
+        },
+    }
+    CACHES = {
+        "default": {
+            'BACKEND': 'redis_cache.cache.RedisCache',
+            'LOCATION': 'redis:6379',
+        },
+    }
+
 # SECURITY CONFIGURATION
 # ------------------------------------------------------------------------------
 # See https://docs.djangoproject.com/en/1.9/ref/middleware/#module-django.middleware.security
@@ -143,5 +161,6 @@ SENTRY_CELERY_LOGLEVEL = env.int('DJANGO_SENTRY_LOG_LEVEL', logging.INFO)
 RAVEN_CONFIG = {
     'CELERY_LOGLEVEL': env.int('DJANGO_SENTRY_LOG_LEVEL', logging.INFO),
     'DSN': SENTRY_DSN,
-    'RELEASE': raven.fetch_git_sha(os.path.dirname(os.pardir)),
 }
+if not os.environ.get('USE_DOCKER') == 'yes':
+    RAVEN_CONFIG['RELEASE'] = raven.fetch_git_sha(os.path.dirname(os.pardir))

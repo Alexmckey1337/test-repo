@@ -118,25 +118,25 @@ class Partnership(AbstractPaymentPurpose):
 
     @property
     def done_deals(self):
-        return self.deals.\
-            base_queryset().\
-            annotate_total_sum().\
+        return self.deals. \
+            base_queryset(). \
+            annotate_total_sum(). \
             filter(done=True) \
             .order_by('-date_created')
 
     @property
     def undone_deals(self):
-        return self.deals.\
-            base_queryset().\
-            annotate_total_sum().\
+        return self.deals. \
+            base_queryset(). \
+            annotate_total_sum(). \
             filter(done=False, expired=False) \
             .order_by('-date_created')
 
     @property
     def expired_deals(self):
-        return self.deals.\
-            base_queryset().\
-            annotate_total_sum().\
+        return self.deals. \
+            base_queryset(). \
+            annotate_total_sum(). \
             filter(expired=True) \
             .order_by('-date_created')
 

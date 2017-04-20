@@ -1,0 +1,6 @@
+.*
+!.coveragerc
+!.env
+!.pylintrc
+public/
+node_modules/

@@ -3,19 +3,10 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from account.models import CustomUser
 from account.serializers import UserTableSerializer
 from common.fields import DecimalWithCurrencyField
 from payment.serializers import CurrencySerializer
 from .models import Partnership, Deal
-
-
-class PartnershipForEditSerializer(serializers.ModelSerializer):
-    responsible_id = serializers.PrimaryKeyRelatedField(source='responsible', read_only=True)
-
-    class Meta:
-        model = Partnership
-        fields = ('date', 'responsible_id', 'value')
 
 
 class PartnershipSerializer(serializers.ModelSerializer):
@@ -42,6 +33,12 @@ class DealCreateSerializer(serializers.ModelSerializer):
                   )
 
 
+class DealUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Deal
+        fields = ('done', 'description')
+
+
 class DealSerializer(DealCreateSerializer):
     date = serializers.DateField(format=None, input_formats=None, read_only=True)
     date_created = serializers.DateField(input_formats=None)
@@ -58,9 +55,3 @@ class DealSerializer(DealCreateSerializer):
                   'full_name', 'responsible_name',
                   'total_sum', 'currency',
                   )
-
-
-class PartnershipUnregisterUserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ('id', 'fullname')
