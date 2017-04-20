@@ -47,13 +47,15 @@ function updateUser(id, data, success = null) {
 function makeResponsibleList(department, status) {
     let $selectResponsible = $('#selectResponsible');
     let activeMaster = $selectResponsible.val();
+    let activeOption = $selectResponsible.find('option:selected');
     getResponsible(department, status).then(function (data) {
         let rendered = [];
+        rendered.push(activeOption);
         data.forEach(function (item) {
             let option = document.createElement('option');
             $(option).val(item.id).text(item.fullname);
-            if (activeMaster == item.id) {
-                $(option).attr('selected', true);
+            if (activeMaster !== item.id) {
+                // $(option).attr('selected', true);
             }
             rendered.push(option);
         });
@@ -666,15 +668,15 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         autoClose: true
     });
     $('#departments').on('change', function () {
-        let status = $('#selectHierarchy').val();
+        let status = $('#selectHierarchy').find('option:selected').data('level');
         let department = $(this).val();
         makeResponsibleList(department, status);
     });
     // after fix
-    makeResponsibleList($('#departments').val(), $('#selectHierarchy').val());
+    makeResponsibleList($('#departments').val(), $('#selectHierarchy').find('option:selected').data('level'));
     $('#selectHierarchy').on('change', function () {
         let department = $('#selectDepartment').val();
-        let status = $(this).val();
+        let status = $(this).find('option:selected').data('level');
         makeResponsibleList(department, status);
     });
     $('.sel__date').each(function () {
