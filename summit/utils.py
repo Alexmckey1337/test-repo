@@ -11,9 +11,11 @@ from reportlab.graphics.barcode import createBarcodeDrawing
 from reportlab.graphics.shapes import Drawing
 from reportlab.lib.colors import HexColor
 from reportlab.lib.units import mm
+from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
+from PIL import Image, ImageDraw
 
 from summit.models import SummitAnket, Summit
 
@@ -35,6 +37,7 @@ def generate_ticket(code):
     h = 58 * mm
     c = canvas.Canvas(buffer, pagesize=(w, h))
     pdfmetrics.registerFont(TTFont('FreeSans', 'FreeSans.ttf'))
+    pdfmetrics.registerFont(TTFont('FreeSansBold', 'FreeSansBold.ttf'))
     pdfmetrics.registerFont(TTFont('FreeSansIt', 'FreeSansOblique.ttf'))
 
     create_ticket_page(c, code, logo, photo, w, h, user)
@@ -59,6 +62,13 @@ def generate_ticket_by_summit(summit_id):
 
     summit = Summit.objects.get(id=summit_id)
     ankets = summit.ankets.all()
+    """
+    SELECT u1.user_ptr_id, u2.* FROM account_customuser u1
+      INNER JOIN account_customuser u2 on u1.lft > u2.lft and u1.rght < u2.rght and u1.tree_id = u2.tree_id
+      INNER JOIN hierarchy_hierarchy h on u2.hierarchy_id = h.id
+    WHERE u1.hierarchy_id = 2 and h.level in (4, 2)
+    ORDER BY u2.level;
+    """
     for anket in ankets[:100]:
         create_ticket_page(c, anket.code, logo, anket.user.image, w, h, anket.user)
     c.save()
@@ -68,6 +78,14 @@ def generate_ticket_by_summit(summit_id):
     return pdf
 
 
+def to_circle(im):
+    circle = Image.new('L', im.size, 0)
+    draw = ImageDraw.Draw(circle)
+    draw.ellipse((0, 0, im.size[0], im.size[1]), fill=255)
+    im.putalpha(circle)
+    return im
+
+
 def create_ticket_page(c, code, logo, photo, w, h, user):
     try:
         c.drawImage(logo, (w - 51 * mm) / 2, (h - 51 * mm) / 2, width=51 * mm, height=51 * mm, mask='auto')
@@ -75,7 +93,11 @@ def create_ticket_page(c, code, logo, photo, w, h, user):
         pass
     try:
         if photo is not None:
-            c.drawImage(os.path.join(settings.MEDIA_ROOT, photo.path), 7 * mm, 31 * mm, width=20 * mm, height=20 * mm)
+
+            im = Image.open(os.path.join(settings.MEDIA_ROOT, photo.path))
+            im = to_circle(im)
+            ir = ImageReader(im)
+            c.drawImage(ir, 7 * mm, 31 * mm, width=20 * mm, height=20 * mm, mask='auto')
     except ValueError:
         pass
     except OSError:
