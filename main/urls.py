@@ -47,8 +47,8 @@ account_patterns = [
     url(r'^(\d+)/edit/$', views.account_edit, name='edit'),
 ]
 
-meeting_patterns = [
-    url(r'^$', views.meetings, name='meetings_list'),
+events_patterns = [
+    url(r'^$', views.events, name='events_list'),
     url(r'^home/reports/(?P<pk>\d+)/$', views.home_report, name='home_report'),
     url(r'^home/statistics/$', views.home_statistics, name='home_statistics'),
     url(r'^church/reports/(?P<pk>\d+)/$', views.church_report, name='church_report'),
@@ -67,7 +67,7 @@ urlpatterns = [
     url(r'^db/', include(database_patterns, namespace='db')),
     url(r'^account/', include(account_patterns, namespace='account')),
     url(r'^partner/', include(partner_patterns, namespace='partner')),
-    url(r'^meetings/', include(meeting_patterns, namespace='meeting_type')),
+    url(r'^events/', include(events_patterns, namespace='events')),
     url(r'^summits/', include(summit_patterns, namespace='summit')),
 
     url(r'^churches/(?P<pk>\d+)/$', views.ChurchDetailView.as_view(), name='church_detail'),

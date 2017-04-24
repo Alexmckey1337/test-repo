@@ -31,7 +31,7 @@ def edit_pass(request, activation_key=None):
 
 
 @login_required(login_url='entry')
-def meetings(request):
+def events(request):
     if not request.user.hierarchy or request.user.hierarchy.level < 1:
         return redirect('/')
 

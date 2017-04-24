@@ -18,7 +18,7 @@ from .filters import ChurchReportFilter, MeetingFilter
 from .models import Meeting, ChurchReport, MeetingAttend
 from .serializers import (UserNameSerializer, MeetingSerializer, MeetingDetailSerializer,
                           MeetingAttendSerializer, MeetingCreateSerializer,
-                          MeetingStatisticsSerializer, ChurchReportSerializer,
+                          MeetingStatisticSerializer, ChurchReportSerializer,
                           ChurchReportListSerializer, ChurchReportStatisticSerializer)
 
 
@@ -80,15 +80,8 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
     @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer)
     def submit(self, request, pk):
         meeting = self.get_object()
-        if meeting.type.code == 'service' and meeting.total_sum != 0:
-            raise exceptions.ValidationError(_('Невозможно подать отчет. '
-                                               'Отчет по {%s} не может содержать денежную сумму. '
-                                               'Переданная сумма - %s' % (meeting.type.name,
-                                                                          meeting.total_sum)))
+        self.validate_to_submit(meeting=meeting, data=request.data)
 
-        if not request.data.get('visitors'):
-            raise exceptions.ValidationError(
-                _('Невозможно подать отчет. Список присутствующих не передан.'))
         visitors = request.data.pop('visitors')
         valid_attends = [user.id for user in meeting.home_group.users.all()]
 
@@ -112,6 +105,21 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
         return Response(home_meeting.data, status=status.HTTP_200_OK)
 
+    @staticmethod
+    def validate_to_submit(meeting, data):
+        if meeting.type.code == 'service' and meeting.total_sum != 0:
+            raise exceptions.ValidationError(
+                _('Невозможно подать отчет. Отчет типа - {%s} не должен содержать '
+                  'денежную сумму. ' % meeting.type.name))
+
+        if not data.get('visitors'):
+            raise exceptions.ValidationError(
+                _('Невозможно подать отчет. Список присутствующих не передан.'))
+
+        if not data.get('status'):
+            raise exceptions.ValidationError(
+                _('Невозможно подать отчет. Состояние отчета (статус) не передан.'))
+
     @detail_route(methods=['GET'], serializer_class=UserNameSerializer)
     def visitors(self, request, pk):
         meeting = self.get_object()
@@ -120,7 +128,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
         return Response(visitors.data)
 
-    @list_route(methods=['GET'], serializer_class=MeetingStatisticsSerializer)
+    @list_route(methods=['GET'], serializer_class=MeetingStatisticSerializer)
     def statistics(self, request):
         queryset = self.filter_queryset(self.queryset)
 

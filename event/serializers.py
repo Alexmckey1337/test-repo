@@ -7,7 +7,8 @@ from rest_framework import exceptions
 from django.utils.translation import ugettext_lazy as _
 
 from group.models import Church
-from group.serializers import UserNameSerializer, ChurchNameSerializer, HomeGroupNameSerializer
+from group.serializers import (UserNameSerializer, ChurchNameSerializer,
+                               HomeGroupNameSerializer)
 from account.models import CustomUser
 from .models import Meeting, MeetingAttend, MeetingType, ChurchReport
 
@@ -22,19 +23,6 @@ class MeetingAttendSerializer(serializers.ModelSerializer):
     class Meta:
         model = MeetingAttend
         fields = ('id', 'user', 'attended', 'note')
-
-
-class MeetingSerializer(serializers.ModelSerializer):
-    visitors_absent = serializers.IntegerField(read_only=True)
-    visitors_attended = serializers.IntegerField(read_only=True)
-    type = MeetingTypeSerializer()
-    home_group = HomeGroupNameSerializer()
-    owner = UserNameSerializer()
-
-    class Meta:
-        model = Meeting
-        fields = ('id', 'home_group', 'owner', 'type', 'total_sum', 'date',
-                  'status', 'visitors_attended', 'visitors_absent', 'phone_number')
 
 
 class MeetingCreateSerializer(serializers.ModelSerializer):
@@ -64,18 +52,26 @@ class MeetingCreateSerializer(serializers.ModelSerializer):
         return meeting
 
 
-class MeetingDetailSerializer(serializers.ModelSerializer):
-    owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
-        home_group__leader__id__isnull=False).distinct())
+class MeetingSerializer(MeetingCreateSerializer):
+    visitors_absent = serializers.IntegerField(read_only=True)
+    visitors_attended = serializers.IntegerField(read_only=True)
+    type = MeetingTypeSerializer()
+    home_group = HomeGroupNameSerializer()
+    owner = UserNameSerializer()
+
+    class Meta(MeetingCreateSerializer.Meta):
+        fields = MeetingCreateSerializer.Meta.fields + (
+            'visitors_attended', 'visitors_absent', 'phone_number')
+
+
+class MeetingDetailSerializer(MeetingCreateSerializer):
     attends = MeetingAttendSerializer(many=True, required=False, read_only=True)
 
-    class Meta:
-        model = Meeting
-        fields = ('id', 'home_group', 'owner', 'type', 'total_sum', 'date',
-                  'status', 'attends')
+    class Meta(MeetingCreateSerializer.Meta):
+        fields = MeetingCreateSerializer.Meta.fields + ('attends',)
 
 
-class MeetingStatisticsSerializer(serializers.ModelSerializer):
+class MeetingStatisticSerializer(serializers.ModelSerializer):
     total_visitors = serializers.IntegerField()
     total_visits = serializers.IntegerField()
     total_absent = serializers.IntegerField()

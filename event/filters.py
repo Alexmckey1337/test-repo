@@ -1,10 +1,8 @@
 import django_filters
 
 from account.models import CustomUser
-from event.models import ChurchReport, Meeting
 from hierarchy.models import Department
-
-COMMON_MEETING_FIELDS = ('department', 'status', 'from_date', 'to_date')
+from event.models import ChurchReport, Meeting
 
 
 class CommonMeetingFilter(django_filters.FilterSet):
@@ -14,20 +12,23 @@ class CommonMeetingFilter(django_filters.FilterSet):
     department = django_filters.ModelMultipleChoiceFilter(
         name="department", queryset=Department.objects.all())
 
+    class Meta:
+        fields = ('department', 'status', 'from_date', 'to_date')
+
 
 class ChurchReportFilter(CommonMeetingFilter):
     pastor = django_filters.ModelChoiceFilter(name='pastor', queryset=CustomUser.objects.filter(
         church__pastor__id__isnull=False).distinct())
 
-    class Meta:
+    class Meta(CommonMeetingFilter.Meta):
         model = ChurchReport
-        fields = ('church', 'pastor') + COMMON_MEETING_FIELDS
+        fields = CommonMeetingFilter.Meta.fields + ('church', 'pastor')
 
 
 class MeetingFilter(CommonMeetingFilter):
     owner = django_filters.ModelChoiceFilter(name='owner', queryset=CustomUser.objects.filter(
         home_group__leader__id__isnull=False).distinct())
 
-    class Meta:
+    class Meta(CommonMeetingFilter.Meta):
         model = Meeting
-        fields = ('home_group', 'owner') + COMMON_MEETING_FIELDS
+        fields = CommonMeetingFilter.Meta.fields + ('home_group', 'owner')

@@ -17,7 +17,7 @@ in_progress, submitted, expired = 1, 2, 3
 STATUS_LIST = (
     (in_progress, _('in_progress')),
     (submitted, _('submitted')),
-    (expired, _('expired'))
+    (expired, _('expired')),
 )
 
 
@@ -81,14 +81,14 @@ class Meeting(models.Model):
         verbose_name_plural = _('Meetings')
         unique_together = ['type', 'date', 'home_group']
 
-    def get_absolute_url(self):
-        return reverse('meetings:home_report', kwargs={'pk': self.id})
-
     def __str__(self):
         return 'Отчет ДГ - {} ({}): {}'.format(
             self.home_group,
             self.type.name,
             self.date.strftime('%d %B %Y'))
+
+    def get_absolute_url(self):
+        return reverse('events:home_report', args=(self.id,))
 
     @property
     def phone_number(self):
@@ -123,13 +123,14 @@ class ChurchReport(models.Model):
         verbose_name_plural = _('Church Reports')
         unique_together = ['church', 'date', 'status']
 
-    def get_absolute_url(self):
-        return reverse('meetings:church_report', kwargs={'pk': self.id})
-
     def __str__(self):
         return 'Отчет Церкви - {}: {}'.format(
             self.church.get_title,
             self.date.strftime('%d %B %Y'))
+
+    def get_absolute_url(self):
+        return reverse('events:church_report', args=(self.id,))
+
 
 
 
