@@ -147,6 +147,15 @@ class SummitAnket(CustomUserAbstract, AbstractPaymentPurpose):
     protected = models.BooleanField(default=False)
 
     ticket = models.FileField(_('Ticket'), upload_to='tickets', null=True, blank=True)
+    NONE = 'none'
+    DOWNLOADED = 'download'
+    PRINTED = 'print'
+    TICKET_STATUSES = (
+        (NONE, _('Without ticket.')),
+        (DOWNLOADED, _('Ticket is downloaded.')),
+        (PRINTED, _('Ticket is printed')),
+    )
+    ticket_status = models.CharField(_('Ticket status'), choices=TICKET_STATUSES, default=NONE, max_length=20)
 
     visited = models.BooleanField(default=False)
 
