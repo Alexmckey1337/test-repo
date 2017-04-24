@@ -1,7 +1,6 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-import django_filters
 from django.db.models import IntegerField, Sum, When, Case, Count
 from rest_framework import status, filters, exceptions
 from rest_framework.decorators import list_route, detail_route
@@ -12,14 +11,15 @@ from django.utils.translation import ugettext_lazy as _
 from django.db import transaction, IntegrityError
 
 from account.models import CustomUser
-from hierarchy.models import Department
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
 
+from .filters import ChurchReportFilter, MeetingFilter
 from .models import Meeting, ChurchReport, MeetingAttend
 from .serializers import (UserNameSerializer, MeetingSerializer, MeetingDetailSerializer,
-                          MeetingAttendSerializer, MeetingCreateSerializer, MeetingStatisticsSerializer,
-                          ChurchReportSerializer, ChurchReportListSerializer, ChurchReportStatisticSerializer)
+                          MeetingAttendSerializer, MeetingCreateSerializer,
+                          MeetingStatisticsSerializer, ChurchReportSerializer,
+                          ChurchReportListSerializer, ChurchReportStatisticSerializer)
 
 
 class MeetingPagination(PageNumberPagination):
@@ -35,19 +35,6 @@ class MeetingPagination(PageNumberPagination):
             'count': self.page.paginator.count,
             'results': data
         })
-
-
-class MeetingFilter(django_filters.FilterSet):
-    from_date = django_filters.DateFilter(name="date", lookup_type='gte')
-    to_date = django_filters.DateFilter(name="date", lookup_type='lte')
-    owner = django_filters.ModelChoiceFilter(name='owner', queryset=CustomUser.objects.filter(
-        home_group__leader__id__isnull=False).distinct())
-    department = django_filters.ModelMultipleChoiceFilter(name="department",
-                                                          queryset=Department.objects.all())
-
-    class Meta:
-        model = Meeting
-        fields = ['type', 'department', 'home_group', 'owner', 'status', 'from_date', 'to_date']
 
 
 class MeetingViewSet(ModelWithoutDeleteViewSet):
@@ -84,8 +71,8 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                     When(attends__attended=True, then=1),
                     output_field=IntegerField(), default=0)),
 
-                visitors_absent=Sum(Case(
-                    When(attends__attended=False, then=1),
+                visitors_absent=Sum(Case(When(
+                    attends__attended=False, then=1),
                     output_field=IntegerField(), default=0))
             )
         return self.queryset
@@ -93,17 +80,17 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
     @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer)
     def submit(self, request, pk):
         meeting = self.get_object()
-        visitors = request.data.pop('visitors')
-        if not visitors:
-            raise exceptions.ValidationError(
-                _('Невозможно подать отчет. Список присутствующих не передан.'))
-
-        valid_attends = [user.id for user in meeting.home_group.users.all()]
-
         if meeting.type.code == 'service' and meeting.total_sum != 0:
             raise exceptions.ValidationError(_('Невозможно подать отчет. '
                                                'Отчет по {%s} не может содержать денежную сумму. '
-                                               'Переданная сумма - %s' % (meeting.type.name, meeting.total_sum)))
+                                               'Переданная сумма - %s' % (meeting.type.name,
+                                                                          meeting.total_sum)))
+
+        if not request.data.get('visitors'):
+            raise exceptions.ValidationError(
+                _('Невозможно подать отчет. Список присутствующих не передан.'))
+        visitors = request.data.pop('visitors')
+        valid_attends = [user.id for user in meeting.home_group.users.all()]
 
         try:
             with transaction.atomic():
@@ -141,14 +128,13 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         to_date = request.query_params.get('to_date')
 
         statistics = queryset.aggregate(
-
             total_visitors=Count('visitors'),
 
             total_visits=Sum(Case(When(attends__attended=True, then=1),
                                   output_field=IntegerField(), default=0)),
 
-            total_absen=Sum(Case(When(attends__attended=False, then=1),
-                                 output_field=IntegerField(), default=0)),
+            total_absent=Sum(Case(When(attends__attended=False, then=1),
+                                  output_field=IntegerField(), default=0)),
 
             reports_in_progress=Sum(Case(When(status=1, then=1),
                                          output_field=IntegerField(), default=0)),
@@ -159,26 +145,13 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             reports_expired=Sum(Case(When(status=3, then=1),
                                      output_field=IntegerField(), default=0))
         )
-
         statistics.update(queryset.aggregate(total_donations=Sum('total_sum')))
+
         statistics['new_repentance'] = CustomUser.objects.filter(
             repentance_date__range=[from_date, to_date]).count()
+
         statistics = self.serializer_class(statistics)
-
         return Response(statistics.data)
-
-
-class ChurchReportFilter(django_filters.FilterSet):
-    from_date = django_filters.DateFilter(name="date", lookup_type='gte')
-    to_date = django_filters.DateFilter(name="date", lookup_type='lte')
-    department = django_filters.ModelMultipleChoiceFilter(name="department",
-                                                          queryset=Department.objects.all())
-    pastor = django_filters.ModelChoiceFilter(name='pastor', queryset=CustomUser.objects.filter(
-        church__pastor__id__isnull=False).distinct())
-
-    class Meta:
-        model = ChurchReport
-        fields = ['department', 'church', 'pastor', 'status', 'from_date', 'to_date']
 
 
 class ChurchReportViewSet(ModelWithoutDeleteViewSet):
@@ -212,8 +185,8 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
 
         if church_report.pastor != pastor:
             raise exceptions.ValidationError(_('Невозможно подать отчет. '
-                                               'Переданный пастор не является пастором данной Церкви.'))
-
+                                               'Переданный пастор не является'
+                                               'пастором данной Церкви.'))
         request.data['status'] = 2
         church_report = self.serializer_class(church_report, data=request.data)
         church_report.is_valid(raise_exception=True)
@@ -227,17 +200,11 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
 
         statistics = queryset.aggregate(
             total_peoples=Sum('count_people'),
-
             total_new_peoples=Sum('new_people'),
-
             total_repentance=Sum('count_repentance'),
-
             total_tithe=Sum('tithe'),
-
             total_donations=Sum('donations'),
-
             total_transfer_payments=Sum('transfer_payments'),
-
             total_pastor_tithe=Sum('pastor_tithe'))
 
         statistics = self.serializer_class(statistics)

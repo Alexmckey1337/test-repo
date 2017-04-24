@@ -35,7 +35,12 @@ def meetings(request):
     if not request.user.hierarchy or request.user.hierarchy.level < 1:
         return redirect('/')
 
-    ctx = {}
+    ctx = {
+        'reports_in_progress': Meeting.objects.filter(status=1).count(),
+        'reports_submitted': Meeting.objects.filter(status=2).count(),
+        'reports_expired': Meeting.objects.filter(status=3).count(),
+    }
+
     return render(request, 'event/MEETING_LIST.html', context=ctx)
 
 
@@ -48,6 +53,7 @@ def home_report(request, pk):
         'home_report': get_object_or_404(Meeting, pk=pk),
         'leader': request.user,
     }
+
     return render(request, 'event/HOME_REPORT_CREATE.html', context=ctx)
 
 
@@ -56,8 +62,7 @@ def home_statistics(request):
     if not request.user.hierarchy or request.user.hierarchy.level < 1:
         return redirect('/')
 
-    ctx = {}
-    return render(request, 'event/HOME_REPORT_STATISTICS.html', context=ctx)
+    return render(request, 'event/HOME_REPORT_STATISTICS.html', context={})
 
 
 @login_required(login_url='entry')
@@ -69,6 +74,7 @@ def church_report(request, pk):
         'church_report': get_object_or_404(ChurchReport, pk=pk),
         'pastor': request.user,
     }
+
     return render(request, 'event/CHURCH_REPORT_CREATE.html', context=ctx)
 
 
@@ -77,8 +83,7 @@ def church_statistics(request):
     if not request.user.hierarchy or request.user.hierarchy.level < 2:
         return redirect('/')
 
-    ctx = {}
-    return render(request, 'event/CHURCH_REPORT_STATISTICS.html', context=ctx)
+    return render(request, 'event/CHURCH_REPORT_STATISTICS.html', context={})
 
 
 # partner

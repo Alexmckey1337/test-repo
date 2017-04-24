@@ -33,8 +33,8 @@ class MeetingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Meeting
-        fields = ('id', 'date', 'type', 'home_group', 'owner', 'phone_number', 'status',
-                  'visitors_attended', 'visitors_absent', 'total_sum')
+        fields = ('id', 'home_group', 'owner', 'type', 'total_sum', 'date',
+                  'status', 'visitors_attended', 'visitors_absent', 'phone_number')
 
 
 class MeetingCreateSerializer(serializers.ModelSerializer):
@@ -43,14 +43,14 @@ class MeetingCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Meeting
-        fields = ('id', 'date', 'owner', 'type', 'total_sum', 'home_group', 'status')
+        fields = ('id', 'home_group', 'owner', 'type', 'total_sum', 'date',
+                  'status')
 
         validators = [
             UniqueTogetherValidator(
                 queryset=Meeting.objects.all(),
-                fields=('type', 'home_group', 'date')
-            )
-        ]
+                fields=('home_group', 'type', 'date')
+            )]
 
     def create(self, validated_data):
         home_group = validated_data.get('home_group')
@@ -59,6 +59,7 @@ class MeetingCreateSerializer(serializers.ModelSerializer):
             raise exceptions.ValidationError(_('Невозможно создать отчет. '
                                                'Переданный лидер - {%s} не является '
                                                'лидером данной Домашней Группы.' % owner))
+
         meeting = Meeting.objects.create(**validated_data)
         return meeting
 
@@ -70,15 +71,15 @@ class MeetingDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Meeting
-        fields = ('id', 'type', 'owner', 'home_group', 'date', 'total_sum',
+        fields = ('id', 'home_group', 'owner', 'type', 'total_sum', 'date',
                   'status', 'attends')
 
 
 class MeetingStatisticsSerializer(serializers.ModelSerializer):
     total_visitors = serializers.IntegerField()
-    new_repentance = serializers.IntegerField()
     total_visits = serializers.IntegerField()
-    total_absen = serializers.IntegerField()
+    total_absent = serializers.IntegerField()
+    new_repentance = serializers.IntegerField()
     total_donations = serializers.DecimalField(max_digits=13, decimal_places=0)
     reports_in_progress = serializers.IntegerField()
     reports_submitted = serializers.IntegerField()
@@ -86,8 +87,9 @@ class MeetingStatisticsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Meeting
-        fields = ('total_visitors', 'total_visits', 'total_absen', 'total_donations',
-                  'new_repentance', 'reports_in_progress', 'reports_submitted', 'reports_expired')
+        fields = ('total_visitors', 'total_visits', 'total_absent', 'total_donations',
+                  'new_repentance', 'reports_in_progress', 'reports_submitted',
+                  'reports_expired')
 
 
 class ChurchReportSerializer(serializers.ModelSerializer):
@@ -101,12 +103,11 @@ class ChurchReportSerializer(serializers.ModelSerializer):
                   'count_repentance', 'tithe', 'donations', 'currency_donations',
                   'transfer_payments', 'pastor_tithe', 'status')
 
-    validators = [
-        UniqueTogetherValidator(
-            queryset=ChurchReport.objects.all(),
-            fields=('church', 'date', 'status')
-        )
-    ]
+        validators = [
+            UniqueTogetherValidator(
+                queryset=ChurchReport.objects.all(),
+                fields=('church', 'date', 'status')
+            )]
 
     def create(self, validate_data):
         church = validate_data.get('church')
@@ -115,6 +116,7 @@ class ChurchReportSerializer(serializers.ModelSerializer):
             raise exceptions.ValidationError(_('Невозможно создать отчет. '
                                                'Переданный пастор - {%s} не является '
                                                'пастором данной Церкви.' % pastor))
+
         church_report = ChurchReport.objects.create(**validate_data)
         return church_report
 
@@ -135,5 +137,6 @@ class ChurchReportStatisticSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChurchReport
-        fields = ('id', 'total_peoples', 'total_new_peoples', 'total_repentance', 'total_tithe',
-                  'total_donations', 'total_transfer_payments', 'total_pastor_tithe')
+        fields = ('id', 'total_peoples', 'total_new_peoples', 'total_repentance',
+                  'total_tithe', 'total_donations', 'total_transfer_payments',
+                  'total_pastor_tithe')

@@ -13,6 +13,6 @@ def create_week_reports():
     pass
 
 
-@app.task(name='week_reports_verification')
-def week_reports_verification():
+@app.task(name='verification_week_reports')
+def verification_week_reports():
     pass

@@ -158,7 +158,6 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
             users = users.filter(departments__id=department_id)
 
         serializers = AddExistUserSerializer(users[:30], many=True)
-
         return Response(serializers.data)
 
     @staticmethod
