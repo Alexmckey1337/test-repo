@@ -7,7 +7,7 @@ from django.conf.urls.static import static
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
-from django.urls import reverse
+from django.core.urlresolvers import reverse
 
 from main import views
 
@@ -46,11 +46,15 @@ account_patterns = [
     url(r'^(\d+)/$', views.account, name='detail'),
     url(r'^(\d+)/edit/$', views.account_edit, name='edit'),
 ]
+
 meeting_patterns = [
-    url(r'^$', views.meeting_types, name='list'),  # meeting_type-list
-    url(r'^(?P<code>[-_\w]+)/$', views.meeting_type_detail, name='detail'),  # meeting_type-detail
-    url(r'^(?P<code>[-_\w]+)/report/$', views.meeting_report, name='report'),  # meeting-report
+    url(r'^$', views.meetings, name='meetings_list'),
+    url(r'^home/reports/(?P<pk>\d+)/$', views.home_report, name='home_report'),
+    url(r'^home/statistics/$', views.home_statistics, name='home_statistics'),
+    url(r'^church/reports/(?P<pk>\d+)/$', views.church_report, name='church_report'),
+    url(r'^church/statistics/$', views.church_statistics, name='church_statistics'),
 ]
+
 summit_patterns = [
     url(r'^$', views.summits, name='list'),
     url(r'^(?P<pk>\d+)/$', views.SummitTypeView.as_view(), name='detail'),
@@ -63,12 +67,11 @@ urlpatterns = [
     url(r'^db/', include(database_patterns, namespace='db')),
     url(r'^account/', include(account_patterns, namespace='account')),
     url(r'^partner/', include(partner_patterns, namespace='partner')),
-    url(r'^meeting_types/', include(meeting_patterns, namespace='meeting_type')),
+    url(r'^meetings/', include(meeting_patterns, namespace='meeting_type')),
     url(r'^summits/', include(summit_patterns, namespace='summit')),
 
     url(r'^churches/(?P<pk>\d+)/$', views.ChurchDetailView.as_view(), name='church_detail'),
     url(r'^home_groups/(?P<pk>\d+)/$', views.HomeGroupDetailView.as_view(), name='home_group_detail'),
-
 
     url(r'^password_view/(?P<activation_key>\w+)/$', views.edit_pass, name='password_view'),
 ]

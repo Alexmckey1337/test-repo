@@ -24,6 +24,14 @@ class ChurchNameSerializer(serializers.ModelSerializer):
         fields = ('id', 'title',)
 
 
+class HomeGroupNameSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(source='get_title', read_only=True)
+
+    class Meta:
+        model = HomeGroup
+        fields = ('id', 'title')
+
+
 class HomeGroupLeaderRelatedField(serializers.PrimaryKeyRelatedField):
     default_error_messages = {
         'required': _('This field is required.'),

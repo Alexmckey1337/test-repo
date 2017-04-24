@@ -11,7 +11,7 @@ from django.db import models
 from django.db.models import signals
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.urls import reverse
+from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from mptt.managers import TreeManager

@@ -2,118 +2,138 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
-from .models import Event, Participation, EventType, EventAnket
-from .models import Meeting, MeetingAttend, MeetingType, ChurchReport
+from rest_framework.validators import UniqueTogetherValidator
+from rest_framework import exceptions
+from django.utils.translation import ugettext_lazy as _
+
+from group.models import Church
+from group.serializers import UserNameSerializer, ChurchNameSerializer, HomeGroupNameSerializer
 from account.models import CustomUser
-from group.models import HomeGroup, Church
-from group.serializers import LeaderNameSerializer, PastorNameSerializer, ChurchNameSerializer
+from .models import Meeting, MeetingAttend, MeetingType, ChurchReport
 
 
 class MeetingTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = MeetingType
-        fields = ('id', 'name')
-
-
-class HomeGroupNameSerializer(serializers.ModelSerializer):
-    title = serializers.CharField(source='get_title', read_only=True)
-
-    class Meta:
-        model = HomeGroup
-        fields = ('id', 'title')
-
-
-class MeetingSerializer(serializers.ModelSerializer):
-    owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
-        home_group__leader__id__isnull=False).distinct())
-    visitors_absent = serializers.IntegerField(read_only=True)
-    visitors_attended = serializers.IntegerField(read_only=True)
-
-    class Meta:
-        model = Meeting
-        fields = ('id', 'date', 'type', 'home_group', 'owner', 'visitors_attended',
-                  'visitors_absent', 'total_sum')
-
-
-class MeetingListSerializer(MeetingSerializer):
-    home_group = HomeGroupNameSerializer()
-    type = MeetingTypeSerializer()
-    owner = LeaderNameSerializer()
+        fields = ('id', 'code')
 
 
 class MeetingAttendSerializer(serializers.ModelSerializer):
     class Meta:
         model = MeetingAttend
-        fields = ('user', 'attended', 'note')
+        fields = ('id', 'user', 'attended', 'note')
+
+
+class MeetingSerializer(serializers.ModelSerializer):
+    visitors_absent = serializers.IntegerField(read_only=True)
+    visitors_attended = serializers.IntegerField(read_only=True)
+    type = MeetingTypeSerializer()
+    home_group = HomeGroupNameSerializer()
+    owner = UserNameSerializer()
+
+    class Meta:
+        model = Meeting
+        fields = ('id', 'date', 'type', 'home_group', 'owner', 'phone_number', 'status',
+                  'visitors_attended', 'visitors_absent', 'total_sum')
+
+
+class MeetingCreateSerializer(serializers.ModelSerializer):
+    owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
+        home_group__leader__id__isnull=False).distinct())
+
+    class Meta:
+        model = Meeting
+        fields = ('id', 'date', 'owner', 'type', 'total_sum', 'home_group', 'status')
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Meeting.objects.all(),
+                fields=('type', 'home_group', 'date')
+            )
+        ]
+
+    def create(self, validated_data):
+        home_group = validated_data.get('home_group')
+        owner = validated_data.get('owner')
+        if home_group.leader != owner:
+            raise exceptions.ValidationError(_('Невозможно создать отчет. '
+                                               'Переданный лидер - {%s} не является '
+                                               'лидером данной Домашней Группы.' % owner))
+        meeting = Meeting.objects.create(**validated_data)
+        return meeting
 
 
 class MeetingDetailSerializer(serializers.ModelSerializer):
     owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
         home_group__leader__id__isnull=False).distinct())
-    attends = MeetingAttendSerializer(many=True)
+    attends = MeetingAttendSerializer(many=True, required=False, read_only=True)
 
     class Meta:
         model = Meeting
-        fields = ('id', 'owner', 'type', 'date', 'total_sum', 'attends')
+        fields = ('id', 'type', 'owner', 'home_group', 'date', 'total_sum',
+                  'status', 'attends')
 
 
 class MeetingStatisticsSerializer(serializers.ModelSerializer):
     total_visitors = serializers.IntegerField()
     new_repentance = serializers.IntegerField()
     total_visits = serializers.IntegerField()
-    total_absents = serializers.IntegerField()
+    total_absen = serializers.IntegerField()
     total_donations = serializers.DecimalField(max_digits=13, decimal_places=0)
+    reports_in_progress = serializers.IntegerField()
+    reports_submitted = serializers.IntegerField()
+    reports_expired = serializers.IntegerField()
 
     class Meta:
         model = Meeting
-        fields = ('total_visitors', 'new_repentance', 'total_visits', 'total_absents', 'total_donations')
+        fields = ('total_visitors', 'total_visits', 'total_absen', 'total_donations',
+                  'new_repentance', 'reports_in_progress', 'reports_submitted', 'reports_expired')
 
 
 class ChurchReportSerializer(serializers.ModelSerializer):
+    church = serializers.PrimaryKeyRelatedField(queryset=Church.objects.all())
     pastor = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
         church__pastor__id__isnull=False).distinct())
-    church = serializers.PrimaryKeyRelatedField(queryset=Church.objects.all())
 
     class Meta:
         model = ChurchReport
-        fields = ('id', 'date', 'pastor', 'church', 'count_people', 'new_people', 'count_repentance',
-                  'tithe', 'donations', 'currency_donations', 'transfer_payments', 'pastor_tithe')
+        fields = ('id', 'date', 'pastor', 'church', 'count_people', 'new_people',
+                  'count_repentance', 'tithe', 'donations', 'currency_donations',
+                  'transfer_payments', 'pastor_tithe', 'status')
+
+    validators = [
+        UniqueTogetherValidator(
+            queryset=ChurchReport.objects.all(),
+            fields=('church', 'date', 'status')
+        )
+    ]
+
+    def create(self, validate_data):
+        church = validate_data.get('church')
+        pastor = validate_data.get('pastor')
+        if church.pastor != pastor:
+            raise exceptions.ValidationError(_('Невозможно создать отчет. '
+                                               'Переданный пастор - {%s} не является '
+                                               'пастором данной Церкви.' % pastor))
+        church_report = ChurchReport.objects.create(**validate_data)
+        return church_report
 
 
 class ChurchReportListSerializer(ChurchReportSerializer):
-    pastor = PastorNameSerializer()
+    pastor = UserNameSerializer()
     church = ChurchNameSerializer()
 
 
+class ChurchReportStatisticSerializer(serializers.ModelSerializer):
+    total_peoples = serializers.IntegerField()
+    total_new_peoples = serializers.IntegerField()
+    total_repentance = serializers.IntegerField()
+    total_tithe = serializers.DecimalField(max_digits=13, decimal_places=0)
+    total_donations = serializers.DecimalField(max_digits=13, decimal_places=0)
+    total_transfer_payments = serializers.DecimalField(max_digits=13, decimal_places=0)
+    total_pastor_tithe = serializers.DecimalField(max_digits=13, decimal_places=0)
 
-
-
-
-
-
-
-
-
-
-class EventTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = EventType
-        fields = ('url', 'id', 'title', 'image', 'event_count', 'last_event_date',)
-
-
-class EventAnketSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = EventAnket
-        fields = ('url', 'id', 'user', 'participations', 'events',)
-
-
-class EventSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Event
-        fields = ('id', 'event_type', 'from_date', 'to_date', 'time', 'title',)
-
-
-class ParticipationSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Participation
-        fields = ('id', 'check', 'value', 'uid', 'hierarchy_chain', 'has_disciples', 'fields',)
+        model = ChurchReport
+        fields = ('id', 'total_peoples', 'total_new_peoples', 'total_repentance', 'total_tithe',
+                  'total_donations', 'total_transfer_payments', 'total_pastor_tithe')

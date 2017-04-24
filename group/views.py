@@ -21,6 +21,7 @@ from group.resources import ChurchResource, HomeGroupResource
 from group.views_mixins import (
     ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin)
 from hierarchy.models import Department
+
 from .models import HomeGroup, Church
 from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSerializer, HomeGroupListSerializer,
                           ChurchStatsSerializer, HomeGroupStatsSerializer, AllChurchesListSerializer,
@@ -28,6 +29,7 @@ from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSeria
 
 
 class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroupMixin, ExportViewSetMixin):
+
     queryset = Church.objects.all()
 
     serializer_class = ChurchSerializer
@@ -247,6 +249,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
 
 
 class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportViewSetMixin):
+
     queryset = HomeGroup.objects.all()
 
     serializer_class = HomeGroupSerializer
@@ -361,6 +364,7 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
     def statistics(self, request, pk):
         stats = {}
         home_group = get_object_or_404(HomeGroup, pk=pk)
+
         stats['users_count'] = home_group.users.count()
         stats['fathers_count'] = home_group.users.filter(spiritual_level=CustomUser.FATHER).count()
         stats['juniors_count'] = home_group.users.filter(spiritual_level=CustomUser.JUNIOR).count()

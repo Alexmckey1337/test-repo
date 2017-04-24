@@ -7,13 +7,12 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views import View
-from django.views.generic import DetailView
+from django.views.generic import DetailView, View
 from django.views.generic.base import ContextMixin, TemplateView
 
 from account.models import CustomUser
 from account.permissions import CanAccountObjectRead, CanAccountObjectEdit
-from event.models import MeetingType
+from event.models import Meeting, ChurchReport
 from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
 from location.models import Country, Region, City
@@ -32,39 +31,54 @@ def edit_pass(request, activation_key=None):
 
 
 @login_required(login_url='entry')
-def events(request):
-    return render(request, 'event/events.html')
-
-
-@login_required(login_url='entry')
 def meetings(request):
     if not request.user.hierarchy or request.user.hierarchy.level < 1:
         return redirect('/')
-    ctx = {
 
-    }
-    return render(request, 'event/meetings_list.html', context=ctx)
-
-
-@login_required(login_url='entry')
-def meetings_types(request):
-    if not request.user.hierarchy or request.user.hierarchy.level < 1:
-        return redirect('/')
-    ctx = {
-        'meeting_types': MeetingType.objects.all(),
-    }
-    return render(request, 'event/meeting_types.html', context=ctx)
+    ctx = {}
+    return render(request, 'event/MEETING_LIST.html', context=ctx)
 
 
 @login_required(login_url='entry')
-def meeting_report(request, code):
+def home_report(request, pk):
     if not request.user.hierarchy or request.user.hierarchy.level < 1:
         return redirect('/')
+
     ctx = {
-        'leaders': CustomUser.objects.filter(home_group__leader__id__isnull=False).distinct(),
-        'meeting_type': get_object_or_404(MeetingType, code=code),
+        'home_report': get_object_or_404(Meeting, pk=pk),
+        'leader': request.user,
     }
-    return render(request, 'event/meeting_report_create.html', context=ctx)
+    return render(request, 'event/HOME_REPORT_CREATE.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def home_statistics(request):
+    if not request.user.hierarchy or request.user.hierarchy.level < 1:
+        return redirect('/')
+
+    ctx = {}
+    return render(request, 'event/HOME_REPORT_STATISTICS.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def church_report(request, pk):
+    if not request.user.hierarchy or request.user.hierarchy.level < 2:
+        return redirect('/')
+
+    ctx = {
+        'church_report': get_object_or_404(ChurchReport, pk=pk),
+        'pastor': request.user,
+    }
+    return render(request, 'event/CHURCH_REPORT_CREATE.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def church_statistics(request):
+    if not request.user.hierarchy or request.user.hierarchy.level < 2:
+        return redirect('/')
+
+    ctx = {}
+    return render(request, 'event/CHURCH_REPORT_STATISTICS.html', context=ctx)
 
 
 # partner
@@ -146,38 +160,6 @@ class PartnerPaymentsListView(LoginRequiredMixin, CanSeeDealPaymentsMixin, Templ
         ctx['managers'] = CustomUser.objects.filter(checks__isnull=False).distinct()
 
         return ctx
-
-
-# TODO refactoring
-
-@login_required(login_url='entry')
-def meetings_statistics(request):
-    if not request.user.hierarchy or request.user.hierarchy.level < 1:
-        return redirect('/')
-    ctx = {
-
-    }
-    return render(request, 'event/meeting_statistics.html', context=ctx)
-
-
-@login_required(login_url='entry')
-def church_report(request):
-    if not request.user.hierarchy or request.user.hierarchy.level < 2:
-        return redirect('/')
-    ctx = {
-        'pastors': CustomUser.objects.filter(church__pastor__id__isnull=False).distinct(),
-    }
-    return render(request, 'event/church_report_create.html', context=ctx)
-
-
-@login_required(login_url='entry')
-def churches_statistics(request):
-    if not request.user.hierarchy or request.user.hierarchy.level < 2:
-        return redirect('/')
-    ctx = {
-
-    }
-    return render(request, 'event/churches_statistics.html', context=ctx)
 
 
 # account
