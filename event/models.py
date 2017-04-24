@@ -66,7 +66,7 @@ class Meeting(models.Model):
                              verbose_name=_('Meeting type'))
     date = models.DateField(_('Date'))
     owner = models.ForeignKey('account.CustomUser',
-                              limit_choices_to={'hierarchy__level__lte': 1})
+                              limit_choices_to={'hierarchy__level__gte': 1})
     home_group = models.ForeignKey('group.HomeGroup', on_delete=models.PROTECT,
                                    verbose_name=_('Home Group'))
     visitors = models.ManyToManyField('account.CustomUser', through='event.MeetingAttend',
@@ -98,7 +98,7 @@ class Meeting(models.Model):
 @python_2_unicode_compatible
 class ChurchReport(models.Model):
     pastor = models.ForeignKey('account.CustomUser',
-                               limit_choices_to={'hierarchy__level__lte': 2})
+                               limit_choices_to={'hierarchy__level__gte': 2})
     church = models.ForeignKey('group.Church', on_delete=models.PROTECT,
                                verbose_name=_('Church'))
     date = models.DateField(_('Date'))
