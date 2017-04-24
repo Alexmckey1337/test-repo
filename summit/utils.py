@@ -56,7 +56,7 @@ def generate_ticket(code):
 
 
 def generate_ticket_by_summit(summit_id):
-    limit = 100
+    limit = 1000
     logo = os.path.join(settings.MEDIA_ROOT, 'background.png')
 
     buffer = BytesIO()
