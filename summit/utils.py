@@ -55,8 +55,7 @@ def generate_ticket(code):
     return pdf
 
 
-def generate_ticket_by_summit(summit_id):
-    limit = 1000
+def generate_ticket_by_summit(anket_ids):
     logo = os.path.join(settings.MEDIA_ROOT, 'background.png')
 
     buffer = BytesIO()
@@ -84,13 +83,10 @@ def generate_ticket_by_summit(summit_id):
       INNER JOIN auth_user uu1 ON u1.user_ptr_id = uu1.id
       LEFT JOIN auth_user uu2 ON u2.user_ptr_id = uu2.id
       LEFT JOIN hierarchy_hierarchy h ON u2.hierarchy_id = h.id
-      WHERE a.id IN (
-        SELECT aa.id FROM summit_summitanket aa
-        WHERE aa.summit_id = %s ORDER BY aa.id LIMIT %s
-      )
+      WHERE a.id IN ({})
       ORDER BY a.id;
-    """
-    users = SummitAnket.objects.raw(raw, [summit_id, limit])
+    """.format(','.join([str(a) for a in anket_ids]))
+    users = SummitAnket.objects.raw(raw)
     uu = dict()
     for u in users:
         if u.id not in uu.keys():

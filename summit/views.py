@@ -9,7 +9,7 @@ from django.db.models.functions import Coalesce
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions, viewsets, filters, status, mixins
-from rest_framework.decorators import list_route, detail_route
+from rest_framework.decorators import list_route, detail_route, api_view
 from rest_framework.filters import BaseFilterBackend
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
@@ -23,14 +23,15 @@ from navigation.table_fields import user_table, summit_table
 from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.permissions import IsSupervisorOrHigh
-from summit.utils import generate_ticket, generate_ticket_by_summit
-from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, SummitUserConsultant
+from summit.utils import generate_ticket
+from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, SummitUserConsultant, SummitTicket
 from .resources import get_fields, SummitAnketResource
 from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
     SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer,
     SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitShortSerializer, SummitAnketShortSerializer,
     SummitLessonShortSerializer)
+from .tasks import generate_tickets
 
 
 def get_success_headers(data):
@@ -451,14 +452,22 @@ def generate_code(request):
     return response
 
 
-def generate_summit_tickets(request):
-    summit_id = request.GET.get('summit_id', 1)
+@api_view(['GET'])
+def generate_summit_tickets(request, summit_id):
+    limit = 2000
 
-    pdf = generate_ticket_by_summit(summit_id)
+    anket_ids = list(SummitAnket.objects.filter(
+        summit_id=summit_id, tickets__isnull=True)[:limit].values_list('id', flat=True))
+    print(len(anket_ids))
+    ticket = SummitTicket.objects.create(
+        summit_id=summit_id, owner=request.user, title='{}-{}'.format(min(anket_ids), max(anket_ids)))
+    ticket.users.set(anket_ids)
 
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment;'
+    generate_tickets.apply_async(args=[summit_id, anket_ids, ticket.id])
 
-    response.write(pdf)
+    # response = HttpResponse(content_type='application/pdf')
+    # response['Content-Disposition'] = 'attachment;'
+    #
+    # response.write(pdf)
 
-    return response
+    return Response(data={'ticket_id': ticket.id})

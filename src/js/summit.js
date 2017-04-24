@@ -112,7 +112,11 @@
     });
     $("#load-tickets").on('click', function () {
         let summit_id = $('#summitsTypes').find('.active').data('id');
-        $.fileDownload(`/api/v1.0/generate_summit_tickets/${summit_id}.pdf?summit_id=${summit_id}`)
+        ajaxRequest(`/api/v1.0/generate_summit_tickets/${summit_id}/`, null, function (data) {
+            console.log(data);
+        }, 'GET', true, {
+            'Content-Type': 'application/json'
+        });
     });
 
     $(".add-user-wrap").on('click', function (el) {
