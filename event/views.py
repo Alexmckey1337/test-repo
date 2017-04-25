@@ -83,7 +83,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         meeting = self.get_object()
         self.validate_to_submit(meeting=meeting, data=request.data)
 
-        request.data['status'] = 2
+        meeting.status = 2
         home_meeting = self.serializer_class(meeting, data=request.data)
         home_meeting.is_valid(raise_exception=True)
 
@@ -104,7 +104,8 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             data = {'message': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-        return Response(home_meeting.data, status=status.HTTP_201_CREATED)
+        headers = self.get_success_headers(home_meeting.data)
+        return Response(home_meeting.data, status=status.HTTP_201_CREATED, headers=headers)
 
     @staticmethod
     def validate_to_submit(meeting, data):
@@ -124,10 +125,6 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     def update(self, request, *args, **kwargs):
         meeting = self.get_object()
-        if meeting.status != 2:
-            raise exceptions.ValidationError(_('Невозможно обновить методом UPDATE. '
-                                               'Данный отчет - {%s} небыл подан.') % meeting)
-
         meeting = self.get_serializer(meeting, data=request.data)
         meeting.is_valid(raise_exception=True)
 
@@ -149,15 +146,17 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             data = {'message': _('При обновлении возникла ошибка. Попробуйте еще раз.')}
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-        return Response(meeting.data, status=status.HTTP_201_CREATED)
+        headers = self.get_success_headers(meeting.data)
+        return Response(meeting.data, status=status.HTTP_201_CREATED, headers=headers)
 
     @detail_route(methods=['GET'], serializer_class=UserNameSerializer)
     def visitors(self, request, pk):
         meeting = self.get_object()
         visitors = meeting.home_group.users.all()
         visitors = self.serializer_class(visitors, many=True)
+        headers = self.get_success_headers(visitors.data)
 
-        return Response(visitors.data)
+        return Response(visitors.data, headers=headers)
 
     @list_route(methods=['GET'], serializer_class=MeetingStatisticSerializer)
     def statistics(self, request):
@@ -215,16 +214,13 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
     @detail_route(methods=['POST'])
     def submit(self, request, pk):
         church_report = self.get_object()
-        if not request.data.get('status'):
-            raise exceptions.ValidationError(_('Невозможно подать отчет. '
-                                               'Состояние отчета (статус) не передан.'))
-        request.data['status'] = 2
         report = self.get_serializer(church_report, data=request.data)
         report.is_valid(raise_exception=True)
         church_report.status = 2
         self.perform_update(report)
+        headers = self.get_success_headers(report.data)
 
-        return Response(report.data, status=status.HTTP_201_CREATED)
+        return Response(report.data, status=status.HTTP_201_CREATED, headers=headers)
 
     @list_route(methods=['GET'], serializer_class=ChurchReportStatisticSerializer)
     def statistics(self, request):
