@@ -6,7 +6,8 @@ from common.resources import CustomFieldsModelResource
 from group.models import Church, HomeGroup
 from group.serializers import BASE_GROUP_USER_FIELDS
 
-COMMON_GROUP_RESOURCE_FIELDS = ('title', 'opening_date', 'city', 'address', 'phone_number', 'website')
+COMMON_GROUP_RESOURCE_FIELDS = ('title', 'opening_date', 'city', 'address', 'phone_number',
+                                'website')
 
 
 class ChurchResource(CustomFieldsModelResource):
@@ -55,7 +56,9 @@ class GroupUserResource(CustomFieldsModelResource):
         fields = BASE_GROUP_USER_FIELDS + ('fullname',)
 
     def dehydrate_master(self, user):
-        return '%s %s %s' % (user.master.first_name, user.master.last_name, user.master.middle_name)
+        return '%s %s %s' % (user.master.first_name,
+                             user.master.last_name,
+                             user.master.middle_name)
 
     def dehydrate_departments(self, user):
         return ', '.join(user.departments.values_list('title', flat=True))

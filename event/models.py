@@ -12,15 +12,6 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
 
 
-in_progress, submitted, expired = 1, 2, 3
-
-STATUS_LIST = (
-    (in_progress, _('in_progress')),
-    (submitted, _('submitted')),
-    (expired, _('expired')),
-)
-
-
 @python_2_unicode_compatible
 class MeetingType(models.Model):
     name = models.CharField(_('Name'), max_length=255)
@@ -43,8 +34,10 @@ class MeetingType(models.Model):
 class MeetingAttend(models.Model):
     user = models.ForeignKey('account.CustomUser', related_name='attends',
                              verbose_name=_('User'))
+
     meeting = models.ForeignKey('event.Meeting', related_name='attends',
                                 verbose_name=_('Meeting'))
+
     attended = models.BooleanField(_('Attended'), default=False)
     note = models.TextField(_('Note'), blank=True)
 
@@ -60,19 +53,34 @@ class MeetingAttend(models.Model):
             self.meeting)
 
 
+in_progress, submitted, expired = 1, 2, 3
+
+STATUS_LIST = (
+    (in_progress, _('in_progress')),
+    (submitted, _('submitted')),
+    (expired, _('expired')),
+)
+
+
 @python_2_unicode_compatible
 class Meeting(models.Model):
+    date = models.DateField(_('Date'))
     type = models.ForeignKey(MeetingType, on_delete=models.PROTECT,
                              verbose_name=_('Meeting type'))
-    date = models.DateField(_('Date'))
+
     owner = models.ForeignKey('account.CustomUser',
                               limit_choices_to={'hierarchy__level__gte': 1})
+
     home_group = models.ForeignKey('group.HomeGroup', on_delete=models.PROTECT,
                                    verbose_name=_('Home Group'))
-    visitors = models.ManyToManyField('account.CustomUser', through='event.MeetingAttend',
-                                      related_name='meeting_types', verbose_name=_('Visitors'))
+
+    visitors = models.ManyToManyField('account.CustomUser', verbose_name=_('Visitors'),
+                                      through='event.MeetingAttend',
+                                      related_name='meeting_types')
+
     total_sum = models.DecimalField(_('Total sum'), max_digits=12,
                                     decimal_places=0, default=0)
+
     status = models.PositiveSmallIntegerField(_('Status'), choices=STATUS_LIST, default=1)
 
     class Meta:
@@ -97,24 +105,32 @@ class Meeting(models.Model):
 
 @python_2_unicode_compatible
 class ChurchReport(models.Model):
-    pastor = models.ForeignKey('account.CustomUser',
-                               limit_choices_to={'hierarchy__level__gte': 2})
-    church = models.ForeignKey('group.Church', on_delete=models.PROTECT,
-                               verbose_name=_('Church'))
     date = models.DateField(_('Date'))
     count_people = models.IntegerField(_('Count People'), default=0)
     new_people = models.IntegerField(_('New People'), default=0)
     count_repentance = models.IntegerField(_('Number of Repentance'), default=0)
+
+    pastor = models.ForeignKey('account.CustomUser',
+                               limit_choices_to={'hierarchy__level__gte': 2})
+
+    church = models.ForeignKey('group.Church', on_delete=models.PROTECT,
+                               verbose_name=_('Church'))
+
     tithe = models.DecimalField(_('Tithe'), max_digits=12,
                                 decimal_places=0, default=0)
+
     donations = models.DecimalField(_('Donations'), max_digits=12,
                                     decimal_places=0, default=0)
+
     currency_donations = models.CharField(_('Donations in Currency'),
                                           max_length=150, blank=True)
+
     transfer_payments = models.DecimalField(_('Transfer Payments'), max_digits=12,
                                             decimal_places=0, default=0)
+
     pastor_tithe = models.DecimalField(_('Pastor Tithe'), max_digits=12,
                                        decimal_places=0, default=0)
+
     status = models.PositiveSmallIntegerField(_('Status'), choices=STATUS_LIST, default=1)
 
     class Meta:

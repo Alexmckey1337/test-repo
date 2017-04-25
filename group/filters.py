@@ -13,7 +13,8 @@ class ChurchAllUserFilter(BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         church_id = view.kwargs.get('pk')
         church = get_object_or_404(Church, pk=church_id)
-        queryset = queryset.filter(Q(churches=church) | Q(home_groups__in=church.home_group.all()))
+        queryset = queryset.filter(
+            Q(churches=church) | Q(home_groups__in=church.home_group.all()))
 
         return queryset
 
@@ -25,17 +26,20 @@ class HomeGroupFilter(django_filters.FilterSet):
 
     class Meta:
         model = HomeGroup
-        fields = ['church', 'leader', 'opening_date', 'city']
+        fields = ('church', 'leader', 'opening_date', 'city')
 
 
 class ChurchFilter(django_filters.FilterSet):
-    department = django_filters.ModelMultipleChoiceFilter(name="department", queryset=Department.objects.all())
+    department = django_filters.ModelMultipleChoiceFilter(name="department",
+                                                          queryset=Department.objects.all())
+
     pastor = django_filters.ModelChoiceFilter(name='pastor', queryset=CustomUser.objects.filter(
         church__pastor__id__isnull=False).distinct())
 
     class Meta:
         model = Church
-        fields = ['department', 'pastor', 'is_open', 'opening_date', 'country', 'city']
+        fields = ('department', 'pastor', 'is_open', 'opening_date', 'country',
+                  'city')
 
 
 class CommonGroupMasterTreeFilter(BaseFilterBackend):
@@ -45,7 +49,6 @@ class CommonGroupMasterTreeFilter(BaseFilterBackend):
 
     def filter_queryset(self, request, queryset, view):
         master_id = request.query_params.get('master_tree', None)
-
         try:
             master = CustomUser.objects.get(pk=master_id)
         except ObjectDoesNotExist:

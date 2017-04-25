@@ -35,7 +35,6 @@ class HierarchyTitleSerializer(serializers.ModelSerializer):
         fields = ('id', 'title', 'level')
         read_only_fields = ('title',)
 
-
 class MasterNameSerializer(serializers.ModelSerializer):
     # hierarchy = HierarchyTitleSerializer()
 

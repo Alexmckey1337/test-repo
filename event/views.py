@@ -100,8 +100,8 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                                                          attended=attend.get('attended', False),
                                                          note=attend.get('note', ''))
         except IntegrityError:
-            data = {'message': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
-            return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            error_message = {'message': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
+            return Response(error_message, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         return Response(home_meeting.data, status=status.HTTP_200_OK)
 
@@ -120,6 +120,11 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             raise exceptions.ValidationError(
                 _('Невозможно подать отчет. Состояние отчета (статус) не передан.'))
 
+        if data.get('status') == 2:
+            raise exceptions.ValidationError(
+                _('Невозможно повторно подать отчет. Данный отчет - {%s}, '
+                  'уже был подан ранее. ') % meeting)
+
     @detail_route(methods=['GET'], serializer_class=UserNameSerializer)
     def visitors(self, request, pk):
         meeting = self.get_object()
@@ -137,19 +142,14 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
         statistics = queryset.aggregate(
             total_visitors=Count('visitors'),
-
             total_visits=Sum(Case(When(attends__attended=True, then=1),
                                   output_field=IntegerField(), default=0)),
-
             total_absent=Sum(Case(When(attends__attended=False, then=1),
                                   output_field=IntegerField(), default=0)),
-
             reports_in_progress=Sum(Case(When(status=1, then=1),
                                          output_field=IntegerField(), default=0)),
-
             reports_submitted=Sum(Case(When(status=2, then=1),
                                        output_field=IntegerField(), default=0)),
-
             reports_expired=Sum(Case(When(status=3, then=1),
                                      output_field=IntegerField(), default=0))
         )
@@ -189,12 +189,8 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
     @detail_route(methods=['POST'])
     def submit(self, request, pk):
         church_report = self.get_object()
-        pastor = request.data.get('pastor')
+        self.validate_to_submit(report=church_report, data=request.data)
 
-        if church_report.pastor != pastor:
-            raise exceptions.ValidationError(_('Невозможно подать отчет. '
-                                               'Переданный пастор не является'
-                                               'пастором данной Церкви.'))
         request.data['status'] = 2
         church_report = self.serializer_class(church_report, data=request.data)
         church_report.is_valid(raise_exception=True)
@@ -202,10 +198,20 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
 
         return Response(church_report.data, status=status.HTTP_200_OK)
 
+    @staticmethod
+    def validate_to_submit(report, data):
+        pastor = data.get('pastor')
+        if report.pastor != pastor:
+            raise exceptions.ValidationError(_('Невозможно подать отчет. '
+                                               'Переданный пастор не является '
+                                               'пастором данной Церкви.'))
+        if not data.get('status'):
+            raise exceptions.ValidationError(_('Невозможно подать отчет. '
+                                               'Состояние отчета (статус) не передан.'))
+
     @list_route(methods=['GET'], serializer_class=ChurchReportStatisticSerializer)
     def statistics(self, request):
         queryset = self.filter_queryset(self.queryset)
-
         statistics = queryset.aggregate(
             total_peoples=Sum('count_people'),
             total_new_peoples=Sum('new_people'),
