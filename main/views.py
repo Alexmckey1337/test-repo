@@ -8,7 +8,7 @@ from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
 from django.views.generic.base import ContextMixin, TemplateView
 
 from account.models import CustomUser
@@ -20,7 +20,7 @@ from location.models import Country, Region, City
 from partnership.models import Partnership
 from payment.models import Currency
 from status.models import Division
-from summit.models import SummitType
+from summit.models import SummitType, SummitTicket
 
 
 def entry(request):
@@ -200,6 +200,13 @@ class CanSeeSummitTypeMixin(View):
         return super(CanSeeSummitTypeMixin, self).dispatch(request, *args, **kwargs)
 
 
+class CanSeeSummitTicketMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_any_summit_ticket():
+            raise PermissionDenied
+        return super(CanSeeSummitTicketMixin, self).dispatch(request, *args, **kwargs)
+
+
 class SummitTypeView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
     model = SummitType
     context_object_name = 'summit_type'
@@ -215,6 +222,19 @@ class SummitTypeView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
 
         ctx.update(extra_context)
         return ctx
+
+
+class SummitTicketListView(LoginRequiredMixin, CanSeeSummitTicketMixin, ListView):
+    model = SummitTicket
+    context_object_name = 'tickets'
+    template_name = 'summit/tickets.html'
+    login_url = 'entry'
+
+    def get_queryset(self):
+        code = self.request.GET.get('code', '')
+        if code:
+            return super(SummitTicketListView, self).get_queryset().filter(users__code=code).distinct()
+        return super(SummitTicketListView, self).get_queryset()
 
 
 @login_required(login_url='entry')

@@ -1,0 +1,95 @@
+{% extends "layout_main.html" %}
+{% load i18n %}
+{% load static %}
+{% load summit_tags %}
+{% load payment_tags %}
+
+{% block extra_styles %}
+<style>
+    table tr.active_ticket, table tr.active_user {
+        background-color: bisque;
+    }
+</style>
+{% endblock %}
+
+{% block header.top.h1 %}
+    <h1 id="summit-title">
+        {% trans "Tickets" %}
+    </h1>
+{% endblock %}
+
+{% block header.buttons.filter %}
+{% endblock %}
+
+{% block header.buttons %}
+{% endblock %}
+
+{% block main.content %}
+    <div style="padding: 20px;">
+        <label for="find_by_code">{% trans "Find by code:" %}</label>
+        <input type="text" id="find_by_code" name="find_by_code" value="{{ request.GET.code }}">
+        <button id="find_by_code_btn">{% trans "Find" %}</button>
+    </div>
+    <div style="padding: 20px;">
+        {% regroup tickets by summit.type as summit_type_list %}
+        {% for summit_type in summit_type_list %}
+            <h3>{{ summit_type.grouper }}</h3>
+            {% regroup summit_type.list by summit as summit_list %}
+            {% for summit in summit_list %}
+                <h2>
+                    {{ summit.grouper }}
+                </h2>
+                <table class="tickets_table">
+                    <tr>
+                        <th>{% trans "Title" %}</th>
+                        <th>{% trans "Creator" %}</th>
+                        <th>{% trans "Status" %}</th>
+                        <th>{% trans "Attachment" %}</th>
+                    </tr>
+                    {% for ticket in summit.list %}
+                        <tr>
+                            <td><span data-id="{{ ticket.id }}" class="ticket_title" style="cursor:pointer;">{{ ticket.title }}</span></td>
+                            <td>
+                                <a href="{{ ticket.owner.get_absolute_url }}">{{ ticket.owner }}</a>
+                            </td>
+                            <td style="color:{% if ticket.status == 'complete' %}
+                                green
+                            {% elif ticket.status == 'progress' %}
+                                blue
+                            {% endif %};">
+                                {{ ticket.get_status_display }}
+                            </td>
+                            <td>
+                                {% if ticket.attachment %}
+                                    <a href="{{ ticket.attachment.url }}">{% trans "Download" %}</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                    </tr>
+                </table>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    <div id="ticket_users"></div>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src='{% static "js/tickets.js" %}'></script>
+    <script type="text/template" id="users_tml">
+    <table>
+        <tr>
+            <th>{% trans "Name" %}</th>
+            <th>{% trans "Code" %}</th>
+        </tr>
+        <% ankets.forEach(function(anket) { %>
+            <tr<% if (anket.is_active) { %> class='active_user'<% } %>>
+                <td><%=anket.user.fullname %></td>
+                <td><%=anket.code %></td>
+            </tr>
+        <% }) %>
+        <tr></tr>
+    </table>
+    </script>
+{% endblock %}

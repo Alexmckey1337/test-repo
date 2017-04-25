@@ -4,8 +4,8 @@ from __future__ import unicode_literals
 import django_filters
 import rest_framework_filters as filters_new
 from dbmail import send_db_mail
-from django.db.models import Sum, Value as V
-from django.db.models.functions import Coalesce
+from django.db.models import Sum, Value as V, Case, When, BooleanField
+from django.db.models.functions import Coalesce, Concat
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions, viewsets, filters, status, mixins
@@ -30,7 +30,7 @@ from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
     SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer,
     SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitShortSerializer, SummitAnketShortSerializer,
-    SummitLessonShortSerializer)
+    SummitLessonShortSerializer, SummitTicketSerializer, SummitAnketForTicketSerializer)
 from .tasks import generate_tickets
 
 
@@ -391,6 +391,27 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     pagination_class = None
 
 
+class SummitTicketViewSet(viewsets.ModelViewSet):
+    queryset = SummitTicket.objects.all()
+    serializer_class = SummitTicketSerializer
+    permission_classes = (IsAuthenticated,)
+
+    @detail_route(['get'])
+    def users(self, request, pk=None):
+        code = request.query_params.get('code')
+        ticket = self.get_object()
+        users = ticket.users.order_by('code').select_related('user').annotate(
+            is_active=Case(
+                When(code=code, then=True),
+                default=False,
+                output_field=BooleanField(),
+            ),
+        )
+        summit_profiles = SummitAnketForTicketSerializer(users, many=True)
+
+        return Response(summit_profiles.data)
+
+
 class SummitTypeViewSet(viewsets.ModelViewSet):
     queryset = SummitType.objects.all()
     serializer_class = SummitTypeSerializer
@@ -454,16 +475,16 @@ def generate_code(request):
 
 @api_view(['GET'])
 def generate_summit_tickets(request, summit_id):
-    limit = 2000
+    limit = 200
 
-    anket_ids = list(SummitAnket.objects.filter(
-        summit_id=summit_id, tickets__isnull=True)[:limit].values_list('id', flat=True))
-    print(len(anket_ids))
+    ankets = list(SummitAnket.objects.order_by('id').filter(
+        summit_id=summit_id, tickets__isnull=True)[:limit].values_list('id', 'code'))
     ticket = SummitTicket.objects.create(
-        summit_id=summit_id, owner=request.user, title='{}-{}'.format(min(anket_ids), max(anket_ids)))
-    ticket.users.set(anket_ids)
+        summit_id=summit_id, owner=request.user, title='{}-{}'.format(
+            min(ankets, key=lambda a: int(a[1]))[1], max(ankets, key=lambda a: int(a[1]))[1]))
+    ticket.users.set([a[0] for a in ankets])
 
-    generate_tickets.apply_async(args=[summit_id, anket_ids, ticket.id])
+    generate_tickets.apply_async(args=[summit_id, ankets, ticket.id])
 
     # response = HttpResponse(content_type='application/pdf')
     # response['Content-Disposition'] = 'attachment;'

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load static %}
 
 {% block layout %}
@@ -100,6 +101,12 @@
                                             <p>Мой профиль</p>
                                         </a>
                                     </div>
+                                    {% if user.can_see_any_summit_ticket %}
+                                        <div class="top-box"><a href="{% url "summit:tickets" %}">
+                                            <span></span>
+                                            <p>{% trans "Summit tickets" %}</p></a>
+                                        </div>
+                                    {% endif %}
                                     <div class="bottom-box"><a id="logout_button">
                                         <span></span>
                                         <p>Выйти</p></a>

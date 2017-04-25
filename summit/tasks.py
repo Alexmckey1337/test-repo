@@ -45,9 +45,10 @@ def send_tickets(anket_ids):
 
 
 @app.task(ignore_result=True, max_retries=0)
-def generate_tickets(summit_id, anket_ids, ticket_id):
-    pdf = generate_ticket_by_summit(anket_ids)
-    pdf_name = '{}_{}-{}.pdf'.format(summit_id, min(anket_ids), max(anket_ids))
+def generate_tickets(summit_id, ankets, ticket_id):
+    pdf = generate_ticket_by_summit(ankets)
+    pdf_name = '{}_{}-{}.pdf'.format(
+        summit_id, min(ankets, key=lambda a: int(a[1]))[1], max(ankets, key=lambda a: int(a[1]))[1])
 
     ticket = SummitTicket.objects.get(id=ticket_id)
 
@@ -60,6 +61,6 @@ def generate_tickets(summit_id, anket_ids, ticket_id):
         'summit_id': summit_id,
         'user_id': ticket.owner.id,
         'ticket_id': ticket.id,
-        'file': ticket.attachment.path
+        'file': ticket.attachment.url
     }
     Group("summit_{}_ticket".format(ticket.owner.id)).send({'text': dumps(data)})

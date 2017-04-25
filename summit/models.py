@@ -268,7 +268,7 @@ class SummitTicket(models.Model):
         return '{}: {} ({})'.format(str(self.summit), self.title, self.status)
 
     class Meta:
-        ordering = ('summit', 'status')
+        ordering = ('summit', 'title')
         verbose_name = _('Summit ticket')
         verbose_name_plural = _('List of summit tickets')
 

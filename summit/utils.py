@@ -43,8 +43,8 @@ def generate_ticket(code):
         'last_name': user.last_name,
         'image': user.image.path,
         'code': anket.code,
-        'pastor': ''.format(pastor.last_name, pastor.first_name) if pastor else '',
-        'bishop': ''.format(bishop.last_name, bishop.first_name) if bishop else '',
+        'pastor': '{} {}'.format(pastor.last_name, pastor.first_name) if pastor else '',
+        'bishop': '{} {}'.format(bishop.last_name, bishop.first_name) if bishop else '',
     }
 
     create_ticket_page(c, logo, w, h, uu)
@@ -55,7 +55,7 @@ def generate_ticket(code):
     return pdf
 
 
-def generate_ticket_by_summit(anket_ids):
+def generate_ticket_by_summit(ankets):
     logo = os.path.join(settings.MEDIA_ROOT, 'background.png')
 
     buffer = BytesIO()
@@ -85,7 +85,7 @@ def generate_ticket_by_summit(anket_ids):
       LEFT JOIN hierarchy_hierarchy h ON u2.hierarchy_id = h.id
       WHERE a.id IN ({})
       ORDER BY a.id;
-    """.format(','.join([str(a) for a in anket_ids]))
+    """.format(','.join([str(a[0]) for a in ankets]))
     users = SummitAnket.objects.raw(raw)
     uu = dict()
     for u in users:

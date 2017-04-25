@@ -10,6 +10,7 @@ router_v1_0 = routers.DefaultRouter()
 router_v1_0.register(r'summit', views.SummitViewSet)
 router_v1_0.register(r'summit_ankets', views.SummitAnketTableViewSet, base_name='summit_ankets')
 router_v1_0.register(r'summit_types', views.SummitTypeViewSet)
+router_v1_0.register(r'summit_tickets', views.SummitTicketViewSet)
 router_v1_0.register(r'summit_search', views.SummitUnregisterUserViewSet, base_name='summit_search')
 router_v1_0.register(r'summit_lessons', views.SummitLessonViewSet)
 router_v1_0.register(r'summit_ankets_with_notes', views.SummitAnketWithNotesViewSet,
