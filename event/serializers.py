@@ -6,7 +6,7 @@ from rest_framework.validators import UniqueTogetherValidator
 from rest_framework import exceptions
 from django.utils.translation import ugettext_lazy as _
 
-from group.models import Church
+from group.models import Church, HomeGroup
 from group.serializers import (UserNameSerializer, ChurchNameSerializer,
                                HomeGroupNameSerializer)
 from account.models import CustomUser
@@ -67,6 +67,9 @@ class MeetingSerializer(MeetingCreateSerializer):
 
 class MeetingDetailSerializer(MeetingCreateSerializer):
     attends = MeetingAttendSerializer(many=True, required=False, read_only=True)
+    home_group = HomeGroupNameSerializer(required=False)
+    type = MeetingTypeSerializer(required=False)
+    owner = UserNameSerializer(required=False)
 
     class Meta(MeetingCreateSerializer.Meta):
         fields = MeetingCreateSerializer.Meta.fields + ('attends',)
