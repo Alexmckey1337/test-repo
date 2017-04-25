@@ -10,7 +10,6 @@ router_v1_0 = routers.DefaultRouter()
 
 router_v1_0.register(r'home_meetings', views.MeetingViewSet)
 router_v1_0.register(r'church_reports', views.ChurchReportViewSet)
-router_v1_0.register(r'meeting_attends', views.MeetingAttendViewSet)
 
 urlpatterns = [
     url(r'^v1.0/events/', include(router_v1_0.urls)),

@@ -27,12 +27,12 @@ class MeetingAttendSerializer(serializers.ModelSerializer):
 
 class MeetingCreateSerializer(serializers.ModelSerializer):
     owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
-        home_group__leader__id__isnull=False).distinct())
+       home_group__leader__id__isnull=False).distinct())
 
     class Meta:
         model = Meeting
-        fields = ('id', 'home_group', 'owner', 'type', 'total_sum', 'date',
-                  'status')
+        fields = ('id', 'home_group', 'owner', 'type', 'date', 'status',
+                  'total_sum',)
 
         validators = [
             UniqueTogetherValidator(
@@ -61,7 +61,8 @@ class MeetingSerializer(MeetingCreateSerializer):
 
     class Meta(MeetingCreateSerializer.Meta):
         fields = MeetingCreateSerializer.Meta.fields + (
-            'visitors_attended', 'visitors_absent', 'phone_number')
+            'phone_number', 'visitors_attended', 'visitors_absent')
+        read_only_fields = ('__all__',)
 
 
 class MeetingDetailSerializer(MeetingCreateSerializer):
@@ -88,16 +89,24 @@ class MeetingStatisticSerializer(serializers.ModelSerializer):
                   'reports_expired')
 
 
-class ChurchReportSerializer(serializers.ModelSerializer):
-    church = serializers.PrimaryKeyRelatedField(queryset=Church.objects.all())
-    pastor = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
-        church__pastor__id__isnull=False).distinct())
+class ChurchReportListSerializer(serializers.ModelSerializer):
+    pastor = UserNameSerializer(read_only=True)
+    church = ChurchNameSerializer(read_only=True)
 
     class Meta:
         model = ChurchReport
-        fields = ('id', 'date', 'pastor', 'church', 'count_people', 'new_people',
-                  'count_repentance', 'tithe', 'donations', 'currency_donations',
-                  'transfer_payments', 'pastor_tithe', 'status')
+        fields = ('id', 'pastor', 'church', 'date', 'count_people', 'tithe', 'donations',
+                  'transfer_payments', 'status')
+
+
+class ChurchReportSerializer(ChurchReportListSerializer):
+    church = serializers.PrimaryKeyRelatedField(queryset=Church.objects.all(), required=False)
+    pastor = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
+        church__pastor__id__isnull=False).distinct(), required=False)
+
+    class Meta(ChurchReportListSerializer.Meta):
+        fields = ChurchReportListSerializer.Meta.fields + (
+            'new_people', 'count_repentance', 'currency_donations', 'pastor_tithe')
 
         validators = [
             UniqueTogetherValidator(
@@ -116,10 +125,12 @@ class ChurchReportSerializer(serializers.ModelSerializer):
         church_report = ChurchReport.objects.create(**validate_data)
         return church_report
 
+    def update(self, instance, validated_data):
+        if instance.status != 2:
+            raise exceptions.ValidationError(_('Невозможно обновить методом UPDATE. '
+                                               'Отчет - {%s} еще небыл заполнен.') % instance)
 
-class ChurchReportListSerializer(ChurchReportSerializer):
-    pastor = UserNameSerializer()
-    church = ChurchNameSerializer()
+        return super(ChurchReportSerializer, self).update(instance, validated_data)
 
 
 class ChurchReportStatisticSerializer(serializers.ModelSerializer):

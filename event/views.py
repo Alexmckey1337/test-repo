@@ -14,12 +14,12 @@ from account.models import CustomUser
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
 
-from .filters import ChurchReportFilter, MeetingFilter
+from .filters import ChurchReportFilter, MeetingFilter, MeetingFilterByDepartment
 from .models import Meeting, ChurchReport, MeetingAttend
 from .serializers import (UserNameSerializer, MeetingSerializer, MeetingDetailSerializer,
-                          MeetingAttendSerializer, MeetingCreateSerializer,
+                          MeetingCreateSerializer, ChurchReportStatisticSerializer,
                           MeetingStatisticSerializer, ChurchReportSerializer,
-                          ChurchReportListSerializer, ChurchReportStatisticSerializer)
+                          ChurchReportListSerializer)
 
 
 class MeetingPagination(PageNumberPagination):
@@ -49,7 +49,8 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     filter_backends = (filters.DjangoFilterBackend,
                        FieldSearchFilter,
-                       filters.OrderingFilter,)
+                       filters.OrderingFilter,
+                       MeetingFilterByDepartment,)
 
     filter_class = MeetingFilter
 
@@ -82,16 +83,16 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         meeting = self.get_object()
         self.validate_to_submit(meeting=meeting, data=request.data)
 
-        visitors = request.data.pop('visitors')
+        request.data['status'] = 2
+        home_meeting = self.serializer_class(meeting, data=request.data)
+        home_meeting.is_valid(raise_exception=True)
+
         valid_attends = [user.id for user in meeting.home_group.users.all()]
+        visitors = request.data.pop('visitors')
 
         try:
             with transaction.atomic():
-                request.data['status'] = 2
-                home_meeting = self.serializer_class(meeting, data=request.data)
-                home_meeting.is_valid(raise_exception=True)
                 self.perform_update(home_meeting)
-
                 for visitor in visitors:
                     for attend in visitor.get('attends'):
                         if attend.get('user') in valid_attends:
@@ -100,10 +101,10 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                                                          attended=attend.get('attended', False),
                                                          note=attend.get('note', ''))
         except IntegrityError:
-            error_message = {'message': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
-            return Response(error_message, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            data = {'message': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
+            return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-        return Response(home_meeting.data, status=status.HTTP_200_OK)
+        return Response(home_meeting.data, status=status.HTTP_201_CREATED)
 
     @staticmethod
     def validate_to_submit(meeting, data):
@@ -116,14 +117,39 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             raise exceptions.ValidationError(
                 _('Невозможно подать отчет. Список присутствующих не передан.'))
 
-        if not data.get('status'):
-            raise exceptions.ValidationError(
-                _('Невозможно подать отчет. Состояние отчета (статус) не передан.'))
-
-        if data.get('status') == 2:
+        if meeting.status == 2:
             raise exceptions.ValidationError(
                 _('Невозможно повторно подать отчет. Данный отчет - {%s}, '
                   'уже был подан ранее. ') % meeting)
+
+    def update(self, request, *args, **kwargs):
+        meeting = self.get_object()
+        if meeting.status != 2:
+            raise exceptions.ValidationError(_('Невозможно обновить методом UPDATE. '
+                                               'Данный отчет - {%s} небыл подан.') % meeting)
+
+        meeting = self.get_serializer(meeting, data=request.data)
+        meeting.is_valid(raise_exception=True)
+
+        if not request.data.get('attends'):
+            self.perform_update(meeting)
+            return Response(meeting.data)
+
+        attends = request.data.pop('attends')
+
+        try:
+            with transaction.atomic():
+                self.perform_update(meeting)
+                for attend in attends:
+                    MeetingAttend.objects.filter(id=attend.get('id')).update(
+                                                            user=attend.get('user'),
+                                                            attended=attend.get('attended'),
+                                                            note=attend.get('note'))
+        except IntegrityError:
+            data = {'message': _('При обновлении возникла ошибка. Попробуйте еще раз.')}
+            return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        return Response(meeting.data, status=status.HTTP_201_CREATED)
 
     @detail_route(methods=['GET'], serializer_class=UserNameSerializer)
     def visitors(self, request, pk):
@@ -189,25 +215,16 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
     @detail_route(methods=['POST'])
     def submit(self, request, pk):
         church_report = self.get_object()
-        self.validate_to_submit(report=church_report, data=request.data)
-
-        request.data['status'] = 2
-        church_report = self.serializer_class(church_report, data=request.data)
-        church_report.is_valid(raise_exception=True)
-        self.perform_update(church_report)
-
-        return Response(church_report.data, status=status.HTTP_200_OK)
-
-    @staticmethod
-    def validate_to_submit(report, data):
-        pastor = data.get('pastor')
-        if report.pastor != pastor:
-            raise exceptions.ValidationError(_('Невозможно подать отчет. '
-                                               'Переданный пастор не является '
-                                               'пастором данной Церкви.'))
-        if not data.get('status'):
+        if not request.data.get('status'):
             raise exceptions.ValidationError(_('Невозможно подать отчет. '
                                                'Состояние отчета (статус) не передан.'))
+        request.data['status'] = 2
+        report = self.get_serializer(church_report, data=request.data)
+        report.is_valid(raise_exception=True)
+        church_report.status = 2
+        self.perform_update(report)
+
+        return Response(report.data, status=status.HTTP_201_CREATED)
 
     @list_route(methods=['GET'], serializer_class=ChurchReportStatisticSerializer)
     def statistics(self, request):
@@ -223,10 +240,3 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
 
         statistics = self.serializer_class(statistics)
         return Response(statistics.data)
-
-
-class MeetingAttendViewSet(ModelWithoutDeleteViewSet):
-    queryset = MeetingAttend.objects.all()
-    serializer_class = MeetingAttendSerializer
-    permission_classes = (IsAuthenticated,)
-    pagination_class = MeetingPagination

@@ -16,8 +16,7 @@ from django.utils.translation import ugettext as _
 class MeetingType(models.Model):
     name = models.CharField(_('Name'), max_length=255)
     code = models.SlugField(_('Code'), max_length=255, unique=True)
-    image = models.ImageField(_('Image'), upload_to='images/meeting_type/',
-                              blank=True)
+    image = models.ImageField(_('Image'), upload_to='images', blank=True)
 
     class Meta:
         verbose_name = _('Meeting type')
@@ -80,7 +79,6 @@ class Meeting(models.Model):
 
     total_sum = models.DecimalField(_('Total sum'), max_digits=12,
                                     decimal_places=0, default=0)
-
     status = models.PositiveSmallIntegerField(_('Status'), choices=STATUS_LIST, default=1)
 
     class Meta:
@@ -102,6 +100,10 @@ class Meeting(models.Model):
     def phone_number(self):
         return self.home_group.phone_number
 
+    @property
+    def department(self):
+        return self.home_group.church.department
+
 
 @python_2_unicode_compatible
 class ChurchReport(models.Model):
@@ -109,32 +111,23 @@ class ChurchReport(models.Model):
     count_people = models.IntegerField(_('Count People'), default=0)
     new_people = models.IntegerField(_('New People'), default=0)
     count_repentance = models.IntegerField(_('Number of Repentance'), default=0)
-
     pastor = models.ForeignKey('account.CustomUser',
                                limit_choices_to={'hierarchy__level__gte': 2})
-
     church = models.ForeignKey('group.Church', on_delete=models.PROTECT,
                                verbose_name=_('Church'))
-
-    tithe = models.DecimalField(_('Tithe'), max_digits=12,
-                                decimal_places=0, default=0)
-
+    tithe = models.DecimalField(_('Tithe'), max_digits=12, decimal_places=0, default=0)
     donations = models.DecimalField(_('Donations'), max_digits=12,
                                     decimal_places=0, default=0)
-
     currency_donations = models.CharField(_('Donations in Currency'),
                                           max_length=150, blank=True)
-
     transfer_payments = models.DecimalField(_('Transfer Payments'), max_digits=12,
                                             decimal_places=0, default=0)
-
     pastor_tithe = models.DecimalField(_('Pastor Tithe'), max_digits=12,
                                        decimal_places=0, default=0)
-
     status = models.PositiveSmallIntegerField(_('Status'), choices=STATUS_LIST, default=1)
 
     class Meta:
-        ordering = ('-date', 'church')
+        ordering = ('-id', '-date')
         verbose_name = _('Church Report')
         verbose_name_plural = _('Church Reports')
         unique_together = ['church', 'date', 'status']

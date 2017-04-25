@@ -1,7 +1,6 @@
 import django_filters
-
+from rest_framework import filters
 from account.models import CustomUser
-from hierarchy.models import Department
 from event.models import ChurchReport, Meeting
 
 
@@ -9,11 +8,17 @@ class CommonMeetingFilter(django_filters.FilterSet):
     from_date = django_filters.DateFilter(name="date", lookup_type='gte')
     to_date = django_filters.DateFilter(name="date", lookup_type='lte')
 
-    department = django_filters.ModelMultipleChoiceFilter(
-        name="department", queryset=Department.objects.all())
-
     class Meta:
-        fields = ('department', 'status', 'from_date', 'to_date')
+        fields = ('status', 'from_date', 'to_date')
+
+
+class MeetingFilter(CommonMeetingFilter):
+    owner = django_filters.ModelChoiceFilter(name='owner', queryset=CustomUser.objects.filter(
+        home_group__leader__id__isnull=False).distinct())
+
+    class Meta(CommonMeetingFilter.Meta):
+        model = Meeting
+        fields = CommonMeetingFilter.Meta.fields + ('home_group', 'owner', 'type')
 
 
 class ChurchReportFilter(CommonMeetingFilter):
@@ -25,10 +30,11 @@ class ChurchReportFilter(CommonMeetingFilter):
         fields = CommonMeetingFilter.Meta.fields + ('church', 'pastor')
 
 
-class MeetingFilter(CommonMeetingFilter):
-    owner = django_filters.ModelChoiceFilter(name='owner', queryset=CustomUser.objects.filter(
-        home_group__leader__id__isnull=False).distinct())
+class MeetingFilterByDepartment(filters.BaseFilterBackend):
 
-    class Meta(CommonMeetingFilter.Meta):
-        model = Meeting
-        fields = CommonMeetingFilter.Meta.fields + ('home_group', 'owner')
+    def filter_queryset(self, request, queryset, view):
+        department_id = request.query_params.get('department_id')
+        if department_id:
+            return queryset.filter(home_group__church__department__id=department_id)
+
+        return queryset
