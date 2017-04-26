@@ -1,6 +1,5 @@
 (function ($) {
     const SUMMIT_TYPE_ID = $('#summitUsersList').data('summit-type');
-
     function makeSummitInfo() {
         let width = 150,
             count = 1,
@@ -41,7 +40,6 @@
     createSummitUsersTable();
 
     makeSummitInfo();
-
     $('body').on('click', '#carousel li span', function () {
         $('#carousel').find('li').removeClass('active');
         $(this).parent().addClass('active')
@@ -429,7 +427,7 @@
     });
 
     $('#searchUsers').on('keyup', makePotencialSammitUsersList);
-    $('#carousel li span').on('click', function () {
+    $('#summitsTypes').find('li').on('click', function () {
         $('.preloader').css('display', 'block');
         let config = {};
         config.summit = $(this).data('id');
