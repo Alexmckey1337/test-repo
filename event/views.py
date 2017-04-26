@@ -129,6 +129,11 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                 _('Невозможно повторно подать отчет. Данный отчет - {%s}, '
                   'уже был подан ранее. ') % meeting)
 
+        if meeting.date < data.get('date'):
+            raise exceptions.ValidationError(
+                _('Невозможно подать отчет. Переданная дата подачи отчета - {%s} '
+                  'меньше чем дата его создания.') % data.get('date'))
+
     def update(self, request, *args, **kwargs):
         meeting = self.get_object()
         meeting = self.get_serializer(meeting, data=request.data, partial=True)
