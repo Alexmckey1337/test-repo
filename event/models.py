@@ -101,6 +101,10 @@ class Meeting(models.Model):
         return self.home_group.phone_number
 
     @property
+    def church(self):
+        return self.home_group.church
+
+    @property
     def department(self):
         return self.home_group.church.department
 

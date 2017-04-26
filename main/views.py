@@ -41,11 +41,11 @@ def events(request):
         'reports_expired': Meeting.objects.filter(status=3).count(),
     }
 
-    return render(request, 'event/MEETING_LIST.html', context=ctx)
+    return render(request, 'event/EVENT_LIST.html', context=ctx)
 
 
 @login_required(login_url='entry')
-def home_report(request, pk):
+def meeting_report(request, pk):
     if not request.user.hierarchy or request.user.hierarchy.level < 1:
         return redirect('/')
 
@@ -54,15 +54,15 @@ def home_report(request, pk):
         'leader': request.user,
     }
 
-    return render(request, 'event/HOME_REPORT_CREATE.html', context=ctx)
+    return render(request, 'event/MEETING_REPORT_CREATE.html', context=ctx)
 
 
 @login_required(login_url='entry')
-def home_statistics(request):
+def meeting_statistics(request):
     if not request.user.hierarchy or request.user.hierarchy.level < 1:
         return redirect('/')
 
-    return render(request, 'event/HOME_REPORT_STATISTICS.html', context={})
+    return render(request, 'event/MEETING_REPORT_STATISTICS.html', context={})
 
 
 @login_required(login_url='entry')

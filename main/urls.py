@@ -49,8 +49,8 @@ account_patterns = [
 
 events_patterns = [
     url(r'^$', views.events, name='events_list'),
-    url(r'^home/reports/(?P<pk>\d+)/$', views.home_report, name='home_report'),
-    url(r'^home/statistics/$', views.home_statistics, name='home_statistics'),
+    url(r'^home/reports/(?P<pk>\d+)/$', views.meeting_report, name='meeting_report'),
+    url(r'^home/statistics/$', views.meeting_statistics, name='meeting_statistics'),
     url(r'^church/reports/(?P<pk>\d+)/$', views.church_report, name='church_report'),
     url(r'^church/statistics/$', views.church_statistics, name='church_statistics'),
 ]

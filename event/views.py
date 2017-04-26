@@ -14,7 +14,7 @@ from account.models import CustomUser
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
 
-from .filters import ChurchReportFilter, MeetingFilter, MeetingFilterByDepartment
+from .filters import ChurchReportFilter, MeetingFilter, CommonEventFilter
 from .models import Meeting, ChurchReport, MeetingAttend
 from .serializers import (UserNameSerializer, MeetingSerializer, MeetingDetailSerializer,
                           MeetingListSerializer, ChurchReportStatisticSerializer,
@@ -48,9 +48,11 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
     pagination_class = MeetingPagination
 
     filter_backends = (filters.DjangoFilterBackend,
+                       CommonEventFilter,
                        FieldSearchFilter,
-                       filters.OrderingFilter,
-                       MeetingFilterByDepartment,)
+                       filters.OrderingFilter)
+
+    filter_fields = ('data', 'type', 'owner', 'home_group', 'church', 'status')
 
     filter_class = MeetingFilter
 
@@ -87,18 +89,19 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         meeting = self.serializer_class(home_meeting, data=request.data, partial=True)
         meeting.is_valid(raise_exception=True)
 
+        valid_attends = [user.id for user in home_meeting.home_group.users.all()]
         visitors = request.data.pop('visitors')
-        valid_visitors = [user.id for user in meeting.home_group.users.all()]
-        valid_attends = [att for att in visitors.get('attends') if att.get('user') in valid_visitors]
 
         try:
             with transaction.atomic():
                 self.perform_update(meeting)
-                MeetingAttend.objects.bulk_create(
-                    [MeetingAttend(meeting_id=home_meeting.id,
-                                   user_id=attend.get('user'),
-                                   attended=attend.get('attended', False),
-                                   note=attend.get('note', '')) for attend in valid_attends])
+                for visitor in visitors:
+                    for attend in visitor.get('attends'):
+                        if attend.get('user') in valid_attends:
+                            MeetingAttend.objects.create(meeting_id=home_meeting.id,
+                                                         user_id=attend.get('user'),
+                                                         attended=attend.get('attended', False),
+                                                         note=attend.get('note', ''))
         except IntegrityError:
             data = {'message': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
@@ -108,7 +111,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     @staticmethod
     def validate_to_submit(meeting, data):
-        if meeting.type.code == 'service' and meeting.total_sum != 0:
+        if meeting.type.code == 'service' and int(data.get('total_sum')) != 0:
             raise exceptions.ValidationError(
                 _('Невозможно подать отчет. Отчет типа - {%s} не должен содержать '
                   'денежную сумму. ' % meeting.type.name))
@@ -160,6 +163,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
     @list_route(methods=['GET'], serializer_class=MeetingStatisticSerializer)
     def statistics(self, request):
         queryset = self.filter_queryset(self.queryset)
+
         from_date = request.query_params.get('from_date')
         to_date = request.query_params.get('to_date')
 
@@ -181,8 +185,6 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             repentance_date__range=[from_date, to_date]).count()
 
         statistics = self.serializer_class(statistics)
-        statistics.is_valid(raise_exception=True)
-
         return Response(statistics.data)
 
 
@@ -213,6 +215,10 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
     @detail_route(methods=['POST'])
     def submit(self, request, pk):
         church_report = self.get_object()
+        if church_report.status == 2:
+            raise exceptions.ValidationError(
+                _('Невозможно подать отчет. Данный отчет уже был подан ранее'))
+
         report = self.get_serializer(church_report, data=request.data, partial=True)
         report.is_valid(raise_exception=True)
         church_report.status = 2
