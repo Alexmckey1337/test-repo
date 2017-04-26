@@ -1,0 +1,65 @@
+{% extends "layout_main.html" %}
+{% load i18n %}
+{% load static %}
+{% load summit_tags %}
+{% load payment_tags %}
+
+{% block extra_styles %}
+<style>
+    table tr.active_ticket, table tr.active_user {
+        background-color: bisque;
+    }
+</style>
+{% endblock %}
+
+{% block header.top.h1 %}
+    <h1 id="summit-title">
+        {% trans "Ticket" %} {{ ticket.title }}
+    </h1>
+{% endblock %}
+
+{% block header.buttons.filter %}
+{% endblock %}
+
+{% block header.buttons %}
+{% endblock %}
+
+{% block main.content %}
+    <div class="container">
+        <div class="col-3">
+            <div class="info">
+                <h2>{% trans "Main info" %}</h2>
+                <ul>
+                    <li>{% trans "Title" %}: {{ ticket.title }}</li>
+                    <li>{% trans "Creator" %}: <a href="{{ ticket.owner.get_absolute_url }}">{{ ticket.owner }}</a></li>
+                    <li style="color:{% if ticket.status == 'complete' %}
+                            green
+                        {% elif ticket.status == 'progress' %}
+                            blue
+                        {% endif %};">
+                            {% trans "Status" %}: {{ ticket.get_status_display }}
+                    </li>
+                    <li>{% trans "Attachment" %}: <a href="{{ ticket.attachment.url }}">{% trans "Download" %}</a></li>
+                    <li>{% trans "Summit" %}: {{ ticket.summit }}</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-3"></div>
+    </div>
+    <table>
+        <tr>
+            <th>{% trans "Name" %}</th>
+            <th>{% trans "Code" %}</th>
+        </tr>
+        {% for user in ticket.users.all %}
+            <tr>
+                <td>{{ user.user.fullname }}</td>
+                <td><a href="/api/v1.0/generate_code/{{ user.code }}.pdf?code={{ user.code }}">{{ user.code }}</a></td>
+            </tr>
+        {% endfor %}
+        <tr></tr>
+    </table>
+{% endblock %}
+
+{% block extra_scripts %}
+{% endblock %}

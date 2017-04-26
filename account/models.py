@@ -22,7 +22,8 @@ from navigation.models import Table
 from partnership.models import Partnership
 from partnership.permissions import can_see_partners, can_see_partner_stats, can_see_deals, can_see_deal_payments
 from summit.models import SummitType, SummitAnket
-from summit.permissions import can_see_summit, can_see_summit_type, can_see_any_summit, can_see_any_summit_type
+from summit.permissions import can_see_summit, can_see_summit_type, can_see_any_summit, can_see_any_summit_type, \
+    can_see_any_summit_ticket, can_see_summit_ticket
 
 
 class CustomUserManager(TreeManager, UserManager):
@@ -158,6 +159,22 @@ class CustomUser(MPTTModel, User):
             s = s + self.middle_name[0] + '.'
         return s
 
+    def get_pastor(self):
+        master = self.master
+        while master is not None:
+            if master.hierarchy.level == 2:
+                return master
+            master = master.master
+        return None
+
+    def get_bishop(self):
+        master = self.master
+        while master is not None:
+            if master.hierarchy.level == 4:
+                return master
+            master = master.master
+        return None
+
     @property
     def fullname(self):
         return ' '.join(map(lambda name: name.strip(), (self.last_name, self.first_name, self.middle_name)))
@@ -216,6 +233,19 @@ class CustomUser(MPTTModel, User):
     def can_see_any_summit_type(self):
         request = self._perm_req()
         return can_see_any_summit_type(request)
+
+    def can_see_any_summit_ticket(self):
+        return can_see_any_summit_ticket(self)
+
+    def can_see_summit_ticket(self, summit):
+        return can_see_summit_ticket(self, summit)
+
+    @property
+    def is_any_summit_supervisor_or_high(self):
+        return SummitAnket.objects.filter(user=self, role__gte=SummitAnket.SUPERVISOR).exists()
+
+    def is_summit_supervisor_or_high(self, summit):
+        return SummitAnket.objects.filter(user=self, summit=summit, role__gte=SummitAnket.SUPERVISOR).exists()
 
 
 @python_2_unicode_compatible

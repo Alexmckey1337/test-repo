@@ -54,6 +54,8 @@ meeting_patterns = [
 summit_patterns = [
     url(r'^$', views.summits, name='list'),
     url(r'^(?P<pk>\d+)/$', views.SummitTypeView.as_view(), name='detail'),
+    url(r'^tickets/$', views.SummitTicketListView.as_view(), name='tickets'),
+    url(r'^tickets/(?P<pk>\d+)/$', views.SummitTicketDetailView.as_view(), name='ticket-detail'),
 ]
 
 urlpatterns = [

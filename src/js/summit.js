@@ -110,6 +110,14 @@
     $(".add-user-wrap .top-text span").on('click', function () {
         $('.add-user-wrap').css('display', '');
     });
+    $("#load-tickets").on('click', function () {
+        let summit_id = $('#summitsTypes').find('.active').data('id');
+        ajaxRequest(`/api/v1.0/generate_summit_tickets/${summit_id}/`, null, function (data) {
+            console.log(data);
+        }, 'GET', true, {
+            'Content-Type': 'application/json'
+        });
+    });
 
     $(".add-user-wrap").on('click', function (el) {
         if (el.target !== this) {

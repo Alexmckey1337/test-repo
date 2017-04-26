@@ -124,3 +124,11 @@ def can_see_summit_type(request, summit_type, view=None):
 
 def can_see_any_summit_type(request, view=None):
     return IsSummitTypeConsultantOrHigh().has_permission(request, view)
+
+
+def can_see_any_summit_ticket(user):
+    return user.is_any_summit_supervisor_or_high
+
+
+def can_see_summit_ticket(user, summit):
+    return user.is_summit_supervisor_or_high(summit)

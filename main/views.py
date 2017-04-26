@@ -1,14 +1,15 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import redis
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.db.models import Count
+from django.db.models import Count, Case, When, BooleanField
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
 from django.views.generic.base import ContextMixin, TemplateView
 
 from account.models import CustomUser
@@ -20,7 +21,7 @@ from location.models import Country, Region, City
 from partnership.models import Partnership
 from payment.models import Currency
 from status.models import Division
-from summit.models import SummitType
+from summit.models import SummitType, SummitTicket
 
 
 def entry(request):
@@ -200,6 +201,13 @@ class CanSeeSummitTypeMixin(View):
         return super(CanSeeSummitTypeMixin, self).dispatch(request, *args, **kwargs)
 
 
+class CanSeeSummitTicketMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_any_summit_ticket():
+            raise PermissionDenied
+        return super(CanSeeSummitTicketMixin, self).dispatch(request, *args, **kwargs)
+
+
 class SummitTypeView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
     model = SummitType
     context_object_name = 'summit_type'
@@ -215,6 +223,61 @@ class SummitTypeView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
 
         ctx.update(extra_context)
         return ctx
+
+
+class SummitTicketListView(LoginRequiredMixin, CanSeeSummitTicketMixin, ListView):
+    model = SummitTicket
+    context_object_name = 'tickets'
+    template_name = 'summit/ticket/list.html'
+    login_url = 'entry'
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super(SummitTicketListView, self).dispatch(request, *args, **kwargs)
+        try:
+            r = redis.StrictRedis(host='localhost', port=6379, db=0)
+            r.srem('summit:ticket:{}'.format(request.user.id), *list(self.get_queryset().values_list('id', flat=True)))
+        except Exception as err:
+            print(err)
+
+        return response
+
+    def get_queryset(self):
+        code = self.request.GET.get('code', '')
+        qs = super(SummitTicketListView, self).get_queryset()
+        try:
+            r = redis.StrictRedis(host='localhost', port=6379, db=0)
+            ticket_ids = r.smembers('summit:ticket:{}'.format(self.request.user.id))
+        except Exception as err:
+            ticket_ids = None
+            print(err)
+        if ticket_ids:
+            qs = qs.annotate(
+                is_new=Case(
+                    When(id__in=ticket_ids, then=True),
+                    default=False,
+                    output_field=BooleanField(),
+                ),
+            )
+        if code:
+            return qs.filter(users__code=code).distinct()
+        return qs
+
+
+class SummitTicketDetailView(LoginRequiredMixin, CanSeeSummitTicketMixin, DetailView):
+    model = SummitTicket
+    context_object_name = 'ticket'
+    template_name = 'summit/ticket/detail.html'
+    login_url = 'entry'
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super(SummitTicketDetailView, self).dispatch(request, *args, **kwargs)
+        try:
+            r = redis.StrictRedis(host='localhost', port=6379, db=0)
+            r.srem('summit:ticket:{}'.format(request.user.id), self.object.id)
+        except Exception as err:
+            print(err)
+
+        return response
 
 
 @login_required(login_url='entry')
