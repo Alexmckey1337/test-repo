@@ -26,6 +26,9 @@ from group.abstract_models import GroupUserPermission
 from navigation.models import Table
 from partnership.abstract_models import PartnerUserPermission
 from summit.abstract_models import SummitUserPermission
+from partnership.models import Partnership
+from summit.models import SummitType, SummitAnket
+from summit.permissions import can_see_any_summit_ticket, can_see_summit_ticket
 
 
 class CustomUserManager(TreeManager, UserManager):
@@ -132,6 +135,22 @@ class CustomUser(MPTTModel, User, GroupUserPermission, PartnerUserPermission, Su
         if len(self.middle_name) > 0:
             s = s + self.middle_name[0] + '.'
         return s
+
+    def get_pastor(self):
+        master = self.master
+        while master is not None:
+            if master.hierarchy.level == 2:
+                return master
+            master = master.master
+        return None
+
+    def get_bishop(self):
+        master = self.master
+        while master is not None:
+            if master.hierarchy.level == 4:
+                return master
+            master = master.master
+        return None
 
     @property
     def fullname(self):
@@ -289,6 +308,12 @@ class CustomUser(MPTTModel, User, GroupUserPermission, PartnerUserPermission, Su
         to see deals block of ``user``
         """
         return can_see_deal_block(self, user)
+
+    def can_see_any_summit_ticket(self):
+        return can_see_any_summit_ticket(self)
+
+    def can_see_summit_ticket(self, summit):
+        return can_see_summit_ticket(self, summit)
 
 
 @python_2_unicode_compatible

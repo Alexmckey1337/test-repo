@@ -32,3 +32,10 @@ class SummitUserPermission(UserPermission):
     def is_any_summit_supervisor_or_high(self):
         # TODO
         return is_any_summit_supervisor_or_high(self)
+
+    @property
+    def is_any_summit_supervisor_or_high(self):
+        return SummitAnket.objects.filter(user=self, role__gte=SummitAnket.SUPERVISOR).exists()
+
+    def is_summit_supervisor_or_high(self, summit):
+        return SummitAnket.objects.filter(user=self, summit=summit, role__gte=SummitAnket.SUPERVISOR).exists()

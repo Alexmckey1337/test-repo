@@ -9,6 +9,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
+from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
@@ -147,6 +148,15 @@ class SummitAnket(CustomUserAbstract, AbstractPaymentPurpose):
     protected = models.BooleanField(default=False)
 
     ticket = models.FileField(_('Ticket'), upload_to='tickets', null=True, blank=True)
+    NONE = 'none'
+    DOWNLOADED = 'download'
+    PRINTED = 'print'
+    TICKET_STATUSES = (
+        (NONE, _('Without ticket.')),
+        (DOWNLOADED, _('Ticket is downloaded.')),
+        (PRINTED, _('Ticket is printed')),
+    )
+    ticket_status = models.CharField(_('Ticket status'), choices=TICKET_STATUSES, default=NONE, max_length=20)
 
     visited = models.BooleanField(default=False)
 
@@ -232,6 +242,39 @@ class SummitAnket(CustomUserAbstract, AbstractPaymentPurpose):
             return self.summit.special_cost <= self.total_payed
         else:
             return self.summit.full_cost <= self.total_payed
+
+
+@python_2_unicode_compatible
+class SummitTicket(models.Model):
+    title = models.CharField(_('Title'), max_length=255, blank=True)
+    summit = models.ForeignKey('Summit', on_delete=models.CASCADE, related_name='tickets', verbose_name=_('Summit'))
+    attachment = models.FileField(_('Ticket'), upload_to='tickets', null=True, blank=True)
+
+    owner = models.ForeignKey('account.CustomUser', on_delete=models.SET_NULL, related_name='created_tickets',
+                              verbose_name=_('User'), null=True)
+    created_at = models.DateTimeField(_('Date created'), auto_now_add=True)
+
+    IN_PROGRESS, COMPLETE, ERROR = 'progress', 'complete', 'error'
+    STATUSES = (
+        (IN_PROGRESS, _('In progress')),
+        (COMPLETE, _('Complete')),
+        (ERROR, _('Error')),
+    )
+    status = models.CharField(_('Status'), choices=STATUSES, default=IN_PROGRESS, max_length=20)
+
+    users = models.ManyToManyField('summit.SummitAnket', related_name='tickets',
+                                   verbose_name=_('Users'))
+
+    class Meta:
+        ordering = ('summit', 'title')
+        verbose_name = _('Summit ticket')
+        verbose_name_plural = _('List of summit tickets')
+
+    def __str__(self):
+        return '{}: {} ({})'.format(str(self.summit), self.title, self.status)
+
+    def get_absolute_url(self):
+        return reverse("summit:ticket-detail", kwargs={"pk": self.id})
 
 
 @python_2_unicode_compatible

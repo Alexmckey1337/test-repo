@@ -165,3 +165,11 @@ def is_any_summit_supervisor_or_high(user):
     Checking that the user is supervisor (or higher) of at least one summit
     """
     return SummitAnket.objects.filter(user=user, role__gte=SummitAnket.SUPERVISOR).exists()
+
+
+def can_see_any_summit_ticket(user):
+    return user.is_any_summit_supervisor_or_high
+
+
+def can_see_summit_ticket(user, summit):
+    return user.is_summit_supervisor_or_high(summit)
