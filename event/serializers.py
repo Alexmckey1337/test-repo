@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from rest_framework import exceptions
 from django.utils.translation import ugettext_lazy as _
 
 from group.models import Church
@@ -13,13 +12,15 @@ from account.models import CustomUser
 from .models import Meeting, MeetingAttend, MeetingType, ChurchReport
 
 
-class ValidateBeforeSerializerUpdate(object):
+class ValidateDataBeforeUpdateMixin(object):
 
     @staticmethod
     def validate_before_serializer_update(instance, validated_data, not_editable_fields):
         if instance.status != 2:
-            raise exceptions.ValidationError(_('Невозможно обновить методом UPDATE. '
-                                               'Отчет - {%s} еще небыл подан.') % instance)
+            raise serializers.ValidationError(
+                _('Невозможно обновить методом UPDATE. '
+                  'Отчет - {%s} еще небыл подан.') % instance)
+
         if instance.date < validated_data.get('date'):
             raise serializers.ValidationError(
                 _('Невозможно подать отчет. Переданная дата подачи отчета - {%s} '
@@ -37,12 +38,13 @@ class MeetingTypeSerializer(serializers.ModelSerializer):
 
 
 class MeetingAttendSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = MeetingAttend
         fields = ('id', 'user', 'attended', 'note')
 
 
-class MeetingSerializer(serializers.ModelSerializer, ValidateBeforeSerializerUpdate):
+class MeetingSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMixin):
     owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
         home_group__leader__id__isnull=False).distinct())
     date = serializers.DateTimeField()
@@ -93,7 +95,7 @@ class MeetingDetailSerializer(MeetingSerializer):
 
     def update(self, instance, validated_data):
         instance, validated_data = self.validate_before_serializer_update(
-                                    instance, validated_data, self.not_editable_fields)
+            instance, validated_data, self.not_editable_fields)
         """
         if instance.status != 2:
             raise exceptions.ValidationError(_('Невозможно обновить методом UPDATE. '
@@ -126,7 +128,7 @@ class MeetingStatisticSerializer(serializers.ModelSerializer):
         read_only_fields = ['__all__']
 
 
-class ChurchReportListSerializer(serializers.ModelSerializer, ValidateBeforeSerializerUpdate):
+class ChurchReportListSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMixin):
     pastor = UserNameSerializer()
     church = ChurchNameSerializer()
     status = serializers.CharField(source='get_status_display')
@@ -162,7 +164,7 @@ class ChurchReportSerializer(ChurchReportListSerializer):
 
     def update(self, instance, validated_data):
         instance, validated_data = self.validate_before_serializer_update(
-                            instance, validated_data, self.not_editable_fields)
+            instance, validated_data, self.not_editable_fields)
         # instance, validated_data = self.validate_before_update(instance=instance, data=validated_data)
 
         return super(ChurchReportSerializer, self).update(instance, validated_data)

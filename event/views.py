@@ -87,7 +87,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
     @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer)
     def submit(self, request, pk):
         home_meeting = self.get_object()
-        self.validate_to_submit(meeting=home_meeting, data=request.data)
+        self.validate_to_submit(home_meeting, request.data)
 
         home_meeting.status = 2
         meeting = self.serializer_class(home_meeting, data=request.data, partial=True)
