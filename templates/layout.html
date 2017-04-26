@@ -72,8 +72,8 @@
                                         </li>
                                     {% endblock %}
                                     {% block header.notification.button %}
-                                        <li class="sms">
-                                            {% if notifications.exists %}
+                                        <li class="sms" data-count="{{ notifications.count }}">
+                                            {% if notifications.count %}
                                                 <span>{{ notifications.count }}</span>
                                             {% else %}
                                                 <span style="display:none;"></span>
@@ -122,17 +122,28 @@
                                         <p>У Вас <span></span> незавершённых сделок</p>
                                     </div>
                                     <div class="bottom-box">
-                                        {% if notifications.exists %}
+                                        {% if notifications.birthdays.exists %}
                                             <p>Сегодня день рождения у:</p>
-                                            <ul>
-                                                {% for notification in notifications %}
+                                            <ul id="birthday_notifications">
+                                                {% for birthday in notifications.birthdays %}
                                                     <li>
-                                                        <a href="{% url "account:detail" notification.uid %}">{{ notification.fullname }}</a>
+                                                        <a href="{% url "account:detail" birthday.uid %}">{{ birthday.fullname }}</a>
                                                     </li>
                                                 {% endfor %}
                                             </ul>
-                                        {% else %}
-                                            <p>На сегодня нет уведомлений</p>
+                                        {% endif %}
+                                        {% if notifications.summit_tickets.exists %}
+                                            <p><a href="{% url "summit:tickets" %}">Сгенерированы новые билеты:</a></p>
+                                            <ul id="ticket_notifications">
+                                                {% for ticket in notifications.summit_tickets %}
+                                                    <li>
+                                                        <a href="{{ ticket.get_absolute_url }}">{{ ticket.title }}</a>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% endif %}
+                                        {% if notifications.count == 0 %}
+                                            <p id="without_notifications">На сегодня нет уведомлений</p>
                                         {% endif %}
                                     </div>
                                 </div>

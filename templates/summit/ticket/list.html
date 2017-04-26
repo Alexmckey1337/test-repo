@@ -6,6 +6,9 @@
 
 {% block extra_styles %}
 <style>
+    table tr.new_ticket {
+        background-color: lightgreen;
+    }
     table tr.active_ticket, table tr.active_user {
         background-color: bisque;
     }
@@ -45,9 +48,10 @@
                         <th>{% trans "Creator" %}</th>
                         <th>{% trans "Status" %}</th>
                         <th>{% trans "Attachment" %}</th>
+                        <th></th>
                     </tr>
                     {% for ticket in summit.list %}
-                        <tr>
+                        <tr{% if ticket.is_new %} class="new_ticket"{% endif %}>
                             <td><span data-id="{{ ticket.id }}" class="ticket_title" style="cursor:pointer;">{{ ticket.title }}</span></td>
                             <td>
                                 <a href="{{ ticket.owner.get_absolute_url }}">{{ ticket.owner }}</a>
@@ -64,6 +68,7 @@
                                     <a href="{{ ticket.attachment.url }}">{% trans "Download" %}</a>
                                 {% endif %}
                             </td>
+                            <td><a href="{{ ticket.get_absolute_url }}">{% trans "Detail" %}</a></td>
                         </tr>
                     {% endfor %}
                     <tr>

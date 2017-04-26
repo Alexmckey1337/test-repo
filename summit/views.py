@@ -479,16 +479,13 @@ def generate_summit_tickets(request, summit_id):
 
     ankets = list(SummitAnket.objects.order_by('id').filter(
         summit_id=summit_id, tickets__isnull=True)[:limit].values_list('id', 'code'))
+    if len(ankets) == 0:
+        return Response(data={'detail': _('All tickets is already generated.')}, status=status.HTTP_400_BAD_REQUEST)
     ticket = SummitTicket.objects.create(
         summit_id=summit_id, owner=request.user, title='{}-{}'.format(
             min(ankets, key=lambda a: int(a[1]))[1], max(ankets, key=lambda a: int(a[1]))[1]))
     ticket.users.set([a[0] for a in ankets])
 
     generate_tickets.apply_async(args=[summit_id, ankets, ticket.id])
-
-    # response = HttpResponse(content_type='application/pdf')
-    # response['Content-Disposition'] = 'attachment;'
-    #
-    # response.write(pdf)
 
     return Response(data={'ticket_id': ticket.id})

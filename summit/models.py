@@ -9,6 +9,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
+from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
@@ -264,13 +265,16 @@ class SummitTicket(models.Model):
     users = models.ManyToManyField('summit.SummitAnket', related_name='tickets',
                                    verbose_name=_('Users'))
 
-    def __str__(self):
-        return '{}: {} ({})'.format(str(self.summit), self.title, self.status)
-
     class Meta:
         ordering = ('summit', 'title')
         verbose_name = _('Summit ticket')
         verbose_name_plural = _('List of summit tickets')
+
+    def __str__(self):
+        return '{}: {} ({})'.format(str(self.summit), self.title, self.status)
+
+    def get_absolute_url(self):
+        return reverse("summit:ticket-detail", kwargs={"pk": self.id})
 
 
 @python_2_unicode_compatible

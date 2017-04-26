@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from io import BytesIO
 from json import dumps
 
+import redis
 from channels import Group
 from dbmail import send_db_mail
 from django.core.files import File
@@ -44,7 +45,7 @@ def send_tickets(anket_ids):
             )
 
 
-@app.task(ignore_result=True, max_retries=0)
+@app.task(ignore_result=True, max_retries=10, default_retry_delay=10 * 60)
 def generate_tickets(summit_id, ankets, ticket_id):
     pdf = generate_ticket_by_summit(ankets)
     pdf_name = '{}_{}-{}.pdf'.format(
@@ -60,7 +61,15 @@ def generate_tickets(summit_id, ankets, ticket_id):
         'type': 'SUMMIT_TICKET',
         'summit_id': summit_id,
         'user_id': ticket.owner.id,
-        'ticket_id': ticket.id,
+        'ticket_id': ticket_id,
+        'ticket_title': ticket.title,
+        'ticket_url': ticket.get_absolute_url(),
         'file': ticket.attachment.url
     }
+    try:
+        r = redis.StrictRedis(host='localhost', port=6379, db=0)
+        r.sadd('summit:ticket:{}'.format(ticket.owner.id), ticket_id)
+        r.expire('summit:ticket:{}'.format(ticket.owner.id), 7 * 24 * 60 * 60)
+    except Exception as err:
+        print(err)
     Group("summit_{}_ticket".format(ticket.owner.id)).send({'text': dumps(data)})
