@@ -311,4 +311,4 @@ ___________________
     :int total_visits: count of Meeting visitors that ``attended``
     :int total_absent: count of Meeting visitors that was ``absent``
     :int reports_in_progress: count of Meetings reports with ``status = in_progress = 1``
-    
+

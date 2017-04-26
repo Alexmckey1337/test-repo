@@ -25,14 +25,14 @@ class MeetingAttendSerializer(serializers.ModelSerializer):
         fields = ('id', 'user', 'attended', 'note')
 
 
-class MeetingCreateSerializer(serializers.ModelSerializer):
+class MeetingSerializer(serializers.ModelSerializer):
     owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
        home_group__leader__id__isnull=False).distinct())
 
     class Meta:
         model = Meeting
         fields = ('id', 'home_group', 'owner', 'type', 'date', 'status',
-                  'total_sum',)
+                  'total_sum')
 
         validators = [
             UniqueTogetherValidator(
@@ -46,28 +46,28 @@ class MeetingCreateSerializer(serializers.ModelSerializer):
         return meeting
 
 
-class MeetingSerializer(MeetingCreateSerializer):
+class MeetingListSerializer(MeetingSerializer):
     visitors_absent = serializers.IntegerField()
     visitors_attended = serializers.IntegerField()
     type = MeetingTypeSerializer()
     home_group = HomeGroupNameSerializer()
     owner = UserNameSerializer()
 
-    class Meta(MeetingCreateSerializer.Meta):
-        fields = MeetingCreateSerializer.Meta.fields + (
+    class Meta(MeetingSerializer.Meta):
+        fields = MeetingSerializer.Meta.fields + (
             'phone_number', 'visitors_attended', 'visitors_absent')
         read_only_fields = '__all__'
 
 
-class MeetingDetailSerializer(MeetingCreateSerializer):
+class MeetingDetailSerializer(MeetingSerializer):
     attends = MeetingAttendSerializer(many=True, required=False, read_only=True)
     home_group = serializers.ReadOnlyField(required=False)
     type = serializers.ReadOnlyField(required=False)
     owner = serializers.ReadOnlyField(required=False)
     status = serializers.ReadOnlyField(required=False)
 
-    class Meta(MeetingCreateSerializer.Meta):
-        fields = MeetingCreateSerializer.Meta.fields + ('attends',)
+    class Meta(MeetingSerializer.Meta):
+        fields = MeetingSerializer.Meta.fields + ('attends',)
 
     def update(self, instance, validated_data):
         if instance.status != 2:
@@ -128,8 +128,12 @@ class ChurchReportSerializer(ChurchReportListSerializer):
 
     def update(self, instance, validated_data):
         if instance.status != 2:
-            raise exceptions.ValidationError(_('Невозможно обновить методом UPDATE. '
-                                               'Отчет - {%s} еще небыл подан.') % instance)
+            raise exceptions.ValidationError(
+                _('Невозможно обновить методом UPDATE.'
+                  'Данный отчет - {%s} еще небыл подан.') % instance)
+
+        not_editable_fields = ['church', 'pastor', 'status']
+        [validated_data.pop(field) for field in not_editable_fields]
 
         return super(ChurchReportSerializer, self).update(instance, validated_data)
 

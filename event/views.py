@@ -17,7 +17,7 @@ from common.views_mixins import ModelWithoutDeleteViewSet
 from .filters import ChurchReportFilter, MeetingFilter, MeetingFilterByDepartment
 from .models import Meeting, ChurchReport, MeetingAttend
 from .serializers import (UserNameSerializer, MeetingSerializer, MeetingDetailSerializer,
-                          MeetingCreateSerializer, ChurchReportStatisticSerializer,
+                          MeetingListSerializer, ChurchReportStatisticSerializer,
                           MeetingStatisticSerializer, ChurchReportSerializer,
                           ChurchReportListSerializer)
 
@@ -42,7 +42,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     serializer_class = MeetingSerializer
     serializer_retrieve_class = MeetingDetailSerializer
-    serializer_create_class = MeetingCreateSerializer
+    serializer_list_class = MeetingListSerializer
 
     permission_classes = (IsAuthenticated,)
     pagination_class = MeetingPagination
@@ -59,10 +59,10 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
     }
 
     def get_serializer_class(self):
-        if self.action in ['retrieve', 'update']:
+        if self.action == 'list':
+            return self.serializer_list_class
+        if self.action in ['retrieve', 'update', 'partial_update']:
             return self.serializer_retrieve_class
-        if self.action == 'create':
-            return self.serializer_create_class
         return self.serializer_class
 
     def get_queryset(self):
@@ -80,32 +80,31 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer)
     def submit(self, request, pk):
-        meeting = self.get_object()
-        self.validate_to_submit(meeting=meeting, data=request.data)
+        home_meeting = self.get_object()
+        self.validate_to_submit(meeting=home_meeting, data=request.data)
 
-        meeting.status = 2
-        home_meeting = self.serializer_class(meeting, data=request.data)
-        home_meeting.is_valid(raise_exception=True)
+        home_meeting.status = 2
+        meeting = self.serializer_class(home_meeting, data=request.data, partial=True)
+        meeting.is_valid(raise_exception=True)
 
-        valid_attends = [user.id for user in meeting.home_group.users.all()]
         visitors = request.data.pop('visitors')
+        valid_visitors = [user.id for user in meeting.home_group.users.all()]
+        valid_attends = [att for att in visitors.get('attends') if att.get('user') in valid_visitors]
 
         try:
             with transaction.atomic():
-                self.perform_update(home_meeting)
-                for visitor in visitors:
-                    for attend in visitor.get('attends'):
-                        if attend.get('user') in valid_attends:
-                            MeetingAttend.objects.create(meeting_id=meeting.id,
-                                                         user_id=attend.get('user'),
-                                                         attended=attend.get('attended', False),
-                                                         note=attend.get('note', ''))
+                self.perform_update(meeting)
+                MeetingAttend.objects.bulk_create(
+                    [MeetingAttend(meeting_id=home_meeting.id,
+                                   user_id=attend.get('user'),
+                                   attended=attend.get('attended', False),
+                                   note=attend.get('note', '')) for attend in valid_attends])
         except IntegrityError:
             data = {'message': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-        headers = self.get_success_headers(home_meeting.data)
-        return Response(home_meeting.data, status=status.HTTP_201_CREATED, headers=headers)
+        headers = self.get_success_headers(meeting.data)
+        return Response(meeting.data, status=status.HTTP_201_CREATED, headers=headers)
 
     @staticmethod
     def validate_to_submit(meeting, data):
@@ -125,7 +124,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     def update(self, request, *args, **kwargs):
         meeting = self.get_object()
-        meeting = self.get_serializer(meeting, data=request.data)
+        meeting = self.get_serializer(meeting, data=request.data, partial=True)
         meeting.is_valid(raise_exception=True)
 
         if not request.data.get('attends'):
@@ -139,9 +138,10 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                 self.perform_update(meeting)
                 for attend in attends:
                     MeetingAttend.objects.filter(id=attend.get('id')).update(
-                                                            user=attend.get('user'),
-                                                            attended=attend.get('attended'),
-                                                            note=attend.get('note'))
+                        user=attend.get('user'),
+                        attended=attend.get('attended', False),
+                        note=attend.get('note', '')
+                    )
         except IntegrityError:
             data = {'message': _('При обновлении возникла ошибка. Попробуйте еще раз.')}
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
@@ -154,14 +154,12 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         meeting = self.get_object()
         visitors = meeting.home_group.users.all()
         visitors = self.serializer_class(visitors, many=True)
-        headers = self.get_success_headers(visitors.data)
 
-        return Response(visitors.data, headers=headers)
+        return Response(visitors.data)
 
     @list_route(methods=['GET'], serializer_class=MeetingStatisticSerializer)
     def statistics(self, request):
         queryset = self.filter_queryset(self.queryset)
-
         from_date = request.query_params.get('from_date')
         to_date = request.query_params.get('to_date')
 
@@ -179,11 +177,12 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                                      output_field=IntegerField(), default=0))
         )
         statistics.update(queryset.aggregate(total_donations=Sum('total_sum')))
-
         statistics['new_repentance'] = CustomUser.objects.filter(
             repentance_date__range=[from_date, to_date]).count()
 
         statistics = self.serializer_class(statistics)
+        statistics.is_valid(raise_exception=True)
+
         return Response(statistics.data)
 
 
@@ -214,7 +213,7 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
     @detail_route(methods=['POST'])
     def submit(self, request, pk):
         church_report = self.get_object()
-        report = self.get_serializer(church_report, data=request.data)
+        report = self.get_serializer(church_report, data=request.data, partial=True)
         report.is_valid(raise_exception=True)
         church_report.status = 2
         self.perform_update(report)
@@ -235,4 +234,6 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
             total_pastor_tithe=Sum('pastor_tithe'))
 
         statistics = self.serializer_class(statistics)
+        statistics.is_valid(raise_exception=True)
+
         return Response(statistics.data)
