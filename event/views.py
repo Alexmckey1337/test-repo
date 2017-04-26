@@ -87,25 +87,22 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
     @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer)
     def submit(self, request, pk):
         home_meeting = self.get_object()
-        self.validate_to_submit(home_meeting, request.data)
+        valid_attends = self.validate_to_submit(home_meeting, request.data)
 
         home_meeting.status = 2
         meeting = self.serializer_class(home_meeting, data=request.data, partial=True)
         meeting.is_valid(raise_exception=True)
 
-        valid_attends = [user.id for user in home_meeting.home_group.users.all()]
-        visitors = request.data.pop('visitors')
-
         try:
             with transaction.atomic():
                 self.perform_update(meeting)
-                for visitor in visitors:
-                    for attend in visitor.get('attends'):
-                        if attend.get('user') in valid_attends:
-                            MeetingAttend.objects.create(meeting_id=home_meeting.id,
-                                                         user_id=attend.get('user'),
-                                                         attended=attend.get('attended', False),
-                                                         note=attend.get('note', ''))
+                for attend in valid_attends:
+                    MeetingAttend.objects.create(
+                        meeting_id=home_meeting.id,
+                        user=attend.get('user'),
+                        attended=attend.get('attended', False),
+                        note=attend.get('note', '')
+                    )
         except IntegrityError:
             data = {'message': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
@@ -120,7 +117,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                 _('Невозможно подать отчет. Отчет типа - {%s} не должен содержать '
                   'денежную сумму. ' % meeting.type.name))
 
-        if not data.get('visitors'):
+        if not data.get('attends'):
             raise exceptions.ValidationError(
                 _('Невозможно подать отчет. Список присутствующих не передан.'))
 
@@ -133,6 +130,15 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             raise exceptions.ValidationError(
                 _('Невозможно подать отчет. Переданная дата подачи отчета - {%s} '
                   'меньше чем дата его создания.') % data.get('date'))
+
+        attends = data.pop('attends')
+        valid_visitors = [user.id for user in meeting.home_group.users.all()]
+        valid_attends = [attend for attend in attends if attend.get('user') in valid_visitors]
+
+        if not valid_attends:
+            raise exceptions.ValidationError(_('Переданный список присутствующих некорректен'))
+
+        return valid_attends
 
     def update(self, request, *args, **kwargs):
         meeting = self.get_object()

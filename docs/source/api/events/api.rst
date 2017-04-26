@@ -207,7 +207,7 @@ _____________________
     **Required fields for this request:**
 
         -   <float> ``total_sum``: total sum of money, collected on meeting, required = False, default = 0
-        -   <array> ``visitors``: array with report about their attended, required = True
+        -   <array> ``attends``: array with report about their attended, required = True
         -   <int> ``user``: User object <id>, required = True
         -   <boolean> ``attended``: `True` if visitor attended else `False`, required = False, default = False
         -   <str> ``note``: Meeting owner note about visitors, required = False, default = ''
@@ -224,7 +224,7 @@ _____________________
 
     .. sourcecode:: http
 
-        POST /api/v1.0/events/home_meetings/<id=158>/submit  HTTP/1.1
+        POST /api/v1.0/events/home_meetings/<id=165>/submit  HTTP/1.1
         Host: vocrm.org
         Accept: application/json
         content-type: application/json
@@ -233,24 +233,18 @@ _____________________
             "id": 165,
             "date": "2017-04-01",
             "total_sum": "1500",
-            "visitors": [
+            "attends": [
                 {
-                    "attends": [
-                        {
-                            "user": 10717,
-                            "attended": true,
-                            "note": "Comment"
-                        }
-                    ]
+                    "id": 340,
+                    "user": 10717,
+                    "attended": true,
+                    "note": "Comment"
                 },
                 {
-                    "attends": [
-                        {
-                            "user": 6977,
-                            "attended": true,
-                            "note": "Comment"
-                        }
-                    ]
+                    "id": 341,
+                    "user": 6977,
+                    "attended": true,
+                    "note": "Comment"
                 }
             ]
         }
@@ -310,8 +304,8 @@ _____________________
 
         -   ``date`` - date when report was submitted
         -   ``total_sum`` - total sum of donations on event
-        -   ``attends.attended`` - count of visitors attends
-        -   ``attends.note`` - Meeting.owner comment about visitor
+        -   ``attends['attended']`` - count of visitors attends
+        -   ``attends['note']`` - Meeting.owner comment about visitor
 
     To ``UPDATE`` a Meeting object send request for next API view:
 
@@ -508,4 +502,3 @@ ___________________________
             "reports_submitted": 4,
             "reports_expired": 0
         }
-
