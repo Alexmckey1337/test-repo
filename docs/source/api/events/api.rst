@@ -2,23 +2,28 @@
 Events REST API
 ===============
 
-Meetings (default reports for home groups)
-------------------------------------------
 
 
-Meetings Creating
------------------
+Meetings Create
+---------------
 
-    For default Meetings objects create and verification every week.
-    Meetings reports created in begin of the week for every Home Group objects for different types of meetings.
-    Meeting objects may be 3 types: ``home group``, ``night`` and ``service``.
+    Meetings - is a events that are held by home groups.
+    For default Meetings reports create and verification at the beginning of every week.
+    Meetings reports created for each HomeGroup objects and each event type.
+    Meeting objects may be 3 types:
+
+        -   ``service``
+        -   ``home group``
+        -   ``night``
 
     All Meeting objects have a ``Meeting.status`` field, we have three different statuses:
-    ``in_progress = 1``, ``submitted = 2`` and ``expired = 3``.
+
+        -   ``in_progress = int(1)``
+        -   ``submitted = int(2)``
+        -   ``expired = int(3)``
 
     Immediately, after Meeting report create, his status is ``in_progress = 1``.
     All API list views ``paginated with 30 objects`` per page.
-
     To ``GET`` all Meeting objects use next API request:
 
     **Example request (GET all Meeting objects)**:
@@ -74,24 +79,23 @@ Meetings Creating
 Meetings Filters
 ________________
 
-    Meetings objects may be `filtered` by next query params:
+    **Meetings objects may be filtering by next query params:**
 
-    .. sourcecode:: http
-
-    :query <int> status: filter by ``status``
-    :query <int> home_group: filter by ``home_group``
-    :query <int> department: filter by owner HomeGroup.church ``department``
-    :query <int> church: filter by ``HomeGroup.church``
-    :query <int> owner: filter by report ``owner`` (home group leader)
-    :query <int> type: filter by report ``type``
-    :query <str> [from_date, to_date]: filter by selected ``date`` range
-    :query <int> status: filter by progress ``status``
+        - query <int> ``status``: filter by status
+        - query <int> ``home_group``: filter by home_group
+        - query <int> ``department``: filter by owner HomeGroup.church department
+        - query <int> ``church``: filter by HomeGroup.church
+        - query <int> ``owner``: filter by report owner (home group leader)
+        - query <int> ``type``: filter by report type
+        - query <string> ``[from_date, to_date]``: filter by range
+        - query <int> ``status``: filter by progress status
 
     **Example request(with all filters)**:
 
     .. sourcecode:: http
 
-        GET /api/v1.0/events/home_meetings/?status=2&from_date=2016-04-01&to_date=2017-04-28&home_group=18&owner=15160&type=1&department=1 HTTP/1.1
+        GET /api/v1.0/events/home_meetings/?status=2&from_date=2016-04-01&to_date=2017-04-28 HTTP/1.1
+                                            &home_group=18&owner=15160&type=1&department=1
         Host: vocrm.org
         Accept: application/json
 
@@ -142,10 +146,10 @@ Meeting report submit
 _____________________
 
     Before report submit, for default, all Meeting objects ``total_sum`` is 0.
-    If report.type is ``service`` field `total_sum always is 0` and not editable.
+    If report.type is ``service`` field ``total_sum`` always is 0 and can`t be changed.
     When Meeting create his status - ``in_progress = 1`` and contain next data:
 
-    **Example of Meetings object (with status `in_progress`)**:
+    **Example of Meetings object (``status = in_progress``)**:
 
     .. sourcecode:: http
 
@@ -167,14 +171,13 @@ _____________________
     For submit Meeting object and change status from ``in_progress = 1`` to ``submitted = 2`` Meeting.owner must
     ``POST`` their report with required data and may specify a list of ``meeting visitors``.
     For default Meetings.visitors are a members of home group where Meeting.owner is a leader.
-
     To ``GET Meeting.visitors`` use the next API view:
 
     **Example request**:
 
     .. sourcecode:: http
 
-        GET api/v1.0/events/home_meetings/<id=158>/visitors  HTTP/1.1
+        GET api/v1.0/events/home_meetings/<id=158>/visitors HTTP/1.1
         Host: vocrm.org
         Accept: application/json
 
@@ -198,26 +201,24 @@ _____________________
             }
         ]
 
-
     Before submit Meeting object status automatically changed from ``in_progress = 1`` to ``submitted = 2``.
-    For ``submit`` Meeting client must ``POST`` request with required data to next API view.
+    For ``submit`` Meeting, client must ``POST`` request with required data to next API view.
 
-    Required fields for this request:
+    **Required fields for this request:**
 
-    :<float> total_sum: ``total sum`` of money, collected on meeting, required = False, default = 0
-    :<array> visitors: array with report about their ``attended``, required = True
-    :<int> user: User object ``id``, required = True
-    :<boolean> attended: ``True`` if visitor attended else ``False``, required = False, default = False
-    :<str> note: Meeting owner ``note`` about visitors, required = False, default = ''
-    :<datetime> date: ``date`` when Meeting was held, required = True
+        -   <float> ``total_sum``: total sum of money, collected on meeting, required = False, default = 0
+        -   <array> ``visitors``: array with report about their attended, required = True
+        -   <int> ``user``: User object <id>, required = True
+        -   <boolean> ``attended``: `True` if visitor attended else `False`, required = False, default = False
+        -   <str> ``note``: Meeting owner note about visitors, required = False, default = ''
+        -   <datetime> ``date``: date when Meeting was held, required = True
 
-    All other fields gets automatically:
+    **All other required fields automatically adds in each Meeting object:**
 
-    :<int> home_group: ``Meeting.home_group``
-    :<int> owner: ``Meeting.owner``
-    :<int> type: ``Meeting.type``
-    :<int> status: ``Meeting.status``
-
+        -   <int> ``home_group``: Meeting.home_group
+        -   <int> ``owner``: Meeting.owner
+        -   <int> ``type``: Meeting.type
+        -   <int> ``status``: Meeting.status
 
     **Example request**:
 
@@ -297,25 +298,28 @@ _____________________
         }
 
     Meeting.status changed to ``expired = 3`` automatically.
-    When next week started and Meeting report `status` stayed ``in_progress = 1``
-
-
+    When next week started and Meeting report status stayed ``in_progress = 1``
 
 
 
 Meeting Report Update
 _____________________
 
-    Meetings provide a ``UPDATE`` method `only` for reports with Meeting.status ``submitted = 2``.
-    Fields that can be ``update``: `date`, 'total_sum', 'attends.attended', 'attends.note'.
+    Meetings provide a ``UPDATE`` method only for reports with Meeting.status ``submitted = 2``.
+    Fields that can be updated:
 
-    To update a Meeting object send request for next API view:
+        -   ``date`` - date when report was submitted
+        -   ``total_sum`` - total sum of donations on event
+        -   ``attends.attended`` - count of visitors attends
+        -   ``attends.note`` - Meeting.owner comment about visitor
+
+    To ``UPDATE`` a Meeting object send request for next API view:
 
     **Example request**:
 
     .. sourcecode:: http
 
-        UPDATE /api/v1.0/events/home_meetings/<id=165> HTTP/1.1
+        PUT /api/v1.0/events/home_meetings/<id=165> HTTP/1.1
         Host: vocrm.org
         Accept: application/json
         content-type: application/json
@@ -383,11 +387,11 @@ _____________________
             ]
         }
 
-    **Example request (with Meeting status - `in_progress = 1` or `expired = 3`**:
+    **Example request (reports with status ``in_progress`` or ``expired``)**:
 
     .. sourcecode:: http
 
-        UPDATE /api/v1.0/events/home_meetings HTTP/1.1
+        GET /api/v1.0/events/home_meetings HTTP/1.1
         Host: vocrm.org
         Accept: application/json
         content-type: application/json
@@ -410,7 +414,8 @@ _____________________
 
         [
             "Невозможно обновить методом UPDATE.
-            Отчет - {Отчет ДГ - Домашняя Группа №1 (Ночная Молитва): 14 April 2017} еще небыл подан."
+             Отчет - {Отчет ДГ - Домашняя Группа №1 (Ночная Молитва): 14 April 2017}
+             еще небыл подан."
         ]
 
 
@@ -419,17 +424,17 @@ _____________________
 Meetings Statistics
 ___________________
 
-    Meetings supports `GET` statistics API witch consists a summary values for requested query.
+    Meetings supports ``GET`` statistics API witch consists a summary values for requested query.
 
-    ``Meetings statistics`` contains next data:
+    **Meetings statistics contains next data**:
 
-    :int total_visitors: ``total visitors count`` in `all Meetings on requested params`
-    :int total_visits: count of Meeting visitors that ``attended``
-    :int total_absent: count of Meeting visitors that was ``absent``
-    :decemal total_donations: sum of all Meetings ``donations``
-    :int reports_in_progress: count of Meetings reports with status - ``in_progress = 1``
-    :int reports_submitted: count of Meetings reports with status - ``submitted = 1``
-    :int reports_expired: count of Meetings reports with status - ``expired = 3``
+        -   query <int> ``total_visitors``: total Meetings visitors count
+        -   query <int> ``total_visits``: count of visitors that attended
+        -   query <int> ``total_absent``: count of visitors that was absent
+        -   query <float> ``total_donations``: sum of all donations
+        -   query <int> ``reports_in_progress``: count of reports with status - ``in_progress = 1``
+        -   query <int> ``reports_submitted``: count of reports with status - ``submitted = 1``
+        -   query <int> ``reports_expired``: count of reports with status - ``expired = 3``
 
     **Example request**:
 
@@ -443,7 +448,7 @@ ___________________
 
     .. sourcecode:: http
 
-        GET HTTP/1.1 200 OK
+        HTTP/1.1 200 OK
         Allow: GET, HEAD, OPTIONS
         Content-Type: application/json
         Vary: Accept
@@ -465,22 +470,22 @@ ___________________
 Meetings Statistics Filters
 ___________________________
 
-    Meetings reports supports a ``filters`` for next query params:
+    **Meetings reports supports a filters for next query params:**
 
-    :query <int> status: filter by ``status``
-    :query <int> home_group: filter by ``home_group``
-    :query <int> department: filter by owner HomeGroup.church ``department``
-    :query <int> church: filter by ``HomeGroup.church``
-    :query <int> owner: filter by ``owner`` (home group leader)
-    :query <int> type: filter by ``type``
-    :query <str> [from_date, to_date]: filter by selected ``date`` range
-    :query <int> status: filter by progress ``status``
+    -   query <int> ``status``: filter by Meeting status
+    -   query <int> ``home_group``: filter by home group
+    -   query <int> ``department``: filter by owner department
+    -   query <int> ``church``: filter by home group church
+    -   query <int> ``owner``: filter by Meeting owner (home group leader)
+    -   query <int> ``type``: filter by Meeting type
+    -   query <string> ``from_date, to_date``: filter by date range
 
     **Example response**:
 
     .. sourcecode:: http
 
-        GET HTTP/1.1 /api/v1.0/http://127.0.0.1:8000/api/v1.0/events/home_meetings/statistics/?department=1&church=26&home_group=18&owner=15160&type=1&from_date=2016-01-01&to_date=2017-05-05&status=2
+        GET /api/v1.0/events/home_meetings/statistics/?department=1&church=26&home_group=18 HTTP/1.1
+                        &owner=15160&type=1&from_date=2016-01-01&to_date=2017-05-05&status
         Host: vocrm.org
         Accept: application/json
 
@@ -503,3 +508,4 @@ ___________________________
             "reports_submitted": 4,
             "reports_expired": 0
         }
+

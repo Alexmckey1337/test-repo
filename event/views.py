@@ -52,7 +52,11 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                        FieldSearchFilter,
                        filters.OrderingFilter)
 
-    filter_fields = ('data', 'type', 'owner', 'home_group', 'church', 'status')
+    filter_fields = ('data', 'type', 'owner', 'home_group', 'status', 'department', 'church')
+
+    ordering_fields = ('id', 'date', 'owner__last_name', 'home_group__title', 'type__code',
+                       'status', 'phone_number', 'visitors_attended', 'visitors_absent',
+                       'total_sum')
 
     filter_class = MeetingFilter
 
