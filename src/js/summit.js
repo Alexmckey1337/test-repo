@@ -439,6 +439,7 @@
         $('.preloader').css('display', 'block');
         let config = {};
         config.summit = $(this).data('id');
+        config.page = 1;
         createSummitUsersTable(config);
     });
     $('#sort_save').on('click', function () {
