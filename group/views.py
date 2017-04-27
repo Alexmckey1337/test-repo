@@ -3,6 +3,7 @@ from django.db.models import Count
 from django.db.models import Q
 from django.db.models import Value as V
 from django.db.models.functions import Concat
+from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status, exceptions, filters
 from rest_framework.decorators import detail_route, list_route
@@ -85,7 +86,12 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
     def add_user(self, request, pk):
         church = self.get_object()
         user_id = request.data.get('user_id')
-        user = get_object_or_404(CustomUser, pk=user_id)
+        if user_id is None:
+            raise exceptions.ValidationError(_('"user_id" is required.'))
+        try:
+            user = get_object_or_404(CustomUser, pk=user_id)
+        except Http404:
+            raise exceptions.ValidationError(_('User with id = %s does not exist.' % user_id))
 
         if request.method == 'PUT':
             if not user.churches.exists() and not user.home_groups.exists():
@@ -292,7 +298,12 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
     def add_user(self, request, pk):
         home_group = get_object_or_404(HomeGroup, pk=pk)
         user_id = request.data.get('user_id')
-        user = get_object_or_404(CustomUser, pk=user_id)
+        if user_id is None:
+            raise exceptions.ValidationError(_('"user_id" is required.'))
+        try:
+            user = get_object_or_404(CustomUser, pk=user_id)
+        except Http404:
+            raise exceptions.ValidationError(_('User with id = %s does not exist.' % user_id))
 
         if request.method == 'PUT':
             if not user.churches.exists() and not user.home_groups.exists():

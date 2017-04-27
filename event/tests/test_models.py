@@ -16,12 +16,6 @@ class TestMeetingType(TestCase):
             self.meeting_type.name
         )
 
-    def test_get_absolute_url(self):
-        self.assertEqual(
-            self.meeting_type.get_absolute_url(),
-            '/meeting_types/{}/'.format(self.meeting_type.code)
-        )
-
 
 class TestMeeting(TestCase):
     def setUp(self):
@@ -30,7 +24,8 @@ class TestMeeting(TestCase):
     def test__str__(self):
         self.assertEqual(
             self.meeting.__str__(),
-            '{}: {}'.format(self.meeting.type.name, self.meeting.date.strftime('%d %B %Y'))
+            'Отчет ДГ - {} ({}): {}'.format(
+                self.meeting.home_group, self.meeting.type.name, self.meeting.date.strftime('%d %B %Y'))
         )
 
 

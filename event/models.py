@@ -25,9 +25,6 @@ class MeetingType(models.Model):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('meeting_type:detail', kwargs={'code': self.code})
-
 
 @python_2_unicode_compatible
 class MeetingAttend(models.Model):

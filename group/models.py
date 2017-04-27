@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from datetime import date
 
 from django.db import models
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
 
