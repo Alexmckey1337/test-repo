@@ -99,7 +99,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                 for attend in valid_attends:
                     MeetingAttend.objects.create(
                         meeting_id=home_meeting.id,
-                        user=attend.get('user'),
+                        user_id=attend.get('user'),
                         attended=attend.get('attended', False),
                         note=attend.get('note', '')
                     )
@@ -125,11 +125,6 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             raise exceptions.ValidationError(
                 _('Невозможно повторно подать отчет. Данный отчет - {%s}, '
                   'уже был подан ранее. ') % meeting)
-
-        if meeting.date < data.get('date'):
-            raise exceptions.ValidationError(
-                _('Невозможно подать отчет. Переданная дата подачи отчета - {%s} '
-                  'меньше чем дата его создания.') % data.get('date'))
 
         attends = data.pop('attends')
         valid_visitors = [user.id for user in meeting.home_group.users.all()]

@@ -21,7 +21,7 @@ class ValidateDataBeforeUpdateMixin(object):
                 _('Невозможно обновить методом UPDATE. '
                   'Отчет - {%s} еще небыл подан.') % instance)
 
-        if instance.date < validated_data.get('date'):
+        if instance.date > validated_data.get('date'):
             raise serializers.ValidationError(
                 _('Невозможно подать отчет. Переданная дата подачи отчета - {%s} '
                   'меньше чем дата его создания.' % validated_data.get('date'))
@@ -47,7 +47,6 @@ class MeetingAttendSerializer(serializers.ModelSerializer):
 class MeetingSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMixin):
     owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
         home_group__leader__id__isnull=False).distinct())
-    date = serializers.DateTimeField()
 
     class Meta:
         model = Meeting
@@ -61,6 +60,12 @@ class MeetingSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMix
             )]
 
     def create(self, validated_data):
+        owner = validated_data.get('owner')
+        home_group = validated_data.get('home_group')
+        if home_group.leader != owner:
+            raise serializers.ValidationError(
+                _('Переданный лидер не являетя лидером данной Домашней Группы'))
+
         meeting = Meeting.objects.create(**validated_data)
 
         return meeting
@@ -91,7 +96,6 @@ class MeetingDetailSerializer(MeetingSerializer):
 
     class Meta(MeetingSerializer.Meta):
         fields = MeetingSerializer.Meta.fields + ('attends',)
-        validators = None
 
     def update(self, instance, validated_data):
         instance, validated_data = self.validate_before_serializer_update(
