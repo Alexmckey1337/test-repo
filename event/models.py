@@ -51,6 +51,10 @@ class MeetingAttend(models.Model):
             self.user,
             self.meeting)
 
+    @property
+    def user_phone_number(self):
+        return self.user.phone_number
+
 
 in_progress, submitted, expired = 1, 2, 3
 

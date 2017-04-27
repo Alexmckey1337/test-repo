@@ -41,7 +41,7 @@ class MeetingAttendSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MeetingAttend
-        fields = ('id', 'user', 'attended', 'note')
+        fields = ('id', 'user', 'attended', 'note', 'user_phone_number')
 
 
 class MeetingSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMixin):
@@ -100,17 +100,7 @@ class MeetingDetailSerializer(MeetingSerializer):
     def update(self, instance, validated_data):
         instance, validated_data = self.validate_before_serializer_update(
             instance, validated_data, self.not_editable_fields)
-        """
-        if instance.status != 2:
-            raise exceptions.ValidationError(_('Невозможно обновить методом UPDATE. '
-                                               'Отчет - {%s} еще небыл подан.') % instance)
-        if instance.date < validated_data.get('date'):
-            raise serializers.ValidationError(
-                _('Невозможно подать отчет. Переданная дата подачи отчета - {%s} '
-                  'меньше чем дата его создания.' % validated_data.get('date'))
-            )
-        [validated_data.pop(field, None) for field in self.not_editable_fields]
-        """
+
         return super(MeetingDetailSerializer, self).update(instance, validated_data)
 
 
@@ -169,28 +159,8 @@ class ChurchReportSerializer(ChurchReportListSerializer):
     def update(self, instance, validated_data):
         instance, validated_data = self.validate_before_serializer_update(
             instance, validated_data, self.not_editable_fields)
-        # instance, validated_data = self.validate_before_update(instance=instance, data=validated_data)
 
         return super(ChurchReportSerializer, self).update(instance, validated_data)
-
-    """
-    @staticmethod
-    def validate_before_update(instance, data):
-        if instance.status != 2:
-            raise serializers.ValidationError(
-                _('Невозможно обновить методом UPDATE.'
-                  'Данный отчет - {%s} еще небыл подан.') % instance)
-
-        if instance.date < data.get('date'):
-            raise serializers.ValidationError(
-                _('Невозможно подать отчет. Переданная дата подачи отчета - {%s} '
-                  'меньше чем дата его создания.' % data.get('date'))
-            )
-        not_editable_fields = ['church', 'pastor', 'status']
-        [data.pop(field, None) for field in not_editable_fields]
-
-        return instance, data
-    """
 
 
 class ChurchReportStatisticSerializer(serializers.ModelSerializer):
