@@ -7,7 +7,7 @@ from django.conf.urls.static import static
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from main import views
 

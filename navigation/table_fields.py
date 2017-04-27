@@ -103,6 +103,15 @@ def _filter_group_columns(table_columns, category_title):
         return table_columns.none()
 
 
+def _filter_meeting_columns(table_columns, category_title):
+    if category_title in ('meetings',):
+        return table_columns.filter(columnType__category__title=category_title)
+    elif category_title == 'attends':
+        return table_columns.filter(columnType__category__title=category_title)
+    else:
+        return table_columns.none()
+
+
 def _filter_user_columns(table_columns):
     return table_columns.filter(
         columnType__category__title="Общая информация")

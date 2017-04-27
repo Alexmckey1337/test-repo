@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.db.models import IntegerField, Sum, When, Case, Count
 from rest_framework import status, filters, exceptions
 from rest_framework.decorators import list_route, detail_route
-from rest_framework.pagination import PageNumberPagination
+from .pagination import MeetingPagination, MeetingAttendPagination, ChurchReportPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.utils.translation import ugettext_lazy as _
@@ -20,21 +20,6 @@ from .serializers import (UserNameSerializer, MeetingSerializer, MeetingDetailSe
                           MeetingListSerializer, ChurchReportStatisticSerializer,
                           MeetingStatisticSerializer, ChurchReportSerializer,
                           ChurchReportListSerializer)
-
-
-class MeetingPagination(PageNumberPagination):
-    page_size = 30
-    page_size_query_param = 'page_size'
-
-    def get_paginated_response(self, data):
-        return Response({
-            'links': {
-                'next': self.get_next_link(),
-                'previous': self.get_previous_link()
-            },
-            'count': self.page.paginator.count,
-            'results': data
-        })
 
 
 class MeetingViewSet(ModelWithoutDeleteViewSet):
@@ -84,6 +69,11 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             )
         return self.queryset
 
+    def retrieve(self, request, *args, **kwargs):
+        self.pagination_class = MeetingAttendPagination
+
+        return super(MeetingViewSet, self).retrieve(request, *args, **kwargs)
+
     @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer)
     def submit(self, request, pk):
         home_meeting = self.get_object()
@@ -108,7 +98,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         headers = self.get_success_headers(meeting.data)
-        return Response(meeting.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(meeting.data, status=status.HTTP_200_OK, headers=headers)
 
     @staticmethod
     def validate_to_submit(meeting, data):
@@ -160,7 +150,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         headers = self.get_success_headers(meeting.data)
-        return Response(meeting.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(meeting.data, status=status.HTTP_200_OK, headers=headers)
 
     @detail_route(methods=['GET'], serializer_class=UserNameSerializer)
     def visitors(self, request, pk):
@@ -205,7 +195,7 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
     serializer_list_class = ChurchReportListSerializer
 
     permission_classes = (IsAuthenticated,)
-    pagination_class = MeetingPagination
+    # pagination_class = ChurchReportPagination
 
     filter_backends = (filters.DjangoFilterBackend,
                        FieldSearchFilter,

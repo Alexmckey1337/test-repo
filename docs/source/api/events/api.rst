@@ -153,11 +153,6 @@ _____________________
 
     .. sourcecode:: http
 
-        HTTP/1.1 201 Created
-        Allow: GET, POST, HEAD, OPTIONS
-        Content-Type: application/json
-        Vary: Accept
-
         {
             "id": 165,
             "home_group": 18,
@@ -253,7 +248,7 @@ _____________________
 
     .. sourcecode:: http
 
-        HTTP/1.1 201 Created
+        HTTP/1.1 200 OK
         Allow: POST, OPTIONS
         Content-Type: application/json
         Vary: Accept
@@ -343,7 +338,7 @@ _____________________
 
     .. sourcecode:: http
 
-        HTTP/1.1 201 Created
+        HTTP/1.1 200 OK
         Allow: GET, PUT, PATCH, HEAD, OPTIONS
         Content-Type: application/json
         Vary: Accept
