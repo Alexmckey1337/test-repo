@@ -9,14 +9,14 @@ from group.models import Church
 from group.serializers import (UserNameSerializer, ChurchNameSerializer,
                                HomeGroupNameSerializer)
 from account.models import CustomUser
-from .models import Meeting, MeetingAttend, MeetingType, ChurchReport
+from .models import Meeting, MeetingAttend, MeetingType, ChurchReport, AbstractStatusModel
 
 
 class ValidateDataBeforeUpdateMixin(object):
 
     @staticmethod
     def validate_before_serializer_update(instance, validated_data, not_editable_fields):
-        if instance.status != 2:
+        if instance.status != AbstractStatusModel.SUBMITTED:
             raise serializers.ValidationError(
                 _('Невозможно обновить методом UPDATE. '
                   'Отчет - {%s} еще небыл подан.') % instance)

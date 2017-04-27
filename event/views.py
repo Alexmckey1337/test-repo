@@ -79,7 +79,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         home_meeting = self.get_object()
         valid_attends = self.validate_to_submit(home_meeting, request.data)
 
-        home_meeting.status = 2
+        home_meeting.status = Meeting.SUBMITTED
         meeting = self.serializer_class(home_meeting, data=request.data, partial=True)
         meeting.is_valid(raise_exception=True)
 
@@ -111,13 +111,13 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             raise exceptions.ValidationError(
                 _('Невозможно подать отчет. Список присутствующих не передан.'))
 
-        if meeting.status == 2:
+        if meeting.status == Meeting.SUBMITTED:
             raise exceptions.ValidationError(
                 _('Невозможно повторно подать отчет. Данный отчет - {%s}, '
                   'уже был подан ранее. ') % meeting)
 
         attends = data.pop('attends')
-        valid_visitors = [user.id for user in meeting.home_group.users.all()]
+        valid_visitors = list(meeting.home_group.users.values_list('id', flat=True))
         valid_attends = [attend for attend in attends if attend.get('user') in valid_visitors]
 
         if not valid_attends:
@@ -215,13 +215,13 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
     @detail_route(methods=['POST'])
     def submit(self, request, pk):
         church_report = self.get_object()
-        if church_report.status == 2:
+        if church_report.status == ChurchReport.SUBMITTED:
             raise exceptions.ValidationError(
                 _('Невозможно подать отчет. Данный отчет уже был подан ранее'))
 
+        church_report.status = ChurchReport.SUBMITTED
         report = self.get_serializer(church_report, data=request.data, partial=True)
         report.is_valid(raise_exception=True)
-        church_report.status = 2
         self.perform_update(report)
         headers = self.get_success_headers(report.data)
 

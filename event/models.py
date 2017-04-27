@@ -53,17 +53,22 @@ class MeetingAttend(models.Model):
         return self.user.phone_number
 
 
-in_progress, submitted, expired = 1, 2, 3
+class AbstractStatusModel(models.Model):
+    IN_PROGRESS, SUBMITTED, EXPIRED = 1, 2, 3
 
-STATUS_LIST = (
-    (in_progress, _('in_progress')),
-    (submitted, _('submitted')),
-    (expired, _('expired')),
-)
+    STATUS_LIST = (
+        (IN_PROGRESS, _('in_progress')),
+        (SUBMITTED, _('submitted')),
+        (EXPIRED, _('expired')),
+    )
+    status = models.PositiveSmallIntegerField(_('Status'), choices=STATUS_LIST, default=IN_PROGRESS)
+
+    class Meta:
+        abstract = True
 
 
 @python_2_unicode_compatible
-class Meeting(models.Model):
+class Meeting(AbstractStatusModel):
     date = models.DateField(_('Date'))
     type = models.ForeignKey(MeetingType, on_delete=models.PROTECT,
                              verbose_name=_('Meeting type'))
@@ -80,7 +85,6 @@ class Meeting(models.Model):
 
     total_sum = models.DecimalField(_('Total sum'), max_digits=12,
                                     decimal_places=0, default=0)
-    status = models.PositiveSmallIntegerField(_('Status'), choices=STATUS_LIST, default=1)
 
     class Meta:
         ordering = ('-id', '-date')
@@ -111,7 +115,7 @@ class Meeting(models.Model):
 
 
 @python_2_unicode_compatible
-class ChurchReport(models.Model):
+class ChurchReport(AbstractStatusModel):
     date = models.DateField(_('Date'))
     count_people = models.IntegerField(_('Count People'), default=0)
     new_people = models.IntegerField(_('New People'), default=0)
@@ -129,7 +133,6 @@ class ChurchReport(models.Model):
                                             decimal_places=0, default=0)
     pastor_tithe = models.DecimalField(_('Pastor Tithe'), max_digits=12,
                                        decimal_places=0, default=0)
-    status = models.PositiveSmallIntegerField(_('Status'), choices=STATUS_LIST, default=1)
 
     class Meta:
         ordering = ('-id', '-date')
