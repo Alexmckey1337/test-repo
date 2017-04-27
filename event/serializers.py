@@ -139,11 +139,12 @@ class ChurchReportSerializer(ChurchReportListSerializer):
     pastor = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
         church__pastor__id__isnull=False).distinct(), required=False)
 
+    not_editable_fields = ['church', 'pastor', 'status']
+
     class Meta(ChurchReportListSerializer.Meta):
         fields = ChurchReportListSerializer.Meta.fields + (
             'new_people', 'count_repentance', 'currency_donations', 'pastor_tithe')
         read_only_fields = None
-        not_editable_fields = ['church', 'pastor', 'status']
 
         validators = [
             UniqueTogetherValidator(
@@ -151,8 +152,14 @@ class ChurchReportSerializer(ChurchReportListSerializer):
                 fields=('church', 'date', 'status')
             )]
 
-    def create(self, validate_data):
-        church_report = ChurchReport.objects.create(**validate_data)
+    def create(self, validated_data):
+        pastor = validated_data.get('pastor')
+        church = validated_data.get('church')
+        if church.pastor != pastor:
+            raise serializers.ValidationError(
+                _('Переданный пастор не являетя пастором данной Церкви'))
+
+        church_report = ChurchReport.objects.create(**validated_data)
 
         return church_report
 
