@@ -34,6 +34,11 @@
                 <li>
                     <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
                 </li>
+                {% if user.can_see_any_summit_ticket %}
+                    <li>
+                        <button id="load-tickets"><i class="fa fa-address-card-o" aria-hidden="true"></i></button>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </div>
@@ -105,14 +110,6 @@
                 <div class="right-side">
                     <p id="client-name"></p>
                     <p id="responsible-name"></p>
-                </div>
-            </div>
-            <div class="summa-wrap">
-                <div class="summa">
-                    <p>Сумма:</p>
-                    <input maxlength="6" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                           readonly="readonly" type="text" id="summit-value">
-                    <span id="changeSum" class="change-summ"></span>
                 </div>
             </div>
             <textarea placeholder="Добавить коментарий"></textarea>
@@ -285,6 +282,12 @@
                             <% } else { %>
                                 <td></td>
                             <% } %>
+                        <% } else if(key == 'code') { %>
+                            <% if (results[index][key] != null) { %>
+                                <td class="edit"><a href="/api/v1.0/generate_code/<%= results[index].code %>.pdf?code=<%= results[index].code %>" data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%= results[index][key] %></a></td>
+                            <% } else { %>
+                                <td></td>
+                            <% } %>
                         <% } else if(key == 'get_title') { %>
                             <% if (results[index][key] != null) { %>
                                 <td class="edit"><a href="<%= results[index].link %>" data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%= results[index][key] %></a><span class="quick-edit"></span></td>
@@ -340,6 +343,7 @@
 </script>
 {% endblock %}
     <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
+    <script src="{% static "libs/jquery-file-download/src/Scripts/jquery.fileDownload.js" %}"></script>
     <script src="{% static "js/add_user.js" %}"></script>
     <script src="{% static "js/summit.js" %}"></script>
 {% endblock %}

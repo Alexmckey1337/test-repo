@@ -10,7 +10,8 @@ const gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     babel = require('gulp-babel'),
     del = require('del'),
-    autoprefixer = require('gulp-autoprefixer');
+    autoprefixer = require('gulp-autoprefixer'),
+    changed = require('gulp-changed');
 
 const paths = {
     styles: './src/styles/**/*less',
@@ -40,6 +41,7 @@ gulp.task('less', function () {
 
 gulp.task('scripts', function () {
     return gulp.src(paths.scripts)
+        .pipe(changed('public/static/js/'))
         .pipe(sourcemaps.init())
         .pipe(babel({
             presets: ['es2015']

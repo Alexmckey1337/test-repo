@@ -182,19 +182,6 @@ select::-ms-expand {
   clear: both;
 }
 
-/* -----------------Sidebar------------------------ */
-#sidebar {
-  width: 240px;
-  height: 100%;
-  background-color: #434a55;
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  transition: width 0.3s;
-  overflow: hidden;
-  z-index: 9;
-}
-
 .logo {
   height: 90px;
   padding-top: 10px;
@@ -222,146 +209,6 @@ select::-ms-expand {
   font-size: 2.8em;
   font-family: "UbuntuMedium", sans-serif;
   color: #3caeda;
-}
-
-#sidebar.toggle-sidebar .logo div:nth-child(2) {
-  font-size: 2em;
-}
-
-#sidebar.toggle-sidebar .logo div {
-  padding-top: 0
-}
-
-#sidebar ul li a {
-  display: block;
-  width: 120px;
-  font-size: 1.2em;
-  color: #fff;
-  text-decoration: none;
-  transition: color .1s ease;
-  padding: 35px 30px 40px 90px;
-  background: transparent;
-}
-
-#sidebar ul li {
-  height: 90px;
-  box-sizing: border-box;
-  position: relative;
-  border-top: 1px solid #555b65;
-  list-style-type: none;
-}
-
-#sidebar {
-  & ul {
-    & li {
-      &#move-sidebar {
-        position: fixed;
-        width: 240px;
-        left: 0;
-        bottom: 0;
-        background-color: #444b56;
-        transition: width .3s, color .3s;
-        &.active {
-          overflow: hidden;
-          width: 90px;
-          & button {
-            color: transparent;
-            &:before {
-              content: '\f101 ';
-            }
-          }
-        }
-        & button {
-          text-align: left;
-          display: block;
-          width: 240px;
-          font-size: 1.2em;
-          color: #fff;
-          padding: 35px 30px 40px 90px;
-          background-color: transparent;
-          transition: color .1s ease;
-          &:before {
-            content: '\f100';
-            color: #CECECE;
-            font: 2em FontAwesome;
-            position: absolute;
-            top: 25px;
-            left: 30px;
-          }
-        }
-      }
-      & a, #sidebar & button {
-        &:before {
-          content: '';
-          color: #CECECE;
-          font: 2em FontAwesome;
-          position: absolute;
-          top: 25px;
-          left: 30px;
-        }
-        &:hover:before {
-          color: #3caeda;
-        }
-        &#databases__item:before {
-          content: '\f1c0';
-        }
-        &#churches__item:before {
-          content: '\f0c0';
-        }
-        &#partners__item:before {
-          content: '\f2b5';
-        }
-        &#summits__item:before {
-          content: '\f274';
-        }
-        &#turn_aside {
-          &.active {
-            &:before {
-              transform: rotate(180deg);
-            }
-          }
-          &:before {
-            top: 0 !important;
-            content: '\f100';
-          }
-        }
-      }
-    }
-  }
-}
-
-#sidebar ul li:before {
-  content: '';
-  position: absolute;
-  top: 40px;
-  left: 0;
-  width: 2px;
-  margin: auto;
-  height: 0;
-  background-color: #3caeda;
-  transition: all .7s ease;
-}
-
-#sidebar ul li:not(:last-child).active:before,
-#sidebar ul li:hover:before {
-  top: 0;
-  height: 100%;
-}
-
-#sidebar.toggle-sidebar {
-  width: 90px;
-}
-
-#sidebar.toggle-sidebar ul li a {
-  color: #434a55;
-}
-
-#sidebar.toggle-sidebar .logo div {
-  display: block;
-}
-
-#sidebar.toggle-sidebar ~ .main-wrap {
-  padding-left: 90px;
 }
 
 /* ------------------Header------------------------------ */
@@ -904,6 +751,16 @@ h1 a {
 //  background: none;
 //}
 #sort-on {
+  font-size: 2em;
+  padding: 0.25em 0.5em;
+  & i {
+    color: #fff;
+  }
+  &:before {
+    content: none;
+  }
+}
+#load-tickets {
   font-size: 2em;
   padding: 0.25em 0.5em;
   & i {
@@ -2527,14 +2384,6 @@ table input[type=checkbox],
   height: 340px;
 }
 
-#sidebar .scrollbar-macosx {
-  height: 100%;
-}
-
-#sidebar .scrollbar-macosx > .scroll-element.scroll-x {
-  display: none !important;
-}
-
 .scroll-element div {
   z-index: 1 !important;
 }
@@ -3604,10 +3453,14 @@ span.change[style*="display: none"] ~ span.y {
   border-bottom: none;
 }
 
-.left-content li {
+.left-content ul > li {
   padding: 5px 3px;
   font-size: 1em;
   line-height: 1.4;
+  & > ul {
+    width: 65%;
+    float: right;
+  }
 }
 
 .left-content li span {
@@ -3777,6 +3630,7 @@ span.change[style*="display: none"] ~ span.y {
             font-size: 1.5em;
           }
         }
+
         & .sel__date {
           width: 7em;
         }

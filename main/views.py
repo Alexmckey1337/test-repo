@@ -1,25 +1,25 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import redis
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.db.models import Count
+from django.db.models import Count, Case, When, BooleanField
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import DetailView, View
+from django.views import View
+from django.views.generic import DetailView, ListView
 from django.views.generic.base import ContextMixin, TemplateView
 
 from account.models import CustomUser
-from account.permissions import CanAccountObjectRead, CanAccountObjectEdit
 from event.models import Meeting, ChurchReport
 from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
-from location.models import Country, Region, City
 from partnership.models import Partnership
 from payment.models import Currency
 from status.models import Division
-from summit.models import SummitType
+from summit.models import SummitType, SummitTicket
 
 
 def entry(request):
@@ -173,9 +173,8 @@ class PartnerPaymentsListView(LoginRequiredMixin, CanSeeDealPaymentsMixin, Templ
 @login_required(login_url='entry')
 def account(request, id):
     user = get_object_or_404(CustomUser, pk=id)
-    has_perm = CanAccountObjectRead().has_object_permission(request, None, user)
     currencies = Currency.objects.all()
-    if not has_perm:
+    if not request.user.can_see_account_page(user):
         raise PermissionDenied
     ctx = {
         'account': user,
@@ -189,29 +188,6 @@ def account(request, id):
     return render(request, 'account/anketa.html', context=ctx)
 
 
-@login_required(login_url='entry')
-def account_edit(request, user_id):
-    user = get_object_or_404(CustomUser, pk=user_id)
-    has_perm = CanAccountObjectEdit().has_object_permission(request, None, user)
-    currencies = Currency.objects.all()
-    if not has_perm:
-        if user_id:
-            return redirect(user.get_absolute_url)
-        raise PermissionDenied
-    ctx = {
-        'account': user,
-        'departments': Department.objects.all(),
-        'hierarchies': Hierarchy.objects.order_by('level'),
-        'divisions': Division.objects.all(),
-        'countries': Country.objects.all(),
-        'regions': Region.objects.filter(country__title=user.country),
-        'cities': City.objects.filter(region__title=user.region),
-        'partners': Partnership.objects.filter(level__lte=Partnership.MANAGER),
-        'currencies': currencies
-    }
-    return render(request, 'account/edit.html', context=ctx)
-
-
 # summit
 
 
@@ -221,6 +197,13 @@ class CanSeeSummitTypeMixin(View):
         if not (summit_type and request.user.can_see_summit_type(summit_type)):
             raise PermissionDenied
         return super(CanSeeSummitTypeMixin, self).dispatch(request, *args, **kwargs)
+
+
+class CanSeeSummitTicketMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_any_summit_ticket():
+            raise PermissionDenied
+        return super(CanSeeSummitTicketMixin, self).dispatch(request, *args, **kwargs)
 
 
 class SummitTypeView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
@@ -240,6 +223,61 @@ class SummitTypeView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
         return ctx
 
 
+class SummitTicketListView(LoginRequiredMixin, CanSeeSummitTicketMixin, ListView):
+    model = SummitTicket
+    context_object_name = 'tickets'
+    template_name = 'summit/ticket/list.html'
+    login_url = 'entry'
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super(SummitTicketListView, self).dispatch(request, *args, **kwargs)
+        try:
+            r = redis.StrictRedis(host='localhost', port=6379, db=0)
+            r.srem('summit:ticket:{}'.format(request.user.id), *list(self.get_queryset().values_list('id', flat=True)))
+        except Exception as err:
+            print(err)
+
+        return response
+
+    def get_queryset(self):
+        code = self.request.GET.get('code', '')
+        qs = super(SummitTicketListView, self).get_queryset()
+        try:
+            r = redis.StrictRedis(host='localhost', port=6379, db=0)
+            ticket_ids = r.smembers('summit:ticket:{}'.format(self.request.user.id))
+        except Exception as err:
+            ticket_ids = None
+            print(err)
+        if ticket_ids:
+            qs = qs.annotate(
+                is_new=Case(
+                    When(id__in=ticket_ids, then=True),
+                    default=False,
+                    output_field=BooleanField(),
+                ),
+            )
+        if code:
+            return qs.filter(users__code=code).distinct()
+        return qs
+
+
+class SummitTicketDetailView(LoginRequiredMixin, CanSeeSummitTicketMixin, DetailView):
+    model = SummitTicket
+    context_object_name = 'ticket'
+    template_name = 'summit/ticket/detail.html'
+    login_url = 'entry'
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super(SummitTicketDetailView, self).dispatch(request, *args, **kwargs)
+        try:
+            r = redis.StrictRedis(host='localhost', port=6379, db=0)
+            r.srem('summit:ticket:{}'.format(request.user.id), self.object.id)
+        except Exception as err:
+            print(err)
+
+        return response
+
+
 @login_required(login_url='entry')
 def summits(request):
     ctx = {
@@ -249,6 +287,13 @@ def summits(request):
 
 
 # database
+
+
+class CanSeeUserListMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_user_list():
+            raise PermissionDenied
+        return super(CanSeeUserListMixin, self).dispatch(request, *args, **kwargs)
 
 
 class CanSeeChurchesMixin(View):
@@ -272,7 +317,7 @@ class TabsMixin(ContextMixin):
         return super(TabsMixin, self).get_context_data(**{'active_tab': self.active_tab})
 
 
-class PeopleListView(LoginRequiredMixin, TabsMixin, TemplateView):
+class PeopleListView(LoginRequiredMixin, TabsMixin, CanSeeUserListMixin, TemplateView):
     template_name = 'database/people.html'
     login_url = 'entry'
     active_tab = 'people'

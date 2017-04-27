@@ -66,10 +66,13 @@ class BaseExportViewSetMixin(object):
 
 
 class ExportViewSetMixin(BaseExportViewSetMixin):
-    @list_route(methods=['post'])
-    def export(self, request, *args, **kwargs):
+    def _export(self, request, *args, **kwargs):
         fields = self.get_export_fields(request.data)
 
         queryset = self.get_export_queryset(request)
 
         return self.get_response(queryset, fields)
+
+    @list_route(methods=['post'])
+    def export(self, request, *args, **kwargs):
+        return self._export(request, *args, **kwargs)

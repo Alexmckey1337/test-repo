@@ -1016,8 +1016,14 @@ function getCurrentUser(id) {
 }
 
 function getResponsible(ids, level, search = "") {
+    let responsibleLevel;
+    if(level === 0 || level === 1) {
+        responsibleLevel = level + 1;
+    } else {
+        responsibleLevel = level;
+    }
     return new Promise(function (resolve, reject) {
-        let url = CONFIG.DOCUMENT_ROOT + 'api/v1.0/short_users/?level_gte=' + level + '&search=' + search;
+        let url = CONFIG.DOCUMENT_ROOT + 'api/v1.0/short_users/?level_gte=' + responsibleLevel + '&search=' + search;
         if (ids instanceof Array) {
             ids.forEach(function (id) {
                 url += '&department=' + id;
@@ -1249,7 +1255,7 @@ function makePayments(config = {}) {
                 id: '',
                 number: '',
                 ordering_title: 'no_ordering',
-                title: 'Отвественый'
+                title: 'Ответственный'
             };
             data.table_columns.created_at = {
                 active: true,
