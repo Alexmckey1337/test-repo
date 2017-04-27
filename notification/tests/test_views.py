@@ -22,7 +22,7 @@ class TestNotificationTheme:
         response = api_login_client.get(url, format='json')
 
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data['results']) == 20
+        assert response.data['count'] == 20
 
     def test_today_more_30_notifications(self, api_login_client, notification_factory):
         url = reverse('notification-today')
@@ -35,4 +35,4 @@ class TestNotificationTheme:
         response = api_login_client.get(url, format='json')
 
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data['results']) == 30
+        assert response.data['count'] == 40
