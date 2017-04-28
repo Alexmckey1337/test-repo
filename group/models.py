@@ -65,6 +65,7 @@ class HomeGroup(CommonGroup):
                                on_delete=models.CASCADE, verbose_name=_('Church'))
     users = models.ManyToManyField('account.CustomUser', related_name='home_groups',
                                    blank=True, verbose_name=_('Users'))
+    active = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = _('Home Group')

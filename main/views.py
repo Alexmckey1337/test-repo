@@ -45,7 +45,17 @@ def events(request):
 
 
 @login_required(login_url='entry')
-def meeting_report(request, pk):
+def meeting_report_list(request):
+    if not request.user.hierarchy or request.user.hierarchy.level < 1:
+        return redirect('/')
+
+    ctx = {}
+
+    return render(request, 'event/MEETING_REPORT_LIST.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def meeting_report_detail(request, pk):
     if not request.user.hierarchy or request.user.hierarchy.level < 1:
         return redirect('/')
 
@@ -54,11 +64,11 @@ def meeting_report(request, pk):
         'leader': request.user,
     }
 
-    return render(request, 'event/MEETING_REPORT_CREATE.html', context=ctx)
+    return render(request, 'event/MEETING_REPORT_DETAIL.html', context=ctx)
 
 
 @login_required(login_url='entry')
-def meeting_statistics(request):
+def meeting_report_statistics(request):
     if not request.user.hierarchy or request.user.hierarchy.level < 1:
         return redirect('/')
 
@@ -66,7 +76,17 @@ def meeting_statistics(request):
 
 
 @login_required(login_url='entry')
-def church_report(request, pk):
+def church_report_list(request):
+    if not request.user.hierarchy or request.user.hierarchy.level < 2:
+        return redirect('/')
+
+    ctx = {}
+
+    return render(request, 'event/CHURCH_REPORT_LIST.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def church_report_detail(request, pk):
     if not request.user.hierarchy or request.user.hierarchy.level < 2:
         return redirect('/')
 
@@ -75,7 +95,7 @@ def church_report(request, pk):
         'pastor': request.user,
     }
 
-    return render(request, 'event/CHURCH_REPORT_CREATE.html', context=ctx)
+    return render(request, 'event/CHURCH_REPORT_DETAIL.html', context=ctx)
 
 
 @login_required(login_url='entry')

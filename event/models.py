@@ -53,6 +53,7 @@ class MeetingAttend(models.Model):
         return self.user.phone_number
 
 
+@python_2_unicode_compatible
 class AbstractStatusModel(models.Model):
     IN_PROGRESS, SUBMITTED, EXPIRED = 1, 2, 3
 
@@ -67,7 +68,6 @@ class AbstractStatusModel(models.Model):
         abstract = True
 
 
-@python_2_unicode_compatible
 class Meeting(AbstractStatusModel):
     date = models.DateField(_('Date'))
     type = models.ForeignKey(MeetingType, on_delete=models.PROTECT,
@@ -113,8 +113,11 @@ class Meeting(AbstractStatusModel):
     def department(self):
         return self.home_group.church.department
 
+    @property
+    def link(self):
+        return self.get_absolute_url()
 
-@python_2_unicode_compatible
+
 class ChurchReport(AbstractStatusModel):
     date = models.DateField(_('Date'))
     count_people = models.IntegerField(_('Count People'), default=0)
@@ -147,6 +150,10 @@ class ChurchReport(AbstractStatusModel):
 
     def get_absolute_url(self):
         return reverse('events:church_report', args=(self.id,))
+
+    @property
+    def link(self):
+        return self.get_absolute_url()
 
 
 
