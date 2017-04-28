@@ -25,10 +25,9 @@ function authUser() {
         "username": username,
         "email": username,
         "password": password,
-        'remember_me': !remember_me
+        "remember_me": !remember_me
     };
     if (checkEmptyFields(username, password) == false) {
-
         let next;
         let json = JSON.stringify(data);
         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/login/', json, function (JSONobj) {
