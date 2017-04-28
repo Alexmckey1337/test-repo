@@ -10,6 +10,7 @@ from group.serializers import (UserNameSerializer, ChurchNameSerializer,
                                HomeGroupNameSerializer)
 from account.models import CustomUser
 from .models import Meeting, MeetingAttend, MeetingType, ChurchReport, AbstractStatusModel
+from datetime import datetime
 
 
 class ValidateDataBeforeUpdateMixin(object):
@@ -47,6 +48,7 @@ class MeetingAttendSerializer(serializers.ModelSerializer):
 class MeetingSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMixin):
     owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
         home_group__leader__id__isnull=False).distinct())
+    date = serializers.DateField(default=datetime.now().date())
 
     class Meta:
         model = Meeting
@@ -126,6 +128,7 @@ class ChurchReportListSerializer(serializers.ModelSerializer, ValidateDataBefore
     pastor = UserNameSerializer()
     church = ChurchNameSerializer()
     status = serializers.CharField(source='get_status_display')
+    date = serializers.DateField(default=datetime.now().date())
 
     class Meta:
         model = ChurchReport
@@ -138,6 +141,7 @@ class ChurchReportSerializer(ChurchReportListSerializer):
     church = serializers.PrimaryKeyRelatedField(queryset=Church.objects.all(), required=False)
     pastor = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
         church__pastor__id__isnull=False).distinct(), required=False)
+    status = serializers.IntegerField(default=1)
 
     not_editable_fields = ['church', 'pastor', 'status']
 

@@ -69,11 +69,6 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             )
         return self.queryset
 
-    def retrieve(self, request, *args, **kwargs):
-        self.pagination_class = MeetingAttendPagination
-
-        return super(MeetingViewSet, self).retrieve(request, *args, **kwargs)
-
     @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer)
     def submit(self, request, pk):
         home_meeting = self.get_object()
@@ -152,7 +147,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         headers = self.get_success_headers(meeting.data)
         return Response(meeting.data, status=status.HTTP_200_OK, headers=headers)
 
-    @detail_route(methods=['GET'], serializer_class=UserNameSerializer)
+    @detail_route(methods=['GET'], serializer_class=UserNameSerializer, pagination_class=MeetingAttendPagination)
     def visitors(self, request, pk):
         meeting = self.get_object()
         visitors = meeting.home_group.users.all()

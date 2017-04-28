@@ -4,8 +4,9 @@ Events REST API
 
 
 
-Meetings Create
----------------
+
+Meetings Report Create
+----------------------
 
     Meetings - is a events that are held by home groups.
     For default Meetings reports create and verification at the beginning of every week.
@@ -21,6 +22,47 @@ Meetings Create
         -   ``in_progress = int(1)``
         -   ``submitted = int(2)``
         -   ``expired = int(3)``
+
+    Meeting reports will be created automatically by python Celery scheduler.
+    To create reports in the manual mode ``POST`` required data to next API view:
+    If the date field is missing in the POST request, for ``default`` will be set the date ``today``.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        POST /api/v1.0/events/home_meetings HTTP/1.1
+        Host: vocrm.org
+        Accept: application/json
+
+        {
+            "home_group": 18,
+            "owner": 15160,
+            "type": 2,
+            "date": "2017-03-04"
+        }
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 201 Created
+        Allow: GET, POST, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "id": 171,
+            "home_group": 18,
+            "owner": 15160,
+            "type": 2,
+            "date": "04.03.2017",
+            "total_sum": "0",
+            "status": 1
+        }
+
+
+
 
     Immediately, after Meeting report create, his status is ``in_progress = 1``.
     All API list views ``paginated with 30 objects`` per page.
@@ -73,6 +115,7 @@ Meetings Create
                 "previous": null
             }
         }
+
 
 
 
@@ -147,25 +190,10 @@ _____________________
 
     Before report submit, for default, all Meeting objects ``total_sum`` is 0.
     If report.type is ``service`` field ``total_sum`` always is 0 and can`t be changed.
-    When Meeting create his status - ``in_progress = 1`` and contain next data:
 
-    **Example of Meetings object (``status = in_progress``)**:
-
-    .. sourcecode:: http
-
-        {
-            "id": 165,
-            "home_group": 18,
-            "owner": 15160,
-            "type": 1,
-            "date": "18.04.2017",
-            "status": 1,
-            "total_sum": "0"
-        }
-
-    For submit Meeting object and change status from ``in_progress = 1`` to ``submitted = 2`` Meeting.owner must
+    For submit Meeting object and change status from ``in_progress = 1`` to ``submitted = 2`` Meeting owner must
     ``POST`` their report with required data and may specify a list of ``meeting visitors``.
-    For default Meetings.visitors are a members of home group where Meeting.owner is a leader.
+    For default Meetings visitors are a members of home group where Meeting owner is a leader.
     To ``GET Meeting.visitors`` use the next API view:
 
     **Example request**:
@@ -288,6 +316,8 @@ _____________________
 
     Meeting.status changed to ``expired = 3`` automatically.
     When next week started and Meeting report status stayed ``in_progress = 1``
+
+
 
 
 
@@ -455,7 +485,6 @@ ___________________
 
 
 
-
 Meetings Statistics Filters
 ___________________________
 
@@ -496,4 +525,92 @@ ___________________________
             "reports_in_progress": 0,
             "reports_submitted": 4,
             "reports_expired": 0
+        }
+
+
+
+
+Meetings Table Columns
+______________________
+
+    **Fields in pagination response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "links": {
+                "next": null,
+                "previous": null
+            },
+            "table_columns": {
+                "date": {
+                    "id": 815433,
+                    "ordering_title": "date",
+                    "active": true,
+                    "number": 1,
+                    "editable": false,
+                    "title": "Дата создания"
+                },
+                "home_group": {
+                    "id": 815434,
+                    "ordering_title": "home_group__title",
+                    "active": true,
+                    "number": 2,
+                    "editable": true,
+                    "title": "Домашняя группа"
+                },
+                "owner": {
+                    "id": 815435,
+                    "ordering_title": "owner__last_name",
+                    "active": true,
+                    "number": 3,
+                    "editable": true,
+                    "title": "Владелец отчета"
+                },
+                "phone_number": {
+                    "id": 815436,
+                    "ordering_title": "phone_number",
+                    "active": true,
+                    "number": 4,
+                    "editable": true,
+                    "title": "Телефонный номер"
+                },
+                "type": {
+                    "id": 815437,
+                    "ordering_title": "type__code",
+                    "active": true,
+                    "number": 5,
+                    "editable": true,
+                    "title": "Тип отчета"
+                },
+                "visitors_attended": {
+                    "id": 815438,
+                    "ordering_title": "visitors_attended",
+                    "active": true,
+                    "number": 6,
+                    "editable": true,
+                    "title": "Присутствовали"
+                },
+                "visitors_absent": {
+                    "id": 815439,
+                    "ordering_title": "visitors_absent",
+                    "active": true,
+                    "number": 7,
+                    "editable": true,
+                    "title": "Отсутствовали"
+                },
+                "total_sum": {
+                    "id": 815440,
+                    "ordering_title": "total_sum",
+                    "active": true,
+                    "number": 8,
+                    "editable": true,
+                    "title": "Сумма пожертвований"
+                }
+            }
         }
