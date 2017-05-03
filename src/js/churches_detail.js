@@ -101,7 +101,8 @@
         clearAddHomeGroupData();
         if (!responsibleList) {
             responsibleList = true;
-            makeLeadersListByChurch(D_ID);
+
+            makeLeadersListByChurch(ID);
         }
         setTimeout(function () {
             $('#addHomeGroup').css('display', 'block');
