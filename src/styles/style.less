@@ -219,7 +219,6 @@ select::-ms-expand {
 
 /* ------------------Header------------------------------ */
 .main-wrap {
-  padding-left: 240px;
   transition: all .3s;
   & h3 {
     font-weight: 500;
@@ -1697,6 +1696,8 @@ td {
       bottom: 0;
       margin: auto;
       &:before {
+        width: 1em;
+        height: 1em;
         content: '\f040';
         font: 1em FontAwesome;
       }
@@ -3554,8 +3555,13 @@ span.change[style*="display: none"] ~ span.y {
       &.edit {
         right: 1em;
         top: 1em;
+        width: 1em;
+        height: 1em;
         &:before {
           content: '\f040';
+          width: 1em;
+          height: 1em;
+          display: block;
           color: #656d78;
           font: 100 1em FontAwesome;
           position: absolute;
