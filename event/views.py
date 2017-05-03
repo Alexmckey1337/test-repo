@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.db.models import IntegerField, Sum, When, Case, Count
 from rest_framework import status, filters, exceptions
 from rest_framework.decorators import list_route, detail_route
-from .pagination import MeetingPagination, MeetingAttendPagination, ChurchReportPagination
+from .pagination import MeetingPagination, ChurchReportPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.utils.translation import ugettext_lazy as _
@@ -31,7 +31,6 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     permission_classes = (IsAuthenticated,)
     pagination_class = MeetingPagination
-    pagination_retrieve_class = MeetingAttendPagination
 
     filter_backends = (filters.DjangoFilterBackend,
                        CommonEventFilter,
@@ -69,11 +68,6 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                     output_field=IntegerField(), default=0))
             )
         return self.queryset
-
-    def get_paginated_response(self, data):
-        if self.action == 'retrieve':
-            return self.pagination_retrieve_class
-        return self.pagination_class
 
     @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer)
     def submit(self, request, pk):
