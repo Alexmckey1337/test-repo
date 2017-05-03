@@ -29,6 +29,13 @@ def redirect_to_churches(request):
         return redirect(reverse('db:people'))
     return redirect(reverse('db:churches'))
 
+
+def redirect_to_meetings(request):
+    if not request.user.can_see_churches():
+        return redirect(reverse('db:people'))
+    return redirect(reverse('events:meeting_report_list'))
+
+
 database_patterns = [
     url(r'^$', login_required(redirect_to_churches, login_url='entry'), name='main'),
     url(r'^people/$', views.PeopleListView.as_view(), name='people'),
@@ -47,7 +54,7 @@ account_patterns = [
 ]
 
 events_patterns = [
-    url(r'^$', views.events, name='events_list'),
+    url(r'^$', login_required(redirect_to_meetings, login_url='entry'), name='main'),
     url(r'^home/reports/$', views.meeting_report_list, name='meeting_report_list'),
     url(r'^home/reports/(?P<pk>\d+)/$', views.meeting_report_detail, name='meeting_report_detail'),
     url(r'^home/statistics/$', views.meeting_report_statistics, name='meeting_report_statistics'),

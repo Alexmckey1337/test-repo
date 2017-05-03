@@ -20,6 +20,7 @@ from partnership.models import Partnership
 from payment.models import Currency
 from status.models import Division
 from summit.models import SummitType, SummitTicket
+from navigation.table_fields import meeting_table
 
 
 def entry(request):
@@ -62,6 +63,7 @@ def meeting_report_detail(request, pk):
     ctx = {
         'home_report': get_object_or_404(Meeting, pk=pk),
         'leader': request.user,
+        'table_columns': meeting_table(request.user, 'attends')
     }
 
     return render(request, 'event/MEETING_REPORT_DETAIL.html', context=ctx)
