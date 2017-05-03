@@ -387,6 +387,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
 
 (function ($) {
     let $img = $(".crArea img");
+    let flagCroppImg = false;
 
     let $selectDepartment = $('#departments');
 
@@ -597,7 +598,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                 });
             }
             updateUser(ID, formData, success).then(function (data) {
-                if(formName === 'editHierarchy') {
+                if (formName === 'editHierarchy') {
                     $('.is-hidden__after-edit').html('');
                 }
                 if (hidden) {
@@ -704,12 +705,32 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
 
     $('#editCropImg').on('click', function () {
         let imgUrl;
-        imgUrl = $img.cropper('crop').cropper('getCroppedCanvas').toDataURL('image/jpeg');
-        $('#impPopup').fadeOut();
+        imgUrl = $img.cropper('getCroppedCanvas').toDataURL('image/jpeg');
         $('#edit-photo').attr('data-source', document.querySelector("#impPopup img").src);
         $('.anketa-photo').html('<img src="' + imgUrl + '" />');
-        $img.cropper("destroy");
+        $('#impPopup').fadeOut(300, function () {
+            $img.cropper("destroy");
+        });
+
+        if (flagCroppImg && !$('#editNameBtn').hasClass('active')) {
+            let form = document.forms['editName'];
+            let formData = new FormData(form);
+            let blob;
+            blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+            formData.append('image', blob);
+            formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
+            // formData.append('id', id);
+            updateUser(ID, formData);
+        }
+        return flagCroppImg = false;
     });
+
+    $('#impPopup').find('.close').on('click', function () {
+        $('#impPopup').fadeOut(300, function () {
+            $img.cropper("destroy");
+        });
+    });
+
     function handleFileSelect(e) {
         let files = e.target.files; // FileList object
         // Loop through the FileList and render image files as thumbnails.
@@ -736,6 +757,25 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
             // Read in the image file as a data URL.
             reader.readAsDataURL(file);
         }
+        croppUploadImg();
+    }
+
+    function croppUploadImg() {
+        $('.anketa-photo').on('click', function () {
+
+            $("#impPopup").css('display', 'block');
+            $img.cropper({
+                aspectRatio: 1 / 1,
+                built: function () {
+                    $img.cropper("setCropBoxData", {width: "100", height: "100"});
+                }
+            });
+            return flagCroppImg = true;
+            // let src = $('.anketa-photo').find('img').attr('src');
+            //  $img.attr('src', src);
+            // $('#editNameBtn').addClass('active');
+            // $('#editNameBlock').css({display: 'block'});
+        });
     }
 
     $('#divisions').select2();
