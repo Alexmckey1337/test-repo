@@ -57,9 +57,12 @@
             <span class="arrow-left"></span>
             <div class="gallery">
                 <ul id="summitsTypes" class="images">
-                {% available_summits user summit_type as summits %}
+                {% with current_summit=request.GET.summit %}
+                    {% available_summits user summit_type as summits %}
                     {% for summit in summits reversed %}
-                        <li data-id={{ summit.id }} {% if forloop.first %} class="active"{% endif %}>
+                        <li data-id={{ summit.id }}
+                            {% if summit.id|stringformat:"d" == current_summit %} class="active"
+                            {% elif forloop.first and not current_summit %} class="active"{% endif %}>
                             <span>
                                 {% if summit.description %}
                                     {{ summit.description }}
@@ -68,6 +71,7 @@
                                 {% endif %}
                             </span></li>
                     {% endfor %}
+                {% endwith %}
                 </ul>
             </div>
             <span class="arrow-right"></span>

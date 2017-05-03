@@ -19,7 +19,7 @@ from hierarchy.models import Department, Hierarchy
 from partnership.models import Partnership
 from payment.models import Currency
 from status.models import Division
-from summit.models import SummitType, SummitTicket
+from summit.models import SummitType, SummitTicket, SummitAnket
 
 
 def entry(request):
@@ -182,6 +182,11 @@ class CanSeeSummitTicketMixin(View):
         return super(CanSeeSummitTicketMixin, self).dispatch(request, *args, **kwargs)
 
 
+class CanSeeSummitProfileMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        return super(CanSeeSummitProfileMixin, self).dispatch(request, *args, **kwargs)
+
+
 class SummitTypeView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
     model = SummitType
     context_object_name = 'summit_type'
@@ -252,6 +257,13 @@ class SummitTicketDetailView(LoginRequiredMixin, CanSeeSummitTicketMixin, Detail
             print(err)
 
         return response
+
+
+class SummitProfileDetailView(LoginRequiredMixin, CanSeeSummitProfileMixin, DetailView):
+    model = SummitAnket
+    context_object_name = 'profile'
+    template_name = 'summit/profile.html'
+    login_url = 'entry'
 
 
 @login_required(login_url='entry')
