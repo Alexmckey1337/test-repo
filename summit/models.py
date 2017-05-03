@@ -14,7 +14,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from payment.models import get_default_currency, AbstractPaymentPurpose
-from summit.managers import AnketManager
+from summit.managers import ProfileManager
 
 
 @python_2_unicode_compatible
@@ -75,6 +75,12 @@ class Summit(models.Model):
     mail_template = models.ForeignKey('dbmail.MailTemplate', related_name='summits',
                                       verbose_name=_('Mail template'),
                                       null=True, blank=True)
+    OPEN, CLOSE = 'open', 'close'
+    STATUSES = (
+        (OPEN, _('Open')),
+        (CLOSE, _('Close')),
+    )
+    status = models.CharField(_('Status'), choices=STATUSES, default=OPEN, max_length=20)
 
     class Meta:
         ordering = ('type',)
@@ -178,7 +184,7 @@ class SummitAnket(CustomUserAbstract, AbstractPaymentPurpose):
     #: Payments of the current anket
     payments = GenericRelation('payment.Payment', related_query_name='summit_ankets')
 
-    objects = AnketManager()
+    objects = ProfileManager()
 
     class Meta:
         ordering = ('summit__type', '-summit__start_date')

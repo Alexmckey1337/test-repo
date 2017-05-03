@@ -2,16 +2,16 @@
 from __future__ import unicode_literals
 
 from dbmail import send_db_mail
-from django.db.models import Sum, Value as V, Case, When, BooleanField
-from django.db.models.functions import Coalesce
+from django.db.models import Case, When, BooleanField
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions, viewsets, filters, status, mixins
 from rest_framework.decorators import list_route, detail_route, api_view
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
+from rest_framework.viewsets import GenericViewSet
 
 from account.models import CustomUser
 from common.views_mixins import ExportViewSetMixin
@@ -38,52 +38,69 @@ def get_success_headers(data):
         return {}
 
 
-class SummitAnketTableViewSet(viewsets.ModelViewSet,
-                              CreatePaymentMixin,
-                              ListPaymentMixin, ExportViewSetMixin):
-    queryset = SummitAnket.objects.select_related(
-        'user', 'user__hierarchy', 'user__master', 'summit', 'summit__type'). \
-        prefetch_related('user__divisions', 'user__departments', 'emails').annotate(
-        total_sum=Coalesce(Sum('payments__effective_sum'), V(0))).order_by(
+class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
+    queryset = SummitAnket.objects.base_queryset().annotate_total_sum().order_by(
         'user__last_name', 'user__first_name', 'user__middle_name')
     serializer_class = SummitAnketSerializer
     pagination_class = SummitPagination
-    filter_backends = (filters.DjangoFilterBackend,
-                       filters.SearchFilter,
-                       filters.OrderingFilter,
-                       FilterByClub,
-                       )
-    filter_fields = ('user',
-                     'summit', 'visited',
-                     'user__master',
-                     'user__departments',
-                     'user__first_name', 'user__last_name',
-                     'user__middle_name', 'user__born_date', 'user__country',
-                     'user__region', 'user__city', 'user__district',
-                     'user__address', 'user__skype', 'user__phone_number',
-                     'user__email', 'user__hierarchy__level', 'user__facebook',
-                     'user__vkontakte',
-                     )
-    search_fields = ('user__first_name',
-                     'user__last_name',
-                     'user__middle_name',
-                     'user__search_name',
-                     'user__hierarchy__title',
-                     'user__phone_number',
-                     'user__city',
-                     'user__master__last_name',
-                     'user__email',
-                     )
-    ordering_fields = ('user__first_name', 'user__last_name', 'user__master__last_name',
-                       'user__middle_name', 'user__born_date', 'user__country',
-                       'user__region', 'user__city', 'user__district',
-                       'user__address', 'user__skype', 'user__phone_number',
-                       'user__email', 'user__hierarchy__level',
-                       'user__facebook',
-                       'user__vkontakte',)
     permission_classes = (IsAuthenticated,)
 
-    resource_class = SummitAnketResource
+    filter_backends = (
+        filters.DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+        FilterByClub,
+    )
+    filter_fields = (
+        'user',
+        'summit', 'visited',
+        'user__master',
+        'user__departments',
+        'user__first_name', 'user__last_name',
+        'user__middle_name', 'user__born_date', 'user__country',
+        'user__region', 'user__city', 'user__district',
+        'user__address', 'user__skype', 'user__phone_number',
+        'user__email', 'user__hierarchy__level', 'user__facebook',
+        'user__vkontakte',
+    )
+    search_fields = (
+        'user__first_name',
+        'user__last_name',
+        'user__middle_name',
+        'user__search_name',
+        'user__hierarchy__title',
+        'user__phone_number',
+        'user__city',
+        'user__master__last_name',
+        'user__email',
+    )
+    ordering_fields = (
+        'user__first_name', 'user__last_name', 'user__master__last_name',
+        'user__middle_name', 'user__born_date', 'user__country',
+        'user__region', 'user__city', 'user__district',
+        'user__address', 'user__skype', 'user__phone_number',
+        'user__email', 'user__hierarchy__level',
+        'user__facebook',
+        'user__vkontakte',
+    )
+
+    def get(self, request, *args, **kwargs):
+        self.summit_id = kwargs.get('pk', None)
+        return self.list(request, *args, **kwargs)
+
+    def get_queryset(self):
+        qs = self.queryset.filter(summit_id=self.summit_id)
+        summit_ids = set(self.request.user.summit_ankets.filter(
+            role__gte=SummitAnket.CONSULTANT).values_list('summit_id', flat=True))
+        return qs.filter(summit__in=summit_ids)
+
+
+class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
+                           mixins.DestroyModelMixin, GenericViewSet,
+                           CreatePaymentMixin, ListPaymentMixin):
+    queryset = SummitAnket.objects.base_queryset().annotate_total_sum()
+    serializer_class = SummitAnketSerializer
+    permission_classes = (IsAuthenticated,)
 
     def perform_destroy(self, anket):
         if anket.payments.exists():
@@ -111,11 +128,6 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet,
             'users': SummitAnketShortSerializer(consultees, many=True).data,
             'consultants': SummitAnketShortSerializer(consultants, many=True).data,
         })
-
-    def get_queryset(self):
-        summit_ids = set(self.request.user.summit_ankets.filter(
-            role__gte=SummitAnket.CONSULTANT).values_list('summit_id', flat=True))
-        return self.queryset.filter(summit__in=summit_ids)
 
     @list_route(methods=['post'], )
     def post_anket(self, request):

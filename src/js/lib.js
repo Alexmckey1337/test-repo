@@ -479,11 +479,11 @@ function getShortUsers(config = {}) {
     });
 }
 
-function getSummitUsers(config = {}) {
+function getSummitUsers(summit_id, config = {}) {
     Object.assign(config, getFilterParam());
     return new Promise(function (resolve, reject) {
         let data = {
-            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/`,
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/summits/${summit_id}/users/`,
             data: config,
             method: 'GET',
             headers: {
@@ -1725,15 +1725,14 @@ function initLocationSelect(config) {
 
 function createSummitUsersTable(data = {}) {
     let page = data.page || $('.pagination__input').val();
-    let summitType = data.summit || $('#summitsTypes').find('.active').data('id');
+    let summitId = data.summit || $('#summitsTypes').find('.active').data('id');
     let config = {
-        page: page,
-        summit: summitType
+        page: page
     };
     Object.assign(config, data);
     Object.assign(config, getOrderingData());
 
-    getSummitUsers(config).then(function (data) {
+    getSummitUsers(summitId, config).then(function (data) {
         let filter_data = {};
         let common_table = Object.keys(data.common_table);
         filter_data.results = data.results.map(function (item) {

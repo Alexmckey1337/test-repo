@@ -246,7 +246,7 @@ class TestSummitAnketTableViewSet:
         summit_anket_factory.create_batch(4, summit=summit)
         summit_anket_factory(user=user, summit=summit, role=role)
 
-        url = reverse('summit_ankets-list')
+        url = reverse('summit-profile-list', kwargs={'pk': summit.id})
         api_client.force_login(user)
 
         response = api_client.get(url, format='json')

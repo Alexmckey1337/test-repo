@@ -7,7 +7,7 @@ from rest_framework import routers
 from summit import views
 
 router_v1_0 = routers.DefaultRouter()
-router_v1_0.register(r'summit_ankets', views.SummitAnketTableViewSet, base_name='summit_ankets')
+router_v1_0.register(r'summit_ankets', views.SummitProfileViewSet, base_name='summit_ankets')
 router_v1_0.register(r'summit_tickets', views.SummitTicketViewSet)
 router_v1_0.register(r'summit_search', views.SummitUnregisterUserViewSet, base_name='summit_search')
 router_v1_0.register(r'summit_lessons', views.SummitLessonViewSet)
@@ -24,6 +24,8 @@ router_app.register(r'users', views.SummitAnketForAppViewSet, base_name='users')
 custom_urls = [
     url(r'^generate_code/.+\.pdf', views.generate_code, name='generate_code'),
     url(r'^generate_summit_tickets/(?P<summit_id>\d+)/', views.generate_summit_tickets, name='generate_code'),
+
+    url(r'^summits/(?P<pk>\d+)/users/$', views.SummitProfileListView.as_view(), name='summit-profile-list'),
 ]
 
 urlpatterns = [
