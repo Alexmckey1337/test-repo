@@ -452,7 +452,7 @@ ___________________
         -   query <int> ``total_absent``: count of visitors that was absent
         -   query <float> ``total_donations``: sum of all donations
         -   query <int> ``reports_in_progress``: count of reports with status - ``in_progress = 1``
-        -   query <int> ``reports_submitted``: count of reports with status - ``submitted = 1``
+        -   query <int> ``reports_submitted``: count of reports with status - ``submitted = 2``
         -   query <int> ``reports_expired``: count of reports with status - ``expired = 3``
 
     **Example request**:

@@ -261,6 +261,8 @@ CELERY_DEFAULT_QUEUE = 'default'
 CELERY_ACKS_LATE = True
 CELERYD_PREFETCH_MULTIPLIER = 1
 
+from celery.schedules import crontab
+
 CELERYBEAT_SCHEDULE = {
     'create_deals': {
         'task': 'create_new_deals',
@@ -270,6 +272,16 @@ CELERYBEAT_SCHEDULE = {
         'task': 'deals_to_expired',
         'schedule': 3600
     },
+    # Executes every monday evening at 00:05 A.M
+    'create_meetings': {
+        'task': 'create_new_meetings',
+        'schedule': crontab(hour=0, minute=5, day_of_week='mon')
+    },
+    # Executes every monday evening at 00:00 A.M
+    'meetings_to_expired': {
+        'task': 'meetings_to_expired',
+        'schedule': crontab(hour=0, minute=0, day_of_week='mon')
+    }
 }
 
 import djcelery

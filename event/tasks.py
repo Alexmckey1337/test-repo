@@ -5,22 +5,29 @@ from datetime import datetime, date
 from decimal import Decimal
 
 from edem.settings.celery import app
-from event.models import Meeting, ChurchReport
+from event.models import Meeting, MeetingType
 from group.models import HomeGroup
+from django.db import transaction
 
 
-@app.task(name='create_new_meetings')
+@app.task(name='create_new_meetings', ignore_result=True, max_retries=5,
+          default_retry_delay=10 * 6)
 def create_new_meetings():
     current_date = datetime.now().date()
-    active_home_groups = HomeGroup.objects.filter(active=True)
+    home_groups_without_reports = HomeGroup.objects.filter(active=True).filter()
+    meeting_types = MeetingType.objects.all()
 
-    """
-    Meeting.objects.bulk_create([
-        Meeting(home_group=)
-    ])
-    """
+    for home_group in home_groups_without_reports:
+        with transaction.atomic():
+            for meeting_type in meeting_types:
+                Meeting.objects.create(home_group=home_group,
+                                       owner=home_group.leader,
+                                       date=current_date,
+                                       type=meeting_type)
 
 
-@app.task(name='meetings_to_expired')
+@app.task(name='meetings_to_expired', ignore_result=True, max_retries=5,
+          default_retry_delay=10 * 6)
 def meetings_to_expired():
-    pass
+    expired_reports = Meeting.objects.filter(status=Meeting.IN_PROGRESS)
+    expired_reports.update(status=Meeting.EXPIRED)
