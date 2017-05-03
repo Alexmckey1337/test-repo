@@ -12,8 +12,8 @@ def create_meeting_columns(apps, schema_editor):
     meetings = Category.objects.create(title='meetings', common=True)
 
     Meeting_columns.objects.bulk_create([
-        Meeting_columns(title='date', verbose_title='Дата создания', ordering_title='date', number=1, active=True,
-                        editable=False, category_id=meetings.id),
+        Meeting_columns(title='date', verbose_title='Дата создания', ordering_title='date', number=9, active=True,
+                        editable=True, category_id=meetings.id),
         Meeting_columns(title='home_group', verbose_title='Домашняя группа', ordering_title='home_group__title',
                         number=2, active=True, editable=True, category_id=meetings.id),
         Meeting_columns(title='owner', verbose_title='Владелец отчета', ordering_title='owner__last_name',
