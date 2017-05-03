@@ -18,6 +18,10 @@ from partnership.models import Partnership
 from status.models import Division
 
 
+class HierarchyError(Exception):
+    pass
+
+
 def generate_key():
     return binascii.hexlify(os.urandom(20)).decode()
 
@@ -78,6 +82,7 @@ class AddExistUserSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     partnership = PartnershipSerializer(required=False)
+    move_to_master = serializers.IntegerField(write_only=True, required=False)
 
     class Meta:
         model = User
@@ -95,6 +100,7 @@ class UserSerializer(serializers.ModelSerializer):
                   'country', 'region', 'city', 'district', 'address',
                   # #################################################
                   'image', 'image_source',
+                  'move_to_master',
 
                   'departments', 'master', 'hierarchy',
                   'divisions',
@@ -114,17 +120,42 @@ class UserSerializer(serializers.ModelSerializer):
             'divisions': {'required': False},
         }
 
-    def update(self, instance, validated_data):
+    def update(self, user, validated_data):
         departments = validated_data.pop('departments', None)
+        move_to_master = validated_data.pop('move_to_master', None)
+
+        if move_to_master is not None:
+            disciples = user.disciples.all()
+            master = User.objects.get(id=move_to_master)
+            disciples.update(master=master)
 
         for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
+            setattr(user, attr, value)
+        user.save()
 
         if departments is not None and isinstance(departments, (list, tuple)):
-            instance.departments.set(departments)
+            user.departments.set(departments)
 
-        return instance
+        return user
+
+    def validate_hierarchy(self, value):
+        reduce_level = lambda: self.instance and self.instance.hierarchy and value.level < self.instance.hierarchy.level
+        has_disciples = lambda: self.instance.disciples.exists()
+        has_move_disciples = lambda:  'move_to_master' in self.initial_data.keys()
+        if reduce_level() and has_disciples() and not has_move_disciples():
+            raise HierarchyError()
+        return value
+
+    def validate_move_to_master(self, value):
+        if not User.objects.filter(id=value).exists():
+            raise ValidationError(_('User with id = %s does not exist.' % value))
+        return value
+
+
+class UserForMoveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'first_name', 'last_name', 'middle_name')
 
 
 class UniqueFIOTelWithIdsValidator(UniqueTogetherValidator):
