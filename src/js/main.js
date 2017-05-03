@@ -106,19 +106,9 @@ if (document.getElementById('filter')) {
     $('#filter').select2();
 }
 
-if (document.getElementById('sort_save')) {
-    document.getElementById('sort_save').addEventListener('click', function () {
-        $(".table-sorting").animate({
-            right: '-300px'
-        }, 10, 'linear')
-    })
-}
-
 function sortSave() {
-    document.getElementById('sort_save').addEventListener('click', function () {
-        $(".table-sorting").animate({
-            right: '-300px'
-        }, 10, 'linear')
+    $('sort_save').on('click', function () {
+        $(".table-sorting").toggleClass('active');
     })
 }
 
@@ -137,23 +127,23 @@ $('body').on('click', '#pag li', function (e) {
 /*DND columns*/
 
 $("#sort-on").click(function () {
-    $(".table-sorting").animate({right: '0'}, 10, 'linear');
-    $(".page-width").append(" <div class='bgsort'></div>");
+    $(".table-sorting").toggleClass('active');
+    let sortBG = document.createElement('div');
+    $(sortBG).addClass('bg_sort').on('click', function () {
+        $(".table-sorting").toggleClass('active');
+        $(this).remove();
+    });
+    $("body").append(sortBG);
 });
 
 $("#sort-off").click(function () {
-    $(".table-sorting").animate({right: '-300px'}, 10, 'linear');
-    $(".bgsort").remove();
+    $(".table-sorting").toggleClass('active');
+    $(".bg_sort").remove();
 });
 
-$("#sort_save").click(function () {
-    $(".table-sorting").animate({right: '-300px'}, 10, 'linear');
-    $(".bgsort").remove();
-});
-
-$('body').on('click', ".bgsort", function () {
-    $(".table-sorting").animate({right: '-300px'}, 10, 'linear');
-    $(this).remove();
+$("#sort_save").on('click', function () {
+    $(".table-sorting").toggleClass('active');
+    $(".bg_sort").remove();
 });
 
 //WTF???

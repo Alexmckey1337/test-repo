@@ -634,7 +634,6 @@ function createChurchesUsersTable(id, config = {}) {
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINChurches').html(rendered);
         makeSortForm(filterData.user_table);
-        console.log(id);
         let paginationConfig = {
             container: ".users__pagination",
             currentPage: page,

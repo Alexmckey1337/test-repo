@@ -52,7 +52,7 @@ def meeting_report_list(request):
 
     ctx = {}
 
-    return render(request, 'event/MEETING_REPORT_LIST.html', context=ctx)
+    return render(request, 'event/home_reports.html', context=ctx)
 
 
 @login_required(login_url='entry')
@@ -66,7 +66,7 @@ def meeting_report_detail(request, pk):
         'table_columns': meeting_table(request.user, 'attends')
     }
 
-    return render(request, 'event/MEETING_REPORT_DETAIL.html', context=ctx)
+    return render(request, 'event/home_report_detail.html', context=ctx)
 
 
 @login_required(login_url='entry')
@@ -84,7 +84,7 @@ def church_report_list(request):
 
     ctx = {}
 
-    return render(request, 'event/CHURCH_REPORT_LIST.html', context=ctx)
+    return render(request, 'event/church_reports.html', context=ctx)
 
 
 @login_required(login_url='entry')

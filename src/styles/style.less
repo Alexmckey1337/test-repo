@@ -11,7 +11,13 @@ body {
     overflow: hidden;
   }
 }
-
+#statusTabs {
+  & .current {
+    & button {
+      color: #656d78;
+    }
+  }
+}
 .hidden {
   display: none;
 }
@@ -1784,12 +1790,16 @@ table tr:first-child td {
   width: 240px;
   background-color: #434a54;
   position: fixed;
-  top: 90px;
-  right: -300px;
+  top: 0;
+  right: 0;
+  transform: translateX(285px);
   bottom: 0;
   padding: 20px;
   z-index: 999999;
-  transition: all .3s ease;
+  transition: transform .3s ease;
+  &.active {
+    transform: translateX(0);
+  }
 }
 
 #deals-new .table-sorting {
@@ -1800,7 +1810,7 @@ table tr:first-child td {
   height: 100%;
 }
 
-.bgsort {
+.bg_sort {
   position: fixed;
   top: 0;
   left: 0;
@@ -1809,8 +1819,16 @@ table tr:first-child td {
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 9;
   cursor: pointer;
+  overflow: hidden;
 }
-
+.reports_id {
+  display: block;
+  width: 100%;
+  &:hover {
+    border-bottom: none;
+    text-decoration: none;
+  }
+}
 .table-sorting .top-text {
   margin-bottom: 10px;
 }
