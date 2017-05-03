@@ -11,7 +11,7 @@ from django.db import transaction
 
 
 @app.task(name='create_new_meetings', ignore_result=True, max_retries=5,
-          default_retry_delay=10 * 6)
+          default_retry_delay=10 * 50)
 def create_new_meetings():
     current_date = datetime.now().date()
     home_groups_without_reports = HomeGroup.objects.filter(active=True).filter()
@@ -27,7 +27,7 @@ def create_new_meetings():
 
 
 @app.task(name='meetings_to_expired', ignore_result=True, max_retries=5,
-          default_retry_delay=10 * 6)
+          default_retry_delay=10 * 50)
 def meetings_to_expired():
     expired_reports = Meeting.objects.filter(status=Meeting.IN_PROGRESS)
     expired_reports.update(status=Meeting.EXPIRED)
