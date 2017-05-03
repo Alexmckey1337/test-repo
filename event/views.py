@@ -31,6 +31,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     permission_classes = (IsAuthenticated,)
     pagination_class = MeetingPagination
+    pagination_retrieve_class = MeetingAttendPagination
 
     filter_backends = (filters.DjangoFilterBackend,
                        CommonEventFilter,
@@ -68,6 +69,11 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                     output_field=IntegerField(), default=0))
             )
         return self.queryset
+
+    def get_paginated_response(self, data):
+        if self.action == 'retrieve':
+            return self.pagination_retrieve_class
+        return self.pagination_class
 
     @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer)
     def submit(self, request, pk):
@@ -147,7 +153,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         headers = self.get_success_headers(meeting.data)
         return Response(meeting.data, status=status.HTTP_200_OK, headers=headers)
 
-    @detail_route(methods=['GET'], serializer_class=UserNameSerializer, pagination_class=MeetingAttendPagination)
+    @detail_route(methods=['GET'], serializer_class=UserNameSerializer)
     def visitors(self, request, pk):
         meeting = self.get_object()
         visitors = meeting.home_group.users.all()
