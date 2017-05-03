@@ -99,7 +99,7 @@ class Meeting(AbstractStatusModel):
             self.date.strftime('%d %B %Y'))
 
     def get_absolute_url(self):
-        return reverse('events:home_report', args=(self.id,))
+        return reverse('events:meeting_report_detail', args=(self.id,))
 
     @property
     def phone_number(self):
@@ -149,7 +149,7 @@ class ChurchReport(AbstractStatusModel):
             self.date.strftime('%d %B %Y'))
 
     def get_absolute_url(self):
-        return reverse('events:church_report', args=(self.id,))
+        return reverse('events:church_report_detail', args=(self.id,))
 
     @property
     def link(self):

@@ -83,7 +83,7 @@ class MeetingListSerializer(MeetingSerializer):
 
     class Meta(MeetingSerializer.Meta):
         fields = MeetingSerializer.Meta.fields + (
-            'phone_number', 'visitors_attended', 'visitors_absent')
+            'phone_number', 'visitors_attended', 'visitors_absent', 'link')
         read_only_fields = ['__all__']
 
 
@@ -133,7 +133,7 @@ class ChurchReportListSerializer(serializers.ModelSerializer, ValidateDataBefore
     class Meta:
         model = ChurchReport
         fields = ('id', 'pastor', 'church', 'date', 'count_people', 'tithe', 'donations',
-                  'transfer_payments', 'status')
+                  'transfer_payments', 'status', 'link')
         read_only_fields = ['__all__']
 
 
@@ -142,7 +142,7 @@ class ChurchReportSerializer(ChurchReportListSerializer):
     pastor = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
         church__pastor__id__isnull=False).distinct(), required=False)
     status = serializers.IntegerField(default=1)
-
+    
     not_editable_fields = ['church', 'pastor', 'status']
 
     class Meta(ChurchReportListSerializer.Meta):
