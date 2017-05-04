@@ -429,7 +429,7 @@ def generate_code(request):
 
 @api_view(['GET'])
 def generate_summit_tickets(request, summit_id):
-    limit = 200
+    limit = 2000
 
     ankets = list(SummitAnket.objects.order_by('id').filter(
         summit_id=summit_id, tickets__isnull=True)[:limit].values_list('id', 'code'))

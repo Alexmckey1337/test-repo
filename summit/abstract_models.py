@@ -1,4 +1,4 @@
-from account.abstact_models import UserPermission
+from account.abstract_models import UserPermission
 from summit.models import SummitType, SummitAnket
 from summit.permissions import can_see_summit, can_see_summit_type, can_see_any_summit, can_see_any_summit_type, \
     is_any_summit_supervisor_or_high
