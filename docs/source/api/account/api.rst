@@ -235,7 +235,7 @@ List of users
                         ``born_date``, ``country``, ``region``, ``city``, ``disrict``,
                         ``address``, ``skype``,
                         ``phone_number``, ``email``, ``hierarchy__level``, ``department__title``,
-                        ``facebook``, ``vkontakte``, ``hierarchy_order``, ``master__last_name``
+                        ``facebook``, ``vkontakte``, ``master__last_name``
 
     :statuscode 200: no error
 

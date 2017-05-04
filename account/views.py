@@ -76,7 +76,7 @@ class UserViewSet(viewsets.ModelViewSet, UserExportViewSetMixin):
     ordering_fields = ('first_name', 'last_name', 'middle_name',
                        'born_date', 'country', 'region', 'city', 'disrict', 'address', 'skype',
                        'phone_number', 'email', 'hierarchy__level',
-                       'facebook', 'vkontakte', 'hierarchy_order', 'master__last_name',)
+                       'facebook', 'vkontakte', 'master__last_name',)
     field_search_fields = {
         'search_fio': ('last_name', 'first_name', 'middle_name', 'search_name'),
         'search_email': ('email',),

@@ -62,9 +62,10 @@ class CustomUser(MPTTModel, User, GroupUserPermission, PartnerUserPermission, Su
                                   on_delete=models.SET_NULL)
     master = TreeForeignKey('self', related_name='disciples', null=True, blank=True,
                             on_delete=models.PROTECT, db_index=True)
+    #: Date of repentance (дата покаяния)
     repentance_date = models.DateField(blank=True, null=True)
+    #: Date of coming (дата прихода)
     coming_date = models.DateField(blank=True, null=True)
-    hierarchy_order = models.BigIntegerField(blank=True, null=True)
     activation_key = models.CharField(max_length=40, blank=True)
 
     extra_phone_numbers = ArrayField(
