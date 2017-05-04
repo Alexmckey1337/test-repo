@@ -79,7 +79,7 @@ class MeetingListSerializer(MeetingSerializer):
     type = MeetingTypeSerializer()
     home_group = HomeGroupNameSerializer()
     owner = UserNameSerializer()
-    status = serializers.CharField(source='get_status_display')
+    status = serializers.JSONField(source='get_status_display')
 
     class Meta(MeetingSerializer.Meta):
         fields = MeetingSerializer.Meta.fields + (
@@ -97,7 +97,7 @@ class MeetingDetailSerializer(MeetingSerializer):
     not_editable_fields = ['home_group', 'owner', 'type', 'status']
 
     class Meta(MeetingSerializer.Meta):
-        fields = MeetingSerializer.Meta.fields + ('attends',)
+        fields = MeetingSerializer.Meta.fields + ('attends', 'table_columns')
 
     def update(self, instance, validated_data):
         instance, validated_data = self.validate_before_serializer_update(

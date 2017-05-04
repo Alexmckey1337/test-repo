@@ -10,6 +10,7 @@ from django.db.models import Sum
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
+from navigation.table_fields import meeting_table
 
 
 @python_2_unicode_compatible
@@ -116,6 +117,10 @@ class Meeting(AbstractStatusModel):
     @property
     def link(self):
         return self.get_absolute_url()
+
+    @property
+    def table_columns(self):
+        return meeting_table(self.owner, category_title='attends')
 
 
 class ChurchReport(AbstractStatusModel):

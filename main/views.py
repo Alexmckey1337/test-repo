@@ -63,7 +63,6 @@ def meeting_report_detail(request, pk):
     ctx = {
         'home_report': get_object_or_404(Meeting, pk=pk),
         'leader': request.user,
-        'table_columns': meeting_table(request.user, 'attends')
     }
     return render(request, 'event/home_report_detail.html', context=ctx)
 
