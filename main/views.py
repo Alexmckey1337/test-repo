@@ -65,7 +65,6 @@ def meeting_report_detail(request, pk):
         'leader': request.user,
         'table_columns': meeting_table(request.user, 'attends')
     }
-
     return render(request, 'event/home_report_detail.html', context=ctx)
 
 

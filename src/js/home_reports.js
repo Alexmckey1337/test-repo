@@ -1,10 +1,10 @@
 (function () {
-    $('.preloader').hide();
     function makeHomeReportsTable(data) {
         let tmpl = $('#databaseHomeReports').html();
         let rendered = _.template(tmpl)(data);
         $('#homeReports').html(rendered);
         makeSortForm(data.table_columns);
+        $('.preloader').hide();
     }
 
     function getHomeReports(config = {}) {
@@ -16,7 +16,7 @@
                     'Content-Type': 'application/json'
                 },
                 data: {
-                    status: config.status || 1
+                    status: config.status || 2
                 }
             };
             let status = {
@@ -38,6 +38,7 @@
     // Events
     let $statusTabs = $('#statusTabs');
     $statusTabs.find('button').on('click', function () {
+        $('.preloader').show();
         let status = $(this).data('status');
         getHomeReports({
             status: status
