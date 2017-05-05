@@ -48,7 +48,8 @@
                                 <div class="phone">
                                     <select style="width: 96%" name="" id="chooseCountryCode"></select>
                                     <input id="phoneNumberCode" type="text" readonly data-validation="required">
-                                    <input id="phoneNumber" type="text" required data-validation="required">
+                                    <input id="phoneNumber" type="text" required
+                                           data-validation="required number">
                                 </div>
                             </li>
                             <li class="clearfix">
@@ -57,7 +58,8 @@
                             </li>
                             <li class="clearfix">
                                 <label for="email">E-mail</label>
-                                <input name="email" type="text">
+                                <input name="email" type="text" data-validation="email"
+                                       data-validation-optional="true">
                             </li>
                             <li class="clearfix">
                                 <label for="skype">Skype</label>
@@ -85,15 +87,18 @@
                             </li>
                             <li class="clearfix">
                                 <label for="facebook">Facebook</label>
-                                <input name="facebook" type="text">
+                                <input name="facebook" type="text"
+                                       data-validation="url" data-validation-optional="true">
                             </li>
                             <li class="clearfix">
                                 <label for="vkontakte">Vkontakte</label>
-                                <input name="vkontakte" type="text">
+                                <input name="vkontakte" type="text"
+                                       data-validation="url" data-validation-optional="true">
                             </li>
                             <li class="clearfix">
                                 <label for="odnaklasniki">Odnaklasniki</label>
-                                <input name="odnoklassniki" type="text">
+                                <input name="odnoklassniki" type="text"
+                                       data-validation="url" data-validation-optional="true">
                             </li>
                         </ul>
                     </div>

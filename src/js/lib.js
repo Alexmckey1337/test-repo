@@ -2535,7 +2535,7 @@ function createNewUser(callback) {
         }
     }).catch(function (data) {
         $preloader.css('display', 'none');
-        showPopup(data);
+        showPopup(data.message[0]);
     });
 }
 

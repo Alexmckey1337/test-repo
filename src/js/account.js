@@ -662,6 +662,12 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         });
     });
 
+    $.validate({
+    lang: 'ru',
+    form: '#editContactForm',
+    modules : 'toggleDisabled',
+});
+
     initLocationSelect({
         country: 'selectCountry',
         region: 'selectRegion',
