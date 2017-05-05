@@ -47,7 +47,7 @@
                 <label class="disable" for="save-profile">Чужой компьютер</label>
                 <button id="entry" autocomplete="on">Войти</button>
             </div>
-            <a href="#" class="restore">Восстановить пароль</a>
+            <a href="{% url "restore" %}" class="restore">Восстановить пароль</a>
             <div class="invalid" autocomplete="on">Неверно введён e-mail или пароль</div>
         </div>
         {% endblock %}
@@ -70,8 +70,8 @@
 <script src='{% static "libs/jquery/dist/jquery.min.js" %}'></script>
 <script src='{% static "js/lib.js" %}'></script>
 <script src='{% static "js/main.js" %}'></script>
-<script src={% static "js/entry.js" %}></script>
 {% block script %}
+<script src={% static "js/entry.js" %}></script>
 {% endblock %}
 </body>
 </html>

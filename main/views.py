@@ -28,6 +28,10 @@ def entry(request):
     return render(request, 'login/login.html')
 
 
+def restore(request):
+    return render(request, 'login/restore_password.html')
+
+
 def edit_pass(request, activation_key=None):
     return render(request, 'login/edit_password.html')
 

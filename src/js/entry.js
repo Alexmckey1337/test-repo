@@ -128,23 +128,6 @@ $(document).ready(function () {
         logIn();
     });
 
-
-    // document.getElementById('prev_page').addEventListener('click', function () {
-    //     document.getElementsByClassName('getpassword')[0].style.display = 'none';
-    //     document.getElementById('login_popup').style.display = 'block'
-    // });
-    //
-    //
-    // document.getElementsByClassName('restore')[0].addEventListener('click', function () {
-    //     document.getElementsByClassName('getpassword')[0].style.display = 'block';
-    //     document.getElementById('login_popup').style.display = 'none'
-    // });
-    //
-    //
-    // document.getElementById('getpass').addEventListener('click', function () {
-    //     sendPassToEmail();
-    // });
-
     $('.entry-input2').keypress(function (e) {
         if (e.which == 13) {
             logIn();
@@ -157,5 +140,5 @@ $(document).ready(function () {
         }
     });
 
-    $('body').unbind('click');
+    // $('body').unbind('click');
 });
