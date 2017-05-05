@@ -39,10 +39,18 @@ class MeetingTypeSerializer(serializers.ModelSerializer):
 
 
 class MeetingAttendSerializer(serializers.ModelSerializer):
+    fullname = serializers.CharField(source='user.fullname')
 
     class Meta:
         model = MeetingAttend
-        fields = ('id', 'user', 'attended', 'note', 'user_phone_number')
+        fields = ('id', 'fullname', 'attended', 'note', 'user_phone_number')
+
+
+class MeetingVisitorsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'fullname', 'spiritual_level', 'phone_number')
 
 
 class MeetingSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMixin):
@@ -97,7 +105,7 @@ class MeetingDetailSerializer(MeetingSerializer):
     not_editable_fields = ['home_group', 'owner', 'type', 'status']
 
     class Meta(MeetingSerializer.Meta):
-        fields = MeetingSerializer.Meta.fields + ('attends', 'table_columns')
+        fields = MeetingSerializer.Meta.fields + ('attends',)
 
     def update(self, instance, validated_data):
         instance, validated_data = self.validate_before_serializer_update(

@@ -24,3 +24,7 @@ class MeetingPagination(PageNumberPagination):
 
 class ChurchReportPagination(PaginationMixin):
     category = 'church_reports'
+
+
+class MeetingVisitorsPagination(MeetingPagination):
+    category = 'attends'

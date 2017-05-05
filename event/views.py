@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.db.models import IntegerField, Sum, When, Case, Count
 from rest_framework import status, filters, exceptions
 from rest_framework.decorators import list_route, detail_route
-from .pagination import MeetingPagination, ChurchReportPagination
+from .pagination import MeetingPagination, ChurchReportPagination, MeetingVisitorsPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.utils.translation import ugettext_lazy as _
@@ -16,7 +16,7 @@ from common.views_mixins import ModelWithoutDeleteViewSet
 
 from .filters import ChurchReportFilter, MeetingFilter, CommonEventFilter
 from .models import Meeting, ChurchReport, MeetingAttend
-from .serializers import (UserNameSerializer, MeetingSerializer, MeetingDetailSerializer,
+from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingDetailSerializer,
                           MeetingListSerializer, ChurchReportStatisticSerializer,
                           MeetingStatisticSerializer, ChurchReportSerializer,
                           ChurchReportListSerializer)
@@ -147,10 +147,17 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         headers = self.get_success_headers(meeting.data)
         return Response(meeting.data, status=status.HTTP_200_OK, headers=headers)
 
-    @detail_route(methods=['GET'], serializer_class=UserNameSerializer)
+    @detail_route(methods=['GET'], serializer_class=MeetingVisitorsSerializer,
+                  pagination_class=MeetingVisitorsPagination)
     def visitors(self, request, pk):
         meeting = self.get_object()
         visitors = meeting.home_group.users.all()
+
+        page = self.paginate_queryset(visitors)
+        if page is not None:
+            visitors = self.get_serializer(page, many=True)
+            return self.get_paginated_response(visitors.data)
+
         visitors = self.serializer_class(visitors, many=True)
 
         return Response(visitors.data)
