@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from dbmail import send_db_mail
 from django.db.models import Case, When, BooleanField
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions, viewsets, filters, status, mixins
 from rest_framework.decorators import list_route, detail_route, api_view
@@ -14,7 +14,6 @@ from rest_framework.settings import api_settings
 from rest_framework.viewsets import GenericViewSet
 
 from account.models import CustomUser
-from common.views_mixins import ExportViewSetMixin
 from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import FilterByClub, ProductFilter, SummitUnregisterFilter
@@ -22,7 +21,6 @@ from summit.pagination import SummitPagination
 from summit.permissions import IsSupervisorOrHigh
 from summit.utils import generate_ticket
 from .models import Summit, SummitAnket, SummitType, SummitLesson, SummitUserConsultant, SummitTicket
-from .resources import get_fields, SummitAnketResource
 from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
     SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer,
@@ -155,11 +153,9 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         else:
             anket = SummitAnket.objects.create(
                 user=user, summit=summit, visited=visited, description=request.data['description'])
-            if 'retards' in keys:
-                if request.data['retards']:
-                    anket.retards = request.data['retards']
-                    anket.code = request.data['code']
-            get_fields(anket)
+            anket.code = '0{}'.format(4*000*000 + anket.id)
+            anket.creator = request.user
+            anket.save()
         data = {"message": "Данные успешно сохраненны",
                 'status': True}
         if (data['status'] and request.data.get('send_email', False) and

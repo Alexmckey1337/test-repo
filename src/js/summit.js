@@ -378,12 +378,15 @@
     }
 
     function makePotencialSammitUsersList() {
-        let param = {};
+        let param = {'summit_id': 7};
+        console.log(param);
         let search = $('#searchUsers').val();
         if (search) {
             param['search'] = search;
         }
-        param.summit_id = $('#date .active span').data('id');
+        console.log(param);
+        param.summit_id = $('#summitsTypes .active').data('id');
+        console.log(param);
         getPotencialSammitUsers(param).then(function (data) {
             let html = '';
             data = data.results;

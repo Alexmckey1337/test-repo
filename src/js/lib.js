@@ -504,6 +504,7 @@ function getSummitUsers(summit_id, config = {}) {
 }
 
 function getPotencialSammitUsers(config) {
+    console.log(config);
     return new Promise(function (resolve, reject) {
         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_search/', config, function (data) {
             resolve(data);
