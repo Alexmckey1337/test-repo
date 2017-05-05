@@ -61,6 +61,7 @@ summit_patterns = [
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^entry/$', views.entry, name='entry'),
+    url(r'^entry/restore/$', views.restore, name='restore'),
 
     url(r'^db/', include(database_patterns, namespace='db')),
     url(r'^account/', include(account_patterns, namespace='account')),
