@@ -11,6 +11,7 @@ from group.serializers import (UserNameSerializer, ChurchNameSerializer,
 from account.models import CustomUser
 from .models import Meeting, MeetingAttend, MeetingType, ChurchReport, AbstractStatusModel
 from datetime import datetime
+from common.fields import ReadOnlyChoiceField
 
 
 class ValidateDataBeforeUpdateMixin(object):
@@ -40,13 +41,17 @@ class MeetingTypeSerializer(serializers.ModelSerializer):
 
 class MeetingAttendSerializer(serializers.ModelSerializer):
     fullname = serializers.CharField(source='user.fullname')
+    spiritual_level = ReadOnlyChoiceField(source='user.spiritual_level',
+        choices=CustomUser.SPIRITUAL_LEVEL_CHOICES, read_only=True)
 
     class Meta:
         model = MeetingAttend
-        fields = ('id', 'fullname', 'attended', 'note', 'user_phone_number')
+        fields = ('id', 'fullname', 'spiritual_level', 'attended', 'note', 'user_phone_number')
 
 
 class MeetingVisitorsSerializer(serializers.ModelSerializer):
+    spiritual_level = ReadOnlyChoiceField(
+        choices=CustomUser.SPIRITUAL_LEVEL_CHOICES, read_only=True)
 
     class Meta:
         model = CustomUser
