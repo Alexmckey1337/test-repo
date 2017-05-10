@@ -252,6 +252,7 @@ $("#send_note").on('click', function (e) {
     let text_field = box.find('.js-add_note');
     let text = text_field.val();
     let anket_id = text_field.data('anket-id');
+    console.log(anket_id, text, box);
     sendNote(anket_id, text, box);
     text_field.val('');
 });
@@ -794,6 +795,11 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     $('#sent_date').datepicker({
         autoClose: true,
         dateFormat: 'dd.mm.yyyy'
+    });
+
+    $('.summits-title').on('click', function () {
+        $(this).siblings('.summits-block').slideUp(300);
+        $(this).next('.summits-block').slideToggle();
     })
 })
 (jQuery);

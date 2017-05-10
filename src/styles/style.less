@@ -227,7 +227,7 @@ select::-ms-expand {
 
 .top,
 .top-buttons-wrap {
-  overflow: hidden;
+  //overflow: hidden;
   border-bottom: 1px solid #cdd0d4;
   height: 90px;
   box-sizing: border-box;
@@ -612,10 +612,35 @@ h1 a {
 /* ---------------Tabs------------------ */
 .top-panel {
   position: relative;
-  overflow: hidden;
+  //overflow: hidden;
   & .tabs {
     & .tabs-nav {
       margin-top: 0;
+    }
+  }
+}
+
+.tabs-panel {
+  margin-top: 3em;
+  background-color: #f2f5fa;
+  & .tabs_link li {
+    width: auto;
+    height: auto;
+    & button {
+      padding: 35px 20px;
+      color: #3caeda;
+      background-color: #f2f5fa;
+      border-radius: 0;
+      border: 1px solid #cdd0d4;
+      border-left: none;
+      font-size: 1.2em;
+    }
+    & button:hover {
+      color: #656d78;
+    }
+    & .active {
+      border-bottom: none;
+      background-color: #fff;
     }
   }
 }
@@ -707,10 +732,27 @@ h1 a {
   margin-left: 10px;
   position: relative;
   vertical-align: middle;
+  &:hover .top-buttons-submenu {
+    display: block;
+  }
 }
 
 .top-buttons li:last-child {
   padding-right: 30px;
+}
+
+.top-buttons-submenu {
+  position: absolute;
+  display: none;
+  & li {
+    width: 100%;
+    margin-left: 0;
+    & button {
+      width: 100%;
+      padding: 12px 5px;
+      border-radius: 0;
+    }
+  }
 }
 
 .editprofile .col-1 button::before,
@@ -3767,6 +3809,10 @@ span.change[style*="display: none"] ~ span.y {
   }
 }
 
+.summits-block {
+  display: none;
+}
+
 .user-fiowrap {
   position: relative;
 }
@@ -4113,18 +4159,51 @@ span.green {
       width: 18.5em !important;
     }
   }
+  & h2 {
+      position: relative;
+      margin-top: 2em;
+      margin-bottom: .5em;
+      padding: 0 .5em;
+      //border: 1px solid #a0a0a0;
+      //border-radius: .4em;
+      font-size: 1.8em;
+    cursor: pointer;
+    &:after {
+        position: absolute;
+        display: block;
+        content: '\f0dd';
+        font: 1.2em FontAwesome;
+        bottom: 0.2em;
+        right: .5em;
+      }
+  }
+  & .info-title_active:after {
+    bottom: -0.2em;
+    content: '\f0de';
+  }
   & .info {
+    display: none;
     padding: 2em;
+    border: 1px solid #aab2bd;
     & h2 {
       margin-bottom: 0.5em;
       font-size: 1.5em;
     }
     & ul {
+      display: flex;
+      flex-wrap: wrap;
       line-height: 1.5;
       & li {
+        width: 60%;
         margin: 0.2em 0;
         &.mb {
           margin-bottom: .5em;
+        }
+        & a {
+          transition: color .4s ease;
+        }
+        & a:hover {
+          color: #3caeda;
         }
         & button {
           padding: .3em;
@@ -4139,6 +4218,14 @@ span.green {
           }
         }
       }
+      & li:nth-child(2n) {
+        width: 40%;
+      }
+    }
+  }
+  & .info-calc {
+    & ul li:nth-child(2n) {
+      text-align: center;
     }
   }
 }
@@ -4146,6 +4233,10 @@ span.green {
 .col-2, .col-3 {
   width: 38%;
   float: left;
+}
+
+.col {
+  width: 25%;
 }
 
 .col-3 {
@@ -4159,6 +4250,10 @@ span.green {
 
 .col-7 {
   width: 70%;
+}
+
+.col-12 {
+  width: 100%;
 }
 
 .col-table {

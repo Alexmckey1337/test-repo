@@ -602,10 +602,12 @@
                                 {% endfor %}
                             </ul>
                         </div>
+
                         <div class="summit_wrapper clearfix" id="summitWrapper">
                             {% for anket_group in ankets %}
                                 {% for anket in anket_group.list %}
-                                    <div class="rows" data-summit-id="{{ anket_group.grouper.id }}"
+
+                                    <div class="rows summits-title" data-summit-id="{{ anket_group.grouper.id }}"
                                          style="border-bottom: 2px solid #000; display:none;">
                                         <div class="col">
                                             <p>{{ anket.summit }}</p>
@@ -618,15 +620,16 @@
                                             <p>Сумма<span> {{ anket.total_payed }} ₴</span></p>
                                         </div>
                                     </div>
-                                    <div class="rows" data-summit-id="{{ anket_group.grouper.id }}"
-                                         style="display:none;">
+
+                                    <div class="summits-block">
+                                    <div class="rows">
                                         <div style="padding:10px 15px;">
                                             <p>Примечания</p>
                                         </div>
                                     </div>
+
                                     {% for note in anket.notes.all %}
-                                        <div class="rows" data-summit-id="{{ anket_group.grouper.id }}"
-                                             style="display:none;">
+                                        <div class="rows">
                                             <div style="padding:10px 6px;">
                                                 <p>{{ note.text }} — {{ note.date_created|date:"d.m.Y H:i:s" }}
                                                     — Author: {{ note.owner.fullname }}
@@ -634,8 +637,8 @@
                                             </div>
                                         </div>
                                     {% endfor %}
-                                    <div class="rows note-box" data-summit-id="{{ anket_group.grouper.id }}"
-                                         style="display:none;">
+
+                                    <div class="rows note-box">
                                         <div style="padding:10px 15px;">
                                             <p>Написать примечание</p>
                                             <p><textarea name="add_note" data-anket-id="{{ anket.id }}"
@@ -645,17 +648,16 @@
                                             </p>
                                         </div>
                                     </div>
+
                                     {% if anket.summit.lessons.exists %}
-                                        <div class="rows" data-summit-id="{{ anket_group.grouper.id }}"
-                                             style="display:none;">
+                                        <div class="rows">
                                             <div style="padding:10px 15px;">
                                                 <p>Уроки</p>
                                             </div>
                                         </div>
                                         {% is_consultant_for_user anket.summit anket.user as is_consultant %}
                                         {% for lesson in anket.summit.lessons.all %}
-                                            <div class="rows" data-summit-id="{{ anket_group.grouper.id }}"
-                                                 style="display:none;">
+                                            <div class="rows">
                                                 <div style="padding:10px 6px;">
                                                     <p>
                                                         {% if is_consultant %}
@@ -678,16 +680,15 @@
                                             </div>
                                         {% endfor %}
                                     {% endif %}
+
                                     {% if anket.emails.exists %}
-                                        <div class="rows" data-summit-id="{{ anket_group.grouper.id }}"
-                                             style="display:none;">
+                                        <div class="rows">
                                             <div style="padding:10px 15px;">
                                                 <p>EMAIL</p>
                                             </div>
                                         </div>
                                         {% for email in anket.emails.all %}
-                                            <div class="rows" data-summit-id="{{ anket_group.grouper.id }}"
-                                                 style="display:none;">
+                                            <div class="rows">
                                                 <div style="padding:10px 6px;">
                                                     <p> Отправлено на email: {{ email.recipient }} —
                                                         Дата отправки: {{ email.created_at|date:"d.m.Y H:i:s" }}
@@ -696,6 +697,7 @@
                                             </div>
                                         {% endfor %}
                                     {% endif %}
+                                    </div>
                                 {% endfor %}
                             {% endfor %}
                         </div>

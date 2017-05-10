@@ -184,4 +184,6 @@
             return false; // Will stop the submission of the form
         }
     });
+    accordionInfo();
+
 })(jQuery);
