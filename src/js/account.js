@@ -489,6 +489,9 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         $hiddenBlock.each(function () {
             $(this).removeClass('hidden');
         });
+        if ($(this).data('edit-block') == 'editContact' && $(this).hasClass('active')) {
+                $(this).closest('form').get(0).reset();
+        }
         if ($(this).hasClass('active')) {
             $input.each(function (i, el) {
                 if (!$(this).attr('disabled')) {
