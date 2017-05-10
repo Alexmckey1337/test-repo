@@ -50,7 +50,7 @@ class MeetingAttend(models.Model):
             self.meeting)
 
     @property
-    def user_phone_number(self):
+    def phone_number(self):
         return self.user.phone_number
 
 

@@ -42,11 +42,11 @@ class MeetingTypeSerializer(serializers.ModelSerializer):
 class MeetingAttendSerializer(serializers.ModelSerializer):
     fullname = serializers.CharField(source='user.fullname')
     spiritual_level = ReadOnlyChoiceField(source='user.spiritual_level',
-        choices=CustomUser.SPIRITUAL_LEVEL_CHOICES, read_only=True)
+                                          choices=CustomUser.SPIRITUAL_LEVEL_CHOICES, read_only=True)
 
     class Meta:
         model = MeetingAttend
-        fields = ('id', 'fullname', 'spiritual_level', 'attended', 'note', 'user_phone_number')
+        fields = ('id', 'fullname', 'spiritual_level', 'attended', 'note', 'phone_number')
 
 
 class MeetingVisitorsSerializer(serializers.ModelSerializer):
