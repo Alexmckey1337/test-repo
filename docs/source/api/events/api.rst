@@ -258,13 +258,11 @@ _____________________
             "total_sum": "1500",
             "attends": [
                 {
-                    "id": 340,
                     "user": 10717,
                     "attended": true,
                     "note": "Comment"
                 },
                 {
-                    "id": 341,
                     "user": 6977,
                     "attended": true,
                     "note": "Comment"
@@ -344,7 +342,6 @@ _____________________
         content-type: application/json
 
         {
-            "id": 165,
             "date": "2017-04-01",
             "total_sum": "35000",
             "attends": [
