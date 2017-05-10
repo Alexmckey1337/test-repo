@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.db.models import Sum, Value as V
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Coalesce, Concat
 from rest_framework.compat import is_authenticated
 
 
@@ -15,8 +15,15 @@ class ProfileQuerySet(models.query.QuerySet):
         return self.annotate(
             total_sum=Coalesce(Sum('payments__effective_sum'), V(0)))
 
+    def annotate_full_name(self):
+        return self.annotate(
+            full_name=Concat(
+                'last_name', V(' '),
+                'first_name', V(' '),
+                'middle_name'))
+
     def for_user(self, user):
-        if not is_authenticated(user) or not hasattr(user, 'partnership'):
+        if not is_authenticated(user):
             return self.none()
         summit_ids = set(user.summit_ankets.filter(
             role__gte=settings.SUMMIT_ANKET_ROLES['consultant']).values_list('summit_id', flat=True))
@@ -32,6 +39,9 @@ class ProfileManager(models.Manager):
 
     def annotate_total_sum(self):
         return self.get_queryset().annotate_total_sum()
+
+    def annotate_full_name(self):
+        return self.get_queryset().annotate_full_name()
 
     def for_user(self, user):
         return self.get_queryset().for_user(user=user)

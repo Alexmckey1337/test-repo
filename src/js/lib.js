@@ -1738,7 +1738,7 @@ function createSummitUsersTable(data = {}) {
         let common_table = Object.keys(data.common_table);
         filter_data.results = data.results.map(function (item) {
             let data;
-            data = item.user;
+            data = item;
             data.ankets_id = item.id;
             common_table.forEach(function (field) {
                 data[field] = item[field];

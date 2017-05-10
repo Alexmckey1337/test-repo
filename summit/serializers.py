@@ -5,6 +5,7 @@ from rest_framework import serializers
 
 from account.models import CustomUser as User
 from account.serializers import UserTableSerializer, UserShortSerializer
+from common.fields import ListCharField
 from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail, SummitTicket
 
 
@@ -25,18 +26,29 @@ class AnketEmailSerializer(serializers.ModelSerializer):
 
 
 class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
-    user = UserTableSerializer()
     emails = AnketEmailSerializer(many=True, read_only=True)
     total_sum = serializers.DecimalField(max_digits=12, decimal_places=0)
+    full_name = serializers.CharField()
+    email = serializers.CharField(source='user.email')
+    phone_number = serializers.CharField(source='user.phone_number')
+    social = ListCharField(fields=('user.facebook', 'user.vkontakte', 'user.odnoklassniki', 'user.skype'))
+    region = serializers.CharField(source='user.region')
+    district = serializers.CharField(source='user.district')
+    address = serializers.CharField(source='user.address')
+    born_date = serializers.CharField(source='user.born_date')
+    repentance_date = serializers.CharField(source='user.repentance_date')
+    spiritual_level = serializers.CharField(source='get_spiritual_level_display')
 
     class Meta:
         model = SummitAnket
-        fields = ('id', 'user', 'code', 'description',
+        fields = ('id', 'full_name', 'responsible', 'spiritual_level',
+                  'divisions_title', 'department', 'hierarchy_title', 'phone_number', 'email', 'social',
+                  'country', 'city', 'region', 'district', 'address', 'born_date', 'repentance_date',
+                  'code', 'value', 'description',
                   'emails',
                   'visited',
+                  'link',
 
-                  'is_member',
-                  # 'is_full_paid',
                   'total_sum',
                   )
 

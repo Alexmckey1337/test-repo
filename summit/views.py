@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from dbmail import send_db_mail
 from django.db.models import Case, When, BooleanField
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions, viewsets, filters, status, mixins
 from rest_framework.decorators import list_route, detail_route, api_view
@@ -14,9 +14,11 @@ from rest_framework.settings import api_settings
 from rest_framework.viewsets import GenericViewSet
 
 from account.models import CustomUser
+from common.filters import FieldSearchFilter
 from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
-from summit.filters import FilterByClub, ProductFilter, SummitUnregisterFilter
+from summit.filters import FilterByClub, ProductFilter, SummitUnregisterFilter, ProfileFilter, \
+    FilterProfileMasterTreeWithSelf
 from summit.pagination import SummitPagination
 from summit.permissions import IsSupervisorOrHigh
 from summit.utils import generate_ticket
@@ -37,50 +39,37 @@ def get_success_headers(data):
 
 
 class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
-    queryset = SummitAnket.objects.base_queryset().annotate_total_sum().order_by(
+    queryset = SummitAnket.objects.base_queryset().annotate_total_sum().annotate_full_name().order_by(
         'user__last_name', 'user__first_name', 'user__middle_name')
     serializer_class = SummitAnketSerializer
     pagination_class = SummitPagination
     permission_classes = (IsAuthenticated,)
 
+    filter_class = ProfileFilter
+    ordering_fields = (
+        'first_name', 'last_name', 'responsible',
+        'spiritual_level', 'divisions_title', 'department', 'user__facebook', 'country', 'city',
+        'code', 'value', 'description',
+        'middle_name', 'user__born_date', 'country',
+        'user__region', 'city', 'user__district',
+        'user__address', 'user__phone_number',
+        'user__email', 'hierarchy__level',
+    )
     filter_backends = (
         filters.DjangoFilterBackend,
-        filters.SearchFilter,
         filters.OrderingFilter,
+        FieldSearchFilter,
+        FilterProfileMasterTreeWithSelf,
         FilterByClub,
     )
-    filter_fields = (
-        'user',
-        'summit', 'visited',
-        'user__master',
-        'user__departments',
-        'user__first_name', 'user__last_name',
-        'user__middle_name', 'user__born_date', 'user__country',
-        'user__region', 'user__city', 'user__district',
-        'user__address', 'user__skype', 'user__phone_number',
-        'user__email', 'user__hierarchy__level', 'user__facebook',
-        'user__vkontakte',
-    )
-    search_fields = (
-        'user__first_name',
-        'user__last_name',
-        'user__middle_name',
-        'user__search_name',
-        'user__hierarchy__title',
-        'user__phone_number',
-        'user__city',
-        'user__master__last_name',
-        'user__email',
-    )
-    ordering_fields = (
-        'user__first_name', 'user__last_name', 'user__master__last_name',
-        'user__middle_name', 'user__born_date', 'user__country',
-        'user__region', 'user__city', 'user__district',
-        'user__address', 'user__skype', 'user__phone_number',
-        'user__email', 'user__hierarchy__level',
-        'user__facebook',
-        'user__vkontakte',
-    )
+
+    field_search_fields = {
+        'search_fio': ('last_name', 'first_name', 'middle_name', 'search_name'),
+        'search_email': ('user__email',),
+        'search_phone_number': ('user__phone_number',),
+        'search_country': ('country',),
+        'search_city': ('city',),
+    }
 
     def get(self, request, *args, **kwargs):
         self.summit_id = kwargs.get('pk', None)
@@ -88,9 +77,7 @@ class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
 
     def get_queryset(self):
         qs = self.queryset.filter(summit_id=self.summit_id)
-        summit_ids = set(self.request.user.summit_ankets.filter(
-            role__gte=SummitAnket.CONSULTANT).values_list('summit_id', flat=True))
-        return qs.filter(summit__in=summit_ids)
+        return qs.for_user(self.request.user)
 
 
 class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,

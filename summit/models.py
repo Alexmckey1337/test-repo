@@ -214,6 +214,12 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
     def __str__(self):
         return '%s %s %s' % (self.user.fullname, self.summit.type.title, self.summit.start_date)
 
+    def get_absolute_url(self):
+        return reverse('summit:profile-detail', kwargs={'pk': self.id})
+
+    def link(self):
+        return self.get_absolute_url()
+
     def save(self, *args, **kwargs):
         update = kwargs.get('update_archive_fields', True)
         if self.summit.status == Summit.OPEN and update:

@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
@@ -16,7 +18,7 @@ class SummitPagination(PageNumberPagination):
                 'previous': self.get_previous_link()
             },
             'count': self.page.paginator.count,
-            'common_table': summit_table(),
-            'user_table': user_table(self.request.user, prefix_ordering_title='user__'),
+            'user_table': summit_table(self.request.user),
+            'common_table': OrderedDict(),
             'results': data
         })

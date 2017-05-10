@@ -130,7 +130,7 @@ class CustomUser(MPTTModel, User, CustomUserAbstract,
     def get_pastor(self):
         master = self.master
         while master is not None:
-            if master.hierarchy.level == 2:
+            if master.hierarchy and master.hierarchy.level == 2:
                 return master
             master = master.master
         return None
@@ -138,7 +138,7 @@ class CustomUser(MPTTModel, User, CustomUserAbstract,
     def get_bishop(self):
         master = self.master
         while master is not None:
-            if master.hierarchy.level == 4:
+            if master.hierarchy and master.hierarchy.level == 4:
                 return master
             master = master.master
         return None

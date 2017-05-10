@@ -2,7 +2,9 @@ import django_filters
 import rest_framework_filters as filters_new
 from rest_framework.filters import BaseFilterBackend
 
+from account.filters import FilterMasterTreeWithSelf
 from account.models import CustomUser
+from hierarchy.models import Hierarchy, Department
 from summit.models import Summit, SummitAnket
 
 
@@ -39,3 +41,17 @@ class SummitUnregisterFilter(filters_new.FilterSet):
     class Meta:
         model = CustomUser
         fields = ['summit_id']
+
+
+class ProfileFilter(django_filters.FilterSet):
+    hierarchy = django_filters.ModelChoiceFilter(name='hierarchy', queryset=Hierarchy.objects.all())
+    master = django_filters.ModelMultipleChoiceFilter(name="master", queryset=CustomUser.objects.all())
+    department = django_filters.ModelChoiceFilter(name="departments", queryset=Department.objects.all())
+
+    class Meta:
+        model = SummitAnket
+        fields = ['master', 'hierarchy', 'department']
+
+
+class FilterProfileMasterTreeWithSelf(FilterMasterTreeWithSelf):
+    user_field_prefix = 'user__'

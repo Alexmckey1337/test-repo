@@ -3,6 +3,7 @@ from pytest_factoryboy import register
 from rest_framework import status
 
 from account.factories import UserFactory
+from hierarchy.factories import HierarchyFactory, DepartmentFactory
 from payment.factories import PaymentFactory, CurrencyFactory
 from summit.factories import (
     SummitFactory, SummitLessonFactory, SummitAnketFactory, SummitTypeFactory, AnketEmailFactory,
@@ -19,6 +20,8 @@ register(CurrencyFactory)
 register(AnketEmailFactory)
 register(SummitUserConsultantFactory)
 register(AnketNoteFactory)
+register(HierarchyFactory)
+register(DepartmentFactory)
 
 
 CREATOR_ANKET = [
@@ -97,3 +100,13 @@ def lesson(summit_lesson_factory, summit):
 @pytest.fixture
 def summit_uc(summit_user_consultant_factory, summit_anket_factory, summit, anket):
     return summit_user_consultant_factory(summit=summit, user=anket, consultant=summit_anket_factory())
+
+
+@pytest.fixture
+def department(department_factory):
+    return department_factory()
+
+
+@pytest.fixture
+def hierarchy(hierarchy_factory):
+    return hierarchy_factory()
