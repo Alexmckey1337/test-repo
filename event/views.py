@@ -97,7 +97,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     @staticmethod
     def validate_to_submit(meeting, data):
-        if meeting.type.code == 'service' and data.get('total_sum'):
+        if meeting.type.code == 'service' and int(data.get('total_sum')):
             raise exceptions.ValidationError(
                 _('Невозможно подать отчет. Отчет типа - {%s} не должен содержать '
                   'денежную сумму. ' % meeting.type.name))
