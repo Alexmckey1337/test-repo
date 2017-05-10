@@ -118,6 +118,10 @@ class Meeting(AbstractStatusModel):
     def link(self):
         return self.get_absolute_url()
 
+    @property
+    def table_columns(self):
+        return meeting_table(self.owner, category_title='attends')
+
 
 class ChurchReport(AbstractStatusModel):
     date = models.DateField(_('Date'))
