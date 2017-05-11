@@ -268,7 +268,7 @@ function getChurchesListINDepartament(id) {
     return new Promise(function (resolve, reject) {
         let url;
         if (id instanceof Array) {
-            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches_by_department/?`;
+            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/churches_by_department/?`;
             let i = 0;
             id.forEach(function (item) {
                 i++;
