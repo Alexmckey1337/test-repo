@@ -105,6 +105,12 @@ class ChurchListSerializer(ChurchSerializer):
     pastor = UserNameSerializer()
 
 
+class ChurchWithoutPaginationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Church
+        fields = ('id', 'get_title')
+
+
 class ChurchStatsSerializer(serializers.ModelSerializer):
     church_users = serializers.IntegerField()
     church_all_users = serializers.IntegerField()
