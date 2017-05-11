@@ -424,7 +424,8 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     function makeChurches() {
         let departmentID = $selectDepartment.val();
         if (departmentID && typeof parseInt(departmentID) == "number") {
-            getChurchesINDepartament(departmentID).then(function (data) {
+            getChurchesListINDepartament(departmentID).then(function (data) {
+                console.log(departmentID);
                 let selectedChurchID = $(church_list).val();
                 let results = data.results;
                 let options = [];

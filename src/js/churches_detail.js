@@ -1,11 +1,12 @@
 (function ($) {
+
     const ID = $('#church').data('id');
     const D_ID = $('#added_home_group_church').data('department');
     let responsibleList = false;
     let link = $('.get_info .active').data('link');
 
-    function makeLeadersListByChurch(id) {
-        getLeadersByChurch({church_id: id}).then(function (data) {
+    function makeResponsibleList(churchID) {
+        getResponsibleBYHomeGroup(churchID).then(function (data) {
             let options = [];
             data.forEach(function (item) {
                 let option = document.createElement('option');
@@ -101,8 +102,7 @@
         clearAddHomeGroupData();
         if (!responsibleList) {
             responsibleList = true;
-
-            makeLeadersListByChurch(ID);
+            makeResponsibleList(ID);
         }
         setTimeout(function () {
             $('#addHomeGroup').css('display', 'block');
