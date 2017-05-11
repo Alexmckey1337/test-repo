@@ -2,6 +2,7 @@ import copy
 import datetime
 from decimal import Decimal
 
+import itertools
 import pytest
 from django.urls import reverse
 from rest_framework import status
@@ -72,6 +73,9 @@ CHANGE_FIELD = (
     ('middle_name', 201),
     ('phone_number', 201),
 )
+
+HIERARCHY_LEVELS_UP = list(itertools.combinations_with_replacement(range(1, 9), 2))
+HIERARCHY_LEVELS_DOWN = list(itertools.combinations(range(8, 0, -1), 2))
 
 
 @pytest.mark.django_db
@@ -441,6 +445,108 @@ class TestUserViewSet:
         response = api_client.put(url, data=user_data, format='json')
 
         assert response.status_code == status.HTTP_200_OK
+
+    @pytest.mark.parametrize(
+        'h1,h2', HIERARCHY_LEVELS_UP, ids=['{}->{}'.format(h[0], h[1]) for h in HIERARCHY_LEVELS_UP])
+    def test_increase_or_unchange_hierarchy(self, h1, h2, api_client, staff_user, user_factory, hierarchy_factory):
+        hierarchy_from = hierarchy_factory(level=h1)
+        hierarchy_to = hierarchy_factory(level=h2)
+        user = user_factory(hierarchy=hierarchy_from)
+
+        api_client.force_login(user=staff_user)
+        url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
+        response = api_client.patch(url, data={'hierarchy': hierarchy_to.id}, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+
+    @pytest.mark.parametrize(
+        'h1,h2', HIERARCHY_LEVELS_DOWN, ids=['{}->{}'.format(h[0], h[1]) for h in HIERARCHY_LEVELS_DOWN])
+    def test_reduce_hierarchy_without_disciples(self, h1, h2, api_client, staff_user, user_factory, hierarchy_factory):
+        hierarchy_from = hierarchy_factory(level=h1)
+        hierarchy_to = hierarchy_factory(level=h2)
+        user = user_factory(hierarchy=hierarchy_from)
+
+        api_client.force_login(user=staff_user)
+        url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
+        response = api_client.patch(url, data={'hierarchy': hierarchy_to.id}, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+
+    @pytest.mark.parametrize(
+        'h1,h2', HIERARCHY_LEVELS_DOWN, ids=['{}->{}'.format(h[0], h[1]) for h in HIERARCHY_LEVELS_DOWN])
+    def test_reduce_hierarchy_with_disciples(self, h1, h2, api_client, staff_user, user_factory, hierarchy_factory):
+        hierarchy_from = hierarchy_factory(level=h1)
+        hierarchy_to = hierarchy_factory(level=h2)
+        user = user_factory(hierarchy=hierarchy_from)
+        user_factory.create_batch(2, master=user)
+
+        api_client.force_login(user=staff_user)
+        url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
+        response = api_client.patch(url, data={'hierarchy': hierarchy_to.id}, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    @pytest.mark.parametrize(
+        'h1,h2', HIERARCHY_LEVELS_DOWN, ids=['{}->{}'.format(h[0], h[1]) for h in HIERARCHY_LEVELS_DOWN])
+    def test_status_reduce_hierarchy_with_disciples_and_move_to_master(
+            self, h1, h2, api_client, staff_user, user_factory, hierarchy_factory):
+        hierarchy_from = hierarchy_factory(level=h1)
+        hierarchy_to = hierarchy_factory(level=h2)
+        user = user_factory(hierarchy=hierarchy_from)
+        other_user = user_factory()
+        user_factory.create_batch(2, master=user)
+
+        api_client.force_login(user=staff_user)
+        url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
+        data = {
+            'hierarchy': hierarchy_to.id,
+            'move_to_master': other_user.id,
+        }
+        response = api_client.patch(url, data=data, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+
+    @pytest.mark.parametrize(
+        'h1,h2', HIERARCHY_LEVELS_DOWN, ids=['{}->{}'.format(h[0], h[1]) for h in HIERARCHY_LEVELS_DOWN])
+    def test_status_reduce_hierarchy_with_disciples_and_move_to_master_master_does_not_exist(
+            self, h1, h2, api_client, staff_user, user_factory, hierarchy_factory):
+        hierarchy_from = hierarchy_factory(level=h1)
+        hierarchy_to = hierarchy_factory(level=h2)
+        user = user_factory(hierarchy=hierarchy_from)
+        user_factory.create_batch(2, master=user)
+
+        api_client.force_login(user=staff_user)
+        url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
+        data = {
+            'hierarchy': hierarchy_to.id,
+            'move_to_master': 222222222,
+        }
+        response = api_client.patch(url, data=data, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    @pytest.mark.parametrize(
+        'h1,h2', HIERARCHY_LEVELS_DOWN, ids=['{}->{}'.format(h[0], h[1]) for h in HIERARCHY_LEVELS_DOWN])
+    def test_disciples_reduce_hierarchy_with_disciples_and_move_to_master_does_not_exist(
+            self, h1, h2, api_client, staff_user, user_factory, hierarchy_factory):
+        hierarchy_from = hierarchy_factory(level=h1)
+        hierarchy_to = hierarchy_factory(level=h2)
+        user = user_factory(hierarchy=hierarchy_from)
+        other_user = user_factory()
+        user_factory.create_batch(2, master=user)
+        assert user.disciples.exists()
+        assert not other_user.disciples.exists()
+
+        api_client.force_login(user=staff_user)
+        url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
+        data = {
+            'hierarchy': hierarchy_to.id,
+            'move_to_master': 222222222,
+        }
+        api_client.patch(url, data=data, format='json')
+
+        assert user.disciples.exists()
+        assert not other_user.disciples.exists()
 
 
 @pytest.mark.django_db

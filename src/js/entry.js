@@ -103,46 +103,29 @@ function logIn() {
 }
 
 
-function sendPassToEmail() {
-
-    let data = {
-        'email': document.getElementById('send_letter').value
-    };
-
-    let json = JSON.stringify(data);
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/password_forgot/', json, function (data) {
-        showPopup(data.detail);
-    }, 'POST', true, {
-        'Content-Type': 'application/json'
-    }, {
-        400: function (data) {
-            data = data.responseJSON;
-            showPopup(data.detail);
-
-        }
-    });
-}
+// function sendPassToEmail() {
+//
+//     let data = {
+//         'email': document.getElementById('send_letter').value
+//     };
+//
+//     let json = JSON.stringify(data);
+//     ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/password_forgot/', json, function (data) {
+//         showPopup(data.detail);
+//     }, 'POST', true, {
+//         'Content-Type': 'application/json'
+//     }, {
+//         400: function (data) {
+//             data = data.responseJSON;
+//             showPopup(data.detail);
+//
+//         }
+//     });
+// }
 
 $(document).ready(function () {
     document.getElementById('entry').addEventListener('click', function () {
         logIn();
-    });
-
-
-    document.getElementById('prev_page').addEventListener('click', function () {
-        document.getElementsByClassName('getpassword')[0].style.display = 'none';
-        document.getElementById('login_popup').style.display = 'block'
-    });
-
-
-    document.getElementsByClassName('restore')[0].addEventListener('click', function () {
-        document.getElementsByClassName('getpassword')[0].style.display = 'block';
-        document.getElementById('login_popup').style.display = 'none'
-    });
-
-
-    document.getElementById('getpass').addEventListener('click', function () {
-        sendPassToEmail();
     });
 
     $('.entry-input2').keypress(function (e) {
@@ -156,4 +139,6 @@ $(document).ready(function () {
             logIn();
         }
     });
+
+    // $('body').unbind('click');
 });

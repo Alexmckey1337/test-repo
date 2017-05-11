@@ -607,6 +607,194 @@ Update user, ``application/json``
     :statuscode 400: bad request
 
 
+Reduce user hierarchy, ``application/json``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:patch:: /api/v1.1/users/(int:user_id)/
+
+    Reduce the level of the hierarchy of user
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        PATCH /api/v1.1/users/13350/ HTTP/1.1
+        Host: vocrm.org
+        Accept: application/json
+        content-type: application/json
+        content-length: 47
+
+        {"hierarchy": 2}
+
+    **Example response(new hierarchy level >= old level)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+        Content-Type: application/json
+
+        {
+          "id": 13350,
+          "email": "old@email.com",
+          "first_name": "new",
+          "last_name": "name",
+          "middle_name": "other",
+          "description": "desc",
+          "facebook": "fb",
+          "vkontakte": "vk",
+          "odnoklassniki": "ok",
+          "skype": "iskype",
+          "phone_number": "+3846266646",
+          "extra_phone_numbers": [
+              "+3843333338"
+          ],
+          "born_date": "08.11.2016",
+          "coming_date": "01.12.2016",
+          "repentance_date": "02.12.2016",
+          "country": "Италия",
+          "region": "Regione Autonoma Friuli Venezia Giulia",
+          "city": "Adria",
+          "district": "",
+          "address": " address",
+          "image": "http://vocrm.org/media/images/blob_khTQWMg",
+          "image_source": "http://vocrm.org/media/images/photo_foIDR7k.jpg",
+          "department": 4,
+          "master": 11021,
+          "hierarchy": 2,
+          "divisions": [
+            6,
+            4
+          ],
+          "partnership": {
+            "id": 3810,
+            "value": 255,
+            "currency": 1,
+            "responsible": 1
+          },
+          "fullname": "name new other"
+        }
+
+    **Example response (Has id of new master)**:
+
+    To reduce the level of the hierarchy, you must also send the ``move_to_master`` field.
+
+    All disciples of current user will be move to user with ``id = move_to_master``.
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+        Content-Type: application/json
+
+        {
+          "id": 13350,
+          "email": "old@email.com",
+          "first_name": "new",
+          "last_name": "name",
+          "middle_name": "other",
+          "description": "desc",
+          "facebook": "fb",
+          "vkontakte": "vk",
+          "odnoklassniki": "ok",
+          "skype": "iskype",
+          "phone_number": "+3846266646",
+          "extra_phone_numbers": [
+              "+3843333338"
+          ],
+          "born_date": "08.11.2016",
+          "coming_date": "01.12.2016",
+          "repentance_date": "02.12.2016",
+          "country": "Италия",
+          "region": "Regione Autonoma Friuli Venezia Giulia",
+          "city": "Adria",
+          "district": "",
+          "address": " address",
+          "image": "http://vocrm.org/media/images/blob_khTQWMg",
+          "image_source": "http://vocrm.org/media/images/photo_foIDR7k.jpg",
+          "department": 4,
+          "master": 11021,
+          "hierarchy": 2,
+          "divisions": [
+            6,
+            4
+          ],
+          "partnership": {
+            "id": 3810,
+            "value": 255,
+            "currency": 1,
+            "responsible": 1
+          },
+          "fullname": "name new other"
+        }
+
+    **Example response (Not auth)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 403 Forbidden
+        Vary: Accept, Cookie
+        Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+        Content-Type: application/json
+
+        {
+          "detail": "Учетные данные не были предоставлены."
+        }
+
+    **Example response (New level < old level)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad request
+        Vary: Accept, Cookie
+        Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+        Content-Type: application/json
+
+        {
+          "detail": "Please, move disciples before reduce hierarchy.",
+          "disciples": [
+            {
+              "id": 7672,
+              "first_name": "Tell",
+              "last_name": "Me",
+              "middle_name": "Baby"
+            },
+            {
+              "id": 8543,
+              "first_name": "Iam",
+              "last_name": "Goto",
+              "middle_name": "Sleep"
+            }
+          ]
+        }
+
+    **Example response (New master does not exist)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad request
+        Vary: Accept, Cookie
+        Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+        Content-Type: application/json
+
+        {
+          "move_to_master": [
+            "User with id = 626424626262 does not exist."
+          ]
+        }
+
+    :form hierarchy: id of hierarchy
+    :form move_to_master: id of user on which you want to transfer disciples of the current user
+
+    :reqheader Content-Type: ``application/json``
+
+    :statuscode 200: success update
+    :statuscode 403: user is not authenticated
+    :statuscode 400: user have disciples or new master does not exist
+
+
 Partial update user, ``application/json``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -624,7 +812,11 @@ Partial update user, ``application/json``
         content-type: application/x-www-form-urlencoded
         content-length: 47
 
-        first_name=new&last_name=name&middle_name=other
+        {
+          "first_name": "new",
+          "last_name": "name",
+          "middle_name": "other"
+        }
 
     **Example response (Good request)**:
 
