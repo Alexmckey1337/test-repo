@@ -401,5 +401,5 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
             return Response(leaders.data)
 
         leaders = self.serializer_class(leaders, many=True)
-        
+
         return Response(leaders.data)
