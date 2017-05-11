@@ -97,7 +97,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     @staticmethod
     def validate_to_submit(meeting, data):
-        if meeting.type.code == 'service' and int(data.get('total_sum')):
+        if meeting.type.code == 'service' and data.get('total_sum'):
             raise exceptions.ValidationError(
                 _('Невозможно подать отчет. Отчет типа - {%s} не должен содержать '
                   'денежную сумму. ' % meeting.type.name))
@@ -140,6 +140,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                         attended=attend.get('attended', False),
                         note=attend.get('note', '')
                     )
+
         except IntegrityError:
             data = {'message': _('При обновлении возникла ошибка. Попробуйте еще раз.')}
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)

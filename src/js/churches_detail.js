@@ -1,4 +1,5 @@
 (function ($) {
+
     const ID = $('#church').data('id');
     const D_ID = $('#added_home_group_church').data('department');
     let responsibleList = false;

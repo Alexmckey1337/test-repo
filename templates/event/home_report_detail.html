@@ -35,6 +35,9 @@
             {% endblock %}
             {% block header.buttons.change_table %}
                 <li>
+                    <button id="save">Сохранить</button>
+                </li>
+                <li>
                     <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
                 </li>
             {% endblock %}
@@ -43,6 +46,8 @@
 {% endblock %}
 
 {% block main.content %}
+    <div id="additionalInformation">
+    </div>
     {% block pagination_top %}
         <div class="top-pag">
             <div id="period_expired" class="period">
@@ -60,9 +65,9 @@
                     все</a></p>
             </div>
         </div>
-        <div class="table__count"></div>
-        <div class="pagination users__pagination"><!--pagination -->
-        </div><!--End pagination -->
+{#        <div class="table__count"></div>#}
+{#        <div class="pagination users__pagination"><!--pagination -->#}
+{#        </div><!--End pagination -->#}
     {% endblock %}
 
     {% block table %}
@@ -91,6 +96,7 @@
 {% endblock %}
 {% block template_tables %}
 <script type="text/template" id="databaseHomeReports">
+    <form name="databaseHomeReportsForm" id="databaseHomeReportsForm">
      <table>
         <thead>
         <tr>
@@ -101,52 +107,54 @@
             <% } %>
         </tr>
         </thead>
-        <tbody>
-            <% for( var index in results) { %>
+        <tbody class="no_empty">
+            <% results.forEach((item, index) => {  %>
             <tr>
                 <% for( var key in table_columns) { %>
                     <% if(table_columns[key].active) { %>
-                        <% if(key == 'id') { %>
-                            <td>
-                                <a href="./<%= results[index][key] %>" class="reports_id"><%= results[index][key] %></a>
-                            </td>
-                        <% } else if (key == 'home_group') { %>
-                            <% if (results[index][key] != null) { %>
-                                    <td>
-                                        <%= results[index][key].title %>
-                                    </td>
+                        <% if(key == 'attended') { %>
+                            <td data-value="<%= key %>">
+                                <% if(results[index][key] != undefined && results[index][key] ) { %>
+                                    <input type="checkbox" name="attended" checked>
                                 <% } else { %>
-                                    <td></td>
+                                    <input type="checkbox" name="attended">
                                 <% } %>
-                        <% } else if(key == 'owner') { %>
-                            <% if (results[index][key] != null) { %>
-                                <td>
-                                <%= results[index][key].fullname %>
-                                </td>
-                            <% } else { %>
-                                <td></td>
-                            <% } %>
+                            </td>
+                        <% } else if (key == 'user') { %>
+                                    <td>
+                                        <%= item.fullname %>
+                                        <input type="text" name="user" hidden value="<%= item.user_id %>">
+                                        <% if(item.id) { %>
+                                        <input type="text" name="id" hidden value="<%= item.id %>">
+                                        <% } %>
+                                    </td>
+                        <% } else if(key == 'note') { %>
+                            <td data-value="<%= key %>">
+                                <input type="text" name="note" value="<%= item[key] %>">
+                            </td>
                         <% } else if (key == 'type') { %>
-                            <% if (results[index][key] != null) { %>
-                                <td><%= results[index][key].code %></td>
+                            <% if (item[key] != null) { %>
+                                <td><%= item[key].code %></td>
                             <% } else { %>
                                 <td></td>
                             <% } %>
                         <% }  else { %>
-                            <td><% if (results[index][key] === true ) { %>
+                            <td><% if (item[key] === true ) { %>
                                 <p class="text__center">✔</p>
-                                <% } else if (results[index][key] === false){ %>
+                                <% } else if (item[key] === false){ %>
 
                                 <% } else { %>
-                                <%= results[index][key] %>
+                                <%= item[key] %>
                                 <% } %>
                             </td>
                         <% } %>
                     <% } %>
                 <% } %>
             </tr>
-            <% } %>
+            <% }) %>
         </tbody>
     </table>
+        <input type="submit" hidden class="submitBtn">
+    </form>
 </script>
 {% endblock %}

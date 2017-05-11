@@ -11,6 +11,7 @@ body {
     overflow: hidden;
   }
 }
+
 #statusTabs {
   & .current {
     & button {
@@ -18,6 +19,7 @@ body {
     }
   }
 }
+
 .hidden {
   display: none;
 }
@@ -765,6 +767,7 @@ h1 a {
     content: none;
   }
 }
+
 #load-tickets {
   font-size: 2em;
   padding: 0.25em 0.5em;
@@ -1399,6 +1402,29 @@ table {
   }
 }
 
+table {
+  width: 100%;
+  & .no_empty {
+    & tr:last-child {
+      border: 1px solid #E2E2E2;
+      & td {
+        font-family: Ubuntu, sans-serif;
+        border: 1px solid #E2E2E2;
+        color: #656d78;
+        font-size: 1.1em;
+        padding: 9px 12px;
+        max-width: 270px;
+        white-space: nowrap;
+        &:first-child {
+          padding-left: 35px;
+          padding-right: 3em;
+          position: relative;
+        }
+      }
+    }
+  }
+}
+
 .table__count {
   float: left;
   padding: 30px 0 15px 30px;
@@ -1822,6 +1848,7 @@ table tr:first-child td {
   cursor: pointer;
   overflow: hidden;
 }
+
 .reports_id {
   display: block;
   width: 100%;
@@ -1830,6 +1857,7 @@ table tr:first-child td {
     text-decoration: none;
   }
 }
+
 .table-sorting .top-text {
   margin-bottom: 10px;
 }
@@ -2010,7 +2038,6 @@ input:checked ~ label.disable:before {
 
 }
 
-table input[type=checkbox],
 .account input[type=checkbox],
 #sort-form input[type=checkbox] {
   display: none;
@@ -5177,4 +5204,21 @@ div.code input#code {
 
 .select2-container .select2-selection--single .select2-selection__rendered {
   padding-right: 0 !important;
+}
+
+#additionalInformation {
+  margin-top: 1em;
+  & p {
+    padding-left: 1em;
+    line-height: 1.8em;
+    font-size: 1.2em;
+    & input {
+    border: 0;
+  }
+  }
+}
+#databaseHomeReportsForm {
+  & input:disabled {
+    border: 0;
+  }
 }
