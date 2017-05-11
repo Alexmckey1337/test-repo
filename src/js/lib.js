@@ -2671,7 +2671,7 @@ function getPastorsByDepartment(id) {
 
 function getLeadersByChurch(config = {}) {
     let resData = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/`,
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_current_leaders/`,
         data: config
     };
     if (getCookie('key')) {

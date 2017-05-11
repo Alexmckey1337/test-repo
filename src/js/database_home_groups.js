@@ -64,11 +64,8 @@
                 options.push(option);
             });
             $('#tree_filter').html(options);
-            return options
-        }).then(function (data) {
-            console.log(data);
-            // $('#leader_filter').html(data);
-        });
+            // $('#leader_filter').html(options);
+        })
     });
     $treeFilter.on('change', function () {
         let masterTreeID = $(this).val();

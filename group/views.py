@@ -407,3 +407,17 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         leaders = self.serializer_class(leaders, many=True)
 
         return Response(leaders.data)
+
+    @list_route(methods=['GET'], serializer_class=UserNameSerializer)
+    def get_current_leaders(self, request):
+        church_id = request.query_params.get('church_id')
+        leaders = CustomUser.objects.filter(home_group__leader__id__isnull=False).distinct()
+
+        if not church_id:
+            leaders = self.serializer_class(leaders, many=True)
+            return Response(leaders.data)
+
+        leaders = leaders.filter(home_group__church__id=church_id)
+        leaders = self.serializer_class(leaders, many=True)
+
+        return Response(leaders.data)
