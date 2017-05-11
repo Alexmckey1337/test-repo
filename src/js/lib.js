@@ -1300,7 +1300,7 @@ function makePayments(config = {}) {
                 id: '',
                 number: '',
                 ordering_title: 'no_ordering',
-                title: 'Отвественый'
+                title: 'Ответственный'
             };
             data.table_columns.created_at = {
                 active: true,
