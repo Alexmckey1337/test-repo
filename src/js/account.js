@@ -269,6 +269,7 @@ $("#tabs2 li").on('click', function (e) {
     let id_tab = this.getAttribute('data-tab');
     $('[data-summit-id]').hide();
     $('[data-summit-id="' + id_tab + '"]').show();
+    $('.summits-block').hide();
 });
 
 if ($("#tabs2 li")) {
@@ -798,7 +799,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     });
 
     $('.summits-title').on('click', function () {
-        $(this).siblings('.summits-block').slideUp(300);
+        $(this).next('.summits-block').siblings('.summits-block').slideUp(300);
         $(this).next('.summits-block').slideToggle();
     })
 })

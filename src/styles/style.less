@@ -213,7 +213,7 @@ select::-ms-expand {
 
 /* ------------------Header------------------------------ */
 .main-wrap {
-  padding-left: 240px;
+  //padding-left: 240px;
   transition: all .3s;
   & h3 {
     font-weight: 500;
@@ -3449,6 +3449,15 @@ span.change[style*="display: none"] ~ span.y {
 }
 
 /*******************Anketa***************/
+.anketa {
+  & .top li h1 {
+    font-family: 'Roboto Condensed';
+    font-size: 2.2em;
+    color: #333;
+    font-weight: 900;
+  }
+}
+
 .left-contentwrap {
   width: 35%;
   min-width: 450px;
@@ -3809,8 +3818,23 @@ span.change[style*="display: none"] ~ span.y {
   }
 }
 
+#fullName {
+  font-family: 'Roboto Condensed', sans-serif;
+  color: #333;
+  font-size: 2em;
+}
+
 .summits-block {
   display: none;
+}
+
+.a-sammits {
+  & .col {
+    //width: 30%;
+    & .summits-title__title {
+    font-size: 1.2em;
+  }
+  }
 }
 
 .user-fiowrap {
@@ -3897,6 +3921,13 @@ span.change[style*="display: none"] ~ span.y {
   padding: 10px 20px;
   background-color: #f2f5fa;
   border-bottom: 1px solid #cdd0d4;
+}
+
+.top-s {
+  & h3 {
+    font-family: 'Roboto Condensed', sans-serif;
+    padding: .5em 0 0 .5em;
+  }
 }
 
 .anketa .rows {
