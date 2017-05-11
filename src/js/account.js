@@ -458,7 +458,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                             $('#home_groups_list').html(options);
                         });
                     }
-                });
+                }).trigger('change');
             });
         }
     }
@@ -539,7 +539,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         if (action == 'update-user') {
             if ($input.is(':checkbox')) {
                 let partnerData = {};
-                if ($input.is(':checked')) {
+                if($input.is(':checked')) {
                     partnerData.is_active = true;
                 } else {
                     partnerData.is_active = false;
