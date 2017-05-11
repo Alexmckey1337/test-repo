@@ -58,7 +58,7 @@
 
     getHomeReportDetailData().then(data => {
         console.log(data);
-        if (data.status === 1) {
+        if (data.status === 1 || data.status === 3) {
             getHomeReportDetailTableData().then(data => {
                 makeHomeReportDetailTable(data);
             });
@@ -69,6 +69,10 @@
                 table_columns: data.table_columns
             };
             makeHomeReportDetailTable(field);
+            let $input = $('#databaseHomeReportsForm').find('input');
+            $input.each(function () {
+                $(this).attr('disabled', true);
+            })
         }
         let container = document.createElement('div');
         let ownerContainer = document.createElement('p');
@@ -126,6 +130,10 @@
                 'data-click': true,
                 'data-update': true,
             });
+            let $input = $('#databaseHomeReportsForm').find('input');
+            $input.each(function () {
+                $(this).attr('disabled', false);
+            });
             btn.text('Сохранить');
             return false;
         }
@@ -135,7 +143,7 @@
             let field = $(this).data('name');
             if (field) {
                 console.log(field);
-                if(field == 'date') {
+                if (field == 'date') {
                     data[field] = $(this).val().split('.').reverse().join('-');
                 } else {
                     data[field] = $(this).data('value') || $(this).val();
@@ -182,11 +190,19 @@
                     'data-update': false,
                 });
                 btn.text('Редактировать');
+                let $input = $('#databaseHomeReportsForm').find('input');
+                $input.each(function () {
+                    $(this).attr('disabled', true);
+                });
             });
         } else {
             submitReports(JSON.stringify(data)).then((data) => {
                 console.log(data);
                 btn.text('Редактировать');
+                let $input = $('#databaseHomeReportsForm').find('input');
+                $input.each(function () {
+                    $(this).attr('disabled', true);
+                });
             });
         }
 
