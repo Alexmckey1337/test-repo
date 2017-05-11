@@ -65,7 +65,8 @@
                             <button class="edit" id="editNameBtn" data-edit-block="editNameBlock"></button>
                             <hgroup>
                                 <h3 id="fullName">{{ account.fullname }}</h3>
-                                <h4 id="searchName">{% if account.search_name %}{{ account.search_name }}{% endif %}</h4>
+                                <h4 id="searchName">
+                                    {% if account.search_name %}{{ account.search_name }}{% endif %}</h4>
                             </hgroup>
                             <div id="social">
                                 {% if account.facebook %}
@@ -145,15 +146,19 @@
                                         <label for="phone_number"><i class="fa fa-mobile"
                                                                      aria-hidden="true"></i></label>
                                         <input type="text" name="phone_number" value="{{ account.phone_number }}"
-                                               data-validation="custom" data-validation-regexp="^((\+|[0-9]{1})([0-9]*))?$"
+                                               data-validation="custom"
+                                               data-validation-regexp="^((\+|[0-9]{1})([0-9]*))?$"
                                                data-validation-optional="true" readonly>
                                     </li>
                                     <li class="clearfix">
                                         <label for="extra_phone_numbers"><i class="fa fa-phone"
                                                                             aria-hidden="true"></i></label>
                                         <input type="text" id="extra_phone_numbers"
-                                               value="{% if account.extra_phone_numbers %}{{ account.extra_phone_numbers|default:""|join:", " }}{% endif %}"
-                                               data-validation="custom" data-validation-regexp="^((\+|[0-9]{1})([0-9]*))?$"
+                                               value="
+
+                                                       {% if account.extra_phone_numbers %}{{ account.extra_phone_numbers|default:""|join:", " }}{% endif %}"
+                                               data-validation="custom"
+                                               data-validation-regexp="^((\+|[0-9]{1})([0-9]*))?$"
                                                data-validation-optional="true" readonly>
                                     </li>
                                     <li class="clearfix">
@@ -269,17 +274,19 @@
                                     <li class="clearfix">
                                         <label for="master">Ответственный:</label>
                                         <select type="text" name="master" id="selectResponsible" readonly disabled>
-                                            <option value="{{ account.master.id }}" data-level="{{ account.master.level }}" selected disabled>{{ account.master }}</option>
+                                            <option value="{{ account.master.id }}"
+                                                    data-level="{{ account.master.level }}" selected
+                                                    disabled>{{ account.master }}</option>
                                         </select>
                                     </li>
                                     <li>
                                         <ul class="clearfix is-hidden__after-edit">
                                             {% for ancestor in account.master.get_ancestors reversed %}
                                                 {% with level=account.master.level %}
-                                                <li>
-                                                    <span style="font-size:1.4em;margin-right:5px;">&#10551;</span>
-                                                    <a href="{% url 'account:detail' ancestor.id %}">{{ ancestor }}</a>
-                                                </li>
+                                                    <li>
+                                                        <span style="font-size:1.4em;margin-right:5px;">&#10551;</span>
+                                                        <a href="{% url 'account:detail' ancestor.id %}">{{ ancestor }}</a>
+                                                    </li>
                                                 {% endwith %}
                                             {% endfor %}
                                         </ul>
@@ -351,7 +358,8 @@
                                         <input type="text" data-id="value" value="{{ account.partnership.value }}"
                                                id="payment_value"
                                                readonly disabled>
-                                        <select id="payment_currency" class="no_select" data-id="currency" required readonly disabled>
+                                        <select id="payment_currency" class="no_select" data-id="currency" required
+                                                readonly disabled>
                                             {% for currency in currencies %}
                                                 <option value="{{ currency.id }}"
                                                         {% if currency == account.partnership.currency %}selected{% endif %}>
@@ -385,18 +393,21 @@
                                         <label for="repentance">Покаяние:</label>
                                         <input type="text" id="repentance_date" data-id="repentance"
                                                class="sel__date"
-                                               value="{% if account.repentance_date %}{{ account.repentance_date|date:"d.m.Y" }}{% else %}Не покаялся{% endif %}"
+                                               value="
+
+                                                       {% if account.repentance_date %}{{ account.repentance_date|date:"d.m.Y" }}{% else %}Не покаялся{% endif %}"
                                                readonly disabled>
                                     </li>
                                     <li class="clearfix">
                                         <label for="spiritual_level">Духовный уровень:</label>
-                                            <select type="text" id="spiritual_level" name="spiritual_level" readonly
-                                                    disabled>
-                                                <option>Выберите духовный уровень</option>
-                                                {% for spiritual_level in spiritual_levels %}
-                                                    <option value="{{ spiritual_level.id }}" {% if spiritual_level.id == account.spiritual_level %}selected{% endif %}>{{ spiritual_level.title }}</option>
-                                                {% endfor %}
-                                            </select>
+                                        <select type="text" id="spiritual_level" name="spiritual_level" readonly
+                                                disabled>
+                                            <option>Выберите духовный уровень</option>
+                                            {% for spiritual_level in spiritual_levels %}
+                                                <option value="{{ spiritual_level.id }}"
+                                                        {% if spiritual_level.id == account.spiritual_level %}selected{% endif %}>{{ spiritual_level.title }}</option>
+                                            {% endfor %}
+                                        </select>
                                     </li>
                                 </ul>
                             </form>
@@ -445,7 +456,9 @@
                                             <p class="output__block">{{ account.churches.get.pastor.fullname }}</p>
                                         </li>
                                     {% else %}
-                                        <li class="clearfix no_church_in">Пользователь не состоит ни в церкви ни в домашней группе</li>
+                                        <li class="clearfix no_church_in">Пользователь не состоит ни в церкви ни в
+                                            домашней группе
+                                        </li>
                                         <li class="clearfix hidden">
                                             <label for="church_title">Церковь</label>
                                             <select type="text" id="church_list" name="churches_title" value="" readonly
@@ -481,7 +494,8 @@
                     <div class="note_wrapper clearfix" id="summitWrapper">
                         <div>
                             <label for="">Добавить примечание</label>
-                            <textarea name="need_note" id="id_note_text" rows="5" cols="50">{{ account.description }}</textarea>
+                            <textarea name="need_note" id="id_note_text" rows="5"
+                                      cols="50">{{ account.description }}</textarea>
                             <button id="sendNote" data-id="{{ account.id }}">
                                 Сохранить
                             </button>
@@ -581,7 +595,8 @@
                         {% for payment in account.partnership.deal_payments.all %}
                             <div class="rows">
                                 <div style="padding:10px 6px;">
-                                    <p>{{ payment.effective_sum_str|cut:".000" }} — {{ payment.created_at|date:"d.m.Y H:i:s" }}
+                                    <p>{{ payment.effective_sum_str|cut:".000" }} —
+                                        {{ payment.created_at|date:"d.m.Y H:i:s" }}
                                         — Принял: {{ payment.manager.fullname }}
                                     </p>
                                 </div>
@@ -608,95 +623,95 @@
                                 {% for anket in anket_group.list %}
 
                                     <div class="rows summits-title" data-summit-id="{{ anket_group.grouper.id }}"
-                                         style="border-bottom: 2px solid #000; display:none;">
-                                        <div class="col">
+                                         style="display:none;">
                                             <p class="summits-title__title">{{ anket.summit }}</p>
-                                        </div>
-                                        <div class="col">
                                             <p>{{ anket.summit.description|default:"Комментарий не указан" }}
                                                 (Code: <a
                                                         href="/api/v1.0/generate_code/{{ anket.user.fullname }} ({{ anket.code }}).pdf?code={{ anket.code }}">{{ anket.code }}</a>)
                                             </p>
                                             <p>Сумма<span> {{ anket.total_payed }} ₴</span></p>
-                                        </div>
                                     </div>
 
                                     <div class="summits-block">
-                                    <div class="rows">
-                                        <div style="padding:10px 15px;">
-                                            <p>Примечания</p>
-                                        </div>
-                                    </div>
-
-                                    {% for note in anket.notes.all %}
-                                        <div class="rows">
-                                            <div style="padding:10px 6px;">
-                                                <p>{{ note.text }} — {{ note.date_created|date:"d.m.Y H:i:s" }}
-                                                    — Author: {{ note.owner.fullname }}
-                                                </p>
+                                        <div class="rows rows-tabs">
+                                            <div class="active" data-tabs-id="1">
+                                                <p>Примечания</p>
                                             </div>
+                                            {% if anket.summit.lessons.exists %}
+                                                <div data-tabs-id="2">
+                                                    <p>Уроки</p>
+                                                </div>
+                                            {% endif %}
+                                            {% if anket.emails.exists %}
+                                                <div data-tabs-id="3">
+                                                    <p>EMAIL</p>
+                                                </div>
+                                            {% endif %}
                                         </div>
-                                    {% endfor %}
+                                        <div class="wrapp wrapp-1">
+                                            {% for note in anket.notes.all %}
+                                                <div class="rows">
+                                                    <div style="padding:10px 6px;">
+                                                        <p>{{ note.text }} — {{ note.date_created|date:"d.m.Y H:i:s" }}
+                                                            — Author: {{ note.owner.fullname }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
 
-                                    <div class="rows note-box">
-                                        <div style="padding:10px 15px;">
-                                            <p>Написать примечание</p>
-                                            <p><textarea name="add_note" data-anket-id="{{ anket.id }}"
-                                                         class="js-add_note" cols="50" rows="5"></textarea></p>
-                                            <p>
-                                                <button id="send_note">Отправить примечание</button>
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {% if anket.summit.lessons.exists %}
-                                        <div class="rows">
-                                            <div style="padding:10px 15px;">
-                                                <p>Уроки</p>
-                                            </div>
-                                        </div>
-                                        {% is_consultant_for_user anket.summit anket.user as is_consultant %}
-                                        {% for lesson in anket.summit.lessons.all %}
-                                            <div class="rows">
-                                                <div style="padding:10px 6px;">
+                                            <div class="rows note-box">
+                                                <div style="padding:10px 15px;">
+                                                    <p>Написать примечание</p>
+                                                    <p><textarea name="add_note" data-anket-id="{{ anket.id }}"
+                                                                 class="js-add_note" cols="50" rows="5"></textarea></p>
                                                     <p>
-                                                        {% if is_consultant %}
-                                                            <input id="lesson{{ lesson.id }}" class="js-lesson"
-                                                                   type="checkbox" data-anket-id="{{ anket.id }}"
-                                                                   data-lesson-id="{{ lesson.id }}"
-                                                                    {% if anket in lesson.viewers.all %}
-                                                                   checked{% endif %}>
-                                                            {{ lesson.name }}
-                                                        {% else %}
-                                                            <input id="lesson{{ lesson.id }}" type="checkbox"
-                                                                   data-anket-id="{{ anket.id }}"
-                                                                   data-lesson-id="{{ lesson.id }}"
-                                                                    {% if anket in lesson.viewers.all %}
-                                                                   checked{% endif %} disabled>
-                                                            <span style="color:{% if anket in lesson.viewers.all %}darkgreen{% else %}darkred{% endif %}">{{ lesson.name }}</span>
-                                                        {% endif %}
+                                                        <button id="send_note">Отправить примечание</button>
                                                     </p>
                                                 </div>
-                                            </div>
-                                        {% endfor %}
-                                    {% endif %}
-
-                                    {% if anket.emails.exists %}
-                                        <div class="rows">
-                                            <div style="padding:10px 15px;">
-                                                <p>EMAIL</p>
                                             </div>
                                         </div>
-                                        {% for email in anket.emails.all %}
-                                            <div class="rows">
-                                                <div style="padding:10px 6px;">
-                                                    <p> Отправлено на email: {{ email.recipient }} —
-                                                        Дата отправки: {{ email.created_at|date:"d.m.Y H:i:s" }}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        {% endfor %}
-                                    {% endif %}
+                                        <div class="wrapp wrapp-2">
+                                            {% if anket.summit.lessons.exists %}
+                                                {% is_consultant_for_user anket.summit anket.user as is_consultant %}
+                                                {% for lesson in anket.summit.lessons.all %}
+                                                    <div class="rows">
+                                                        <div style="padding:10px 6px;">
+                                                            <p>
+                                                                {% if is_consultant %}
+                                                                    <input id="lesson{{ lesson.id }}" class="js-lesson"
+                                                                           type="checkbox"
+                                                                           data-anket-id="{{ anket.id }}"
+                                                                           data-lesson-id="{{ lesson.id }}"
+                                                                            {% if anket in lesson.viewers.all %}
+                                                                           checked{% endif %}>
+                                                                    {{ lesson.name }}
+                                                                {% else %}
+                                                                    <input id="lesson{{ lesson.id }}" type="checkbox"
+                                                                           data-anket-id="{{ anket.id }}"
+                                                                           data-lesson-id="{{ lesson.id }}"
+                                                                            {% if anket in lesson.viewers.all %}
+                                                                           checked{% endif %} disabled>
+                                                                    <span style="color:{% if anket in lesson.viewers.all %}darkgreen{% else %}darkred{% endif %}">{{ lesson.name }}</span>
+                                                                {% endif %}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                        <div class="wrapp wrapp-3">
+                                            {% if anket.emails.exists %}
+                                                {% for email in anket.emails.all %}
+                                                    <div class="rows">
+                                                        <div style="padding:10px 6px;">
+                                                            <p> Отправлено на email: {{ email.recipient }} —
+                                                                Дата отправки: {{ email.created_at|date:"d.m.Y H:i:s" }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 {% endfor %}
                             {% endfor %}

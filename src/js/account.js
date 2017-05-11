@@ -74,6 +74,8 @@ $("#tabs1 li").on('click', function () {
     let id_tab = $(this).attr('data-tab');
     $('[data-tab-content]').hide();
     $('[data-tab-content="' + id_tab + '"]').show();
+    $(this).closest('.tab-status').find('li').removeClass('active');
+    $(this).addClass('active');
 });
 
 $('#send_need').on('click', function () {
@@ -270,6 +272,8 @@ $("#tabs2 li").on('click', function (e) {
     $('[data-summit-id]').hide();
     $('[data-summit-id="' + id_tab + '"]').show();
     $('.summits-block').hide();
+    $(this).closest('.tab-status').find('li').removeClass('active');
+    $(this).addClass('active');
 });
 
 if ($("#tabs2 li")) {
@@ -802,5 +806,14 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         $(this).next('.summits-block').siblings('.summits-block').slideUp(300);
         $(this).next('.summits-block').slideToggle();
     })
+
+    $('.summits-block .rows-tabs').on('click', 'p', function () {
+        var tab = $(this).parent().data('tabs-id');
+        $(this).closest('.rows-tabs').find('div').removeClass('active');
+        $(this).parent().addClass('active');
+        $(this).closest('.summits-block').find('.wrapp').hide();
+        $(this).closest('.summits-block').find(`.wrapp-${tab}`).show();
+    })
+
 })
 (jQuery);
