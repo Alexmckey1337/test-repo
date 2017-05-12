@@ -517,7 +517,7 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
     @staticmethod
     def validate_post(request):
         if request.data.get('token') != VISITOR_LOCATIONS_TOKEN:
-            raise exceptions.ValidationError(_('Нет прав. Токен не передан'))
+            raise exceptions.AuthenticationFailed(_('Нет прав. Токен не передан'))
         if not request.data.get('data'):
             raise exceptions.ValidationError(_('Невозможно создать запись, поле {data} не переданно'))
 
@@ -539,6 +539,6 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
         anket_id = request.query_params.get('visitor_id')
         get_object_or_404(SummitAnket, pk=anket_id)
         if request.query_params.get('token') != VISITOR_LOCATIONS_TOKEN:
-            raise exceptions.ValidationError(_('Нет прав. Токен не передан'))
+            raise exceptions.AuthenticationFailed(_('Нет прав. Токен не передан'))
 
         return request
