@@ -106,14 +106,6 @@ class IsSupervisorOrConsultantReadOnly(IsConsultantReadOnly):
         )
 
 
-class CanSeeSummitType(IsAuthenticated):
-    def has_object_permission(self, request, view, summit_type):
-        return (
-            super(CanSeeSummitType, self).has_permission(request, view) and
-            IsConsultantOrHigh().has_permission(request, view)
-        )
-
-
 class AccountCanEditSummitBlock(BasePermission):
     def can_edit(self, current_user, user):
         """
@@ -130,12 +122,12 @@ class AccountCanSeeSummitBlock(BasePermission):
         return True
 
 
-def can_see_summit(request, summit_id, view=None):
-    return IsConsultantOrHigh().has_object_permission(request, view, summit_id)
+def can_see_summit(user, summit_id):
+    return user.is_summit_consultant_or_high(summit_id)
 
 
-def can_see_any_summit(request, view=None):
-    return IsConsultantOrHigh().has_permission(request, view)
+def can_see_any_summit(user):
+    return user.is_any_summit_consultant_or_high()
 
 
 def can_see_summit_type(request, summit_type, view=None):
@@ -160,15 +152,8 @@ def can_see_summit_block(current_user, user):
     return AccountCanSeeSummitBlock().can_see(current_user, user)
 
 
-def is_any_summit_supervisor_or_high(user):
-    """
-    Checking that the user is supervisor (or higher) of at least one summit
-    """
-    return SummitAnket.objects.filter(user=user, role__gte=SummitAnket.SUPERVISOR).exists()
-
-
 def can_see_any_summit_ticket(user):
-    return user.is_any_summit_supervisor_or_high
+    return user.is_any_summit_supervisor_or_high()
 
 
 def can_see_summit_ticket(user, summit):
