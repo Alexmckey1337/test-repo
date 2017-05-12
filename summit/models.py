@@ -374,3 +374,21 @@ class SummitAnketNote(models.Model):
         verbose_name = _('Summit Anket Note')
         verbose_name_plural = _('Summit Anket Notes')
         ordering = ('-date_created',)
+
+
+@python_2_unicode_compatible
+class SummitVisitorLocation(models.Model):
+    visitor = models.ForeignKey('summit.SummitAnket', verbose_name=_('Summit Visitor'),
+                                related_name='visitor_locations')
+    date_time = models.DateTimeField(verbose_name='Date Time')
+    longitude = models.FloatField(verbose_name=_('Longitude'))
+    latitude = models.FloatField(verbose_name=_('Latitude'))
+
+    class Meta:
+        verbose_name_plural = _('Summit Users Location')
+        verbose_name = _('Summit User Location')
+        ordering = ('-date_time',)
+        unique_together = ['visitor', 'date_time']
+
+    def __str__(self):
+        return 'Местонахождение участника саммита %s. Дата и время: %s' % (self.visitor, self.date_time)

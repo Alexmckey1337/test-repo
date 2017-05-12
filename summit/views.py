@@ -24,14 +24,18 @@ from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.permissions import IsSupervisorOrHigh
 from summit.utils import generate_ticket
-from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, SummitUserConsultant, SummitTicket
+from .models import (Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, SummitUserConsultant,
+                     SummitTicket, SummitVisitorLocation)
 from .resources import get_fields, SummitAnketResource
 from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
     SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer,
     SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitShortSerializer, SummitAnketShortSerializer,
-    SummitLessonShortSerializer, SummitTicketSerializer, SummitAnketForTicketSerializer)
+    SummitLessonShortSerializer, SummitTicketSerializer, SummitAnketForTicketSerializer,
+    SummitVisitorLocationSerializer)
 from .tasks import generate_tickets
+from edem.settings.base import VISITOR_LOCATIONS_TOKEN
+from datetime import datetime
 
 
 def get_success_headers(data):
@@ -489,3 +493,52 @@ def generate_summit_tickets(request, summit_id):
     generate_tickets.apply_async(args=[summit_id, ankets, ticket.id])
 
     return Response(data={'ticket_id': ticket.id})
+
+
+class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
+    serializer_class = SummitVisitorLocationSerializer
+    queryset = SummitVisitorLocation.objects.all()
+
+    @list_route(methods=['POST'])
+    def post(self, request):
+        request = self.validate_post(request)
+        anket_id = request.data.get('visitor_id')
+        data = request.data.get('data')
+        visitor = get_object_or_404(SummitAnket, pk=anket_id)
+
+        for chunk in data:
+            SummitVisitorLocation.objects.create(visitor=visitor,
+                                                 date_time=chunk.get('date_time', datetime.now()),
+                                                 longitude=chunk.get('longitude', 0),
+                                                 latitude=chunk.get('latitude', 0))
+
+        return Response({'message': 'Successful created'}, status=status.HTTP_201_CREATED)
+
+    @staticmethod
+    def validate_post(request):
+        if request.data.get('token') != VISITOR_LOCATIONS_TOKEN:
+            raise exceptions.ValidationError(_('Нет прав. Токен не передан'))
+        if not request.data.get('data'):
+            raise exceptions.ValidationError(_('Невозможно создать запись, поле {data} не переданно'))
+
+        return request
+
+    @list_route(methods=['GET'])
+    def get_location(self, request):
+        request = self.validate_get(request)
+        anket_id = request.query_params.get('visitor_id')
+        date_time = request.query_params.get('date_time')
+        visitor_location = self.queryset.filter(visitor_id=anket_id, date_time__gte=date_time).order_by(
+            'date_time').first()
+        visitor_location = self.serializer_class(visitor_location)
+
+        return Response(visitor_location.data, status=status.HTTP_200_OK)
+
+    @staticmethod
+    def validate_get(request):
+        anket_id = request.query_params.get('visitor_id')
+        get_object_or_404(SummitAnket, pk=anket_id)
+        if request.query_params.get('token') != VISITOR_LOCATIONS_TOKEN:
+            raise exceptions.ValidationError(_('Нет прав. Токен не передан'))
+
+        return request

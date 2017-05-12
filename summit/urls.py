@@ -15,6 +15,7 @@ router_v1_0.register(r'summit_search', views.SummitUnregisterUserViewSet, base_n
 router_v1_0.register(r'summit_lessons', views.SummitLessonViewSet)
 router_v1_0.register(r'summit_ankets_with_notes', views.SummitAnketWithNotesViewSet,
                      base_name='ankets_with_notes')
+router_v1_0.register(r'summit_visitors_location', views.SummitVisitorLocationViewSet)
 
 router_app = routers.DefaultRouter()
 router_app.register(r'summits', views.SummitTypeForAppViewSet, base_name='summits')

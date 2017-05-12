@@ -6,7 +6,8 @@ from import_export.admin import ExportMixin
 from import_export.formats import base_formats
 
 from summit.admin_filters import HasTicketListFilter, HasEmailListFilter
-from .models import SummitAnket, Summit, SummitType, SummitAnketNote, SummitLesson, AnketEmail, SummitUserConsultant
+from .models import (SummitAnket, Summit, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
+                     SummitUserConsultant, SummitVisitorLocation)
 from .resources import SummitAnketResource
 from .tasks import send_tickets, create_tickets
 
@@ -90,7 +91,15 @@ class SummitAnketAdmin(ExportMixin, admin.ModelAdmin):
     create_tickets.short_description = "Сгенерировать билеты выбранным пользователям"
 
 
+class SummitVisitorLocationAdmin(admin.ModelAdmin):
+    list_display = ('visitor', 'date_time')
+
+    class Meta:
+        model = SummitVisitorLocation
+
+
 admin.site.register(SummitAnket, SummitAnketAdmin)
 admin.site.register(Summit, SummitAdmin)
 admin.site.register(SummitType, SummitTypeAdmin)
 admin.site.register(AnketEmail, AnketEmailAdmin)
+admin.site.register(SummitVisitorLocation, SummitVisitorLocationAdmin)
