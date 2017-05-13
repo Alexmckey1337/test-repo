@@ -91,14 +91,19 @@ $('#send_need').on('click', function () {
             data = data.responseJSON;
             showPopup(data.detail);
         }
-    })
+    });
+    $(this).siblings('.editText').removeClass('active');
+    $(this).parent().siblings('textarea').attr('readonly', true);
 });
 $('#sendNote').on('click', function () {
     let _self = this;
     let id = $(_self).data('id');
     let resData = new FormData();
-    resData.append('description', $('#id_note_text').val());
+    resData.append('description', $('#id_note_text').val());c
     updateUser(id, resData);
+    $(this).siblings('.editText').removeClass('active');
+    $(this).parent().siblings('textarea').attr('readonly', true);
+
 });
 $("#close-payment").on('click', function () {
     $('#popup-create_payment').css('display', 'none');
@@ -805,7 +810,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     $('.summits-title').on('click', function () {
         $(this).next('.summits-block').siblings('.summits-block').slideUp(300);
         $(this).next('.summits-block').slideToggle();
-    })
+    });
 
     $('.summits-block .rows-tabs').on('click', 'p', function () {
         var tab = $(this).parent().data('tabs-id');
@@ -813,6 +818,16 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         $(this).parent().addClass('active');
         $(this).closest('.summits-block').find('.wrapp').hide();
         $(this).closest('.summits-block').find(`.wrapp-${tab}`).show();
+    });
+
+    $('.a-note, .a-sdelki').find('.editText').on('click', function () {
+        $(this).toggleClass('active');
+        var textArea = $(this).parent().siblings('textarea');
+        if ($(this).hasClass('active')) {
+            textArea.attr('readonly', false);
+        } else {
+            textArea.attr('readonly', true);
+        }
     })
 
 })

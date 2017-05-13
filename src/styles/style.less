@@ -1,6 +1,7 @@
 body {
   min-width: 1200px;
-  font-family: "Ubuntu", sans-serif;
+  font-family: 'Open Sans', sans-serif;
+  //font-family: "Ubuntu", sans-serif;
   font-size: 75%;
   height: 100%;
   color: #656d78;
@@ -77,7 +78,8 @@ a:visited {
 }
 
 h1 {
-  font-family: "UbuntuLight", sans-serif;
+  //font-family: "UbuntuLight", sans-serif;
+  font-family: 'Roboto Condensed', sans-serif;
   font-size: 1.7em;
   text-transform: uppercase;
   color: #434a54;
@@ -85,14 +87,16 @@ h1 {
 }
 
 h2 {
-  font-family: "UbuntuMedium", sans-serif;
+  font-family: 'Roboto Condensed', sans-serif;
+  //font-family: "UbuntuMedium", sans-serif;
   font-size: 1.24em;
   color: #a0a0a0;
   line-height: 1.4;
 }
 
 h3 {
-  font-family: "UbuntuLight", sans-serif;
+  font-family: 'Roboto Condensed', sans-serif;
+  //font-family: "UbuntuLight", sans-serif;
   font-size: 1.8em;
 }
 
@@ -102,14 +106,15 @@ input, select, textarea, button, button:active, button:focus {
 
 input, select, textarea {
   color: #656d78;
-  font-family: "Ubuntu", sans-serif;
+  font-family: 'Open Sans', sans-serif;
+  //font-family: "Ubuntu", sans-serif;
 }
 
 button {
   background-color: #aab2bd;
   padding: 12px 20px 12px 45px;
   color: #fff;
-  font-family: "UbuntuMedium", sans-serif;
+  //font-family: "UbuntuMedium", sans-serif;
   border-radius: 4px;
   border: 0;
   cursor: pointer;
@@ -805,6 +810,7 @@ h1 a {
     content: none;
   }
 }
+
 #load-tickets {
   font-size: 2em;
   padding: 0.25em 0.5em;
@@ -871,12 +877,15 @@ h1 a {
 }
 
 .tab-status {
+  & button {
+    background-color: #fff;
+    font-size: 1.5em;
+    font-family: 'Roboto Condensed', sans-serif;
+    color: #3caeda;
+  }
   & li {
     & button {
-      font-family: 'Roboto Condensed', sans-serif;
-      font-size: 1.5em;
       background-color: transparent;
-      color: #3caeda;
       padding: 0;
     }
   }
@@ -905,7 +914,9 @@ li.current a {
 }
 
 .tab-status {
-  float: left;
+  //float: left;
+  display: flex;
+  justify-content: space-between;
   margin-top: 15px;
 }
 
@@ -928,10 +939,10 @@ li.current a {
 
 #tabs1 li.active {
   position: relative;
-    & button {
+  & button {
     color: #333;
   }
-    &:after {
+  &:after {
     position: absolute;
     left: 0;
     bottom: -1px;
@@ -1192,7 +1203,8 @@ li.current a {
 }
 
 .rows p span {
-  font-family: "UbuntuBold", sans-serif;
+  //font-family: "UbuntuBold", sans-serif;
+  font-weight: 900;
 }
 
 .rows .col:first-child:hover span {
@@ -1511,7 +1523,9 @@ thead tr:first-child {
 }
 
 th {
-  font-family: "UbuntuMedium", sans-serif;
+  font-family: 'Open Sans', sans-serif;
+  //font-family: "UbuntuMedium", sans-serif;
+  font-weight: 600;
   font-size: 1.1em;
   padding: 5px 30px;
   border: 1px solid #E2E2E2;
@@ -1725,7 +1739,8 @@ span.ups-active {
 }
 
 td {
-  font-family: "Ubuntu", sans-serif;
+  font-family: 'Open Sans', sans-serif;;
+  //font-family: "Ubuntu", sans-serif;
   border: 1px solid #E2E2E2;
   color: #656d78;
   font-size: 1.1em;
@@ -3605,10 +3620,11 @@ span.change[style*="display: none"] ~ span.y {
   }
   & .anketa-photo {
     position: relative;
-    top: 1em;
-    left: 3%;
+    top: 15px;
+    left: 0;
     width: 0;
     height: 0;
+    margin-bottom: 30px;
     padding: 15%;
     border-radius: 100%;
     border: 3px solid #43b0db;
@@ -3624,7 +3640,8 @@ span.change[style*="display: none"] ~ span.y {
   }
 }
 
-.left-content {
+.left-content,
+.partner_wrapper {
   & .right-info-r {
     & button {
       position: absolute;
@@ -3666,6 +3683,23 @@ span.change[style*="display: none"] ~ span.y {
         border: 1px solid transparent;
         border-radius: 7px;
         padding-top: 1.7em;
+        & h4 {
+          position: absolute;
+          top: 0;
+          left: 6px;
+          font-family: 'Roboto Condensed', sans-serif;
+          font-size: 1.5em;
+        }
+        & form ul {
+          padding-top: 8px;
+        }
+        & form .select2-selection__rendered {
+          font-weight: 400;
+          & .select2-selection__choice {
+            margin-top: 0;
+            margin-bottom: 5px;
+          }
+        }
         & button {
           position: absolute;
           padding: 0;
@@ -3675,6 +3709,7 @@ span.change[style*="display: none"] ~ span.y {
           width: 1em;
           height: 1em;
           font-size: 1.5em;
+          opacity: .3;
           &.edit {
             &.active {
               right: 1.25em;
@@ -3718,19 +3753,45 @@ span.change[style*="display: none"] ~ span.y {
         &:hover {
           //border-color: #656d78;
         }
-        & label, & .label__block {
-          display: block;
+        & .label-wrapp {
+          position: relative;
           width: ~'calc(40% - 7px)';
+          &::after {
+            position: absolute;
+            left: 3px;
+            bottom: -14px;
+            display: block;
+            width: 100%;
+            height: 2px;
+            background-image: radial-gradient(circle,#cdd0d4 .6px,transparent 1px);
+            background-repeat: repeat-x;
+            background-size: 5px 2px;
+            content: '';
+          }
+        }
+        & label, & .label__block {
+          position: relative;
+          display: block;
+          //width: ~'calc(40% - 7px)';
           height: 1.7em;
+          padding-right: 5px;
+          padding-left: 3px;
           line-height: 1.7em;
           float: left;
-          text-align: right;
+          text-align: left;
           box-sizing: border-box;
+          background-color: #f2f5fa;
+          z-index: 2;
           & i {
             font-size: 1.5em;
           }
+          & .fa-mobile {
+            font-size: 2em;
+          }
+          & .fa-envelope {
+            font-size: 1.3em;
+          }
         }
-
         & .sel__date {
           width: 7em;
         }
@@ -3849,6 +3910,12 @@ span.change[style*="display: none"] ~ span.y {
             color: #3caeda;
           }
         }
+        & a {
+          color: #3caeda;
+        }
+      }
+      &:hover button {
+        opacity: 1;
       }
     }
   }
@@ -3867,9 +3934,13 @@ span.change[style*="display: none"] ~ span.y {
 }
 
 #fullName {
-  font-family: 'Roboto Condensed', sans-serif;
   color: #333;
   font-size: 2em;
+}
+
+#searchName {
+  padding-top: .7em;
+  opacity: .5;
 }
 
 .summits-title {
@@ -3885,7 +3956,7 @@ span.change[style*="display: none"] ~ span.y {
   display: none;
   & .wrapp {
     display: none;
-    }
+  }
   & .wrapp-1 {
     display: block;
   }
@@ -3934,8 +4005,8 @@ span.change[style*="display: none"] ~ span.y {
   & .col {
     //width: 30%;
     & .summits-title__title {
-    font-size: 1.2em;
-  }
+      font-size: 1.2em;
+    }
   }
 }
 
@@ -3995,21 +4066,122 @@ span.change[style*="display: none"] ~ span.y {
   margin-top: 30px;
   border-radius: 3px;
   & .note_wrapper {
-    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    padding: 5px 10px 0 10px;
+    & .btn-block {
+      display: flex;
+    }
     & label {
-      display: block;
       margin-bottom: .7em;
+      font-family: 'Roboto Condensed', sans-serif;
+      font-size: 1.5em;
+    }
+    & button {
+      position: relative;
+      padding: 0;
+      background: 0 0;
+      border: 0;
+      width: 1em;
+      height: 1em;
+      font-size: 1.5em;
+      &::before {
+        color: #656d78;
+        font: 400 1em FontAwesome;
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+    }
+    & .editText::before {
+      content: '\f040';
+    }
+    & .editText.active::before {
+      content: '\f00d';
+    }
+    & .saveNote::before {
+      content: '\f00c';
+    }
+    & .editText + .saveNote {
+      display: none;
+    }
+    & .editText.active + .saveNote {
+      display: block;
     }
     & textarea {
       width: 100%;
-    }
-    & #sendNote {
-      margin-left: auto;
-      margin-top: .7em;
-      display: block;
+      resize: none;
+      &:read-only {
+        border: none;
+      }
     }
   }
 }
+
+.a-note {
+  & .note_wrapper {
+    padding-top: 1.5em;
+  }
+}
+
+.a-sdelki {
+  & .partner_wrapper {
+    display: flex;
+    & .note_wrapper,
+    & .right-info {
+      width: 50%;
+      & .right-info__block h4 {
+        left: 0;
+      }
+    }
+    & .note_wrapper {
+      margin-top: .7em;
+      padding-top: 12px;
+      & label {
+        margin-bottom: 0;
+      }
+      & textarea {
+        margin-top: -15px;
+      }
+    }
+    & .right-info {
+      margin-bottom: 0;
+      background-color: transparent;
+      border: none;
+      & #partnership {
+        & .label-wrapp {
+          margin-bottom: .2em;
+          float: left;
+          &::after {
+            bottom: 6px;
+          }
+          & label {
+            background-color: #fff;
+          }
+        }
+        & input,
+        & select,
+        & .select2 {
+          float: right;
+          margin-bottom: .3em;
+        }
+      }
+    }
+  }
+}
+
+.note_wrapper,
+.user-fio {
+  & button {
+    opacity: .3;
+  }
+  &:hover button {
+    opacity: 1;
+  }
+}
+
 
 //#account_view .a-sdelki {
 //  display: none;
@@ -4027,9 +4199,9 @@ span.change[style*="display: none"] ~ span.y {
 
 .top-s {
   & h3 {
-    font-family: 'Roboto Condensed', sans-serif;
     padding: .5em 0 0 .5em;
     text-transform: uppercase;
+    color: #333;
   }
 }
 
@@ -4098,7 +4270,7 @@ span.change[style*="display: none"] ~ span.y {
   margin: 10px 0;
 }
 
-.summit_wrapper .rows.note-box button, .a-sdelki button#send_need {
+.summit_wrapper .rows.note-box button {
   padding: 12px 20px 12px 20px;
 }
 
@@ -4298,22 +4470,22 @@ span.green {
     }
   }
   & h2 {
-      position: relative;
-      margin-top: 2em;
-      margin-bottom: .5em;
-      padding: 0 .5em;
-      //border: 1px solid #a0a0a0;
-      //border-radius: .4em;
-      font-size: 1.8em;
+    position: relative;
+    margin-top: 2em;
+    margin-bottom: .5em;
+    padding: 0 .5em;
+    //border: 1px solid #a0a0a0;
+    //border-radius: .4em;
+    font-size: 1.8em;
     cursor: pointer;
     &:after {
-        position: absolute;
-        display: block;
-        content: '\f0dd';
-        font: 1.2em FontAwesome;
-        bottom: 0.2em;
-        right: .5em;
-      }
+      position: absolute;
+      display: block;
+      content: '\f0dd';
+      font: 1.2em FontAwesome;
+      bottom: 0.2em;
+      right: .5em;
+    }
   }
   & .info-title_active:after {
     bottom: -0.2em;
@@ -4498,14 +4670,17 @@ label[for="partner"]::before {
 .tabs_link {
   & li {
     float: left;
-    width: 14em;
+    //width: 14em;
+    width: 15em;
     height: 90px;
     padding: 0;
+    font-family: 'Roboto Condensed',sans-serif;
     & a {
       display: block;
       width: 100%;
       height: 100%;
-      font-size: 1.2em;
+      font-size: 1.5em;
+      //font-size: 1.2em;
       color: #3caeda;
       background-color: #f2f5fa;
       border-right: 1px solid #cdd0d4;
@@ -4555,7 +4730,7 @@ input[type='file'] {
 }
 
 .select2 {
-  font-family: "UbuntuBold", sans-serif;
+  //font-family: "UbuntuBold", sans-serif;
 
 }
 
