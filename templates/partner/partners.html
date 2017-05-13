@@ -64,34 +64,34 @@
                 <div class="container">
                     <div class="col-6">
                         {% if request.user.is_partner_supervisor_or_high %}
-                            <p class="label_block">
-                                <label for="masters_filter">Менеджер</label>
-                            </p>
+                            <div class="label_block-wrapp">
+                            <span class="label_block">Менеджер</span>
+                        </div>
                         {% endif %}
-                        <p class="label_block">
-                            <label for="departments_filter">Отдел</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="tree_filter">Ветка</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="hierarchies_filter">Иерархия</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="masters_filter">Ответсвенный</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="search_email">Фильтр по email</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="search_phone_number">Фильтр по номеру телефона</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="search_country">Фильтр по стране</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="search_city">Фильтр по городу</label>
-                        </p>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Отдел</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Ветка</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Иерархия</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Ответсвенный</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Фильтр по email</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Фильтр по номеру телефона</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Фильтр по стране</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Фильтр по городу</span>
+                        </div>
                     </div>
                     <div class="col-6">
                         {% if request.user.is_partner_supervisor_or_high %}
