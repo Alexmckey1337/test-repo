@@ -14,8 +14,9 @@ from .resources import UserResource
 
 
 class CustomUserAdmin(UserAdmin, MPTTModelAdmin, ImportExportModelAdmin):
-    list_display = ('fullname', 'email', 'date_joined',
+    list_display = ('fullname', 'username', 'email', 'date_joined',
                     'is_staff', 'is_active')
+    list_display_links = ('fullname', 'username')
     list_editable = ('is_active',)
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups', 'departments',)
     fieldsets = (

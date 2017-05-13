@@ -6,7 +6,7 @@ from rest_framework import serializers
 from account.models import CustomUser as User
 from account.serializers import UserTableSerializer, UserShortSerializer
 from .models import (Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
-                     SummitTicket, SummitVisitorLocation)
+                     SummitTicket, SummitVisitorLocation, SummitEventTable)
 
 
 class SummitAnketNoteSerializer(serializers.ModelSerializer):
@@ -177,3 +177,12 @@ class SummitVisitorLocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = SummitVisitorLocation
         fields = ('visitor', 'date_time', 'longitude', 'latitude')
+
+
+class SummitEventTableSerializer(serializers.ModelSerializer):
+    summit_id = serializers.IntegerField(source='summit.id')
+
+    class Meta:
+        model = SummitEventTable
+        fields = ('summit_id', 'date', 'time', 'name_ru', 'author_ru', 'name_en',
+                  'author_en', 'name_de', 'author_de')

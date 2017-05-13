@@ -25,14 +25,14 @@ from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.permissions import IsSupervisorOrHigh
 from summit.utils import generate_ticket
 from .models import (Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, SummitUserConsultant,
-                     SummitTicket, SummitVisitorLocation)
+                     SummitTicket, SummitVisitorLocation, SummitEventTable)
 from .resources import get_fields, SummitAnketResource
 from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
     SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer,
     SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitShortSerializer, SummitAnketShortSerializer,
     SummitLessonShortSerializer, SummitTicketSerializer, SummitAnketForTicketSerializer,
-    SummitVisitorLocationSerializer)
+    SummitVisitorLocationSerializer, SummitEventTableSerializer)
 from .tasks import generate_tickets
 from edem.settings.base import VISITOR_LOCATIONS_TOKEN
 from datetime import datetime
@@ -542,3 +542,9 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
             raise exceptions.AuthenticationFailed(_('Нет прав. Токен не передан'))
 
         return request
+
+
+class SummitEventTableViewSet(viewsets.ModelViewSet):
+    queryset = SummitEventTable.objects.all()
+    serializer_class = SummitEventTableSerializer
+    pagination_class = None
