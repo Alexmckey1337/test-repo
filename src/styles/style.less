@@ -2259,8 +2259,8 @@ table input[type=checkbox],
   & .label_block {
     height: 35px;
     font-size: 1.1em;
-    text-align: right;
-    padding: 0 1em;
+    //text-align: right;
+    padding: 0 1em 0 0;
     margin-bottom: 0.7em;
     & label {
       margin-top: 0.7em;
@@ -3572,7 +3572,7 @@ span.change[style*="display: none"] ~ span.y {
   font-size: 1em;
   line-height: 1.4;
   & > ul {
-    width: 65%;
+    width: 60%;
     float: right;
   }
 }
@@ -3692,6 +3692,9 @@ span.change[style*="display: none"] ~ span.y {
         }
         & form ul {
           padding-top: 8px;
+        }
+        & ul > li > ul {
+          padding-top: 0;
         }
         & form .select2-selection__rendered {
           font-weight: 400;
@@ -4423,24 +4426,41 @@ span.green {
 
 #addChurch, #addHomeGroup {
   .container {
+    & .column {
+      width: 200px;
+    }
+    & .label_block-wrapp::after {
+      bottom: 12px;
+    }
     & > div:first-of-type {
-      & p {
-        text-align: right;
+      & p,
+      & span {
         line-height: 35px;
       }
     }
     & > div {
-      & p {
+      & span, & p {
         height: 35px;
         text-align: left;
-        font-size: 1.2em;
+        font-size: 1em;
         line-height: 35px;
-        margin-bottom: .5em;
-        &.end__block {
+        //margin-bottom: .5em;
+      }
+      & .end__block {
           margin-bottom: 2em;
-        }
       }
 
+    }
+    & input {
+      min-width: 17em;
+      height: auto;
+      padding: 5px 6px;
+    }
+  }
+  & .container_block {
+    justify-content: flex-start;
+    & .select2 {
+      width: 100%!important;
     }
   }
   & .add-church {
@@ -4454,6 +4474,21 @@ span.green {
   }
 }
 
+#filterPopup {
+  & .label_block-wrapp {
+    height: 35px;
+    font-size: 1.1em;
+    padding: 0 1em 0 0;
+    margin-bottom: .7em;
+    &::after {
+      bottom: 20px;
+    }
+  }
+  & .label_block-wrapp:first-child {
+    margin-top: .5em;
+  }
+}
+
 .col-1 {
   width: 20%;
   float: left;
@@ -4463,8 +4498,43 @@ span.green {
   display: flex;
   align-items: flex-start;
   justify-content: space-around;
+  &.bb-1 {
+    & .row {
+      display: flex;
+      align-items: center;
+    }
+    & .label_block-wrapp {
+      width: 45%;
+    }
+  }
+  & .label_block-wrapp {
+    position: relative;
+    &::after {
+      position: absolute;
+      left: 3px;
+      bottom: 3px;
+      display: block;
+      width: 95%;
+      height: 2px;
+      background-image: radial-gradient(circle,#cdd0d4 .6px,transparent 1px);
+      background-repeat: repeat-x;
+      background-size: 5px 2px;
+      content: '';
+    }
+    & .label_block {
+      position: relative;
+      margin-bottom: 5px;
+      padding: 2px 6px;
+      font-size: 1.1em;
+      z-index: 2;
+      background-color: #fff;
+    }
+  }
   &.start {
     justify-content: flex-start;
+    & .column {
+      width: 45%;
+    }
     & input, & select {
       width: 18.5em !important;
     }
@@ -4537,6 +4607,12 @@ span.green {
     & ul li:nth-child(2n) {
       text-align: center;
     }
+  }
+}
+
+#quickEditCartPopup {
+  & .start .label_block-wrapp {
+    margin: 10px 0 17px;
   }
 }
 
@@ -4685,7 +4761,7 @@ label[for="partner"]::before {
       background-color: #f2f5fa;
       border-right: 1px solid #cdd0d4;
       border-bottom: 1px solid #cdd0d4;
-      padding: 2.5em 1em;
+      padding: 2em 1em;
       text-align: center;
       box-sizing: border-box;
       &.active {

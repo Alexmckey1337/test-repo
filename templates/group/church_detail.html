@@ -148,18 +148,34 @@
             </div>
             <form action="" id="addHomeGroup" name="addHomeGroup">
                 <div class="popup_body">
-                    <div class="container">
-                        <div>
-                            <p>Дата открытия</p>
-                            <p class="end__block">Название</p>
-                            <p>Церковь</p>
-                            <p>Лидер</p>
-                            <p>Город</p>
-                            <p>Адрес служения</p>
-                            <p>Телефон</p>
-                            <p>Сайт</p>
+                    <div class="container container_block">
+                        <div class="column">
+                            <div class="label_block-wrapp">
+                                <span class="label_block">Дата открытия</span>
+                            </div>
+                            <div class="label_block-wrapp end__block">
+                                <span class="label_block">Название</span>
+                            </div>
+                            <div class="label_block-wrapp">
+                                <span class="label_block">Церковь</span>
+                            </div>
+                            <div class="label_block-wrapp">
+                                <span class="label_block">Лидер</span>
+                            </div>
+                            <div class="label_block-wrapp">
+                                <span class="label_block">Город</span>
+                            </div>
+                            <div class="label_block-wrapp">
+                                <span class="label_block">Адрес служения</span>
+                            </div>
+                            <div class="label_block-wrapp">
+                                <span class="label_block">Телефон</span>
+                            </div>
+                            <div class="label_block-wrapp">
+                                <span class="label_block">Сайт</span>
+                            </div>
                         </div>
-                        <div class="col-7">
+                        <div>
                             <p><input id="added_home_group_date" required></p>
                             <p class="end__block"><input type="text" id="added_home_group_title"></p>
                             <p id="added_home_group_church" data-id="{{ church.id }}"
