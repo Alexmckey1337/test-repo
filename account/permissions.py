@@ -1,6 +1,5 @@
 from rest_framework.permissions import BasePermission
 
-from summit.permissions import is_any_summit_supervisor_or_high
 
 
 class CanSeeAccountPage(BasePermission):
@@ -51,7 +50,7 @@ def can_create_user(user):
     return (
         user.is_staff or user.is_leader_or_high or
         user.is_partner_supervisor_or_high or
-        is_any_summit_supervisor_or_high(user)
+        user.is_any_summit_supervisor_or_high()
     )
 
 

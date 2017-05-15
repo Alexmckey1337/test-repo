@@ -11,7 +11,6 @@ from account.models import CustomUser
 from partnership.models import Deal, Partnership
 from payment.permissions import PaymentPermission, PaymentManager, PaymentManagerOrSupervisor
 from summit.models import SummitAnket
-from summit.permissions import IsConsultantReadOnly, IsSupervisorOrHigh as IsSummitSupervisorOrHigh
 
 Qs = namedtuple('Qs', ['model'])
 
@@ -22,17 +21,19 @@ def blank_args(n):
 
 @pytest.mark.django_db
 class TestPaymentPermission:
-    @pytest.mark.parametrize('is_supervisor', [lambda self, a, b, c: True, lambda self, a, b, c: False],
+    @pytest.mark.parametrize('is_supervisor', [lambda self, a: True, lambda self, a: False],
                              ids=['supervisor', 'non supervisor'])
-    @pytest.mark.parametrize('is_consultant', [lambda self, a, b, c: True, lambda self, a, b, c: False],
+    @pytest.mark.parametrize('is_consultant', [lambda self, a: True, lambda self, a: False],
                              ids=['consultant', 'non consultant'])
-    def test_has_object_permission_for_anket(self, monkeypatch, is_supervisor, is_consultant):
-        monkeypatch.setattr(IsConsultantReadOnly, 'has_object_permission', is_consultant)
-        monkeypatch.setattr(IsSummitSupervisorOrHigh, 'has_object_permission', is_supervisor)
+    @pytest.mark.parametrize('method', ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'])
+    def test_has_object_permission_for_anket(self, monkeypatch, user, is_supervisor, is_consultant, method):
+        monkeypatch.setattr(CustomUser, 'is_summit_consultant_or_high', is_consultant)
+        monkeypatch.setattr(CustomUser, 'is_summit_supervisor_or_high', is_supervisor)
         view = type('View', (), {'get_queryset': lambda: Qs(SummitAnket)})
+        request = type('Request', (), {'user': user, 'method': method})
 
-        assert (PaymentPermission().has_object_permission(None, view, None) ==
-                any((is_supervisor(*blank_args(4)), is_consultant(*blank_args(4)))))
+        assert (PaymentPermission().has_object_permission(request, view, None) ==
+                any((is_supervisor(*blank_args(2)), (is_consultant(*blank_args(2)) and method in SAFE_METHODS))))
 
     @pytest.mark.parametrize('view', [type('View', (), {'get_queryset': lambda: Qs(Deal)}),
                                       type('View', (), {'get_queryset': lambda: Qs(Partnership)})],
@@ -83,11 +84,11 @@ class TestPaymentManagerOrSupervisor:
         assert PaymentManagerOrSupervisor().has_object_permission(request, None, payment)
 
     @pytest.mark.parametrize(
-        'is_supervisor,has_perm', [(lambda self, a, b, c: True, True), (lambda self, a, b, c: False, False)],
+        'is_supervisor,has_perm', [(lambda self, a: True, True), (lambda self, a: False, False)],
         ids=['supervisor', 'non supervisor'])
     def test_has_object_permission_for_anket(self, monkeypatch, user, summit_anket_payment, is_supervisor, has_perm):
         monkeypatch.setattr(PaymentManager, 'has_object_permission', lambda *args: False)
-        monkeypatch.setattr(IsSummitSupervisorOrHigh, 'has_object_permission', is_supervisor)
+        monkeypatch.setattr(CustomUser, 'is_summit_supervisor_or_high', is_supervisor)
         request = type('Request', (), {'user': user})
 
         assert PaymentManagerOrSupervisor().has_object_permission(request, None, summit_anket_payment) == has_perm

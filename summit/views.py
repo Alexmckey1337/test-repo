@@ -20,7 +20,6 @@ from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import FilterByClub, ProductFilter, SummitUnregisterFilter, ProfileFilter, \
     FilterProfileMasterTreeWithSelf
 from summit.pagination import SummitPagination
-from summit.permissions import IsSupervisorOrHigh
 from summit.utils import generate_ticket
 from .models import Summit, SummitAnket, SummitType, SummitLesson, SummitUserConsultant, SummitTicket
 from .serializers import (
@@ -298,7 +297,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
     def consultants(self, request, pk=None):
         serializer = SummitAnketForSelectSerializer
         summit = self.get_object()
-        queryset = summit.consultants
+        queryset = summit.consultants.order_by('-id')
 
         serializer = serializer(queryset, many=True)
 
@@ -308,8 +307,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
     def add_consultant(self, request, pk=None):
         summit = self.get_object()
 
-        user_perm = IsSupervisorOrHigh().has_object_permission(request, None, summit)
-        if not user_perm:
+        if not request.user.is_summit_supervisor_or_high(summit):
             return Response({'result': 'У вас нет прав для добавления консультантов.'},
                             status=status.HTTP_403_FORBIDDEN)
 
@@ -328,8 +326,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
     def del_consultant(self, request, pk=None):
         summit = self.get_object()
 
-        user_perm = IsSupervisorOrHigh().has_object_permission(request, None, summit)
-        if not user_perm:
+        if not request.user.is_summit_supervisor_or_high(summit):
             return Response({'result': 'У вас нет прав для удаления консультантов.'},
                             status=status.HTTP_403_FORBIDDEN)
 
