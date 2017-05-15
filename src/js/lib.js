@@ -1757,7 +1757,8 @@ function createSummitUsersTable(data = {}) {
     let page = data.page || $('.pagination__input').val();
     let summitId = data.summit || $('#summitsTypes').find('.active').data('id');
     let config = {
-        page: page
+        page: page,
+        search_fio: $('input[name="fullsearch"]').val()
     };
     Object.assign(config, data);
     Object.assign(config, getOrderingData());

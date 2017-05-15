@@ -441,9 +441,7 @@
     $('input[name="fullsearch"]').keyup(function () {
         let val = $(this).val();
         delay(function () {
-            let data = {};
-            data['search'] = val;
-            createSummitUsersTable(data);
+            createSummitUsersTable();
         }, 100);
     });
 
