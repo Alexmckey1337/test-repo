@@ -207,6 +207,15 @@
                         <p class="label_block">
                             <label for="departments_filter">Отдел</label>
                         </p>
+                         <p class="label_block">
+                            <label for="hierarchy ">Статус</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="master_tree ">Ветка</label>
+                        </p>
+                        <p class="label_block">
+                            <label for="master">Ответственный</label>
+                        </p>
                         <p class="label_block">
                             <label for="search_email">Фильтр по email</label>
                         </p>
@@ -222,7 +231,7 @@
                     </div>
                     <div class="col-6">
                         <p class="input_block">
-                            <select class="selectdb" data-filter="user__departments" id="departments_filter">
+                            <select class="selectdb" data-filter="department" id="departments_filter">
                                 <option value="">ВСЕ</option>
                                 {% for department in departments %}
                                     <option value="{{ department.id }}">{{ department.title }}</option>
@@ -230,16 +239,40 @@
                             </select>
                         </p>
                         <p class="input_block">
-                            <input type="email" data-filter="user__email" placeholder="email" id="search_email">
+                            <select class="select__db" data-filter="hierarchy" id="hierarchy">
+                                <option value="">ВСЕ</option>
+                                {% for hierarchy in hierarchies %}
+                                    <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
+                                {% endfor %}
+                            </select>
                         </p>
                         <p class="input_block">
-                            <input type="tel" data-filter="user__phone_number" placeholder="номер телефона" id="search_phone_number">
+                            <select class="select__db" data-filter="master_tree" id="master_tree">
+                                <option value="">ВСЕ</option>
+                                {% for master in masters %}
+                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
+                                {% endfor %}
+                            </select>
                         </p>
                         <p class="input_block">
-                            <input type="text" data-filter="user__country" placeholder="страна" id="search_country">
+                            <select class="select__db" data-filter="master" id="master">
+                                <option value="">ВСЕ</option>
+                                {% for master in masters %}
+                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
+                                {% endfor %}
+                            </select>
                         </p>
                         <p class="input_block">
-                            <input type="text" data-filter="user__city" placeholder="город" id="search_city">
+                            <input type="email" data-filter="search_email" placeholder="email" id="search_email">
+                        </p>
+                        <p class="input_block">
+                            <input type="tel" data-filter="search_phone_number" placeholder="номер телефона" id="search_phone_number">
+                        </p>
+                        <p class="input_block">
+                            <input type="text" data-filter="search_country" placeholder="страна" id="search_country">
+                        </p>
+                        <p class="input_block">
+                            <input type="text" data-filter="search_city" placeholder="город" id="search_city">
                         </p>
                     </div>
                 </div>

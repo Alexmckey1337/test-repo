@@ -16,7 +16,11 @@
 {% block main.content %}
     <div id="summits" class="summits-wrap">
         {% for summit_type in user.available_summit_types %}
-            <div><a href="{{ summit_type.id }}"><img data-id="{{ summit_type.id }}" src="{{ summit_type.image.url }}" alt=""/></a></div>
+            <div>
+                <a href="{{ summit_type.id }}">
+                    <img data-id="{{ summit_type.id }}" src="{{ summit_type.image.url }}" alt=""/>
+                </a>
+            </div>
         {% endfor %}
     </div>
 {% endblock %}
