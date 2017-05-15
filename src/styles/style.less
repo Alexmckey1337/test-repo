@@ -5663,6 +5663,41 @@ div.code input#code {
   padding: 10px;
   table {
     margin-bottom: 25px;
+    & .progress {
+      color: #3caeda;
+    }
+    & .default {
+         &::after {
+        position: absolute;
+        display: block;
+        font: 1.2em FontAwesome;
+        bottom: 0.8em;
+        left: 6.5em;
+      }
+      & span {
+        vertical-align: super;
+      }
+    }
+    & .complete {
+      position: relative;
+      color: #008000;
+      &::after {
+        content: '\f00c';
+      }
+      & svg {
+        display: none;
+      }
+    }
+    & .error {
+      position: relative;
+      color: #ff0000;
+      &::after {
+        content: '\f05e';
+      }
+      & svg {
+        display: none;
+      }
+    }
   }
   h2 {
     font-size: 1.8em;

@@ -63,12 +63,23 @@
                             <td>
                                 <a href="{{ ticket.owner.get_absolute_url }}">{{ ticket.owner }}</a>
                             </td>
-                            <td style="color:{% if ticket.status == 'complete' %}
-                                green
-                            {% elif ticket.status == 'progress' %}
-                                blue
-                            {% endif %};">
-                                {{ ticket.get_status_display }}
+                            <td class="default {% if ticket.status == 'complete' %}complete
+                            {% elif ticket.status == 'progress' %}progress{% endif %}">
+                                <span>{{ ticket.get_status_display }}</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="50" height="20">
+                                  <circle transform="translate(8 0)" cx="0" cy="16" r="0" stroke="black" fill="transparent">
+                                    <animate attributeName="r" values="0; 4; 0; 0" dur="1.2s" repeatCount="indefinite" begin="0"
+                                      keytimes="0;0.2;0.7;1" keySplines="0.4 0.4 0.6 1;0.4 0.8 0.6 1;0.4 0.8 0.6 1" calcMode="spline" />
+                                  </circle>
+                                  <circle transform="translate(16 0)" cx="0" cy="16" r="0" stroke="black" fill="transparent">
+                                    <animate attributeName="r" values="0; 4; 0; 0" dur="1.2s" repeatCount="indefinite" begin="0.3"
+                                      keytimes="0;0.2;0.7;1" keySplines="0.4 0.4 0.6 1;0.4 0.8 0.6 1;0.4 0.8 0.6 1" calcMode="spline" />
+                                  </circle>
+                                  <circle transform="translate(24 0)" cx="0" cy="16" r="0" fill="transparent"stroke="black">
+                                    <animate attributeName="r" values="0; 4; 0; 0" dur="1.2s" repeatCount="indefinite" begin="0.6"
+                                      keytimes="0;0.2;0.7;1" keySplines="0.4 0.4 0.6 1;0.4 0.8 0.6 1;0.4 0.8 0.6 1" calcMode="spline" />
+                                  </circle>
+                                </svg>
                             </td>
                             <td>
                                 {% if ticket.attachment %}
