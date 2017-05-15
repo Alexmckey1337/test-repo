@@ -2,7 +2,9 @@ from django.conf import settings
 
 from account.abstract_models import UserPermission
 from summit.models import SummitType
-from summit.permissions import can_see_summit, can_see_summit_type, can_see_any_summit, can_see_any_summit_type
+from summit.permissions import can_see_summit, can_see_summit_type, can_see_any_summit, can_see_any_summit_type, \
+    can_edit_summit_block, can_see_summit_block, can_see_any_summit_ticket, can_see_summit_ticket, \
+    can_see_summit_profiles, can_add_user_to_summit
 
 
 class SummitUserPermission(UserPermission):
@@ -20,6 +22,32 @@ class SummitUserPermission(UserPermission):
 
     def can_see_any_summit_type(self):
         return can_see_any_summit_type(self)
+
+    def can_edit_summit_block(self, user):
+        """
+        Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
+        to edit summit block of ``user``
+        """
+        return can_edit_summit_block(self, user)
+
+    def can_see_summit_block(self, user):
+        """
+        Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
+        to see summit block of ``user``
+        """
+        return can_see_summit_block(self, user)
+
+    def can_see_any_summit_ticket(self):
+        return can_see_any_summit_ticket(self)
+
+    def can_see_summit_ticket(self, summit):
+        return can_see_summit_ticket(self, summit)
+
+    def can_see_summit_profiles(self, summit):
+        return can_see_summit_profiles(self, summit)
+
+    def can_add_user_to_summit(self, summit):
+        return can_add_user_to_summit(self, summit)
 
     def available_summit_types(self):
         return SummitType.objects.filter(

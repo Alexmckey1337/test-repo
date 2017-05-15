@@ -282,32 +282,12 @@ class CustomUser(MPTTModel, User, CustomUserAbstract,
         """
         return can_see_partner_block(self, user)
 
-    def can_edit_summit_block(self, user):
-        """
-        Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
-        to edit summit block of ``user``
-        """
-        return can_edit_summit_block(self, user)
-
-    def can_see_summit_block(self, user):
-        """
-        Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
-        to see summit block of ``user``
-        """
-        return can_see_summit_block(self, user)
-
     def can_see_deal_block(self, user):
         """
         Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
         to see deals block of ``user``
         """
         return can_see_deal_block(self, user)
-
-    def can_see_any_summit_ticket(self):
-        return can_see_any_summit_ticket(self)
-
-    def can_see_summit_ticket(self, summit):
-        return can_see_summit_ticket(self, summit)
 
 
 @python_2_unicode_compatible
