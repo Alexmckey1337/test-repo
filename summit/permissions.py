@@ -1,9 +1,8 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from rest_framework.permissions import IsAuthenticated, SAFE_METHODS, BasePermission
+from rest_framework.permissions import BasePermission
 from edem.settings.base import VISITORS_LOCATION_TOKEN
-from summit.models import SummitAnket
 
 
 class CanSeePartners(BasePermission):

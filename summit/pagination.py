@@ -3,7 +3,7 @@ from collections import OrderedDict
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
-from navigation.table_fields import summit_table, user_table
+from navigation.table_fields import summit_table
 
 
 class SummitPagination(PageNumberPagination):

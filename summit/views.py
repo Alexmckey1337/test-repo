@@ -1,6 +1,8 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from datetime import datetime
+
 from dbmail import send_db_mail
 from django.db.models import Case, When, BooleanField
 from django.http import HttpResponse
@@ -20,12 +22,10 @@ from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import FilterByClub, ProductFilter, SummitUnregisterFilter, ProfileFilter, \
     FilterProfileMasterTreeWithSelf, HasPhoto
 from summit.pagination import SummitPagination
-from summit.permissions import IsSupervisorOrHigh, HasAPIAccess
+from summit.permissions import HasAPIAccess
 from summit.utils import generate_ticket
-from .models import Summit, SummitAnket, SummitType, SummitLesson, SummitUserConsultant, SummitTicket
-from .models import (Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, SummitUserConsultant,
+from .models import (Summit, SummitAnket, SummitType, SummitLesson, SummitUserConsultant,
                      SummitTicket, SummitVisitorLocation, SummitEventTable)
-from .resources import get_fields, SummitAnketResource
 from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
     SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer,
@@ -33,7 +33,6 @@ from .serializers import (
     SummitLessonShortSerializer, SummitTicketSerializer, SummitAnketForTicketSerializer,
     SummitVisitorLocationSerializer, SummitEventTableSerializer)
 from .tasks import generate_tickets
-from datetime import datetime
 
 
 def get_success_headers(data):
@@ -146,7 +145,7 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         else:
             anket = SummitAnket.objects.create(
                 user=user, summit=summit, visited=visited, description=request.data['description'])
-            anket.code = '0{}'.format(4*000*000 + anket.id)
+            anket.code = '0{}'.format(4 * 000 * 000 + anket.id)
             anket.creator = request.user
             anket.save()
         data = {"message": "Данные успешно сохраненны",

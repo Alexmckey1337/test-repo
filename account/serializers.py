@@ -141,7 +141,7 @@ class UserSerializer(serializers.ModelSerializer):
     def validate_hierarchy(self, value):
         reduce_level = lambda: self.instance and self.instance.hierarchy and value.level < self.instance.hierarchy.level
         has_disciples = lambda: self.instance.disciples.exists()
-        has_move_disciples = lambda:  'move_to_master' in self.initial_data.keys()
+        has_move_disciples = lambda: 'move_to_master' in self.initial_data.keys()
         if reduce_level() and has_disciples() and not has_move_disciples():
             raise HierarchyError()
         return value

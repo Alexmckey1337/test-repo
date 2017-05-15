@@ -27,8 +27,6 @@ from navigation.models import Table
 from partnership.abstract_models import PartnerUserPermission
 from partnership.permissions import can_edit_partner_block, can_see_partner_block, can_see_deal_block
 from summit.abstract_models import SummitUserPermission
-from summit.permissions import can_edit_summit_block, can_see_summit_block
-from summit.permissions import can_see_any_summit_ticket, can_see_summit_ticket
 
 
 class CustomUserManager(TreeManager, UserManager):

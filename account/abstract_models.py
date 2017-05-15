@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from mptt.fields import TreeForeignKey
 
 
 class CustomUserAbstract(models.Model):

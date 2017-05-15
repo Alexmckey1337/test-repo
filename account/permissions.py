@@ -1,7 +1,6 @@
 from rest_framework.permissions import BasePermission
 
 
-
 class CanSeeAccountPage(BasePermission):
     def has_object_permission(self, request, view, user):
         return can_see_account_page(request.user, user)

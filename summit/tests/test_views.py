@@ -335,7 +335,7 @@ class TestSummitAnketTableViewSet:
         assert response.data['count'] == 8
 
     def test_user_list_filter_by_hierarchy(
-            self, monkeypatch, api_login_client, summit_anket_factory,summit_factory, hierarchy_factory):
+            self, monkeypatch, api_login_client, summit_anket_factory, summit_factory, hierarchy_factory):
         other_hierarchy = hierarchy_factory()
         hierarchy = hierarchy_factory()
         monkeypatch.setattr(SummitProfileListView, 'permission_classes', (AllowAny,))
@@ -391,7 +391,8 @@ class TestSummitAnketTableViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert response.data['count'] == 10
 
-    def test_user_list_filter_by_master_tree(self, monkeypatch, api_login_client, summit_anket_factory, summit_factory, user_factory):
+    def test_user_list_filter_by_master_tree(self, monkeypatch, api_login_client, summit_anket_factory, summit_factory,
+                                             user_factory):
         monkeypatch.setattr(SummitProfileListView, 'permission_classes', (AllowAny,))
         monkeypatch.setattr(SummitProfileListView, 'get_queryset',
                             lambda s: s.queryset.filter(summit_id=s.summit_id))
