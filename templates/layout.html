@@ -12,16 +12,46 @@
                         <div><span>C</span><span>R</span><span>M</span></div>
                     </div>
                     <ul id="nav-sidebar">
-                        <li><a data-title="База данных" href="{% url 'db:main' %}" id="databases__item"
+                        <li><a data-title="База данных" href="#" id="databases__item"
                                class="menu__item">База данных</a>
+                            <ul class="sidebar-submenu">
+                                {% if user.can_see_churches %}
+                                    <li><a href="{% url 'db:main' %}">Церкви</a></li>
+                                {% endif %}
+                                {% if user.can_see_home_groups %}
+                                    <li><a href="{% url 'db:home_groups' %}">Домашние группы</a></li>
+                                {% endif %}
+                                {% if user.can_see_user_list %}
+                                    <li><a href="{% url 'db:people' %}">Люди</a></li>
+                                {% endif %}
+                            </ul>
                         </li>
                         {% if user.can_see_any_partner_block %}
-                            <li><a data-title="Партнёрство" href="{% url 'partner:main' %}" id="partners__item"
+                            <li><a data-title="Партнёрство" href="#" id="partners__item"
                                    class="menu__item">Партнёрство</a>
+                                <ul class="sidebar-submenu">
+                                    {% if user.can_see_deals %}
+                                        <li><a href="{% url 'partner:deals' %}">Сделки</a></li>
+                                    {% endif %}
+                                    {% if user.can_see_partners %}
+                                        <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
+                                    {% endif %}
+                                    {% if user.can_see_partner_stats %}
+                                        <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
+                                    {% endif %}
+                                    {% if user.can_see_deal_payments %}
+                                        <li><a href="{% url 'partner:payments' %}">{% trans "Payments" %}</a></li>
+                                    {% endif %}
+                                </ul>
+                            </li>
                         {% endif %}
+                        <li><a data-title="Саммиты" href="#" id="summits__item" class="menu__item">Саммиты</a>
+                            <ul class="sidebar-submenu">
+                                {% for summit in user.available_summit_types %}
+                                    <li><a href="{% url 'summit:detail' summit.id %}">{{ summit.title }}</a></li>
+                                {% endfor %}
+                            </ul>
                         </li>
-                        <li><a data-title="Саммиты" href="{% url 'summit:list' %}" id="summits__item"
-                               class="menu__item">Саммиты</a></li>
                         <li id="move-sidebar">
                             <button data-title="Развернуть" id="turn_aside" class="menu__item">Свернуть</button>
                         </li>
@@ -98,27 +128,28 @@
 
                             {% endblock %}
 
-                        {% block header_user_drop %}
-                            <div class="user-hover photo-hover">
-                                <div class="hover-wrapper">
-                                    <div class="top-box">
-                                        <a href="{{ request.user.get_absolute_url }}">
-                                            <span></span>
-                                            <p>Мой профиль</p>
-                                        </a>
-                                    </div>
-                                    {% if user.can_see_any_summit_ticket %}
-                                        <div class="top-box"><a href="{% url "summit:tickets" %}">
-                                            <span></span>
-                                            <p>{% trans "Summit tickets" %}</p></a>
+                            {% block header_user_drop %}
+                                <div class="user-hover photo-hover">
+                                    <div class="hover-wrapper">
+                                        <div class="top-box">
+                                            <a href="{{ request.user.get_absolute_url }}">
+                                                <span></span>
+                                                <p>Мой профиль</p>
+                                            </a>
                                         </div>
-                                    {% endif %}<div class="bottom-box"><a id="logout_button">
-                                        <span></span>
-                                        <p>Выйти</p></a>
+                                        {% if user.can_see_any_summit_ticket %}
+                                            <div class="top-box"><a href="{% url "summit:tickets" %}">
+                                                <span></span>
+                                                <p>{% trans "Summit tickets" %}</p></a>
+                                            </div>
+                                        {% endif %}
+                                        <div class="bottom-box"><a id="logout_button">
+                                            <span></span>
+                                            <p>Выйти</p></a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        {% endblock %}
+                            {% endblock %}
 
                             {% block header_notification_drop %}
                                 <div class="user-hover massage-hover">
@@ -137,18 +168,19 @@
                                                     {% endfor %}
                                                 </ul>
                                             {% endif %}
-                                        {% if notifications.summit_tickets.exists %}
-                                                <p><a href="{% url "summit:tickets" %}">Сгенерированы новые билеты:</a></p>
-                                            <ul id="ticket_notifications">
-                                                {% for ticket in notifications.summit_tickets %}
-                                                    <li>
-                                                        <a href="{{ ticket.get_absolute_url }}">{{ ticket.title }}</a>
-                                                    </li>
-                                                {% endfor %}
-                                            </ul>
-                                        {% endif %}
-                                        {% if notifications.count == 0 %}
-                                            <p id="without_notifications">На сегодня нет уведомлений</p>
+                                            {% if notifications.summit_tickets.exists %}
+                                                <p><a href="{% url "summit:tickets" %}">Сгенерированы новые билеты:</a>
+                                                </p>
+                                                <ul id="ticket_notifications">
+                                                    {% for ticket in notifications.summit_tickets %}
+                                                        <li>
+                                                            <a href="{{ ticket.get_absolute_url }}">{{ ticket.title }}</a>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endif %}
+                                            {% if notifications.count == 0 %}
+                                                <p id="without_notifications">На сегодня нет уведомлений</p>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -168,7 +200,7 @@
         </div>
     </div>
     <div id="right-sidebar">
-            {% block table_sort_modal %}{% endblock %}
+        {% block table_sort_modal %}{% endblock %}
     </div>
 
     {% block add_user_modal %}{% endblock %}
