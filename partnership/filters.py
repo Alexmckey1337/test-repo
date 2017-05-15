@@ -8,8 +8,8 @@ from partnership.models import Deal, Partnership
 
 
 class DateFilter(filters.FilterSet):
-    to_date = django_filters.DateFilter(name="date_created", lookup_type='lte')
-    from_date = django_filters.DateFilter(name="date_created", lookup_type='gte')
+    to_date = django_filters.DateFilter(name="date_created", lookup_expr='lte')
+    from_date = django_filters.DateFilter(name="date_created", lookup_expr='gte')
 
     class Meta:
         model = Deal

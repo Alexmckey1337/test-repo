@@ -99,8 +99,8 @@ class ParticipationPagination(PageNumberPagination):
 
 
 class EventFilter(filters.FilterSet):
-    from_date = django_filters.DateFilter(name="from_date", lookup_type='gte')
-    to_date = django_filters.DateFilter(name="to_date", lookup_type='lte')
+    from_date = django_filters.DateFilter(name="from_date", lookup_expr='gte')
+    to_date = django_filters.DateFilter(name="to_date", lookup_expr='lte')
 
     class Meta:
         model = Event
