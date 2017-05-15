@@ -1,4 +1,9 @@
 (function ($) {
+    let dist = {
+        night: "О Ночной молитве",
+        home: "Домашней группы",
+        service: "О Воскресном Служении"
+    };
     let $databaseHomeReportsForm = $('#databaseHomeReportsForm');
     let pathnameArr = window.location.pathname.split('/');
     const REPORTS_ID = pathnameArr[(pathnameArr.length - 2)];
@@ -57,7 +62,7 @@
     }
 
     getHomeReportDetailData().then(data => {
-        console.log(data);
+        console.log(data.status);
         if (data.status === 1 || data.status === 3) {
             getHomeReportDetailTableData().then(data => {
                 makeHomeReportDetailTable(data);
@@ -75,6 +80,15 @@
             })
         }
         let container = document.createElement('div');
+        let title = document.createElement('h2');
+        if(data.status === 1 ) {
+            $(title).text(`Подача отчета ${dist[data.type.code]}`);
+        } else if (data.status === 2 ) {
+            $(title).text(`Отчет ${dist[data.type.code]}`);
+        } else if (data.status === 3 ) {
+             $(title).text(`Просрочен отчет ${dist[data.type.code]}`);
+        }
+        $(container).append(title);
         let ownerContainer = document.createElement('p');
         let ownerTitle = document.createElement('label');
         let ownerData = document.createElement('input');
