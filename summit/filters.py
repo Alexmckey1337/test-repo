@@ -26,6 +26,20 @@ class FilterByClub(BaseFilterBackend):
         return queryset
 
 
+class HasPhoto(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        """
+        Return a filtered queryset.
+        """
+        params = request.query_params
+        has_photo = params.get('has_photo', None)
+        if has_photo in ('true', 'false'):
+            if has_photo == 'false':
+                return queryset.filter(user__image='')
+            return queryset.exclude(user__image='')
+        return queryset
+
+
 class ProductFilter(django_filters.FilterSet):
     min_id = django_filters.NumberFilter(name="id", lookup_expr='gte')
     max_id = django_filters.NumberFilter(name="id", lookup_expr='lte')

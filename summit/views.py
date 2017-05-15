@@ -18,7 +18,7 @@ from common.filters import FieldSearchFilter
 from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import FilterByClub, ProductFilter, SummitUnregisterFilter, ProfileFilter, \
-    FilterProfileMasterTreeWithSelf
+    FilterProfileMasterTreeWithSelf, HasPhoto
 from summit.pagination import SummitPagination
 from summit.utils import generate_ticket
 from .models import Summit, SummitAnket, SummitType, SummitLesson, SummitUserConsultant, SummitTicket
@@ -60,6 +60,7 @@ class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
         FieldSearchFilter,
         FilterProfileMasterTreeWithSelf,
         FilterByClub,
+        HasPhoto,
     )
 
     field_search_fields = {
@@ -412,7 +413,7 @@ def generate_summit_tickets(request, summit_id):
     limit = 2000
 
     ankets = list(SummitAnket.objects.order_by('id').filter(
-        summit_id=summit_id, tickets__isnull=True)[:limit].values_list('id', 'code'))
+        summit_id=summit_id, tickets__isnull=True).exclude(user__image='')[:limit].values_list('id', 'code'))
     if len(ankets) == 0:
         return Response(data={'detail': _('All tickets is already generated.')}, status=status.HTTP_400_BAD_REQUEST)
     ticket = SummitTicket.objects.create(

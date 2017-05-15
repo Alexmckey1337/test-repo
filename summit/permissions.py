@@ -13,14 +13,23 @@ class CanSeePartners(BasePermission):
 
 
 def can_see_summit(user, summit_id):
+    """
+    Checking that the ``user`` has the right to see  summit with id = ``summit_id``
+    """
     return user.is_summit_consultant_or_high(summit_id)
 
 
 def can_see_any_summit(user):
+    """
+    Checking that the ``user`` has the right to see any of summit
+    """
     return user.is_any_summit_consultant_or_high()
 
 
 def can_see_summit_type(user, summit_type):
+    """
+    Checking that the ``user`` has the right to see  summit_type with id = ``summit_type``
+    """
     return user.is_summit_type_consultant_or_high(summit_type)
 
 
