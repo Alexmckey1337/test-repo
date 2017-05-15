@@ -15,6 +15,18 @@
 </style>
 {% endblock %}
 
+{% block header.search %}
+    <li class="search__container">
+        <div class="search">
+            {% block header.search.field %}
+                <input type="text" id="find_by_code" name="find_by_code" value="{{ request.GET.code }}" placeholder="Поиск билета по коду">
+            {% endblock %}
+            {% block header.search.filter %}
+            {% endblock %}
+        </div>
+    </li>
+{% endblock %}
+
 {% block header.top.h1 %}
     <h1 id="summit-title">
         {% trans "Tickets" %}
@@ -28,20 +40,15 @@
 {% endblock %}
 
 {% block main.content %}
-    <div style="padding: 20px;">
-        <label for="find_by_code">{% trans "Find by code:" %}</label>
-        <input type="text" id="find_by_code" name="find_by_code" value="{{ request.GET.code }}">
-        <button id="find_by_code_btn">{% trans "Find" %}</button>
-    </div>
-    <div style="padding: 20px;">
+    <div class="ticket-list">
         {% regroup tickets by summit.type as summit_type_list %}
         {% for summit_type in summit_type_list %}
-            <h3>{{ summit_type.grouper }}</h3>
+            <h2>{{ summit_type.grouper }}</h2>
             {% regroup summit_type.list by summit as summit_list %}
             {% for summit in summit_list %}
-                <h2>
+                <h3>
                     {{ summit.grouper }}
-                </h2>
+                </h3>
                 <table class="tickets_table">
                     <tr>
                         <th>{% trans "Title" %}</th>
@@ -52,7 +59,7 @@
                     </tr>
                     {% for ticket in summit.list %}
                         <tr{% if ticket.is_new %} class="new_ticket"{% endif %}>
-                            <td><span data-id="{{ ticket.id }}" class="ticket_title" style="cursor:pointer;">{{ ticket.title }}</span></td>
+                            <td><span data-id="{{ ticket.id }}" class="ticket_title">{{ ticket.title }}</span></td>
                             <td>
                                 <a href="{{ ticket.owner.get_absolute_url }}">{{ ticket.owner }}</a>
                             </td>

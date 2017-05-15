@@ -1168,6 +1168,16 @@ li.current a {
   padding-left: 0;
 }
 
+#searchedUsers {
+  .rows .col {
+    width: 40%;
+  }
+  .rows .col:first-child {
+    float: left;
+    width: 60%;
+  }
+}
+
 .summit_wrapper .rows .col:first-child p,
 .sdelki-content .rows .col:first-child p {
   padding-left: 15px;
@@ -3959,9 +3969,17 @@ span.change[style*="display: none"] ~ span.y {
   display: none;
   & .wrapp {
     display: none;
+    .rows {
+      padding: 10px 15px;
+    }
   }
   & .wrapp-1 {
     display: block;
+  }
+  & .note-box {
+    form {
+      padding: 10px 6px;
+    }
   }
 }
 
@@ -5638,4 +5656,25 @@ div.code input#code {
 
 .select2-container .select2-selection--single .select2-selection__rendered {
   padding-right: 0 !important;
+}
+
+/* ------------------Tickets------------------------------ */
+.ticket-list {
+  padding: 10px;
+  table {
+    margin-bottom: 25px;
+  }
+  h2 {
+    font-size: 1.8em;
+    color: #333;
+    text-transform: uppercase;
+  }
+  h3 {
+    margin-bottom: 15px;
+    font-size: 1.4em;
+    color: #a0a0a0;
+  }
+  .td span {
+    cursor: pointer;
+  }
 }

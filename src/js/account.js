@@ -99,8 +99,8 @@ $('#sendNote').on('click', function () {
     let _self = this;
     let id = $(_self).data('id');
     let resData = new FormData();
-    resData.append('description', $('#id_note_text').val());c
-    updateUser(id, resData);
+    resData.append('description', $('#id_note_text').val());
+    updateUser(id, resData).then(() => showPopup('Ваше примечание добавлено.'));
     $(this).siblings('.editText').removeClass('active');
     $(this).parent().siblings('textarea').attr('readonly', true);
 
@@ -253,13 +253,13 @@ $('#partnershipCheck').on('click', function () {
         });
     }
 });
-$("#send_note").on('click', function (e) {
+$(".send_note").on('click', function (e) {
     e.preventDefault();
+    let form = $(this).closest('form');
+    let text_field = form.find('.js-add_note');
     let box = $(this).closest(".note-box");
-    let text_field = box.find('.js-add_note');
     let text = text_field.val();
-    let anket_id = text_field.data('anket-id');
-    console.log(anket_id, text, box);
+    let anket_id = form.data('anket-id');
     sendNote(anket_id, text, box);
     text_field.val('');
 });
@@ -355,11 +355,10 @@ function sendNote(anket_id, text, box) {
     let data = {
         "text": text
     };
-    let summit_type = box.data('summit-id');
     let json = JSON.stringify(data);
     ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/' + anket_id + '/create_note/', json, function (note) {
         box.before(function () {
-            return '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>' + note.text + ' — ' + moment(note.date_created).format("DD.MM.YYYY HH:mm:ss")
+            return '<div class="rows"><div><p>' + note.text + ' — ' + moment(note.date_created).format("DD.MM.YYYY HH:mm:ss")
                 + ' — Author: ' + note.owner_name
                 + '</p></div></div>'
         });

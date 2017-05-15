@@ -778,7 +778,7 @@
                                         <div class="wrapp wrapp-1">
                                             {% for note in anket.notes.all %}
                                                 <div class="rows">
-                                                    <div style="padding:10px 6px;">
+                                                    <div>
                                                         <p>{{ note.text }} — {{ note.date_created|date:"d.m.Y H:i:s" }}
                                                             — Author: {{ note.owner.fullname }}
                                                         </p>
@@ -787,14 +787,14 @@
                                             {% endfor %}
 
                                             <div class="rows note-box">
-                                                <div style="padding:10px 15px;">
+                                                <form action="/" data-anket-id="{{ anket.id }}">
                                                     <p>Написать примечание</p>
                                                     <p><textarea name="add_note" data-anket-id="{{ anket.id }}"
                                                                  class="js-add_note" cols="50" rows="5"></textarea></p>
                                                     <p>
-                                                        <button id="send_note">Отправить примечание</button>
+                                                        <button class="send_note" type="submit">Отправить примечание</button>
                                                     </p>
-                                                </div>
+                                                </form>
                                             </div>
                                         </div>
                                         <div class="wrapp wrapp-2">
@@ -802,7 +802,7 @@
                                                 {% is_consultant_for_user anket.summit anket.user as is_consultant %}
                                                 {% for lesson in anket.summit.lessons.all %}
                                                     <div class="rows">
-                                                        <div style="padding:10px 6px;">
+                                                        <div>
                                                             <p>
                                                                 {% if is_consultant %}
                                                                     <input id="lesson{{ lesson.id }}" class="js-lesson"
@@ -830,7 +830,7 @@
                                             {% if anket.emails.exists %}
                                                 {% for email in anket.emails.all %}
                                                     <div class="rows">
-                                                        <div style="padding:10px 6px;">
+                                                        <div>
                                                             <p> Отправлено на email: {{ email.recipient }} —
                                                                 Дата отправки: {{ email.created_at|date:"d.m.Y H:i:s" }}
                                                             </p>
