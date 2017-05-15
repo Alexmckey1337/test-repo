@@ -197,7 +197,8 @@ class SummitTypeView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
         ctx = super(SummitTypeView, self).get_context_data(**kwargs)
         extra_context = {
             'departments': Department.objects.all(),
-            'masters': CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
+            'masters': CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1),
+            'hierarchies': Hierarchy.objects.order_by('level'),
         }
         ctx.update(extra_context)
         return ctx

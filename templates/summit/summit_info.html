@@ -207,6 +207,9 @@
                         <p class="label_block">
                             <label for="departments_filter">Отдел</label>
                         </p>
+                         <p class="label_block">
+                            <label for="hierarchy ">Статус</label>
+                        </p>
                         <p class="label_block">
                             <label for="master_tree ">Ветка</label>
                         </p>
@@ -232,6 +235,14 @@
                                 <option value="">ВСЕ</option>
                                 {% for department in departments %}
                                     <option value="{{ department.id }}">{{ department.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <select class="select__db" data-filter="hierarchy" id="hierarchy">
+                                <option value="">ВСЕ</option>
+                                {% for hierarchy in hierarchies %}
+                                    <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
                                 {% endfor %}
                             </select>
                         </p>
