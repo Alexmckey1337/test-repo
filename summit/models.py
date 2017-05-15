@@ -467,3 +467,49 @@ class SummitAnketNote(models.Model):
         verbose_name = _('Summit Anket Note')
         verbose_name_plural = _('Summit Anket Notes')
         ordering = ('-date_created',)
+
+
+@python_2_unicode_compatible
+class SummitVisitorLocation(models.Model):
+    visitor = models.ForeignKey('summit.SummitAnket', verbose_name=_('Summit Visitor'),
+                                related_name='visitor_locations')
+    date_time = models.DateTimeField(verbose_name='Date Time')
+    longitude = models.FloatField(verbose_name=_('Longitude'))
+    latitude = models.FloatField(verbose_name=_('Latitude'))
+
+    class Meta:
+        verbose_name_plural = _('Summit Users Location')
+        verbose_name = _('Summit User Location')
+        ordering = ('-date_time',)
+        unique_together = ['visitor', 'date_time']
+
+    def __str__(self):
+        return 'Местонахождение участника саммита %s. Дата и время: %s' % (self.visitor, self.date_time)
+
+
+@python_2_unicode_compatible
+class SummitEventTable(models.Model):
+    summit = models.ForeignKey('Summit', on_delete=models.CASCADE, verbose_name=_('Саммит'))
+    date_time = models.DateTimeField(verbose_name=_('Дата и Время'))
+    name_ru = models.CharField(max_length=64, verbose_name=_('Название на Русском'))
+    author_ru = models.CharField(max_length=64, verbose_name=_('Имя автора на Русском'))
+    name_en = models.CharField(max_length=64, verbose_name=_('Название на Английском'))
+    author_en = models.CharField(max_length=64, verbose_name=_('Имя автора на Английском'))
+    name_de = models.CharField(max_length=64, verbose_name=_('Название на Немецком'))
+    author_de = models.CharField(max_length=64, verbose_name=_('Имя автора на Немецком'))
+
+    class Meta:
+        verbose_name = _('Расписание Саммита')
+        verbose_name_plural = _('Расписание Саммита')
+        ordering = ('-id',)
+
+    @property
+    def date(self):
+        return self.date_time.date()
+
+    @property
+    def time(self):
+        return self.date_time.time()
+
+    def __str__(self):
+        return self.author_ru

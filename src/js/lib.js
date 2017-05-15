@@ -207,6 +207,7 @@ function makePastorListNew(id, selector = [], active=null) {
     });
 }
 function makePastorList(id, selector, active = null) {
+    console.log(id);
     getResponsible(id, 2).then(function (data) {
         let options = [];
         data.forEach(function (item) {
@@ -292,7 +293,37 @@ function makeDepartmentList(selector, active = null) {
         $(selector).html(options).prop('disabled', false).select2();
     });
 }
+function getChurchesListINDepartament(id) {
+    return new Promise(function (resolve, reject) {
+        let url;
+        if (id instanceof Array) {
+            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/churches_by_department/?`;
+            let i = 0;
+            id.forEach(function (item) {
+                i++;
+                url += `department=${item}`;
+                if (id.length != i) {
+                    url += '&';
+                }
+            })
+        } else {
+            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches?department=${id}`;
+        }
+        let data = {
+            url: url,
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
 
+        };
+        newAjaxRequest(data, status, reject)
+    })
+}
 function getChurchesINDepartament(id) {
     return new Promise(function (resolve, reject) {
         let url;
@@ -1044,6 +1075,18 @@ function getCurrentUser(id) {
         })
     })
 }
+function getResponsibleBYHomeGroup(churchID) {
+     return new Promise(function (resolve, reject) {
+        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/?church_id=${churchID}`;
+        ajaxRequest(url, null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    })
+}
 
 function getResponsible(ids, level, search = "") {
     let responsibleLevel;
@@ -1058,6 +1101,8 @@ function getResponsible(ids, level, search = "") {
             ids.forEach(function (id) {
                 url += '&department=' + id;
             });
+        } else {
+            url += '&department=' + ids;
         }
         ajaxRequest(url, null, function (data) {
             if (data) {
@@ -2656,7 +2701,7 @@ function getPastorsByDepartment(id) {
 
 function getLeadersByChurch(config = {}) {
     let resData = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/`,
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_current_leaders/`,
         data: config
     };
     if (getCookie('key')) {

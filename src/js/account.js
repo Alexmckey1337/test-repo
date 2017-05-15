@@ -427,14 +427,14 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     function makeChurches() {
         let departmentID = $selectDepartment.val();
         if (departmentID && typeof parseInt(departmentID) == "number") {
-            getChurchesINDepartament(departmentID).then(function (data) {
+            getChurchesListINDepartament(departmentID).then(function (data) {
+                console.log(departmentID);
                 let selectedChurchID = $(church_list).val();
-                let results = data.results;
                 let options = [];
                 let option = document.createElement('option');
                 $(option).val('').text('Выберите церковь').attr('selected', true).attr('disabled', true);
                 options.push(option);
-                results.forEach(function (item) {
+                data.forEach(function (item) {
                     let option = document.createElement('option');
                     $(option).val(item.id).text(item.get_title);
                     if (selectedChurchID == item.id) {
@@ -458,7 +458,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                             $('#home_groups_list').html(options);
                         });
                     }
-                });
+                }).trigger('change');
             });
         }
     }
@@ -542,7 +542,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         if (action == 'update-user') {
             if ($input.is(':checkbox')) {
                 let partnerData = {};
-                if ($input.is(':checked')) {
+                if($input.is(':checked')) {
                     partnerData.is_active = true;
                 } else {
                     partnerData.is_active = false;

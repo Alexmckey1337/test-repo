@@ -24,7 +24,7 @@ from hierarchy.models import Department
 from .models import HomeGroup, Church
 from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSerializer, HomeGroupListSerializer,
                           ChurchStatsSerializer, HomeGroupStatsSerializer, AllChurchesListSerializer,
-                          AllHomeGroupsListSerializer, UserNameSerializer)
+                          AllHomeGroupsListSerializer, UserNameSerializer, ChurchWithoutPaginationSerializer)
 
 
 class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroupMixin, ExportViewSetMixin):
@@ -245,6 +245,17 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
 
         return Response(pastors.data)
 
+    @list_route(methods=['GET'], serializer_class=ChurchWithoutPaginationSerializer, pagination_class=None)
+    def churches_by_department(self, request):
+        if not request.query_params.get('department'):
+            raise exceptions.ValidationError(_("Некорректный запрос. Департамент не передан."))
+
+        departments = request.query_params.getlist('department')
+
+        churches = Church.objects.filter(department__in=departments)
+        churches = self.serializer_class(churches, many=True)
+        return Response(churches.data)
+
 
 class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportViewSetMixin):
     queryset = HomeGroup.objects.all()
@@ -385,6 +396,20 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
 
     @list_route(methods=['GET'], serializer_class=UserNameSerializer)
     def get_leaders_by_church(self, request):
+        church_id = request.query_params.get('church_id')
+        leaders = CustomUser.objects.filter(Q(home_groups__church__id=church_id) | Q(
+            churches__id=church_id)).filter(hierarchy__level__gte=1)
+
+        if not church_id:
+            leaders = self.serializer_class(leaders, many=True)
+            return Response(leaders.data)
+
+        leaders = self.serializer_class(leaders, many=True)
+
+        return Response(leaders.data)
+
+    @list_route(methods=['GET'], serializer_class=UserNameSerializer)
+    def get_current_leaders(self, request):
         church_id = request.query_params.get('church_id')
         leaders = CustomUser.objects.filter(home_group__leader__id__isnull=False).distinct()
 

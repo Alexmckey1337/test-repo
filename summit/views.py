@@ -20,14 +20,20 @@ from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import FilterByClub, ProductFilter, SummitUnregisterFilter, ProfileFilter, \
     FilterProfileMasterTreeWithSelf, HasPhoto
 from summit.pagination import SummitPagination
+from summit.permissions import IsSupervisorOrHigh, HasAPIAccess
 from summit.utils import generate_ticket
 from .models import Summit, SummitAnket, SummitType, SummitLesson, SummitUserConsultant, SummitTicket
+from .models import (Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, SummitUserConsultant,
+                     SummitTicket, SummitVisitorLocation, SummitEventTable)
+from .resources import get_fields, SummitAnketResource
 from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
     SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer,
     SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitShortSerializer, SummitAnketShortSerializer,
-    SummitLessonShortSerializer, SummitTicketSerializer, SummitAnketForTicketSerializer)
+    SummitLessonShortSerializer, SummitTicketSerializer, SummitAnketForTicketSerializer,
+    SummitVisitorLocationSerializer, SummitEventTableSerializer)
 from .tasks import generate_tickets
+from datetime import datetime
 
 
 def get_success_headers(data):
@@ -424,3 +430,45 @@ def generate_summit_tickets(request, summit_id):
     generate_tickets.apply_async(args=[summit_id, ankets, ticket.id])
 
     return Response(data={'ticket_id': ticket.id})
+
+
+class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
+    serializer_class = SummitVisitorLocationSerializer
+    queryset = SummitVisitorLocation.objects.all().prefetch_related('visitor')
+    pagination_class = None
+    permission_classes = (HasAPIAccess,)
+
+    @list_route(methods=['POST'])
+    def post(self, request):
+        if not request.data.get('data'):
+            raise exceptions.ValidationError(_('Невозможно создать запись, поле {data} не переданно'))
+        data = request.data.get('data')
+        visitor = get_object_or_404(SummitAnket, pk=request.data.get('visitor_id'))
+
+        for chunk in data:
+            SummitVisitorLocation.objects.create(visitor=visitor,
+                                                 date_time=chunk.get('date_time', datetime.now()),
+                                                 longitude=chunk.get('longitude', 0),
+                                                 latitude=chunk.get('latitude', 0))
+
+        return Response({'message': 'Successful created'}, status=status.HTTP_201_CREATED)
+
+    @list_route(methods=['GET'])
+    def get_location(self, request):
+        anket_id = request.query_params.get('visitor_id')
+        date_time = request.query_params.get('date_time')
+        visitor_location = self.queryset.filter(visitor_id=anket_id, date_time__gte=date_time).order_by(
+            'date_time').first()
+        visitor_location = self.serializer_class(visitor_location)
+
+        return Response(visitor_location.data, status=status.HTTP_200_OK)
+
+
+class SummitEventTableViewSet(viewsets.ModelViewSet):
+    queryset = SummitEventTable.objects.all()
+    serializer_class = SummitEventTableSerializer
+    pagination_class = None
+    permission_classes = (HasAPIAccess,)
+
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_fields = ('summit',)

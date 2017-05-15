@@ -1,7 +1,9 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import IsAuthenticated, SAFE_METHODS, BasePermission
+from edem.settings.base import VISITORS_LOCATION_TOKEN
+from summit.models import SummitAnket
 
 
 class CanSeePartners(BasePermission):
@@ -65,3 +67,10 @@ def can_see_summit_profiles(user, summit):
 
 def can_add_user_to_summit(user, summit):
     return user.is_summit_consultant_or_high(summit)
+
+
+class HasAPIAccess(BasePermission):
+    message = 'Invalid or missing API Key.'
+
+    def has_permission(self, request, view):
+        return request.META.get('HTTP_VISITORS_LOCATION_TOKEN', '') == VISITORS_LOCATION_TOKEN

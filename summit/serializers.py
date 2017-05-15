@@ -6,7 +6,8 @@ from rest_framework import serializers
 from account.models import CustomUser as User
 from account.serializers import UserTableSerializer, UserShortSerializer
 from common.fields import ListCharField
-from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail, SummitTicket
+from .models import (Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
+                     SummitTicket, SummitVisitorLocation, SummitEventTable)
 
 
 class SummitAnketNoteSerializer(serializers.ModelSerializer):
@@ -178,3 +179,28 @@ class SummitAnketForAppSerializer(serializers.ModelSerializer):
     class Meta:
         model = SummitAnket
         fields = ('id', 'user', 'code', 'value', 'is_member')
+
+
+class SummitAnketLocationSerializer(serializers.ModelSerializer):
+    fullname = serializers.CharField(source='user.fullname')
+
+    class Meta:
+        model = SummitAnket
+        fields = ('id', 'fullname')
+
+
+class SummitVisitorLocationSerializer(serializers.ModelSerializer):
+    # visitor = SummitAnketLocationSerializer()
+
+    class Meta:
+        model = SummitVisitorLocation
+        fields = ('visitor', 'date_time', 'longitude', 'latitude')
+
+
+class SummitEventTableSerializer(serializers.ModelSerializer):
+    summit_id = serializers.IntegerField(source='summit.id')
+
+    class Meta:
+        model = SummitEventTable
+        fields = ('summit_id', 'date', 'time', 'name_ru', 'author_ru', 'name_en',
+                  'author_en', 'name_de', 'author_de')
