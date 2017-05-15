@@ -218,7 +218,7 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
         return reverse('summit:profile-detail', kwargs={'pk': self.id})
 
     def link(self):
-        return self.get_absolute_url()
+        return self.user.get_absolute_url()
 
     def save(self, *args, **kwargs):
         update = kwargs.get('update_archive_fields', True)
