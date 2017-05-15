@@ -176,7 +176,36 @@ function createHomeGroupsTable(config = {}) {
         orderTable.sort(createHomeGroupsTable);
     });
 }
-
+function makePastorListWithMasterTree(config, selector, active = null) {
+    getShortUsers(config).then(data => {
+         let options = '<option selected>ВСЕ</option>';
+        data.forEach(function (item) {
+            options += `<option value="${item.id}"`;
+            if (active == item.id) {
+                options += 'selected';
+            }
+            options += `>${item.fullname}</option>`;
+        });
+        selector.forEach(item => {
+                $(item).html(options).prop('disabled', false).select2();
+        })
+    })
+}
+function makePastorListNew(id, selector = [], active=null) {
+    getResponsible(id, 2).then(function (data) {
+        let options = '<option selected>ВСЕ</option>';
+        data.forEach(function (item) {
+            options += `<option value="${item.id}"`;
+            if (active == item.id) {
+                options += 'selected';
+            }
+            options += `>${item.fullname}</option>`;
+        });
+        selector.forEach(item => {
+                $(item).html(options).prop('disabled', false).select2();
+        })
+    });
+}
 function makePastorList(id, selector, active = null) {
     getResponsible(id, 2).then(function (data) {
         let options = [];
@@ -2176,7 +2205,7 @@ function makeQuickEditSammitCart(el) {
     anketID = $(el).closest('td').find('a').data('ankets');
     id = $(el).closest('td').find('a').data('id');
     link = $(el).closest('td').find('a').data('link');
-    url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${anketID}/`;
+    url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/summits/${anketID}/users/`;
     ajaxRequest(url, null, function (data) {
         $('#fullNameCard').text(data.user.fullname);
         $('#userDescription').val(data.description);
