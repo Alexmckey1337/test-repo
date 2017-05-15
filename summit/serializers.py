@@ -172,7 +172,7 @@ class SummitAnketLocationSerializer(serializers.ModelSerializer):
 
 
 class SummitVisitorLocationSerializer(serializers.ModelSerializer):
-    visitor = SummitAnketLocationSerializer()
+    # visitor = SummitAnketLocationSerializer()
 
     class Meta:
         model = SummitVisitorLocation

@@ -1,5 +1,5 @@
-from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
-
+from rest_framework.permissions import IsAuthenticated, SAFE_METHODS, BasePermission
+from edem.settings.base import VISITORS_LOCATION_TOKEN
 from summit.models import SummitAnket
 
 
@@ -132,3 +132,10 @@ def can_see_any_summit_ticket(user):
 
 def can_see_summit_ticket(user, summit):
     return user.is_summit_supervisor_or_high(summit)
+
+
+class HasAPIAccess(BasePermission):
+    message = 'Invalid or missing API Key.'
+
+    def has_permission(self, request, view):
+        return request.META.get('HTTP_VISITORS_LOCATION_TOKEN', '') == VISITORS_LOCATION_TOKEN

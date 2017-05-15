@@ -22,7 +22,7 @@ from common.views_mixins import ExportViewSetMixin
 from navigation.table_fields import user_table, summit_table
 from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
-from summit.permissions import IsSupervisorOrHigh
+from summit.permissions import IsSupervisorOrHigh, HasAPIAccess
 from summit.utils import generate_ticket
 from .models import (Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, SummitUserConsultant,
                      SummitTicket, SummitVisitorLocation, SummitEventTable)
@@ -34,7 +34,6 @@ from .serializers import (
     SummitLessonShortSerializer, SummitTicketSerializer, SummitAnketForTicketSerializer,
     SummitVisitorLocationSerializer, SummitEventTableSerializer)
 from .tasks import generate_tickets
-from edem.settings.base import VISITOR_LOCATIONS_TOKEN
 from datetime import datetime
 
 
@@ -497,14 +496,16 @@ def generate_summit_tickets(request, summit_id):
 
 class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
     serializer_class = SummitVisitorLocationSerializer
-    queryset = SummitVisitorLocation.objects.all()
+    queryset = SummitVisitorLocation.objects.all().prefetch_related('visitor')
+    pagination_class = None
+    permission_classes = (HasAPIAccess,)
 
     @list_route(methods=['POST'])
     def post(self, request):
-        request = self.validate_post(request)
-        anket_id = request.data.get('visitor_id')
+        if not request.data.get('data'):
+            raise exceptions.ValidationError(_('Невозможно создать запись, поле {data} не переданно'))
         data = request.data.get('data')
-        visitor = get_object_or_404(SummitAnket, pk=anket_id)
+        visitor = get_object_or_404(SummitAnket, pk=request.data.get('visitor_id'))
 
         for chunk in data:
             SummitVisitorLocation.objects.create(visitor=visitor,
@@ -514,18 +515,8 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
 
         return Response({'message': 'Successful created'}, status=status.HTTP_201_CREATED)
 
-    @staticmethod
-    def validate_post(request):
-        if request.data.get('token') != VISITOR_LOCATIONS_TOKEN:
-            raise exceptions.AuthenticationFailed(_('Нет прав. Токен не передан'))
-        if not request.data.get('data'):
-            raise exceptions.ValidationError(_('Невозможно создать запись, поле {data} не переданно'))
-
-        return request
-
     @list_route(methods=['GET'])
     def get_location(self, request):
-        request = self.validate_get(request)
         anket_id = request.query_params.get('visitor_id')
         date_time = request.query_params.get('date_time')
         visitor_location = self.queryset.filter(visitor_id=anket_id, date_time__gte=date_time).order_by(
@@ -534,17 +525,12 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
 
         return Response(visitor_location.data, status=status.HTTP_200_OK)
 
-    @staticmethod
-    def validate_get(request):
-        anket_id = request.query_params.get('visitor_id')
-        get_object_or_404(SummitAnket, pk=anket_id)
-        if request.query_params.get('token') != VISITOR_LOCATIONS_TOKEN:
-            raise exceptions.AuthenticationFailed(_('Нет прав. Токен не передан'))
-
-        return request
-
 
 class SummitEventTableViewSet(viewsets.ModelViewSet):
     queryset = SummitEventTable.objects.all()
     serializer_class = SummitEventTableSerializer
     pagination_class = None
+    permission_classes = (HasAPIAccess,)
+
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_fields = ('summit',)
