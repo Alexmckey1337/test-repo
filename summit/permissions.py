@@ -5,7 +5,14 @@ from rest_framework.permissions import BasePermission
 from edem.settings.base import VISITORS_LOCATION_TOKEN
 
 
-class CanSeePartners(BasePermission):
+class HasAPIAccess(BasePermission):
+    message = 'Invalid or missing API Key.'
+
+    def has_permission(self, request, view):
+        return request.META.get('HTTP_VISITORS_LOCATION_TOKEN', '') == VISITORS_LOCATION_TOKEN
+
+
+class CanSeeSummitProfiles(BasePermission):
     def has_object_permission(self, request, view, summit):
         """
         Checking that the ``request.user`` has the right to see list of partners
@@ -66,10 +73,3 @@ def can_see_summit_profiles(user, summit):
 
 def can_add_user_to_summit(user, summit):
     return user.is_summit_consultant_or_high(summit)
-
-
-class HasAPIAccess(BasePermission):
-    message = 'Invalid or missing API Key.'
-
-    def has_permission(self, request, view):
-        return request.META.get('HTTP_VISITORS_LOCATION_TOKEN', '') == VISITORS_LOCATION_TOKEN
