@@ -53,6 +53,10 @@
 #sidebar .sidebar-submenu li a {
   width: auto;
   padding: 20px 30px 25px 30px;
+  transition: color .4s ease;
+  &:hover {
+    color: #3caeda;
+  }
 }
 
 .menu__item {
@@ -61,20 +65,20 @@
 
 .sidebar-submenu {
   display: none;
-  & li::after {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 0;
-    height: 2px;
-    margin: 0 auto;
-    background-color: #3caeda;
-    transition: all .7s ease;
-    content: '';
-  }
-  & li:hover::after {
-    width: 100%;
-  }
+  //& li::after {
+  //  position: absolute;
+  //  left: 0;
+  //  bottom: 0;
+  //  width: 0;
+  //  height: 2px;
+  //  margin: 0 auto;
+  //  background-color: #3caeda;
+  //  transition: all .7s ease;
+  //  content: '';
+  //}
+  //& li:hover::after {
+  //  width: 100%;
+  //}
 }
 
 #sidebar .sb-menu_link__active {

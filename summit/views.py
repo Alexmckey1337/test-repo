@@ -22,7 +22,7 @@ from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import FilterByClub, ProductFilter, SummitUnregisterFilter, ProfileFilter, \
     FilterProfileMasterTreeWithSelf, HasPhoto
 from summit.pagination import SummitPagination
-from summit.permissions import HasAPIAccess
+from summit.permissions import HasAPIAccess, CanSeeSummitProfiles
 from summit.utils import generate_ticket
 from .models import (Summit, SummitAnket, SummitType, SummitLesson, SummitUserConsultant,
                      SummitTicket, SummitVisitorLocation, SummitEventTable)
@@ -43,8 +43,6 @@ def get_success_headers(data):
 
 
 class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
-    queryset = SummitAnket.objects.base_queryset().annotate_total_sum().annotate_full_name().order_by(
-        'user__last_name', 'user__first_name', 'user__middle_name')
     serializer_class = SummitAnketSerializer
     pagination_class = SummitPagination
     permission_classes = (IsAuthenticated,)
@@ -76,12 +74,23 @@ class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
         'search_city': ('city',),
     }
 
+    def dispatch(self, request, *args, **kwargs):
+        self.summit = get_object_or_404(Summit, pk=kwargs.get('pk', None))
+        return super(SummitProfileListView, self).dispatch(request, *args, **kwargs)
+
+    def check_permissions(self, request):
+        super(SummitProfileListView, self).check_permissions(request)
+        if not CanSeeSummitProfiles().has_object_permission(request, self, self.summit):
+            self.permission_denied(
+                request, message=getattr(CanSeeSummitProfiles, 'message', None)
+            )
+
     def get(self, request, *args, **kwargs):
-        self.summit_id = kwargs.get('pk', None)
         return self.list(request, *args, **kwargs)
 
     def get_queryset(self):
-        qs = self.queryset.filter(summit_id=self.summit_id)
+        qs = self.summit.ankets.base_queryset().annotate_total_sum().annotate_full_name().order_by(
+            'user__last_name', 'user__first_name', 'user__middle_name')
         return qs.for_user(self.request.user)
 
 

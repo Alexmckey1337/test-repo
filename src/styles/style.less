@@ -100,6 +100,10 @@ h3 {
   font-size: 1.8em;
 }
 
+#main h1 {
+  padding: 0 1em;
+}
+
 input, select, textarea, button, button:active, button:focus {
   outline: none;
 }
@@ -3323,8 +3327,8 @@ span.change[style*="display: none"] ~ span.y {
 
 .gallery li span {
   color: #656d78;
-  font-family: "UbuntuMedium", sans-serif;
-  font-size: 1.2em;
+  font-family: 'Roboto Condensed',sans-serif;
+  font-size: 1.5em;
   text-decoration: none;
   display: block;
   width: 75px;
@@ -3776,7 +3780,7 @@ span.change[style*="display: none"] ~ span.y {
             display: block;
             width: 100%;
             height: 2px;
-            background-image: radial-gradient(circle,#cdd0d4 .6px,transparent 1px);
+            background-image: radial-gradient(circle,#656d78 .6px,transparent 1px);
             background-repeat: repeat-x;
             background-size: 5px 2px;
             content: '';
@@ -4534,7 +4538,7 @@ span.green {
       display: block;
       width: 95%;
       height: 2px;
-      background-image: radial-gradient(circle,#cdd0d4 .6px,transparent 1px);
+      background-image: radial-gradient(circle,#656d78 .6px,transparent 1px);
       background-repeat: repeat-x;
       background-size: 5px 2px;
       content: '';
@@ -4557,27 +4561,14 @@ span.green {
       width: 18.5em !important;
     }
   }
+
   & h2 {
     position: relative;
     margin-top: 2em;
     margin-bottom: .5em;
     padding: 0 .5em;
-    //border: 1px solid #a0a0a0;
-    //border-radius: .4em;
     font-size: 1.8em;
     cursor: pointer;
-    &:after {
-      position: absolute;
-      display: block;
-      content: '\f0dd';
-      font: 1.2em FontAwesome;
-      bottom: 0.2em;
-      right: .5em;
-    }
-  }
-  & .info-title_active:after {
-    bottom: -0.2em;
-    content: '\f0de';
   }
   & .info {
     display: none;
@@ -4614,6 +4605,67 @@ span.green {
             border: 1px solid #aab2bd;
             background-color: transparent;
           }
+        }
+      }
+      & li:nth-child(2n) {
+        width: 40%;
+      }
+    }
+  }
+  & .info-calc {
+    & ul li:nth-child(2n) {
+      text-align: center;
+    }
+  }
+}
+
+.accordion {
+  width: 700px;
+  margin: 0 1em;
+  & h2 {
+    position: relative;
+    margin-top: .5em;
+    margin-bottom: .5em;
+    padding: 0 .5em;
+    font-size: 1.6em;
+    cursor: pointer;
+    &:after {
+      position: absolute;
+      display: block;
+      content: '\f0dd';
+      font: 1.2em FontAwesome;
+      bottom: 0.2em;
+      right: .5em;
+    }
+  }
+  & .info-title_active:after {
+    bottom: -0.2em;
+    content: '\f0de';
+  }
+  & .info {
+    display: none;
+    padding: 2em;
+    border: 1px solid #aab2bd;
+    & h2 {
+      margin-bottom: 0.5em;
+      font-size: 1.5em;
+    }
+    & ul {
+      display: flex;
+      flex-wrap: wrap;
+      line-height: 1.5;
+      & li {
+        width: 60%;
+        margin: 0.2em 0;
+        &.mb {
+          margin-bottom: .5em;
+        }
+        & a {
+          color: #3caeda;
+          transition: color .4s ease;
+        }
+        & a:hover {
+          color: #333;
         }
       }
       & li:nth-child(2n) {
