@@ -12,6 +12,12 @@
     table tr.active_ticket, table tr.active_user {
         background-color: bisque;
     }
+    .ticket_title, .mark_printed {
+        cursor: pointer;
+    }
+    .is_printed {
+        color: #00A000;
+    }
 </style>
 {% endblock %}
 
@@ -56,6 +62,7 @@
                         <th>{% trans "Status" %}</th>
                         <th>{% trans "Attachment" %}</th>
                         <th></th>
+                        <th>{% trans "Is printed?" %}</th>
                     </tr>
                     {% for ticket in summit.list %}
                         <tr{% if ticket.is_new %} class="new_ticket"{% endif %}>
@@ -87,6 +94,13 @@
                                 {% endif %}
                             </td>
                             <td><a href="{{ ticket.get_absolute_url }}">{% trans "Detail" %}</a></td>
+                            <td>
+                                {% if ticket.is_printed %}
+                                    <span class="is_printed">{% trans "Printed" %}</span>
+                                {% elif ticket.status == 'complete' %}
+                                    <span class="mark_printed" data-id="{{ ticket.id }}">{% trans "Пометить напечатаным" %}</span>
+                                {% endif %}
+                            </td>
                         </tr>
                     {% endfor %}
                     <tr>

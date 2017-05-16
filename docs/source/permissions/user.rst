@@ -91,14 +91,6 @@ Use with django-rest-framework
     :members:
     :noindex:
 
-.. autoclass:: summit.permissions.AccountCanEditSummitBlock
-    :members:
-    :noindex:
-
-.. autoclass:: summit.permissions.AccountCanSeeSummitBlock
-    :members:
-    :noindex:
-
 .. autoclass:: partnership.permissions.CanSeePartners
     :members:
     :noindex:
@@ -151,6 +143,12 @@ Functions
     :noindex:
 
 .. autofunction:: account.permissions.can_edit_description_block
+    :noindex:
+
+.. autofunction:: summit.permissions.can_see_summit_block
+    :noindex:
+
+.. autofunction:: summit.permissions.can_edit_summit_block
     :noindex:
 
 .. autofunction:: group.permissions.can_see_churches

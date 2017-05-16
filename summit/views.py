@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from datetime import datetime
 
 from dbmail import send_db_mail
+from django.db import transaction, IntegrityError
 from django.db.models import Case, When, BooleanField
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
@@ -55,7 +56,7 @@ class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
         'middle_name', 'user__born_date', 'country',
         'user__region', 'city', 'user__district',
         'user__address', 'user__phone_number',
-        'user__email', 'hierarchy__level',
+        'user__email', 'hierarchy__level', 'ticket_status',
     )
     filter_backends = (
         filters.DjangoFilterBackend,
@@ -254,6 +255,21 @@ class SummitUnregisterUserViewSet(viewsets.ModelViewSet):
     search_fields = ('first_name', 'last_name', 'middle_name',)
 
 
+class SummitTicketMakePrintedView(GenericAPIView):
+    def post(self, request, *args, **kwargs):
+        ticket_id = kwargs.get('ticket', None)
+        ticket = get_object_or_404(SummitTicket, pk=ticket_id)
+        try:
+            with transaction.atomic():
+                ticket.is_printed = True
+                ticket.save()
+                ticket.users.update(ticket_status=SummitAnket.PRINTED)
+        except IntegrityError:
+            data = {'detail': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
+            return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        return Response({'detail': _('Билеты отмечены напечатаными.')})
+
+
 # FOR APP
 
 
@@ -436,6 +452,8 @@ def generate_summit_tickets(request, summit_id):
     ticket.users.set([a[0] for a in ankets])
 
     generate_tickets.apply_async(args=[summit_id, ankets, ticket.id])
+
+    SummitAnket.objects.filter(id__in=[a[0] for a in ankets]).update(ticket_status=SummitAnket.DOWNLOADED)
 
     return Response(data={'ticket_id': ticket.id})
 

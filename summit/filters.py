@@ -64,7 +64,7 @@ class ProfileFilter(django_filters.FilterSet):
 
     class Meta:
         model = SummitAnket
-        fields = ['master', 'hierarchy', 'department']
+        fields = ['master', 'hierarchy', 'department', 'ticket_status']
 
 
 class FilterProfileMasterTreeWithSelf(FilterMasterTreeWithSelf):

@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from account.models import CustomUser as User
 from account.serializers import UserTableSerializer, UserShortSerializer
-from common.fields import ListCharField
+from common.fields import ListCharField, ReadOnlyChoiceField, ReadOnlyChoiceWithKeyField
 from .models import (Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
                      SummitTicket, SummitVisitorLocation, SummitEventTable)
 
@@ -39,6 +39,7 @@ class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
     born_date = serializers.CharField(source='user.born_date')
     repentance_date = serializers.CharField(source='user.repentance_date')
     spiritual_level = serializers.CharField(source='get_spiritual_level_display')
+    ticket_status = ReadOnlyChoiceWithKeyField(choices=SummitAnket.TICKET_STATUSES, read_only=True)
 
     class Meta:
         model = SummitAnket
@@ -49,6 +50,7 @@ class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
                   'emails',
                   'visited',
                   'link',
+                  'ticket_status',
 
                   'total_sum',
                   )

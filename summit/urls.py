@@ -28,6 +28,8 @@ custom_urls = [
     url(r'^generate_summit_tickets/(?P<summit_id>\d+)/', views.generate_summit_tickets, name='generate_code'),
 
     url(r'^summits/(?P<pk>\d+)/users/$', views.SummitProfileListView.as_view(), name='summit-profile-list'),
+    url(r'^summit_ticket/(?P<ticket>\d+)/print/$', views.SummitTicketMakePrintedView.as_view(),
+        name='summit-ticket-print'),
 ]
 
 urlpatterns = [

@@ -200,7 +200,7 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
     NONE, DOWNLOADED, PRINTED = 'none', 'download', 'print'
     TICKET_STATUSES = (
         (NONE, _('Without ticket.')),
-        (DOWNLOADED, _('Ticket is downloaded.')),
+        (DOWNLOADED, _('Ticket is created.')),
         (PRINTED, _('Ticket is printed')),
     )
     ticket_status = models.CharField(_('Ticket status'), choices=TICKET_STATUSES, default=NONE, max_length=20)
@@ -357,6 +357,7 @@ class SummitTicket(models.Model):
 
     users = models.ManyToManyField('summit.SummitAnket', related_name='tickets',
                                    verbose_name=_('Users'))
+    is_printed = models.BooleanField(_('Is printed'), default=False)
 
     class Meta:
         ordering = ('summit', 'title')
