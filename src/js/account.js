@@ -500,7 +500,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
             $(this).removeClass('hidden');
         });
         if ($(this).data('edit-block') == 'editContact' && $(this).hasClass('active')) {
-                $(this).closest('form').get(0).reset();
+            $(this).closest('form').get(0).reset();
         }
         if ($(this).hasClass('active')) {
             $input.each(function (i, el) {
@@ -552,7 +552,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         if (action == 'update-user') {
             if ($input.is(':checkbox')) {
                 let partnerData = {};
-                if($input.is(':checked')) {
+                if ($input.is(':checked')) {
                     partnerData.is_active = true;
                 } else {
                     partnerData.is_active = false;
@@ -676,10 +676,10 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     });
 
     $.validate({
-    lang: 'ru',
-    form: '#editContactForm',
-    modules : 'toggleDisabled',
-});
+        lang: 'ru',
+        form: '#editContactForm',
+        modules: 'toggleDisabled',
+    });
 
     initLocationSelect({
         country: 'selectCountry',
@@ -812,7 +812,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     });
 
     $('.summits-block .rows-tabs').on('click', 'p', function () {
-        var tab = $(this).parent().data('tabs-id');
+        let tab = $(this).parent().data('tabs-id');
         $(this).closest('.rows-tabs').find('div').removeClass('active');
         $(this).parent().addClass('active');
         $(this).closest('.summits-block').find('.wrapp').hide();
@@ -821,13 +821,18 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
 
     $('.a-note, .a-sdelki').find('.editText').on('click', function () {
         $(this).toggleClass('active');
-        var textArea = $(this).parent().siblings('textarea');
+        let textArea = $(this).parent().siblings('textarea');
         if ($(this).hasClass('active')) {
             textArea.attr('readonly', false);
         } else {
             textArea.attr('readonly', true);
         }
-    })
-
+    });
+    // $('label[for="master"]').on('click', function () {
+    //     let id = $('#selectResponsible').find('option:selected').val();
+    //     if(id) {
+    //         window.location.href = `/account/${id}`;
+    //     }
+    // })
 })
 (jQuery);
