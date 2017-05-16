@@ -335,9 +335,9 @@
                     <% if (results[index][key] != null) { %>
                     <td class="edit"><a href="<%= results[index].link %>"
                                         data-link="<%= results[index].link %>"
-                                        data-id="<%=results[index].id %>"
-                        <% if(results[index].ankets_id) { %>
-                        data-ankets="<%= results[index].ankets_id %>"
+                                        data-id="<%=results[index].user_id %>"
+                        <% if(results[index].id) { %>
+                        data-ankets="<%= results[index].id %>"
                         <% } %>><%= results[index][key] %></a>
                         <span class="quick-edit"></span>
                     </td>

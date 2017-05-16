@@ -27,6 +27,7 @@ class AnketEmailSerializer(serializers.ModelSerializer):
 
 
 class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
+    user_id = serializers.IntegerField(source='user.user_ptr_id')
     emails = AnketEmailSerializer(many=True, read_only=True)
     total_sum = serializers.DecimalField(max_digits=12, decimal_places=0)
     full_name = serializers.CharField()
@@ -43,7 +44,7 @@ class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = SummitAnket
-        fields = ('id', 'full_name', 'responsible', 'spiritual_level',
+        fields = ('id', 'user_id', 'full_name', 'responsible', 'spiritual_level',
                   'divisions_title', 'department', 'hierarchy_title', 'phone_number', 'email', 'social',
                   'country', 'city', 'region', 'district', 'address', 'born_date', 'repentance_date',
                   'code', 'value', 'description',

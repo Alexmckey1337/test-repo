@@ -2252,14 +2252,14 @@ function makeQuickEditSammitCart(el) {
     anketID = $(el).closest('td').find('a').data('ankets');
     id = $(el).closest('td').find('a').data('id');
     link = $(el).closest('td').find('a').data('link');
-    url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/summits/${anketID}/users/`;
+    url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${anketID}/`;
     ajaxRequest(url, null, function (data) {
-        $('#fullNameCard').text(data.user.fullname);
+        $('#fullNameCard').text(data.full_name);
         $('#userDescription').val(data.description);
         $('#summit-valueDelete').val(data.total_sum);
         $('#member').prop("checked", data.is_member);
-        $('#userID').val(data.user.id);
-        $('#preDeleteAnket').attr('data-id', data.user.id).attr('data-anket', data.id);
+        $('#userID').val(data.user_id);
+        $('#preDeleteAnket').attr('data-id', data.user_id).attr('data-anket', data.id);
         $('#popupParticipantInfo').css('display', 'block');
     }, 'GET', true, {
         'Content-Type': 'application/json'

@@ -98,7 +98,7 @@ class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
 class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
                            mixins.DestroyModelMixin, GenericViewSet,
                            CreatePaymentMixin, ListPaymentMixin):
-    queryset = SummitAnket.objects.base_queryset().annotate_total_sum()
+    queryset = SummitAnket.objects.base_queryset().annotate_total_sum().annotate_full_name()
     serializer_class = SummitAnketSerializer
     permission_classes = (IsAuthenticated,)
 
