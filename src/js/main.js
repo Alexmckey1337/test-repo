@@ -301,6 +301,12 @@ function setSidebarPosition() {
     }
 }
 
+function accordionInfo() {
+    $('.info-title').on('click', function () {
+       $(this).toggleClass('info-title_active').next('.info').slideToggle();
+    });
+}
+
 (function ($) {
     let $createUser = $('#createUser');
     $createUser.on('submit', function (e) {

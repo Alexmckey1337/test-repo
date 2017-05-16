@@ -52,21 +52,21 @@
             <div class="popup_body">
                 <div class="container">
                     <div class="col-6">
-                        <p class="label_block">
-                            <label for="church_filter">Церковь</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="tree_filter">Ветка</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="leader_filter">Лидер</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="search_date_open">Дата открытия</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="search_country">Фильтр по городу</label>
-                        </p>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Церковь</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Ветка</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Лидер</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Дата открытия</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Фильтр по городу</span>
+                        </div>
                     </div>
                     <div class="col-6">
                         <p class="input_block">
@@ -117,23 +117,45 @@
     <script type="text/template" id="quickEditCart">
    <div class="container bb-1">
         <div class="header">
-            <p><input type="text" class="title" id="home_groups_title" value="<%=get_title %>"></p>
+            <div><input type="text" class="title" id="home_groups_title" value="<%=get_title %>"></div>
             <% if(opening_date) { %>
-                <p><label for="opening_date">Дата открытия</label><input type="text" class="date" id="opening_date" value="<%= opening_date.split('.').reverse().join('-') %>"></p>
+                <div class="row">
+                    <div class="label_block-wrapp">
+                        <label class="label_block" for="opening_date">Дата открытия</label>
+                    </div>
+                    <input type="text" class="date" id="opening_date" value="<%= opening_date.split('.').reverse().join('-') %>">
+                </div>
             <% } else { %>
-                <p><label for="opening_date">Датат открытия</label><input type="text" id="opening_date" class="date" value=""></p>
+                <div class="row">
+                    <div class="label_block-wrapp">
+                        <label class="label_block" for="opening_date">Дата открытия</label>
+                    </div>
+                    <input type="text" id="opening_date" class="date" value="">
+                </div>
             <% } %>
-            <p class="hidden"><input type="text" id="homeGroupsID" value="<%= id %>"></p>
+            <div class="hidden"><input type="text" id="homeGroupsID" value="<%= id %>"></div>
         </div>
    </div>
     <div class="container start">
-        <div>
-            <p class="label_block">Отдел:</p>
-            <p class="label_block">Пастор:</p>
-            <p class="label_block">Нас.пункт:</p>
-            <p class="label_block">Адрес:</p>
-            <p class="label_block">Телефон:</p>
-            <p class="label_block">Сайт:</p>
+        <div class="column">
+            <div class="label_block-wrapp">
+                <span class="label_block">Отдел:</span>
+            </div>
+            <div class="label_block-wrapp">
+                <span class="label_block">Пастор:</span>
+            </div>
+            <div class="label_block-wrapp">
+                <span class="label_block">Нас.пункт:</span>
+            </div>
+            <div class="label_block-wrapp">
+                <span class="label_block">Адрес:</span>
+            </div>
+            <div class="label_block-wrapp">
+                <span class="label_block">Телефон:</span>
+            </div>
+            <div class="label_block-wrapp">
+                <span class="label_block">Сайт:</span>
+            </div>
         </div>
         <div class="col-7">
             <div><select name="" id="editDepartmentSelect">

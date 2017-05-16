@@ -33,9 +33,12 @@
                 $('#ticket_users').html(rendered);
             });
     });
-    $('#find_by_code_btn').on('click', function () {
-        let code = $('#find_by_code').val();
-        window.location.href = `/summits/tickets/?code=${code}`;
-    })
+
+    $('#find_by_code').keydown(function(e) {
+        if (e.keyCode === 13) {
+            let code = $(this).val();
+            window.location.href = `/summits/tickets/?code=${code}`;
+        }
+    });
 
 })(jQuery);
