@@ -4143,6 +4143,10 @@ span.change[style*="display: none"] ~ span.y {
       }
     }
   }
+  & .payment_title {
+    font-family: 'Roboto Condensed',sans-serif;
+    font-size: 1.5em;
+  }
 }
 
 .a-note {
@@ -4194,6 +4198,22 @@ span.change[style*="display: none"] ~ span.y {
         }
       }
     }
+  }
+}
+
+#partnership {
+  & .label-wrapp {
+    margin-bottom: .2em;
+    float: left;
+      &::after {
+        bottom: 6px;
+      }
+  }
+  & input,
+  & select,
+  & .select2 {
+    float: right;
+    margin-bottom: .3em;
   }
 }
 
@@ -4283,6 +4303,19 @@ span.change[style*="display: none"] ~ span.y {
   margin-right: 0;
   margin-left: 0;
   /*padding-left: 15px;*/
+}
+
+.sdelki-content .rows {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 0;
+  & p:last-child {
+    min-width: 20%;
+  }
+  &:last-child {
+    border-bottom: 1px solid #cdd0d4;
+  }
 }
 
 .summit_wrapper .summits-title {

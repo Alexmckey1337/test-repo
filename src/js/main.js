@@ -232,7 +232,7 @@ $(document).ready(function () {
                     $sidebar.removeClass('toggle-sidebar');
                     document.documentElement.style.setProperty('--lsb_width', '240px');
                     $moveSidebar.removeClass('active');
-                    deleteCookie('state');
+                    // deleteCookie('state');
             }, 100)
     }
         $(this).parent().siblings('li').removeClass('sb-menu_link__active').find('.sidebar-submenu:visible').slideUp(300);

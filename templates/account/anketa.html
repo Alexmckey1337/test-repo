@@ -345,8 +345,7 @@
                                         </div>
                                         <select type="text" id="divisions" readonly disabled multiple>
                                             {% for division in divisions %}
-                                                <option value="{{ division.id }}"
-                                                        {% if division in account.divisions.all %}selected{% endif %}>
+                                                <option value="{{ division.id }}" {% if division in account.divisions.all %}selected{% endif %}>
                                                     {{ division.title }}
                                                 </option>
                                             {% endfor %}
@@ -356,70 +355,72 @@
                             </form>
                         </div>
                     </li>
-{#                    <li id="editPartnership">#}
-{#                        <div class="right-info__block">#}
-{#                            <div class="success__block"></div>#}
-{#                            <form action="/" name="editPartnership" data-action="update-user" id="partnership">#}
-{#                                <button class="edit" data-edit-block="editPartnership"></button>#}
-{#                                <button class="save__info" type="submit"></button>#}
-{#                                <ul>#}
-{#                                    <li>#}
-{#                                        <label for="partnershipCheck">#}
-{#                                            {% if account.partnership %}#}
-{#                                                Активный#}
-{#                                            {% else %}#}
-{#                                                Партнер#}
-{#                                            {% endif %}#}
-{#                                        </label>#}
-{#                                        {% if account.partnership.is_active %}#}
-{#                                            <input type="checkbox" id="partnershipCheck" data-block="partner"#}
-{#                                                   checked disabled>#}
-{#                                        {% else %}#}
-{#                                            <input type="checkbox" id="partnershipCheck" readonly disabled>#}
-{#                                        {% endif %}#}
-{#                                        <span></span>#}
-{#                                    </li>#}
-{#                                </ul>#}
-{#                                <ul id="partnershipBlock" {% if not account.partnership %}#}
-{#                                    class="hidden"#}
-{#                                {% endif %}>#}
-{#                                    <li class="clearfix">#}
-{#                                        <label for="partner_with">Партнёр с:</label>#}
-{#                                        <input type="text"#}
-{#                                               class="sel__date"#}
-{#                                               data-id="date"#}
-{#                                               value="{{ account.partnership.date|date:"d.m.Y" }}"#}
-{#                                               readonly disabled>#}
-{#                                    </li>#}
-{#                                    <li class="clearfix">#}
-{#                                        <label for="division">Сумма сделки:</label>#}
-{#                                        <input type="text" data-id="value" value="{{ account.partnership.value }}"#}
-{#                                               id="payment_value"#}
-{#                                               readonly disabled>#}
-{#                                        <select id="payment_currency" class="no_select" data-id="currency" required#}
-{#                                                readonly disabled>#}
-{#                                            {% for currency in currencies %}#}
-{#                                                <option value="{{ currency.id }}"#}
-{#                                                        {% if currency == account.partnership.currency %}selected{% endif %}>#}
-{#                                                    {{ currency.short_name }}#}
-{#                                                </option>#}
-{#                                            {% endfor %}#}
-{#                                        </select>#}
-{#                                    </li>#}
-{#                                    <li class="clearfix">#}
-{#                                        <label for="division">Менеджер:</label>#}
-{#                                        <select id="responsible" data-id="responsible" readonly disabled>#}
-{#                                            <option value="">Выберите менеджера</option>#}
-{#                                            {% for partner in partners %}#}
-{#                                                <option value="{{ partner.id }}"#}
-{#                                                        {% if account.partnership.responsible.id == partner.id %}selected{% endif %}>{{ partner.user.fullname }}</option>#}
-{#                                            {% endfor %}#}
-{#                                        </select>#}
-{#                                    </li>#}
-{#                                </ul>#}
-{#                            </form>#}
-{#                        </div>#}
-{#                    </li>#}
+                    {% if not account.partnership %}
+                    <li id="editPartnership">
+                        <div class="right-info__block">
+                            <div class="success__block"></div>
+                            <form action="/" name="editPartnership" data-action="update-user" id="partnership">
+                                <button class="edit" data-edit-block="editPartnership"></button>
+                                <button class="save__info" type="submit"></button>
+                                <ul>
+                                    <li>
+                                        <div class="label-wrapp">
+                                            <label for="partnershipCheck">
+                                                {% if account.partnership %}
+                                                    Активный
+                                                {% else %}
+                                                    Партнер
+                                                {% endif %}
+                                            </label>
+                                        </div>
+                                        {% if account.partnership.is_active %}
+                                            <input type="checkbox" id="partnershipCheck" data-block="partner" checked disabled>
+                                        {% else %}
+                                            <input type="checkbox" id="partnershipCheck" readonly disabled>
+                                        {% endif %}
+                                        <span></span>
+                                    </li>
+                                </ul>
+                                <ul id="partnershipBlock" {% if not account.partnership %}
+                                    class="hidden"
+                                {% endif %}>
+                                    <li class="clearfix">
+                                        <div class="label-wrapp">
+                                            <label for="partner_with">Партнёр с:</label>
+                                        </div>
+                                        <input type="text" class="sel__date" data-id="date" value="{{ account.partnership.date|date:"d.m.Y" }}" readonly disabled>
+                                    </li>
+                                    <li class="clearfix">
+                                        <div class="label-wrapp">
+                                            <label for="division">Сумма сделки:</label>
+                                        </div>
+                                        <input type="text" data-id="value" value="{{ account.partnership.value }}" id="payment_value" readonly disabled>
+                                        <select id="payment_currency" class="no_select" data-id="currency" required readonly disabled>
+                                            {% for currency in currencies %}
+                                                <option value="{{ currency.id }}" {% if currency == account.partnership.currency %}selected{% endif %}>
+                                                    {{ currency.short_name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </li>
+                                    <li class="clearfix">
+                                        <div class="label-wrapp">
+                                            <label for="division">Менеджер:</label>
+                                        </div>
+                                        <select id="responsible" data-id="responsible" readonly disabled>
+                                            <option value="">Выберите менеджера</option>
+                                            {% for partner in partners %}
+                                                <option value="{{ partner.id }}" {% if account.partnership.responsible.id == partner.id %}selected{% endif %}>
+                                                    {{ partner.user.fullname }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </li>
+                                </ul>
+                            </form>
+                        </div>
+                    </li>
+                    {% endif %}
                     <li id="editVisit">
                         <div class="right-info__block">
                             <h4>Духовный уровень</h4>
@@ -681,52 +682,36 @@
                         <div class="sdelki-content clearfix" data-tab-content="1">
                             {% for deal in account.partnership.undone_deals|slice:":20" %}
                                 <div class="rows">
-                                    <div class="col">
-                                        <p><span>{{ account.fullname }}</span></p>
-                                    </div>
-                                    <div class="col">
-                                        <p>Дата создания: <span>{{ deal.date_created }}</span></p>
-                                        <p>Сумма: <span>{{ deal.total_sum }}/{{ deal.value }}₴</span></p></div>
-                                </div>
+                                    <p>{{ account.fullname }}</p>
+                                    <p>Дата создания: <span>{{ deal.date_created }}</span></p>
+                                    <p>Сумма: <span>{{ deal.total_sum }}/{{ deal.value }}₴</span></p></div>
                             {% endfor %}
                         </div>
                         <div class="sdelki-content clearfix" data-tab-content="2">
                             {% for deal in account.partnership.expired_deals|slice:":20" %}
                                 <div class="rows">
-                                    <div class="col">
-                                        <p><span>{{ account.fullname }}</span></p>
-                                    </div>
-                                    <div class="col">
-                                        <p>Дата создания:<span>{{ deal.date_created }}</span></p>
-                                        <p>Сумма<span>{{ deal.total_sum }}/{{ deal.value }}₴</span></p></div>
-                                </div>
+                                    <p>{{ account.fullname }}</p>
+                                    <p>Дата создания: <span>{{ deal.date_created }}</span></p>
+                                    <p>Сумма: <span>{{ deal.total_sum }}/{{ deal.value }}₴</span></p></div>
                             {% endfor %}
                         </div>
                         <div class="sdelki-content clearfix" data-tab-content="3">
                             {% for deal in account.partnership.done_deals|slice:":20" %}
                                 <div class="rows">
-                                    <div class="col">
-                                        <p><span>{{ account.fullname }}</span></p>
-                                    </div>
-                                    <div class="col">
-                                        <p>Дата создания: <span>{{ deal.date_created }}</span></p>
-                                        <p>Сумма <span>{{ deal.total_sum|cut:".000"}}/{{ deal.value }}₴</span></p></div>
-                                </div>
+                                    <p>{{ account.fullname }}</p>
+                                    <p>Дата создания: <span>{{ deal.date_created }}</span></p>
+                                    <p>Сумма: <span>{{ deal.total_sum|cut:".000"}}/{{ deal.value }}₴</span></p></div>
                             {% endfor %}
                         </div>
                         <div class="rows" data-summit-id="{{ anket_group.grouper.id }}">
-                            <div style="padding:10px 15px;">
-                                <p>Платежи за сделки</p>
-                            </div>
+                                <p class="payment_title">Платежи за сделки</p>
                         </div>
                         {% for payment in account.partnership.deal_payments.all %}
                             <div class="rows">
-                                <div style="padding:10px 6px;">
                                     <p>{{ payment.effective_sum_str|cut:".000" }} —
                                         {{ payment.created_at|date:"d.m.Y H:i:s" }}
                                         — Принял: {{ payment.manager.fullname }}
                                     </p>
-                                </div>
                             </div>
                         {% endfor %}
                     </div>
