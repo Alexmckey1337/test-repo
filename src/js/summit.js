@@ -378,12 +378,13 @@
     }
 
     function makePotencialSammitUsersList() {
-        let param = {};
+        let param = {'summit_id': 7};
         let search = $('#searchUsers').val();
         if (search) {
             param['search'] = search;
         }
-        param.summit_id = $('#date .active span').data('id');
+        console.log(param);
+        param.summit_id = $('#summitsTypes').find('.active').data('id');
         getPotencialSammitUsers(param).then(function (data) {
             let html = '';
             data = data.results;
@@ -417,20 +418,30 @@
         $('#responsible-name').html(master);
     }
 
-
     $('#departments_filter').select2();
+    $('.select__db').select2();
     //    Events
     $("#add").on('click', function () {
         $('#addUser').css('display', 'block');
         initAddNewUser();
     });
 
+     $('#departments_filter').on('change', function () {
+        $('#master_tree').prop('disabled', true);
+        let department_id = parseInt($(this).val());
+        makePastorListNew(department_id, ['#master_tree', '#master']);
+    });
+    $('#master_tree').on('change', function () {
+        $('#master').prop('disabled', true);
+         let master_tree = parseInt($(this).val());
+        makePastorListWithMasterTree({
+            master_tree: master_tree
+        }, ['#master'], null);
+    });
     $('input[name="fullsearch"]').keyup(function () {
         let val = $(this).val();
         delay(function () {
-            let data = {};
-            data['search'] = val;
-            createSummitUsersTable(data);
+            createSummitUsersTable();
         }, 100);
     });
 

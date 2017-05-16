@@ -2,9 +2,7 @@
 from __future__ import unicode_literals
 
 from django.contrib.contenttypes.models import ContentType
-from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
-
-from summit.permissions import IsConsultantReadOnly, IsSupervisorOrHigh as IsSummitSupervisorOrHigh
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 
 class PaymentPermission(BasePermission):
@@ -13,8 +11,8 @@ class PaymentPermission(BasePermission):
         content_type = ContentType.objects.get_for_model(purpose_model)
         if content_type.app_label == 'summit' and content_type.model == 'summitanket':
             return (
-                IsConsultantReadOnly().has_object_permission(request, view, purpose) or
-                IsSummitSupervisorOrHigh().has_object_permission(request, view, purpose))
+                (request.user.is_summit_consultant_or_high(purpose) and request.method in SAFE_METHODS) or
+                request.user.is_summit_supervisor_or_high(purpose))
         if content_type.app_label == 'partnership' and content_type.model == 'partnership':
             return (
                 (request.user.is_partner_manager_or_high and request.method in SAFE_METHODS and
@@ -40,7 +38,7 @@ class PaymentManagerOrSupervisor(BasePermission):
 
         content_type = payment.content_type
         if content_type and content_type.app_label == 'summit' and content_type.model == 'summitanket':
-            return IsSummitSupervisorOrHigh().has_object_permission(request, view, payment.purpose.summit)
+            return request.user.is_summit_supervisor_or_high(payment.purpose.summit)
         if content_type and content_type.app_label == 'partnership' and content_type.model in ('partnership', 'deal'):
             return request.user.is_partner_supervisor_or_high
         return False

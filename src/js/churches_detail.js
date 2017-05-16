@@ -5,8 +5,8 @@
     let responsibleList = false;
     let link = $('.get_info .active').data('link');
 
-    function makeResponsibleList(id, level) {
-        getResponsible(id, level).then(function (data) {
+    function makeResponsibleList(churchID) {
+        getResponsibleBYHomeGroup(churchID).then(function (data) {
             let options = [];
             data.forEach(function (item) {
                 let option = document.createElement('option');
@@ -102,7 +102,7 @@
         clearAddHomeGroupData();
         if (!responsibleList) {
             responsibleList = true;
-            makeResponsibleList(D_ID, 1);
+            makeResponsibleList(ID);
         }
         setTimeout(function () {
             $('#addHomeGroup').css('display', 'block');
@@ -184,4 +184,6 @@
             return false; // Will stop the submission of the form
         }
     });
+    accordionInfo();
+
 })(jQuery);

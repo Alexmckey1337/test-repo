@@ -27,6 +27,10 @@ def entry(request):
     return render(request, 'login/login.html')
 
 
+def restore(request):
+    return render(request, 'login/restore_password.html')
+
+
 def edit_pass(request, activation_key=None):
     return render(request, 'login/edit_password.html')
 
@@ -226,6 +230,11 @@ class CanSeeSummitTicketMixin(View):
         return super(CanSeeSummitTicketMixin, self).dispatch(request, *args, **kwargs)
 
 
+class CanSeeSummitProfileMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        return super(CanSeeSummitProfileMixin, self).dispatch(request, *args, **kwargs)
+
+
 class SummitTypeView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
     model = SummitType
     context_object_name = 'summit_type'
@@ -234,11 +243,11 @@ class SummitTypeView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super(SummitTypeView, self).get_context_data(**kwargs)
-
         extra_context = {
             'departments': Department.objects.all(),
+            'masters': CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1),
+            'hierarchies': Hierarchy.objects.order_by('level'),
         }
-
         ctx.update(extra_context)
         return ctx
 
@@ -296,6 +305,13 @@ class SummitTicketDetailView(LoginRequiredMixin, CanSeeSummitTicketMixin, Detail
             print(err)
 
         return response
+
+
+class SummitProfileDetailView(LoginRequiredMixin, CanSeeSummitProfileMixin, DetailView):
+    model = SummitAnket
+    context_object_name = 'profile'
+    template_name = 'summit/profile.html'
+    login_url = 'entry'
 
 
 @login_required(login_url='entry')

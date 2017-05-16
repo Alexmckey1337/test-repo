@@ -1,36 +1,37 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-import django_filters
-import rest_framework_filters as filters_new
+from datetime import datetime
+
 from dbmail import send_db_mail
-from django.db.models import Sum, Value as V, Case, When, BooleanField
-from django.db.models.functions import Coalesce, Concat
+from django.db.models import Case, When, BooleanField
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions, viewsets, filters, status, mixins
 from rest_framework.decorators import list_route, detail_route, api_view
-from rest_framework.filters import BaseFilterBackend
-from rest_framework.generics import get_object_or_404
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
+from rest_framework.viewsets import GenericViewSet
 
 from account.models import CustomUser
-from common.views_mixins import ExportViewSetMixin
-from navigation.table_fields import user_table, summit_table
+from common.filters import FieldSearchFilter
 from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
-from summit.permissions import IsSupervisorOrHigh
+from summit.filters import FilterByClub, ProductFilter, SummitUnregisterFilter, ProfileFilter, \
+    FilterProfileMasterTreeWithSelf, HasPhoto
+from summit.pagination import SummitPagination
+from summit.permissions import HasAPIAccess, CanSeeSummitProfiles
 from summit.utils import generate_ticket
-from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, SummitUserConsultant, SummitTicket
-from .resources import get_fields, SummitAnketResource
+from .models import (Summit, SummitAnket, SummitType, SummitLesson, SummitUserConsultant,
+                     SummitTicket, SummitVisitorLocation, SummitEventTable)
 from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
     SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer,
     SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitShortSerializer, SummitAnketShortSerializer,
-    SummitLessonShortSerializer, SummitTicketSerializer, SummitAnketForTicketSerializer)
+    SummitLessonShortSerializer, SummitTicketSerializer, SummitAnketForTicketSerializer,
+    SummitVisitorLocationSerializer, SummitEventTableSerializer)
 from .tasks import generate_tickets
 
 
@@ -41,88 +42,64 @@ def get_success_headers(data):
         return {}
 
 
-class SummitPagination(PageNumberPagination):
-    page_size = 30
-    page_size_query_param = 'page_size'
-    max_page_size = 30
-
-    def get_paginated_response(self, data):
-        return Response({
-            'links': {
-                'next': self.get_next_link(),
-                'previous': self.get_previous_link()
-            },
-            'count': self.page.paginator.count,
-            'common_table': summit_table(),
-            'user_table': user_table(self.request.user, prefix_ordering_title='user__'),
-            'results': data
-        })
-
-
-class FilterByClub(BaseFilterBackend):
-    def filter_queryset(self, request, queryset, view):
-        """
-        Return a filtered queryset.
-        """
-        params = request.query_params
-        summit_id = params.get('summit')
-        is_member = params.get('is_member', None)
-        if summit_id and is_member in ('true', 'false'):
-            is_member = True if is_member == 'true' else False
-            summit_type = Summit.objects.get(id=summit_id).type
-            users = summit_type.summits.filter(ankets__visited=True).values_list('ankets__user', flat=True)
-            if is_member:
-                return queryset.filter(user__id__in=set(users))
-            return queryset.exclude(user__id__in=set(users))
-        return queryset
-
-
-class SummitAnketTableViewSet(viewsets.ModelViewSet,
-                              CreatePaymentMixin,
-                              ListPaymentMixin, ExportViewSetMixin):
-    queryset = SummitAnket.objects.select_related(
-        'user', 'user__hierarchy', 'user__master', 'summit', 'summit__type'). \
-        prefetch_related('user__divisions', 'user__departments', 'emails').annotate(
-        total_sum=Coalesce(Sum('payments__effective_sum'), V(0))).order_by(
-        'user__last_name', 'user__first_name', 'user__middle_name')
+class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
     serializer_class = SummitAnketSerializer
     pagination_class = SummitPagination
-    filter_backends = (filters.DjangoFilterBackend,
-                       filters.SearchFilter,
-                       filters.OrderingFilter,
-                       FilterByClub,
-                       )
-    filter_fields = ('user',
-                     'summit', 'visited',
-                     'user__master',
-                     'user__departments',
-                     'user__first_name', 'user__last_name',
-                     'user__middle_name', 'user__born_date', 'user__country',
-                     'user__region', 'user__city', 'user__district',
-                     'user__address', 'user__skype', 'user__phone_number',
-                     'user__email', 'user__hierarchy__level', 'user__facebook',
-                     'user__vkontakte',
-                     )
-    search_fields = ('user__first_name',
-                     'user__last_name',
-                     'user__middle_name',
-                     'user__search_name',
-                     'user__hierarchy__title',
-                     'user__phone_number',
-                     'user__city',
-                     'user__master__last_name',
-                     'user__email',
-                     )
-    ordering_fields = ('user__first_name', 'user__last_name', 'user__master__last_name',
-                       'user__middle_name', 'user__born_date', 'user__country',
-                       'user__region', 'user__city', 'user__district',
-                       'user__address', 'user__skype', 'user__phone_number',
-                       'user__email', 'user__hierarchy__level',
-                       'user__facebook',
-                       'user__vkontakte',)
     permission_classes = (IsAuthenticated,)
 
-    resource_class = SummitAnketResource
+    filter_class = ProfileFilter
+    ordering_fields = (
+        'first_name', 'last_name', 'responsible',
+        'spiritual_level', 'divisions_title', 'department', 'user__facebook', 'country', 'city',
+        'code', 'value', 'description',
+        'middle_name', 'user__born_date', 'country',
+        'user__region', 'city', 'user__district',
+        'user__address', 'user__phone_number',
+        'user__email', 'hierarchy__level',
+    )
+    filter_backends = (
+        filters.DjangoFilterBackend,
+        filters.OrderingFilter,
+        FieldSearchFilter,
+        FilterProfileMasterTreeWithSelf,
+        FilterByClub,
+        HasPhoto,
+    )
+
+    field_search_fields = {
+        'search_fio': ('last_name', 'first_name', 'middle_name', 'search_name'),
+        'search_email': ('user__email',),
+        'search_phone_number': ('user__phone_number',),
+        'search_country': ('country',),
+        'search_city': ('city',),
+    }
+
+    def dispatch(self, request, *args, **kwargs):
+        self.summit = get_object_or_404(Summit, pk=kwargs.get('pk', None))
+        return super(SummitProfileListView, self).dispatch(request, *args, **kwargs)
+
+    def check_permissions(self, request):
+        super(SummitProfileListView, self).check_permissions(request)
+        if not CanSeeSummitProfiles().has_object_permission(request, self, self.summit):
+            self.permission_denied(
+                request, message=getattr(CanSeeSummitProfiles, 'message', None)
+            )
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def get_queryset(self):
+        qs = self.summit.ankets.base_queryset().annotate_total_sum().annotate_full_name().order_by(
+            'user__last_name', 'user__first_name', 'user__middle_name')
+        return qs.for_user(self.request.user)
+
+
+class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
+                           mixins.DestroyModelMixin, GenericViewSet,
+                           CreatePaymentMixin, ListPaymentMixin):
+    queryset = SummitAnket.objects.base_queryset().annotate_total_sum()
+    serializer_class = SummitAnketSerializer
+    permission_classes = (IsAuthenticated,)
 
     def perform_destroy(self, anket):
         if anket.payments.exists():
@@ -151,11 +128,6 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet,
             'consultants': SummitAnketShortSerializer(consultants, many=True).data,
         })
 
-    def get_queryset(self):
-        summit_ids = set(self.request.user.summit_ankets.filter(
-            role__gte=SummitAnket.CONSULTANT).values_list('summit_id', flat=True))
-        return self.queryset.filter(summit__in=summit_ids)
-
     @list_route(methods=['post'], )
     def post_anket(self, request):
         keys = request.data.keys()
@@ -182,11 +154,9 @@ class SummitAnketTableViewSet(viewsets.ModelViewSet,
         else:
             anket = SummitAnket.objects.create(
                 user=user, summit=summit, visited=visited, description=request.data['description'])
-            if 'retards' in keys:
-                if request.data['retards']:
-                    anket.retards = request.data['retards']
-                    anket.code = request.data['code']
-            get_fields(anket)
+            anket.code = '0{}'.format(4 * 000 * 000 + anket.id)
+            anket.creator = request.user
+            anket.save()
         data = {"message": "Данные успешно сохраненны",
                 'status': True}
         if (data['status'] and request.data.get('send_email', False) and
@@ -274,13 +244,38 @@ class SummitLessonViewSet(viewsets.ModelViewSet):
         return Response({'lesson': lesson.name, 'lesson_id': pk, 'anket_id': anket_id, 'checked': False})
 
 
-class SummitAnketWithNotesViewSet(viewsets.ModelViewSet):
-    queryset = SummitAnket.objects.select_related('user', 'user__hierarchy', 'user__master'). \
-        prefetch_related('user__divisions', 'user__departments', 'notes')
-    serializer_class = SummitAnketWithNotesSerializer
+class SummitUnregisterUserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = SummitUnregisterUserSerializer
+    filter_backends = (filters.SearchFilter,
+                       filters.DjangoFilterBackend,)
+    permission_classes = (IsAuthenticated,)
+    filter_class = SummitUnregisterFilter
+    search_fields = ('first_name', 'last_name', 'middle_name',)
+
+
+# FOR APP
+
+
+class SummitTypeForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = SummitType.objects.prefetch_related('summits')
+    serializer_class = SummitTypeForAppSerializer
+    permission_classes = (AllowAny,)
     pagination_class = None
+
+
+class SummitAnketForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = SummitAnket.objects.select_related('user').order_by('id')
+    serializer_class = SummitAnketForAppSerializer
     filter_backends = (filters.DjangoFilterBackend,)
-    filter_fields = ('user',)
+    # filter_fields = ('summit', 'id')
+    # filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+    filter_class = ProductFilter
+    permission_classes = (AllowAny,)
+    pagination_class = None
+
+
+# UNUSED
 
 
 class SummitViewSet(viewsets.ReadOnlyModelViewSet):
@@ -317,7 +312,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
     def consultants(self, request, pk=None):
         serializer = SummitAnketForSelectSerializer
         summit = self.get_object()
-        queryset = summit.consultants
+        queryset = summit.consultants.order_by('-id')
 
         serializer = serializer(queryset, many=True)
 
@@ -327,8 +322,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
     def add_consultant(self, request, pk=None):
         summit = self.get_object()
 
-        user_perm = IsSupervisorOrHigh().has_object_permission(request, None, summit)
-        if not user_perm:
+        if not request.user.is_summit_supervisor_or_high(summit):
             return Response({'result': 'У вас нет прав для добавления консультантов.'},
                             status=status.HTTP_403_FORBIDDEN)
 
@@ -347,8 +341,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
     def del_consultant(self, request, pk=None):
         summit = self.get_object()
 
-        user_perm = IsSupervisorOrHigh().has_object_permission(request, None, summit)
-        if not user_perm:
+        if not request.user.is_summit_supervisor_or_high(summit):
             return Response({'result': 'У вас нет прав для удаления консультантов.'},
                             status=status.HTTP_403_FORBIDDEN)
 
@@ -362,33 +355,6 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
         data = {'summit_id': int(pk), 'consultant_id': anket_id, 'action': 'removed'}
 
         return Response(data, status=status.HTTP_204_NO_CONTENT)
-
-
-class SummitTypeForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    queryset = SummitType.objects.prefetch_related('summits')
-    serializer_class = SummitTypeForAppSerializer
-    permission_classes = (AllowAny,)
-    pagination_class = None
-
-
-class ProductFilter(django_filters.FilterSet):
-    min_id = django_filters.NumberFilter(name="id", lookup_expr='gte')
-    max_id = django_filters.NumberFilter(name="id", lookup_expr='lte')
-
-    class Meta:
-        model = SummitAnket
-        fields = ['summit', 'min_id', 'max_id']
-
-
-class SummitAnketForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    queryset = SummitAnket.objects.select_related('user').order_by('id')
-    serializer_class = SummitAnketForAppSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
-    # filter_fields = ('summit', 'id')
-    # filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    filter_class = ProductFilter
-    permission_classes = (AllowAny,)
-    pagination_class = None
 
 
 class SummitTicketViewSet(viewsets.ModelViewSet):
@@ -434,30 +400,13 @@ class SummitTypeViewSet(viewsets.ModelViewSet):
         return Response(data)
 
 
-class SummitUnregisterFilter(filters_new.FilterSet):
-    summit_id = filters_new.CharFilter(name="summit_ankets__summit__id", exclude=True)
-
-    class Meta:
-        model = CustomUser
-        fields = ['summit_id']
-
-
-class SummitUnregisterUserViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
-    serializer_class = SummitUnregisterUserSerializer
-    filter_backends = (filters.SearchFilter,
-                       filters.DjangoFilterBackend,)
-    permission_classes = (IsAuthenticated,)
-    filter_class = SummitUnregisterFilter
-    search_fields = ('first_name', 'last_name', 'middle_name',)
-
-
-class SummitAnketNoteViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = SummitAnketNote.objects.all()
-    serializer_class = SummitAnketNoteSerializer
+class SummitAnketWithNotesViewSet(viewsets.ModelViewSet):
+    queryset = SummitAnket.objects.select_related('user', 'user__hierarchy', 'user__master'). \
+        prefetch_related('user__divisions', 'user__departments', 'notes')
+    serializer_class = SummitAnketWithNotesSerializer
+    pagination_class = None
     filter_backends = (filters.DjangoFilterBackend,)
-    filter_fields = ('summit_anket',)
-    permission_classes = (IsAuthenticated,)
+    filter_fields = ('user',)
 
 
 def generate_code(request):
@@ -475,10 +424,10 @@ def generate_code(request):
 
 @api_view(['GET'])
 def generate_summit_tickets(request, summit_id):
-    limit = 200
+    limit = 2000
 
     ankets = list(SummitAnket.objects.order_by('id').filter(
-        summit_id=summit_id, tickets__isnull=True)[:limit].values_list('id', 'code'))
+        summit_id=summit_id, tickets__isnull=True).exclude(user__image='')[:limit].values_list('id', 'code'))
     if len(ankets) == 0:
         return Response(data={'detail': _('All tickets is already generated.')}, status=status.HTTP_400_BAD_REQUEST)
     ticket = SummitTicket.objects.create(
@@ -489,3 +438,45 @@ def generate_summit_tickets(request, summit_id):
     generate_tickets.apply_async(args=[summit_id, ankets, ticket.id])
 
     return Response(data={'ticket_id': ticket.id})
+
+
+class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
+    serializer_class = SummitVisitorLocationSerializer
+    queryset = SummitVisitorLocation.objects.all().prefetch_related('visitor')
+    pagination_class = None
+    permission_classes = (HasAPIAccess,)
+
+    @list_route(methods=['POST'])
+    def post(self, request):
+        if not request.data.get('data'):
+            raise exceptions.ValidationError(_('Невозможно создать запись, поле {data} не переданно'))
+        data = request.data.get('data')
+        visitor = get_object_or_404(SummitAnket, pk=request.data.get('visitor_id'))
+
+        for chunk in data:
+            SummitVisitorLocation.objects.create(visitor=visitor,
+                                                 date_time=chunk.get('date_time', datetime.now()),
+                                                 longitude=chunk.get('longitude', 0),
+                                                 latitude=chunk.get('latitude', 0))
+
+        return Response({'message': 'Successful created'}, status=status.HTTP_201_CREATED)
+
+    @list_route(methods=['GET'])
+    def get_location(self, request):
+        anket_id = request.query_params.get('visitor_id')
+        date_time = request.query_params.get('date_time')
+        visitor_location = self.queryset.filter(visitor_id=anket_id, date_time__gte=date_time).order_by(
+            'date_time').first()
+        visitor_location = self.serializer_class(visitor_location)
+
+        return Response(visitor_location.data, status=status.HTTP_200_OK)
+
+
+class SummitEventTableViewSet(viewsets.ModelViewSet):
+    queryset = SummitEventTable.objects.all()
+    serializer_class = SummitEventTableSerializer
+    pagination_class = None
+    permission_classes = (HasAPIAccess,)
+
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_fields = ('summit',)

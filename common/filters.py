@@ -171,4 +171,4 @@ class BaseFilterMasterTree(BaseFilterBackend):
         qs = queryset.filter(**filter_by_master_tree)
         if self.include_self_master:
             return qs
-        return qs.exclude(pk=master)
+        return qs.exclude(**{'%sid' % self.user_field_prefix: master.id})

@@ -15,6 +15,18 @@
 </style>
 {% endblock %}
 
+{% block header.search %}
+    <li class="search__container">
+        <div class="search">
+            {% block header.search.field %}
+                <input type="text" id="find_by_code" name="find_by_code" value="{{ request.GET.code }}" placeholder="Поиск билета по коду">
+            {% endblock %}
+            {% block header.search.filter %}
+            {% endblock %}
+        </div>
+    </li>
+{% endblock %}
+
 {% block header.top.h1 %}
     <h1 id="summit-title">
         {% trans "Tickets" %}
@@ -28,20 +40,15 @@
 {% endblock %}
 
 {% block main.content %}
-    <div style="padding: 20px;">
-        <label for="find_by_code">{% trans "Find by code:" %}</label>
-        <input type="text" id="find_by_code" name="find_by_code" value="{{ request.GET.code }}">
-        <button id="find_by_code_btn">{% trans "Find" %}</button>
-    </div>
-    <div style="padding: 20px;">
+    <div class="ticket-list">
         {% regroup tickets by summit.type as summit_type_list %}
         {% for summit_type in summit_type_list %}
-            <h3>{{ summit_type.grouper }}</h3>
+            <h2>{{ summit_type.grouper }}</h2>
             {% regroup summit_type.list by summit as summit_list %}
             {% for summit in summit_list %}
-                <h2>
+                <h3>
                     {{ summit.grouper }}
-                </h2>
+                </h3>
                 <table class="tickets_table">
                     <tr>
                         <th>{% trans "Title" %}</th>
@@ -52,16 +59,27 @@
                     </tr>
                     {% for ticket in summit.list %}
                         <tr{% if ticket.is_new %} class="new_ticket"{% endif %}>
-                            <td><span data-id="{{ ticket.id }}" class="ticket_title" style="cursor:pointer;">{{ ticket.title }}</span></td>
+                            <td><span data-id="{{ ticket.id }}" class="ticket_title">{{ ticket.title }}</span></td>
                             <td>
                                 <a href="{{ ticket.owner.get_absolute_url }}">{{ ticket.owner }}</a>
                             </td>
-                            <td style="color:{% if ticket.status == 'complete' %}
-                                green
-                            {% elif ticket.status == 'progress' %}
-                                blue
-                            {% endif %};">
-                                {{ ticket.get_status_display }}
+                            <td class="default {% if ticket.status == 'complete' %}complete
+                            {% elif ticket.status == 'progress' %}progress{% endif %}">
+                                <span>{{ ticket.get_status_display }}</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="50" height="20">
+                                  <circle transform="translate(8 0)" cx="0" cy="16" r="0" stroke="black" fill="transparent">
+                                    <animate attributeName="r" values="0; 4; 0; 0" dur="1.2s" repeatCount="indefinite" begin="0"
+                                      keytimes="0;0.2;0.7;1" keySplines="0.4 0.4 0.6 1;0.4 0.8 0.6 1;0.4 0.8 0.6 1" calcMode="spline" />
+                                  </circle>
+                                  <circle transform="translate(16 0)" cx="0" cy="16" r="0" stroke="black" fill="transparent">
+                                    <animate attributeName="r" values="0; 4; 0; 0" dur="1.2s" repeatCount="indefinite" begin="0.3"
+                                      keytimes="0;0.2;0.7;1" keySplines="0.4 0.4 0.6 1;0.4 0.8 0.6 1;0.4 0.8 0.6 1" calcMode="spline" />
+                                  </circle>
+                                  <circle transform="translate(24 0)" cx="0" cy="16" r="0" fill="transparent"stroke="black">
+                                    <animate attributeName="r" values="0; 4; 0; 0" dur="1.2s" repeatCount="indefinite" begin="0.6"
+                                      keytimes="0;0.2;0.7;1" keySplines="0.4 0.4 0.6 1;0.4 0.8 0.6 1;0.4 0.8 0.6 1" calcMode="spline" />
+                                  </circle>
+                                </svg>
                             </td>
                             <td>
                                 {% if ticket.attachment %}

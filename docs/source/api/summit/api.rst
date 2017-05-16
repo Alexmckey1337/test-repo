@@ -5,6 +5,10 @@ Summit REST API
 Summit
 ------
 
+
+Info by summit
+~~~~~~~~~~~~~~
+
 .. http:get:: /api/v1.0/summit/(int:summit_id)/
 
    Information about ``Summit`` with id = ``summit_id``.
@@ -55,13 +59,13 @@ Summit
         "detail": "Не найдено."
       }
 
-   :reqheader Accept: the response content type depends on
-                          :mailheader:`Accept` header
-   :resheader Content-Type: this depends on :mailheader:`Accept`
-                            header of request
    :statuscode 200: no error
    :statuscode 404: there's no summit
 
+
+
+List of summits
+~~~~~~~~~~~~~~~
 
 .. http:get:: /api/v1.0/summit/
 
@@ -124,12 +128,268 @@ Summit
 
    :query int page: page number (one of ``int`` or ``last``). default is 1
    :query int type: filter by ``summit_type_id``
-   :reqheader Accept: the response content type depends on
-                                :mailheader:`Accept` header
-   :resheader Content-Type: this depends on :mailheader:`Accept`
-                            header of request
+
    :statuscode 200: no error
 
+
+List of summit profiles
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/summits/(int:summit_id)/users/
+
+   List of users of summit (order by ``last_name``). Pagination by 30 profiles per page.
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      GET /api/v1.0/summits/2/users/ HTTP/1.1
+      Host: vocrm.org
+      Accept: application/json
+
+   **Example response**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Vary: Accept, Cookie
+      Allow: GET,HEAD,OPTIONS
+      Content-Type: application/json
+
+      {
+        "links": {
+          "next": "http://crm.local:8000/api/v1.0/summits/7/users/?page=2",
+          "previous": null
+        },
+        "count": 2565,
+        "user_table": {
+          "full_name": {
+            "id": 1260620,
+            "title": "ФИО",
+            "ordering_title": "last_name",
+            "number": 1,
+            "active": true,
+            "editable": true
+          },
+          "responsible": {
+            "id": 1260621,
+            "title": "Ответственный",
+            "ordering_title": "responsible",
+            "number": 2,
+            "active": true,
+            "editable": true
+          },
+          "spiritual_level": {
+            "id": 1260622,
+            "title": "Духовный уровень",
+            "ordering_title": "spiritual_level",
+            "number": 3,
+            "active": true,
+            "editable": true
+          },
+          "divisions_title": {
+            "id": 1260623,
+            "title": "Отдел церкви",
+            "ordering_title": "divisions_title",
+            "number": 4,
+            "active": true,
+            "editable": true
+          },
+          "department": {
+            "id": 1260624,
+            "title": "Отдел",
+            "ordering_title": "department",
+            "number": 5,
+            "active": true,
+            "editable": true
+          },
+          "hierarchy_title": {
+            "id": 1260625,
+            "title": "Иерархия",
+            "ordering_title": "hierarchy__level",
+            "number": 6,
+            "active": true,
+            "editable": true
+          },
+          "phone_number": {
+            "id": 1260626,
+            "title": "Номер телефона",
+            "ordering_title": "user__phone_number",
+            "number": 7,
+            "active": true,
+            "editable": true
+          },
+          "email": {
+            "id": 1260627,
+            "title": "Email",
+            "ordering_title": "user__email",
+            "number": 8,
+            "active": true,
+            "editable": true
+          },
+          "social": {
+            "id": 1260628,
+            "title": "Социальные сети",
+            "ordering_title": "user__facebook",
+            "number": 9,
+            "active": true,
+            "editable": true
+          },
+          "country": {
+            "id": 1260629,
+            "title": "Страна",
+            "ordering_title": "country",
+            "number": 10,
+            "active": true,
+            "editable": true
+          },
+          "city": {
+            "id": 1260630,
+            "title": "Населенный пункт",
+            "ordering_title": "city",
+            "number": 11,
+            "active": true,
+            "editable": true
+          },
+          "region": {
+            "id": 1260631,
+            "title": "Область",
+            "ordering_title": "user__region",
+            "number": 12,
+            "active": true,
+            "editable": true
+          },
+          "district": {
+            "id": 1260632,
+            "title": "Район",
+            "ordering_title": "user__district",
+            "number": 13,
+            "active": true,
+            "editable": true
+          },
+          "address": {
+            "id": 1260633,
+            "title": "Адрес",
+            "ordering_title": "user__address",
+            "number": 14,
+            "active": true,
+            "editable": true
+          },
+          "born_date": {
+            "id": 1260634,
+            "title": "Дата рождения",
+            "ordering_title": "user__born_date",
+            "number": 15,
+            "active": true,
+            "editable": true
+          },
+          "repentance_date": {
+            "id": 1260635,
+            "title": "Дата Покаяния",
+            "ordering_title": "user__repentance_date",
+            "number": 16,
+            "active": true,
+            "editable": true
+          },
+          "code": {
+            "id": 1260636,
+            "title": "Код",
+            "ordering_title": "code",
+            "number": 17,
+            "active": true,
+            "editable": true
+          },
+          "value": {
+            "id": 1260637,
+            "title": "Оплата",
+            "ordering_title": "value",
+            "number": 18,
+            "active": true,
+            "editable": true
+          },
+          "description": {
+            "id": 1260638,
+            "title": "Примечание",
+            "ordering_title": "description",
+            "number": 19,
+            "active": true,
+            "editable": true
+          }
+        },
+        "common_table": {},
+        "results": [
+          {
+            "id": 20083,
+            "full_name": "User First Name",
+            "responsible": "I Am Master",
+            "spiritual_level": "Младенец",
+            "divisions_title": "",
+            "department": "Дочерняя Церковь",
+            "hierarchy_title": "Прихожанин",
+            "phone_number": "+37066666666",
+            "email": "start@end.com",
+            "social": ["http://facebook.com/user", "http://vk.com/user", "http://ok.com/user", "skype_user"],
+            "country": "Литва",
+            "city": "Kretingsodis",
+            "region": "Kretingos rajonas",
+            "district": "",
+            "address": "",
+            "born_date": null,
+            "repentance_date": null,
+            "code": "04020083",
+            "value": "0",
+            "description": "",
+            "emails": [],
+            "visited": false,
+            "link": "/summits/profile/20083/",
+            "total_sum": "0"
+          },
+          {
+            "id": 20489,
+            "full_name": "Last Man Super",
+            "responsible": "I Am Master",
+            "spiritual_level": "Младенец",
+            "divisions_title": "",
+            "department": "Дочерняя Церковь",
+            "hierarchy_title": "Прихожанин",
+            "phone_number": "+45222222222",
+            "email": "user@mail.com",
+            "social": ",,,",
+            "country": "Дания",
+            "city": "",
+            "region": "",
+            "district": "",
+            "address": "",
+            "born_date": "2003-03-29",
+            "repentance_date": null,
+            "code": "04020489",
+            "value": "0",
+            "description": "",
+            "emails": [],
+            "visited": false,
+            "link": "/summits/profile/20489/",
+            "total_sum": "0"
+          }
+        ]
+      }
+
+   :query int page: page number (one of ``int`` or ``last``). default is 1
+   :query int hierarchy: filter by ``hierarchy_id``
+   :query int master: filter by ``master_id``, returned children of master
+   :query int master_tree: filter by ``master_id``, returned descendants of master and self master
+   :query int department: filter by ``department_id``
+   :query string search_fio: search by ``last_name``, ``first_name``, ``middle_name``, ``search_name``
+   :query string search_email: search by ``email``
+   :query string search_phone_number: search by main ``phone_number``
+   :query string search_country: search by ``country``
+   :query string search_city: search by ``city``
+
+   :statuscode 200: no error
+
+
+
+List of summit lessons
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. http:get:: /api/v1.0/summit/(int:summit_id)/lessons/
 
@@ -183,13 +443,13 @@ Summit
         "detail": "Не найдено."
       }
 
-   :reqheader Accept: the response content type depends on
-                                      :mailheader:`Accept` header
-   :resheader Content-Type: this depends on :mailheader:`Accept`
-                            header of request
    :statuscode 200: no error
    :statuscode 404: there's no summit
 
+
+
+Add new summit lesson
+~~~~~~~~~~~~~~~~~~~~~
 
 .. http:post:: /api/v1.0/summit/(int:summit_id)/add_lesson/
 
@@ -254,12 +514,8 @@ Summit
       }
 
    :form name: lesson name
-   :reqheader Accept: the response content type depends on
-                                            :mailheader:`Accept` header
    :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
                             ``application/json``, ``multipart/form-data``
-   :resheader Content-Type: this depends on :mailheader:`Accept`
-                            header of request
    :statuscode 201: lesson created
    :statuscode 400: bad request — summit don't exist or pair ``(summit, lesson.name)`` not unique
    :statuscode 404: there's no summit
@@ -318,10 +574,6 @@ Summit
         "detail": "Не найдено."
       }
 
-   :reqheader Accept: the response content type depends on
-                                            :mailheader:`Accept` header
-   :resheader Content-Type: this depends on :mailheader:`Accept`
-                            header of request
    :statuscode 200: no error
    :statuscode 404: there's no summit
 
@@ -398,12 +650,8 @@ Summit
       }
 
    :form anket_id: visitor id
-   :reqheader Accept: the response content type depends on
-                                                  :http:header:`Accept` header
    :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
                             ``application/json``, ``multipart/form-data``
-   :resheader Content-Type: this depends on :http:header:`Accept`
-                            header of request
    :statuscode 201: created consultant
    :statuscode 404: there's no summit
    :statuscode 400: bad request — selected summit don't have anket with id = ``anket_id``
@@ -482,12 +730,8 @@ Summit
       }
 
    :form anket_id: visitor id
-   :reqheader Accept: the response content type depends on
-                                                        :http:header:`Accept` header
    :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
                             ``application/json``, ``multipart/form-data``
-   :resheader Content-Type: this depends on :http:header:`Accept`
-                            header of request
    :statuscode 201: created consultant
    :statuscode 404: there's no summit
    :statuscode 400: bad request — selected summit don't have anket with id = ``anket_id``
@@ -520,6 +764,111 @@ Create anket payment
       }
 
    .. include:: ../payment/partials/create_payment.rst
+
+
+List of profile payments
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/summit_ankets/(int:profile_id)/payments/
+
+   List of the payments of ``SummitAnket`` with ``id = profile_id``.
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      GET /api/v1.0/summit_ankets/4/payments/ HTTP/1.1
+      Host: vocrm.org
+      Accept: application/json
+
+   **Example response**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Vary: Accept, Cookie
+      Allow: GET,HEAD,OPTIONS
+      Content-Type: application/json
+
+      [
+        {
+          "id": 16084,
+          "sum": "222",
+          "effective_sum": "111.000",
+          "sum_str": "222 грн.",
+          "effective_sum_str": "111.000 грн.",
+          "operation": "/",
+          "currency_sum": {
+            "id": 2,
+            "name": "Гривна",
+            "code": "uah",
+            "short_name": "грн.",
+            "symbol": "₴"
+          },
+          "currency_rate": {
+            "id": 2,
+            "name": "Гривна",
+            "code": "uah",
+            "short_name": "грн.",
+            "symbol": "₴"
+          },
+          "rate": "2.000",
+          "description": "",
+          "created_at": "03.05.2017 14:18",
+          "sent_date": "03.05.2017",
+          "manager": {
+            "id": 13885,
+            "first_name": "Амир",
+            "last_name": "Азиев",
+            "middle_name": ""
+          },
+          "purpose": "/api/v1.0/summit_ankets/269/"
+        },
+        {
+          "id": 6442,
+          "sum": "100",
+          "effective_sum": "100.000",
+          "sum_str": "100 грн.",
+          "effective_sum_str": "100.000 грн.",
+          "operation": "*",
+          "currency_sum": {
+            "id": 2,
+            "name": "Гривна",
+            "code": "uah",
+            "short_name": "грн.",
+            "symbol": "₴"
+          },
+          "currency_rate": {
+            "id": 2,
+            "name": "Гривна",
+            "code": "uah",
+            "short_name": "грн.",
+            "symbol": "₴"
+          },
+          "rate": "1.000",
+          "description": "",
+          "created_at": "03.07.2016 21:00",
+          "sent_date": "04.07.2016",
+          "manager": null,
+          "purpose": "/api/v1.0/summit_ankets/269/"
+        }
+      ]
+
+   **Example response (Not Found)**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 404 Not Found
+      Vary: Accept, Cookie
+      Allow: GET,HEAD,OPTIONS
+      Content-Type: application/json
+
+      {
+        "detail": "Не найдено."
+      }
+
+   :statuscode 200: no error
+         :statuscode 404: there's no summit
 
 Pre delete information
 ~~~~~~~~~~~~~~~~~~~~~~

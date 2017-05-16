@@ -27,36 +27,43 @@
 {% endblock %}
 
 {% block main.content %}
-<h3>{{ home_group.get_title }}</h3>
-    <div class="container">
-        <div class="col-3">
-            <div class="info">
-                <h2>Основная информация:</h2>
+<h1>{{ home_group.get_title }}</h1>
+    <div class="accordion">
+        <h2 class="info-title">Основная информация:</h2>
+        <div class="info">
+            <ul>
+                <li>Дата открытия:</li>
+                <li>{{ home_group.opening_date }}</li>
+                <li>Церковь:</li>
+                <li><a href="/churches/{{ home_group.church.id }}">{{ home_group.church }}</a></li>
+                <li>Лидер:</li>
+                <li><a href="{{ home_group.leader.get_absolute_url }}">{{ home_group.leader }}</a></li>
+                <li>Адрес:</li>
+                <li>{{ home_group.address }}</li>
+                <li>Телефонный номер:</li>
+                <li>{{ home_group.phone_number }}</li>
+                <li>Сайт:</li>
+                <li>{% if home_group.website %}
+                    <a href="{{ home_group.website }}" target="_blank">{{ home_group.website }}</a>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+            <h2 class="info-title">Сводная информация:</h2>
+            <div class="info info-calc">
                 <ul>
-                    <li>Дата открытия: {{ home_group.opening_date }}</li>
-                    <li>Церковь: <a href="/churches/{{ home_group.church.id }}">{{ home_group.church }}</a></li>
-                    <li>Лидер: <a href="{{ home_group.leader.get_absolute_url }}">{{ home_group.leader }}</a></li>
-                    <li>Адрес: {{ home_group.address }}</li>
-                    <li>Телефонный номер: {{ home_group.phone_number }}</li>
-                    <li>Сайт: {% if home_group.website %}
-                        <a href="{{ home_group.website }}" target="_blank">{{ home_group.website }}</a>
-                    {% endif %}</li>
+                    <li>Количество людей:</li>
+                    <li><span id="users_count">{{ users_count }}</span></li>
+                    <li>Количество Отцов:</li>
+                    <li><span id="fathers_count">{{ fathers_count }}</li>
+                    <li>Количество Юношей:</li>
+                    <li><span id="juniors_count">{{ juniors_count }}</span></li>
+                    <li>Количество Младенцев:</li>
+                    <li><span id="babies_count">{{ babies_count }}</span></li>
+                    <li>Количество Партнеров:</li>
+                    <li><span id="partners_count">{{ partners_count }}</span></li>
                 </ul>
             </div>
-        </div>
-        <div class="col-3">
-            <div class="info">
-                <h2>Сводная информация:</h2>
-                <ul>
-                    <li>Количество людей: <span id="users_count">{{ users_count }}</span></li>
-                    <li>Количество Отцов: <span id="fathers_count">{{ fathers_count }}</span></li>
-                    <li>Количество Юношей: <span id="juniors_count">{{ juniors_count }}</span></li>
-                    <li>Количество Младенцев: <span id="babies_count">{{ babies_count }}</span></li>
-                    <li>Количество Партнеров: <span id="partners_count">{{ partners_count }}</span></li>
-                </ul>
-            </div>
-        </div>
-        <div class="col-3"></div>
     </div>
     {% block pagination_top %}
         <div class="top-pag">

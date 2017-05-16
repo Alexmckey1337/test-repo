@@ -74,6 +74,8 @@ $("#tabs1 li").on('click', function () {
     let id_tab = $(this).attr('data-tab');
     $('[data-tab-content]').hide();
     $('[data-tab-content="' + id_tab + '"]').show();
+    $(this).closest('.tab-status').find('li').removeClass('active');
+    $(this).addClass('active');
 });
 
 $('#send_need').on('click', function () {
@@ -89,14 +91,19 @@ $('#send_need').on('click', function () {
             data = data.responseJSON;
             showPopup(data.detail);
         }
-    })
+    });
+    $(this).siblings('.editText').removeClass('active');
+    $(this).parent().siblings('textarea').attr('readonly', true);
 });
 $('#sendNote').on('click', function () {
     let _self = this;
     let id = $(_self).data('id');
     let resData = new FormData();
     resData.append('description', $('#id_note_text').val());
-    updateUser(id, resData);
+    updateUser(id, resData).then(() => showPopup('Ваше примечание добавлено.'));
+    $(this).siblings('.editText').removeClass('active');
+    $(this).parent().siblings('textarea').attr('readonly', true);
+
 });
 $("#close-payment").on('click', function () {
     $('#popup-create_payment').css('display', 'none');
@@ -246,12 +253,13 @@ $('#partnershipCheck').on('click', function () {
         });
     }
 });
-$("#send_note").on('click', function (e) {
+$(".send_note").on('click', function (e) {
     e.preventDefault();
+    let form = $(this).closest('form');
+    let text_field = form.find('.js-add_note');
     let box = $(this).closest(".note-box");
-    let text_field = box.find('.js-add_note');
     let text = text_field.val();
-    let anket_id = text_field.data('anket-id');
+    let anket_id = form.data('anket-id');
     sendNote(anket_id, text, box);
     text_field.val('');
 });
@@ -268,6 +276,9 @@ $("#tabs2 li").on('click', function (e) {
     let id_tab = this.getAttribute('data-tab');
     $('[data-summit-id]').hide();
     $('[data-summit-id="' + id_tab + '"]').show();
+    $('.summits-block').hide();
+    $(this).closest('.tab-status').find('li').removeClass('active');
+    $(this).addClass('active');
 });
 
 if ($("#tabs2 li")) {
@@ -344,11 +355,10 @@ function sendNote(anket_id, text, box) {
     let data = {
         "text": text
     };
-    let summit_type = box.data('summit-id');
     let json = JSON.stringify(data);
     ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/' + anket_id + '/create_note/', json, function (note) {
         box.before(function () {
-            return '<div class="rows" data-summit-id = "' + summit_type.id + '" ><div style="padding:10px 6px;"><p>' + note.text + ' — ' + moment(note.date_created).format("DD.MM.YYYY HH:mm:ss")
+            return '<div class="rows"><div><p>' + note.text + ' — ' + moment(note.date_created).format("DD.MM.YYYY HH:mm:ss")
                 + ' — Author: ' + note.owner_name
                 + '</p></div></div>'
         });
@@ -389,6 +399,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
 
 (function ($) {
     let $img = $(".crArea img");
+    let flagCroppImg = false;
 
     let $selectDepartment = $('#departments');
 
@@ -426,14 +437,14 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     function makeChurches() {
         let departmentID = $selectDepartment.val();
         if (departmentID && typeof parseInt(departmentID) == "number") {
-            getChurchesINDepartament(departmentID).then(function (data) {
+            getChurchesListINDepartament(departmentID).then(function (data) {
+                console.log(departmentID);
                 let selectedChurchID = $(church_list).val();
-                let results = data.results;
                 let options = [];
                 let option = document.createElement('option');
                 $(option).val('').text('Выберите церковь').attr('selected', true).attr('disabled', true);
                 options.push(option);
-                results.forEach(function (item) {
+                data.forEach(function (item) {
                     let option = document.createElement('option');
                     $(option).val(item.id).text(item.get_title);
                     if (selectedChurchID == item.id) {
@@ -457,7 +468,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                             $('#home_groups_list').html(options);
                         });
                     }
-                });
+                }).trigger('change');
             });
         }
     }
@@ -488,6 +499,9 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         $hiddenBlock.each(function () {
             $(this).removeClass('hidden');
         });
+        if ($(this).data('edit-block') == 'editContact' && $(this).hasClass('active')) {
+            $(this).closest('form').get(0).reset();
+        }
         if ($(this).hasClass('active')) {
             $input.each(function (i, el) {
                 if (!$(this).attr('disabled')) {
@@ -599,7 +613,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                 });
             }
             updateUser(ID, formData, success).then(function (data) {
-                if(formName === 'editHierarchy') {
+                if (formName === 'editHierarchy') {
                     $('.is-hidden__after-edit').html('');
                 }
                 if (hidden) {
@@ -661,6 +675,12 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         });
     });
 
+    $.validate({
+        lang: 'ru',
+        form: '#editContactForm',
+        modules: 'toggleDisabled',
+    });
+
     initLocationSelect({
         country: 'selectCountry',
         region: 'selectRegion',
@@ -677,7 +697,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     // after fix
     makeResponsibleList($('#departments').val(), $('#selectHierarchy').find('option:selected').data('level'));
     $('#selectHierarchy').on('change', function () {
-        let department = $('#selectDepartment').val();
+        let department = $('#departments').val();
         let status = $(this).find('option:selected').data('level');
         makeResponsibleList(department, status);
     });
@@ -706,12 +726,32 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
 
     $('#editCropImg').on('click', function () {
         let imgUrl;
-        imgUrl = $img.cropper('crop').cropper('getCroppedCanvas').toDataURL('image/jpeg');
-        $('#impPopup').fadeOut();
+        imgUrl = $img.cropper('getCroppedCanvas').toDataURL('image/jpeg');
         $('#edit-photo').attr('data-source', document.querySelector("#impPopup img").src);
         $('.anketa-photo').html('<img src="' + imgUrl + '" />');
-        $img.cropper("destroy");
+        $('#impPopup').fadeOut(300, function () {
+            $img.cropper("destroy");
+        });
+
+        if (flagCroppImg && !$('#editNameBtn').hasClass('active')) {
+            let form = document.forms['editName'];
+            let formData = new FormData(form);
+            let blob;
+            blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+            formData.append('image', blob);
+            formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
+            // formData.append('id', id);
+            updateUser(ID, formData);
+        }
+        return flagCroppImg = false;
     });
+
+    $('#impPopup').find('.close').on('click', function () {
+        $('#impPopup').fadeOut(300, function () {
+            $img.cropper("destroy");
+        });
+    });
+
     function handleFileSelect(e) {
         let files = e.target.files; // FileList object
         // Loop through the FileList and render image files as thumbnails.
@@ -738,6 +778,25 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
             // Read in the image file as a data URL.
             reader.readAsDataURL(file);
         }
+        croppUploadImg();
+    }
+
+    function croppUploadImg() {
+        $('.anketa-photo').on('click', function () {
+
+            $("#impPopup").css('display', 'block');
+            $img.cropper({
+                aspectRatio: 1 / 1,
+                built: function () {
+                    $img.cropper("setCropBoxData", {width: "100", height: "100"});
+                }
+            });
+            return flagCroppImg = true;
+            // let src = $('.anketa-photo').find('img').attr('src');
+            //  $img.attr('src', src);
+            // $('#editNameBtn').addClass('active');
+            // $('#editNameBlock').css({display: 'block'});
+        });
     }
 
     $('#divisions').select2();
@@ -745,6 +804,35 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     $('#sent_date').datepicker({
         autoClose: true,
         dateFormat: 'dd.mm.yyyy'
-    })
+    });
+
+    $('.summits-title').on('click', function () {
+        $(this).next('.summits-block').siblings('.summits-block').slideUp(300);
+        $(this).next('.summits-block').slideToggle();
+    });
+
+    $('.summits-block .rows-tabs').on('click', 'p', function () {
+        let tab = $(this).parent().data('tabs-id');
+        $(this).closest('.rows-tabs').find('div').removeClass('active');
+        $(this).parent().addClass('active');
+        $(this).closest('.summits-block').find('.wrapp').hide();
+        $(this).closest('.summits-block').find(`.wrapp-${tab}`).show();
+    });
+
+    $('.a-note, .a-sdelki').find('.editText').on('click', function () {
+        $(this).toggleClass('active');
+        let textArea = $(this).parent().siblings('textarea');
+        if ($(this).hasClass('active')) {
+            textArea.attr('readonly', false);
+        } else {
+            textArea.attr('readonly', true);
+        }
+    });
+    // $('label[for="master"]').on('click', function () {
+    //     let id = $('#selectResponsible').find('option:selected').val();
+    //     if(id) {
+    //         window.location.href = `/account/${id}`;
+    //     }
+    // })
 })
 (jQuery);

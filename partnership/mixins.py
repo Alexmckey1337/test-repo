@@ -1,5 +1,3 @@
-from _pydecimal import Decimal
-
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models import F, Sum, Case, When, IntegerField, Value
@@ -106,8 +104,8 @@ class PartnerStatMixin:
     @staticmethod
     def stats_by_deals(deals, deals_with_sum):
         paid = deals_with_sum.filter(total_sum__gte=F('value')).count()
-        unpaid = deals_with_sum.filter(total_sum__lt=F('value'), total_sum=Decimal(0)).count()
-        partial_paid = deals_with_sum.filter(total_sum__lt=F('value'), total_sum__gt=Decimal(0)).count()
+        unpaid = deals_with_sum.filter(total_sum__lt=F('value'), total_sum=0).count()
+        partial_paid = deals_with_sum.filter(total_sum__lt=F('value'), total_sum__gt=0).count()
         deals_result = {
             'paid_count': paid,
             'unpaid_count': unpaid,
@@ -132,10 +130,10 @@ class PartnerStatMixin:
         paid = set(deals_with_sum.filter(total_sum__gte=F('value')).aggregate(p=ArrayAgg('partnership'))['p'])
         unpaid = set(deals_with_sum.filter(
             total_sum__lt=F('value'),
-            total_sum=Decimal(0)).aggregate(p=ArrayAgg('partnership'))['p'])
+            total_sum=0).aggregate(p=ArrayAgg('partnership'))['p'])
         partial_paid = set(deals_with_sum.filter(
             total_sum__lt=F('value'),
-            total_sum__gt=Decimal(0)).aggregate(p=ArrayAgg('partnership'))['p'])
+            total_sum__gt=0).aggregate(p=ArrayAgg('partnership'))['p'])
         paid_count = len(paid - unpaid - partial_paid)
         unpaid_count = len(unpaid - partial_paid - paid)
         partial_paid_count = len(partial_paid | (paid & unpaid))

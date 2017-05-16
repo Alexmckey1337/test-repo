@@ -43,30 +43,11 @@ def partner_table(user):
     return _get_result_table(table_columns)
 
 
-def summit_table():
-    return OrderedDict(
-        code={
-            'title': 'Код',
-            'ordering_title': 'code',
-            'number': 1,
-            'active': True,
-            'editable': False,
-        },
-        total_sum={
-            'title': 'Оплата',
-            'ordering_title': 'value',
-            'number': 2,
-            'active': True,
-            'editable': False,
-        },
-        description={
-            'title': 'Примечание',
-            'ordering_title': 'description',
-            'number': 3,
-            'active': True,
-            'editable': False,
+@check_user_table_exist
+def summit_table(user, prefix_ordering_title=''):
+    table_columns = _filter_summit_columns(user.table.columns.select_related('columnType'))
 
-        })
+    return _get_result_table(table_columns, prefix_ordering_title)
 
 
 def event_table():
@@ -122,6 +103,11 @@ def _filter_meeting_columns(table_columns, category_title):
 def _filter_user_columns(table_columns):
     return table_columns.filter(
         columnType__category__title="Общая информация")
+
+
+def _filter_summit_columns(table_columns):
+    return table_columns.filter(
+        columnType__category__title="summit")
 
 
 def _filter_partner_columns(table_columns):

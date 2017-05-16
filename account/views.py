@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.contrib.auth import logout as django_logout
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction, IntegrityError
 from django.utils.translation import ugettext_lazy as _
 from rest_auth.views import LogoutView as RestAuthLogoutView
 from rest_framework import status, mixins
@@ -17,6 +18,7 @@ from rest_framework.viewsets import GenericViewSet
 from account.filters import FilterByUserBirthday, UserFilter, ShortUserFilter, FilterMasterTreeWithSelf
 from account.models import CustomUser as User
 from account.permissions import CanSeeUserList, CanCreateUser, CanExportUserList
+from account.serializers import HierarchyError, UserForMoveSerializer
 from common.filters import FieldSearchFilter
 from common.parsers import MultiPartAndJsonParser
 from common.views_mixins import ExportViewSetMixin
@@ -74,7 +76,7 @@ class UserViewSet(viewsets.ModelViewSet, UserExportViewSetMixin):
     ordering_fields = ('first_name', 'last_name', 'middle_name',
                        'born_date', 'country', 'region', 'city', 'disrict', 'address', 'skype',
                        'phone_number', 'email', 'hierarchy__level',
-                       'facebook', 'vkontakte', 'hierarchy_order', 'master__last_name',)
+                       'facebook', 'vkontakte', 'master__last_name',)
     field_search_fields = {
         'search_fio': ('last_name', 'first_name', 'middle_name', 'search_name'),
         'search_email': ('email',),
@@ -126,6 +128,31 @@ class UserViewSet(viewsets.ModelViewSet, UserExportViewSetMixin):
         if self.action == 'create':
             return self.serializer_create_class
         return self.serializer_class
+
+    def get_user_disciples(self, user):
+        disciples = user.disciples.all()
+        serializer = UserForMoveSerializer(disciples, many=True)
+        return serializer.data
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        user = self.get_object()
+        serializer = self.get_serializer(user, data=request.data, partial=partial)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except HierarchyError:
+            data = {
+                'detail': _('Please, move disciples before reduce hierarchy.'),
+                'disciples': self.get_user_disciples(user),
+            }
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            with transaction.atomic():
+                self.perform_update(serializer)
+        except IntegrityError:
+            data = {'detail': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
+            return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        return Response(serializer.data)
 
     def perform_update(self, serializer):
         user = serializer.save()

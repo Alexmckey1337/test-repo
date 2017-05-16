@@ -1,0 +1,79 @@
+{% extends "layout_main.html" %}
+{% load i18n %}
+{% load static %}
+{% load summit_tags %}
+{% load payment_tags %}
+
+{% block header.top.h1 %}
+    <h1 id="summit-title">
+        {% trans "Profile" %} | {{ profile.user.fullname }} ({{ profile.code }})
+    </h1>
+{% endblock %}
+
+{% block header.buttons.filter %}
+{% endblock %}
+
+{% block header.buttons %}
+{% endblock %}
+
+{% block main.content %}
+    <div class="container">
+        <div class="col-11">
+            <div class="info">
+                <h2>{% trans "Profile info" %}</h2>
+                <ul>
+                    <li>{% trans "User" %}:
+                        <a href="{{ profile.user.get_absolute_url }}">
+                            {{ profile.name }} ({{ profile.user.fullname }})
+                        </a>
+                    </li>
+                    <li>{% trans "Pastor" %}: {{ profile.pastor }}</li>
+                    <li>{% trans "Bishop" %}: {{ profile.bishop }}</li>
+                    <li>{% trans "Sotnik" %}: {{ profile.sotnik }}</li>
+                    <li>{% trans "Department" %}: {{ profile.department }}</li>
+                    <li>{% trans "City" %}: {{ profile.city }}</li>
+                    <li>{% trans "Country" %}: {{ profile.country }}</li>
+                    <li>{% trans "Region" %}: {{ profile.region }}</li>
+                    <li>{% trans "Phone number" %}: {{ profile.user.phone_number }}</li>
+                    <li>{% trans "Responsible" %}: {{ profile.responsible }}</li>
+
+                    <li>{% trans "Value" %}: {{ profile.calculate_value|floatformat:"2"}} {{ profile.currency.short_name }}</li>
+                    <li>{% trans "Description" %}: {{ profile.description }}</li>
+                    <li>{% trans "Role" %}: {{ profile.get_role_display }}</li>
+
+                    <li>{% trans "Summit" %}:
+                        <a href="{% url 'summit:detail' pk=profile.summit.type.id %}?summit={{ profile.summit.id }}">
+                            {{ profile.summit }}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% if profile.payments.exists %}
+        <table>
+            <tr>
+                <th>{% trans "Date created" %}</th>
+                <th>{% trans "Sum" %}</th>
+                <th>{% trans "Effective sum" %}</th>
+                <th>{% trans "Manager" %}</th>
+            </tr>
+            {% for payment in profile.payments.all %}
+                <tr>
+                    <td>{{ payment.created_at }}</td>
+                    <td>{{ payment.sum_str }}</td>
+                    <td>{{ payment.effective_sum_str }}</td>
+                    <td>
+                        {% if payment.manager %}
+                            <a href="{{ payment.manager.get_absolute_url }}">{{ payment.manager }}</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            <tr></tr>
+        </table>
+    {% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+{% endblock %}

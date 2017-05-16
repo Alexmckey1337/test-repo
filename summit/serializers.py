@@ -5,7 +5,9 @@ from rest_framework import serializers
 
 from account.models import CustomUser as User
 from account.serializers import UserTableSerializer, UserShortSerializer
-from .models import Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail, SummitTicket
+from common.fields import ListCharField
+from .models import (Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
+                     SummitTicket, SummitVisitorLocation, SummitEventTable)
 
 
 class SummitAnketNoteSerializer(serializers.ModelSerializer):
@@ -25,18 +27,29 @@ class AnketEmailSerializer(serializers.ModelSerializer):
 
 
 class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
-    user = UserTableSerializer()
     emails = AnketEmailSerializer(many=True, read_only=True)
     total_sum = serializers.DecimalField(max_digits=12, decimal_places=0)
+    full_name = serializers.CharField()
+    email = serializers.CharField(source='user.email')
+    phone_number = serializers.CharField(source='user.phone_number')
+    social = ListCharField(fields=('user.facebook', 'user.vkontakte', 'user.odnoklassniki', 'user.skype'))
+    region = serializers.CharField(source='user.region')
+    district = serializers.CharField(source='user.district')
+    address = serializers.CharField(source='user.address')
+    born_date = serializers.CharField(source='user.born_date')
+    repentance_date = serializers.CharField(source='user.repentance_date')
+    spiritual_level = serializers.CharField(source='get_spiritual_level_display')
 
     class Meta:
         model = SummitAnket
-        fields = ('id', 'user', 'code', 'description',
+        fields = ('id', 'full_name', 'responsible', 'spiritual_level',
+                  'divisions_title', 'department', 'hierarchy_title', 'phone_number', 'email', 'social',
+                  'country', 'city', 'region', 'district', 'address', 'born_date', 'repentance_date',
+                  'code', 'value', 'description',
                   'emails',
                   'visited',
+                  'link',
 
-                  'is_member',
-                  # 'is_full_paid',
                   'total_sum',
                   )
 
@@ -73,12 +86,34 @@ class SummitAnketForTicketSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'code', 'user', 'is_active')
 
 
-class SummitAnketWithNotesSerializer(serializers.ModelSerializer):
-    notes = SummitAnketNoteSerializer(many=True, read_only=True)
+class SummitShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Summit
+        fields = ('id', 'start_date', 'end_date', 'title', 'description')
+
+
+class SummitUnregisterUserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'city', 'fullname', 'country', 'master_short_fullname')
+
+
+class SummitLessonSerializer(serializers.ModelSerializer):
+    viewers = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
-        model = SummitAnket
-        fields = ('code', 'notes')
+        model = SummitLesson
+        fields = ('summit', 'name', 'viewers')
+        # extra_kwargs = {'viewers': {'required': False}}
+
+
+class SummitLessonShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SummitLesson
+        fields = ('summit', 'name')
+
+
+# UNUSED
 
 
 class SummitSerializer(serializers.HyperlinkedModelSerializer):
@@ -90,16 +125,21 @@ class SummitSerializer(serializers.HyperlinkedModelSerializer):
                   'full_cost', 'special_cost')
 
 
-class SummitShortSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Summit
-        fields = ('id', 'start_date', 'end_date', 'title', 'description')
-
-
 class SummitTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = SummitType
         fields = ('id', 'title', 'image')
+
+
+class SummitAnketWithNotesSerializer(serializers.ModelSerializer):
+    notes = SummitAnketNoteSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = SummitAnket
+        fields = ('code', 'notes')
+
+
+# FOR APP
 
 
 class SummitTicketSerializer(serializers.ModelSerializer):
@@ -141,22 +181,26 @@ class SummitAnketForAppSerializer(serializers.ModelSerializer):
         fields = ('id', 'user', 'code', 'value', 'is_member')
 
 
-class SummitUnregisterUserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'city', 'fullname', 'country', 'master_short_fullname')
-
-
-class SummitLessonSerializer(serializers.ModelSerializer):
-    viewers = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+class SummitAnketLocationSerializer(serializers.ModelSerializer):
+    fullname = serializers.CharField(source='user.fullname')
 
     class Meta:
-        model = SummitLesson
-        fields = ('summit', 'name', 'viewers')
-        # extra_kwargs = {'viewers': {'required': False}}
+        model = SummitAnket
+        fields = ('id', 'fullname')
 
 
-class SummitLessonShortSerializer(serializers.ModelSerializer):
+class SummitVisitorLocationSerializer(serializers.ModelSerializer):
+    # visitor = SummitAnketLocationSerializer()
+
     class Meta:
-        model = SummitLesson
-        fields = ('summit', 'name')
+        model = SummitVisitorLocation
+        fields = ('visitor', 'date_time', 'longitude', 'latitude')
+
+
+class SummitEventTableSerializer(serializers.ModelSerializer):
+    summit_id = serializers.IntegerField(source='summit.id')
+
+    class Meta:
+        model = SummitEventTable
+        fields = ('summit_id', 'date', 'time', 'name_ru', 'author_ru', 'name_en',
+                  'author_en', 'name_de', 'author_de')

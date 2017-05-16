@@ -176,8 +176,38 @@ function createHomeGroupsTable(config = {}) {
         orderTable.sort(createHomeGroupsTable);
     });
 }
-
+function makePastorListWithMasterTree(config, selector, active = null) {
+    getShortUsers(config).then(data => {
+         let options = '<option selected>ВСЕ</option>';
+        data.forEach(function (item) {
+            options += `<option value="${item.id}"`;
+            if (active == item.id) {
+                options += 'selected';
+            }
+            options += `>${item.fullname}</option>`;
+        });
+        selector.forEach(item => {
+                $(item).html(options).prop('disabled', false).select2();
+        })
+    })
+}
+function makePastorListNew(id, selector = [], active=null) {
+    getResponsible(id, 2).then(function (data) {
+        let options = '<option selected>ВСЕ</option>';
+        data.forEach(function (item) {
+            options += `<option value="${item.id}"`;
+            if (active == item.id) {
+                options += 'selected';
+            }
+            options += `>${item.fullname}</option>`;
+        });
+        selector.forEach(item => {
+                $(item).html(options).prop('disabled', false).select2();
+        })
+    });
+}
 function makePastorList(id, selector, active = null) {
+    console.log(id);
     getResponsible(id, 2).then(function (data) {
         let options = [];
         data.forEach(function (item) {
@@ -263,7 +293,37 @@ function makeDepartmentList(selector, active = null) {
         $(selector).html(options).prop('disabled', false).select2();
     });
 }
+function getChurchesListINDepartament(id) {
+    return new Promise(function (resolve, reject) {
+        let url;
+        if (id instanceof Array) {
+            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/churches_by_department/?`;
+            let i = 0;
+            id.forEach(function (item) {
+                i++;
+                url += `department=${item}`;
+                if (id.length != i) {
+                    url += '&';
+                }
+            })
+        } else {
+            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches?department=${id}`;
+        }
+        let data = {
+            url: url,
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
 
+        };
+        newAjaxRequest(data, status, reject)
+    })
+}
 function getChurchesINDepartament(id) {
     return new Promise(function (resolve, reject) {
         let url;
@@ -479,11 +539,11 @@ function getShortUsers(config = {}) {
     });
 }
 
-function getSummitUsers(config = {}) {
+function getSummitUsers(summit_id, config = {}) {
     Object.assign(config, getFilterParam());
     return new Promise(function (resolve, reject) {
         let data = {
-            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/`,
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/summits/${summit_id}/users/`,
             data: config,
             method: 'GET',
             headers: {
@@ -504,6 +564,7 @@ function getSummitUsers(config = {}) {
 }
 
 function getPotencialSammitUsers(config) {
+    console.log(config);
     return new Promise(function (resolve, reject) {
         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_search/', config, function (data) {
             resolve(data);
@@ -1013,6 +1074,18 @@ function getCurrentUser(id) {
         })
     })
 }
+function getResponsibleBYHomeGroup(churchID) {
+     return new Promise(function (resolve, reject) {
+        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/?church_id=${churchID}`;
+        ajaxRequest(url, null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    })
+}
 
 function getResponsible(ids, level, search = "") {
     let responsibleLevel;
@@ -1027,6 +1100,8 @@ function getResponsible(ids, level, search = "") {
             ids.forEach(function (id) {
                 url += '&department=' + id;
             });
+        } else {
+            url += '&department=' + ids;
         }
         ajaxRequest(url, null, function (data) {
             if (data) {
@@ -1724,20 +1799,20 @@ function initLocationSelect(config) {
 
 function createSummitUsersTable(data = {}) {
     let page = data.page || $('.pagination__input').val();
-    let summitType = data.summit || $('#summitsTypes').find('.active').data('id');
+    let summitId = data.summit || $('#summitsTypes').find('.active').data('id');
     let config = {
         page: page,
-        summit: summitType
+        search_fio: $('input[name="fullsearch"]').val()
     };
     Object.assign(config, data);
     Object.assign(config, getOrderingData());
 
-    getSummitUsers(config).then(function (data) {
+    getSummitUsers(summitId, config).then(function (data) {
         let filter_data = {};
         let common_table = Object.keys(data.common_table);
         filter_data.results = data.results.map(function (item) {
             let data;
-            data = item.user;
+            data = item;
             data.ankets_id = item.id;
             common_table.forEach(function (field) {
                 data[field] = item[field];
@@ -1810,6 +1885,7 @@ function makeSortForm(data) {
 
 function makeResponsibleList() {
     let department = $('#departmentSelect').val();
+    console.log(department);
     let hierarchy = $('#hierarchySelect option:selected').attr('data-level');
     getResponsible(department, hierarchy).then(function (data) {
         let id = $('#master_hierarchy option:selected').attr('data-id');
@@ -2175,7 +2251,7 @@ function makeQuickEditSammitCart(el) {
     anketID = $(el).closest('td').find('a').data('ankets');
     id = $(el).closest('td').find('a').data('id');
     link = $(el).closest('td').find('a').data('link');
-    url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${anketID}/`;
+    url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/summits/${anketID}/users/`;
     ajaxRequest(url, null, function (data) {
         $('#fullNameCard').text(data.user.fullname);
         $('#userDescription').val(data.description);
@@ -2534,7 +2610,7 @@ function createNewUser(callback) {
         }
     }).catch(function (data) {
         $preloader.css('display', 'none');
-        showPopup(data);
+        showPopup(data.message[0]);
     });
 }
 
@@ -2625,7 +2701,7 @@ function getPastorsByDepartment(id) {
 
 function getLeadersByChurch(config = {}) {
     let resData = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/`,
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_current_leaders/`,
         data: config
     };
     if (getCookie('key')) {
@@ -2643,3 +2719,4 @@ function getLeadersByChurch(config = {}) {
         newAjaxRequest(resData, codes, reject);
     });
 }
+

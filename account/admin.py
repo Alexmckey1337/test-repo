@@ -14,8 +14,9 @@ from .resources import UserResource
 
 
 class CustomUserAdmin(UserAdmin, MPTTModelAdmin, ImportExportModelAdmin):
-    list_display = ('fullname', 'email', 'date_joined',
+    list_display = ('fullname', 'username', 'email', 'date_joined',
                     'is_staff', 'is_active')
+    list_display_links = ('fullname', 'username')
     list_editable = ('is_active',)
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups', 'departments',)
     fieldsets = (
@@ -24,7 +25,7 @@ class CustomUserAdmin(UserAdmin, MPTTModelAdmin, ImportExportModelAdmin):
             'email', 'first_name', 'last_name', 'middle_name', 'search_name', 'master', 'departments', 'hierarchy',
             'phone_number', 'extra_phone_numbers', 'skype', 'facebook', 'vkontakte', 'image', 'born_date',
             'country', 'region', 'city', 'district', 'address',
-            'description', 'repentance_date', 'coming_date', 'hierarchy_order',
+            'description', 'repentance_date', 'coming_date',
         )}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
