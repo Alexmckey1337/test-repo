@@ -232,23 +232,24 @@ $(document).ready(function () {
                     $sidebar.removeClass('toggle-sidebar');
                     document.documentElement.style.setProperty('--lsb_width', '240px');
                     $moveSidebar.removeClass('active');
+                    deleteCookie('state');
             }, 100)
     }
         $(this).parent().siblings('li').removeClass('sb-menu_link__active').find('.sidebar-submenu:visible').slideUp(300);
         $(this).next('ul').slideToggle(400).parent().toggleClass('sb-menu_link__active');
     });
 
-    $('#container').on('click', function () {
-        let $sidebar = $("#sidebar");
-        let $moveSidebar = $('#move-sidebar');
-        setTimeout(function () {
-            $sidebar.addClass('toggle-sidebar');
-            document.documentElement.style.setProperty('--lsb_width', '90px');
-            $moveSidebar.addClass('active');
-            document.cookie = 'state=active;path=/';
-        }, 100);
-        $sidebar.find('li').removeClass('sb-menu_link__active').find('.sidebar-submenu:visible').slideUp(300);
-    })
+    // $('#container').on('click', function () {
+    //     let $sidebar = $("#sidebar");
+    //     let $moveSidebar = $('#move-sidebar');
+    //     setTimeout(function () {
+    //         $sidebar.addClass('toggle-sidebar');
+    //         document.documentElement.style.setProperty('--lsb_width', '90px');
+    //         $moveSidebar.addClass('active');
+    //         document.cookie = 'state=active;path=/';
+    //     }, 100);
+    //     $sidebar.find('li').removeClass('sb-menu_link__active').find('.sidebar-submenu:visible').slideUp(300);
+    // })
 
 });
 
@@ -303,7 +304,8 @@ function setSidebarPosition() {
 
 function accordionInfo() {
     $('.info-title').on('click', function () {
-       $(this).toggleClass('info-title_active').next('.info').slideToggle();
+        $(this).next('.info').slideToggle().siblings('.info:visible').slideUp();
+        $(this).toggleClass('info-title_active').siblings('.info-title').removeClass('info-title_active');
     });
 }
 

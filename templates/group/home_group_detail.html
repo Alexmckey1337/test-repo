@@ -27,31 +27,28 @@
 {% endblock %}
 
 {% block main.content %}
-<h3>{{ home_group.get_title }}</h3>
-    <div class="container">
-        <div class="col">
+<h1>{{ home_group.get_title }}</h1>
+    <div class="accordion">
         <h2 class="info-title">Основная информация:</h2>
-            <div class="info">
-                <ul>
-                    <li>Дата открытия:</li>
-                    <li>{{ home_group.opening_date }}</li>
-                    <li>Церковь:</li>
-                    <li><a href="/churches/{{ home_group.church.id }}">{{ home_group.church }}</a></li>
-                    <li>Лидер:</li>
-                    <li><a href="{{ home_group.leader.get_absolute_url }}">{{ home_group.leader }}</a></li>
-                    <li>Адрес:</li>
-                    <li>{{ home_group.address }}</li>
-                    <li>Телефонный номер:</li>
-                    <li>{{ home_group.phone_number }}</li>
-                    <li>Сайт:</li>
-                    <li>{% if home_group.website %}
-                        <a href="{{ home_group.website }}" target="_blank">{{ home_group.website }}</a>
+        <div class="info">
+            <ul>
+                <li>Дата открытия:</li>
+                <li>{{ home_group.opening_date }}</li>
+                <li>Церковь:</li>
+                <li><a href="/churches/{{ home_group.church.id }}">{{ home_group.church }}</a></li>
+                <li>Лидер:</li>
+                <li><a href="{{ home_group.leader.get_absolute_url }}">{{ home_group.leader }}</a></li>
+                <li>Адрес:</li>
+                <li>{{ home_group.address }}</li>
+                <li>Телефонный номер:</li>
+                <li>{{ home_group.phone_number }}</li>
+                <li>Сайт:</li>
+                <li>{% if home_group.website %}
+                    <a href="{{ home_group.website }}" target="_blank">{{ home_group.website }}</a>
                     {% endif %}
-                    </li>
-                </ul>
-            </div>
+                </li>
+            </ul>
         </div>
-        <div class="col">
             <h2 class="info-title">Сводная информация:</h2>
             <div class="info info-calc">
                 <ul>
@@ -67,8 +64,6 @@
                     <li><span id="partners_count">{{ partners_count }}</span></li>
                 </ul>
             </div>
-        </div>
-        <div class="col"></div>
     </div>
     {% block pagination_top %}
         <div class="top-pag">
