@@ -697,7 +697,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     // after fix
     makeResponsibleList($('#departments').val(), $('#selectHierarchy').find('option:selected').data('level'));
     $('#selectHierarchy').on('change', function () {
-        let department = $('#selectDepartment').val();
+        let department = $('#departments').val();
         let status = $(this).find('option:selected').data('level');
         makeResponsibleList(department, status);
     });

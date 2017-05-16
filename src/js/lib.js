@@ -1886,6 +1886,7 @@ function makeSortForm(data) {
 
 function makeResponsibleList() {
     let department = $('#departmentSelect').val();
+    console.log(department);
     let hierarchy = $('#hierarchySelect option:selected').attr('data-level');
     getResponsible(department, hierarchy).then(function (data) {
         let id = $('#master_hierarchy option:selected').attr('data-id');
