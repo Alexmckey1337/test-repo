@@ -84,6 +84,11 @@ class CustomUser(MPTTModel, User, CustomUserAbstract,
     class MPTTMeta:
         parent_attr = 'master'
 
+    def save(self, *args, **kwargs):
+        super(CustomUser, self).save(*args, **kwargs)
+        for profile in self.summit_ankets.all():
+            profile.save()
+
     def get_absolute_url(self):
         return reverse('account:detail', args=(self.id,))
 
