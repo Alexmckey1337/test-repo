@@ -100,9 +100,57 @@ h3 {
   font-size: 1.8em;
 }
 
-#main h1 {
+#main {
+  h1 {
   padding: 0 1em;
+  }
+  .jumbotron h1 {
+    padding: 0;
+    font-size: 4em;
+    font-weight: 900;
+  }
+
 }
+
+.jumbotron {
+  position: relative;
+  height: 80vh;
+  padding: 1em 2em;
+  overflow: hidden;
+  .error_txt {
+    margin-bottom: 40px;
+    font-size: 1.8em;
+  }
+  .btn_group {
+     a {
+      padding: 12px 20px;
+      color: #fff;
+      border-radius: 4px;
+      border: 0;
+      cursor: pointer;
+      font-size: 1.1em;
+      background-color: #aab2bd;
+      transition: all .3s ease;
+      &:hover {
+        background-color: #3caeda;
+      }
+  }
+  }
+  &::after {
+    display: block;
+    content: "\f05e";
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+    position: absolute;
+    font-size: 1000px;
+    color: #e6e9ee;
+    top: 0;
+    right: -80px;
+  }
+}
+
 
 input, select, textarea, button, button:active, button:focus {
   outline: none;
@@ -3667,6 +3715,8 @@ span.change[style*="display: none"] ~ span.y {
       &.edit {
         right: 1em;
         top: 1em;
+        width: 1em;
+        height: 1em;
         &:before {
           content: '\f040';
           color: #656d78;
