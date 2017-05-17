@@ -104,6 +104,9 @@ h3 {
   h1 {
   padding: 0 1em;
   }
+  & > h1{
+    font-weight: 900;
+  }
   .jumbotron h1 {
     padding: 0;
     font-size: 4em;
@@ -4727,39 +4730,49 @@ span.green {
   }
   & .info {
     display: none;
-    padding: 2em;
-    border: 1px solid #aab2bd;
+    padding: .5em 2em;
     & h2 {
       margin-bottom: 0.5em;
       font-size: 1.5em;
     }
-    & ul {
+    & .info-block {
       display: flex;
       flex-wrap: wrap;
-      line-height: 1.5;
-      & li {
-        width: 60%;
-        margin: 0.2em 0;
-        &.mb {
-          margin-bottom: .5em;
-        }
-        & a {
-          color: #3caeda;
-          transition: color .4s ease;
-        }
-        & a:hover {
-          color: #333;
-        }
+    }
+    & .title-wrapper {
+      position: relative;
+      width: 58%;
+      margin: 0.5em 0;
+      &::after {
+        position: absolute;
+        left: 3px;
+        bottom: 1px;
+        display: block;
+        width: 100%;
+        height: 2px;
+        background-image: radial-gradient(circle,#656d78 .6px,transparent 1px);
+        background-repeat: repeat-x;
+        background-size: 5px 2px;
+        content: '';
       }
-      & li:nth-child(2n) {
-        width: 40%;
+      & span {
+        position: relative;
+        padding-right: 5px;
+        background-color: #fff;
+        z-index: 1;
       }
     }
-  }
-  & .info-calc {
-    & ul li:nth-child(2n) {
-      text-align: center;
+    & p {
+      width: 40%;
+      margin: 0.5em 0;
+      padding-left: 10px;
     }
+    & a {
+      color: #3caeda;
+    }
+      & a:hover {
+         text-decoration: underline;
+      }
   }
 }
 
@@ -5138,8 +5151,8 @@ div#hint:before {
 }
 
 .info {
-  font-family: "UbuntuMedium", sans-serif;
-  font-size: 1.2em;
+  //font-family: "UbuntuMedium", sans-serif;
+  font-size: 1.1em;
   padding: 30px;
 }
 
