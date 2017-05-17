@@ -29,7 +29,7 @@ env.read_env(env_file=str(BASE_DIR.path('.env')))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '4y6l3@a0%vq394z6+w)k3-wl459r++v=z!jv1gw4+nt0sd5z+s'
 
-Visitors_Location_Token = '4ewfeciss6qdbmgfj9eg6jb3fdcxefrs4dxtcdrt10rduds2sn'
+VISITORS_LOCATION_TOKEN = '4ewfeciss6qdbmgfj9eg6jb3fdcxefrs4dxtcdrt10rduds2sn'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
