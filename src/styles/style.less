@@ -5104,11 +5104,11 @@ div#hint:before {
   top: 10px;
 }
 
-.info {
-  font-family: "UbuntuMedium", sans-serif;
-  font-size: 1.2em;
-  padding: 30px;
-}
+//.info {
+//  font-family: "UbuntuMedium", sans-serif;
+//  font-size: 1.2em;
+//  padding: 30px;
+//}
 
 @-moz-document url-prefix() {
   table {
@@ -5853,4 +5853,19 @@ div.code input#code {
 
 .col-12 {
   width: 100%;
+}
+
+.grid_block {
+  & .error {
+    background: #EF5350 !important;
+    color: white;
+  }
+  & .info {
+    background: #81D4FA !important;
+    color: white;
+  }
+  & .success {
+    background: #66BB6A !important;
+    color: white;
+  }
 }
