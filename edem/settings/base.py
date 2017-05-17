@@ -217,7 +217,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         # 'rest_framework.authentication.BasicAuthentication',
         'edem.authentification.CsrfExemptSessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
+        'account.auth_backends.CustomUserTokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
