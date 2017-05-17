@@ -32,9 +32,17 @@ custom_urls = [
         name='summit-ticket-print'),
 ]
 
+custom_app = [
+    url(r'^summits/(?P<summit_id>\d+)/users/$', views.SummitProfileTreeForAppListView.as_view(),
+        name='summit-app-profile-list'),
+    url(r'^summits/(?P<summit_id>\d+)/users/(?P<master_id>\d+)/$', views.SummitProfileTreeForAppListView.as_view(),
+        name='summit-app-profile-list-master'),
+]
+
 urlpatterns = [
     url(r'^v1.0/', include(router_v1_0.urls)),
     url(r'^app/', include(router_app.urls)),
 
     url(r'^v1.0/', include(custom_urls)),
+    url(r'^app/', include(custom_app)),
 ]

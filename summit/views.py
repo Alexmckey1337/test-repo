@@ -5,7 +5,7 @@ from datetime import datetime
 
 from dbmail import send_db_mail
 from django.db import transaction, IntegrityError
-from django.db.models import Case, When, BooleanField
+from django.db.models import Case, When, BooleanField, F, ExpressionWrapper, IntegerField
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions, viewsets, filters, status, mixins
@@ -18,6 +18,8 @@ from rest_framework.viewsets import GenericViewSet
 
 from account.models import CustomUser
 from common.filters import FieldSearchFilter
+from hierarchy.models import Hierarchy
+from hierarchy.serializers import HierarchySerializer
 from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import FilterByClub, ProductFilter, SummitUnregisterFilter, ProfileFilter, \
@@ -32,7 +34,7 @@ from .serializers import (
     SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer,
     SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitShortSerializer, SummitAnketShortSerializer,
     SummitLessonShortSerializer, SummitTicketSerializer, SummitAnketForTicketSerializer,
-    SummitVisitorLocationSerializer, SummitEventTableSerializer)
+    SummitVisitorLocationSerializer, SummitEventTableSerializer, SummitProfileTreeForAppSerializer)
 from .tasks import generate_tickets
 
 
@@ -289,6 +291,46 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     filter_class = ProductFilter
     permission_classes = (AllowAny,)
     pagination_class = None
+
+
+class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
+    serializer_class = SummitProfileTreeForAppSerializer
+    pagination_class = None
+    permission_classes = (IsAuthenticated,)
+
+    def dispatch(self, request, *args, **kwargs):
+        return super(SummitProfileTreeForAppListView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        self.summit = get_object_or_404(Summit, pk=kwargs.get('summit_id', None))
+        self.master_id = kwargs.get('master_id', None)
+        return self.list(request, *args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            'profiles': serializer.data,
+            'hierarchies': HierarchySerializer(Hierarchy.objects.all(), many=True).data
+        })
+
+    def annotate_queryset(self, qs):
+        return qs.base_queryset().annotate_full_name().annotate(
+            diff=ExpressionWrapper(F('user__rght') - F('user__lft'), output_field=IntegerField())
+        ).order_by(
+            'user__last_name', 'user__first_name', 'user__middle_name')
+
+    def get_queryset(self):
+        is_consultant_or_high = self.request.user.is_summit_consultant_or_high(self.summit)
+        if self.master_id is not None:
+            if is_consultant_or_high:
+                return self.annotate_queryset(self.summit.ankets.filter(user__master_id=self.master_id))
+            return
+        elif is_consultant_or_high:
+            return self.annotate_queryset(self.summit.ankets.filter(user__level=0))
+        else:
+            return self.annotate_queryset(self.summit.ankets.filter(user__master_id=self.request.user.id))
 
 
 # UNUSED

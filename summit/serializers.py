@@ -1,11 +1,13 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from django.urls import reverse
 from rest_framework import serializers
 
 from account.models import CustomUser as User
 from account.serializers import UserTableSerializer, UserShortSerializer
-from common.fields import ListCharField, ReadOnlyChoiceField, ReadOnlyChoiceWithKeyField
+from common.fields import ListCharField, ReadOnlyChoiceWithKeyField
+from hierarchy.serializers import HierarchySerializer
 from .models import (Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
                      SummitTicket, SummitVisitorLocation, SummitEventTable)
 
@@ -74,7 +76,6 @@ class SummitAnketForSelectSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class UserWithLinkSerializer(serializers.HyperlinkedModelSerializer):
-
     class Meta:
         model = User
         fields = ('id', 'fullname', 'link')
@@ -143,6 +144,47 @@ class SummitAnketWithNotesSerializer(serializers.ModelSerializer):
 
 
 # FOR APP
+
+
+class ChildrenLink(serializers.RelatedField):
+    def __init__(self, view_name=None, **kwargs):
+        if view_name is not None:
+            self.view_name = view_name
+        assert self.view_name is not None, 'The `view_name` argument is required.'
+        self.summit_id = kwargs.pop('summit_kwarg', 'summit_id')
+        self.master_id = kwargs.pop('master_kwarg', 'master_id')
+
+        super(ChildrenLink, self).__init__(**kwargs)
+
+    def get_attribute(self, instance):
+        summit_id = instance.summit_id
+        master_id = instance.user_id
+        has_children = instance.diff // 2 > 0
+
+        return summit_id, master_id, has_children
+
+    def to_representation(self, value):
+        summit_id, master_id, has_children = value
+        if has_children:
+            return reverse(self.view_name, kwargs={self.summit_id: summit_id, self.master_id: master_id})
+        return None
+
+
+class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField()
+    master_fio = serializers.CharField(source='responsible')
+    user_id = serializers.IntegerField(source='user.user_ptr_id')
+    phone_number = serializers.CharField(source='user.phone_number')
+    extra_phone_numbers = serializers.ListField(source='user.extra_phone_numbers')
+    children = ChildrenLink(view_name='summit-app-profile-list-master', queryset=SummitAnket.objects.all())
+
+    class Meta:
+        model = SummitAnket
+        fields = (
+            'id', 'user_id', 'master_id',
+            'full_name', 'country', 'city', 'phone_number', 'extra_phone_numbers',
+            'master_fio', 'hierarchy_id', 'children',
+        )
 
 
 class SummitTicketSerializer(serializers.ModelSerializer):
