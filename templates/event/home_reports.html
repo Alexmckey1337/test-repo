@@ -17,7 +17,7 @@
                 <li><a class="active"
                        href="{% url 'events:meeting_report_list' %}">Отчёты домашних груп</a></li>
                 <li><a href="{% url 'events:church_report_list' %}">Отчёты церквей</a></li>
-                <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних групп</a></li>
+                <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних груп</a></li>
                 <li><a href="{% url 'events:church_report_statistics' %}">Статистика церквей</a></li>
             </ul>
         </div>
@@ -36,9 +36,9 @@
             {% block header.buttons.extra %}
             {% endblock %}
             {% block header.buttons.change_table %}
-                <li>
-                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
-                </li>
+{#                <li>#}
+{#                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>#}
+{#                </li>#}
             {% endblock %}
         </ul>
     </div>
@@ -53,7 +53,7 @@
                         <button data-status="2">Заполненные отчёты</button>
                     </li>
                     <li>
-                        <button data-status="1">Не заполненные отчёты</button>
+                        <button data-status="1">Отчёты к заполнению</button>
                     </li>
                     <li>
                         <button data-status="3">Просроченные отчёты</button>
@@ -87,9 +87,6 @@
                 <p></p>
             </div>
         </div><!--End Table -->
-        <div class="preloader">
-            <div class="gif"></div>
-        </div>
     {% endblock %}
 
     {% block pagination_bottom %}
