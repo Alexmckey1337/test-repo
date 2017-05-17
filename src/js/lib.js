@@ -178,7 +178,7 @@ function createHomeGroupsTable(config = {}) {
 }
 function makePastorListWithMasterTree(config, selector, active = null) {
     getShortUsers(config).then(data => {
-         let options = '<option selected>ВСЕ</option>';
+        let options = '<option selected>ВСЕ</option>';
         data.forEach(function (item) {
             options += `<option value="${item.id}"`;
             if (active == item.id) {
@@ -187,11 +187,11 @@ function makePastorListWithMasterTree(config, selector, active = null) {
             options += `>${item.fullname}</option>`;
         });
         selector.forEach(item => {
-                $(item).html(options).prop('disabled', false).select2();
+            $(item).html(options).prop('disabled', false).select2();
         })
     })
 }
-function makePastorListNew(id, selector = [], active=null) {
+function makePastorListNew(id, selector = [], active = null) {
     getResponsible(id, 2).then(function (data) {
         let options = '<option selected>ВСЕ</option>';
         data.forEach(function (item) {
@@ -202,7 +202,7 @@ function makePastorListNew(id, selector = [], active=null) {
             options += `>${item.fullname}</option>`;
         });
         selector.forEach(item => {
-                $(item).html(options).prop('disabled', false).select2();
+            $(item).html(options).prop('disabled', false).select2();
         })
     });
 }
@@ -1075,7 +1075,7 @@ function getCurrentUser(id) {
     })
 }
 function getResponsibleBYHomeGroup(churchID) {
-     return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/?church_id=${churchID}`;
         ajaxRequest(url, null, function (data) {
             if (data) {
@@ -1089,7 +1089,7 @@ function getResponsibleBYHomeGroup(churchID) {
 
 function getResponsible(ids, level, search = "") {
     let responsibleLevel;
-    if(level === 0 || level === 1) {
+    if (level === 0 || level === 1) {
         responsibleLevel = level + 1;
     } else {
         responsibleLevel = level;
@@ -2718,5 +2718,18 @@ function getLeadersByChurch(config = {}) {
         };
         newAjaxRequest(resData, codes, reject);
     });
+}
+function getData(url) {
+    let defaultOption = {
+        method: 'GET',
+        headers: new Headers({
+            'Content-Type': 'text/json',
+            'Authorization': `Token ${getCookie('key')}`
+        })
+    };
+    if (typeof url === "string") {
+        $('.preloader').hide();
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
 }
 

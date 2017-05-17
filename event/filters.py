@@ -5,8 +5,8 @@ from event.models import ChurchReport, Meeting
 
 
 class CommonMeetingFilter(django_filters.FilterSet):
-    from_date = django_filters.DateFilter(name="date", lookup_type='gte')
-    to_date = django_filters.DateFilter(name="date", lookup_type='lte')
+    from_date = django_filters.DateFilter(name="date", lookup_expr='gte')
+    to_date = django_filters.DateFilter(name="date", lookup_expr='lte')
 
     class Meta:
         fields = ('status', 'date', 'from_date', 'to_date')

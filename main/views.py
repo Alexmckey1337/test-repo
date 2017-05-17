@@ -19,8 +19,7 @@ from hierarchy.models import Department, Hierarchy
 from partnership.models import Partnership
 from payment.models import Currency
 from status.models import Division
-from summit.models import SummitType, SummitTicket
-from navigation.table_fields import meeting_table
+from summit.models import SummitType, SummitTicket, SummitAnket
 
 
 def entry(request):
@@ -76,7 +75,7 @@ def meeting_report_statistics(request):
     if not request.user.hierarchy or request.user.hierarchy.level < 1:
         return redirect('/')
 
-    return render(request, 'event/MEETING_REPORT_STATISTICS.html', context={})
+    return render(request, 'event/home_statistics.html', context={})
 
 
 @login_required(login_url='entry')
