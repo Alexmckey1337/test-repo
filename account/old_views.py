@@ -45,9 +45,9 @@ def login_view(request):
     response_dict = dict()
     data = request.data
     try:
-        user = User.objects.get(email=data['email'], can_login=True)
+        user = User.objects.get(email__iexact=data['email'], can_login=True)
     except User.DoesNotExist:
-        if User.objects.get(email=data['email']).exists():
+        if User.objects.filter(email__iexact=data['email']).exists():
             response_dict['message'] = _('Вы не имеете право для входа на сайт.')
             response_dict['status'] = False
             return Response(response_dict)
