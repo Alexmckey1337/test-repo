@@ -361,3 +361,26 @@ CHANNEL_LAYERS = {
         "ROUTING": "edem.routing.channel_routing",
     },
 }
+
+HIERARCHIES = (
+    dict(title='Гость', level=0),
+    dict(title='Прихожанин', level=0),
+    dict(title='Лидер', level=1),
+    dict(title='Пастор', level=2),
+    dict(title='Сотник (Отв-й за 5 ячеек)', level=2),
+    dict(title='Ответственный Киев', level=4),
+    dict(title='Епископ', level=4),
+    dict(title='Старший епископ', level=5),
+    dict(title='Апостол', level=6),
+    dict(title='Архонт', level=7),
+)
+
+CHANGE_HIERARCHY_LEVELS = {
+    0: set(),
+    1: {0},
+    2: {0, 1},
+    4: {0, 1, 2, 4},
+    5: {0, 1, 2, 4},
+    6: {0, 1, 2, 4, 5},
+    7: {0, 1, 2, 4, 5, 6, 7},
+}
