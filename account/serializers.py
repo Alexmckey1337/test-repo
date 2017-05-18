@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import binascii
 import os
 
+from django.conf import settings
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
@@ -80,6 +81,10 @@ class AddExistUserSerializer(serializers.ModelSerializer):
         fields = ('id', 'city', 'country', 'full_name')
 
 
+def exist_users_with_level_not_in_levels(users, levels):
+    return users.exclude(hierarchy__level__in=levels).exists()
+
+
 class UserSerializer(serializers.ModelSerializer):
     partnership = PartnershipSerializer(required=False)
     move_to_master = serializers.IntegerField(write_only=True, required=False)
@@ -140,7 +145,11 @@ class UserSerializer(serializers.ModelSerializer):
 
     def validate_hierarchy(self, value):
         reduce_level = lambda: self.instance and self.instance.hierarchy and value.level < self.instance.hierarchy.level
-        has_disciples = lambda: self.instance.disciples.exists()
+
+        def has_disciples():
+            return exist_users_with_level_not_in_levels(
+                self.instance.disciples, settings.CHANGE_HIERARCHY_LEVELS[value.level])
+
         has_move_disciples = lambda: 'move_to_master' in self.initial_data.keys()
         if reduce_level() and has_disciples() and not has_move_disciples():
             raise HierarchyError()
@@ -176,7 +185,7 @@ class UniqueFIOTelWithIdsValidator(UniqueTogetherValidator):
                                    'data': data,
                                    'ids': ids,
                                    'users': [reverse('account:detail', args=(pk,)) for pk in ids]
-                                   },)
+                                   }, )
 
 
 class UserCreateSerializer(UserSerializer):

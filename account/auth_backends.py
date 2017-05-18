@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.contrib.auth.backends import ModelBackend
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions
 from rest_framework.authentication import TokenAuthentication
 

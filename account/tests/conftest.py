@@ -68,7 +68,7 @@ def change_field(value, source, request=None):
 
 @pytest.fixture
 def user(user_factory):
-    return user_factory(username='testuser')
+    return user_factory(username='testuser', hierarchy__level=0)
 
 
 @pytest.fixture

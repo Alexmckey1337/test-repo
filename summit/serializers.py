@@ -7,7 +7,6 @@ from rest_framework import serializers
 from account.models import CustomUser as User
 from account.serializers import UserTableSerializer, UserShortSerializer
 from common.fields import ListCharField, ReadOnlyChoiceWithKeyField
-from hierarchy.serializers import HierarchySerializer
 from .models import (Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
                      SummitTicket, SummitVisitorLocation, SummitEventTable)
 
