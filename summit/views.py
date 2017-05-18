@@ -1,7 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from dbmail import send_db_mail
 from django.db import transaction, IntegrityError
@@ -282,15 +282,24 @@ class SummitTypeForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     pagination_class = None
 
 
-class SummitAnketForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = SummitAnket.objects.select_related('user').order_by('id')
     serializer_class = SummitAnketForAppSerializer
     filter_backends = (filters.DjangoFilterBackend,)
-    # filter_fields = ('summit', 'id')
-    # filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    filter_class = ProductFilter
+    filter_fields = ('summit',)
+    # filter_class = ProductFilter
     permission_classes = (AllowAny,)
-    pagination_class = None
+    # pagination_class = None
+
+    @list_route(methods=['GET'])
+    def by_reg_code(self, request):
+        reg_code = request.query_params.get('reg_code')
+        reg_code = int('0x' + reg_code, 0)
+        visitor_id = int(str(reg_code)[:-4])
+        visitor = get_object_or_404(SummitAnket, pk=visitor_id)
+        visitor = self.get_serializer(visitor)
+
+        return Response(visitor.data)
 
 
 class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
@@ -503,8 +512,8 @@ def generate_summit_tickets(request, summit_id):
 class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
     serializer_class = SummitVisitorLocationSerializer
     queryset = SummitVisitorLocation.objects.all().prefetch_related('visitor')
-    pagination_class = None
-    permission_classes = (HasAPIAccess,)
+    # pagination_class = None
+    # permission_classes = (HasAPIAccess,)
 
     @list_route(methods=['POST'])
     def post(self, request):
@@ -517,7 +526,8 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
             SummitVisitorLocation.objects.create(visitor=visitor,
                                                  date_time=chunk.get('date_time', datetime.now()),
                                                  longitude=chunk.get('longitude', 0),
-                                                 latitude=chunk.get('latitude', 0))
+                                                 latitude=chunk.get('latitude', 0),
+                                                 type=chunk.get('type', 1))
 
         return Response({'message': 'Successful created'}, status=status.HTTP_201_CREATED)
 
@@ -531,12 +541,25 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
 
         return Response(visitor_location.data, status=status.HTTP_200_OK)
 
+    @list_route(methods=['GET'])
+    def location_by_interval(self, request):
+        date_time = request.query_params.get('date_time')
+        date_time = datetime.strptime(date_time.replace('%', ' '), '%Y-%m-%d %H:%M:%S')
+        interval = int(request.query_params.get('interval'))
+        start_date = date_time - timedelta(minutes=interval)
+        end_date = date_time + timedelta(minutes=interval)
+
+        queryset = self.queryset.filter(date_time__range=(start_date, end_date))
+        queryset = self.serializer_class(queryset, many=True)
+
+        return Response(queryset.data)
+
 
 class SummitEventTableViewSet(viewsets.ModelViewSet):
     queryset = SummitEventTable.objects.all()
     serializer_class = SummitEventTableSerializer
-    pagination_class = None
     permission_classes = (HasAPIAccess,)
+    pagination_class = None
 
     filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = ('summit',)

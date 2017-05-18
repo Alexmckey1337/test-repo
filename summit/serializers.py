@@ -214,16 +214,18 @@ class SummitTypeForAppSerializer(serializers.ModelSerializer):
 class UserForAppSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('email', 'first_name', 'last_name', 'middle_name',
-                  'phone_number', 'country', 'region', 'city', 'district', 'address', 'image_source')
+        fields = ('first_name', 'last_name', 'middle_name', 'country', 'city', 'email', 'phone_number') \
+            #  + ('region', 'district', 'address', 'image_source')
 
 
 class SummitAnketForAppSerializer(serializers.ModelSerializer):
     user = UserForAppSerializer()
+    ticket_id = serializers.CharField(source='code')
+    visitor_id = serializers.IntegerField(source='id')
 
     class Meta:
         model = SummitAnket
-        fields = ('id', 'user', 'code', 'value', 'is_member')
+        fields = ('visitor_id', 'user', 'ticket_id', 'reg_code')  # + ('value', 'is_member')
 
 
 class SummitAnketLocationSerializer(serializers.ModelSerializer):

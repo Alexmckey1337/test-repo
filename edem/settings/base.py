@@ -179,7 +179,7 @@ USE_I18N = True
 SITE_ID = 1
 TIME_ZONE = 'Europe/Kiev'
 USE_L10N = False
-USE_TZ = True
+USE_TZ = False
 
 LOCALE_PATHS = (str(BASE_DIR.path('locale')),)
 

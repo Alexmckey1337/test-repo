@@ -336,6 +336,13 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
         else:
             return self.summit.full_cost <= self.total_payed
 
+    @property
+    def reg_code(self):
+        reg_code = str(self.id) + '1324'
+        reg_code = hex(int(reg_code)).split('x')[-1]
+
+        return reg_code
+
 
 @python_2_unicode_compatible
 class SummitTicket(models.Model):
@@ -477,6 +484,7 @@ class SummitVisitorLocation(models.Model):
     date_time = models.DateTimeField(verbose_name='Date Time')
     longitude = models.FloatField(verbose_name=_('Longitude'))
     latitude = models.FloatField(verbose_name=_('Latitude'))
+    type = models.PositiveSmallIntegerField(verbose_name=_('Type'), default=1)
 
     class Meta:
         verbose_name_plural = _('Summit Users Location')
