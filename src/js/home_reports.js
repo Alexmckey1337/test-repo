@@ -12,7 +12,7 @@
         };
         Object.assign(config, getFilterParam());
         getHomeReports(config).then(data => {
-            makeHomeReportsTable(data);
+            makeHomeReportsTable(data, config);
         });
         $statusTabs.find('li').removeClass('current');
         $(this).closest('li').addClass('current');

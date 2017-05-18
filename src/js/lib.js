@@ -1360,6 +1360,7 @@ function makePayments(config = {}) {
 }
 
 function makePagination(config) {
+    console.log(config);
     let container = document.createElement('div'),
         input = document.createElement('input'),
         text = document.createElement('span'),
@@ -2552,11 +2553,21 @@ function homeReportsTable(config = {}) {
     })
 }
 
-function makeHomeReportsTable(data) {
+function makeHomeReportsTable(data, config = {}) {
     let tmpl = $('#databaseHomeReports').html();
     let rendered = _.template(tmpl)(data);
     $('#homeReports').html(rendered);
-    makeSortForm(data.table_columns);
+    let count = data.count;
+    let pages = Math.ceil(count / CONFIG.pagination_count);
+    let page = config.pages || 1;
+    let paginationConfig = {
+        container: ".reports__pagination",
+        currentPage: page,
+        pages: pages,
+        callback: makeHomeReportsTable
+    };
+    $('.table__count').text(data.count);
+    makePagination(paginationConfig);
     $('.preloader').hide();
 }
 
