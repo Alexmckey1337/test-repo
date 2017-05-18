@@ -47,5 +47,8 @@
         });
         $statusTabs.find('li').removeClass('current');
         $(this).closest('li').addClass('current');
-    })
+    });
+    $('#filter_button').on('click', function () {
+        $('#filterPopup').css('display', 'block');
+    });
 })();
