@@ -1,7 +1,6 @@
 import json
 
 from django.conf import settings
-from django.http import QueryDict
 from django.http.multipartparser import MultiPartParserError, MultiPartParser as DjangoMultiPartParser
 from django.utils import six
 from rest_framework.exceptions import ParseError
