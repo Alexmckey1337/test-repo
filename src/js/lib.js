@@ -2545,7 +2545,46 @@ function makeTabs(page = 0) {
         }
     }
 }
+function homeReportsTable(config = {}) {
+    Object.assign(config, getFilterParam());
+    getHomeReports(config).then(data => {
+        makeHomeReportsTable(data);
+    })
+}
 
+function makeHomeReportsTable(data) {
+    let tmpl = $('#databaseHomeReports').html();
+    let rendered = _.template(tmpl)(data);
+    $('#homeReports').html(rendered);
+    makeSortForm(data.table_columns);
+    $('.preloader').hide();
+}
+
+function getHomeReports(config = {}) {
+    if (!config.status) {
+        config.status = 2;
+    }
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/events/home_meetings/`,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: config
+        };
+        let status = {
+            200: function (req) {
+                resolve(req);
+            },
+            403: function () {
+                reject('Вы должны авторизоватся');
+            }
+
+        };
+        newAjaxRequest(data, status);
+    })
+}
 function createNewUser(callback) {
     let $createUser = $('#createUser'),
         $phoneNumber = $('#phoneNumber'),

@@ -120,9 +120,6 @@
                             <span class="label_block">Тип</span>
                         </div>
                         <div class="label_block-wrapp">
-                            <span class="label_block">Статус</span>
-                        </div>
-                        <div class="label_block-wrapp">
                             <span class="label_block">Фильтр по дате</span>
                         </div>
                     </div>
@@ -136,7 +133,7 @@
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" data-filter="master_tree" id="tree_filter">
+                            <select class="selectdb" data-filter="church_tree" id="church_filter">
                                 <option value="">ВСЕ</option>
                                 {% for church in churches %}
                                     <option value="{{ church.id }}">{{ church.title }}</option>
@@ -160,18 +157,10 @@
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" data-filter="master" id="masters_filter">
+                            <select class="selectdb" data-filter="type" id="type_filter">
                                 <option value="">ВСЕ</option>
                                 {% for type in types %}
                                     <option value="{{ type.id }}">{{ type.title }}</option>
-                                {% endfor %}
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="master" id="masters_filter">
-                                <option value="">ВСЕ</option>
-                                {% for status in statuses %}
-                                    <option value="{{ status.id }}">{{ status.fullname }}</option>
                                 {% endfor %}
                             </select>
                         </p>
@@ -189,7 +178,7 @@
                     Очистить
                 </button>
                 <button class="close-popup">Отменить</button>
-                <button onclick="applyFilter(this, createUsersTable)" class="apply-filter">Применить</button>
+                <button onclick="applyFilter(this, homeReportsTable)" class="apply-filter">Применить</button>
             </div>
         </div>
     </div>
