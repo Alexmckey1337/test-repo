@@ -22,9 +22,9 @@ $('document').ready(function () {
     $('.editprofile').on('click', function (e) {
         e.stopPropagation();
     });
-    $('.popap').on('click', function () {
-        $(this).css('display', 'none');
-    });
+    // $('.popap').on('click', function () {
+    //     $(this).css('display', 'none');
+    // });
     $('input[name="fullsearch"]').keyup(function () {
         let search = $(this).val();
         $('.preloader').css('display', 'block');
