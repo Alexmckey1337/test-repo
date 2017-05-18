@@ -138,44 +138,43 @@
                         <p class="input_block">
                             <select class="selectdb" data-filter="master_tree" id="tree_filter">
                                 <option value="">ВСЕ</option>
-                                {% for master in masters %}
-                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
+                                {% for church in churches %}
+                                    <option value="{{ church.id }}">{{ church.title }}</option>
                                 {% endfor %}
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" data-filter="hierarchy" id="hierarchies_filter">
+                            <select class="selectdb" data-filter="home_group" id="home_group_filter">
                                 <option value="">ВСЕ</option>
-                                {% for hierarchy in hierarchies %}
-                                    <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
-                                {% endfor %}
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="master" id="masters_filter">
-                                <option value="">ВСЕ</option>
-                                {% for master in masters %}
-                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
+                                {% for home_group in home_groups %}
+                                    <option value="{{ home_group.id }}">{{ home_group.title }}</option>
                                 {% endfor %}
                             </select>
                         </p>
                         <p class="input_block">
                             <select class="selectdb" data-filter="master" id="masters_filter">
                                 <option value="">ВСЕ</option>
-                                {% for master in masters %}
-                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
+                                {% for owner in owners %}
+                                    <option value="{{ owner.id }}">{{ owner.fullname }}</option>
                                 {% endfor %}
                             </select>
                         </p>
                         <p class="input_block">
                             <select class="selectdb" data-filter="master" id="masters_filter">
                                 <option value="">ВСЕ</option>
-                                {% for master in masters %}
-                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
+                                {% for type in types %}
+                                    <option value="{{ type.id }}">{{ type.title }}</option>
                                 {% endfor %}
                             </select>
                         </p>
-
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="master" id="masters_filter">
+                                <option value="">ВСЕ</option>
+                                {% for status in statuses %}
+                                    <option value="{{ status.id }}">{{ status.fullname }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
                         <p class="input_block">
                             <input type="text" placeholder="от" data-filter="from_date" id="date_from"
                                    class="select_date_filter"><input type="text" placeholder="до" data-filter="to_date"
