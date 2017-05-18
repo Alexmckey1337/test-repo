@@ -288,14 +288,18 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
     filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = ('summit',)
     # filter_class = ProductFilter
-    permission_classes = (AllowAny,)
-    # pagination_class = None
+    permission_classes = (HasAPIAccess,)
+    pagination_class = None
 
     @list_route(methods=['GET'])
     def by_reg_code(self, request):
         reg_code = request.query_params.get('reg_code')
-        reg_code = int('0x' + reg_code, 0)
-        visitor_id = int(str(reg_code)[:-4])
+        try:
+            reg_code = int('0x' + reg_code, 0)
+            visitor_id = int(str(reg_code)[:-4])
+        except ValueError:
+            raise exceptions.ValidationError(_('Невозможно получить объект. '
+                                               'Передан некорректный регистрационный код'))
         visitor = get_object_or_404(SummitAnket, pk=visitor_id)
         visitor = self.get_serializer(visitor)
 
@@ -311,7 +315,7 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
         return super(SummitProfileTreeForAppListView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        self.summit = get_object_or_404(Summit, pk=kwargs.get('summit_id', None))
+        self.sуummit = get_object_or_404(Summit, pk=kwargs.get('summit_id', None))
         self.master_id = kwargs.get('master_id', None)
         return self.list(request, *args, **kwargs)
 
@@ -512,6 +516,7 @@ def generate_summit_tickets(request, summit_id):
 class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
     serializer_class = SummitVisitorLocationSerializer
     queryset = SummitVisitorLocation.objects.all().prefetch_related('visitor')
+
     # pagination_class = None
     # permission_classes = (HasAPIAccess,)
 

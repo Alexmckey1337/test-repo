@@ -237,10 +237,11 @@ class SummitAnketLocationSerializer(serializers.ModelSerializer):
 
 class SummitVisitorLocationSerializer(serializers.ModelSerializer):
     # visitor = SummitAnketLocationSerializer()
+    visitor_id = serializers.IntegerField(source='visitor.id')
 
     class Meta:
         model = SummitVisitorLocation
-        fields = ('visitor', 'date_time', 'longitude', 'latitude')
+        fields = ('visitor_id', 'date_time', 'longitude', 'latitude', 'type')
 
 
 class SummitEventTableSerializer(serializers.ModelSerializer):
