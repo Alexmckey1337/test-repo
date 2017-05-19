@@ -485,9 +485,6 @@ function newAjaxRequest(data, codes, fail) {
         method: 'GET'
     };
     Object.assign(resData, data);
-    if (getCookie('key')) {
-        resData.headers['Authorization'] = 'Token ' + getCookie('key');
-    }
     $.ajax(resData)
         .statusCode(codes)
         .fail(fail);
@@ -510,8 +507,8 @@ function getUsers(config = {}) {
             403: function () {
                 reject('Вы должны авторизоватся')
             }
-
         };
+
         newAjaxRequest(data, status, reject)
     });
 }
@@ -1357,6 +1354,13 @@ function makePayments(config = {}) {
         }
     )
         ;
+}
+function homeStatistics() {
+    getData('/api/v1.0/events/home_meetings/statistics/', getFilterParam()).then(data => {
+        let tmpl = document.getElementById('statisticsTmp').innerHTML;
+        let rendered = _.template(tmpl)(data);
+        document.getElementById('statisticsContainer').innerHTML = rendered;
+    })
 }
 
 function makePagination(config) {
@@ -2560,7 +2564,7 @@ function makeHomeReportsTable(data, config = {}) {
     let count = data.count;
     let pages = Math.ceil(count / CONFIG.pagination_count);
     let page = config.page || 1;
-     let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
+    let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
     let text = `Показано ${showCount} из ${count}`;
     let paginationConfig = {
         container: ".reports__pagination",
@@ -2773,7 +2777,15 @@ function getLeadersByChurch(config = {}) {
         newAjaxRequest(resData, codes, reject);
     });
 }
-function getData(url) {
+
+function getData(url, options = {}) {
+    let keys = Object.keys(options);
+    if (keys.length) {
+        url += '?';
+        keys.forEach(item => {
+            url += item + '=' + options[item]
+        });
+    }
     let defaultOption = {
         method: 'GET',
         headers: new Headers({

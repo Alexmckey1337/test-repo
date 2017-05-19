@@ -82,7 +82,15 @@ def meeting_report_statistics(request):
     if not request.user.hierarchy or request.user.hierarchy.level < 1:
         return redirect('/')
 
-    return render(request, 'event/home_statistics.html', context={})
+    ctx = {
+        'departments': Department.objects.all(),
+        'churches': Church.objects.all(),
+        'home_groups': HomeGroup.objects.all(),
+        'owners': CustomUser.objects.filter(home_group__leader__id__isnull=False).distinct(),
+        'types': MeetingType.objects.all()
+    }
+
+    return render(request, 'event/home_statistics.html', context=ctx)
 
 
 @login_required(login_url='entry')

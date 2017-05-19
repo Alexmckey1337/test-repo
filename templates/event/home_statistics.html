@@ -93,28 +93,19 @@
                             <span class="label_block">Отдел</span>
                         </div>
                         <div class="label_block-wrapp">
-                            <span class="label_block">Ветка</span>
+                            <span class="label_block">Церковь</span>
                         </div>
                         <div class="label_block-wrapp">
-                            <span class="label_block">Иерархия</span>
+                            <span class="label_block">Домашняя группа</span>
                         </div>
                         <div class="label_block-wrapp">
-                            <span class="label_block">Ответсвенный</span>
+                            <span class="label_block">Создатель</span>
                         </div>
                         <div class="label_block-wrapp">
-                            <span class="label_block">Фильтр по email</span>
+                            <span class="label_block">Тип</span>
                         </div>
                         <div class="label_block-wrapp">
-                            <span class="label_block">Фильтр по номеру телефона</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Фильтр по стране</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Фильтр по городу</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Фильтр по дню рождению</span>
+                            <span class="label_block">Фильтр по дате</span>
                         </div>
                     </div>
                     <div class="col-6">
@@ -127,44 +118,36 @@
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" data-filter="master_tree" id="tree_filter">
+                            <select class="selectdb" data-filter="church" id="church_filter">
                                 <option value="">ВСЕ</option>
-                                {% for master in masters %}
-                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
+                                {% for church in churches %}
+                                    <option value="{{ church.id }}">{{ church.title }}</option>
                                 {% endfor %}
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" data-filter="hierarchy" id="hierarchies_filter">
+                            <select class="selectdb" data-filter="home_group" id="home_group_filter">
                                 <option value="">ВСЕ</option>
-                                {% for hierarchy in hierarchies %}
-                                    <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
+                                {% for home_group in home_groups %}
+                                    <option value="{{ home_group.id }}">{{ home_group.get_title }}</option>
                                 {% endfor %}
                             </select>
                         </p>
                         <p class="input_block">
                             <select class="selectdb" data-filter="master" id="masters_filter">
                                 <option value="">ВСЕ</option>
-                                {% for master in masters %}
-                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
+                                {% for owner in owners %}
+                                    <option value="{{ owner.id }}">{{ owner.fullname }}</option>
                                 {% endfor %}
                             </select>
                         </p>
                         <p class="input_block">
-                            <input type="email" data-filter="search_email" placeholder="email или часть"
-                                   id="search_email">
-                        </p>
-                        <p class="input_block">
-                            <input type="tel" data-filter="search_phone_number" placeholder="номер телефона или часть"
-                                   id="search_phone_number">
-                        </p>
-                        <p class="input_block">
-                            <input type="text" data-filter="search_country" placeholder="страна или часть названия"
-                                   id="search_country">
-                        </p>
-                        <p class="input_block">
-                            <input type="text" data-filter="search_city" placeholder="город или часть названия"
-                                   id="search_city">
+                            <select class="selectdb" data-filter="type" id="type_filter">
+                                <option value="">ВСЕ</option>
+                                {% for type in types %}
+                                    <option value="{{ type.id }}">{{ type.name }}</option>
+                                {% endfor %}
+                            </select>
                         </p>
                         <p class="input_block">
                             <input type="text" placeholder="от" data-filter="from_date" id="date_from"
@@ -180,21 +163,7 @@
                     Очистить
                 </button>
                 <button class="close-popup">Отменить</button>
-                <button onclick="applyFilter(this, createUsersTable)" class="apply-filter">Применить</button>
-            </div>
-        </div>
-    </div>
-    <div class="popap" id="quickEditCartPopup">
-        <div class="pop_cont">
-            <div class="popup_text">
-                <h2>Карточка пользователя</h2>
-                <span class="close close-popup"><i class="fa fa-times" aria-hidden="true"></i></span>
-            </div>
-            <div class="popup_body">
-            </div>
-            <div class="container">
-                <button class="close-popup change__text">Отменить</button>
-                <button onclick="saveUser(this)" class="save-user">Сохранить</button>
+                <button onclick="applyFilter(this, homeStatistics)" class="apply-filter">Применить</button>
             </div>
         </div>
     </div>
