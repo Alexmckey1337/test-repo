@@ -9,6 +9,7 @@ class HasAPIAccess(BasePermission):
     message = 'Invalid or missing API Key.'
 
     def has_permission(self, request, view):
+        print(request.META)
         return request.META.get('HTTP_VISITORS_LOCATION_TOKEN', '') == settings.VISITORS_LOCATION_TOKEN
 
 
