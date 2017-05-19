@@ -121,7 +121,7 @@
                             <select class="selectdb" data-filter="church" id="church_filter">
                                 <option value="">ВСЕ</option>
                                 {% for church in churches %}
-                                    <option value="{{ church.id }}">{{ church.title }}</option>
+                                    <option value="{{ church.id }}">{{ church.get_title }}</option>
                                 {% endfor %}
                             </select>
                         </p>
