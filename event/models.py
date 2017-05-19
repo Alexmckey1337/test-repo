@@ -116,6 +116,8 @@ class Meeting(AbstractStatusModel):
     total_sum = models.DecimalField(_('Total sum'), max_digits=12,
                                     decimal_places=0, default=0)
 
+    objects = MeetingManager()
+
     class Meta:
         ordering = ('-id', '-date')
         verbose_name = _('Meeting')

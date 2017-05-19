@@ -277,12 +277,12 @@ CELERYBEAT_SCHEDULE = {
     # Executes every monday evening at 00:05 A.M
     'create_meetings': {
         'task': 'create_new_meetings',
-        'schedule': crontab(hour=0, minute=5, day_of_week='mon')
+        'schedule': 60
     },
     # Executes every monday evening at 00:00 A.M
     'meetings_to_expired': {
         'task': 'meetings_to_expired',
-        'schedule': crontab(hour=0, minute=0, day_of_week='mon')
+        'schedule': 60
     }
 }
 

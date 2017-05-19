@@ -3,10 +3,11 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
+from django.db import transaction
+
 from edem.settings.celery import app
 from event.models import Meeting, MeetingType
 from group.models import HomeGroup
-from django.db import transaction
 
 
 @app.task(name='create_new_meetings', ignore_result=True, max_retries=5,
@@ -19,10 +20,10 @@ def create_new_meetings():
     for home_group in home_groups_without_reports:
         with transaction.atomic():
             for meeting_type in meeting_types:
-                Meeting.objects.create(home_group=home_group,
-                                       owner=home_group.leader,
-                                       date=current_date,
-                                       type=meeting_type)
+                Meeting.objects.get_or_create(home_group=home_group,
+                                              owner=home_group.leader,
+                                              date=current_date,
+                                              type=meeting_type)
 
 
 @app.task(name='meetings_to_expired', ignore_result=True, max_retries=5,
