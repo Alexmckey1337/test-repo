@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.db.models import IntegerField, Sum, When, Case, Count
 from rest_framework import status, filters, exceptions
 from rest_framework.decorators import list_route, detail_route
-from .pagination import MeetingPagination, ChurchReportPagination, MeetingVisitorsPagination
+from .pagination import MeetingPagination, MeetingVisitorsPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.utils.translation import ugettext_lazy as _
