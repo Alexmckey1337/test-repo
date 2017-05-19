@@ -1597,6 +1597,27 @@ function showPopup(text, title) {
     });
 }
 
+function showPopupAddUser(data) {
+
+    let tmpl = document.getElementById('addUserSuccessPopup').innerHTML;
+    let rendered = _.template(tmpl)(data);
+    $('body').append(rendered);
+
+    $('#addPopup').find('.close').on('click', function () {
+        $('#addPopup').css('display', 'none').remove();
+    });
+    $('#addPopup').find('.rewrite').on('click', function (e) {
+        $('#addPopup').css('display', 'none').remove();
+        $('#addNewUserPopup').css('display', 'block');
+    });
+    $('#addPopup').find('.addMore').on('click', function () {
+        $('#addPopup').css('display', 'none').remove();
+        $('body').addClass('no_scroll');
+        $('#addNewUserPopup').css('display', 'block');
+        initAddNewUser();
+    });
+}
+
 function showPopupHTML(block) {
     let popup = document.createElement('div');
     popup.className = "pop-up-universal";
@@ -2598,7 +2619,8 @@ function createNewUser(callback) {
     $preloader.css('display', 'block');
     return ajaxSendFormData(config).then(function (data) {
         $preloader.css('display', 'none');
-        showPopup(`${data.fullname} добален(а) в базу данных`);
+        // showPopup(`${data.fullname} добален(а) в базу данных`);
+        showPopupAddUser(data);
         $createUser.find('input').each(function () {
             $(this).val('').attr('disabled', false);
         });

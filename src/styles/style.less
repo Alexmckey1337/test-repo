@@ -2533,7 +2533,9 @@ table input[type=checkbox],
 
 .choose-user-wrap,
 .pop-up-splash,
-.add-user-wrap, #impPopup,
+.add-user-wrap,
+#impPopup,
+#addPopup,
 .complete-deal-wrap {
   display: none;
   position: fixed;
@@ -5879,8 +5881,9 @@ div.code input#code {
 
 #addNewUserPopup {
   & .editprofile-screen {
-    width: 530px;
-    height: 680px;
+    max-width: 1030px;
+    width: 1020px;
+    height: 807px;
     background-color: transparent;
     overflow-x: hidden;
     overflow-y: scroll;
@@ -5890,7 +5893,7 @@ div.code input#code {
       transition: transform .2s ease;
     }
     & .step {
-      width: 510px;
+      width: 1000px;
       padding: 25px 10px;
       background-color: #fff;
     }
@@ -6042,8 +6045,20 @@ div.code input#code {
             padding: 0;
             border: none;
           }
+          &.select2-selection__choice {
+            padding: .2em .5em;
+          }
         }
       }
+      //& ul.info__first {
+      //  display: flex;
+      //  flex-wrap: wrap;
+      //  & > li {
+      //    width: 50%;
+      //    box-sizing: border-box;
+      //    padding: .5em 1em;
+      //  }
+      //}
       & ul.hidden-partner {
         width: 100%;
         padding: 0;
@@ -6057,11 +6072,12 @@ div.code input#code {
       }
       & .btn-block {
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-end;
         flex-wrap: wrap;
         margin-top: 30px;
         & button {
           position: relative;
+          margin-right: 29px;
           padding: 12px 20px 12px 45px;
         }
         & button::before {
@@ -6084,6 +6100,7 @@ div.code input#code {
           position: relative;
           display: block;
           font-size: 1.1em;
+          margin-right: 29px;
           &::before {
             font: 1.4em FontAwesome;
             position: absolute;
@@ -6120,7 +6137,7 @@ div.code input#code {
       }
       & .upload-photo {
         display: flex;
-        justify-content: space-between;
+        justify-content:flex-start;
         align-items: center;
         padding: 1em .5em;
         & .anketa-photo {
@@ -6151,17 +6168,105 @@ div.code input#code {
           }
         }
         & .btn-wrap {
-          margin-right: 90px;
+          margin-left: 160px;
         }
       }
     }
   }
-  //.first_step {
-  //  display: none;
-  //}
   .second_step {
     .info {
       display: none;
     }
+  }
+  .accordion-block,
+  .block {
+    display: flex;
+    flex-wrap: wrap;
+    .column {
+      width: 50%;
+      padding: 0 1em;
+      box-sizing: border-box;
+    }
+  }
+}
+
+/* ------------------Add user popup------------------------------ */
+#addPopup {
+  display: block;
+  background-color: rgba(0, 0, 0, .6);
+  & .wrapper {
+    max-width: 550px;
+    min-width: 440px;
+    height: 360px;
+    padding: 20px 10px;
+  }
+  & h3 {
+    font-size: 2.5em;
+    font-weight: 900;
+    text-align: center;
+    color: #333;
+    padding-bottom: 20px;
+  }
+  & .card {
+    margin: 0 60px 30px;
+    padding: 15px;
+    border: 1px solid #333;
+  }
+  & .photo-block {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  & .photo {
+      width: 80px;
+      height: 80px;
+      overflow: hidden;
+      border-radius: 100%;
+    & img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+  & .photo-title {
+    margin-left: 25px;
+    & p {
+      font-size: 1.6em;
+      font-weight: 900;
+    }
+    & p:first-child {
+      color: #333;
+      padding-bottom: 5px;
+    }
+  }
+  & ul {
+    display: flex;
+    flex-wrap: wrap;
+    & li {
+      width: 50%;
+      box-sizing: border-box;
+      margin-bottom: 5px;
+      font-size: 1.1em;
+    }
+    & li:nth-child(2n+1) {
+      font-weight: 900;
+      color: #333;
+    }
+  }
+  & a {
+    color: #3caeda;
+    font-size: 1.1em;
+    text-decoration: underline;
+    margin-left: 60px;
+  }
+  & .btn-block {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 60px 0;
+    & button {
+      padding: 12px 20px;
+    }
+
   }
 }
