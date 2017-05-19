@@ -456,7 +456,7 @@ ___________________
 
     .. sourcecode:: http
 
-        GET /api/v1.0/events/home_groups/statistics HTTP/1.1
+        GET /api/v1.0/events/home_meetings/statistics HTTP/1.1
         Host: vocrm.org
         Accept: application/json
 

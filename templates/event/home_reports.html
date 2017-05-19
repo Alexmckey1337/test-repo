@@ -133,7 +133,7 @@
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" data-filter="church_tree" id="church_filter">
+                            <select class="selectdb" data-filter="church" id="church_filter">
                                 <option value="">ВСЕ</option>
                                 {% for church in churches %}
                                     <option value="{{ church.id }}">{{ church.title }}</option>
@@ -144,7 +144,7 @@
                             <select class="selectdb" data-filter="home_group" id="home_group_filter">
                                 <option value="">ВСЕ</option>
                                 {% for home_group in home_groups %}
-                                    <option value="{{ home_group.id }}">{{ home_group.title }}</option>
+                                    <option value="{{ home_group.id }}">{{ home_group.get_title }}</option>
                                 {% endfor %}
                             </select>
                         </p>
@@ -160,7 +160,7 @@
                             <select class="selectdb" data-filter="type" id="type_filter">
                                 <option value="">ВСЕ</option>
                                 {% for type in types %}
-                                    <option value="{{ type.id }}">{{ type.title }}</option>
+                                    <option value="{{ type.id }}">{{ type.name }}</option>
                                 {% endfor %}
                             </select>
                         </p>
