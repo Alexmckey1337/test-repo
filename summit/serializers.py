@@ -221,10 +221,11 @@ class SummitAnketForAppSerializer(serializers.ModelSerializer):
     user = UserForAppSerializer()
     ticket_id = serializers.CharField(source='code')
     visitor_id = serializers.IntegerField(source='id')
+    avatar_url = serializers.ImageField(source='user.image')
 
     class Meta:
         model = SummitAnket
-        fields = ('visitor_id', 'user', 'ticket_id', 'reg_code')  # + ('value', 'is_member')
+        fields = ('visitor_id', 'user', 'ticket_id', 'reg_code', 'avatar_url')  # + ('value', 'is_member')
 
 
 class SummitAnketLocationSerializer(serializers.ModelSerializer):
