@@ -38,10 +38,25 @@
 {% block layout %}
 
 {% endblock %}
-
+{% block preloader %}
+    <div class="preloader">
+            <div class="_preloader">
+                <svg preserveaspectratio="" viewbox="-5 -5 65 65">
+                    <circle class="cls-1" cx="26.1" cy="26.9" r="26.3"></circle>
+                    <path class="cls-2" d="M25,0A24.92,24.92,0,0,1,42.68,7.32" transform="translate(1 2)">
+                        <animatetransform attributename="transform" dur="1s" from="0 26 27" repeatcount="indefinite"
+                                          to="360 26 27" type="rotate">
+                        </animatetransform>
+                    </path>
+                </svg>
+            </div>
+        </div>
+{% endblock %}
 {% block main_scripts %}
     <link rel="stylesheet" href='{% static "libs/air-datepicker/dist/css/datepicker.min.css" %}'>
     <link href="{% static "libs/font-awesome/css/font-awesome.min.css" %}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:400,400i,700,700i" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,700" rel="stylesheet">
     <script src='{% static "libs/jquery/dist/jquery.min.js" %}'></script>
     <script src='{% static "libs/jquery-ui/jquery-ui.min.js" %}'></script>
     <script src="{% static "libs/jquery-form-validator/form-validator/jquery.form-validator.js" %}"></script>
@@ -53,6 +68,7 @@
     <script src='{% static "libs/fetch/fetch.js" %}'></script>
     <script src='{% static "js/lib.js" %}'></script>
     <script src='{% static "js/main.js" %}'></script>
+    <script src='{% static "js/header.js" %}'></script>
 {% endblock %}
 {% block extra_scripts %}
 

@@ -29,9 +29,6 @@
             <p></p>
         </div>
     </div><!--End Table -->
-    <div class="preloader">
-        <div class="gif"></div>
-    </div>
 {% endblock %}
 
 {% block popup %}
@@ -41,8 +38,7 @@
                 <h2>Карточка церкви</h2>
                 <span class="close close-popup"><i class="fa fa-times" aria-hidden="true"></i></span>
             </div>
-            <div class="popup_body">
-            </div>
+            <div class="popup_body"></div>
             <div class="container">
                 <button class="close-popup change__text">Отменить</button>
                 <button onclick="saveChurches(this)" class="save-user">Сохранить</button>
@@ -57,27 +53,27 @@
             <div class="popup_body">
                 <div class="container">
                     <div class="col-6">
-                        <p class="label_block">
-                            <label for="departments_filter">Отдел</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="tree_filter">Ветка</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="hierarchies_filter">Пастор</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="masters_filter">Открыта</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="search_email">Дата открытия</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="search_phone_number">Фильтр по стране</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="search_country">Фильтр по городу</label>
-                        </p>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Отдел</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Ветка</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Пастор</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Открыта</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Дата открытия</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Фильтр по стране</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Фильтр по городу</span>
+                        </div>
                     </div>
                     <div class="col-6">
                         <p class="input_block">
@@ -145,20 +141,40 @@
 
             <form action="" onsubmit="addChurch(event, this, createChurchesTable)">
                 <div class="popup_body">
-                    <div class="container">
-                        <div>
-                            <p>Дата открытия</p>
-                            <p>Открыта</p>
-                            <p>Название</p>
-                            <p class="end__block">Выбирите отдел</p>
-                            <p>Страна</p>
-                            <p>Город</p>
-                            <p class="end__block">Пастор</p>
-                            <p>Адрес служения</p>
-                            <p>Телефон</p>
-                            <p>Сайт</p>
+                    <div class="container container_block">
+                        <div class="column">
+                            <div class="label_block-wrapp">
+                                <span class="label_block">Дата открытия</span>
+                            </div>
+                            <div class="label_block-wrapp">
+                                <span class="label_block">Открыта</span>
+                            </div>
+                            <div class="label_block-wrapp">
+                                <span class="label_block">Название</span>
+                            </div>
+                            <div class="label_block-wrapp end__block">
+                                <span class="label_block">Выберите отдел</span>
+                            </div>
+                            <div class="label_block-wrapp">
+                                <span class="label_block">Страна</span>
+                            </div>
+                            <div class="label_block-wrapp">
+                                <span class="label_block">Город</span>
+                            </div>
+                            <div class="label_block-wrapp end__block">
+                                <span class="label_block">Пастор</span>
+                            </div>
+                            <div class="label_block-wrapp">
+                                <span class="label_block">Адрес служения</span>
+                            </div>
+                            <div class="label_block-wrapp">
+                                <span class="label_block">Телефон</span>
+                            </div>
+                            <div class="label_block-wrapp">
+                                <span class="label_block">Сайт</span>
+                            </div>
                         </div>
-                        <div class="col-7">
+                        <div>
                             <p><input type="text" id="added_churches_date" required></p>
                             <p><input type="checkbox" id="added_churches_is_open"></p>
                             <p><input type="text" id="added_churches_title"></p>
@@ -192,31 +208,57 @@
     <script type="text/template" id="quickEditCart">
         <div class="container bb-1">
             <div class="header">
-                <p><input type="text" class="title" id="church_title" value="<%=get_title %>"></p>
-                <p><label for="is_open">Открыта</label><input type="checkbox" id="is_open_church"<% if(is_open) { %>
-                    checked <% } %> ></p>
+                <div><input type="text" class="title" id="church_title" value="<%=get_title %>"></div>
+                <div class="row">
+                    <div class="label_block-wrapp">
+                        <label class="label_block" for="is_open">Открыта</label>
+                    </div>
+                    <input type="checkbox" id="is_open_church"<% if(is_open) { %>
+                    checked <% } %> >
+                </div>
                 <% if(opening_date) { %>
-                <p><label for="opening_date">Датат открытия</label><input type="text" class="date" id="opening_date"
-                                                                          value="<%= opening_date.split('.').reverse().join('-') %>">
-                </p>
+                <div class="row">
+                    <div class="label_block-wrapp">
+                        <label class="label_block" for="opening_date">Дата открытия</label>
+                    </div>
+                    <input type="text" class="date" id="opening_date" value="<%= opening_date.split('.').reverse().join('-') %>">
+                </div>
                 <% } else { %>
-                <p><label for="opening_date">Датат открытия</label><input type="text" id="opening_date" class="date"
-                                                                          value=""></p>
+                <div>
+                    <div class="label_block-wrapp">
+                        <label class="label_block" for="opening_date">Дата открытия</label>
+                    </div>
+                    <input type="text" id="opening_date" class="date" value="">
+                </div>
                 <% } %>
-                <p class="hidden"><input type="text" id="churchID" value="<%= id %>"></p>
+                <div class="hidden"><input type="text" id="churchID" value="<%= id %>"></div>
             </div>
         </div>
         <div class="container start">
-            <div>
-                <p class="label_block">Отдел:</p>
-                <p class="label_block">Пастор:</p>
-                <p class="label_block">Страна</p>
-                <p class="label_block">Нас.пункт:</p>
-                <p class="label_block">Адрес:</p>
-                <p class="label_block">Телефон:</p>
-                <p class="label_block">Сайт:</p>
+            <div class="column">
+                <div class="label_block-wrapp">
+                    <span class="label_block">Отдел:</span>
+                </div>
+                <div class="label_block-wrapp">
+                    <span class="label_block">Пастор:</span>
+                </div>
+                <div class="label_block-wrapp">
+                    <span class="label_block">Страна</span>
+                </div>
+                <div class="label_block-wrapp">
+                    <span class="label_block">Нас.пункт:</span>
+                </div>
+                <div class="label_block-wrapp">
+                    <span class="label_block">Адрес:</span>
+                </div>
+                <div class="label_block-wrapp">
+                    <span class="label_block">Телефон:</span>
+                </div>
+                <div class="label_block-wrapp">
+                    <span class="label_block">Сайт:</span>
+                </div>
             </div>
-            <div class="col-7">
+            <div>
                 <div><select name="" id="editDepartmentSelect">
                     <option value="<%= department %>"><%= department %></option>
                 </select></div>

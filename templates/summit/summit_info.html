@@ -1,4 +1,5 @@
 {% extends "layout_main.html" %}
+{% load i18n %}
 {% load static %}
 {% load summit_tags %}
 {% load payment_tags %}
@@ -57,9 +58,12 @@
             <span class="arrow-left"></span>
             <div class="gallery">
                 <ul id="summitsTypes" class="images">
-                {% available_summits user summit_type as summits %}
-                    {% for summit in summits reversed %}
-                        <li data-id={{ summit.id }} {% if forloop.first %} class="active"{% endif %}>
+                    {% with current_summit=request.GET.summit %}
+                        {% available_summits user summit_type as summits %}
+                        {% for summit in summits reversed %}
+                            <li data-id={{ summit.id }}
+                                        {% if summit.id|stringformat:"d" == current_summit %} class="active"
+                                        {% elif forloop.first and not current_summit %} class="active"{% endif %}>
                             <span>
                                 {% if summit.description %}
                                     {{ summit.description }}
@@ -67,7 +71,8 @@
                                     {{ summit.start_date }}
                                 {% endif %}
                             </span></li>
-                    {% endfor %}
+                        {% endfor %}
+                    {% endwith %}
                 </ul>
             </div>
             <span class="arrow-right"></span>
@@ -89,9 +94,9 @@
     </div>
 {% endblock %}
 {% block pagination_bottom %}
-        <div class="table__count"></div>
-        <div class="pagination users__pagination"></div>
-    {% endblock %}
+    <div class="table__count"></div>
+    <div class="pagination users__pagination"></div>
+{% endblock %}
 {% block choose_user_modal.search_field %}
     <input id="searchUsers" type="text" placeholder="Поиск" name="unregsearch">
 {% endblock %}
@@ -127,16 +132,17 @@
             </div>
             <h2 id="fullNameCard"></h2>
             <form class="form__wrap" id="participantInfoForm">
-{#                <div class="member_club_block">#}
-{#                    <input type="checkbox" id="member" name="member">#}
-{#                    <label for="member">Учасник <span id="member_club">Облако свидетелей</span>:</label>#}
-{#                </div>#}
+                {#                <div class="member_club_block">#}
+                {#                    <input type="checkbox" id="member" name="member">#}
+                {#                    <label for="member">Учасник <span id="member_club">Облако свидетелей</span>:</label>#}
+                {#                </div>#}
                 <div class="member_club_block">
                     <input type="checkbox" id="send_email" name="send_email">
                     <label for="send_email"><span id="send_email_label">Отправить билет</span>:</label>
                 </div>
                 <input type="text" class="hidden" name="user_id" id="userID">
-                <textarea maxlength="150" name="description" id="userDescription" placeholder="Добавить коментарий"></textarea>
+                <textarea maxlength="150" name="description" id="userDescription"
+                          placeholder="Добавить коментарий"></textarea>
             </form>
             <div class="splash-bauttons">
                 <button id="preDeleteAnket" class="delete_btn">Удалить</button>
@@ -200,25 +206,40 @@
             <div class="popup_body">
                 <div class="container">
                     <div class="col-6">
-                        <p class="label_block">
-                            <label for="departments_filter">Отдел</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="search_email">Фильтр по email</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="search_phone_number">Фильтр по номеру телефона</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="search_country">Фильтр по стране</label>
-                        </p>
-                        <p class="label_block">
-                            <label for="search_city">Фильтр по городу</label>
-                        </p>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Отдел</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Ветка</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Иерархия</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Ответственный</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Фильтр по email</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Фильтр по номеру телефона</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Фильтр по стране</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Фильтр по городу</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Фотография</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">{% trans "Статус билета" %}</span>
+                        </div>
                     </div>
                     <div class="col-6">
                         <p class="input_block">
-                            <select class="selectdb" data-filter="user__departments" id="departments_filter">
+                            <select class="selectdb" data-filter="department" id="departments_filter">
                                 <option value="">ВСЕ</option>
                                 {% for department in departments %}
                                     <option value="{{ department.id }}">{{ department.title }}</option>
@@ -226,24 +247,65 @@
                             </select>
                         </p>
                         <p class="input_block">
-                            <input type="email" data-filter="user__email" placeholder="email" id="search_email">
+                            <select class="select__db" data-filter="master_tree" id="master_tree">
+                                <option value="">ВСЕ</option>
+                                {% for master in masters %}
+                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
+                                {% endfor %}
+                            </select>
                         </p>
                         <p class="input_block">
-                            <input type="tel" data-filter="user__phone_number" placeholder="номер телефона" id="search_phone_number">
+                            <select class="select__db" data-filter="hierarchy" id="hierarchy">
+                                <option value="">ВСЕ</option>
+                                {% for hierarchy in hierarchies %}
+                                    <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
+                                {% endfor %}
+                            </select>
                         </p>
                         <p class="input_block">
-                            <input type="text" data-filter="user__country" placeholder="страна" id="search_country">
+                            <select class="select__db" data-filter="master" id="master">
+                                <option value="">ВСЕ</option>
+                                {% for master in masters %}
+                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
+                                {% endfor %}
+                            </select>
                         </p>
                         <p class="input_block">
-                            <input type="text" data-filter="user__city" placeholder="город" id="search_city">
+                            <input type="email" data-filter="search_email" placeholder="email" id="search_email">
+                        </p>
+                        <p class="input_block">
+                            <input type="tel" data-filter="search_phone_number" placeholder="номер телефона"
+                                   id="search_phone_number">
+                        </p>
+                        <p class="input_block">
+                            <input type="text" data-filter="search_country" placeholder="страна" id="search_country">
+                        </p>
+                        <p class="input_block">
+                            <input type="text" data-filter="search_city" placeholder="город" id="search_city">
+                        </p>
+                        <p class="input_block">
+                            <select class="select__db" data-filter="has_photo" name="has_photo" id="has_photo">
+                                <option>ВСЕ</option>
+                                <option value="true">Есть</option>
+                                <option value="false">Нет</option>
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <select class="select__db" data-filter="ticket_status" name="ticket_status" id="ticket_status">
+                                <option>ВСЕ</option>
+                                <option value="none">{% trans "Не создан" %}</option>
+                                <option value="download">{% trans "Создан" %}</option>
+                                <option value="print">{% trans "Напечатано" %}</option>
+                            </select>
                         </p>
                     </div>
                 </div>
             </div>
             <div class="container">
                 <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
-                                                                                  aria-hidden="true"></i>
-                    Очистить</button>
+                                                                              aria-hidden="true"></i>
+                    Очистить
+                </button>
                 <button class="close-popup">Отменить</button>
                 <button onclick="applyFilter(this, createSummitUsersTable)" class="apply-filter">Применить</button>
             </div>
@@ -253,95 +315,101 @@
 
 {% block extra_scripts %}
     {% block template_tables %}
-<script type="text/template" id="databaseUsers">
-     <table>
-        <thead>
-        <tr>
-            <% for( var key in user_table) { %>
-                <% if(user_table[key].active) { %>
-                    <th data-order="<%=user_table[key].ordering_title%>"><%=user_table[key].title %></th>
-                <% } %>
-            <% } %>
-        </tr>
-        </thead>
-        <tbody>
-            <% for( var index in results) { %>
-            <tr>
-                <% for( var key in user_table) { %>
+        <script type="text/template" id="databaseUsers">
+            <table>
+                <thead>
+                <tr>
+                    <% for( var key in user_table) { %>
                     <% if(user_table[key].active) { %>
-                        <% if (key == 'fullname') { %>
-                            <% if (results[index][key] != null) { %>
-                                <td class="edit"><a href="<%= results[index].link %>"
-                                                    data-link="<%= results[index].link %>"
-                                                    data-id="<%=results[index].id %>"
-                                                    <% if(results[index].ankets_id) { %>
-                                                        data-ankets="<%= results[index].ankets_id %>"
-                                                    <% } %>><%= results[index][key] %></a>
-                                    <span class="quick-edit"></span>
-                                    </td>
-                            <% } else { %>
-                                <td></td>
-                            <% } %>
-                        <% } else if(key == 'code') { %>
-                            <% if (results[index][key] != null) { %>
-                                <td class="edit"><a href="/api/v1.0/generate_code/<%= results[index].code %>.pdf?code=<%= results[index].code %>" data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%= results[index][key] %></a></td>
-                            <% } else { %>
-                                <td></td>
-                            <% } %>
-                        <% } else if(key == 'get_title') { %>
-                            <% if (results[index][key] != null) { %>
-                                <td class="edit"><a href="<%= results[index].link %>" data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%= results[index][key] %></a><span class="quick-edit"></span></td>
-                            <% } else { %>
-                                <td></td>
-                            <% } %>
-                        <% } else if (key == 'master' || key == 'pastor' || key == 'leader') { %>
-                            <% if (results[index][key] != null) { %>
-                                <td><%= results[index][key].fullname %></td>
-                            <% } else { %>
-                                <td></td>
-                            <% } %>
-                        <% }  else if (key == 'hierarchy' || key == 'church' ) { %>
-                            <% if (results[index][key] != null ) { %>
-                                <td><%= results[index][key].title %></td>
-                            <% } else { %>
-                                <td></td>
-                            <% } %>
-                        <% }  else if (key == 'department') { %>
-                                <% if (results[index][key] != null ) { %>
-                                <td><%= results[index][key].title %></td>
-                                <% } else { %>
-                                <td></td>
-                                <% } %>
-                            <% }else if (key == 'departments' || key == 'divisions') { %>
-                            <% if ( Array.isArray(results[index][key]) && results[index][key].length != 0) { %>
-                                <% if (results[index][key].length == 1) { %>
-                                    <td><%= results[index][key][0].title %></td>
-                                <% }  else { %>
-                                    <td><%= results[index][key].reduce(function(sum, item, i) {
-                                            return i < results[index][key].length - 1 ? sum + item.title + ', ' : sum + item.title
-                                        }, "") %></td>
-                                <% } %>
-                            <% } else { %>
-                                <td></td>
-                            <% } %>
-                        <% }  else { %>
-                            <td><% if (results[index][key] === true ) { %>
-                                <p class="text__center">✔</p>
-                                <% } else if (results[index][key] === false){ %>
-
-                                <% } else { %>
-                                <%= results[index][key] %>
-                                <% } %>
-                            </td>
-                        <% } %>
+                    <th data-order="<%=user_table[key].ordering_title%>"><%=user_table[key].title %></th>
                     <% } %>
+                    <% } %>
+                </tr>
+                </thead>
+                <tbody>
+                <% for( var index in results) { %>
+                <tr>
+                    <% for( var key in user_table) { %>
+                    <% if(user_table[key].active) { %>
+                    <% if (key == 'full_name') { %>
+                    <% if (results[index][key] != null) { %>
+                    <td class="edit"><a href="<%= results[index].link %>"
+                                        data-link="<%= results[index].link %>"
+                                        data-id="<%=results[index].user_id %>"
+                        <% if(results[index].id) { %>
+                        data-ankets="<%= results[index].id %>"
+                        <% } %>><%= results[index][key] %></a>
+                        <span class="quick-edit"></span>
+                    </td>
+                    <% } else { %>
+                    <td></td>
+                    <% } %>
+                    <% } else if(key == 'code') { %>
+                    <% if (results[index][key] != null) { %>
+                    <td class="edit"><a
+                            href="/api/v1.0/generate_code/<%= results[index].code %>.pdf?code=<%= results[index].code %>"
+                            data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%=
+                        results[index][key] %></a></td>
+                    <% } else { %>
+                    <td></td>
+                    <% } %>
+                    <% } else if(key == 'get_title') { %>
+                    <% if (results[index][key] != null) { %>
+                    <td class="edit"><a href="<%= results[index].link %>" data-link="<%= results[index].link %>"
+                                        data-id="<%=results[index].id %>"><%= results[index][key] %></a><span
+                            class="quick-edit"></span></td>
+                    <% } else { %>
+                    <td></td>
+                    <% } %>
+                    <% } else if (key == 'master' || key == 'pastor' || key == 'leader') { %>
+                    <% if (results[index][key] != null) { %>
+                    <td><%= results[index][key].fullname %></td>
+                    <% } else { %>
+                    <td></td>
+                    <% } %>
+                    <% } else if (key == 'ticket_status') { %>
+                    <% if (results[index][key] != null) { %>
+                    <td data-id="<%= results[index][key][0] %>"><%= results[index][key][1] %></td>
+                    <% } else { %>
+                    <td></td>
+                    <% } %>
+                    <% } else if (key == 'hierarchy' || key == 'church' ) { %>
+                    <% if (results[index][key] != null ) { %>
+                    <td><%= results[index][key].title %></td>
+                    <% } else { %>
+                    <td></td>
+                    <% } %>
+                    <% }else if (key == 'departments' || key == 'divisions') { %>
+                    <% if ( Array.isArray(results[index][key]) && results[index][key].length != 0) { %>
+                    <% if (results[index][key].length == 1) { %>
+                    <td><%= results[index][key][0].title %></td>
+                    <% } else { %>
+                    <td><%= results[index][key].reduce(function(sum, item, i) {
+                        return i < results[index][key].length - 1 ? sum + item.title + ', ' : sum + item.title
+                        }, "") %>
+                    </td>
+                    <% } %>
+                    <% } else { %>
+                    <td></td>
+                    <% } %>
+                    <% } else { %>
+                    <td><% if (results[index][key] === true ) { %>
+                        <p class="text__center">✔</p>
+                        <% } else if (results[index][key] === false){ %>
+
+                        <% } else { %>
+                        <%= results[index][key] %>
+                        <% } %>
+                    </td>
+                    <% } %>
+                    <% } %>
+                    <% } %>
+                </tr>
                 <% } %>
-            </tr>
-            <% } %>
-        </tbody>
-    </table>
-</script>
-{% endblock %}
+                </tbody>
+            </table>
+        </script>
+    {% endblock %}
     <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
     <script src="{% static "libs/jquery-file-download/src/Scripts/jquery.fileDownload.js" %}"></script>
     <script src="{% static "js/add_user.js" %}"></script>

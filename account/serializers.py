@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 import binascii
 import os
 
-from django.core.urlresolvers import reverse
+from django.conf import settings
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -16,6 +17,10 @@ from hierarchy.models import Department, Hierarchy
 from navigation.models import Table
 from partnership.models import Partnership
 from status.models import Division
+
+
+class HierarchyError(Exception):
+    pass
 
 
 def generate_key():
@@ -34,6 +39,7 @@ class HierarchyTitleSerializer(serializers.ModelSerializer):
         model = Hierarchy
         fields = ('id', 'title', 'level')
         read_only_fields = ('title',)
+
 
 class MasterNameSerializer(serializers.ModelSerializer):
     # hierarchy = HierarchyTitleSerializer()
@@ -75,8 +81,13 @@ class AddExistUserSerializer(serializers.ModelSerializer):
         fields = ('id', 'city', 'country', 'full_name')
 
 
+def exist_users_with_level_not_in_levels(users, levels):
+    return users.exclude(hierarchy__level__in=levels).exists()
+
+
 class UserSerializer(serializers.ModelSerializer):
     partnership = PartnershipSerializer(required=False)
+    move_to_master = serializers.IntegerField(write_only=True, required=False)
 
     class Meta:
         model = User
@@ -94,6 +105,7 @@ class UserSerializer(serializers.ModelSerializer):
                   'country', 'region', 'city', 'district', 'address',
                   # #################################################
                   'image', 'image_source',
+                  'move_to_master',
 
                   'departments', 'master', 'hierarchy',
                   'divisions',
@@ -113,17 +125,46 @@ class UserSerializer(serializers.ModelSerializer):
             'divisions': {'required': False},
         }
 
-    def update(self, instance, validated_data):
+    def update(self, user, validated_data):
         departments = validated_data.pop('departments', None)
+        move_to_master = validated_data.pop('move_to_master', None)
+
+        if move_to_master is not None:
+            disciples = user.disciples.all()
+            master = User.objects.get(id=move_to_master)
+            disciples.update(master=master)
 
         for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
+            setattr(user, attr, value)
+        user.save()
 
         if departments is not None and isinstance(departments, (list, tuple)):
-            instance.departments.set(departments)
+            user.departments.set(departments)
 
-        return instance
+        return user
+
+    def validate_hierarchy(self, value):
+        reduce_level = lambda: self.instance and self.instance.hierarchy and value.level < self.instance.hierarchy.level
+
+        def has_disciples():
+            return exist_users_with_level_not_in_levels(
+                self.instance.disciples, settings.CHANGE_HIERARCHY_LEVELS[value.level])
+
+        has_move_disciples = lambda: 'move_to_master' in self.initial_data.keys()
+        if reduce_level() and has_disciples() and not has_move_disciples():
+            raise HierarchyError()
+        return value
+
+    def validate_move_to_master(self, value):
+        if not User.objects.filter(id=value).exists():
+            raise ValidationError(_('User with id = %s does not exist.' % value))
+        return value
+
+
+class UserForMoveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'first_name', 'last_name', 'middle_name')
 
 
 class UniqueFIOTelWithIdsValidator(UniqueTogetherValidator):
@@ -144,7 +185,7 @@ class UniqueFIOTelWithIdsValidator(UniqueTogetherValidator):
                                    'data': data,
                                    'ids': ids,
                                    'users': [reverse('account:detail', args=(pk,)) for pk in ids]
-                                   },)
+                                   }, )
 
 
 class UserCreateSerializer(UserSerializer):

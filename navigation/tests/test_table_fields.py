@@ -68,27 +68,14 @@ def test_partner_table(table):
 
 
 @pytest.mark.django_db
-def test_summit_table():
-    assert summit_table() == OrderedDict(
-        code={
-            'title': 'Код',
-            'ordering_title': 'code',
-            'number': 1,
-            'active': True,
-            'editable': False,
-        },
-        total_sum={
-            'title': 'Оплата',
-            'ordering_title': 'value',
-            'number': 2,
-            'active': True,
-            'editable': False,
-        },
-        description={
-            'title': 'Примечание',
-            'ordering_title': 'description',
-            'number': 3,
-            'active': True,
-            'editable': False,
+def test_summit_table(table):
+    table_columns = summit_table(table.user)
+    category = Category.objects.filter(title="summit")
+    assert list(table_columns.keys()) == list(
+        category.values_list('columnTypes__title', flat=True))
 
-        })
+
+@pytest.mark.django_db
+def test_summit_table_with_prefix_ordering_title(table):
+    table_columns = summit_table(table.user, 'some_prefix__')
+    assert all(map(lambda a: a['ordering_title'].startswith('some_prefix__'), table_columns.values()))

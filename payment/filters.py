@@ -22,14 +22,14 @@ class PaymentFilterByPurpose(BaseFilterBackend):
 
 
 class PaymentFilter(FilterSet):
-    sum_to = django_filters.NumberFilter(name="sum", lookup_type='lte')
-    sum_from = django_filters.NumberFilter(name="sum", lookup_type='gte')
-    eff_sum_to = django_filters.NumberFilter(name="effective_sum", lookup_type='lte')
-    eff_sum_from = django_filters.NumberFilter(name="effective_sum", lookup_type='gte')
-    create_to = django_filters.DateFilter(name="created_at", lookup_type='lte')
-    create_from = django_filters.DateFilter(name="created_at", lookup_type='gte')
-    sent_to = django_filters.DateFilter(name="sent_date", lookup_type='lte')
-    sent_from = django_filters.DateFilter(name="sent_date", lookup_type='gte')
+    sum_to = django_filters.NumberFilter(name="sum", lookup_expr='lte')
+    sum_from = django_filters.NumberFilter(name="sum", lookup_expr='gte')
+    eff_sum_to = django_filters.NumberFilter(name="effective_sum", lookup_expr='lte')
+    eff_sum_from = django_filters.NumberFilter(name="effective_sum", lookup_expr='gte')
+    create_to = django_filters.DateFilter(name="created_at", lookup_expr='lte')
+    create_from = django_filters.DateFilter(name="created_at", lookup_expr='gte')
+    sent_to = django_filters.DateFilter(name="sent_date", lookup_expr='lte')
+    sent_from = django_filters.DateFilter(name="sent_date", lookup_expr='gte')
 
     class Meta:
         model = Payment

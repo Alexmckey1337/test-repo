@@ -10,7 +10,38 @@ from django.db.models import Sum
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
+
+from event.managers import MeetingManager
 from navigation.table_fields import meeting_table
+
+
+DAY_OF_THE_WEEK = {
+    '1': _('Monday'),
+    '2': _('Tuesday'),
+    '3': _('Wednesday'),
+    '4': _('Thursday'),
+    '5': _('Friday'),
+    '6': _('Saturday'),
+    '7': _('Sunday'),
+}
+weekday = timezone.now().weekday() + 1
+default_date = timezone.now()
+
+
+ATTR_TYPES = (
+    ('s', 'string'),
+    ('b', 'boolean'),
+    ('i', 'integer'),
+)
+
+VERBOSE_FIELDS = {'Имя': 'user__first_name',
+                  'Фамилия': 'user__last_name',
+                  'Отчество': 'user__middle_name',
+                  'Иерархия': 'user__hierarchy',
+                  'Страна': 'user__country',
+                  'Город': 'user__city',
+                  'Примечание': 'description',
+                  'Явка': 'check'}
 
 
 @python_2_unicode_compatible
@@ -87,6 +118,8 @@ class Meeting(AbstractStatusModel):
     total_sum = models.DecimalField(_('Total sum'), max_digits=12,
                                     decimal_places=0, default=0)
 
+    objects = MeetingManager()
+
     class Meta:
         ordering = ('-id', '-date')
         verbose_name = _('Meeting')
@@ -161,65 +194,11 @@ class ChurchReport(AbstractStatusModel):
         return self.get_absolute_url()
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-DAY_OF_THE_WEEK = {
-    '1': _('Monday'),
-    '2': _('Tuesday'),
-    '3': _('Wednesday'),
-    '4': _('Thursday'),
-    '5': _('Friday'),
-    '6': _('Saturday'),
-    '7': _('Sunday'),
-}
-weekday = timezone.now().weekday() + 1
-default_date = timezone.now()
-
-
 class DayOfTheWeekField(models.CharField):
     def __init__(self, *args, **kwargs):
         kwargs['choices'] = tuple(sorted(DAY_OF_THE_WEEK.items()))
         kwargs['max_length'] = 1
         super(DayOfTheWeekField, self).__init__(*args, **kwargs)
-
-
-ATTR_TYPES = (
-    ('s', 'string'),
-    ('b', 'boolean'),
-    ('i', 'integer'),
-)
-
-VERBOSE_FIELDS = {'Имя': 'user__first_name',
-                  'Фамилия': 'user__last_name',
-                  'Отчество': 'user__middle_name',
-                  'Иерархия': 'user__hierarchy',
-                  'Страна': 'user__country',
-                  'Город': 'user__city',
-                  'Примечание': 'description',
-                  'Явка': 'check'}
 
 
 def current_week():

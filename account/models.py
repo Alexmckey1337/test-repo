@@ -14,21 +14,19 @@ from django.dispatch import receiver
 from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+from mptt.fields import TreeForeignKey
 from mptt.managers import TreeManager
-from mptt.models import MPTTModel, TreeForeignKey
+from mptt.models import MPTTModel
 
+from account.abstract_models import CustomUserAbstract
 from account.permissions import (
     can_create_user, can_export_user_list, can_see_user_list, can_edit_status_block,
     can_edit_description_block, can_see_account_page)
-from summit.permissions import can_edit_summit_block, can_see_summit_block
-from partnership.permissions import can_edit_partner_block, can_see_partner_block, can_see_deal_block
 from group.abstract_models import GroupUserPermission
 from navigation.models import Table
 from partnership.abstract_models import PartnerUserPermission
+from partnership.permissions import can_edit_partner_block, can_see_partner_block, can_see_deal_block
 from summit.abstract_models import SummitUserPermission
-from partnership.models import Partnership
-from summit.models import SummitType, SummitAnket
-from summit.permissions import can_see_any_summit_ticket, can_see_summit_ticket
 
 
 class CustomUserManager(TreeManager, UserManager):
@@ -36,38 +34,38 @@ class CustomUserManager(TreeManager, UserManager):
 
 
 @python_2_unicode_compatible
-class CustomUser(MPTTModel, User, GroupUserPermission, PartnerUserPermission, SummitUserPermission):
+class CustomUser(MPTTModel, User, CustomUserAbstract,
+                 GroupUserPermission, PartnerUserPermission, SummitUserPermission):
     """
     User model
     """
-    middle_name = models.CharField(max_length=40, blank=True)
 
-    #: Field for name in the native language of the user
-    search_name = models.CharField(_('Field for search by name'), max_length=255, blank=True)
+    region = models.CharField(_('Region'), max_length=50, blank=True)
+    district = models.CharField(_('District'), max_length=50, blank=True)
+    address = models.CharField(_('Address'), max_length=300, blank=True)
 
-    phone_number = models.CharField(max_length=23, blank=True)
-    skype = models.CharField(max_length=50, blank=True)
-    country = models.CharField(max_length=50, blank=True)
-    region = models.CharField(max_length=50, blank=True)
-    city = models.CharField(max_length=50, blank=True)
-    district = models.CharField(max_length=50, blank=True)
-    address = models.CharField(max_length=300, blank=True)
-    born_date = models.DateField(blank=True, null=True)
-    facebook = models.URLField(default='', blank=True, null=True)
-    vkontakte = models.URLField(default='', blank=True, null=True)
-    odnoklassniki = models.URLField(default='', blank=True, null=True)
-    image = models.ImageField(upload_to='images/', blank=True)
-    image_source = models.ImageField(upload_to='images/', blank=True)
-    description = models.TextField(blank=True)
-    departments = models.ManyToManyField('hierarchy.Department', related_name='users')
+    phone_number = models.CharField(_('Phone number'), max_length=23, blank=True)
+    skype = models.CharField(_('Skype'), max_length=50, blank=True)
+    facebook = models.URLField(_('Facebook URL'), default='', blank=True, null=True)
+    vkontakte = models.URLField(_('Vkontakte URL'), default='', blank=True, null=True)
+    odnoklassniki = models.URLField(_('Odnoklassniki URL'), default='', blank=True, null=True)
+
+    image = models.ImageField(_('Image'), upload_to='images/', blank=True)
+    image_source = models.ImageField(_('Source of image'), upload_to='images/', blank=True)
+    description = models.TextField(_('Description'), blank=True)
+    #: Born date
+    born_date = models.DateField(_('Born date'), blank=True, null=True)
+    #: Date of repentance (дата покаяния)
+    repentance_date = models.DateField(_('Repentance date'), blank=True, null=True)
+    #: Date of coming (дата прихода)
+    coming_date = models.DateField(_('Coming date'), blank=True, null=True)
+    activation_key = models.CharField(_('Activation key'), max_length=40, blank=True)
+
+    departments = models.ManyToManyField('hierarchy.Department', related_name='users', verbose_name=_('Departments'))
     hierarchy = models.ForeignKey('hierarchy.Hierarchy', related_name='users', null=True, blank=True,
-                                  on_delete=models.SET_NULL)
-    master = TreeForeignKey('self', related_name='disciples', null=True, blank=True,
+                                  on_delete=models.SET_NULL, verbose_name=_('Hierarchy'))
+    master = TreeForeignKey('self', related_name='disciples', null=True, blank=True, verbose_name=_('Master'),
                             on_delete=models.PROTECT, db_index=True)
-    repentance_date = models.DateField(blank=True, null=True)
-    coming_date = models.DateField(blank=True, null=True)
-    hierarchy_order = models.BigIntegerField(blank=True, null=True)
-    activation_key = models.CharField(max_length=40, blank=True)
 
     extra_phone_numbers = ArrayField(
         models.CharField(_('Number'), max_length=255),
@@ -75,14 +73,7 @@ class CustomUser(MPTTModel, User, GroupUserPermission, PartnerUserPermission, Su
         blank=True, null=True,
     )
 
-    BABY, JUNIOR, FATHER = 1, 2, 3
-    SPIRITUAL_LEVEL_CHOICES = (
-        (BABY, _('Baby')),
-        (JUNIOR, _('Junior')),
-        (FATHER, _('Father')),
-    )
-    spiritual_level = models.PositiveSmallIntegerField(
-        _('Spiritual Level'), choices=SPIRITUAL_LEVEL_CHOICES, default=1)
+    can_login = models.BooleanField(_('Can login to site'), default=False)
 
     objects = CustomUserManager()
 
@@ -94,6 +85,11 @@ class CustomUser(MPTTModel, User, GroupUserPermission, PartnerUserPermission, Su
 
     class MPTTMeta:
         parent_attr = 'master'
+
+    def save(self, *args, **kwargs):
+        super(CustomUser, self).save(*args, **kwargs)
+        for profile in self.summit_ankets.all():
+            profile.save()
 
     def get_absolute_url(self):
         return reverse('account:detail', args=(self.id,))
@@ -139,7 +135,7 @@ class CustomUser(MPTTModel, User, GroupUserPermission, PartnerUserPermission, Su
     def get_pastor(self):
         master = self.master
         while master is not None:
-            if master.hierarchy.level == 2:
+            if master.hierarchy and master.hierarchy.level == 2:
                 return master
             master = master.master
         return None
@@ -147,10 +143,13 @@ class CustomUser(MPTTModel, User, GroupUserPermission, PartnerUserPermission, Su
     def get_bishop(self):
         master = self.master
         while master is not None:
-            if master.hierarchy.level == 4:
+            if master.hierarchy and master.hierarchy.level == 4:
                 return master
             master = master.master
         return None
+
+    def get_sotnik(self):
+        return self.get_pastor()
 
     @property
     def fullname(self):
@@ -288,32 +287,12 @@ class CustomUser(MPTTModel, User, GroupUserPermission, PartnerUserPermission, Su
         """
         return can_see_partner_block(self, user)
 
-    def can_edit_summit_block(self, user):
-        """
-        Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
-        to edit summit block of ``user``
-        """
-        return can_edit_summit_block(self, user)
-
-    def can_see_summit_block(self, user):
-        """
-        Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
-        to see summit block of ``user``
-        """
-        return can_see_summit_block(self, user)
-
     def can_see_deal_block(self, user):
         """
         Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
         to see deals block of ``user``
         """
         return can_see_deal_block(self, user)
-
-    def can_see_any_summit_ticket(self):
-        return can_see_any_summit_ticket(self)
-
-    def can_see_summit_ticket(self, summit):
-        return can_see_summit_ticket(self, summit)
 
 
 @python_2_unicode_compatible

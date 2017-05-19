@@ -1,7 +1,5 @@
 from rest_framework.permissions import BasePermission
 
-from summit.permissions import is_any_summit_supervisor_or_high
-
 
 class CanSeeAccountPage(BasePermission):
     def has_object_permission(self, request, view, user):
@@ -51,7 +49,7 @@ def can_create_user(user):
     return (
         user.is_staff or user.is_leader_or_high or
         user.is_partner_supervisor_or_high or
-        is_any_summit_supervisor_or_high(user)
+        user.is_any_summit_supervisor_or_high()
     )
 
 
@@ -83,7 +81,7 @@ def can_edit_status_block(current_user, user):
     """
     return (
         current_user.is_partner_supervisor_or_high or
-        current_user.is_any_summit_supervisor_or_high or
+        current_user.is_any_summit_supervisor_or_high() or
         current_user.is_ancestor_of(user)
     )
 
@@ -96,6 +94,6 @@ def can_edit_description_block(current_user, user):
     """
     return (
         current_user.is_partner_supervisor_or_high or
-        current_user.is_any_summit_supervisor_or_high or
+        current_user.is_any_summit_supervisor_or_high() or
         current_user.is_ancestor_of(user)
     )

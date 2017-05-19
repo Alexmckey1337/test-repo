@@ -1,14 +1,10 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from unittest import skip
-
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from account.factories import UserFactory
-from event.factories import MeetingTypeFactory
-from event.models import MeetingType
 from hierarchy.factories import HierarchyFactory, DepartmentFactory
 from hierarchy.models import Department, Hierarchy
 

@@ -66,6 +66,7 @@ events_patterns = [
 summit_patterns = [
     url(r'^$', views.summits, name='list'),
     url(r'^(?P<pk>\d+)/$', views.SummitTypeView.as_view(), name='detail'),
+    url(r'^profile/(?P<pk>\d+)/$', views.SummitProfileDetailView.as_view(), name='profile-detail'),
     url(r'^tickets/$', views.SummitTicketListView.as_view(), name='tickets'),
     url(r'^tickets/(?P<pk>\d+)/$', views.SummitTicketDetailView.as_view(), name='ticket-detail'),
 ]
@@ -73,6 +74,7 @@ summit_patterns = [
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^entry/$', views.entry, name='entry'),
+    url(r'^entry/restore/$', views.restore, name='restore'),
 
     url(r'^db/', include(database_patterns, namespace='db')),
     url(r'^account/', include(account_patterns, namespace='account')),

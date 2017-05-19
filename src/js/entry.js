@@ -24,27 +24,30 @@ function authUser() {
         "username": username,
         "email": username,
         "password": password,
-        'remember_me': !remember_me
+        "remember_me": !remember_me
     };
     if (checkEmptyFields(username, password) == false) {
-
         let next;
-        let json = JSON.stringify(data);
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/login/', json, function (JSONobj) {
+        let loginData = JSON.stringify(data);
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'rest-auth/login/', loginData, function (res) {
             //showPopup(JSONobj.message);
-            if (JSONobj.status == true) {
+            if (res) {
+                setCookie('key', res.key, {
+                    path: '/'
+                });
                 //showPopup(JSONobj.message);
                 next = getUrlParameter('next');
-                console.log(next);
                 if (next) {
                     window.location.href = next;
                 } else {
                     window.location.href = '/';
                 }
+                console.log(getCookie('key'))
             } else {
                 //loginError(JSONobj.message);
                 //alert(JSONobj.message)
                 clearFields();
+                $('.account .invalid').html(JSONobj.message);
                 document.querySelector(".account .invalid").style.display = 'block'
             }
         }, 'POST', true, {
@@ -52,6 +55,7 @@ function authUser() {
         });
 
     } else {
+        $('.account .invalid').html('Неверно введён e-mail или пароль');
         document.querySelector(".account .invalid").style.display = 'block';
         clearFields()
     }
@@ -101,47 +105,9 @@ function logIn() {
     authUser();
 }
 
-
-function sendPassToEmail() {
-
-    let data = {
-        'email': document.getElementById('send_letter').value
-    };
-
-    let json = JSON.stringify(data);
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/password_forgot/', json, function (data) {
-        showPopup(data.detail);
-    }, 'POST', true, {
-        'Content-Type': 'application/json'
-    }, {
-        400: function (data) {
-            data = data.responseJSON;
-            showPopup(data.detail);
-
-        }
-    });
-}
-
 $(document).ready(function () {
     document.getElementById('entry').addEventListener('click', function () {
         logIn();
-    });
-
-
-    document.getElementById('prev_page').addEventListener('click', function () {
-        document.getElementsByClassName('getpassword')[0].style.display = 'none';
-        document.getElementById('login_popup').style.display = 'block'
-    });
-
-
-    document.getElementsByClassName('restore')[0].addEventListener('click', function () {
-        document.getElementsByClassName('getpassword')[0].style.display = 'block';
-        document.getElementById('login_popup').style.display = 'none'
-    });
-
-
-    document.getElementById('getpass').addEventListener('click', function () {
-        sendPassToEmail();
     });
 
     $('.entry-input2').keypress(function (e) {
@@ -155,4 +121,5 @@ $(document).ready(function () {
             logIn();
         }
     });
+
 });

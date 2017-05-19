@@ -1,8 +1,9 @@
-from account.abstact_models import UserPermission
+from django.db import models
+
 from group.permissions import can_see_churches, can_see_home_groups, can_edit_church_block, can_see_church_block
 
 
-class GroupUserPermission(UserPermission):
+class GroupUserPermission(models.Model):
     class Meta:
         abstract = True
 

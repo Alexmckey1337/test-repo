@@ -33,9 +33,25 @@
                 $('#ticket_users').html(rendered);
             });
     });
-    $('#find_by_code_btn').on('click', function () {
-        let code = $('#find_by_code').val();
-        window.location.href = `/summits/tickets/?code=${code}`;
-    })
+    $('.tickets_table').on('click', '.mark_printed', function () {
+        let ticket_id = $(this).data('id');
+        let self = $(this);
+        fetch(`/api/v1.0/summit_ticket/${ticket_id}/print/`, {'credentials': 'include', 'method': "POST"})
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                self.html('Printed');
+                self.removeClass('mark_printed').addClass('is_printed');
+                showPopup(data.detail);
+            })
+    });
+
+    $('#find_by_code').keydown(function(e) {
+        if (e.keyCode === 13) {
+            let code = $(this).val();
+            window.location.href = `/summits/tickets/?code=${code}`;
+        }
+    });
 
 })(jQuery);

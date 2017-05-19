@@ -16,9 +16,9 @@
             <ul class="nav tabs_link">
                 <li><a class="active"
                        href="{% url 'events:meeting_report_list' %}">Отчёты домашних груп</a></li>
-                <li><a href="{% url 'events:church_report_list' %}">Отчёты церквей</a></li>
-                <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних групп</a></li>
-                <li><a href="{% url 'events:church_report_statistics' %}">Статистика церквей</a></li>
+                {#                <li><a href="{% url 'events:church_report_list' %}">Отчёты церквей</a></li>#}
+                <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних груп</a></li>
+                {#                <li><a href="{% url 'events:church_report_statistics' %}">Статистика церквей</a></li>#}
             </ul>
         </div>
     {% endblock %}
@@ -26,7 +26,7 @@
         <ul class="top-buttons">
             {% block header.buttons.add %}
                 <li>
-
+                    <button id="filter_button" class="header__button">Фильтр</button>
                 </li>
             {% endblock %}
 
@@ -36,9 +36,9 @@
             {% block header.buttons.extra %}
             {% endblock %}
             {% block header.buttons.change_table %}
-                <li>
-                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
-                </li>
+                {#                <li>#}
+                {#                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>#}
+                {#                </li>#}
             {% endblock %}
         </ul>
     </div>
@@ -53,7 +53,7 @@
                         <button data-status="2">Заполненные отчёты</button>
                     </li>
                     <li>
-                        <button data-status="1">Не заполненные отчёты</button>
+                        <button data-status="1">Отчёты к заполнению</button>
                     </li>
                     <li>
                         <button data-status="3">Просроченные отчёты</button>
@@ -76,7 +76,7 @@
             </div>
         </div>
         <div class="table__count"></div>
-        <div class="pagination users__pagination"><!--pagination -->
+        <div class="pagination reports__pagination"><!--pagination -->
         </div><!--End pagination -->
     {% endblock %}
 
@@ -87,81 +87,163 @@
                 <p></p>
             </div>
         </div><!--End Table -->
-        <div class="preloader">
-            <div class="gif"></div>
-        </div>
     {% endblock %}
 
     {% block pagination_bottom %}
         <div class="table__count"></div>
-        <div class="pagination users__pagination"></div>
+        <div class="pagination reports__pagination"></div>
     {% endblock %}
 {% endblock %}
 
 {% block popup %}
-
+    <div class="popap" id='filterPopup'>
+        <div class="pop_cont">
+            <h2 class='popup_text'>
+                Фильтр
+            </h2>
+            <div class="popup_body">
+                <div class="container">
+                    <div class="col-6">
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Отдел</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Церковь</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Домашняя группа</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Создатель</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Тип</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Фильтр по дате</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="department" id="departments_filter">
+                                <option value="">ВСЕ</option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">{{ department.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="church_tree" id="church_filter">
+                                <option value="">ВСЕ</option>
+                                {% for church in churches %}
+                                    <option value="{{ church.id }}">{{ church.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="home_group" id="home_group_filter">
+                                <option value="">ВСЕ</option>
+                                {% for home_group in home_groups %}
+                                    <option value="{{ home_group.id }}">{{ home_group.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="master" id="masters_filter">
+                                <option value="">ВСЕ</option>
+                                {% for owner in owners %}
+                                    <option value="{{ owner.id }}">{{ owner.fullname }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="type" id="type_filter">
+                                <option value="">ВСЕ</option>
+                                {% for type in types %}
+                                    <option value="{{ type.id }}">{{ type.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <input type="text" placeholder="от" data-filter="from_date" id="date_from"
+                                   class="select_date_filter"><input type="text" placeholder="до" data-filter="to_date"
+                                                                     id="date_to" class="select_date_filter">
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
+                                                                              aria-hidden="true"></i>
+                    Очистить
+                </button>
+                <button class="close-popup">Отменить</button>
+                <button onclick="applyFilter(this, homeReportsTable)" class="apply-filter">Применить</button>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 {% block extra_scripts %}
     <script src="{% static "js/home_reports.js" %}"></script>
 {% endblock %}
 {% block template_tables %}
-<script type="text/template" id="databaseHomeReports">
-     <table>
-        <thead>
-        <tr>
-            <% for( var key in table_columns) { %>
+    <script type="text/template" id="databaseHomeReports">
+        <table>
+            <thead>
+            <tr>
+                <% for( var key in table_columns) { %>
                 <% if(table_columns[key].active) { %>
-                    <th data-order="<%=table_columns[key].ordering_title%>"><%=table_columns[key].title %></th>
+                <th data-order="<%=table_columns[key].ordering_title%>"><%=table_columns[key].title %></th>
                 <% } %>
-            <% } %>
-        </tr>
-        </thead>
-        <tbody>
+                <% } %>
+            </tr>
+            </thead>
+            <tbody>
             <% for( var index in results) { %>
             <tr>
                 <% for( var key in table_columns) { %>
-                    <% if(table_columns[key].active) { %>
-                        <% if(key == 'id') { %>
-                            <td>
-                                <a href="./<%= results[index][key] %>" class="reports_id"><%= results[index][key] %></a>
-                            </td>
-                        <% } else if (key == 'home_group') { %>
-                            <% if (results[index][key] != null) { %>
-                                    <td>
-                                        <%= results[index][key].title %>
-                                    </td>
-                                <% } else { %>
-                                    <td></td>
-                                <% } %>
-                        <% } else if(key == 'owner') { %>
-                            <% if (results[index][key] != null) { %>
-                                <td>
-                                <%= results[index][key].fullname %>
-                                </td>
-                            <% } else { %>
-                                <td></td>
-                            <% } %>
-                        <% } else if (key == 'type') { %>
-                            <% if (results[index][key] != null) { %>
-                                <td><%= results[index][key].code %></td>
-                            <% } else { %>
-                                <td></td>
-                            <% } %>
-                        <% }  else { %>
-                            <td><% if (results[index][key] === true ) { %>
-                                <p class="text__center">✔</p>
-                                <% } else if (results[index][key] === false){ %>
+                <% if(table_columns[key].active) { %>
+                <% if(key == 'id') { %>
+                <td>
+                    <a href="./<%= results[index][key] %>" class="reports_id"><%= results[index][key] %></a>
+                </td>
+                <% } else if (key == 'home_group') { %>
+                <% if (results[index][key] != null) { %>
+                <td>
+                    <%= results[index][key].title %>
+                </td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else if(key == 'owner') { %>
+                <% if (results[index][key] != null) { %>
+                <td>
+                    <%= results[index][key].fullname %>
+                </td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else if (key == 'type') { %>
+                <% if (results[index][key] != null) { %>
+                <td><%= results[index][key].code %></td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else { %>
+                <td><% if (results[index][key] === true ) { %>
+                    <p class="text__center">✔</p>
+                    <% } else if (results[index][key] === false){ %>
 
-                                <% } else { %>
-                                <%= results[index][key] %>
-                                <% } %>
-                            </td>
-                        <% } %>
+                    <% } else { %>
+                    <%= results[index][key] %>
                     <% } %>
+                </td>
+                <% } %>
+                <% } %>
                 <% } %>
             </tr>
             <% } %>
-        </tbody>
-    </table>
-</script>
+            </tbody>
+        </table>
+    </script>
 {% endblock %}

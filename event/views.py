@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.db.models import IntegerField, Sum, When, Case, Count
 from rest_framework import status, filters, exceptions
 from rest_framework.decorators import list_route, detail_route
-from .pagination import MeetingPagination, ChurchReportPagination, MeetingVisitorsPagination
+from .pagination import MeetingPagination, MeetingVisitorsPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.utils.translation import ugettext_lazy as _
@@ -58,7 +58,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     def get_queryset(self):
         if self.action == 'list':
-            return self.queryset.annotate(
+            return self.queryset.for_user(self.request.user).annotate(
                 visitors_attended=Sum(Case(
                     When(attends__attended=True, then=1),
                     output_field=IntegerField(), default=0)),
@@ -67,7 +67,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                     attends__attended=False, then=1),
                     output_field=IntegerField(), default=0))
             )
-        return self.queryset
+        return self.queryset.for_user(self.request.user)
 
     @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer)
     def submit(self, request, pk):
@@ -97,7 +97,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     @staticmethod
     def validate_to_submit(meeting, data):
-        if meeting.type.code == 'service' and int(data.get('total_sum')):
+        if meeting.type.code == 'service' and data.get('total_sum'):
             raise exceptions.ValidationError(
                 _('Невозможно подать отчет. Отчет типа - {%s} не должен содержать '
                   'денежную сумму. ' % meeting.type.name))
@@ -140,6 +140,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                         attended=attend.get('attended', False),
                         note=attend.get('note', '')
                     )
+
         except IntegrityError:
             data = {'message': _('При обновлении возникла ошибка. Попробуйте еще раз.')}
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)

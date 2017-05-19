@@ -1,7 +1,6 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from datetime import date
 from decimal import Decimal
 
 from django.conf import settings
@@ -13,8 +12,9 @@ from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
+from account.abstract_models import CustomUserAbstract
 from payment.models import get_default_currency, AbstractPaymentPurpose
-from summit.managers import AnketManager
+from summit.managers import ProfileManager
 
 
 @python_2_unicode_compatible
@@ -75,6 +75,12 @@ class Summit(models.Model):
     mail_template = models.ForeignKey('dbmail.MailTemplate', related_name='summits',
                                       verbose_name=_('Mail template'),
                                       null=True, blank=True)
+    OPEN, CLOSE = 'open', 'close'
+    STATUSES = (
+        (OPEN, _('Open')),
+        (CLOSE, _('Close')),
+    )
+    status = models.CharField(_('Status'), choices=STATUSES, default=OPEN, max_length=20)
 
     class Meta:
         ordering = ('type',)
@@ -111,29 +117,52 @@ class Summit(models.Model):
         return self.type.club_name
 
 
-class CustomUserAbstract(models.Model):
-    # cloned the user when creating anket
-    name = models.CharField(max_length=255, blank=True)
-    first_name = models.CharField(max_length=255, blank=True)
-    last_name = models.CharField(max_length=255, blank=True)
-    pastor = models.CharField(max_length=255, blank=True)
-    bishop = models.CharField(max_length=255, blank=True)
-    sotnik = models.CharField(max_length=255, blank=True)
-    date = models.DateField(default=date.today)
-    department = models.CharField(max_length=255, blank=True)
-    city = models.CharField(max_length=255, blank=True)
-    country = models.CharField(max_length=255, blank=True)
-    region = models.CharField(max_length=255, blank=True)
-    phone_number = models.CharField(max_length=255, blank=True)
-    responsible = models.CharField(max_length=255, blank=True)
-    image = models.CharField(max_length=12, blank=True)
+class ProfileAbstract(models.Model):
+    """ Cloned the user when create/update profile """
+
+    first_name = models.CharField(_('Fisrt name'), max_length=255, blank=True, editable=False)
+    last_name = models.CharField(_('Last name'), max_length=255, blank=True, editable=False)
+
+    pastor = models.CharField(_('Name of pastor'), max_length=255, blank=True, editable=False)
+    bishop = models.CharField(_('Name of bishop'), max_length=255, blank=True, editable=False)
+    sotnik = models.CharField(_('Name of sotnik'), max_length=255, blank=True, editable=False)
+
+    pastor_fk = models.ForeignKey('account.CustomUser', on_delete=models.SET_NULL,
+                                  null=True, blank=True, editable=False, related_name='pastor_users',
+                                  verbose_name=_('Pastor'))
+    bishop_fk = models.ForeignKey('account.CustomUser', on_delete=models.SET_NULL,
+                                  null=True, blank=True, editable=False, related_name='bishop_users',
+                                  verbose_name=_('Bishop'))
+    sotnik_fk = models.ForeignKey('account.CustomUser', on_delete=models.SET_NULL,
+                                  null=True, blank=True, editable=False, related_name='sotnik_users',
+                                  verbose_name=_('Sotnik'))
+
+    #: Date created
+    date = models.DateField(_('Date created'), auto_now_add=True, editable=False)
+    #: User who added a profile
+    creator = models.ForeignKey('account.CustomUser', related_name='added_profiles', editable=False,
+                                null=True, blank=True, verbose_name=_('Creator'), on_delete=models.SET_NULL)
+
+    divisions = models.ManyToManyField('status.Division', verbose_name=_('Divisions'), editable=False)
+    divisions_title = models.CharField(_('Divisions title'), max_length=255, blank=True, editable=False)
+
+    departments = models.ManyToManyField('hierarchy.Department',
+                                         verbose_name=_('Departments'), editable=False)
+    department = models.CharField(_('Titles of departments'), max_length=255, blank=True, editable=False)
+
+    hierarchy = models.ForeignKey('hierarchy.Hierarchy', null=True, blank=True,
+                                  on_delete=models.SET_NULL, verbose_name=_('Hierarchy'), editable=False)
+    hierarchy_title = models.CharField(_('Title of hierarchy'), max_length=255, blank=True, editable=False)
+    master = models.ForeignKey('account.CustomUser', null=True, blank=True, verbose_name=_('Master'),
+                               on_delete=models.PROTECT, editable=False)
+    responsible = models.CharField(_('Name of master'), max_length=255, blank=True, editable=False)
 
     class Meta:
         abstract = True
 
 
 @python_2_unicode_compatible
-class SummitAnket(CustomUserAbstract, AbstractPaymentPurpose):
+class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
     user = models.ForeignKey('account.CustomUser', related_name='summit_ankets')
     summit = models.ForeignKey('Summit', related_name='ankets', verbose_name='Саммит',
                                blank=True, null=True)
@@ -141,24 +170,9 @@ class SummitAnket(CustomUserAbstract, AbstractPaymentPurpose):
     #: The amount paid for the summit
     value = models.DecimalField(_('Paid amount'), max_digits=12, decimal_places=0,
                                 default=Decimal('0'), editable=False)
-    description = models.CharField(max_length=255, blank=True)
     code = models.CharField(max_length=8, blank=True)
 
-    retards = models.BooleanField(default=False)
-    protected = models.BooleanField(default=False)
-
     ticket = models.FileField(_('Ticket'), upload_to='tickets', null=True, blank=True)
-    NONE = 'none'
-    DOWNLOADED = 'download'
-    PRINTED = 'print'
-    TICKET_STATUSES = (
-        (NONE, _('Without ticket.')),
-        (DOWNLOADED, _('Ticket is downloaded.')),
-        (PRINTED, _('Ticket is printed')),
-    )
-    ticket_status = models.CharField(_('Ticket status'), choices=TICKET_STATUSES, default=NONE, max_length=20)
-
-    visited = models.BooleanField(default=False)
 
     VISITOR = settings.SUMMIT_ANKET_ROLES['visitor']
     CONSULTANT = settings.SUMMIT_ANKET_ROLES['consultant']
@@ -178,7 +192,20 @@ class SummitAnket(CustomUserAbstract, AbstractPaymentPurpose):
     #: Payments of the current anket
     payments = GenericRelation('payment.Payment', related_query_name='summit_ankets')
 
-    objects = AnketManager()
+    # Editable fields
+    description = models.CharField(max_length=255, blank=True)
+
+    visited = models.BooleanField(default=False)
+
+    NONE, DOWNLOADED, PRINTED = 'none', 'download', 'print'
+    TICKET_STATUSES = (
+        (NONE, _('Without ticket.')),
+        (DOWNLOADED, _('Ticket is created.')),
+        (PRINTED, _('Ticket is printed')),
+    )
+    ticket_status = models.CharField(_('Ticket status'), choices=TICKET_STATUSES, default=NONE, max_length=20)
+
+    objects = ProfileManager()
 
     class Meta:
         ordering = ('summit__type', '-summit__start_date')
@@ -186,6 +213,72 @@ class SummitAnket(CustomUserAbstract, AbstractPaymentPurpose):
 
     def __str__(self):
         return '%s %s %s' % (self.user.fullname, self.summit.type.title, self.summit.start_date)
+
+    def get_absolute_url(self):
+        return reverse('summit:profile-detail', kwargs={'pk': self.id})
+
+    def link(self):
+        return self.user.get_absolute_url()
+
+    def save(self, *args, **kwargs):
+        update = kwargs.get('update_archive_fields', True)
+        if self.summit.status == Summit.OPEN and update:
+            self.update_archive_fields()
+            super(SummitAnket, self).save(*args, **kwargs)
+            self.divisions.set(self.user.divisions.all())
+            self.departments.set(self.user.departments.all())
+        else:
+            super(SummitAnket, self).save(*args, **kwargs)
+
+    def update_archive_fields(self):
+        self.first_name = self.user.first_name
+        self.last_name = self.user.last_name
+        self.middle_name = self.user.middle_name
+        self.search_name = self.user.search_name
+        self.city = self.user.city
+        self.country = self.user.country
+        self.spiritual_level = self.user.spiritual_level
+
+        pastor = self.user.get_pastor()
+        self.pastor = pastor.fullname if pastor else ''
+        self.pastor_fk = pastor
+
+        bishop = self.user.get_bishop()
+        self.bishop = bishop.fullname if bishop else ''
+        self.bishop_fk = bishop
+
+        sotnik = self.user.get_sotnik()
+        self.sotnik = sotnik.fullname if sotnik else ''
+        self.sotnik_fk = sotnik
+
+        master = self.user.master
+        self.responsible = master.fullname if master else ''
+        self.master = master
+
+        hierarchy = self.user.hierarchy
+        self.hierarchy = hierarchy
+        self.hierarchy_title = hierarchy.title if hierarchy else ''
+
+        self.divisions_title = ', '.join(self.user.divisions.values_list('title', flat=True))
+        self.department = ', '.join(self.user.departments.values_list('title', flat=True))
+
+    update_archive_fields.alter_data = True
+
+    @property
+    def fullname(self):
+        return ' '.join(filter(lambda n: n.strip(), [self.last_name, self.first_name, self.middle_name]))
+
+    @property
+    def name(self):
+        return self.fullname
+
+    @property
+    def phone_number(self):
+        return self.user.phone_number
+
+    @property
+    def region(self):
+        return self.user.region
 
     @property
     def total_payed(self):
@@ -243,6 +336,13 @@ class SummitAnket(CustomUserAbstract, AbstractPaymentPurpose):
         else:
             return self.summit.full_cost <= self.total_payed
 
+    @property
+    def reg_code(self):
+        reg_code = str(self.id) + '1324'
+        reg_code = hex(int(reg_code)).split('x')[-1]
+
+        return reg_code
+
 
 @python_2_unicode_compatible
 class SummitTicket(models.Model):
@@ -264,6 +364,7 @@ class SummitTicket(models.Model):
 
     users = models.ManyToManyField('summit.SummitAnket', related_name='tickets',
                                    verbose_name=_('Users'))
+    is_printed = models.BooleanField(_('Is printed'), default=False)
 
     class Meta:
         ordering = ('summit', 'title')
@@ -374,3 +475,50 @@ class SummitAnketNote(models.Model):
         verbose_name = _('Summit Anket Note')
         verbose_name_plural = _('Summit Anket Notes')
         ordering = ('-date_created',)
+
+
+@python_2_unicode_compatible
+class SummitVisitorLocation(models.Model):
+    visitor = models.ForeignKey('summit.SummitAnket', verbose_name=_('Summit Visitor'),
+                                related_name='visitor_locations')
+    date_time = models.DateTimeField(verbose_name='Date Time')
+    longitude = models.FloatField(verbose_name=_('Longitude'))
+    latitude = models.FloatField(verbose_name=_('Latitude'))
+    type = models.PositiveSmallIntegerField(verbose_name=_('Type'), default=1)
+
+    class Meta:
+        verbose_name_plural = _('Summit Users Location')
+        verbose_name = _('Summit User Location')
+        ordering = ('-date_time',)
+        unique_together = ['visitor', 'date_time']
+
+    def __str__(self):
+        return 'Местонахождение участника саммита %s. Дата и время: %s' % (self.visitor, self.date_time)
+
+
+@python_2_unicode_compatible
+class SummitEventTable(models.Model):
+    summit = models.ForeignKey('Summit', on_delete=models.CASCADE, verbose_name=_('Саммит'))
+    date_time = models.DateTimeField(verbose_name=_('Дата и Время'))
+    name_ru = models.CharField(max_length=64, verbose_name=_('Название на Русском'))
+    author_ru = models.CharField(max_length=64, verbose_name=_('Имя автора на Русском'))
+    name_en = models.CharField(max_length=64, verbose_name=_('Название на Английском'))
+    author_en = models.CharField(max_length=64, verbose_name=_('Имя автора на Английском'))
+    name_de = models.CharField(max_length=64, verbose_name=_('Название на Немецком'))
+    author_de = models.CharField(max_length=64, verbose_name=_('Имя автора на Немецком'))
+
+    class Meta:
+        verbose_name = _('Расписание Саммита')
+        verbose_name_plural = _('Расписание Саммита')
+        ordering = ('-id',)
+
+    @property
+    def date(self):
+        return self.date_time.date()
+
+    @property
+    def time(self):
+        return self.date_time.time()
+
+    def __str__(self):
+        return self.author_ru

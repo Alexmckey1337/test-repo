@@ -29,6 +29,8 @@ env.read_env(env_file=str(BASE_DIR.path('.env')))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '4y6l3@a0%vq394z6+w)k3-wl459r++v=z!jv1gw4+nt0sd5z+s'
 
+VISITORS_LOCATION_TOKEN = '4ewfeciss6qdbmgfj9eg6jb3fdcxefrs4dxtcdrt10rduds2sn'
+
 # SECURITY WARNING: don't run with debug turned on in production!
 
 DEBUG = env.bool('DJANGO_DEBUG', False)
@@ -177,7 +179,7 @@ USE_I18N = True
 SITE_ID = 1
 TIME_ZONE = 'Europe/Kiev'
 USE_L10N = False
-USE_TZ = True
+USE_TZ = False
 
 LOCALE_PATHS = (str(BASE_DIR.path('locale')),)
 
@@ -215,7 +217,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         # 'rest_framework.authentication.BasicAuthentication',
         'edem.authentification.CsrfExemptSessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
+        'account.auth_backends.CustomUserTokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
@@ -370,4 +372,27 @@ CHANNEL_LAYERS = {
         },
         "ROUTING": "edem.routing.channel_routing",
     },
+}
+
+HIERARCHIES = (
+    dict(title='Гость', level=0),
+    dict(title='Прихожанин', level=0),
+    dict(title='Лидер', level=1),
+    dict(title='Пастор', level=2),
+    dict(title='Сотник (Отв-й за 5 ячеек)', level=2),
+    dict(title='Ответственный Киев', level=4),
+    dict(title='Епископ', level=4),
+    dict(title='Старший епископ', level=5),
+    dict(title='Апостол', level=6),
+    dict(title='Архонт', level=7),
+)
+
+CHANGE_HIERARCHY_LEVELS = {
+    0: set(),
+    1: {0},
+    2: {0, 1},
+    4: {0, 1, 2, 4},
+    5: {0, 1, 2, 4},
+    6: {0, 1, 2, 4, 5},
+    7: {0, 1, 2, 4, 5, 6, 7},
 }
