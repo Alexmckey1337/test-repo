@@ -1,11 +1,12 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from django.urls import reverse
 from rest_framework import serializers
 
 from account.models import CustomUser as User
 from account.serializers import UserTableSerializer, UserShortSerializer
-from common.fields import ListCharField
+from common.fields import ListCharField, ReadOnlyChoiceWithKeyField
 from .models import (Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
                      SummitTicket, SummitVisitorLocation, SummitEventTable)
 
@@ -27,6 +28,7 @@ class AnketEmailSerializer(serializers.ModelSerializer):
 
 
 class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
+    user_id = serializers.IntegerField(source='user.user_ptr_id')
     emails = AnketEmailSerializer(many=True, read_only=True)
     total_sum = serializers.DecimalField(max_digits=12, decimal_places=0)
     full_name = serializers.CharField()
@@ -39,16 +41,18 @@ class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
     born_date = serializers.CharField(source='user.born_date')
     repentance_date = serializers.CharField(source='user.repentance_date')
     spiritual_level = serializers.CharField(source='get_spiritual_level_display')
+    ticket_status = ReadOnlyChoiceWithKeyField(choices=SummitAnket.TICKET_STATUSES, read_only=True)
 
     class Meta:
         model = SummitAnket
-        fields = ('id', 'full_name', 'responsible', 'spiritual_level',
+        fields = ('id', 'user_id', 'full_name', 'responsible', 'spiritual_level',
                   'divisions_title', 'department', 'hierarchy_title', 'phone_number', 'email', 'social',
                   'country', 'city', 'region', 'district', 'address', 'born_date', 'repentance_date',
                   'code', 'value', 'description',
                   'emails',
                   'visited',
                   'link',
+                  'ticket_status',
 
                   'total_sum',
                   )
@@ -71,7 +75,6 @@ class SummitAnketForSelectSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class UserWithLinkSerializer(serializers.HyperlinkedModelSerializer):
-
     class Meta:
         model = User
         fields = ('id', 'fullname', 'link')
@@ -142,6 +145,47 @@ class SummitAnketWithNotesSerializer(serializers.ModelSerializer):
 # FOR APP
 
 
+class ChildrenLink(serializers.RelatedField):
+    def __init__(self, view_name=None, **kwargs):
+        if view_name is not None:
+            self.view_name = view_name
+        assert self.view_name is not None, 'The `view_name` argument is required.'
+        self.summit_id = kwargs.pop('summit_kwarg', 'summit_id')
+        self.master_id = kwargs.pop('master_kwarg', 'master_id')
+
+        super(ChildrenLink, self).__init__(**kwargs)
+
+    def get_attribute(self, instance):
+        summit_id = instance.summit_id
+        master_id = instance.user_id
+        has_children = instance.diff // 2 > 0
+
+        return summit_id, master_id, has_children
+
+    def to_representation(self, value):
+        summit_id, master_id, has_children = value
+        if has_children:
+            return reverse(self.view_name, kwargs={self.summit_id: summit_id, self.master_id: master_id})
+        return None
+
+
+class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField()
+    master_fio = serializers.CharField(source='responsible')
+    user_id = serializers.IntegerField(source='user.user_ptr_id')
+    phone_number = serializers.CharField(source='user.phone_number')
+    extra_phone_numbers = serializers.ListField(source='user.extra_phone_numbers')
+    children = ChildrenLink(view_name='summit-app-profile-list-master', queryset=SummitAnket.objects.all())
+
+    class Meta:
+        model = SummitAnket
+        fields = (
+            'id', 'user_id', 'master_id',
+            'full_name', 'country', 'city', 'phone_number', 'extra_phone_numbers',
+            'master_fio', 'hierarchy_id', 'children',
+        )
+
+
 class SummitTicketSerializer(serializers.ModelSerializer):
     summit_type = serializers.IntegerField(source='summit.type.id')
     summit = SummitSerializer()
@@ -169,16 +213,18 @@ class SummitTypeForAppSerializer(serializers.ModelSerializer):
 class UserForAppSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('email', 'first_name', 'last_name', 'middle_name',
-                  'phone_number', 'country', 'region', 'city', 'district', 'address', 'image_source')
+        fields = ('first_name', 'last_name', 'middle_name', 'country', 'city', 'email', 'phone_number') \
+            #  + ('region', 'district', 'address', 'image_source')
 
 
 class SummitAnketForAppSerializer(serializers.ModelSerializer):
     user = UserForAppSerializer()
+    ticket_id = serializers.CharField(source='code')
+    visitor_id = serializers.IntegerField(source='id')
 
     class Meta:
         model = SummitAnket
-        fields = ('id', 'user', 'code', 'value', 'is_member')
+        fields = ('visitor_id', 'user', 'ticket_id', 'reg_code')  # + ('value', 'is_member')
 
 
 class SummitAnketLocationSerializer(serializers.ModelSerializer):
@@ -191,10 +237,11 @@ class SummitAnketLocationSerializer(serializers.ModelSerializer):
 
 class SummitVisitorLocationSerializer(serializers.ModelSerializer):
     # visitor = SummitAnketLocationSerializer()
+    visitor_id = serializers.IntegerField(source='visitor.id')
 
     class Meta:
         model = SummitVisitorLocation
-        fields = ('visitor', 'date_time', 'longitude', 'latitude')
+        fields = ('visitor_id', 'date_time', 'longitude', 'latitude', 'type')
 
 
 class SummitEventTableSerializer(serializers.ModelSerializer):

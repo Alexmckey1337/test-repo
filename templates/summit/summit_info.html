@@ -1,4 +1,5 @@
 {% extends "layout_main.html" %}
+{% load i18n %}
 {% load static %}
 {% load summit_tags %}
 {% load payment_tags %}
@@ -232,6 +233,9 @@
                         <div class="label_block-wrapp">
                             <span class="label_block">Фотография</span>
                         </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">{% trans "Статус билета" %}</span>
+                        </div>
                     </div>
                     <div class="col-6">
                         <p class="input_block">
@@ -286,6 +290,14 @@
                                 <option value="false">Нет</option>
                             </select>
                         </p>
+                        <p class="input_block">
+                            <select class="select__db" data-filter="ticket_status" name="ticket_status" id="ticket_status">
+                                <option>ВСЕ</option>
+                                <option value="none">{% trans "Не создан" %}</option>
+                                <option value="download">{% trans "Создан" %}</option>
+                                <option value="print">{% trans "Напечатано" %}</option>
+                            </select>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -323,9 +335,9 @@
                     <% if (results[index][key] != null) { %>
                     <td class="edit"><a href="<%= results[index].link %>"
                                         data-link="<%= results[index].link %>"
-                                        data-id="<%=results[index].id %>"
-                        <% if(results[index].ankets_id) { %>
-                        data-ankets="<%= results[index].ankets_id %>"
+                                        data-id="<%=results[index].user_id %>"
+                        <% if(results[index].id) { %>
+                        data-ankets="<%= results[index].id %>"
                         <% } %>><%= results[index][key] %></a>
                         <span class="quick-edit"></span>
                     </td>
@@ -352,6 +364,12 @@
                     <% } else if (key == 'master' || key == 'pastor' || key == 'leader') { %>
                     <% if (results[index][key] != null) { %>
                     <td><%= results[index][key].fullname %></td>
+                    <% } else { %>
+                    <td></td>
+                    <% } %>
+                    <% } else if (key == 'ticket_status') { %>
+                    <% if (results[index][key] != null) { %>
+                    <td data-id="<%= results[index][key][0] %>"><%= results[index][key][1] %></td>
                     <% } else { %>
                     <td></td>
                     <% } %>

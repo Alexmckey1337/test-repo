@@ -200,7 +200,7 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
     NONE, DOWNLOADED, PRINTED = 'none', 'download', 'print'
     TICKET_STATUSES = (
         (NONE, _('Without ticket.')),
-        (DOWNLOADED, _('Ticket is downloaded.')),
+        (DOWNLOADED, _('Ticket is created.')),
         (PRINTED, _('Ticket is printed')),
     )
     ticket_status = models.CharField(_('Ticket status'), choices=TICKET_STATUSES, default=NONE, max_length=20)
@@ -336,6 +336,13 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
         else:
             return self.summit.full_cost <= self.total_payed
 
+    @property
+    def reg_code(self):
+        reg_code = str(self.id) + '1324'
+        reg_code = hex(int(reg_code)).split('x')[-1]
+
+        return reg_code
+
 
 @python_2_unicode_compatible
 class SummitTicket(models.Model):
@@ -357,6 +364,7 @@ class SummitTicket(models.Model):
 
     users = models.ManyToManyField('summit.SummitAnket', related_name='tickets',
                                    verbose_name=_('Users'))
+    is_printed = models.BooleanField(_('Is printed'), default=False)
 
     class Meta:
         ordering = ('summit', 'title')
@@ -476,6 +484,7 @@ class SummitVisitorLocation(models.Model):
     date_time = models.DateTimeField(verbose_name='Date Time')
     longitude = models.FloatField(verbose_name=_('Longitude'))
     latitude = models.FloatField(verbose_name=_('Latitude'))
+    type = models.PositiveSmallIntegerField(verbose_name=_('Type'), default=1)
 
     class Meta:
         verbose_name_plural = _('Summit Users Location')

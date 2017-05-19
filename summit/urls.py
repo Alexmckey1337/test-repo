@@ -28,6 +28,15 @@ custom_urls = [
     url(r'^generate_summit_tickets/(?P<summit_id>\d+)/', views.generate_summit_tickets, name='generate_code'),
 
     url(r'^summits/(?P<pk>\d+)/users/$', views.SummitProfileListView.as_view(), name='summit-profile-list'),
+    url(r'^summit_ticket/(?P<ticket>\d+)/print/$', views.SummitTicketMakePrintedView.as_view(),
+        name='summit-ticket-print'),
+]
+
+custom_app = [
+    url(r'^summits/(?P<summit_id>\d+)/users/$', views.SummitProfileTreeForAppListView.as_view(),
+        name='summit-app-profile-list'),
+    url(r'^summits/(?P<summit_id>\d+)/users/(?P<master_id>\d+)/$', views.SummitProfileTreeForAppListView.as_view(),
+        name='summit-app-profile-list-master'),
 ]
 
 urlpatterns = [
@@ -35,4 +44,5 @@ urlpatterns = [
     url(r'^app/', include(router_app.urls)),
 
     url(r'^v1.0/', include(custom_urls)),
+    url(r'^app/', include(custom_app)),
 ]

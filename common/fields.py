@@ -11,6 +11,15 @@ class ReadOnlyChoiceField(serializers.ChoiceField):
         return t
 
 
+class ReadOnlyChoiceWithKeyField(serializers.ChoiceField):
+
+    def to_representation(self, value):
+        if value in ('', None):
+            return value
+        t = self.grouped_choices.get(value, value)
+        return value, t
+
+
 class DecimalWithCurrencyField(serializers.DecimalField):
     def __init__(self, *args, **kwargs):
         self.currency_field = kwargs.pop('currency_field', 'currency')

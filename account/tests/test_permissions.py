@@ -75,7 +75,7 @@ class TestCanCreateUser:
     @pytest.mark.parametrize(
         'level', list(settings.SUMMIT_ANKET_ROLES.values()), ids=list(settings.SUMMIT_ANKET_ROLES.keys()))
     def test_by_summit_level(self, summit_anket_factory, level):
-        profile = summit_anket_factory(role=level)
+        profile = summit_anket_factory(role=level, user__hierarchy__level=0)
         request = type('Request', (), {'user': profile.user})
         assert CanCreateUser().has_permission(request, None) == (level >= settings.SUMMIT_ANKET_ROLES['supervisor'])
 
@@ -172,7 +172,7 @@ class TestCanCreateUserFunc:
     @pytest.mark.parametrize(
         'level', list(settings.SUMMIT_ANKET_ROLES.values()), ids=list(settings.SUMMIT_ANKET_ROLES.keys()))
     def test_by_summit_level(self, summit_anket_factory, level):
-        profile = summit_anket_factory(role=level)
+        profile = summit_anket_factory(role=level, user__hierarchy__level=0)
         assert can_create_user(profile.user) == (level >= settings.SUMMIT_ANKET_ROLES['supervisor'])
 
 

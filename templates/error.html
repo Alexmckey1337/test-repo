@@ -3,25 +3,15 @@
 
 {% block main_styles %}
     {{ block.super }}
-    <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-
-<!-- Optional theme -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
-
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 {% endblock %}
 
 {% block main.content %}
-    <div class="container-fluid">
-        <div class="jumbotron">
-            <h1>{% block error_heading %}{% trans 'Sorry!' %}{% endblock %}</h1>
+    <div class="jumbotron">
+        <h1>{% block error_heading %}{% trans 'Sorry!' %}{% endblock %}</h1>
             {% block error_message %}{% endblock %}
-            <p>
-                <a class="btn btn-primary btn-lg" onclick="javascript:history.go(-1);">{% trans 'Return to previous page' %}</a>
-                <a class="btn btn-primary btn-lg" href="{% url 'index' %}">{% trans "Go to homepage" %}</a>
-            </p>
-        </div>
+        <p class="btn_group">
+            <a class="btn" onclick="javascript:history.go(-1);">{% trans 'Return to previous page' %}</a>
+            <a class="btn" href="{% url 'index' %}">{% trans "Go to homepage" %}</a>
+        </p>
     </div>
 {% endblock %}
