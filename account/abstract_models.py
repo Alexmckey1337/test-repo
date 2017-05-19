@@ -21,11 +21,3 @@ class CustomUserAbstract(models.Model):
 
     class Meta:
         abstract = True
-
-
-class UserPermission(models.Model):
-    class Meta:
-        abstract = True
-
-    def _perm_req(self):
-        return type('Request', (), {'user': self})

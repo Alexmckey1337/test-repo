@@ -137,7 +137,8 @@ class UserViewSet(viewsets.ModelViewSet, UserExportViewSetMixin):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         user = self.get_object()
-        serializer = self.get_serializer(user, data=request.data, partial=partial)
+        data = request.data
+        serializer = self.get_serializer(user, data=data, partial=partial)
         try:
             serializer.is_valid(raise_exception=True)
         except HierarchyError:

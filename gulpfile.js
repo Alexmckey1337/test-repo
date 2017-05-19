@@ -41,13 +41,13 @@ gulp.task('less', function () {
 
 gulp.task('scripts', function () {
     return gulp.src(paths.scripts)
-        .pipe(changed('public/static/js/'))
-        .pipe(sourcemaps.init())
+        // .pipe(changed('public/static/js/'))
+        // .pipe(sourcemaps.init())
         .pipe(babel({
             presets: ['es2015']
         }))
-        .pipe(uglify())
-        .pipe(sourcemaps.write())
+        // .pipe(uglify())
+        // .pipe(sourcemaps.write())
         .pipe(gulp.dest('public/static/js/'));
 });
 

@@ -341,6 +341,7 @@ List of summit profiles
             "description": "",
             "emails": [],
             "visited": false,
+            "ticket_status": {"none": "Without ticket."},
             "link": "/summits/profile/20083/",
             "total_sum": "0"
           },
@@ -367,6 +368,7 @@ List of summit profiles
             "description": "",
             "emails": [],
             "visited": false,
+            "ticket_status": {"print": "Ticket is printed."},
             "link": "/summits/profile/20489/",
             "total_sum": "0"
           }
@@ -378,6 +380,7 @@ List of summit profiles
    :query int master: filter by ``master_id``, returned children of master
    :query int master_tree: filter by ``master_id``, returned descendants of master and self master
    :query int department: filter by ``department_id``
+   :query int ticket_status: filter by ``ticket_status`` (one of ``none``, ``download``, ``print``)
    :query string search_fio: search by ``last_name``, ``first_name``, ``middle_name``, ``search_name``
    :query string search_email: search by ``email``
    :query string search_phone_number: search by main ``phone_number``

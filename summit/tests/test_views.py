@@ -3,13 +3,16 @@ from decimal import Decimal
 import pytest
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.permissions import AllowAny
 
 from payment.serializers import PaymentShowSerializer
 from summit.models import Summit, SummitLesson, SummitAnket
-from summit.serializers import SummitSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer, \
-    SummitAnketNoteSerializer
+from summit.serializers import (
+    SummitSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer, SummitAnketNoteSerializer)
 from summit.views import SummitProfileListView
+
+
+def get_queryset(s):
+    return SummitAnket.objects.base_queryset().annotate_total_sum().annotate_full_name().filter(summit_id=s.summit)
 
 
 @pytest.mark.django_db
@@ -250,8 +253,7 @@ class TestSummitAnketTableViewSet:
 
     def test_user_search_by_fio(self, monkeypatch, api_login_client, summit_anket_factory, summit_factory):
         monkeypatch.setattr(SummitProfileListView, 'check_permissions', lambda s, r: 0)
-        monkeypatch.setattr(SummitProfileListView, 'get_queryset',
-                            lambda s: SummitAnket.objects.base_queryset().annotate_total_sum().annotate_full_name().filter(summit_id=s.summit))
+        monkeypatch.setattr(SummitProfileListView, 'get_queryset', get_queryset)
         summit = summit_factory()
         summit_anket_factory.create_batch(10, summit=summit)
         summit_anket_factory(user__last_name='searchlast', user__first_name='searchfirst', summit=summit)
@@ -267,8 +269,7 @@ class TestSummitAnketTableViewSet:
 
     def test_user_search_by_email(self, monkeypatch, api_login_client, summit_anket_factory, summit_factory):
         monkeypatch.setattr(SummitProfileListView, 'check_permissions', lambda s, r: 0)
-        monkeypatch.setattr(SummitProfileListView, 'get_queryset',
-                            lambda s: SummitAnket.objects.base_queryset().annotate_total_sum().annotate_full_name().filter(summit_id=s.summit))
+        monkeypatch.setattr(SummitProfileListView, 'get_queryset', get_queryset)
         summit = summit_factory()
         summit_anket_factory.create_batch(10, summit=summit)
         summit_anket_factory(user__email='mysupermail@test.com', summit=summit)
@@ -285,8 +286,7 @@ class TestSummitAnketTableViewSet:
 
     def test_user_search_by_phone(self, monkeypatch, api_login_client, summit_anket_factory, summit_factory):
         monkeypatch.setattr(SummitProfileListView, 'check_permissions', lambda s, r: 0)
-        monkeypatch.setattr(SummitProfileListView, 'get_queryset',
-                            lambda s: SummitAnket.objects.base_queryset().annotate_total_sum().annotate_full_name().filter(summit_id=s.summit))
+        monkeypatch.setattr(SummitProfileListView, 'get_queryset', get_queryset)
         summit = summit_factory()
         summit_anket_factory.create_batch(10, summit=summit)
         summit_anket_factory(user__phone_number='+380990002246', summit=summit)
@@ -303,8 +303,7 @@ class TestSummitAnketTableViewSet:
 
     def test_user_search_by_country(self, monkeypatch, api_login_client, summit_anket_factory, summit_factory):
         monkeypatch.setattr(SummitProfileListView, 'check_permissions', lambda s, r: 0)
-        monkeypatch.setattr(SummitProfileListView, 'get_queryset',
-                            lambda s: SummitAnket.objects.base_queryset().annotate_total_sum().annotate_full_name().filter(summit_id=s.summit))
+        monkeypatch.setattr(SummitProfileListView, 'get_queryset', get_queryset)
         summit = summit_factory()
         summit_anket_factory.create_batch(10, summit=summit)
         summit_anket_factory.create_batch(8, user__country='Ukraine', summit=summit)
@@ -320,8 +319,7 @@ class TestSummitAnketTableViewSet:
 
     def test_user_search_by_city(self, monkeypatch, api_login_client, summit_anket_factory, summit_factory):
         monkeypatch.setattr(SummitProfileListView, 'check_permissions', lambda s, r: 0)
-        monkeypatch.setattr(SummitProfileListView, 'get_queryset',
-                            lambda s: SummitAnket.objects.base_queryset().annotate_total_sum().annotate_full_name().filter(summit_id=s.summit))
+        monkeypatch.setattr(SummitProfileListView, 'get_queryset', get_queryset)
         summit = summit_factory()
         summit_anket_factory.create_batch(10, summit=summit)
         summit_anket_factory.create_batch(8, user__city='Tokio', summit=summit)
@@ -340,8 +338,7 @@ class TestSummitAnketTableViewSet:
         other_hierarchy = hierarchy_factory()
         hierarchy = hierarchy_factory()
         monkeypatch.setattr(SummitProfileListView, 'check_permissions', lambda s, r: 0)
-        monkeypatch.setattr(SummitProfileListView, 'get_queryset',
-                            lambda s: SummitAnket.objects.base_queryset().annotate_total_sum().annotate_full_name().filter(summit_id=s.summit))
+        monkeypatch.setattr(SummitProfileListView, 'get_queryset', get_queryset)
         summit = summit_factory()
         summit_anket_factory.create_batch(10, user__hierarchy=hierarchy, summit=summit)
         summit_anket_factory.create_batch(20, user__hierarchy=other_hierarchy, summit=summit)
@@ -358,8 +355,7 @@ class TestSummitAnketTableViewSet:
         other_department = department_factory()
         department = department_factory()
         monkeypatch.setattr(SummitProfileListView, 'check_permissions', lambda s, r: 0)
-        monkeypatch.setattr(SummitProfileListView, 'get_queryset',
-                            lambda s: SummitAnket.objects.base_queryset().annotate_total_sum().annotate_full_name().filter(summit_id=s.summit))
+        monkeypatch.setattr(SummitProfileListView, 'get_queryset', get_queryset)
         summit = summit_factory()
         profiles = summit_anket_factory.create_batch(10, summit=summit)
         for p in profiles:
@@ -379,8 +375,7 @@ class TestSummitAnketTableViewSet:
             self, monkeypatch, api_login_client, summit_anket_factory, summit_factory, user_factory):
         master = user_factory(username='master')
         monkeypatch.setattr(SummitProfileListView, 'check_permissions', lambda s, r: 0)
-        monkeypatch.setattr(SummitProfileListView, 'get_queryset',
-                            lambda s: SummitAnket.objects.base_queryset().annotate_total_sum().annotate_full_name().filter(summit_id=s.summit))
+        monkeypatch.setattr(SummitProfileListView, 'get_queryset', get_queryset)
         summit = summit_factory()
         summit_anket_factory.create_batch(10, user__master=master, summit=summit)
         summit_anket_factory.create_batch(20, summit=summit)
@@ -395,8 +390,7 @@ class TestSummitAnketTableViewSet:
     def test_user_list_filter_by_master_tree(self, monkeypatch, api_login_client, summit_anket_factory, summit_factory,
                                              user_factory):
         monkeypatch.setattr(SummitProfileListView, 'check_permissions', lambda s, r: 0)
-        monkeypatch.setattr(SummitProfileListView, 'get_queryset',
-                            lambda s: SummitAnket.objects.base_queryset().annotate_total_sum().annotate_full_name().filter(summit_id=s.summit))
+        monkeypatch.setattr(SummitProfileListView, 'get_queryset', get_queryset)
         summit = summit_factory()
         user = user_factory()  # count: + 0, = 0, all_users_count: +1, = 1
 

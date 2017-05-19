@@ -1,8 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from datetime import datetime, date
-from decimal import Decimal
+from datetime import datetime
 
 from edem.settings.celery import app
 from event.models import Meeting, MeetingType

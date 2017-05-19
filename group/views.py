@@ -240,17 +240,6 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
 
     @list_route(methods=['GET'], serializer_class=ChurchWithoutPaginationSerializer, pagination_class=None)
     def churches_by_department(self, request):
-        if not request.query_params.get('department_id'):
-            raise exceptions.ValidationError(_("Некорректный запрос. Департамент не передан."))
-
-        departments = request.query_params.getlist('department_id')
-
-        churches = Church.objects.filter(department_id__in=departments)
-        churches = self.serializer_class(churches, many=True)
-        return Response(churches.data)
-
-    @list_route(methods=['GET'], serializer_class=ChurchWithoutPaginationSerializer, pagination_class=None)
-    def churches_by_department(self, request):
         if not request.query_params.get('department'):
             raise exceptions.ValidationError(_("Некорректный запрос. Департамент не передан."))
 

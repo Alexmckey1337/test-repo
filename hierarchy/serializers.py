@@ -15,4 +15,4 @@ class DepartmentSerializer(serializers.ModelSerializer):
 class HierarchySerializer(serializers.ModelSerializer):
     class Meta:
         model = Hierarchy
-        fields = ('url', 'id', 'title', 'level',)
+        fields = ('id', 'title', 'level',)

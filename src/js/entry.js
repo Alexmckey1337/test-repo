@@ -47,6 +47,7 @@ function authUser() {
                 //loginError(JSONobj.message);
                 //alert(JSONobj.message)
                 clearFields();
+                $('.account .invalid').html(JSONobj.message);
                 document.querySelector(".account .invalid").style.display = 'block'
             }
         }, 'POST', true, {
@@ -54,6 +55,7 @@ function authUser() {
         });
 
     } else {
+        $('.account .invalid').html('Неверно введён e-mail или пароль');
         document.querySelector(".account .invalid").style.display = 'block';
         clearFields()
     }

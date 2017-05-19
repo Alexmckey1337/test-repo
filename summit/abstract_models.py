@@ -1,13 +1,13 @@
 from django.conf import settings
+from django.db import models
 
-from account.abstract_models import UserPermission
 from summit.models import SummitType
 from summit.permissions import can_see_summit, can_see_summit_type, can_see_any_summit, can_see_any_summit_type, \
     can_edit_summit_block, can_see_summit_block, can_see_any_summit_ticket, can_see_summit_ticket, \
     can_see_summit_profiles, can_add_user_to_summit
 
 
-class SummitUserPermission(UserPermission):
+class SummitUserPermission(models.Model):
     class Meta:
         abstract = True
 

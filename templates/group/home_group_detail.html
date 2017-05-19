@@ -31,38 +31,60 @@
     <div class="accordion">
         <h2 class="info-title">Основная информация:</h2>
         <div class="info">
-            <ul>
-                <li>Дата открытия:</li>
-                <li>{{ home_group.opening_date }}</li>
-                <li>Церковь:</li>
-                <li><a href="/churches/{{ home_group.church.id }}">{{ home_group.church }}</a></li>
-                <li>Лидер:</li>
-                <li><a href="{{ home_group.leader.get_absolute_url }}">{{ home_group.leader }}</a></li>
-                <li>Адрес:</li>
-                <li>{{ home_group.address }}</li>
-                <li>Телефонный номер:</li>
-                <li>{{ home_group.phone_number }}</li>
-                <li>Сайт:</li>
-                <li>{% if home_group.website %}
+            <div class="info-block">
+                <div class="title-wrapper">
+                    <span>Дата открытия:</span>
+                </div>
+                <p>{{ home_group.opening_date }}</p>
+                <div class="title-wrapper">
+                    <span>Церковь:</span>
+                </div>
+                <p><a href="/churches/{{ home_group.church.id }}">{{ home_group.church }}</a></p>
+                <div class="title-wrapper">
+                    <span>Лидер:</span>
+                </div>
+                <p><a href="{{ home_group.leader.get_absolute_url }}">{{ home_group.leader }}</a></p>
+                <div class="title-wrapper">
+                    <span>Адрес:</span>
+                </div>
+                <p>{{ home_group.address }}</p>
+                <div class="title-wrapper">
+                    <span>Телефонный номер:</span>
+                </div>
+                <p>{{ home_group.phone_number }}</p>
+                <div class="title-wrapper">
+                    <span>Сайт:</span>
+                </div>
+                <p>{% if home_group.website %}
                     <a href="{{ home_group.website }}" target="_blank">{{ home_group.website }}</a>
                     {% endif %}
-                </li>
-            </ul>
+                </p>
+            </div>
         </div>
             <h2 class="info-title">Сводная информация:</h2>
             <div class="info info-calc">
-                <ul>
-                    <li>Количество людей:</li>
-                    <li><span id="users_count">{{ users_count }}</span></li>
-                    <li>Количество Отцов:</li>
-                    <li><span id="fathers_count">{{ fathers_count }}</li>
-                    <li>Количество Юношей:</li>
-                    <li><span id="juniors_count">{{ juniors_count }}</span></li>
-                    <li>Количество Младенцев:</li>
-                    <li><span id="babies_count">{{ babies_count }}</span></li>
-                    <li>Количество Партнеров:</li>
-                    <li><span id="partners_count">{{ partners_count }}</span></li>
-                </ul>
+                <div class="info-block">
+                    <div class="title-wrapper">
+                        <span>Количество людей:</span>
+                    </div>
+                    <p><span id="users_count">{{ users_count }}</span></p>
+                    <div class="title-wrapper">
+                        <span>Количество Отцов:</span>
+                    </div>
+                    <p><span id="fathers_count">{{ fathers_count }}</p>
+                    <div class="title-wrapper">
+                        <span>Количество Юношей:</span>
+                    </div>
+                    <p><span id="juniors_count">{{ juniors_count }}</span></p>
+                    <div class="title-wrapper">
+                        <span>Количество Младенцев:</span>
+                    </div>
+                    <p><span id="babies_count">{{ babies_count }}</span></p>
+                    <div class="title-wrapper">
+                        <span>Количество Партнеров:</span>
+                    </div>
+                    <p><span id="partners_count">{{ partners_count }}</span></p>
+                </div>
             </div>
     </div>
     {% block pagination_top %}
