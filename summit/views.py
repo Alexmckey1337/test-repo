@@ -315,7 +315,7 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
         return super(SummitProfileTreeForAppListView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        self.sуummit = get_object_or_404(Summit, pk=kwargs.get('summit_id', None))
+        self.summit = get_object_or_404(Summit, pk=kwargs.get('summit_id', None))
         self.master_id = kwargs.get('master_id', None)
         return self.list(request, *args, **kwargs)
 
