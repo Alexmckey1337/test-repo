@@ -1360,7 +1360,6 @@ function makePayments(config = {}) {
 }
 
 function makePagination(config) {
-    console.log(config);
     let container = document.createElement('div'),
         input = document.createElement('input'),
         text = document.createElement('span'),
@@ -2547,27 +2546,31 @@ function makeTabs(page = 0) {
     }
 }
 function homeReportsTable(config = {}) {
+    let status = $('#statusTabs').find('.current').find('button').data('status');
+    config.status = status;
     Object.assign(config, getFilterParam());
     getHomeReports(config).then(data => {
-        makeHomeReportsTable(data);
+        makeHomeReportsTable(data, config);
     })
 }
 
 function makeHomeReportsTable(data, config = {}) {
+    console.log(config);
     let tmpl = $('#databaseHomeReports').html();
     let rendered = _.template(tmpl)(data);
     $('#homeReports').html(rendered);
     let count = data.count;
     let pages = Math.ceil(count / CONFIG.pagination_count);
-    let page = config.pages || 1;
+    let page = config.page || 1;
     let paginationConfig = {
         container: ".reports__pagination",
         currentPage: page,
         pages: pages,
-        callback: makeHomeReportsTable
+        callback: homeReportsTable
     };
     $('.table__count').text(data.count);
     makePagination(paginationConfig);
+    orderTable.sort(homeReportsTable);
     $('.preloader').hide();
 }
 
