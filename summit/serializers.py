@@ -8,7 +8,7 @@ from account.models import CustomUser as User
 from account.serializers import UserTableSerializer, UserShortSerializer
 from common.fields import ListCharField, ReadOnlyChoiceWithKeyField
 from .models import (Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
-                     SummitTicket, SummitVisitorLocation, SummitEventTable)
+                     SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend)
 
 
 class SummitAnketNoteSerializer(serializers.ModelSerializer):
@@ -252,3 +252,19 @@ class SummitEventTableSerializer(serializers.ModelSerializer):
         model = SummitEventTable
         fields = ('summit_id', 'date', 'time', 'name_ru', 'author_ru', 'name_en',
                   'author_en', 'name_de', 'author_de')
+
+
+class SummitAnketCodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SummitAnket
+        fields = ('code',)
+
+
+class SummitAttendSerializer(serializers.ModelSerializer):
+    anket = SummitAnketCodeSerializer(read_only=True)
+    date = serializers.DateField(format='%Y-%m-%d')
+    time = serializers.TimeField()
+
+    class Meta:
+        model = SummitAttend
+        fields = ('id', 'anket', 'date')

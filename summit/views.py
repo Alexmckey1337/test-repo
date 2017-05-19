@@ -18,23 +18,25 @@ from rest_framework.viewsets import GenericViewSet
 
 from account.models import CustomUser
 from common.filters import FieldSearchFilter
+from common.views_mixins import ModelWithoutDeleteViewSet
 from hierarchy.models import Hierarchy
 from hierarchy.serializers import HierarchySerializer
 from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import FilterByClub, ProductFilter, SummitUnregisterFilter, ProfileFilter, \
     FilterProfileMasterTreeWithSelf, HasPhoto
-from summit.pagination import SummitPagination
+from summit.pagination import SummitPagination, SummitTicketPagination
 from summit.permissions import HasAPIAccess, CanSeeSummitProfiles
 from summit.utils import generate_ticket
 from .models import (Summit, SummitAnket, SummitType, SummitLesson, SummitUserConsultant,
-                     SummitTicket, SummitVisitorLocation, SummitEventTable)
+                     SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend)
 from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
     SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer,
     SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitShortSerializer, SummitAnketShortSerializer,
     SummitLessonShortSerializer, SummitTicketSerializer, SummitAnketForTicketSerializer,
-    SummitVisitorLocationSerializer, SummitEventTableSerializer, SummitProfileTreeForAppSerializer)
+    SummitVisitorLocationSerializer, SummitEventTableSerializer, SummitProfileTreeForAppSerializer,
+    SummitAnketCodeSerializer, SummitAttendSerializer)
 from .tasks import generate_tickets
 
 
@@ -200,6 +202,20 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         headers = get_success_headers(serializer.data)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @list_route(methods=['GET'], permission_classes=(HasAPIAccess,), pagination_class=SummitTicketPagination)
+    def codes(self, request):
+        serializer = SummitAnketCodeSerializer
+        summit_id = request.query_params.get('summit_id')
+        ankets = SummitAnket.objects.filter(summit=summit_id)
+
+        page = self.paginate_queryset(ankets)
+        if page is not None:
+            ankets = serializer(page, many=True)
+            return self.get_paginated_response(ankets.data)
+        ankets = serializer(ankets, many=True)
+
+        return Response(ankets.data)
 
 
 class SummitLessonViewSet(viewsets.ModelViewSet):
@@ -567,3 +583,26 @@ class SummitEventTableViewSet(viewsets.ModelViewSet):
 
     filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = ('summit',)
+
+
+class SummitAttendViewSet(ModelWithoutDeleteViewSet):
+    queryset = SummitAttend.objects.prefetch_related('anket')
+    serializer_class = SummitAttendSerializer
+
+    @list_route(methods=['POST'])
+    def confirm_attend(self, request):
+        anket = get_object_or_404(SummitAnket, code=data.get('code'))
+        data = self.validate_data(request.data)
+        SummitAnket.objects.create(anket=anket)
+
+        return Response({'message': 'Attend was been successful confirmed'}, status=status.HTTP_201_CREATED)
+
+    @staticmethod
+    def validate_data(data):
+        anket = get_object_or_404(SummitAnket, code=data.get('code'))
+        date_today = datetime.now().date()
+        if SummitAnket.objects.filter(anket_id=anket, date=date_today).exists():
+            raise exceptions.ValidationError(
+                _('Запись о присутствии этой анкеты за сегоднящней день уже существует'))
+
+        return data
