@@ -10,6 +10,8 @@ from django.db.models import Sum
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
+
+from event.managers import MeetingManager
 from navigation.table_fields import meeting_table
 
 
