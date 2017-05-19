@@ -131,7 +131,7 @@ function createHomeGroupsTable(config = {}) {
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
-        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
@@ -686,7 +686,7 @@ function createChurchesUsersTable(id, config = {}) {
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
-        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
@@ -723,7 +723,7 @@ function createChurchesDetailsTable(config = {}, id, link) {
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
-        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
@@ -761,7 +761,7 @@ function createHomeGroupUsersTable(config = {}, id) {
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
-        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
@@ -1420,9 +1420,7 @@ function makePagination(config) {
         }
 
     });
-
     $(config.container).html(container);
-
 }
 
 function delCookie(name) {
@@ -1826,7 +1824,7 @@ function createSummitUsersTable(data = {}) {
         let count = data.count;
         let page = config.page || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
-        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
         let id = "summitUsersList";
         let text = `Показано ${showCount} из ${count}`;
         let paginationConfig = {
@@ -1837,7 +1835,7 @@ function createSummitUsersTable(data = {}) {
         };
         makeSammitsDataTable(filter_data, id);
         makePagination(paginationConfig);
-        $('.table__count').text(text);
+        // $('.table__count').text(text);
         makeSortForm(data.user_table);
         $('.preloader').css('display', 'none');
         orderTable.sort(createSummitUsersTable);
@@ -2350,7 +2348,7 @@ function createUsersTable(config) {
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
-        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
         let id = "database_users";
         let text = `Показано ${showCount} из ${count}`;
         let paginationConfig = {
@@ -2562,14 +2560,17 @@ function makeHomeReportsTable(data, config = {}) {
     let count = data.count;
     let pages = Math.ceil(count / CONFIG.pagination_count);
     let page = config.page || 1;
+     let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
+    let text = `Показано ${showCount} из ${count}`;
     let paginationConfig = {
         container: ".reports__pagination",
         currentPage: page,
         pages: pages,
         callback: homeReportsTable
     };
-    $('.table__count').text(data.count);
+    // $('.table__count').text(data.count);
     makePagination(paginationConfig);
+    $('.table__count').text(text);
     orderTable.sort(homeReportsTable);
     $('.preloader').hide();
 }
