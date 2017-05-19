@@ -134,7 +134,7 @@
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" data-filter="master" id="masters_filter">
+                            <select class="selectdb" data-filter="owner" id="masters_filter">
                                 <option value="">ВСЕ</option>
                                 {% for owner in owners %}
                                     <option value="{{ owner.id }}">{{ owner.fullname }}</option>

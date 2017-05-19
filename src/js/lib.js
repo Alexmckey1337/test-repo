@@ -2783,7 +2783,7 @@ function getData(url, options = {}) {
     if (keys.length) {
         url += '?';
         keys.forEach(item => {
-            url += item + '=' + options[item]
+            url += item + '=' + options[item] + "&"
         });
     }
     let defaultOption = {
@@ -2798,4 +2798,3 @@ function getData(url, options = {}) {
         return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
     }
 }
-
