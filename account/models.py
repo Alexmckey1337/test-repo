@@ -73,6 +73,8 @@ class CustomUser(MPTTModel, User, CustomUserAbstract,
         blank=True, null=True,
     )
 
+    can_login = models.BooleanField(_('Can login to site'), default=False)
+
     objects = CustomUserManager()
 
     def __str__(self):
