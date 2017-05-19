@@ -1613,6 +1613,7 @@ function showPopupAddUser(data) {
     $('#addPopup').find('.addMore').on('click', function () {
         $('#addPopup').css('display', 'none').remove();
         $('body').addClass('no_scroll');
+        $('#addNewUserPopup').find('form').css("transform","translate3d(0px, 0px, 0px)");
         $('#addNewUserPopup').css('display', 'block');
         initAddNewUser();
     });
