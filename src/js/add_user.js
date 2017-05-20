@@ -164,6 +164,18 @@
         }
     });
 
+    $("#createUser").find('input').each(function () {
+
+        $(this).keypress(function(event) {
+	        let keycode = (event.keyCode ? event.keyCode : event.which);
+	        if (keycode == '13') {
+	            event.preventDefault();
+            }
+	        event.stopPropagation();
+        });
+    });
+
+
     accordionAddUser();
 
     $('.popap').on('click', function () {
