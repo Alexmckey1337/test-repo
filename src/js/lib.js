@@ -851,6 +851,14 @@ function getAddChurchData() {
     }
 }
 
+// function clearAddNewUser() {
+//     $('.input').each(function () {
+//         $(this).val('');
+//     });
+//     $('#partner').prop('checked', false);
+//     $('#chooseDepartment').select2();
+// }
+
 function clearAddChurchData() {
     $('#added_churches_date').val(''),
         $('#added_churches_is_open').prop('checked', false),
@@ -1606,16 +1614,14 @@ function showPopupAddUser(data) {
     $('#addPopup').find('.close').on('click', function () {
         $('#addPopup').css('display', 'none').remove();
     });
-    $('#addPopup').find('.rewrite').on('click', function (e) {
-        $('#addPopup').css('display', 'none').remove();
-        $('#addNewUserPopup').css('display', 'block');
-    });
     $('#addPopup').find('.addMore').on('click', function () {
         $('#addPopup').css('display', 'none').remove();
         $('body').addClass('no_scroll');
         $('#addNewUserPopup').find('form').css("transform","translate3d(0px, 0px, 0px)");
         $('#addNewUserPopup').css('display', 'block');
         initAddNewUser();
+        $('.second_step').find('h2').removeClass('active');
+        $('.second_step').find('.info:visible').slideUp();
     });
 }
 

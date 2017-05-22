@@ -10,7 +10,6 @@
             <div class="body">
                 <p>Обязательные поля отмечены *</p>
                 <div class="block">
-                    <div class="column">
                         <ul class="info">
                             <li>
                                 <div class="label-wrapp">
@@ -46,10 +45,6 @@
                                 <input type="text" name="search_name" id="search_name"tabindex="4"
                                        placeholder="Фамилия и имя на любом языке">
                             </li>
-                        </ul>
-                    </div>
-                    <div class="column">
-                        <ul class="info">
                             <li>
                                 <div class="label-wrapp">
                                     <label for="phoneNumber">Телефон*</label>
@@ -92,7 +87,6 @@
                                 </div>
                             </li>
                         </ul>
-                    </div>
                 </div>
                 <div class="btn-block">
                     <a href="#" class="btn closeForm" tabindex="10">Отменить</a>
@@ -125,14 +119,18 @@
                                 <div class="label-wrapp">
                                     <label for="extra_phone_numbers">Доп.телефон</label>
                                 </div>
-                                <input type="text" id="extra_phone_numbers" tabindex="12">
+                                <div class="input">
+                                    <input type="text" id="extra_phone_numbers" tabindex="12">
+                                </div>
                             </li>
                             <li>
                                 <div class="label-wrapp">
                                     <label for="email">E-mail</label>
                                 </div>
-                                <input name="email" id="email" type="text" tabindex="13"
+                                <div class="input">
+                                    <input name="email" id="email" type="text" tabindex="13"
                                        data-validation="email" data-validation-optional="true">
+                                </div>
                             </li>
                             <li>
                                 <div class="label-wrapp">
@@ -147,22 +145,28 @@
                                 <div class="label-wrapp">
                                     <label for="facebook">Facebook</label>
                                 </div>
+                                <div class="input">
                                 <input name="facebook" id="facebook" type="text" tabindex="15"
                                        data-validation="url" data-validation-optional="true">
+                                </div>
                             </li>
                             <li>
                                 <div class="label-wrapp">
                                     <label for="vkontakte">Vkontakte</label>
                                 </div>
-                                <input name="vkontakte" id="vkontakte" type="text" tabindex="16"
+                                <div class="input">
+                                    <input name="vkontakte" id="vkontakte" type="text" tabindex="16"
                                        data-validation="url" data-validation-optional="true">
+                                </div>
                             </li>
                             <li>
                                 <div class="label-wrapp">
                                     <label for="odnaklasniki">Odnaklasniki</label>
                                 </div>
-                                <input name="odnoklassniki" id="odnoklassniki" type="text" tabindex="17"
+                                <div class="input">
+                                    <input name="odnoklassniki" id="odnoklassniki" type="text" tabindex="17"
                                        data-validation="url" data-validation-optional="true">
+                                </div>
                             </li>
                         </ul>
                         <h2>День рождения и адрес</h2>
@@ -173,7 +177,6 @@
                                 </div>
                                 <input name="born_date" type="text" id="bornDate" tabindex="18"
                                        readonly="readonly">
-
                             </li>
                             <li>
                                 <div class="label-wrapp">
@@ -208,48 +211,55 @@
                         </ul>
                     </div>
                     <div class="column">
-{#                        {% if request.user.is_partner %}#}
-{#                        <h2>Партнерство</h2>#}
-{#                        <ul class="info">#}
-{#                            <li>#}
-{#                                <div class="label-wrapp">#}
-{#                                    <label for="partner">Партнёр</label>#}
-{#                                </div>#}
-{#                                <input type="checkbox" id="partner">#}
-{#                            </li>#}
-{#                            <li>#}
-{#                                <ul class="hidden-partner">#}
-{#                                    <li>#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="partnerFrom">Партнёр с</label>#}
-{#                                        </div>#}
-{#                                        <input type="text" id="partnerFrom" readonly="readonly">#}
-{#                                    </li>#}
-{#                                    <li>#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="val_partnerships">Сумма сделки</label>#}
-{#                                        </div>#}
-{#                                        <div class="money_block">#}
-{#                                            <input type="number" id="val_partnerships">#}
-{#                                            <select id="payment_currency" required>#}
-{#                                                {% for currency in currencies %}#}
-{#                                                    <option value="{{ currency.id }}" {% if currency == purpose.currency %}selected{% endif %}>#}
-{#                                                        {{ currency.short_name }}#}
-{#                                                    </option>#}
-{#                                                {% endfor %}#}
-{#                                            </select>#}
-{#                                        </div>#}
-{#                                    </li>#}
-{#                                    <li>#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label>Менеджер</label>#}
-{#                                        </div>#}
-{#                                        <select id="chooseManager"></select>#}
-{#                                    </li>#}
-{#                                </ul>#}
-{#                            </li>#}
-{#                        </ul>#}
-{#                        {% endif %}#}
+                        {% if request.user.is_partner %}
+                        <h2>Партнерство</h2>
+                        <ul class="info">
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="partner">Партнёр</label>
+                                </div>
+                                <input type="checkbox" id="partner">
+                            </li>
+                            <li>
+                                <ul class="hidden-partner">
+                                    <li>
+                                        <div class="label-wrapp">
+                                            <label for="partnerFrom">Партнёр с</label>
+                                        </div>
+                                        <div class="input">
+                                            <input type="text" id="partnerFrom" readonly="readonly"
+                                                   data-validation="required">
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="label-wrapp">
+                                            <label for="val_partnerships">Сумма сделки</label>
+                                        </div>
+                                        <div class="money_block">
+                                        <div class="input">
+                                            <input type="number" id="val_partnerships" data-validation="required">
+                                            <select id="payment_currency" required>
+                                                {% for currency in currencies %}
+                                                    <option value="{{ currency.id }}" {% if currency == purpose.currency %}selected{% endif %}>
+                                                        {{ currency.short_name }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="label-wrapp">
+                                            <label>Менеджер</label>
+                                        </div>
+                                        <div class="input">
+                                            <select id="chooseManager" data-validation="required"></select>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                        {% endif %}
                         <h2>Информация о служениях</h2>
                         <ul class="info">
                             <li>

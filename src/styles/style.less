@@ -5881,18 +5881,19 @@ div.code input#code {
 
 #addNewUserPopup {
   & .editprofile-screen {
-    max-width: 1030px;
-    width: 1020px;
-    height: 807px;
+    max-width: 510px;
+    width: 510px;
+    height: 100vh;
     background-color: transparent;
     overflow: hidden;
     z-index: 25;
+    left: auto;
     & form {
       display: inline-flex;
       transition: transform .2s ease;
     }
     & .step {
-      width: 1000px;
+      width: 500px;
       padding: 25px 10px;
       background-color: #fff;
     }
@@ -6061,11 +6062,17 @@ div.code input#code {
       & ul.hidden-partner {
         width: 100%;
         padding: 0;
-        & .money_block {
+        & .money_block .input {
           display: flex;
+          flex-wrap: wrap;
+          width: 100%!important;
           & input {
+            width: 43%!important;
             margin-left: 0;
             height: 33px;
+          }
+          & select {
+            width: 50%!important;
           }
         }
       }

@@ -141,9 +141,10 @@
         e.preventDefault();
         let flag = false;
         $('.must').each(function () {
-           $(this). validate(function (valid) {
+           $(this).validate(function (valid) {
                return flag = valid;
            });
+           return flag;
         });
         if (!flag) {
                showPopup(`Обязательные поля не заполнены либо введены некорректные данные`);
