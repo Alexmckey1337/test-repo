@@ -797,6 +797,13 @@ h1 a {
   vertical-align: middle;
   &:hover .top-buttons-submenu {
     display: block;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    overflow: hidden;
+  }
+  &:hover button {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
   }
 }
 
@@ -2526,7 +2533,9 @@ table input[type=checkbox],
 
 .choose-user-wrap,
 .pop-up-splash,
-.add-user-wrap, #impPopup,
+.add-user-wrap,
+#impPopup,
+#addPopup,
 .complete-deal-wrap {
   display: none;
   position: fixed;
@@ -4896,16 +4905,16 @@ select[disabled] {
   cursor: pointer;
 }
 
-label[for="partner"] {
-  display: inline-block;
-  width: 20px;
-  height: 35px;
-}
-
-label[for="partner"]::before {
-  top: 6px;
-  right: 0;
-}
+//label[for="partner"] {
+//  display: inline-block;
+//  width: 20px;
+//  height: 35px;
+//}
+//
+//label[for="partner"]::before {
+//  top: 6px;
+//  right: 0;
+//}
 
 /*tabs deals*/
 
@@ -5867,3 +5876,399 @@ div.code input#code {
 //    cursor: pointer;
 //  }
 //}
+
+/* ------------------Add user------------------------------ */
+
+#addNewUserPopup {
+  & .editprofile-screen {
+    max-width: 1030px;
+    width: 1020px;
+    height: 807px;
+    background-color: transparent;
+    overflow: hidden;
+    z-index: 25;
+    & form {
+      display: inline-flex;
+      transition: transform .2s ease;
+    }
+    & .step {
+      width: 1000px;
+      padding: 25px 10px;
+      background-color: #fff;
+    }
+    & select {
+      padding: 6px;
+      border-radius: 3px;
+      border: 1px solid #cdd0d4;
+      box-sizing: border-box;
+      background: url('../img/down.png') center right no-repeat #fff;
+      padding-right: 38px;
+    }
+    & select,
+    & input {
+      height: 35px;
+    }
+    & select:read-only,
+    & input:read-only {
+      border-color: #cdd0d4!important;
+    }
+    & select[disabled] {
+      background-color: #eee;
+    }
+    & input#phoneNumberCode {
+      left: 38px;
+      width: 62px!important;
+      border-radius: 3px;
+    }
+    & input#phoneNumber {
+      right: 0;
+    }
+    & input#phoneNumberCode,
+    & input#phoneNumber {
+      position: absolute;
+      top: 0;
+      height: 25px;
+      margin-left: 0;
+      padding: 4px;
+    }
+    & .header {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 1em;
+      h1 {
+        font-size: 2em;
+        font-weight: 900;
+      }
+      & .header_step {
+        color: #aab2bd;
+      }
+    }
+    & .body {
+      & h2 {
+        position: relative;
+        margin: 0;
+        margin-top: 20px;
+        font-size: 1.6em;
+        cursor: pointer;
+        &::after {
+          position: absolute;
+          right: 0;
+          font: 1.2em FontAwesome;
+          content: "\f078";
+        }
+        &:hover {
+          color: #333;
+        }
+        &.active::after {
+          content: '\f077';
+        }
+      }
+      padding: 0 1em;
+      & p, label {
+        font-size: 1.1em;
+      }
+      & input {
+        border: 1px solid #cdd0d4;
+        border-radius: 3px;
+        padding: 0 .5em;
+      }
+      & ul.info,
+      & ul.hidden-partner {
+        margin-top: 15px;
+        padding: 0 15px;
+        & li {
+          display: flex;
+          align-items: center;
+          padding: .5em 0;
+          & .label-wrapp {
+            position: relative;
+            width: 55%;
+            &::after {
+              position: absolute;
+              left: 3px;
+              bottom: 3px;
+              display: block;
+              width: 95%;
+              height: 2px;
+              background-image: radial-gradient(circle,#656d78 .6px,transparent 1px);
+              background-repeat: repeat-x;
+              background-size: 5px 2px;
+              content: '';
+            }
+        }
+          & label {
+            position: relative;
+            padding-right: 5px;
+            font-weight: 900;
+            background-color: #fff;
+            z-index: 2;
+          }
+          & input,
+          & select,
+          & .select2,
+          & .phone,
+          & .money_block {
+          width: 65%!important;
+          min-width: auto;
+        }
+          & .input {
+            width: 65%!important;
+            & input,
+            & select,
+            & .select2,
+            & select[disabled] {
+              margin-left: 0;
+            }
+            & input {
+              width: 94%!important;
+            }
+            & select,
+            & .select2 {
+              width: 100%!important;
+            }
+          }
+          & input {
+            margin-left: 12px;
+          }
+          & select {
+            margin-left: 3px;
+          }
+          & select[disabled] {
+            margin-left: 7px;
+          }
+          & .phone .select2 {
+            width: 100%!important;
+          }
+          & .select2-search__field {
+            margin-left: 0;
+            padding: 0;
+            border: none;
+          }
+          &.select2-selection__choice {
+            padding: .2em .5em;
+          }
+        }
+      }
+      //& ul.info__first {
+      //  display: flex;
+      //  flex-wrap: wrap;
+      //  & > li {
+      //    width: 50%;
+      //    box-sizing: border-box;
+      //    padding: .5em 1em;
+      //  }
+      //}
+      & ul.hidden-partner {
+        width: 100%;
+        padding: 0;
+        & .money_block {
+          display: flex;
+          & input {
+            margin-left: 0;
+            height: 33px;
+          }
+        }
+      }
+      & .btn-block {
+        display: flex;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        margin-top: 30px;
+        & button {
+          position: relative;
+          margin-right: 29px;
+          padding: 12px 20px 12px 45px;
+        }
+        & button::before {
+          display: block;
+          font: 1.2em FontAwesome;
+          margin-top: .1em;
+          position: absolute;
+          top: 10px;
+          left: 15px;
+          width: 19px;
+          height: 19px;
+        }
+        & .closeForm::before {
+          content: '\f00d';
+        }
+        & .nextForm::before {
+          content: '\f178';
+        }
+        & a {
+          position: relative;
+          display: block;
+          font-size: 1.1em;
+          margin-right: 29px;
+          &::before {
+            font: 1.4em FontAwesome;
+            position: absolute;
+            top: .5em;
+            left: 1em;
+            display: block;
+          }
+        }
+        & .prevForm {
+          width: 100%;
+          color: #3caeda;
+          padding: 0 0 15px 25px;
+          &::before {
+            content: '\f177';
+            top: -0.15em;
+            left: 0;
+          }
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+        .btn {
+          background-color: #aab2bd;
+          padding: 12px 20px 12px 45px;
+          color: #fff;
+          border-radius: 4px;
+          border: 0;
+          transition: background-color .3s ease;
+          cursor: pointer;
+          &:hover {
+            background-color: #3caeda;
+          }
+        }
+      }
+      & .upload-photo {
+        display: flex;
+        justify-content:flex-start;
+        align-items: center;
+        padding: 1em .5em;
+        & .anketa-photo {
+          width: 100px;
+          height: 100px;
+          border: 3px solid #b3d7e8;
+          border-radius: 50%;
+          overflow: hidden;
+        }
+        & .anketa-photo:hover {
+          box-shadow: 0 0 0 2px #43b0db;
+        }
+        & input {
+          width: 30px;
+        }
+        #file_upload {
+          position: relative;
+          padding-left: 50px;
+          color: #333;
+          background-color: transparent;
+          &::before {
+            position: absolute;
+            top: .2em;
+            left: .2em;
+            color: #aab2bd;
+            font: 2em FontAwesome;
+            content: "\f093";
+          }
+        }
+        & .btn-wrap {
+          margin-left: 160px;
+        }
+      }
+    }
+  }
+  .second_step {
+    .info {
+      display: none;
+    }
+  }
+  .accordion-block,
+  .block {
+    display: flex;
+    flex-wrap: wrap;
+    .column {
+      width: 50%;
+      padding: 0 1em;
+      box-sizing: border-box;
+    }
+  }
+  & .editprofile-screen .select2-search__field {
+    height: 15px;
+  }
+}
+
+/* ------------------Add user popup------------------------------ */
+#addPopup {
+  display: block;
+  background-color: rgba(0, 0, 0, .6);
+  & .wrapper {
+    max-width: 550px;
+    min-width: 440px;
+    height: 360px;
+    padding: 20px 10px;
+  }
+  & h3 {
+    font-size: 2.5em;
+    font-weight: 900;
+    text-align: center;
+    color: #333;
+    padding-bottom: 20px;
+  }
+  & .card {
+    margin: 0 60px 30px;
+    padding: 15px;
+    border: 1px solid #333;
+  }
+  & .photo-block {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  & .photo {
+      width: 80px;
+      height: 80px;
+      overflow: hidden;
+      border-radius: 100%;
+    & img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+  & .photo-title {
+    margin-left: 25px;
+    & p {
+      font-size: 1.6em;
+      font-weight: 900;
+    }
+    & p:first-child {
+      color: #333;
+      padding-bottom: 5px;
+    }
+  }
+  & ul {
+    display: flex;
+    flex-wrap: wrap;
+    & li {
+      width: 65%;
+      box-sizing: border-box;
+      margin-bottom: 5px;
+      font-size: 1.1em;
+    }
+    & li:nth-child(2n+1) {
+      width: 35%;
+      font-weight: 900;
+      color: #333;
+    }
+  }
+  & a {
+    color: #3caeda;
+    font-size: 1.1em;
+    text-decoration: underline;
+    margin-left: 60px;
+  }
+  & .btn-block {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 60px 0;
+    & button {
+      padding: 12px 20px;
+    }
+  }
+}
