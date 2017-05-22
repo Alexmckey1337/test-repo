@@ -261,9 +261,7 @@ class SummitAnketCodeSerializer(serializers.ModelSerializer):
 
 
 class SummitAttendSerializer(serializers.ModelSerializer):
-    anket = SummitAnketCodeSerializer(read_only=True)
-    date = serializers.DateField(format='%Y-%m-%d')
-    time = serializers.TimeField()
+    # time = serializers.TimeField()
 
     class Meta:
         model = SummitAttend

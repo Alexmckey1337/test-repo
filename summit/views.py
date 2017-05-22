@@ -36,7 +36,7 @@ from .serializers import (
     SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitShortSerializer, SummitAnketShortSerializer,
     SummitLessonShortSerializer, SummitTicketSerializer, SummitAnketForTicketSerializer,
     SummitVisitorLocationSerializer, SummitEventTableSerializer, SummitProfileTreeForAppSerializer,
-    SummitAnketCodeSerializer, SummitAttendSerializer)
+    SummitAnketCodeSerializer)
 from .tasks import generate_tickets
 
 
@@ -579,30 +579,30 @@ class SummitEventTableViewSet(viewsets.ModelViewSet):
     queryset = SummitEventTable.objects.all()
     serializer_class = SummitEventTableSerializer
     permission_classes = (HasAPIAccess,)
-    pagination_class = None
-
     filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = ('summit',)
+    pagination_class = None
 
 
 class SummitAttendViewSet(ModelWithoutDeleteViewSet):
     queryset = SummitAttend.objects.prefetch_related('anket')
-    serializer_class = SummitAttendSerializer
+    serializer_class = SummitAnketCodeSerializer
+    permission_classes = (HasAPIAccess,)
 
-    @list_route(methods=['POST'])
+    @list_route(methods=['POST', 'GET'])
     def confirm_attend(self, request):
-        anket = get_object_or_404(SummitAnket, code=data.get('code'))
-        data = self.validate_data(request.data)
-        SummitAnket.objects.create(anket=anket)
+        code = request.data.get('code')
+        date = request.data.get('date')
+        anket = get_object_or_404(SummitAnket, code=code)
+        self.validate_data(request.data)
+        SummitAttend.objects.create(anket=anket, date=date)
 
-        return Response({'message': 'Attend was been successful confirmed'}, status=status.HTTP_201_CREATED)
+        return Response({'message': 'Attend have been successful confirmed'}, status=status.HTTP_201_CREATED)
 
     @staticmethod
     def validate_data(data):
         anket = get_object_or_404(SummitAnket, code=data.get('code'))
         date_today = datetime.now().date()
-        if SummitAnket.objects.filter(anket_id=anket, date=date_today).exists():
+        if SummitAttend.objects.filter(anket_id=anket.id, date=date_today).exists():
             raise exceptions.ValidationError(
                 _('Запись о присутствии этой анкеты за сегоднящней день уже существует'))
-
-        return data
