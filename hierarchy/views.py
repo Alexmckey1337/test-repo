@@ -14,7 +14,8 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
 
-class HierarchyViewSet(viewsets.ModelViewSet):
+class HierarchyViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Hierarchy.objects.exclude(title='Архонт').all()
     serializer_class = HierarchySerializer
+    pagination_class = None
     permission_classes = (IsAuthenticated,)

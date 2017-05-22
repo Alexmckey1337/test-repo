@@ -329,14 +329,12 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
         serializer = self.get_serializer(queryset, many=True)
         return Response({
             'profiles': serializer.data,
-            'hierarchies': HierarchySerializer(Hierarchy.objects.all(), many=True).data
         })
 
     def annotate_queryset(self, qs):
         return qs.base_queryset().annotate_full_name().annotate(
             diff=ExpressionWrapper(F('user__rght') - F('user__lft'), output_field=IntegerField())
-        ).order_by(
-            'user__last_name', 'user__first_name', 'user__middle_name')
+        ).order_by('-hierarchy__level')
 
     def get_queryset(self):
         is_consultant_or_high = self.request.user.is_summit_consultant_or_high(self.summit)
