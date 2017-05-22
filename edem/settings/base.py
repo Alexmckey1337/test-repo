@@ -317,11 +317,21 @@ LOGGING = {
             'handlers': ['console'],
             'propagate': False,
         },
-        # 'account.views': {
-        #     'level': 'DEBUG',
-        #     'handlers': ['console', 'sentry'],
-        #     'propagate': False,
-        # },
+        'account.views': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'event.views': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'summit.views': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
         'raven': {
             'level': 'DEBUG',
             'handlers': ['console'],

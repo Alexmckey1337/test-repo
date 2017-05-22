@@ -1,6 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import logging
 import django_filters
 from django.db import transaction, IntegrityError
 from django.utils import six
@@ -23,6 +24,8 @@ from .models import Participation, Event, EventAnket, EventType, MeetingAttend, 
 from .serializers import (
     ParticipationSerializer, EventSerializer, EventTypeSerializer, EventAnketSerializer,
     MeetingSerializer, MeetingUserSerializer)
+
+logger = logging.getLogger(__name__)
 
 
 class MeetingPagination(PageNumberPagination):
@@ -217,8 +220,9 @@ class CreateMeetingView(CreateAPIView):
                 MeetingAttend.objects.bulk_create([MeetingAttend(
                     user_id=attend['user'], meeting_id=meeting.id, attended=attend['attended'],
                     note=attend['note']) for attend in valid_attend])
-        except IntegrityError:
+        except IntegrityError as err:
             data = {'message': 'При сохранении возникла ошибка. Попробуйте еще раз.'}
+            logger.error(err)
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         headers = self.get_success_headers(serializer.data)

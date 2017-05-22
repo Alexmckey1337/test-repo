@@ -1,6 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import logging
 from datetime import datetime, timedelta
 
 from dbmail import send_db_mail
@@ -36,6 +37,8 @@ from .serializers import (
     SummitLessonShortSerializer, SummitTicketSerializer, SummitAnketForTicketSerializer,
     SummitVisitorLocationSerializer, SummitEventTableSerializer, SummitProfileTreeForAppSerializer)
 from .tasks import generate_tickets
+
+logger = logging.getLogger(__name__)
 
 
 def get_success_headers(data):
@@ -266,8 +269,9 @@ class SummitTicketMakePrintedView(GenericAPIView):
                 ticket.is_printed = True
                 ticket.save()
                 ticket.users.update(ticket_status=SummitAnket.PRINTED)
-        except IntegrityError:
+        except IntegrityError as err:
             data = {'detail': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
+            logger.error(err)
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response({'detail': _('Билеты отмечены напечатаными.')})
 
