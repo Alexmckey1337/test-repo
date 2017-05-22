@@ -2,14 +2,15 @@
 from __future__ import unicode_literals
 
 from rest_framework.permissions import BasePermission
-from edem.settings.base import VISITORS_LOCATION_TOKEN
+from django.conf import settings
 
 
 class HasAPIAccess(BasePermission):
     message = 'Invalid or missing API Key.'
 
     def has_permission(self, request, view):
-        return request.META.get('HTTP_VISITORS_LOCATION_TOKEN', '') == VISITORS_LOCATION_TOKEN
+        print(request.META)
+        return request.META.get('HTTP_VISITORS_LOCATION_TOKEN', '') == settings.VISITORS_LOCATION_TOKEN
 
 
 class CanSeeSummitProfiles(BasePermission):

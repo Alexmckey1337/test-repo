@@ -1,12 +1,12 @@
 from django.conf import settings
+from django.db import models
 
-from account.abstract_models import UserPermission
 from partnership.permissions import can_see_partners, can_see_deals, can_see_partner_stats, can_see_deal_payments, \
     can_close_partner_deals, can_create_partner_payments, can_export_partner_list, can_create_deal_for_partner, \
     can_update_partner_need, can_update_deal, can_create_payment_for_partner
 
 
-class PartnerUserPermission(UserPermission):
+class PartnerUserPermission(models.Model):
     class Meta:
         abstract = True
 

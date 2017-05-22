@@ -1,11 +1,12 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from datetime import datetime
+import logging
+from datetime import datetime, timedelta
 
 from dbmail import send_db_mail
 from django.db import transaction, IntegrityError
-from django.db.models import Case, When, BooleanField
+from django.db.models import Case, When, BooleanField, F, ExpressionWrapper, IntegerField
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions, viewsets, filters, status, mixins
@@ -18,6 +19,8 @@ from rest_framework.viewsets import GenericViewSet
 
 from account.models import CustomUser
 from common.filters import FieldSearchFilter
+from hierarchy.models import Hierarchy
+from hierarchy.serializers import HierarchySerializer
 from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import FilterByClub, ProductFilter, SummitUnregisterFilter, ProfileFilter, \
@@ -32,8 +35,10 @@ from .serializers import (
     SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer,
     SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitShortSerializer, SummitAnketShortSerializer,
     SummitLessonShortSerializer, SummitTicketSerializer, SummitAnketForTicketSerializer,
-    SummitVisitorLocationSerializer, SummitEventTableSerializer)
+    SummitVisitorLocationSerializer, SummitEventTableSerializer, SummitProfileTreeForAppSerializer)
 from .tasks import generate_tickets
+
+logger = logging.getLogger(__name__)
 
 
 def get_success_headers(data):
@@ -264,8 +269,9 @@ class SummitTicketMakePrintedView(GenericAPIView):
                 ticket.is_printed = True
                 ticket.save()
                 ticket.users.update(ticket_status=SummitAnket.PRINTED)
-        except IntegrityError:
+        except IntegrityError as err:
             data = {'detail': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
+            logger.error(err)
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response({'detail': _('Билеты отмечены напечатаными.')})
 
@@ -280,15 +286,66 @@ class SummitTypeForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     pagination_class = None
 
 
-class SummitAnketForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = SummitAnket.objects.select_related('user').order_by('id')
     serializer_class = SummitAnketForAppSerializer
     filter_backends = (filters.DjangoFilterBackend,)
-    # filter_fields = ('summit', 'id')
-    # filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    filter_class = ProductFilter
-    permission_classes = (AllowAny,)
+    filter_fields = ('summit',)
+    # filter_class = ProductFilter
+    permission_classes = (HasAPIAccess,)
     pagination_class = None
+
+    @list_route(methods=['GET'])
+    def by_reg_code(self, request):
+        reg_code = request.query_params.get('reg_code')
+        try:
+            reg_code = int('0x' + reg_code, 0)
+            visitor_id = int(str(reg_code)[:-4])
+        except ValueError:
+            raise exceptions.ValidationError(_('Невозможно получить объект. '
+                                               'Передан некорректный регистрационный код'))
+        visitor = get_object_or_404(SummitAnket, pk=visitor_id)
+        visitor = self.get_serializer(visitor)
+
+        return Response(visitor.data)
+
+
+class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
+    serializer_class = SummitProfileTreeForAppSerializer
+    pagination_class = None
+    permission_classes = (IsAuthenticated,)
+
+    def dispatch(self, request, *args, **kwargs):
+        return super(SummitProfileTreeForAppListView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        self.summit = get_object_or_404(Summit, pk=kwargs.get('summit_id', None))
+        self.master_id = kwargs.get('master_id', None)
+        return self.list(request, *args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            'profiles': serializer.data,
+        })
+
+    def annotate_queryset(self, qs):
+        return qs.base_queryset().annotate_full_name().annotate(
+            diff=ExpressionWrapper(F('user__rght') - F('user__lft'), output_field=IntegerField())
+        ).order_by('-hierarchy__level')
+
+    def get_queryset(self):
+        is_consultant_or_high = self.request.user.is_summit_consultant_or_high(self.summit)
+        if self.master_id is not None:
+            if is_consultant_or_high:
+                return self.annotate_queryset(self.summit.ankets.filter(user__master_id=self.master_id))
+            return
+        elif is_consultant_or_high:
+            return self.annotate_queryset(self.summit.ankets.filter(user__level=0))
+        else:
+            return self.annotate_queryset(self.summit.ankets.filter(user__master_id=self.request.user.id))
 
 
 # UNUSED
@@ -475,7 +532,8 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
             SummitVisitorLocation.objects.create(visitor=visitor,
                                                  date_time=chunk.get('date_time', datetime.now()),
                                                  longitude=chunk.get('longitude', 0),
-                                                 latitude=chunk.get('latitude', 0))
+                                                 latitude=chunk.get('latitude', 0),
+                                                 type=chunk.get('type', 1))
 
         return Response({'message': 'Successful created'}, status=status.HTTP_201_CREATED)
 
@@ -489,12 +547,25 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
 
         return Response(visitor_location.data, status=status.HTTP_200_OK)
 
+    @list_route(methods=['GET'])
+    def location_by_interval(self, request):
+        date_time = request.query_params.get('date_time')
+        date_time = datetime.strptime(date_time.replace('%', ' '), '%Y-%m-%d %H:%M:%S')
+        interval = int(request.query_params.get('interval'))
+        start_date = date_time - timedelta(minutes=interval)
+        end_date = date_time + timedelta(minutes=interval)
+
+        queryset = self.queryset.filter(date_time__range=(start_date, end_date))
+        queryset = self.serializer_class(queryset, many=True)
+
+        return Response(queryset.data)
+
 
 class SummitEventTableViewSet(viewsets.ModelViewSet):
     queryset = SummitEventTable.objects.all()
     serializer_class = SummitEventTableSerializer
-    pagination_class = None
     permission_classes = (HasAPIAccess,)
+    pagination_class = None
 
     filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = ('summit',)

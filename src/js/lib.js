@@ -2038,7 +2038,7 @@ function initAddNewUser(config = {}) {
     }
     if (configDefault.getStatuses) {
         getStatuses().then(function (data) {
-            let statuses = data.results;
+            let statuses = data;
             let rendered = [];
             let option = document.createElement('option');
             $(option).text('Выберите статус').attr('disabled', true).attr('selected', true);
