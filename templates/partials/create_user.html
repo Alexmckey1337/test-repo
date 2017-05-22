@@ -88,10 +88,10 @@
                             </li>
                         </ul>
                 </div>
-                <div class="btn-block">
-                    <a href="#" class="btn closeForm" tabindex="10">Отменить</a>
-                    <a href="#" class="btn nextForm" tabindex="9">Продолжить</a>
-                </div>
+            </div>
+            <div class="btn-block">
+                <a href="#" class="btn closeForm" tabindex="10">Отменить</a>
+                <a href="#" class="btn nextForm" tabindex="9">Продолжить</a>
             </div>
         </div>
         <div class="step second_step">
@@ -112,7 +112,6 @@
                 </div>
                 <p>Размер файла не должен превышать 10 Мб (jpg, jpeg, png)</p>
                 <div class="accordion-block">
-                    <div class="column">
                         <h2>Контактная информация</h2>
                         <ul class="info">
                             <li>
@@ -209,8 +208,6 @@
                                 <input name="address" id="address" type="text" tabindex="23">
                             </li>
                         </ul>
-                    </div>
-                    <div class="column">
                         {% if request.user.is_partner %}
                         <h2>Партнерство</h2>
                         <ul class="info">
@@ -314,13 +311,12 @@
         {#                        </select>#}
         {#                    </li>#}
         {#                </ul>#}
-                    </div>
                 </div>
-                <div class="btn-block">
-                    <a href="#" class="prevForm" tabindex="27">Вернуться к первому шагу</a>
-                    <a href="#" class="btn closeForm" tabindex="28">Отменить</a>
-                    <button id="saveNew" type="submit" tabindex="26">Сохранить</button>
-                </div>
+            </div>
+            <div class="btn-block">
+                <a href="#" class="prevForm" tabindex="27">Вернуться к первому шагу</a>
+                <a href="#" class="btn closeForm" tabindex="28">Отменить</a>
+                <button id="saveNew" type="submit" tabindex="26">Сохранить</button>
             </div>
         </div>
     </form>
