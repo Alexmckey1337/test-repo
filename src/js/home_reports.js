@@ -1,19 +1,15 @@
 (function () {
-    getHomeReports().then(data => {
-        makeHomeReportsTable(data);
-    });
+    HomeReportsTable();
     // Events
     let $statusTabs = $('#statusTabs');
     $statusTabs.find('button').on('click', function () {
         $('.preloader').show();
         let status = $(this).data('status');
         let config = {
-             status: status
+            status: status
         };
         Object.assign(config, getFilterParam());
-        getHomeReports(config).then(data => {
-            makeHomeReportsTable(data, config);
-        });
+        HomeReportsTable(config);
         $statusTabs.find('li').removeClass('current');
         $(this).closest('li').addClass('current');
     });
@@ -24,4 +20,15 @@
         dateFormat: 'yyyy-mm-dd'
     });
     $('.selectdb').select2();
+
+    // Sort table
+    $('#sort_save').on('click', function () {
+        $('.preloader').css('display', 'block');
+        updateSettings(HomeReportsTable);
+    });
+    function HomeReportsTable(config) {
+        getHomeReports(config).then(data => {
+            makeHomeReportsTable(data);
+        });
+    }
 })();

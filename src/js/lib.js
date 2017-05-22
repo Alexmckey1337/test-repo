@@ -1878,7 +1878,7 @@ function makeSortForm(data) {
     sortFormTmpl = document.getElementById("sortForm").innerHTML;
     obj = {};
     obj.user = [];
-    obj.user.push("Фильтр");
+    obj.user.push("");
     obj.user.push(data);
     rendered = _.template(sortFormTmpl)(obj);
     document.getElementById('sort-form').innerHTML = rendered;
@@ -2574,6 +2574,7 @@ function makeHomeReportsTable(data, config = {}) {
     };
     // $('.table__count').text(data.count);
     makePagination(paginationConfig);
+    makeSortForm(data.table_columns);
     $('.table__count').text(text);
     orderTable.sort(homeReportsTable);
     $('.preloader').hide();
@@ -2581,7 +2582,8 @@ function makeHomeReportsTable(data, config = {}) {
 
 function getHomeReports(config = {}) {
     if (!config.status) {
-        config.status = 2;
+        let status = parseInt($('#statusTabs').find('.current').find('button').data('status'));
+        config.status = status || 2;
     }
     return new Promise(function (resolve, reject) {
         let data = {
