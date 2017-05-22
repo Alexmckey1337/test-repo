@@ -477,4 +477,9 @@
             return false; // Will stop the submission of the form
         }
     });
+
+    $('#filterPopup').find('.pop_cont').on('click',function (e) {
+        e.stopPropagation();
+    })
+
 })(jQuery);
