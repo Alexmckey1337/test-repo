@@ -5880,9 +5880,10 @@ div.code input#code {
 
 #addNewUserPopup {
   & .editprofile-screen {
+    right: -550px;
     max-width: 520px;
     width: 520px;
-    height: 100vh;
+    height: auto;
     background-color: transparent;
     overflow: hidden;
     z-index: 25;
@@ -5893,13 +5894,12 @@ div.code input#code {
     }
     & .step {
       position: relative;
-      width: 500px;
-      padding: 0 10px;
+      width: 520px;
+      height: 100vh;
+      //padding: 0 10px;
       background-color: #fff;
     }
-    //.first_step {
-    //  height: 100vh;
-    //}
+
     & select {
       padding: 6px;
       border-radius: 3px;
@@ -5940,6 +5940,7 @@ div.code input#code {
       justify-content: space-between;
       height: 55px;
       padding: 0 1em;
+      box-shadow: 0 4px 14px -2px #808080;
       h1 {
         font-size: 2em;
         font-weight: 900;
@@ -5949,30 +5950,13 @@ div.code input#code {
       }
     }
     & .body {
-      height: ~'calc(100vh - 85px)';
+      padding: 1em;
       overflow-y: scroll;
-      margin-top: 15px;
-      margin-bottom: 15px;
       & h2 {
-        //position: relative;
         margin: 0;
         margin-top: 20px;
         font-size: 1.6em;
-        //cursor: pointer;
-        //&::after {
-        //  position: absolute;
-        //  right: 0;
-        //  font: 1.2em FontAwesome;
-        //  content: "\f078";
-        //}
-        //&:hover {
-        //  color: #333;
-        //}
-        //&.active::after {
-        //  content: '\f077';
-        //}
       }
-      padding: 0 1em;
       & p, label {
         font-size: 1.1em;
       }
@@ -5983,7 +5967,6 @@ div.code input#code {
       }
       & ul.info,
       & ul.hidden-partner {
-        //width: 100%;
         margin-top: 15px;
         padding: 0 15px;
         & li {
@@ -6059,15 +6042,6 @@ div.code input#code {
           }
         }
       }
-      //& ul.info__first {
-      //  display: flex;
-      //  flex-wrap: wrap;
-      //  & > li {
-      //    width: 50%;
-      //    box-sizing: border-box;
-      //    padding: .5em 1em;
-      //  }
-      //}
       & ul.hidden-partner {
         width: 100%;
         padding: 0;
@@ -6091,6 +6065,7 @@ div.code input#code {
         align-items: center;
         padding: 1em .5em;
         & .anketa-photo {
+          flex-shrink: 0;
           width: 100px;
           height: 100px;
           border: 3px solid #b3d7e8;
@@ -6122,15 +6097,22 @@ div.code input#code {
         }
       }
     }
+    .first_step .body {
+      height: ~'calc(100% - 180px)';
+    }
+    .second_step .body {
+      height: ~'calc(100% - 210px)';
+    }
     & .btn-block {
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-around;
       flex-wrap: wrap;
       height: 55px;
+      padding: 25px 0;
+      box-shadow: 0 -4px 14px -2px grey;
       & button {
         position: relative;
-        margin-right: 35px;
-        padding: 20px 60px 20px 65px;
+        padding: 20px 70px;
       }
       & button::before {
         display: block;
@@ -6152,7 +6134,6 @@ div.code input#code {
         position: relative;
         display: block;
         font-size: 1.1em;
-        margin-right: 35px;
         &::before {
           font: 1.4em FontAwesome;
           position: absolute;
@@ -6164,11 +6145,11 @@ div.code input#code {
       & .prevForm {
         width: 100%;
         color: #3caeda;
-        padding: 0 0 15px 25px;
+        padding: 0 0 15px 60px;
         &::before {
           content: '\f177';
           top: -0.15em;
-          left: 0;
+          left: 28px;
         }
         &:hover {
           text-decoration: underline;
@@ -6176,7 +6157,7 @@ div.code input#code {
       }
       .btn {
         background-color: #aab2bd;
-        padding: 20px 60px 20px 65px;
+        padding: 20px 70px;
         color: #fff;
         border-radius: 4px;
         border: 0;
@@ -6188,21 +6169,6 @@ div.code input#code {
       }
     }
   }
-  //.second_step {
-  //  .info {
-  //    display: none;
-  //  }
-  //}
-  //.accordion-block,
-  ////.block {
-  ////  display: flex;
-  ////  flex-wrap: wrap;
-  ////  .column {
-  ////    width: 50%;
-  ////    padding: 0 1em;
-  ////    box-sizing: border-box;
-  ////  }
-  ////}
   & .editprofile-screen .select2-search__field {
     height: 15px;
   }

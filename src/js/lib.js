@@ -1620,8 +1620,6 @@ function showPopupAddUser(data) {
         $('#addNewUserPopup').find('form').css("transform","translate3d(0px, 0px, 0px)");
         $('#addNewUserPopup').css('display', 'block');
         initAddNewUser();
-        $('.second_step').find('h2').removeClass('active');
-        $('.second_step').find('.info:visible').slideUp();
     });
 }
 
@@ -2638,10 +2636,12 @@ function createNewUser(callback) {
         if (callback != null) {
             callback(data);
         }
-    }).catch(function (data) {
-        $preloader.css('display', 'none');
-        showPopup(data.message[0]);
     });
+    //     .catch(function (data) {
+    //     $preloader.css('display', 'none');
+    //     showPopup(data.message[0]);
+    // });
+
 }
 
 function createPayment(data, id) {

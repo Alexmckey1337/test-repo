@@ -424,6 +424,7 @@
     $("#add").on('click', function () {
         $('#addUser').css('display', 'block');
         initAddNewUser();
+        $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
     });
 
      $('#departments_filter').on('change', function () {

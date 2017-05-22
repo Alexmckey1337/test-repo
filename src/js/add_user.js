@@ -47,13 +47,6 @@
         croppUploadImg();
     }
 
-    // function accordionAddUser() {
-    //     $('.second_step').find('h2').on('click', function () {
-    //         $(this).next('.info').slideToggle().siblings('.info:visible').slideUp();
-    //         $(this).toggleClass('active').siblings('h2').removeClass('active');
-    //     });
-    // }
-
     let img = $(".crArea img");
 
     $('#file').on('change', handleFileSelect);
@@ -109,6 +102,7 @@
         dateFormat: 'yyyy-mm-dd',
         maxDate: new Date(),
         setDate: new Date(),
+        position: 'top left',
         autoClose: true,
     });
     $('#partnerFrom').datepicker({
@@ -155,14 +149,6 @@
 
     $('.btn-block').find('.prevForm').on('click', function (e) {
         e.preventDefault();
-        // if ($('.second_step').find('h2').hasClass('active')) {
-        //     $('.second_step').find('h2').removeClass('active');
-        //     $('.second_step').find('.info:visible').slideUp(function () {
-        //         $(this).closest('form').css("transform","translate3d(0px, 0px, 0px)");
-        // });
-        // } else {
-        //     $(this).closest('form').css("transform","translate3d(0px, 0px, 0px)");
-        // }
         $(this).closest('form').css("transform","translate3d(0px, 0px, 0px)");
     });
 
@@ -176,9 +162,6 @@
 	        event.stopPropagation();
         });
     });
-
-
-    // accordionAddUser();
 
     $('.popap').on('click', function () {
         $(this).css('display', 'none');
