@@ -1,6 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.urls import reverse
 from rest_framework import serializers
 
@@ -9,6 +10,12 @@ from account.serializers import UserTableSerializer, UserShortSerializer
 from common.fields import ListCharField, ReadOnlyChoiceWithKeyField
 from .models import (Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
                      SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend)
+
+
+class ImageWithoutHostField(serializers.ImageField):
+    def to_representation(self, value):
+        url = super().to_representation(value)
+        return settings.MEDIA_URL + url if url else url
 
 
 class SummitAnketNoteSerializer(serializers.ModelSerializer):
@@ -176,13 +183,14 @@ class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
     phone_number = serializers.CharField(source='user.phone_number')
     extra_phone_numbers = serializers.ListField(source='user.extra_phone_numbers')
     children = ChildrenLink(view_name='summit-app-profile-list-master', queryset=SummitAnket.objects.all())
+    photo = ImageWithoutHostField(source='user.image', use_url=False)
 
     class Meta:
         model = SummitAnket
         fields = (
             'id', 'user_id', 'master_id',
             'full_name', 'country', 'city', 'phone_number', 'extra_phone_numbers',
-            'master_fio', 'hierarchy_id', 'children',
+            'master_fio', 'hierarchy_id', 'children', 'photo',
         )
 
 
@@ -221,7 +229,7 @@ class SummitAnketForAppSerializer(serializers.ModelSerializer):
     user = UserForAppSerializer()
     ticket_id = serializers.CharField(source='code')
     visitor_id = serializers.IntegerField(source='id')
-    avatar_url = serializers.ImageField(source='user.image')
+    avatar_url = ImageWithoutHostField(source='user.image', use_url=False)
 
     class Meta:
         model = SummitAnket
