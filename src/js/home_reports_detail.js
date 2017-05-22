@@ -1,18 +1,19 @@
 (function ($) {
+    let $additionalInformation = $('#additionalInformation'),
+        $homeReports = $('#homeReports');
     let dist = {
         night: "О Ночной молитве",
         home: "Домашней группы",
         service: "О Воскресном Служении"
     };
-    let $databaseHomeReportsForm = $('#databaseHomeReportsForm');
+
     let pathnameArr = window.location.pathname.split('/');
     const REPORTS_ID = pathnameArr[(pathnameArr.length - 2)];
-    $('.preloader').hide();
+
     function makeHomeReportDetailTable(data) {
         let tmpl = $('#databaseHomeReports').html();
         let rendered = _.template(tmpl)(data);
-        $('#homeReports').html(rendered);
-        // makeSortForm(data.table_columns);
+        $homeReports.html(rendered);
     }
 
     function getHomeReportDetailData(config = {}) {
@@ -62,7 +63,6 @@
     }
 
     getHomeReportDetailData().then(data => {
-        console.log(data.status);
         if (data.status === 1 || data.status === 3) {
             getHomeReportDetailTableData().then(data => {
                 makeHomeReportDetailTable(data);
@@ -74,89 +74,33 @@
                 table_columns: data.table_columns
             };
             makeHomeReportDetailTable(field);
-            let $input = $('#databaseHomeReportsForm').find('input');
+            let $input = $homeReports.find('input');
             $input.each(function () {
                 $(this).attr('disabled', true);
             })
         }
-        let container = document.createElement('div');
-        let title = document.createElement('h2');
-        if(data.status === 1 ) {
-            $(title).text(`Подача отчета ${dist[data.type.code]}`);
-        } else if (data.status === 2 ) {
-            $(title).text(`Отчет ${dist[data.type.code]}`);
-        } else if (data.status === 3 ) {
-             $(title).text(`Просрочен отчет ${dist[data.type.code]}`);
-        }
-        $(container).append(title);
-        let ownerContainer = document.createElement('p');
-        let ownerTitle = document.createElement('label');
-        let ownerData = document.createElement('input');
-        $(ownerTitle).text('Лидер: ');
-        $(ownerData).val(data.owner.fullname).attr({
-            'size': data.owner.fullname.length + 3,
-            'disabled': true
-        });
-        $(ownerContainer).append(ownerTitle).append(ownerData);
-        $(container).append(ownerContainer);
-
-        let groupContainer = document.createElement('p');
-        let groupTitle = document.createElement('label');
-        let groupData = document.createElement('input');
-        $(groupTitle).text('Домашняя группа: ');
-        $(groupData).val(data.home_group.title).attr({
-            'size': data.home_group.title.length + 3,
-            'data-name': 'false',
-            'disabled': true
-        });
-        $(groupContainer).append(groupTitle).append(groupData);
-        $(container).append(groupContainer);
-
-        let dateContainer = document.createElement('p');
-        let dateTitle = document.createElement('label');
-        let dateData = document.createElement('input');
-        $(dateTitle).text('Дата отчёта: ');
-        $(dateData).val(data.date).attr({
-            'size': data.date.length,
-            'data-name': 'date',
-        }).datepicker();
-        $(dateContainer).append(dateTitle).append(dateData);
-        $(container).append(dateContainer);
-        if (data.type.code != 'service') {
-            let amountContainer = document.createElement('p');
-            let amountTitle = document.createElement('label');
-            let amountData = document.createElement('input');
-            $(amountTitle).text('Сумма пожертвований: ');
-            $(amountData).val(data.total_sum).attr({
-                'size': 7,
-                'data-name': 'total_sum',
-            });
-            $(amountContainer).append(amountTitle).append(amountData);
-            $(container).append(amountContainer);
-        }
-        $('#additionalInformation').html(container);
+        $additionalInformation.html(makeCaption(data));
     });
 
     $('#save').on('click', function () {
-        let btn = $(this);
+        let btn = $(this),
+            data = {};
         if (btn.attr('data-click') == "false") {
             btn.attr({
                 'data-click': true,
                 'data-update': true,
             });
-            let $input = $('#databaseHomeReportsForm').find('input');
-            $input.each(function () {
+            $homeReports.find('input').each(function () {
                 $(this).attr('disabled', false);
             });
+
             btn.text('Сохранить');
             return false;
         }
-        let data = {};
 
-        $('#additionalInformation').find('input').each(function () {
+        $additionalInformation.find('input').each(function () {
             let field = $(this).data('name');
             if (field) {
-                console.log(field);
                 if (field == 'date') {
                     data[field] = $(this).val().split('.').reverse().join('-');
                 } else {
@@ -165,18 +109,7 @@
             }
         });
 
-        // $('#databaseHomeReportsForm').on('submit', function (e) {
-        //     e.preventDefault();
-        //     console.log(e);
-        //     let data = $(this).serializeArray();
-        //     console.log(data);
-        //     return false;
-        // });
-        //
-        // // $('#databaseHomeReportsForm').find('.submitBtn').trigger('click');
-
-
-        let $items = $('#databaseHomeReportsForm').find('tbody').find('tr');
+        let $items = $homeReports.find('tbody').find('tr');
         let attends = [];
         $items.each(function () {
             let $input = $(this).find('input');
@@ -195,36 +128,11 @@
             attends.push(data);
         });
         data.attends = attends;
-        console.log(btn.attr('data-update'));
-        if (btn.attr('data-update') == 'true') {
-            updateReports(JSON.stringify(data)).then((data) => {
-                console.log(data);
-                btn.attr({
-                    'data-click': false,
-                    'data-update': false,
-                });
-                btn.text('Редактировать');
-                let $input = $('#databaseHomeReportsForm').find('input');
-                $input.each(function () {
-                    $(this).attr('disabled', true);
-                });
-            });
-        } else {
-            submitReports(JSON.stringify(data)).then((data) => {
-                console.log(data);
-                btn.text('Редактировать');
-                let $input = $('#databaseHomeReportsForm').find('input');
-                $input.each(function () {
-                    $(this).attr('disabled', true);
-                });
-            });
-        }
 
-
+        sendForms(btn, data);
     });
     $('.submitBtn').on('click', function (e) {
         e.preventDefault();
-        console.log(e);
     });
 
     function submitReports(config) {
@@ -265,5 +173,82 @@
             };
             newAjaxRequest(data, status, reject)
         })
+    }
+    function makeCaption(data) {
+        let container = document.createElement('div');
+        let title = document.createElement('h2');
+        if(data.status === 1 ) {
+            $(title).text(`Подача отчета ${dist[data.type.code]}`);
+        }
+        if (data.status === 2 ) {
+            $(title).text(`Отчет ${dist[data.type.code]}`);
+        }
+        if (data.status === 3 ) {
+             $(title).text(`Просрочен отчет ${dist[data.type.code]}`);
+        }
+        $(container).append(title);
+        let ownerContainer = document.createElement('p');
+        let ownerTitle = document.createElement('span');
+        let ownerData = document.createElement('a');
+        $(ownerTitle).text('Лидер: ');
+        $(ownerData).text(data.owner.fullname).attr('href', `/account/${data.owner.id}`);
+        $(ownerContainer).append(ownerTitle).append(ownerData);
+        $(container).append(ownerContainer);
+
+        let groupContainer = document.createElement('p');
+        let groupTitle = document.createElement('span');
+        let groupData = document.createElement('a');
+        $(groupTitle).text('Домашняя группа: ');
+        $(groupData).text(data.home_group.title).attr('href', `/home_groups/${data.home_group.id}`);
+        $(groupContainer).append(groupTitle).append(groupData);
+        $(container).append(groupContainer);
+
+        let dateContainer = document.createElement('p');
+        let dateTitle = document.createElement('label');
+        let dateData = document.createElement('input');
+        $(dateTitle).text('Дата отчёта: ');
+        $(dateData).val(data.date).attr({
+            'size': data.date.length,
+            'data-name': 'date',
+        }).datepicker();
+        $(dateContainer).append(dateTitle).append(dateData);
+        $(container).append(dateContainer);
+        if (data.type.code != 'service') {
+            let amountContainer = document.createElement('p');
+            let amountTitle = document.createElement('label');
+            let amountData = document.createElement('input');
+            $(amountTitle).text('Сумма пожертвований: ');
+            $(amountData).val(data.total_sum).attr({
+                'size': 7,
+                'data-name': 'total_sum',
+            });
+            $(amountContainer).append(amountTitle).append(amountData);
+            $(container).append(amountContainer);
+        }
+        return container;
+    }
+    function sendForms(btn, data) {
+        if (btn.attr('data-update') == 'true') {
+            updateReports(JSON.stringify(data)).then((res) => {
+                btn.attr({
+                    'data-click': false,
+                    'data-update': false,
+                });
+                btn.text('Редактировать');
+                $homeReports.find('input').each(function () {
+                    $(this).attr('disabled', true);
+                });
+            });
+        } else {
+            submitReports(JSON.stringify(data)).then((data) => {
+                btn.text('Редактировать').attr({
+                    'data-click': false,
+                    'data-update': false,
+                });
+                $homeReports.find('input').each(function () {
+                    $(this).attr('disabled', true);
+                });
+            });
+        }
     }
 })(jQuery);

@@ -54,8 +54,7 @@
                 </div>
                 <div id="period_done" class="period">
                     <p>Период с <input type="text" id="done_datepicker_from" readonly="readonly"> по <input type="text"
-                                                                                                            id="done_datepicker_to"
-                                                                                                            readonly="readonly"><a
+                                                                                                            id="done_datepicker_to"readonly="readonly"><a
                             id="show-all-done" href="javascript:void(0);">Показать
                         все</a></p>
                 </div>
@@ -182,7 +181,7 @@
                             <div class="well success"><span>Всего новых (покаяний)</span>
                                 <p style="font-size:4em;text-align: center">
                                     <span id="planned_sum_deals" class="label label-primary">
-                                        <%=new_repentance%>
+                                        <%= (new_repentance) ? new_repentance : 0 %>
                                     </span>
                                 </p>
                             </div>
@@ -191,7 +190,7 @@
                             <div class="well info"><span>Всего посещений</span>
                                 <p style="font-size:4em;text-align: center">
                                     <span id="paid_sum_deals" class="label label-primary">
-                                        <%=total_visits%>
+                                        <%= (total_visits) ? total_visits : 0 %>
                                     </span>
                                 </p>
                             </div>
@@ -200,7 +199,7 @@
                             <div class="well error"><span>Всего отсутствий</span>
                                 <p style="font-size:4em;text-align: center">
                                     <span id="percent_paid_sum_deals" class="label label-primary">
-                                        <%=total_absent%>
+                                        <%= (total_absent) ? total_absent : 0 %>
                                     </span>
                                 </p>
                             </div>
@@ -212,7 +211,7 @@
                             <div class="well success"><span>Заполненные отчёты</span>
                                 <p style="font-size:4em;text-align: center">
                                     <span id="closed_planned_sum_deals" class="label label-primary">
-                                        <%=reports_submitted%>
+                                        <%= (reports_submitted) ? reports_submitted : 0 %>
                                     </span>
                                 </p>
                             </div>
@@ -221,7 +220,7 @@
                             <div class="well info"><span>Отчёты к заполнению</span>
                                 <p style="font-size:4em;text-align: center">
                                     <span id="closed_paid_sum_deals" class="label label-primary">
-                                        <%=reports_in_progress%>
+                                        <%= (reports_in_progress) ? reports_in_progress : 0 %>
                                     </span>
                                 </p>
                             </div>
@@ -230,7 +229,7 @@
                             <div class="well error"><span>Просроченные отчёты</span>
                                 <p style="font-size:4em;text-align: center">
                                     <span id="closed_percent_paid_sum_deals" class="label label-primary">
-                                        <%=reports_expired%>
+                                        <%= (reports_expired) ? reports_expired : 0 %>
                                     </span>
                                 </p>
                             </div>
@@ -241,7 +240,7 @@
                             <div class="well info"><span>Всего пожертвований</span>
                                 <p style="font-size:4em;text-align: center">
                                     <span id="closed_percent_paid_sum_deals" class="label label-primary">
-                                        <%=total_donations%>
+                                        <%= (total_donations) ? total_donations : 0 %>
                                     </span>
                                 </p>
                             </div>

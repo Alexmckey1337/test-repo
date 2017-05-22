@@ -37,37 +37,20 @@
                 <li>
                     <button id="save">Сохранить</button>
                 </li>
-                <li>
-                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
-                </li>
+{#                <li>#}
+{#                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>#}
+{#                </li>#}
             {% endblock %}
         </ul>
     </div>
 {% endblock %}
 
 {% block main.content %}
-    <div id="additionalInformation">
+    <div class="container-full">
+        <div id="additionalInformation"></div>
     </div>
     {% block pagination_top %}
-        <div class="top-pag">
-            <div id="period_expired" class="period">
-                <p>Период с <input type="text" id="expired_datepicker_from" readonly="readonly"> по <input type="text"
-                                                                                                           id="expired_datepicker_to"
-                                                                                                           readonly="readonly"><a
-                        id="show-all-expired" href="javascript:void(0);">Показать
-                    все</a></p>
-            </div>
-            <div id="period_done" class="period">
-                <p>Период с <input type="text" id="done_datepicker_from" readonly="readonly"> по <input type="text"
-                                                                                                        id="done_datepicker_to"
-                                                                                                        readonly="readonly"><a
-                        id="show-all-done" href="javascript:void(0);">Показать
-                    все</a></p>
-            </div>
-        </div>
-{#        <div class="table__count"></div>#}
-{#        <div class="pagination users__pagination"><!--pagination -->#}
-{#        </div><!--End pagination -->#}
+
     {% endblock %}
 
     {% block table %}
@@ -80,8 +63,7 @@
     {% endblock %}
 
     {% block pagination_bottom %}
-        <div class="table__count"></div>
-        <div class="pagination users__pagination"></div>
+
     {% endblock %}
 {% endblock %}
 
