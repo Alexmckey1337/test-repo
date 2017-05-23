@@ -58,7 +58,7 @@
                             </li>
                             <li>
                                 <div class="label-wrapp">
-                                    <label for="department">Отдел церкви*</label>
+                                    <label for="chooseDepartment">Отдел церкви*</label>
                                 </div>
                                 <div class="input">
                                     <select multiple disabled id="chooseDepartment" tabindex="6"
@@ -68,7 +68,7 @@
                             </li>
                             <li>
                                 <div class="label-wrapp">
-                                    <label for="hierarchy">Иерархия*</label>
+                                    <label for="chooseStatus">Иерархия*</label>
                                 </div>
                                 <div class="input">
                                     <select name="hierarchy" id="chooseStatus" class="cleared must" tabindex="7"
@@ -78,7 +78,7 @@
                             </li>
                             <li>
                                 <div class="label-wrapp">
-                                    <label for="master">Ответственный*</label>
+                                    <label for="chooseResponsible">Ответственный*</label>
                                 </div>
                                 <div class="input">
                                     <select disabled name="master" id="chooseResponsible" tabindex="8"
@@ -215,7 +215,10 @@
                                 <div class="label-wrapp">
                                     <label for="partner">Партнёр</label>
                                 </div>
-                                <input type="checkbox" id="partner">
+                                <div class="input input_checkbox">
+                                    <input type="checkbox" id="partner">
+                                    <span></span>
+                                </div>
                             </li>
                             <li>
                                 <ul class="hidden-partner">
@@ -223,8 +226,8 @@
                                         <div class="label-wrapp">
                                             <label for="partnerFrom">Партнёр с</label>
                                         </div>
-                                        <div class="input">
-                                            <input type="text" id="partnerFrom" readonly="readonly"
+                                            <div class="input">
+                                                <input type="text" id="partnerFrom" readonly="readonly"
                                                    data-validation="required">
                                         </div>
                                     </li>
@@ -247,7 +250,7 @@
                                     </li>
                                     <li>
                                         <div class="label-wrapp">
-                                            <label>Менеджер</label>
+                                            <label for="chooseManager">Менеджер</label>
                                         </div>
                                         <div class="input">
                                             <select id="chooseManager" data-validation="required"></select>
@@ -277,7 +280,7 @@
                             </li>
         {#                    <li>#}
         {#                        <div class="label-wrapp">#}
-        {#                            <label for="repentanceDate">Духовный уровень</label>#}
+        {#                            <label for="spiritual_level">Духовный уровень</label>#}
         {#                        </div>#}
         {#                        <select type="text" id="spiritual_level" name="spiritual_level" readonly disabled>#}
         {#                            <option>Выберите духовный уровень</option>#}
@@ -293,7 +296,7 @@
         {#                <ul class="info">#}
         {#                    <li>#}
         {#                        <div class="label-wrapp">#}
-        {#                            <label for="church_title">Церковь</label>#}
+        {#                            <label for="church_list">Церковь</label>#}
         {#                        </div>#}
         {#                        <select type="text" id="church_list" name="churches_title" value="">#}
         {#                            <option value="">Выберите церковь</option>#}
@@ -304,7 +307,7 @@
         {#                    </li>#}
         {#                    <li>#}
         {#                        <div class="label-wrapp">#}
-        {#                            <label for="home_groups">Домашняя группа</label>#}
+        {#                            <label for="home_groups_list">Домашняя группа</label>#}
         {#                        </div>#}
         {#                        <select type="text" id="home_groups_list" name="home_groups" readonly disabled>#}
         {#                            <option value="">Выберите домашнюю группу</option>#}

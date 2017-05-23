@@ -648,6 +648,7 @@
                             <textarea name="need_text" id="id_need_text" rows="5" cols="50" readonly>{{ account.partnership.need_text }}</textarea>
                         </div>
                     </div>
+                    <p class="sdelki_title">Данные по сделкам</p>
                         <div class="tab-status" id="tabStatus">
                             <ul id="tabs1">
                                 <li data-tab="1">
@@ -703,15 +704,12 @@
                                     <p>Сумма: <span>{{ deal.total_sum|cut:".000"}}/{{ deal.value }}₴</span></p></div>
                             {% endfor %}
                         </div>
-                        <div class="rows" data-summit-id="{{ anket_group.grouper.id }}">
-                                <p class="payment_title">Платежи за сделки</p>
-                        </div>
+                        <p class="payment_title">Платежи за сделки</p>
                         {% for payment in account.partnership.deal_payments.all %}
                             <div class="rows">
-                                    <p>{{ payment.effective_sum_str|cut:".000" }} —
-                                        {{ payment.created_at|date:"d.m.Y H:i:s" }}
-                                        — Принял: {{ payment.manager.fullname }}
-                                    </p>
+                                <p><strong>{{ payment.effective_sum_str|cut:".000" }}</strong></p>
+                                <p><strong>{{ payment.created_at|date:"d.m.Y " }}</strong>{{ payment.created_at|date:"H:i:s" }}</p>
+                                <p>Принял: {{ payment.manager.fullname }}</p>
                             </div>
                         {% endfor %}
                     </div>

@@ -4204,7 +4204,8 @@ span.change[style*="display: none"] ~ span.y {
       }
     }
   }
-  & .payment_title {
+  & .payment_title,
+  & .sdelki_title {
     font-family: 'Roboto Condensed', sans-serif;
     font-size: 1.5em;
   }
@@ -4259,6 +4260,32 @@ span.change[style*="display: none"] ~ span.y {
         }
       }
     }
+  }
+  .rows {
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+    border-radius: 0;
+    border: 0;
+    border-bottom: 1px solid #cdd0d4;
+    background-color: transparent;
+    p {
+      width: 33%;
+    }
+    p:last-child {
+      text-align: right;
+    }
+    &:hover {
+      background-color: transparent;
+    }
+  }
+  .payment_title {
+    padding: 15px 10px;
+    border-bottom: 1px solid #cdd0d4;
+    border-top: 1px solid #cdd0d4;
+  }
+  .sdelki_title {
+    padding: 0 10px;
   }
 }
 
@@ -5939,7 +5966,7 @@ div.code input#code {
       display: flex;
       justify-content: space-between;
       height: 55px;
-      padding: 0 1em;
+      padding: 0 30px;
       box-shadow: 0 4px 14px -2px #808080;
       h1 {
         font-size: 2em;
@@ -5950,7 +5977,7 @@ div.code input#code {
       }
     }
     & .body {
-      padding: 1em;
+      padding: 1em 20px 1em 35px;
       overflow-y: scroll;
       & h2 {
         margin: 0;
@@ -6093,22 +6120,22 @@ div.code input#code {
           }
         }
         & .btn-wrap {
-          margin-left: 160px;
+          margin-left: 15px;
         }
       }
     }
     .first_step .body {
-      height: ~'calc(100% - 180px)';
+      height: ~'calc(100% - 195px)';
     }
     .second_step .body {
-      height: ~'calc(100% - 210px)';
+      height: ~'calc(100% - 215px)';
     }
     & .btn-block {
       display: flex;
-      justify-content: space-around;
+      justify-content: flex-start;
       flex-wrap: wrap;
       height: 55px;
-      padding: 25px 0;
+      padding: 30px 0;
       box-shadow: 0 -4px 14px -2px grey;
       & button {
         position: relative;
@@ -6145,11 +6172,11 @@ div.code input#code {
       & .prevForm {
         width: 100%;
         color: #3caeda;
-        padding: 0 0 15px 60px;
+        padding: 0 0 15px 65px;
         &::before {
           content: '\f177';
           top: -0.15em;
-          left: 28px;
+          left: 37px;
         }
         &:hover {
           text-decoration: underline;
@@ -6157,6 +6184,7 @@ div.code input#code {
       }
       .btn {
         background-color: #aab2bd;
+        margin-left: 32px;
         padding: 20px 70px;
         color: #fff;
         border-radius: 4px;
@@ -6165,6 +6193,65 @@ div.code input#code {
         cursor: pointer;
         &:hover {
           background-color: #3caeda;
+        }
+      }
+    }
+    .second_step {
+      .btn,
+      button {
+        margin-left: 36px;
+      }
+      .btn-block {
+        position: relative;
+        padding-top: 50px;
+        .prevForm {
+          position: absolute;
+          top: 20px;
+        }
+      }
+      //Checkbox
+      .input_checkbox {
+        position: relative;
+        #partner {
+          position: relative;
+          width: 42px!important;
+          height: 20px;
+          cursor: pointer;
+          opacity: 0;
+          z-index: 9;
+        }
+        span {
+          position: absolute;
+          left: 0;
+        }
+        #partner:not(checked)+span::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 42px;
+          height: 18px;
+          border-radius: 13px;
+          background-color: #cdd1da;
+          box-shadow: inset 0 2px 3px rgba(0,0,0,.2);
+        }
+        #partner:checked+span::before {
+          background-color: #9fd468;
+        }
+        #partner:not(checked)+span::after {
+          content: '';
+          position: absolute;
+          top: 1px;
+          left: 2px;
+          width: 15px;
+          height: 15px;
+          border-radius: 7px;
+          background: #fff;
+          box-shadow: 0 2px 5px rgba(0,0,0,.3);
+          transition: all .2s;
+        }
+        #partner:checked+span::after {
+          left: 26px;
         }
       }
     }

@@ -851,13 +851,19 @@ function getAddChurchData() {
     }
 }
 
-// function clearAddNewUser() {
-//     $('.input').each(function () {
-//         $(this).val('');
-//     });
-//     $('#partner').prop('checked', false);
-//     $('#chooseDepartment').select2();
-// }
+function clearAddNewUser() {
+    let form = $('#createUser');
+    form.find('input').each(function () {
+        $(this).val('');
+    });
+    form.find('#partner').attr('checked', false);
+    form.find('.hidden-partner').hide();
+    form.find('#edit-photo').attr('data-source', '').find('img').attr('src', '/static/img/no-usr.jpg');
+    form.find('.anketa-photo').unbind('click');
+    form.find('select:not(#payment_currency).select2-hidden-accessible').select2('destroy').find('option').remove();
+    initAddNewUser();
+    form.find('#chooseResponsible, #chooseRegion, #chooseCity').attr('disabled', true);
+}
 
 function clearAddChurchData() {
     $('#added_churches_date').val(''),
@@ -1619,7 +1625,7 @@ function showPopupAddUser(data) {
         $('body').addClass('no_scroll');
         $('#addNewUserPopup').find('form').css("transform","translate3d(0px, 0px, 0px)");
         $('#addNewUserPopup').css('display', 'block');
-        initAddNewUser();
+        clearAddNewUser();
     });
 }
 
