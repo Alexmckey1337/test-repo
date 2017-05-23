@@ -2,37 +2,27 @@
 from __future__ import unicode_literals
 
 import logging
-import django_filters
+
 from django.db import transaction, IntegrityError
-from django.utils import six
-from rest_framework import mixins
-from rest_framework import status
-from rest_framework import viewsets, filters
-from rest_framework.decorators import api_view
-from rest_framework.decorators import list_route
-from rest_framework.generics import CreateAPIView, get_object_or_404
-from rest_framework.pagination import PageNumberPagination
 from django.db.models import IntegerField, Sum, When, Case, Count
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import status, filters, exceptions
 from rest_framework.decorators import list_route, detail_route
-from .pagination import MeetingPagination, MeetingVisitorsPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.utils.translation import ugettext_lazy as _
-from django.db import transaction, IntegrityError
 
 from account.models import CustomUser
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
-
-logger = logging.getLogger(__name__)
-
 from .filters import ChurchReportFilter, MeetingFilter, CommonEventFilter
 from .models import Meeting, ChurchReport, MeetingAttend
+from .pagination import MeetingPagination, MeetingVisitorsPagination
 from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingDetailSerializer,
                           MeetingListSerializer, ChurchReportStatisticSerializer,
                           MeetingStatisticSerializer, ChurchReportSerializer,
                           ChurchReportListSerializer)
+
+logger = logging.getLogger(__name__)
 
 
 class MeetingViewSet(ModelWithoutDeleteViewSet):
@@ -179,7 +169,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     @list_route(methods=['GET'], serializer_class=MeetingStatisticSerializer)
     def statistics(self, request):
-        queryset = self.filter_queryset(self.queryset)
+        queryset = self.filter_queryset(self.queryset.for_user(self.request.user))
 
         from_date = request.query_params.get('from_date')
         to_date = request.query_params.get('to_date')
