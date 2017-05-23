@@ -853,9 +853,6 @@ function getAddChurchData() {
 
 function clearAddNewUser() {
     let form = $('#createUser');
-    form.find('input').each(function () {
-        $(this).val('');
-    });
     form.find('#partner').attr('checked', false);
     form.find('.hidden-partner').hide();
     form.find('#edit-photo').attr('data-source', '').find('img').attr('src', '/static/img/no-usr.jpg');
@@ -863,6 +860,9 @@ function clearAddNewUser() {
     form.find('select:not(#payment_currency).select2-hidden-accessible').select2('destroy').find('option').remove();
     initAddNewUser();
     form.find('#chooseResponsible, #chooseRegion, #chooseCity').attr('disabled', true);
+    form.find('input').each(function () {
+        $(this).val('');
+    });
 }
 
 function clearAddChurchData() {
