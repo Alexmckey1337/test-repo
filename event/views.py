@@ -180,13 +180,14 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                                   output_field=IntegerField(), default=0)),
             total_absent=Sum(Case(When(attends__attended=False, then=1),
                                   output_field=IntegerField(), default=0)),
+        )
+        statistics.update(queryset.aggregate(
             reports_in_progress=Sum(Case(When(status=1, then=1),
                                          output_field=IntegerField(), default=0)),
             reports_submitted=Sum(Case(When(status=2, then=1),
                                        output_field=IntegerField(), default=0)),
             reports_expired=Sum(Case(When(status=3, then=1),
-                                     output_field=IntegerField(), default=0))
-        )
+                                     output_field=IntegerField(), default=0))))
         statistics.update(queryset.aggregate(total_donations=Sum('total_sum')))
         statistics['new_repentance'] = CustomUser.objects.filter(
             repentance_date__range=[from_date, to_date]).count()
