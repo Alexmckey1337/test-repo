@@ -2790,9 +2790,9 @@ function getData(url, options = {}) {
     }
     let defaultOption = {
         method: 'GET',
+        credentials: "same-origin",
         headers: new Headers({
             'Content-Type': 'text/json',
-            'Authorization': `Token ${getCookie('key')}`
         })
     };
     if (typeof url === "string") {
