@@ -1,4 +1,21 @@
 (function ($) {
+    let flagCroppImg = false;
+    let $img = $(".crArea img");
+
+    function croppUploadImg() {
+        $('.anketa-photo').on('click', function () {
+
+            $("#impPopup").css('display', 'block');
+            $img.cropper({
+                aspectRatio: 1 / 1,
+                built: function () {
+                    $img.cropper("setCropBoxData", {width: "100", height: "50"});
+                }
+            });
+            return flagCroppImg = true;
+        });
+    }
+
     function handleFileSelect(e) {
         e.preventDefault();
         let files = e.target.files; // FileList object
@@ -27,6 +44,7 @@
             // Read in the image file as a data URL.
             reader.readAsDataURL(file);
         }
+        croppUploadImg();
     }
 
     let img = $(".crArea img");
@@ -41,24 +59,29 @@
         if (el.target != this) {
             return
         }
-        $(this).fadeOut();
+        $('#impPopup').fadeOut(300, function () {
+            img.cropper("destroy");
+        });
         $('input[type=file]').val('');
-        img.cropper("destroy")
     });
 
     $('#impPopup .close').on('click', function () {
-        $('#impPopup').fadeOut();
+        $('#impPopup').fadeOut(300, function () {
+            img.cropper("destroy");
+        });
         $('#file').val('');
-        img.cropper("destroy");
     });
 
     $('#editCropImg').on('click', function () {
         let imgUrl;
         imgUrl = img.cropper('getCroppedCanvas').toDataURL('image/jpeg');
-        $('#impPopup').fadeOut();
         $('#edit-photo').attr('data-source', document.querySelector("#impPopup img").src);
         $('.anketa-photo').html('<img src="' + imgUrl + '" />');
-        img.cropper("destroy");
+        $('#impPopup').fadeOut(300, function () {
+            img.cropper("destroy");
+        });
+        return flagCroppImg = false;
+
     });
 
     $("#bornDate").datepicker({
@@ -79,6 +102,7 @@
         dateFormat: 'yyyy-mm-dd',
         maxDate: new Date(),
         setDate: new Date(),
+        position: 'top left',
         autoClose: true,
     });
     $('#partnerFrom').datepicker({
@@ -97,6 +121,54 @@
 
     $('button.close').on('click', function () {
         $('.pop-up-splash').css('display', 'none');
+    });
+
+    $('.btn-block').find('.closeForm').on('click', function (e) {
+        e.preventDefault();
+        $('#addNewUserPopup').css('display', 'none');
+        $(this).closest('form').get(0).reset();
+        $(this).closest('form').find('input[type=file]').val('');
+        $(this).closest('form').find('#edit-photo img').attr('src', '/static/img/no-usr.jpg');
+    });
+
+    $('.btn-block').find('.nextForm').on('click', function (e) {
+        e.preventDefault();
+        let flag = false;
+        $('.must').each(function () {
+           $(this).validate(function (valid) {
+               return flag = valid;
+           });
+           return flag;
+        });
+        if (!flag) {
+               showPopup(`Обязательные поля не заполнены либо введены некорректные данные`);
+           } else {
+               $(this).closest('form').css("transform","translate3d(-520px, 0px, 0px)");
+        }
+    });
+
+    $('.btn-block').find('.prevForm').on('click', function (e) {
+        e.preventDefault();
+        $(this).closest('form').css("transform","translate3d(0px, 0px, 0px)");
+    });
+
+    $("#createUser").find('input').each(function () {
+
+        $(this).keypress(function(event) {
+	        let keycode = (event.keyCode ? event.keyCode : event.which);
+	        if (keycode == '13') {
+	            event.preventDefault();
+            }
+	        event.stopPropagation();
+        });
+    });
+
+    $('.popap').on('click', function () {
+        $(this).css('display', 'none');
+    });
+
+    $('.editprofile-screen').on('click', function (e) {
+       e.stopPropagation();
     });
 
 })(jQuery);

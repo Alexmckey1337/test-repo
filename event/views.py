@@ -1,6 +1,17 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import logging
+import django_filters
+from django.db import transaction, IntegrityError
+from django.utils import six
+from rest_framework import mixins
+from rest_framework import status
+from rest_framework import viewsets, filters
+from rest_framework.decorators import api_view
+from rest_framework.decorators import list_route
+from rest_framework.generics import CreateAPIView, get_object_or_404
+from rest_framework.pagination import PageNumberPagination
 from django.db.models import IntegerField, Sum, When, Case, Count
 from rest_framework import status, filters, exceptions
 from rest_framework.decorators import list_route, detail_route
@@ -13,6 +24,8 @@ from django.db import transaction, IntegrityError
 from account.models import CustomUser
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
+
+logger = logging.getLogger(__name__)
 
 from .filters import ChurchReportFilter, MeetingFilter, CommonEventFilter
 from .models import Meeting, ChurchReport, MeetingAttend
@@ -141,8 +154,9 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                         note=attend.get('note', '')
                     )
 
-        except IntegrityError:
+        except IntegrityError as err:
             data = {'message': _('При обновлении возникла ошибка. Попробуйте еще раз.')}
+            logger.error(err)
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         headers = self.get_success_headers(meeting.data)

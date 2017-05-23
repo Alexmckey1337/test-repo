@@ -801,10 +801,6 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                 }
             });
             return flagCroppImg = true;
-            // let src = $('.anketa-photo').find('img').attr('src');
-            //  $img.attr('src', src);
-            // $('#editNameBtn').addClass('active');
-            // $('#editNameBlock').css({display: 'block'});
         });
     }
 

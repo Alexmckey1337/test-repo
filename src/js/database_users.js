@@ -22,9 +22,6 @@ $('document').ready(function () {
     $('.editprofile').on('click', function (e) {
         e.stopPropagation();
     });
-    $('.popap').on('click', function () {
-        $(this).css('display', 'none');
-    });
     $('input[name="fullsearch"]').keyup(function () {
         let search = $(this).val();
         $('.preloader').css('display', 'block');
@@ -65,6 +62,7 @@ $('document').ready(function () {
     $('#add').on('click', function () {
         $('body').addClass('no_scroll');
         $('#addNewUserPopup').css('display', 'block');
+        $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
         initAddNewUser();
     });
 
