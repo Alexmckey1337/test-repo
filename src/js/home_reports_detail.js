@@ -1,3 +1,4 @@
+/* globals moment */
 (function ($) {
     let $additionalInformation = $('#additionalInformation'),
         $homeReports = $('#homeReports');
@@ -207,10 +208,15 @@
         let dateTitle = document.createElement('label');
         let dateData = document.createElement('input');
         $(dateTitle).text('Дата отчёта: ');
+        let dateReportsFormatted = new Date(data.date.split('.').reverse().join(','));
+        let nextSunday = moment(dateReportsFormatted).day(7).format();
         $(dateData).val(data.date).attr({
             'size': data.date.length,
             'data-name': 'date',
-        }).datepicker();
+        }).datepicker({
+            minDate: new Date(dateReportsFormatted),
+            maxDate: new Date(nextSunday),
+        });
         $(dateContainer).append(dateTitle).append(dateData);
         $(container).append(dateContainer);
         if (data.type.code != 'service') {

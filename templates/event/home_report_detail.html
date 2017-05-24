@@ -94,9 +94,11 @@
                         <% if(key == 'attended') { %>
                             <td data-value="<%= key %>">
                                 <% if(results[index][key] != undefined && results[index][key] ) { %>
-                                    <input type="checkbox" name="attended" checked>
+                                <input id="<%= 'attended_' + (index + 1)%>" type="checkbox" name="attended" checked>
+                                <label for="<%= 'attended_' + (index + 1) %>"></label>
                                 <% } else { %>
-                                    <input type="checkbox" name="attended">
+                                <input id="<%= 'attended_' + (index + 1) %>" type="checkbox" name="attended">
+                                <label for="<%= 'attended_' + (index + 1) %>"></label>
                                 <% } %>
                             </td>
                         <% } else if (key == 'user') { %>
