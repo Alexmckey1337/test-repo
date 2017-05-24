@@ -4,7 +4,10 @@ from __future__ import unicode_literals
 from rest_framework import mixins, filters
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
+from analytics.decorators import log_perform_update, log_perform_destroy
+from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
 from payment.filters import PaymentFilterByPurpose, PaymentFilter, FilterByDealFIO, FilterByDealDate, \
     FilterByDealManagerFIO
@@ -13,7 +16,8 @@ from .models import Payment
 from .permissions import PaymentManagerOrSupervisor
 
 
-class PaymentUpdateDestroyView(mixins.UpdateModelMixin, mixins.DestroyModelMixin, GenericAPIView):
+class PaymentUpdateDestroyView(LogAndCreateUpdateDestroyMixin,
+                               mixins.UpdateModelMixin, mixins.DestroyModelMixin, GenericAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentUpdateSerializer
     permission_classes = (IsAuthenticated, PaymentManagerOrSupervisor)
@@ -24,28 +28,41 @@ class PaymentUpdateDestroyView(mixins.UpdateModelMixin, mixins.DestroyModelMixin
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
-    def perform_update(self, serializer):
-        old_data = serializer.instance.get_data_for_deal_purpose_update()
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.old_data = serializer.instance.get_data_for_deal_purpose_update()
+        self.perform_update(serializer)
 
-        payment = serializer.save()
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
 
-        self._update_purpose(old_data, payment.get_data_for_deal_purpose_update(), payment.content_type)
+        return Response(serializer.data)
 
-    def perform_destroy(self, instance):
+    @log_perform_update
+    def perform_update(self, serializer, **kwargs):
+        new_obj = kwargs.get('new_obj')
+        self._update_purpose(self.old_data, new_obj.get_data_for_deal_purpose_update(), new_obj)
+
+    @log_perform_destroy
+    def perform_destroy(self, instance, **kwargs):
         instance.delete()
-        instance.purpose.update_after_cancel_payment()
+        instance.purpose.update_after_cancel_payment(editor=self.request.user, payment=instance)
 
     # Helpers
 
-    @staticmethod
-    def _update_purpose(old_data, new_data, content_type):
+    def _update_purpose(self, old_data, new_data, payment):
         purpose = old_data.pop('purpose')
 
-        if content_type.model == 'deal':
+        if payment.content_type.model == 'deal':
             if any(map(lambda k: old_data[k] != new_data[k], old_data.keys())):
-                purpose.update_after_cancel_payment()
+                purpose.update_after_cancel_payment(editor=self.request.user, payment=payment)
         else:
-            purpose.update_after_cancel_payment()
+            purpose.update_after_cancel_payment(editor=self.request.user, payment=payment)
 
 
 class PaymentListView(mixins.ListModelMixin, GenericAPIView):

@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
+from analytics.decorators import log_change_payment
 from account.abstract_models import CustomUserAbstract
 from payment.models import get_default_currency, AbstractPaymentPurpose
 from summit.managers import ProfileManager
@@ -310,7 +311,8 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
             value = 0
         return value
 
-    def update_after_cancel_payment(self):
+    @log_change_payment(['value'])
+    def update_after_cancel_payment(self, editor, payment):
         self.update_value()
 
     update_after_cancel_payment.alters_data = True

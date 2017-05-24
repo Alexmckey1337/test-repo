@@ -2,12 +2,14 @@ from django.db import models
 from django.db.models import Q
 
 from rest_framework.compat import is_authenticated
+from django.db.models import Value as V
+from django.db.models.functions import Concat
 
 
 class PaymentQuerySet(models.query.QuerySet):
     def base_queryset(self):
         return self.select_related(
-            'currency_sum', 'currency_rate', 'manager')
+            'currency_sum', 'currency_rate', 'manager', 'content_type')
 
     def for_user_by_all(self, user):
         from partnership.models import Deal, Partnership
@@ -86,6 +88,13 @@ class PaymentQuerySet(models.query.QuerySet):
                     WHERE partnership_deal.id = payment_payment.object_id'''
             })
 
+    def annotate_manager_name(self):
+        return self.annotate(
+            manager_name=Concat(
+                'manager__last_name', V(' '),
+                'manager__first_name', V(' '),
+                'manager__middle_name'))
+
 
 class PaymentManager(models.Manager):
     def get_queryset(self):
@@ -105,3 +114,6 @@ class PaymentManager(models.Manager):
 
     def add_deal_fio(self):
         return self.get_queryset().add_deal_fio()
+
+    def annotate_manager_name(self):
+        return self.get_queryset().annotate_manager_name()

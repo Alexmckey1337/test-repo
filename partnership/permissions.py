@@ -43,6 +43,12 @@ class CanUpdatePartner(BasePermission):
         """
         return request.user.is_partner_manager_or_high
 
+    def has_object_permission(self, request, view, partner):
+        """
+        Checking that the ``request.user`` has the right to update ``partner``
+        """
+        return can_update_partner(request.user, partner.user)
+
 
 class CanUpdateDeals(BasePermission):
     def has_object_permission(self, request, view, deal):
@@ -162,6 +168,15 @@ def can_update_partner_need(user, partner):
     if user.is_partner_supervisor_or_high:
         return True
     return user.is_partner_manager and user.partnership.disciples.filter(id=partner.id).exists()
+
+
+def can_update_partner(user, partner_user):
+    """
+    Checking that the ``user`` has the right to update partnership of ``partner_user``
+    """
+    if user.is_partner_supervisor_or_high:
+        return True
+    return user.is_partner_manager and user.partnership.disciples.filter(user=partner_user).exists()
 
 
 def can_edit_partner_block(current_user, user):

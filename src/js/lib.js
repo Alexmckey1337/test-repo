@@ -2048,12 +2048,16 @@ function showPopupAddUser(data) {
             }, 1000);
         }
     });
+    $('#addPopup').find('.rewrite').on('click', function (e) {
+        $('#addPopup').css('display', 'none').remove();
+        $('#addNewUserPopup').css('display', 'block');
+    });
     $('#addPopup').find('.addMore').on('click', function () {
         $('#addPopup').css('display', 'none').remove();
         $('body').addClass('no_scroll');
         $('#addNewUserPopup').find('form').css("transform", "translate3d(0px, 0px, 0px)");
         $('#addNewUserPopup').css('display', 'block');
-        clearAddNewUser();
+        initAddNewUser();
         $('#addNewUserPopup').find('.body').scrollTop(0);
     });
 }
@@ -2476,7 +2480,7 @@ function initAddNewUser(config = {}) {
     }
     if (configDefault.getStatuses) {
         getStatuses().then(function (data) {
-            let statuses = data;
+            let statuses = data.results;
             let rendered = [];
             let option = document.createElement('option');
             $(option).text('Выберите статус').attr('disabled', true).attr('selected', true);

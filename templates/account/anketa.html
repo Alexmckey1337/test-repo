@@ -648,7 +648,6 @@
                             <textarea name="need_text" id="id_need_text" rows="5" cols="50" readonly>{{ account.partnership.need_text }}</textarea>
                         </div>
                     </div>
-                    <p class="sdelki_title">Данные по сделкам</p>
                         <div class="tab-status" id="tabStatus">
                             <ul id="tabs1">
                                 <li data-tab="1">
@@ -704,12 +703,15 @@
                                     <p>Сумма: <span>{{ deal.total_sum|cut:".000"}}/{{ deal.value }}₴</span></p></div>
                             {% endfor %}
                         </div>
-                        <p class="payment_title">Платежи за сделки</p>
+                        <div class="rows" data-summit-id="{{ anket_group.grouper.id }}">
+                                <p class="payment_title">Платежи за сделки</p>
+                        </div>
                         {% for payment in account.partnership.deal_payments.all %}
                             <div class="rows">
-                                <p><strong>{{ payment.effective_sum_str|cut:".000" }}</strong></p>
-                                <p><strong>{{ payment.created_at|date:"d.m.Y " }}</strong>{{ payment.created_at|date:"H:i:s" }}</p>
-                                <p>Принял: {{ payment.manager.fullname }}</p>
+                                    <p>{{ payment.effective_sum_str|cut:".000" }} —
+                                        {{ payment.created_at|date:"d.m.Y H:i:s" }}
+                                        — Принял: {{ payment.manager.fullname }}
+                                    </p>
                             </div>
                         {% endfor %}
                     </div>
@@ -830,6 +832,58 @@
                 {% endif %}
             </div>
         </div>
+        <hr>
+    </div>
+    <div class="clearfix"></div>
+    <div class="content">
+        {% if log_messages %}
+            <h1 style="padding-left: 20px;">Меня меняли</h1>
+            <table>
+                <tr>
+                    <th>Редактор</th>
+                    <th>Тип</th>
+                    <th>Лог</th>
+                    <th>Время изменения</th>
+                </tr>
+                {% for log_message in log_messages|slice:"20" %}
+                    <tr>
+                        <td><a href="{% url "account:detail" log_message.user_id %}">{{ log_message.user }}</a></td>
+                        <td>{{ log_message.get_action_flag_display }}</td>
+                        <td>{{ log_message.get_change_message }}</td>
+                        <td>{{ log_message.action_time|date:"d M Y H:i:s" }}</td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        {% endif %}
+        {% if log_messages_iam %}
+            <h1 style="padding-left: 20px;">Я менял</h1>
+            <table>
+                <tr>
+                    <th>Жертва</th>
+                    <th>Тип</th>
+                    <th>Лог</th>
+                    <th>Время изменения</th>
+                </tr>
+                {% for log_message in log_messages_iam|slice:"20" %}
+                    <tr>
+                        <td><a href="{% url "account:detail" log_message.object_id %}">{{ log_message.object_repr }}</a></td>
+                        <td>{{ log_message.get_action_flag_display }}</td>
+                        <td>{{ log_message.get_change_message }}</td>
+                        <td>{{ log_message.action_time|date:"d M Y H:i:s" }}</td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        {% endif %}
     </div>
 
 {% endblock %}

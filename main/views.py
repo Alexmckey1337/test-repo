@@ -6,6 +6,7 @@ from datetime import datetime
 import redis
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied, MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Count, Case, When, BooleanField
@@ -16,11 +17,12 @@ from django.views.generic import DetailView, ListView
 from django.views.generic.base import ContextMixin, TemplateView
 
 from account.models import CustomUser
+from analytics.models import LogRecord
 from event.models import Meeting, ChurchReport
 from event.models import MeetingType
 from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
-from partnership.models import Partnership
+from partnership.models import Partnership, Deal
 from payment.models import Currency
 from status.models import Division
 from summit.models import SummitType, SummitTicket, SummitAnket, Summit
@@ -212,6 +214,46 @@ class PartnerPaymentsListView(LoginRequiredMixin, CanSeeDealPaymentsMixin, Templ
 # account
 
 
+class DealPaymentView(LoginRequiredMixin, DetailView):
+    model = Deal
+    context_object_name = 'deal'
+    template_name = 'payment/deal.html'
+
+    def get_queryset(self):
+        return self.model.objects.base_queryset().annotate_full_name()
+
+    def get_context_data(self, **kwargs):
+        ctx = super(DealPaymentView, self).get_context_data(**kwargs)
+
+        ctx['payments'] = self.object.payments.base_queryset().annotate_manager_name()
+        # TODO test
+        ctx['partners'] = Partnership.objects.annotate_full_name().filter(
+            pk__in=Partnership.objects.exclude(pk=self.object.partnership.id)[:11].values_list('id', flat=True))
+
+        return ctx
+
+
+class PartnerPaymentView(LoginRequiredMixin, DetailView):
+    model = Partnership
+    context_object_name = 'partner'
+    template_name = 'payment/partner.html'
+
+    def get_queryset(self):
+        return self.model.objects.base_queryset().annotate_full_name()
+
+    def get_context_data(self, **kwargs):
+        ctx = super(PartnerPaymentView, self).get_context_data(**kwargs)
+
+        ctx['payments'] = self.object.payments.base_queryset().annotate_manager_name()
+        ctx['extra_payments'] = self.object.extra_payments.base_queryset().annotate_manager_name()
+        ctx['deal_payments'] = self.object.deal_payments.base_queryset().annotate_manager_name()
+        # TODO test
+        ctx['partners'] = Partnership.objects.annotate_full_name().filter(
+            pk__in=Partnership.objects.exclude(pk=self.object.id)[:11].values_list('id', flat=True))
+
+        return ctx
+
+
 @login_required(login_url='entry')
 def account(request, id):
     user = get_object_or_404(CustomUser, pk=id)
@@ -225,7 +267,15 @@ def account(request, id):
         'divisions': Division.objects.all(),
         'currencies': currencies,
         'partners': Partnership.objects.filter(level__lte=Partnership.MANAGER),
-        'churches': Church.objects.all()
+        'churches': Church.objects.all(),
+        'log_messages': LogRecord.objects.filter(
+            object_id=id,
+            content_type=ContentType.objects.get_for_model(user)
+        ),
+        'log_messages_iam': LogRecord.objects.filter(
+            user_id=id,
+            content_type=ContentType.objects.get_for_model(user)
+        )
     }
     return render(request, 'account/anketa.html', context=ctx)
 
