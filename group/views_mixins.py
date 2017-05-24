@@ -8,11 +8,12 @@ from group.pagination import HomeGroupPagination, GroupUsersPagination
 from group.resources import GroupUserResource, HomeGroupResource
 from group.serializers import HomeGroupListSerializer, GroupUserSerializer
 
-GROUP_USER_ORDERING_FIELDS = ('last_name', 'spiritual_level', 'leader__last_name' 'phone_number', 'born_date',
-                              'repentance_date', 'id')
 
-HOME_GROUP_ORDERING_FIELDS = ('title', 'city', 'leader__last_name', 'address', 'opening_date', 'phone_number',
-                              'website', 'id')
+GROUP_USER_ORDERING_FIELDS = ('id', 'last_name', 'spiritual_level', 'leader__last_name',
+                              'phone_number', 'born_date', 'repentance_date')
+
+HOME_GROUP_ORDERING_FIELDS = ('id', 'title', 'city', 'leader__last_name', 'address',
+                              'opening_date', 'phone_number', 'website')
 
 
 class HomeGroupListMixin:
@@ -78,8 +79,7 @@ class UserListMixin(BaseUserListMixin):
 
 
 class AllUserListMixin(BaseUserListMixin):
-    @detail_route(methods=['get'],
-                  pagination_class=GroupUsersPagination,
+    @detail_route(methods=['get'], pagination_class=GroupUsersPagination,
                   ordering_fields=GROUP_USER_ORDERING_FIELDS,
                   filter_backends=(ChurchAllUserFilter, filters.OrderingFilter,))
     def all_users(self, request, pk):
@@ -140,7 +140,8 @@ class ChurchHomeGroupExportViewSetMixin(BaseExportViewSetMixin):
         return self.get_response(queryset, fields, HomeGroupResource)
 
 
-class ChurchUsersMixin(UserListMixin, AllUserListMixin, GroupUserExportViewSetMixin, ChurchAllUserExportViewSetMixin):
+class ChurchUsersMixin(UserListMixin, AllUserListMixin, GroupUserExportViewSetMixin,
+                       ChurchAllUserExportViewSetMixin):
     pass
 
 

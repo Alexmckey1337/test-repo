@@ -3,7 +3,6 @@ let getUrlParameter = function getUrlParameter(sParam) {
         sURLVariables = sPageURL.split('&'),
         sParameterName,
         i;
-
     for (i = 0; i < sURLVariables.length; i++) {
         sParameterName = sURLVariables[i].split('=');
 
@@ -29,18 +28,21 @@ function authUser() {
     };
     if (checkEmptyFields(username, password) == false) {
         let next;
-        let json = JSON.stringify(data);
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/login/', json, function (JSONobj) {
+        let loginData = JSON.stringify(data);
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'rest-auth/login/', loginData, function (res) {
             //showPopup(JSONobj.message);
-            if (JSONobj.status == true) {
+            if (res) {
+                setCookie('key', res.key, {
+                    path: '/'
+                });
                 //showPopup(JSONobj.message);
                 next = getUrlParameter('next');
-                console.log(next);
                 if (next) {
                     window.location.href = next;
                 } else {
                     window.location.href = '/';
                 }
+                console.log(getCookie('key'))
             } else {
                 //loginError(JSONobj.message);
                 //alert(JSONobj.message)

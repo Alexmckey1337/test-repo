@@ -12,6 +12,16 @@ body {
     overflow: hidden;
   }
 }
+a {
+  color: #3caeda;
+}
+#statusTabs {
+  & .current {
+    & button {
+      color: #656d78;
+    }
+  }
+}
 
 .hidden {
   display: none;
@@ -168,12 +178,14 @@ button {
   background-color: #aab2bd;
   padding: 12px 20px 12px 45px;
   color: #fff;
-  //font-family: "UbuntuMedium", sans-serif;
   border-radius: 4px;
   border: 0;
   cursor: pointer;
   font-size: 1.1em;
   transition: all .3s ease;
+  &.close-popup {
+    padding: 12px 20px 12px 20px;
+  }
   &.add {
     &:before {
       content: '\f067' !important;
@@ -1567,6 +1579,29 @@ table {
   }
 }
 
+table {
+  width: 100%;
+  & .no_empty {
+    & tr:last-child {
+      border: 1px solid #E2E2E2;
+      & td {
+        font-family: Ubuntu, sans-serif;
+        border: 1px solid #E2E2E2;
+        color: #656d78;
+        font-size: 1.1em;
+        padding: 9px 12px;
+        max-width: 270px;
+        white-space: nowrap;
+        &:first-child {
+          padding-left: 35px;
+          padding-right: 3em;
+          position: relative;
+        }
+      }
+    }
+  }
+}
+
 .table__count {
   float: left;
   padding: 30px 0 15px 30px;
@@ -1867,6 +1902,8 @@ td {
       bottom: 0;
       margin: auto;
       &:before {
+        width: 1em;
+        height: 1em;
         content: '\f040';
         font: 1em FontAwesome;
       }
@@ -1960,12 +1997,16 @@ table tr:first-child td {
   width: 240px;
   background-color: #434a54;
   position: fixed;
-  top: 90px;
-  right: -300px;
+  top: 0;
+  right: 0;
+  transform: translateX(285px);
   bottom: 0;
   padding: 20px;
   z-index: 999999;
-  transition: all .3s ease;
+  transition: transform .3s ease;
+  &.active {
+    transform: translateX(0);
+  }
 }
 
 #deals-new .table-sorting {
@@ -1976,7 +2017,7 @@ table tr:first-child td {
   height: 100%;
 }
 
-.bgsort {
+.bg_sort {
   position: fixed;
   top: 0;
   left: 0;
@@ -1985,6 +2026,16 @@ table tr:first-child td {
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 9;
   cursor: pointer;
+  overflow: hidden;
+}
+
+.reports_id {
+  display: block;
+  width: 100%;
+  &:hover {
+    border-bottom: none;
+    text-decoration: none;
+  }
 }
 
 .table-sorting .top-text {
@@ -2059,23 +2110,51 @@ table label,
   font-size: 20px;
 }
 
-td label {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  position: absolute;
-  top: 6px;
-  left: 8px;
+td {
+  & input {
+    &:disabled {
+      border-color: transparent;
+    }
+  }
+  & input[type=checkbox] {
+    display: none;
+    opacity: 0;
+  }
+  & input[type=checkbox]:disabled + label:before {
+    background: url(../img/scheck-box.png) no-repeat 0 -40px;
+  }
+  & input[type=checkbox]:checked:disabled + label:before {
+    background: url(../img/scheck-box.png) no-repeat 0 -60px !important;
+  }
+  & label {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    &:before {
+      display: block;
+      position: absolute;
+      content: '';
+      top: -3px;
+      right: -20px;
+      width: 20px;
+      height: 20px;
+      background: url('../img/scheck-box.png') no-repeat 0 0;
+    }
+  }
 }
 
-table label::before,
 .account label::before,
 #sort-form label::before {
   display: block;
   position: absolute;
   content: '';
   top: -3px;
-  right: -8px;
+  right: -20px;
   width: 20px;
   height: 20px;
   background: url('../img/scheck-box.png') no-repeat 0 0;
@@ -2167,7 +2246,6 @@ input:checked ~ label.disable:before {
 
 }
 
-table input[type=checkbox],
 .account input[type=checkbox],
 #sort-form input[type=checkbox] {
   display: none;
@@ -3007,6 +3085,7 @@ button#complete {
 
 /***********************Preloader************************/
 .preloader {
+  display: none;
   position: fixed;
   top: 50%;
   left: 50%;
@@ -3427,7 +3506,7 @@ span.change[style*="display: none"] ~ span.y {
   position: absolute;
   content: '';
   top: -3px;
-  right: -8px;
+  right: -20px;
   width: 20px;
   height: 20px;
   background: url('../img/scheck-box.png') no-repeat 0 0;
@@ -3730,6 +3809,9 @@ span.change[style*="display: none"] ~ span.y {
         height: 1em;
         &:before {
           content: '\f040';
+          width: 1em;
+          height: 1em;
+          display: block;
           color: #656d78;
           font: 100 1em FontAwesome;
           position: absolute;
@@ -5184,11 +5266,11 @@ div#hint:before {
   top: 10px;
 }
 
-.info {
-  //font-family: "UbuntuMedium", sans-serif;
-  font-size: 1.1em;
-  padding: 30px;
-}
+//.info {
+//font-family: "UbuntuMedium", sans-serif;
+//  font-size: 1.1em;
+//  padding: 30px;
+//}
 
 @-moz-document url-prefix() {
   table {
@@ -6345,5 +6427,75 @@ div.code input#code {
     & button {
       padding: 12px 20px;
     }
+  }
+}
+
+._preloader {
+  width: 120px;
+  height: 120px;
+  svg {
+    width: inherit;
+    height: auto;
+    margin: 0;
+    display: block;
+    stroke: #CECECE;
+  }
+}
+
+// Loader
+.cls-1, .cls-2 {
+  fill: none;
+  stroke-linecap: bevel;
+  stroke-linejoin: round;
+}
+
+.cls-1 {
+  stroke-width: .15rem;
+  fill: transparent;
+}
+
+.cls-2 {
+  fill: none;
+  stroke: #3caeda;
+  stroke-width: .15rem;
+}
+
+.col-12 {
+  width: 100%;
+}
+
+.grid_block {
+  & .error {
+    background: #ffc3ae !important;
+  }
+  & .info {
+    background: #fefac0 !important;
+  }
+  & .success {
+    background: #cbe8ba !important;
+  }
+}
+
+.container-full {
+  padding: 1em 2.5em;
+}
+
+#additionalInformation {
+  & h2 {
+    font-weight: 900;
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 1.7em;
+    text-transform: uppercase;
+    color: #434a54;
+    & span {
+      opacity: .5;
+    }
+  }
+  & p {
+    font-size: 1.2em;
+    line-height: 2em;
+  }
+  & a {
+    color: #3caeda;
   }
 }

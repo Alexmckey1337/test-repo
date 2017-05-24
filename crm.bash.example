@@ -34,4 +34,3 @@ exec /projects/crm/venv3/bin/gunicorn ${DJANGO_WSGI_MODULE}:application \
   --log-file=-
   --timeout=90
   --graceful-timeout=10
-

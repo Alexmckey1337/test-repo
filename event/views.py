@@ -2,228 +2,252 @@
 from __future__ import unicode_literals
 
 import logging
-import django_filters
+
 from django.db import transaction, IntegrityError
-from django.utils import six
-from rest_framework import mixins
-from rest_framework import status
-from rest_framework import viewsets, filters
-from rest_framework.decorators import api_view
-from rest_framework.decorators import list_route
-from rest_framework.generics import CreateAPIView, get_object_or_404
-from rest_framework.pagination import PageNumberPagination
+from django.db.models import IntegerField, Sum, When, Case, Count
+from django.utils.translation import ugettext_lazy as _
+from rest_framework import status, filters, exceptions
+from rest_framework.decorators import list_route, detail_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from account.models import CustomUser
-from account.pagination import ShortPagination
-from group.models import HomeGroup
-from group.serializers import HomeGroupListSerializer
-from navigation.table_fields import event_table
-from .models import Participation, Event, EventAnket, EventType, MeetingAttend, Meeting
-from .serializers import (
-    ParticipationSerializer, EventSerializer, EventTypeSerializer, EventAnketSerializer,
-    MeetingSerializer, MeetingUserSerializer)
+from common.filters import FieldSearchFilter
+from common.views_mixins import ModelWithoutDeleteViewSet
+from .filters import ChurchReportFilter, MeetingFilter, CommonEventFilter
+from .models import Meeting, ChurchReport, MeetingAttend
+from .pagination import MeetingPagination, MeetingVisitorsPagination
+from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingDetailSerializer,
+                          MeetingListSerializer, ChurchReportStatisticSerializer,
+                          MeetingStatisticSerializer, ChurchReportSerializer,
+                          ChurchReportListSerializer)
 
 logger = logging.getLogger(__name__)
 
 
-class MeetingPagination(PageNumberPagination):
-    page_size = 30
-    page_size_query_param = 'page_size'
-
-    def get_paginated_response(self, data):
-        return Response({
-            'links': {
-                'next': self.get_next_link(),
-                'previous': self.get_previous_link()
-            },
-            'count': self.page.paginator.count,
-            'results': data
-        })
-
-
-class MeetingViewSet(mixins.RetrieveModelMixin,
-                     mixins.UpdateModelMixin,
-                     mixins.CreateModelMixin,
-                     mixins.ListModelMixin,
-                     viewsets.GenericViewSet):
+class MeetingViewSet(ModelWithoutDeleteViewSet):
     queryset = Meeting.objects.all()
 
     serializer_class = MeetingSerializer
+    serializer_retrieve_class = MeetingDetailSerializer
+    serializer_list_class = MeetingListSerializer
+
     permission_classes = (IsAuthenticated,)
     pagination_class = MeetingPagination
 
-    @list_route(methods=['get'])
-    def get_home_leaders(self, request):
-        params = request.query_params
-        leader_id = params.get('leader_id')
-
-        serializer = HomeGroupListSerializer
-
-        if not leader_id:
-            return Response({'message': 'Некоректные данные.'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        home_groups = HomeGroup.objects.filter(leader__id=leader_id)
-        serializer = serializer(home_groups, many=True)
-        return Response(serializer.data)
-
-    @list_route(methods=['get'])
-    def get_home_users(self, request):
-        params = request.query_params
-        home_group_id = params.get('home_group_id')
-
-        serializer = MeetingUserSerializer
-
-        if not home_group_id:
-            return Response({'message': 'Некоректные данные'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        users = CustomUser.objects.filter(home_groups__id=home_group_id)
-        serializer = serializer(users, many=True)
-        return Response(serializer.data)
-
-
-class ParticipationPagination(PageNumberPagination):
-    page_size = 30
-    page_size_query_param = 'page_size'
-    max_page_size = 30
-    permission_classes = (IsAuthenticated,)
-
-    def get_paginated_response(self, data):
-        return Response({
-            'links': {
-                'next': self.get_next_link(),
-                'previous': self.get_previous_link()
-            },
-            'count': self.page.paginator.count,
-            'common_table': event_table(),
-            'results': data
-        })
-
-
-class EventFilter(filters.FilterSet):
-    from_date = django_filters.DateFilter(name="from_date", lookup_expr='gte')
-    to_date = django_filters.DateFilter(name="to_date", lookup_expr='lte')
-
-    class Meta:
-        model = Event
-        fields = ['event_type', 'to_date', 'from_date', ]
-
-
-class EventTypeViewSet(viewsets.ModelViewSet):
-    queryset = EventType.objects.all()
-    serializer_class = EventTypeSerializer
     filter_backends = (filters.DjangoFilterBackend,
-                       filters.SearchFilter,)
-    search_fields = ()
-    permission_classes = (IsAuthenticated,)
-    filter_fields = []
+                       CommonEventFilter,
+                       FieldSearchFilter,
+                       filters.OrderingFilter)
 
+    filter_fields = ('data', 'type', 'owner', 'home_group', 'status', 'department', 'church')
 
-class EventAnketViewSet(viewsets.ModelViewSet):
-    queryset = EventAnket.objects.all()
-    serializer_class = EventAnketSerializer
-    filter_backends = (filters.DjangoFilterBackend,
-                       filters.SearchFilter,)
-    search_fields = ()
-    permission_classes = (IsAuthenticated,)
-    filter_fields = []
+    ordering_fields = ('id', 'date', 'owner__last_name', 'home_group__title', 'type__code',
+                       'status', 'phone_number', 'visitors_attended', 'visitors_absent',
+                       'total_sum')
 
+    filter_class = MeetingFilter
 
-class EventViewSet(viewsets.ModelViewSet):
-    queryset = Event.objects.all()
-    serializer_class = EventSerializer
-    filter_backends = (filters.DjangoFilterBackend,
-                       filters.SearchFilter,)
-    search_fields = ()
-    filter_class = EventFilter
-    pagination_class = ShortPagination
-    permission_classes = (IsAuthenticated,)
+    field_search_fields = {
+        'search_date': ('date',)
+    }
 
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return self.serializer_list_class
+        if self.action in ['retrieve', 'update', 'partial_update']:
+            return self.serializer_retrieve_class
+        return self.serializer_class
 
-class ParticipationViewSet(viewsets.ModelViewSet):
-    queryset = Participation.objects.all()
-    serializer_class = ParticipationSerializer
-    filter_backends = (filters.DjangoFilterBackend,
-                       filters.SearchFilter,
-                       filters.OrderingFilter,)
-    pagination_class = ParticipationPagination
-    filter_fields = ['event', 'user__user__master', 'user__user', ]
-    search_fields = ('user__user__first_name', 'user__user__last_name', 'user__user__middle_name',
-                     'user__user__country', 'user__user__region', 'user__user__city', 'user__user__district',
-                     'user__user__address', 'user__user__skype', 'user__user__phone_number',
-                     'user__user__hierarchy__title',
-                     'user__user__email',)
-    ordering_fields = ('user__user__first_name', 'user__user__last_name', 'user__user__hierarchy__level',
-                       'user__user__country', 'user__user__region', 'user__user__city', 'user__user__district',
-                       'user__user__address', 'user__user__skype', 'user__user__phone_number',
-                       'user__user__hierarchy__title',
-                       'user__user__email',)
-    permission_classes = (IsAuthenticated,)
+    def get_queryset(self):
+        if self.action == 'list':
+            return self.queryset.for_user(self.request.user).annotate(
+                visitors_attended=Sum(Case(
+                    When(attends__attended=True, then=1),
+                    output_field=IntegerField(), default=0)),
 
-    @list_route()
-    def disciples(self, request):
-        from .utils import get_disciple_participations
-        q = get_disciple_participations(request.user)
-        queryset = self.filter_queryset(q)
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+                visitors_absent=Sum(Case(When(
+                    attends__attended=False, then=1),
+                    output_field=IntegerField(), default=0))
+            )
+        return self.queryset.for_user(self.request.user)
 
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+    @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer)
+    def submit(self, request, pk):
+        home_meeting = self.get_object()
+        valid_attends = self.validate_to_submit(home_meeting, request.data)
 
-
-@api_view(['POST'])
-def update_participation(request):
-    '''POST: (id, check, value)'''
-    response_dict = dict()
-    if request.method == 'POST':
-        data = request.data
-        try:
-            object = Participation.objects.get(id=data['id'])
-            for key, value in six.iteritems(data):
-                setattr(object, key, value)
-            object.save()
-            object.recount()
-            serializer = ParticipationSerializer(object, context={'request': request})
-            response_dict['data'] = serializer.data
-            response_dict['message'] = "Участие успешно изменено."
-            response_dict['status'] = True
-        except Participation.DoesNotExist:
-            response_dict['message'] = "Участие не существует."
-            response_dict['status'] = False
-    return Response(response_dict)
-
-
-class CreateMeetingView(CreateAPIView):
-    serializer_class = MeetingSerializer
-
-    def create(self, request, *args, **kwargs):
-        data = request.data
-        owner = get_object_or_404(CustomUser, id=data.get('owner'))
-        owner_users_id = list(owner.get_children().values_list('id', flat=True))
-        meeting_attend = data.pop('users')
-        meeting_users_id = [int(a['user']) for a in meeting_attend]
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-
-        valid_attend = [a for a in meeting_attend if int(a['user']) in owner_users_id]
-        for user_id in owner_users_id:
-            if user_id not in meeting_users_id:
-                valid_attend.append({'user': user_id, 'attended': False, 'note': ''})
+        home_meeting.status = Meeting.SUBMITTED
+        meeting = self.serializer_class(home_meeting, data=request.data, partial=True)
+        meeting.is_valid(raise_exception=True)
 
         try:
             with transaction.atomic():
-                meeting = serializer.save()
-                MeetingAttend.objects.bulk_create([MeetingAttend(
-                    user_id=attend['user'], meeting_id=meeting.id, attended=attend['attended'],
-                    note=attend['note']) for attend in valid_attend])
+                self.perform_update(meeting)
+                for attend in valid_attends:
+                    MeetingAttend.objects.create(
+                        meeting_id=home_meeting.id,
+                        user_id=attend.get('user'),
+                        attended=attend.get('attended', False),
+                        note=attend.get('note', '')
+                    )
+        except IntegrityError:
+            data = {'message': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
+            return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        headers = self.get_success_headers(meeting.data)
+        return Response(meeting.data, status=status.HTTP_200_OK, headers=headers)
+
+    @staticmethod
+    def validate_to_submit(meeting, data):
+        if meeting.type.code == 'service' and data.get('total_sum'):
+            raise exceptions.ValidationError(
+                _('Невозможно подать отчет. Отчет типа - {%s} не должен содержать '
+                  'денежную сумму. ' % meeting.type.name))
+
+        if not data.get('attends'):
+            raise exceptions.ValidationError(
+                _('Невозможно подать отчет. Список присутствующих не передан.'))
+
+        if meeting.status == Meeting.SUBMITTED:
+            raise exceptions.ValidationError(
+                _('Невозможно повторно подать отчет. Данный отчет - {%s}, '
+                  'уже был подан ранее. ') % meeting)
+
+        attends = data.pop('attends')
+        valid_visitors = list(meeting.home_group.users.values_list('id', flat=True))
+        valid_attends = [attend for attend in attends if attend.get('user') in valid_visitors]
+
+        if not valid_attends:
+            raise exceptions.ValidationError(_('Переданный список присутствующих некорректен'))
+
+        return valid_attends
+
+    def update(self, request, *args, **kwargs):
+        meeting = self.get_object()
+        meeting = self.get_serializer(meeting, data=request.data, partial=True)
+        meeting.is_valid(raise_exception=True)
+
+        if not request.data.get('attends'):
+            self.perform_update(meeting)
+            return Response(meeting.data)
+
+        attends = request.data.pop('attends')
+
+        try:
+            with transaction.atomic():
+                self.perform_update(meeting)
+                for attend in attends:
+                    MeetingAttend.objects.filter(id=attend.get('id')).update(
+                        user=attend.get('user'),
+                        attended=attend.get('attended', False),
+                        note=attend.get('note', '')
+                    )
+
         except IntegrityError as err:
-            data = {'message': 'При сохранении возникла ошибка. Попробуйте еще раз.'}
+            data = {'message': _('При обновлении возникла ошибка. Попробуйте еще раз.')}
             logger.error(err)
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        headers = self.get_success_headers(meeting.data)
+        return Response(meeting.data, status=status.HTTP_200_OK, headers=headers)
+
+    @detail_route(methods=['GET'], serializer_class=MeetingVisitorsSerializer,
+                  pagination_class=MeetingVisitorsPagination)
+    def visitors(self, request, pk):
+        meeting = self.get_object()
+        visitors = meeting.home_group.users.all()
+
+        page = self.paginate_queryset(visitors)
+        if page is not None:
+            visitors = self.get_serializer(page, many=True)
+            return self.get_paginated_response(visitors.data)
+
+        visitors = self.serializer_class(visitors, many=True)
+
+        return Response(visitors.data)
+
+    @list_route(methods=['GET'], serializer_class=MeetingStatisticSerializer)
+    def statistics(self, request):
+        queryset = self.filter_queryset(self.queryset.for_user(self.request.user))
+
+        from_date = request.query_params.get('from_date')
+        to_date = request.query_params.get('to_date')
+
+        statistics = queryset.aggregate(
+            total_visitors=Count('visitors'),
+            total_visits=Sum(Case(When(attends__attended=True, then=1),
+                                  output_field=IntegerField(), default=0)),
+            total_absent=Sum(Case(When(attends__attended=False, then=1),
+                                  output_field=IntegerField(), default=0)),
+        )
+        statistics.update(queryset.aggregate(
+            reports_in_progress=Sum(Case(When(status=1, then=1),
+                                         output_field=IntegerField(), default=0)),
+            reports_submitted=Sum(Case(When(status=2, then=1),
+                                       output_field=IntegerField(), default=0)),
+            reports_expired=Sum(Case(When(status=3, then=1),
+                                     output_field=IntegerField(), default=0))))
+        statistics.update(queryset.aggregate(total_donations=Sum('total_sum')))
+        statistics['new_repentance'] = CustomUser.objects.filter(
+            repentance_date__range=[from_date, to_date]).count()
+
+        statistics = self.serializer_class(statistics)
+        return Response(statistics.data)
+
+
+class ChurchReportViewSet(ModelWithoutDeleteViewSet):
+    queryset = ChurchReport.objects.all()
+
+    serializer_class = ChurchReportSerializer
+    serializer_list_class = ChurchReportListSerializer
+
+    permission_classes = (IsAuthenticated,)
+    # pagination_class = ChurchReportPagination
+
+    filter_backends = (filters.DjangoFilterBackend,
+                       FieldSearchFilter,
+                       filters.OrderingFilter,)
+
+    filter_class = ChurchReportFilter
+
+    field_search_fields = {
+        'search_date': ('date',)
+    }
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return self.serializer_list_class
+        return self.serializer_class
+
+    @detail_route(methods=['POST'])
+    def submit(self, request, pk):
+        church_report = self.get_object()
+        if church_report.status == ChurchReport.SUBMITTED:
+            raise exceptions.ValidationError(
+                _('Невозможно подать отчет. Данный отчет уже был подан ранее'))
+
+        church_report.status = ChurchReport.SUBMITTED
+        report = self.get_serializer(church_report, data=request.data, partial=True)
+        report.is_valid(raise_exception=True)
+        self.perform_update(report)
+        headers = self.get_success_headers(report.data)
+
+        return Response(report.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @list_route(methods=['GET'], serializer_class=ChurchReportStatisticSerializer)
+    def statistics(self, request):
+        queryset = self.filter_queryset(self.queryset)
+        statistics = queryset.aggregate(
+            total_peoples=Sum('count_people'),
+            total_new_peoples=Sum('new_people'),
+            total_repentance=Sum('count_repentance'),
+            total_tithe=Sum('tithe'),
+            total_donations=Sum('donations'),
+            total_transfer_payments=Sum('transfer_payments'),
+            total_pastor_tithe=Sum('pastor_tithe'))
+
+        statistics = self.serializer_class(statistics)
+        statistics.is_valid(raise_exception=True)
+
+        return Response(statistics.data)

@@ -25,6 +25,7 @@ class MeetingFactory(factory.DjangoModelFactory):
     type = factory.SubFactory(MeetingTypeFactory)
     date = factory.fuzzy.FuzzyDate(start_date=datetime.date(2000, 1, 1))
     owner = factory.SubFactory(UserFactory)
+    home_group = factory.SubFactory('group.factories.HomeGroupFactory')
 
 
 class MeetingAttendFactory(factory.DjangoModelFactory):

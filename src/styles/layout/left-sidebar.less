@@ -17,12 +17,14 @@
   z-index: 9;
   transition: width 0.3s;
 }
+
 #container {
   width: ~'calc(100% - var(--lsb_width))';
   transition: width .3s;
   height: 100vh;
   overflow: scroll;
 }
+
 #sidebar.toggle-sidebar .logo div:nth-child(2) {
   font-size: 2em;
 }
@@ -144,6 +146,12 @@
         }
         &#partners__item:before {
           content: '\f2b5';
+        }
+        &#events__reports:before {
+          content: '\f080';
+        }
+        &#summits__reports:before {
+          content: '\f080';
         }
         &#summits__item:before {
           content: '\f274';

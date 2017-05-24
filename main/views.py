@@ -13,13 +13,14 @@ from django.views.generic import DetailView, ListView
 from django.views.generic.base import ContextMixin, TemplateView
 
 from account.models import CustomUser
-from event.models import MeetingType
+from event.models import Meeting, ChurchReport
 from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
 from partnership.models import Partnership
 from payment.models import Currency
 from status.models import Division
 from summit.models import SummitType, SummitTicket, SummitAnket
+from event.models import MeetingType
 
 
 def entry(request):
@@ -36,34 +37,91 @@ def edit_pass(request, activation_key=None):
 
 @login_required(login_url='entry')
 def events(request):
-    return render(request, 'event/events.html')
-
-
-@login_required(login_url='entry')
-def meeting_types(request):
-    ctx = {
-        'meeting_types': MeetingType.objects.all(),
-    }
-    return render(request, 'event/meeting_types.html', context=ctx)
-
-
-@login_required(login_url='entry')
-def meeting_type_detail(request, code):
-    ctx = {
-        'meeting_type': get_object_or_404(MeetingType, code=code),
-    }
-    return render(request, 'event/meeting_type_detail.html', context=ctx)
-
-
-@login_required(login_url='entry')
-def meeting_report(request, code):
     if not request.user.hierarchy or request.user.hierarchy.level < 1:
         return redirect('/')
+
     ctx = {
-        'leaders': CustomUser.objects.filter(home_group__leader__id__isnull=False).distinct(),
-        'meeting_type': get_object_or_404(MeetingType, code=code),
+        'reports_in_progress': Meeting.objects.filter(status=1).count(),
+        'reports_submitted': Meeting.objects.filter(status=2).count(),
+        'reports_expired': Meeting.objects.filter(status=3).count(),
     }
-    return render(request, 'event/meeting_report_create.html', context=ctx)
+
+    return render(request, 'event/EVENT_LIST.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def meeting_report_list(request):
+    if not request.user.hierarchy or request.user.hierarchy.level < 1:
+        return redirect('/')
+
+    ctx = {
+        'departments': Department.objects.all(),
+        'churches': Church.objects.all(),
+        'home_groups': HomeGroup.objects.all(),
+        'owners': CustomUser.objects.filter(home_group__leader__id__isnull=False).distinct(),
+        'types': MeetingType.objects.all()
+    }
+
+    return render(request, 'event/home_reports.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def meeting_report_detail(request, pk):
+    if not request.user.hierarchy or request.user.hierarchy.level < 1:
+        return redirect('/')
+
+    ctx = {
+        'home_report': get_object_or_404(Meeting, pk=pk),
+        'leader': request.user,
+    }
+    return render(request, 'event/home_report_detail.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def meeting_report_statistics(request):
+    if not request.user.hierarchy or request.user.hierarchy.level < 1:
+        return redirect('/')
+
+    ctx = {
+        'departments': Department.objects.all(),
+        'churches': Church.objects.all(),
+        'home_groups': HomeGroup.objects.all(),
+        'owners': CustomUser.objects.filter(home_group__leader__id__isnull=False).distinct(),
+        'types': MeetingType.objects.all()
+    }
+
+    return render(request, 'event/home_statistics.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def church_report_list(request):
+    if not request.user.hierarchy or request.user.hierarchy.level < 2:
+        return redirect('/')
+
+    ctx = {}
+
+    return render(request, 'event/church_reports.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def church_report_detail(request, pk):
+    if not request.user.hierarchy or request.user.hierarchy.level < 2:
+        return redirect('/')
+
+    ctx = {
+        'church_report': get_object_or_404(ChurchReport, pk=pk),
+        'pastor': request.user,
+    }
+
+    return render(request, 'event/CHURCH_REPORT_DETAIL.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def church_statistics(request):
+    if not request.user.hierarchy or request.user.hierarchy.level < 2:
+        return redirect('/')
+
+    return render(request, 'event/CHURCH_REPORT_STATISTICS.html', context={})
 
 
 # partner
@@ -345,7 +403,8 @@ class ChurchListView(LoginRequiredMixin, TabsMixin, CanSeeChurchesMixin, Templat
         ctx = super(ChurchListView, self).get_context_data(**kwargs)
 
         ctx['departments'] = Department.objects.all()
-        ctx['church_all_pastors'] = CustomUser.objects.filter(church__pastor__id__isnull=False).distinct()
+        ctx['church_all_pastors'] = CustomUser.objects.filter(
+            church__pastor__id__isnull=False).distinct()
         ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
 
         return ctx
@@ -360,7 +419,8 @@ class HomeGroupListView(LoginRequiredMixin, TabsMixin, CanSeeHomeGroupsMixin, Te
         ctx = super(HomeGroupListView, self).get_context_data(**kwargs)
 
         ctx['churches'] = Church.objects.all()
-        ctx['leaders'] = CustomUser.objects.filter(home_group__leader__id__isnull=False).distinct()
+        ctx['leaders'] = CustomUser.objects.filter(
+            home_group__leader__id__isnull=False).distinct()
         ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
 
         return ctx

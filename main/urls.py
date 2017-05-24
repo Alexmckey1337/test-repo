@@ -29,6 +29,13 @@ def redirect_to_churches(request):
         return redirect(reverse('db:people'))
     return redirect(reverse('db:churches'))
 
+
+def redirect_to_meetings(request):
+    if not request.user.can_see_churches():
+        return redirect(reverse('db:people'))
+    return redirect(reverse('events:meeting_report_list'))
+
+
 database_patterns = [
     url(r'^$', login_required(redirect_to_churches, login_url='entry'), name='main'),
     url(r'^people/$', views.PeopleListView.as_view(), name='people'),
@@ -45,11 +52,17 @@ partner_patterns = [
 account_patterns = [
     url(r'^(\d+)/$', views.account, name='detail'),
 ]
-meeting_patterns = [
-    url(r'^$', views.meeting_types, name='list'),  # meeting_type-list
-    url(r'^(?P<code>[-_\w]+)/$', views.meeting_type_detail, name='detail'),  # meeting_type-detail
-    url(r'^(?P<code>[-_\w]+)/report/$', views.meeting_report, name='report'),  # meeting-report
+
+events_patterns = [
+    url(r'^$', login_required(redirect_to_meetings, login_url='entry'), name='main'),
+    url(r'^home/reports/$', views.meeting_report_list, name='meeting_report_list'),
+    url(r'^home/reports/(?P<pk>\d+)/$', views.meeting_report_detail, name='meeting_report_detail'),
+    url(r'^home/statistics/$', views.meeting_report_statistics, name='meeting_report_statistics'),
+    url(r'^church/reports/$', views.church_report_list, name='church_report_list'),
+    url(r'^church/reports/(?P<pk>\d+)/$', views.church_report_detail, name='church_report_detail'),
+    url(r'^church/statistics/$', views.church_statistics, name='church_report_statistics'),
 ]
+
 summit_patterns = [
     url(r'^$', views.summits, name='list'),
     url(r'^(?P<pk>\d+)/$', views.SummitTypeView.as_view(), name='detail'),
@@ -66,12 +79,11 @@ urlpatterns = [
     url(r'^db/', include(database_patterns, namespace='db')),
     url(r'^account/', include(account_patterns, namespace='account')),
     url(r'^partner/', include(partner_patterns, namespace='partner')),
-    url(r'^meeting_types/', include(meeting_patterns, namespace='meeting_type')),
+    url(r'^events/', include(events_patterns, namespace='events')),
     url(r'^summits/', include(summit_patterns, namespace='summit')),
 
     url(r'^churches/(?P<pk>\d+)/$', views.ChurchDetailView.as_view(), name='church_detail'),
     url(r'^home_groups/(?P<pk>\d+)/$', views.HomeGroupDetailView.as_view(), name='home_group_detail'),
-
 
     url(r'^password_view/(?P<activation_key>\w+)/$', views.edit_pass, name='password_view'),
 ]

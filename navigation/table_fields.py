@@ -23,6 +23,13 @@ def group_table(user, category_title=None):
 
 
 @check_user_table_exist
+def meeting_table(user, category_title=None):
+    table_columns = _filter_meeting_columns(user.table.columns.select_related('columnType'), category_title)
+
+    return _get_result_table(table_columns)
+
+
+@check_user_table_exist
 def user_table(user, prefix_ordering_title=''):
     table_columns = _filter_user_columns(user.table.columns.select_related('columnType'))
 
@@ -80,6 +87,15 @@ def _filter_group_columns(table_columns, category_title):
     elif category_title == 'group_users':
         return table_columns.filter(columnType__title__in=[
             'fullname', 'phone_number', 'repentance_date', 'spiritual_level', 'born_date'])
+    else:
+        return table_columns.none()
+
+
+def _filter_meeting_columns(table_columns, category_title):
+    if category_title in ('meetings',):
+        return table_columns.filter(columnType__category__title=category_title)
+    elif category_title == 'attends':
+        return table_columns.filter(columnType__category__title=category_title)
     else:
         return table_columns.none()
 
