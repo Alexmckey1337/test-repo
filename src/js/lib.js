@@ -2114,7 +2114,7 @@ function initAddNewUser(config = {}) {
         });
     }
 
-    $('#repentanceDate').datepicker({
+    $('#repentance_date').datepicker({
         dateFormat: 'yyyy-mm-dd'
     });
     $('#partnerFrom').datepicker({
@@ -2587,11 +2587,14 @@ function createNewUser(callback) {
 
     let oldForm = document.forms.createUser;
     let formData = new FormData(oldForm);
-    if ($('#division_drop').val()) {
-        formData.append('divisions', JSON.stringify($('#chooseDivision').val()));
-    } else {
-        formData.append('divisions', JSON.stringify([]));
-    }
+    // if ($('#division_drop').val()) {
+    //     formData.append('divisions', JSON.stringify($('#chooseDivision').val()));
+    // } else {
+    //     formData.append('divisions', JSON.stringify([]));
+    // }
+    let divisions = $('#chooseDivision').val() || [];
+    formData.append('divisions', JSON.stringify(divisions));
+    formData.append('departments', JSON.stringify($('#chooseDepartment').val()));
     formData.append('departments', JSON.stringify($('#chooseDepartment').val()));
     if ($phoneNumber.val()) {
         let phoneNumber = $('#phoneNumberCode').val() + $phoneNumber.val();
@@ -2642,11 +2645,10 @@ function createNewUser(callback) {
         if (callback != null) {
             callback(data);
         }
+    }).catch(function (data) {
+        $preloader.css('display', 'none');
+        showPopup(data.message[0]);
     });
-    //     .catch(function (data) {
-    //     $preloader.css('display', 'none');
-    //     showPopup(data.message[0]);
-    // });
 
 }
 
