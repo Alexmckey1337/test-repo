@@ -2625,7 +2625,7 @@ function createNewUser(callback) {
         try {
             let blob;
             blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-            formData.append('image', blob);
+            formData.append('image', blob, 'logo.jpg');
             formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
         } catch (err) {
             console.log(err);
