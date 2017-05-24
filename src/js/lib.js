@@ -857,12 +857,14 @@ function clearAddNewUser() {
     form.find('.hidden-partner').hide();
     form.find('#edit-photo').attr('data-source', '').find('img').attr('src', '/static/img/no-usr.jpg');
     form.find('.anketa-photo').unbind('click');
-    form.find('select:not(#payment_currency).select2-hidden-accessible').select2('destroy').find('option').remove();
+    form.find('select:not(#payment_currency, #spir_level).select2-hidden-accessible').select2('destroy').find('option').remove();
     initAddNewUser();
     form.find('#chooseResponsible, #chooseRegion, #chooseCity').attr('disabled', true);
     form.find('input').each(function () {
         $(this).val('');
     });
+    form.find('#spir_level').attr('disabled', true).select2('destroy').find('option').attr('selected', false)
+                            .find('option:first-child').attr('selected', true);
 }
 
 function clearAddChurchData() {
@@ -2594,7 +2596,12 @@ function createNewUser(callback) {
     // }
     let divisions = $('#chooseDivision').val() || [];
     formData.append('divisions', JSON.stringify(divisions));
-    formData.append('departments', JSON.stringify($('#chooseDepartment').val()));
+
+    let spirLevel = $('#spir_level').val() || null;
+    if (spirLevel !== 'Выберите духовный уровень') {
+        formData.append('spiritual_level', spirLevel);
+    }
+
     formData.append('departments', JSON.stringify($('#chooseDepartment').val()));
     if ($phoneNumber.val()) {
         let phoneNumber = $('#phoneNumberCode').val() + $phoneNumber.val();

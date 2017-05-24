@@ -278,19 +278,19 @@
                                 <input name="repentance_date" type="text" readonly="readonly" tabindex="25"
                                        id="repentanceDate">
                             </li>
-        {#                    <li>#}
-        {#                        <div class="label-wrapp">#}
-        {#                            <label for="spiritual_level">Духовный уровень</label>#}
-        {#                        </div>#}
-        {#                        <select type="text" id="spiritual_level" name="spiritual_level" readonly disabled>#}
-        {#                            <option>Выберите духовный уровень</option>#}
-        {#                            {% for spiritual_level in spiritual_levels %}#}
-        {#                                <option value="{{ spiritual_level.id }}"#}
-        {#                                        {% if spiritual_level.id == account.spiritual_level %}selected{% endif %}>{{ spiritual_level.title }}#}
-        {#                                </option>#}
-        {#                            {% endfor %}#}
-        {#                        </select>#}
-        {#                    </li>#}
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="spir_level">Духовный уровень</label>
+                                </div>
+                                <select type="text" id="spir_level" name="" readonly disabled>
+                                    <option>Выберите духовный уровень</option>
+                                    {% for spiritual_level in spiritual_levels %}
+                                        <option value="{{ spiritual_level.id }}">
+                                              {{ spiritual_level.title }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </li>
                         </ul>
         {#                <h2>Информация о церкви</h2>#}
         {#                <ul class="info">#}
