@@ -1,6 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import logging
 from django.contrib.auth import logout as django_logout
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction, IntegrityError
@@ -26,6 +27,8 @@ from navigation.table_fields import user_table
 from .resources import UserResource
 from .serializers import UserShortSerializer, UserTableSerializer, UserSerializer, \
     UserSingleSerializer, PartnershipSerializer, ExistUserSerializer, UserCreateSerializer
+
+logger = logging.getLogger(__name__)
 
 
 class UserPagination(PageNumberPagination):
@@ -150,8 +153,9 @@ class UserViewSet(viewsets.ModelViewSet, UserExportViewSetMixin):
         try:
             with transaction.atomic():
                 self.perform_update(serializer)
-        except IntegrityError:
+        except IntegrityError as err:
             data = {'detail': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
+            logger.error(err)
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response(serializer.data)
 

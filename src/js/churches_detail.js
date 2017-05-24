@@ -129,6 +129,7 @@
         $(this).closest('.popup').css('display', 'none');
         $('#addNewUserPopup').css('display', 'block');
         $('#chooseDepartment').html(option).attr('disabled', false);
+        $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
     });
     $('#searchUserFromDatabase').on('keyup', function () {
         let search = $(this).val();

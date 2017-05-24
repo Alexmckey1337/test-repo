@@ -1,25 +1,28 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import logging
+
+from django.db import transaction, IntegrityError
 from django.db.models import IntegerField, Sum, When, Case, Count
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import status, filters, exceptions
 from rest_framework.decorators import list_route, detail_route
-from .pagination import MeetingPagination, MeetingVisitorsPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.utils.translation import ugettext_lazy as _
-from django.db import transaction, IntegrityError
 
 from account.models import CustomUser
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
-
 from .filters import ChurchReportFilter, MeetingFilter, CommonEventFilter
 from .models import Meeting, ChurchReport, MeetingAttend
+from .pagination import MeetingPagination, MeetingVisitorsPagination
 from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingDetailSerializer,
                           MeetingListSerializer, ChurchReportStatisticSerializer,
                           MeetingStatisticSerializer, ChurchReportSerializer,
                           ChurchReportListSerializer)
+
+logger = logging.getLogger(__name__)
 
 
 class MeetingViewSet(ModelWithoutDeleteViewSet):
@@ -141,8 +144,9 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                         note=attend.get('note', '')
                     )
 
-        except IntegrityError:
+        except IntegrityError as err:
             data = {'message': _('При обновлении возникла ошибка. Попробуйте еще раз.')}
+            logger.error(err)
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         headers = self.get_success_headers(meeting.data)
@@ -165,7 +169,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     @list_route(methods=['GET'], serializer_class=MeetingStatisticSerializer)
     def statistics(self, request):
-        queryset = self.filter_queryset(self.queryset)
+        queryset = self.filter_queryset(self.queryset.for_user(self.request.user))
 
         from_date = request.query_params.get('from_date')
         to_date = request.query_params.get('to_date')
@@ -176,13 +180,14 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                                   output_field=IntegerField(), default=0)),
             total_absent=Sum(Case(When(attends__attended=False, then=1),
                                   output_field=IntegerField(), default=0)),
+        )
+        statistics.update(queryset.aggregate(
             reports_in_progress=Sum(Case(When(status=1, then=1),
                                          output_field=IntegerField(), default=0)),
             reports_submitted=Sum(Case(When(status=2, then=1),
                                        output_field=IntegerField(), default=0)),
             reports_expired=Sum(Case(When(status=3, then=1),
-                                     output_field=IntegerField(), default=0))
-        )
+                                     output_field=IntegerField(), default=0))))
         statistics.update(queryset.aggregate(total_donations=Sum('total_sum')))
         statistics['new_repentance'] = CustomUser.objects.filter(
             repentance_date__range=[from_date, to_date]).count()

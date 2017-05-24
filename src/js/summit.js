@@ -424,6 +424,7 @@
     $("#add").on('click', function () {
         $('#addUser').css('display', 'block');
         initAddNewUser();
+        $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
     });
 
      $('#departments_filter').on('change', function () {
@@ -477,4 +478,9 @@
             return false; // Will stop the submission of the form
         }
     });
+
+    $('#filterPopup').find('.pop_cont').on('click',function (e) {
+        e.stopPropagation();
+    })
+
 })(jQuery);

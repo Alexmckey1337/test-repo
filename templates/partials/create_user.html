@@ -1,190 +1,326 @@
 {% load static %}
 <div class="popap" id="addNewUserPopup">
-    <div class="splash-screen editprofile">
-        <div class="top-text">
-            <h3><span class="close_popup">← </span>Добавить пользователя</h3>
-        </div>
-        <div class="columns-wrap">
-            <div class="col-1">
-                <div id="edit-photo" class="anketa-photo">
-                    <img src="{% static "img/no-usr.jpg" %}" alt="photo">
-                </div>
-                <div class="butt-wrap">
-                    <input type="file" name="file" id="file">
-                    <button id="file_upload">Загрузить</button>
-                    <p>Размер файла не должен превышать <br/>10 МБ.</p>
-                    <p>Типы файлов, которые поддерживаются:<br/> jpg, jpeg, png.</p>
-                </div>
-            </div><!--End col-1-->
-
-            <form action="./" name="createUser" id="createUser" novalidate>
-                <div class="col-2">
-                    <div class="col-table">
-                        <ul>
-                            <li class="clearfix">
-                                <label for="last_name">Фамилия*</label>
-                                <input name="last_name" type="text" data-validation="length"
-                                       data-validation-length="min2">
+<div class="splash-screen editprofile-screen">
+    <form action="./" name="createUser" id="createUser" novalidate>
+        <div class="step first_step">
+            <div class="header">
+                <h1 class="header_title">Создание пользователя</h1>
+                <h1 class="header_step">Шаг 1 из 2</h1>
+            </div>
+            <div class="body">
+                <p>Обязательные поля отмечены *</p>
+                <div class="block">
+                        <ul class="info">
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="last_name">Фамилия*</label>
+                                </div>
+                                <div class="input">
+                                    <input class="must" type="text" name="last_name" id="last_name"
+                                       data-validation="length" data-validation-length="min2" tabindex="1"
+                                       placeholder="Фамилия на русском">
+                                </div>
                             </li>
-                            <li class="clearfix">
-                                <label for="first_name">Имя*</label>
-                                <input name="first_name" type="text" data-validation="length"
-                                       data-validation-length="min2">
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="first_name">Имя*</label>
+                                </div>
+                                <div class="input">
+                                    <input class="must" type="text" name="first_name" id="first_name" data-validation="length"
+                                       data-validation-length="min2" tabindex="2"
+                                       placeholder="Имя на русском">
+                                </div>
                             </li>
-                            <li class="clearfix">
-                                <label for="middle_name">Отчество</label>
-                                <input name="middle_name" type="text">
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="middle_name">Отчество</label>
+                                </div>
+                                <input name="middle_name" id="middle_name" type="text" tabindex="3"
+                                       placeholder="Отчество на русском">
                             </li>
-                            <li class="clearfix">
-                                <label for="search_name">Имя на родном языке</label>
-                                <input type="text" name="search_name" id="search_name">
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="search_name">Имя на родном языке</label>
+                                </div>
+                                <input type="text" name="search_name" id="search_name"tabindex="4"
+                                       placeholder="Фамилия и имя на любом языке">
                             </li>
-                            <li class="clearfix">
-                                <label for="born_date">Дата рождения</label>
-                                <input name="born_date" type="text" id="bornDate" readonly="readonly">
-                            </li>
-                            <li class="clearfix">
-                                <label>Телефон*</label>
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="phoneNumber">Телефон*</label>
+                                </div>
                                 <div class="phone">
                                     <select style="width: 96%" name="" id="chooseCountryCode"></select>
                                     <input id="phoneNumberCode" type="text" readonly data-validation="required">
-                                    <input id="phoneNumber" type="text" required
-                                           data-validation="required number">
+                                    <input class="must" id="phoneNumber" type="text"  tabindex="5"
+                                           required data-validation="required number">
                                 </div>
                             </li>
-                            <li class="clearfix">
-                                <label for="extra_phone_numbers">Доп.телефон</label>
-                                <input type="text" id="extra_phone_numbers">
-                            </li>
-                            <li class="clearfix">
-                                <label for="email">E-mail</label>
-                                <input name="email" type="text" data-validation="email"
-                                       data-validation-optional="true">
-                            </li>
-                            <li class="clearfix">
-                                <label for="skype">Skype</label>
-                                <input name="skype" type="text">
-                            </li>
-                            <li class="clearfix">
-                                <label for="country">Страна</label>
-                                <select name="country" id="chooseCountry"></select>
-                            </li>
-                            <li class="clearfix">
-                                <label for="district">Область</label>
-                                <select disabled name="region" id="chooseRegion"></select>
-                            </li>
-                            <li class="clearfix">
-                                <label for="city">Город</label>
-                                <select disabled name="city" id="chooseCity"></select>
-                            </li>
-                            <li class="clearfix">
-                                <label for="district">Район</label>
-                                <input name="district" type="text">
-                            </li>
-                            <li class="clearfix">
-                                <label for="address">Адрес</label>
-                                <input name="address" id="address" type="text">
-                            </li>
-                            <li class="clearfix">
-                                <label for="facebook">Facebook</label>
-                                <input name="facebook" type="text"
-                                       data-validation="url" data-validation-optional="true">
-                            </li>
-                            <li class="clearfix">
-                                <label for="vkontakte">Vkontakte</label>
-                                <input name="vkontakte" type="text"
-                                       data-validation="url" data-validation-optional="true">
-                            </li>
-                            <li class="clearfix">
-                                <label for="odnaklasniki">Odnaklasniki</label>
-                                <input name="odnoklassniki" type="text"
-                                       data-validation="url" data-validation-optional="true">
-                            </li>
-                        </ul>
-                    </div>
-                </div><!--End col-2-->
-                <div class="col-3">
-                    <div class="col-table">
-                        <ul>
-                            <li class="clearfix">
-                                <label for="department">Отдел*</label>
-                                <select multiple disabled id="chooseDepartment"
-                                        class="cleared"
-                                        data-validation="required">
-                                </select>
-                            </li>
-                            <li class="clearfix">
-                                <label for="hierarchy">Статус*</label>
-                                <select name="hierarchy" id="chooseStatus" class="cleared"
-                                        data-validation="required">
-                                </select>
-                            </li>
-                            <li class="clearfix">
-                                <label for="master">Ответственный*</label>
-                                <select disabled name="master" id="chooseResponsible"
-                                        class="cleared" data-validation="required">
-                                </select>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="col-table">
-                        <ul>
-                            <li class="clearfix">
-                                <label for="">Департамент</label>
-                                <select id="chooseDivision" multiple="multiple"></select>
-                            </li>
-                        </ul>
-                    </div>
-                    {% if request.user.is_partner %}
-                        <div class="col-table">
-                            <ul>
-                                <li class="clearfix">
-                                    <label for="partner">Партнёр</label>
-                                    <input type="checkbox" id="partner">
-                                </li>
-                            </ul>
-                            <ul class="hidden-partner">
-                                <li class="clearfix">
-                                    <label>Партнёр с</label>
-                                    <input type="text" id="partnerFrom" readonly="readonly">
-                                </li>
-                                <li class="clearfix">
-                                    <label>Сумма сделки</label>
-                                    <div>
-                                        <input type="number" id="val_partnerships">
-                                        <select id="payment_currency" required>
-                                        {% for currency in currencies %}
-                                            <option value="{{ currency.id }}"
-                                                    {% if currency == purpose.currency %}selected{% endif %}>
-                                                {{ currency.short_name }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                    </div>
-                                </li>
-                                <li class="clearfix">
-                                    <label>Менеджер</label>
-                                    <select style="width: 96%" id="chooseManager"></select>
-                                </li>
-                            </ul>
-                        </div>
-                    {% endif %}
-                    <div class="col-table">
-                        <ul>
                             <li>
-                                <label for="repentance_date">Дата покаяния</label>
-                                <input name="" type="text" readonly="readonly" id="repentanceDate">
+                                <div class="label-wrapp">
+                                    <label for="department">Отдел церкви*</label>
+                                </div>
+                                <div class="input">
+                                    <select multiple disabled id="chooseDepartment" tabindex="6"
+                                            class="cleared must" data-validation="required">
+                                    </select>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="hierarchy">Иерархия*</label>
+                                </div>
+                                <div class="input">
+                                    <select name="hierarchy" id="chooseStatus" class="cleared must" tabindex="7"
+                                            data-validation="required">
+                                    </select>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="master">Ответственный*</label>
+                                </div>
+                                <div class="input">
+                                    <select disabled name="master" id="chooseResponsible" tabindex="8"
+                                            class="cleared must" data-validation="required">
+                                    </select>
+                                </div>
                             </li>
                         </ul>
-                    </div>
-                </div><!--End col-3-->
-                <div class="splash-bauttons">
-                    <a class="close_popup">Отменить</a>
-                    <button id="saveNew" type="submit">Сохранить</button>
                 </div>
-            </form>
-        </div><!--End colums-wrap-->
-    </div>
+            </div>
+            <div class="btn-block">
+                <a href="#" class="btn closeForm" tabindex="10">Отменить</a>
+                <a href="#" class="btn nextForm" tabindex="9">Продолжить</a>
+            </div>
+        </div>
+        <div class="step second_step">
+            <div class="header">
+                <h1 class="header_title">Создание пользователя</h1>
+                <h1 class="header_step">Шаг 2 из 2</h1>
+            </div>
+            <div class="body">
+                <p>Раскройте и заполните нужный раздел.</p>
+                <div class="upload-photo">
+                    <div id="edit-photo" class="anketa-photo">
+                        <img src="{% static "img/no-usr.jpg" %}" alt="photo">
+                    </div>
+                    <div class="btn-wrap">
+                        <input type="file" name="file" id="file" tabindex="11">
+                        <button id="file_upload">Загрузить фото</button>
+                    </div>
+                </div>
+                <p>Размер файла не должен превышать 10 Мб (jpg, jpeg, png)</p>
+                <div class="accordion-block">
+                        <h2>Контактная информация</h2>
+                        <ul class="info">
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="extra_phone_numbers">Доп.телефон</label>
+                                </div>
+                                <div class="input">
+                                    <input type="text" id="extra_phone_numbers" tabindex="12">
+                                </div>
+                            </li>
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="email">E-mail</label>
+                                </div>
+                                <div class="input">
+                                    <input name="email" id="email" type="text" tabindex="13"
+                                       data-validation="email" data-validation-optional="true">
+                                </div>
+                            </li>
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="skype">Skype</label>
+                                </div>
+                                <input name="skype" id="skype" tabindex="14" type="text">
+                            </li>
+                        </ul>
+                        <h2>Социальные сети</h2>
+                        <ul class="info">
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="facebook">Facebook</label>
+                                </div>
+                                <div class="input">
+                                <input name="facebook" id="facebook" type="text" tabindex="15"
+                                       data-validation="url" data-validation-optional="true">
+                                </div>
+                            </li>
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="vkontakte">Vkontakte</label>
+                                </div>
+                                <div class="input">
+                                    <input name="vkontakte" id="vkontakte" type="text" tabindex="16"
+                                       data-validation="url" data-validation-optional="true">
+                                </div>
+                            </li>
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="odnaklasniki">Odnaklasniki</label>
+                                </div>
+                                <div class="input">
+                                    <input name="odnoklassniki" id="odnoklassniki" type="text" tabindex="17"
+                                       data-validation="url" data-validation-optional="true">
+                                </div>
+                            </li>
+                        </ul>
+                        <h2>День рождения и адрес</h2>
+                        <ul class="info">
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="bornDate">Дата рождения</label>
+                                </div>
+                                <input name="born_date" type="text" id="bornDate" tabindex="18"
+                                       readonly="readonly">
+                            </li>
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="chooseCountry">Страна</label>
+                                </div>
+                                <select name="country" id="chooseCountry" tabindex="19"></select>
+                            </li>
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="chooseRegion">Область</label>
+                                </div>
+                                <select disabled name="region" id="chooseRegion" tabindex="20"></select>
+                            </li>
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="chooseCity">Город</label>
+                                </div>
+                                <select disabled name="city" id="chooseCity" tabindex="21"></select>
+                            </li>
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="district">Район</label>
+                                </div>
+                                <input name="district" id="district" type="text" tabindex="22">
+                            </li>
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="address">Адрес</label>
+                                </div>
+                                <input name="address" id="address" type="text" tabindex="23">
+                            </li>
+                        </ul>
+                        {% if request.user.is_partner %}
+                        <h2>Партнерство</h2>
+                        <ul class="info">
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="partner">Партнёр</label>
+                                </div>
+                                <input type="checkbox" id="partner">
+                            </li>
+                            <li>
+                                <ul class="hidden-partner">
+                                    <li>
+                                        <div class="label-wrapp">
+                                            <label for="partnerFrom">Партнёр с</label>
+                                        </div>
+                                        <div class="input">
+                                            <input type="text" id="partnerFrom" readonly="readonly"
+                                                   data-validation="required">
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="label-wrapp">
+                                            <label for="val_partnerships">Сумма сделки</label>
+                                        </div>
+                                        <div class="money_block">
+                                        <div class="input">
+                                            <input type="number" id="val_partnerships" data-validation="required">
+                                            <select id="payment_currency" required>
+                                                {% for currency in currencies %}
+                                                    <option value="{{ currency.id }}" {% if currency == purpose.currency %}selected{% endif %}>
+                                                        {{ currency.short_name }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="label-wrapp">
+                                            <label>Менеджер</label>
+                                        </div>
+                                        <div class="input">
+                                            <select id="chooseManager" data-validation="required"></select>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                        {% endif %}
+                        <h2>Информация о служениях</h2>
+                        <ul class="info">
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="chooseDivision">Департамент</label>
+                                </div>
+                                <select id="chooseDivision" multiple="multiple" tabindex="24"></select>
+                            </li>
+                        </ul>
+                        <h2>Духовный уровень</h2>
+                        <ul class="info">
+                            <li>
+                                <div class="label-wrapp">
+                                    <label for="repentanceDate">Дата покаяния</label>
+                                </div>
+                                <input name="" type="text" readonly="readonly" tabindex="25"
+                                       id="repentanceDate">
+                            </li>
+        {#                    <li>#}
+        {#                        <div class="label-wrapp">#}
+        {#                            <label for="repentanceDate">Духовный уровень</label>#}
+        {#                        </div>#}
+        {#                        <select type="text" id="spiritual_level" name="spiritual_level" readonly disabled>#}
+        {#                            <option>Выберите духовный уровень</option>#}
+        {#                            {% for spiritual_level in spiritual_levels %}#}
+        {#                                <option value="{{ spiritual_level.id }}"#}
+        {#                                        {% if spiritual_level.id == account.spiritual_level %}selected{% endif %}>{{ spiritual_level.title }}#}
+        {#                                </option>#}
+        {#                            {% endfor %}#}
+        {#                        </select>#}
+        {#                    </li>#}
+                        </ul>
+        {#                <h2>Информация о церкви</h2>#}
+        {#                <ul class="info">#}
+        {#                    <li>#}
+        {#                        <div class="label-wrapp">#}
+        {#                            <label for="church_title">Церковь</label>#}
+        {#                        </div>#}
+        {#                        <select type="text" id="church_list" name="churches_title" value="">#}
+        {#                            <option value="">Выберите церковь</option>#}
+        {#                            {% for church in churches %}#}
+        {#                                <option value="{{ church.id }}">{{ church.get_title }}</option>#}
+        {#                            {% endfor %}#}
+        {#                        </select>#}
+        {#                    </li>#}
+        {#                    <li>#}
+        {#                        <div class="label-wrapp">#}
+        {#                            <label for="home_groups">Домашняя группа</label>#}
+        {#                        </div>#}
+        {#                        <select type="text" id="home_groups_list" name="home_groups" readonly disabled>#}
+        {#                            <option value="">Выберите домашнюю группу</option>#}
+        {#                        </select>#}
+        {#                    </li>#}
+        {#                </ul>#}
+                </div>
+            </div>
+            <div class="btn-block">
+                <a href="#" class="prevForm" tabindex="27">Вернуться к первому шагу</a>
+                <a href="#" class="btn closeForm" tabindex="28">Отменить</a>
+                <button id="saveNew" type="submit" tabindex="26">Сохранить</button>
+            </div>
+        </div>
+    </form>
+</div>
 </div>
 <div id="impPopup">
     <div class="splash-screen">
@@ -200,3 +336,41 @@
         </div>
     </div>
 </div>
+<script type="text/template" id="addUserSuccessPopup">
+<div id="addPopup">
+    <div class="splash-screen wrapper">
+        <h3>Пользователь успешно создан!</h3>
+        <div class="card">
+            <div class="photo-block">
+                <div class="photo">
+                    <% if (image_source) { %>
+                        <img src="<%=image_source%>" alt="Фото пользователя">
+                    <% } else { %>
+                        <img src="/static/img/no-usr.jpg" alt="Фото пользователя">
+                    <% } %>
+                </div>
+                <div class="photo-title">
+                    <p class="card_title card_title__ru"><%=fullname%></p>
+                    <p class="card_title card_title__en"><%=search_name%></p>
+                </div>
+            </div>
+            <ul>
+                <li>Отдел церкви</li>
+                <% let depart = departments[0] %>
+                <li><%=depart.title%></li>
+                <li>Иерархия</li>
+                <li><%=hierarchy.title%></li>
+                <li>Ответственный</li>
+                <li><%=master.fullname%></li>
+                <li>Телефон</li>
+                <li><%=phone_number%></li>
+            </ul>
+        </div>
+        <a class="rewrite" href="/account/<%=id%>">Ошибка? Исправить карточку пользователя.</a>
+        <div class="btn-block">
+            <button class="addMore">Создать ещё одного</button>
+            <button class="close">Закрыть</button>
+        </div>
+    </div>
+</div>
+</script>

@@ -847,6 +847,14 @@ function getAddChurchData() {
     }
 }
 
+// function clearAddNewUser() {
+//     $('.input').each(function () {
+//         $(this).val('');
+//     });
+//     $('#partner').prop('checked', false);
+//     $('#chooseDepartment').select2();
+// }
+
 function clearAddChurchData() {
     $('#added_churches_date').val(''),
         $('#added_churches_is_open').prop('checked', false),
@@ -1598,6 +1606,24 @@ function showPopup(text, title) {
     });
 }
 
+function showPopupAddUser(data) {
+
+    let tmpl = document.getElementById('addUserSuccessPopup').innerHTML;
+    let rendered = _.template(tmpl)(data);
+    $('body').append(rendered);
+
+    $('#addPopup').find('.close').on('click', function () {
+        $('#addPopup').css('display', 'none').remove();
+    });
+    $('#addPopup').find('.addMore').on('click', function () {
+        $('#addPopup').css('display', 'none').remove();
+        $('body').addClass('no_scroll');
+        $('#addNewUserPopup').find('form').css("transform","translate3d(0px, 0px, 0px)");
+        $('#addNewUserPopup').css('display', 'block');
+        initAddNewUser();
+    });
+}
+
 function showPopupHTML(block) {
     let popup = document.createElement('div');
     popup.className = "pop-up-universal";
@@ -2011,7 +2037,7 @@ function initAddNewUser(config = {}) {
     }
     if (configDefault.getStatuses) {
         getStatuses().then(function (data) {
-            let statuses = data.results;
+            let statuses = data;
             let rendered = [];
             let option = document.createElement('option');
             $(option).text('Выберите статус').attr('disabled', true).attr('selected', true);
@@ -2657,7 +2683,8 @@ function createNewUser(callback) {
     $preloader.css('display', 'block');
     return ajaxSendFormData(config).then(function (data) {
         $preloader.css('display', 'none');
-        showPopup(`${data.fullname} добален(а) в базу данных`);
+        // showPopup(`${data.fullname} добален(а) в базу данных`);
+        showPopupAddUser(data);
         $createUser.find('input').each(function () {
             $(this).val('').attr('disabled', false);
         });
@@ -2668,10 +2695,12 @@ function createNewUser(callback) {
         if (callback != null) {
             callback(data);
         }
-    }).catch(function (data) {
-        $preloader.css('display', 'none');
-        showPopup(data.message[0]);
     });
+    //     .catch(function (data) {
+    //     $preloader.css('display', 'none');
+    //     showPopup(data.message[0]);
+    // });
+
 }
 
 function createPayment(data, id) {
