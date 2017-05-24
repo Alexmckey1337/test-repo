@@ -576,7 +576,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                                 try {
                                     let blob;
                                     blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                                    formData.append('image', blob);
+                                    formData.append('image', blob, 'logo.jpg');
                                     formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
                                     formData.append('id', id);
 
