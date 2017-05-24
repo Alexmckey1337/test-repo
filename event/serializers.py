@@ -36,7 +36,7 @@ class ValidateDataBeforeUpdateMixin(object):
 class MeetingTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = MeetingType
-        fields = ('id', 'code')
+        fields = ('id', 'code', 'name')
 
 
 class MeetingAttendSerializer(serializers.ModelSerializer):
