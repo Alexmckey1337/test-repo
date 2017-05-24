@@ -185,7 +185,7 @@
             $(title).text(`Отчет ${dist[data.type.code]}`);
         }
         if (data.status === 3 ) {
-             $(title).text(`Просрочен отчет ${dist[data.type.code]}`);
+             $(title).html(`Отчет ${dist[data.type.code]} <span>(просрочен)</span>`);
         }
         $(container).append(title);
         let ownerContainer = document.createElement('p');
