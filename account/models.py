@@ -337,15 +337,5 @@ post_save.connect(create_custom_user, User)
 
 @receiver(signals.post_save, sender=CustomUser)
 def sync_user(sender, instance, **kwargs):
-    from notification.models import Notification, NotificationTheme
-    birth_day_notification_theme = NotificationTheme.objects.filter(birth_day=True).first()
-    if instance.born_date:
-        date = instance.born_date
-        try:
-            Notification.objects.filter(theme__birth_day=True, user=instance).update(date=date)
-        except Notification.DoesNotExist:
-            # description = "Сегодня свой день рождения отмечает %s." % instance.fullname
-            Notification.objects.create(date=date,
-                                        user=instance,
-                                        theme=birth_day_notification_theme)
-    Table.objects.get_or_create(user=instance)
+    if instance.can_login:
+        Table.objects.get_or_create(user=instance)
