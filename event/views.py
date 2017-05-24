@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import logging
-
 from django.db import transaction, IntegrityError
 from django.db.models import IntegerField, Sum, When, Case, Count
 from django.utils.translation import ugettext_lazy as _

@@ -114,9 +114,9 @@ h3 {
 
 #main {
   h1 {
-    padding: 0 1em;
+  padding: 0 1em;
   }
-  & > h1 {
+  & > h1{
     font-weight: 900;
   }
   .jumbotron h1 {
@@ -141,7 +141,7 @@ h3 {
     font-size: 1.8em;
   }
   .btn_group {
-    a {
+     a {
       padding: 12px 20px;
       color: #fff;
       border-radius: 4px;
@@ -153,7 +153,7 @@ h3 {
       &:hover {
         background-color: #3caeda;
       }
-    }
+  }
   }
   &::after {
     display: block;
@@ -169,6 +169,7 @@ h3 {
     right: -80px;
   }
 }
+
 
 input, select, textarea, button, button:active, button:focus {
   outline: none;
@@ -3593,7 +3594,7 @@ span.change[style*="display: none"] ~ span.y {
 
 .gallery li span {
   color: #656d78;
-  font-family: 'Roboto Condensed', sans-serif;
+  font-family: 'Roboto Condensed',sans-serif;
   font-size: 1.4em;
   text-decoration: none;
   display: block;
@@ -4521,9 +4522,9 @@ span.change[style*="display: none"] ~ span.y {
   & .label-wrapp {
     margin-bottom: .2em;
     float: left;
-    &::after {
-      bottom: 6px;
-    }
+      &::after {
+        bottom: 6px;
+      }
   }
   & input,
   & select,
@@ -6259,7 +6260,6 @@ div.code input#code {
     cursor: pointer;
   }
 }
-
 //label[for="master"] {
 //  color: #3caeda;
 //  &:hover {
@@ -6271,26 +6271,21 @@ div.code input#code {
 
 #addNewUserPopup {
   & .editprofile-screen {
-    right: -550px;
-    max-width: 520px;
-    width: 520px;
-    height: auto;
+    max-width: 1030px;
+    width: 1020px;
+    height: 807px;
     background-color: transparent;
     overflow: hidden;
     z-index: 25;
-    left: auto;
     & form {
       display: inline-flex;
       transition: transform .2s ease;
     }
     & .step {
-      position: relative;
-      width: 520px;
-      height: 100vh;
-      //padding: 0 10px;
+      width: 1000px;
+      padding: 25px 10px;
       background-color: #fff;
     }
-
     & select {
       padding: 6px;
       border-radius: 3px;
@@ -6305,14 +6300,14 @@ div.code input#code {
     }
     & select:read-only,
     & input:read-only {
-      border-color: #cdd0d4 !important;
+      border-color: #cdd0d4!important;
     }
     & select[disabled] {
       background-color: #eee;
     }
     & input#phoneNumberCode {
       left: 38px;
-      width: 62px !important;
+      width: 62px!important;
       border-radius: 3px;
     }
     & input#phoneNumber {
@@ -6341,16 +6336,26 @@ div.code input#code {
       }
     }
     & .body {
-      padding: 1em 20px 1em 35px;
-      overflow-y: scroll;
-      & .block {
-        font-size: .9em;
-      }
       & h2 {
+        position: relative;
         margin: 0;
         margin-top: 20px;
         font-size: 1.6em;
+        cursor: pointer;
+        &::after {
+          position: absolute;
+          right: 0;
+          font: 1.2em FontAwesome;
+          content: "\f078";
+        }
+        &:hover {
+          color: #333;
+        }
+        &.active::after {
+          content: '\f077';
+        }
       }
+      padding: 0 1em;
       & p, label {
         font-size: 1.1em;
       }
@@ -6377,12 +6382,12 @@ div.code input#code {
               display: block;
               width: 95%;
               height: 2px;
-              background-image: radial-gradient(circle, #656d78 .6px, transparent 1px);
+              background-image: radial-gradient(circle,#656d78 .6px,transparent 1px);
               background-repeat: repeat-x;
               background-size: 5px 2px;
               content: '';
             }
-          }
+        }
           & label {
             position: relative;
             padding-right: 5px;
@@ -6395,11 +6400,11 @@ div.code input#code {
           & .select2,
           & .phone,
           & .money_block {
-            width: 65% !important;
-            min-width: auto;
-          }
+          width: 65%!important;
+          min-width: auto;
+        }
           & .input {
-            width: 65% !important;
+            width: 65%!important;
             & input,
             & select,
             & .select2,
@@ -6407,11 +6412,11 @@ div.code input#code {
               margin-left: 0;
             }
             & input {
-              width: 94% !important;
+              width: 94%!important;
             }
             & select,
             & .select2 {
-              width: 100% !important;
+              width: 100%!important;
             }
           }
           & input {
@@ -6424,7 +6429,7 @@ div.code input#code {
             margin-left: 7px;
           }
           & .phone .select2 {
-            width: 100% !important;
+            width: 100%!important;
           }
           & .select2-search__field {
             margin-left: 0;
@@ -6436,15 +6441,21 @@ div.code input#code {
           }
         }
       }
+      //& ul.info__first {
+      //  display: flex;
+      //  flex-wrap: wrap;
+      //  & > li {
+      //    width: 50%;
+      //    box-sizing: border-box;
+      //    padding: .5em 1em;
+      //  }
+      //}
       & ul.hidden-partner {
         width: 100%;
         padding: 0;
-        & .money_block .input {
+        & .money_block {
           display: flex;
-          flex-wrap: wrap;
-          width: 100% !important;
           & input {
-            width: 43% !important;
             margin-left: 0;
             height: 33px;
           }
@@ -6576,29 +6587,25 @@ div.code input#code {
       button {
         margin-left: 36px;
       }
-      .btn-block {
+      & input {
+          width: 30px;
+        }
+        #file_upload {
         position: relative;
         padding-top: 50px;
         z-index: 5;
         .prevForm {
           position: absolute;
-          top: 20px;
+          top: .2em;
+          left: .2em;
+          color: #aab2bd;
+          font: 2em FontAwesome;
+          content: "\f093";
+          }
         }
-      }
-      //Checkbox
-      .input_checkbox {
-        position: relative;
-        #partner {
-          position: relative;
-          width: 42px !important;
-          height: 20px;
-          cursor: pointer;
-          opacity: 0;
-          z-index: 9;
+        & .btn-wrap {
+          margin-left: 160px;
         }
-        span {
-          position: absolute;
-          left: 0;
         }
         #partner:not(checked) + span::before {
           content: '';
@@ -6669,10 +6676,10 @@ div.code input#code {
     margin-bottom: 15px;
   }
   & .photo {
-    width: 80px;
-    height: 80px;
-    overflow: hidden;
-    border-radius: 100%;
+      width: 80px;
+      height: 80px;
+      overflow: hidden;
+      border-radius: 100%;
     & img {
       width: 100%;
       height: 100%;

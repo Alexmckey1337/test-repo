@@ -1,11 +1,17 @@
 # -*- coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
+from collections import namedtuple
 from datetime import datetime
 
 import pytest
+from django.conf import settings
+
+Level = namedtuple('Level', ['title', 'level'])
+PARTNER_LEVELS = [Level(p[0], p[1]) for p in settings.PARTNER_LEVELS.items()]
 
 
+@pytest.mark.urls('partnership.tests.urls')
 @pytest.mark.django_db
 class TestPartnership:
     def test_partner_extra_payments(self, partner, payment_factory):
@@ -70,11 +76,35 @@ class TestPartnership:
     def test_value_str(self, partner):
         assert partner.value_str == '{} {}'.format(partner.value, partner.currency.short_name)
 
+    def test_payment_page_url(self, partner):
+        assert partner.payment_page_url() == '/payment/partner/{}/'.format(partner.id)
 
+    @pytest.mark.parametrize('with_responsible', [True, False], ids=['with_responsible', 'without_responsible'])
+    @pytest.mark.parametrize('level', [p.level for p in PARTNER_LEVELS], ids=[p.title for p in PARTNER_LEVELS])
+    def test_can_user_edit_payment(self, partner_factory, level, with_responsible):
+        responsible = partner_factory() if with_responsible else None
+        partner = partner_factory(responsible=responsible)
+        editor = partner_factory(level=level)
+        if level > settings.PARTNER_LEVELS['supervisor']:
+            assert not partner.can_user_edit_payment(editor.user)
+        else:
+            assert partner.can_user_edit_payment(editor.user)
+
+    @pytest.mark.parametrize('level', [p.level for p in PARTNER_LEVELS], ids=[p.title for p in PARTNER_LEVELS])
+    def test_can_user_edit_payment_if_user_is_responsible(self, partner_factory, level):
+        editor = partner_factory(level=level)
+        partner = partner_factory(responsible=editor)
+        if level > settings.PARTNER_LEVELS['manager']:
+            assert not partner.can_user_edit_payment(editor.user)
+        else:
+            assert partner.can_user_edit_payment(editor.user)
+
+
+@pytest.mark.urls('partnership.tests.urls')
 @pytest.mark.django_db
 class TestDeal:
     def test__str__(self, deal, partner):
-        assert deal.__str__() == '{} : {}'.format(partner.__str__(), deal.date)
+        assert deal.__str__() == '{} : {}'.format(partner.__str__(), deal.date_created)
 
     def test_save_as_new(self, deal_factory, partner, currency):
         partner.currency = currency
@@ -118,9 +148,59 @@ class TestDeal:
     def test_total_payed_without_payments(self, deal):
         assert deal.total_payed == 0
 
-    def test_update_after_cancel_payment(self, deal_factory):
+    def test_update_after_cancel_payment(self, user, deal_factory):
         deal = deal_factory(done=True)
 
+        def __str__(self):
+            return 'payment'
+
         assert deal.done
-        deal.update_after_cancel_payment()
+        deal.update_after_cancel_payment(editor=user, payment=type('Payment', (), {'id': 1, '__str__': __str__}))
         assert not deal.done
+
+    def test_payment_page_url(self, deal):
+        assert deal.payment_page_url() == '/payment/deal/{}/'.format(deal.id)
+
+    @pytest.mark.parametrize('with_responsible', [True, False], ids=['with_responsible', 'without_responsible'])
+    @pytest.mark.parametrize('level', [p.level for p in PARTNER_LEVELS], ids=[p.title for p in PARTNER_LEVELS])
+    def test_can_user_edit(self, deal, partner_factory, level, with_responsible):
+        responsible = partner_factory() if with_responsible else None
+        deal.responsible = responsible
+        deal.save()
+        editor = partner_factory(level=level, responsible=responsible)
+        if level > settings.PARTNER_LEVELS['supervisor']:
+            assert not deal.can_user_edit(editor.user)
+        else:
+            assert deal.can_user_edit(editor.user)
+
+    @pytest.mark.parametrize('level', [p.level for p in PARTNER_LEVELS], ids=[p.title for p in PARTNER_LEVELS])
+    def test_can_user_edit_if_user_is_responsible(self, deal, partner_factory, level):
+        editor = partner_factory(level=level)
+        deal.responsible = editor
+        deal.save()
+        if level > settings.PARTNER_LEVELS['manager']:
+            assert not deal.can_user_edit(editor.user)
+        else:
+            assert deal.can_user_edit(editor.user)
+
+    @pytest.mark.parametrize('with_responsible', [True, False], ids=['with_responsible', 'without_responsible'])
+    @pytest.mark.parametrize('level', [p.level for p in PARTNER_LEVELS], ids=[p.title for p in PARTNER_LEVELS])
+    def test_can_user_edit_payment(self, deal, partner_factory, level, with_responsible):
+        responsible = partner_factory() if with_responsible else None
+        deal.responsible = responsible
+        deal.save()
+        editor = partner_factory(level=level, responsible=responsible)
+        if level > settings.PARTNER_LEVELS['supervisor']:
+            assert not deal.can_user_edit_payment(editor.user)
+        else:
+            assert deal.can_user_edit_payment(editor.user)
+
+    @pytest.mark.parametrize('level', [p.level for p in PARTNER_LEVELS], ids=[p.title for p in PARTNER_LEVELS])
+    def test_can_user_edit_payment_if_user_is_responsible(self, deal, partner_factory, level):
+        editor = partner_factory(level=level)
+        deal.responsible = editor
+        deal.save()
+        if level > settings.PARTNER_LEVELS['manager']:
+            assert not deal.can_user_edit_payment(editor.user)
+        else:
+            assert deal.can_user_edit_payment(editor.user)

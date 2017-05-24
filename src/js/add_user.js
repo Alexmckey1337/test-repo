@@ -47,6 +47,13 @@
         croppUploadImg();
     }
 
+    function accordionAddUser() {
+        $('.second_step').find('h2').on('click', function () {
+            $(this).next('.info').slideToggle().siblings('.info:visible').slideUp();
+            $(this).toggleClass('active').siblings('h2').removeClass('active');
+        });
+    }
+
     let img = $(".crArea img");
 
     $('#file').on('change', handleFileSelect);
@@ -102,7 +109,6 @@
         dateFormat: 'yyyy-mm-dd',
         maxDate: new Date(),
         setDate: new Date(),
-        position: 'top left',
         autoClose: true,
         // onSelect: function () {
         //     $('#spir_level').attr('disabled', false).select2();
@@ -138,15 +144,14 @@
         e.preventDefault();
         let flag = false;
         $('.must').each(function () {
-           $(this).validate(function (valid) {
+           $(this). validate(function (valid) {
                return flag = valid;
            });
-           return flag;
         });
         if (!flag) {
                showPopup(`Обязательные поля не заполнены либо введены некорректные данные`);
            } else {
-               $(this).closest('form').css("transform","translate3d(-520px, 0px, 0px)");
+               $(this).closest('form').css("transform","translate3d(-1020px, 0px, 0px)");
                let user = `${$('#last_name').val()} ${$('#first_name').val()} ${$('#middle_name').val()}`;
                $('.second_step').find('.user').html(user);
         }
@@ -154,7 +159,14 @@
 
     $('.btn-block').find('.prevForm').on('click', function (e) {
         e.preventDefault();
-        $(this).closest('form').css("transform","translate3d(0px, 0px, 0px)");
+        if ($('.second_step').find('h2').hasClass('active')) {
+            $('.second_step').find('h2').removeClass('active');
+            $('.second_step').find('.info:visible').slideUp(function () {
+                $(this).closest('form').css("transform","translate3d(0px, 0px, 0px)");
+        });
+        } else {
+            $(this).closest('form').css("transform","translate3d(0px, 0px, 0px)");
+        }
     });
 
     $("#createUser").find('input').each(function () {
@@ -168,10 +180,12 @@
         });
     });
 
+
+    accordionAddUser();
+
     $('.popap').on('click', function () {
         $(this).css('display', 'none');
     });
-
     $('.editprofile-screen').on('click', function (e) {
        e.stopPropagation();
     });

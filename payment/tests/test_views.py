@@ -39,8 +39,9 @@ def get_payment_deal(self):
 @pytest.mark.django_db
 @pytest.mark.urls('payment.tests.urls')
 class TestPaymentUpdateDestroyView:
-    def test_delete_payment(self, rf, allow_any_payment_update_destroy_view, purpose_payment):
+    def test_delete_payment(self, rf, user, allow_any_payment_update_destroy_view, purpose_payment):
         request = rf.delete('/payment/{}/'.format(purpose_payment.id))
+        request.user = user
         view = allow_any_payment_update_destroy_view.as_view()
         response = view(request, pk=purpose_payment.id)
 
@@ -121,11 +122,12 @@ class TestPaymentUpdateDestroyView:
         assert Payment.objects.filter(pk=purpose_payment.id).exists()
 
     def test_update_summit_anket_after_delete_payment(
-            self, rf, allow_any_payment_update_destroy_view, summit_anket_payment):
+            self, user, rf, allow_any_payment_update_destroy_view, summit_anket_payment):
         anket = summit_anket_payment.purpose
 
         old_value = anket.value
         request = rf.delete('/payment/{}/'.format(summit_anket_payment.id))
+        request.user = user
         view = allow_any_payment_update_destroy_view.as_view()
         view(request, pk=summit_anket_payment.id)
 
@@ -134,12 +136,13 @@ class TestPaymentUpdateDestroyView:
         assert old_value > new_value
 
     def test_update_deal_after_delete_payment(
-            self, rf, allow_any_payment_update_destroy_view, deal_payment):
+            self, user, rf, allow_any_payment_update_destroy_view, deal_payment):
         deal = deal_payment.purpose
         deal.done = True
         deal.save()
 
         request = rf.delete('/payment/{}/'.format(deal_payment.id))
+        request.user = user
         view = allow_any_payment_update_destroy_view.as_view()
         view(request, pk=deal_payment.id)
 
@@ -149,7 +152,8 @@ class TestPaymentUpdateDestroyView:
     @pytest.mark.parametrize(
         'field,new_value,is_required', CHANGED_FIELDS)
     def test_update_deal_after_update_payment(
-            self, request, rf, allow_any_payment_update_destroy_view, deal_payment, field, new_value, is_required):
+            self, user, request, rf, allow_any_payment_update_destroy_view,
+            deal_payment, field, new_value, is_required):
         deal = deal_payment.purpose
         deal.done = True
         deal.save()
@@ -162,6 +166,7 @@ class TestPaymentUpdateDestroyView:
 
         request = rf.patch('/payment/{}/'.format(deal_payment.id), data=json.dumps(data),
                            content_type='application/json')
+        request.user = user
         view = allow_any_payment_update_destroy_view.as_view()
         view(request, pk=deal_payment.id)
 
@@ -172,7 +177,7 @@ class TestPaymentUpdateDestroyView:
             assert deal.done
 
     def test_update_summit_anket_after_update_payment(
-            self, rf, allow_any_payment_update_destroy_view, summit_anket_payment, summit_anket_factory):
+            self, user, rf, allow_any_payment_update_destroy_view, summit_anket_payment, summit_anket_factory):
         anket = summit_anket_payment.purpose
         new_anket = summit_anket_factory()
 
@@ -180,6 +185,7 @@ class TestPaymentUpdateDestroyView:
         params = json.dumps({"object_id": new_anket.id})
         request = rf.patch('/payment/{}/'.format(summit_anket_payment.id), data=params,
                            content_type='application/json')
+        request.user = user
         view = allow_any_payment_update_destroy_view.as_view()
         r = view(request, pk=summit_anket_payment.id)
         assert r.status_code == status.HTTP_200_OK

@@ -26,3 +26,19 @@ def api_login_client(api_client, user):
     api_client.force_login(user=user)
 
     return api_client
+
+
+@pytest.fixture
+def client():
+    skip_if_no_django()
+
+    from django.test import Client
+
+    return Client()
+
+
+@pytest.fixture()
+def login_client(client, user):
+    client.force_login(user=user)
+
+    return client

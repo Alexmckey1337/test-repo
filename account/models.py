@@ -19,6 +19,7 @@ from mptt.managers import TreeManager
 from mptt.models import MPTTModel
 
 from account.abstract_models import CustomUserAbstract
+from analytics.models import LogModel
 from account.permissions import (
     can_create_user, can_export_user_list, can_see_user_list, can_edit_status_block,
     can_edit_description_block, can_see_account_page)
@@ -35,7 +36,7 @@ class CustomUserManager(TreeManager, UserManager):
 
 
 @python_2_unicode_compatible
-class CustomUser(MPTTModel, User, CustomUserAbstract,
+class CustomUser(MPTTModel, LogModel, User, CustomUserAbstract,
                  GroupUserPermission, PartnerUserPermission, SummitUserPermission):
     """
     User model
@@ -85,6 +86,17 @@ class CustomUser(MPTTModel, User, CustomUserAbstract,
                                     null=True, blank=True)
 
     objects = CustomUserManager()
+
+    tracking_fields = (
+        'first_name', 'last_name', 'middle_name', 'search_name', 'phone_number', 'skype', 'image',
+        'country', 'region', 'city', 'district', 'address', 'born_name', 'facebook', 'vkontakte',
+        'odnoklassniki', 'description', 'hierarchy', 'master', 'repentance_date',
+        'coming_date', 'spiritual_level', 'extra_phone_numbers',
+    )
+
+    tracking_reverse_fields = (
+        'divisions', 'departments'
+    )
 
     def __str__(self):
         return self.fullname
