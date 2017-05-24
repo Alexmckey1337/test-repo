@@ -209,7 +209,7 @@
         let dateData = document.createElement('input');
         $(dateTitle).text('Дата отчёта: ');
         let dateReportsFormatted = new Date(data.date.split('.').reverse().join(','));
-        let nextSunday = moment(dateReportsFormatted).day(7).format();
+        let nextSunday = (moment(dateReportsFormatted).day() === 0) ? moment(dateReportsFormatted).format() : moment(dateReportsFormatted).day(7).format();
         $(dateData).val(data.date).attr({
             'size': data.date.length,
             'data-name': 'date',

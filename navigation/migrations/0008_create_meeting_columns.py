@@ -16,7 +16,7 @@ def create_meeting_columns(apps, schema_editor):
                         editable=True, category_id=meetings.id),
         Meeting_columns(title='home_group', verbose_title='Домашняя группа', ordering_title='home_group__title',
                         number=2, active=True, editable=True, category_id=meetings.id),
-        Meeting_columns(title='owner', verbose_title='Владелец отчета', ordering_title='owner__last_name',
+        Meeting_columns(title='owner', verbose_title='Лидер домашней группы', ordering_title='owner__last_name',
                         number=3, active=True, editable=True, category_id=meetings.id),
         Meeting_columns(title='phone_number', verbose_title='Телефонный номер', ordering_title='phone_number',
                         number=4, active=True, editable=True, category_id=meetings.id),
