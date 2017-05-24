@@ -168,8 +168,11 @@
                 200: function (req) {
                     resolve(req)
                 },
-                403: function () {
-                    reject('Вы должны авторизоватся')
+                403: function (err) {
+                    reject(err)
+                },
+                400: function (err) {
+                    reject(err)
                 }
             };
             newAjaxRequest(data, status, reject)
@@ -254,6 +257,8 @@
                 $homeReports.find('input').each(function () {
                     $(this).attr('disabled', true);
                 });
+            }).catch( (err) => {
+                showPopup(err);
             });
         }
     }
