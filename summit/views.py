@@ -219,8 +219,12 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         return Response(ankets.data)
 
     @list_route(methods=['GET'])
-    def summit_visits_statistics(self):
-        pass
+    def summit_visits_statistics(self, request):
+        from_date = request.query_params.get('from_date')
+        to_date = request.query_params.get('to_date')
+        is_visited = request.query_params.get('is_visited')
+
+
 
 
 class SummitLessonViewSet(viewsets.ModelViewSet):
@@ -326,19 +330,7 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
 
         return Response(visitor.data)
 
-        return self.model.objects.filter(**{self.search: [user.id for user in users]})
 
-
-class FilterChurchMasterTree(CommonGroupMasterTreeFilter):
-    model = Church
-    level = 2
-    search = 'pastor__id__in'
-
-
-class FilterHomeGroupMasterTree(CommonGroupMasterTreeFilter):
-    model = HomeGroup
-    level = 1
-    search = 'leader__id__in'
 class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
     serializer_class = SummitProfileTreeForAppSerializer
     pagination_class = None
