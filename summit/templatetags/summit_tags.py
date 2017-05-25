@@ -7,6 +7,7 @@ from partnership.models import Partnership
 from payment.models import Currency
 from status.models import Division
 from summit.models import SummitAnket, SummitUserConsultant, Summit
+from account.models import CustomUser
 
 register = template.Library()
 
@@ -20,13 +21,16 @@ def create_user_form():
     hierarchies = Hierarchy.objects.all()
     divisions = Division.objects.all()
     currencies = Currency.objects.all()
+    levels = CustomUser.SPIRITUAL_LEVEL_CHOICES
+
     ctx = {
         'managers': managers,
         'countries': countries,
         'departments': departments,
         'hierarchies': hierarchies,
         'divisions': divisions,
-        'currencies': currencies
+        'currencies': currencies,
+        'spiritual_levels': [{'id': v[0], 'title': v[1]} for v in levels]
     }
     return ctx
 

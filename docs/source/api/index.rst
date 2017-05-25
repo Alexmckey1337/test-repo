@@ -12,3 +12,4 @@ Contents:
    payment/api
    account/api
    group/api
+   events/api

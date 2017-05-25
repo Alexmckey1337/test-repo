@@ -2,64 +2,205 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
+from django.utils.translation import ugettext_lazy as _
 
-from .models import Event, Participation, EventType, EventAnket
-from .models import Meeting, MeetingAttend
+from group.models import Church
+from group.serializers import (UserNameSerializer, ChurchNameSerializer,
+                               HomeGroupNameSerializer)
 from account.models import CustomUser
+from .models import Meeting, MeetingAttend, MeetingType, ChurchReport, AbstractStatusModel
+from datetime import datetime
+from common.fields import ReadOnlyChoiceField
 
 
-class MeetingAttendedSerializer(serializers.ModelSerializer):
+class ValidateDataBeforeUpdateMixin(object):
+
+    @staticmethod
+    def validate_before_serializer_update(instance, validated_data, not_editable_fields):
+        if instance.status != AbstractStatusModel.SUBMITTED:
+            raise serializers.ValidationError(
+                _('Невозможно обновить методом UPDATE. '
+                  'Отчет - {%s} еще небыл подан.') % instance)
+
+        if instance.date > validated_data.get('date'):
+            raise serializers.ValidationError(
+                _('Невозможно подать отчет. Переданная дата подачи отчета - {%s} '
+                  'меньше чем дата его создания.' % validated_data.get('date'))
+            )
+        [validated_data.pop(field, None) for field in not_editable_fields]
+
+        return instance, validated_data
+
+
+class MeetingTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MeetingType
+        fields = ('id', 'code', 'name')
+
+
+class MeetingAttendSerializer(serializers.ModelSerializer):
+    fullname = serializers.CharField(source='user.fullname')
+    spiritual_level = ReadOnlyChoiceField(source='user.spiritual_level',
+                                          choices=CustomUser.SPIRITUAL_LEVEL_CHOICES, read_only=True)
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
+
     class Meta:
         model = MeetingAttend
-        fields = ('id', 'attended', 'note', 'user', 'meeting')
+        fields = ('id', 'user_id', 'fullname', 'spiritual_level', 'attended', 'note', 'phone_number')
 
 
-class MeetingUserSerializer(serializers.ModelSerializer):
+class MeetingVisitorsSerializer(serializers.ModelSerializer):
+    spiritual_level = ReadOnlyChoiceField(
+        choices=CustomUser.SPIRITUAL_LEVEL_CHOICES, read_only=True)
+    user_id = serializers.IntegerField(source='id', read_only=True)
+
     class Meta:
         model = CustomUser
-        fields = ('id', 'fullname', 'spiritual_level', 'phone_number', 'attends')
+        fields = ('user_id', 'fullname', 'spiritual_level', 'phone_number')
 
 
-class MeetingUserAttendsSerializer(MeetingUserSerializer):
-    attends = MeetingAttendedSerializer(many=True)
-
-
-class MeetingSerializer(serializers.ModelSerializer):
-    owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(hierarchy__level=1))
-    visitors = MeetingUserAttendsSerializer(many=True)
+class MeetingSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMixin):
+    owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
+        home_group__leader__id__isnull=False).distinct())
+    date = serializers.DateField(default=datetime.now().date())
 
     class Meta:
         model = Meeting
-        fields = ('id', 'owner', 'type', 'date', 'total_sum', 'visitors')
+        fields = ('id', 'home_group', 'owner', 'type', 'date', 'total_sum',
+                  'status')
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Meeting.objects.all(),
+                fields=('home_group', 'type', 'date')
+            )]
 
     def create(self, validated_data):
-        visitors = validated_data.pop('visitors')
+        owner = validated_data.get('owner')
+        home_group = validated_data.get('home_group')
+        if home_group.leader != owner:
+            raise serializers.ValidationError(
+                _('Переданный лидер не являетя лидером данной Домашней Группы'))
+
         meeting = Meeting.objects.create(**validated_data)
-        for visitor in visitors:
-            for attended in visitor['attends']:
-                MeetingAttend.objects.create(meeting_id=meeting.id, **attended)
+
         return meeting
 
 
-class EventTypeSerializer(serializers.HyperlinkedModelSerializer):
+class MeetingListSerializer(MeetingSerializer):
+    visitors_absent = serializers.IntegerField()
+    visitors_attended = serializers.IntegerField()
+    type = MeetingTypeSerializer()
+    home_group = HomeGroupNameSerializer()
+    owner = UserNameSerializer()
+    status = serializers.JSONField(source='get_status_display')
+
+    class Meta(MeetingSerializer.Meta):
+        fields = MeetingSerializer.Meta.fields + (
+            'phone_number', 'visitors_attended', 'visitors_absent', 'link')
+        read_only_fields = ['__all__']
+
+
+class MeetingDetailSerializer(MeetingSerializer):
+    attends = MeetingAttendSerializer(many=True, required=False, read_only=True)
+    home_group = HomeGroupNameSerializer(read_only=True, required=False)
+    type = MeetingTypeSerializer(read_only=True, required=False)
+    owner = UserNameSerializer(read_only=True, required=False)
+    status = serializers.ReadOnlyField(read_only=True, required=False)
+
+    not_editable_fields = ['home_group', 'owner', 'type', 'status']
+
+    class Meta(MeetingSerializer.Meta):
+        fields = MeetingSerializer.Meta.fields + ('attends', 'table_columns')
+
+    def update(self, instance, validated_data):
+        instance, validated_data = self.validate_before_serializer_update(
+            instance, validated_data, self.not_editable_fields)
+
+        return super(MeetingDetailSerializer, self).update(instance, validated_data)
+
+
+class MeetingStatisticSerializer(serializers.ModelSerializer):
+    total_visitors = serializers.IntegerField()
+    total_visits = serializers.IntegerField()
+    total_absent = serializers.IntegerField()
+    new_repentance = serializers.IntegerField()
+    total_donations = serializers.DecimalField(max_digits=13, decimal_places=0)
+    reports_in_progress = serializers.IntegerField()
+    reports_submitted = serializers.IntegerField()
+    reports_expired = serializers.IntegerField()
+
     class Meta:
-        model = EventType
-        fields = ('url', 'id', 'title', 'image', 'event_count', 'last_event_date',)
+        model = Meeting
+        fields = ('total_visitors', 'total_visits', 'total_absent', 'total_donations',
+                  'new_repentance', 'reports_in_progress', 'reports_submitted',
+                  'reports_expired')
+        read_only_fields = ['__all__']
 
 
-class EventAnketSerializer(serializers.HyperlinkedModelSerializer):
+class ChurchReportListSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMixin):
+    pastor = UserNameSerializer()
+    church = ChurchNameSerializer()
+    status = serializers.CharField(source='get_status_display')
+    date = serializers.DateField(default=datetime.now().date())
+
     class Meta:
-        model = EventAnket
-        fields = ('url', 'id', 'user', 'participations', 'events',)
+        model = ChurchReport
+        fields = ('id', 'pastor', 'church', 'date', 'count_people', 'tithe', 'donations',
+                  'transfer_payments', 'status', 'link')
+        read_only_fields = ['__all__']
 
 
-class EventSerializer(serializers.HyperlinkedModelSerializer):
+class ChurchReportSerializer(ChurchReportListSerializer):
+    church = serializers.PrimaryKeyRelatedField(queryset=Church.objects.all(), required=False)
+    pastor = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
+        church__pastor__id__isnull=False).distinct(), required=False)
+    status = serializers.IntegerField(default=1)
+
+    not_editable_fields = ['church', 'pastor', 'status']
+
+    class Meta(ChurchReportListSerializer.Meta):
+        fields = ChurchReportListSerializer.Meta.fields + (
+            'new_people', 'count_repentance', 'currency_donations', 'pastor_tithe')
+        read_only_fields = None
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=ChurchReport.objects.all(),
+                fields=('church', 'date', 'status')
+            )]
+
+    def create(self, validated_data):
+        pastor = validated_data.get('pastor')
+        church = validated_data.get('church')
+        if church.pastor != pastor:
+            raise serializers.ValidationError(
+                _('Переданный пастор не являетя пастором данной Церкви'))
+
+        church_report = ChurchReport.objects.create(**validated_data)
+
+        return church_report
+
+    def update(self, instance, validated_data):
+        instance, validated_data = self.validate_before_serializer_update(
+            instance, validated_data, self.not_editable_fields)
+
+        return super(ChurchReportSerializer, self).update(instance, validated_data)
+
+
+class ChurchReportStatisticSerializer(serializers.ModelSerializer):
+    total_peoples = serializers.IntegerField()
+    total_new_peoples = serializers.IntegerField()
+    total_repentance = serializers.IntegerField()
+    total_tithe = serializers.DecimalField(max_digits=13, decimal_places=0)
+    total_donations = serializers.DecimalField(max_digits=13, decimal_places=0)
+    total_transfer_payments = serializers.DecimalField(max_digits=13, decimal_places=0)
+    total_pastor_tithe = serializers.DecimalField(max_digits=13, decimal_places=0)
+
     class Meta:
-        model = Event
-        fields = ('id', 'event_type', 'from_date', 'to_date', 'time', 'title',)
-
-
-class ParticipationSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Participation
-        fields = ('id', 'check', 'value', 'uid', 'hierarchy_chain', 'has_disciples', 'fields',)
+        model = ChurchReport
+        fields = ('id', 'total_peoples', 'total_new_peoples', 'total_repentance',
+                  'total_tithe', 'total_donations', 'total_transfer_payments',
+                  'total_pastor_tithe')
+        read_only_fields = ['__all__']

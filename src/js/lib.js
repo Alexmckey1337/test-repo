@@ -131,7 +131,7 @@ function createHomeGroupsTable(config = {}) {
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
-        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
@@ -178,7 +178,7 @@ function createHomeGroupsTable(config = {}) {
 }
 function makePastorListWithMasterTree(config, selector, active = null) {
     getShortUsers(config).then(data => {
-         let options = '<option selected>ВСЕ</option>';
+        let options = '<option selected>ВСЕ</option>';
         data.forEach(function (item) {
             options += `<option value="${item.id}"`;
             if (active == item.id) {
@@ -187,11 +187,11 @@ function makePastorListWithMasterTree(config, selector, active = null) {
             options += `>${item.fullname}</option>`;
         });
         selector.forEach(item => {
-                $(item).html(options).prop('disabled', false).select2();
+            $(item).html(options).prop('disabled', false).select2();
         })
     })
 }
-function makePastorListNew(id, selector = [], active=null) {
+function makePastorListNew(id, selector = [], active = null) {
     getResponsible(id, 2).then(function (data) {
         let options = '<option selected>ВСЕ</option>';
         data.forEach(function (item) {
@@ -202,7 +202,7 @@ function makePastorListNew(id, selector = [], active=null) {
             options += `>${item.fullname}</option>`;
         });
         selector.forEach(item => {
-                $(item).html(options).prop('disabled', false).select2();
+            $(item).html(options).prop('disabled', false).select2();
         })
     });
 }
@@ -485,9 +485,6 @@ function newAjaxRequest(data, codes, fail) {
         method: 'GET'
     };
     Object.assign(resData, data);
-    if (getCookie('key')) {
-        resData.headers['Authorization'] = 'Token ' + getCookie('key');
-    }
     $.ajax(resData)
         .statusCode(codes)
         .fail(fail);
@@ -510,8 +507,8 @@ function getUsers(config = {}) {
             403: function () {
                 reject('Вы должны авторизоватся')
             }
-
         };
+
         newAjaxRequest(data, status, reject)
     });
 }
@@ -686,7 +683,7 @@ function createChurchesUsersTable(id, config = {}) {
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
-        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
@@ -695,7 +692,6 @@ function createChurchesUsersTable(id, config = {}) {
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINChurches').html(rendered);
         makeSortForm(filterData.user_table);
-        console.log(id);
         let paginationConfig = {
             container: ".users__pagination",
             currentPage: page,
@@ -724,7 +720,7 @@ function createChurchesDetailsTable(config = {}, id, link) {
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
-        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
@@ -762,7 +758,7 @@ function createHomeGroupUsersTable(config = {}, id) {
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
-        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
@@ -849,6 +845,22 @@ function getAddChurchData() {
         "phone_number": $('#added_churches_phone').val(),
         "website": $('#added_churches_site').val()
     }
+}
+
+function clearAddNewUser() {
+    let form = $('#createUser');
+    form.find('#partner').attr('checked', false);
+    form.find('.hidden-partner').hide();
+    form.find('#edit-photo').attr('data-source', '').find('img').attr('src', '/static/img/no-usr.jpg');
+    form.find('.anketa-photo').unbind('click');
+    form.find('select:not(#payment_currency, #spir_level).select2-hidden-accessible').select2('destroy').find('option').remove();
+    initAddNewUser();
+    form.find('#chooseResponsible, #chooseRegion, #chooseCity').attr('disabled', true);
+    form.find('input').each(function () {
+        $(this).val('');
+    });
+    form.find('#spir_level').select2('destroy').find('option').attr('selected', false)
+                            .find('option:first-child').attr('selected', true);
 }
 
 function clearAddChurchData() {
@@ -1076,7 +1088,7 @@ function getCurrentUser(id) {
     })
 }
 function getResponsibleBYHomeGroup(churchID) {
-     return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/?church_id=${churchID}`;
         ajaxRequest(url, null, function (data) {
             if (data) {
@@ -1090,7 +1102,7 @@ function getResponsibleBYHomeGroup(churchID) {
 
 function getResponsible(ids, level, search = "") {
     let responsibleLevel;
-    if(level === 0 || level === 1) {
+    if (level === 0 || level === 1) {
         responsibleLevel = level + 1;
     } else {
         responsibleLevel = level;
@@ -1359,6 +1371,13 @@ function makePayments(config = {}) {
     )
         ;
 }
+function homeStatistics() {
+    getData('/api/v1.0/events/home_meetings/statistics/', getFilterParam()).then(data => {
+        let tmpl = document.getElementById('statisticsTmp').innerHTML;
+        let rendered = _.template(tmpl)(data);
+        document.getElementById('statisticsContainer').innerHTML = rendered;
+    })
+}
 
 function makePagination(config) {
     let container = document.createElement('div'),
@@ -1421,9 +1440,7 @@ function makePagination(config) {
         }
 
     });
-
     $(config.container).html(container);
-
 }
 
 function delCookie(name) {
@@ -1606,16 +1623,12 @@ function showPopupAddUser(data) {
     $('#addPopup').find('.close').on('click', function () {
         $('#addPopup').css('display', 'none').remove();
     });
-    $('#addPopup').find('.rewrite').on('click', function (e) {
-        $('#addPopup').css('display', 'none').remove();
-        $('#addNewUserPopup').css('display', 'block');
-    });
     $('#addPopup').find('.addMore').on('click', function () {
         $('#addPopup').css('display', 'none').remove();
         $('body').addClass('no_scroll');
         $('#addNewUserPopup').find('form').css("transform","translate3d(0px, 0px, 0px)");
         $('#addNewUserPopup').css('display', 'block');
-        initAddNewUser();
+        clearAddNewUser();
     });
 }
 
@@ -1849,7 +1862,7 @@ function createSummitUsersTable(data = {}) {
         let count = data.count;
         let page = config.page || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
-        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
         let id = "summitUsersList";
         let text = `Показано ${showCount} из ${count}`;
         let paginationConfig = {
@@ -1899,7 +1912,7 @@ function makeSortForm(data) {
     sortFormTmpl = document.getElementById("sortForm").innerHTML;
     obj = {};
     obj.user = [];
-    obj.user.push("Фильтр");
+    obj.user.push("");
     obj.user.push(data);
     rendered = _.template(sortFormTmpl)(obj);
     document.getElementById('sort-form').innerHTML = rendered;
@@ -2032,7 +2045,7 @@ function initAddNewUser(config = {}) {
     }
     if (configDefault.getStatuses) {
         getStatuses().then(function (data) {
-            let statuses = data.results;
+            let statuses = data;
             let rendered = [];
             let option = document.createElement('option');
             $(option).text('Выберите статус').attr('disabled', true).attr('selected', true);
@@ -2104,7 +2117,9 @@ function initAddNewUser(config = {}) {
         });
     }
 
-    $('#repentanceDate').datepicker({
+    $('#spir_level').select2();
+
+    $('#repentance_date').datepicker({
         dateFormat: 'yyyy-mm-dd'
     });
     $('#partnerFrom').datepicker({
@@ -2373,7 +2388,7 @@ function createUsersTable(config) {
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
-        let showCount = (count < CONFIG.pagination_count) ? count : CONFIG.pagination_count;
+        let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
         let id = "database_users";
         let text = `Показано ${showCount} из ${count}`;
         let paginationConfig = {
@@ -2568,7 +2583,65 @@ function makeTabs(page = 0) {
         }
     }
 }
+function homeReportsTable(config = {}) {
+    let status = $('#statusTabs').find('.current').find('button').data('status');
+    config.status = status;
+    Object.assign(config, getFilterParam());
+    getHomeReports(config).then(data => {
+        makeHomeReportsTable(data, config);
+    })
+}
 
+function makeHomeReportsTable(data, config = {}) {
+    console.log(config);
+    let tmpl = $('#databaseHomeReports').html();
+    let rendered = _.template(tmpl)(data);
+    $('#homeReports').html(rendered);
+    let count = data.count;
+    let pages = Math.ceil(count / CONFIG.pagination_count);
+    let page = config.page || 1;
+    let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
+    let text = `Показано ${showCount} из ${count}`;
+    let paginationConfig = {
+        container: ".reports__pagination",
+        currentPage: page,
+        pages: pages,
+        callback: homeReportsTable
+    };
+    // $('.table__count').text(data.count);
+    makePagination(paginationConfig);
+    makeSortForm(data.table_columns);
+    $('.table__count').text(text);
+    orderTable.sort(homeReportsTable);
+    $('.preloader').hide();
+}
+
+function getHomeReports(config = {}) {
+    if (!config.status) {
+        let status = parseInt($('#statusTabs').find('.current').find('button').data('status'));
+        config.status = status || 1;
+    }
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/events/home_meetings/`,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: config
+        };
+        let status = {
+            200: function (req) {
+                resolve(req);
+            },
+            403: function () {
+                reject('Вы должны авторизоватся');
+            }
+
+        };
+        newAjaxRequest(data, status);
+    })
+}
 function createNewUser(callback) {
     let $createUser = $('#createUser'),
         $phoneNumber = $('#phoneNumber'),
@@ -2577,11 +2650,19 @@ function createNewUser(callback) {
 
     let oldForm = document.forms.createUser;
     let formData = new FormData(oldForm);
-    if ($('#division_drop').val()) {
-        formData.append('divisions', JSON.stringify($('#chooseDivision').val()));
-    } else {
-        formData.append('divisions', JSON.stringify([]));
+    // if ($('#division_drop').val()) {
+    //     formData.append('divisions', JSON.stringify($('#chooseDivision').val()));
+    // } else {
+    //     formData.append('divisions', JSON.stringify([]));
+    // }
+    let divisions = $('#chooseDivision').val() || [];
+    formData.append('divisions', JSON.stringify(divisions));
+
+    let spirLevel = $('#spir_level').val() || null;
+    if (spirLevel !== 'Выберите духовный уровень') {
+        formData.append('spiritual_level', spirLevel);
     }
+
     formData.append('departments', JSON.stringify($('#chooseDepartment').val()));
     if ($phoneNumber.val()) {
         let phoneNumber = $('#phoneNumberCode').val() + $phoneNumber.val();
@@ -2605,7 +2686,7 @@ function createNewUser(callback) {
         try {
             let blob;
             blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-            formData.append('image', blob);
+            formData.append('image', blob, 'logo.jpg');
             formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
         } catch (err) {
             console.log(err);
@@ -2636,6 +2717,7 @@ function createNewUser(callback) {
         $preloader.css('display', 'none');
         showPopup(data.message[0]);
     });
+
 }
 
 function createPayment(data, id) {
@@ -2744,3 +2826,23 @@ function getLeadersByChurch(config = {}) {
     });
 }
 
+function getData(url, options = {}) {
+    let keys = Object.keys(options);
+    if (keys.length) {
+        url += '?';
+        keys.forEach(item => {
+            url += item + '=' + options[item] + "&"
+        });
+    }
+    let defaultOption = {
+        method: 'GET',
+        credentials: "same-origin",
+        headers: new Headers({
+            'Content-Type': 'text/json',
+        })
+    };
+    if (typeof url === "string") {
+        $('.preloader').hide();
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
+}

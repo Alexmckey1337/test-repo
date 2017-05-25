@@ -12,7 +12,8 @@
     "gulp-imagemin": "",
     "gulp-less": "",
     "gulp-sourcemaps": "",
-    "gulp-uglify": ""
+    "gulp-uglify": "",
+    "moment": "^2.18.1"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.18.0",

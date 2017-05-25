@@ -1,0 +1,141 @@
+{% extends "layout_main.html" %}
+{% load static %}
+
+{% block header.top.h1 %}<h1>Отчеты / Домашние группы</h1>{% endblock %}
+
+{% block header.buttons.top %}
+    <div class="top-buttons-wrap">
+        <ul class="top-buttons">
+            <li></li>
+        </ul>
+    </div>
+{% endblock %}
+{% block header.buttons %}
+    {% block header.tabs %}
+        <div class="tabs">
+            <ul class="nav tabs_link">
+                <li><a
+                       href="{% url 'events:meeting_report_list' %}">Отчёты домашних груп</a></li>
+                <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних груп</a></li>
+            </ul>
+        </div>
+    {% endblock %}
+    <div class="top-buttons-wrap">
+        <ul class="top-buttons">
+            {% block header.buttons.add %}
+                <li>
+
+                </li>
+            {% endblock %}
+
+            {% block header.buttons.export %}
+
+            {% endblock %}
+            {% block header.buttons.extra %}
+            {% endblock %}
+            {% block header.buttons.change_table %}
+                <li>
+                    <button id="save">Сохранить</button>
+                </li>
+{#                <li>#}
+{#                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>#}
+{#                </li>#}
+            {% endblock %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% block main.content %}
+    <div class="container-full">
+        <div id="additionalInformation"></div>
+    </div>
+    {% block pagination_top %}
+
+    {% endblock %}
+
+    {% block table %}
+        <div class="table-wrap clearfix" id="homeReports"><!--Table -->
+            <div class="table scrollbar-inner" id="tableHomeReports"></div>
+            <div class="query-none">
+                <p></p>
+            </div>
+        </div><!--End Table -->
+    {% endblock %}
+
+    {% block pagination_bottom %}
+
+    {% endblock %}
+{% endblock %}
+
+{% block popup %}
+
+{% endblock %}
+{% block extra_scripts %}
+    <script src="{% static "js/home_reports_detail.js" %}"></script>
+{% endblock %}
+{% block template_tables %}
+<script type="text/template" id="databaseHomeReports">
+    <form name="databaseHomeReportsForm" id="databaseHomeReportsForm">
+     <table>
+        <thead>
+        <tr>
+            <% for( var key in table_columns) { %>
+                <% if(table_columns[key].active) { %>
+                    <th data-order="<%=table_columns[key].ordering_title%>"><%=table_columns[key].title %></th>
+                <% } %>
+            <% } %>
+        </tr>
+        </thead>
+        <tbody class="no_empty">
+            <% results.forEach((item, index) => {  %>
+            <tr>
+                <% for( var key in table_columns) { %>
+                    <% if(table_columns[key].active) { %>
+                        <% if(key == 'attended') { %>
+                            <td data-value="<%= key %>">
+                                <% if(results[index][key] != undefined && results[index][key] ) { %>
+                                <input id="<%= 'attended_' + (index + 1)%>" type="checkbox" name="attended" checked>
+                                <label for="<%= 'attended_' + (index + 1) %>"></label>
+                                <% } else { %>
+                                <input id="<%= 'attended_' + (index + 1) %>" type="checkbox" name="attended">
+                                <label for="<%= 'attended_' + (index + 1) %>"></label>
+                                <% } %>
+                            </td>
+                        <% } else if (key == 'user') { %>
+                                    <td>
+                                        <%= item.fullname %>
+                                        <input type="text" name="user" hidden value="<%= item.user_id %>">
+                                        <% if(item.id) { %>
+                                        <input type="text" name="id" hidden value="<%= item.id %>">
+                                        <% } %>
+                                    </td>
+                        <% } else if(key == 'note') { %>
+                            <td data-value="<%= key %>">
+                                <input type="text" name="note" value="<%= item[key] %>">
+                            </td>
+                        <% } else if (key == 'type') { %>
+                            <% if (item[key] != null) { %>
+                                <td><%= item[key].code %></td>
+                            <% } else { %>
+                                <td></td>
+                            <% } %>
+                        <% }  else { %>
+                            <td><% if (item[key] === true ) { %>
+                                <p class="text__center">✔</p>
+                                <% } else if (item[key] === false){ %>
+
+                                <% } else { %>
+                                <%= item[key] %>
+                                <% } %>
+                            </td>
+                        <% } %>
+                    <% } %>
+                <% } %>
+            </tr>
+            <% }) %>
+        </tbody>
+    </table>
+        <input type="submit" hidden class="submitBtn">
+    </form>
+</script>
+{% endblock %}

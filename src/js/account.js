@@ -413,26 +413,30 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         })
     }
 
-    makeHomeGroupsList().then(function (data) {
-        if (!results) {
-            return null
-        }
-        let homeGroupsID = $('#home_groups_list').val();
-        let results = data.results;
-        let options = [];
-        let option = document.createElement('option');
-        $(option).val('').text('Выберите домашнюю группу').attr('selected', true).attr('disabled', true);
-        options.push(option);
-        results.forEach(function (item) {
-            let option = document.createElement('option');
-            $(option).val(item.id).text(item.get_title);
-            if (homeGroupsID == item.id) {
-                $(option).attr('selected', true);
-            }
-            options.push(option);
-        });
-        $('#home_groups_list').html(options);
-    });
+    // makeHomeGroupsList().then((results) => {
+    //     if (!results) {
+    //         return null
+    //     }
+    //     let $homeGroupsList = $('#home_groups_list');
+    //     let homeGroupsID = $homeGroupsList.val();
+    //     console.log(homeGroupsID);
+    //     let options = [];
+    //     let option = document.createElement('option');
+    //     $(option).val('').text('Выберите домашнюю группу').attr('selected', true);
+    //     options.push(option);
+    //     results.forEach(function (item) {
+    //         let option = document.createElement('option');
+    //         $(option).val(item.id).text(item.get_title);
+    //         if (homeGroupsID == item.id) {
+    //             console.log(homeGroupsID == item.id);
+    //             $(option).attr('selected', true);
+    //             console.log(option);
+    //         }
+    //         options.push(option);
+    //     });
+    //     console.log(options);
+    //     $homeGroupsList.html(options);
+    // });
 
     function makeChurches() {
         let departmentID = $selectDepartment.val();
@@ -456,16 +460,21 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                     let churchID = $(this).val();
                     if (churchID && typeof parseInt(churchID) == "number") {
                         makeHomeGroupsList(churchID).then(function (data) {
+                            let $homeGroupsList = $('#home_groups_list');
+                            let homeGroupsID = $homeGroupsList.val();
                             let options = [];
                             let option = document.createElement('option');
-                            $(option).val('').text('Выберите домашнюю группу').attr('selected', true).attr('disabled', true);
+                            $(option).val('').text('Выберите домашнюю группу').attr('selected', true);
                             options.push(option);
                             data.forEach(function (item) {
                                 let option = document.createElement('option');
                                 $(option).val(item.id).text(item.get_title);
+                                if (homeGroupsID == item.id) {
+                                    $(option).attr('selected', true);
+                                }
                                 options.push(option);
                             });
-                            $('#home_groups_list').html(options);
+                            $homeGroupsList.html(options);
                         });
                     }
                 }).trigger('change');
@@ -576,7 +585,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
                                 try {
                                     let blob;
                                     blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                                    formData.append('image', blob);
+                                    formData.append('image', blob, 'logo.jpg');
                                     formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
                                     formData.append('id', id);
 
@@ -738,7 +747,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
             let formData = new FormData(form);
             let blob;
             blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-            formData.append('image', blob);
+            formData.append('image', blob, 'logo.jpg');
             formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
             // formData.append('id', id);
             updateUser(ID, formData);

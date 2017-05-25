@@ -7,7 +7,8 @@ from account.serializers import DepartmentTitleSerializer
 from common.fields import ReadOnlyChoiceField
 from .models import Church, HomeGroup
 
-BASE_GROUP_USER_FIELDS = ('fullname', 'phone_number', 'repentance_date', 'spiritual_level', 'born_date')
+BASE_GROUP_USER_FIELDS = ('fullname', 'phone_number', 'repentance_date', 'spiritual_level',
+                          'born_date')
 
 
 class UserNameSerializer(serializers.ModelSerializer):
@@ -24,23 +25,34 @@ class ChurchNameSerializer(serializers.ModelSerializer):
         fields = ('id', 'title',)
 
 
+class HomeGroupNameSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(source='get_title', read_only=True)
+
+    class Meta:
+        model = HomeGroup
+        fields = ('id', 'title')
+
+
 class HomeGroupLeaderRelatedField(serializers.PrimaryKeyRelatedField):
     default_error_messages = {
         'required': _('This field is required.'),
-        'does_not_exist': 'Данный пользователь "{pk_value}" - не может быть назначен лидером Домашней Группы.',
+        'does_not_exist': _('Данный пользователь "{pk_value}" - '
+                            'не может быть назначен лидером Домашней Группы.'),
         'incorrect_type': _('Incorrect type. Expected pk value, received {data_type}.')
     }
 
 
 class HomeGroupSerializer(serializers.ModelSerializer):
-    leader = HomeGroupLeaderRelatedField(queryset=CustomUser.objects.filter(hierarchy__level__gt=0))
+    leader = HomeGroupLeaderRelatedField(queryset=CustomUser.objects.filter(
+        hierarchy__level__gt=0))
     department = serializers.CharField(source='church.department.id', read_only=True)
     count_users = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = HomeGroup
-        fields = ('id', 'link', 'opening_date', 'title', 'city', 'department', 'get_title',
-                  'church', 'leader', 'address', 'phone_number', 'website', 'count_users')
+        fields = ('id', 'link', 'opening_date', 'title', 'city', 'department',
+                  'get_title', 'church', 'leader', 'address', 'phone_number',
+                  'website', 'count_users')
 
 
 class HomeGroupListSerializer(HomeGroupSerializer):
@@ -49,7 +61,8 @@ class HomeGroupListSerializer(HomeGroupSerializer):
 
 
 class GroupUserSerializer(serializers.ModelSerializer):
-    spiritual_level = ReadOnlyChoiceField(choices=CustomUser.SPIRITUAL_LEVEL_CHOICES, read_only=True)
+    spiritual_level = ReadOnlyChoiceField(
+        choices=CustomUser.SPIRITUAL_LEVEL_CHOICES, read_only=True)
 
     class Meta:
         model = CustomUser
@@ -67,7 +80,8 @@ class HomeGroupDetailSerializer(serializers.ModelSerializer):
 class ChurchPastorRelatedField(serializers.PrimaryKeyRelatedField):
     default_error_messages = {
         'required': _('This field is required.'),
-        'does_not_exist': 'Данный пользователь "{pk_value}" - не может быть назначен пастором Церкви.',
+        'does_not_exist': _('Данный пользователь "{pk_value}" - '
+                            'не может быть назначен пастором Церкви.'),
         'incorrect_type': _('Incorrect type. Expected pk value, received {data_type}.')
     }
 
@@ -76,13 +90,14 @@ class ChurchSerializer(serializers.ModelSerializer):
     count_groups = serializers.IntegerField(read_only=True)
     count_users = serializers.IntegerField(read_only=True)
     link = serializers.CharField(read_only=True)
-    pastor = ChurchPastorRelatedField(queryset=CustomUser.objects.filter(hierarchy__level__gt=1))
+    pastor = ChurchPastorRelatedField(queryset=CustomUser.objects.filter(
+        hierarchy__level__gte=2))
 
     class Meta:
         model = Church
         fields = ('id', 'opening_date', 'is_open', 'link', 'title', 'get_title',
-                  'department', 'pastor', 'country', 'city', 'address', 'phone_number',
-                  'website', 'count_groups', 'count_users')
+                  'department', 'pastor', 'country', 'city', 'address', 'website',
+                  'phone_number', 'count_groups', 'count_users')
 
 
 class ChurchListSerializer(ChurchSerializer):
@@ -93,7 +108,7 @@ class ChurchListSerializer(ChurchSerializer):
 class ChurchWithoutPaginationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Church
-        fields = ('id', 'get_title', 'title')
+        fields = ('id', 'get_title')
 
 
 class ChurchStatsSerializer(serializers.ModelSerializer):
@@ -123,7 +138,8 @@ class HomeGroupStatsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HomeGroup
-        fields = ('users_count', 'fathers_count', 'juniors_count', 'babies_count', 'partners_count')
+        fields = ('users_count', 'fathers_count', 'juniors_count', 'babies_count',
+                  'partners_count')
 
 
 class AllChurchesListSerializer(serializers.ModelSerializer):

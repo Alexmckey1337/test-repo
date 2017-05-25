@@ -1,6 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import logging
 from datetime import datetime, timedelta
 
 from dbmail import send_db_mail
@@ -38,6 +39,8 @@ from .serializers import (
     SummitVisitorLocationSerializer, SummitEventTableSerializer, SummitProfileTreeForAppSerializer,
     SummitAnketCodeSerializer)
 from .tasks import generate_tickets
+
+logger = logging.getLogger(__name__)
 
 
 def get_success_headers(data):
@@ -282,8 +285,9 @@ class SummitTicketMakePrintedView(GenericAPIView):
                 ticket.is_printed = True
                 ticket.save()
                 ticket.users.update(ticket_status=SummitAnket.PRINTED)
-        except IntegrityError:
+        except IntegrityError as err:
             data = {'detail': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
+            logger.error(err)
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response({'detail': _('Билеты отмечены напечатаными.')})
 
@@ -341,14 +345,12 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
         serializer = self.get_serializer(queryset, many=True)
         return Response({
             'profiles': serializer.data,
-            'hierarchies': HierarchySerializer(Hierarchy.objects.all(), many=True).data
         })
 
     def annotate_queryset(self, qs):
         return qs.base_queryset().annotate_full_name().annotate(
             diff=ExpressionWrapper(F('user__rght') - F('user__lft'), output_field=IntegerField())
-        ).order_by(
-            'user__last_name', 'user__first_name', 'user__middle_name')
+        ).order_by('-hierarchy__level')
 
     def get_queryset(self):
         is_consultant_or_high = self.request.user.is_summit_consultant_or_high(self.summit)

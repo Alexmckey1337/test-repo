@@ -6,6 +6,11 @@
 {% block header.buttons.top %}
     <div class="top-buttons-wrap">
         <ul class="top-buttons">
+            {% if user.is_pastor_or_high and user.get_church %}
+                <li>
+                    <button id="add_homeGroupToChurch">Добавить группу</button>
+                </li>
+            {% endif %}
             <li>
                 <button id="filter_button" class="header__button">Фильтр</button>
             </li>
@@ -24,9 +29,6 @@
         <div class="table scrollbar-inner" id="tableHomeGroup"></div>
 
     </div><!--End Table -->
-    <div class="preloader">
-        <div class="gif"></div>
-    </div>
 {% endblock %}
 
 {% block popup %}
@@ -111,6 +113,65 @@
             </div>
         </div>
     </div>
+    {% if user.is_pastor_or_high and user.get_church %}
+        <div class="popap" id='addHomeGroup'>
+            <div class="pop_cont">
+                <div class="popup_text">
+                    <h2>Добавление домашней группы</h2>
+                    <span class="close close-popup"><i class="fa fa-times" aria-hidden="true"></i></span>
+                </div>
+                <form action="" id="addHomeGroup" name="addHomeGroup">
+                    <div class="popup_body">
+                        <div class="container container_block">
+                            <div class="column">
+                                <div class="label_block-wrapp">
+                                    <span class="label_block">Дата открытия</span>
+                                </div>
+                                <div class="label_block-wrapp end__block">
+                                    <span class="label_block">Название</span>
+                                </div>
+                                <div class="label_block-wrapp">
+                                    <span class="label_block">Церковь</span>
+                                </div>
+                                <div class="label_block-wrapp">
+                                    <span class="label_block">Лидер</span>
+                                </div>
+                                <div class="label_block-wrapp">
+                                    <span class="label_block">Город</span>
+                                </div>
+                                <div class="label_block-wrapp">
+                                    <span class="label_block">Адрес служения</span>
+                                </div>
+                                <div class="label_block-wrapp">
+                                    <span class="label_block">Телефон</span>
+                                </div>
+                                <div class="label_block-wrapp">
+                                    <span class="label_block">Сайт</span>
+                                </div>
+                            </div>
+                            <div>
+                                <p><input id="added_home_group_date" required></p>
+                                <p class="end__block"><input type="text" id="added_home_group_title"></p>
+                                <p id="added_home_group_church" data-id="{{ user.get_church.id }}"
+                                   data-department="{{ user.get_church.department.id }}">{{ user.get_church.get_title }}</p>
+                                <p><select id="added_home_group_pastor" required>
+                                    <option>Выберите пастора</option>
+                                </select></p>
+                                <p><input type="text" id="added_home_group_city" required></p>
+                                <p><input type="text" id="added_home_group_address"></p>
+                                <p><input type="tel" id="added_home_group_phone"></p>
+                                <p><input type="url" id="added_home_group_site"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container">
+                        <button class="close-popup">Отменить</button>
+                        <button type="submit" class="add-church">Создать</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
 {% block extra_scripts %}
     <script src="{% static "js/database_home_groups.js" %}"></script>

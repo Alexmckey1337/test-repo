@@ -1,0 +1,44 @@
+from django.db import models
+from rest_framework.compat import is_authenticated
+
+
+class ChurchQuerySet(models.query.QuerySet):
+    def base_queryset(self):
+        return self
+
+    def for_user(self, user):
+        if not is_authenticated(user):
+            return self.none()
+        return self.filter(pastor__in=user.get_descendants(include_self=True))
+
+
+class ChurchManager(models.Manager):
+    def get_queryset(self):
+        return ChurchQuerySet(self.model, using=self._db)
+
+    def base_queryset(self):
+        return self.get_queryset().base_queryset()
+
+    def for_user(self, user):
+        return self.get_queryset().for_user(user=user)
+
+
+class HomeGroupQuerySet(models.query.QuerySet):
+    def base_queryset(self):
+        return self
+
+    def for_user(self, user):
+        if not is_authenticated(user):
+            return self.none()
+        return self.filter(leader__in=user.get_descendants(include_self=True))
+
+
+class HomeGroupManager(models.Manager):
+    def get_queryset(self):
+        return HomeGroupQuerySet(self.model, using=self._db)
+
+    def base_queryset(self):
+        return self.get_queryset().base_queryset()
+
+    def for_user(self, user):
+        return self.get_queryset().for_user(user=user)

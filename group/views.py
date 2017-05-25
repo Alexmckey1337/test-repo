@@ -1,9 +1,9 @@
 # -*- coding: utf-8
-from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
 from django.db.models import Q
 from django.db.models import Value as V
 from django.db.models.functions import Concat
+from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status, exceptions, filters
 from rest_framework.decorators import detail_route, list_route
@@ -15,23 +15,30 @@ from account.models import CustomUser
 from account.serializers import AddExistUserSerializer
 from common.filters import FieldSearchFilter
 from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet
-from group.filters import HomeGroupFilter, ChurchFilter, FilterChurchMasterTree, FilterHomeGroupMasterTree
+from group.filters import (HomeGroupFilter, ChurchFilter,
+                           FilterChurchMasterTree, FilterHomeGroupMasterTree)
 from group.pagination import ChurchPagination, HomeGroupPagination
 from group.resources import ChurchResource, HomeGroupResource
-from group.views_mixins import (
-    ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin)
-from hierarchy.models import Department
+from group.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin,
+                                ChurchHomeGroupMixin)
+
 from .models import HomeGroup, Church
-from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSerializer, HomeGroupListSerializer,
-                          ChurchStatsSerializer, HomeGroupStatsSerializer, AllChurchesListSerializer,
-                          AllHomeGroupsListSerializer, UserNameSerializer, ChurchWithoutPaginationSerializer)
+from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSerializer,
+                          HomeGroupListSerializer, ChurchStatsSerializer, UserNameSerializer,
+                          AllChurchesListSerializer, AllHomeGroupsListSerializer,
+                          HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer)
 
 
-class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroupMixin, ExportViewSetMixin):
+class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
+                    ChurchHomeGroupMixin, ExportViewSetMixin):
+
     queryset = Church.objects.all()
 
     serializer_class = ChurchSerializer
     serializer_list_class = ChurchListSerializer
+
+    permission_classes = (IsAuthenticated,)
+    pagination_class = ChurchPagination
 
     filter_backends = (filters.DjangoFilterBackend,
                        FieldSearchFilter,
@@ -39,17 +46,16 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
                        FilterChurchMasterTree,
                        )
 
-    ordering_fields = ('title', 'city', 'department__title', 'home_group', 'is_open', 'opening_date',
-                       'pastor__last_name', 'phone_number', 'address', 'website', 'count_groups',
-                       'count_users', 'country')
+    ordering_fields = ('title', 'city', 'department__title', 'home_group',
+                       'is_open', 'opening_date', 'pastor__last_name', 'phone_number',
+                       'address', 'website', 'count_groups', 'count_users', 'country')
 
     filter_class = ChurchFilter
+
     field_search_fields = {
         'search_title': ('title',),
     }
 
-    permission_classes = (IsAuthenticated,)
-    pagination_class = ChurchPagination
     resource_class = ChurchResource
 
     def get_serializer_class(self):
@@ -59,10 +65,11 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
 
     def get_queryset(self):
         if self.action == 'list':
-            return self.queryset.annotate(
+            return self.queryset.for_user(self.request.user).annotate(
                 count_groups=Count('home_group', distinct=True),
-                count_users=Count('users', distinct=True) + Count('home_group__users', distinct=True))
-        return self.queryset
+                count_users=Count('users', distinct=True) + Count(
+                    'home_group__users', distinct=True))
+        return self.queryset.for_user(self.request.user)
 
     @list_route(methods=['get'])
     def potential_users_church(self, request):
@@ -76,24 +83,20 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
 
     @detail_route(methods=['post', 'put'])
     def add_user(self, request, pk):
-        user_id = request.data.get('user_id')
         church = self.get_object()
-
-        if not user_id:
-            raise exceptions.ValidationError(
-                _("Некоректные данные. Первичный ключ не передан."))
-
-        user = CustomUser.objects.filter(id=user_id)
-        if not user.exists():
-            raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя. Данного пользователя не существует.'))
-
-        user = user.get()
+        user_id = request.data.get('user_id')
+        if user_id is None:
+            raise exceptions.ValidationError(_('"user_id" is required.'))
+        try:
+            user = get_object_or_404(CustomUser, pk=user_id)
+        except Http404:
+            raise exceptions.ValidationError(_('User with id = %s does not exist.' % user_id))
 
         if request.method == 'PUT':
             if not user.churches.exists() and not user.home_groups.exists():
                 raise exceptions.ValidationError(
-                    _('Невозможно добавить пользователя методом PUT. Данный пользователь не состоит ни Церкви ни '
+                    _('Невозможно добавить пользователя методом PUT.'
+                      'Данный пользователь не состоит ни Церкви ни '
                       'в Домашней Группе.'))
 
             if user.churches.exists():
@@ -130,7 +133,8 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
 
     @staticmethod
     def filter_potential_users_for_group(qs, pk):
-        return qs.filter(Q(home_groups__isnull=True) & (Q(churches__isnull=True) | Q(churches__id=pk)))
+        return qs.filter(Q(home_groups__isnull=True) & (Q(
+            churches__isnull=True) | Q(churches__id=pk)))
 
     @staticmethod
     def filter_potential_users_for_church(qs):
@@ -141,9 +145,11 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
         params = request.query_params
         search = params.get('search', '').strip()
         if len(search) < 3:
-            return Response({'search': _('Length of search query must be > 2')}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'search': _('Length of search query must be > 2')},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-        users = filter(*args).annotate(full_name=Concat('last_name', V(' '), 'first_name', V(' '), 'middle_name'))
+        users = filter(*args).annotate(full_name=Concat(
+            'last_name', V(' '), 'first_name', V(' '), 'middle_name'))
 
         search_queries = map(lambda s: s.strip(), search.split(' '))
         for s in search_queries:
@@ -156,18 +162,19 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
             users = users.filter(departments__id=department_id)
 
         serializers = AddExistUserSerializer(users[:30], many=True)
-
         return Response(serializers.data)
 
     @staticmethod
     def _validate_user_for_add_user(user):
         if user.churches.exists():
             raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя методом POST. Данный пользователь уже состоит в Церкви.'))
+                _('Невозможно добавить пользователя методом POST.'
+                  'Данный пользователь уже состоит в Церкви.'))
 
         if user.home_groups.exists():
             raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя методом POST. Данный пользователь уже состоит в Домашней Группе.'))
+                _('Невозможно добавить пользователя методом POST.'
+                  'Данный пользователь уже состоит в Домашней Группе.'))
 
     @staticmethod
     def _validate_user_for_del_user(user_id, church):
@@ -176,11 +183,13 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
 
         if not CustomUser.objects.filter(id=user_id).exists():
             raise exceptions.ValidationError(
-                _('Невозможно удалить пользователя. Данного пользователя не существует.'))
+                _('Невозможно удалить пользователя.'
+                  'Данного пользователя не существует.'))
 
         if not church.users.filter(id=user_id).exists():
             raise exceptions.ValidationError(
-                _('Невозможно удалить пользователя. Пользователь не принадлежит к данной Церкви.'))
+                _('Невозможно удалить пользователя.'
+                  'Пользователь не принадлежит к данной Церкви.'))
 
     @detail_route(methods=['GET'])
     def statistics(self, request, pk):
@@ -189,8 +198,8 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
 
         stats['church_users'] = church.users.count()
 
-        stats['church_all_users'] = (church.users.count() + HomeGroup.objects.filter(church_id=pk).aggregate(
-            home_users=Count('users'))['home_users'])
+        stats['church_all_users'] = (church.users.count() + HomeGroup.objects.filter(
+            church_id=pk).aggregate(home_users=Count('users'))['home_users'])
 
         stats['parishioners_count'] = church.users.filter(hierarchy__level=0).count() + HomeGroup.objects.filter(
             church__id=pk).filter(users__hierarchy__level=0).count()
@@ -201,13 +210,16 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
         stats['home_groups_count'] = church.home_group.count()
 
         stats['fathers_count'] = (church.users.filter(spiritual_level=CustomUser.FATHER).count() +
-                                  HomeGroup.objects.filter(church__id=pk).filter(users__spiritual_level=3).count())
+                                  HomeGroup.objects.filter(church__id=pk).filter(
+                                      users__spiritual_level=3).count())
 
         stats['juniors_count'] = (church.users.filter(spiritual_level=CustomUser.JUNIOR).count() +
-                                  HomeGroup.objects.filter(church__id=pk).filter(users__spiritual_level=2).count())
+                                  HomeGroup.objects.filter(church__id=pk).filter(
+                                      users__spiritual_level=2).count())
 
         stats['babies_count'] = (church.users.filter(spiritual_level=CustomUser.BABY).count() +
-                                 HomeGroup.objects.filter(church__id=pk).filter(users__spiritual_level=1).count())
+                                 HomeGroup.objects.filter(church__id=pk).filter(
+                                     users__spiritual_level=1).count())
 
         stats['partners_count'] = church.users.filter(partnership__is_active=True).count() + HomeGroup.objects.filter(
             church__id=pk).filter(users__partnership__is_active=True).count()
@@ -218,32 +230,13 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin, ChurchHomeGroup
 
     @list_route(methods=['GET'], serializer_class=AllChurchesListSerializer)
     def all(self, request):
-
         if not request.query_params.get('department_id'):
             raise exceptions.ValidationError(_("Некорректный запрос. Департамент не передан."))
-
         departments = request.query_params.getlist('department_id')
-
         churches = Church.objects.filter(department_id__in=departments)
         churches = self.serializer_class(churches, many=True)
+
         return Response(churches.data)
-
-    @list_route(methods=['GET'], serializer_class=UserNameSerializer)
-    def get_pastors_by_department(self, request):
-        department_id = request.query_params.get('department_id')
-        pastors = CustomUser.objects.filter(church__pastor__id__isnull=False).distinct()
-
-        if not department_id:
-            pastors = self.serializer_class(pastors, many=True)
-            return Response(pastors.data)
-
-        if not Department.objects.filter(id=department_id).exists():
-            raise exceptions.ValidationError(_('Отдела с id=%s не существует.' % department_id))
-
-        pastors = pastors.filter(church__department__id=department_id)
-        pastors = self.serializer_class(pastors, many=True)
-
-        return Response(pastors.data)
 
     @list_route(methods=['GET'], serializer_class=ChurchWithoutPaginationSerializer, pagination_class=None)
     def churches_by_department(self, request):
@@ -263,22 +256,24 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
     serializer_class = HomeGroupSerializer
     serializer_list_class = HomeGroupListSerializer
 
+    permission_classes = (IsAuthenticated,)
+    pagination_class = HomeGroupPagination
+
     filter_backends = (filters.DjangoFilterBackend,
                        FieldSearchFilter,
                        filters.OrderingFilter,
-                       FilterHomeGroupMasterTree,
-                       )
+                       FilterHomeGroupMasterTree)
 
-    ordering_fields = ('title', 'church', 'leader__last_name', 'city', 'leader', 'address', 'opening_date',
-                       'phone_number', 'website', 'department', 'count_users')
+    ordering_fields = ('title', 'church', 'leader__last_name', 'city', 'leader',
+                       'address', 'opening_date', 'phone_number', 'website',
+                       'department', 'count_users')
 
     filter_class = HomeGroupFilter
+
     field_search_fields = {
         'search_title': ('title',)
     }
 
-    permission_classes = (IsAuthenticated,)
-    pagination_class = HomeGroupPagination
     resource_class = HomeGroupResource
 
     def get_serializer_class(self):
@@ -288,28 +283,25 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
 
     def get_queryset(self):
         if self.action == 'list':
-            return self.queryset.annotate(count_users=Count('users'))
-        return self.queryset
+            return self.queryset.for_user(self.request.user).annotate(count_users=Count('users'))
+        return self.queryset.for_user(self.request.user)
 
     @detail_route(methods=['post', 'put'])
     def add_user(self, request, pk):
-        user_id = request.data.get('user_id')
         home_group = get_object_or_404(HomeGroup, pk=pk)
-
-        if not user_id:
-            raise exceptions.ValidationError(_("Некоректные данные"))
-
+        user_id = request.data.get('user_id')
+        if user_id is None:
+            raise exceptions.ValidationError(_('"user_id" is required.'))
         try:
-            user = CustomUser.objects.get(id=user_id)
-        except ObjectDoesNotExist:
-            raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя. Данного пользователя не существует.'))
+            user = get_object_or_404(CustomUser, pk=user_id)
+        except Http404:
+            raise exceptions.ValidationError(_('User with id = %s does not exist.' % user_id))
 
         if request.method == 'PUT':
             if not user.churches.exists() and not user.home_groups.exists():
                 raise exceptions.ValidationError(
-                    _('Невозможно добавить пользователя методом PUT. Данный пользователь не состоит ни Церкви ни '
-                      'в Домашней Группе.'))
+                    _('Невозможно добавить пользователя методом PUT. '
+                      'Данный пользователь не состоит ни Церкви ни в Домашней Группе.'))
 
             if user.churches.exists():
                 old_church_id = user.churches.get().id
@@ -336,11 +328,11 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         user_id = request.data.get('user_id')
         home_group = self.get_object()
         church = home_group.church
-
         self._validate_user_for_del_user(user_id, home_group)
 
         home_group.users.remove(user_id)
         church.users.add(user_id)
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     # Helpers
@@ -349,11 +341,13 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
     def _validate_user_for_add_user(user, home_group):
         if user.home_groups.exists():
             raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя методом POST. Данный пользователь уже состоит в Домашней Группе.'))
+                _('Невозможно добавить пользователя методом POST.'
+                  'Данный пользователь уже состоит в Домашней Группе.'))
 
         if user.churches.exclude(id=home_group.church_id).exists():
             raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя методом POST. Пользователь является членом другой Церкви'))
+                _('Невозможно добавить пользователя методом POST.'
+                  'Пользователь является членом другой Церкви'))
 
     @staticmethod
     def _validate_user_for_del_user(user_id, home_group):
@@ -366,12 +360,14 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
 
         if not home_group.users.filter(id=user_id).exists():
             raise exceptions.ValidationError(
-                _('Невозможно удалить пользователя. Пользователь не принадлежит к данной Домашней Группе.'))
+                _('Невозможно удалить пользователя.'
+                  'Пользователь не принадлежит к данной Домашней Группе.'))
 
     @detail_route(methods=["GET"])
     def statistics(self, request, pk):
         stats = {}
         home_group = get_object_or_404(HomeGroup, pk=pk)
+
         stats['users_count'] = home_group.users.count()
         stats['fathers_count'] = home_group.users.filter(spiritual_level=CustomUser.FATHER).count()
         stats['juniors_count'] = home_group.users.filter(spiritual_level=CustomUser.JUNIOR).count()
@@ -411,13 +407,13 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
     @list_route(methods=['GET'], serializer_class=UserNameSerializer)
     def get_current_leaders(self, request):
         church_id = request.query_params.get('church_id')
-        leaders = CustomUser.objects.filter(home_group__leader__id__isnull=False).distinct()
+        leaders = CustomUser.objects.filter(Q(home_groups__church__id=church_id) | Q(
+            churches__id=church_id)).filter(hierarchy__level__gte=1)
 
         if not church_id:
             leaders = self.serializer_class(leaders, many=True)
             return Response(leaders.data)
 
-        leaders = leaders.filter(home_group__church__id=church_id)
         leaders = self.serializer_class(leaders, many=True)
 
         return Response(leaders.data)

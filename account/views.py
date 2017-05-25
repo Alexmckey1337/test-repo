@@ -1,6 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import logging
 from django.contrib.auth import logout as django_logout
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction, IntegrityError
@@ -9,6 +10,7 @@ from rest_auth.views import LogoutView as RestAuthLogoutView
 from rest_framework import status, mixins
 from rest_framework import viewsets, filters
 from rest_framework.decorators import list_route
+from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser, FormParser
 from rest_framework.permissions import IsAuthenticated
@@ -26,6 +28,8 @@ from navigation.table_fields import user_table
 from .resources import UserResource
 from .serializers import UserShortSerializer, UserTableSerializer, UserSerializer, \
     UserSingleSerializer, PartnershipSerializer, ExistUserSerializer, UserCreateSerializer
+
+logger = logging.getLogger(__name__)
 
 
 class UserPagination(PageNumberPagination):
@@ -150,8 +154,9 @@ class UserViewSet(viewsets.ModelViewSet, UserExportViewSetMixin):
         try:
             with transaction.atomic():
                 self.perform_update(serializer)
-        except IntegrityError:
+        except IntegrityError as err:
             data = {'detail': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
+            logger.error(err)
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response(serializer.data)
 
@@ -216,8 +221,12 @@ class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
     search_fields = ('first_name', 'last_name', 'middle_name')
 
     def get_queryset(self):
-        descendants = self.request.user.get_descendants()
-        return self.queryset.exclude(pk__in=descendants.values_list('pk', flat=True))
+        exclude_by_user_tree = self.request.query_params.get('exclude_by_user_tree', None)
+        if exclude_by_user_tree is not None:
+            user = get_object_or_404(User, pk=exclude_by_user_tree)
+            descendants = user.get_descendants()
+            return self.queryset.exclude(pk__in=descendants.values_list('pk', flat=True))
+        return self.queryset
 
 
 class ExistUserListViewSet(mixins.ListModelMixin, GenericViewSet):

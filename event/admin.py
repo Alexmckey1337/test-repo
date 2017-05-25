@@ -3,7 +3,8 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
-from .models import Event, Participation, EventType, EventAnket, Week, MeetingAttend, Meeting, MeetingType
+from .models import Event, Participation, EventType, EventAnket, Week,\
+    MeetingAttend, Meeting, MeetingType, ChurchReport
 
 
 class WeekAdmin(admin.ModelAdmin):
@@ -57,3 +58,4 @@ admin.site.register(Participation, ParticipationAdmin)
 admin.site.register(MeetingType)
 admin.site.register(Meeting)
 admin.site.register(MeetingAttend)
+admin.site.register(ChurchReport)

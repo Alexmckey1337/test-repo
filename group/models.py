@@ -8,6 +8,8 @@ from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
 
+from group.managers import ChurchManager, HomeGroupManager
+
 
 @python_2_unicode_compatible
 class CommonGroup(models.Model):
@@ -36,14 +38,16 @@ class CommonGroup(models.Model):
 
 
 class Church(CommonGroup):
-    department = models.ForeignKey('hierarchy.Department', related_name='churches', on_delete=models.PROTECT,
-                                   verbose_name=_('Department'))
-    pastor = models.ForeignKey('account.CustomUser', related_name='church', on_delete=models.PROTECT,
-                               verbose_name=_('Pastor'))
+    department = models.ForeignKey('hierarchy.Department', related_name='churches',
+                                   on_delete=models.PROTECT, verbose_name=_('Department'))
+    pastor = models.ForeignKey('account.CustomUser', related_name='church',
+                               on_delete=models.PROTECT, verbose_name=_('Pastor'))
     country = models.CharField(_('Country'), max_length=50)
     is_open = models.BooleanField(default=False)
-    users = models.ManyToManyField('account.CustomUser', related_name='churches', blank=True,
-                                   verbose_name=_('Users'))
+    users = models.ManyToManyField('account.CustomUser', related_name='churches',
+                                   blank=True, verbose_name=_('Users'))
+
+    objects = ChurchManager()
 
     class Meta:
         verbose_name = _('Church')
@@ -59,12 +63,15 @@ class Church(CommonGroup):
 
 
 class HomeGroup(CommonGroup):
-    leader = models.ForeignKey('account.CustomUser', related_name='home_group', on_delete=models.PROTECT,
-                               verbose_name=_('Leader'))
-    church = models.ForeignKey('Church', related_name='home_group', on_delete=models.CASCADE,
-                               verbose_name=_('Church'))
-    users = models.ManyToManyField('account.CustomUser', related_name='home_groups', blank=True,
-                                   verbose_name=_('Users'))
+    leader = models.ForeignKey('account.CustomUser', related_name='home_group',
+                               on_delete=models.PROTECT, verbose_name=_('Leader'))
+    church = models.ForeignKey('Church', related_name='home_group',
+                               on_delete=models.CASCADE, verbose_name=_('Church'))
+    users = models.ManyToManyField('account.CustomUser', related_name='home_groups',
+                                   blank=True, verbose_name=_('Users'))
+    active = models.BooleanField(default=True)
+
+    objects = HomeGroupManager()
 
     class Meta:
         verbose_name = _('Home Group')

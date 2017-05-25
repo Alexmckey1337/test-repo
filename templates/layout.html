@@ -11,7 +11,7 @@
                         <div><a data-title="Дэшборд" href="/"><span>V</span><span>O</span></a></div>
                         <div><span>C</span><span>R</span><span>M</span></div>
                     </div>
-                    <ul id="nav-sidebar">
+                    <ul id="nav-sidebar" class="summits">
                         <li><a data-title="База данных" href="#" id="databases__item"
                                class="menu__item">База данных</a>
                             <ul class="sidebar-submenu">
@@ -24,6 +24,15 @@
                                 {% if user.can_see_user_list %}
                                     <li><a href="{% url 'db:people' %}">Люди</a></li>
                                 {% endif %}
+                            </ul>
+                        </li>
+                    <li><a data-title="Отчеты" href="{% url 'events:main' %}" id="events__reports"
+                               class="menu__item">Отчеты</a>
+                            <ul class="sidebar-submenu">
+                                <li><a href="{% url 'events:meeting_report_list' %}">Отчёты домашних груп</a></li>
+{#                                <li><a href="{% url 'events:church_report_list' %}">Отчёты церквей</a></li>#}
+                                <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних групп</a></li>
+{#                                <li><a href="{% url 'events:church_report_statistics' %}">Статистика церквей</a></li>#}
                             </ul>
                         </li>
                         {% if user.can_see_any_partner_block %}

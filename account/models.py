@@ -11,7 +11,7 @@ from django.db import models
 from django.db.models import signals
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.urls import reverse
+from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from mptt.fields import TreeForeignKey
@@ -100,6 +100,15 @@ class CustomUser(MPTTModel, User, CustomUserAbstract,
     @property
     def link(self):
         return self.get_absolute_url()
+
+    def get_church(self):
+        home_group = self.home_groups.first()
+        if home_group:
+            return home_group.church
+        church = self.churches.first()
+        if church:
+            return church
+        return None
 
     @property
     def column_table(self):
@@ -337,15 +346,5 @@ post_save.connect(create_custom_user, User)
 
 @receiver(signals.post_save, sender=CustomUser)
 def sync_user(sender, instance, **kwargs):
-    from notification.models import Notification, NotificationTheme
-    birth_day_notification_theme = NotificationTheme.objects.filter(birth_day=True).first()
-    if instance.born_date:
-        date = instance.born_date
-        try:
-            Notification.objects.filter(theme__birth_day=True, user=instance).update(date=date)
-        except Notification.DoesNotExist:
-            # description = "Сегодня свой день рождения отмечает %s." % instance.fullname
-            Notification.objects.create(date=date,
-                                        user=instance,
-                                        theme=birth_day_notification_theme)
-    Table.objects.get_or_create(user=instance)
+    if instance.can_login:
+        Table.objects.get_or_create(user=instance)
