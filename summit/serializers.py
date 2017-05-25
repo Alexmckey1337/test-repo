@@ -274,3 +274,8 @@ class SummitAttendSerializer(serializers.ModelSerializer):
     class Meta:
         model = SummitAttend
         fields = ('id', 'anket', 'date')
+
+
+class SummitAttendStatisticsSerializer(serializers.ModelSerializer):
+    class Meta:
+        pass

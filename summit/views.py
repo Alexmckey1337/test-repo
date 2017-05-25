@@ -24,7 +24,7 @@ from hierarchy.serializers import HierarchySerializer
 from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import FilterByClub, ProductFilter, SummitUnregisterFilter, ProfileFilter, \
-    FilterProfileMasterTreeWithSelf, HasPhoto
+    FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend
 from summit.pagination import SummitPagination, SummitTicketPagination
 from summit.permissions import HasAPIAccess, CanSeeSummitProfiles
 from summit.utils import generate_ticket
@@ -69,6 +69,7 @@ class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
         FilterProfileMasterTreeWithSelf,
         FilterByClub,
         HasPhoto,
+        FilterBySummitAttend,
     )
 
     field_search_fields = {
@@ -217,6 +218,10 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
 
         return Response(ankets.data)
 
+    @list_route(methods=['GET'])
+    def summit_visits_statistics(self):
+        pass
+
 
 class SummitLessonViewSet(viewsets.ModelViewSet):
     queryset = SummitLesson.objects.all()
@@ -321,7 +326,19 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
 
         return Response(visitor.data)
 
+        return self.model.objects.filter(**{self.search: [user.id for user in users]})
 
+
+class FilterChurchMasterTree(CommonGroupMasterTreeFilter):
+    model = Church
+    level = 2
+    search = 'pastor__id__in'
+
+
+class FilterHomeGroupMasterTree(CommonGroupMasterTreeFilter):
+    model = HomeGroup
+    level = 1
+    search = 'leader__id__in'
 class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
     serializer_class = SummitProfileTreeForAppSerializer
     pagination_class = None
