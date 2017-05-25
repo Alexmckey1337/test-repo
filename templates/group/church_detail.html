@@ -41,7 +41,7 @@
                     <div class="title-wrapper">
                         <span>Дата открытия:</span>
                     </div>
-                    <p>{{ church.opening_date }}</p>
+                    <input type="text" class="date" id="opening_date" value="{{ church.opening_date }}">
                     <div class="title-wrapper">
                         <span>Отдел:</span>
                     </div>
@@ -51,24 +51,29 @@
                     </div>
                     <p><a href="{{ church.pastor.get_absolute_url }}">{{ church.pastor }}</a></p>
                     <div class="title-wrapper">
+                        <span>Страна:</span>
+                    </div>
+                    <input type="text" id="country" value="{{ church.country }}">
+                    <div class="title-wrapper">
                         <span>Город:</span>
                     </div>
-                    <p>{{ church.city }}</p>
+                    <input type="text" id="city" value="{{ church.city }}">
                     <div class="title-wrapper">
                         <span>Адрес:</span>
                     </div>
-                    <p>{{ church.address }}</p>
+                    <input type="text" id="address" value="{{ church.address }}">
                     <div class="title-wrapper">
                         <span>Телефон:</span>
                     </div>
-                    <p>{{ church.phone_number }}</p>
+                    <input type="text" id="phone_number" value="{{ church.phone_number }}">
                     <div class="title-wrapper">
                         <span>Сайт:</span>
                     </div>
-                    <p>{% if church.website %}
-                        <a href="{{ church.website }}" target="_blank">{{ church.website }}</a>
-                    {% endif %}
-                    </p>
+                    <input type="text" id="web_site" value="{{ church.website }}">
+{#                    <p>{% if church.website %}#}
+{#                        <a href="{{ church.website }}" target="_blank">{{ church.website }}</a>#}
+{#                    {% endif %}#}
+{#                    </p>#}
                 </div>
             </div>
             <h2 class="info-title">Сводная информация:</h2>
