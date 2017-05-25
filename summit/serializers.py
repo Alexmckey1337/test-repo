@@ -274,3 +274,13 @@ class SummitAttendSerializer(serializers.ModelSerializer):
     class Meta:
         model = SummitAttend
         fields = ('id', 'anket', 'date')
+
+
+class SummitAttendStatisticsSerializer(serializers.ModelSerializer):
+    attend_users = serializers.IntegerField()
+    absent_users = serializers.IntegerField()
+    total_users = serializers.IntegerField()
+
+    class Meta:
+        model = SummitAnket
+        fields = ('attend_users', 'absent_users', 'total_users')

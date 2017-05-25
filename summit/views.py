@@ -25,7 +25,7 @@ from hierarchy.serializers import HierarchySerializer
 from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import FilterByClub, ProductFilter, SummitUnregisterFilter, ProfileFilter, \
-    FilterProfileMasterTreeWithSelf, HasPhoto
+    FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend
 from summit.pagination import SummitPagination, SummitTicketPagination
 from summit.permissions import HasAPIAccess, CanSeeSummitProfiles
 from summit.utils import generate_ticket
@@ -37,7 +37,7 @@ from .serializers import (
     SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitShortSerializer, SummitAnketShortSerializer,
     SummitLessonShortSerializer, SummitTicketSerializer, SummitAnketForTicketSerializer,
     SummitVisitorLocationSerializer, SummitEventTableSerializer, SummitProfileTreeForAppSerializer,
-    SummitAnketCodeSerializer)
+    SummitAnketCodeSerializer, SummitAttendStatisticsSerializer)
 from .tasks import generate_tickets
 
 logger = logging.getLogger(__name__)
@@ -72,6 +72,7 @@ class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
         FilterProfileMasterTreeWithSelf,
         FilterByClub,
         HasPhoto,
+        FilterBySummitAttend,
     )
 
     field_search_fields = {
@@ -608,3 +609,20 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
         if SummitAttend.objects.filter(anket_id=anket.id, date=date_today).exists():
             raise exceptions.ValidationError(
                 _('Запись о присутствии этой анкеты за сегоднящней день уже существует'))
+
+    @list_route(methods=['GET'],
+                serializer_class=SummitAttendStatisticsSerializer,
+                permission_classes=(IsAuthenticated,))
+    def statistics(self, request):
+        summit_id = request.query_params.get('summit_id')
+        from_date = request.query_params.get('from_date')
+        to_date = request.query_params.get('to_date')
+        queryset = SummitAnket.objects.filter(summit=summit_id)
+
+        statsistics = {}
+        statsistics['absent_users'] = queryset.exclude(attends__date__range=[from_date, to_date]).count()
+        statsistics['attend_users'] = queryset.filter(attends__date__range=[from_date, to_date]).count()
+        statsistics['total_users'] = statsistics['absent_users'] + statsistics['attend_users']
+        statsistics = self.serializer_class(statsistics)
+
+        return Response(statsistics.data)

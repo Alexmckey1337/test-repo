@@ -69,3 +69,18 @@ class ProfileFilter(django_filters.FilterSet):
 
 class FilterProfileMasterTreeWithSelf(FilterMasterTreeWithSelf):
     user_field_prefix = 'user__'
+
+
+class FilterBySummitAttend(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        from_date = request.query_params.get('from_date')
+        to_date = request.query_params.get('to_date')
+        is_visited = request.query_params.get('is_visited', 0)
+
+        if from_date and to_date:
+            if int(is_visited) == 0:
+                queryset = queryset.filter(attends__date__range=[from_date, to_date])
+            if int(is_visited) == 1:
+                queryset = queryset.exclude(attends__date__range=[from_date, to_date])
+
+        return queryset
