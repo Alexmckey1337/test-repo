@@ -1122,8 +1122,8 @@ function getResponsibleBYHomeGroup(churchID) {
 
 function getResponsibleBYHomeGroupNew(config) {
     return new Promise(function (resolve, reject) {
-        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/?church_id=${config.church_id}&master_tree=${config.master_tree}`;
-        ajaxRequest(url, null, function (data) {
+        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/`;
+        ajaxRequest(url, config, function (data) {
             if (data) {
                 resolve(data);
             } else {
