@@ -1,3 +1,4 @@
+/* global $ */
 function getOrderingData() {
     let revers, order, savePath;
     let path = window.location.pathname;
@@ -1573,9 +1574,6 @@ function ajaxRequest(url, data, callback, method, withCredentials, headers, stat
     method = method || 'GET';
     data = data || {};
     headers = headers || {};
-    if (getCookie('key')) {
-        headers['Authorization'] = 'Token ' + getCookie('key');
-    }
     statusCode = statusCode || {};
     $.ajax({
         url: url,
@@ -2726,9 +2724,6 @@ function createPayment(data, id) {
         url: `${CONFIG.DOCUMENT_ROOT}api/v1.1/partnerships/${id}/create_payment/`
     };
     Object.assign(resData, data);
-    if (getCookie('key')) {
-        resData.headers['Authorization'] = 'Token ' + getCookie('key');
-    }
     return new Promise(function (resolve, reject) {
         let codes = {
             201: function (data) {
@@ -2746,9 +2741,7 @@ function getChurchStats(id) {
     let resData = {
         url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${id}/statistics/`
     };
-    if (getCookie('key')) {
-        resData.headers['Authorization'] = 'Token ' + getCookie('key');
-    }
+
     return new Promise(function (resolve, reject) {
         let codes = {
             200: function (data) {
@@ -2766,9 +2759,6 @@ function getHomeGroupStats(id) {
     let resData = {
         url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/statistics/`
     };
-    if (getCookie('key')) {
-        resData.headers['Authorization'] = 'Token ' + getCookie('key');
-    }
     return new Promise(function (resolve, reject) {
         let codes = {
             200: function (data) {
@@ -2789,9 +2779,6 @@ function getPastorsByDepartment(id) {
     } else {
         resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/get_pastors_by_department/`;
     }
-    if (getCookie('key')) {
-        resData.headers['Authorization'] = 'Token ' + getCookie('key');
-    }
     return new Promise(function (resolve, reject) {
         let codes = {
             200: function (data) {
@@ -2810,9 +2797,6 @@ function getLeadersByChurch(config = {}) {
         url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_current_leaders/`,
         data: config
     };
-    if (getCookie('key')) {
-        resData.headers['Authorization'] = 'Token ' + getCookie('key');
-    }
     return new Promise(function (resolve, reject) {
         let codes = {
             200: function (data) {
