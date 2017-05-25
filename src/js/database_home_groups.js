@@ -45,6 +45,12 @@
                 $('.preloader').css('display', 'none');
             });
     });
+    $('#add_homeGroupToChurch').on('click', function () {
+        clearAddHomeGroupData();
+        setTimeout(function () {
+            $('#addHomeGroup').css('display', 'block');
+        }, 100)
+    });
     $churchFilter.on('change', function () {
         let churchesID = $(this).val();
         let config = {};
