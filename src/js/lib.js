@@ -859,7 +859,7 @@ function clearAddNewUser() {
     form.find('input').each(function () {
         $(this).val('');
     });
-    form.find('#spir_level').attr('disabled', true).select2('destroy').find('option').attr('selected', false)
+    form.find('#spir_level').select2('destroy').find('option').attr('selected', false)
                             .find('option:first-child').attr('selected', true);
 }
 
@@ -2116,6 +2116,8 @@ function initAddNewUser(config = {}) {
             $('#chooseManager').html(rendered).select2();
         });
     }
+
+    $('#spir_level').select2();
 
     $('#repentance_date').datepicker({
         dateFormat: 'yyyy-mm-dd'
