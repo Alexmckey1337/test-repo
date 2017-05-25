@@ -102,14 +102,12 @@ class AbstractStatusModel(models.Model):
 
 class Meeting(AbstractStatusModel):
     date = models.DateField(_('Date'))
-    type = models.ForeignKey(MeetingType, on_delete=models.PROTECT,
-                             verbose_name=_('Meeting type'))
+    type = models.ForeignKey(MeetingType, verbose_name=_('Meeting type'))
 
     owner = models.ForeignKey('account.CustomUser',
                               limit_choices_to={'hierarchy__level__gte': 1})
 
-    home_group = models.ForeignKey('group.HomeGroup', on_delete=models.PROTECT,
-                                   verbose_name=_('Home Group'))
+    home_group = models.ForeignKey('group.HomeGroup', verbose_name=_('Home Group'))
 
     visitors = models.ManyToManyField('account.CustomUser', verbose_name=_('Visitors'),
                                       through='event.MeetingAttend',
