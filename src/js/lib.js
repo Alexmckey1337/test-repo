@@ -2617,7 +2617,7 @@ function makeHomeReportsTable(data, config = {}) {
 function getHomeReports(config = {}) {
     if (!config.status) {
         let status = parseInt($('#statusTabs').find('.current').find('button').data('status'));
-        config.status = status || 2;
+        config.status = status || 1;
     }
     return new Promise(function (resolve, reject) {
         let data = {
