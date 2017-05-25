@@ -8,7 +8,7 @@
         <ul class="top-buttons">
             {% if user.is_pastor_or_high and user.get_church %}
                 <li>
-                    <button id="add_homeGroupToChurch">Добавить группу</button>
+                    <button id="add">Добавить группу</button>
                 </li>
             {% endif %}
             <li>
@@ -120,7 +120,7 @@
                     <h2>Добавление домашней группы</h2>
                     <span class="close close-popup"><i class="fa fa-times" aria-hidden="true"></i></span>
                 </div>
-                <form action="" id="addHomeGroup" name="addHomeGroup">
+                <form action="" onsubmit="addHomeGroup(event, this)">
                     <div class="popup_body">
                         <div class="container container_block">
                             <div class="column">

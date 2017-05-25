@@ -809,7 +809,8 @@ function addHomeGroupToDataBase(config = {}) {
     });
 }
 
-function addHomeGroup(el) {
+function addHomeGroup(e, el) {
+    e.preventDefault();
     let data = getAddHomeGroupData();
     let json = JSON.stringify(data);
 
@@ -817,8 +818,26 @@ function addHomeGroup(el) {
         clearAddHomeGroupData();
         hidePopup(el);
         showPopup(`Домашняя группа ${data.get_title} добавлена в базу данных`);
+    }).catch(function (data) {
+        hidePopup(el);
+        showPopup('Ошибка при создании домашней группы');
     });
 }
+
+// function addChurch(e, el, callback) {
+//     e.preventDefault();
+//     let data = getAddChurchData();
+//     let json = JSON.stringify(data);
+//     addChurchTODataBase(json).then(function (data) {
+//         hidePopup(el);
+//         clearAddChurchData();
+//         callback();
+//         showPopup(`Церковь ${data.get_title} добавлена в базу`);
+//     }).catch(function (data) {
+//         hidePopup(el);
+//         showPopup('Ошибка при создании домашней группы');
+//     });
+// }
 
 function getAddHomeGroupData() {
     return {
