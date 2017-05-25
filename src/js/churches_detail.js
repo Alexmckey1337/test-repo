@@ -187,4 +187,8 @@
     });
     accordionInfo();
 
+    $('#addHomeGroup').find('.pop_cont').on('click', function (e) {
+        e.stopPropagation();
+    })
+
 })(jQuery);

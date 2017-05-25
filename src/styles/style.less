@@ -4386,6 +4386,17 @@ span.change[style*="display: none"] ~ span.y {
   .sdelki_title {
     padding: 0 10px;
   }
+  .tab-status {
+    display: flex;
+    justify-content: space-between;
+    height: 50px;
+    & #tabs1 {
+      position: relative;
+      & li.active button {
+        background-color: #fff;
+      }
+    }
+  }
 }
 
 #partnership {
