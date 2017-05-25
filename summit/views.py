@@ -36,7 +36,7 @@ from .serializers import (
     SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitShortSerializer, SummitAnketShortSerializer,
     SummitLessonShortSerializer, SummitTicketSerializer, SummitAnketForTicketSerializer,
     SummitVisitorLocationSerializer, SummitEventTableSerializer, SummitProfileTreeForAppSerializer,
-    SummitAnketCodeSerializer)
+    SummitAnketCodeSerializer, SummitAttendStatisticsSerializer)
 from .tasks import generate_tickets
 
 
@@ -217,14 +217,6 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         ankets = serializer(ankets, many=True)
 
         return Response(ankets.data)
-
-    @list_route(methods=['GET'])
-    def summit_visits_statistics(self, request):
-        from_date = request.query_params.get('from_date')
-        to_date = request.query_params.get('to_date')
-        is_visited = request.query_params.get('is_visited')
-
-
 
 
 class SummitLessonViewSet(viewsets.ModelViewSet):
@@ -615,3 +607,20 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
         if SummitAttend.objects.filter(anket_id=anket.id, date=date_today).exists():
             raise exceptions.ValidationError(
                 _('Запись о присутствии этой анкеты за сегоднящней день уже существует'))
+
+    @list_route(methods=['GET'],
+                serializer_class=SummitAttendStatisticsSerializer,
+                permission_classes=(IsAuthenticated,))
+    def statistics(self, request):
+        summit_id = request.query_params.get('summit_id')
+        from_date = request.query_params.get('from_date')
+        to_date = request.query_params.get('to_date')
+        queryset = SummitAnket.objects.filter(summit=summit_id)
+
+        statsistics = {}
+        statsistics['absent_users'] = queryset.exclude(attends__date__range=[from_date, to_date]).count()
+        statsistics['attend_users'] = queryset.filter(attends__date__range=[from_date, to_date]).count()
+        statsistics['total_users'] = statsistics['absent_users'] + statsistics['attend_users']
+        statsistics = self.serializer_class(statsistics)
+
+        return Response(statsistics.data)
