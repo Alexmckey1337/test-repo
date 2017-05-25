@@ -13,12 +13,20 @@
         dateFormat: 'yyyy-mm-dd',
         autoClose: true
     });
+    $('#added_home_group_date').datepicker({
+        dateFormat: 'yyyy-mm-dd',
+        autoClose: true
+    });
 //    Events
     $('#add').on('click', function () {
-        let department_id = parseInt($('#department_select').val());
-        makePastorList(department_id);
-        $('#addChurch').css('display', 'block');
+        clearAddHomeGroupData();
+        let department_id = $('#added_home_group_church').attr('data-department');
+        makePastorList(department_id, '#added_home_group_pastor');
+        setTimeout(function () {
+            $('#addHomeGroup').css('display', 'block');
+        }, 100);
     });
+
     $('#department_select').on('change', function () {
         $('#pastor_select').prop('disabled', true);
         let department_id = parseInt($('#department_select').val());
@@ -44,12 +52,6 @@
                 showPopup('Ошибка при загрузке файла');
                 $('.preloader').css('display', 'none');
             });
-    });
-    $('#add_homeGroupToChurch').on('click', function () {
-        clearAddHomeGroupData();
-        setTimeout(function () {
-            $('#addHomeGroup').css('display', 'block');
-        }, 100)
     });
     $churchFilter.on('change', function () {
         let churchesID = $(this).val();
