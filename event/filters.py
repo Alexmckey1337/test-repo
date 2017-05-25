@@ -2,6 +2,7 @@ import django_filters
 from rest_framework import filters
 from account.models import CustomUser
 from event.models import ChurchReport, Meeting
+from common.filters import BaseFilterMasterTree
 
 
 class CommonMeetingFilter(django_filters.FilterSet):
@@ -42,3 +43,7 @@ class CommonEventFilter(filters.BaseFilterBackend):
             queryset = queryset.filter(home_group__church__id=church)
 
         return queryset
+
+
+class MeetingFilterByMaster(BaseFilterMasterTree):
+    user_field_prefix = 'owner__'

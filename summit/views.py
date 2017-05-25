@@ -614,7 +614,7 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
                 serializer_class=SummitAttendStatisticsSerializer,
                 permission_classes=(IsAuthenticated,))
     def statistics(self, request):
-        summit_id = request.query_params.get('summit_id')
+        summit_id = request.query_params.get('summit')
         from_date = request.query_params.get('from_date')
         to_date = request.query_params.get('to_date')
         queryset = SummitAnket.objects.filter(summit=summit_id)
