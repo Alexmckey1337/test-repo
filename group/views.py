@@ -65,11 +65,11 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
 
     def get_queryset(self):
         if self.action == 'list':
-            return self.queryset.annotate(
+            return self.queryset.for_user(self.request.user).annotate(
                 count_groups=Count('home_group', distinct=True),
                 count_users=Count('users', distinct=True) + Count(
                     'home_group__users', distinct=True))
-        return self.queryset
+        return self.queryset.for_user(self.request.user)
 
     @list_route(methods=['get'])
     def potential_users_church(self, request):
@@ -283,8 +283,8 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
 
     def get_queryset(self):
         if self.action == 'list':
-            return self.queryset.annotate(count_users=Count('users'))
-        return self.queryset
+            return self.queryset.for_user(self.request.user).annotate(count_users=Count('users'))
+        return self.queryset.for_user(self.request.user)
 
     @detail_route(methods=['post', 'put'])
     def add_user(self, request, pk):

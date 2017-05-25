@@ -104,9 +104,9 @@
         setDate: new Date(),
         position: 'top left',
         autoClose: true,
-        onSelect: function () {
-            $('#spir_level').attr('disabled', false).select2();
-        }
+        // onSelect: function () {
+        //     $('#spir_level').attr('disabled', false).select2();
+        // }
     });
     $('#partnerFrom').datepicker({
         dateFormat: 'yyyy-mm-dd',
