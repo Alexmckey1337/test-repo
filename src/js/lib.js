@@ -1873,7 +1873,7 @@ function createSummitUsersTable(data = {}) {
         };
         makeSammitsDataTable(filter_data, id);
         makePagination(paginationConfig);
-        // $('.table__count').text(text);
+        $('.table__count').text(text);
         makeSortForm(data.user_table);
         $('.preloader').css('display', 'none');
         orderTable.sort(createSummitUsersTable);
