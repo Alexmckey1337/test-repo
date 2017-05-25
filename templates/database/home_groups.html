@@ -153,7 +153,10 @@
                                 <p><input id="added_home_group_date" required></p>
                                 <p class="end__block"><input type="text" id="added_home_group_title"></p>
                                 <p id="added_home_group_church" data-id="{{ user.get_church.id }}"
-                                   data-department="{{ user.get_church.department.id }}">{{ user.get_church.get_title }}</p>
+                                   data-department="{{ user.get_church.department.id }}"
+                                   data-user="{{ user.id }}">
+                                    {{ user.get_church.get_title }}
+                                </p>
                                 <p><select id="added_home_group_pastor" required>
                                     <option>Выберите пастора</option>
                                 </select></p>
