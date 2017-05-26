@@ -2733,6 +2733,7 @@ function createNewUser(callback) {
         $createUser.find('input').each(function () {
             $(this).val('').attr('disabled', false);
         });
+        //Пересмотреть ф-цию очистки
         $createUser.find('.cleared').each(function () {
             $(this).find('option').eq(0).prop('selected', true).select2()
         });
