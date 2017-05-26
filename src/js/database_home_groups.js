@@ -1,8 +1,9 @@
 (function ($) {
+    let $departmentSelect = $('#department_select');
     createHomeGroupsTable();
     let $churchFilter = $('#church_filter');
     let $treeFilter = $('#tree_filter');
-    $('#department_select').select2();
+    $departmentSelect.select2();
     $('#pastor_select').select2();
     $('.selectdb').select2();
     $('#search_date_open').datepicker({
@@ -17,7 +18,7 @@
         dateFormat: 'yyyy-mm-dd',
         autoClose: true
     });
-//    Events
+    // Events
     $('#add').on('click', function () {
         clearAddHomeGroupData();
         let department_id = $('#added_home_group_church').attr('data-department');
@@ -27,11 +28,12 @@
         }, 100);
     });
 
-    $('#department_select').on('change', function () {
+    $departmentSelect.on('change', function () {
         $('#pastor_select').prop('disabled', true);
         let department_id = parseInt($('#department_select').val());
         makePastorList(department_id);
     });
+
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
         updateSettings(createHomeGroupsTable);
