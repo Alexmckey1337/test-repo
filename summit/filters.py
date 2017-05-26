@@ -78,14 +78,13 @@ class FilterBySummitAttend(BaseFilterBackend):
         if not is_visited:
             return queryset
 
-        default_date = datetime.now().strftime("%Y-%m-%d")
-        from_date = request.query_params.get('from_date', default_date)
-        to_date = request.query_params.get('to_date', default_date)
+        date_today = datetime.now().strftime("%Y-%m-%d")
+        from_date = request.query_params.get('from_date', date_today)
+        to_date = request.query_params.get('to_date', date_today)
 
-        if from_date and to_date:
-            if int(is_visited) == 1:
-                queryset = queryset.filter(attends__date__range=[from_date, to_date])
-            if int(is_visited) == 2:
-                queryset = queryset.exclude(attends__date__range=[from_date, to_date])
+        if int(is_visited) == 1:
+            queryset = queryset.filter(attends__date__range=[from_date, to_date])
+        if int(is_visited) == 2:
+            queryset = queryset.exclude(attends__date__range=[from_date, to_date])
 
         return queryset
