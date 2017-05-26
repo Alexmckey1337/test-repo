@@ -22,3 +22,14 @@ class SummitPagination(PageNumberPagination):
             'common_table': OrderedDict(),
             'results': data
         })
+
+
+class SummitTicketPagination(PageNumberPagination):
+    page_size = 20000
+    page_query_param = 'page_size'
+
+    def get_paginated_response(self, data):
+        return Response({
+            'ticket_count': self.page.paginator.count,
+            'ticket_codes': data
+        })

@@ -19,23 +19,25 @@ from rest_framework.viewsets import GenericViewSet
 
 from account.models import CustomUser
 from common.filters import FieldSearchFilter
+from common.views_mixins import ModelWithoutDeleteViewSet
 from hierarchy.models import Hierarchy
 from hierarchy.serializers import HierarchySerializer
 from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import FilterByClub, ProductFilter, SummitUnregisterFilter, ProfileFilter, \
-    FilterProfileMasterTreeWithSelf, HasPhoto
-from summit.pagination import SummitPagination
+    FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend
+from summit.pagination import SummitPagination, SummitTicketPagination
 from summit.permissions import HasAPIAccess, CanSeeSummitProfiles
 from summit.utils import generate_ticket
 from .models import (Summit, SummitAnket, SummitType, SummitLesson, SummitUserConsultant,
-                     SummitTicket, SummitVisitorLocation, SummitEventTable)
+                     SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend)
 from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
     SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer,
     SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitShortSerializer, SummitAnketShortSerializer,
     SummitLessonShortSerializer, SummitTicketSerializer, SummitAnketForTicketSerializer,
-    SummitVisitorLocationSerializer, SummitEventTableSerializer, SummitProfileTreeForAppSerializer)
+    SummitVisitorLocationSerializer, SummitEventTableSerializer, SummitProfileTreeForAppSerializer,
+    SummitAnketCodeSerializer, SummitAttendStatisticsSerializer)
 from .tasks import generate_tickets
 
 logger = logging.getLogger(__name__)
@@ -70,6 +72,7 @@ class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
         FilterProfileMasterTreeWithSelf,
         FilterByClub,
         HasPhoto,
+        FilterBySummitAttend,
     )
 
     field_search_fields = {
@@ -203,6 +206,20 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         headers = get_success_headers(serializer.data)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @list_route(methods=['GET'], permission_classes=(HasAPIAccess,), pagination_class=SummitTicketPagination)
+    def codes(self, request):
+        serializer = SummitAnketCodeSerializer
+        summit_id = request.query_params.get('summit_id')
+        ankets = SummitAnket.objects.filter(summit=summit_id)
+
+        page = self.paginate_queryset(ankets)
+        if page is not None:
+            ankets = serializer(page, many=True)
+            return self.get_paginated_response(ankets.data)
+        ankets = serializer(ankets, many=True)
+
+        return Response(ankets.data)
 
 
 class SummitLessonViewSet(viewsets.ModelViewSet):
@@ -519,7 +536,7 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
     serializer_class = SummitVisitorLocationSerializer
     queryset = SummitVisitorLocation.objects.all().prefetch_related('visitor')
     pagination_class = None
-    permission_classes = (HasAPIAccess,)
+    # permission_classes = (HasAPIAccess,)
 
     @list_route(methods=['POST'])
     def post(self, request):
@@ -550,22 +567,77 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
     @list_route(methods=['GET'])
     def location_by_interval(self, request):
         date_time = request.query_params.get('date_time')
-        date_time = datetime.strptime(date_time.replace('%', ' '), '%Y-%m-%d %H:%M:%S')
+        date_format = '%Y-%m-%d %H:%M:%S'
+        try:
+            date_time = datetime.strptime(date_time.replace('T', ' '), date_format)
+        except ValueError:
+            raise exceptions.ValidationError(
+                'Не верный формат даты. Передайте дату в формате date %Y-%m-%dT%H:%M:%S')
+
         interval = int(request.query_params.get('interval'))
         start_date = date_time - timedelta(minutes=interval)
         end_date = date_time + timedelta(minutes=interval)
 
-        queryset = self.queryset.filter(date_time__range=(start_date, end_date))
-        queryset = self.serializer_class(queryset, many=True)
+        locations = self.queryset.filter(date_time__range=(start_date, end_date))
+        locations = self.serializer_class(locations, many=True)
 
-        return Response(queryset.data)
+        return Response(locations.data, status=status.HTTP_200_OK)
+
+    @list_route(methods=['GET'])
+    def location_by_date(self, request):
+        anket_id = request.query_params.get('visitor_id')
+        date = request.query_params.get('date')
+        visitor_locations = self.queryset.filter(visitor_id=anket_id, date_time__date=date)
+        visitor_locations = self.serializer_class(visitor_locations, many=True)
+
+        return Response(visitor_locations.data, status=status.HTTP_200_OK)
 
 
 class SummitEventTableViewSet(viewsets.ModelViewSet):
     queryset = SummitEventTable.objects.all()
     serializer_class = SummitEventTableSerializer
     permission_classes = (HasAPIAccess,)
-    pagination_class = None
-
     filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = ('summit',)
+    pagination_class = None
+
+
+class SummitAttendViewSet(ModelWithoutDeleteViewSet):
+    queryset = SummitAttend.objects.prefetch_related('anket')
+    serializer_class = SummitAnketCodeSerializer
+    permission_classes = (HasAPIAccess,)
+
+    @list_route(methods=['POST', 'GET'])
+    def confirm_attend(self, request):
+        code = request.data.get('code')
+        date = request.data.get('date')
+        anket = get_object_or_404(SummitAnket, code=code)
+        self.validate_data(request.data)
+        SummitAttend.objects.create(anket=anket, date=date)
+
+        return Response({'message': 'Attend have been successful confirmed'}, status=status.HTTP_201_CREATED)
+
+    @staticmethod
+    def validate_data(data):
+        anket = get_object_or_404(SummitAnket, code=data.get('code'))
+        date_today = datetime.now().date()
+        if SummitAttend.objects.filter(anket_id=anket.id, date=date_today).exists():
+            raise exceptions.ValidationError(
+                _('Запись о присутствии этой анкеты за сегоднящней день уже существует'))
+
+    @list_route(methods=['GET'],
+                serializer_class=SummitAttendStatisticsSerializer,
+                permission_classes=(IsAuthenticated,))
+    def statistics(self, request):
+        summit_id = request.query_params.get('summit')
+        from_date = request.query_params.get('from_date')
+        to_date = request.query_params.get('to_date')
+        queryset = SummitAnket.objects.filter(summit=summit_id)
+
+        statsistics = {}
+        statsistics['absent_users'] = queryset.exclude(attends__date__range=[from_date, to_date]).count()
+        statsistics['attend_users'] = queryset.filter(attends__date__range=[from_date, to_date]).count()
+        statsistics['total_users'] = statsistics['absent_users'] + statsistics['attend_users']
+        statsistics = self.serializer_class(statsistics)
+
+        return Response(statsistics.data)
