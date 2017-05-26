@@ -73,8 +73,8 @@ class FilterProfileMasterTreeWithSelf(FilterMasterTreeWithSelf):
 
 class FilterBySummitAttend(BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        from_date = request.query_params.get('from_date')
-        to_date = request.query_params.get('to_date')
+        from_date = request.query_params.get('from_date', '2017-01-01')
+        to_date = request.query_params.get('to_date', '2017-01-01')
         is_visited = request.query_params.get('is_visited', 0)
 
         if from_date and to_date:
