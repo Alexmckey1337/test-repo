@@ -855,12 +855,21 @@ function getAddChurchData() {
 
 function clearAddNewUser() {
     let form = $('#createUser');
+    let flag = $('#addNewUserPopup').attr('data-flagdepart');
     form.find('#partner').attr('checked', false);
     form.find('.hidden-partner').hide();
     form.find('#edit-photo').attr('data-source', '').find('img').attr('src', '/static/img/no-usr.jpg');
     form.find('.anketa-photo').unbind('click');
-    form.find('select:not(#payment_currency, #spir_level).select2-hidden-accessible').select2('destroy').find('option').remove();
-    initAddNewUser();
+    form.find('select:not(#payment_currency, #spir_level, #chooseDepartment).select2-hidden-accessible')
+        .select2('destroy').find('option').remove();
+    if (flag) {
+        initAddNewUser({
+            getDepartments: false,
+        });
+    } else {
+        form.find('select#chooseDepartment').select2('destroy').find('option').remove();
+        initAddNewUser();
+    }
     form.find('#chooseResponsible, #chooseRegion, #chooseCity').attr('disabled', true);
     form.find('input').each(function () {
         $(this).val('');
@@ -2058,6 +2067,8 @@ function initAddNewUser(config = {}) {
                 })
             });
         });
+    } else {
+        $('#addNewUserPopup').attr('data-flagdepart', true);
     }
     if (configDefault.getStatuses) {
         getStatuses().then(function (data) {
