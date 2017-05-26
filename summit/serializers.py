@@ -245,7 +245,6 @@ class SummitAnketLocationSerializer(serializers.ModelSerializer):
 
 
 class SummitVisitorLocationSerializer(serializers.ModelSerializer):
-    # visitor = SummitAnketLocationSerializer()
     visitor_id = serializers.IntegerField(source='visitor.id')
 
     class Meta:

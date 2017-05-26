@@ -536,7 +536,7 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
     serializer_class = SummitVisitorLocationSerializer
     queryset = SummitVisitorLocation.objects.all().prefetch_related('visitor')
     pagination_class = None
-    permission_classes = (HasAPIAccess,)
+    # permission_classes = (HasAPIAccess,)
 
     @list_route(methods=['POST'])
     def post(self, request):
@@ -567,15 +567,30 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
     @list_route(methods=['GET'])
     def location_by_interval(self, request):
         date_time = request.query_params.get('date_time')
-        date_time = datetime.strptime(date_time.replace('%', ' '), '%Y-%m-%d %H:%M:%S')
+        date_format = '%Y-%m-%d %H:%M:%S'
+        try:
+            date_time = datetime.strptime(date_time.replace('T', ' '), date_format)
+        except ValueError:
+            raise exceptions.ValidationError(
+                'Не верный формат даты. Передайте дату в формате date %Y-%m-%dT%H:%M:%S')
+
         interval = int(request.query_params.get('interval'))
         start_date = date_time - timedelta(minutes=interval)
         end_date = date_time + timedelta(minutes=interval)
 
-        queryset = self.queryset.filter(date_time__range=(start_date, end_date))
-        queryset = self.serializer_class(queryset, many=True)
+        locations = self.queryset.filter(date_time__range=(start_date, end_date))
+        locations = self.serializer_class(locations, many=True)
 
-        return Response(queryset.data)
+        return Response(locations.data, status=status.HTTP_200_OK)
+
+    @list_route(methods=['GET'])
+    def location_by_date(self, request):
+        anket_id = request.query_params.get('visitor_id')
+        date = request.query_params.get('date')
+        visitor_locations = self.queryset.filter(visitor_id=anket_id, date_time__date=date)
+        visitor_locations = self.serializer_class(visitor_locations, many=True)
+
+        return Response(visitor_locations.data, status=status.HTTP_200_OK)
 
 
 class SummitEventTableViewSet(viewsets.ModelViewSet):
