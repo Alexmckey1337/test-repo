@@ -21,8 +21,21 @@
     // Events
     $('#add').on('click', function () {
         clearAddHomeGroupData();
-        let department_id = $('#added_home_group_church').attr('data-department');
-        makePastorList(department_id, '#added_home_group_pastor');
+        let church_id = $('#added_home_group_church').attr('data-id');
+        let user_id = $('#added_home_group_church').attr('data-user');
+        let config = {
+                master_tree: user_id,
+                church_id: church_id,
+            };
+        getResponsibleBYHomeGroupNew(config).then(function (data) {
+        let options = data.map( (item) => {
+            let option = document.createElement('option');
+            return $(option).val(item.id).text(item.fullname);
+        });
+        $('#added_home_group_pastor').html(options).prop('disabled', false).select2();
+    });
+
+
         setTimeout(function () {
             $('#addHomeGroup').css('display', 'block');
         }, 100);
