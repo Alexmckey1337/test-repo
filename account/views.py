@@ -10,6 +10,7 @@ from rest_auth.views import LogoutView as RestAuthLogoutView
 from rest_framework import status, mixins
 from rest_framework import viewsets, filters
 from rest_framework.decorators import list_route
+from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser, FormParser
 from rest_framework.permissions import IsAuthenticated
@@ -220,8 +221,12 @@ class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
     search_fields = ('first_name', 'last_name', 'middle_name')
 
     def get_queryset(self):
-        descendants = self.request.user.get_descendants()
-        return self.queryset.exclude(pk__in=descendants.values_list('pk', flat=True))
+        exclude_by_user_tree = self.request.query_params.get('exclude_by_user_tree', None)
+        if exclude_by_user_tree is not None:
+            user = get_object_or_404(User, pk=exclude_by_user_tree)
+            descendants = user.get_descendants()
+            return self.queryset.exclude(pk__in=descendants.values_list('pk', flat=True))
+        return self.queryset
 
 
 class ExistUserListViewSet(mixins.ListModelMixin, GenericViewSet):

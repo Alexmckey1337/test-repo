@@ -8,6 +8,8 @@ from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
 
+from group.managers import ChurchManager, HomeGroupManager
+
 
 @python_2_unicode_compatible
 class CommonGroup(models.Model):
@@ -45,6 +47,8 @@ class Church(CommonGroup):
     users = models.ManyToManyField('account.CustomUser', related_name='churches',
                                    blank=True, verbose_name=_('Users'))
 
+    objects = ChurchManager()
+
     class Meta:
         verbose_name = _('Church')
         verbose_name_plural = _('Churches')
@@ -66,6 +70,8 @@ class HomeGroup(CommonGroup):
     users = models.ManyToManyField('account.CustomUser', related_name='home_groups',
                                    blank=True, verbose_name=_('Users'))
     active = models.BooleanField(default=True)
+
+    objects = HomeGroupManager()
 
     class Meta:
         verbose_name = _('Home Group')

@@ -101,6 +101,15 @@ class CustomUser(MPTTModel, User, CustomUserAbstract,
     def link(self):
         return self.get_absolute_url()
 
+    def get_church(self):
+        home_group = self.home_groups.first()
+        if home_group:
+            return home_group.church
+        church = self.churches.first()
+        if church:
+            return church
+        return None
+
     @property
     def column_table(self):
         l = OrderedDict()

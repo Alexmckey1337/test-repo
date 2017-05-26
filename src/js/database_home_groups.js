@@ -1,8 +1,9 @@
 (function ($) {
+    let $departmentSelect = $('#department_select');
     createHomeGroupsTable();
     let $churchFilter = $('#church_filter');
     let $treeFilter = $('#tree_filter');
-    $('#department_select').select2();
+    $departmentSelect.select2();
     $('#pastor_select').select2();
     $('.selectdb').select2();
     $('#search_date_open').datepicker({
@@ -13,17 +14,39 @@
         dateFormat: 'yyyy-mm-dd',
         autoClose: true
     });
-//    Events
-    $('#add').on('click', function () {
-        let department_id = parseInt($('#department_select').val());
-        makePastorList(department_id);
-        $('#addChurch').css('display', 'block');
+    $('#added_home_group_date').datepicker({
+        dateFormat: 'yyyy-mm-dd',
+        autoClose: true
     });
-    $('#department_select').on('change', function () {
+    // Events
+    $('#add').on('click', function () {
+        clearAddHomeGroupData();
+        let church_id = $('#added_home_group_church').attr('data-id');
+        let user_id = $('#added_home_group_church').attr('data-user');
+        let config = {
+                master_tree: user_id,
+                church_id: church_id,
+            };
+        getResponsibleBYHomeGroupNew(config).then(function (data) {
+        let options = data.map( (item) => {
+            let option = document.createElement('option');
+            return $(option).val(item.id).text(item.fullname);
+        });
+        $('#added_home_group_pastor').html(options).prop('disabled', false).select2();
+    });
+
+
+        setTimeout(function () {
+            $('#addHomeGroup').css('display', 'block');
+        }, 100);
+    });
+
+    $departmentSelect.on('change', function () {
         $('#pastor_select').prop('disabled', true);
         let department_id = parseInt($('#department_select').val());
         makePastorList(department_id);
     });
+
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
         updateSettings(createHomeGroupsTable);

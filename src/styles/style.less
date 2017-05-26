@@ -1960,12 +1960,12 @@ table tr:first-child td {
   border-left: 1px solid #E2E2E2;
 }
 
-.table tr {
+table tr {
   background-color: #fff;
   transition: all .3s ease;
 }
 
-.table tr:hover {
+table tr:hover {
   background-color: #e4e4e4;
 }
 
@@ -4385,6 +4385,17 @@ span.change[style*="display: none"] ~ span.y {
   }
   .sdelki_title {
     padding: 0 10px;
+  }
+  .tab-status {
+    display: flex;
+    justify-content: space-between;
+    height: 50px;
+    & #tabs1 {
+      position: relative;
+      & li.active button {
+        background-color: #fff;
+      }
+    }
   }
 }
 

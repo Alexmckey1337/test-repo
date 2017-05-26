@@ -1,3 +1,4 @@
+/* global $ */
 function getOrderingData() {
     let revers, order, savePath;
     let path = window.location.pathname;
@@ -808,14 +809,19 @@ function addHomeGroupToDataBase(config = {}) {
     });
 }
 
-function addHomeGroup(el) {
+function addHomeGroup(e, el, callback) {
+    e.preventDefault();
     let data = getAddHomeGroupData();
     let json = JSON.stringify(data);
 
     addHomeGroupToDataBase(json).then(function (data) {
         clearAddHomeGroupData();
         hidePopup(el);
+        callback();
         showPopup(`Домашняя группа ${data.get_title} добавлена в базу данных`);
+    }).catch(function (data) {
+        hidePopup(el);
+        showPopup('Ошибка при создании домашней группы');
     });
 }
 
@@ -849,17 +855,26 @@ function getAddChurchData() {
 
 function clearAddNewUser() {
     let form = $('#createUser');
+    let flag = $('#addNewUserPopup').attr('data-flagdepart');
     form.find('#partner').attr('checked', false);
     form.find('.hidden-partner').hide();
     form.find('#edit-photo').attr('data-source', '').find('img').attr('src', '/static/img/no-usr.jpg');
     form.find('.anketa-photo').unbind('click');
-    form.find('select:not(#payment_currency, #spir_level).select2-hidden-accessible').select2('destroy').find('option').remove();
-    initAddNewUser();
+    form.find('select:not(#payment_currency, #spir_level, #chooseDepartment).select2-hidden-accessible')
+        .select2('destroy').find('option').remove();
+    if (flag) {
+        initAddNewUser({
+            getDepartments: false,
+        });
+    } else {
+        form.find('select#chooseDepartment').select2('destroy').find('option').remove();
+        initAddNewUser();
+    }
     form.find('#chooseResponsible, #chooseRegion, #chooseCity').attr('disabled', true);
     form.find('input').each(function () {
         $(this).val('');
     });
-    form.find('#spir_level').attr('disabled', true).select2('destroy').find('option').attr('selected', false)
+    form.find('#spir_level').select2('destroy').find('option').attr('selected', false)
                             .find('option:first-child').attr('selected', true);
 }
 
@@ -1091,6 +1106,19 @@ function getResponsibleBYHomeGroup(churchID) {
     return new Promise(function (resolve, reject) {
         let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/?church_id=${churchID}`;
         ajaxRequest(url, null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    })
+}
+
+function getResponsibleBYHomeGroupNew(config) {
+    return new Promise(function (resolve, reject) {
+        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/`;
+        ajaxRequest(url, config, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1573,9 +1601,6 @@ function ajaxRequest(url, data, callback, method, withCredentials, headers, stat
     method = method || 'GET';
     data = data || {};
     headers = headers || {};
-    if (getCookie('key')) {
-        headers['Authorization'] = 'Token ' + getCookie('key');
-    }
     statusCode = statusCode || {};
     $.ajax({
         url: url,
@@ -1873,7 +1898,7 @@ function createSummitUsersTable(data = {}) {
         };
         makeSammitsDataTable(filter_data, id);
         makePagination(paginationConfig);
-        // $('.table__count').text(text);
+        $('.table__count').text(text);
         makeSortForm(data.user_table);
         $('.preloader').css('display', 'none');
         orderTable.sort(createSummitUsersTable);
@@ -2042,6 +2067,8 @@ function initAddNewUser(config = {}) {
                 })
             });
         });
+    } else {
+        $('#addNewUserPopup').attr('data-flagdepart', true);
     }
     if (configDefault.getStatuses) {
         getStatuses().then(function (data) {
@@ -2116,6 +2143,8 @@ function initAddNewUser(config = {}) {
             $('#chooseManager').html(rendered).select2();
         });
     }
+
+    $('#spir_level').select2();
 
     $('#repentance_date').datepicker({
         dateFormat: 'yyyy-mm-dd'
@@ -2617,7 +2646,7 @@ function makeHomeReportsTable(data, config = {}) {
 function getHomeReports(config = {}) {
     if (!config.status) {
         let status = parseInt($('#statusTabs').find('.current').find('button').data('status'));
-        config.status = status || 2;
+        config.status = status || 1;
     }
     return new Promise(function (resolve, reject) {
         let data = {
@@ -2704,6 +2733,7 @@ function createNewUser(callback) {
         $createUser.find('input').each(function () {
             $(this).val('').attr('disabled', false);
         });
+        //Пересмотреть ф-цию очистки
         $createUser.find('.cleared').each(function () {
             $(this).find('option').eq(0).prop('selected', true).select2()
         });
@@ -2724,9 +2754,6 @@ function createPayment(data, id) {
         url: `${CONFIG.DOCUMENT_ROOT}api/v1.1/partnerships/${id}/create_payment/`
     };
     Object.assign(resData, data);
-    if (getCookie('key')) {
-        resData.headers['Authorization'] = 'Token ' + getCookie('key');
-    }
     return new Promise(function (resolve, reject) {
         let codes = {
             201: function (data) {
@@ -2744,9 +2771,7 @@ function getChurchStats(id) {
     let resData = {
         url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${id}/statistics/`
     };
-    if (getCookie('key')) {
-        resData.headers['Authorization'] = 'Token ' + getCookie('key');
-    }
+
     return new Promise(function (resolve, reject) {
         let codes = {
             200: function (data) {
@@ -2764,9 +2789,6 @@ function getHomeGroupStats(id) {
     let resData = {
         url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/statistics/`
     };
-    if (getCookie('key')) {
-        resData.headers['Authorization'] = 'Token ' + getCookie('key');
-    }
     return new Promise(function (resolve, reject) {
         let codes = {
             200: function (data) {
@@ -2787,9 +2809,6 @@ function getPastorsByDepartment(id) {
     } else {
         resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/get_pastors_by_department/`;
     }
-    if (getCookie('key')) {
-        resData.headers['Authorization'] = 'Token ' + getCookie('key');
-    }
     return new Promise(function (resolve, reject) {
         let codes = {
             200: function (data) {
@@ -2808,9 +2827,6 @@ function getLeadersByChurch(config = {}) {
         url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_current_leaders/`,
         data: config
     };
-    if (getCookie('key')) {
-        resData.headers['Authorization'] = 'Token ' + getCookie('key');
-    }
     return new Promise(function (resolve, reject) {
         let codes = {
             200: function (data) {
