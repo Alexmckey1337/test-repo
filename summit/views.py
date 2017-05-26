@@ -358,7 +358,8 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
         if self.master_id is not None:
             if is_consultant_or_high:
                 return self.annotate_queryset(self.summit.ankets.filter(user__master_id=self.master_id))
-            return
+            return self.annotate_queryset(self.summit.ankets.filter(
+                user__master_id=self.master_id, user_id__in=set(self.request.user.get_descendants(include_self=True))))
         elif is_consultant_or_high:
             return self.annotate_queryset(self.summit.ankets.filter(user__level=0))
         else:
