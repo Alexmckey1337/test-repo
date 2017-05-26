@@ -41,7 +41,10 @@
                     <div class="title-wrapper">
                         <span>Дата открытия:</span>
                     </div>
-                    <input type="text" class="date" id="opening_date" value="{{ church.opening_date }}">
+                    <div class="input">
+                        <input type="text" class="date" id="opening_date" value="{{ church.opening_date }}">
+                        <input type="checkbox" id="is_open_church" {% if church.is_open %}checked{% endif %}>
+                    </div>
                     <div class="title-wrapper">
                         <span>Отдел:</span>
                     </div>

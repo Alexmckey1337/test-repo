@@ -4839,7 +4839,7 @@ span.green {
 }
 
 .accordion {
-  width: 700px;
+  width: 550px;
   margin: 0 1em;
   & h2 {
     position: relative;
@@ -4900,6 +4900,18 @@ span.green {
       height: 20px;
       padding: 0 5px;
       z-index: 2;
+    }
+    & .input {
+      display: flex;
+      align-items: center;
+      width: 35%;
+      & input[type='text'] {
+        width: 90%;
+      }
+      & input[type='checkbox'] {
+        width: 10%;
+        margin-left: 5px;
+      }
     }
     & p {
       width: 40%;
