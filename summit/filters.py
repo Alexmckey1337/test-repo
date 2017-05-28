@@ -6,6 +6,7 @@ from account.filters import FilterMasterTreeWithSelf
 from account.models import CustomUser
 from hierarchy.models import Hierarchy, Department
 from summit.models import Summit, SummitAnket
+from datetime import datetime
 
 
 class FilterByClub(BaseFilterBackend):
@@ -69,3 +70,21 @@ class ProfileFilter(django_filters.FilterSet):
 
 class FilterProfileMasterTreeWithSelf(FilterMasterTreeWithSelf):
     user_field_prefix = 'user__'
+
+
+class FilterBySummitAttend(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        is_visited = request.query_params.get('is_visited', 0)
+        if not is_visited:
+            return queryset
+
+        date_today = datetime.now().strftime("%Y-%m-%d")
+        from_date = request.query_params.get('from_date', date_today)
+        to_date = request.query_params.get('to_date', date_today)
+
+        if int(is_visited) == 1:
+            queryset = queryset.filter(attends__date__range=[from_date, to_date])
+        if int(is_visited) == 2:
+            queryset = queryset.exclude(attends__date__range=[from_date, to_date])
+
+        return queryset

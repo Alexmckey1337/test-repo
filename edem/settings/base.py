@@ -55,6 +55,7 @@ THIRD_PARTY_APPS = (
     'rest_framework',
     # 'rest_framework.authtoken',
     'djcelery',
+    'django_filters',
 
     'rest_auth',
     'corsheaders',

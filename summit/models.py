@@ -522,3 +522,19 @@ class SummitEventTable(models.Model):
 
     def __str__(self):
         return self.author_ru
+
+
+@python_2_unicode_compatible
+class SummitAttend(models.Model):
+    anket = models.ForeignKey('summit.SummitAnket', related_name='attends', verbose_name=_('Anket'))
+    date = models.DateField(verbose_name=_('Date'))
+    # time = models.TimeField(verbose_name=_('Time'))
+
+    class Meta:
+        verbose_name = _('Summit Attend')
+        verbose_name_plural = _('Summit Attends')
+        ordering = ('-date',)
+        unique_together = ['anket', 'date']
+
+    def __str__(self):
+        return '%s visitor of Summit. Date: %s' % (self.anket.user.fullname, self.date)

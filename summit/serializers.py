@@ -9,7 +9,7 @@ from account.models import CustomUser as User
 from account.serializers import UserTableSerializer, UserShortSerializer
 from common.fields import ListCharField, ReadOnlyChoiceWithKeyField
 from .models import (Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
-                     SummitTicket, SummitVisitorLocation, SummitEventTable)
+                     SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend)
 
 
 class ImageWithoutHostField(serializers.ImageField):
@@ -245,7 +245,6 @@ class SummitAnketLocationSerializer(serializers.ModelSerializer):
 
 
 class SummitVisitorLocationSerializer(serializers.ModelSerializer):
-    # visitor = SummitAnketLocationSerializer()
     visitor_id = serializers.IntegerField(source='visitor.id')
 
     class Meta:
@@ -260,3 +259,27 @@ class SummitEventTableSerializer(serializers.ModelSerializer):
         model = SummitEventTable
         fields = ('summit_id', 'date', 'time', 'name_ru', 'author_ru', 'name_en',
                   'author_en', 'name_de', 'author_de')
+
+
+class SummitAnketCodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SummitAnket
+        fields = ('code',)
+
+
+class SummitAttendSerializer(serializers.ModelSerializer):
+    # time = serializers.TimeField()
+
+    class Meta:
+        model = SummitAttend
+        fields = ('id', 'anket', 'date')
+
+
+class SummitAttendStatisticsSerializer(serializers.ModelSerializer):
+    attend_users = serializers.IntegerField()
+    absent_users = serializers.IntegerField()
+    total_users = serializers.IntegerField()
+
+    class Meta:
+        model = SummitAnket
+        fields = ('attend_users', 'absent_users', 'total_users')
