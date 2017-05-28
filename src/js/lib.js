@@ -2279,6 +2279,26 @@ function saveChurches(el) {
     })
 }
 
+function editChurches(el, id) {
+    let data = {
+        pastor: $($(el).closest('form').find('#editPastorSelect')).val(),
+        department: $($(el).closest('form').find('#editDepartmentSelect')).val(),
+        phone_number: $($(el).closest('form').find('#phone_number')).val(),
+        website: ($(el).closest('form').find('#web_site')).val(),
+        opening_date: $($(el).closest('form').find('#opening_date')).val().split('.').reverse().join('-') || null,
+        is_open: $('#is_open_church').is(':checked'),
+        country: $($(el).closest('form').find('#country')).val(),
+        city: $($(el).closest('form').find('#city')).val(),
+        address: $($(el).closest('form').find('#address')).val()
+    };
+    saveChurchData(data, id);
+    let success = $($(el).closest('form').find('.success__block'));
+    $(success).text('Сохранено');
+    setTimeout(function () {
+        $(success).text('');
+    }, 3000);
+}
+
 function saveHomeGroups(el) {
     let $input, $select, phone_number, data, id;
     id = parseInt($($(el).closest('.pop_cont').find('#homeGroupsID')).val());
@@ -2859,4 +2879,8 @@ function getData(url, options = {}) {
         $('.preloader').hide();
         return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
     }
+}
+
+function pasteLink(el, link) {
+    $(el).closest('.input').find('a').attr('href', link);
 }

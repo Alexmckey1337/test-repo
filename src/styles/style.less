@@ -4883,14 +4883,59 @@ span.green {
       display: flex;
       flex-wrap: wrap;
     }
+    & form {
+      position: relative;
+      &:hover {
+        button {
+          opacity: 1;
+        }
+      }
+      & button {
+        position: absolute;
+        padding: 0;
+        background: 0 0;
+        border: 0;
+        top: 0;
+        right: 0;
+        width: 1em;
+        height: 1em;
+        font-size: 1.5em;
+        opacity: .3;
+        &::before {
+          color: #656d78;
+          position: absolute;
+          left: 0;
+          top: 0;
+          font: 400 1em FontAwesome;
+        }
+        &.edit::before {
+          content: '\f040';
+        }
+        &.save__info {
+          display: none;
+          &::before {
+           content: '\f00c';
+          }
+        }
+        &.edit.active {
+          right: 1.25em;
+          &::before {
+            content: '\f00d';
+          }
+          & + .save__info {
+            display: block;
+          }
+        }
+      }
+    }
     & .title-wrapper {
       position: relative;
-      width: 58%;
+      width: 40%;
       margin: 0.6em 0;
       &::after {
         position: absolute;
         left: 3px;
-        bottom: 1px;
+        bottom: 3px;
         display: block;
         width: 100%;
         height: 2px;
@@ -4907,21 +4952,44 @@ span.green {
       }
     }
     & input {
-      width: 35%;
-      height: 20px;
+      width: 47%;
+      height: 25px;
+      margin-bottom: .1em;
       padding: 0 5px;
       z-index: 2;
     }
     & .input {
+      width: 50%;
+      & .select2 {
+        width: 100%!important;
+        height: 25px;
+        z-index: 2;
+      }
+      & .link-hide {
+        visibility: hidden;
+        opacity: 0;
+      }
+    }
+    & select {
+      width: 100%;
+      min-width: auto;
+      height: 30px;
+    }
+    & .input {
+      position: relative;
       display: flex;
       align-items: center;
-      width: 35%;
       & input[type='text'] {
-        width: 90%;
+        width: 50%;
       }
       & input[type='checkbox'] {
         width: 10%;
         margin-left: 5px;
+      }
+      & a {
+        position: absolute;
+        top: 10px;
+        left: 2px;
       }
     }
     & p {
@@ -4934,6 +5002,42 @@ span.green {
     }
     & a:hover {
       text-decoration: underline;
+    }
+    .select2-container .select2-selection--single {
+      height: 25px!important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+      line-height: 25px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+      background: #e6e9ee;
+      height: calc(100% - 2px)!important;
+      width: 2em!important;
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: .6em;
+        margin: auto;
+        display: block;
+        width: 0;
+        height: 0;
+        border-left: .4em solid transparent;
+        border-right: .4em solid transparent;
+        border-top: .6em solid #656d78;
+        border-bottom: 0 solid transparent;
+      }
+    }
+    & select,
+    & input:not([type=checkbox]) {
+      &:read-only {
+        padding-left: 15px;
+        border: 2px solid transparent;
+        background: transparent;
+      }
     }
   }
 }
