@@ -67,7 +67,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     def get_queryset(self):
         if self.action == 'list':
-            return self.queryset.annotate(
+            return self.queryset.for_user(self.request.user).annotate(
                 visitors_attended=Sum(Case(
                     When(attends__attended=True, then=1),
                     output_field=IntegerField(), default=0)),
@@ -76,7 +76,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                     attends__attended=False, then=1),
                     output_field=IntegerField(), default=0))
             )
-        return self.queryset
+        return self.queryset.for_user(self.request.user)
 
     @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer)
     def submit(self, request, pk):

@@ -1,5 +1,4 @@
 import django_filters
-from rest_framework import filters
 
 from account.models import CustomUser
 from common.filters import BaseFilterByBirthday, BaseFilterMasterTree
@@ -7,7 +6,7 @@ from hierarchy.models import Hierarchy, Department
 from partnership.models import Deal, Partnership
 
 
-class DateFilter(filters.FilterSet):
+class DateFilter(django_filters.FilterSet):
     to_date = django_filters.DateFilter(name="date_created", lookup_expr='lte')
     from_date = django_filters.DateFilter(name="date_created", lookup_expr='gte')
 

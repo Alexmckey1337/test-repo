@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
+from django_filters import rest_framework
 from rest_framework import exceptions, filters, mixins, status, viewsets
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.permissions import IsAuthenticated
@@ -122,7 +123,7 @@ class DealViewSet(mixins.RetrieveModelMixin,
     serializer_create_class = DealCreateSerializer
     serializer_update_class = DealUpdateSerializer
     pagination_class = DealPagination
-    filter_backends = (filters.DjangoFilterBackend,
+    filter_backends = (rest_framework.DjangoFilterBackend,
                        filters.SearchFilter,
                        filters.OrderingFilter,)
     filter_class = DateFilter
