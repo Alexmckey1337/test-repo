@@ -652,6 +652,28 @@ function saveHomeGroupsData(data, id) {
     }
 }
 
+function saveHomeGroupsDataNew(data, id) {
+    if (id) {
+        let data = JSON.stringify(data);
+        let options = {
+        method: 'PATCH',
+        credentials: "same-origin",
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        }),
+         body:  data
+
+    };
+        return fetch(`${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/`, options)
+            .then(res => res.json());
+
+        // ajaxRequest(, json, function (data) {
+        // }, 'PATCH', false, {
+        //     'Content-Type': 'application/json'
+        // });
+    }
+}
+
 function deleteUserINHomeGroup(id, user_id) {
     return new Promise(function (resolve, reject) {
         let json = JSON.stringify({
@@ -806,22 +828,6 @@ function addHomeGroupToDataBase(config = {}) {
             }
         };
         newAjaxRequest(data, status, reject)
-    });
-}
-
-function addHomeGroup(e, el, callback) {
-    e.preventDefault();
-    let data = getAddHomeGroupData();
-    let json = JSON.stringify(data);
-
-    addHomeGroupToDataBase(json).then(function (data) {
-        clearAddHomeGroupData();
-        hidePopup(el);
-        callback();
-        showPopup(`Домашняя группа ${data.get_title} добавлена в базу данных`);
-    }).catch(function (data) {
-        hidePopup(el);
-        showPopup('Ошибка при создании домашней группы');
     });
 }
 
@@ -2294,7 +2300,10 @@ function saveHomeGroups(el) {
         city: $($(el).closest('.pop_cont').find('#city')).val(),
         address: $($(el).closest('.pop_cont').find('#address')).val()
     };
+
     saveHomeGroupsData(data, id);
+    saveHomeGroupsDataNew(data, id);
+
     $(el).text("Сохранено");
     $(el).closest('.popap').find('.close-popup.change__text').text('Закрыть');
     $(el).attr('disabled', true);
@@ -2854,7 +2863,7 @@ function getData(url, options = {}) {
         method: 'GET',
         credentials: "same-origin",
         headers: new Headers({
-            'Content-Type': 'text/json',
+            'Content-Type': 'application/json',
         })
     };
     if (typeof url === "string") {
