@@ -149,7 +149,7 @@ function createHomeGroupsTable(config = {}) {
                 $('#quickEditCartPopup').find('.popup_body').html(rendered);
                 getResponsibleBYHomeGroup(data.church.id)
                     .then(res => {
-                        return res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
+                        return res.map(leader => `<option value="${leader.id}" ${(data.leader === leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
                     })
                     .then(data => {
                         $('#homeGroupLeader').html(data).select2();
@@ -2285,7 +2285,7 @@ function saveHomeGroups(el) {
 
     data = {
         title: $($(el).closest('.pop_cont').find('#home_groups_title')).val(),
-        leader: $($(el).closest('.pop_cont').find('#editPastorSelect')).val(),
+        leader: $($(el).closest('.pop_cont').find('#homeGroupLeader')).val(),
         department: $($(el).closest('.pop_cont').find('#editDepartmentSelect')).val(),
         phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
         website: ($(el).closest('.pop_cont').find('#web_site')).val(),
