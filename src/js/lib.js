@@ -155,15 +155,6 @@ function createHomeGroupsTable(config = {}) {
                         $('#homeGroupLeader').html(data).select2();
                     })
                 ;
-                // makeLeaderList(data.department, '#editPastorSelect', data.leader);
-
-                // makeDepartmentList('#editDepartmentSelect', data.department).then(function () {
-                //     $('#editDepartmentSelect').on('change', function () {
-                //         $('#pastor_select').prop('disabled', true);
-                //         let department_id = parseInt($('#editDepartmentSelect').val());
-                //         makeLeaderList(department_id, '#editPastorSelect');
-                //     });
-                // });
                 setTimeout(function () {
                     $('.date').datepicker({
                         dateFormat: 'yyyy-mm-dd',
@@ -2291,6 +2282,7 @@ function saveChurches(el) {
 function saveHomeGroups(el) {
     let $input, $select, phone_number, data, id;
     id = parseInt($($(el).closest('.pop_cont').find('#homeGroupsID')).val());
+
     data = {
         title: $($(el).closest('.pop_cont').find('#home_groups_title')).val(),
         leader: $($(el).closest('.pop_cont').find('#editPastorSelect')).val(),
@@ -2308,6 +2300,7 @@ function saveHomeGroups(el) {
     $(el).attr('disabled', true);
     $input = $(el).closest('.popap').find('input');
     $select = $(el).closest('.popap').find('select');
+
     $select.on('change', function () {
         $(el).text("Сохранить");
         $(el).closest('.popap').find('.close-popup').text('Отменить');
