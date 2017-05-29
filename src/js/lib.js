@@ -75,20 +75,17 @@ function deleteSummitProfile(id) {
 }
 
 function addUserToChurch(user_id, id, exist = false) {
-    let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${id}/add_user/`;
+    let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${user_id}/set_church/`;
     let config = {
         url: url,
         method: "POST",
         data: {
-            user_id: user_id
+            church_id: id
         }
     };
-    if (exist) {
-        config.method = "PUT";
-    }
     return new Promise(function (resolve, reject) {
         let codes = {
-            201: function (data) {
+            200: function (data) {
                 resolve(data);
             },
             400: function (data) {
@@ -100,20 +97,17 @@ function addUserToChurch(user_id, id, exist = false) {
 }
 
 function addUserToHomeGroup(user_id, hg_id, exist = false) {
-    let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${hg_id}/add_user/`;
+    let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${user_id}/set_home_group/`;
     let config = {
         url: url,
         method: "POST",
         data: {
-            user_id: user_id
+            home_group_id: hg_id
         }
     };
-    if (exist) {
-        config.method = "PUT";
-    }
     return new Promise(function (resolve, reject) {
         let codes = {
-            201: function (data) {
+            200: function (data) {
                 resolve(data);
             },
             400: function (data) {

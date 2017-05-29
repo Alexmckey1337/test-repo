@@ -28,7 +28,7 @@
                 data: config
             };
             let status = {
-                201: function (req) {
+                200: function (req) {
                     resolve(req)
                 },
                 403: function () {
