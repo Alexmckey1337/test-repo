@@ -53,7 +53,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
     filter_class = ChurchFilter
 
     field_search_fields = {
-        'search_title': ('title',),
+        'search_title': ('title', 'pastor__last_name', 'pastor__first_name', 'pastor__middle_name'),
     }
 
     resource_class = ChurchResource
@@ -261,7 +261,7 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
     filter_class = HomeGroupFilter
 
     field_search_fields = {
-        'search_title': ('title',)
+        'search_title': ('title', 'leader__last_name', 'leader__first_name', 'leader__middle_name')
     }
 
     resource_class = HomeGroupResource
