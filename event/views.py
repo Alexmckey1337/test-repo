@@ -50,7 +50,12 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
     filter_class = MeetingFilter
 
     field_search_fields = {
-        'search_date': ('date',)
+        'search_date': ('date',),
+        'search_title': (
+            'id',
+            'home_group__title',
+            'owner__last_name', 'owner__first_name', 'owner__middle_name',
+        )
     }
 
     def get_serializer_class(self):
@@ -62,7 +67,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     def get_queryset(self):
         if self.action == 'list':
-            return self.queryset.for_user(self.request.user).annotate(
+            return self.queryset.annotate(
                 visitors_attended=Sum(Case(
                     When(attends__attended=True, then=1),
                     output_field=IntegerField(), default=0)),
@@ -71,7 +76,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                     attends__attended=False, then=1),
                     output_field=IntegerField(), default=0))
             )
-        return self.queryset.for_user(self.request.user)
+        return self.queryset
 
     @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer)
     def submit(self, request, pk):
