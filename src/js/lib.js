@@ -2592,7 +2592,9 @@ function makeTabs(page = 0) {
 }
 function homeReportsTable(config = {}) {
     let status = $('#statusTabs').find('.current').find('button').data('status');
+    let search = $('.search').find('input[name=fullsearch]').val();
     config.status = status;
+    config.search_title = search;
     Object.assign(config, getFilterParam());
     getHomeReports(config).then(data => {
         makeHomeReportsTable(data, config);
