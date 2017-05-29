@@ -156,3 +156,5 @@ class AllHomeGroupsListSerializer(serializers.ModelSerializer):
     class Meta:
         model = HomeGroup
         fields = ('id', 'get_title')
+
+from django.db.models import Count
