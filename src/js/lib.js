@@ -294,21 +294,19 @@ function makeDepartmentList(selector, active = null) {
         $(selector).html(options).prop('disabled', false).select2();
     });
 }
-function getChurchesListINDepartament(id) {
+function getChurchesListINDepartament(department_ids) {
     return new Promise(function (resolve, reject) {
         let url;
-        if (id instanceof Array) {
-            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/churches_by_department/?`;
+        if (department_ids instanceof Array) {
+            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/for_select/?`;
             let i = 0;
-            id.forEach(function (item) {
+            department_ids.forEach(function (department_id) {
                 i++;
-                url += `department=${item}`;
-                if (id.length != i) {
+                url += `department=${department_id}`;
+                if (department_ids.length != i) {
                     url += '&';
                 }
             })
-        } else {
-            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches?department=${id}`;
         }
         let data = {
             url: url,
@@ -325,42 +323,10 @@ function getChurchesListINDepartament(id) {
         newAjaxRequest(data, status, reject)
     })
 }
-function getChurchesINDepartament(id) {
-    return new Promise(function (resolve, reject) {
-        let url;
-        if (id instanceof Array) {
-            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches?`;
-            let i = 0;
-            id.forEach(function (item) {
-                i++;
-                url += `department=${item}`;
-                if (id.length != i) {
-                    url += '&';
-                }
-            })
-        } else {
-            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches?department=${id}`;
-        }
-        let data = {
-            url: url,
-        };
-        let status = {
-            200: function (req) {
-                resolve(req)
-            },
-            403: function () {
-                reject('Вы должны авторизоватся')
-            }
-
-        };
-        newAjaxRequest(data, status, reject)
-    })
-}
-
 function getHomeGroupsINChurches(id) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/all/?church_id=${id}`,
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/for_select/?church_id=${id}`,
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

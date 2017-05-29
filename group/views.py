@@ -25,7 +25,7 @@ from group.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin,
 from .models import HomeGroup, Church
 from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSerializer,
                           HomeGroupListSerializer, ChurchStatsSerializer, UserNameSerializer,
-                          AllChurchesListSerializer, AllHomeGroupsListSerializer,
+                          AllHomeGroupsListSerializer,
                           HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer)
 
 
@@ -83,7 +83,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
 
     @detail_route(methods=['post', 'put'])
     def add_user(self, request, pk):
-        church = self.get_object()
+        church = get_object_or_404(Church, pk=pk)
         user_id = request.data.get('user_id')
         if user_id is None:
             raise exceptions.ValidationError(_('"user_id" is required.'))
@@ -228,18 +228,8 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
         stats = serializer(stats)
         return Response(stats.data)
 
-    @list_route(methods=['GET'], serializer_class=AllChurchesListSerializer)
-    def all(self, request):
-        if not request.query_params.get('department_id'):
-            raise exceptions.ValidationError(_("Некорректный запрос. Департамент не передан."))
-        departments = request.query_params.getlist('department_id')
-        churches = Church.objects.filter(department_id__in=departments)
-        churches = self.serializer_class(churches, many=True)
-
-        return Response(churches.data)
-
     @list_route(methods=['GET'], serializer_class=ChurchWithoutPaginationSerializer, pagination_class=None)
-    def churches_by_department(self, request):
+    def for_select(self, request):
         if not request.query_params.get('department'):
             raise exceptions.ValidationError(_("Некорректный запрос. Департамент не передан."))
 
@@ -379,7 +369,7 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         return Response(stats.data)
 
     @list_route(methods=['GET'], serializer_class=AllHomeGroupsListSerializer)
-    def all(self, request):
+    def for_select(self, request):
         church_id = request.query_params.get('church_id')
 
         if not church_id:

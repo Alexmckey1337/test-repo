@@ -1033,13 +1033,13 @@ Statistics of churches
 All Church objects without pagination, filtered by department
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. http:get:: /api/v1.0/churches/all/?department_id=<int(department_id)>
+.. http:get:: /api/v1.0/churches/for_select/?department_id=<int(department_id)>
 
     **Example request**:
 
     .. sourcecode:: http
 
-        GET /api/v1.0/churches/all/?department_id=1 HTTP/1.1
+        GET /api/v1.0/churches/for_select/?department_id=1 HTTP/1.1
         Host: vocrm.org
         Content-type: application/json
 
@@ -1928,13 +1928,13 @@ Statistics of home groups
 All HomeGroup objects without pagination filtered by selected church
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. http:get:: /api/v1.0/home_groups/all/?church_id
+.. http:get:: /api/v1.0/home_groups/for_select/?church_id
 
     **Example request**:
 
     .. sourcecode:: http
 
-        GET /api/v1.0/home_groups/all/?church_id=18 HTTP/1.1
+        GET /api/v1.0/home_groups/for_select/?church_id=18 HTTP/1.1
         Host: vocrm.org
         Content-type: application/json
 
