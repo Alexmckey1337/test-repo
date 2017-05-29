@@ -25,7 +25,7 @@ from group.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin,
 from .models import HomeGroup, Church
 from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSerializer,
                           HomeGroupListSerializer, ChurchStatsSerializer, UserNameSerializer,
-                          AllHomeGroupsListSerializer,
+                          AllHomeGroupsListSerializer, HomeMeetingsCountSerializer,
                           HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer,
                           )
 
@@ -408,3 +408,10 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         leaders = self.serializer_class(leaders, many=True)
 
         return Response(leaders.data)
+
+    @list_route(methods=['GET'], serializer_class=HomeMeetingsCountSerializer)
+    def meeting_counts(self, request):
+        pass
+        # queryset = self.queryset.aggregate(
+        #     meetings_in_progress=Sum(Case(When()))
+        # )
