@@ -222,10 +222,8 @@
             </div>
         </div>
         <div class="col-7">
-            <div><select name="" id="editDepartmentSelect">
-                <option value="<%= department %>"><%= department %></option>
-            </select></div>
-            <div><select name="" id="editPastorSelect">
+            <div><input type="text" value="<%= church.get_title %>" readonly></div>
+            <div><select name="" id="homeGroupLeader">
                 <option value="<%= leader %>"><%= leader %></option>
             </select></div>
             <p><input type="text" id="city" value="<%=city %>"></p>

@@ -146,15 +146,24 @@ function createHomeGroupsTable(config = {}) {
                 let quickEditCartTmpl, rendered;
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
-                $('#quickEditCartPopup .popup_body').html(rendered);
-                makeLeaderList(data.department, '#editPastorSelect', data.leader);
-                makeDepartmentList('#editDepartmentSelect', data.department).then(function () {
-                    $('#editDepartmentSelect').on('change', function () {
-                        $('#pastor_select').prop('disabled', true);
-                        var department_id = parseInt($('#editDepartmentSelect').val());
-                        makeLeaderList(department_id, '#editPastorSelect');
-                    });
-                });
+                $('#quickEditCartPopup').find('.popup_body').html(rendered);
+                getResponsibleBYHomeGroup(data.church.id)
+                    .then(res => {
+                        return res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
+                    })
+                    .then(data => {
+                        $('#homeGroupLeader').html(data).select2();
+                    })
+                ;
+                // makeLeaderList(data.department, '#editPastorSelect', data.leader);
+
+                // makeDepartmentList('#editDepartmentSelect', data.department).then(function () {
+                //     $('#editDepartmentSelect').on('change', function () {
+                //         $('#pastor_select').prop('disabled', true);
+                //         let department_id = parseInt($('#editDepartmentSelect').val());
+                //         makeLeaderList(department_id, '#editPastorSelect');
+                //     });
+                // });
                 setTimeout(function () {
                     $('.date').datepicker({
                         dateFormat: 'yyyy-mm-dd',
