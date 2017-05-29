@@ -1,12 +1,12 @@
 (function ($) {
-
+    const USER_ID = $('body').data('user');
     const ID = $('#church').data('id');
     const D_ID = $('#added_home_group_church').data('department');
     let responsibleList = false;
     let link = $('.get_info .active').data('link');
 
-    function makeResponsibleList(churchID) {
-        getResponsibleBYHomeGroup(churchID).then(function (data) {
+    function makeResponsibleList(USER_ID) {
+        getResponsibleBYHomeGroup(USER_ID).then(function (data) {
             let options = [];
             data.forEach(function (item) {
                 let option = document.createElement('option');
@@ -98,7 +98,7 @@
         autoClose: true
     });
 //    Events
-    $('#add_homeGroupToChurch').on('click', function () {
+    $('#addHomeGroupToChurch').on('click', function () {
         clearAddHomeGroupData();
         if (!responsibleList) {
             responsibleList = true;
@@ -108,7 +108,7 @@
             $('#addHomeGroup').css('display', 'block');
         }, 100)
     });
-    $('#add_userToChurch').on('click', function () {
+    $('#addUserToChurch').on('click', function () {
         $('#addUser').css('display', 'block');
         initAddNewUser({
             getDepartments: false,

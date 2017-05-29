@@ -147,7 +147,7 @@ function createHomeGroupsTable(config = {}) {
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
                 $('#quickEditCartPopup').find('.popup_body').html(rendered);
-                getResponsibleBYHomeGroup(data.church.id)
+                getResponsibleBYHomeGroup()
                     .then(res => {
                         return res.map(leader => `<option value="${leader.id}" ${(data.leader === leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
                     })
@@ -835,7 +835,9 @@ function getAddHomeGroupData() {
     return {
         "opening_date": $('#added_home_group_date').val(),
         "title": $('#added_home_group_title').val(),
-        "church": $('#added_home_group_church').data('id'),
+        "church": {
+            "id": parseInt($('#added_home_group_church').data('id'))
+        },
         "leader": $('#added_home_group_pastor').val(),
         "city": $('#added_home_group_city').val(),
         "address": $('#added_home_group_address').val(),
@@ -1108,9 +1110,10 @@ function getCurrentUser(id) {
         })
     })
 }
-function getResponsibleBYHomeGroup(churchID) {
+function getResponsibleBYHomeGroup(userID = null) {
+    let masterTree = (userID) ? userID : $('body').data('user');
     return new Promise(function (resolve, reject) {
-        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/?church_id=${churchID}`;
+        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/short_users/?master_tree=${masterTree}`;
         ajaxRequest(url, null, function (data) {
             if (data) {
                 resolve(data);

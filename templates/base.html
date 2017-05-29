@@ -33,7 +33,7 @@
     {% block extra_styles %}{% endblock %}
 </head>
 
-<body{% block body_id %}{% endblock %}>
+<body{% block body_id %}{% endblock %} data-user="{{ request.user.id }}">
 
 {% block layout %}
 

@@ -62,6 +62,10 @@ class HomeGroupSerializer(serializers.ModelSerializer):
                   'website', 'count_users')
 
 
+class HomeGroupCreateSerializer(HomeGroupSerializer):
+    church = ChurchShortSerializer()
+
+
 class HomeGroupListSerializer(HomeGroupSerializer):
     church = ChurchNameSerializer()
     leader = UserNameSerializer()
