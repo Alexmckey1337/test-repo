@@ -1,4 +1,5 @@
 # -*- coding: utf-8
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
 from django.db.models import Q
 from django.db.models import Value as V
@@ -25,9 +26,9 @@ from group.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin,
 from .models import HomeGroup, Church
 from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSerializer,
                           HomeGroupListSerializer, ChurchStatsSerializer, UserNameSerializer,
-                          AllHomeGroupsListSerializer,
+                          AllHomeGroupsListSerializer, HomeMeetingsCountSerializer,
                           HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer,
-                          HomeGroupCreateSerializer)
+                          )
 
 
 class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
@@ -66,11 +67,19 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
 
     def get_queryset(self):
         if self.action == 'list':
-            return self.queryset.for_user(self.request.user).annotate(
+            return self.queryset.annotate(
                 count_groups=Count('home_group', distinct=True),
                 count_users=Count('users', distinct=True) + Count(
                     'home_group__users', distinct=True))
-        return self.queryset.for_user(self.request.user)
+        return self.queryset
+    #
+    # def get_queryset(self):
+    #     if self.action == 'list':
+    #         return self.queryset.for_user(self.request.user).annotate(
+    #             count_groups=Count('home_group', distinct=True),
+    #             count_users=Count('users', distinct=True) + Count(
+    #                 'home_group__users', distinct=True))
+    #     return self.queryset.for_user(self.request.user)
 
     @list_route(methods=['get'])
     def potential_users_church(self, request):
@@ -84,40 +93,25 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
 
     @detail_route(methods=['post', 'put'])
     def add_user(self, request, pk):
+        # TODO filter by perm
         church = get_object_or_404(Church, pk=pk)
-        user_id = request.data.get('user_id')
-        if user_id is None:
+        user = self._get_user(request.data.get('user_id', None))
+
+        self._validate_user_for_add_user(user)
+        user.set_church(church)
+
+        return Response({'message': _('Пользователь успешно добавлен.')},
+                        status=status.HTTP_200_OK)
+
+    @staticmethod
+    def _get_user(user_id=None):
+        if not user_id:
             raise exceptions.ValidationError(_('"user_id" is required.'))
         try:
             user = get_object_or_404(CustomUser, pk=user_id)
         except Http404:
             raise exceptions.ValidationError(_('User with id = %s does not exist.' % user_id))
-
-        if request.method == 'PUT':
-            if not user.churches.exists() and not user.home_groups.exists():
-                raise exceptions.ValidationError(
-                    _('Невозможно добавить пользователя методом PUT.'
-                      'Данный пользователь не состоит ни Церкви ни '
-                      'в Домашней Группе.'))
-
-            if user.churches.exists():
-                old_church_id = user.churches.get().id
-                old_church = get_object_or_404(Church, pk=old_church_id)
-                old_church.users.remove(user)
-
-            if user.home_groups.exists():
-                old_home_group = user.home_groups.get().id
-                old_home_group = get_object_or_404(HomeGroup, pk=old_home_group)
-                old_home_group.users.remove(user)
-
-            church.users.add(user)
-
-        if request.method == 'POST':
-            self._validate_user_for_add_user(user)
-            church.users.add(user_id)
-
-        return Response({'message': _('Пользователь успешно добавлен.')},
-                        status=status.HTTP_201_CREATED)
+        return user
 
     @detail_route(methods=['post'])
     def del_user(self, request, pk):
@@ -169,13 +163,11 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
     def _validate_user_for_add_user(user):
         if user.churches.exists():
             raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя методом POST.'
-                  'Данный пользователь уже состоит в Церкви.'))
+                _('Невозможно добавить пользователя, данный пользователь уже состоит в Церкви.'))
 
         if user.home_groups.exists():
             raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя методом POST.'
-                  'Данный пользователь уже состоит в Домашней Группе.'))
+                _('Невозможно добавить пользователя, данный пользователь уже состоит в Домашней Группе.'))
 
     @staticmethod
     def _validate_user_for_del_user(user_id, church):
@@ -246,7 +238,6 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
 
     serializer_class = HomeGroupSerializer
     serializer_list_class = HomeGroupListSerializer
-    serializer_create_class = HomeGroupCreateSerializer
 
     permission_classes = (IsAuthenticated,)
     pagination_class = HomeGroupPagination
@@ -269,53 +260,40 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
     resource_class = HomeGroupResource
 
     def get_serializer_class(self):
-        if self.action in 'list':
+        if self.action in ['list', 'retrieve']:
             return self.serializer_list_class
-        if self.action == 'create':
-            return self.serializer_create_class
         return self.serializer_class
+
+    # def get_queryset(self):
+    #     if self.action == 'list':
+    #         return self.queryset.for_user(self.request.user).annotate(count_users=Count('users'))
+    #     return self.queryset.for_user(self.request.user)
 
     def get_queryset(self):
         if self.action == 'list':
-            return self.queryset.for_user(self.request.user).annotate(count_users=Count('users'))
-        return self.queryset.for_user(self.request.user)
+            return self.queryset.annotate(count_users=Count('users'))
+        return self.queryset
 
-    @detail_route(methods=['post', 'put'])
+    @detail_route(methods=['post'])
     def add_user(self, request, pk):
         home_group = get_object_or_404(HomeGroup, pk=pk)
-        user_id = request.data.get('user_id')
-        if user_id is None:
+        user = self._get_user(request.data.get('user_id', None))
+
+        self._validate_user_for_add_user(user, home_group)
+        user.set_home_group(home_group)
+
+        return Response({'message': 'Пользователь успешно добавлен.'},
+                        status=status.HTTP_200_OK)
+
+    @staticmethod
+    def _get_user(user_id=None):
+        if not user_id:
             raise exceptions.ValidationError(_('"user_id" is required.'))
         try:
             user = get_object_or_404(CustomUser, pk=user_id)
         except Http404:
             raise exceptions.ValidationError(_('User with id = %s does not exist.' % user_id))
-
-        if request.method == 'PUT':
-            if not user.churches.exists() and not user.home_groups.exists():
-                raise exceptions.ValidationError(
-                    _('Невозможно добавить пользователя методом PUT. '
-                      'Данный пользователь не состоит ни Церкви ни в Домашней Группе.'))
-
-            if user.churches.exists():
-                old_church_id = user.churches.get().id
-                old_church = get_object_or_404(Church, pk=old_church_id)
-                old_church.users.remove(user)
-
-            if user.home_groups.exists():
-                old_home_group = user.home_groups.get().id
-                old_home_group = get_object_or_404(HomeGroup, pk=old_home_group)
-                old_home_group.users.remove(user)
-
-            home_group.users.add(user)
-
-        if request.method == 'POST':
-            self._validate_user_for_add_user(user, home_group)
-            home_group.users.add(user_id)
-            user.churches.through.objects.filter(customuser_id=user_id).delete()
-
-        return Response({'message': 'Пользователь успешно добавлен.'},
-                        status=status.HTTP_201_CREATED)
+        return user
 
     @detail_route(methods=['post'])
     def del_user(self, request, pk):
@@ -335,13 +313,11 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
     def _validate_user_for_add_user(user, home_group):
         if user.home_groups.exists():
             raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя методом POST.'
-                  'Данный пользователь уже состоит в Домашней Группе.'))
+                _('Невозможно добавить пользователя, данный пользователь уже состоит в Домашней Группе.'))
 
         if user.churches.exclude(id=home_group.church_id).exists():
             raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя методом POST.'
-                  'Пользователь является членом другой Церкви'))
+                _('Невозможно добавить пользователя, пользователь является членом другой Церкви'))
 
     @staticmethod
     def _validate_user_for_del_user(user_id, home_group):
@@ -411,3 +387,10 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         leaders = self.serializer_class(leaders, many=True)
 
         return Response(leaders.data)
+
+    @list_route(methods=['GET'], serializer_class=HomeMeetingsCountSerializer)
+    def meeting_counts(self, request):
+        pass
+        # queryset = self.queryset.aggregate(
+        #     meetings_in_progress=Sum(Case(When()))
+        # )

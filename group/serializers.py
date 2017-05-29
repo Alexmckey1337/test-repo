@@ -42,33 +42,17 @@ class HomeGroupLeaderRelatedField(serializers.PrimaryKeyRelatedField):
     }
 
 
-class ChurchShortSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Church
-        fields = ('id', 'get_title')
-
-
 class HomeGroupSerializer(serializers.ModelSerializer):
     leader = HomeGroupLeaderRelatedField(queryset=CustomUser.objects.filter(
         hierarchy__level__gt=0))
     department = serializers.CharField(source='church.department.id', read_only=True)
     count_users = serializers.IntegerField(read_only=True)
-    church = ChurchShortSerializer(read_only=True)
 
     class Meta:
         model = HomeGroup
         fields = ('id', 'link', 'opening_date', 'title', 'city', 'department',
                   'get_title', 'church', 'leader', 'address', 'phone_number',
                   'website', 'count_users')
-
-
-class HomeGroupCreateSerializer(HomeGroupSerializer):
-    church = ChurchShortSerializer(read_only=False)
-
-    class Meta(HomeGroupSerializer.Meta):
-        fields = HomeGroupSerializer.Meta.fields
-        read_only_fields = None
-
 
 
 class HomeGroupListSerializer(HomeGroupSerializer):
@@ -164,3 +148,13 @@ class AllHomeGroupsListSerializer(serializers.ModelSerializer):
     class Meta:
         model = HomeGroup
         fields = ('id', 'get_title')
+
+
+class HomeMeetingsCountSerializer(serializers.ModelSerializer):
+    meetings_in_progress = serializers.IntegerField(read_only=True)
+    meetings_submitted = serializers.IntegerField(read_only=True)
+    meetings_expired = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = HomeGroup
+        fields = ('meetings_in_progress', 'meetings_submitted', 'meetings_expired')

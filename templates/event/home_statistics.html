@@ -3,6 +3,8 @@
 
 {% block header.top.h1 %}<h1>Отчеты / Домашние группы</h1>{% endblock %}
 
+{% block header.search %}{% endblock %}
+
 {% block header.buttons.top %}
     <div class="top-buttons-wrap">
         <ul class="top-buttons">
@@ -92,6 +94,9 @@
                             <span class="label_block">Отдел</span>
                         </div>
                         <div class="label_block-wrapp">
+                            <span class="label_block">Ветка</span>
+                        </div>
+                        <div class="label_block-wrapp">
                             <span class="label_block">Церковь</span>
                         </div>
                         <div class="label_block-wrapp">
@@ -113,6 +118,14 @@
                                 <option value="">ВСЕ</option>
                                 {% for department in departments %}
                                     <option value="{{ department.id }}">{{ department.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="master_tree" id="master_tree_filter">
+                                <option value="">ВСЕ</option>
+                                {% for owner in owners %}
+                                    <option value="{{ owner.id }}">{{ owner.fullname }}</option>
                                 {% endfor %}
                             </select>
                         </p>

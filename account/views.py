@@ -5,11 +5,12 @@ import logging
 from django.contrib.auth import logout as django_logout
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction, IntegrityError
+from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 from rest_auth.views import LogoutView as RestAuthLogoutView
-from rest_framework import status, mixins
+from rest_framework import status, mixins, exceptions
 from rest_framework import viewsets, filters
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route, detail_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser, FormParser
@@ -24,6 +25,7 @@ from account.serializers import HierarchyError, UserForMoveSerializer
 from common.filters import FieldSearchFilter
 from common.parsers import MultiPartAndJsonParser
 from common.views_mixins import ExportViewSetMixin
+from group.models import HomeGroup, Church
 from navigation.table_fields import user_table
 from .resources import UserResource
 from .serializers import UserShortSerializer, UserTableSerializer, UserSerializer, \
@@ -96,6 +98,34 @@ class UserViewSet(viewsets.ModelViewSet, UserExportViewSetMixin):
     parser_dict_fields = ['partner']
 
     resource_class = UserResource
+
+    @detail_route(methods=['post'])
+    def set_home_group(self, request, pk):
+        user = self.get_object()
+        home_group = self._get_object_or_error(HomeGroup, 'home_group_id')
+        user.set_home_group(home_group)
+
+        return Response({'message': 'Домашняя группа установлена.'},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'])
+    def set_church(self, request, pk):
+        user = self.get_object()
+        church = self._get_object_or_error(Church, 'church_id')
+        user.set_church(church)
+
+        return Response({'message': _('Церковь установлена.')},
+                        status=status.HTTP_200_OK)
+
+    def _get_object_or_error(self, model, field_name):
+        obj_id = self.request.data.get(field_name, None)
+        if not obj_id:
+            raise exceptions.ValidationError(_('"%s" is required.' % field_name))
+        try:
+            obj = get_object_or_404(model, pk=obj_id)
+        except Http404:
+            raise exceptions.ValidationError(_('Object with pk = %s does not exist.' % obj_id))
+        return obj
 
     def dispatch(self, request, *args, **kwargs):
         if kwargs.get('pk') == 'current' and request.user.is_authenticated():
