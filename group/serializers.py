@@ -63,7 +63,12 @@ class HomeGroupSerializer(serializers.ModelSerializer):
 
 
 class HomeGroupCreateSerializer(HomeGroupSerializer):
-    church = ChurchShortSerializer()
+    church = ChurchShortSerializer(read_only=False)
+
+    class Meta(HomeGroupSerializer.Meta):
+        fields = HomeGroupSerializer.Meta.fields
+        read_only_fields = None
+
 
 
 class HomeGroupListSerializer(HomeGroupSerializer):
