@@ -29,36 +29,82 @@ function authUser() {
     if (checkEmptyFields(username, password) == false) {
         let next;
         let loginData = JSON.stringify(data);
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'rest-auth/login/', loginData, function (res) {
-            //showPopup(JSONobj.message);
+        authUserFunc(loginData).then(function (res) {
             if (res) {
                 setCookie('key', res.key, {
                     path: '/'
                 });
-                //showPopup(JSONobj.message);
                 next = getUrlParameter('next');
                 if (next) {
                     window.location.href = next;
                 } else {
                     window.location.href = '/';
                 }
-                console.log(getCookie('key'))
+                console.log(getCookie('key'));
             } else {
-                //loginError(JSONobj.message);
-                //alert(JSONobj.message)
                 clearFields();
                 $('.account .invalid').html(JSONobj.message);
                 document.querySelector(".account .invalid").style.display = 'block'
             }
-        }, 'POST', true, {
-            'Content-Type': 'application/json'
+        }).catch(function () {
+            $('.account .invalid').html('Неверно введён e-mail или пароль').show();
+            clearFields();
         });
+        // ajaxRequest(CONFIG.DOCUMENT_ROOT + 'rest-auth/login/', loginData, function (res) {
+        //     //showPopup(JSONobj.message);
+        //     if (res) {
+        //         setCookie('key', res.key, {
+        //             path: '/'
+        //         });
+        //         //showPopup(JSONobj.message);
+        //         next = getUrlParameter('next');
+        //         if (next) {
+        //             window.location.href = next;
+        //         } else {
+        //             window.location.href = '/';
+        //         }
+        //         console.log(getCookie('key'))
+        //     } else {
+        //         //loginError(JSONobj.message);
+        //         //alert(JSONobj.message)
+        //         clearFields();
+        //         $('.account .invalid').html(JSONobj.message);
+        //         document.querySelector(".account .invalid").style.display = 'block'
+        //     }
+        // }, 'POST', true, {
+        //     'Content-Type': 'application/json'
+        // },
+        // );
 
     } else {
-        $('.account .invalid').html('Неверно введён e-mail или пароль');
+        $('.account .invalid').html('Поле e-mail или пароль пустое');
         document.querySelector(".account .invalid").style.display = 'block';
-        clearFields()
+        clearFields();
     }
+}
+
+function authUserFunc(config = {}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: `${CONFIG.DOCUMENT_ROOT}rest-auth/login/`,
+            data: config,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                $('.account .invalid').html('Неверно введён e-mail или пароль').show();
+                clearFields();
+            }
+        };
+
+        newAjaxRequest(data, status, reject)
+    });
 }
 
 function clearFields() {
@@ -121,5 +167,4 @@ $(document).ready(function () {
             logIn();
         }
     });
-
 });
