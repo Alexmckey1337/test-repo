@@ -146,15 +146,15 @@ function createHomeGroupsTable(config = {}) {
                 let quickEditCartTmpl, rendered;
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
-                $('#quickEditCartPopup .popup_body').html(rendered);
-                makeLeaderList(data.department, '#editPastorSelect', data.leader);
-                makeDepartmentList('#editDepartmentSelect', data.department).then(function () {
-                    $('#editDepartmentSelect').on('change', function () {
-                        $('#pastor_select').prop('disabled', true);
-                        var department_id = parseInt($('#editDepartmentSelect').val());
-                        makeLeaderList(department_id, '#editPastorSelect');
-                    });
-                });
+                $('#quickEditCartPopup').find('.popup_body').html(rendered);
+                getResponsibleBYHomeGroup()
+                    .then(res => {
+                        return res.map(leader => `<option value="${leader.id}" ${(data.leader === leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
+                    })
+                    .then(data => {
+                        $('#homeGroupLeader').html(data).select2();
+                    })
+                ;
                 setTimeout(function () {
                     $('.date').datepicker({
                         dateFormat: 'yyyy-mm-dd',
@@ -294,21 +294,19 @@ function makeDepartmentList(selector, active = null) {
         $(selector).html(options).prop('disabled', false).select2();
     });
 }
-function getChurchesListINDepartament(id) {
+function getChurchesListINDepartament(department_ids) {
     return new Promise(function (resolve, reject) {
         let url;
-        if (id instanceof Array) {
-            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/churches_by_department/?`;
+        if (department_ids instanceof Array) {
+            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/for_select/?`;
             let i = 0;
-            id.forEach(function (item) {
+            department_ids.forEach(function (department_id) {
                 i++;
-                url += `department=${item}`;
-                if (id.length != i) {
+                url += `department=${department_id}`;
+                if (department_ids.length != i) {
                     url += '&';
                 }
             })
-        } else {
-            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches?department=${id}`;
         }
         let data = {
             url: url,
@@ -325,42 +323,10 @@ function getChurchesListINDepartament(id) {
         newAjaxRequest(data, status, reject)
     })
 }
-function getChurchesINDepartament(id) {
-    return new Promise(function (resolve, reject) {
-        let url;
-        if (id instanceof Array) {
-            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches?`;
-            let i = 0;
-            id.forEach(function (item) {
-                i++;
-                url += `department=${item}`;
-                if (id.length != i) {
-                    url += '&';
-                }
-            })
-        } else {
-            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches?department=${id}`;
-        }
-        let data = {
-            url: url,
-        };
-        let status = {
-            200: function (req) {
-                resolve(req)
-            },
-            403: function () {
-                reject('Вы должны авторизоватся')
-            }
-
-        };
-        newAjaxRequest(data, status, reject)
-    })
-}
-
 function getHomeGroupsINChurches(id) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/all/?church_id=${id}`,
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/for_select/?church_id=${id}`,
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -652,6 +618,28 @@ function saveHomeGroupsData(data, id) {
     }
 }
 
+function saveHomeGroupsDataNew(data, id) {
+    if (id) {
+        let data = JSON.stringify(data);
+        let options = {
+        method: 'PATCH',
+        credentials: "same-origin",
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        }),
+         body:  data
+
+    };
+        return fetch(`${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/`, options)
+            .then(res => res.json());
+
+        // ajaxRequest(, json, function (data) {
+        // }, 'PATCH', false, {
+        //     'Content-Type': 'application/json'
+        // });
+    }
+}
+
 function deleteUserINHomeGroup(id, user_id) {
     return new Promise(function (resolve, reject) {
         let json = JSON.stringify({
@@ -809,27 +797,13 @@ function addHomeGroupToDataBase(config = {}) {
     });
 }
 
-function addHomeGroup(e, el, callback) {
-    e.preventDefault();
-    let data = getAddHomeGroupData();
-    let json = JSON.stringify(data);
-
-    addHomeGroupToDataBase(json).then(function (data) {
-        clearAddHomeGroupData();
-        hidePopup(el);
-        callback();
-        showPopup(`Домашняя группа ${data.get_title} добавлена в базу данных`);
-    }).catch(function (data) {
-        hidePopup(el);
-        showPopup('Ошибка при создании домашней группы');
-    });
-}
-
 function getAddHomeGroupData() {
     return {
         "opening_date": $('#added_home_group_date').val(),
         "title": $('#added_home_group_title').val(),
-        "church": $('#added_home_group_church').data('id'),
+        "church": {
+            "id": parseInt($('#added_home_group_church').data('id'))
+        },
         "leader": $('#added_home_group_pastor').val(),
         "city": $('#added_home_group_city').val(),
         "address": $('#added_home_group_address').val(),
@@ -1102,9 +1076,10 @@ function getCurrentUser(id) {
         })
     })
 }
-function getResponsibleBYHomeGroup(churchID) {
+function getResponsibleBYHomeGroup(userID = null) {
+    let masterTree = (userID) ? userID : $('body').data('user');
     return new Promise(function (resolve, reject) {
-        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/?church_id=${churchID}`;
+        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/short_users/?master_tree=${masterTree}`;
         ajaxRequest(url, null, function (data) {
             if (data) {
                 resolve(data);
@@ -1228,7 +1203,7 @@ function getManagers() {
 
 function getIncompleteDeals(data) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=3', data, function (response) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=false', data, function (response) {
             if (response) {
                 resolve(response);
             } else {
@@ -1240,7 +1215,7 @@ function getIncompleteDeals(data) {
 
 function getFinishedDeals(data) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=2', data, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=true', data, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1252,7 +1227,7 @@ function getFinishedDeals(data) {
 
 function getOverdueDeals(data) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?expired=2', data, function (response) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?expired=true', data, function (response) {
             if (response) {
                 resolve(response);
             } else {
@@ -2282,9 +2257,10 @@ function saveChurches(el) {
 function saveHomeGroups(el) {
     let $input, $select, phone_number, data, id;
     id = parseInt($($(el).closest('.pop_cont').find('#homeGroupsID')).val());
+
     data = {
         title: $($(el).closest('.pop_cont').find('#home_groups_title')).val(),
-        leader: $($(el).closest('.pop_cont').find('#editPastorSelect')).val(),
+        leader: $($(el).closest('.pop_cont').find('#homeGroupLeader')).val(),
         department: $($(el).closest('.pop_cont').find('#editDepartmentSelect')).val(),
         phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
         website: ($(el).closest('.pop_cont').find('#web_site')).val(),
@@ -2293,12 +2269,16 @@ function saveHomeGroups(el) {
         city: $($(el).closest('.pop_cont').find('#city')).val(),
         address: $($(el).closest('.pop_cont').find('#address')).val()
     };
+
     saveHomeGroupsData(data, id);
+    saveHomeGroupsDataNew(data, id);
+
     $(el).text("Сохранено");
     $(el).closest('.popap').find('.close-popup.change__text').text('Закрыть');
     $(el).attr('disabled', true);
     $input = $(el).closest('.popap').find('input');
     $select = $(el).closest('.popap').find('select');
+
     $select.on('change', function () {
         $(el).text("Сохранить");
         $(el).closest('.popap').find('.close-popup').text('Отменить');
@@ -2852,7 +2832,7 @@ function getData(url, options = {}) {
         method: 'GET',
         credentials: "same-origin",
         headers: new Headers({
-            'Content-Type': 'text/json',
+            'Content-Type': 'application/json',
         })
     };
     if (typeof url === "string") {

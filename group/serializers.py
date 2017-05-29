@@ -42,17 +42,28 @@ class HomeGroupLeaderRelatedField(serializers.PrimaryKeyRelatedField):
     }
 
 
+class ChurchShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Church
+        fields = ('id', 'get_title')
+
+
 class HomeGroupSerializer(serializers.ModelSerializer):
     leader = HomeGroupLeaderRelatedField(queryset=CustomUser.objects.filter(
         hierarchy__level__gt=0))
     department = serializers.CharField(source='church.department.id', read_only=True)
     count_users = serializers.IntegerField(read_only=True)
+    church = ChurchShortSerializer(read_only=True)
 
     class Meta:
         model = HomeGroup
         fields = ('id', 'link', 'opening_date', 'title', 'city', 'department',
                   'get_title', 'church', 'leader', 'address', 'phone_number',
                   'website', 'count_users')
+
+
+class HomeGroupCreateSerializer(HomeGroupSerializer):
+    church = ChurchShortSerializer()
 
 
 class HomeGroupListSerializer(HomeGroupSerializer):
@@ -140,14 +151,6 @@ class HomeGroupStatsSerializer(serializers.ModelSerializer):
         model = HomeGroup
         fields = ('users_count', 'fathers_count', 'juniors_count', 'babies_count',
                   'partners_count')
-
-
-class AllChurchesListSerializer(serializers.ModelSerializer):
-    get_title = serializers.CharField(read_only=True)
-
-    class Meta:
-        model = Church
-        fields = ('id', 'get_title')
 
 
 class AllHomeGroupsListSerializer(serializers.ModelSerializer):
