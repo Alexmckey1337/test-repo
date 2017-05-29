@@ -146,15 +146,15 @@ function createHomeGroupsTable(config = {}) {
                 let quickEditCartTmpl, rendered;
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
-                $('#quickEditCartPopup .popup_body').html(rendered);
-                makeLeaderList(data.department, '#editPastorSelect', data.leader);
-                makeDepartmentList('#editDepartmentSelect', data.department).then(function () {
-                    $('#editDepartmentSelect').on('change', function () {
-                        $('#pastor_select').prop('disabled', true);
-                        var department_id = parseInt($('#editDepartmentSelect').val());
-                        makeLeaderList(department_id, '#editPastorSelect');
-                    });
-                });
+                $('#quickEditCartPopup').find('.popup_body').html(rendered);
+                getResponsibleBYHomeGroup(data.church.id)
+                    .then(res => {
+                        return res.map(leader => `<option value="${leader.id}" ${(data.leader === leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
+                    })
+                    .then(data => {
+                        $('#homeGroupLeader').html(data).select2();
+                    })
+                ;
                 setTimeout(function () {
                     $('.date').datepicker({
                         dateFormat: 'yyyy-mm-dd',
@@ -618,6 +618,28 @@ function saveHomeGroupsData(data, id) {
     }
 }
 
+function saveHomeGroupsDataNew(data, id) {
+    if (id) {
+        let data = JSON.stringify(data);
+        let options = {
+        method: 'PATCH',
+        credentials: "same-origin",
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        }),
+         body:  data
+
+    };
+        return fetch(`${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/`, options)
+            .then(res => res.json());
+
+        // ajaxRequest(, json, function (data) {
+        // }, 'PATCH', false, {
+        //     'Content-Type': 'application/json'
+        // });
+    }
+}
+
 function deleteUserINHomeGroup(id, user_id) {
     return new Promise(function (resolve, reject) {
         let json = JSON.stringify({
@@ -772,22 +794,6 @@ function addHomeGroupToDataBase(config = {}) {
             }
         };
         newAjaxRequest(data, status, reject)
-    });
-}
-
-function addHomeGroup(e, el, callback) {
-    e.preventDefault();
-    let data = getAddHomeGroupData();
-    let json = JSON.stringify(data);
-
-    addHomeGroupToDataBase(json).then(function (data) {
-        clearAddHomeGroupData();
-        hidePopup(el);
-        callback();
-        showPopup(`Домашняя группа ${data.get_title} добавлена в базу данных`);
-    }).catch(function (data) {
-        hidePopup(el);
-        showPopup('Ошибка при создании домашней группы');
     });
 }
 
@@ -2248,9 +2254,10 @@ function saveChurches(el) {
 function saveHomeGroups(el) {
     let $input, $select, phone_number, data, id;
     id = parseInt($($(el).closest('.pop_cont').find('#homeGroupsID')).val());
+
     data = {
         title: $($(el).closest('.pop_cont').find('#home_groups_title')).val(),
-        leader: $($(el).closest('.pop_cont').find('#editPastorSelect')).val(),
+        leader: $($(el).closest('.pop_cont').find('#homeGroupLeader')).val(),
         department: $($(el).closest('.pop_cont').find('#editDepartmentSelect')).val(),
         phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
         website: ($(el).closest('.pop_cont').find('#web_site')).val(),
@@ -2259,12 +2266,16 @@ function saveHomeGroups(el) {
         city: $($(el).closest('.pop_cont').find('#city')).val(),
         address: $($(el).closest('.pop_cont').find('#address')).val()
     };
+
     saveHomeGroupsData(data, id);
+    saveHomeGroupsDataNew(data, id);
+
     $(el).text("Сохранено");
     $(el).closest('.popap').find('.close-popup.change__text').text('Закрыть');
     $(el).attr('disabled', true);
     $input = $(el).closest('.popap').find('input');
     $select = $(el).closest('.popap').find('select');
+
     $select.on('change', function () {
         $(el).text("Сохранить");
         $(el).closest('.popap').find('.close-popup').text('Отменить');
@@ -2818,7 +2829,7 @@ function getData(url, options = {}) {
         method: 'GET',
         credentials: "same-origin",
         headers: new Headers({
-            'Content-Type': 'text/json',
+            'Content-Type': 'application/json',
         })
     };
     if (typeof url === "string") {
