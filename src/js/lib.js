@@ -139,7 +139,7 @@ function createHomeGroupsTable(config = {}) {
         filterData.user_table = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
-        $('#tableHomeGroup').html(rendered);
+        $('#tableHomeGroup').html(rendered)
         $('.quick-edit').on('click', function () {
             let id = $(this).closest('.edit').find('a').attr('data-id');
             ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/`, null, function (data) {
@@ -622,14 +622,14 @@ function saveHomeGroupsDataNew(data, id) {
     if (id) {
         let data = JSON.stringify(data);
         let options = {
-        method: 'PATCH',
-        credentials: "same-origin",
-        headers: new Headers({
-            'Content-Type': 'application/json',
-        }),
-         body:  data
+            method: 'PATCH',
+            credentials: "same-origin",
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            }),
+            body: data
 
-    };
+        };
         return fetch(`${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/`, options)
             .then(res => res.json());
 
@@ -640,12 +640,12 @@ function saveHomeGroupsDataNew(data, id) {
     }
 }
 
-function deleteUserINHomeGroup(id, user_id) {
+function deleteUserINHomeGroup(homeGroupId, user_id) {
     return new Promise(function (resolve, reject) {
         let json = JSON.stringify({
             "user_id": user_id
         });
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${id}/del_user/`, json, function () {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${homeGroupId}/del_user/`, json, function () {
             resolve();
         }, 'POST', false, {
             'Content-Type': 'application/json'
@@ -653,12 +653,12 @@ function deleteUserINHomeGroup(id, user_id) {
     })
 }
 
-function deleteUserINChurch(id, user_id) {
+function deleteUserINChurch(churchId, userId) {
     return new Promise(function (resolve, reject) {
         let json = JSON.stringify({
-            "user_id": user_id
+            "user_id": userId
         });
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/del_user/`, json, function () {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${churchId}/del_user/`, json, function () {
             resolve();
         }, 'POST', false, {
             'Content-Type': 'application/json'
@@ -716,7 +716,12 @@ function createChurchesDetailsTable(config = {}, id, link) {
         filterData.user_table = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
-        $('#tableUserINChurches').html(rendered);
+        $('#tableUserINChurches').html(rendered).on('click', '.delete_btn', function () {
+            let ID = $(this).closest('td').find('a').data('id');
+            deleteUserINChurch($('#church').data('id'), ID).then(() => {
+                createChurchesDetailsTable(config = {}, id, link);
+            });
+        });
         $('.quick-edit').on('click', function () {
             let user_id = $(this).closest('.edit').find('a').data('id');
             deleteUserINChurch(id, user_id).then(function () {
@@ -754,7 +759,12 @@ function createHomeGroupUsersTable(config = {}, id) {
         filterData.user_table = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
-        $('#tableUserINHomeGroups').html(rendered);
+        $('#tableUserINHomeGroups').html(rendered).on('click', '.delete_btn', function () {
+            let ID = $(this).closest('td').find('a').data('id');
+            deleteUserINHomeGroup($('#home_group').data('id'), ID).then(() => {
+                createHomeGroupUsersTable(config = {}, id)
+            });
+        });
         $('.quick-edit').on('click', function () {
             let user_id = $(this).closest('.edit').find('a').data('id');
             deleteUserINHomeGroup(id, user_id).then(function () {
@@ -849,7 +859,7 @@ function clearAddNewUser() {
         $(this).val('');
     });
     form.find('#spir_level').select2('destroy').find('option').attr('selected', false)
-                            .find('option:first-child').attr('selected', true);
+        .find('option:first-child').attr('selected', true);
 }
 
 function clearAddChurchData() {
@@ -1626,7 +1636,7 @@ function showPopupAddUser(data) {
     $('#addPopup').find('.addMore').on('click', function () {
         $('#addPopup').css('display', 'none').remove();
         $('body').addClass('no_scroll');
-        $('#addNewUserPopup').find('form').css("transform","translate3d(0px, 0px, 0px)");
+        $('#addNewUserPopup').find('form').css("transform", "translate3d(0px, 0px, 0px)");
         $('#addNewUserPopup').css('display', 'block');
         clearAddNewUser();
     });
