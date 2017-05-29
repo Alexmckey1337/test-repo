@@ -43,8 +43,6 @@ class HomeGroupLeaderRelatedField(serializers.PrimaryKeyRelatedField):
 
 
 class ChurchShortSerializer(serializers.ModelSerializer):
-    get_title = serializers.CharField(read_only=True)
-
     class Meta:
         model = Church
         fields = ('id', 'get_title')
