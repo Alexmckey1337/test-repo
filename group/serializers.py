@@ -153,14 +153,6 @@ class HomeGroupStatsSerializer(serializers.ModelSerializer):
                   'partners_count')
 
 
-class AllChurchesListSerializer(serializers.ModelSerializer):
-    get_title = serializers.CharField(read_only=True)
-
-    class Meta:
-        model = Church
-        fields = ('id', 'get_title')
-
-
 class AllHomeGroupsListSerializer(serializers.ModelSerializer):
     get_title = serializers.CharField(read_only=True)
 

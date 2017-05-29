@@ -92,7 +92,7 @@ List of churches
     :query int department: filter by ``department_id``
     :query int pastor: filter by ``pastor_id``
     :query int page_size: page size, default is 30
-    :query string title: search by ``title``
+    :query string title: search by ``title``, ``pastor.fio``
     :query string ordering: order by one of ``title``, ``city``, ``department``, ``home_group``, ``is_open``,
                                             ``opening_date``, ``pastor``, ``phone_number``, ``title``, ``website``
                                             ``count_groups``, ``count_users``, ``country``
@@ -453,7 +453,7 @@ Update church
 List home groups by church
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. http:get:: /api/v1.0/churches/(int:<church_id>)/home_groups
+.. http:get:: /api/v1.0/churches/(int:<church_id>)/home_groups/
 
     Details of ``Home Groups`` in selected ``Churhc`` with ``id = church_id``.
     Paginated by 30 home_groups per page
@@ -654,7 +654,7 @@ Potential users of group
 All users of church and groups
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. http:get:: /api/v1.0/churches/(int:<church_id>)/all_users
+.. http:get:: /api/v1.0/churches/(int:<church_id>)/all_users/
 
     List of users in the current ``Church`` including all users in home groups with ``id = church_id``.
     Pagination by 30 users per page.
@@ -1033,13 +1033,13 @@ Statistics of churches
 All Church objects without pagination, filtered by department
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. http:get:: /api/v1.0/churches/all/?department_id=<int(department_id)>
+.. http:get:: /api/v1.0/churches/for_select/?department_id=<int(department_id)>
 
     **Example request**:
 
     .. sourcecode:: http
 
-        GET /api/v1.0/churches/all/?department_id=1 HTTP/1.1
+        GET /api/v1.0/churches/for_select/?department_id=1 HTTP/1.1
         Host: vocrm.org
         Content-type: application/json
 
@@ -1224,7 +1224,7 @@ List of home groups
     :query int church: filter by ``church_id``
     :query int leader: filter by ``leader_id``
     :query string city: filter by ``city``
-    :query string title: filter by ``title``
+    :query string search_title: search by ``title``, ``leader.fio``
     :query string phone_number: filter by ``phone_number``
     :query string website: filter by ``website``
     :query string ordering: order by one of ``address``, ``church``, ``city``, ``leader``,
@@ -1928,13 +1928,13 @@ Statistics of home groups
 All HomeGroup objects without pagination filtered by selected church
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. http:get:: /api/v1.0/home_groups/all/?church_id
+.. http:get:: /api/v1.0/home_groups/for_select/?church_id
 
     **Example request**:
 
     .. sourcecode:: http
 
-        GET /api/v1.0/home_groups/all/?church_id=18 HTTP/1.1
+        GET /api/v1.0/home_groups/for_select/?church_id=18 HTTP/1.1
         Host: vocrm.org
         Content-type: application/json
 

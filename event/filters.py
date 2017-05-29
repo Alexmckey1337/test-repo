@@ -46,4 +46,5 @@ class CommonEventFilter(filters.BaseFilterBackend):
 
 
 class MeetingFilterByMaster(BaseFilterMasterTree):
+    include_self_master = True
     user_field_prefix = 'owner__'
