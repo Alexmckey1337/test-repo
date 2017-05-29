@@ -795,9 +795,7 @@ function getAddHomeGroupData() {
     return {
         "opening_date": $('#added_home_group_date').val(),
         "title": $('#added_home_group_title').val(),
-        "church": {
-            "id": parseInt($('#added_home_group_church').data('id'))
-        },
+        "church": parseInt($('#added_home_group_church').data('id')),
         "leader": $('#added_home_group_pastor').val(),
         "city": $('#added_home_group_city').val(),
         "address": $('#added_home_group_address').val(),
