@@ -15,10 +15,10 @@ from .resources import UserResource
 
 class CustomUserAdmin(UserAdmin, MPTTModelAdmin, ImportExportModelAdmin):
     list_display = ('fullname', 'username', 'email', 'date_joined',
-                    'is_staff', 'is_active')
+                    'is_staff', 'is_active', 'can_login')
     list_display_links = ('fullname', 'username')
-    list_editable = ('is_active',)
-    list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups', 'departments',)
+    list_editable = ('is_active', 'can_login')
+    list_filter = ('is_staff', 'is_superuser', 'is_active', 'can_login', 'groups', 'departments',)
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {'fields': (
@@ -27,7 +27,7 @@ class CustomUserAdmin(UserAdmin, MPTTModelAdmin, ImportExportModelAdmin):
             'country', 'region', 'city', 'district', 'address',
             'description', 'repentance_date', 'coming_date',
         )}),
-        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'user_permissions')}),
+        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'can_login', 'is_superuser', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
         (_('Groups'), {'fields': ('groups',)}),
     )
