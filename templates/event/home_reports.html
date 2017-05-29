@@ -224,7 +224,7 @@
                 <% } else if (key == 'home_group') { %>
                 <% if (results[index][key] != null) { %>
                 <td>
-                    <%= results[index][key].title %>
+                    <a href="/db/home_groups/<%= results[index][key].id %>"><%= results[index][key].title %></a>
                 </td>
                 <% } else { %>
                 <td></td>
@@ -232,7 +232,7 @@
                 <% } else if(key == 'owner') { %>
                 <% if (results[index][key] != null) { %>
                 <td>
-                    <%= results[index][key].fullname %>
+                    <a href="/account/<%= results[index][key].id %>"><%= results[index][key].fullname %></a>
                 </td>
                 <% } else { %>
                 <td></td>
