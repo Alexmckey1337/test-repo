@@ -27,7 +27,7 @@ from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSeria
                           HomeGroupListSerializer, ChurchStatsSerializer, UserNameSerializer,
                           AllHomeGroupsListSerializer,
                           HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer,
-                          HomeGroupCreateSerializer)
+                          )
 
 
 class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
@@ -246,7 +246,6 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
 
     serializer_class = HomeGroupSerializer
     serializer_list_class = HomeGroupListSerializer
-    serializer_create_class = HomeGroupCreateSerializer
 
     permission_classes = (IsAuthenticated,)
     pagination_class = HomeGroupPagination
@@ -269,10 +268,8 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
     resource_class = HomeGroupResource
 
     def get_serializer_class(self):
-        if self.action in 'list':
+        if self.action in ['list', 'retrieve']:
             return self.serializer_list_class
-        if self.action == 'create':
-            return self.serializer_create_class
         return self.serializer_class
 
     def get_queryset(self):
