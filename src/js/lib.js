@@ -1205,7 +1205,7 @@ function getManagers() {
 
 function getIncompleteDeals(data) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=false', data, function (response) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=False', data, function (response) {
             if (response) {
                 resolve(response);
             } else {
@@ -1217,7 +1217,7 @@ function getIncompleteDeals(data) {
 
 function getFinishedDeals(data) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=true', data, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=True', data, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1229,7 +1229,7 @@ function getFinishedDeals(data) {
 
 function getOverdueDeals(data) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?expired=true', data, function (response) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?expired=True', data, function (response) {
             if (response) {
                 resolve(response);
             } else {
