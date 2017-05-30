@@ -188,7 +188,7 @@ function createHomeGroupsTable(config = {}) {
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
                 $('#quickEditCartPopup').find('.popup_body').html(rendered);
-                getResponsibleBYHomeGroup()
+                getResponsibleBYHomeGroupSupeMegaNew({departmentId: data.department})
                     .then(res => {
                         return res.map(leader => `<option value="${leader.id}" ${(data.leader.id == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
                     })
@@ -1156,6 +1156,19 @@ function getResponsibleBYHomeGroup(userID = null) {
     return new Promise(function (resolve, reject) {
         let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/short_users/?master_tree=${masterTree}`;
         ajaxRequest(url, null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    })
+}
+function getResponsibleBYHomeGroupSupeMegaNew(config) {
+    let masterTree = (config.userId) ? config.userId : $('body').data('user');
+    return new Promise(function (resolve, reject) {
+        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/available_pastors/`;
+        ajaxRequest(url, {master_tree: masterTree, department_id: config.departmentId}, function (data) {
             if (data) {
                 resolve(data);
             } else {
