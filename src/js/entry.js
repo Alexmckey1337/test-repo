@@ -48,7 +48,9 @@ function authUser() {
             }
         }).catch(function (res) {
             let error = JSON.parse(res.responseText);
-            $('.account .invalid').html(error.non_field_errors[0]).show();
+            let errKey = Object.keys(error);
+            let html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`)
+            $('.account .invalid').html(html).show();
             clearFields();
         });
         // ajaxRequest(CONFIG.DOCUMENT_ROOT + 'rest-auth/login/', loginData, function (res) {
