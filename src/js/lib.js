@@ -2854,14 +2854,10 @@ function getHomeGroupStats(id) {
 }
 
 function getPastorsByDepartment(config) {
-    let resData = {};
-    resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/available_pastors/?blank=`;
-    if (config.department_id) {
-        resData.url += `&department_id=${config.department_id}`;
-    }
-    if (config.master_tree) {
-        resData.url += `&master_tree=${config.master_tree}`;
-    }
+    let data = {
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/available_pastors/`,
+        data: config
+    };
     return new Promise(function (resolve, reject) {
         let codes = {
             200: function (data) {
@@ -2871,12 +2867,12 @@ function getPastorsByDepartment(config) {
                 reject(data);
             }
         };
-        newAjaxRequest(resData, codes, reject);
+        newAjaxRequest(data, codes, reject);
     });
 }
 
 function getLeadersByChurch(config = {}) {
-    let resData = {
+    let data = {
         url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/available_leaders/`,
         data: config
     };
@@ -2889,7 +2885,7 @@ function getLeadersByChurch(config = {}) {
                 reject(data);
             }
         };
-        newAjaxRequest(resData, codes, reject);
+        newAjaxRequest(data, codes, reject);
     });
 }
 
