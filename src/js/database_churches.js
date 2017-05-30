@@ -4,7 +4,7 @@
         $pastorFilter = $('#pastor_filter');
     let filterInit = (function () {
         let init = false;
-        const USER_ID = $('body').data('id');
+        const USER_ID = $('body').data('user');
         return function () {
             if (!init) {
                 getPastorsByDepartment({

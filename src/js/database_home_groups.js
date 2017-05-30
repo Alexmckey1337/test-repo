@@ -1,13 +1,13 @@
 (function ($) {
     let filterInit = (function () {
         let init = false;
-        const USER_ID = $('body').data('id');
+        const USER_ID = $('body').data('user');
         return function () {
             if (!init) {
                 getLeadersByChurch({
                     master_tree: USER_ID
                 }).then(res => {
-                    let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
+                    const leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
                     $('#tree_filter').html('<option>ВСЕ</option>').append(leaders);
                     $('#leader_filter').html('<option>ВСЕ</option>').append(leaders);
                 });
