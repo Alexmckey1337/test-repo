@@ -144,4 +144,11 @@
 
     accordionInfo();
 
+    $('#opening_date').datepicker({
+        dateFormat: 'dd.mm.yyyy',
+        autoClose: true
+    });
+
+
+
 })(jQuery);
