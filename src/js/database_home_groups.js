@@ -87,7 +87,6 @@
                 options.push(option);
             });
             $('#tree_filter').html(options);
-            // $('#leader_filter').html(options);
         })
     });
     $treeFilter.on('change', function () {

@@ -43,7 +43,6 @@ class ChurchFilter(django_filters.FilterSet):
 
 
 class CommonGroupMasterTreeFilter(BaseFilterBackend):
-    model = None
     level = None
     search = None
 
@@ -64,16 +63,14 @@ class CommonGroupMasterTreeFilter(BaseFilterBackend):
         users = CustomUser.objects.filter(hierarchy__level__gte=self.level).filter(
             tree_id=master_tree_id, lft__gte=master_left, rght__lte=master_right)
 
-        return self.model.objects.filter(**{self.search: [user.id for user in users]})
+        return queryset.filter(**{self.search: [user.id for user in users]})
 
 
 class FilterChurchMasterTree(CommonGroupMasterTreeFilter):
-    model = Church
     level = 2
-    search = 'pastor__id__in'
+    search = 'pastor_id__in'
 
 
 class FilterHomeGroupMasterTree(CommonGroupMasterTreeFilter):
-    model = HomeGroup
     level = 1
-    search = 'leader__id__in'
+    search = 'leader_id__in'

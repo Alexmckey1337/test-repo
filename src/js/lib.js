@@ -1093,7 +1093,7 @@ function getResponsibleBYHomeGroup(userID = null) {
 
 function getResponsibleBYHomeGroupNew(config) {
     return new Promise(function (resolve, reject) {
-        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/`;
+        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/available_leaders/`;
         ajaxRequest(url, config, function (data) {
             if (data) {
                 resolve(data);
@@ -2807,7 +2807,7 @@ function getPastorsByDepartment(id) {
 
 function getLeadersByChurch(config = {}) {
     let resData = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_current_leaders/`,
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/available_leaders/`,
         data: config
     };
     return new Promise(function (resolve, reject) {
