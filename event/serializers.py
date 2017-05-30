@@ -64,11 +64,12 @@ class MeetingSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMix
     owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
         home_group__leader__id__isnull=False).distinct())
     date = serializers.DateField(default=datetime.now().date())
+    can_submit = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Meeting
         fields = ('id', 'home_group', 'owner', 'type', 'date', 'total_sum',
-                  'status')
+                  'status', 'can_submit')
 
         validators = [
             UniqueTogetherValidator(
@@ -108,11 +109,12 @@ class MeetingDetailSerializer(MeetingSerializer):
     type = MeetingTypeSerializer(read_only=True, required=False)
     owner = UserNameSerializer(read_only=True, required=False)
     status = serializers.ReadOnlyField(read_only=True, required=False)
+    can_submit = serializers.BooleanField(read_only=True)
 
     not_editable_fields = ['home_group', 'owner', 'type', 'status']
 
     class Meta(MeetingSerializer.Meta):
-        fields = MeetingSerializer.Meta.fields + ('attends', 'table_columns')
+        fields = MeetingSerializer.Meta.fields + ('attends', 'table_columns', 'can_submit')
 
     def update(self, instance, validated_data):
         instance, validated_data = self.validate_before_serializer_update(

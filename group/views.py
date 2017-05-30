@@ -72,7 +72,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
                 count_users=Count('users', distinct=True) + Count(
                     'home_group__users', distinct=True))
         return self.queryset
-    #
+
     # def get_queryset(self):
     #     if self.action == 'list':
     #         return self.queryset.for_user(self.request.user).annotate(

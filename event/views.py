@@ -74,8 +74,8 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
                 visitors_absent=Sum(Case(When(
                     attends__attended=False, then=1),
-                    output_field=IntegerField(), default=0))
-            )
+                    output_field=IntegerField(), default=0)))
+
         return self.queryset.for_user(self.request.user)
 
     @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer)
@@ -106,6 +106,9 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     @staticmethod
     def validate_to_submit(meeting, data):
+        if Meeting.objects.filter(owner=meeting.owner, status=Meeting.IN_PROGRESS).exists:
+            raise exceptions.ValidationError('Невозможно подать новый отчет. Заполнените просроченные отчеты ')
+
         if meeting.type.code == 'service' and data.get('total_sum'):
             raise exceptions.ValidationError(
                 _('Невозможно подать отчет. Отчет типа - {%s} не должен содержать '
