@@ -1,9 +1,11 @@
 import operator
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 import django_filters
+from django import forms
 from django.db import models
 from django.utils import six
+from django_filters import rest_framework, STRICTNESS
 from rest_framework.filters import BaseFilterBackend, FilterSet
 
 from partnership.models import Deal
@@ -21,7 +23,7 @@ class PaymentFilterByPurpose(BaseFilterBackend):
         return queryset.filter(content_type__model__in=purpose)
 
 
-class PaymentFilter(FilterSet):
+class PaymentFilter(rest_framework.FilterSet):
     sum_to = django_filters.NumberFilter(name="sum", lookup_expr='lte')
     sum_from = django_filters.NumberFilter(name="sum", lookup_expr='gte')
     eff_sum_to = django_filters.NumberFilter(name="effective_sum", lookup_expr='lte')
@@ -35,6 +37,36 @@ class PaymentFilter(FilterSet):
         model = Payment
         fields = ['sum_from', 'sum_to', 'eff_sum_from', 'eff_sum_to', 'currency_sum',
                   'currency_rate', 'create_from', 'create_to', 'sent_from', 'sent_to', 'manager']
+
+    # TODO its hell
+    @property
+    def qs(self):
+        if not hasattr(self, '_qs'):
+            if not self.is_bound:
+                self._qs = self.queryset.all()
+                return self._qs
+
+            if not self.form.is_valid():
+                if self.strict == STRICTNESS.RAISE_VALIDATION_ERROR:
+                    raise forms.ValidationError(self.form.errors)
+                elif self.strict == STRICTNESS.RETURN_NO_RESULTS:
+                    self._qs = self.queryset.none()
+                    return self._qs
+                    # else STRICTNESS.IGNORE...  ignoring
+
+            # start with all the results and filter from there
+            qs = self.queryset.all()
+            for name, filter_ in six.iteritems(self.filters):
+                value = self.form.cleaned_data.get(name)
+
+                if value is not None:  # valid & clean data
+                    if name == 'create_to':
+                        value = value + timedelta(days=1)
+                    qs = filter_.filter(qs, value)
+
+            self._qs = qs
+
+        return self._qs
 
 
 class FilterByDealFIO(BaseFilterBackend):
