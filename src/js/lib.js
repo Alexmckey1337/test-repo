@@ -247,9 +247,8 @@ function makePastorListNew(id, selector = [], active = null) {
         })
     });
 }
-function makePastorList(id, selector, active = null) {
-    console.log(id);
-    getResponsible(id, 2).then(function (data) {
+function makePastorList(departmentId, selector, active = null) {
+    getResponsible(departmentId, 2).then(function (data) {
         let options = [];
         data.forEach(function (item) {
             let option = document.createElement('option');
@@ -320,9 +319,9 @@ function getPartners(config) {
 }
 
 function makeDepartmentList(selector, active = null) {
-    return getDepartments().then(function (data) {
+    return getDepartmentsOfUser($("body").data("user")).then(function (data) {
         let options = [];
-        let department = data.results;
+        let department = data;
         department.forEach(function (item) {
             let option = document.createElement('option');
             $(option).val(item.id).text(item.title);
@@ -1108,6 +1107,18 @@ function getCountriesList() {
 function getDepartments() {
     return new Promise(function (resolve, reject) {
         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/departments/', null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject('Ошибка');
+            }
+        });
+    });
+}
+
+function getDepartmentsOfUser(userId) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.1/users/${userId}/departments/`, null, function (data) {
             if (data) {
                 resolve(data);
             } else {

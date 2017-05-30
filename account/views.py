@@ -26,6 +26,7 @@ from common.filters import FieldSearchFilter
 from common.parsers import MultiPartAndJsonParser
 from common.views_mixins import ExportViewSetMixin
 from group.models import HomeGroup, Church
+from hierarchy.serializers import DepartmentSerializer
 from navigation.table_fields import user_table
 from .resources import UserResource
 from .serializers import UserShortSerializer, UserTableSerializer, UserSerializer, \
@@ -116,6 +117,14 @@ class UserViewSet(viewsets.ModelViewSet, UserExportViewSetMixin):
 
         return Response({'message': _('Церковь установлена.')},
                         status=status.HTTP_200_OK)
+
+    # TODO tmp
+    @detail_route(methods=['get'])
+    def departments(self, request, pk):
+        departments = get_object_or_404(User, pk=pk).departments.all()
+        serializer = DepartmentSerializer(departments, many=True)
+
+        return Response(serializer.data)
 
     def _get_object_or_error(self, model, field_name):
         obj_id = self.request.data.get(field_name, None)
