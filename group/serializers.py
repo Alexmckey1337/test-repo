@@ -142,17 +142,19 @@ class HomeGroupStatsSerializer(serializers.ModelSerializer):
                   'partners_count')
 
 
-class AllChurchesListSerializer(serializers.ModelSerializer):
-    get_title = serializers.CharField(read_only=True)
-
-    class Meta:
-        model = Church
-        fields = ('id', 'get_title')
-
-
 class AllHomeGroupsListSerializer(serializers.ModelSerializer):
     get_title = serializers.CharField(read_only=True)
 
     class Meta:
         model = HomeGroup
         fields = ('id', 'get_title')
+
+
+class HomeMeetingsCountSerializer(serializers.ModelSerializer):
+    meetings_in_progress = serializers.IntegerField(read_only=True)
+    meetings_submitted = serializers.IntegerField(read_only=True)
+    meetings_expired = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = HomeGroup
+        fields = ('meetings_in_progress', 'meetings_submitted', 'meetings_expired')

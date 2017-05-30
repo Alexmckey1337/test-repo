@@ -41,7 +41,7 @@
             <div class="popup_body">
             </div>
             <div class="container">
-                <button class="close-popup">Отменить</button>
+                <button class="close-popup change__text">Отменить</button>
                 <button onclick="saveHomeGroups(this)" class="save-user">Сохранить</button>
             </div>
         </div>
@@ -203,13 +203,13 @@
     <div class="container start">
         <div class="column">
             <div class="label_block-wrapp">
-                <span class="label_block">Отдел:</span>
+                <span class="label_block">Церковь:</span>
             </div>
             <div class="label_block-wrapp">
-                <span class="label_block">Пастор:</span>
+                <span class="label_block">Лидер:</span>
             </div>
             <div class="label_block-wrapp">
-                <span class="label_block">Нас.пункт:</span>
+                <span class="label_block">Город:</span>
             </div>
             <div class="label_block-wrapp">
                 <span class="label_block">Адрес:</span>
@@ -222,10 +222,8 @@
             </div>
         </div>
         <div class="col-7">
-            <div><select name="" id="editDepartmentSelect">
-                <option value="<%= department %>"><%= department %></option>
-            </select></div>
-            <div><select name="" id="editPastorSelect">
+            <div><input type="text" value="<%= church.title %>" readonly></div>
+            <div><select name="" id="homeGroupLeader">
                 <option value="<%= leader %>"><%= leader %></option>
             </select></div>
             <p><input type="text" id="city" value="<%=city %>"></p>

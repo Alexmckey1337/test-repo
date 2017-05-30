@@ -110,5 +110,5 @@
             });
             $('#leader_filter').html(options);
         });
-    })
+    });
 })(jQuery);

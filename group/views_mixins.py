@@ -8,7 +8,6 @@ from group.pagination import HomeGroupPagination, GroupUsersPagination
 from group.resources import GroupUserResource, HomeGroupResource
 from group.serializers import HomeGroupListSerializer, GroupUserSerializer
 
-
 GROUP_USER_ORDERING_FIELDS = ('id', 'last_name', 'spiritual_level', 'leader__last_name',
                               'phone_number', 'born_date', 'repentance_date')
 

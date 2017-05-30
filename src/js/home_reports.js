@@ -31,4 +31,10 @@
             makeHomeReportsTable(data);
         });
     }
+
+    $('input[name=fullsearch]').on('keyup', function () {
+        $('.preloader').show();
+        homeReportsTable();
+    });
+
 })();

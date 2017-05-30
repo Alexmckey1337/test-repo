@@ -75,20 +75,17 @@ function deleteSummitProfile(id) {
 }
 
 function addUserToChurch(user_id, id, exist = false) {
-    let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${id}/add_user/`;
+    let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${user_id}/set_church/`;
     let config = {
         url: url,
         method: "POST",
         data: {
-            user_id: user_id
+            church_id: id
         }
     };
-    if (exist) {
-        config.method = "PUT";
-    }
     return new Promise(function (resolve, reject) {
         let codes = {
-            201: function (data) {
+            200: function (data) {
                 resolve(data);
             },
             400: function (data) {
@@ -100,20 +97,17 @@ function addUserToChurch(user_id, id, exist = false) {
 }
 
 function addUserToHomeGroup(user_id, hg_id, exist = false) {
-    let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${hg_id}/add_user/`;
+    let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${user_id}/set_home_group/`;
     let config = {
         url: url,
         method: "POST",
         data: {
-            user_id: user_id
+            home_group_id: hg_id
         }
     };
-    if (exist) {
-        config.method = "PUT";
-    }
     return new Promise(function (resolve, reject) {
         let codes = {
-            201: function (data) {
+            200: function (data) {
                 resolve(data);
             },
             400: function (data) {
@@ -146,15 +140,14 @@ function createHomeGroupsTable(config = {}) {
                 let quickEditCartTmpl, rendered;
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
-                $('#quickEditCartPopup .popup_body').html(rendered);
-                makeLeaderList(data.department, '#editPastorSelect', data.leader);
-                makeDepartmentList('#editDepartmentSelect', data.department).then(function () {
-                    $('#editDepartmentSelect').on('change', function () {
-                        $('#pastor_select').prop('disabled', true);
-                        var department_id = parseInt($('#editDepartmentSelect').val());
-                        makeLeaderList(department_id, '#editPastorSelect');
+                $('#quickEditCartPopup').find('.popup_body').html(rendered);
+                getResponsibleBYHomeGroup()
+                    .then(res => {
+                        return res.map(leader => `<option value="${leader.id}" ${(data.leader.id == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
+                    })
+                    .then(data => {
+                        $('#homeGroupLeader').html(data).select2();
                     });
-                });
                 setTimeout(function () {
                     $('.date').datepicker({
                         dateFormat: 'yyyy-mm-dd',
@@ -294,21 +287,19 @@ function makeDepartmentList(selector, active = null) {
         $(selector).html(options).prop('disabled', false).select2();
     });
 }
-function getChurchesListINDepartament(id) {
+function getChurchesListINDepartament(department_ids) {
     return new Promise(function (resolve, reject) {
         let url;
-        if (id instanceof Array) {
-            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/churches_by_department/?`;
+        if (department_ids instanceof Array) {
+            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/for_select/?`;
             let i = 0;
-            id.forEach(function (item) {
+            department_ids.forEach(function (department_id) {
                 i++;
-                url += `department=${item}`;
-                if (id.length != i) {
+                url += `department=${department_id}`;
+                if (department_ids.length != i) {
                     url += '&';
                 }
             })
-        } else {
-            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches?department=${id}`;
         }
         let data = {
             url: url,
@@ -325,42 +316,10 @@ function getChurchesListINDepartament(id) {
         newAjaxRequest(data, status, reject)
     })
 }
-function getChurchesINDepartament(id) {
-    return new Promise(function (resolve, reject) {
-        let url;
-        if (id instanceof Array) {
-            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches?`;
-            let i = 0;
-            id.forEach(function (item) {
-                i++;
-                url += `department=${item}`;
-                if (id.length != i) {
-                    url += '&';
-                }
-            })
-        } else {
-            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches?department=${id}`;
-        }
-        let data = {
-            url: url,
-        };
-        let status = {
-            200: function (req) {
-                resolve(req)
-            },
-            403: function () {
-                reject('Вы должны авторизоватся')
-            }
-
-        };
-        newAjaxRequest(data, status, reject)
-    })
-}
-
 function getHomeGroupsINChurches(id) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/all/?church_id=${id}`,
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/for_select/?church_id=${id}`,
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -652,12 +611,34 @@ function saveHomeGroupsData(data, id) {
     }
 }
 
-function deleteUserINHomeGroup(id, user_id) {
+function saveHomeGroupsDataNew(data, id) {
+    if (id) {
+        let data = JSON.stringify(data);
+        let options = {
+            method: 'PATCH',
+            credentials: "same-origin",
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            }),
+            body: data
+
+        };
+        return fetch(`${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/`, options)
+            .then(res => res.json());
+
+        // ajaxRequest(, json, function (data) {
+        // }, 'PATCH', false, {
+        //     'Content-Type': 'application/json'
+        // });
+    }
+}
+
+function deleteUserINHomeGroup(homeGroupId, user_id) {
     return new Promise(function (resolve, reject) {
         let json = JSON.stringify({
             "user_id": user_id
         });
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${id}/del_user/`, json, function () {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${homeGroupId}/del_user/`, json, function () {
             resolve();
         }, 'POST', false, {
             'Content-Type': 'application/json'
@@ -665,12 +646,12 @@ function deleteUserINHomeGroup(id, user_id) {
     })
 }
 
-function deleteUserINChurch(id, user_id) {
+function deleteUserINChurch(churchId, userId) {
     return new Promise(function (resolve, reject) {
         let json = JSON.stringify({
-            "user_id": user_id
+            "user_id": userId
         });
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/del_user/`, json, function () {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${churchId}/del_user/`, json, function () {
             resolve();
         }, 'POST', false, {
             'Content-Type': 'application/json'
@@ -728,7 +709,12 @@ function createChurchesDetailsTable(config = {}, id, link) {
         filterData.user_table = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
-        $('#tableUserINChurches').html(rendered);
+        $('#tableUserINChurches').html(rendered).on('click', '.delete_btn', function () {
+            let ID = $(this).closest('td').find('a').data('id');
+            deleteUserINChurch($('#church').data('id'), ID).then(() => {
+                createChurchesDetailsTable(config = {}, id, link);
+            });
+        });
         $('.quick-edit').on('click', function () {
             let user_id = $(this).closest('.edit').find('a').data('id');
             deleteUserINChurch(id, user_id).then(function () {
@@ -766,7 +752,12 @@ function createHomeGroupUsersTable(config = {}, id) {
         filterData.user_table = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
-        $('#tableUserINHomeGroups').html(rendered);
+        $('#tableUserINHomeGroups').html(rendered).on('click', '.delete_btn', function () {
+            let ID = $(this).closest('td').find('a').data('id');
+            deleteUserINHomeGroup($('#home_group').data('id'), ID).then(() => {
+                createHomeGroupUsersTable(config = {}, id)
+            });
+        });
         $('.quick-edit').on('click', function () {
             let user_id = $(this).closest('.edit').find('a').data('id');
             deleteUserINHomeGroup(id, user_id).then(function () {
@@ -809,27 +800,11 @@ function addHomeGroupToDataBase(config = {}) {
     });
 }
 
-function addHomeGroup(e, el, callback) {
-    e.preventDefault();
-    let data = getAddHomeGroupData();
-    let json = JSON.stringify(data);
-
-    addHomeGroupToDataBase(json).then(function (data) {
-        clearAddHomeGroupData();
-        hidePopup(el);
-        callback();
-        showPopup(`Домашняя группа ${data.get_title} добавлена в базу данных`);
-    }).catch(function (data) {
-        hidePopup(el);
-        showPopup('Ошибка при создании домашней группы');
-    });
-}
-
 function getAddHomeGroupData() {
     return {
         "opening_date": $('#added_home_group_date').val(),
         "title": $('#added_home_group_title').val(),
-        "church": $('#added_home_group_church').data('id'),
+        "church": parseInt($('#added_home_group_church').data('id')),
         "leader": $('#added_home_group_pastor').val(),
         "city": $('#added_home_group_city').val(),
         "address": $('#added_home_group_address').val(),
@@ -875,7 +850,7 @@ function clearAddNewUser() {
         $(this).val('');
     });
     form.find('#spir_level').select2('destroy').find('option').attr('selected', false)
-                            .find('option:first-child').attr('selected', true);
+        .find('option:first-child').attr('selected', true);
 }
 
 function clearAddChurchData() {
@@ -920,7 +895,7 @@ function createChurchesTable(config = {}) {
                 let quickEditCartTmpl, rendered;
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
-                $('#quickEditCartPopup .popup_body').html(rendered);
+                $('#quickEditCartPopup').find('.popup_body').html(rendered);
                 $('#opening_date').datepicker({
                     dateFormat: 'yyyy-mm-dd',
                     autoClose: true
@@ -1102,9 +1077,10 @@ function getCurrentUser(id) {
         })
     })
 }
-function getResponsibleBYHomeGroup(churchID) {
+function getResponsibleBYHomeGroup(userID = null) {
+    let masterTree = (userID) ? userID : $('body').data('user');
     return new Promise(function (resolve, reject) {
-        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/?church_id=${churchID}`;
+        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/short_users/?master_tree=${masterTree}`;
         ajaxRequest(url, null, function (data) {
             if (data) {
                 resolve(data);
@@ -1228,7 +1204,7 @@ function getManagers() {
 
 function getIncompleteDeals(data) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=3', data, function (response) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=False', data, function (response) {
             if (response) {
                 resolve(response);
             } else {
@@ -1240,7 +1216,7 @@ function getIncompleteDeals(data) {
 
 function getFinishedDeals(data) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=2', data, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=True', data, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1252,7 +1228,7 @@ function getFinishedDeals(data) {
 
 function getOverdueDeals(data) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?expired=2', data, function (response) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?expired=True', data, function (response) {
             if (response) {
                 resolve(response);
             } else {
@@ -1651,7 +1627,7 @@ function showPopupAddUser(data) {
     $('#addPopup').find('.addMore').on('click', function () {
         $('#addPopup').css('display', 'none').remove();
         $('body').addClass('no_scroll');
-        $('#addNewUserPopup').find('form').css("transform","translate3d(0px, 0px, 0px)");
+        $('#addNewUserPopup').find('form').css("transform", "translate3d(0px, 0px, 0px)");
         $('#addNewUserPopup').css('display', 'block');
         clearAddNewUser();
     });
@@ -2302,9 +2278,10 @@ function editChurches(el, id) {
 function saveHomeGroups(el) {
     let $input, $select, phone_number, data, id;
     id = parseInt($($(el).closest('.pop_cont').find('#homeGroupsID')).val());
+
     data = {
         title: $($(el).closest('.pop_cont').find('#home_groups_title')).val(),
-        leader: $($(el).closest('.pop_cont').find('#editPastorSelect')).val(),
+        leader: $($(el).closest('.pop_cont').find('#homeGroupLeader')).val(),
         department: $($(el).closest('.pop_cont').find('#editDepartmentSelect')).val(),
         phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
         website: ($(el).closest('.pop_cont').find('#web_site')).val(),
@@ -2313,12 +2290,16 @@ function saveHomeGroups(el) {
         city: $($(el).closest('.pop_cont').find('#city')).val(),
         address: $($(el).closest('.pop_cont').find('#address')).val()
     };
+
     saveHomeGroupsData(data, id);
+    saveHomeGroupsDataNew(data, id);
+
     $(el).text("Сохранено");
     $(el).closest('.popap').find('.close-popup.change__text').text('Закрыть');
     $(el).attr('disabled', true);
     $input = $(el).closest('.popap').find('input');
     $select = $(el).closest('.popap').find('select');
+
     $select.on('change', function () {
         $(el).text("Сохранить");
         $(el).closest('.popap').find('.close-popup').text('Отменить');
@@ -2632,7 +2613,9 @@ function makeTabs(page = 0) {
 }
 function homeReportsTable(config = {}) {
     let status = $('#statusTabs').find('.current').find('button').data('status');
+    let search = $('.search').find('input[name=fullsearch]').val();
     config.status = status;
+    config.search_title = search;
     Object.assign(config, getFilterParam());
     getHomeReports(config).then(data => {
         makeHomeReportsTable(data, config);
@@ -2872,7 +2855,7 @@ function getData(url, options = {}) {
         method: 'GET',
         credentials: "same-origin",
         headers: new Headers({
-            'Content-Type': 'text/json',
+            'Content-Type': 'application/json',
         })
     };
     if (typeof url === "string") {

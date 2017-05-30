@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from account.models import CustomUser
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
-from .filters import ChurchReportFilter, MeetingFilter, CommonEventFilter
+from .filters import ChurchReportFilter, MeetingFilter, CommonEventFilter, MeetingFilterByMaster
 from .models import Meeting, ChurchReport, MeetingAttend
 from .pagination import MeetingPagination, MeetingVisitorsPagination
 from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingDetailSerializer,
@@ -38,7 +38,8 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
     filter_backends = (filters.DjangoFilterBackend,
                        CommonEventFilter,
                        FieldSearchFilter,
-                       filters.OrderingFilter)
+                       filters.OrderingFilter,
+                       MeetingFilterByMaster)
 
     filter_fields = ('data', 'type', 'owner', 'home_group', 'status', 'department', 'church')
 
@@ -49,7 +50,12 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
     filter_class = MeetingFilter
 
     field_search_fields = {
-        'search_date': ('date',)
+        'search_date': ('date',),
+        'search_title': (
+            'id',
+            'home_group__title',
+            'owner__last_name', 'owner__first_name', 'owner__middle_name',
+        )
     }
 
     def get_serializer_class(self):

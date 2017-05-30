@@ -4,6 +4,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from group.serializers import ChurchListSerializer, ChurchSerializer, HomeGroupSerializer, HomeGroupListSerializer
+from group.views import ChurchViewSet, HomeGroupViewSet
 
 
 def create_church_users(church, count, user_factory):
@@ -79,7 +80,8 @@ class TestChurchViewSet:
         assert len(response.data['results']) == 30
         assert response.data['count'] == 100
 
-    def test_home_groups_one_page(self, api_login_client, church, church_factory, home_group_factory):
+    def test_home_groups_one_page(self, monkeypatch, api_login_client, church, church_factory, home_group_factory):
+        monkeypatch.setattr(ChurchViewSet, 'get_queryset', lambda s: s.queryset)
         create_home_group_of_church(church, home_group_factory, 4)  # home_group_count +4, = 4
 
         other_church = church_factory()
@@ -93,7 +95,8 @@ class TestChurchViewSet:
         assert len(response.data['results']) == 4
         assert response.data['count'] == 4
 
-    def test_home_groups_multi_page(self, api_login_client, church, church_factory, home_group_factory):
+    def test_home_groups_multi_page(self, monkeypatch, api_login_client, church, church_factory, home_group_factory):
+        monkeypatch.setattr(ChurchViewSet, 'get_queryset', lambda s: s.queryset)
         create_home_group_of_church(church, home_group_factory, 40)  # home_group_count +40, = 40
 
         other_church = church_factory()
@@ -107,7 +110,8 @@ class TestChurchViewSet:
         assert len(response.data['results']) == 30
         assert response.data['count'] == 40
 
-    def test_users_one_page(self, api_login_client, church, church_factory, user_factory):
+    def test_users_one_page(self, monkeypatch, api_login_client, church, church_factory, user_factory):
+        monkeypatch.setattr(ChurchViewSet, 'get_queryset', lambda s: s.queryset)
         create_church_users(church, 4, user_factory)  # users_count +4, = 4
 
         other_church = church_factory()
@@ -121,7 +125,8 @@ class TestChurchViewSet:
         assert len(response.data['results']) == 4
         assert response.data['count'] == 4
 
-    def test_users_multi_page(self, api_login_client, church, church_factory, user_factory):
+    def test_users_multi_page(self, monkeypatch, api_login_client, church, church_factory, user_factory):
+        monkeypatch.setattr(ChurchViewSet, 'get_queryset', lambda s: s.queryset)
         create_church_users(church, 40, user_factory)  # users_count +40, = 40
 
         other_church = church_factory()
@@ -255,14 +260,16 @@ class TestChurchViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 30
 
-    def test_add_user_without_user_id(self, api_login_client, church):
+    def test_add_user_without_user_id(self, monkeypatch, api_login_client, church):
+        monkeypatch.setattr(ChurchViewSet, 'get_queryset', lambda s: s.queryset)
         url = reverse('church-add-user', kwargs={'pk': church.id})
 
         response = api_login_client.post(url, data={}, format='json')
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_add_user_with_non_exist_user_id(self, api_login_client, church, user_factory):
+    def test_add_user_with_non_exist_user_id(self, monkeypatch, api_login_client, church, user_factory):
+        monkeypatch.setattr(ChurchViewSet, 'get_queryset', lambda s: s.queryset)
         url = reverse('church-add-user', kwargs={'pk': church.id})
         user = user_factory()
         non_exist_user_id = user.id
@@ -273,7 +280,8 @@ class TestChurchViewSet:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert not church.users.filter(id=user.id).exists()
 
-    def test_add_user_with_other_church(self, api_login_client, church, church_factory, user):
+    def test_add_user_with_other_church(self, monkeypatch, api_login_client, church, church_factory, user):
+        monkeypatch.setattr(ChurchViewSet, 'get_queryset', lambda s: s.queryset)
         url = reverse('church-add-user', kwargs={'pk': church.id})
         other_church = church_factory()
         other_church.users.set([user])
@@ -283,7 +291,8 @@ class TestChurchViewSet:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert not church.users.filter(id=user.id).exists()
 
-    def test_add_user_with_home_group(self, api_login_client, church, user, home_group_factory):
+    def test_add_user_with_home_group(self, monkeypatch, api_login_client, church, user, home_group_factory):
+        monkeypatch.setattr(ChurchViewSet, 'get_queryset', lambda s: s.queryset)
         url = reverse('church-add-user', kwargs={'pk': church.id})
         group = home_group_factory(church=church)
         group.users.set([user])
@@ -293,7 +302,8 @@ class TestChurchViewSet:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert not church.users.filter(id=user.id).exists()
 
-    def test_add_user_success(self, api_login_client, church, user):
+    def test_add_user_success(self, monkeypatch, api_login_client, church, user):
+        monkeypatch.setattr(ChurchViewSet, 'get_queryset', lambda s: s.queryset)
         url = reverse('church-add-user', kwargs={'pk': church.id})
 
         response = api_login_client.post(url, data={'user_id': user.id}, format='json')
@@ -301,14 +311,16 @@ class TestChurchViewSet:
         assert response.status_code == status.HTTP_201_CREATED
         assert church.users.filter(id=user.id).exists()
 
-    def test_del_user_without_user_id(self, api_login_client, church):
+    def test_del_user_without_user_id(self, monkeypatch, api_login_client, church):
+        monkeypatch.setattr(ChurchViewSet, 'get_queryset', lambda s: s.queryset)
         url = reverse('church-del-user', kwargs={'pk': church.id})
 
         response = api_login_client.post(url, data={}, format='json')
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_del_user_with_non_exist_user_id(self, api_login_client, church, user_factory):
+    def test_del_user_with_non_exist_user_id(self, monkeypatch, api_login_client, church, user_factory):
+        monkeypatch.setattr(ChurchViewSet, 'get_queryset', lambda s: s.queryset)
         url = reverse('church-del-user', kwargs={'pk': church.id})
         user = user_factory()
         non_exist_user_id = user.id
@@ -318,14 +330,16 @@ class TestChurchViewSet:
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_del_user_with_other_church(self, api_login_client, church, user):
+    def test_del_user_with_other_church(self, monkeypatch, api_login_client, church, user):
+        monkeypatch.setattr(ChurchViewSet, 'get_queryset', lambda s: s.queryset)
         url = reverse('church-del-user', kwargs={'pk': church.id})
 
         response = api_login_client.post(url, data={'user_id': user.id}, format='json')
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_del_user_success(self, api_login_client, church, user_factory):
+    def test_del_user_success(self, monkeypatch, api_login_client, church, user_factory):
+        monkeypatch.setattr(ChurchViewSet, 'get_queryset', lambda s: s.queryset)
         url = reverse('church-del-user', kwargs={'pk': church.id})
         user = user_factory()
         church.users.set([user])
@@ -375,7 +389,8 @@ class TestChurchViewSet:
 
 @pytest.mark.django_db
 class TestHomeGroupViewSet:
-    def test_users_one_page(self, api_login_client, home_group, home_group_factory, user_factory):
+    def test_users_one_page(self, monkeypatch, api_login_client, home_group, home_group_factory, user_factory):
+        monkeypatch.setattr(HomeGroupViewSet, 'get_queryset', lambda s: s.queryset)
         create_home_group_users(home_group, 4, user_factory)  # users_count +4, = 4
 
         other_home_group = home_group_factory()
@@ -389,7 +404,8 @@ class TestHomeGroupViewSet:
         assert len(response.data['results']) == 4
         assert response.data['count'] == 4
 
-    def test_users_multi_page(self, api_login_client, home_group, home_group_factory, user_factory):
+    def test_users_multi_page(self, monkeypatch, api_login_client, home_group, home_group_factory, user_factory):
+        monkeypatch.setattr(HomeGroupViewSet, 'get_queryset', lambda s: s.queryset)
         create_home_group_users(home_group, 40, user_factory)  # users_count +40, = 40
 
         other_home_group = home_group_factory()
@@ -458,14 +474,16 @@ class TestHomeGroupViewSet:
         assert response.status_code == status.HTTP_201_CREATED
         assert home_group.users.filter(id=user.id).exists()
 
-    def test_del_user_without_user_id(self, api_login_client, home_group):
+    def test_del_user_without_user_id(self, monkeypatch, api_login_client, home_group):
+        monkeypatch.setattr(HomeGroupViewSet, 'get_queryset', lambda s: s.queryset)
         url = reverse('homegroup-del-user', kwargs={'pk': home_group.id})
 
         response = api_login_client.post(url, data={}, format='json')
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_del_user_with_non_exist_user_id(self, api_login_client, home_group, user_factory):
+    def test_del_user_with_non_exist_user_id(self, monkeypatch, api_login_client, home_group, user_factory):
+        monkeypatch.setattr(HomeGroupViewSet, 'get_queryset', lambda s: s.queryset)
         url = reverse('homegroup-del-user', kwargs={'pk': home_group.id})
         user = user_factory()
         non_exist_user_id = user.id
@@ -475,14 +493,16 @@ class TestHomeGroupViewSet:
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_del_user_with_other_home_group(self, api_login_client, home_group, user):
+    def test_del_user_with_other_home_group(self, monkeypatch, api_login_client, home_group, user):
+        monkeypatch.setattr(HomeGroupViewSet, 'get_queryset', lambda s: s.queryset)
         url = reverse('homegroup-del-user', kwargs={'pk': home_group.id})
 
         response = api_login_client.post(url, data={'user_id': user.id}, format='json')
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_del_user_from_home_group_and_add_to_church_success(self, api_login_client, home_group, user_factory):
+    def test_del_user_from_home_group_and_add_to_church_success(self, monkeypatch, api_login_client, home_group, user_factory):
+        monkeypatch.setattr(HomeGroupViewSet, 'get_queryset', lambda s: s.queryset)
         url = reverse('homegroup-del-user', kwargs={'pk': home_group.id})
         user = user_factory()
         home_group.users.set([user])
@@ -491,7 +511,8 @@ class TestHomeGroupViewSet:
 
         assert home_group.church.users.filter(id=user.id).exists()
 
-    def test_del_user_success(self, api_login_client, home_group, user_factory):
+    def test_del_user_success(self, monkeypatch, api_login_client, home_group, user_factory):
+        monkeypatch.setattr(HomeGroupViewSet, 'get_queryset', lambda s: s.queryset)
         url = reverse('homegroup-del-user', kwargs={'pk': home_group.id})
         user = user_factory()
         home_group.users.set([user])

@@ -481,6 +481,10 @@
 
     $('#filterPopup').find('.pop_cont').on('click',function (e) {
         e.stopPropagation();
-    })
+    });
 
+    $('.select_date_filter').datepicker({
+        dateFormat: 'yyyy-mm-dd',
+        autoClose: true
+    })
 })(jQuery);

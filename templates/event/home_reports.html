@@ -111,6 +111,9 @@
                             <span class="label_block">Отдел</span>
                         </div>
                         <div class="label_block-wrapp">
+                            <span class="label_block">Ветка</span>
+                        </div>
+                        <div class="label_block-wrapp">
                             <span class="label_block">Церковь</span>
                         </div>
                         <div class="label_block-wrapp">
@@ -136,6 +139,14 @@
                             </select>
                         </p>
                         <p class="input_block">
+                            <select class="selectdb" data-filter="master_tree" id="master_tree_filter">
+                                <option value="">ВСЕ</option>
+                                {% for owner in owners %}
+                                    <option value="{{ owner.id }}">{{ owner.fullname }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
                             <select class="selectdb" data-filter="church" id="church_filter">
                                 <option value="">ВСЕ</option>
                                 {% for church in churches %}
@@ -151,7 +162,7 @@
                                 {% endfor %}
                             </select>
                         </p>
-                        <p class="input_block">
+                     <p class="input_block">
                             <select class="selectdb" data-filter="owner" id="masters_filter">
                                 <option value="">ВСЕ</option>
                                 {% for owner in owners %}
@@ -213,7 +224,7 @@
                 <% } else if (key == 'home_group') { %>
                 <% if (results[index][key] != null) { %>
                 <td>
-                    <%= results[index][key].title %>
+                    <a href="/home_groups/<%= results[index][key].id %>"><%= results[index][key].title %></a>
                 </td>
                 <% } else { %>
                 <td></td>
@@ -221,7 +232,7 @@
                 <% } else if(key == 'owner') { %>
                 <% if (results[index][key] != null) { %>
                 <td>
-                    <%= results[index][key].fullname %>
+                    <a href="/account/<%= results[index][key].id %>"><%= results[index][key].fullname %></a>
                 </td>
                 <% } else { %>
                 <td></td>
