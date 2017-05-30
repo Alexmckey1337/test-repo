@@ -87,18 +87,12 @@
                     <p class="input_block">
                             <select class="selectdb" data-filter="master_tree" id="tree_filter">
                                 <option value="">ВСЕ</option>
-                                {% for master in masters %}
-                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
-                                {% endfor %}
                             </select>
                         </p>
                         <p class="input_block">
 
                             <select class="selectdb" data-filter="pastor" id="pastor_filter">
                                 <option value="">ВСЕ</option>
-                                {% for pastor in church_all_pastors %}
-                                    <option value="{{ pastor.id }}">{{ pastor.fullname }}</option>
-                                {% endfor %}
                             </select>
                         </p>
                         <p class="input_block">
@@ -179,7 +173,7 @@
                             <p><input type="checkbox" id="added_churches_is_open"></p>
                             <p><input type="text" id="added_churches_title"></p>
                             <p class="end__block"><select name="department" id="department_select">
-                                {% for item in departments %}
+                                {% for item in request.user.departments.all %}
                                     <option value="{{ item.id }}">{{ item.title }}</option>
                                 {% endfor %}
                             </select></p>

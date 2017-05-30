@@ -1,4 +1,51 @@
 /* global $ */
+
+// Sorting
+class OrderTable {
+    constructor() {
+        this.savePath = sessionStorage.getItem('path');
+        this.path = window.location.pathname;
+        if (this.savePath != this.path) {
+            sessionStorage.setItem('path', this.path);
+            sessionStorage.setItem('revers', '');
+            sessionStorage.setItem('order', '');
+        }
+    }
+    get sort() {
+        return this._addListener;
+    }
+    _addListener(callback, selector) {
+        $(selector).on('click', function () {
+            let dataOrder = void 0;
+            const data_order = this.getAttribute('data-order');
+            if (data_order == "no_ordering") {
+                return;
+            }
+            let page = $('.pagination__input').val();
+            let revers = sessionStorage.getItem('revers') ? sessionStorage.getItem('revers') : "+";
+            let order = sessionStorage.getItem('order') ? sessionStorage.getItem('order') : '';
+            if (order != '') {
+                dataOrder = order == data_order && revers == "+" ? '-' + data_order : data_order;
+            } else {
+                dataOrder = '-' + data_order;
+            }
+            const data = {
+                'ordering': dataOrder,
+                'page': page
+            };
+            if (order == data_order) {
+                revers = revers == '+' ? '-' : '+';
+            } else {
+                revers = "+";
+            }
+            sessionStorage.setItem('revers', revers);
+            sessionStorage.setItem('order', data_order);
+            $('.preloader').css('display', 'block');
+            callback(data);
+        });
+    }
+}
+
 function getOrderingData() {
     let revers, order, savePath;
     let path = window.location.pathname;
@@ -119,7 +166,7 @@ function addUserToHomeGroup(user_id, hg_id, exist = false) {
 }
 
 function createHomeGroupsTable(config = {}) {
-    config.search_title = $('input[name="fullsearch"]').val();
+    Object.assign(config, getSearch('search_title'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
     getHomeGroups(config).then(function (data) {
@@ -167,7 +214,7 @@ function createHomeGroupsTable(config = {}) {
         makePagination(paginationConfig);
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
-        orderTable.sort(createHomeGroupsTable);
+        new OrderTable().sort(createHomeGroupsTable, ".table-wrap th");
     });
 }
 function makePastorListWithMasterTree(config, selector, active = null) {
@@ -232,7 +279,7 @@ function makeLeaderList(id, selector, active = null) {
 }
 
 function getPartners(config) {
-    config.search_fio = $('input[name=fullsearch]').val();
+    Object.assign(config, getSearch('search_fio'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
     getPartnersList(config).then(function (response) {
@@ -268,7 +315,7 @@ function getPartners(config) {
         makePagination(paginationConfig);
         $('.table__count').text(text);
         makeSortForm(response.user_table);
-        orderTable.sort(getPartners);
+        new OrderTable().sort(getPartners, ".table-wrap th");
     });
 }
 
@@ -732,7 +779,7 @@ function createChurchesDetailsTable(config = {}, id, link) {
         makePagination(paginationConfig);
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
-        orderTable.sort(createChurchesDetailsTable);
+        new OrderTable().sort(createChurchesDetailsTable, ".table-wrap th");
     })
 }
 
@@ -774,7 +821,7 @@ function createHomeGroupUsersTable(config = {}, id) {
         makePagination(paginationConfig);
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
-        orderTable.sort(createHomeGroupUsersTable);
+        new OrderTable().sort(createHomeGroupUsersTable, ".table-wrap th");
     })
 }
 
@@ -865,16 +912,16 @@ function clearAddChurchData() {
 }
 
 function clearAddHomeGroupData() {
-    $('#added_home_group_date').val(''),
-        $('#added_home_group_title').val(''),
-        $('#added_home_group_city').val(''),
-        $('#added_home_group_address').val(''),
-        $('#added_home_group_phone').val(''),
-        $('#added_home_group_site').val('')
+    $('#added_home_group_date').val('');
+    $('#added_home_group_title').val('');
+    $('#added_home_group_city').val('');
+    $('#added_home_group_address').val('');
+    $('#added_home_group_phone').val('');
+    $('#added_home_group_site').val('');
 }
 
 function createChurchesTable(config = {}) {
-    config.search_title = $('input[name="fullsearch"]').val();
+    Object.assign(config, getSearch('search_title'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
     getChurches(config).then(function (data) {
@@ -923,7 +970,7 @@ function createChurchesTable(config = {}) {
         makePagination(paginationConfig);
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
-        orderTable.sort(createChurchesTable);
+        new OrderTable().sort(createChurchesTable, ".table-wrap th");
     });
 }
 
@@ -959,6 +1006,22 @@ function addChurch(e, el, callback) {
         clearAddChurchData();
         callback();
         showPopup(`Церковь ${data.get_title} добавлена в базу`);
+    }).catch(function (data) {
+        hidePopup(el);
+        showPopup('Ошибка при создании домашней группы');
+    });
+}
+
+function addHomeGroup(e, el, callback) {
+    e.preventDefault();
+    let data = getAddHomeGroupData();
+    let json = JSON.stringify(data);
+
+    addHomeGroupToDataBase(json).then(function (data) {
+        clearAddHomeGroupData();
+        hidePopup(el);
+        callback();
+        showPopup(`Домашняя группа ${data.get_title} добавлена в базу данных`);
     }).catch(function (data) {
         hidePopup(el);
         showPopup('Ошибка при создании домашней группы');
@@ -1093,7 +1156,7 @@ function getResponsibleBYHomeGroup(userID = null) {
 
 function getResponsibleBYHomeGroupNew(config) {
     return new Promise(function (resolve, reject) {
-        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/`;
+        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/available_leaders/`;
         ajaxRequest(url, config, function (data) {
             if (data) {
                 resolve(data);
@@ -1278,7 +1341,7 @@ function getPaymentsDeals(config) {
 }
 
 function makePayments(config = {}) {
-    config.search_purpose_fio = $('input[name=fullsearch]').val();
+    Object.assign(config, getSearch('search_purpose_fio'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
     return getPaymentsDeals(config).then(function (response) {
@@ -1368,7 +1431,7 @@ function makePayments(config = {}) {
             makePagination(paginationConfig);
             $('.table__count').text(text);
             // makeSortForm(response.user_table);
-            orderTable.sort(makePayments);
+            new OrderTable().sort(makePayments, ".table-wrap th");
             $('.preloader').hide();
             return data;
         }
@@ -1838,9 +1901,9 @@ function createSummitUsersTable(data = {}) {
     let page = data.page || $('.pagination__input').val();
     let summitId = data.summit || $('#summitsTypes').find('.active').data('id');
     let config = {
-        page: page,
-        search_fio: $('input[name="fullsearch"]').val()
+        page: page
     };
+    Object.assign(config, getSearch('search_fio'));
     Object.assign(config, data);
     Object.assign(config, getOrderingData());
 
@@ -1877,7 +1940,7 @@ function createSummitUsersTable(data = {}) {
         $('.table__count').text(text);
         makeSortForm(data.user_table);
         $('.preloader').css('display', 'none');
-        orderTable.sort(createSummitUsersTable);
+        new OrderTable().sort(createSummitUsersTable, ".table-wrap th");
     });
 }
 
@@ -2409,7 +2472,7 @@ function setCookie(name, value, options) {
 }
 
 function createUsersTable(config) {
-    config["search_fio"] = $('input[name=fullsearch]').val();
+    Object.assign(config, getSearch('search_fio'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
     getUsers(config).then(function (data) {
@@ -2430,7 +2493,7 @@ function createUsersTable(config) {
         $('.table__count').text(text);
         makeSortForm(data.user_table);
         $('.preloader').css('display', 'none');
-        orderTable.sort(createUsersTable);
+        new OrderTable().sort(createUsersTable, ".table-wrap th");
     }).catch(function (err) {
         console.log(err);
     });
@@ -2501,7 +2564,13 @@ function refreshFilter(el) {
         $(this).val('')
     })
 }
-
+function getSearch(title) {
+    let search = $('input[name="fullsearch"]').val();
+    if (!search) return {};
+    return {
+        [title]: search
+    }
+}
 function getFilterParam() {
     let $filterFields, data = {};
     $filterFields = $('#filterPopup select, #filterPopup input');
@@ -2613,9 +2682,8 @@ function makeTabs(page = 0) {
 }
 function homeReportsTable(config = {}) {
     let status = $('#statusTabs').find('.current').find('button').data('status');
-    let search = $('.search').find('input[name=fullsearch]').val();
     config.status = status;
-    config.search_title = search;
+    Object.assign(config, getSearch('search_title'));
     Object.assign(config, getFilterParam());
     getHomeReports(config).then(data => {
         makeHomeReportsTable(data, config);
@@ -2642,7 +2710,7 @@ function makeHomeReportsTable(data, config = {}) {
     makePagination(paginationConfig);
     makeSortForm(data.table_columns);
     $('.table__count').text(text);
-    orderTable.sort(homeReportsTable);
+    new OrderTable().sort(homeReportsTable, ".table-wrap th");
     $('.preloader').hide();
 }
 
@@ -2805,12 +2873,14 @@ function getHomeGroupStats(id) {
     });
 }
 
-function getPastorsByDepartment(id) {
+function getPastorsByDepartment(config) {
     let resData = {};
-    if (id) {
-        resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/get_pastors_by_department/?department_id=${id}`;
-    } else {
-        resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/get_pastors_by_department/`;
+    resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/available_pastors/?blank=`;
+    if (config.department_id) {
+        resData.url += `&department_id=${config.department_id}`;
+    }
+    if (config.master_tree) {
+        resData.url += `&master_tree=${config.master_tree}`;
     }
     return new Promise(function (resolve, reject) {
         let codes = {
@@ -2827,7 +2897,7 @@ function getPastorsByDepartment(id) {
 
 function getLeadersByChurch(config = {}) {
     let resData = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_current_leaders/`,
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/available_leaders/`,
         data: config
     };
     return new Promise(function (resolve, reject) {

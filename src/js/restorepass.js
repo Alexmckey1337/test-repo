@@ -14,6 +14,10 @@ function sendPassToEmail() {
             data = data.responseJSON;
             showPopup(data.detail);
 
+        },
+        500: function () {
+            $('.account .invalid').html('Неверно введён e-mail или его нету в базе').show();
+            $('#send_letter').val('');
         }
     });
 }

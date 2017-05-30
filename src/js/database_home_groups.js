@@ -1,4 +1,21 @@
 (function ($) {
+    let filterInit = (function () {
+        let init = false;
+        const USER_ID = $('body').data('id');
+        return function () {
+            if (!init) {
+                getLeadersByChurch({
+                    master_tree: USER_ID
+                }).then(res => {
+                    let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
+                    $('#tree_filter').html('<option>ВСЕ</option>').append(leaders);
+                    $('#leader_filter').html('<option>ВСЕ</option>').append(leaders);
+                });
+                init = true;
+            }
+        }
+    })();
+
     let $departmentSelect = $('#department_select');
     createHomeGroupsTable();
     let $churchFilter = $('#church_filter');
@@ -24,17 +41,16 @@
         let church_id = $('#added_home_group_church').attr('data-id');
         let user_id = $('#added_home_group_church').attr('data-user');
         let config = {
-                master_tree: user_id,
-                church_id: church_id,
-            };
+            master_tree: user_id,
+            church_id: church_id,
+        };
         getResponsibleBYHomeGroupNew(config).then(function (data) {
-        let options = data.map( (item) => {
-            let option = document.createElement('option');
-            return $(option).val(item.id).text(item.fullname);
+            let options = data.map((item) => {
+                let option = document.createElement('option');
+                return $(option).val(item.id).text(item.fullname);
+            });
+            $('#added_home_group_pastor').html(options).prop('disabled', false).select2();
         });
-        $('#added_home_group_pastor').html(options).prop('disabled', false).select2();
-    });
-
 
         setTimeout(function () {
             $('#addHomeGroup').css('display', 'block');
@@ -52,6 +68,7 @@
         updateSettings(createHomeGroupsTable);
     });
     $('#filter_button').on('click', function () {
+        filterInit();
         $('#filterPopup').css('display', 'block');
     });
     $('input[name="fullsearch"]').on('keyup', function () {
@@ -87,7 +104,6 @@
                 options.push(option);
             });
             $('#tree_filter').html(options);
-            // $('#leader_filter').html(options);
         })
     });
     $treeFilter.on('change', function () {
