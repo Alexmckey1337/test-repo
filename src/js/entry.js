@@ -46,8 +46,9 @@ function authUser() {
                 $('.account .invalid').html(JSONobj.message);
                 document.querySelector(".account .invalid").style.display = 'block'
             }
-        }).catch(function () {
-            $('.account .invalid').html('Неверно введён e-mail или пароль').show();
+        }).catch(function (res) {
+            let error = JSON.parse(res.responseText);
+            $('.account .invalid').html(error.non_field_errors[0]).show();
             clearFields();
         });
         // ajaxRequest(CONFIG.DOCUMENT_ROOT + 'rest-auth/login/', loginData, function (res) {
@@ -97,7 +98,7 @@ function authUserFunc(config = {}) {
             200: function (req) {
                 resolve(req)
             },
-            403: function () {
+            403: function (req) {
                 $('.account .invalid').html('Неверно введён e-mail или пароль').show();
                 clearFields();
             }
