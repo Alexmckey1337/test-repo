@@ -71,7 +71,7 @@
                             <option value="{{ church.pastor.id }}">{{ church.pastor }}</option>
                         </select>
                         <a href="{{ church.pastor.get_absolute_url }}">
-                            <i class="fa fa-link" aria-hidden="true"></i>
+                            <i class="fa fa-external-link" aria-hidden="true"></i>
                         </a>
                     </div>
                     <div class="title-wrapper">
@@ -95,10 +95,10 @@
                     </div>
                     <div class="input">
                         <input type="text" id="web_site" value="{{ church.website }}" readonly>
-                        <a href="{{ church.website }}" target="_blank"
+                        <a href="{{ church.website }}" target="_blank" id="site-link"
                            {% if not church.website %}class="link-hide"{% endif %}
                         >
-                            <i class="fa fa-link" aria-hidden="true"></i>
+                            <i class="fa fa-external-link" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>

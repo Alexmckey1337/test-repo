@@ -219,22 +219,22 @@
             });
             $(this).removeClass('active');
         } else {
-                $input.each(function () {
-                    if (!$(this).hasClass('no__edit')) {
-                        if ($(this).attr('disabled')) {
-                            $(this).attr('disabled', false);
-                        }
-                        $(this).attr('readonly', false);
-                    }
-                });
-                $(this).addClass('active');
             makePastorList(department, '#editPastorSelect', pastor);
             makeDepartmentList('#editDepartmentSelect', department).then(function () {
-            $('#editDepartmentSelect').on('change', function () {
-                let id = parseInt($(this).val());
-                makePastorList(id, '#editPastorSelect');
+                $('#editDepartmentSelect').on('change', function () {
+                    let id = parseInt($(this).val());
+                    makePastorList(id, '#editPastorSelect');
                 })
             });
+            $input.each(function () {
+                if (!$(this).hasClass('no__edit')) {
+                    if ($(this).attr('disabled')) {
+                        $(this).attr('disabled', false);
+                    }
+                    $(this).attr('readonly', false);
+                }
+            });
+            $(this).addClass('active');
         }
     });
 
@@ -259,14 +259,12 @@
         let pastorLink = '/account/' + $(this).closest('form').find('#editPastorSelect').val();
         pasteLink($('#editPastorSelect'), pastorLink);
         let webLink = $(this).closest('form').find('#web_site').val();
-
-
-        //Доделать
-        if(webLink.val() || webLink.val() == '' ) {
-            $(this).closest('form').find('#web_site').addClass('active');
+        let linkIcon = $('#site-link');
+        if (webLink == '' ) {
+            !linkIcon.hasClass('link-hide') && linkIcon.addClass('link-hide');
         } else {
             pasteLink($('#web_site'), webLink);
-            $(this).closest('form').find('#web_site').removeClass('active');
+            linkIcon.hasClass('link-hide') && linkIcon.removeClass('link-hide');
         }
     });
 

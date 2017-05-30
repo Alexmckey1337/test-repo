@@ -4858,14 +4858,18 @@ span.green {
     margin-bottom: .5em;
     padding: 0 .5em;
     font-size: 1.6em;
+    transition: color .3s ease;
     cursor: pointer;
-    &:after {
+    &::after {
       position: absolute;
       display: block;
       content: '\f0dd';
       font: 1.2em FontAwesome;
       bottom: 0.2em;
       right: .5em;
+    }
+    &:hover {
+      color: #333;
     }
   }
   & .info-title_active:after {
@@ -4982,6 +4986,12 @@ span.green {
       & input[type='text'] {
         width: 50%;
       }
+      & input:read-only + a {
+        z-index: 5;
+      }
+      & #web_site {
+        width: 100%;
+      }
       & input[type='checkbox'] {
         width: 10%;
         margin-left: 5px;
@@ -4989,7 +4999,11 @@ span.green {
       & a {
         position: absolute;
         top: 10px;
-        left: 2px;
+        right: 0;
+        font-size: 1.2em;
+        & .fa {
+          color: #3caeda;
+        }
       }
     }
     & p {
@@ -5034,7 +5048,6 @@ span.green {
     & select,
     & input:not([type=checkbox]) {
       &:read-only {
-        padding-left: 15px;
         border: 2px solid transparent;
         background: transparent;
       }
