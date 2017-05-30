@@ -1,5 +1,8 @@
 (function ($) {
-     let filterInit = (function () {
+    let $departmentsFilter = $('#departments_filter'),
+        $treeFilter = $('#tree_filter'),
+        $pastorFilter = $('#pastor_filter');
+    let filterInit = (function () {
         let init = false;
         const USER_ID = $('body').data('id');
         return function () {
@@ -8,22 +11,19 @@
                     master_tree: USER_ID
                 }).then(res => {
                     let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
-                    $('#tree_filter').html('<option>ВСЕ</option>').append(leaders);
-                    $('#pastor_filter').html('<option>ВСЕ</option>').append(leaders);
+                    $treeFilter.html('<option>ВСЕ</option>').append(leaders);
+                    $pastorFilter.html('<option>ВСЕ</option>').append(leaders);
                 });
                 init = true;
             }
         }
     })();
-    let $departmentsFilter = $('#departments_filter');
-    let $treeFilter = $('#tree_filter');
 
     createChurchesTable();
-
+    $departmentsFilter.select2();
     $('#department_select').select2();
     $('#pastor_select').select2();
     $('#tree_filter').select2();
-    $departmentsFilter.select2();
     $('#hierarchies_filter').select2();
     $('#pastor_filter').select2();
     $('#search_is_open').select2();
@@ -60,6 +60,7 @@
     $('input[name="fullsearch"]').on('keyup', function () {
         createChurchesTable();
     });
+
     $('#export_table').on('click', function () {
         $('.preloader').css('display', 'block');
         exportTableData(this)
@@ -71,6 +72,7 @@
                 $('.preloader').css('display', 'none');
             });
     });
+
     $departmentsFilter.on('change', function () {
         let departamentID = $(this).val();
         let config = {
@@ -81,31 +83,16 @@
         } else {
             config.department = departamentID;
         }
-        getPastorsByDepartment({department_id: departamentID}).then(function (data) {
-            let options = [];
-            let option = document.createElement('option');
-            $(option).text('ВСЕ');
-            options.push(option);
-            data.forEach(function (item) {
-                let option = document.createElement('option');
-                $(option).val(item.id).text(item.fullname);
-                options.push(option);
+        getPastorsByDepartment({
+            department_id: departamentID
+        })
+            .then(function (data) {
+                const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
+                $('#pastor_filter').html('<option>ВСЕ</option>').append(pastors);
+                $('#tree_filter').html('<option>ВСЕ</option>').append(pastors);
             });
-            $('#tree_filter').html(options);
-        });
-        getPastorsByDepartment({department_id: departamentID}).then(function (data) {
-            let options = [];
-            let option = document.createElement('option');
-            $(option).text('ВСЕ');
-            options.push(option);
-            data.forEach(function (item) {
-                let option = document.createElement('option');
-                $(option).val(item.id).text(item.fullname);
-                options.push(option);
-            });
-            $('#pastor_filter').html(options);
-        });
     });
+
     $treeFilter.on('change', function () {
         let config = {};
         if ($(this).val() != "ВСЕ") {
@@ -114,16 +101,8 @@
             };
         }
         getPastorsByDepartment(config).then(function (data) {
-            let options = [];
-            let option = document.createElement('option');
-            $(option).text('ВСЕ');
-            options.push(option);
-            data.forEach(function (item) {
-                let option = document.createElement('option');
-                $(option).val(item.id).text(item.fullname);
-                options.push(option);
-            });
-            $('#pastor_filter').html(options);
+             const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
+                $('#pastor_filter').html('<option>ВСЕ</option>').append(pastors);
         });
     });
 })(jQuery);

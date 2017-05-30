@@ -45,13 +45,9 @@
             church_id: church_id,
         };
         getResponsibleBYHomeGroupNew(config).then(function (data) {
-            let options = data.map((item) => {
-                let option = document.createElement('option');
-                return $(option).val(item.id).text(item.fullname);
-            });
-            $('#added_home_group_pastor').html(options).prop('disabled', false).select2();
+            let pastors = data.map((pastor) => `<option value="${pastor.id}">${pastor.fullname}</option>`);
+            $('#added_home_group_pastor').html(pastors).prop('disabled', false).select2();
         });
-
         setTimeout(function () {
             $('#addHomeGroup').css('display', 'block');
         }, 100);
@@ -94,16 +90,20 @@
             }
         }
         getLeadersByChurch(config).then(function (data) {
-            let options = [];
-            let option = document.createElement('option');
-            $(option).text('ВСЕ').attr('selected', true);
-            options.push(option);
-            data.forEach(function (item) {
-                let option = document.createElement('option');
-                $(option).val(item.id).text(item.fullname);
-                options.push(option);
-            });
-            $('#tree_filter').html(options);
+            const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
+            $('#tree_filter').html('<option>ВСЕ</option>').append(pastors);
+            $('#leader_filter').html('<option>ВСЕ</option>').append(pastors);
+            // let options = [];
+            // let option = document.createElement('option');
+            // $(option).text('ВСЕ').attr('selected', true);
+            // options.push(option);
+            // data.forEach(function (item) {
+            //     let option = document.createElement('option');
+            //     $(option).val(item.id).text(item.fullname);
+            //     options.push(option);
+            // });
+            //
+            // $('#tree_filter').html(options);
         })
     });
     $treeFilter.on('change', function () {
@@ -115,16 +115,18 @@
             }
         }
         getLeadersByChurch(config).then(function (data) {
-            let options = [];
-            let option = document.createElement('option');
-            $(option).text('ВСЕ').attr('selected', true);
-            options.push(option);
-            data.forEach(function (item) {
-                let option = document.createElement('option');
-                $(option).val(item.id).text(item.fullname);
-                options.push(option);
-            });
-            $('#leader_filter').html(options);
+            const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
+            $('#leader_filter').html('<option>ВСЕ</option>').append(pastors);
+            // let options = [];
+            // let option = document.createElement('option');
+            // $(option).text('ВСЕ').attr('selected', true);
+            // options.push(option);
+            // data.forEach(function (item) {
+            //     let option = document.createElement('option');
+            //     $(option).val(item.id).text(item.fullname);
+            //     options.push(option);
+            // });
+            // $('#leader_filter').html(options);
         });
     });
 })(jQuery);
