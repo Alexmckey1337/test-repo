@@ -443,7 +443,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
         if (departmentID && typeof parseInt(departmentID) == "number") {
             getChurchesListINDepartament(departmentID).then(function (data) {
                 console.log(departmentID);
-                let selectedChurchID = $(church_list).val();
+                let selectedChurchID = $('#church_list').val();
                 let options = [];
                 let option = document.createElement('option');
                 $(option).val('').text('Выберите церковь').attr('selected', true).attr('disabled', true);

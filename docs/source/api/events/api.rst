@@ -72,7 +72,7 @@ Meetings Report Create
 
     .. sourcecode:: http
 
-        GET /api/v1.0/events/home_meetings HTTP/1.1
+        GET /api/v1.0/events/home_meetings/ HTTP/1.1
         Host: vocrm.org
         Accept: application/json
 
@@ -131,6 +131,7 @@ ________________
         - query <int> ``owner``: filter by report owner (home group leader)
         - query <int> ``type``: filter by report type
         - query <string> ``[from_date, to_date]``: filter by range
+        - query <string> ``search_title``: search by ``id``, ``home_group.title``, ``leader.fio``
         - query <int> ``status``: filter by progress status
 
     **Example request(with all filters)**:

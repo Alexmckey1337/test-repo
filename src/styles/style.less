@@ -12,9 +12,11 @@ body {
     overflow: hidden;
   }
 }
+
 a {
   color: #3caeda;
 }
+
 #statusTabs {
   & .current {
     & button {
@@ -628,6 +630,33 @@ h1 a {
   display: block;
 }
 
+.edit {
+  & button {
+    padding: 0;
+    background: transparent;
+    position: absolute;
+    top: 0.35em;
+    left: .75em;
+    font-size: 1.2em;
+    cursor: pointer;
+    opacity: 0;
+    display: none;
+  }
+  &:hover {
+    & button {
+      display: block;
+      opacity: 0.5;
+      &:hover {
+        opacity: 1;
+        &:before {
+          color: #FF5252;
+        }
+
+      }
+    }
+  }
+}
+
 .edit .col-1 button,
 .edit .butt-wrap {
   margin-top: 0;
@@ -1014,7 +1043,6 @@ li.current a {
     top: -2px;
   }
 }
-
 
 .tab-status li {
   height: 100%;
@@ -3824,6 +3852,7 @@ span.change[style*="display: none"] ~ span.y {
         top: 1em;
         width: 1em;
         height: 1em;
+
         &:before {
           content: '\f040';
           width: 1em;
@@ -6330,7 +6359,7 @@ div.code input#code {
         position: relative;
         #partner {
           position: relative;
-          width: 42px!important;
+          width: 42px !important;
           height: 20px;
           cursor: pointer;
           opacity: 0;
@@ -6340,7 +6369,7 @@ div.code input#code {
           position: absolute;
           left: 0;
         }
-        #partner:not(checked)+span::before {
+        #partner:not(checked) + span::before {
           content: '';
           position: absolute;
           top: 0;
@@ -6349,12 +6378,12 @@ div.code input#code {
           height: 18px;
           border-radius: 13px;
           background-color: #cdd1da;
-          box-shadow: inset 0 2px 3px rgba(0,0,0,.2);
+          box-shadow: inset 0 2px 3px rgba(0, 0, 0, .2);
         }
-        #partner:checked+span::before {
+        #partner:checked + span::before {
           background-color: #9fd468;
         }
-        #partner:not(checked)+span::after {
+        #partner:not(checked) + span::after {
           content: '';
           position: absolute;
           top: 1px;
@@ -6363,10 +6392,10 @@ div.code input#code {
           height: 15px;
           border-radius: 7px;
           background: #fff;
-          box-shadow: 0 2px 5px rgba(0,0,0,.3);
+          box-shadow: 0 2px 5px rgba(0, 0, 0, .3);
           transition: all .2s;
         }
-        #partner:checked+span::after {
+        #partner:checked + span::after {
           left: 26px;
         }
       }

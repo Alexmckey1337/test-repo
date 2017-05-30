@@ -1,4 +1,5 @@
 # -*- coding: utf-8
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
 from django.db.models import Q
 from django.db.models import Value as V
@@ -21,12 +22,14 @@ from group.pagination import ChurchPagination, HomeGroupPagination
 from group.resources import ChurchResource, HomeGroupResource
 from group.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin,
                                 ChurchHomeGroupMixin)
+from hierarchy.models import Department
 
 from .models import HomeGroup, Church
 from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSerializer,
                           HomeGroupListSerializer, ChurchStatsSerializer, UserNameSerializer,
-                          AllChurchesListSerializer, AllHomeGroupsListSerializer,
-                          HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer)
+                          AllHomeGroupsListSerializer, HomeMeetingsCountSerializer,
+                          HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer,
+                          )
 
 
 class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
@@ -53,7 +56,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
     filter_class = ChurchFilter
 
     field_search_fields = {
-        'search_title': ('title',),
+        'search_title': ('title', 'pastor__last_name', 'pastor__first_name', 'pastor__middle_name'),
     }
 
     resource_class = ChurchResource
@@ -71,6 +74,24 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
                     'home_group__users', distinct=True))
         return self.queryset.for_user(self.request.user)
 
+    @list_route(methods=['GET'], serializer_class=UserNameSerializer)
+    def get_pastors_by_department(self, request):
+        department_id = request.query_params.get('department_id')
+        pastors = CustomUser.objects.filter(church__pastor__id__isnull=False).distinct()
+
+        if not department_id:
+            pastors = self.serializer_class(pastors, many=True)
+            return Response(pastors.data)
+
+        if not Department.objects.filter(id=department_id).exists():
+            raise exceptions.ValidationError(
+                _('Отдела с id=%s не существует.' % department_id))
+
+        pastors = pastors.filter(church__department__id=department_id)
+        pastors = self.serializer_class(pastors, many=True)
+
+        return Response(pastors.data)
+
     @list_route(methods=['get'])
     def potential_users_church(self, request):
         users = CustomUser.objects.all()
@@ -83,40 +104,15 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
 
     @detail_route(methods=['post', 'put'])
     def add_user(self, request, pk):
-        church = self.get_object()
-        user_id = request.data.get('user_id')
-        if user_id is None:
-            raise exceptions.ValidationError(_('"user_id" is required.'))
-        try:
-            user = get_object_or_404(CustomUser, pk=user_id)
-        except Http404:
-            raise exceptions.ValidationError(_('User with id = %s does not exist.' % user_id))
+        # TODO filter by perm
+        church = get_object_or_404(Church, pk=pk)
+        user = self._get_user(request.data.get('user_id', None))
 
-        if request.method == 'PUT':
-            if not user.churches.exists() and not user.home_groups.exists():
-                raise exceptions.ValidationError(
-                    _('Невозможно добавить пользователя методом PUT.'
-                      'Данный пользователь не состоит ни Церкви ни '
-                      'в Домашней Группе.'))
-
-            if user.churches.exists():
-                old_church_id = user.churches.get().id
-                old_church = get_object_or_404(Church, pk=old_church_id)
-                old_church.users.remove(user)
-
-            if user.home_groups.exists():
-                old_home_group = user.home_groups.get().id
-                old_home_group = get_object_or_404(HomeGroup, pk=old_home_group)
-                old_home_group.users.remove(user)
-
-            church.users.add(user)
-
-        if request.method == 'POST':
-            self._validate_user_for_add_user(user)
-            church.users.add(user_id)
+        self._validate_user_for_add_user(user)
+        user.set_church(church)
 
         return Response({'message': _('Пользователь успешно добавлен.')},
-                        status=status.HTTP_201_CREATED)
+                        status=status.HTTP_200_OK)
 
     @detail_route(methods=['post'])
     def del_user(self, request, pk):
@@ -128,68 +124,6 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
         church.users.remove(user_id)
         return Response({'message': _('Пользователь успешно удален из Церкви')},
                         status=status.HTTP_204_NO_CONTENT)
-
-    # Helpers
-
-    @staticmethod
-    def filter_potential_users_for_group(qs, pk):
-        return qs.filter(Q(home_groups__isnull=True) & (Q(
-            churches__isnull=True) | Q(churches__id=pk)))
-
-    @staticmethod
-    def filter_potential_users_for_church(qs):
-        return qs.filter(Q(home_groups__isnull=True) & Q(churches__isnull=True))
-
-    @staticmethod
-    def _get_potential_users(request, filter, *args):
-        params = request.query_params
-        search = params.get('search', '').strip()
-        if len(search) < 3:
-            return Response({'search': _('Length of search query must be > 2')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        users = filter(*args).annotate(full_name=Concat(
-            'last_name', V(' '), 'first_name', V(' '), 'middle_name'))
-
-        search_queries = map(lambda s: s.strip(), search.split(' '))
-        for s in search_queries:
-            users = users.filter(
-                Q(first_name__istartswith=s) | Q(last_name__istartswith=s) |
-                Q(middle_name__istartswith=s) | Q(search_name__icontains=s))
-
-        department_id = params.get('department', None)
-        if department_id is not None:
-            users = users.filter(departments__id=department_id)
-
-        serializers = AddExistUserSerializer(users[:30], many=True)
-        return Response(serializers.data)
-
-    @staticmethod
-    def _validate_user_for_add_user(user):
-        if user.churches.exists():
-            raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя методом POST.'
-                  'Данный пользователь уже состоит в Церкви.'))
-
-        if user.home_groups.exists():
-            raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя методом POST.'
-                  'Данный пользователь уже состоит в Домашней Группе.'))
-
-    @staticmethod
-    def _validate_user_for_del_user(user_id, church):
-        if not user_id:
-            raise exceptions.ValidationError("Некоректные данные")
-
-        if not CustomUser.objects.filter(id=user_id).exists():
-            raise exceptions.ValidationError(
-                _('Невозможно удалить пользователя.'
-                  'Данного пользователя не существует.'))
-
-        if not church.users.filter(id=user_id).exists():
-            raise exceptions.ValidationError(
-                _('Невозможно удалить пользователя.'
-                  'Пользователь не принадлежит к данной Церкви.'))
 
     @detail_route(methods=['GET'])
     def statistics(self, request, pk):
@@ -228,18 +162,8 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
         stats = serializer(stats)
         return Response(stats.data)
 
-    @list_route(methods=['GET'], serializer_class=AllChurchesListSerializer)
-    def all(self, request):
-        if not request.query_params.get('department_id'):
-            raise exceptions.ValidationError(_("Некорректный запрос. Департамент не передан."))
-        departments = request.query_params.getlist('department_id')
-        churches = Church.objects.filter(department_id__in=departments)
-        churches = self.serializer_class(churches, many=True)
-
-        return Response(churches.data)
-
     @list_route(methods=['GET'], serializer_class=ChurchWithoutPaginationSerializer, pagination_class=None)
-    def churches_by_department(self, request):
+    def for_select(self, request):
         if not request.query_params.get('department'):
             raise exceptions.ValidationError(_("Некорректный запрос. Департамент не передан."))
 
@@ -248,6 +172,76 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
         churches = Church.objects.filter(department__in=departments)
         churches = self.serializer_class(churches, many=True)
         return Response(churches.data)
+
+    # Helpers
+
+    @staticmethod
+    def _get_user(user_id=None):
+        if not user_id:
+            raise exceptions.ValidationError(_('"user_id" is required.'))
+        try:
+            user = get_object_or_404(CustomUser, pk=user_id)
+        except Http404:
+            raise exceptions.ValidationError(_('User with id = %s does not exist.' % user_id))
+        return user
+
+    @staticmethod
+    def filter_potential_users_for_group(qs, pk):
+        return qs.filter(Q(home_groups__isnull=True) & (Q(
+            churches__isnull=True) | Q(churches__id=pk)))
+
+    @staticmethod
+    def filter_potential_users_for_church(qs):
+        return qs.filter(Q(home_groups__isnull=True) & Q(churches__isnull=True))
+
+    @staticmethod
+    def _get_potential_users(request, filter, *args):
+        params = request.query_params
+        search = params.get('search', '').strip()
+        if len(search) < 3:
+            return Response({'search': _('Length of search query must be > 2')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        users = filter(*args).annotate(full_name=Concat(
+            'last_name', V(' '), 'first_name', V(' '), 'middle_name'))
+
+        search_queries = map(lambda s: s.strip(), search.split(' '))
+        for s in search_queries:
+            users = users.filter(
+                Q(first_name__istartswith=s) | Q(last_name__istartswith=s) |
+                Q(middle_name__istartswith=s) | Q(search_name__icontains=s))
+
+        department_id = params.get('department', None)
+        if department_id is not None:
+            users = users.filter(departments__id=department_id)
+
+        serializers = AddExistUserSerializer(users[:30], many=True)
+        return Response(serializers.data)
+
+    @staticmethod
+    def _validate_user_for_add_user(user):
+        if user.churches.exists():
+            raise exceptions.ValidationError(
+                _('Невозможно добавить пользователя, данный пользователь уже состоит в Церкви.'))
+
+        if user.home_groups.exists():
+            raise exceptions.ValidationError(
+                _('Невозможно добавить пользователя, данный пользователь уже состоит в Домашней Группе.'))
+
+    @staticmethod
+    def _validate_user_for_del_user(user_id, church):
+        if not user_id:
+            raise exceptions.ValidationError("Некоректные данные")
+
+        if not CustomUser.objects.filter(id=user_id).exists():
+            raise exceptions.ValidationError(
+                _('Невозможно удалить пользователя.'
+                  'Данного пользователя не существует.'))
+
+        if not church.users.filter(id=user_id).exists():
+            raise exceptions.ValidationError(
+                _('Невозможно удалить пользователя.'
+                  'Пользователь не принадлежит к данной Церкви.'))
 
 
 class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportViewSetMixin):
@@ -271,13 +265,13 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
     filter_class = HomeGroupFilter
 
     field_search_fields = {
-        'search_title': ('title',)
+        'search_title': ('title', 'leader__last_name', 'leader__first_name', 'leader__middle_name')
     }
 
     resource_class = HomeGroupResource
 
     def get_serializer_class(self):
-        if self.action in 'list':
+        if self.action in ['list', 'retrieve']:
             return self.serializer_list_class
         return self.serializer_class
 
@@ -286,47 +280,21 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
             return self.queryset.for_user(self.request.user).annotate(count_users=Count('users'))
         return self.queryset.for_user(self.request.user)
 
-    @detail_route(methods=['post', 'put'])
+    @detail_route(methods=['post'])
     def add_user(self, request, pk):
         home_group = get_object_or_404(HomeGroup, pk=pk)
-        user_id = request.data.get('user_id')
-        if user_id is None:
-            raise exceptions.ValidationError(_('"user_id" is required.'))
-        try:
-            user = get_object_or_404(CustomUser, pk=user_id)
-        except Http404:
-            raise exceptions.ValidationError(_('User with id = %s does not exist.' % user_id))
+        user = self._get_user(request.data.get('user_id', None))
 
-        if request.method == 'PUT':
-            if not user.churches.exists() and not user.home_groups.exists():
-                raise exceptions.ValidationError(
-                    _('Невозможно добавить пользователя методом PUT. '
-                      'Данный пользователь не состоит ни Церкви ни в Домашней Группе.'))
-
-            if user.churches.exists():
-                old_church_id = user.churches.get().id
-                old_church = get_object_or_404(Church, pk=old_church_id)
-                old_church.users.remove(user)
-
-            if user.home_groups.exists():
-                old_home_group = user.home_groups.get().id
-                old_home_group = get_object_or_404(HomeGroup, pk=old_home_group)
-                old_home_group.users.remove(user)
-
-            home_group.users.add(user)
-
-        if request.method == 'POST':
-            self._validate_user_for_add_user(user, home_group)
-            home_group.users.add(user_id)
-            user.churches.through.objects.filter(customuser_id=user_id).delete()
+        self._validate_user_for_add_user(user, home_group)
+        user.set_home_group(home_group)
 
         return Response({'message': 'Пользователь успешно добавлен.'},
-                        status=status.HTTP_201_CREATED)
+                        status=status.HTTP_200_OK)
 
     @detail_route(methods=['post'])
     def del_user(self, request, pk):
         user_id = request.data.get('user_id')
-        home_group = self.get_object()
+        home_group = get_object_or_404(HomeGroup, pk=pk)
         church = home_group.church
         self._validate_user_for_del_user(user_id, home_group)
 
@@ -335,33 +303,19 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    # Helpers
+    @list_route(methods=['GET'], serializer_class=UserNameSerializer)
+    def available_leaders(self, request):
+        church_id = request.query_params.get('church_id')
+        master_tree_id = request.query_params.get('master_tree')
 
-    @staticmethod
-    def _validate_user_for_add_user(user, home_group):
-        if user.home_groups.exists():
-            raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя методом POST.'
-                  'Данный пользователь уже состоит в Домашней Группе.'))
+        master = self._get_master(request.user, master_tree_id)
 
-        if user.churches.exclude(id=home_group.church_id).exists():
-            raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя методом POST.'
-                  'Пользователь является членом другой Церкви'))
+        leaders = master.get_descendants(include_self=True).filter(hierarchy__level__gte=1)
+        if church_id:
+            leaders = leaders.filter(Q(home_groups__church_id=church_id) | Q(churches__id=church_id))
 
-    @staticmethod
-    def _validate_user_for_del_user(user_id, home_group):
-        if not user_id:
-            raise exceptions.ValidationError(_("Некоректные данные"))
-
-        if not CustomUser.objects.filter(id=user_id).exists():
-            raise exceptions.ValidationError(
-                _('Невозможно удалить пользователя. Данного пользователя не существует.'))
-
-        if not home_group.users.filter(id=user_id).exists():
-            raise exceptions.ValidationError(
-                _('Невозможно удалить пользователя.'
-                  'Пользователь не принадлежит к данной Домашней Группе.'))
+        leaders = self.serializer_class(leaders, many=True)
+        return Response(leaders.data)
 
     @detail_route(methods=["GET"])
     def statistics(self, request, pk):
@@ -379,7 +333,7 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         return Response(stats.data)
 
     @list_route(methods=['GET'], serializer_class=AllHomeGroupsListSerializer)
-    def all(self, request):
+    def for_select(self, request):
         church_id = request.query_params.get('church_id')
 
         if not church_id:
@@ -390,30 +344,49 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
 
         return Response(home_groups.data)
 
-    @list_route(methods=['GET'], serializer_class=UserNameSerializer)
-    def get_leaders_by_church(self, request):
-        church_id = request.query_params.get('church_id')
-        leaders = CustomUser.objects.filter(Q(home_groups__church__id=church_id) | Q(
-            churches__id=church_id)).filter(hierarchy__level__gte=1)
+    # Helpers
 
-        if not church_id:
-            leaders = self.serializer_class(leaders, many=True)
-            return Response(leaders.data)
+    @staticmethod
+    def _get_master(master, master_tree_id):
+        if not master_tree_id:
+            return master
+        try:
+            return master.get_descendants(include_self=True).filter(hierarchy__level__gte=1).get(pk=master_tree_id)
+        except ValueError:
+            raise exceptions.ValidationError(_("master_tree_id is incorrect."))
+        except ObjectDoesNotExist:
+            raise exceptions.ValidationError(_("You are don't have permissions for filter by this master."))
 
-        leaders = self.serializer_class(leaders, many=True)
+    @staticmethod
+    def _get_user(user_id=None):
+        if not user_id:
+            raise exceptions.ValidationError(_('"user_id" is required.'))
+        try:
+            user = get_object_or_404(CustomUser, pk=user_id)
+        except Http404:
+            raise exceptions.ValidationError(_('User with id = %s does not exist.' % user_id))
+        return user
 
-        return Response(leaders.data)
+    @staticmethod
+    def _validate_user_for_add_user(user, home_group):
+        if user.home_groups.exists():
+            raise exceptions.ValidationError(
+                _('Невозможно добавить пользователя, данный пользователь уже состоит в Домашней Группе.'))
 
-    @list_route(methods=['GET'], serializer_class=UserNameSerializer)
-    def get_current_leaders(self, request):
-        church_id = request.query_params.get('church_id')
-        leaders = CustomUser.objects.filter(Q(home_groups__church__id=church_id) | Q(
-            churches__id=church_id)).filter(hierarchy__level__gte=1)
+        if user.churches.exclude(id=home_group.church_id).exists():
+            raise exceptions.ValidationError(
+                _('Невозможно добавить пользователя, пользователь является членом другой Церкви'))
 
-        if not church_id:
-            leaders = self.serializer_class(leaders, many=True)
-            return Response(leaders.data)
+    @staticmethod
+    def _validate_user_for_del_user(user_id, home_group):
+        if not user_id:
+            raise exceptions.ValidationError(_("Некоректные данные"))
 
-        leaders = self.serializer_class(leaders, many=True)
+        if not CustomUser.objects.filter(id=user_id).exists():
+            raise exceptions.ValidationError(
+                _('Невозможно удалить пользователя. Данного пользователя не существует.'))
 
-        return Response(leaders.data)
+        if not home_group.users.filter(id=user_id).exists():
+            raise exceptions.ValidationError(
+                _('Невозможно удалить пользователя.'
+                  'Пользователь не принадлежит к данной Домашней Группе.'))

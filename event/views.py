@@ -50,7 +50,12 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
     filter_class = MeetingFilter
 
     field_search_fields = {
-        'search_date': ('date',)
+        'search_date': ('date',),
+        'search_title': (
+            'id',
+            'home_group__title',
+            'owner__last_name', 'owner__first_name', 'owner__middle_name',
+        )
     }
 
     def get_serializer_class(self):

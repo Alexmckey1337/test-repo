@@ -419,9 +419,6 @@ class HomeGroupListView(LoginRequiredMixin, TabsMixin, CanSeeHomeGroupsMixin, Te
         ctx = super(HomeGroupListView, self).get_context_data(**kwargs)
 
         ctx['churches'] = Church.objects.all()
-        ctx['leaders'] = CustomUser.objects.filter(
-            home_group__leader__id__isnull=False).distinct()
-        ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
 
         return ctx
 
