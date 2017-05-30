@@ -45,6 +45,7 @@ class OrderTable {
         });
     }
 }
+
 function getOrderingData() {
     let revers, order, savePath;
     let path = window.location.pathname;

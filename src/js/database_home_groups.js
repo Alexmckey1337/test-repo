@@ -1,4 +1,14 @@
 (function ($) {
+    function filterInit() {
+        const USER_ID = $('body').data('id');
+        getLeadersByChurch({
+            master_tree: USER_ID
+        }).then(res => {
+            let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
+            $('#tree_filter').html('<option>ВСЕ</option>').append(leaders);
+            $('#leader_filter').html('<option>ВСЕ</option>').append(leaders);
+        })
+    }
     let $departmentSelect = $('#department_select');
     createHomeGroupsTable();
     let $churchFilter = $('#church_filter');
@@ -52,6 +62,7 @@
         updateSettings(createHomeGroupsTable);
     });
     $('#filter_button').on('click', function () {
+        filterInit();
         $('#filterPopup').css('display', 'block');
     });
     $('input[name="fullsearch"]').on('keyup', function () {
