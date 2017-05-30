@@ -169,24 +169,24 @@
             });
     });
 
-    $('#addHomeGroupForm').submit(function (e) {
-        e.preventDefault();
-        addHomeGroup(this);
-    });
+    // $('#addHomeGroupForm').submit(function (e) {
+    //     e.preventDefault();
+    //     addHomeGroup(this);
+    // });
 
-    function addHomeGroup(el, callback) {
-    let data = getAddHomeGroupData();
-    let json = JSON.stringify(data);
-    addHomeGroupToDataBase(json).then(function (data) {
-        clearAddHomeGroupData();
-        hidePopup(el);
-        callback();
-        showPopup(`Домашняя группа ${data.get_title} добавлена в базу данных`);
-    }).catch(function (data) {
-        hidePopup(el);
-        showPopup('Ошибка при создании домашней группы');
-    });
-}
+//     function addHomeGroup(el, callback) {
+//     let data = getAddHomeGroupData();
+//     let json = JSON.stringify(data);
+//     addHomeGroupToDataBase(json).then(function (data) {
+//         clearAddHomeGroupData();
+//         hidePopup(el);
+//         callback();
+//         showPopup(`Домашняя группа ${data.get_title} добавлена в базу данных`);
+//     }).catch(function (data) {
+//         hidePopup(el);
+//         showPopup('Ошибка при создании домашней группы');
+//     });
+// }
 
     $.validate({
         lang: 'ru',

@@ -965,6 +965,22 @@ function addChurch(e, el, callback) {
     });
 }
 
+function addHomeGroup(e, el, callback) {
+    e.preventDefault();
+    let data = getAddHomeGroupData();
+    let json = JSON.stringify(data);
+
+    addHomeGroupToDataBase(json).then(function (data) {
+        clearAddHomeGroupData();
+        hidePopup(el);
+        callback();
+        showPopup(`Домашняя группа ${data.get_title} добавлена в базу данных`);
+    }).catch(function (data) {
+        hidePopup(el);
+        showPopup('Ошибка при создании домашней группы');
+    });
+}
+
 function getCountryCodes() {
     return new Promise(function (resolve, reject) {
         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
