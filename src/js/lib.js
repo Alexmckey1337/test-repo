@@ -133,7 +133,7 @@ function createHomeGroupsTable(config = {}) {
         filterData.user_table = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
-        $('#tableHomeGroup').html(rendered)
+        $('#tableHomeGroup').html(rendered);
         $('.quick-edit').on('click', function () {
             let id = $(this).closest('.edit').find('a').attr('data-id');
             ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/`, null, function (data) {
@@ -143,12 +143,11 @@ function createHomeGroupsTable(config = {}) {
                 $('#quickEditCartPopup').find('.popup_body').html(rendered);
                 getResponsibleBYHomeGroup()
                     .then(res => {
-                        return res.map(leader => `<option value="${leader.id}" ${(data.leader === leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
+                        return res.map(leader => `<option value="${leader.id}" ${(data.leader.id == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
                     })
                     .then(data => {
                         $('#homeGroupLeader').html(data).select2();
-                    })
-                ;
+                    });
                 setTimeout(function () {
                     $('.date').datepicker({
                         dateFormat: 'yyyy-mm-dd',
@@ -896,7 +895,7 @@ function createChurchesTable(config = {}) {
                 let quickEditCartTmpl, rendered;
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
-                $('#quickEditCartPopup .popup_body').html(rendered);
+                $('#quickEditCartPopup').find('.popup_body').html(rendered);
                 $('#opening_date').datepicker({
                     dateFormat: 'yyyy-mm-dd',
                     autoClose: true
