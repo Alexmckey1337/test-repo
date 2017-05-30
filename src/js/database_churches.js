@@ -1,4 +1,20 @@
 (function ($) {
+     let filterInit = (function () {
+        let init = false;
+        const USER_ID = $('body').data('id');
+        return function () {
+            if (!init) {
+                getPastorsByDepartment({
+                    master_tree: USER_ID
+                }).then(res => {
+                    let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
+                    $('#tree_filter').html('<option>ВСЕ</option>').append(leaders);
+                    $('#pastor_filter').html('<option>ВСЕ</option>').append(leaders);
+                });
+                init = true;
+            }
+        }
+    })();
     let $departmentsFilter = $('#departments_filter');
     let $treeFilter = $('#tree_filter');
 
@@ -38,6 +54,7 @@
         updateSettings(createChurchesTable);
     });
     $('#filter_button').on('click', function () {
+        filterInit();
         $('#filterPopup').css('display', 'block');
     });
     $('input[name="fullsearch"]').on('keyup', function () {
