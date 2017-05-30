@@ -92,6 +92,20 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
 
         return Response(pastors.data)
 
+    @list_route(methods=['GET'], serializer_class=UserNameSerializer)
+    def available_pastors(self, request):
+        department_id = request.query_params.get('department_id')
+        master_tree_id = request.query_params.get('master_tree')
+
+        master = self._get_master(request.user, master_tree_id)
+
+        pastors = master.get_descendants(include_self=True).filter(hierarchy__level__gte=2)
+        if department_id:
+            pastors = pastors.filter(departments=department_id)
+
+        pastors = self.serializer_class(pastors, many=True)
+        return Response(pastors.data)
+
     @list_route(methods=['get'])
     def potential_users_church(self, request):
         users = CustomUser.objects.all()
@@ -174,6 +188,17 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
         return Response(churches.data)
 
     # Helpers
+
+    @staticmethod
+    def _get_master(master, master_tree_id):
+        if not master_tree_id:
+            return master
+        try:
+            return master.get_descendants(include_self=True).filter(hierarchy__level__gte=2).get(pk=master_tree_id)
+        except ValueError:
+            raise exceptions.ValidationError(_("master_tree_id is incorrect."))
+        except ObjectDoesNotExist:
+            raise exceptions.ValidationError(_("You are don't have permissions for filter by this master."))
 
     @staticmethod
     def _get_user(user_id=None):

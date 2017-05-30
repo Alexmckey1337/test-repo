@@ -2853,12 +2853,14 @@ function getHomeGroupStats(id) {
     });
 }
 
-function getPastorsByDepartment(id) {
+function getPastorsByDepartment(config) {
     let resData = {};
-    if (id) {
-        resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/get_pastors_by_department/?department_id=${id}`;
-    } else {
-        resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/get_pastors_by_department/`;
+    resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/available_pastors/?blank=`;
+    if (config.department_id) {
+        resData.url += `&department_id=${config.department_id}`;
+    }
+    if (config.master_tree) {
+        resData.url += `&master_tree=${config.master_tree}`;
     }
     return new Promise(function (resolve, reject) {
         let codes = {

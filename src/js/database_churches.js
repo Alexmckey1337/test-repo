@@ -64,7 +64,7 @@
         } else {
             config.department = departamentID;
         }
-        getShortUsers(config).then(function (data) {
+        getPastorsByDepartment({department_id: departamentID}).then(function (data) {
             let options = [];
             let option = document.createElement('option');
             $(option).text('ВСЕ');
@@ -76,7 +76,7 @@
             });
             $('#tree_filter').html(options);
         });
-        getPastorsByDepartment(departamentID).then(function (data) {
+        getPastorsByDepartment({department_id: departamentID}).then(function (data) {
             let options = [];
             let option = document.createElement('option');
             $(option).text('ВСЕ');
@@ -96,7 +96,7 @@
                 master_tree: $(this).val()
             };
         }
-        getShortUsers(config).then(function (data) {
+        getPastorsByDepartment(config).then(function (data) {
             let options = [];
             let option = document.createElement('option');
             $(option).text('ВСЕ');
