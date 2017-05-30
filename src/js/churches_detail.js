@@ -5,17 +5,30 @@
     let responsibleList = false;
     let link = $('.get_info .active').data('link');
 
-    function makeResponsibleList(USER_ID) {
-        getResponsibleBYHomeGroup(USER_ID).then(function (data) {
-            let options = [];
-            data.forEach(function (item) {
+    function makeResponsibleList(id, user_id) {
+        let config = {
+                master_tree: user_id,
+                church_id: id,
+            };
+        getResponsibleBYHomeGroupNew(config).then(function (data) {
+            let options = data.map( (item) => {
                 let option = document.createElement('option');
-                $(option).val(item.id).text(item.fullname);
-                options.push(option);
+                return $(option).val(item.id).text(item.fullname);
             });
-            $('#added_home_group_pastor').html(options).prop('disabled', false);
-        })
+            $('#added_home_group_pastor').html(options).prop('disabled', false).select2();
+        });
     }
+    // function makeResponsibleList(USER_ID) {
+    //     getResponsibleBYHomeGroup(USER_ID).then(function (data) {
+    //         let options = [];
+    //         data.forEach(function (item) {
+    //             let option = document.createElement('option');
+    //             $(option).val(item.id).text(item.fullname);
+    //             options.push(option);
+    //         });
+    //         $('#added_home_group_pastor').html(options).prop('disabled', false);
+    //     })
+    // }
 
     function addUserToChurch(data) {
         let id = data.id;
@@ -102,7 +115,7 @@
         clearAddHomeGroupData();
         if (!responsibleList) {
             responsibleList = true;
-            makeResponsibleList(ID);
+            makeResponsibleList(ID, USER_ID);
         }
         setTimeout(function () {
             $('#addHomeGroup').css('display', 'block');

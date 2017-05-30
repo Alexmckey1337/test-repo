@@ -45,7 +45,6 @@
         $('#added_home_group_pastor').html(options).prop('disabled', false).select2();
     });
 
-
         setTimeout(function () {
             $('#addHomeGroup').css('display', 'block');
         }, 100);
