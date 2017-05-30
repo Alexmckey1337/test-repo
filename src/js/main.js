@@ -16,49 +16,49 @@ $(window).on('hashchange', function () {
 
 // Sorting
 
-let orderTable = (function () {
-    let savePath = sessionStorage.getItem('path');
-    let path = window.location.pathname;
-    if(savePath != path) {
-        sessionStorage.setItem('path', path);
-        sessionStorage.setItem('revers', '');
-        sessionStorage.setItem('order', '');
-    }
-    function addListener(callback) {
-        $(".table-wrap th").on('click', function () {
-            let dataOrder;
-            let data_order = this.getAttribute('data-order');
-            if(data_order == "no_ordering") {
-                return
-            }
-            let page = $('.pagination__input').val();
-            let revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
-            let order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
-            if (order != '') {
-                dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
-            } else {
-                dataOrder = '-' + data_order;
-            }
-            let data = {
-                'ordering': dataOrder,
-                'page': page
-            };
-            if (order == data_order) {
-                revers = (revers == '+') ? '-' : '+';
-            } else {
-                revers = "+"
-            }
-            sessionStorage.setItem('revers', revers);
-            sessionStorage.setItem('order', data_order);
-            $('.preloader').css('display', 'block');
-            callback(data);
-        });
-    }
-
-    return {
-        sort: addListener
-    }
-})();
+// let orderTable = (function () {
+//     let savePath = sessionStorage.getItem('path');
+//     let path = window.location.pathname;
+//     if(savePath != path) {
+//         sessionStorage.setItem('path', path);
+//         sessionStorage.setItem('revers', '');
+//         sessionStorage.setItem('order', '');
+//     }
+//     function addListener(callback) {
+//         $(".table-wrap th").on('click', function () {
+//             let dataOrder;
+//             let data_order = this.getAttribute('data-order');
+//             if(data_order == "no_ordering") {
+//                 return
+//             }
+//             let page = $('.pagination__input').val();
+//             let revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
+//             let order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
+//             if (order != '') {
+//                 dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
+//             } else {
+//                 dataOrder = '-' + data_order;
+//             }
+//             let data = {
+//                 'ordering': dataOrder,
+//                 'page': page
+//             };
+//             if (order == data_order) {
+//                 revers = (revers == '+') ? '-' : '+';
+//             } else {
+//                 revers = "+"
+//             }
+//             sessionStorage.setItem('revers', revers);
+//             sessionStorage.setItem('order', data_order);
+//             $('.preloader').css('display', 'block');
+//             callback(data);
+//         });
+//     }
+//
+//     return {
+//         sort: addListener
+//     }
+// })();
 
 $('.close').on('click', function () {
     if ($(this).closest('.pop-up-splash')) {
