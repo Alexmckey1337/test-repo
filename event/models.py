@@ -126,7 +126,7 @@ class Meeting(AbstractStatusModel):
 
     @property
     def can_submit(self):
-        if Meeting.objects.filter(owner=self.owner, status=Meeting.EXPIRED).exists()\
+        if Meeting.objects.filter(owner=self.owner, status=Meeting.EXPIRED).exists() \
                 and self.status != Meeting.EXPIRED:
             return False
         return True
@@ -134,8 +134,7 @@ class Meeting(AbstractStatusModel):
     @property
     def cant_submit_cause(self):
         if not self.can_submit:
-            return 'Невозможно подать отчет по данному лидеру. ' \
-                   'Данный лидер имеет проспроченные отчеты'
+            return 'Невозможно подать отчет. Данный лидер имеет проспроченные отчеты'
         return ''
 
 
