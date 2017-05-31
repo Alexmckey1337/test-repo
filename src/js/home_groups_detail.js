@@ -49,7 +49,7 @@
                     $(rows).addClass('rows').append(col_1).append(col_2);
                     $(button).attr({
                         'data-id': item.id,
-                        'disabled': item.can_add
+                        'disabled': !item.can_add
                     }).text('Выбрать').on('click', function () {
                         let id = $(this).data('id');
                         let config = {};

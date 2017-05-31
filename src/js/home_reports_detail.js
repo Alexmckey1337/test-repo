@@ -218,6 +218,7 @@
             'size': data.date.length,
             'data-name': 'date',
         }).datepicker({
+            autoClose: true,
             minDate: new Date(thisMonday),
             maxDate: new Date(nextSunday),
         });
