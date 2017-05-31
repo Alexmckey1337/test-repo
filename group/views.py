@@ -20,8 +20,7 @@ from group.filters import (HomeGroupFilter, ChurchFilter,
                            FilterChurchMasterTree, FilterHomeGroupMasterTree)
 from group.pagination import ChurchPagination, HomeGroupPagination
 from group.resources import ChurchResource, HomeGroupResource
-from group.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin,
-                                ChurchHomeGroupMixin)
+from group.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin)
 from hierarchy.models import Department
 from .models import HomeGroup, Church
 from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSerializer,
