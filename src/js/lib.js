@@ -638,23 +638,60 @@ function saveUserData(data, id) {
     }
 }
 
+// function saveChurchData(data, id) {
+//     if (id) {
+//         let json = JSON.stringify(data);
+//         ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/`, json, function (data) {
+//         }, 'PATCH', false, {
+//             'Content-Type': 'application/json'
+//         });
+//     }
+// }
+
 function saveChurchData(data, id) {
     if (id) {
         let json = JSON.stringify(data);
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/`, json, function (data) {
-        }, 'PATCH', false, {
-            'Content-Type': 'application/json'
+        return new Promise(function (resolve, reject) {
+            ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/`, json, function (data) {
+                resolve();
+            }, 'PATCH', false, {
+                'Content-Type': 'application/json'
+            });
         });
     }
 }
 
+// function saveHomeGroupsData(data, id) {
+//     if (id) {
+//         let json = JSON.stringify(data);
+//         ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${id}/`, json, function (data) {
+//         }, 'PATCH', false, {
+//             'Content-Type': 'application/json'
+//         });
+//     }
+
 function saveHomeGroupsData(data, id) {
     if (id) {
         let json = JSON.stringify(data);
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${id}/`, json, function (data) {
-        }, 'PATCH', false, {
-            'Content-Type': 'application/json'
-        });
+        return new Promise(function (resolve, reject) {
+            let data = {
+                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/`,
+                data: json,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+            let status = {
+                200: function (req) {
+                    resolve(req);
+                },
+                400: function (req) {
+                    reject(req);
+                }
+            };
+        newAjaxRequest(data, status, reject)
+        })
     }
 }
 
@@ -2330,12 +2367,13 @@ function editChurches(el, id) {
         city: $($(el).closest('form').find('#city')).val(),
         address: $($(el).closest('form').find('#address')).val()
     };
-    saveChurchData(data, id);
-    let success = $($(el).closest('form').find('.success__block'));
-    $(success).text('Сохранено');
-    setTimeout(function () {
-        $(success).text('');
-    }, 3000);
+    saveChurchData(data, id).then(function (data) {
+        let success = $($(el).closest('form').find('.success__block'));
+        $(success).text('Сохранено');
+        setTimeout(function () {
+            $(success).text('');
+        }, 3000);
+    })
 }
 
 function saveHomeGroups(el) {
@@ -2355,7 +2393,7 @@ function saveHomeGroups(el) {
     };
 
     saveHomeGroupsData(data, id);
-    saveHomeGroupsDataNew(data, id);
+    // saveHomeGroupsDataNew(data, id);
 
     $(el).text("Сохранено");
     $(el).closest('.popap').find('.close-popup.change__text').text('Закрыть');
@@ -2373,6 +2411,31 @@ function saveHomeGroups(el) {
         $(el).closest('.popap').find('.close-popup').text('Отменить');
         $(el).attr('disabled', false);
     })
+}
+
+function editHomeGroups(el, id) {
+    let data = {
+        leader: $($(el).closest('form').find('#homeGroupLeader')).val(),
+        phone_number: $($(el).closest('form').find('#phone_number')).val(),
+        website: ($(el).closest('form').find('#web_site')).val(),
+        opening_date: $($(el).closest('form').find('#opening_date')).val().split('.').reverse().join('-') || null,
+        city: $($(el).closest('form').find('#city')).val(),
+        address: $($(el).closest('form').find('#address')).val()
+    };
+
+    saveHomeGroupsData(data, id).then(function (data) {
+        let success = $($(el).closest('form').find('.success__block'));
+        $(success).text('Сохранено');
+        setTimeout(function () {
+            $(success).text('');
+        }, 3000);
+    }).catch(function (res) {
+        console.log(res);
+        let error = JSON.parse(res.responseText);
+        let errKey = Object.keys(error);
+        let html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
+        showPopup(html);
+    });
 }
 
 function makeQuickEditSammitCart(el) {

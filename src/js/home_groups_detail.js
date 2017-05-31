@@ -149,6 +149,83 @@
         autoClose: true
     });
 
+    $('.accordion').find('.edit').on('click', function (e) {
+        e.preventDefault();
+        let $input = $(this).closest('form').find('input:not(.select2-search__field), select');
+
+        if ($(this).hasClass('active')) {
+            $input.each(function (i, el) {
+                if (!$(this).attr('disabled')) {
+                    $(this).attr('disabled', true);
+                }
+                $(this).attr('readonly', true);
+                if ($(el).is('select')) {
+                    if (!$(this).is('.no_select')) {
+                        $(this).select2('destroy');
+                    }
+                }
+            });
+            $(this).removeClass('active');
+        } else {
+            // let church_id = $(this).closest('form').attr('data-id');
+            // let user_id = $('body').attr('data-user');
+            // let config = {
+            //     master_tree: user_id,
+            //     // church_id: church_id,
+            // };
+            let leaderId = $('#homeGroupLeader').val();
+
+             getResponsibleBYHomeGroup().then(function (res) {
+                    return res.map(function (leader) {
+                        return '<option value="' + leader.id + '" ' + (leaderId == leader.id ? 'selected' : '') + '>' + leader.fullname + '</option>';
+                    });
+                }).then(function (data) {
+                    $('#homeGroupLeader').html(data).prop('disabled', false).select2();
+                });
+            $input.each(function (i, el) {
+                if (!$(this).hasClass('no__edit')) {
+                    if ($(this).attr('disabled')) {
+                        $(this).attr('disabled', false);
+                    }
+                    if (!$(el).is('#church')) {
+                        $(this).attr('readonly', false);
+                    }
+                }
+            });
+            $(this).addClass('active');
+        }
+    });
+
+    $('.accordion').find('.save__info').on('click', function (e) {
+        e.preventDefault();
+        $(this).closest('form').find('.edit').removeClass('active');
+        let idHomeGroup = $(this).closest('form').attr('data-id');
+        editHomeGroups($(this), idHomeGroup);
+        let $input = $(this).closest('form').find('input:not(.select2-search__field), select');
+        $input.each(function (i, el) {
+            $(this).attr('disabled', true);
+            $(this).attr('readonly', true);
+            if ($(el).is('select')) {
+                if ($(this).is(':not([multiple])')) {
+                    if (!$(this).is('.no_select')) {
+                        $(this).select2('destroy');
+                    }
+                }
+            }
+        });
+        $(this).removeClass('active');
+        let liderLink = '/account/' + $('#homeGroupLeader').val();
+        pasteLink($('#homeGroupLeader'), liderLink);
+        let webLink = $(this).closest('form').find('#web_site').val();
+        let linkIcon = $('#site-link');
+        if (webLink == '' ) {
+            !linkIcon.hasClass('link-hide') && linkIcon.addClass('link-hide');
+        } else {
+            pasteLink($('#web_site'), webLink);
+            linkIcon.hasClass('link-hide') && linkIcon.removeClass('link-hide');
+        }
+    });
+
 
 
 })(jQuery);
