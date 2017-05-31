@@ -134,7 +134,8 @@ class Meeting(AbstractStatusModel):
     @property
     def cant_submit_cause(self):
         if not self.can_submit:
-            return 'Невозможно подать отчет. Данный лидер имеет проспроченные отчеты'
+            return 'Невозможно подать отчет.\n' \
+                   'Данный лидер имеет просроченные отчеты.'
         return ''
 
 

@@ -23,7 +23,7 @@ class ValidateDataBeforeUpdateMixin(object):
                 _('Невозможно обновить методом UPDATE. '
                   'Отчет - {%s} еще небыл подан.') % instance)
 
-        if instance.date > validated_data.get('date'):
+        if instance.date.isoweekday()[2] != validated_data.get('date').vali:
             raise serializers.ValidationError(
                 _('Невозможно подать отчет. Переданная дата подачи отчета - {%s} '
                   'меньше чем дата его создания.' % validated_data.get('date'))

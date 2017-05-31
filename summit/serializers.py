@@ -176,21 +176,31 @@ class ChildrenLink(serializers.RelatedField):
         return None
 
 
+class SummitVisitorLocationSerializer(serializers.ModelSerializer):
+    visitor_id = serializers.IntegerField(source='visitor.id')
+
+    class Meta:
+        model = SummitVisitorLocation
+        fields = ('visitor_id', 'date_time', 'longitude', 'latitude', 'type')
+
+
 class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField()
     master_fio = serializers.CharField(source='responsible')
     user_id = serializers.IntegerField(source='user.user_ptr_id')
     phone_number = serializers.CharField(source='user.phone_number')
     extra_phone_numbers = serializers.ListField(source='user.extra_phone_numbers')
-    children = ChildrenLink(view_name='summit-app-profile-list-master', queryset=SummitAnket.objects.all())
+    children = ChildrenLink(view_name='summit-app-profile-list-master',
+                            queryset=SummitAnket.objects.all())
     photo = ImageWithoutHostField(source='user.image', use_url=False)
+    location = SummitVisitorLocationSerializer(read_only=True, many=True)
 
     class Meta:
         model = SummitAnket
         fields = (
             'id', 'user_id', 'master_id',
             'full_name', 'country', 'city', 'phone_number', 'extra_phone_numbers',
-            'master_fio', 'hierarchy_id', 'children', 'photo',
+            'master_fio', 'hierarchy_id', 'children', 'photo', 'location'
         )
 
 
@@ -201,7 +211,8 @@ class SummitTicketSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SummitTicket
-        fields = ('id', 'title', 'summit', 'summit_type', 'owner', 'attachment', 'status', 'get_status_display')
+        fields = ('id', 'title', 'summit', 'summit_type', 'owner', 'attachment',
+                  'status', 'get_status_display')
 
 
 class SummitForAppSerializer(serializers.ModelSerializer):
@@ -221,8 +232,8 @@ class SummitTypeForAppSerializer(serializers.ModelSerializer):
 class UserForAppSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'middle_name', 'country', 'city', 'email', 'phone_number') \
-            #  + ('region', 'district', 'address', 'image_source')
+        fields = ('first_name', 'last_name', 'middle_name', 'country', 'city',
+                  'email', 'phone_number')  # + ('region', 'district', 'address', 'image_source')
 
 
 class SummitAnketForAppSerializer(serializers.ModelSerializer):
@@ -242,14 +253,6 @@ class SummitAnketLocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = SummitAnket
         fields = ('id', 'fullname')
-
-
-class SummitVisitorLocationSerializer(serializers.ModelSerializer):
-    visitor_id = serializers.IntegerField(source='visitor.id')
-
-    class Meta:
-        model = SummitVisitorLocation
-        fields = ('visitor_id', 'date_time', 'longitude', 'latitude', 'type')
 
 
 class SummitEventTableSerializer(serializers.ModelSerializer):
