@@ -147,6 +147,8 @@
                showPopup(`Обязательные поля не заполнены либо введены некорректные данные`);
            } else {
                $(this).closest('form').css("transform","translate3d(-520px, 0px, 0px)");
+               let user = `${$('#last_name').val()} ${$('#first_name').val()} ${$('#middle_name').val()}`;
+               $('.second_step').find('.user').html(user);
         }
     });
 

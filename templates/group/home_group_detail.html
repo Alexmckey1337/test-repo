@@ -46,7 +46,7 @@
                     </div>
                     <div class="input">
                         <input type="text" id="church" value="{{ home_group.church }}" readonly>
-                        <a href="/churches/{{ home_group.church.id }}">
+                        <a href="/churches/{{ home_group.church.id }}" target="_blank">
                             <i class="fa fa-external-link" aria-hidden="true"></i>
                         </a>
                     </div>
@@ -57,7 +57,7 @@
                         <select name="" id="homeGroupLeader" readonly="readonly" disabled="disabled">
                             <option value="{{ home_group.leader.id }}">{{ home_group.leader }}</option>
                         </select>
-                        <a href="{{ home_group.leader.get_absolute_url }}">
+                        <a href="{{ home_group.leader.get_absolute_url }}" target="_blank">
                             <i class="fa fa-external-link" aria-hidden="true"></i>
                         </a>
                     </div>
