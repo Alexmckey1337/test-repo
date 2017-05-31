@@ -107,7 +107,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
     @staticmethod
     def validate_to_submit(meeting, data):
         if Meeting.objects.filter(owner=meeting.owner, status=Meeting.IN_PROGRESS).exists() and \
-                        meeting.status == Meeting.IN_PROGRESS:
+                        meeting.status in [Meeting.IN_PROGRESS]:
             raise exceptions.ValidationError('Невозможно подать отчет.\n'
                                              'Данный лидер имеет просроченные отчеты.')
 

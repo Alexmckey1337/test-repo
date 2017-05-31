@@ -127,7 +127,7 @@ class Meeting(AbstractStatusModel):
     @property
     def can_submit(self):
         if Meeting.objects.filter(owner=self.owner, status=Meeting.EXPIRED).exists() \
-                and self.status != Meeting.EXPIRED:
+                and self.status not in [Meeting.EXPIRED, Meeting.IN_PROGRESS]:
             return False
         return True
 

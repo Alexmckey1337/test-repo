@@ -23,7 +23,7 @@ class ValidateDataBeforeUpdateMixin(object):
                 _('Невозможно обновить методом UPDATE. '
                   'Отчет - {%s} еще небыл подан.') % instance)
 
-        if instance.date.isoweekday()[2] != validated_data.get('date').vali:
+        if instance.date > validated_data.get('date'):
             raise serializers.ValidationError(
                 _('Невозможно подать отчет. Переданная дата подачи отчета - {%s} '
                   'меньше чем дата его создания.' % validated_data.get('date'))
@@ -111,13 +111,13 @@ class MeetingDetailSerializer(MeetingSerializer):
     owner = UserNameSerializer(read_only=True, required=False)
     status = serializers.ReadOnlyField(read_only=True, required=False)
     can_submit = serializers.BooleanField(read_only=True)
-    cant_submit_cause = serializers.CharField(read_only=True)
+    cause_message = serializers.CharField(read_only=True)
 
     not_editable_fields = ['home_group', 'owner', 'type', 'status']
 
     class Meta(MeetingSerializer.Meta):
         fields = MeetingSerializer.Meta.fields + ('attends', 'table_columns',
-                                                  'can_submit', 'cant_submit_cause')
+                                                  'can_submit', 'cause_message')
 
     def update(self, instance, validated_data):
         instance, validated_data = self.validate_before_serializer_update(

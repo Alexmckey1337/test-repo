@@ -336,17 +336,17 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
     def get(self, request, *args, **kwargs):
         self.summit = get_object_or_404(Summit, pk=kwargs.get('summit_id', None))
         self.master_id = kwargs.get('master_id', None)
-        interval = int(request.query_params.get('interval', None))
-        date_time = request.query_params.get('date_time', None)
-        print(date_time)
-        try:
-            date_time = datetime.strptime(date_time.replace('T', ' '), '%Y-%m-%d %H:%M:%S')
-        except ValueError:
-            raise exceptions.ValidationError(
-                'Не верный формат даты. Передайте дату в формате date %Y-%m-%dT%H:%M:%S')
-
-        self.start_date = date_time - timedelta(minutes=interval)
-        self.end_date = date_time + timedelta(minutes=interval)
+        # interval = int(request.query_params.get('interval', None))
+        # date_time = request.query_params.get('date_time', None)
+        # print(date_time)
+        # try:
+        #     date_time = datetime.strptime(date_time.replace('T', ' '), '%Y-%m-%d %H:%M:%S')
+        # except ValueError:
+        #     raise exceptions.ValidationError(
+        #         'Не верный формат даты. Передайте дату в формате date %Y-%m-%dT%H:%M:%S')
+        #
+        # self.start_date = date_time - timedelta(minutes=interval)
+        # self.end_date = date_time + timedelta(minutes=interval)
         return self.list(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
@@ -360,7 +360,7 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
     def annotate_queryset(self, qs):
         return qs.base_queryset().annotate_full_name().annotate(
             diff=ExpressionWrapper(F('user__rght') - F('user__lft'), output_field=IntegerField()),
-            location=F('visitor_locations')
+            # location=F('visitor_locations')
         ).order_by('-hierarchy__level')
 
     def get_queryset(self):
