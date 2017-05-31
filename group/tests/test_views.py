@@ -185,7 +185,8 @@ class TestChurchViewSet:
 
         assert response.status_code == status.HTTP_200_OK
         count = 7 if is_detail else 4
-        assert len(response.data) == count
+        assert len(response.data) == 13
+        assert len(list(filter(lambda d: d['can_add'], response.data))) == count
 
     @pytest.mark.parametrize('first_name', ('batman', 'loki', 'mario'))
     @pytest.mark.parametrize('last_name', ('batman', 'loki', 'mario'))
@@ -308,7 +309,7 @@ class TestChurchViewSet:
 
         response = api_login_client.post(url, data={'user_id': user.id}, format='json')
 
-        assert response.status_code == status.HTTP_201_CREATED
+        assert response.status_code == status.HTTP_200_OK
         assert church.users.filter(id=user.id).exists()
 
     def test_del_user_without_user_id(self, monkeypatch, api_login_client, church):
@@ -471,7 +472,7 @@ class TestHomeGroupViewSet:
 
         response = api_login_client.post(url, data={'user_id': user.id}, format='json')
 
-        assert response.status_code == status.HTTP_201_CREATED
+        assert response.status_code == status.HTTP_200_OK
         assert home_group.users.filter(id=user.id).exists()
 
     def test_del_user_without_user_id(self, monkeypatch, api_login_client, home_group):
@@ -526,7 +527,7 @@ class TestHomeGroupViewSet:
     @pytest.mark.parametrize('method,action,serializer_class', (
             ('get', 'list', HomeGroupListSerializer),
             ('post', 'create', HomeGroupSerializer),
-            ('get', 'retrieve', HomeGroupSerializer),
+            ('get', 'retrieve', HomeGroupListSerializer),
             ('put', 'update', HomeGroupSerializer),
             ('patch', 'partial_update', HomeGroupSerializer),
     ), ids=('get-list', 'post-create', 'get-retrieve', 'put-update', 'patch-partial_update'))

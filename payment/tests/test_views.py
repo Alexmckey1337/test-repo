@@ -297,10 +297,10 @@ class TestPaymentDealListView:
         monkeypatch.setattr(
             PaymentDealListView, 'get_queryset',
             lambda self: self.queryset.filter(content_type__model='deal').add_deal_fio())
-        deal_payment_factory(created_at=datetime(2000, 2, 20))
-        deal_payment_factory(created_at=datetime(2000, 2, 21))
-        deal_payment_factory(created_at=datetime(2000, 2, 22))
-        deal_payment_factory(created_at=datetime(2000, 2, 23))
+        deal_payment_factory(created_at=datetime(2000, 2, 20, 11))
+        deal_payment_factory(created_at=datetime(2000, 2, 21, 11))
+        deal_payment_factory(created_at=datetime(2000, 2, 22, 11))
+        deal_payment_factory(created_at=datetime(2000, 2, 23, 11))
         response = api_client.get('/payments/deal/?create_from=2000-02-21&create_to=2000-02-22', format='json')
 
         assert len(response.data['results']) == 2
