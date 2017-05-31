@@ -6,7 +6,7 @@ from django import forms
 from django.db import models
 from django.utils import six
 from django_filters import rest_framework, STRICTNESS
-from rest_framework.filters import BaseFilterBackend, FilterSet
+from rest_framework.filters import BaseFilterBackend
 
 from partnership.models import Deal
 from payment.models import Payment

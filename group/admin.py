@@ -9,8 +9,6 @@ class ChurchAdmin(admin.ModelAdmin):
     class Meta:
         model = Church
 
-admin.site.register(Church, ChurchAdmin)
-
 
 class HomeGroupAdmin(admin.ModelAdmin):
     list_display = ('title', 'leader', 'city', 'address')
@@ -18,4 +16,6 @@ class HomeGroupAdmin(admin.ModelAdmin):
     class Meta:
         model = HomeGroup
 
+
+admin.site.register(Church, ChurchAdmin)
 admin.site.register(HomeGroup, HomeGroupAdmin)
