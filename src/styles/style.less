@@ -132,6 +132,10 @@ h3 {
   height: 80vh;
   padding: 1em 2em;
   overflow: hidden;
+  & > p {
+    position: inherit;
+    z-index: 2;
+  }
   .error_txt {
     margin-bottom: 40px;
     font-size: 1.8em;
@@ -6242,7 +6246,6 @@ div.code input#code {
       justify-content: space-between;
       height: 55px;
       padding: 0 30px;
-      box-shadow: 0 4px 14px -2px #808080;
       h1 {
         font-size: 2em;
         font-weight: 900;
@@ -6417,7 +6420,6 @@ div.code input#code {
       flex-wrap: wrap;
       height: 55px;
       padding: 30px 0;
-      box-shadow: 0 -4px 14px -2px grey;
       & button {
         position: relative;
         padding: 20px 70px;
@@ -6478,6 +6480,12 @@ div.code input#code {
       }
     }
     .second_step {
+      .header {
+        box-shadow: 0 4px 14px -2px #808080;
+      }
+      .btn-block {
+        box-shadow: 0 -4px 14px -2px grey;
+      }
       .btn,
       button {
         margin-left: 36px;
@@ -6485,6 +6493,7 @@ div.code input#code {
       .btn-block {
         position: relative;
         padding-top: 50px;
+        z-index: 5;
         .prevForm {
           position: absolute;
           top: 20px;
