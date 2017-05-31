@@ -75,7 +75,7 @@ class PartnershipSerializer(serializers.ModelSerializer):
 
 class AddExistUserSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(read_only=True)
-    can_add = serializers.CharField(read_only=True)
+    can_add = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = User
