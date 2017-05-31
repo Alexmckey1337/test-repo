@@ -331,6 +331,7 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
     @list_route(methods=['GET'], serializer_class=UserNameSerializer)
     def available_leaders(self, request):
         church_id = request.query_params.get('church_id')
+        department_id = request.query_params.get('department_id')
         master_tree_id = request.query_params.get('master_tree')
 
         master = self._get_master(request.user, master_tree_id)
@@ -338,6 +339,8 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         leaders = master.get_descendants(include_self=True).filter(hierarchy__level__gte=1)
         if church_id:
             leaders = leaders.filter(Q(home_groups__church_id=church_id) | Q(churches__id=church_id))
+        if department_id:
+            leaders = leaders.filter(departments=department_id)
 
         leaders = self.serializer_class(leaders, many=True)
         return Response(leaders.data)

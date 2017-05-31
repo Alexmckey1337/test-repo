@@ -1167,7 +1167,7 @@ function getResponsibleBYHomeGroup(userID = null) {
 function getResponsibleBYHomeGroupSupeMegaNew(config) {
     let masterTree = (config.userId) ? config.userId : $('body').data('user');
     return new Promise(function (resolve, reject) {
-        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/available_pastors/`;
+        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/available_leaders/`;
         ajaxRequest(url, {master_tree: masterTree, department_id: config.departmentId}, function (data) {
             if (data) {
                 resolve(data);
