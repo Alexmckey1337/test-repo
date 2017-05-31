@@ -70,7 +70,10 @@
                     $(col_1).addClass('col').append(link);
                     $(col_2).addClass('col').append(item.country + ', ' + item.city);
                     $(rows).addClass('rows').append(col_1).append(col_2);
-                    $(button).attr('data-id', item.id).text('Выбрать').on('click', function () {
+                    $(button).attr({
+                        'data-id': item.id,
+                        'disabled': item.can_add
+                    }).text('Выбрать').on('click', function () {
                         let id = $(this).data('id');
                         let _self = this;
                         let config = {};
