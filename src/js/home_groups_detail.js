@@ -198,22 +198,8 @@
 
     $('.accordion').find('.save__info').on('click', function (e) {
         e.preventDefault();
-        $(this).closest('form').find('.edit').removeClass('active');
         let idHomeGroup = $(this).closest('form').attr('data-id');
         editHomeGroups($(this), idHomeGroup);
-        let $input = $(this).closest('form').find('input:not(.select2-search__field), select');
-        $input.each(function (i, el) {
-            $(this).attr('disabled', true);
-            $(this).attr('readonly', true);
-            if ($(el).is('select')) {
-                if ($(this).is(':not([multiple])')) {
-                    if (!$(this).is('.no_select')) {
-                        $(this).select2('destroy');
-                    }
-                }
-            }
-        });
-        $(this).removeClass('active');
         let liderLink = '/account/' + $('#homeGroupLeader').val();
         pasteLink($('#homeGroupLeader'), liderLink);
         let webLink = $(this).closest('form').find('#web_site').val();
@@ -225,7 +211,5 @@
             linkIcon.hasClass('link-hide') && linkIcon.removeClass('link-hide');
         }
     });
-
-
 
 })(jQuery);

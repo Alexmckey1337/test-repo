@@ -35,6 +35,10 @@
         dateFormat: 'yyyy-mm-dd',
         autoClose: true
     });
+    $('#opening_date').datepicker({
+        dateFormat: 'yyyy-mm-dd',
+        autoClose: true
+    });
 //    Events
     $('#add').on('click', function () {
         let department_id = parseInt($('#department_select').val());
