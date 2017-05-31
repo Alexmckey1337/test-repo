@@ -501,7 +501,8 @@ class TestHomeGroupViewSet:
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_del_user_from_home_group_and_add_to_church_success(self, monkeypatch, api_login_client, home_group, user_factory):
+    def test_del_user_from_home_group_and_add_to_church_success(
+            self, monkeypatch, api_login_client, home_group, user_factory):
         monkeypatch.setattr(HomeGroupViewSet, 'get_queryset', lambda s: s.queryset)
         url = reverse('homegroup-del-user', kwargs={'pk': home_group.id})
         user = user_factory()
