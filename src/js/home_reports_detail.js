@@ -81,6 +81,15 @@
             })
         }
         $additionalInformation.html(makeCaption(data));
+        if(!data.can_submit) {
+            showPopup(data.cant_submit_cause);
+            $('#save').attr({
+                disabled: true
+            });
+            $homeReports.on('click', 'input', function () {
+                showPopup(data.cant_submit_cause);
+            });
+        }
     });
 
     $('#save').on('click', function () {

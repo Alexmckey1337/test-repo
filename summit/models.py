@@ -501,11 +501,11 @@ class SummitEventTable(models.Model):
     summit = models.ForeignKey('Summit', on_delete=models.CASCADE, verbose_name=_('Саммит'))
     date_time = models.DateTimeField(verbose_name=_('Дата и Время'))
     name_ru = models.CharField(max_length=64, verbose_name=_('Название на Русском'))
-    author_ru = models.CharField(max_length=64, verbose_name=_('Имя автора на Русском'))
+    author_ru = models.CharField(max_length=64, verbose_name=_('Имя автора на Русском'), blank=True)
     name_en = models.CharField(max_length=64, verbose_name=_('Название на Английском'))
-    author_en = models.CharField(max_length=64, verbose_name=_('Имя автора на Английском'))
+    author_en = models.CharField(max_length=64, verbose_name=_('Имя автора на Английском'), blank=True)
     name_de = models.CharField(max_length=64, verbose_name=_('Название на Немецком'))
-    author_de = models.CharField(max_length=64, verbose_name=_('Имя автора на Немецком'))
+    author_de = models.CharField(max_length=64, verbose_name=_('Имя автора на Немецком'), blank=True)
 
     class Meta:
         verbose_name = _('Расписание Саммита')

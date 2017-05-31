@@ -15,35 +15,6 @@ from event.managers import MeetingManager
 from navigation.table_fields import meeting_table
 
 
-DAY_OF_THE_WEEK = {
-    '1': _('Monday'),
-    '2': _('Tuesday'),
-    '3': _('Wednesday'),
-    '4': _('Thursday'),
-    '5': _('Friday'),
-    '6': _('Saturday'),
-    '7': _('Sunday'),
-}
-weekday = timezone.now().weekday() + 1
-default_date = timezone.now()
-
-
-ATTR_TYPES = (
-    ('s', 'string'),
-    ('b', 'boolean'),
-    ('i', 'integer'),
-)
-
-VERBOSE_FIELDS = {'Имя': 'user__first_name',
-                  'Фамилия': 'user__last_name',
-                  'Отчество': 'user__middle_name',
-                  'Иерархия': 'user__hierarchy',
-                  'Страна': 'user__country',
-                  'Город': 'user__city',
-                  'Примечание': 'description',
-                  'Явка': 'check'}
-
-
 @python_2_unicode_compatible
 class MeetingType(models.Model):
     name = models.CharField(_('Name'), max_length=255)
@@ -152,6 +123,20 @@ class Meeting(AbstractStatusModel):
     @property
     def table_columns(self):
         return meeting_table(self.owner, category_title='attends')
+
+    @property
+    def can_submit(self):
+        if Meeting.objects.filter(owner=self.owner, status=Meeting.EXPIRED).exists() \
+                and self.status not in [Meeting.EXPIRED, Meeting.IN_PROGRESS]:
+            return False
+        return True
+
+    @property
+    def cant_submit_cause(self):
+        if not self.can_submit:
+            return 'Невозможно подать отчет.\n' \
+                   'Данный лидер имеет просроченные отчеты.'
+        return ''
 
 
 class ChurchReport(AbstractStatusModel):

@@ -832,6 +832,7 @@ function createChurchesDetailsTable(config = {}, id, link) {
 }
 
 function createHomeGroupUsersTable(config = {}, id) {
+
     Object.assign(config, getOrderingData());
     if (id === undefined) {
         id = $('#home_group').data('id');

@@ -99,6 +99,7 @@
         $('.choose-user-wrap .splash-screen').removeClass('active');
         $('#chooseUserINBases').css('display', 'block');
     });
+
     $('#add_new').on('click', function () {
         let departament_id = $('#home_group').data('departament_id');
         let departament_title = $('#home_group').data('departament_title');
@@ -109,6 +110,7 @@
         $('#chooseDepartment').html(option).attr('required', false).attr('disabled', false);
         $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
     });
+
     $('#searchUserFromDatabase').on('keyup', function () {
         let search = $(this).val();
         if (search.length < 3) return;
@@ -117,10 +119,12 @@
         config.department = HG_ID;
         makeUsersFromDatabaseList(config, ID);
     });
+
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
         updateSettings(createHomeGroupUsersTable);
     });
+
     $('#export_table').on('click', function () {
         $('.preloader').css('display', 'none');
         exportTableData(this)
