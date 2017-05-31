@@ -106,8 +106,10 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     @staticmethod
     def validate_to_submit(meeting, data):
-        if Meeting.objects.filter(owner=meeting.owner, status=Meeting.IN_PROGRESS).exists:
-            raise exceptions.ValidationError('Невозможно подать новый отчет. Заполнените просроченные отчеты ')
+        if Meeting.objects.filter(owner=meeting.owner, status=Meeting.IN_PROGRESS).exists() and \
+                        meeting.status == Meeting.IN_PROGRESS:
+            raise exceptions.ValidationError('Невозможно подать отчет по данному лидеру. '
+                                             'Заполнените просроченные отчеты.')
 
         if meeting.type.code == 'service' and data.get('total_sum'):
             raise exceptions.ValidationError(
