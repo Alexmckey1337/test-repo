@@ -31,36 +31,62 @@
     <div class="accordion">
         <h2 class="info-title">Основная информация:</h2>
         <div class="info">
-            <div class="info-block">
-                <div class="title-wrapper">
-                    <span>Дата открытия:</span>
+            <form action="/" id="editHomeGroupForm" data-id="{{ home_group.id }}">
+                <button class="edit"></button>
+                <button class="save__info" type="submit"></button>
+                <div class="success__block"></div>
+                <div class="info-block info-block_edit">
+                    <div class="title-wrapper">
+                        <span>Дата открытия:</span>
+                    </div>
+                    <input type="text" class="date" id="opening_date" value="{{ home_group.opening_date }}"
+                               disabled="disabled" readonly>
+                    <div class="title-wrapper">
+                        <span>Церковь:</span>
+                    </div>
+                    <div class="input">
+                        <input type="text" id="church" value="{{ home_group.church }}" readonly>
+                        <a href="/churches/{{ home_group.church.id }}">
+                            <i class="fa fa-external-link" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                    <div class="title-wrapper">
+                        <span>Лидер домашней группы:</span>
+                    </div>
+                    <div class="input">
+                        <select name="" id="homeGroupLeader" readonly="readonly" disabled="disabled">
+                            <option value="{{ home_group.leader.id }}">{{ home_group.leader }}</option>
+                        </select>
+                        <a href="{{ home_group.leader.get_absolute_url }}">
+                            <i class="fa fa-external-link" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                    <div class="title-wrapper">
+                        <span>Город:</span>
+                    </div>
+                    <input type="text" id="city" value="{{ home_group.city }}" readonly>
+                    <div class="title-wrapper">
+                        <span>Адрес:</span>
+                    </div>
+                    <input type="text" id="address" value="{{ home_group.address }}" readonly>
+                    <div class="title-wrapper">
+                        <span>Телефонный номер:</span>
+                    </div>
+                    <input type="text" id="phone_number" value="{{ home_group.phone_number }}" readonly>
+                    <div class="title-wrapper">
+                        <span>Сайт:</span>
+                    </div>
+                    <div class="input">
+                        <input type="text" id="web_site" value="{{ home_group.website }}" readonly>
+                        <a href="{{ home_group.website }}" target="_blank" id="site-link"
+                           {% if not home_group.website %}class="link-hide"{% endif %}
+                        >
+                            <i class="fa fa-external-link" aria-hidden="true"></i>
+                        </a>
+                    </div>
                 </div>
-                <p>{{ home_group.opening_date }}</p>
-                <div class="title-wrapper">
-                    <span>Церковь:</span>
-                </div>
-                <p><a href="/churches/{{ home_group.church.id }}">{{ home_group.church }}</a></p>
-                <div class="title-wrapper">
-                    <span>Лидер:</span>
-                </div>
-                <p><a href="{{ home_group.leader.get_absolute_url }}">{{ home_group.leader }}</a></p>
-                <div class="title-wrapper">
-                    <span>Адрес:</span>
-                </div>
-                <p>{{ home_group.address }}</p>
-                <div class="title-wrapper">
-                    <span>Телефонный номер:</span>
-                </div>
-                <p>{{ home_group.phone_number }}</p>
-                <div class="title-wrapper">
-                    <span>Сайт:</span>
-                </div>
-                <p>{% if home_group.website %}
-                    <a href="{{ home_group.website }}" target="_blank">{{ home_group.website }}</a>
-                    {% endif %}
-                </p>
             </div>
-        </div>
+        </form>
             <h2 class="info-title">Сводная информация:</h2>
             <div class="info info-calc">
                 <div class="info-block">

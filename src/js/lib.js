@@ -637,23 +637,72 @@ function saveUserData(data, id) {
     }
 }
 
+// function saveChurchData(data, id) {
+//     if (id) {
+//         let json = JSON.stringify(data);
+//         ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/`, json, function (data) {
+//         }, 'PATCH', false, {
+//             'Content-Type': 'application/json'
+//         });
+//     }
+// }
+
 function saveChurchData(data, id) {
     if (id) {
         let json = JSON.stringify(data);
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/`, json, function (data) {
-        }, 'PATCH', false, {
-            'Content-Type': 'application/json'
+        return new Promise(function (resolve, reject) {
+            let data = {
+                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${id}/`,
+                data: json,
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+            let status = {
+                200: function (req) {
+                    resolve(req);
+                },
+                400: function (req) {
+                    reject(req);
+                }
+            };
+        newAjaxRequest(data, status, reject)
         });
     }
 }
 
+// function saveHomeGroupsData(data, id) {
+//     if (id) {
+//         let json = JSON.stringify(data);
+//         ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${id}/`, json, function (data) {
+//         }, 'PATCH', false, {
+//             'Content-Type': 'application/json'
+//         });
+//     }
+
 function saveHomeGroupsData(data, id) {
     if (id) {
         let json = JSON.stringify(data);
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${id}/`, json, function (data) {
-        }, 'PATCH', false, {
-            'Content-Type': 'application/json'
-        });
+        return new Promise(function (resolve, reject) {
+            let data = {
+                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/`,
+                data: json,
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+            let status = {
+                200: function (req) {
+                    resolve(req);
+                },
+                400: function (req) {
+                    reject(req);
+                }
+            };
+        newAjaxRequest(data, status, reject)
+        })
     }
 }
 
@@ -942,7 +991,7 @@ function createChurchesTable(config = {}) {
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
                 $('#quickEditCartPopup').find('.popup_body').html(rendered);
-                $('#opening_date').datepicker({
+                $('#openingDate').datepicker({
                     dateFormat: 'yyyy-mm-dd',
                     autoClose: true
                 });
@@ -2306,9 +2355,9 @@ function saveUser(el) {
 function saveChurches(el) {
     let $input, $select, phone_number, opening_date, data, id;
     id = parseInt($($(el).closest('.pop_cont').find('#churchID')).val());
-    opening_date = $($(el).closest('.pop_cont').find('#opening_date')).val();
+    opening_date = $($(el).closest('.pop_cont').find('#openingDate')).val();
     if (!opening_date && opening_date.split('-').length !== 3) {
-        $($(el).closest('.pop_cont').find('#opening_date')).css('border-color', 'red');
+        $($(el).closest('.pop_cont').find('#openingDate')).css('border-color', 'red');
         return
     }
     data = {
@@ -2317,29 +2366,77 @@ function saveChurches(el) {
         department: $($(el).closest('.pop_cont').find('#editDepartmentSelect')).val(),
         phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
         website: ($(el).closest('.pop_cont').find('#web_site')).val(),
-        opening_date: $($(el).closest('.pop_cont').find('#opening_date')).val() || null,
+        opening_date: $($(el).closest('.pop_cont').find('#openingDate')).val() || null,
         is_open: $('#is_open_church').is(':checked'),
         country: $($(el).closest('.pop_cont').find('#country')).val(),
         region: $($(el).closest('.pop_cont').find('#region')).val(),
         city: $($(el).closest('.pop_cont').find('#city')).val(),
         address: $($(el).closest('.pop_cont').find('#address')).val()
     };
-    saveChurchData(data, id);
-    $(el).text("Сохранено");
-    $(el).closest('.popap').find('.close-popup.change__text').text('Закрыть');
-    $(el).attr('disabled', true);
-    $input = $(el).closest('.popap').find('input');
-    $select = $(el).closest('.popap').find('select');
-    $select.on('change', function () {
-        $(el).text("Сохранить");
-        $(el).closest('.popap').find('.close-popup').text('Отменить');
-        $(el).attr('disabled', false);
+    saveChurchData(data, id).then(function () {
+        $(el).text("Сохранено");
+        $(el).closest('.popap').find('.close-popup.change__text').text('Закрыть');
+        $(el).attr('disabled', true);
+        $input = $(el).closest('.popap').find('input');
+        $select = $(el).closest('.popap').find('select');
+
+        $select.on('change', function () {
+            $(el).text("Сохранить");
+            $(el).closest('.popap').find('.close-popup').text('Отменить');
+            $(el).attr('disabled', false);
+        });
+
+        $input.on('change', function () {
+            $(el).text("Сохранить");
+            $(el).closest('.popap').find('.close-popup').text('Отменить');
+            $(el).attr('disabled', false);
+        })
+    }).catch(function (res) {
+        let error = JSON.parse(res.responseText);
+        let errKey = Object.keys(error);
+        let html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
+        showPopup(html);
     });
-    $input.on('change', function () {
-        $(el).text("Сохранить");
-        $(el).closest('.popap').find('.close-popup').text('Отменить');
-        $(el).attr('disabled', false);
-    })
+}
+
+function editChurches(el, id) {
+    let data = {
+        pastor: $($(el).closest('form').find('#editPastorSelect')).val(),
+        department: $($(el).closest('form').find('#editDepartmentSelect')).val(),
+        phone_number: $($(el).closest('form').find('#phone_number')).val(),
+        website: ($(el).closest('form').find('#web_site')).val(),
+        opening_date: $($(el).closest('form').find('#opening_date')).val().split('.').reverse().join('-') || null,
+        is_open: $('#is_open_church').is(':checked'),
+        country: $($(el).closest('form').find('#country')).val(),
+        city: $($(el).closest('form').find('#city')).val(),
+        address: $($(el).closest('form').find('#address')).val()
+    };
+    saveChurchData(data, id).then(function (data) {
+        $(el).closest('form').find('.edit').removeClass('active');
+        let $input = $(el).closest('form').find('input:not(.select2-search__field), select');
+        $input.each(function (i, elem) {
+            $(this).attr('disabled', true);
+            $(this).attr('readonly', true);
+            if ($(elem).is('select')) {
+                if ($(this).is(':not([multiple])')) {
+                    if (!$(this).is('.no_select')) {
+                        $(this).select2('destroy');
+                    }
+                }
+            }
+        });
+        $(el).removeClass('active');
+        let success = $($(el).closest('form').find('.success__block'));
+        $(success).text('Сохранено');
+        setTimeout(function () {
+            $(success).text('');
+        }, 3000);
+    }).catch(function (res) {
+        let error = JSON.parse(res.responseText);
+        let errKey = Object.keys(error);
+        let html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
+        showPopup(html);
+    });
 }
 
 function saveHomeGroups(el) {
@@ -2358,25 +2455,69 @@ function saveHomeGroups(el) {
         address: $($(el).closest('.pop_cont').find('#address')).val()
     };
 
-    saveHomeGroupsData(data, id);
-    saveHomeGroupsDataNew(data, id);
+    saveHomeGroupsData(data, id).then(function () {
+        $(el).text("Сохранено");
+        $(el).closest('.popap').find('.close-popup.change__text').text('Закрыть');
+        $(el).attr('disabled', true);
+        $input = $(el).closest('.popap').find('input');
+        $select = $(el).closest('.popap').find('select');
 
-    $(el).text("Сохранено");
-    $(el).closest('.popap').find('.close-popup.change__text').text('Закрыть');
-    $(el).attr('disabled', true);
-    $input = $(el).closest('.popap').find('input');
-    $select = $(el).closest('.popap').find('select');
+        $select.on('change', function () {
+            $(el).text("Сохранить");
+            $(el).closest('.popap').find('.close-popup').text('Отменить');
+            $(el).attr('disabled', false);
+        });
 
-    $select.on('change', function () {
-        $(el).text("Сохранить");
-        $(el).closest('.popap').find('.close-popup').text('Отменить');
-        $(el).attr('disabled', false);
+        $input.on('change', function () {
+            $(el).text("Сохранить");
+            $(el).closest('.popap').find('.close-popup').text('Отменить');
+            $(el).attr('disabled', false);
+        })
+    }).catch(function (res) {
+        let error = JSON.parse(res.responseText);
+        let errKey = Object.keys(error);
+        let html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
+        showPopup(html);
     });
-    $input.on('change', function () {
-        $(el).text("Сохранить");
-        $(el).closest('.popap').find('.close-popup').text('Отменить');
-        $(el).attr('disabled', false);
-    })
+    // saveHomeGroupsDataNew(data, id);
+}
+
+function editHomeGroups(el, id) {
+    let data = {
+        leader: $($(el).closest('form').find('#homeGroupLeader')).val(),
+        phone_number: $($(el).closest('form').find('#phone_number')).val(),
+        website: ($(el).closest('form').find('#web_site')).val(),
+        opening_date: $($(el).closest('form').find('#opening_date')).val().split('.').reverse().join('-') || null,
+        city: $($(el).closest('form').find('#city')).val(),
+        address: $($(el).closest('form').find('#address')).val()
+    };
+
+    saveHomeGroupsData(data, id).then(function () {
+        let $input = $(el).closest('form').find('input:not(.select2-search__field), select');
+        $input.each(function (i, elem) {
+            $(this).attr('disabled', true);
+            $(this).attr('readonly', true);
+            if ($(elem).is('select')) {
+                if ($(this).is(':not([multiple])')) {
+                    if (!$(this).is('.no_select')) {
+                        $(this).select2('destroy');
+                    }
+                }
+            }
+        });
+        $(el).removeClass('active');
+        $(el).closest('form').find('.edit').removeClass('active');
+        let success = $($(el).closest('form').find('.success__block'));
+        $(success).text('Сохранено');
+        setTimeout(function () {
+            $(success).text('');
+        }, 3000);
+    }).catch(function (res) {
+        let error = JSON.parse(res.responseText);
+        let errKey = Object.keys(error);
+        let html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
+        showPopup(html);
+    });
 }
 
 function makeQuickEditSammitCart(el) {
@@ -2443,7 +2584,7 @@ function makeQuickEditCart(el) {
 
         $("#repentance_date").datepicker({
             dateFormat: "yyyy-mm-dd"
-        })
+        });
     }, 'GET', true, {
         'Content-Type': 'application/json'
     });
@@ -2932,4 +3073,8 @@ function getData(url, options = {}) {
         $('.preloader').hide();
         return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
     }
+}
+
+function pasteLink(el, link) {
+    $(el).closest('.input').find('a').attr('href', link);
 }

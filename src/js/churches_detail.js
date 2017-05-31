@@ -210,7 +210,7 @@
         onSuccess: function (form) {
             if ($(form).attr('name') == 'createUser') {
                 $(form).find('#saveNew').attr('disabled', true);
-                createNewUser(addUserToChurch).then(function() {
+                createNewUser(addUserToChurch).then(function () {
                     $(form).find('#saveNew').attr('disabled', false);
                 });
             }
@@ -219,8 +219,71 @@
     });
     accordionInfo();
 
+    $('#opening_date').datepicker({
+        dateFormat: 'dd.mm.yyyy',
+        autoClose: true
+    });
+
     $('#addHomeGroup').find('.pop_cont').on('click', function (e) {
         e.stopPropagation();
-    })
+    });
+
+    let department = $('#editDepartmentSelect').val(),
+        pastor = $('#editPastorSelect').val();
+
+    $('.accordion').find('.edit').on('click', function (e) {
+        e.preventDefault();
+        let $input = $(this).closest('form').find('input:not(.select2-search__field), select');
+
+        if ($(this).hasClass('active')) {
+            $input.each(function (i, el) {
+                if (!$(this).attr('disabled')) {
+                    $(this).attr('disabled', true);
+                }
+                $(this).attr('readonly', true);
+                if ($(el).is('select')) {
+                    if ($(this).is(':not([multiple])')) {
+                        if (!$(this).is('.no_select')) {
+                            $(this).select2('destroy');
+                        }
+                    }
+                }
+            });
+            $(this).removeClass('active');
+        } else {
+            makePastorList(department, '#editPastorSelect', pastor);
+            makeDepartmentList('#editDepartmentSelect', department).then(function () {
+                $('#editDepartmentSelect').on('change', function () {
+                    let id = parseInt($(this).val());
+                    makePastorList(id, '#editPastorSelect');
+                })
+            });
+            $input.each(function () {
+                if (!$(this).hasClass('no__edit')) {
+                    if ($(this).attr('disabled')) {
+                        $(this).attr('disabled', false);
+                    }
+                    $(this).attr('readonly', false);
+                }
+            });
+            $(this).addClass('active');
+        }
+    });
+
+    $('.accordion').find('.save__info').on('click', function (e) {
+        e.preventDefault();
+        let idChurch = $(this).closest('form').attr('data-id');
+        editChurches($(this), idChurch);
+        let pastorLink = '/account/' + $(this).closest('form').find('#editPastorSelect').val();
+        pasteLink($('#editPastorSelect'), pastorLink);
+        let webLink = $(this).closest('form').find('#web_site').val();
+        let linkIcon = $('#site-link');
+        if (webLink == '' ) {
+            !linkIcon.hasClass('link-hide') && linkIcon.addClass('link-hide');
+        } else {
+            pasteLink($('#web_site'), webLink);
+            linkIcon.hasClass('link-hide') && linkIcon.removeClass('link-hide');
+        }
+    });
 
 })(jQuery);

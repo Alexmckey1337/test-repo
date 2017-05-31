@@ -35,99 +35,128 @@
 {% block main.content %}
     <h1>{{ church.get_title }}</h1>
     <div class="accordion">
-            <h2 class="info-title">Основная информация:</h2>
-            <div class="info">
-                <div class="info-block">
+        <h2 class="info-title">Основная информация:</h2>
+        <div class="info">
+            <form action="/" id="editChurchForm" name="editChurch" data-id="{{ church.id }}">
+                <button class="edit"></button>
+                <button class="save__info" type="submit"></button>
+                <div class="success__block"></div>
+                <div class="info-block info-block_edit">
                     <div class="title-wrapper">
                         <span>Дата открытия:</span>
                     </div>
-                    <p>{{ church.opening_date }}</p>
+                    <div class="input">
+                        <input type="text" class="date" id="opening_date" value="{{ church.opening_date }}"
+                               disabled="disabled" readonly>
+                        <input type="checkbox" id="is_open_church" {% if church.is_open %}checked{% endif %} readonly
+                               disabled="disabled">
+                    </div>
                     <div class="title-wrapper">
                         <span>Отдел:</span>
                     </div>
-                    <p>{{ church.department }}</p>
+                    <div class="input">
+                        <select name="" id="editDepartmentSelect" readonly="readonly" disabled="disabled">
+                            <option value="{{ church.department.id }}">{{ church.department }}</option>
+                        </select>
+                    </div>
                     <div class="title-wrapper">
                         <span>Пастор:</span>
                     </div>
-                    <p><a href="{{ church.pastor.get_absolute_url }}">{{ church.pastor }}</a></p>
+                    <div class="input">
+                        <select name="" id="editPastorSelect" readonly="readonly" disabled="disabled">
+                            <option value="{{ church.pastor.id }}">{{ church.pastor }}</option>
+                        </select>
+                        <a href="{{ church.pastor.get_absolute_url }}">
+                            <i class="fa fa-external-link" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                    <div class="title-wrapper">
+                        <span>Страна:</span>
+                    </div>
+                    <input type="text" id="country" value="{{ church.country }}" readonly>
                     <div class="title-wrapper">
                         <span>Город:</span>
                     </div>
-                    <p>{{ church.city }}</p>
+                    <input type="text" id="city" value="{{ church.city }}" readonly>
                     <div class="title-wrapper">
                         <span>Адрес:</span>
                     </div>
-                    <p>{{ church.address }}</p>
+                    <input type="text" id="address" value="{{ church.address }}" readonly>
                     <div class="title-wrapper">
                         <span>Телефон:</span>
                     </div>
-                    <p>{{ church.phone_number }}</p>
+                    <input type="text" id="phone_number" value="{{ church.phone_number }}" readonly>
                     <div class="title-wrapper">
                         <span>Сайт:</span>
                     </div>
-                    <p>{% if church.website %}
-                        <a href="{{ church.website }}" target="_blank">{{ church.website }}</a>
-                    {% endif %}
-                    </p>
+                    <div class="input">
+                        <input type="text" id="web_site" value="{{ church.website }}" readonly>
+                        <a href="{{ church.website }}" target="_blank" id="site-link"
+                           {% if not church.website %}class="link-hide"{% endif %}
+                        >
+                            <i class="fa fa-external-link" aria-hidden="true"></i>
+                        </a>
+                    </div>
                 </div>
-            </div>
-            <h2 class="info-title">Сводная информация:</h2>
-            <div class="info info-calc">
-                <div class="info-block">
-                    <div class="title-wrapper">
-                        <span>Количество прихожан:</span>
-                    </div>
-                    <p><span id="parishioners_count">{{ parishioners_count }}</span></p>
-                    <div class="title-wrapper">
-                        <span>Количество Лидеров:</span>
-                    </div>
-                    <p><span id="leaders_count">{{ leaders_count }}</span></p>
-                    <div class="title-wrapper">
-                        <span>Количество Отцов:</span>
-                    </div>
-                    <p><span id="fathers_count">{{ fathers_count }}</span></p>
-                    <div class="title-wrapper">
-                        <span>Количество Юношей:</span>
-                    </div>
-                    <p><span id="juniors_count">{{ juniors_count }}</span></p>
-                    <div class="title-wrapper">
-                        <span>Количество Младенцев:</span>
-                    </div>
-                    <p><span id="babies_count">{{ babies_count }}</span></p>
-                    <div class="title-wrapper">
-                        <span>Количество Партнеров:</span>
-                    </div>
-                    <p><span id="partners_count">{{ partners_count }}</span></p>
+        </div>
+        </form>
+        <h2 class="info-title">Сводная информация:</h2>
+        <div class="info info-calc">
+            <div class="info-block">
+                <div class="title-wrapper">
+                    <span>Количество прихожан:</span>
                 </div>
+                <p><span id="parishioners_count">{{ parishioners_count }}</span></p>
+                <div class="title-wrapper">
+                    <span>Количество Лидеров:</span>
+                </div>
+                <p><span id="leaders_count">{{ leaders_count }}</span></p>
+                <div class="title-wrapper">
+                    <span>Количество Отцов:</span>
+                </div>
+                <p><span id="fathers_count">{{ fathers_count }}</span></p>
+                <div class="title-wrapper">
+                    <span>Количество Юношей:</span>
+                </div>
+                <p><span id="juniors_count">{{ juniors_count }}</span></p>
+                <div class="title-wrapper">
+                    <span>Количество Младенцев:</span>
+                </div>
+                <p><span id="babies_count">{{ babies_count }}</span></p>
+                <div class="title-wrapper">
+                    <span>Количество Партнеров:</span>
+                </div>
+                <p><span id="partners_count">{{ partners_count }}</span></p>
             </div>
+        </div>
     </div>
-            <div class="container">
-            <div class="col-12">
-                <div class="top-panel tabs-panel">
-                    <div class="tabs">
-                        <ul class="tabs_link">
-                            <li class="mb get_info">
-                                <button data-link="home_groups"
-                                        data-export-url="{% url "church-export-groups" pk=church.id %}"
-                                        data-editable="false">Количество Домашних групп: <span
-                                        id="home_groups_count">{{ home_groups_count }}</span></button>
-                            </li>
-                            <li class="get_info">
-                                <button data-link="all_users"
-                                        data-export-url="{% url "church-export-all-users" pk=church.id %}"
-                                        data-editable="false">Общее количество людей: <span
-                                        id="church_all_users">{{ church_all_users }}</span></button>
-                            </li>
-                            <li class="mb get_info">
-                                <button class="active" data-export-url="{% url "church-export-users" pk=church.id %}"
-                                        data-link="users" data-editable="true">Люди не в домашних группах: <span
-                                        id="church_users">{{ church_users }}</span></button>
-                            </li>
-                        </ul>
-                    </div>
+    <div class="container">
+        <div class="col-12">
+            <div class="top-panel tabs-panel">
+                <div class="tabs">
+                    <ul class="tabs_link">
+                        <li class="mb get_info">
+                            <button data-link="home_groups"
+                                    data-export-url="{% url "church-export-groups" pk=church.id %}"
+                                    data-editable="false">Количество Домашних групп: <span
+                                    id="home_groups_count">{{ home_groups_count }}</span></button>
+                        </li>
+                        <li class="get_info">
+                            <button data-link="all_users"
+                                    data-export-url="{% url "church-export-all-users" pk=church.id %}"
+                                    data-editable="false">Общее количество людей: <span
+                                    id="church_all_users">{{ church_all_users }}</span></button>
+                        </li>
+                        <li class="mb get_info">
+                            <button class="active" data-export-url="{% url "church-export-users" pk=church.id %}"
+                                    data-link="users" data-editable="true">Люди не в домашних группах: <span
+                                    id="church_users">{{ church_users }}</span></button>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
+    </div>
     {% block pagination_top %}
         <div class="top-pag">
             <div class="table__count"></div>
