@@ -1,6 +1,6 @@
 # -*- coding: utf-8
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count
+from django.db.models import Count, Case, When, BooleanField
 from django.db.models import Q
 from django.db.models import Value as V
 from django.db.models.functions import Concat
@@ -212,12 +212,13 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
 
     @staticmethod
     def filter_potential_users_for_group(qs, pk):
-        return qs.filter(Q(home_groups__isnull=True) & (Q(
-            churches__isnull=True) | Q(churches__id=pk)))
+        return qs.annotate(can_add=Case(When(Q(home_groups__isnull=True) & (Q(
+            churches__isnull=True) | Q(churches__id=pk)), then=True), default=False, output_field=BooleanField()))
 
     @staticmethod
     def filter_potential_users_for_church(qs):
-        return qs.filter(Q(home_groups__isnull=True) & Q(churches__isnull=True))
+        return qs.annotate(can_add=Case(When(Q(home_groups__isnull=True) & Q(
+            churches__isnull=True), then=True), default=False, output_field=BooleanField()))
 
     @staticmethod
     def _get_potential_users(request, filter, *args):
