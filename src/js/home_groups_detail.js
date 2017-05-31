@@ -1,9 +1,11 @@
 (function ($) {
-    let $createUserForm = $('#createUser');
-    const ID = $('#home_group').data('id');
-    const HG_ID = $('#home_group').data('departament_id');
-    const HG_TITLE = $('#home_group').data('departament_title');
-    const CH_ID = $('#home_group').data('church-id');
+    let $createUserForm = $('#createUser'),
+        $homeGroup = $('#home_group');
+
+    const ID = $homeGroup.data('id');
+    const HG_ID = $homeGroup.data('departament_id');
+    const CH_ID = $homeGroup.data('church-id');
+    const HG_TITLE = $homeGroup.data('departament_title');
 
     function addUserToHomeGroup(data) {
         let id = data.id;
