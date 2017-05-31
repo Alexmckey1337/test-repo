@@ -3,7 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count, Case, When, BooleanField, CharField
 from django.db.models import Q
 from django.db.models import Value as V
-from django.db.models.functions import Concat, Coalesce
+from django.db.models.functions import Concat
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status, exceptions, filters
@@ -136,14 +136,16 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
             home_groups = user.home_groups.all()
             if home_groups:
                 gg = home_groups.annotate(
-                    name=Case(When(title__exact='', then=Concat('city', V(' '), 'leader__last_name')), default='title', output_field=CharField())).values('id', 'name')
+                    name=Case(When(title__exact='', then=Concat('city', V(' '), 'leader__last_name')), default='title',
+                              output_field=CharField())).values('id', 'name')
                 raise exceptions.ValidationError({
                     'home_groups': list(gg),
                     'detail': _('Пожалуйста, удалите сначала пользователя из домашней группы.')
                 })
-            raise exceptions.ValidationError(
-                _('Невозможно удалить пользователя.'
-                  'Пользователь не принадлежит к данной Церкви.'))
+            raise exceptions.ValidationError({
+                'detail': _('Невозможно удалить пользователя.'
+                            'Пользователь не принадлежит к данной Церкви.')
+            })
 
         church.users.remove(user_id)
         return Response({'message': _('Пользователь успешно удален из Церкви')},
