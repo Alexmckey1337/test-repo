@@ -188,7 +188,7 @@ function createHomeGroupsTable(config = {}) {
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
                 $('#quickEditCartPopup').find('.popup_body').html(rendered);
-                getResponsibleBYHomeGroup()
+                getResponsibleBYHomeGroupSupeMegaNew({departmentId: data.department})
                     .then(res => {
                         return res.map(leader => `<option value="${leader.id}" ${(data.leader.id == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
                     })
@@ -247,9 +247,8 @@ function makePastorListNew(id, selector = [], active = null) {
         })
     });
 }
-function makePastorList(id, selector, active = null) {
-    console.log(id);
-    getResponsible(id, 2).then(function (data) {
+function makePastorList(departmentId, selector, active = null) {
+    getResponsible(departmentId, 2).then(function (data) {
         let options = [];
         data.forEach(function (item) {
             let option = document.createElement('option');
@@ -320,9 +319,9 @@ function getPartners(config) {
 }
 
 function makeDepartmentList(selector, active = null) {
-    return getDepartments().then(function (data) {
+    return getDepartmentsOfUser($("body").data("user")).then(function (data) {
         let options = [];
-        let department = data.results;
+        let department = data;
         department.forEach(function (item) {
             let option = document.createElement('option');
             $(option).val(item.id).text(item.title);
@@ -1166,6 +1165,18 @@ function getDepartments() {
     });
 }
 
+function getDepartmentsOfUser(userId) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.1/users/${userId}/departments/`, null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject('Ошибка');
+            }
+        });
+    });
+}
+
 function getStatuses() {
     return new Promise(function (resolve, reject) {
         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
@@ -1194,6 +1205,19 @@ function getResponsibleBYHomeGroup(userID = null) {
     return new Promise(function (resolve, reject) {
         let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/short_users/?master_tree=${masterTree}`;
         ajaxRequest(url, null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    })
+}
+function getResponsibleBYHomeGroupSupeMegaNew(config) {
+    let masterTree = (config.userId) ? config.userId : $('body').data('user');
+    return new Promise(function (resolve, reject) {
+        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/available_leaders/`;
+        ajaxRequest(url, {master_tree: masterTree, department_id: config.departmentId}, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -2995,14 +3019,10 @@ function getHomeGroupStats(id) {
 }
 
 function getPastorsByDepartment(config) {
-    let resData = {};
-    resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/available_pastors/?blank=`;
-    if (config.department_id) {
-        resData.url += `&department_id=${config.department_id}`;
-    }
-    if (config.master_tree) {
-        resData.url += `&master_tree=${config.master_tree}`;
-    }
+    let data = {
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/available_pastors/`,
+        data: config
+    };
     return new Promise(function (resolve, reject) {
         let codes = {
             200: function (data) {
@@ -3012,12 +3032,12 @@ function getPastorsByDepartment(config) {
                 reject(data);
             }
         };
-        newAjaxRequest(resData, codes, reject);
+        newAjaxRequest(data, codes, reject);
     });
 }
 
 function getLeadersByChurch(config = {}) {
-    let resData = {
+    let data = {
         url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/available_leaders/`,
         data: config
     };
@@ -3030,7 +3050,7 @@ function getLeadersByChurch(config = {}) {
                 reject(data);
             }
         };
-        newAjaxRequest(resData, codes, reject);
+        newAjaxRequest(data, codes, reject);
     });
 }
 
