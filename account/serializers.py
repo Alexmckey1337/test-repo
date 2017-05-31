@@ -75,10 +75,11 @@ class PartnershipSerializer(serializers.ModelSerializer):
 
 class AddExistUserSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(read_only=True)
+    can_add = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = User
-        fields = ('id', 'city', 'country', 'full_name')
+        fields = ('id', 'city', 'country', 'full_name', 'can_add')
 
 
 def exist_users_with_level_not_in_levels(users, levels):

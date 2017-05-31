@@ -1,4 +1,51 @@
 /* global $ */
+
+// Sorting
+class OrderTable {
+    constructor() {
+        this.savePath = sessionStorage.getItem('path');
+        this.path = window.location.pathname;
+        if (this.savePath != this.path) {
+            sessionStorage.setItem('path', this.path);
+            sessionStorage.setItem('revers', '');
+            sessionStorage.setItem('order', '');
+        }
+    }
+    get sort() {
+        return this._addListener;
+    }
+    _addListener(callback, selector) {
+        $(selector).on('click', function () {
+            let dataOrder = void 0;
+            const data_order = this.getAttribute('data-order');
+            if (data_order == "no_ordering") {
+                return;
+            }
+            let page = $('.pagination__input').val();
+            let revers = sessionStorage.getItem('revers') ? sessionStorage.getItem('revers') : "+";
+            let order = sessionStorage.getItem('order') ? sessionStorage.getItem('order') : '';
+            if (order != '') {
+                dataOrder = order == data_order && revers == "+" ? '-' + data_order : data_order;
+            } else {
+                dataOrder = '-' + data_order;
+            }
+            const data = {
+                'ordering': dataOrder,
+                'page': page
+            };
+            if (order == data_order) {
+                revers = revers == '+' ? '-' : '+';
+            } else {
+                revers = "+";
+            }
+            sessionStorage.setItem('revers', revers);
+            sessionStorage.setItem('order', data_order);
+            $('.preloader').css('display', 'block');
+            callback(data);
+        });
+    }
+}
+
 function getOrderingData() {
     let revers, order, savePath;
     let path = window.location.pathname;
@@ -119,7 +166,7 @@ function addUserToHomeGroup(user_id, hg_id, exist = false) {
 }
 
 function createHomeGroupsTable(config = {}) {
-    config.search_title = $('input[name="fullsearch"]').val();
+    Object.assign(config, getSearch('search_title'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
     getHomeGroups(config).then(function (data) {
@@ -141,14 +188,13 @@ function createHomeGroupsTable(config = {}) {
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
                 $('#quickEditCartPopup').find('.popup_body').html(rendered);
-                getResponsibleBYHomeGroup()
+                getResponsibleBYHomeGroupSupeMegaNew({departmentId: data.department})
                     .then(res => {
-                        return res.map(leader => `<option value="${leader.id}" ${(data.leader === leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
+                        return res.map(leader => `<option value="${leader.id}" ${(data.leader.id == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
                     })
                     .then(data => {
                         $('#homeGroupLeader').html(data).select2();
-                    })
-                ;
+                    });
                 setTimeout(function () {
                     $('.date').datepicker({
                         dateFormat: 'yyyy-mm-dd',
@@ -168,7 +214,7 @@ function createHomeGroupsTable(config = {}) {
         makePagination(paginationConfig);
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
-        orderTable.sort(createHomeGroupsTable);
+        new OrderTable().sort(createHomeGroupsTable, ".table-wrap th");
     });
 }
 function makePastorListWithMasterTree(config, selector, active = null) {
@@ -201,9 +247,8 @@ function makePastorListNew(id, selector = [], active = null) {
         })
     });
 }
-function makePastorList(id, selector, active = null) {
-    console.log(id);
-    getResponsible(id, 2).then(function (data) {
+function makePastorList(departmentId, selector, active = null) {
+    getResponsible(departmentId, 2).then(function (data) {
         let options = [];
         data.forEach(function (item) {
             let option = document.createElement('option');
@@ -233,7 +278,7 @@ function makeLeaderList(id, selector, active = null) {
 }
 
 function getPartners(config) {
-    config.search_fio = $('input[name=fullsearch]').val();
+    Object.assign(config, getSearch('search_fio'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
     getPartnersList(config).then(function (response) {
@@ -269,14 +314,14 @@ function getPartners(config) {
         makePagination(paginationConfig);
         $('.table__count').text(text);
         makeSortForm(response.user_table);
-        orderTable.sort(getPartners);
+        new OrderTable().sort(getPartners, ".table-wrap th");
     });
 }
 
 function makeDepartmentList(selector, active = null) {
-    return getDepartments().then(function (data) {
+    return getDepartmentsOfUser($("body").data("user")).then(function (data) {
         let options = [];
-        let department = data.results;
+        let department = data;
         department.forEach(function (item) {
             let option = document.createElement('option');
             $(option).val(item.id).text(item.title);
@@ -616,14 +661,14 @@ function saveHomeGroupsDataNew(data, id) {
     if (id) {
         let data = JSON.stringify(data);
         let options = {
-        method: 'PATCH',
-        credentials: "same-origin",
-        headers: new Headers({
-            'Content-Type': 'application/json',
-        }),
-         body:  data
+            method: 'PATCH',
+            credentials: "same-origin",
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            }),
+            body: data
 
-    };
+        };
         return fetch(`${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/`, options)
             .then(res => res.json());
 
@@ -634,12 +679,12 @@ function saveHomeGroupsDataNew(data, id) {
     }
 }
 
-function deleteUserINHomeGroup(id, user_id) {
+function deleteUserINHomeGroup(homeGroupId, user_id) {
     return new Promise(function (resolve, reject) {
         let json = JSON.stringify({
             "user_id": user_id
         });
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${id}/del_user/`, json, function () {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${homeGroupId}/del_user/`, json, function () {
             resolve();
         }, 'POST', false, {
             'Content-Type': 'application/json'
@@ -647,12 +692,12 @@ function deleteUserINHomeGroup(id, user_id) {
     })
 }
 
-function deleteUserINChurch(id, user_id) {
+function deleteUserINChurch(churchId, userId) {
     return new Promise(function (resolve, reject) {
         let json = JSON.stringify({
-            "user_id": user_id
+            "user_id": userId
         });
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/del_user/`, json, function () {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${churchId}/del_user/`, json, function () {
             resolve();
         }, 'POST', false, {
             'Content-Type': 'application/json'
@@ -710,7 +755,12 @@ function createChurchesDetailsTable(config = {}, id, link) {
         filterData.user_table = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
-        $('#tableUserINChurches').html(rendered);
+        $('#tableUserINChurches').html(rendered).on('click', '.delete_btn', function () {
+            let ID = $(this).closest('td').find('a').data('id');
+            deleteUserINChurch($('#church').data('id'), ID).then(() => {
+                createChurchesDetailsTable(config = {}, id, link);
+            });
+        });
         $('.quick-edit').on('click', function () {
             let user_id = $(this).closest('.edit').find('a').data('id');
             deleteUserINChurch(id, user_id).then(function () {
@@ -728,7 +778,7 @@ function createChurchesDetailsTable(config = {}, id, link) {
         makePagination(paginationConfig);
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
-        orderTable.sort(createChurchesDetailsTable);
+        new OrderTable().sort(createChurchesDetailsTable, ".table-wrap th");
     })
 }
 
@@ -748,7 +798,12 @@ function createHomeGroupUsersTable(config = {}, id) {
         filterData.user_table = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
-        $('#tableUserINHomeGroups').html(rendered);
+        $('#tableUserINHomeGroups').html(rendered).on('click', '.delete_btn', function () {
+            let ID = $(this).closest('td').find('a').data('id');
+            deleteUserINHomeGroup($('#home_group').data('id'), ID).then(() => {
+                createHomeGroupUsersTable(config = {}, id)
+            });
+        });
         $('.quick-edit').on('click', function () {
             let user_id = $(this).closest('.edit').find('a').data('id');
             deleteUserINHomeGroup(id, user_id).then(function () {
@@ -765,7 +820,7 @@ function createHomeGroupUsersTable(config = {}, id) {
         makePagination(paginationConfig);
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
-        orderTable.sort(createHomeGroupUsersTable);
+        new OrderTable().sort(createHomeGroupUsersTable, ".table-wrap th");
     })
 }
 
@@ -841,7 +896,7 @@ function clearAddNewUser() {
         $(this).val('');
     });
     form.find('#spir_level').select2('destroy').find('option').attr('selected', false)
-                            .find('option:first-child').attr('selected', true);
+        .find('option:first-child').attr('selected', true);
 }
 
 function clearAddChurchData() {
@@ -856,16 +911,16 @@ function clearAddChurchData() {
 }
 
 function clearAddHomeGroupData() {
-    $('#added_home_group_date').val(''),
-        $('#added_home_group_title').val(''),
-        $('#added_home_group_city').val(''),
-        $('#added_home_group_address').val(''),
-        $('#added_home_group_phone').val(''),
-        $('#added_home_group_site').val('')
+    $('#added_home_group_date').val('');
+    $('#added_home_group_title').val('');
+    $('#added_home_group_city').val('');
+    $('#added_home_group_address').val('');
+    $('#added_home_group_phone').val('');
+    $('#added_home_group_site').val('');
 }
 
 function createChurchesTable(config = {}) {
-    config.search_title = $('input[name="fullsearch"]').val();
+    Object.assign(config, getSearch('search_title'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
     getChurches(config).then(function (data) {
@@ -886,7 +941,7 @@ function createChurchesTable(config = {}) {
                 let quickEditCartTmpl, rendered;
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
-                $('#quickEditCartPopup .popup_body').html(rendered);
+                $('#quickEditCartPopup').find('.popup_body').html(rendered);
                 $('#opening_date').datepicker({
                     dateFormat: 'yyyy-mm-dd',
                     autoClose: true
@@ -914,7 +969,7 @@ function createChurchesTable(config = {}) {
         makePagination(paginationConfig);
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
-        orderTable.sort(createChurchesTable);
+        new OrderTable().sort(createChurchesTable, ".table-wrap th");
     });
 }
 
@@ -950,6 +1005,22 @@ function addChurch(e, el, callback) {
         clearAddChurchData();
         callback();
         showPopup(`Церковь ${data.get_title} добавлена в базу`);
+    }).catch(function (data) {
+        hidePopup(el);
+        showPopup('Ошибка при создании домашней группы');
+    });
+}
+
+function addHomeGroup(e, el, callback) {
+    e.preventDefault();
+    let data = getAddHomeGroupData();
+    let json = JSON.stringify(data);
+
+    addHomeGroupToDataBase(json).then(function (data) {
+        clearAddHomeGroupData();
+        hidePopup(el);
+        callback();
+        showPopup(`Домашняя группа ${data.get_title} добавлена в базу данных`);
     }).catch(function (data) {
         hidePopup(el);
         showPopup('Ошибка при создании домашней группы');
@@ -1045,6 +1116,18 @@ function getDepartments() {
     });
 }
 
+function getDepartmentsOfUser(userId) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.1/users/${userId}/departments/`, null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject('Ошибка');
+            }
+        });
+    });
+}
+
 function getStatuses() {
     return new Promise(function (resolve, reject) {
         ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
@@ -1081,10 +1164,23 @@ function getResponsibleBYHomeGroup(userID = null) {
         });
     })
 }
+function getResponsibleBYHomeGroupSupeMegaNew(config) {
+    let masterTree = (config.userId) ? config.userId : $('body').data('user');
+    return new Promise(function (resolve, reject) {
+        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/available_leaders/`;
+        ajaxRequest(url, {master_tree: masterTree, department_id: config.departmentId}, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    })
+}
 
 function getResponsibleBYHomeGroupNew(config) {
     return new Promise(function (resolve, reject) {
-        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_leaders_by_church/`;
+        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/available_leaders/`;
         ajaxRequest(url, config, function (data) {
             if (data) {
                 resolve(data);
@@ -1195,7 +1291,7 @@ function getManagers() {
 
 function getIncompleteDeals(data) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=false', data, function (response) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=False', data, function (response) {
             if (response) {
                 resolve(response);
             } else {
@@ -1207,7 +1303,7 @@ function getIncompleteDeals(data) {
 
 function getFinishedDeals(data) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=true', data, function (data) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=True', data, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1219,7 +1315,7 @@ function getFinishedDeals(data) {
 
 function getOverdueDeals(data) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?expired=true', data, function (response) {
+        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?expired=True', data, function (response) {
             if (response) {
                 resolve(response);
             } else {
@@ -1269,7 +1365,7 @@ function getPaymentsDeals(config) {
 }
 
 function makePayments(config = {}) {
-    config.search_purpose_fio = $('input[name=fullsearch]').val();
+    Object.assign(config, getSearch('search_purpose_fio'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
     return getPaymentsDeals(config).then(function (response) {
@@ -1359,7 +1455,7 @@ function makePayments(config = {}) {
             makePagination(paginationConfig);
             $('.table__count').text(text);
             // makeSortForm(response.user_table);
-            orderTable.sort(makePayments);
+            new OrderTable().sort(makePayments, ".table-wrap th");
             $('.preloader').hide();
             return data;
         }
@@ -1618,7 +1714,7 @@ function showPopupAddUser(data) {
     $('#addPopup').find('.addMore').on('click', function () {
         $('#addPopup').css('display', 'none').remove();
         $('body').addClass('no_scroll');
-        $('#addNewUserPopup').find('form').css("transform","translate3d(0px, 0px, 0px)");
+        $('#addNewUserPopup').find('form').css("transform", "translate3d(0px, 0px, 0px)");
         $('#addNewUserPopup').css('display', 'block');
         clearAddNewUser();
     });
@@ -1829,9 +1925,9 @@ function createSummitUsersTable(data = {}) {
     let page = data.page || $('.pagination__input').val();
     let summitId = data.summit || $('#summitsTypes').find('.active').data('id');
     let config = {
-        page: page,
-        search_fio: $('input[name="fullsearch"]').val()
+        page: page
     };
+    Object.assign(config, getSearch('search_fio'));
     Object.assign(config, data);
     Object.assign(config, getOrderingData());
 
@@ -1868,7 +1964,7 @@ function createSummitUsersTable(data = {}) {
         $('.table__count').text(text);
         makeSortForm(data.user_table);
         $('.preloader').css('display', 'none');
-        orderTable.sort(createSummitUsersTable);
+        new OrderTable().sort(createSummitUsersTable, ".table-wrap th");
     });
 }
 
@@ -2380,7 +2476,7 @@ function setCookie(name, value, options) {
 }
 
 function createUsersTable(config) {
-    config["search_fio"] = $('input[name=fullsearch]').val();
+    Object.assign(config, getSearch('search_fio'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
     getUsers(config).then(function (data) {
@@ -2401,7 +2497,7 @@ function createUsersTable(config) {
         $('.table__count').text(text);
         makeSortForm(data.user_table);
         $('.preloader').css('display', 'none');
-        orderTable.sort(createUsersTable);
+        new OrderTable().sort(createUsersTable, ".table-wrap th");
     }).catch(function (err) {
         console.log(err);
     });
@@ -2472,7 +2568,13 @@ function refreshFilter(el) {
         $(this).val('')
     })
 }
-
+function getSearch(title) {
+    let search = $('input[name="fullsearch"]').val();
+    if (!search) return {};
+    return {
+        [title]: search
+    }
+}
 function getFilterParam() {
     let $filterFields, data = {};
     $filterFields = $('#filterPopup select, #filterPopup input');
@@ -2584,9 +2686,8 @@ function makeTabs(page = 0) {
 }
 function homeReportsTable(config = {}) {
     let status = $('#statusTabs').find('.current').find('button').data('status');
-    let search = $('.search').find('input[name=fullsearch]').val();
     config.status = status;
-    config.search_title = search;
+    Object.assign(config, getSearch('search_title'));
     Object.assign(config, getFilterParam());
     getHomeReports(config).then(data => {
         makeHomeReportsTable(data, config);
@@ -2613,7 +2714,7 @@ function makeHomeReportsTable(data, config = {}) {
     makePagination(paginationConfig);
     makeSortForm(data.table_columns);
     $('.table__count').text(text);
-    orderTable.sort(homeReportsTable);
+    new OrderTable().sort(homeReportsTable, ".table-wrap th");
     $('.preloader').hide();
 }
 
@@ -2776,29 +2877,9 @@ function getHomeGroupStats(id) {
     });
 }
 
-function getPastorsByDepartment(id) {
-    let resData = {};
-    if (id) {
-        resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/get_pastors_by_department/?department_id=${id}`;
-    } else {
-        resData.url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/get_pastors_by_department/`;
-    }
-    return new Promise(function (resolve, reject) {
-        let codes = {
-            200: function (data) {
-                resolve(data);
-            },
-            400: function (data) {
-                reject(data);
-            }
-        };
-        newAjaxRequest(resData, codes, reject);
-    });
-}
-
-function getLeadersByChurch(config = {}) {
-    let resData = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/get_current_leaders/`,
+function getPastorsByDepartment(config) {
+    let data = {
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/available_pastors/`,
         data: config
     };
     return new Promise(function (resolve, reject) {
@@ -2810,7 +2891,25 @@ function getLeadersByChurch(config = {}) {
                 reject(data);
             }
         };
-        newAjaxRequest(resData, codes, reject);
+        newAjaxRequest(data, codes, reject);
+    });
+}
+
+function getLeadersByChurch(config = {}) {
+    let data = {
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/available_leaders/`,
+        data: config
+    };
+    return new Promise(function (resolve, reject) {
+        let codes = {
+            200: function (data) {
+                resolve(data);
+            },
+            400: function (data) {
+                reject(data);
+            }
+        };
+        newAjaxRequest(data, codes, reject);
     });
 }
 

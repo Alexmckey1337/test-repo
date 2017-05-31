@@ -20,11 +20,9 @@ from rest_framework.viewsets import GenericViewSet
 from account.models import CustomUser
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
-from hierarchy.models import Hierarchy
-from hierarchy.serializers import HierarchySerializer
 from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
-from summit.filters import FilterByClub, ProductFilter, SummitUnregisterFilter, ProfileFilter, \
+from summit.filters import FilterByClub, SummitUnregisterFilter, ProfileFilter, \
     FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend
 from summit.pagination import SummitPagination, SummitTicketPagination
 from summit.permissions import HasAPIAccess, CanSeeSummitProfiles

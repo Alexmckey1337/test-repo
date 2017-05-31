@@ -1,4 +1,21 @@
 (function ($) {
+    let filterInit = (function () {
+        let init = false;
+        const USER_ID = $('body').data('user');
+        return function () {
+            if (!init) {
+                getLeadersByChurch({
+                    master_tree: USER_ID
+                }).then(res => {
+                    const leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
+                    $('#tree_filter').html('<option>ВСЕ</option>').append(leaders);
+                    $('#leader_filter').html('<option>ВСЕ</option>').append(leaders);
+                });
+                init = true;
+            }
+        }
+    })();
+
     let $departmentSelect = $('#department_select');
     createHomeGroupsTable();
     let $churchFilter = $('#church_filter');
@@ -24,18 +41,13 @@
         let church_id = $('#added_home_group_church').attr('data-id');
         let user_id = $('#added_home_group_church').attr('data-user');
         let config = {
-                master_tree: user_id,
-                church_id: church_id,
-            };
+            master_tree: user_id,
+            church_id: church_id,
+        };
         getResponsibleBYHomeGroupNew(config).then(function (data) {
-        let options = data.map( (item) => {
-            let option = document.createElement('option');
-            return $(option).val(item.id).text(item.fullname);
+            let pastors = data.map((pastor) => `<option value="${pastor.id}">${pastor.fullname}</option>`);
+            $('#added_home_group_pastor').html(pastors).prop('disabled', false).select2();
         });
-        $('#added_home_group_pastor').html(options).prop('disabled', false).select2();
-    });
-
-
         setTimeout(function () {
             $('#addHomeGroup').css('display', 'block');
         }, 100);
@@ -52,6 +64,7 @@
         updateSettings(createHomeGroupsTable);
     });
     $('#filter_button').on('click', function () {
+        filterInit();
         $('#filterPopup').css('display', 'block');
     });
     $('input[name="fullsearch"]').on('keyup', function () {
@@ -77,17 +90,20 @@
             }
         }
         getLeadersByChurch(config).then(function (data) {
-            let options = [];
-            let option = document.createElement('option');
-            $(option).text('ВСЕ').attr('selected', true);
-            options.push(option);
-            data.forEach(function (item) {
-                let option = document.createElement('option');
-                $(option).val(item.id).text(item.fullname);
-                options.push(option);
-            });
-            $('#tree_filter').html(options);
-            // $('#leader_filter').html(options);
+            const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
+            $('#tree_filter').html('<option>ВСЕ</option>').append(pastors);
+            $('#leader_filter').html('<option>ВСЕ</option>').append(pastors);
+            // let options = [];
+            // let option = document.createElement('option');
+            // $(option).text('ВСЕ').attr('selected', true);
+            // options.push(option);
+            // data.forEach(function (item) {
+            //     let option = document.createElement('option');
+            //     $(option).val(item.id).text(item.fullname);
+            //     options.push(option);
+            // });
+            //
+            // $('#tree_filter').html(options);
         })
     });
     $treeFilter.on('change', function () {
@@ -99,16 +115,18 @@
             }
         }
         getLeadersByChurch(config).then(function (data) {
-            let options = [];
-            let option = document.createElement('option');
-            $(option).text('ВСЕ').attr('selected', true);
-            options.push(option);
-            data.forEach(function (item) {
-                let option = document.createElement('option');
-                $(option).val(item.id).text(item.fullname);
-                options.push(option);
-            });
-            $('#leader_filter').html(options);
+            const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
+            $('#leader_filter').html('<option>ВСЕ</option>').append(pastors);
+            // let options = [];
+            // let option = document.createElement('option');
+            // $(option).text('ВСЕ').attr('selected', true);
+            // options.push(option);
+            // data.forEach(function (item) {
+            //     let option = document.createElement('option');
+            //     $(option).val(item.id).text(item.fullname);
+            //     options.push(option);
+            // });
+            // $('#leader_filter').html(options);
         });
-    })
+    });
 })(jQuery);

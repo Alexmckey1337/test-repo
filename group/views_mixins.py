@@ -1,3 +1,4 @@
+from django.db.models import Count
 from rest_framework import filters
 from rest_framework.decorators import detail_route
 
@@ -36,7 +37,7 @@ class HomeGroupListMixin:
                   filter_backends=(filters.OrderingFilter,))
     def home_groups(self, request, pk):
         instance = self.get_object()
-        queryset = instance.home_group.all()
+        queryset = instance.home_group.annotate(count_users=Count('users'))
         queryset = self.filter_queryset(queryset)
 
         page = self.paginate_queryset(queryset)

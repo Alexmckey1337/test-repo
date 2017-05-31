@@ -9,7 +9,7 @@ from .models import Department, Hierarchy
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
-        fields = ('url', 'id', 'title',)
+        fields = ('id', 'title',)
 
 
 class HierarchySerializer(serializers.ModelSerializer):

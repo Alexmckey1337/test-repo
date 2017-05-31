@@ -1,9 +1,11 @@
 (function ($) {
-    let $createUserForm = $('#createUser');
-    const ID = $('#home_group').data('id');
-    const HG_ID = $('#home_group').data('departament_id');
-    const HG_TITLE = $('#home_group').data('departament_title');
-    const CH_ID = $('#home_group').data('church-id');
+    let $createUserForm = $('#createUser'),
+        $homeGroup = $('#home_group');
+
+    const ID = $homeGroup.data('id');
+    const HG_ID = $homeGroup.data('departament_id');
+    const CH_ID = $homeGroup.data('church-id');
+    const HG_TITLE = $homeGroup.data('departament_title');
 
     function addUserToHomeGroup(data) {
         let id = data.id;
@@ -45,7 +47,10 @@
                     $(col_1).addClass('col').append(link);
                     $(col_2).addClass('col').append(item.country + ', ' + item.city);
                     $(rows).addClass('rows').append(col_1).append(col_2);
-                    $(button).attr('data-id', item.id).text('Выбрать').on('click', function () {
+                    $(button).attr({
+                        'data-id': item.id,
+                        'disabled': !item.can_add
+                    }).text('Выбрать').on('click', function () {
                         let id = $(this).data('id');
                         let config = {};
                         config.id = id;

@@ -12,9 +12,11 @@ body {
     overflow: hidden;
   }
 }
+
 a {
   color: #3caeda;
 }
+
 #statusTabs {
   & .current {
     & button {
@@ -628,6 +630,33 @@ h1 a {
   display: block;
 }
 
+.edit {
+  & button {
+    padding: 0;
+    background: transparent;
+    position: absolute;
+    top: 0.35em;
+    left: .75em;
+    font-size: 1.2em;
+    cursor: pointer;
+    opacity: 0;
+    display: none;
+  }
+  &:hover {
+    & button {
+      display: block;
+      opacity: 0.5;
+      &:hover {
+        opacity: 1;
+        &:before {
+          color: #FF5252;
+        }
+
+      }
+    }
+  }
+}
+
 .edit .col-1 button,
 .edit .butt-wrap {
   margin-top: 0;
@@ -1014,7 +1043,6 @@ li.current a {
     top: -2px;
   }
 }
-
 
 .tab-status li {
   height: 100%;
@@ -2828,7 +2856,7 @@ input:checked ~ label.disable:before {
 }
 
 .pop-up-splash p {
-  font-family: "Ubuntu", sans-serif;
+  //font-family: "Ubuntu", sans-serif;
   font-size: 1.2em;
   padding-bottom: 15px;
 }
@@ -3635,7 +3663,7 @@ span.change[style*="display: none"] ~ span.y {
 .account .invalid {
   position: absolute;
   display: none;
-  top: -66px;
+  top: -75px;
   left: 0;
   width: 310px;
   padding: 20px;
@@ -3824,6 +3852,7 @@ span.change[style*="display: none"] ~ span.y {
         top: 1em;
         width: 1em;
         height: 1em;
+
         &:before {
           content: '\f040';
           width: 1em;
@@ -6330,7 +6359,7 @@ div.code input#code {
         position: relative;
         #partner {
           position: relative;
-          width: 42px!important;
+          width: 42px !important;
           height: 20px;
           cursor: pointer;
           opacity: 0;
@@ -6340,7 +6369,7 @@ div.code input#code {
           position: absolute;
           left: 0;
         }
-        #partner:not(checked)+span::before {
+        #partner:not(checked) + span::before {
           content: '';
           position: absolute;
           top: 0;
@@ -6349,12 +6378,12 @@ div.code input#code {
           height: 18px;
           border-radius: 13px;
           background-color: #cdd1da;
-          box-shadow: inset 0 2px 3px rgba(0,0,0,.2);
+          box-shadow: inset 0 2px 3px rgba(0, 0, 0, .2);
         }
-        #partner:checked+span::before {
+        #partner:checked + span::before {
           background-color: #9fd468;
         }
-        #partner:not(checked)+span::after {
+        #partner:not(checked) + span::after {
           content: '';
           position: absolute;
           top: 1px;
@@ -6363,10 +6392,10 @@ div.code input#code {
           height: 15px;
           border-radius: 7px;
           background: #fff;
-          box-shadow: 0 2px 5px rgba(0,0,0,.3);
+          box-shadow: 0 2px 5px rgba(0, 0, 0, .3);
           transition: all .2s;
         }
-        #partner:checked+span::after {
+        #partner:checked + span::after {
           left: 26px;
         }
       }
@@ -6525,5 +6554,85 @@ div.code input#code {
   }
   & a {
     color: #3caeda;
+  }
+}
+
+/* ------------------Change password------------------------------ */
+#popup-change_password {
+  & form {
+    padding: 1.5em;
+  }
+  & p {
+      line-height: 1.3em;
+  }
+  & .summa-wrap {
+    display: block;
+    margin: 1em 1.25em 4em 1.25em;
+    overflow: visible;
+    & .summa {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      margin: 0;
+      margin-bottom: 1.3em;
+      & .label-wrapp {
+        position: relative;
+        width: 65%;
+        &::after {
+          position: absolute;
+          left: 0;
+          bottom: 2px;
+          display: block;
+          width: 99%;
+          height: 2px;
+          background-image: radial-gradient(circle, #656d78 .6px, transparent 1px);
+          background-repeat: repeat-x;
+          background-size: 5px 2px;
+          content: '';
+        }
+      }
+      & .input-wrapp {
+        position: relative;
+        width: 35%;
+        span {
+          position: absolute;
+          top: 20px;
+          left: 0;
+        }
+      }
+      & input {
+        font-size: 1.2em;
+      }
+      & label {
+        position: relative;
+        padding-right: 1em;
+        font-size: 1.1em;
+        background-color: #fff;
+        z-index: 2;
+      }
+    }
+  }
+  .splash-buttons {
+    display: flex;
+    justify-content: space-around;
+    & button {
+      position: relative;
+      &::before {
+        display: block;
+        font: 1.2em FontAwesome;
+        margin-top: .1em;
+        position: absolute;
+        top: 8px;
+        left: 15px;
+        width: 19px;
+        height: 19px;
+      }
+      &#close-password::before {
+        content: '\f00d';
+      }
+      &#submit_password::before {
+      content: '\f00c';
+    }
+    }
   }
 }

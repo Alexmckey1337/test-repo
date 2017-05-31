@@ -212,12 +212,14 @@
         let dateData = document.createElement('input');
         $(dateTitle).text('Дата отчёта: ');
         let dateReportsFormatted = new Date(data.date.split('.').reverse().join(','));
+        let thisMonday = (moment(dateReportsFormatted).day() === 1) ? moment(dateReportsFormatted).format() : moment(dateReportsFormatted).day(1).format();
         let nextSunday = (moment(dateReportsFormatted).day() === 0) ? moment(dateReportsFormatted).format() : moment(dateReportsFormatted).day(7).format();
         $(dateData).val(data.date).attr({
             'size': data.date.length,
             'data-name': 'date',
         }).datepicker({
-            minDate: new Date(dateReportsFormatted),
+            autoClose: true,
+            minDate: new Date(thisMonday),
             maxDate: new Date(nextSunday),
         });
         $(dateContainer).append(dateTitle).append(dateData);

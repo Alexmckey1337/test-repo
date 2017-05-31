@@ -5,17 +5,30 @@
     let responsibleList = false;
     let link = $('.get_info .active').data('link');
 
-    function makeResponsibleList(USER_ID) {
-        getResponsibleBYHomeGroup(USER_ID).then(function (data) {
-            let options = [];
-            data.forEach(function (item) {
+    function makeResponsibleList(id, user_id) {
+        let config = {
+                master_tree: user_id,
+                church_id: id,
+            };
+        getResponsibleBYHomeGroupNew(config).then(function (data) {
+            let options = data.map( (item) => {
                 let option = document.createElement('option');
-                $(option).val(item.id).text(item.fullname);
-                options.push(option);
+                return $(option).val(item.id).text(item.fullname);
             });
-            $('#added_home_group_pastor').html(options).prop('disabled', false);
-        })
+            $('#added_home_group_pastor').html(options).prop('disabled', false).select2();
+        });
     }
+    // function makeResponsibleList(USER_ID) {
+    //     getResponsibleBYHomeGroup(USER_ID).then(function (data) {
+    //         let options = [];
+    //         data.forEach(function (item) {
+    //             let option = document.createElement('option');
+    //             $(option).val(item.id).text(item.fullname);
+    //             options.push(option);
+    //         });
+    //         $('#added_home_group_pastor').html(options).prop('disabled', false);
+    //     })
+    // }
 
     function addUserToChurch(data) {
         let id = data.id;
@@ -57,7 +70,10 @@
                     $(col_1).addClass('col').append(link);
                     $(col_2).addClass('col').append(item.country + ', ' + item.city);
                     $(rows).addClass('rows').append(col_1).append(col_2);
-                    $(button).attr('data-id', item.id).text('Выбрать').on('click', function () {
+                    $(button).attr({
+                        'data-id': item.id,
+                        'disabled': !item.can_add
+                    }).text('Выбрать').on('click', function () {
                         let id = $(this).data('id');
                         let _self = this;
                         let config = {};
@@ -102,7 +118,7 @@
         clearAddHomeGroupData();
         if (!responsibleList) {
             responsibleList = true;
-            makeResponsibleList(ID);
+            makeResponsibleList(ID, USER_ID);
         }
         setTimeout(function () {
             $('#addHomeGroup').css('display', 'block');
@@ -169,24 +185,24 @@
             });
     });
 
-    $('#addHomeGroupForm').submit(function (e) {
-        e.preventDefault();
-        addHomeGroup(this);
-    });
+    // $('#addHomeGroupForm').submit(function (e) {
+    //     e.preventDefault();
+    //     addHomeGroup(this);
+    // });
 
-    function addHomeGroup(el, callback) {
-    let data = getAddHomeGroupData();
-    let json = JSON.stringify(data);
-    addHomeGroupToDataBase(json).then(function (data) {
-        clearAddHomeGroupData();
-        hidePopup(el);
-        callback();
-        showPopup(`Домашняя группа ${data.get_title} добавлена в базу данных`);
-    }).catch(function (data) {
-        hidePopup(el);
-        showPopup('Ошибка при создании домашней группы');
-    });
-}
+//     function addHomeGroup(el, callback) {
+//     let data = getAddHomeGroupData();
+//     let json = JSON.stringify(data);
+//     addHomeGroupToDataBase(json).then(function (data) {
+//         clearAddHomeGroupData();
+//         hidePopup(el);
+//         callback();
+//         showPopup(`Домашняя группа ${data.get_title} добавлена в базу данных`);
+//     }).catch(function (data) {
+//         hidePopup(el);
+//         showPopup('Ошибка при создании домашней группы');
+//     });
+// }
 
     $.validate({
         lang: 'ru',
