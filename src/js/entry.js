@@ -30,7 +30,7 @@ function authUser() {
         let next;
         let loginData = JSON.stringify(data);
         authUserFunc(loginData).then(function (res) {
-            if (res) {
+            if (res.status) {
                 setCookie('key', res.key, {
                     path: '/'
                 });
@@ -43,7 +43,7 @@ function authUser() {
                 console.log(getCookie('key'));
             } else {
                 clearFields();
-                $('.account .invalid').html(JSONobj.message);
+                $('.account .invalid').html(res.message);
                 document.querySelector(".account .invalid").style.display = 'block'
             }
         }).catch(function (res) {
@@ -89,7 +89,7 @@ function authUser() {
 function authUserFunc(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: `${CONFIG.DOCUMENT_ROOT}rest-auth/login/`,
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/login/`,
             data: config,
             method: 'POST',
             headers: {
