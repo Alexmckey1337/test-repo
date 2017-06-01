@@ -2,8 +2,10 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
+from django.db import models
 from django.urls import reverse
 from rest_framework import serializers
+from rest_framework.serializers import ListSerializer
 
 from account.models import CustomUser as User
 from account.serializers import UserTableSerializer, UserShortSerializer
@@ -176,12 +178,28 @@ class ChildrenLink(serializers.RelatedField):
         return None
 
 
+class LocationListSerializer(ListSerializer):
+
+    def to_representation(self, data):
+        """
+        List of object instances -> List of dicts of primitive datatypes.
+        """
+        # Dealing with nested relationships, data can be a Manager,
+        # so, first get a queryset from the Manager if needed
+        iterable = [data.first()] if isinstance(data, models.Manager) else data
+
+        return [
+            self.child.to_representation(item) for item in iterable
+        ]
+
+
 class SummitVisitorLocationSerializer(serializers.ModelSerializer):
     visitor_id = serializers.IntegerField(source='visitor.id')
 
     class Meta:
         model = SummitVisitorLocation
         fields = ('visitor_id', 'date_time', 'longitude', 'latitude', 'type')
+        list_serializer_class = LocationListSerializer
 
 
 class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
@@ -193,14 +211,14 @@ class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
     children = ChildrenLink(view_name='summit-app-profile-list-master',
                             queryset=SummitAnket.objects.all())
     photo = ImageWithoutHostField(source='user.image', use_url=False)
-    location = SummitVisitorLocationSerializer(read_only=True, many=True)
+    visitor_locations = SummitVisitorLocationSerializer(read_only=True, many=True)
 
     class Meta:
         model = SummitAnket
         fields = (
             'id', 'user_id', 'master_id',
             'full_name', 'country', 'city', 'phone_number', 'extra_phone_numbers',
-            'master_fio', 'hierarchy_id', 'children', 'photo', 'location'
+            'master_fio', 'hierarchy_id', 'children', 'photo', 'visitor_locations'
         )
 
 
