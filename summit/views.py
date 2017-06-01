@@ -336,17 +336,6 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
     def get(self, request, *args, **kwargs):
         self.summit = get_object_or_404(Summit, pk=kwargs.get('summit_id', None))
         self.master_id = kwargs.get('master_id', None)
-        # interval = int(request.query_params.get('interval', None))
-        # date_time = request.query_params.get('date_time', None)
-        # print(date_time)
-        # try:
-        #     date_time = datetime.strptime(date_time.replace('T', ' '), '%Y-%m-%d %H:%M:%S')
-        # except ValueError:
-        #     raise exceptions.ValidationError(
-        #         'Не верный формат даты. Передайте дату в формате date %Y-%m-%dT%H:%M:%S')
-        #
-        # self.start_date = date_time - timedelta(minutes=interval)
-        # self.end_date = date_time + timedelta(minutes=interval)
         return self.list(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
@@ -375,25 +364,6 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
             return self.annotate_queryset(self.summit.ankets.filter(user__level=0))
         else:
             return self.annotate_queryset(self.summit.ankets.filter(user__master_id=self.request.user.id))
-
-    # @list_route(methods=['GET'])
-    # def location_by_interval(self, request):
-    #     date_time = request.query_params.get('date_time')
-    #     date_format = '%Y-%m-%d %H:%M:%S'
-    #     try:
-    #         date_time = datetime.strptime(date_time.replace('T', ' '), date_format)
-    #     except ValueError:
-    #         raise exceptions.ValidationError(
-    #             'Не верный формат даты. Передайте дату в формате date %Y-%m-%dT%H:%M:%S')
-    #
-    #     interval = int(request.query_params.get('interval'))
-    #     start_date = date_time - timedelta(minutes=interval)
-    #     end_date = date_time + timedelta(minutes=interval)
-    #
-    #     locations = self.queryset.filter(date_time__range=(start_date, end_date))
-    #     locations = self.serializer_class(locations, many=True)
-    #
-    #     return Response(locations.data, status=status.HTTP_200_OK)
 
 
 # UNUSED
@@ -605,7 +575,7 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
             raise exceptions.ValidationError(
                 'Не верный формат даты. Передайте дату в формате date %Y-%m-%dT%H:%M:%S')
 
-        interval = int(request.query_params.get('interval'))
+        interval = int(request.query_params.get('interval', 0))
         start_date = date_time - timedelta(minutes=interval)
         end_date = date_time + timedelta(minutes=interval)
 
