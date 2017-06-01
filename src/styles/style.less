@@ -6789,3 +6789,46 @@ div.code input#code {
     }
   }
 }
+/* ------------------DESKBOARD------------------------------ */
+.deskboard {
+  .grid_block {
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    h3 {
+      position: relative;
+      width: 100%;
+      margin-bottom: 10px;
+      padding-left: 20px;
+      font-weight: 600;
+      &::before {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        font-family: FontAwesome;
+        font-size: 2em;
+        content: '';
+      }
+    }
+  }
+  .well {
+    padding: 35px;
+    box-sizing: border-box;
+    p {
+      margin-top: 30px;
+      padding: 15px;
+      font-size: 4em;
+      text-align: center;
+      font-family: "Roboto Condensed", sans-serif;
+      font-weight: 900;
+    }
+  }
+  .emptySpace {
+    width: 32%;
+    border: 1px dotted red;
+  }
+}
+.emptySpaceRow {
+  height: 150px;
+  background-color: #ddd;
+}

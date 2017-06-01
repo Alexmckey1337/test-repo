@@ -19,54 +19,116 @@
 {% endblock %}
 
 {% block main.content %}
-    <div class="main__container">
-        <div class="grid_block">
-            {% if user.can_see_churches or user.can_see_home_groups or user.can_see_user_list %}
-                <div class="col-sm-4">
-                    <h2>База данных</h2>
-                    <ul>
-                        {% if user.can_see_churches %}
-                            <li><a href="{% url 'db:churches' %}">Церкви</a></li>
-                        {% endif %}
-                        {% if user.can_see_home_groups %}
-                            <li><a href="{% url 'db:home_groups' %}">Домашние группы</a></li>
-                        {% endif %}
-                        {% if user.can_see_user_list %}
-                            <li><a href="{% url 'db:people' %}">Люди</a></li>
-                        {% endif %}
-                    </ul>
-                </div>
-            {% endif %}
-            {% if user.can_see_any_partner_block %}
-                <div class="col-sm-4">
-                    <h2>Партнёрство</h2>
-                    <ul>
-                        {% if user.can_see_deals %}
-                            <li><a href="{% url 'partner:deals' %}">Сделки</a></li>
-                        {% endif %}
-                        {% if user.can_see_partners %}
-                            <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
-                        {% endif %}
-                        {% if user.can_see_partner_stats %}
-                            <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
-                        {% endif %}
-                        {% if user.can_see_deal_payments %}
-                            <li><a href="{% url 'partner:payments' %}">{% trans "Payments" %}</a></li>
-                        {% endif %}
-                    </ul>
-                </div>
-            {% endif %}
-            <div class="col-sm-4">
-                <h2>Саммиты</h2>
-                <ul>
-                    {% for summit in user.available_summit_types %}
-                        <li><a href="{% url 'summit:detail' summit.id %}">{{ summit.title }}</a></li>
-                    {% empty %}
-                        <li>{% trans "Нет доступных саммитов." %}</li>
-                    {% endfor %}
-                </ul>
+    <div class="main__container deskboard">
+        <div class="grid_block drop">
+            <h3>Сводная информация по церквям</h3>
+            <div class="col-sm-4 well">
+                <span>Всего церквей</span>
+                <p class="success">5</p>
+            </div>
+            <div class="col-sm-4 well">
+                <span>Всего домашних групп</span>
+                <p class="success">51</p>
+            </div>
+            <div class="col-sm-4 well">
+                    <span>Всего людей</span>
+                    <p class="success">500</p>
             </div>
         </div>
+        <div class="grid_block drop">
+            <h3>Сводная информация по домашним группам</h3>
+            <div class="col-sm-4 well success">
+                <span>Всего в домашних группах</span>
+                <p>350</p>
+            </div>
+            <div class="col-sm-4 well error">
+                <span>Всего не в домашних группах</span>
+                <p>200</p>
+            </div>
+            <div class="col-sm-4 well">
+                    <span>Всего гостей</span>
+                    <p>5</p>
+            </div>
+        </div>
+        <div class="grid_block drop">
+            <h3>Сводная информация по людям</h3>
+            <div class="col-sm-4 well">
+                <span>Всего отцы</span>
+                <p>45</p>
+            </div>
+            <div class="col-sm-4 well">
+                <span>Всего юноши</span>
+                <p>201</p>
+            </div>
+            <div class="col-sm-4 well">
+                    <span>Всего младенцы</span>
+                    <p>245</p>
+            </div>
+        </div>
+        <div class="grid_block drop">
+            <h3>Сводная информация по отчётам</h3>
+            <div class="col-sm-4 well error">
+                <span>Не заполнено отчётов ДГ</span>
+                <p>15</p>
+            </div>
+            <div class="col-sm-4 well error">
+                <span>Не заполнено отчётов НМ</span>
+                <p>5</p>
+            </div>
+            <div class="col-sm-4 well error">
+                    <span>Не заполнено ВС</span>
+                    <p>21</p>
+            </div>
+        </div>
+
+
+
+{#            {% if user.can_see_churches or user.can_see_home_groups or user.can_see_user_list %}#}
+{#                <div class="col-sm-4">#}
+{#                    <h2>База данных</h2>#}
+{#                    <ul>#}
+{#                        {% if user.can_see_churches %}#}
+{#                            <li><a href="{% url 'db:churches' %}">Церкви</a></li>#}
+{#                        {% endif %}#}
+{#                        {% if user.can_see_home_groups %}#}
+{#                            <li><a href="{% url 'db:home_groups' %}">Домашние группы</a></li>#}
+{#                        {% endif %}#}
+{#                        {% if user.can_see_user_list %}#}
+{#                            <li><a href="{% url 'db:people' %}">Люди</a></li>#}
+{#                        {% endif %}#}
+{#                    </ul>#}
+{#                </div>#}
+{#            {% endif %}#}
+{#            {% if user.can_see_any_partner_block %}#}
+{#                <div class="col-sm-4">#}
+{#                    <h2>Партнёрство</h2>#}
+{#                    <ul>#}
+{#                        {% if user.can_see_deals %}#}
+{#                            <li><a href="{% url 'partner:deals' %}">Сделки</a></li>#}
+{#                        {% endif %}#}
+{#                        {% if user.can_see_partners %}#}
+{#                            <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>#}
+{#                        {% endif %}#}
+{#                        {% if user.can_see_partner_stats %}#}
+{#                            <li><a href="{% url 'partner:stats' %}">Статистика</a></li>#}
+{#                        {% endif %}#}
+{#                        {% if user.can_see_deal_payments %}#}
+{#                            <li><a href="{% url 'partner:payments' %}">{% trans "Payments" %}</a></li>#}
+{#                        {% endif %}#}
+{#                    </ul>#}
+{#                </div>#}
+{#            {% endif %}#}
+{#            <div class="col-sm-4">#}
+{#                <h2>Саммиты</h2>#}
+{#                <ul>#}
+{#                    {% for summit in user.available_summit_types %}#}
+{#                        <li><a href="{% url 'summit:detail' summit.id %}">{{ summit.title }}</a></li>#}
+{#                    {% empty %}#}
+{#                        <li>{% trans "Нет доступных саммитов." %}</li>#}
+{#                    {% endfor %}#}
+{#                </ul>#}
+{#            </div>#}
+{#        </div>#}
     </div>
 {% endblock %}
 
@@ -75,5 +137,5 @@
 
 {% endblock %}
 {% block extra_scripts %}
-
+    <script src='{% static "js/deskboard.js" %}'></script>
 {% endblock %}
