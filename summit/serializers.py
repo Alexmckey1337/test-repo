@@ -1,9 +1,13 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from datetime import datetime, timedelta
+
 from django.conf import settings
+from django.db import models
 from django.urls import reverse
 from rest_framework import serializers
+from rest_framework.serializers import ListSerializer
 
 from account.models import CustomUser as User
 from account.serializers import UserTableSerializer, UserShortSerializer
@@ -184,6 +188,26 @@ class SummitVisitorLocationSerializer(serializers.ModelSerializer):
         fields = ('visitor_id', 'date_time', 'longitude', 'latitude', 'type')
 
 
+class CustomVisitorsLocationSerializer(serializers.ReadOnlyField):
+    def __init__(self, **kwargs):
+        self.fields = [f.split('.') for f in kwargs.pop('fields', [])]
+        super().__init__(**kwargs)
+
+    def to_representation(self, value):
+        date_time = self.context['request'].query_params.get('date_time', '')
+        interval = int(self.context['request'].query_params.get('interval', 5))
+        try:
+            date_time = datetime.strptime(date_time.replace('T', ' '), '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            end_date = datetime.now()
+            start_date = end_date - timedelta(minutes=2*interval)
+        else:
+            start_date = date_time - timedelta(minutes=interval)
+            end_date = date_time + timedelta(minutes=interval)
+        return value.filter(date_time__range=(start_date, end_date)).values(
+            'visitor_id', 'date_time', 'longitude', 'latitude', 'type').first()
+
+
 class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField()
     master_fio = serializers.CharField(source='responsible')
@@ -193,14 +217,14 @@ class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
     children = ChildrenLink(view_name='summit-app-profile-list-master',
                             queryset=SummitAnket.objects.all())
     photo = ImageWithoutHostField(source='user.image', use_url=False)
-    location = SummitVisitorLocationSerializer(read_only=True, many=True)
+    visitor_locations = CustomVisitorsLocationSerializer()
 
     class Meta:
         model = SummitAnket
         fields = (
             'id', 'user_id', 'master_id',
             'full_name', 'country', 'city', 'phone_number', 'extra_phone_numbers',
-            'master_fio', 'hierarchy_id', 'children', 'photo', 'location'
+            'master_fio', 'hierarchy_id', 'children', 'photo', 'visitor_locations'
         )
 
 
