@@ -16,7 +16,7 @@ function sendPassToEmail() {
 
         },
         500: function () {
-            $('.account .invalid').html('Неверно введён e-mail или его нету в базе').show();
+            $('.account .invalid').html('Проверьте введённый e-mail').show();
             $('#send_letter').val('');
         }
     });
