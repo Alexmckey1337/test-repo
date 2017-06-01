@@ -1,6 +1,8 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from datetime import datetime, timedelta
+
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
@@ -186,7 +188,7 @@ class LocationListSerializer(ListSerializer):
         """
         # Dealing with nested relationships, data can be a Manager,
         # so, first get a queryset from the Manager if needed
-        iterable = [data.first()] if isinstance(data, models.Manager) else data
+        iterable = data.all() if isinstance(data, models.Manager) else data
 
         return [
             self.child.to_representation(item) for item in iterable
@@ -202,6 +204,26 @@ class SummitVisitorLocationSerializer(serializers.ModelSerializer):
         list_serializer_class = LocationListSerializer
 
 
+class BlablablaField(serializers.ReadOnlyField):
+    def __init__(self, **kwargs):
+        self.fields = [f.split('.') for f in kwargs.pop('fields', [])]
+        super().__init__(**kwargs)
+
+    def to_representation(self, value):
+        date_time = self.context['request'].query_params.get('date_time', '')
+        interval = int(self.context['request'].query_params.get('interval', 10))
+        try:
+            date_time = datetime.strptime(date_time.replace('T', ' '), '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            end_date = datetime.now()
+            start_date = end_date - timedelta(minutes=2*interval)
+        else:
+            start_date = date_time - timedelta(minutes=interval)
+            end_date = date_time + timedelta(minutes=interval)
+        return value.filter(date_time__range=(start_date, end_date)).values(
+            'visitor_id', 'date_time', 'longitude', 'latitude', 'type')
+
+
 class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField()
     master_fio = serializers.CharField(source='responsible')
@@ -211,7 +233,7 @@ class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
     children = ChildrenLink(view_name='summit-app-profile-list-master',
                             queryset=SummitAnket.objects.all())
     photo = ImageWithoutHostField(source='user.image', use_url=False)
-    visitor_locations = SummitVisitorLocationSerializer(read_only=True, many=True)
+    visitor_locations = BlablablaField()
 
     class Meta:
         model = SummitAnket
