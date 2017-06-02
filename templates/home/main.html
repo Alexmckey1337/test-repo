@@ -20,8 +20,7 @@
 
 {% block main.content %}
     <div class="main__container deskboard">
-        <div class="grid_block drop">
-            <h3>Сводная информация по церквям</h3>
+        <div id="drop" class="grid_block drop">
             <div class="col-sm-4 well">
                 <span>Всего церквей</span>
                 <p class="success">5</p>
@@ -31,12 +30,9 @@
                 <p class="success">51</p>
             </div>
             <div class="col-sm-4 well">
-                    <span>Всего людей</span>
-                    <p class="success">500</p>
+                <span>Всего людей</span>
+                <p class="success">500</p>
             </div>
-        </div>
-        <div class="grid_block drop">
-            <h3>Сводная информация по домашним группам</h3>
             <div class="col-sm-4 well success">
                 <span>Всего в домашних группах</span>
                 <p>350</p>
@@ -46,12 +42,9 @@
                 <p>200</p>
             </div>
             <div class="col-sm-4 well">
-                    <span>Всего гостей</span>
-                    <p>5</p>
+                <span>Всего гостей</span>
+                <p>5</p>
             </div>
-        </div>
-        <div class="grid_block drop">
-            <h3>Сводная информация по людям</h3>
             <div class="col-sm-4 well">
                 <span>Всего отцы</span>
                 <p>45</p>
@@ -61,12 +54,9 @@
                 <p>201</p>
             </div>
             <div class="col-sm-4 well">
-                    <span>Всего младенцы</span>
-                    <p>245</p>
+                <span>Всего младенцы</span>
+                <p>245</p>
             </div>
-        </div>
-        <div class="grid_block drop">
-            <h3>Сводная информация по отчётам</h3>
             <div class="col-sm-4 well error">
                 <span>Не заполнено отчётов ДГ</span>
                 <p>15</p>
@@ -76,11 +66,10 @@
                 <p>5</p>
             </div>
             <div class="col-sm-4 well error">
-                    <span>Не заполнено ВС</span>
-                    <p>21</p>
+                <span>Не заполнено ВС</span>
+                <p>21</p>
             </div>
         </div>
-
 
 
 {#            {% if user.can_see_churches or user.can_see_home_groups or user.can_see_user_list %}#}
@@ -137,5 +126,6 @@
 
 {% endblock %}
 {% block extra_scripts %}
+    <script src='{% static "libs/Sortable/Sortable.min.js" %}'></script>
     <script src='{% static "js/deskboard.js" %}'></script>
 {% endblock %}

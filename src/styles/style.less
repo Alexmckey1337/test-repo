@@ -6792,28 +6792,46 @@ div.code input#code {
 /* ------------------DESKBOARD------------------------------ */
 .deskboard {
   .grid_block {
-    margin-bottom: 15px;
+    //margin-bottom: 15px;
     flex-wrap: wrap;
-    h3 {
-      position: relative;
-      width: 100%;
-      margin-bottom: 10px;
-      padding-left: 20px;
-      font-weight: 600;
+    //h3 {
+    //  position: relative;
+    //  width: 100%;
+    //  margin-bottom: 10px;
+    //  padding-left: 15px;
+    //  font-weight: 600;
+    //  cursor: move;
+    //  &::before {
+    //    display: block;
+    //    position: absolute;
+    //    top: 0;
+    //    left: 0;
+    //    font-family: FontAwesome;
+    //    font-size: 1em;
+    //    content: '\f07d';
+    //    cursor: move;
+    //  }
+    //}
+  }
+  .well {
+    position: relative;
+    padding: 35px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: box-shadow 0.3s ease;
+    &:hover {
+      box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+      cursor: grab;
+    }
       &::before {
         display: block;
         position: absolute;
-        top: 0;
-        left: 0;
+        top: 5px;
+        left: 5px;
         font-family: FontAwesome;
-        font-size: 2em;
-        content: '';
+        font-size: 1.5em;
+        content: '\f047';
       }
-    }
-  }
-  .well {
-    padding: 35px;
-    box-sizing: border-box;
     p {
       margin-top: 30px;
       padding: 15px;
@@ -6823,12 +6841,10 @@ div.code input#code {
       font-weight: 900;
     }
   }
-  .emptySpace {
-    width: 32%;
-    border: 1px dotted red;
+  .sortable-ghost {
+    opacity: .5;
   }
-}
-.emptySpaceRow {
-  height: 150px;
-  background-color: #ddd;
+  .sortable-chosen {
+    cursor: grab;
+  }
 }
