@@ -2745,7 +2745,6 @@ function getFilterParam() {
     }
     let type = $('#tabs').find('li.active').find('button').attr('data-id');
     if (type == "0") {
-        return
     } else {
         dataTabs.type = type;
     }
