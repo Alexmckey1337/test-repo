@@ -46,6 +46,22 @@
 
 {% block main.content %}
     <div class="container-full">
+        <div class="tab-status tab-home-stats">
+            <ul id="tabs">
+                <li class="active">
+                    <button class="type" data-id="0">Все</button>
+                </li>
+                <li>
+                    <button class="type" data-id="2">Домашняя</button>
+                </li>
+                <li>
+                    <button class="type" data-id="3">Ночная</button>
+                </li>
+                <li>
+                    <button class="type" data-id="1">Служение</button>
+                </li>
+            </ul>
+        </div>
         {% block pagination_top %}
             <div class="top-pag">
                 <div id="period_expired" class="period">
@@ -105,9 +121,9 @@
                         <div class="label_block-wrapp">
                             <span class="label_block">Лидер домашней группы</span>
                         </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Тип</span>
-                        </div>
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Тип</span>#}
+{#                        </div>#}
                         <div class="label_block-wrapp">
                             <span class="label_block">Фильтр по дате</span>
                         </div>
@@ -153,14 +169,14 @@
                                 {% endfor %}
                             </select>
                         </p>
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="type" id="type_filter">
-                                <option value="">ВСЕ</option>
-                                {% for type in types %}
-                                    <option value="{{ type.id }}">{{ type.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </p>
+{#                        <p class="input_block">#}
+{#                            <select class="selectdb" data-filter="type" id="type_filter">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                                {% for type in types %}#}
+{#                                    <option value="{{ type.id }}">{{ type.name }}</option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </p>#}
                         <p class="input_block">
                             <input type="text" placeholder="от" data-filter="from_date" id="date_from"
                                    class="select_date_filter"><input type="text" placeholder="до" data-filter="to_date"
