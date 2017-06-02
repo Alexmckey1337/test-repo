@@ -37,4 +37,10 @@
         homeReportsTable();
     });
 
+    $('.tab-home-stats').find('.type').on('click', function () {
+        $(this).closest('#tabs').find('li').removeClass('active');
+        $(this).parent().addClass('active');
+        homeReportsTable();
+    })
+
 })();

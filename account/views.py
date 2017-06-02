@@ -154,14 +154,12 @@ class UserViewSet(viewsets.ModelViewSet, UserExportViewSetMixin):
             return self.queryset
         if not user.hierarchy:
             return self.queryset.none()
-        if user.hierarchy.level < 2:
-            if self.action in ('list', 'retrieve'):
-                return user.get_descendants(include_self=True).select_related(
-                    'hierarchy', 'master__hierarchy').prefetch_related(
-                    'divisions', 'departments'
-                ).filter(is_active=True).order_by('last_name', 'first_name', 'middle_name')
-            return self.queryset
-        return self.queryset.all()
+        if self.action in ('list', 'retrieve'):
+            return user.get_descendants(include_self=True).select_related(
+                'hierarchy', 'master__hierarchy').prefetch_related(
+                'divisions', 'departments'
+            ).filter(is_active=True).order_by('last_name', 'first_name', 'middle_name')
+        return self.queryset
 
     def get_serializer_class(self):
         if self.action == 'list':

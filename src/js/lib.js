@@ -2169,6 +2169,9 @@ function initAddNewUser(config = {}) {
             $('#chooseDepartment').html(rendered).select2().removeAttr('disabled').on('change', function () {
                 let status = $('#chooseStatus').find('option').filter(':selected').data('level');
                 let department = $(this).val();
+                if (!status) {
+                    return;
+                }
                 getResponsible(department, status).then(function (data) {
                     let rendered = [];
                     data.forEach(function (item) {
@@ -2718,7 +2721,9 @@ function getSearch(title) {
     }
 }
 function getFilterParam() {
-    let $filterFields, data = {};
+    let $filterFields,
+        dataTabs = {},
+        data = {};
     $filterFields = $('#filterPopup select, #filterPopup input');
     $filterFields.each(function () {
         if ($(this).val() == "ВСЕ") {
@@ -2738,6 +2743,12 @@ function getFilterParam() {
     if ('master_tree' in data && ('pastor' in data || 'master' in data || 'leader' in data)) {
         delete data.master_tree;
     }
+    let type = $('#tabs').find('li.active').find('button').attr('data-id');
+    if (type == "0") {
+    } else {
+        dataTabs.type = type;
+    }
+     Object.assign(data, dataTabs);
     return data;
 }
 

@@ -25,7 +25,7 @@ def send_email_for_renewal_password(user):
     user.save()
     plaintext = get_template('email/password_reset.txt')
     htmly = get_template('email/password_reset.html')
-    d = Context({'user': user, 'site_url': settings.SITE_DOMAIN_URL.rstrip('/')})
+    d = {'user': user, 'site_url': settings.SITE_DOMAIN_URL.rstrip('/')}
     subject, from_email, to = 'Восстановление пароля', settings.DEFAULT_FROM_EMAIL, user.email
     text_content = plaintext.render(d)
     html_content = htmly.render(d)
