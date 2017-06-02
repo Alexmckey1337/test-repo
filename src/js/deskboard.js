@@ -4,7 +4,7 @@
         let userId = $('body').attr('data-user');
         let sortCard = document.getElementById('drop');
         function initSortable() {
-            
+
         }
         let sortable = new Sortable(sortCard, {
             sort: true,
