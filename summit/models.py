@@ -489,7 +489,7 @@ class SummitVisitorLocation(models.Model):
     class Meta:
         verbose_name_plural = _('Summit Users Location')
         verbose_name = _('Summit User Location')
-        ordering = ('-date_time',)
+        ordering = ('-id',)
         unique_together = ['visitor', 'date_time']
 
     def __str__(self):
