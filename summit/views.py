@@ -537,7 +537,7 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
     serializer_class = SummitVisitorLocationSerializer
     queryset = SummitVisitorLocation.objects.all().prefetch_related('visitor')
     pagination_class = None
-    # permission_classes = (HasAPIAccess,)
+    permission_classes = (HasAPIAccess,)
 
     @list_route(methods=['POST'])
     def post(self, request):
