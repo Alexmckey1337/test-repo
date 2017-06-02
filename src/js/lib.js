@@ -2169,6 +2169,9 @@ function initAddNewUser(config = {}) {
             $('#chooseDepartment').html(rendered).select2().removeAttr('disabled').on('change', function () {
                 let status = $('#chooseStatus').find('option').filter(':selected').data('level');
                 let department = $(this).val();
+                if (!status) {
+                    return;
+                }
                 getResponsible(department, status).then(function (data) {
                     let rendered = [];
                     data.forEach(function (item) {
