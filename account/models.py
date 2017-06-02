@@ -236,6 +236,14 @@ class CustomUser(MPTTModel, LogModel, User, CustomUserAbstract,
         return self.hierarchy is not None and self.hierarchy.level >= 4
 
     @property
+    def is_main_bishop(self):
+        return self.hierarchy is not None and self.hierarchy.level == 5
+
+    @property
+    def is_main_bishop_or_high(self):
+        return self.hierarchy is not None and self.hierarchy.level >= 5
+
+    @property
     def is_senior_bishop(self):
         return self.hierarchy is not None and self.hierarchy.level == 60
 
