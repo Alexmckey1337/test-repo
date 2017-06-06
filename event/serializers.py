@@ -86,7 +86,6 @@ class MeetingSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMix
                 _('Переданный лидер не являетя лидером данной Домашней Группы'))
 
         meeting = Meeting.objects.create(**validated_data)
-
         return meeting
 
 
@@ -179,17 +178,6 @@ class ChurchReportSerializer(ChurchReportListSerializer):
                 queryset=ChurchReport.objects.all(),
                 fields=('church', 'date', 'status')
             )]
-
-    def create(self, validated_data):
-        pastor = validated_data.get('pastor')
-        church = validated_data.get('church')
-        if church.pastor != pastor:
-            raise serializers.ValidationError(
-                _('Переданный пастор не являетя пастором данной Церкви'))
-
-        church_report = ChurchReport.objects.create(**validated_data)
-
-        return church_report
 
     def update(self, instance, validated_data):
         instance, validated_data = self.validate_before_serializer_update(

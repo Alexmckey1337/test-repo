@@ -33,7 +33,8 @@ Meetings Report Create
 
         POST /api/v1.0/events/home_meetings HTTP/1.1
         Host: vocrm.org
-        Accept: application/json
+        Content-Type: application/json
+        Vary: Accept
 
         {
             "home_group": 18,
@@ -481,9 +482,11 @@ ___________________
 
 
 
-Meetings Statistics Filters
-___________________________
 
+Meetings Filters
+________________
+
+    Filters works in statistics and object lists views.
     **Meetings reports supports a filters for next query params:**
 
     -   query <int> ``status``: filter by Meeting status
@@ -498,8 +501,8 @@ ___________________________
 
     .. sourcecode:: http
 
-        GET /api/v1.0/events/home_meetings/statistics/?department=1&church=26&home_group=18 HTTP/1.1
-                        &owner=15160&type=1&from_date=2016-01-01&to_date=2017-05-05&status
+        GET /api/v1.0/events/home_meetings/statistics/?department=1&home_group=23&owner=15192 HTTP/1.1
+                        &type=2&status=2&from_date=2016-01-01&to_date=2017-10-10
         Host: vocrm.org
         Accept: application/json
 
@@ -513,15 +516,16 @@ ___________________________
         Vary: Accept
 
         {
-            "total_visitors": 4,
+            "total_visitors": 5,
             "total_visits": 1,
-            "total_absent": 3,
-            "total_donations": "35000",
+            "total_absent": 4,
+            "total_donations": "1200",
             "new_repentance": 4,
             "reports_in_progress": 0,
-            "reports_submitted": 4,
+            "reports_submitted": 1,
             "reports_expired": 0
         }
+
 
 
 
@@ -614,6 +618,7 @@ ______________________
 
 
 
+
 Church Reports Create
 _____________________
 
@@ -635,7 +640,8 @@ _____________________
 
         POST /api/v1.0/events/church_reports/  HTTP/1.1
         Host: vocrm.org
-        Accept: application/json
+        Content-Type: application/json
+        Vary: Accept
 
         {
             "pastor": 15160,
@@ -667,6 +673,8 @@ _____________________
             "currency_donations": "",
             "pastor_tithe": "0"
         }
+
+
 
 
 
@@ -740,6 +748,11 @@ Church Report Submit
             "transfer_payments": "0"
         }
 
+    Meeting.status changed to ``expired = 3`` automatically.
+    When next week started and Meeting report status stayed ``in_progress = 1``
+
+
+
 
 
 Church Report Update
@@ -749,10 +762,15 @@ Church Report Update
     The ``date`` field is ``limited to a week`` when the report was created.
     Fields that can be updated:
 
-        -   ``date`` - date when report was submitted
-        -   ``total_sum`` - total sum of donations on event
-        -   ``attends['attended']`` - count of visitors attends
-        -   ``attends['note']`` - Meeting.owner comment about visitor
+        -   ``date``
+        -   ``count_people``
+        -   ``new_people``
+        -   ``count_repentance``
+        -   ``tithe``
+        -   ``donations``
+        -   ``pastor_tithe``
+        -   ``currency_donations``
+        -   ``transfer_payments``
 
     To ``UPDATE`` a Church Report object send request for next API view:
 
@@ -766,8 +784,7 @@ Church Report Update
         Content-type: application/json
 
         {
-            "date": "2017-05-02",
-            "link": "/events/church/reports/48/",
+            "date": "2017-05-04",
             "count_people": 1111,
             "new_people": 111,
             "count_repentance": 11,
@@ -791,7 +808,7 @@ Church Report Update
             "id": 48,
             "pastor": 15160,
             "church": 18,
-            "date": "02.05.2017",
+            "date": "04.05.2017",
             "status": 2,
             "link": "/events/church/reports/48/",
             "count_people": 1111,
@@ -806,6 +823,217 @@ Church Report Update
 
 
 
+
+Church Reports Filters
+----------------------
+
+    Filters works in statistics and object lists views.
+    **Church_reports supports a filters for next query params:**
+
+    -   query <int> ``status``: filter by Meeting status
+    -   query <int> ``church``: filter by home group
+    -   query <int> ``department``: filter by owner department
+    -   query <int> ``church``: filter by home group church
+    -   query <int> ``pastor``: filter by Meeting owner (home group leader)
+    -   query <string> ``from_date, to_date``: filter by date range
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/events/church_reports/?status=2&church=18&department=1&pastor=15160  HTTP/1.1
+                        &master_tree=15160&from_date=2017-06-03&to_date=2017-06-27
+        Host: vocrm.org
+        Accept: application/json
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "id": 49,
+            "pastor": {
+                "id": 15160,
+                "fullname": "П Ростислав С"
+            },
+            "church": {
+                "id": 18,
+                "title": "Певая Церковь"
+            },
+            "date": "03.06.2017",
+            "status": 2,
+            "link": "/events/church/reports/49/",
+            "count_people": 20000,
+            "new_people": 2000,
+            "count_repentance": 1000,
+            "tithe": "20000000",
+            "donations": "1000000",
+            "pastor_tithe": "300000"
+        }
+
+
+
+Church Reports Statistics
+_________________________
+
+    Meetings supports ``GET`` statistics API witch consists a summary values for requested query.
+
+    **Meetings statistics contains next data**:
+
+        -   query <int> ``total_peoples``
+        -   query <int> ``total_new_peoples``
+        -   query <int> ``total_repentance``
+        -   query <float> ``total_tithe``
+        -   query <float> ``total_donations``
+        -   query <float> ``total_transfer_payments``
+        -   query <float> ``total_pastor_tithe``
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/events/church_reports/statistics  HTTP/1.1
+        Host: vocrm.org
+        Accept: application/json
+
+    **Example response**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "total_peoples": 20000,
+            "total_new_peoples": 2000,
+            "total_repentance": 1000,
+            "total_tithe": "20000000",
+            "total_donations": "1000000",
+            "total_transfer_payments": "20",
+            "total_pastor_tithe": "300000"
+        }
+
+    Also Church Reports statistics support filters by query params
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET http://127.0.0.1:8000/api/v1.0/events/church_reports/statistics/?status=2&church=18  HTTP/1.1
+            &department=1&pastor=15160&master_tree=15160&from_date=2017-06-03&to_date=2017-06-27
+        Host: vocrm.org
+        Accept: application/json
+
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "total_peoples": 20000,
+            "total_new_peoples": 2000,
+            "total_repentance": 1000,
+            "total_tithe": "20000000",
+            "total_donations": "1000000",
+            "total_transfer_payments": "20",
+            "total_pastor_tithe": "300000"
+        }
+
+
+
 Church Reports Table Columns
 ----------------------------
 
+    **Fields in pagination response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "links": {
+                "next": null,
+                "previous": null
+            },
+            "table_columns": {
+                "date": {
+                    "id": 815433,
+                    "ordering_title": "date",
+                    "active": true,
+                    "number": 1,
+                    "editable": false,
+                    "title": "Дата создания"
+                },
+                "home_group": {
+                    "id": 815434,
+                    "ordering_title": "home_group__title",
+                    "active": true,
+                    "number": 2,
+                    "editable": true,
+                    "title": "Домашняя группа"
+                },
+                "owner": {
+                    "id": 815435,
+                    "ordering_title": "owner__last_name",
+                    "active": true,
+                    "number": 3,
+                    "editable": true,
+                    "title": "Лидер Домашней Группы"
+                },
+                "phone_number": {
+                    "id": 815436,
+                    "ordering_title": "phone_number",
+                    "active": true,
+                    "number": 4,
+                    "editable": true,
+                    "title": "Телефонный номер"
+                },
+                "type": {
+                    "id": 815437,
+                    "ordering_title": "type__code",
+                    "active": true,
+                    "number": 5,
+                    "editable": true,
+                    "title": "Тип отчета"
+                },
+                "visitors_attended": {
+                    "id": 815438,
+                    "ordering_title": "visitors_attended",
+                    "active": true,
+                    "number": 6,
+                    "editable": true,
+                    "title": "Присутствовали"
+                },
+                "visitors_absent": {
+                    "id": 815439,
+                    "ordering_title": "visitors_absent",
+                    "active": true,
+                    "number": 7,
+                    "editable": true,
+                    "title": "Отсутствовали"
+                },
+                "total_sum": {
+                    "id": 815440,
+                    "ordering_title": "total_sum",
+                    "active": true,
+                    "number": 8,
+                    "editable": true,
+                    "title": "Сумма пожертвований"
+                }
+            }
+        }

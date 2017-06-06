@@ -92,12 +92,9 @@ def _filter_group_columns(table_columns, category_title):
 
 
 def _filter_meeting_columns(table_columns, category_title):
-    if category_title in ('meetings',):
+    if category_title in ('meetings', 'attends', 'church_report'):
         return table_columns.filter(columnType__category__title=category_title)
-    elif category_title == 'attends':
-        return table_columns.filter(columnType__category__title=category_title)
-    else:
-        return table_columns.none()
+    return table_columns.none()
 
 
 def _filter_user_columns(table_columns):
