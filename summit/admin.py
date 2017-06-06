@@ -100,7 +100,7 @@ class SummitVisitorLocationAdmin(admin.ModelAdmin):
 
 class SummitEventTableAdmin(admin.ModelAdmin):
     fields = (
-        'summit', 'date_time', 'name_ru', 'author_ru', 'name_en', 'author_en', 'name_de',
+        'summit', 'hide_time', 'date_time', 'name_ru', 'author_ru', 'name_en', 'author_en', 'name_de',
         'author_de',)
     list_display = (
         'summit', 'date_time', 'name_ru', 'author_ru', 'name_en', 'author_en', 'name_de',

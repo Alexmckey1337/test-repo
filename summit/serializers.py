@@ -284,7 +284,7 @@ class SummitEventTableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SummitEventTable
-        fields = ('summit_id', 'date', 'time', 'name_ru', 'author_ru', 'name_en',
+        fields = ('summit_id', 'hide_time', 'date', 'time', 'name_ru', 'author_ru', 'name_en',
                   'author_en', 'name_de', 'author_de')
 
 
