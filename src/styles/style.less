@@ -6791,13 +6791,49 @@ div.code input#code {
 }
 /* ------------------Home stats button------------------------------ */
 .tab-home-stats {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
   border: 0;
+  #tabs {
+    position: relative;
+    margin-right: 20px;
+  }
   #tabs li {
     &.active {
       background-color: #f2f5fa;
     }
     &:first-child {
       border-left: 1px solid #cdd0d4;
+    }
+  }
+  .week {
+    padding: 15px 20px;
+    border: 1px solid #cdd0d4;
+    border-right: 0;
+    border-radius: 0;
+    &.week_prev {
+      margin-right: 20px;
+      border-right: 1px solid #cdd0d4;
+    }
+    &.active {
+      background-color: #f2f5fa;
+    }
+  }
+  .set-date {
+    position: relative;
+    input {
+      height: 3em;
+      padding: .5em;
+    }
+    &::after {
+      display: block;
+      font: 1.3em FontAwesome;
+      position: absolute;
+      top: 1.3em;
+      right: -1.4em;
+      color: #000;
+      content: '\f073';
     }
   }
 }
