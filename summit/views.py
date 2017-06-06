@@ -537,7 +537,7 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
     serializer_class = SummitVisitorLocationSerializer
     queryset = SummitVisitorLocation.objects.all().prefetch_related('visitor')
     pagination_class = None
-    permission_classes = (HasAPIAccess,)
+    # permission_classes = (HasAPIAccess,)
 
     @list_route(methods=['POST'])
     def post(self, request):
@@ -547,7 +547,7 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
         visitor = get_object_or_404(SummitAnket, pk=request.data.get('visitor_id'))
 
         for chunk in data:
-            if SummitVisitorLocation.objects.filter(date_time=chunk.get('date_time')).exists():
+            if SummitVisitorLocation.objects.filter(visitor=visitor, date_time=chunk.get('date_time')).exists():
                 continue
             SummitVisitorLocation.objects.create(visitor=visitor,
                                                  date_time=chunk.get('date_time', datetime.now()),

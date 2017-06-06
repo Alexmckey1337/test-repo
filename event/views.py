@@ -20,7 +20,7 @@ from .pagination import MeetingPagination, MeetingVisitorsPagination
 from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingDetailSerializer,
                           MeetingListSerializer, ChurchReportStatisticSerializer,
                           MeetingStatisticSerializer, ChurchReportSerializer,
-                          ChurchReportListSerializer)
+                          ChurchReportListSerializer, MeetingDashboardSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -206,6 +206,20 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         statistics = self.serializer_class(statistics)
         return Response(statistics.data)
 
+    @list_route(methods=['GET'], serializer_class=MeetingDashboardSerializer)
+    def dashboards_counts(self, request):
+        dashboards_count = {}
+        dashboards_count['unsold_night_reports'] = self.queryset.filter(type=3, status__in=[
+            Meeting.IN_PROGRESS, Meeting.EXPIRED]).count()
+        dashboards_count['unsold_home_reports'] = self.queryset.filter(type=2, status__in=[
+            Meeting.IN_PROGRESS, Meeting.EXPIRED]).count()
+        dashboards_count['unsold_service_reports'] = self.queryset.filter(type=1, status__in=[
+            Meeting.IN_PROGRESS, Meeting.EXPIRED]).count()
+
+        dashboards_count = self.serializer_class(dashboards_count)
+
+        return Response(dashboards_count.data)
+
 
 class ChurchReportViewSet(ModelWithoutDeleteViewSet):
     queryset = ChurchReport.objects.all()
@@ -237,14 +251,16 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
         if church_report.status == ChurchReport.SUBMITTED:
             raise exceptions.ValidationError(
                 _('Невозможно подать отчет. Данный отчет уже был подан ранее'))
-
+        data = request.data
+        data['church'] = church_report.church.id
+        data['pastor'] = church_report.pastor.id
         church_report.status = ChurchReport.SUBMITTED
-        report = self.get_serializer(church_report, data=request.data, partial=True)
+        report = self.get_serializer(church_report, data=data, partial=True)
         report.is_valid(raise_exception=True)
         self.perform_update(report)
         headers = self.get_success_headers(report.data)
 
-        return Response(report.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(report.data, status=status.HTTP_200_OK, headers=headers)
 
     @list_route(methods=['GET'], serializer_class=ChurchReportStatisticSerializer)
     def statistics(self, request):

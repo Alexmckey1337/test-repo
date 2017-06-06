@@ -10,8 +10,9 @@ class CustomUserAbstract(models.Model):
     city = models.CharField(_('City'), max_length=255, blank=True)
     country = models.CharField(_('Country'), max_length=255, blank=True)
 
-    BABY, JUNIOR, FATHER = 1, 2, 3
+    RENEGADE, BABY, JUNIOR, FATHER = 0, 1, 2, 3
     SPIRITUAL_LEVEL_CHOICES = (
+        (RENEGADE, _('Renegade')),
         (BABY, _('Baby')),
         (JUNIOR, _('Junior')),
         (FATHER, _('Father')),

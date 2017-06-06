@@ -158,3 +158,15 @@ class HomeMeetingsCountSerializer(serializers.ModelSerializer):
     class Meta:
         model = HomeGroup
         fields = ('meetings_in_progress', 'meetings_submitted', 'meetings_expired')
+
+
+class MeetingDashboardSerializer(serializers.ModelSerializer):
+    churches_count = serializers.IntegerField()
+    home_groups_count = serializers.IntegerField()
+    home_groups_users_count = serializers.IntegerField()
+    users_without_home_groups_count = serializers.IntegerField()
+
+    class Meta:
+        model = Church
+        fields = ('churches_count', 'home_groups_count', 'home_groups_users_count',
+                  'users_without_home_groups_count')

@@ -62,8 +62,6 @@ Meetings Report Create
         }
 
 
-
-
     Immediately, after Meeting report create, his status is ``in_progress = 1``.
     All API list views ``paginated with 30 objects`` per page.
     To ``GET`` all Meeting objects use next API request:
@@ -115,7 +113,6 @@ Meetings Report Create
                 "previous": null
             }
         }
-
 
 
 
@@ -186,7 +183,7 @@ ________________
 
 
 
-Meeting report submit
+Meeting Report Submit
 _____________________
 
     Before report submit, for default, all Meeting objects ``total_sum`` is 0.
@@ -196,6 +193,7 @@ _____________________
     ``POST`` their report with required data and may specify a list of ``meeting visitors``.
     For default Meetings visitors are a members of home group where Meeting owner is a leader.
     To ``GET Meeting.visitors`` use the next API view:
+    The ``date`` field is ``limited to a week`` when the report was created.
 
     **Example request**:
 
@@ -228,7 +226,7 @@ _____________________
     Before submit Meeting object status automatically changed from ``in_progress = 1`` to ``submitted = 2``.
     For ``submit`` Meeting, client must ``POST`` request with required data to next API view.
 
-    **Required fields for this request:**
+    **Fillable fields for this request:**
 
         -   <float> ``total_sum``: total sum of money, collected on meeting, required = False, default = 0
         -   <array> ``attends``: array with report about their attended, required = True
@@ -251,7 +249,7 @@ _____________________
         POST /api/v1.0/events/home_meetings/<id=165>/submit  HTTP/1.1
         Host: vocrm.org
         Accept: application/json
-        content-type: application/json
+        Content-type: application/json
 
         {
             "id": 165,
@@ -332,6 +330,7 @@ _____________________
         -   ``attends['note']`` - Meeting.owner comment about visitor
 
     To ``UPDATE`` a Meeting object send request for next API view:
+    The ``date`` field is ``limited to a week`` when the report was created.
 
     **Example request**:
 
@@ -434,7 +433,6 @@ _____________________
              Отчет - {Отчет ДГ - Домашняя Группа №1 (Ночная Молитва): 14 April 2017}
              еще небыл подан."
         ]
-
 
 
 
@@ -568,7 +566,7 @@ ______________________
                     "active": true,
                     "number": 3,
                     "editable": true,
-                    "title": "Владелец отчета"
+                    "title": "Лидер Домашней Группы"
                 },
                 "phone_number": {
                     "id": 815436,
@@ -612,3 +610,202 @@ ______________________
                 }
             }
         }
+
+
+
+
+Church Reports Create
+_____________________
+
+    Church Report - is a report that are submitted by pastor of the Church.
+    Church reports created ``automatically`` to every Church ``every week at monday`` by django Celery scheduler.
+    All Church Reports have a ``ChurchReport.status`` field, we have three different statuses:
+
+    -   ``in_progress = int(1)``
+    -   ``submitted = int(2)``
+    -   ``expired = int(3)``
+
+    When report created his status is ``in_progress``.
+    To create report in manual mode - ``POST`` required data to next API view:
+    If not ``date, today`` will be ``set automatically``.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        POST /api/v1.0/events/church_reports/  HTTP/1.1
+        Host: vocrm.org
+        Accept: application/json
+
+        {
+            "pastor": 15160,
+            "church": 18
+        }
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 201 Created
+        Allow: GET, POST, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "id": 48,
+            "pastor": 15160,
+            "church": 18,
+            "date": "2017-05-02",
+            "count_people": 0,
+            "tithe": "0",
+            "donations": "0",
+            "transfer_payments": "0",
+            "status": 1,
+            "link": "/events/church/reports/48/",
+            "new_people": 0,
+            "count_repentance": 0,
+            "currency_donations": "",
+            "pastor_tithe": "0"
+        }
+
+
+
+Church Report Submit
+--------------------
+
+    The ``date`` field is ``limited to a week`` when the report was created.
+    For submit Meeting object and change status from ``in_progress = 1`` to ``submitted = 2`` Pastor of the Church
+    must ``POST`` their ``report`` with required data to next ``API url``:
+
+    **Fillable fields for this request:**
+
+        -   <datetime> ``date``: Date of the Church meeting, ``required = True``
+        -   <int> ``current_people``: Total people on meeting, ``required = True``
+        -   <int> ``count_repentance``: Total new repentance, ``required = True``
+        -   <float> ``tithe``: Total sum of tithe, ``required = True``
+        -   <float> ``donations``: Total sun of donations, ``required = True``
+        -   <float> ``pastor_tithe``: Sum of Pastor tithe, ``required = True``
+        -   <str> ``currency_donations``: Total donations in any currency, ``required = False``
+
+    **All other required fields automatically adds in each Meeting object:**
+
+        -   <int> ``church``: ChurchReport.church
+        -   <int> ``pastor``: ChurchReport.pastor
+        -   <int> ``status``: ChurchReport.status, will be changed to ``submitted = 2``
+
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        POST /api/v1.0/events/church_reports/<id=48>/submit  HTTP/1.1
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "date": "2017-05-02",
+            "count_people": 200,
+            "new_people": 20,
+            "count_repentance": 10,
+            "tithe": 20000,
+            "donations": 10000,
+            "pastor_tithe": 3000,
+            "currency_donations": "20 euro, 30$"
+        }
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "id": 48,
+            "pastor": 15160,
+            "church": 18,
+            "date": "2017-05-02",
+            "status": 2,
+            "link": "/events/church/reports/48/",
+            "count_people": 200,
+            "new_people": 20,
+            "count_repentance": 10,
+            "tithe": "20000",
+            "donations": "10000",
+            "pastor_tithe": "3000",
+            "currency_donations": "20 euro, 30$",
+            "transfer_payments": "0"
+        }
+
+
+
+Church Report Update
+--------------------
+
+    Church Reports provide a ``UPDATE`` method only for reports with Meeting.status ``submitted = 2``.
+    The ``date`` field is ``limited to a week`` when the report was created.
+    Fields that can be updated:
+
+        -   ``date`` - date when report was submitted
+        -   ``total_sum`` - total sum of donations on event
+        -   ``attends['attended']`` - count of visitors attends
+        -   ``attends['note']`` - Meeting.owner comment about visitor
+
+    To ``UPDATE`` a Church Report object send request for next API view:
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        PUT /api/v1.0/events/church_reports/<id=165> HTTP/1.1
+        Host: vocrm.org
+        Accept: application/json
+        Content-type: application/json
+
+        {
+            "date": "2017-05-02",
+            "link": "/events/church/reports/48/",
+            "count_people": 1111,
+            "new_people": 111,
+            "count_repentance": 11,
+            "tithe": "11111",
+            "donations": "11111",
+            "pastor_tithe": "1111",
+            "currency_donations": "11 euro, 11$",
+            "transfer_payments": "1111"
+        }
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, PUT, PATCH, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "id": 48,
+            "pastor": 15160,
+            "church": 18,
+            "date": "02.05.2017",
+            "status": 2,
+            "link": "/events/church/reports/48/",
+            "count_people": 1111,
+            "new_people": 111,
+            "count_repentance": 11,
+            "tithe": "11111",
+            "donations": "11111",
+            "pastor_tithe": "1111",
+            "currency_donations": "11 euro, 11$",
+            "transfer_payments": "1111"
+        }
+
+
+
+Church Reports Table Columns
+----------------------------
+
