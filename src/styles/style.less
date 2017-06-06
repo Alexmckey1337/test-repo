@@ -6791,27 +6791,29 @@ div.code input#code {
 }
 /* ------------------DESKBOARD------------------------------ */
 .deskboard {
+  .deskboard-head {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    .filter-desk ul {
+      display: none;
+    }
+    .btn-block {
+      button {
+        padding: 0;
+        border: 0;
+        background-color: #fff;
+      }
+    }
+  }
+  h1 {
+    font-weight: 900;
+    span {
+      color: #656d78;
+    }
+  }
   .grid_block {
-    //margin-bottom: 15px;
     flex-wrap: wrap;
-    //h3 {
-    //  position: relative;
-    //  width: 100%;
-    //  margin-bottom: 10px;
-    //  padding-left: 15px;
-    //  font-weight: 600;
-    //  cursor: move;
-    //  &::before {
-    //    display: block;
-    //    position: absolute;
-    //    top: 0;
-    //    left: 0;
-    //    font-family: FontAwesome;
-    //    font-size: 1em;
-    //    content: '\f07d';
-    //    cursor: move;
-    //  }
-    //}
   }
   .well {
     position: relative;
@@ -6847,4 +6849,7 @@ div.code input#code {
   .sortable-chosen {
     cursor: grab;
   }
+}
+#main .deskboard h1 {
+  padding: 0;
 }
