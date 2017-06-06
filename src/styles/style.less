@@ -6821,19 +6821,27 @@ div.code input#code {
     }
   }
   .set-date {
-    position: relative;
+    display: flex;
     input {
       height: 3em;
       padding: .5em;
     }
-    &::after {
-      display: block;
-      font: 1.3em FontAwesome;
-      position: absolute;
-      top: 1.3em;
-      right: -1.4em;
-      color: #000;
-      content: '\f073';
+    & .cal-icon {
+      position: relative;
+      width: 40px;
+      height: 50px;
+      border: 1px solid #cdd0d4;
+      border-left: 0;
+      background-color: #f2f5fa;
+      &::after {
+        display: block;
+        font: 1.3em FontAwesome;
+        position: absolute;
+        top: 1.1em;
+        right: .8em;
+        color: #000;
+        content: '\f073';
+      }
     }
   }
 }

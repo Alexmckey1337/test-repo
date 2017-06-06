@@ -48,7 +48,8 @@
 {% endblock %}
 
 {% block main.content %}
-            <div class="tab-status tab-home-stats">
+    <div class="container-full">
+        <div class="tab-status tab-home-stats">
             <ul id="tabs">
                 <li class="active">
                     <button class="type" data-id="0">Все</button>
@@ -67,8 +68,10 @@
                 <button class="week week_prev">Прошедшая неделя</button>
             <div class="set-date">
                 <input type="text" placeholder="Диапазон дат" id="date_range" class="select_date_filter">
+                <div class="cal-icon"></div>
             </div>
         </div>
+    </div>
     {% block pagination_top %}
         <div class="top-pag">
             <div class="tab-status">
