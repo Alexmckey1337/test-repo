@@ -33,7 +33,8 @@ Meetings Report Create
 
         POST /api/v1.0/events/home_meetings HTTP/1.1
         Host: vocrm.org
-        Accept: application/json
+        Content-Type: application/json
+        Vary: Accept
 
         {
             "home_group": 18,
@@ -60,8 +61,6 @@ Meetings Report Create
             "total_sum": "0",
             "status": 1
         }
-
-
 
 
     Immediately, after Meeting report create, his status is ``in_progress = 1``.
@@ -115,7 +114,6 @@ Meetings Report Create
                 "previous": null
             }
         }
-
 
 
 
@@ -186,7 +184,7 @@ ________________
 
 
 
-Meeting report submit
+Meeting Report Submit
 _____________________
 
     Before report submit, for default, all Meeting objects ``total_sum`` is 0.
@@ -196,6 +194,7 @@ _____________________
     ``POST`` their report with required data and may specify a list of ``meeting visitors``.
     For default Meetings visitors are a members of home group where Meeting owner is a leader.
     To ``GET Meeting.visitors`` use the next API view:
+    The ``date`` field is ``limited to a week`` when the report was created.
 
     **Example request**:
 
@@ -228,7 +227,7 @@ _____________________
     Before submit Meeting object status automatically changed from ``in_progress = 1`` to ``submitted = 2``.
     For ``submit`` Meeting, client must ``POST`` request with required data to next API view.
 
-    **Required fields for this request:**
+    **Fillable fields for this request:**
 
         -   <float> ``total_sum``: total sum of money, collected on meeting, required = False, default = 0
         -   <array> ``attends``: array with report about their attended, required = True
@@ -251,7 +250,7 @@ _____________________
         POST /api/v1.0/events/home_meetings/<id=165>/submit  HTTP/1.1
         Host: vocrm.org
         Accept: application/json
-        content-type: application/json
+        Content-type: application/json
 
         {
             "id": 165,
@@ -332,6 +331,7 @@ _____________________
         -   ``attends['note']`` - Meeting.owner comment about visitor
 
     To ``UPDATE`` a Meeting object send request for next API view:
+    The ``date`` field is ``limited to a week`` when the report was created.
 
     **Example request**:
 
@@ -437,7 +437,6 @@ _____________________
 
 
 
-
 Meetings Statistics
 ___________________
 
@@ -483,9 +482,11 @@ ___________________
 
 
 
-Meetings Statistics Filters
-___________________________
 
+Meetings Filters
+________________
+
+    Filters works in statistics and object lists views.
     **Meetings reports supports a filters for next query params:**
 
     -   query <int> ``status``: filter by Meeting status
@@ -500,8 +501,8 @@ ___________________________
 
     .. sourcecode:: http
 
-        GET /api/v1.0/events/home_meetings/statistics/?department=1&church=26&home_group=18 HTTP/1.1
-                        &owner=15160&type=1&from_date=2016-01-01&to_date=2017-05-05&status
+        GET /api/v1.0/events/home_meetings/statistics/?department=1&home_group=23&owner=15192 HTTP/1.1
+                        &type=2&status=2&from_date=2016-01-01&to_date=2017-10-10
         Host: vocrm.org
         Accept: application/json
 
@@ -515,15 +516,16 @@ ___________________________
         Vary: Accept
 
         {
-            "total_visitors": 4,
+            "total_visitors": 5,
             "total_visits": 1,
-            "total_absent": 3,
-            "total_donations": "35000",
+            "total_absent": 4,
+            "total_donations": "1200",
             "new_repentance": 4,
             "reports_in_progress": 0,
-            "reports_submitted": 4,
+            "reports_submitted": 1,
             "reports_expired": 0
         }
+
 
 
 
@@ -568,7 +570,430 @@ ______________________
                     "active": true,
                     "number": 3,
                     "editable": true,
-                    "title": "Владелец отчета"
+                    "title": "Лидер Домашней Группы"
+                },
+                "phone_number": {
+                    "id": 815436,
+                    "ordering_title": "phone_number",
+                    "active": true,
+                    "number": 4,
+                    "editable": true,
+                    "title": "Телефонный номер"
+                },
+                "type": {
+                    "id": 815437,
+                    "ordering_title": "type__code",
+                    "active": true,
+                    "number": 5,
+                    "editable": true,
+                    "title": "Тип отчета"
+                },
+                "visitors_attended": {
+                    "id": 815438,
+                    "ordering_title": "visitors_attended",
+                    "active": true,
+                    "number": 6,
+                    "editable": true,
+                    "title": "Присутствовали"
+                },
+                "visitors_absent": {
+                    "id": 815439,
+                    "ordering_title": "visitors_absent",
+                    "active": true,
+                    "number": 7,
+                    "editable": true,
+                    "title": "Отсутствовали"
+                },
+                "total_sum": {
+                    "id": 815440,
+                    "ordering_title": "total_sum",
+                    "active": true,
+                    "number": 8,
+                    "editable": true,
+                    "title": "Сумма пожертвований"
+                }
+            }
+        }
+
+
+
+
+
+Church Reports Create
+_____________________
+
+    Church Report - is a report that are submitted by pastor of the Church.
+    Church reports created ``automatically`` to every Church ``every week at monday`` by django Celery scheduler.
+    All Church Reports have a ``ChurchReport.status`` field, we have three different statuses:
+
+    -   ``in_progress = int(1)``
+    -   ``submitted = int(2)``
+    -   ``expired = int(3)``
+
+    When report created his status is ``in_progress``.
+    To create report in manual mode - ``POST`` required data to next API view:
+    If not ``date, today`` will be ``set automatically``.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        POST /api/v1.0/events/church_reports/  HTTP/1.1
+        Host: vocrm.org
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "pastor": 15160,
+            "church": 18
+        }
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 201 Created
+        Allow: GET, POST, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "id": 48,
+            "pastor": 15160,
+            "church": 18,
+            "date": "2017-05-02",
+            "count_people": 0,
+            "tithe": "0",
+            "donations": "0",
+            "transfer_payments": "0",
+            "status": 1,
+            "link": "/events/church/reports/48/",
+            "new_people": 0,
+            "count_repentance": 0,
+            "currency_donations": "",
+            "pastor_tithe": "0"
+        }
+
+
+
+
+
+Church Report Submit
+--------------------
+
+    The ``date`` field is ``limited to a week`` when the report was created.
+    For submit Meeting object and change status from ``in_progress = 1`` to ``submitted = 2`` Pastor of the Church
+    must ``POST`` their ``report`` with required data to next ``API url``:
+
+    **Fillable fields for this request:**
+
+        -   <datetime> ``date``: Date of the Church meeting, ``required = True``
+        -   <int> ``current_people``: Total people on meeting, ``required = True``
+        -   <int> ``count_repentance``: Total new repentance, ``required = True``
+        -   <float> ``tithe``: Total sum of tithe, ``required = True``
+        -   <float> ``donations``: Total sun of donations, ``required = True``
+        -   <float> ``pastor_tithe``: Sum of Pastor tithe, ``required = True``
+        -   <str> ``currency_donations``: Total donations in any currency, ``required = False``
+
+    **All other required fields automatically adds in each Meeting object:**
+
+        -   <int> ``church``: ChurchReport.church
+        -   <int> ``pastor``: ChurchReport.pastor
+        -   <int> ``status``: ChurchReport.status, will be changed to ``submitted = 2``
+
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        POST /api/v1.0/events/church_reports/<id=48>/submit  HTTP/1.1
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "date": "2017-05-02",
+            "count_people": 200,
+            "new_people": 20,
+            "count_repentance": 10,
+            "tithe": 20000,
+            "donations": 10000,
+            "pastor_tithe": 3000,
+            "currency_donations": "20 euro, 30$"
+        }
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "id": 48,
+            "pastor": 15160,
+            "church": 18,
+            "date": "2017-05-02",
+            "status": 2,
+            "link": "/events/church/reports/48/",
+            "count_people": 200,
+            "new_people": 20,
+            "count_repentance": 10,
+            "tithe": "20000",
+            "donations": "10000",
+            "pastor_tithe": "3000",
+            "currency_donations": "20 euro, 30$",
+            "transfer_payments": "0"
+        }
+
+    Meeting.status changed to ``expired = 3`` automatically.
+    When next week started and Meeting report status stayed ``in_progress = 1``
+
+
+
+
+
+Church Report Update
+--------------------
+
+    Church Reports provide a ``UPDATE`` method only for reports with Meeting.status ``submitted = 2``.
+    The ``date`` field is ``limited to a week`` when the report was created.
+    Fields that can be updated:
+
+        -   ``date``
+        -   ``count_people``
+        -   ``new_people``
+        -   ``count_repentance``
+        -   ``tithe``
+        -   ``donations``
+        -   ``pastor_tithe``
+        -   ``currency_donations``
+        -   ``transfer_payments``
+
+    To ``UPDATE`` a Church Report object send request for next API view:
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        PUT /api/v1.0/events/church_reports/<id=165> HTTP/1.1
+        Host: vocrm.org
+        Accept: application/json
+        Content-type: application/json
+
+        {
+            "date": "2017-05-04",
+            "count_people": 1111,
+            "new_people": 111,
+            "count_repentance": 11,
+            "tithe": "11111",
+            "donations": "11111",
+            "pastor_tithe": "1111",
+            "currency_donations": "11 euro, 11$",
+            "transfer_payments": "1111"
+        }
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, PUT, PATCH, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "id": 48,
+            "pastor": 15160,
+            "church": 18,
+            "date": "04.05.2017",
+            "status": 2,
+            "link": "/events/church/reports/48/",
+            "count_people": 1111,
+            "new_people": 111,
+            "count_repentance": 11,
+            "tithe": "11111",
+            "donations": "11111",
+            "pastor_tithe": "1111",
+            "currency_donations": "11 euro, 11$",
+            "transfer_payments": "1111"
+        }
+
+
+
+
+Church Reports Filters
+----------------------
+
+    Filters works in statistics and object lists views.
+    **Church_reports supports a filters for next query params:**
+
+    -   query <int> ``status``: filter by Meeting status
+    -   query <int> ``church``: filter by home group
+    -   query <int> ``department``: filter by owner department
+    -   query <int> ``church``: filter by home group church
+    -   query <int> ``pastor``: filter by Meeting owner (home group leader)
+    -   query <string> ``from_date, to_date``: filter by date range
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/events/church_reports/?status=2&church=18&department=1&pastor=15160  HTTP/1.1
+                        &master_tree=15160&from_date=2017-06-03&to_date=2017-06-27
+        Host: vocrm.org
+        Accept: application/json
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "id": 49,
+            "pastor": {
+                "id": 15160,
+                "fullname": "П Ростислав С"
+            },
+            "church": {
+                "id": 18,
+                "title": "Певая Церковь"
+            },
+            "date": "03.06.2017",
+            "status": 2,
+            "link": "/events/church/reports/49/",
+            "count_people": 20000,
+            "new_people": 2000,
+            "count_repentance": 1000,
+            "tithe": "20000000",
+            "donations": "1000000",
+            "pastor_tithe": "300000"
+        }
+
+
+
+Church Reports Statistics
+_________________________
+
+    Meetings supports ``GET`` statistics API witch consists a summary values for requested query.
+
+    **Meetings statistics contains next data**:
+
+        -   query <int> ``total_peoples``
+        -   query <int> ``total_new_peoples``
+        -   query <int> ``total_repentance``
+        -   query <float> ``total_tithe``
+        -   query <float> ``total_donations``
+        -   query <float> ``total_transfer_payments``
+        -   query <float> ``total_pastor_tithe``
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/events/church_reports/statistics  HTTP/1.1
+        Host: vocrm.org
+        Accept: application/json
+
+    **Example response**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "total_peoples": 20000,
+            "total_new_peoples": 2000,
+            "total_repentance": 1000,
+            "total_tithe": "20000000",
+            "total_donations": "1000000",
+            "total_transfer_payments": "20",
+            "total_pastor_tithe": "300000"
+        }
+
+    Also Church Reports statistics support filters by query params
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET http://127.0.0.1:8000/api/v1.0/events/church_reports/statistics/?status=2&church=18  HTTP/1.1
+            &department=1&pastor=15160&master_tree=15160&from_date=2017-06-03&to_date=2017-06-27
+        Host: vocrm.org
+        Accept: application/json
+
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "total_peoples": 20000,
+            "total_new_peoples": 2000,
+            "total_repentance": 1000,
+            "total_tithe": "20000000",
+            "total_donations": "1000000",
+            "total_transfer_payments": "20",
+            "total_pastor_tithe": "300000"
+        }
+
+
+
+Church Reports Table Columns
+----------------------------
+
+    **Fields in pagination response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "links": {
+                "next": null,
+                "previous": null
+            },
+            "table_columns": {
+                "date": {
+                    "id": 815433,
+                    "ordering_title": "date",
+                    "active": true,
+                    "number": 1,
+                    "editable": false,
+                    "title": "Дата создания"
+                },
+                "home_group": {
+                    "id": 815434,
+                    "ordering_title": "home_group__title",
+                    "active": true,
+                    "number": 2,
+                    "editable": true,
+                    "title": "Домашняя группа"
+                },
+                "owner": {
+                    "id": 815435,
+                    "ordering_title": "owner__last_name",
+                    "active": true,
+                    "number": 3,
+                    "editable": true,
+                    "title": "Лидер Домашней Группы"
                 },
                 "phone_number": {
                     "id": 815436,

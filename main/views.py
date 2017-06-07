@@ -483,6 +483,7 @@ def index(request):
         'summits': SummitType.objects.all(),
         'hierarchies': Hierarchy.objects.order_by('level'),
     }
+
     if user.is_staff:
         ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
     elif not user.hierarchy:

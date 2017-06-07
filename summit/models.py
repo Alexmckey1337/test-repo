@@ -489,7 +489,7 @@ class SummitVisitorLocation(models.Model):
     class Meta:
         verbose_name_plural = _('Summit Users Location')
         verbose_name = _('Summit User Location')
-        ordering = ('-date_time',)
+        ordering = ('-id',)
         unique_together = ['visitor', 'date_time']
 
     def __str__(self):
@@ -499,6 +499,7 @@ class SummitVisitorLocation(models.Model):
 @python_2_unicode_compatible
 class SummitEventTable(models.Model):
     summit = models.ForeignKey('Summit', on_delete=models.CASCADE, verbose_name=_('Саммит'))
+    hide_time = models.BooleanField(verbose_name=_('Не отображать время'), default=False)
     date_time = models.DateTimeField(verbose_name=_('Дата и Время'))
     name_ru = models.CharField(max_length=64, verbose_name=_('Название на Русском'))
     author_ru = models.CharField(max_length=64, verbose_name=_('Имя автора на Русском'), blank=True)

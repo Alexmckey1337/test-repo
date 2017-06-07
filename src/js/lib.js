@@ -2304,6 +2304,9 @@ function initAddNewUser(config = {}) {
             $('#chooseDepartment').html(rendered).select2().removeAttr('disabled').on('change', function () {
                 let status = $('#chooseStatus').find('option').filter(':selected').data('level');
                 let department = $(this).val();
+                if (!status) {
+                    return;
+                }
                 getResponsible(department, status).then(function (data) {
                     let rendered = [];
                     data.forEach(function (item) {
@@ -2853,7 +2856,10 @@ function getSearch(title) {
     }
 }
 function getFilterParam() {
-    let $filterFields, data = {};
+    let $filterFields,
+        dataTabs = {},
+        dataRange = {},
+        data = {};
     $filterFields = $('#filterPopup select, #filterPopup input');
     $filterFields.each(function () {
         if ($(this).val() == "ВСЕ") {
@@ -2873,6 +2879,20 @@ function getFilterParam() {
     if ('master_tree' in data && ('pastor' in data || 'master' in data || 'leader' in data)) {
         delete data.master_tree;
     }
+    let type = $('#tabs').find('li.active').find('button').attr('data-id');
+    if (type == "0") {
+    } else {
+        dataTabs.type = type;
+        Object.assign(data, dataTabs);
+    }
+    let rangeDate = $('.tab-home-stats').find('.set-date').find('input').val();
+    if (rangeDate) {
+        let dateArr = rangeDate.split('-');
+        dataRange.from_date = dateArr[0].split('.').reverse().join('-');
+        dataRange.to_date = dateArr[1].split('.').reverse().join('-');
+        Object.assign(data, dataRange);
+    }
+
     return data;
 }
 

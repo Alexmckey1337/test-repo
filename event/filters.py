@@ -31,7 +31,7 @@ class ChurchReportFilter(CommonMeetingFilter):
         fields = CommonMeetingFilter.Meta.fields + ('church', 'pastor')
 
 
-class CommonEventFilter(filters.BaseFilterBackend):
+class MeetingCustomFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         department = request.query_params.get('department')
         church = request.query_params.get('church')
@@ -45,6 +45,20 @@ class CommonEventFilter(filters.BaseFilterBackend):
         return queryset
 
 
+class ChurchReportDepartmentFilter(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        department = request.query_params.get('department')
+        if department:
+            queryset = queryset.filter(church__department__id=department)
+
+        return queryset
+
+
 class MeetingFilterByMaster(BaseFilterMasterTree):
     include_self_master = True
     user_field_prefix = 'owner__'
+
+
+class ChurchReportFilterByMaster(BaseFilterMasterTree):
+    include_self_master = True
+    user_field_prefix = 'pastor__'
