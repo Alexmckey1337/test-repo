@@ -53,9 +53,10 @@ class NumberedCanvas(canvas.Canvas):
 
 
 class SummitParticipantReport(object):
-    def __init__(self, summit_id, master, report_date, short=False):
+    def __init__(self, summit_id, master, report_date, short=None, attended=None):
         self.summit_id = summit_id
         self.short = short
+        self.attended = attended
         self.master = master
         if report_date:
             try:
@@ -101,6 +102,10 @@ class SummitParticipantReport(object):
             ' < '.join([self.names[k] for k in levels if k <= user.user_level]), self.styles['Header2']))
 
     def _append_tables(self, users):
+        if self.attended and self.attended.upper() in ('TRUE', 'T', 'YES', 'Y', '1'):
+            users = list(filter(lambda u: u.attended, users))
+        elif self.attended and self.attended.upper() in ('FALSE', 'F', 'NO', 'N', '0'):
+            users = list(filter(lambda u: not u.attended, users))
         for user in users:
             self._append_user_table(user, users)
 
@@ -136,7 +141,7 @@ class SummitParticipantReport(object):
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ]))
         self.elements.append(user_table)
-        if not self.short:
+        if self.short is None:
             self.elements.append(PageBreak())
 
     def _get_participants(self):
@@ -171,8 +176,8 @@ class SummitParticipantReport(object):
         users = self._get_participants()
         self._append_document_header()
         total = len(users)
-        attended = len(tuple(filter(lambda u: u.attended, users)))
-        self.elements.append(Paragraph(f'{attended} of {total}', self.styles['Header12']))
+        absent = len(tuple(filter(lambda u: not u.attended, users)))
+        self.elements.append(Paragraph(f'Всего: {total} / Отсутствует: {absent}', self.styles['Header12']))
         self._append_tables(users)
 
         return self.build()

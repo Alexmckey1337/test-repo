@@ -25,7 +25,7 @@ from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import FilterByClub, SummitUnregisterFilter, ProfileFilter, \
     FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend
 from summit.pagination import SummitPagination, SummitTicketPagination
-from summit.permissions import HasAPIAccess, CanSeeSummitProfiles
+from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report
 from summit.utils import generate_ticket, SummitParticipantReport
 from .models import (Summit, SummitAnket, SummitType, SummitLesson, SummitUserConsultant,
                      SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend)
@@ -518,11 +518,15 @@ def generate_code(request):
 
 @api_view(['GET'])
 def summit_report_by_participant(request, summit_id, master_id):
+    can_download = can_download_summit_participant_report(request.user, summit_id)
+    if not can_download:
+        raise exceptions.PermissionDenied(_('You do not have permission to download report. '))
     master = get_object_or_404(CustomUser, pk=master_id)
     report_date = request.query_params.get('date', '')
-    short = request.query_params.get('short', False)
+    short = request.query_params.get('short', None)
+    attended = request.query_params.get('attended', None)
 
-    pdf = SummitParticipantReport(summit_id, master, report_date, short).generate_pdf()
+    pdf = SummitParticipantReport(summit_id, master, report_date, short, attended).generate_pdf()
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment;'
