@@ -180,6 +180,20 @@ class ChurchReport(AbstractStatusModel):
     def department(self):
         return self.church.department
 
+    @property
+    def can_submit(self):
+        if ChurchReport.objects.filter(pastor=self.pastor, status=ChurchReport.EXPIRED).exists() \
+                and self.status == ChurchReport.IN_PROGRESS:
+            return False
+        return True
+
+    @property
+    def cant_submit_cause(self):
+        if not self.can_submit:
+            return 'Невозможно подать отчет.\n' \
+                   'Данный пастор имеет просроченные отчеты.'
+        return ''
+
 
 class DayOfTheWeekField(models.CharField):
     def __init__(self, *args, **kwargs):

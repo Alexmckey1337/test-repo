@@ -26,7 +26,7 @@ class ValidateDataBeforeUpdateMixin(object):
         if instance.date.isocalendar()[1] > validated_data.get('date').isocalendar()[1]:
             raise serializers.ValidationError(
                 _('Невозможно подать отчет, переданная дата - %s. '
-                  'Отчет должен подаваться за ту неделю на которой был создан.'% validated_data.get('date'))
+                  'Отчет должен подаваться за ту неделю на которой был создан.' % validated_data.get('date'))
             )
         [validated_data.pop(field, None) for field in not_editable_fields]
 
@@ -167,10 +167,14 @@ class ChurchReportSerializer(ChurchReportListSerializer):
     pastor = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
         church__pastor__id__isnull=False).distinct(), required=False)
     status = serializers.IntegerField(default=1)
+    can_submit = serializers.BooleanField(read_only=True)
+    cant_submit_cause = serializers.CharField(read_only=True)
+
     not_editable_fields = ['church', 'pastor', 'status']
 
     class Meta(ChurchReportListSerializer.Meta):
-        fields = ChurchReportListSerializer.Meta.fields + ('currency_donations', 'transfer_payments')
+        fields = ChurchReportListSerializer.Meta.fields + ('currency_donations', 'transfer_payments',
+                                                           'can_submit', 'cant_submit_cause')
         read_only_fields = None
 
         validators = [
