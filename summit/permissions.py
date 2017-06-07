@@ -30,7 +30,8 @@ def can_see_summit(user, summit_id):
 
 def can_download_summit_participant_report(user, summit_id):
     """
-    Checking that the ``user`` has the right to see  summit with id = ``summit_id``
+    Checking that the ``user`` has the right to download report (pdf) by participant of the summit
+    with id = ``summit_id``
     """
     return user.is_summit_consultant_or_high(summit_id)
 
