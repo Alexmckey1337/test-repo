@@ -520,8 +520,9 @@ def generate_code(request):
 def summit_report_by_participant(request, summit_id, master_id):
     master = get_object_or_404(CustomUser, pk=master_id)
     report_date = request.query_params.get('date', '')
+    short = request.query_params.get('short', False)
 
-    pdf = SummitParticipantReport(summit_id, master, report_date).generate_pdf()
+    pdf = SummitParticipantReport(summit_id, master, report_date, short).generate_pdf()
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment;'
