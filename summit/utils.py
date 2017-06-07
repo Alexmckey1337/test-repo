@@ -22,7 +22,7 @@ from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, PageBreak
 from rest_framework import exceptions
 
 from summit.models import SummitAnket
@@ -105,6 +105,7 @@ class SummitParticipantReport(object):
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ]))
         self.elements.append(user_table)
+        self.elements.append(PageBreak())
 
     def _get_participants(self):
         raw = """
