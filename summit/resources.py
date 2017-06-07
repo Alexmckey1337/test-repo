@@ -15,6 +15,5 @@ class SummitAnketResource(six.with_metaclass(UserMetaclass, UserResource)):
     class Meta:
         model = SummitAnket
         fields = USER_RESOURCE_FIELDS + (
-            'name', 'code',
-            'pastor', 'bishop', 'sotnik', 'date',
+            'code',
         )
