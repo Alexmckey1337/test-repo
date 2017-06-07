@@ -70,10 +70,9 @@ class SummitParticipantReport(object):
 
     def _append_table_header(self, user):
         self.names[user.user_level] = user.user_name
-        levels = list(self.names.keys())
-        sorted(levels)
+        levels = sorted(list(self.names.keys()), reverse=True)
         self.elements.append(Paragraph(
-            ' < '.join([self.names[k] for k in reversed(levels) if k <= user.user_level]), self.styles['Header2']))
+            ' < '.join([self.names[k] for k in levels if k <= user.user_level]), self.styles['Header2']))
 
     def _append_tables(self, users):
         for user in users:
@@ -84,6 +83,7 @@ class SummitParticipantReport(object):
         for user in users:
             if u.user_id == user.master_id:
                 table_data.append(['[ + ]' if user.attended else '[   ]', user.user_name, user.phone, user.code])
+        table_data = sorted(table_data, key=lambda a: a[1])
         if not table_data:
             return
         self._append_table_header(u)
