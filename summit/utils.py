@@ -2,22 +2,143 @@
 from __future__ import unicode_literals
 
 import os
+from datetime import datetime
 from io import BytesIO
 
 from PIL import Image, ImageDraw
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext_lazy as _
 from reportlab.graphics import renderPDF
 from reportlab.graphics.barcode import createBarcodeDrawing
 from reportlab.graphics.shapes import Drawing
+from reportlab.lib import colors
 from reportlab.lib.colors import HexColor
+from reportlab.lib.enums import TA_RIGHT, TA_LEFT
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, PageBreak
+from rest_framework import exceptions
 
 from summit.models import SummitAnket
+
+
+class SummitParticipantReport(object):
+    def __init__(self, summit_id, master, report_date):
+        self.summit_id = summit_id
+        self.master = master
+        if report_date:
+            try:
+                self.report_date = datetime.strptime(report_date, '%Y-%m-%d')
+            except ValueError:
+                raise exceptions.ValidationError(_('Invalid date.'))
+        else:
+            self.report_date = datetime.now()
+        self.elements = list()
+        self.names = dict()
+        self._init_styles()
+        self.buffer = BytesIO()
+        self.doc = SimpleDocTemplate(
+            self.buffer, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72, pagesize=A4)
+        self.width = self.doc.width
+
+    def _init_styles(self):
+        pdfmetrics.registerFont(TTFont('FreeSans', 'FreeSans.ttf'))
+        pdfmetrics.registerFont(TTFont('FreeSansBold', 'FreeSansBold.ttf'))
+        pdfmetrics.registerFont(TTFont('FreeSansIt', 'FreeSansOblique.ttf'))
+
+        self.styles = getSampleStyleSheet()
+        self.styles.add(ParagraphStyle(name='RightAlign', fontName='FreeSans', alignment=TA_RIGHT, fontSize=8))
+        self.styles.add(ParagraphStyle(name='LeftAlign', fontName='FreeSans', alignment=TA_LEFT, fontSize=8))
+        self.styles.add(ParagraphStyle(name='date', fontName='FreeSans', alignment=TA_RIGHT, fontSize=12))
+        self.styles.add(ParagraphStyle(
+            name='Header1', fontName='FreeSansBold', alignment=TA_LEFT, fontSize=16, spaceAfter=5))
+        self.styles.add(ParagraphStyle(
+            name='Header12', fontName='FreeSansBold', alignment=TA_LEFT, fontSize=14, spaceAfter=5, spaceBefore=25))
+        self.styles.add(ParagraphStyle(
+            name='Header2', fontName='FreeSans', alignment=TA_LEFT, fontSize=12, spaceAfter=5, spaceBefore=25))
+
+    def _append_document_header(self):
+        self.elements.append(Paragraph('Отчет о посещаемости'.upper(), self.styles['Header1']))
+        self.elements.append(Paragraph(self.master.fullname.upper(), self.styles['Header12']))
+        self.elements.append(Paragraph(self.report_date.strftime('%d.%m.%Y'), self.styles['date']))
+
+    def _append_table_header(self, user):
+        self.names[user.user_level] = user.user_name
+        levels = sorted(list(self.names.keys()), reverse=True)
+        self.elements.append(Paragraph(
+            ' < '.join([self.names[k] for k in levels if k <= user.user_level]), self.styles['Header2']))
+
+    def _append_tables(self, users):
+        for user in users:
+            self._append_user_table(user, users)
+
+    def _append_user_table(self, u, users):
+        table_data = []
+        for user in users:
+            if u.user_id == user.master_id:
+                table_data.append(['[ + ]' if user.attended else '[   ]', user.user_name, user.phone, user.code])
+        table_data = sorted(table_data, key=lambda a: a[1])
+        if not table_data:
+            return
+        self._append_table_header(u)
+
+        table_data = [['Был', 'ФИО', 'Номер телефона', 'Код']] + table_data
+        user_table = Table(table_data, colWidths=[
+            self.width * 0.1, self.width * 0.5, self.width * 0.2, self.width * 0.2], normalizedData=1)
+
+        user_table.setStyle(TableStyle([
+            ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+            ('FONT', (0, 0), (-1, -1), 'FreeSans'),
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('ALIGN', (0, 0), (0, -1), 'CENTER'),
+            ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('FONT', (0, 0), (-1, 0), 'FreeSansBold'),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.gray),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ]))
+        self.elements.append(user_table)
+        self.elements.append(PageBreak())
+
+    def _get_participants(self):
+        raw = """
+            SELECT a.id, a.code, u1.phone_number phone, a.user_id, u1.master_id, u1.level user_level,
+              concat(uu1.last_name, ' ', uu1.first_name, ' ', u1.middle_name) user_name,
+              exists(select at.id from summit_summitattend at WHERE at.anket_id = a.id AND at.date = '{date}') as attended
+            FROM summit_summitanket a
+              INNER JOIN account_customuser u1 ON a.user_id = u1.user_ptr_id
+              INNER JOIN auth_user uu1 ON u1.user_ptr_id = uu1.id
+              WHERE u1.tree_id = {tree_id} AND u1.lft >= {lft} AND u1.rght <= {rght} AND summit_id = {summit_id}
+              ORDER BY u1.tree_id, u1.lft;
+        """.format(
+            date=self.report_date.strftime('%Y-%m-%d'),
+            tree_id=self.master.tree_id,
+            lft=self.master.lft,
+            rght=self.master.rght,
+            summit_id=self.summit_id
+        )
+        return list(SummitAnket.objects.raw(raw))
+
+    def build(self):
+        self.doc.build(self.elements)
+        pdf = self.buffer.getvalue()
+        self.buffer.close()
+
+        return pdf
+
+    def generate_pdf(self):
+        self._append_document_header()
+        users = self._get_participants()
+        self._append_tables(users)
+
+        return self.build()
 
 
 def generate_ticket(code):
