@@ -26,7 +26,7 @@ from summit.filters import FilterByClub, SummitUnregisterFilter, ProfileFilter, 
     FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend
 from summit.pagination import SummitPagination, SummitTicketPagination
 from summit.permissions import HasAPIAccess, CanSeeSummitProfiles
-from summit.utils import generate_ticket
+from summit.utils import generate_ticket, SummitParticipantReport
 from .models import (Summit, SummitAnket, SummitType, SummitLesson, SummitUserConsultant,
                      SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend)
 from .serializers import (
@@ -52,6 +52,7 @@ class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
     serializer_class = SummitAnketSerializer
     pagination_class = SummitPagination
     permission_classes = (IsAuthenticated,)
+    summit = None
 
     filter_class = ProfileFilter
     ordering_fields = (
@@ -276,6 +277,8 @@ class SummitUnregisterUserViewSet(viewsets.ModelViewSet):
 
 
 class SummitTicketMakePrintedView(GenericAPIView):
+    serializer_class = SummitTicketSerializer
+
     def post(self, request, *args, **kwargs):
         ticket_id = kwargs.get('ticket', None)
         ticket = get_object_or_404(SummitTicket, pk=ticket_id)
@@ -504,6 +507,21 @@ def generate_code(request):
     code = request.GET.get('code', '00000000')
 
     pdf = generate_ticket(code)
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment;'
+
+    response.write(pdf)
+
+    return response
+
+
+@api_view(['GET'])
+def summit_report_by_participant(request, summit_id, master_id):
+    master = get_object_or_404(CustomUser, pk=master_id)
+    report_date = request.query_params.get('date', '')
+
+    pdf = SummitParticipantReport(summit_id, master, report_date).generate_pdf()
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment;'
