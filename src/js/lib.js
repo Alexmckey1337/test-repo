@@ -2856,6 +2856,16 @@ function homeReportsTable(config = {}) {
     })
 }
 
+function churchReportsTable(config = {}) {
+    let status = $('#statusTabs').find('.current').find('button').data('status');
+    config.status = status;
+    Object.assign(config, getSearch('search_title'));
+    Object.assign(config, getFilterParam());
+    getChurchReports(config).then(data => {
+        makeChurchReportsTable(data, config);
+    })
+}
+
 function makeHomeReportsTable(data, config = {}) {
     console.log(config);
     let tmpl = $('#databaseHomeReports').html();
@@ -2877,6 +2887,30 @@ function makeHomeReportsTable(data, config = {}) {
     makeSortForm(data.table_columns);
     $('.table__count').text(text);
     new OrderTable().sort(homeReportsTable, ".table-wrap th");
+    $('.preloader').hide();
+}
+
+function makeChurchReportsTable(data, config = {}) {
+    console.log(config);
+    let tmpl = $('#databaseChurchReports').html();
+    let rendered = _.template(tmpl)(data);
+    $('#churchReports').html(rendered);
+    let count = data.count;
+    let pages = Math.ceil(count / CONFIG.pagination_count);
+    let page = config.page || 1;
+    let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
+    let text = `Показано ${showCount} из ${count}`;
+    let paginationConfig = {
+        container: ".reports__pagination",
+        currentPage: page,
+        pages: pages,
+        callback: churchReportsTable
+    };
+    // $('.table__count').text(data.count);
+    makePagination(paginationConfig);
+    makeSortForm(data.table_columns);
+    $('.table__count').text(text);
+    new OrderTable().sort(churchReportsTable, ".table-wrap th");
     $('.preloader').hide();
 }
 
@@ -2902,6 +2936,31 @@ function getHomeReports(config = {}) {
                 reject('Вы должны авторизоватся');
             }
 
+        };
+        newAjaxRequest(data, status);
+    })
+}
+function getChurchReports(config = {}) {
+    if (!config.status) {
+        let status = parseInt($('#statusTabs').find('.current').find('button').data('status'));
+        config.status = status || 1;
+    }
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/events/church_reports/`,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: config
+        };
+        let status = {
+            200: function (req) {
+                resolve(req);
+            },
+            403: function () {
+                reject('Вы должны авторизоватся');
+            }
         };
         newAjaxRequest(data, status);
     })

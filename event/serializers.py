@@ -154,11 +154,18 @@ class ChurchReportListSerializer(serializers.ModelSerializer, ValidateDataBefore
     pastor = UserNameSerializer()
     church = ChurchNameSerializer()
     date = serializers.DateField(default=datetime.now().date())
+    # total_peoples = serializers.IntegerField(source='count_people', read_only=True)
+    # total_donations = serializers.DecimalField(source='donations', read_only=True)
+    # total_pastor_tithe = serializers.DecimalField(source='pastor_tithe', read_only=True)
+    # total_tithe = serializers.DecimalField(source='tithe', read_only=True)
+    # total_new_peoples = serializers.IntegerField(source='new_people', read_only=True)
+    # total_repentance = serializers.IntegerField(source='count_repentance', read_only=True)
 
     class Meta:
         model = ChurchReport
-        fields = ('id', 'pastor', 'church', 'date', 'status', 'link', 'count_people', 'new_people',
-                  'count_repentance', 'tithe', 'donations', 'pastor_tithe')
+        fields = ['__all__']
+        # fields = ('id', 'pastor', 'church', 'date', 'status', 'link', 'total_peoples', 'total_new_peoples',
+        #           'total_repentance', 'total_tithe', 'total_donations')
         read_only_fields = ['__all__']
 
 
