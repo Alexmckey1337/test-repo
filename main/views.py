@@ -266,6 +266,13 @@ class SummitTypeView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
         return ctx
 
 
+class SummitTypeStatisticsView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
+    model = SummitType
+    context_object_name = 'summit_type'
+    template_name = 'summit/summit_stats.html'
+    login_url = 'entry'
+
+
 class SummitTicketListView(LoginRequiredMixin, CanSeeSummitTicketMixin, ListView):
     model = SummitTicket
     context_object_name = 'tickets'

@@ -11,9 +11,11 @@ class OrderTable {
             sessionStorage.setItem('order', '');
         }
     }
+
     get sort() {
         return this._addListener;
     }
+
     _addListener(callback, selector) {
         $(selector).on('click', function () {
             let dataOrder = void 0;
@@ -43,6 +45,142 @@ class OrderTable {
             $('.preloader').css('display', 'block');
             callback(data);
         });
+    }
+}
+
+class DeleteUser {
+    constructor(id) {
+        this.user = id;
+    }
+
+    deleteUser() {
+        return this.user
+    }
+
+    btn() {
+        let btn = document.createElement('button');
+        return $(btn).on('click', this.deleteUser.bind(this));
+    }
+
+    popup(massage = null, info = null) {
+        if (massage) {
+            console.log(massage)
+        }
+        let btn = this.btn();
+        let popup = document.getElementById('create_pop');
+        let container = document.createElement('div');
+        if (popup) {
+            popup.parentElement.removeChild(popup)
+        }
+
+        let body = `<div class="pop_cont" >
+            <div class="top-text">
+                <h3>Удаление пользователя</h3><span class="close_pop">×</span>
+            </div>
+                <div class="main-text">
+                    <p>${(massage) ? massage : "Подтвердите удаление пользователя из церкви" }</p>
+                    ${(info) ? info : ''}
+                    <div class="buttons"></div>
+                </div>
+            </div>`;
+
+        container.className = "pop-up-universal";
+        container.innerHTML = body;
+
+        $(container).find('.buttons').html(btn);
+        container.id = "create_pop";
+        $(container).find('.close_pop').on('click', function () {
+            $('.pop-up-universal').css('display', 'none').remove();
+        });
+
+        $('body').append(container);
+    }
+}
+
+class DeleteChurchUser extends DeleteUser {
+    constructor(userId, churchId, callback) {
+        super(userId);
+        this.church = churchId;
+        this.callback = callback;
+        this.delAll = false;
+        this.show_delete = true;
+        this.home_group = [];
+    }
+
+    btn() {
+        if (!this.show_delete) {
+            return
+        }
+        let container = document.createElement('div');
+        let btn = document.createElement('button');
+        let cancel = document.createElement('button');
+        (this.delAll) ?
+            $(btn).text('Удалить из домашних групп').on('click', this.deleteFromHomeGroup.bind(this)) :
+            $(btn).text('Подтвердить').on('click', this.deleteFromChurch.bind(this));
+        $(cancel).text('Отменить').addClass('close_pop');
+        $(container).append(btn).append(cancel);
+        return container
+    }
+
+    deleteFromChurch() {
+        let options = {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            }),
+            body: JSON.stringify({
+                user_id: this.user
+            })
+        };
+        return fetch(`/api/v1.0/churches/${this.church}/del_user/`, options)
+            .then(res => {
+                return (res.status == 204) ? res.status : res.json()
+            })
+            .then(data => {
+                if (data !== 204 && data.home_groups) {
+                    let info = data.home_groups.map(item => `<p>Состоит в ${item.name}</p>`);
+                    this.home_group = data.home_groups.map(item => item.id);
+                    this.delAll = true;
+                    this.popup(data.detail, info)
+                }
+                if (data === 204) {
+                    this.show_delete = false;
+                    this.popup('Пользователь удален из церкви');
+                    this.callback();
+                }
+            })
+            .catch(err => {
+                this.show_delete = false;
+                this.popup(JSON.parse(err));
+            });
+    }
+
+    deleteFromHomeGroup() {
+        let options = {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            }),
+            body: JSON.stringify({
+                user_id: this.user
+            })
+        };
+        this.delAll = false;
+        let massage = 'Пользователь удален из домашнєй группы';
+        let info = '<p>Подтвердите удаление пользователя из церкви</p>';
+        Promise.all(this.home_group.map((item) => {
+            fetch(`/api/v1.0/home_groups/${item}/del_user/`, options)
+        }))
+            .then(() => {
+                this.home_group = [];
+                this.popup(massage, info);
+            })
+            .catch(err => {
+                this.show_delete = false;
+                this.popup(JSON.parse(err));
+            });
     }
 }
 
@@ -667,7 +805,7 @@ function saveChurchData(data, id) {
                     reject(req);
                 }
             };
-        newAjaxRequest(data, status, reject)
+            newAjaxRequest(data, status, reject)
         });
     }
 }
@@ -701,7 +839,7 @@ function saveHomeGroupsData(data, id) {
                     reject(req);
                 }
             };
-        newAjaxRequest(data, status, reject)
+            newAjaxRequest(data, status, reject)
         })
     }
 }
@@ -806,15 +944,12 @@ function createChurchesDetailsTable(config = {}, id, link) {
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINChurches').html(rendered).on('click', '.delete_btn', function () {
             let ID = $(this).closest('td').find('a').data('id');
-            deleteUserINChurch($('#church').data('id'), ID).then(() => {
-                createChurchesDetailsTable(config = {}, id, link);
-            });
-        });
-        $('.quick-edit').on('click', function () {
-            let user_id = $(this).closest('.edit').find('a').data('id');
-            deleteUserINChurch(id, user_id).then(function () {
-                createChurchesDetailsTable(config, id, link);
-            })
+            let DelUser = new DeleteChurchUser(ID, $('#church').data('id'), createChurchesDetailsTable);
+            DelUser.popup();
+
+            // deleteUserINChurch($('#church').data('id'), ID).then(() => {
+            //     createChurchesDetailsTable(config = {}, id, link);
+            // });
         });
         makeSortForm(filterData.user_table);
         let paginationConfig = {
@@ -1736,7 +1871,7 @@ function ajaxRequest(url, data, callback, method, withCredentials, headers, stat
     });
 }
 
-function showPopup(text, title) {
+function showPopup(text, title, callback) {
     text = text || '';
     title = title || 'Информационное сообщение';
     let popup = document.getElementById('create_pop');
