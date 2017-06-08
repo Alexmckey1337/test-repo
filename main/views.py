@@ -113,7 +113,7 @@ def church_report_detail(request, pk):
         'pastor': request.user,
     }
 
-    return render(request, 'event/CHURCH_REPORT_DETAIL.html', context=ctx)
+    return render(request, 'event/church_report_detail.html', context=ctx)
 
 
 @login_required(login_url='entry')
@@ -121,7 +121,7 @@ def church_statistics(request):
     if not request.user.hierarchy or request.user.hierarchy.level < 2:
         return redirect('/')
 
-    return render(request, 'event/CHURCH_REPORT_STATISTICS.html', context={})
+    return render(request, 'event/church_statistics.html', context={})
 
 
 # partner

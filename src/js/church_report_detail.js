@@ -174,6 +174,8 @@
     getChurchReportDetailData().then(data => {
         $additionalInformation.append(makeCaption(data));
         $reportBlock.append(makeReportData(data));
+        return data;
+    }).then(data => {
         if (data.status === 2) {
             $('#save').text('Редактировать').attr('data-click', false);
             $('#databaseChurchReportsForm').find('input:not(:hidden), textarea').each(function () {
@@ -234,6 +236,11 @@
                     $(this).attr('disabled', true);
                 });
                 showPopup('Изменения в отчете поданы');
+            }).catch( (res) => {
+                let error = JSON.parse(res.responseText);
+                let errKey = Object.keys(error);
+                let html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
+                showPopup(html);
             });
         } else {
             submitReports(JSON.stringify(data)).then((data) => {
@@ -245,8 +252,11 @@
                     $(this).attr('disabled', true);
                 });
                 showPopup('Отчет успешно подан');
-            }).catch( (err) => {
-                showPopup(err);
+            }).catch( (res) => {
+                let error = JSON.parse(res.responseText);
+                let errKey = Object.keys(error);
+                let html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
+                showPopup(html);
             });
         }
     }
