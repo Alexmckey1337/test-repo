@@ -103,11 +103,13 @@ class SummitParticipantReport(object):
 
     def _append_tables(self, users):
         if self.attended and self.attended.upper() in ('TRUE', 'T', 'YES', 'Y', '1'):
-            users = list(filter(lambda u: u.attended, users))
+            table_users = list(filter(lambda u: u.attended, users))
         elif self.attended and self.attended.upper() in ('FALSE', 'F', 'NO', 'N', '0'):
-            users = list(filter(lambda u: not u.attended, users))
+            table_users = list(filter(lambda u: not u.attended, users))
+        else:
+            table_users = users
         for user in users:
-            self._append_user_table(user, users)
+            self._append_user_table(user, table_users)
 
     def _append_user_table(self, u, users):
         table_data = []
