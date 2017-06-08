@@ -21,7 +21,7 @@ from .pagination import MeetingPagination, MeetingVisitorsPagination, ChurchRepo
 from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingDetailSerializer,
                           MeetingListSerializer, ChurchReportStatisticSerializer,
                           MeetingStatisticSerializer, ChurchReportSerializer,
-                          ChurchReportListSerializer, MeetingDashboardSerializer)
+                          ChurchReportListSerializer, MeetingDashboardSerializer, ChurchReportDetailSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -227,6 +227,7 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
 
     serializer_class = ChurchReportSerializer
     serializer_list_class = ChurchReportListSerializer
+    serializer_retrieve_class = ChurchReportDetailSerializer
 
     permission_classes = (IsAuthenticated,)
     pagination_class = ChurchReportPagination
@@ -251,6 +252,8 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
     def get_serializer_class(self):
         if self.action == 'list':
             return self.serializer_list_class
+        if self.action == 'retrieve':
+            return self.serializer_retrieve_class
         return self.serializer_class
 
     @detail_route(methods=['POST'])

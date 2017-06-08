@@ -52,42 +52,15 @@
         churchReportsTable();
     });
 
+     $('input[name=fullsearch]').on('keyup', function () {
+        $('.preloader').show();
+        churchReportsTable();
+    });
 
+    // Sort table
+    $('#sort_save').on('click', function () {
+        $('.preloader').css('display', 'block');
+        updateSettings(ChurchReportsTable);
+    });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // $('.preloader').hide();
-    // function makeChurchReportsTable(data) {
-    //     let tmpl = $('#databaseChurchReports').html();
-    //     let rendered = _.template(tmpl)(data);
-    //     $('#churchReports').html(rendered);
-    //     makeSortForm(data.table_columns);
-    // }
-    //
-    // getChurchReports().then(data => {
-    //     makeChurchReportsTable(data);
-    // });
-    // // Events
-    // let $statusTabs = $('#statusTabs');
-    // $statusTabs.find('button').on('click', function () {
-    //     let status = $(this).data('status');
-    //     getChurchReports({
-    //         status: status
-    //     }).then(data => {
-    //         makeChurchReportsTable(data);
-    //     });
-    //     $statusTabs.find('li').removeClass('current');
-    //     $(this).closest('li').addClass('current');
-    // })
 })();
