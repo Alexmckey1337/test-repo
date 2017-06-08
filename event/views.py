@@ -262,6 +262,12 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
         if church_report.status == ChurchReport.SUBMITTED:
             raise exceptions.ValidationError(
                 _('Невозможно подать отчет. Данный отчет уже был подан ранее'))
+
+        if ChurchReport.objects.filter(persor=church_report.pastor, status=ChurchReport.EXPIRED).exists() and \
+                        church_report.status == ChurchReport.IN_PROGRESS:
+            raise exceptions.ValidationError('Невозможно подать отчет.\n'
+                                             'Данный пастор имеет просроченные отчеты.')
+
         data = request.data
         church_report.status = ChurchReport.SUBMITTED
         report = self.get_serializer(church_report, data=data, partial=True)
