@@ -63,6 +63,81 @@ Info by summit
    :statuscode 404: there's no summit
 
 
+PDF report by participant of the summit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/summit/(int:summit_id)/master/(int:master_id).pdf
+
+   Information about ``Summit`` with id = ``summit_id``.
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      GET /api/v1.0/summit/4/master/13.pdf?date=2042-02-04&attended=false&short HTTP/1.1
+      Host: vocrm.org
+      Accept: application/json
+
+   **Example response**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Vary: Accept, Cookie
+      Allow: GET,HEAD,OPTIONS
+      Content-Type: "application/pdf"
+      Content-Disposition: "attachment;"
+
+        ... body ...
+
+   **Example response (Not Found)**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 404 Not Found
+      Vary: Accept, Cookie
+      Allow: GET,HEAD,OPTIONS
+      Content-Type: application/json
+
+      {
+        "detail": "Не найдено."
+      }
+
+   **Example response (Bad request)**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 400 Bad Request
+      Allow: OPTIONS, GET
+      Content-Type: application/json
+      Vary: Accept
+
+      [
+          "Invalid date."
+      ]
+
+   .. sourcecode:: http
+
+      HTTP/1.1 403 Forbidden
+      Allow: OPTIONS, GET
+      Content-Type: application/json
+      Vary: Accept
+
+      {
+          "detail": "You do not have permission to download report. "
+      }
+
+   :query string date: report date, format: ``YYYY-mm-dd``
+   :query string attended: filter users by attended, one of (
+         [``True``, ``true``, ``TRUE``, ``t``, ``yes``, ``Yes`` , ``YES``, ``1``] or
+         [``False``, ``false``, ``FALSE``, ``f``, ``no``, ``No`` , ``NO``, ``0``])
+   :query string short: if exist -> without break page
+
+   :statuscode 200: no error
+   :statuscode 400: bad request
+   :statuscode 404: there's no master
+
+
 
 List of summits
 ~~~~~~~~~~~~~~~
