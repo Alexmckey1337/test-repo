@@ -29,6 +29,15 @@ class HomeGroupFilter(django_filters.FilterSet):
         fields = ('church', 'leader', 'opening_date', 'city')
 
 
+class HomeGroupsDepartmentFilter(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        department = request.query_params.get('department')
+        if department:
+            queryset = queryset.filter(church__department=department)
+
+        return queryset
+
+
 class ChurchFilter(django_filters.FilterSet):
     department = django_filters.ModelMultipleChoiceFilter(name="department",
                                                           queryset=Department.objects.all())
