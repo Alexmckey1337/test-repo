@@ -2221,7 +2221,7 @@ function initLocationSelect(config) {
 
 function createSummitUsersTable(data = {}) {
     let page = data.page || $('.pagination__input').val();
-    let summitId = data.summit || $('#summitsTypes').find('.active').data('id');
+    let summitId = data.summit || $('#summitsTypes').find('.active').data('id') || $('#summitUsersList').data('summit');
     let config = {
         page: page
     };

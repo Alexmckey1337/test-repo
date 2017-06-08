@@ -59,11 +59,8 @@
             <div class="col-sm-4">
                 <h2>Саммиты</h2>
                 <ul>
-                    {% for summit in user.available_summit_types %}
-                        <li><a href="{% url 'summit:detail' summit.id %}">{{ summit.title }}</a></li>
-                    {% empty %}
-                        <li>{% trans "Нет доступных саммитов." %}</li>
-                    {% endfor %}
+                    <li><a href="{% url "summit:open" %}">{% trans "Open" %}</a></li>
+                    <li><a href="{% url "summit:closed" %}">{% trans "Closed" %}</a></li>
                 </ul>
             </div>
         </div>

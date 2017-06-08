@@ -42,7 +42,7 @@
                     <li>{% trans "Role" %}: {{ profile.get_role_display }}</li>
 
                     <li>{% trans "Summit" %}:
-                        <a href="{% url 'summit:detail' pk=profile.summit.type.id %}?summit={{ profile.summit.id }}">
+                        <a href="{% url 'summit:type-detail' pk=profile.summit.type.id %}?summit={{ profile.summit.id }}">
                             {{ profile.summit }}
                         </a>
                     </li>

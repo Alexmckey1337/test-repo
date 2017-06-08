@@ -19,7 +19,7 @@ from hierarchy.models import Department, Hierarchy
 from partnership.models import Partnership
 from payment.models import Currency
 from status.models import Division
-from summit.models import SummitType, SummitTicket, SummitAnket
+from summit.models import SummitType, SummitTicket, SummitAnket, Summit
 from event.models import MeetingType
 
 
@@ -252,7 +252,7 @@ class CanSeeSummitProfileMixin(View):
 class SummitTypeView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
     model = SummitType
     context_object_name = 'summit_type'
-    template_name = 'summit/summit_info.html'
+    template_name = 'summit/type/detail.html'
     login_url = 'entry'
 
     def get_context_data(self, **kwargs):
@@ -266,11 +266,48 @@ class SummitTypeView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
         return ctx
 
 
-class SummitTypeStatisticsView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
-    model = SummitType
-    context_object_name = 'summit_type'
-    template_name = 'summit/summit_stats.html'
+class SummitView(LoginRequiredMixin, DetailView):
+    model = Summit
+    context_object_name = 'summit'
+    template_name = 'summit/detail.html'
     login_url = 'entry'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(SummitView, self).get_context_data(**kwargs)
+        extra_context = {
+            'departments': Department.objects.all(),
+            'masters': CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1),
+            'hierarchies': Hierarchy.objects.order_by('level'),
+        }
+        ctx.update(extra_context)
+        return ctx
+
+
+class SummitStatisticsView(LoginRequiredMixin, DetailView):
+    model = Summit
+    context_object_name = 'summit'
+    template_name = 'summit/open/stats.html'
+    login_url = 'entry'
+
+
+class OpenSummitListView(LoginRequiredMixin, ListView):
+    model = Summit
+    context_object_name = 'summits'
+    template_name = 'summit/open/list.html'
+    login_url = 'entry'
+
+    def get_queryset(self):
+        return super(OpenSummitListView, self).get_queryset().filter(status=Summit.OPEN)
+
+
+class ClosedSummitListView(LoginRequiredMixin, ListView):
+    model = Summit
+    context_object_name = 'summits'
+    template_name = 'summit/closed/list.html'
+    login_url = 'entry'
+
+    def get_queryset(self):
+        return super(ClosedSummitListView, self).get_queryset().filter(status=Summit.CLOSE)
 
 
 class SummitTicketListView(LoginRequiredMixin, CanSeeSummitTicketMixin, ListView):
@@ -340,7 +377,7 @@ def summits(request):
     ctx = {
         'summit_types': SummitType.objects.exclude(id=3)
     }
-    return render(request, 'summit/summits.html', context=ctx)
+    return render(request, 'summit/type/list.html', context=ctx)
 
 
 # database

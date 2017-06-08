@@ -46,6 +46,9 @@ class SummitType(models.Model):
         else:
             return ''
 
+    def get_absolute_url(self):
+        return reverse('summit:type-detail', kwargs={'pk': self.id})
+
 
 @python_2_unicode_compatible
 class Summit(models.Model):
@@ -89,6 +92,9 @@ class Summit(models.Model):
 
     def __str__(self):
         return '%s %s' % (self.type.title, self.start_date)
+
+    def get_absolute_url(self):
+        return reverse('summit:detail', kwargs={'pk': self.id})
 
     def clean(self):
         """

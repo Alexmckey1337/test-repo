@@ -30,6 +30,10 @@ def redirect_to_churches(request):
     return redirect(reverse('db:churches'))
 
 
+def redirect_to_summits(request):
+    return redirect(reverse('summit:open'))
+
+
 def redirect_to_meetings(request):
     if not request.user.can_see_churches():
         return redirect(reverse('db:people'))
@@ -64,9 +68,15 @@ events_patterns = [
 ]
 
 summit_patterns = [
-    url(r'^$', views.summits, name='list'),
-    url(r'^(?P<pk>\d+)/$', views.SummitTypeView.as_view(), name='detail'),
-    url(r'^(?P<pk>\d+)/statistics/$', views.SummitTypeStatisticsView.as_view(), name='stats'),
+    url(r'^$', login_required(redirect_to_summits, login_url='entry'), name='main'),
+
+    url(r'^types/$', views.summits, name='type-list'),
+    url(r'^types/(?P<pk>\d+)/$', views.SummitTypeView.as_view(), name='type-detail'),
+
+    url(r'^(?P<pk>\d+)/$', views.SummitView.as_view(), name='detail'),
+    url(r'^open/$', views.OpenSummitListView.as_view(), name='open'),
+    url(r'^closed/$', views.ClosedSummitListView.as_view(), name='closed'),
+    url(r'^(?P<pk>\d+)/statistics/$', views.SummitStatisticsView.as_view(), name='stats'),
     url(r'^profile/(?P<pk>\d+)/$', views.SummitProfileDetailView.as_view(), name='profile-detail'),
     url(r'^tickets/$', views.SummitTicketListView.as_view(), name='tickets'),
     url(r'^tickets/(?P<pk>\d+)/$', views.SummitTicketDetailView.as_view(), name='ticket-detail'),
