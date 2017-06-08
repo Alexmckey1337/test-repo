@@ -1895,6 +1895,8 @@ function showPopupAddUser(data) {
 
     $('#addPopup').find('.close').on('click', function () {
         $('#addPopup').css('display', 'none').remove();
+        $('#addNewUserPopup').find('form').css("transform", "translate3d(0px, 0px, 0px)");
+        clearAddNewUser();
     });
     $('#addPopup').find('.addMore').on('click', function () {
         $('#addPopup').css('display', 'none').remove();
