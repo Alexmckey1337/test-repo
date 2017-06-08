@@ -179,7 +179,8 @@ class SummitParticipantReport(object):
         self._append_document_header()
         total = len(users)
         absent = len(tuple(filter(lambda u: not u.attended, users)))
-        self.elements.append(Paragraph(f'Всего: {total} / Отсутствует: {absent}', self.styles['Header12']))
+        self.elements.append(Paragraph('Всего: {total} / Отсутствует: {absent}'.format(total=total, absent=absent),
+                                       self.styles['Header12']))
         self._append_tables(users)
 
         return self.build()
