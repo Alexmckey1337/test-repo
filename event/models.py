@@ -154,9 +154,10 @@ class ChurchReport(AbstractStatusModel):
     currency_donations = models.CharField(_('Donations in Currency'),
                                           max_length=150, blank=True)
     transfer_payments = models.DecimalField(_('Transfer Payments'), max_digits=12,
-                                            decimal_places=0, default=0)
+                                            decimal_places=1, default=0)
     pastor_tithe = models.DecimalField(_('Pastor Tithe'), max_digits=12,
                                        decimal_places=0, default=0)
+    comment = models.TextField(_('Comment'), blank=True)
 
     class Meta:
         ordering = ('-id', '-date')

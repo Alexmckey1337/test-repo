@@ -72,6 +72,7 @@
         $(container).attr({
             'class': 'report-block'
         });
+        console.log(data.comment);
         let txt = `
              <div class="column col-6">
                     <h3>Отчет по людям</h3>
@@ -100,6 +101,14 @@
                                 <input id="total_repentance" type="text" name="total_repentance" value="${data.total_repentance}">
                             </div>
                         </li>
+                        <li>
+                            <div class="label-wrapp">
+                                <label for="comment">Комментарий</label>
+                            </div>
+                            <div class="input">
+                                <textarea name="comment" id="comment">${data.comment}</textarea>
+                            </div>
+                        </li>
                     </ul>
                 </div>
                 <div class="column col-6">
@@ -126,15 +135,15 @@
                                 <label for="currency_donations">Пожертвования в другой валюте</label>
                             </div>
                             <div class="input">
-                                <textarea name="currency_donations" id="currency_donations" value="${data.currency_donations}"></textarea>
+                                <textarea name="currency_donations" id="currency_donations">${data.currency_donations}</textarea>
                             </div>
                         </li>
                         <li>
                             <div class="label-wrapp">
-                                <span>15% к перечислению</span>
+                                <label for="transfer_payments">15% к перечислению</label>
                             </div>
                             <div class="input">
-                                <p class="calc-donations">${data.transfer_payments}</p>
+                                <input name="transfer_payments" id="transfer_payments" value="${data.transfer_payments}" readonly>
                             </div>
                         </li>
                         <li>
@@ -184,10 +193,19 @@
         }
         $('#total_tithe, #total_donations').on('input', function () {
             let tithe = $('#total_tithe').val(),
-                donat = $('#total_donations').val() * 0.15,
-                calc = +tithe + +donat;
-            $('#databaseChurchReportsForm').find('.calc-donations').text(calc);
+                donat = $('#total_donations').val(),
+                calc = (+tithe + +donat)*0.15;
+            $('#transfer_payments').val(calc.toFixed(1));
         });
+        if(!data.can_submit) {
+            showPopup(data.cant_submit_cause);
+            $('#save').attr({
+                disabled: true
+            });
+            $('#databaseChurchReportsForm').on('click', 'input', function () {
+                showPopup(data.cant_submit_cause);
+            });
+        }
     });
 
     $('#save').on('click', function () {

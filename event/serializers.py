@@ -174,6 +174,7 @@ class ChurchReportSerializer(ChurchReportListSerializer):
     pastor = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
         church__pastor__id__isnull=False).distinct(), required=False)
     status = serializers.IntegerField(default=1)
+    # transfer_payments = serializers.DecimalField(max_digits=13, decimal_places=1)
     can_submit = serializers.BooleanField(read_only=True)
     cant_submit_cause = serializers.CharField(read_only=True)
 
@@ -181,7 +182,7 @@ class ChurchReportSerializer(ChurchReportListSerializer):
 
     class Meta(ChurchReportListSerializer.Meta):
         fields = ChurchReportListSerializer.Meta.fields + ('currency_donations', 'transfer_payments',
-                                                           'can_submit', 'cant_submit_cause')
+                                                           'can_submit', 'cant_submit_cause', 'comment')
         read_only_fields = None
 
         validators = [
@@ -208,7 +209,7 @@ class ChurchReportStatisticSerializer(serializers.ModelSerializer):
     total_repentance = serializers.IntegerField()
     total_tithe = serializers.DecimalField(max_digits=13, decimal_places=0)
     total_donations = serializers.DecimalField(max_digits=13, decimal_places=0)
-    total_transfer_payments = serializers.DecimalField(max_digits=13, decimal_places=0)
+    total_transfer_payments = serializers.DecimalField(max_digits=13, decimal_places=1)
     total_pastor_tithe = serializers.DecimalField(max_digits=13, decimal_places=0)
 
     class Meta:

@@ -2888,8 +2888,7 @@ function getFilterParam() {
         delete data.master_tree;
     }
     let type = $('#tabs').find('li.active').find('button').attr('data-id');
-    if (type == "0") {
-    } else {
+    if (type == "1" || type == "2" || type == "3") {
         dataTabs.type = type;
         Object.assign(data, dataTabs);
     }
