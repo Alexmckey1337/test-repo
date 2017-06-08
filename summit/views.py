@@ -627,7 +627,7 @@ class SummitEventTableViewSet(viewsets.ModelViewSet):
 class SummitAttendViewSet(ModelWithoutDeleteViewSet):
     queryset = SummitAttend.objects.prefetch_related('anket')
     serializer_class = SummitAnketCodeSerializer
-    permission_classes = (HasAPIAccess,)
+    # permission_classes = (HasAPIAccess,)
 
     @list_route(methods=['POST', 'GET'])
     def confirm_attend(self, request):
