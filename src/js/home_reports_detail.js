@@ -34,7 +34,6 @@
                 403: function () {
                     reject('Вы должны авторизоватся');
                 }
-
             };
             newAjaxRequest(data, status);
         })
