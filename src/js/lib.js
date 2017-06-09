@@ -2848,13 +2848,17 @@ function hidePopup(el) {
 
 function refreshFilter(el) {
     let $input = $(el).closest('.popap').find('input');
+    let $select = $(el).closest('.popap').find('select');
     $(el).addClass('refresh');
     setTimeout(function () {
         $(el).removeClass('refresh');
     }, 700);
     $input.each(function () {
         $(this).val('')
-    })
+    });
+    $select.each(function () {
+        $(this).val(null).trigger("change");
+    });
 }
 function getSearch(title) {
     let search = $('input[name="fullsearch"]').val();

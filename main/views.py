@@ -98,7 +98,9 @@ def church_report_list(request):
     if not request.user.hierarchy or request.user.hierarchy.level < 2:
         return redirect('/')
 
-    ctx = {}
+    ctx = {
+        'departments': Department.objects.all(),
+    }
 
     return render(request, 'event/church_reports.html', context=ctx)
 
@@ -121,7 +123,11 @@ def church_statistics(request):
     if not request.user.hierarchy or request.user.hierarchy.level < 2:
         return redirect('/')
 
-    return render(request, 'event/church_statistics.html', context={})
+    ctx = {
+        'departments': Department.objects.all(),
+    }
+
+    return render(request, 'event/church_statistics.html', context=ctx)
 
 
 # partner

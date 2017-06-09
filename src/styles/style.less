@@ -6824,16 +6824,23 @@ div.code input#code {
     }
   }
   .set-date {
+    position: relative;
     display: flex;
+    border: 1px solid #cdd0d4;
+    overflow: hidden;
     input {
+      width: 180px;
       height: 3em;
       padding: .5em;
+      z-index: 2;
+      background-color: transparent;
+      border: 0;
     }
     & .cal-icon {
-      position: relative;
+      position: absolute;
+      right: 0;
       width: 40px;
       height: 50px;
-      border: 1px solid #cdd0d4;
       border-left: 0;
       background-color: #f2f5fa;
       &::after {
