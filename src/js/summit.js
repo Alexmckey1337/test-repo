@@ -576,6 +576,11 @@
     $.validate({
         lang: 'ru',
         form: '#createUser',
+        onError: function (form) {
+          showPopup(`Введены некорректные данные`);
+          let top = $(form).find('div.has-error').first().offset().top;
+          $(form).find('.body').animate({scrollTop: top}, 500);
+        },
         onSuccess: function (form) {
             if ($(form).attr('name') == 'createUser') {
                 $(form).find('#saveNew').attr('disabled', true);
