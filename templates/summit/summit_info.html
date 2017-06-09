@@ -42,6 +42,9 @@
                     <button id="filter_button">Фильтр</button>
                 </li>
                 <li>
+                    <button id="export_table" data-export-url="/api/v1.0/summits/<id>/export_users/" class="download header__button">Export</button>
+                </li>
+                <li>
                     <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
                 </li>
                 {% if user.can_see_any_summit_ticket %}

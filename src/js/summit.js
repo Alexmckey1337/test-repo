@@ -97,6 +97,12 @@
             showPopup(`<a class="btn" href="${link}">Скачать</a>`, 'Скачать статистику');
         }
     }
+    $('#export_table').on('click', function () {
+        $('.preloader').css('display', 'block');
+        exportNewTableData(this).then(function () {
+            $('.preloader').css('display', 'none');
+        });
+    });
     $('#download').on('click', function () {
         let stat = new PrintMasterStat(SUMMIT_TYPE_ID);
         stat.show();
