@@ -33,6 +33,7 @@ $('document').ready(function () {
         $('.preloader').css('display', 'block');
         updateSettings(createUsersTable);
     });
+
     $('#export_table').on('click', function () {
         $('.preloader').css('display', 'block');
         exportTableData(this).then(function () {

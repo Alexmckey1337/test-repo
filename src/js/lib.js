@@ -589,9 +589,6 @@ function exportNewTableData(el) {
         let data = {
             url: url,
             method: 'POST',
-            data: {
-                fields: getDataTOExport().join(',')
-            }
         };
         let status = {
             200: function (data, statusText, req) {
