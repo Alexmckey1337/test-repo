@@ -465,6 +465,45 @@ List of summit profiles
    :statuscode 200: no error
 
 
+Summit masters
+~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/summits/(int:summit_id)/bishop_high_masters/
+
+    List of masters by summit (bishop+)
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/summits/13/bishop_high_masters/ HTTP/1.1
+        Host: vocrm.org
+        Accept: application/json
+
+    **Example response**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Vary: Accept, Cookie
+      Allow: GET,HEAD,OPTIONS
+      Content-Type: application/json
+
+      [
+          {
+              "id": 7036,
+              "full_name": "Кондрашова Евгения Юрьевна"
+          },
+          {
+              "id": 2771,
+              "full_name": "Духовная Оксана Валентиновна"
+          },
+          {
+              "id": 6975,
+              "full_name": "Богза Ирина Георгиевна"
+          }
+      ]
+
 Export summit profiles
 ~~~~~~~~~~~~~~~~~~~~~~
 

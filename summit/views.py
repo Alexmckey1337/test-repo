@@ -6,10 +6,12 @@ from datetime import datetime, timedelta
 
 from dbmail import send_db_mail
 from django.db import transaction, IntegrityError
-from django.db.models import Case, When, BooleanField, F, ExpressionWrapper, IntegerField
+from django.db.models import Case, When, BooleanField, F, ExpressionWrapper, IntegerField, Subquery
+from django.db.models.functions import Concat
+from django.db.models import Value as V
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
-from rest_framework import exceptions, viewsets, filters, status, mixins
+from rest_framework import exceptions, viewsets, filters, status, mixins, serializers
 from rest_framework.decorators import list_route, detail_route, api_view
 from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -101,6 +103,41 @@ class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
         qs = self.summit.ankets.base_queryset().annotate_total_sum().annotate_full_name().order_by(
             'user__last_name', 'user__first_name', 'user__middle_name')
         return qs.for_user(self.request.user)
+
+
+class MasterSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField()
+
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'full_name')
+
+
+class SummitBishopHighMasterListView(mixins.ListModelMixin, GenericAPIView):
+    serializer_class = MasterSerializer
+    permission_classes = (IsAuthenticated,)
+    queryset = CustomUser.objects.all()
+    summit = None
+    pagination_class = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.summit = get_object_or_404(Summit, pk=kwargs.get('pk', None))
+        return super(SummitBishopHighMasterListView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def check_permissions(self, request):
+        super(SummitBishopHighMasterListView, self).check_permissions(request)
+        if not CanSeeSummitProfiles().has_object_permission(request, self, self.summit):
+            self.permission_denied(
+                request, message=getattr(CanSeeSummitProfiles, 'message', None)
+            )
+
+    def get_queryset(self):
+        subqs = self.summit.ankets.all()
+        return self.queryset.filter(pk__in=Subquery(subqs.values('user_id')), hierarchy__level__gte=4).annotate(
+            full_name=Concat('last_name', V(' '), 'first_name', V(' '), 'middle_name'))
 
 
 class SummitProfileListExportView(SummitProfileListView, ExportViewSetMixin):
