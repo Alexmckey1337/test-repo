@@ -572,6 +572,121 @@ Export summit profiles
     :statuscode 200: success export
 
 
+Statistics by summit
+~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/summits/(int:summit_id)/stats/
+
+   List of users of summit (order by ``last_name``) with statistics by attending. Pagination by 30 profiles per page.
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      GET /api/v1.0/summits/2/stats/?date=2017-06-06&department=1&ordering=-attended HTTP/1.1
+      Host: vocrm.org
+      Accept: application/json
+
+   **Example response**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Vary: Accept, Cookie
+      Allow: GET,HEAD,OPTIONS
+      Content-Type: application/json
+
+      {
+          "links": {
+              "next": "http://crm.local:8000/api/v1.0/summits/2/stats/?date=2017-06-06&department=1&ordering=-attended&page=2",
+              "previous": null
+          },
+          "count": 1664,
+          "user_table": {
+              "attended": {
+                  "id": 1,
+                  "title": "Присутствие",
+                  "ordering_title": "attended",
+                  "number": 1,
+                  "active": true,
+                  "editable": false
+              },
+              "full_name": {
+                  "id": 2,
+                  "title": "ФИО",
+                  "ordering_title": "last_name",
+                  "number": 2,
+                  "active": true,
+                  "editable": false
+              },
+              "responsible": {
+                  "id": 3,
+                  "title": "Ответственный",
+                  "ordering_title": "responsible",
+                  "number": 3,
+                  "active": true,
+                  "editable": false
+              },
+              "phone_number": {
+                  "id": 5,
+                  "title": "Номер телефона",
+                  "ordering_title": "user__phone_number",
+                  "number": 5,
+                  "active": true,
+                  "editable": false
+              },
+              "code": {
+                  "id": 6,
+                  "title": "Номер билета",
+                  "ordering_title": "code",
+                  "number": 6,
+                  "active": true,
+                  "editable": false
+              },
+              "department": {
+                  "id": 4,
+                  "title": "Отдел",
+                  "ordering_title": "department",
+                  "number": 4,
+                  "active": true,
+                  "editable": false
+              }
+          },
+          "common_table": {},
+          "results": [
+              {
+                  "id": 25148,
+                  "user_id": 19566,
+                  "full_name": "First User Name",
+                  "responsible": "",
+                  "department": "Киев",
+                  "phone_number": "+38094444444",
+                  "code": "04025148",
+                  "attended": true
+              },
+              {
+                  "id": 25182,
+                  "user_id": 18733,
+                  "full_name": "Second User Name",
+                  "responsible": "Responsible",
+                  "department": "Киев",
+                  "phone_number": "+38094444444",
+                  "code": "04025182",
+                  "attended": true
+              },
+              {
+                  "id": 20449,
+                  "user_id": 9808,
+                  "full_name": "Other User Name",
+                  "responsible": "Master",
+                  "department": "Киев",
+                  "phone_number": "+38094444444",
+                  "code": "04020449",
+                  "attended": true
+              }
+          ]
+      }
+
 List of summit lessons
 ~~~~~~~~~~~~~~~~~~~~~~
 
