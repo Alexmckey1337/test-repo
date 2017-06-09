@@ -1,5 +1,107 @@
 (function ($) {
     const SUMMIT_TYPE_ID = $('#summitUsersList').data('summit-type');
+    class PrintMasterStat {
+        constructor(summitId) {
+            this.summit = summitId;
+            this.masterId = null;
+            this.filter = [];
+            this.url = `/api/v1.0/summit/${summitId}/master/`
+        }
+
+        setMaster(id) {
+            this.masterId = id;
+        }
+
+        setFilterData(data) {
+            this.setMaster(data.id);
+            if (data.attended) {
+                this.filter.push({
+                    attended: data.attended,
+                });
+            }
+            if (data.date) {
+                this.filter.push({
+                    date: data.date
+                });
+            }
+            this.makeLink();
+        }
+
+        getMasters() {
+            let defaultOption = {
+                method: 'GET',
+                credentials: "same-origin",
+                headers: new Headers({
+                    'Content-Type': 'application/json',
+                })
+            };
+            return fetch(`/api/v1.0/summits/${this.summit}/bishop_high_masters/`, defaultOption)
+                .then(res => res.json());
+        }
+
+        show() {
+            this.getMasters()
+                .then(data => data.map(item => `<option value="${item.id}">${item.full_name}</option>`))
+                .then(options => {
+                    let content = `
+                    <div>
+                    <label>Выберите ответсвенного</label>
+                        <select class="master">`;
+                    content += options.join(',');
+                    content += `</select>
+                                    </div>
+                                        <div>
+                                        <label>Пристутствие</label>
+                                        <select class="attended">
+                                            <option value="">ВСЕ</option>
+                                            <option value="true">ДА</option>
+                                            <option value="false">НЕТ</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                    <label>Дата</label>
+                                    <input class="date" type="text">
+                                    </div>`;
+                    showStatPopup(content, 'Сформировать файл статистики', this.setFilterData.bind(this));
+                });
+
+        }
+
+        print() {
+            if (!this.masterId) {
+                showPopup('Выберите мастера для печати');
+                return
+            }
+            let defaultOption = {
+                method: 'GET',
+                credentials: "same-origin",
+                headers: new Headers({
+                    'Content-Type': 'application/json',
+                })
+            };
+            return fetch(`${this.url}${this.masterId}.pdf`, defaultOption).then(data => data.json()).catch(err => err);
+        }
+
+        makeLink() {
+            console.log(this.filter);
+            if (!this.masterId) {
+                showPopup('Выберите мастера для печати');
+                return
+            }
+            let link = `${this.url}${this.masterId}.pdf?`;
+            this.filter.forEach(item => {
+                let key = Object.keys(item);
+                link += `${key[0]}=${item[key[0]]}&`
+            });
+            link += 'short';
+            showPopup(`<a class="btn" href="${link}">Скачать</a>`, 'Скачать статистику');
+        }
+    }
+    $('#download').on('click', function () {
+        let stat = new PrintMasterStat(SUMMIT_TYPE_ID);
+        stat.show();
+    });
+
     function makeSummitInfo() {
         let width = 150,
             count = 1,
@@ -7,8 +109,8 @@
             $carousel = $('#carousel'),
             $list = $carousel.find('ul'),
             $listElements;
-            $listElements = $list.find('li');
-            $carousel.find('.arrow-left').on('click', function () {
+        $listElements = $list.find('li');
+        $carousel.find('.arrow-left').on('click', function () {
             position = Math.min(position + width * count, 0);
 
             $($list).css({
@@ -427,14 +529,14 @@
         $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
     });
 
-     $('#departments_filter').on('change', function () {
+    $('#departments_filter').on('change', function () {
         $('#master_tree').prop('disabled', true);
         let department_id = parseInt($(this).val());
         makePastorListNew(department_id, ['#master_tree', '#master']);
     });
     $('#master_tree').on('change', function () {
         $('#master').prop('disabled', true);
-         let master_tree = parseInt($(this).val());
+        let master_tree = parseInt($(this).val());
         makePastorListWithMasterTree({
             master_tree: master_tree
         }, ['#master'], null);
@@ -479,7 +581,7 @@
         }
     });
 
-    $('#filterPopup').find('.pop_cont').on('click',function (e) {
+    $('#filterPopup').find('.pop_cont').on('click', function (e) {
         e.stopPropagation();
     });
 

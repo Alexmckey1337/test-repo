@@ -1887,6 +1887,47 @@ function showPopup(text, title, callback) {
     });
 }
 
+function showStatPopup(body, title, callback) {
+    title = title || 'Информационное сообщение';
+    let popup = document.getElementById('create_pop');
+    if (popup) {
+        popup.parentElement.removeChild(popup)
+    }
+    let div = document.createElement('div');
+
+    let html = `<div class="pop_cont" >
+        <div class="top-text">
+            <h3>${title}</h3><span id="close_pop">×</span></div>
+            <div class="main-text">${body}</div>
+            <div><button class="make">СФОРМИРОВАТЬ</button></div>
+        </div>`;
+    $(div)
+        .html(html)
+        .attr({
+        id: "create_pop"
+    })
+        .addClass('pop-up__stats')
+        .find('.date').datepicker({
+                dateFormat: 'yyyy-mm-dd',
+                autoClose: true
+            });
+    $(div).find('select').select2();
+    $(div).find('.make').on('click', function (e) {
+        e.stopPropagation();
+        let data = {
+            id: $(div).find('.master').val(),
+            attended: $(div).find('.attended').val(),
+            date: $(div).find('.date').val()
+        };
+            callback(data);
+    });
+    $('body').append(div);
+
+    $('#close_pop').on('click', function () {
+        $('.pop-up__stats').css('display', 'none').remove();
+    });
+}
+
 function showPopupAddUser(data) {
 
     let tmpl = document.getElementById('addUserSuccessPopup').innerHTML;
