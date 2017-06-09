@@ -539,3 +539,17 @@ class SummitAttend(models.Model):
 
     def __str__(self):
         return '%s visitor of Summit. Date: %s' % (self.anket.user.fullname, self.date)
+
+
+@python_2_unicode_compatible
+class AnketStatus(models.Model):
+    anket = models.OneToOneField('summit.SummitAnket', related_name='status', verbose_name=_('Anket'))
+    reg_code_requested = models.BooleanField(verbose_name=_('Запрос регистрационного кода'), default=False)
+    active = models.BooleanField(verbose_name=_('Активна'), default=True)
+
+    class Meta:
+        verbose_name = _('Статус Анкеты')
+        verbose_name_plural = _('Статусы Анкет')
+
+    def __str__(self):
+        return 'Anket %s. Reg_code_requested: %s. Active: %s' % (self.anket, self.reg_code_requested, self.active)

@@ -248,3 +248,9 @@ class ExistUserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'fullname', 'phone_number', 'email', 'link')
+
+
+# class DashboardSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ['__all__']

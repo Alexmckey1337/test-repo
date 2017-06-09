@@ -284,7 +284,8 @@ class ExistUserListViewSet(mixins.ListModelMixin, GenericViewSet):
         for f in params:
             param = request.query_params.get(f, '')
             if param and len(param) < 5:
-                return Response({'detail': _('Min length of %s == 4' % f)}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'detail': _('Min length of %s == 4' % f)},
+                                status=status.HTTP_400_BAD_REQUEST)
         if not len(['go' for p in params if len(request.query_params.get(p, '')) > 0]):
             return Response(
                 {'detail': _('One of [%s] parameters is required' % ', '.join(params))},
@@ -304,3 +305,8 @@ class LogoutView(RestAuthLogoutView):
 
         return Response({"success": _("Successfully logged out.")},
                         status=status.HTTP_200_OK)
+
+
+# class Dashboard(viewsets.ModelViewSet):
+#     queryset = User.objects.all()
+#     serializer_class = DashboardSerializer

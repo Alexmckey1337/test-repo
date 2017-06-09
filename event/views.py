@@ -207,20 +207,6 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         statistics = self.serializer_class(statistics)
         return Response(statistics.data)
 
-    @list_route(methods=['GET'], serializer_class=MeetingDashboardSerializer)
-    def dashboards_counts(self, request):
-        dashboards_count = {}
-        dashboards_count['unsold_night_reports'] = self.queryset.filter(type=3, status__in=[
-            Meeting.IN_PROGRESS, Meeting.EXPIRED]).count()
-        dashboards_count['unsold_home_reports'] = self.queryset.filter(type=2, status__in=[
-            Meeting.IN_PROGRESS, Meeting.EXPIRED]).count()
-        dashboards_count['unsold_service_reports'] = self.queryset.filter(type=1, status__in=[
-            Meeting.IN_PROGRESS, Meeting.EXPIRED]).count()
-
-        dashboards_count = self.serializer_class(dashboards_count)
-
-        return Response(dashboards_count.data)
-
 
 class ChurchReportViewSet(ModelWithoutDeleteViewSet):
     queryset = ChurchReport.objects.all()

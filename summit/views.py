@@ -29,14 +29,14 @@ from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_
 from summit.resources import SummitAnketResource
 from summit.utils import generate_ticket, SummitParticipantReport
 from .models import (Summit, SummitAnket, SummitType, SummitLesson, SummitUserConsultant,
-                     SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend)
+                     SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend, AnketStatus)
 from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
-    SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer,
-    SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitShortSerializer, SummitAnketShortSerializer,
-    SummitLessonShortSerializer, SummitTicketSerializer, SummitAnketForTicketSerializer,
-    SummitVisitorLocationSerializer, SummitEventTableSerializer, SummitProfileTreeForAppSerializer,
-    SummitAnketCodeSerializer, SummitAttendStatisticsSerializer)
+    SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer,
+    SummitAnketForSelectSerializer, SummitTypeForAppSerializer, SummitAnketForAppSerializer,
+    SummitShortSerializer, SummitAnketShortSerializer, SummitLessonShortSerializer, SummitTicketSerializer,
+    SummitAnketForTicketSerializer, SummitVisitorLocationSerializer, SummitEventTableSerializer,
+    SummitProfileTreeForAppSerializer, SummitAnketCodeSerializer, SummitAttendStatisticsSerializer)
 from .tasks import generate_tickets
 
 logger = logging.getLogger(__name__)
@@ -336,8 +336,11 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
             raise exceptions.ValidationError(_('Невозможно получить объект. '
                                                'Передан некорректный регистрационный код'))
         visitor = get_object_or_404(SummitAnket, pk=visitor_id)
-        visitor = self.get_serializer(visitor)
+        anket_status = AnketStatus.objects.get_or_create(anket=visitor)[0]
+        anket_status.reg_code_requested = True
+        anket_status.save()
 
+        visitor = self.get_serializer(visitor)
         return Response(visitor.data)
 
 
@@ -365,7 +368,6 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
     def annotate_queryset(self, qs):
         return qs.base_queryset().annotate_full_name().annotate(
             diff=ExpressionWrapper(F('user__rght') - F('user__lft'), output_field=IntegerField()),
-            # location=F('visitor_locations')
         ).order_by('-hierarchy__level')
 
     def get_queryset(self):

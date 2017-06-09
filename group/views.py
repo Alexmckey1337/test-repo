@@ -256,20 +256,6 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
                 _('Невозможно удалить пользователя.'
                   'Данного пользователя не существует.'))
 
-    @list_route(methods=['GET'], serializer_class=MeetingDashboardSerializer)
-    def dashboards_counts(self, request):
-        dashboards_counts = {}
-        dashboards_counts['churches_count'] = self.queryset.count()
-        dashboards_counts['home_groups_count'] = HomeGroup.objects.count()
-        dashboards_counts['home_groups_users_count'] = CustomUser.objects.filter(
-            home_groups__isnull=False).count()
-        dashboards_counts['users_without_home_groups_count'] = CustomUser.objects.filter(
-            home_groups__isnull=True).count()
-
-        dashboards_counts = self.serializer_class(dashboards_counts)
-
-        return Response(dashboards_counts.data)
-
 
 class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportViewSetMixin):
     queryset = HomeGroup.objects.all()

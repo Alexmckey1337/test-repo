@@ -4,16 +4,15 @@ from __future__ import unicode_literals
 from datetime import datetime, timedelta
 
 from django.conf import settings
-from django.db import models
 from django.urls import reverse
 from rest_framework import serializers
-from rest_framework.serializers import ListSerializer
 
 from account.models import CustomUser as User
 from account.serializers import UserTableSerializer, UserShortSerializer
 from common.fields import ListCharField, ReadOnlyChoiceWithKeyField
 from .models import (Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
-                     SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend)
+                     SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend,
+                     AnketStatus)
 
 
 class ImageWithoutHostField(serializers.ImageField):
@@ -260,15 +259,28 @@ class UserForAppSerializer(serializers.ModelSerializer):
                   'email', 'phone_number')  # + ('region', 'district', 'address', 'image_source')
 
 
+class AnketStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnketStatus
+        fields = ('reg_code_requested', 'active')
+
+    def get_attribute(self, instance):
+        instance = super().get_attribute(instance)
+        if instance is None:
+            return AnketStatus()
+        return instance
+
+
 class SummitAnketForAppSerializer(serializers.ModelSerializer):
     user = UserForAppSerializer()
     ticket_id = serializers.CharField(source='code')
     visitor_id = serializers.IntegerField(source='id')
     avatar_url = ImageWithoutHostField(source='user.image', use_url=False)
+    status = AnketStatusSerializer(read_only=True)
 
     class Meta:
         model = SummitAnket
-        fields = ('visitor_id', 'user', 'ticket_id', 'reg_code', 'avatar_url')  # + ('value', 'is_member')
+        fields = ('visitor_id', 'user', 'ticket_id', 'reg_code', 'avatar_url', 'status')
 
 
 class SummitAnketLocationSerializer(serializers.ModelSerializer):

@@ -7,7 +7,7 @@ from import_export.formats import base_formats
 
 from summit.admin_filters import HasTicketListFilter, HasEmailListFilter
 from .models import (SummitAnket, Summit, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
-                     SummitUserConsultant, SummitVisitorLocation, SummitEventTable)
+                     SummitUserConsultant, SummitVisitorLocation, SummitEventTable, AnketStatus)
 from .resources import SummitAnketResource
 from .tasks import send_tickets, create_tickets
 
@@ -107,9 +107,16 @@ class SummitEventTableAdmin(admin.ModelAdmin):
         'author_de',)
 
 
+class AnketStatusAdmin(admin.ModelAdmin):
+    fields = ('anket', 'reg_code_requested', 'active')
+    list_display = ('anket', 'reg_code_requested', 'active')
+    readonly_fields = ('anket',)
+
+
 admin.site.register(SummitAnket, SummitAnketAdmin)
 admin.site.register(Summit, SummitAdmin)
 admin.site.register(SummitType, SummitTypeAdmin)
 admin.site.register(AnketEmail, AnketEmailAdmin)
 admin.site.register(SummitVisitorLocation, SummitVisitorLocationAdmin)
 admin.site.register(SummitEventTable, SummitEventTableAdmin)
+admin.site.register(AnketStatus, AnketStatusAdmin)
