@@ -355,6 +355,7 @@ function createHomeGroupsTable(config = {}) {
         new OrderTable().sort(createHomeGroupsTable, ".table-wrap th");
     });
 }
+
 function makePastorListWithMasterTree(config, selector, active = null) {
     getShortUsers(config).then(data => {
         let options = '<option selected>ВСЕ</option>';
@@ -370,6 +371,7 @@ function makePastorListWithMasterTree(config, selector, active = null) {
         })
     })
 }
+
 function makePastorListNew(id, selector = [], active = null) {
     getResponsible(id, 2).then(function (data) {
         let options = '<option selected>ВСЕ</option>';
@@ -385,6 +387,7 @@ function makePastorListNew(id, selector = [], active = null) {
         })
     });
 }
+
 function makePastorList(departmentId, selector, active = null) {
     getResponsible(departmentId, 2).then(function (data) {
         let options = [];
@@ -471,6 +474,7 @@ function makeDepartmentList(selector, active = null) {
         $(selector).html(options).prop('disabled', false).select2();
     });
 }
+
 function getChurchesListINDepartament(department_ids) {
     return new Promise(function (resolve, reject) {
         let url;
@@ -500,6 +504,7 @@ function getChurchesListINDepartament(department_ids) {
         newAjaxRequest(data, status, reject)
     })
 }
+
 function getHomeGroupsINChurches(id) {
     return new Promise(function (resolve, reject) {
         let data = {
@@ -625,6 +630,7 @@ function exportNewTableData(el) {
         newAjaxRequest(data, status, reject);
     });
 }
+
 function exportTableData(el) {
     let _self = el;
     return new Promise(function (resolve, reject) {
