@@ -68,6 +68,17 @@ class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
                   )
 
 
+class SummitAnketStatisticsSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField()
+    phone_number = serializers.CharField(source='user.phone_number')
+    attended = serializers.BooleanField()
+
+    class Meta:
+        model = SummitAnket
+        fields = ('id', 'user_id', 'full_name', 'responsible',
+                  'department', 'phone_number', 'code', 'attended')
+
+
 class SummitAnketShortSerializer(serializers.HyperlinkedModelSerializer):
     user = UserTableSerializer()
 

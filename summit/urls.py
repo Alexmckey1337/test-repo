@@ -35,6 +35,7 @@ custom_urls = [
         views.SummitBishopHighMasterListView.as_view(), name='summit-masters'),
     url(r'^summits/(?P<pk>\d+)/export_users/$',
         views.SummitProfileListExportView.as_view(), name='summit-profile-export'),
+    url(r'^summits/(?P<pk>\d+)/stats/$', views.SummitStatisticsView.as_view(), name='summit-stats'),
     url(r'^summit_ticket/(?P<ticket>\d+)/print/$', views.SummitTicketMakePrintedView.as_view(),
         name='summit-ticket-print'),
 ]
