@@ -73,7 +73,7 @@ summit_patterns = [
     url(r'^types/$', views.summits, name='type-list'),
     url(r'^types/(?P<pk>\d+)/$', views.SummitTypeView.as_view(), name='type-detail'),
 
-    url(r'^(?P<pk>\d+)/$', views.SummitView.as_view(), name='detail'),
+    url(r'^(?P<pk>\d+)/$', views.SummitDetailView.as_view(), name='detail'),
     url(r'^open/$', views.OpenSummitListView.as_view(), name='open'),
     url(r'^closed/$', views.ClosedSummitListView.as_view(), name='closed'),
     url(r'^(?P<pk>\d+)/statistics/$', views.SummitStatisticsView.as_view(), name='stats'),

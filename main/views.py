@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import redis
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
@@ -237,6 +238,14 @@ class CanSeeSummitTypeMixin(View):
         return super(CanSeeSummitTypeMixin, self).dispatch(request, *args, **kwargs)
 
 
+class CanSeeSummitMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        summit = kwargs.get('pk')
+        if not (summit and request.user.can_see_summit(summit)):
+            raise PermissionDenied
+        return super(CanSeeSummitMixin, self).dispatch(request, *args, **kwargs)
+
+
 class CanSeeSummitTicketMixin(View):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.can_see_any_summit_ticket():
@@ -266,14 +275,14 @@ class SummitTypeView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
         return ctx
 
 
-class SummitView(LoginRequiredMixin, DetailView):
+class SummitDetailView(LoginRequiredMixin, CanSeeSummitMixin, DetailView):
     model = Summit
     context_object_name = 'summit'
     template_name = 'summit/detail.html'
     login_url = 'entry'
 
     def get_context_data(self, **kwargs):
-        ctx = super(SummitView, self).get_context_data(**kwargs)
+        ctx = super(SummitDetailView, self).get_context_data(**kwargs)
         extra_context = {
             'departments': Department.objects.all(),
             'masters': CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1),
@@ -283,31 +292,31 @@ class SummitView(LoginRequiredMixin, DetailView):
         return ctx
 
 
-class SummitStatisticsView(LoginRequiredMixin, DetailView):
-    model = Summit
-    context_object_name = 'summit'
-    template_name = 'summit/open/stats.html'
-    login_url = 'entry'
+class SummitStatisticsView(SummitDetailView):
+    template_name = 'summit/stats.html'
 
 
-class OpenSummitListView(LoginRequiredMixin, ListView):
+class SummitListMixin(LoginRequiredMixin, ListView):
     model = Summit
     context_object_name = 'summits'
+    login_url = 'entry'
+    template_name = None
+    status = None
+
+    def get_queryset(self):
+        available_summits = self.request.user.summit_ankets.filter(
+            role__gte=settings.SUMMIT_ANKET_ROLES['consultant']).values_list('summit_id', flat=True)
+        return super(SummitListMixin, self).get_queryset().filter(status=self.status, pk__in=available_summits)
+
+
+class OpenSummitListView(SummitListMixin):
     template_name = 'summit/open/list.html'
-    login_url = 'entry'
-
-    def get_queryset(self):
-        return super(OpenSummitListView, self).get_queryset().filter(status=Summit.OPEN)
+    status = Summit.OPEN
 
 
-class ClosedSummitListView(LoginRequiredMixin, ListView):
-    model = Summit
-    context_object_name = 'summits'
+class ClosedSummitListView(SummitListMixin):
     template_name = 'summit/closed/list.html'
-    login_url = 'entry'
-
-    def get_queryset(self):
-        return super(ClosedSummitListView, self).get_queryset().filter(status=Summit.CLOSE)
+    status = Summit.CLOSE
 
 
 class SummitTicketListView(LoginRequiredMixin, CanSeeSummitTicketMixin, ListView):

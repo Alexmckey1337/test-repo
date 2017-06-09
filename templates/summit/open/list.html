@@ -4,20 +4,24 @@
 {% block header.top.h1 %}<h1>{% trans "List of open summits" %}</h1>{% endblock %}
 
 {% block main.content %}
-    <table>
-        <tr>
-            <th>{% trans "Summit name" %}</th>
-            <th>{% trans "Summit type" %}</th>
-            <th></th>
-        </tr>
-        {% for summit in summits %}
+    {% if summits %}
+        <table>
             <tr>
-                <td><a href="{{ summit.get_absolute_url }}">{{ summit }}</a></td>
-{#                <td><a href="{{ summit.type.get_absolute_url }}">{{ summit.type }}</a></td>#}
-                <td>{{ summit.type }}</td>
-                <td><a href="{% url "summit:stats" pk=summit.id %}">{% trans "Statistics" %}</a></td>
+                <th>{% trans "Summit name" %}</th>
+                <th>{% trans "Summit type" %}</th>
+                <th></th>
             </tr>
-        {% endfor %}
-        <tr></tr>
-    </table>
+            {% for summit in summits %}
+                <tr>
+                    <td><a href="{{ summit.get_absolute_url }}">{{ summit }}</a></td>
+    {#                <td><a href="{{ summit.type.get_absolute_url }}">{{ summit.type }}</a></td>#}
+                    <td>{{ summit.type }}</td>
+                    <td><a href="{% url "summit:stats" pk=summit.id %}">{% trans "Statistics" %}</a></td>
+                </tr>
+            {% endfor %}
+            <tr></tr>
+        </table>
+    {% else %}
+        <h2>{% trans "Нет доступных саммитов." %}</h2>
+    {% endif %}
 {% endblock %}
