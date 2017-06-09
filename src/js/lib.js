@@ -355,6 +355,7 @@ function createHomeGroupsTable(config = {}) {
         new OrderTable().sort(createHomeGroupsTable, ".table-wrap th");
     });
 }
+
 function makePastorListWithMasterTree(config, selector, active = null) {
     getShortUsers(config).then(data => {
         let options = '<option selected>ВСЕ</option>';
@@ -370,6 +371,7 @@ function makePastorListWithMasterTree(config, selector, active = null) {
         })
     })
 }
+
 function makePastorListNew(id, selector = [], active = null) {
     getResponsible(id, 2).then(function (data) {
         let options = '<option selected>ВСЕ</option>';
@@ -385,6 +387,7 @@ function makePastorListNew(id, selector = [], active = null) {
         })
     });
 }
+
 function makePastorList(departmentId, selector, active = null) {
     getResponsible(departmentId, 2).then(function (data) {
         let options = [];
@@ -471,6 +474,7 @@ function makeDepartmentList(selector, active = null) {
         $(selector).html(options).prop('disabled', false).select2();
     });
 }
+
 function getChurchesListINDepartament(department_ids) {
     return new Promise(function (resolve, reject) {
         let url;
@@ -500,6 +504,7 @@ function getChurchesListINDepartament(department_ids) {
         newAjaxRequest(data, status, reject)
     })
 }
+
 function getHomeGroupsINChurches(id) {
     return new Promise(function (resolve, reject) {
         let data = {
@@ -558,6 +563,69 @@ function createCSV(data) {
         file: new Blob(["\ufeff" + data.responseText], {type: type, endings: 'native'}),
         filename: filename
     };
+}
+
+function exportNewTableData(el) {
+    let _self = el;
+    return new Promise(function (resolve, reject) {
+        let url, filter, filterKeys, items, count;
+        let summitId = $('#summitsTypes').find('.active').data('id');
+        url = $(_self).attr('data-export-url');
+        url = url.replace('<id>', summitId);
+        filter = getFilterParam();
+        filterKeys = Object.keys(filter);
+        if (filterKeys && filterKeys.length) {
+            url += '?';
+            items = filterKeys.length;
+            count = 0;
+            filterKeys.forEach(function (key) {
+                count++;
+                url += key + '=' + filter[key];
+                if (count != items) {
+                    url += '&';
+                }
+            })
+        }
+        let data = {
+            url: url,
+            method: 'POST',
+        };
+        let status = {
+            200: function (data, statusText, req) {
+                // check for a filename
+                let file = createCSV(req);
+                if (typeof window.navigator.msSaveBlob !== 'undefined') {
+                    // IE workaround for "HTML7007"
+                    window.navigator.msSaveBlob(file.file, file.filename);
+                } else {
+                    let URL = window.URL || window.webkitURL;
+                    let downloadUrl = URL.createObjectURL(file.file);
+
+                    if (file.filename) {
+                        // use HTML5 a[download] attribute to specify filename
+                        let a = document.createElement("a");
+                        // safari doesn't support this yet
+                        if (typeof a.download === 'undefined') {
+                            window.location = downloadUrl;
+                        } else {
+                            a.href = downloadUrl;
+                            a.download = file.filename;
+                            document.body.appendChild(a);
+                            a.click();
+                        }
+                    } else {
+                        window.location = downloadUrl;
+                    }
+
+                    setTimeout(function () {
+                        URL.revokeObjectURL(downloadUrl);
+                    }, 100); // cleanup
+                    resolve(req);
+                }
+            }
+        };
+        newAjaxRequest(data, status, reject);
+    });
 }
 
 function exportTableData(el) {
@@ -1884,6 +1952,47 @@ function showPopup(text, title, callback) {
 
     $('#close_pop').on('click', function () {
         $('.pop-up-universal').css('display', 'none').remove();
+    });
+}
+
+function showStatPopup(body, title, callback) {
+    title = title || 'Информационное сообщение';
+    let popup = document.getElementById('create_pop');
+    if (popup) {
+        popup.parentElement.removeChild(popup)
+    }
+    let div = document.createElement('div');
+
+    let html = `<div class="pop_cont" >
+        <div class="top-text">
+            <h3>${title}</h3><span id="close_pop">×</span></div>
+            <div class="main-text">${body}</div>
+            <div><button class="make">СФОРМИРОВАТЬ</button></div>
+        </div>`;
+    $(div)
+        .html(html)
+        .attr({
+        id: "create_pop"
+    })
+        .addClass('pop-up__stats')
+        .find('.date').datepicker({
+                dateFormat: 'yyyy-mm-dd',
+                autoClose: true
+            });
+    $(div).find('select').select2();
+    $(div).find('.make').on('click', function (e) {
+        e.stopPropagation();
+        let data = {
+            id: $(div).find('.master').val(),
+            attended: $(div).find('.attended').val(),
+            date: $(div).find('.date').val()
+        };
+            callback(data);
+    });
+    $('body').append(div);
+
+    $('#close_pop').on('click', function () {
+        $('.pop-up__stats').css('display', 'none').remove();
     });
 }
 
