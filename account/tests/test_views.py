@@ -518,7 +518,6 @@ class TestUserViewSet:
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    @pytest.mark.hh
     @pytest.mark.parametrize(
         'h1,h2', HIERARCHY_LEVELS_DOWN, ids=['{}->{}'.format(h[0], h[1]) for h in HIERARCHY_LEVELS_DOWN])
     @pytest.mark.parametrize('l', ALL_HIERARCHIES)

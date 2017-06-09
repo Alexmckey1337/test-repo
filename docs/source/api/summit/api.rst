@@ -687,6 +687,18 @@ Statistics by summit
           ]
       }
 
+   :query int page: page number (one of ``int`` or ``last``). default is 1
+   :query int hierarchy: filter by ``hierarchy_id``
+   :query int master: filter by ``master_id``, returned children of master
+   :query int master_tree: filter by ``master_id``, returned descendants of master and self master
+   :query int department: filter by ``department_id``
+   :query int ticket_status: filter by ``ticket_status`` (one of ``none``, ``download``, ``print``)
+   :query string search_fio: search by ``last_name``, ``first_name``, ``middle_name``, ``search_name``
+   :query string search_email: search by ``email``
+   :query string search_phone_number: search by main ``phone_number``
+   :query string search_country: search by ``country``
+   :query string search_city: search by ``city``
+
 List of summit lessons
 ~~~~~~~~~~~~~~~~~~~~~~
 

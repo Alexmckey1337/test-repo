@@ -72,3 +72,11 @@ class AnketNoteFactory(factory.DjangoModelFactory):
     owner = factory.SubFactory('account.factories.UserFactory')
     text = factory.fuzzy.FuzzyText(length=51)
     date_created = factory.LazyFunction(datetime.datetime.now)
+
+
+class SummitAttendFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.SummitAttend
+
+    anket = factory.SubFactory(SummitAnketFactory)
+    date = factory.LazyFunction(datetime.datetime.now)
