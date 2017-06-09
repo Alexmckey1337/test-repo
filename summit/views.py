@@ -104,15 +104,11 @@ class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
 
 
 class SummitProfileListExportView(SummitProfileListView, ExportViewSetMixin):
-    permission_classes = (AllowAny,)
     resource_class = SummitAnketResource
     queryset = SummitAnket.objects.all()
 
     def post(self, request, *args, **kwargs):
         return self._export(request, *args, **kwargs)
-
-    def check_permissions(self, request):
-        pass
 
 
 class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
@@ -645,7 +641,7 @@ class SummitEventTableViewSet(viewsets.ModelViewSet):
 class SummitAttendViewSet(ModelWithoutDeleteViewSet):
     queryset = SummitAttend.objects.prefetch_related('anket')
     serializer_class = SummitAnketCodeSerializer
-    # permission_classes = (HasAPIAccess,)
+    permission_classes = (HasAPIAccess,)
 
     @list_route(methods=['POST', 'GET'])
     def confirm_attend(self, request):
