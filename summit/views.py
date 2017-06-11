@@ -369,12 +369,20 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
             raise exceptions.ValidationError(_('Невозможно получить объект. '
                                                'Передан некорректный регистрационный код'))
         visitor = get_object_or_404(SummitAnket, pk=visitor_id)
-        anket_status = AnketStatus.objects.get_or_create(anket=visitor)[0]
-        anket_status.reg_code_requested = True
-        anket_status.save()
+        AnketStatus.objects.update_or_create(
+            anket=visitor, defaults={'reg_code_requested': True})
 
         visitor = self.get_serializer(visitor)
         return Response(visitor.data)
+
+
+@api_view(['GET'])
+def app_request_count(request, summit_id):
+    profiles = SummitAnket.objects.filter(summit_id=summit_id).values_list(
+        'status__reg_code_requested', flat=True)
+    total = len(profiles)
+    requested = len(list(filter(lambda p: p, profiles)))
+    return Response({'total': total, 'requested': requested})
 
 
 class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
