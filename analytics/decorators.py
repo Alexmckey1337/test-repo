@@ -76,7 +76,7 @@ def log_perform_update(perform_update):
                 new_obj=new_obj,
                 old_obj_dict=changes_dict['old'],
                 new_obj_dict=changes_dict['new'],
-                editor=self.request.user
+                editor=getattr(self.request, 'real_user', self.request.user)
             )
 
     return wrapper
@@ -97,7 +97,7 @@ def log_perform_create(perform_create):
                 sender=self.__class__,
                 obj=new_obj,
                 obj_dict=addition_dict,
-                editor=self.request.user
+                editor=getattr(self.request, 'real_user', self.request.user)
             )
 
     return wrapper
@@ -113,7 +113,7 @@ def log_perform_destroy(perform_destroy):
                 sender=self.__class__,
                 obj=deletion_obj,
                 obj_dict=deletion_dict,
-                editor=self.request.user
+                editor=getattr(self.request, 'real_user', self.request.user)
             )
 
         perform_destroy(self, instance, new_obj=deletion_obj, changes_dict=deletion_dict)
