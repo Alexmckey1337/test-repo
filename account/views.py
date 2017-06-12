@@ -30,7 +30,7 @@ from hierarchy.serializers import DepartmentSerializer
 from navigation.table_fields import user_table
 from .resources import UserResource
 from .serializers import UserShortSerializer, UserTableSerializer, UserSerializer, \
-    UserSingleSerializer, PartnershipSerializer, ExistUserSerializer, UserCreateSerializer
+    UserSingleSerializer, PartnershipSerializer, ExistUserSerializer, UserCreateSerializer, DashboardSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -242,6 +242,20 @@ class UserViewSet(viewsets.ModelViewSet, UserExportViewSetMixin):
             serializer.is_valid(raise_exception=True)
             serializer.save()
 
+    @list_route(methods=['GET'], serializer_class=DashboardSerializer)
+    def dashboard_counts(self, request):
+        result = {}
+        current_user_descendants = User.objects.get(user_ptr=self.request.user).get_descendants()
+
+        result['total_peoples'] = current_user_descendants.count()
+        result['babies_count'] = current_user_descendants.filter(spiritual_level=User.BABY).count()
+        result['juniors_count'] = current_user_descendants.filter(spiritual_level=User.JUNIOR).count()
+        result['fathers_count'] = current_user_descendants.filter(spiritual_level=User.FATHER).count()
+        result['leaders_count'] = current_user_descendants.filter(home_group__leader__isnull=False).count()
+
+        result = self.serializer_class(result)
+        return Response(result.data)
+
 
 class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
     queryset = User.objects.exclude(hierarchy__level=0).select_related(
@@ -305,8 +319,3 @@ class LogoutView(RestAuthLogoutView):
 
         return Response({"success": _("Successfully logged out.")},
                         status=status.HTTP_200_OK)
-
-
-# class Dashboard(viewsets.ModelViewSet):
-#     queryset = User.objects.all()
-#     serializer_class = DashboardSerializer

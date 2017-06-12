@@ -25,7 +25,8 @@ from .models import HomeGroup, Church
 from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSerializer,
                           HomeGroupListSerializer, ChurchStatsSerializer, UserNameSerializer,
                           AllHomeGroupsListSerializer, HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer,
-                          MeetingDashboardSerializer)
+                          ChurchDashboardSerializer
+                          )
 
 
 class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
@@ -255,6 +256,19 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
             raise exceptions.ValidationError(
                 _('Невозможно удалить пользователя.'
                   'Данного пользователя не существует.'))
+
+    @list_route(methods=['GET'], serializer_class=ChurchDashboardSerializer)
+    def dashboard_counts(self, request):
+        queryset = self.queryset.for_user(self.request.user)
+
+        result = queryset.aggregate(
+            peoples_in_churches=Count('users', distinct=True),
+            peoples_in_home_groups=Count('home_group__users', distinct=True))
+        result['churches_count'] = queryset.count()
+        result['home_groups_count'] = HomeGroup.objects.for_user(self.request.user).count()
+
+        result = self.serializer_class(result)
+        return Response(result.data)
 
 
 class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportViewSetMixin):

@@ -250,7 +250,14 @@ class ExistUserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'fullname', 'phone_number', 'email', 'link')
 
 
-# class DashboardSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = ['__all__']
+class DashboardSerializer(serializers.ModelSerializer):
+    fathers_count = serializers.IntegerField()
+    juniors_count = serializers.IntegerField()
+    babies_count = serializers.IntegerField()
+    total_peoples = serializers.IntegerField()
+    leaders_count = serializers.IntegerField()
+
+    class Meta:
+        model = User
+        fields = ('total_peoples', 'fathers_count', 'juniors_count', 'babies_count', 'leaders_count')
+        read_only_fields = ['__all__']
