@@ -11,9 +11,11 @@ class OrderTable {
             sessionStorage.setItem('order', '');
         }
     }
+
     get sort() {
         return this._addListener;
     }
+
     _addListener(callback, selector) {
         $(selector).on('click', function () {
             let dataOrder = void 0;
@@ -43,6 +45,142 @@ class OrderTable {
             $('.preloader').css('display', 'block');
             callback(data);
         });
+    }
+}
+
+class DeleteUser {
+    constructor(id) {
+        this.user = id;
+    }
+
+    deleteUser() {
+        return this.user
+    }
+
+    btn() {
+        let btn = document.createElement('button');
+        return $(btn).on('click', this.deleteUser.bind(this));
+    }
+
+    popup(massage = null, info = null) {
+        if (massage) {
+            console.log(massage)
+        }
+        let btn = this.btn();
+        let popup = document.getElementById('create_pop');
+        let container = document.createElement('div');
+        if (popup) {
+            popup.parentElement.removeChild(popup)
+        }
+
+        let body = `<div class="pop_cont" >
+            <div class="top-text">
+                <h3>Удаление пользователя</h3><span class="close_pop">×</span>
+            </div>
+                <div class="main-text">
+                    <p>${(massage) ? massage : "Подтвердите удаление пользователя из церкви" }</p>
+                    ${(info) ? info : ''}
+                    <div class="buttons"></div>
+                </div>
+            </div>`;
+
+        container.className = "pop-up-universal";
+        container.innerHTML = body;
+
+        $(container).find('.buttons').html(btn);
+        container.id = "create_pop";
+        $(container).find('.close_pop').on('click', function () {
+            $('.pop-up-universal').css('display', 'none').remove();
+        });
+
+        $('body').append(container);
+    }
+}
+
+class DeleteChurchUser extends DeleteUser {
+    constructor(userId, churchId, callback) {
+        super(userId);
+        this.church = churchId;
+        this.callback = callback;
+        this.delAll = false;
+        this.show_delete = true;
+        this.home_group = [];
+    }
+
+    btn() {
+        if (!this.show_delete) {
+            return
+        }
+        let container = document.createElement('div');
+        let btn = document.createElement('button');
+        let cancel = document.createElement('button');
+        (this.delAll) ?
+            $(btn).text('Удалить из домашних групп').on('click', this.deleteFromHomeGroup.bind(this)) :
+            $(btn).text('Подтвердить').on('click', this.deleteFromChurch.bind(this));
+        $(cancel).text('Отменить').addClass('close_pop');
+        $(container).append(btn).append(cancel);
+        return container
+    }
+
+    deleteFromChurch() {
+        let options = {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            }),
+            body: JSON.stringify({
+                user_id: this.user
+            })
+        };
+        return fetch(`/api/v1.0/churches/${this.church}/del_user/`, options)
+            .then(res => {
+                return (res.status == 204) ? res.status : res.json()
+            })
+            .then(data => {
+                if (data !== 204 && data.home_groups) {
+                    let info = data.home_groups.map(item => `<p>Состоит в ${item.name}</p>`);
+                    this.home_group = data.home_groups.map(item => item.id);
+                    this.delAll = true;
+                    this.popup(data.detail, info)
+                }
+                if (data === 204) {
+                    this.show_delete = false;
+                    this.popup('Пользователь удален из церкви');
+                    this.callback();
+                }
+            })
+            .catch(err => {
+                this.show_delete = false;
+                this.popup(JSON.parse(err));
+            });
+    }
+
+    deleteFromHomeGroup() {
+        let options = {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            }),
+            body: JSON.stringify({
+                user_id: this.user
+            })
+        };
+        this.delAll = false;
+        let massage = 'Пользователь удален из домашнєй группы';
+        let info = '<p>Подтвердите удаление пользователя из церкви</p>';
+        Promise.all(this.home_group.map((item) => {
+            fetch(`/api/v1.0/home_groups/${item}/del_user/`, options)
+        }))
+            .then(() => {
+                this.home_group = [];
+                this.popup(massage, info);
+            })
+            .catch(err => {
+                this.show_delete = false;
+                this.popup(JSON.parse(err));
+            });
     }
 }
 
@@ -217,6 +355,7 @@ function createHomeGroupsTable(config = {}) {
         new OrderTable().sort(createHomeGroupsTable, ".table-wrap th");
     });
 }
+
 function makePastorListWithMasterTree(config, selector, active = null) {
     getShortUsers(config).then(data => {
         let options = '<option selected>ВСЕ</option>';
@@ -232,6 +371,7 @@ function makePastorListWithMasterTree(config, selector, active = null) {
         })
     })
 }
+
 function makePastorListNew(id, selector = [], active = null) {
     getResponsible(id, 2).then(function (data) {
         let options = '<option selected>ВСЕ</option>';
@@ -247,6 +387,7 @@ function makePastorListNew(id, selector = [], active = null) {
         })
     });
 }
+
 function makePastorList(departmentId, selector, active = null) {
     getResponsible(departmentId, 2).then(function (data) {
         let options = [];
@@ -333,6 +474,7 @@ function makeDepartmentList(selector, active = null) {
         $(selector).html(options).prop('disabled', false).select2();
     });
 }
+
 function getChurchesListINDepartament(department_ids) {
     return new Promise(function (resolve, reject) {
         let url;
@@ -362,6 +504,7 @@ function getChurchesListINDepartament(department_ids) {
         newAjaxRequest(data, status, reject)
     })
 }
+
 function getHomeGroupsINChurches(id) {
     return new Promise(function (resolve, reject) {
         let data = {
@@ -420,6 +563,69 @@ function createCSV(data) {
         file: new Blob(["\ufeff" + data.responseText], {type: type, endings: 'native'}),
         filename: filename
     };
+}
+
+function exportNewTableData(el) {
+    let _self = el;
+    return new Promise(function (resolve, reject) {
+        let url, filter, filterKeys, items, count;
+        let summitId = $('#summitsTypes').find('.active').data('id');
+        url = $(_self).attr('data-export-url');
+        url = url.replace('<id>', summitId);
+        filter = getFilterParam();
+        filterKeys = Object.keys(filter);
+        if (filterKeys && filterKeys.length) {
+            url += '?';
+            items = filterKeys.length;
+            count = 0;
+            filterKeys.forEach(function (key) {
+                count++;
+                url += key + '=' + filter[key];
+                if (count != items) {
+                    url += '&';
+                }
+            })
+        }
+        let data = {
+            url: url,
+            method: 'POST',
+        };
+        let status = {
+            200: function (data, statusText, req) {
+                // check for a filename
+                let file = createCSV(req);
+                if (typeof window.navigator.msSaveBlob !== 'undefined') {
+                    // IE workaround for "HTML7007"
+                    window.navigator.msSaveBlob(file.file, file.filename);
+                } else {
+                    let URL = window.URL || window.webkitURL;
+                    let downloadUrl = URL.createObjectURL(file.file);
+
+                    if (file.filename) {
+                        // use HTML5 a[download] attribute to specify filename
+                        let a = document.createElement("a");
+                        // safari doesn't support this yet
+                        if (typeof a.download === 'undefined') {
+                            window.location = downloadUrl;
+                        } else {
+                            a.href = downloadUrl;
+                            a.download = file.filename;
+                            document.body.appendChild(a);
+                            a.click();
+                        }
+                    } else {
+                        window.location = downloadUrl;
+                    }
+
+                    setTimeout(function () {
+                        URL.revokeObjectURL(downloadUrl);
+                    }, 100); // cleanup
+                    resolve(req);
+                }
+            }
+        };
+        newAjaxRequest(data, status, reject);
+    });
 }
 
 function exportTableData(el) {
@@ -667,7 +873,7 @@ function saveChurchData(data, id) {
                     reject(req);
                 }
             };
-        newAjaxRequest(data, status, reject)
+            newAjaxRequest(data, status, reject)
         });
     }
 }
@@ -701,7 +907,7 @@ function saveHomeGroupsData(data, id) {
                     reject(req);
                 }
             };
-        newAjaxRequest(data, status, reject)
+            newAjaxRequest(data, status, reject)
         })
     }
 }
@@ -806,15 +1012,12 @@ function createChurchesDetailsTable(config = {}, id, link) {
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINChurches').html(rendered).on('click', '.delete_btn', function () {
             let ID = $(this).closest('td').find('a').data('id');
-            deleteUserINChurch($('#church').data('id'), ID).then(() => {
-                createChurchesDetailsTable(config = {}, id, link);
-            });
-        });
-        $('.quick-edit').on('click', function () {
-            let user_id = $(this).closest('.edit').find('a').data('id');
-            deleteUserINChurch(id, user_id).then(function () {
-                createChurchesDetailsTable(config, id, link);
-            })
+            let DelUser = new DeleteChurchUser(ID, $('#church').data('id'), createChurchesDetailsTable);
+            DelUser.popup();
+
+            // deleteUserINChurch($('#church').data('id'), ID).then(() => {
+            //     createChurchesDetailsTable(config = {}, id, link);
+            // });
         });
         makeSortForm(filterData.user_table);
         let paginationConfig = {
@@ -1728,7 +1931,7 @@ function ajaxRequest(url, data, callback, method, withCredentials, headers, stat
     });
 }
 
-function showPopup(text, title) {
+function showPopup(text, title, callback) {
     text = text || '';
     title = title || 'Информационное сообщение';
     let popup = document.getElementById('create_pop');
@@ -1752,6 +1955,47 @@ function showPopup(text, title) {
     });
 }
 
+function showStatPopup(body, title, callback) {
+    title = title || 'Информационное сообщение';
+    let popup = document.getElementById('create_pop');
+    if (popup) {
+        popup.parentElement.removeChild(popup)
+    }
+    let div = document.createElement('div');
+
+    let html = `<div class="pop_cont" >
+        <div class="top-text">
+            <h3>${title}</h3><span id="close_pop">×</span></div>
+            <div class="main-text">${body}</div>
+            <div><button class="make">СФОРМИРОВАТЬ</button></div>
+        </div>`;
+    $(div)
+        .html(html)
+        .attr({
+        id: "create_pop"
+    })
+        .addClass('pop-up__stats')
+        .find('.date').datepicker({
+                dateFormat: 'yyyy-mm-dd',
+                autoClose: true
+            });
+    $(div).find('select').select2();
+    $(div).find('.make').on('click', function (e) {
+        e.stopPropagation();
+        let data = {
+            id: $(div).find('.master').val(),
+            attended: $(div).find('.attended').val(),
+            date: $(div).find('.date').val()
+        };
+            callback(data);
+    });
+    $('body').append(div);
+
+    $('#close_pop').on('click', function () {
+        $('.pop-up__stats').css('display', 'none').remove();
+    });
+}
+
 function showPopupAddUser(data) {
 
     let tmpl = document.getElementById('addUserSuccessPopup').innerHTML;
@@ -1760,6 +2004,9 @@ function showPopupAddUser(data) {
 
     $('#addPopup').find('.close').on('click', function () {
         $('#addPopup').css('display', 'none').remove();
+        $('#addNewUserPopup').find('form').css("transform", "translate3d(0px, 0px, 0px)");
+        clearAddNewUser();
+        $('#addNewUserPopup').find('.body').scrollTop(0);
     });
     $('#addPopup').find('.addMore').on('click', function () {
         $('#addPopup').css('display', 'none').remove();
@@ -1767,6 +2014,7 @@ function showPopupAddUser(data) {
         $('#addNewUserPopup').find('form').css("transform", "translate3d(0px, 0px, 0px)");
         $('#addNewUserPopup').css('display', 'block');
         clearAddNewUser();
+        $('#addNewUserPopup').find('.body').scrollTop(0);
     });
 }
 
@@ -2169,6 +2417,9 @@ function initAddNewUser(config = {}) {
             $('#chooseDepartment').html(rendered).select2().removeAttr('disabled').on('change', function () {
                 let status = $('#chooseStatus').find('option').filter(':selected').data('level');
                 let department = $(this).val();
+                if (!status) {
+                    return;
+                }
                 getResponsible(department, status).then(function (data) {
                     let rendered = [];
                     data.forEach(function (item) {
@@ -2718,7 +2969,10 @@ function getSearch(title) {
     }
 }
 function getFilterParam() {
-    let $filterFields, data = {};
+    let $filterFields,
+        dataTabs = {},
+        dataRange = {},
+        data = {};
     $filterFields = $('#filterPopup select, #filterPopup input');
     $filterFields.each(function () {
         if ($(this).val() == "ВСЕ") {
@@ -2738,6 +2992,20 @@ function getFilterParam() {
     if ('master_tree' in data && ('pastor' in data || 'master' in data || 'leader' in data)) {
         delete data.master_tree;
     }
+    let type = $('#tabs').find('li.active').find('button').attr('data-id');
+    if (type == "0") {
+    } else {
+        dataTabs.type = type;
+        Object.assign(data, dataTabs);
+    }
+    let rangeDate = $('.tab-home-stats').find('.set-date').find('input').val();
+    if (rangeDate) {
+        let dateArr = rangeDate.split('-');
+        dataRange.from_date = dateArr[0].split('.').reverse().join('-');
+        dataRange.to_date = dateArr[1].split('.').reverse().join('-');
+        Object.assign(data, dataRange);
+    }
+
     return data;
 }
 

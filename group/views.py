@@ -16,8 +16,8 @@ from account.models import CustomUser
 from account.serializers import AddExistUserSerializer
 from common.filters import FieldSearchFilter
 from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet
-from group.filters import (HomeGroupFilter, ChurchFilter,
-                           FilterChurchMasterTree, FilterHomeGroupMasterTree)
+from group.filters import (HomeGroupFilter, ChurchFilter, FilterChurchMasterTree, FilterHomeGroupMasterTree,
+                           HomeGroupsDepartmentFilter)
 from group.pagination import ChurchPagination, HomeGroupPagination
 from group.resources import ChurchResource, HomeGroupResource
 from group.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin)
@@ -25,7 +25,7 @@ from .models import HomeGroup, Church
 from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSerializer,
                           HomeGroupListSerializer, ChurchStatsSerializer, UserNameSerializer,
                           AllHomeGroupsListSerializer, HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer,
-                          )
+                          MeetingDashboardSerializer)
 
 
 class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
@@ -269,7 +269,8 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
     filter_backends = (filters.DjangoFilterBackend,
                        FieldSearchFilter,
                        filters.OrderingFilter,
-                       FilterHomeGroupMasterTree)
+                       FilterHomeGroupMasterTree,
+                       HomeGroupsDepartmentFilter)
 
     ordering_fields = ('title', 'church', 'leader__last_name', 'city', 'leader',
                        'address', 'opening_date', 'phone_number', 'website',

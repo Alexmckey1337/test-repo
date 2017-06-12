@@ -6,10 +6,12 @@ from datetime import datetime, timedelta
 
 from dbmail import send_db_mail
 from django.db import transaction, IntegrityError
-from django.db.models import Case, When, BooleanField, F, ExpressionWrapper, IntegerField
+from django.db.models import Case, When, BooleanField, F, ExpressionWrapper, IntegerField, Subquery
+from django.db.models.functions import Concat
+from django.db.models import Value as V
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
-from rest_framework import exceptions, viewsets, filters, status, mixins
+from rest_framework import exceptions, viewsets, filters, status, mixins, serializers
 from rest_framework.decorators import list_route, detail_route, api_view
 from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -19,23 +21,24 @@ from rest_framework.viewsets import GenericViewSet
 
 from account.models import CustomUser
 from common.filters import FieldSearchFilter
-from common.views_mixins import ModelWithoutDeleteViewSet
+from common.views_mixins import ModelWithoutDeleteViewSet, ExportViewSetMixin
 from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import FilterByClub, SummitUnregisterFilter, ProfileFilter, \
     FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend
 from summit.pagination import SummitPagination, SummitTicketPagination
-from summit.permissions import HasAPIAccess, CanSeeSummitProfiles
-from summit.utils import generate_ticket
+from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report
+from summit.resources import SummitAnketResource
+from summit.utils import generate_ticket, SummitParticipantReport
 from .models import (Summit, SummitAnket, SummitType, SummitLesson, SummitUserConsultant,
-                     SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend)
+                     SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend, AnketStatus)
 from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
-    SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer,
-    SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitShortSerializer, SummitAnketShortSerializer,
-    SummitLessonShortSerializer, SummitTicketSerializer, SummitAnketForTicketSerializer,
-    SummitVisitorLocationSerializer, SummitEventTableSerializer, SummitProfileTreeForAppSerializer,
-    SummitAnketCodeSerializer, SummitAttendStatisticsSerializer)
+    SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer,
+    SummitAnketForSelectSerializer, SummitTypeForAppSerializer, SummitAnketForAppSerializer,
+    SummitShortSerializer, SummitAnketShortSerializer, SummitLessonShortSerializer, SummitTicketSerializer,
+    SummitAnketForTicketSerializer, SummitVisitorLocationSerializer, SummitEventTableSerializer,
+    SummitProfileTreeForAppSerializer, SummitAnketCodeSerializer, SummitAttendStatisticsSerializer)
 from .tasks import generate_tickets
 
 logger = logging.getLogger(__name__)
@@ -52,6 +55,7 @@ class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
     serializer_class = SummitAnketSerializer
     pagination_class = SummitPagination
     permission_classes = (IsAuthenticated,)
+    summit = None
 
     filter_class = ProfileFilter
     ordering_fields = (
@@ -99,6 +103,49 @@ class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
         qs = self.summit.ankets.base_queryset().annotate_total_sum().annotate_full_name().order_by(
             'user__last_name', 'user__first_name', 'user__middle_name')
         return qs.for_user(self.request.user)
+
+
+class MasterSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField()
+
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'full_name')
+
+
+class SummitBishopHighMasterListView(mixins.ListModelMixin, GenericAPIView):
+    serializer_class = MasterSerializer
+    permission_classes = (IsAuthenticated,)
+    queryset = CustomUser.objects.all()
+    summit = None
+    pagination_class = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.summit = get_object_or_404(Summit, pk=kwargs.get('pk', None))
+        return super(SummitBishopHighMasterListView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def check_permissions(self, request):
+        super(SummitBishopHighMasterListView, self).check_permissions(request)
+        if not CanSeeSummitProfiles().has_object_permission(request, self, self.summit):
+            self.permission_denied(
+                request, message=getattr(CanSeeSummitProfiles, 'message', None)
+            )
+
+    def get_queryset(self):
+        subqs = self.summit.ankets.all()
+        return self.queryset.filter(pk__in=Subquery(subqs.values('user_id')), hierarchy__level__gte=4).annotate(
+            full_name=Concat('last_name', V(' '), 'first_name', V(' '), 'middle_name'))
+
+
+class SummitProfileListExportView(SummitProfileListView, ExportViewSetMixin):
+    resource_class = SummitAnketResource
+    queryset = SummitAnket.objects.all()
+
+    def post(self, request, *args, **kwargs):
+        return self._export(request, *args, **kwargs)
 
 
 class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
@@ -161,7 +208,7 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         else:
             anket = SummitAnket.objects.create(
                 user=user, summit=summit, visited=visited, description=request.data['description'])
-            anket.code = '0{}'.format(4 * 000 * 000 + anket.id)
+            anket.code = '0{}'.format(4 * 1000 * 1000 + anket.id)
             anket.creator = request.user
             anket.save()
         data = {"message": "Данные успешно сохраненны",
@@ -276,6 +323,8 @@ class SummitUnregisterUserViewSet(viewsets.ModelViewSet):
 
 
 class SummitTicketMakePrintedView(GenericAPIView):
+    serializer_class = SummitTicketSerializer
+
     def post(self, request, *args, **kwargs):
         ticket_id = kwargs.get('ticket', None)
         ticket = get_object_or_404(SummitTicket, pk=ticket_id)
@@ -320,9 +369,20 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
             raise exceptions.ValidationError(_('Невозможно получить объект. '
                                                'Передан некорректный регистрационный код'))
         visitor = get_object_or_404(SummitAnket, pk=visitor_id)
-        visitor = self.get_serializer(visitor)
+        AnketStatus.objects.update_or_create(
+            anket=visitor, defaults={'reg_code_requested': True})
 
+        visitor = self.get_serializer(visitor)
         return Response(visitor.data)
+
+
+@api_view(['GET'])
+def app_request_count(request, summit_id):
+    profiles = SummitAnket.objects.filter(summit_id=summit_id).values_list(
+        'status__reg_code_requested', flat=True)
+    total = len(profiles)
+    requested = len(list(filter(lambda p: p, profiles)))
+    return Response({'total': total, 'requested': requested})
 
 
 class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
@@ -336,17 +396,6 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
     def get(self, request, *args, **kwargs):
         self.summit = get_object_or_404(Summit, pk=kwargs.get('summit_id', None))
         self.master_id = kwargs.get('master_id', None)
-        # interval = int(request.query_params.get('interval', None))
-        # date_time = request.query_params.get('date_time', None)
-        # print(date_time)
-        # try:
-        #     date_time = datetime.strptime(date_time.replace('T', ' '), '%Y-%m-%d %H:%M:%S')
-        # except ValueError:
-        #     raise exceptions.ValidationError(
-        #         'Не верный формат даты. Передайте дату в формате date %Y-%m-%dT%H:%M:%S')
-        #
-        # self.start_date = date_time - timedelta(minutes=interval)
-        # self.end_date = date_time + timedelta(minutes=interval)
         return self.list(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
@@ -360,7 +409,6 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
     def annotate_queryset(self, qs):
         return qs.base_queryset().annotate_full_name().annotate(
             diff=ExpressionWrapper(F('user__rght') - F('user__lft'), output_field=IntegerField()),
-            # location=F('visitor_locations')
         ).order_by('-hierarchy__level')
 
     def get_queryset(self):
@@ -375,25 +423,6 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
             return self.annotate_queryset(self.summit.ankets.filter(user__level=0))
         else:
             return self.annotate_queryset(self.summit.ankets.filter(user__master_id=self.request.user.id))
-
-    # @list_route(methods=['GET'])
-    # def location_by_interval(self, request):
-    #     date_time = request.query_params.get('date_time')
-    #     date_format = '%Y-%m-%d %H:%M:%S'
-    #     try:
-    #         date_time = datetime.strptime(date_time.replace('T', ' '), date_format)
-    #     except ValueError:
-    #         raise exceptions.ValidationError(
-    #             'Не верный формат даты. Передайте дату в формате date %Y-%m-%dT%H:%M:%S')
-    #
-    #     interval = int(request.query_params.get('interval'))
-    #     start_date = date_time - timedelta(minutes=interval)
-    #     end_date = date_time + timedelta(minutes=interval)
-    #
-    #     locations = self.queryset.filter(date_time__range=(start_date, end_date))
-    #     locations = self.serializer_class(locations, many=True)
-    #
-    #     return Response(locations.data, status=status.HTTP_200_OK)
 
 
 # UNUSED
@@ -544,6 +573,26 @@ def generate_code(request):
 
 
 @api_view(['GET'])
+def summit_report_by_participant(request, summit_id, master_id):
+    can_download = can_download_summit_participant_report(request.user, summit_id)
+    if not can_download:
+        raise exceptions.PermissionDenied(_('You do not have permission to download report. '))
+    master = get_object_or_404(CustomUser, pk=master_id)
+    report_date = request.query_params.get('date', '')
+    short = request.query_params.get('short', None)
+    attended = request.query_params.get('attended', None)
+
+    pdf = SummitParticipantReport(summit_id, master, report_date, short, attended).generate_pdf()
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment;'
+
+    response.write(pdf)
+
+    return response
+
+
+@api_view(['GET'])
 def generate_summit_tickets(request, summit_id):
     limit = 2000
 
@@ -577,13 +626,16 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
         visitor = get_object_or_404(SummitAnket, pk=request.data.get('visitor_id'))
 
         for chunk in data:
+            if SummitVisitorLocation.objects.filter(visitor=visitor, date_time=chunk.get('date_time')).exists():
+                continue
             SummitVisitorLocation.objects.create(visitor=visitor,
                                                  date_time=chunk.get('date_time', datetime.now()),
                                                  longitude=chunk.get('longitude', 0),
                                                  latitude=chunk.get('latitude', 0),
                                                  type=chunk.get('type', 1))
 
-        return Response({'message': 'Successful created'}, status=status.HTTP_201_CREATED)
+        return Response({'message': 'Successful created'},
+                        status=status.HTTP_201_CREATED)
 
     @list_route(methods=['GET'])
     def get_location(self, request):
@@ -605,7 +657,7 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
             raise exceptions.ValidationError(
                 'Не верный формат даты. Передайте дату в формате date %Y-%m-%dT%H:%M:%S')
 
-        interval = int(request.query_params.get('interval'))
+        interval = int(request.query_params.get('interval', 0))
         start_date = date_time - timedelta(minutes=interval)
         end_date = date_time + timedelta(minutes=interval)
 

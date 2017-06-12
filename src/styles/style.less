@@ -889,7 +889,12 @@ h1 a {
   color: white;
   background: none;
 }
-
+.print::before {
+  content: "\f02f" !important;
+  font: 1.4em FontAwesome;
+  color: white;
+  background: none;
+}
 .download::before {
   content: "\f019" !important;
   font: 1.4em FontAwesome;
@@ -2488,7 +2493,13 @@ input:checked ~ label.disable:before {
     color: #FFF;
   }
 }
-
+.pop-up__stats {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
 .pop-up-universal {
   position: fixed;
   top: 0;
@@ -2497,12 +2508,15 @@ input:checked ~ label.disable:before {
   height: 100%;
   background-color: rgba(0, 0, 0, .8);
   z-index: 9999;
+  & .buttons {
+    margin-top: 1em;
+  }
 }
 
 .pop-up-universal p {
   font-size: 1.2em;
-  padding: 20px;
-  line-height: 1.5;
+  padding: 7px 20px;
+  line-height: 1.3;
 }
 
 #quickEditCartPopup {
@@ -2776,8 +2790,35 @@ input:checked ~ label.disable:before {
   background-color: #e6e9ee;
   position: relative;
 }
+.pop-up__stats {
+  & .main-text {
+    & > div {
+      display: flex;
+      justify-content: space-between;
+      margin: 1em 0;
+    }
+    & .select2 {
+      width: 250px !important;
+    }
+    & .date {
+      width: 120px;
+      padding: 0 .5em;
+      height: 2em;
+      line-height: 2em;
+    }
+  }
+}
+.pop-up__stats .top-text {
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  border-bottom: 1px solid #cdd0d4;
+  padding: 20px;
+  background-color: #e6e9ee;
+  position: relative;
+}
 
 .pop-up-universal .top-text > span,
+.pop-up__stats .top-text > span,
 .splash-screen .top-text > span {
   content: 'X';
   position: absolute;
@@ -6251,6 +6292,7 @@ div.code input#code {
       justify-content: space-between;
       height: 55px;
       padding: 0 30px;
+      z-index: 5;
       h1 {
         font-size: 2em;
         font-weight: 900;
@@ -6789,6 +6831,63 @@ div.code input#code {
     }
   }
 }
+/* ------------------Home stats button------------------------------ */
+.tab-home-stats {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  border: 0;
+  #tabs {
+    position: relative;
+    margin-right: 20px;
+  }
+  #tabs li {
+    &.active {
+      background-color: #f2f5fa;
+    }
+    &:first-child {
+      border-left: 1px solid #cdd0d4;
+    }
+  }
+  .week {
+    padding: 15px 20px;
+    border: 1px solid #cdd0d4;
+    border-right: 0;
+    border-radius: 0;
+    &.week_prev {
+      margin-right: 20px;
+      border-right: 1px solid #cdd0d4;
+    }
+    &.active {
+      background-color: #f2f5fa;
+    }
+  }
+  .set-date {
+    display: flex;
+    input {
+      height: 3em;
+      padding: .5em;
+    }
+    & .cal-icon {
+      position: relative;
+      width: 40px;
+      height: 50px;
+      border: 1px solid #cdd0d4;
+      border-left: 0;
+      background-color: #f2f5fa;
+      &::after {
+        display: block;
+        font: 1.3em FontAwesome;
+        position: absolute;
+        top: 1.1em;
+        right: .8em;
+        color: #000;
+        content: '\f073';
+      }
+    }
+  }
+}
+
 /* ------------------DESKBOARD------------------------------ */
 .deskboard {
   .deskboard-head {

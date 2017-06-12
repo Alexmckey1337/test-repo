@@ -23,10 +23,10 @@ class ValidateDataBeforeUpdateMixin(object):
                 _('Невозможно обновить методом UPDATE. '
                   'Отчет - {%s} еще небыл подан.') % instance)
 
-        if instance.date > validated_data.get('date'):
+        if instance.date.isocalendar()[1] > validated_data.get('date').isocalendar()[1]:
             raise serializers.ValidationError(
-                _('Невозможно подать отчет. Переданная дата подачи отчета - {%s} '
-                  'меньше чем дата его создания.' % validated_data.get('date'))
+                _('Невозможно подать отчет, переданная дата - %s. '
+                  'Отчет должен подаваться за ту неделю на которой был создан.' % validated_data.get('date'))
             )
         [validated_data.pop(field, None) for field in not_editable_fields]
 
@@ -86,7 +86,6 @@ class MeetingSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMix
                 _('Переданный лидер не являетя лидером данной Домашней Группы'))
 
         meeting = Meeting.objects.create(**validated_data)
-
         return meeting
 
 
@@ -110,14 +109,11 @@ class MeetingDetailSerializer(MeetingSerializer):
     type = MeetingTypeSerializer(read_only=True, required=False)
     owner = UserNameSerializer(read_only=True, required=False)
     status = serializers.ReadOnlyField(read_only=True, required=False)
-    can_submit = serializers.BooleanField(read_only=True)
-    cause_message = serializers.CharField(read_only=True)
 
     not_editable_fields = ['home_group', 'owner', 'type', 'status']
 
     class Meta(MeetingSerializer.Meta):
-        fields = MeetingSerializer.Meta.fields + ('attends', 'table_columns',
-                                                  'can_submit', 'cause_message')
+        fields = MeetingSerializer.Meta.fields + ('attends', 'table_columns')
 
     def update(self, instance, validated_data):
         instance, validated_data = self.validate_before_serializer_update(
@@ -144,16 +140,25 @@ class MeetingStatisticSerializer(serializers.ModelSerializer):
         read_only_fields = ['__all__']
 
 
+class MeetingDashboardSerializer(serializers.ModelSerializer):
+    unsold_night_reports = serializers.IntegerField(read_only=True)
+    unsold_home_reports = serializers.IntegerField(read_only=True)
+    unsold_service_reports = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Meeting
+        fields = ('unsold_night_reports', 'unsold_home_reports', 'unsold_service_reports')
+
+
 class ChurchReportListSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMixin):
     pastor = UserNameSerializer()
     church = ChurchNameSerializer()
-    status = serializers.CharField(source='get_status_display')
     date = serializers.DateField(default=datetime.now().date())
 
     class Meta:
         model = ChurchReport
-        fields = ('id', 'pastor', 'church', 'date', 'count_people', 'tithe', 'donations',
-                  'transfer_payments', 'status', 'link')
+        fields = ('id', 'pastor', 'church', 'date', 'status', 'link', 'count_people', 'new_people',
+                  'count_repentance', 'tithe', 'donations', 'pastor_tithe')
         read_only_fields = ['__all__']
 
 
@@ -162,12 +167,14 @@ class ChurchReportSerializer(ChurchReportListSerializer):
     pastor = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
         church__pastor__id__isnull=False).distinct(), required=False)
     status = serializers.IntegerField(default=1)
+    can_submit = serializers.BooleanField(read_only=True)
+    cant_submit_cause = serializers.CharField(read_only=True)
 
     not_editable_fields = ['church', 'pastor', 'status']
 
     class Meta(ChurchReportListSerializer.Meta):
-        fields = ChurchReportListSerializer.Meta.fields + (
-            'new_people', 'count_repentance', 'currency_donations', 'pastor_tithe')
+        fields = ChurchReportListSerializer.Meta.fields + ('currency_donations', 'transfer_payments',
+                                                           'can_submit', 'cant_submit_cause')
         read_only_fields = None
 
         validators = [
@@ -175,17 +182,6 @@ class ChurchReportSerializer(ChurchReportListSerializer):
                 queryset=ChurchReport.objects.all(),
                 fields=('church', 'date', 'status')
             )]
-
-    def create(self, validated_data):
-        pastor = validated_data.get('pastor')
-        church = validated_data.get('church')
-        if church.pastor != pastor:
-            raise serializers.ValidationError(
-                _('Переданный пастор не являетя пастором данной Церкви'))
-
-        church_report = ChurchReport.objects.create(**validated_data)
-
-        return church_report
 
     def update(self, instance, validated_data):
         instance, validated_data = self.validate_before_serializer_update(

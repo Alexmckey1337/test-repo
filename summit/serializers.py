@@ -1,17 +1,18 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from datetime import datetime, timedelta
+
 from django.conf import settings
-from django.db import models
 from django.urls import reverse
 from rest_framework import serializers
-from rest_framework.serializers import ListSerializer
 
 from account.models import CustomUser as User
 from account.serializers import UserTableSerializer, UserShortSerializer
 from common.fields import ListCharField, ReadOnlyChoiceWithKeyField
 from .models import (Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
-                     SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend)
+                     SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend,
+                     AnketStatus)
 
 
 class ImageWithoutHostField(serializers.ImageField):
@@ -178,28 +179,32 @@ class ChildrenLink(serializers.RelatedField):
         return None
 
 
-class LocationListSerializer(ListSerializer):
-
-    def to_representation(self, data):
-        """
-        List of object instances -> List of dicts of primitive datatypes.
-        """
-        # Dealing with nested relationships, data can be a Manager,
-        # so, first get a queryset from the Manager if needed
-        iterable = [data.first()] if isinstance(data, models.Manager) else data
-
-        return [
-            self.child.to_representation(item) for item in iterable
-        ]
-
-
 class SummitVisitorLocationSerializer(serializers.ModelSerializer):
     visitor_id = serializers.IntegerField(source='visitor.id')
 
     class Meta:
         model = SummitVisitorLocation
         fields = ('visitor_id', 'date_time', 'longitude', 'latitude', 'type')
-        list_serializer_class = LocationListSerializer
+
+
+class CustomVisitorsLocationSerializer(serializers.ReadOnlyField):
+    def __init__(self, **kwargs):
+        self.fields = [f.split('.') for f in kwargs.pop('fields', [])]
+        super().__init__(**kwargs)
+
+    def to_representation(self, value):
+        date_time = self.context['request'].query_params.get('date_time', '')
+        interval = int(self.context['request'].query_params.get('interval', 5))
+        try:
+            date_time = datetime.strptime(date_time.replace('T', ' '), '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            end_date = datetime.now()
+            start_date = end_date - timedelta(minutes=2*interval)
+        else:
+            start_date = date_time - timedelta(minutes=interval)
+            end_date = date_time + timedelta(minutes=interval)
+        return value.filter(date_time__range=(start_date, end_date)).values(
+            'visitor_id', 'date_time', 'longitude', 'latitude', 'type').first()
 
 
 class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
@@ -211,7 +216,7 @@ class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
     children = ChildrenLink(view_name='summit-app-profile-list-master',
                             queryset=SummitAnket.objects.all())
     photo = ImageWithoutHostField(source='user.image', use_url=False)
-    visitor_locations = SummitVisitorLocationSerializer(read_only=True, many=True)
+    visitor_locations = CustomVisitorsLocationSerializer()
 
     class Meta:
         model = SummitAnket
@@ -254,15 +259,28 @@ class UserForAppSerializer(serializers.ModelSerializer):
                   'email', 'phone_number')  # + ('region', 'district', 'address', 'image_source')
 
 
+class AnketStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnketStatus
+        fields = ('reg_code_requested', 'active')
+
+    def get_attribute(self, instance):
+        instance = super().get_attribute(instance)
+        if instance is None:
+            return AnketStatus()
+        return instance
+
+
 class SummitAnketForAppSerializer(serializers.ModelSerializer):
     user = UserForAppSerializer()
     ticket_id = serializers.CharField(source='code')
     visitor_id = serializers.IntegerField(source='id')
     avatar_url = ImageWithoutHostField(source='user.image', use_url=False)
+    status = AnketStatusSerializer(read_only=True)
 
     class Meta:
         model = SummitAnket
-        fields = ('visitor_id', 'user', 'ticket_id', 'reg_code', 'avatar_url')  # + ('value', 'is_member')
+        fields = ('visitor_id', 'user', 'ticket_id', 'reg_code', 'avatar_url', 'status')
 
 
 class SummitAnketLocationSerializer(serializers.ModelSerializer):
@@ -278,7 +296,7 @@ class SummitEventTableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SummitEventTable
-        fields = ('summit_id', 'date', 'time', 'name_ru', 'author_ru', 'name_en',
+        fields = ('summit_id', 'hide_time', 'date', 'time', 'name_ru', 'author_ru', 'name_en',
                   'author_en', 'name_de', 'author_de')
 
 

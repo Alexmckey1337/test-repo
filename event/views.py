@@ -14,13 +14,14 @@ from rest_framework.response import Response
 from account.models import CustomUser
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
-from .filters import ChurchReportFilter, MeetingFilter, CommonEventFilter, MeetingFilterByMaster
+from .filters import (ChurchReportFilter, MeetingFilter, MeetingCustomFilter, MeetingFilterByMaster,
+                      ChurchReportDepartmentFilter, ChurchReportFilterByMaster)
 from .models import Meeting, ChurchReport, MeetingAttend
-from .pagination import MeetingPagination, MeetingVisitorsPagination
+from .pagination import MeetingPagination, MeetingVisitorsPagination, ChurchReportPagination
 from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingDetailSerializer,
                           MeetingListSerializer, ChurchReportStatisticSerializer,
                           MeetingStatisticSerializer, ChurchReportSerializer,
-                          ChurchReportListSerializer)
+                          ChurchReportListSerializer, MeetingDashboardSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +37,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
     pagination_class = MeetingPagination
 
     filter_backends = (filters.DjangoFilterBackend,
-                       CommonEventFilter,
+                       MeetingCustomFilter,
                        FieldSearchFilter,
                        filters.OrderingFilter,
                        MeetingFilterByMaster)
@@ -214,16 +215,23 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
     serializer_list_class = ChurchReportListSerializer
 
     permission_classes = (IsAuthenticated,)
-    # pagination_class = ChurchReportPagination
+    pagination_class = ChurchReportPagination
 
     filter_backends = (filters.DjangoFilterBackend,
+                       ChurchReportFilterByMaster,
+                       ChurchReportDepartmentFilter,
                        FieldSearchFilter,
                        filters.OrderingFilter,)
 
     filter_class = ChurchReportFilter
 
     field_search_fields = {
-        'search_date': ('date',)
+        'search_date': ('date',),
+        'search_title': (
+            'id',
+            'church__title',
+            'pastor__last_name', 'pastor__first_name', 'pastor__middle_name',
+        )
     }
 
     def get_serializer_class(self):
@@ -238,13 +246,19 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
             raise exceptions.ValidationError(
                 _('Невозможно подать отчет. Данный отчет уже был подан ранее'))
 
+        if ChurchReport.objects.filter(persor=church_report.pastor, status=ChurchReport.EXPIRED).exists() and \
+                        church_report.status == ChurchReport.IN_PROGRESS:
+            raise exceptions.ValidationError('Невозможно подать отчет.\n'
+                                             'Данный пастор имеет просроченные отчеты.')
+
+        data = request.data
         church_report.status = ChurchReport.SUBMITTED
-        report = self.get_serializer(church_report, data=request.data, partial=True)
+        report = self.get_serializer(church_report, data=data, partial=True)
         report.is_valid(raise_exception=True)
         self.perform_update(report)
         headers = self.get_success_headers(report.data)
 
-        return Response(report.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(report.data, status=status.HTTP_200_OK, headers=headers)
 
     @list_route(methods=['GET'], serializer_class=ChurchReportStatisticSerializer)
     def statistics(self, request):
@@ -259,6 +273,4 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
             total_pastor_tithe=Sum('pastor_tithe'))
 
         statistics = self.serializer_class(statistics)
-        statistics.is_valid(raise_exception=True)
-
         return Response(statistics.data)

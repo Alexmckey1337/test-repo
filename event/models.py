@@ -140,14 +140,14 @@ class Meeting(AbstractStatusModel):
 
 
 class ChurchReport(AbstractStatusModel):
-    date = models.DateField(_('Date'))
-    count_people = models.IntegerField(_('Count People'), default=0)
-    new_people = models.IntegerField(_('New People'), default=0)
-    count_repentance = models.IntegerField(_('Number of Repentance'), default=0)
     pastor = models.ForeignKey('account.CustomUser',
                                limit_choices_to={'hierarchy__level__gte': 2})
     church = models.ForeignKey('group.Church', on_delete=models.PROTECT,
                                verbose_name=_('Church'))
+    date = models.DateField(_('Date'))
+    count_people = models.IntegerField(_('Count People'), default=0)
+    new_people = models.IntegerField(_('New People'), default=0)
+    count_repentance = models.IntegerField(_('Number of Repentance'), default=0)
     tithe = models.DecimalField(_('Tithe'), max_digits=12, decimal_places=0, default=0)
     donations = models.DecimalField(_('Donations'), max_digits=12,
                                     decimal_places=0, default=0)
@@ -175,6 +175,24 @@ class ChurchReport(AbstractStatusModel):
     @property
     def link(self):
         return self.get_absolute_url()
+
+    @property
+    def department(self):
+        return self.church.department
+
+    @property
+    def can_submit(self):
+        if ChurchReport.objects.filter(pastor=self.pastor, status=ChurchReport.EXPIRED).exists() \
+                and self.status == ChurchReport.IN_PROGRESS:
+            return False
+        return True
+
+    @property
+    def cant_submit_cause(self):
+        if not self.can_submit:
+            return 'Невозможно подать отчет.\n' \
+                   'Данный пастор имеет просроченные отчеты.'
+        return ''
 
 
 class DayOfTheWeekField(models.CharField):

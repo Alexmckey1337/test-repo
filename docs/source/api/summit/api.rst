@@ -63,6 +63,81 @@ Info by summit
    :statuscode 404: there's no summit
 
 
+PDF report by participant of the summit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/summit/(int:summit_id)/master/(int:master_id).pdf
+
+   Information about ``Summit`` with id = ``summit_id``.
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      GET /api/v1.0/summit/4/master/13.pdf?date=2042-02-04&attended=false&short HTTP/1.1
+      Host: vocrm.org
+      Accept: application/json
+
+   **Example response**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Vary: Accept, Cookie
+      Allow: GET,HEAD,OPTIONS
+      Content-Type: "application/pdf"
+      Content-Disposition: "attachment;"
+
+        ... body ...
+
+   **Example response (Not Found)**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 404 Not Found
+      Vary: Accept, Cookie
+      Allow: GET,HEAD,OPTIONS
+      Content-Type: application/json
+
+      {
+        "detail": "Не найдено."
+      }
+
+   **Example response (Bad request)**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 400 Bad Request
+      Allow: OPTIONS, GET
+      Content-Type: application/json
+      Vary: Accept
+
+      [
+          "Invalid date."
+      ]
+
+   .. sourcecode:: http
+
+      HTTP/1.1 403 Forbidden
+      Allow: OPTIONS, GET
+      Content-Type: application/json
+      Vary: Accept
+
+      {
+          "detail": "You do not have permission to download report. "
+      }
+
+   :query string date: report date, format: ``YYYY-mm-dd``
+   :query string attended: filter users by attended, one of (
+         [``True``, ``true``, ``TRUE``, ``t``, ``yes``, ``Yes`` , ``YES``, ``1``] or
+         [``False``, ``false``, ``FALSE``, ``f``, ``no``, ``No`` , ``NO``, ``0``])
+   :query string short: if exist -> without break page
+
+   :statuscode 200: no error
+   :statuscode 400: bad request
+   :statuscode 404: there's no master
+
+
 
 List of summits
 ~~~~~~~~~~~~~~~
@@ -389,6 +464,112 @@ List of summit profiles
 
    :statuscode 200: no error
 
+
+Summit masters
+~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/summits/(int:summit_id)/bishop_high_masters/
+
+    List of masters by summit (bishop+)
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/v1.0/summits/13/bishop_high_masters/ HTTP/1.1
+        Host: vocrm.org
+        Accept: application/json
+
+    **Example response**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Vary: Accept, Cookie
+      Allow: GET,HEAD,OPTIONS
+      Content-Type: application/json
+
+      [
+          {
+              "id": 7036,
+              "full_name": "Кондрашова Евгения Юрьевна"
+          },
+          {
+              "id": 2771,
+              "full_name": "Духовная Оксана Валентиновна"
+          },
+          {
+              "id": 6975,
+              "full_name": "Богза Ирина Георгиевна"
+          }
+      ]
+
+Export summit profiles
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:post:: /api/v1.0/summits/(int:summit_id)/export_users/
+
+    Export profiles.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        POST /api/v1.0/summits/13/export_users/ HTTP/1.1
+        Host: vocrm.org
+        content-type: application/x-www-form-urlencoded
+        content-length: 33
+
+          fields=id,last_name,city&ids=1,135
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: POST,OPTIONS
+        Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+        Content-Disposition: attachment; filename=SummitAnket-2016-12-20.xlsx
+
+        ... body ...
+
+    *SummitAnket-2016-12-20.xlsx content*
+
+    +-----+-----------+------+
+    | id  | last_name | city |
+    +=====+===========+======+
+    | 1   | Gates     | Rio  |
+    +-----+-----------+------+
+    | 135 | Torvalds  | Kiev |
+    +-----+-----------+------+
+
+    :form fields: field names for export (comma-separated), optional. Default is (
+                   ``last_name``, ``first_name``, ``middle_name``,
+                   ``email``, ``phone_number``, ``skype``,
+                   ``country``, ``city``, ``address``, ``region``,
+                   ``departments``, ``hierarchy``, ``master``, ``spiritual_level``, ``divisions``, ``fullname``
+                   ``born_date``, ``facebook``, ``vkontakte``, ``description``, ``code``)
+    :form ids: user ids for export (comma-separated), optional.
+                         If ``ids`` is empty then will be used filter by query parameters.
+
+    .. important:: **Query Parameters** used only if ids is empty
+
+    :query int hierarchy: filter by ``hierarchy_id``
+    :query int master: filter by ``master_id``, returned children of master
+    :query int master_tree: filter by ``master_id``, returned descendants of master and self master
+    :query int department: filter by ``department_id``
+    :query int ticket_status: filter by ``ticket_status`` (one of ``none``, ``download``, ``print``)
+    :query string search_fio: search by ``last_name``, ``first_name``, ``middle_name``, ``search_name``
+    :query string search_email: search by ``email``
+    :query string search_phone_number: search by main ``phone_number``
+    :query string search_country: search by ``country``
+    :query string search_city: search by ``city``
+
+    :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
+                             ``application/json``, ``multipart/form-data``
+
+    :statuscode 200: success export
 
 
 List of summit lessons
