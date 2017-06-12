@@ -104,7 +104,8 @@
         });
     });
     $('#download').on('click', function () {
-        let stat = new PrintMasterStat($('#summitsTypes').find('.active').data('id'));
+        let summitId = $('#summitsTypes').find('.active').data('id');
+        let stat = new PrintMasterStat(summitId);
         stat.show();
     });
 
@@ -576,6 +577,11 @@
     $.validate({
         lang: 'ru',
         form: '#createUser',
+        onError: function (form) {
+          showPopup(`Введены некорректные данные`);
+          let top = $(form).find('div.has-error').first().offset().top;
+          $(form).find('.body').animate({scrollTop: top}, 500);
+        },
         onSuccess: function (form) {
             if ($(form).attr('name') == 'createUser') {
                 $(form).find('#saveNew').attr('disabled', true);

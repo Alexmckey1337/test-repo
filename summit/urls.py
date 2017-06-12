@@ -42,6 +42,8 @@ custom_urls = [
 custom_app = [
     url(r'^summits/(?P<summit_id>\d+)/users/$', views.SummitProfileTreeForAppListView.as_view(),
         name='summit-app-profile-list'),
+    url(r'^summits/(?P<summit_id>\d+)/request_count/$', views.app_request_count,
+        name='summit-app-profile-list'),
     url(r'^summits/(?P<summit_id>\d+)/users/(?P<master_id>\d+)/$', views.SummitProfileTreeForAppListView.as_view(),
         name='summit-app-profile-list-master'),
 ]

@@ -2006,6 +2006,7 @@ function showPopupAddUser(data) {
         $('#addPopup').css('display', 'none').remove();
         $('#addNewUserPopup').find('form').css("transform", "translate3d(0px, 0px, 0px)");
         clearAddNewUser();
+        $('#addNewUserPopup').find('.body').scrollTop(0);
     });
     $('#addPopup').find('.addMore').on('click', function () {
         $('#addPopup').css('display', 'none').remove();
@@ -2013,6 +2014,7 @@ function showPopupAddUser(data) {
         $('#addNewUserPopup').find('form').css("transform", "translate3d(0px, 0px, 0px)");
         $('#addNewUserPopup').css('display', 'block');
         clearAddNewUser();
+        $('#addNewUserPopup').find('.body').scrollTop(0);
     });
 }
 
