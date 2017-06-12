@@ -50,7 +50,6 @@ class SummitStat {
     }
 }
 
-
 (function ($) {
     const summitId = $('#summit-title').data('summit-id');
     const summit = new SummitStat(summitId);
@@ -99,8 +98,6 @@ class SummitStat {
     });
     $('.select__db').select2();
 
-    summit.makeDataTable();
-
     $('#departments_filter').on('change', function () {
         $('#master_tree').prop('disabled', true);
         let department_id = parseInt($(this).val());
@@ -113,4 +110,6 @@ class SummitStat {
             master_tree: master_tree
         }, ['#master'], null);
     });
+
+    summit.makeDataTable();
 })(jQuery);

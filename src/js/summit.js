@@ -1,5 +1,6 @@
 (function ($) {
-    const SUMMIT_TYPE_ID = $('#summitUsersList').data('summit-type');
+    const SUMMIT_ID = $('#summit-title').data('summit-id');
+
     class PrintMasterStat {
         constructor(summitId) {
             this.summit = summitId;
@@ -491,7 +492,6 @@
         if (search) {
             param['search'] = search;
         }
-        console.log(param);
         param.summit_id = $('#summitsTypes').find('.active').data('id');
         getPotencialSammitUsers(param).then(function (data) {
             let html = '';

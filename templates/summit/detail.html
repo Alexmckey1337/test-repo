@@ -5,7 +5,7 @@
 {% load payment_tags %}
 
 {% block header.top.h1 %}
-    <h1 id="summit-title">
+    <h1 id="summit-title" data-summit-id="{{ summit.id }}">
         <a href="{% url 'summit:type-list' %}">САММИТЫ | </a>
         <a href="{{ summit.type.get_absolute_url }}">{{ summit.type }} | </a>
         <span>{{ summit }}</span>
