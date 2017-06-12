@@ -27,9 +27,10 @@ from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import FilterByClub, SummitUnregisterFilter, ProfileFilter, \
     FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend, FilterBySummitAttendByDate
 from summit.pagination import SummitPagination, SummitTicketPagination, SummitStatisticsPagination
-from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report
+from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report, \
+    can_see_report_by_bishop_or_high
 from summit.resources import SummitAnketResource
-from summit.utils import generate_ticket, SummitParticipantReport
+from summit.utils import generate_ticket, SummitParticipantReport, get_report_by_bishop_or_high
 from .models import (Summit, SummitAnket, SummitType, SummitLesson, SummitUserConsultant,
                      SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend, AnketStatus)
 from .serializers import (
@@ -633,6 +634,23 @@ def summit_report_by_participant(request, summit_id, master_id):
     response.write(pdf)
 
     return response
+
+
+@api_view(['GET'])
+def summit_report_by_bishops(request, summit_id):
+    can_see_report = can_see_report_by_bishop_or_high(request.user, summit_id)
+    if not can_see_report:
+        raise exceptions.PermissionDenied(_('You do not have permission to see report by bishops. '))
+    department = request.query_params.get('department', None)
+    report_date = request.query_params.get('date', datetime.now().strftime('%Y-%m-%d'))
+    try:
+        report_date = datetime.strptime(report_date, '%Y-%m-%d')
+    except ValueError:
+        report_date = datetime.now()
+
+    bishops = get_report_by_bishop_or_high(summit_id, report_date, department)
+
+    return Response(bishops)
 
 
 @api_view(['GET'])

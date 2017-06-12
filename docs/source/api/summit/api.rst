@@ -138,6 +138,65 @@ PDF report by participant of the summit
    :statuscode 404: there's no master
 
 
+Report by bishop+ of the summit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/summit/(int:summit_id)/report_by_bishops/
+
+   Report by bishops or high of the summit.
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      GET /api/v1.0/summit/4/report_by_bishops/?date=2042-02-04&department=1 HTTP/1.1
+      Host: vocrm.org
+      Accept: application/json
+
+   **Example response**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Vary: Accept, Cookie
+      Allow: GET,HEAD,OPTIONS
+      Content-Type: application/json
+
+      [
+          {
+              "id": 138,
+              "user_name": "First Super User",
+              "total": 100,
+              "absent": 13,
+              "phone_number": "+380333333333"
+          },
+          {
+              "id": 2282,
+              "user_name": "Second Bishop Level",
+              "total": 190,
+              "absent": 102,
+              "phone_number": "+380655555555"
+          }
+      ]
+
+   .. sourcecode:: http
+
+      HTTP/1.1 403 Forbidden
+      Allow: OPTIONS, GET
+      Content-Type: application/json
+      Vary: Accept
+
+      {
+          "detail": "You do not have permission to see report by bishops. "
+      }
+
+   :query string date: report date, format: ``YYYY-mm-dd``
+   :query int department: filter by ``department.id``
+
+   :statuscode 200: no error
+   :statuscode 404: there's no master
+
+
 
 List of summits
 ~~~~~~~~~~~~~~~

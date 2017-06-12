@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% load i18n %}
+
+{% block main.content %}
+    <select name="departments" id="departmnets">
+        <option value="">{% trans "-----" %}</option>
+    {% for department in departments %}
+        <option value="{{ department.id }}">{{ department }}</option>
+    {% endfor %}
+
+    </select>
+    <table>
+        <tr>
+            <th>{% trans "Name" %}</th>
+            <th>{% trans "Total" %}</th>
+            <th>{% trans "Absent" %}</th>
+            <th>{% trans "Phone number" %}</th>
+        </tr>
+        {% for bishop in bishops %}
+            <tr>
+                <td><a href="{% url "account:detail" bishop.id %}">{{ bishop.user_name }}</a></td>
+                <td>{{ bishop.total }}</td>
+                <td>{{ bishop.absent }}</td>
+                <td>{{ bishop.phone_number }}</td>
+            </tr>
+        {% endfor %}
+        <tr></tr>
+    </table>
+{% endblock %}
