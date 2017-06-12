@@ -51,7 +51,8 @@ class PaymentUpdateDestroyView(LogAndCreateUpdateDestroyMixin,
     @log_perform_destroy
     def perform_destroy(self, instance, **kwargs):
         instance.delete()
-        instance.purpose.update_after_cancel_payment(editor=self.request.user, payment=instance)
+        instance.purpose.update_after_cancel_payment(
+            editor=getattr(self.request, 'real_user', self.request.user), payment=instance)
 
     # Helpers
 
@@ -60,9 +61,11 @@ class PaymentUpdateDestroyView(LogAndCreateUpdateDestroyMixin,
 
         if payment.content_type.model == 'deal':
             if any(map(lambda k: old_data[k] != new_data[k], old_data.keys())):
-                purpose.update_after_cancel_payment(editor=self.request.user, payment=payment)
+                purpose.update_after_cancel_payment(
+                    editor=getattr(self.request, 'real_user', self.request.user), payment=payment)
         else:
-            purpose.update_after_cancel_payment(editor=self.request.user, payment=payment)
+            purpose.update_after_cancel_payment(
+                editor=getattr(self.request, 'real_user', self.request.user), payment=payment)
 
 
 class PaymentListView(mixins.ListModelMixin, GenericAPIView):
