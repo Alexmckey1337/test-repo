@@ -6888,9 +6888,9 @@ div.code input#code {
   }
 }
 
-/* ------------------DESKBOARD------------------------------ */
-.deskboard {
-  .deskboard-head {
+/* ------------------dashboard------------------------------ */
+.dashboard {
+  .dashboard-head {
     display: flex;
     justify-content: space-between;
     margin-bottom: 15px;
@@ -6898,10 +6898,45 @@ div.code input#code {
       display: none;
     }
     .btn-block {
+      position: relative;
       button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 0;
         padding: 0;
         border: 0;
-        background-color: #fff;
+        background: 0 0;
+        width: 1em;
+        height: 1em;
+        font-size: 1.5em;
+        &:before {
+          color: #656d78;
+          position: absolute;
+          left: 0;
+          top: 0;
+          font: 400 1em FontAwesome;
+        }
+      }
+      button.edit-desk {
+        &::before {
+          content: '\f040';
+        }
+        &.active {
+          right: 1.25em;
+          &::before {
+            content: '\f00d';
+          }
+          & + .save {
+            display: block;
+          }
+        }
+      }
+      button.save {
+        display: none;
+        &:before {
+          content: '\f00c';
+        }
       }
     }
   }
@@ -6918,21 +6953,6 @@ div.code input#code {
     position: relative;
     padding: 35px;
     box-sizing: border-box;
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-    transition: box-shadow 0.3s ease;
-    &:hover {
-      box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-      cursor: grab;
-    }
-      &::before {
-        display: block;
-        position: absolute;
-        top: 5px;
-        left: 5px;
-        font-family: FontAwesome;
-        font-size: 1.5em;
-        content: '\f047';
-      }
     p {
       margin-top: 30px;
       padding: 15px;
@@ -6941,6 +6961,20 @@ div.code input#code {
       font-family: "Roboto Condensed", sans-serif;
       font-weight: 900;
     }
+    .vision {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      display: none;
+      padding: 0;
+      border: 0;
+      color: #000;
+      background: 0 0;
+      width: 1em;
+      height: 1em;
+      font-size: 1.5em;
+      font-family: FontAwesome;
+    }
   }
   .sortable-ghost {
     opacity: .5;
@@ -6948,7 +6982,26 @@ div.code input#code {
   .sortable-chosen {
     cursor: grab;
   }
+  .drop.active {
+    .well {
+      box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+      transition: box-shadow 0.3s ease;
+      &:hover {
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+        cursor: grab;
+      }
+      .vision {
+        display: block;
+        &:before {
+          content: '\f06e';
+        }
+        &.active:before {
+          content: '\f070';
+        }
+      }
+    }
+  }
 }
-#main .deskboard h1 {
+#main .dashboard h1 {
   padding: 0;
 }

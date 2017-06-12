@@ -19,11 +19,12 @@
 {% endblock %}
 
 {% block main.content %}
-    <div class="main__container deskboard">
-        <div class="deskboard-head">
+    <div class="main__container dashboard">
+        <div class="dashboard-head">
             <h1><span>Ветка: </span>Сойникова наталья евгеньевна</h1>
             <div class="btn-block">
                 <button class="edit-desk"></button>
+                <button class="save"></button>
                 <div class="filter-desk">
                     <ul>
                         <li>Сойникова наталья евгеньевна</li>
@@ -38,50 +39,62 @@
             <div class="col-sm-4 well">
                 <span>Всего церквей</span>
                 <p class="success">5</p>
+                <button class="vision"></button>
             </div>
             <div class="col-sm-4 well">
                 <span>Всего домашних групп</span>
                 <p class="success">51</p>
+                <button class="vision"></button>
             </div>
             <div class="col-sm-4 well">
                 <span>Всего людей</span>
                 <p class="success">500</p>
+                <button class="vision"></button>
             </div>
             <div class="col-sm-4 well success">
                 <span>Всего в домашних группах</span>
                 <p>350</p>
+                <button class="vision"></button>
             </div>
             <div class="col-sm-4 well error">
                 <span>Всего не в домашних группах</span>
                 <p>200</p>
+                <button class="vision"></button>
             </div>
             <div class="col-sm-4 well">
                 <span>Всего гостей</span>
                 <p>5</p>
+                <button class="vision"></button>
             </div>
             <div class="col-sm-4 well">
                 <span>Всего отцы</span>
                 <p>45</p>
+                <button class="vision"></button>
             </div>
             <div class="col-sm-4 well">
                 <span>Всего юноши</span>
                 <p>201</p>
+                <button class="vision"></button>
             </div>
             <div class="col-sm-4 well">
                 <span>Всего младенцы</span>
                 <p>245</p>
+                <button class="vision"></button>
             </div>
             <div class="col-sm-4 well error">
                 <span>Не заполнено отчётов ДГ</span>
                 <p>15</p>
+                <button class="vision"></button>
             </div>
             <div class="col-sm-4 well error">
                 <span>Не заполнено отчётов НМ</span>
                 <p>5</p>
+                <button class="vision"></button>
             </div>
             <div class="col-sm-4 well error">
                 <span>Не заполнено ВС</span>
                 <p>21</p>
+                <button class="vision"></button>
             </div>
         </div>
 
@@ -141,5 +154,5 @@
 {% endblock %}
 {% block extra_scripts %}
     <script src='{% static "libs/Sortable/Sortable.min.js" %}'></script>
-    <script src='{% static "js/deskboard.js" %}'></script>
+    <script src='{% static "js/dashboard.js" %}'></script>
 {% endblock %}
