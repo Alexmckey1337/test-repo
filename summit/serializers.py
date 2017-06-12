@@ -207,6 +207,18 @@ class CustomVisitorsLocationSerializer(serializers.ReadOnlyField):
             'visitor_id', 'date_time', 'longitude', 'latitude', 'type').first()
 
 
+class AnketStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnketStatus
+        fields = ('reg_code_requested', 'active')
+
+    def get_attribute(self, instance):
+        instance = super().get_attribute(instance)
+        if instance is None:
+            return AnketStatus()
+        return instance
+
+
 class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField()
     master_fio = serializers.CharField(source='responsible')
@@ -217,13 +229,14 @@ class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
                             queryset=SummitAnket.objects.all())
     photo = ImageWithoutHostField(source='user.image', use_url=False)
     visitor_locations = CustomVisitorsLocationSerializer()
+    status = AnketStatusSerializer(serializers.ModelSerializer)
 
     class Meta:
         model = SummitAnket
         fields = (
             'id', 'user_id', 'master_id',
             'full_name', 'country', 'city', 'phone_number', 'extra_phone_numbers',
-            'master_fio', 'hierarchy_id', 'children', 'photo', 'visitor_locations'
+            'master_fio', 'hierarchy_id', 'children', 'photo', 'visitor_locations', 'status'
         )
 
 
@@ -257,18 +270,6 @@ class UserForAppSerializer(serializers.ModelSerializer):
         model = User
         fields = ('first_name', 'last_name', 'middle_name', 'country', 'city',
                   'email', 'phone_number')  # + ('region', 'district', 'address', 'image_source')
-
-
-class AnketStatusSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AnketStatus
-        fields = ('reg_code_requested', 'active')
-
-    def get_attribute(self, instance):
-        instance = super().get_attribute(instance)
-        if instance is None:
-            return AnketStatus()
-        return instance
 
 
 class SummitAnketForAppSerializer(serializers.ModelSerializer):
