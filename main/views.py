@@ -1,6 +1,8 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from datetime import datetime
+
 import redis
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -15,13 +17,14 @@ from django.views.generic.base import ContextMixin, TemplateView
 
 from account.models import CustomUser
 from event.models import Meeting, ChurchReport
+from event.models import MeetingType
 from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
 from partnership.models import Partnership
 from payment.models import Currency
 from status.models import Division
 from summit.models import SummitType, SummitTicket, SummitAnket, Summit
-from event.models import MeetingType
+from summit.utils import get_report_by_bishop_or_high
 
 
 def entry(request):
@@ -253,6 +256,13 @@ class CanSeeSummitTicketMixin(View):
         return super(CanSeeSummitTicketMixin, self).dispatch(request, *args, **kwargs)
 
 
+class CanSeeSummitReportByBishopsMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_report_by_bishop_or_high(kwargs.get('pk')):
+            raise PermissionDenied
+        return super(CanSeeSummitReportByBishopsMixin, self).dispatch(request, *args, **kwargs)
+
+
 class CanSeeSummitProfileMixin(View):
     def dispatch(self, request, *args, **kwargs):
         return super(CanSeeSummitProfileMixin, self).dispatch(request, *args, **kwargs)
@@ -379,6 +389,32 @@ class SummitProfileDetailView(LoginRequiredMixin, CanSeeSummitProfileMixin, Deta
     context_object_name = 'profile'
     template_name = 'summit/profile.html'
     login_url = 'entry'
+
+
+class SummitBishopReportView(LoginRequiredMixin, CanSeeSummitReportByBishopsMixin, TemplateView):
+    template_name = 'summit/bishop_report.html'
+    login_url = 'entry'
+    summit_id = None
+    report_date = None
+    department = None
+
+    def get(self, request, *args, **kwargs):
+        self.summit_id = kwargs.get('pk')
+        self.department = request.GET.get('department', None)
+        report_date = request.GET.get('date', datetime.now().strftime('%Y-%m-%d'))
+        try:
+            self.report_date = datetime.strptime(report_date, '%Y-%m-%d')
+        except ValueError:
+            self.report_date = datetime.now()
+        return super(SummitBishopReportView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(SummitBishopReportView, self).get_context_data(**kwargs)
+
+        ctx['departments'] = Department.objects.all()
+        ctx['bishops'] = get_report_by_bishop_or_high(self.summit_id, self.report_date, self.department)
+
+        return ctx
 
 
 @login_required(login_url='entry')

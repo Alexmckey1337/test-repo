@@ -76,6 +76,7 @@ summit_patterns = [
     url(r'^(?P<pk>\d+)/$', views.SummitDetailView.as_view(), name='detail'),
     url(r'^open/$', views.OpenSummitListView.as_view(), name='open'),
     url(r'^closed/$', views.ClosedSummitListView.as_view(), name='closed'),
+    url(r'^(?P<pk>\d+)/report/$', views.SummitBishopReportView.as_view(), name='report'),
     url(r'^(?P<pk>\d+)/statistics/$', views.SummitStatisticsView.as_view(), name='stats'),
     url(r'^profile/(?P<pk>\d+)/$', views.SummitProfileDetailView.as_view(), name='profile-detail'),
     url(r'^tickets/$', views.SummitTicketListView.as_view(), name='tickets'),
