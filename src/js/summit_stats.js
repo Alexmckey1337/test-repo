@@ -59,6 +59,7 @@ class SummitStat {
         .datepicker({
             dateFormat: 'yyyy-mm-dd',
             autoClose: true,
+            maxDate: new Date(),
             onSelect: function () {
                 summit.makeDataTable();
             }
