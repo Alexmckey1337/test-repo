@@ -1153,14 +1153,14 @@ function clearAddNewUser() {
 }
 
 function clearAddChurchData() {
-    $('#added_churches_date').val(''),
-        $('#added_churches_is_open').prop('checked', false),
-        $('#added_churches_title').val(''),
-        $('#added_churches_country').val(''),
-        $('#added_churches_city').val(''),
-        $('#added_churches_address').val(''),
-        $('#added_churches_phone').val(''),
-        $('#added_churches_site').val('')
+    $('#added_churches_date').val('');
+        $('#added_churches_is_open').prop('checked', false);
+        $('#added_churches_title').val('');
+        $('#added_churches_country').val('');
+        $('#added_churches_city').val('');
+        $('#added_churches_address').val('');
+        $('#added_churches_phone').val('');
+        $('#added_churches_site').val('');
 }
 
 function clearAddHomeGroupData() {
