@@ -38,7 +38,9 @@ from .serializers import (
     SummitAnketForSelectSerializer, SummitTypeForAppSerializer, SummitAnketForAppSerializer,
     SummitShortSerializer, SummitAnketShortSerializer, SummitLessonShortSerializer, SummitTicketSerializer,
     SummitAnketForTicketSerializer, SummitVisitorLocationSerializer, SummitEventTableSerializer,
-    SummitProfileTreeForAppSerializer, SummitAnketCodeSerializer, SummitAttendStatisticsSerializer)
+    SummitProfileTreeForAppSerializer, SummitAnketCodeSerializer, SummitAttendStatisticsSerializer,
+    SummitAcceptMobileCodeSerializer, SummitAttendSerializer
+)
 from .tasks import generate_tickets
 
 logger = logging.getLogger(__name__)
@@ -369,11 +371,25 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
             raise exceptions.ValidationError(_('Невозможно получить объект. '
                                                'Передан некорректный регистрационный код'))
         visitor = get_object_or_404(SummitAnket, pk=visitor_id)
-        AnketStatus.objects.update_or_create(
-            anket=visitor, defaults={'reg_code_requested': True})
+        AnketStatus.objects.get_or_create(
+            anket=visitor, defaults={'reg_code_requested': True,
+                                     'reg_code_requested_date': datetime.now()})
 
         visitor = self.get_serializer(visitor)
         return Response(visitor.data)
+
+    @list_route(methods=['GET'])
+    def by_reg_date(self, request):
+        from_date = request.query_params.get('from_date', datetime.now().date() - timedelta(days=1))
+        to_date = request.query_params.get('to_date', datetime.now().date() - timedelta(days=1))
+
+        if from_date > to_date:
+            raise exceptions.ValidationError('Некорректно заданный временной интвервал. ')
+
+        ankets = SummitAnket.objects.filter(
+            status__reg_code_requested_date__date__range=[from_date, to_date])
+        ankets = self.serializer_class(ankets, many=True)
+        return Response(ankets.data)
 
 
 @api_view(['GET'])
@@ -688,7 +704,13 @@ class SummitEventTableViewSet(viewsets.ModelViewSet):
 class SummitAttendViewSet(ModelWithoutDeleteViewSet):
     queryset = SummitAttend.objects.prefetch_related('anket')
     serializer_class = SummitAnketCodeSerializer
+    serializer_list_class = SummitAttendSerializer
     permission_classes = (HasAPIAccess,)
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return self.serializer_list_class
+        return self.serializer_class
 
     @list_route(methods=['POST', 'GET'])
     def confirm_attend(self, request):
@@ -723,3 +745,17 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
         statsistics = self.serializer_class(statsistics)
 
         return Response(statsistics.data)
+
+    @list_route(methods=['GET'], serializer_class=SummitAcceptMobileCodeSerializer)
+    def accept_mobile_code(self, request):
+        code = request.query_params.get('code', '')
+        anket = get_object_or_404(SummitAnket, code=code)
+        AnketStatus.objects.update_or_create(
+            anket=anket, defaults={'reg_code_requested': True})
+
+        if anket.status.active is False:
+            return Response({'error_message': 'Данная анкета не активна', 'error_code': 1},
+                            status=status.HTTP_200_OK)
+
+        anket = self.serializer_class(anket)
+        return Response(anket.data)

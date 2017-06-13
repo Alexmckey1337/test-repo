@@ -208,9 +208,11 @@ class CustomVisitorsLocationSerializer(serializers.ReadOnlyField):
 
 
 class AnketStatusSerializer(serializers.ModelSerializer):
+    reg_code_requested_date = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S')
+
     class Meta:
         model = AnketStatus
-        fields = ('reg_code_requested', 'active')
+        fields = ('reg_code_requested', 'reg_code_requested_date', 'active')
 
     def get_attribute(self, instance):
         instance = super().get_attribute(instance)
@@ -309,10 +311,11 @@ class SummitAnketCodeSerializer(serializers.ModelSerializer):
 
 class SummitAttendSerializer(serializers.ModelSerializer):
     # time = serializers.TimeField()
+    code = serializers.CharField(source='anket.code', read_only=True)
 
     class Meta:
         model = SummitAttend
-        fields = ('id', 'anket', 'date')
+        fields = ('anket', 'code', 'date')
 
 
 class SummitAttendStatisticsSerializer(serializers.ModelSerializer):
@@ -323,3 +326,11 @@ class SummitAttendStatisticsSerializer(serializers.ModelSerializer):
     class Meta:
         model = SummitAnket
         fields = ('attend_users', 'absent_users', 'total_users')
+
+
+class SummitAcceptMobileCodeSerializer(serializers.ModelSerializer):
+    avatar_url = ImageWithoutHostField(source='user.image', use_url=False)
+
+    class Meta:
+        model = SummitAnket
+        fields = ('fullname', 'avatar_url')
