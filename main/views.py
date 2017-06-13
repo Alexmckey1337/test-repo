@@ -327,9 +327,9 @@ class OpenSummitListView(SummitListMixin):
         try:
             summit = self.get_queryset().get()
         except MultipleObjectsReturned:
-            return super(OpenSummitListView, self).dispatch(request, *args, **kwargs)
+            return super(OpenSummitListView, self).get(request, *args, **kwargs)
         except ObjectDoesNotExist:
-            return super(OpenSummitListView, self).dispatch(request, *args, **kwargs)
+            return super(OpenSummitListView, self).get(request, *args, **kwargs)
         else:
             return redirect(summit.get_absolute_url())
 
