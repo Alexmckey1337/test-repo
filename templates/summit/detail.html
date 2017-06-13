@@ -112,7 +112,15 @@
                     <% } %>
                     <% } else if (key == 'ticket_status') { %>
                     <% if (results[index][key] != null) { %>
-                    <td data-id="<%= results[index][key][0] %>"><%= results[index][key][1] %></td>
+                    <td data-id="<%= results[index][key][0] %>" data-user-id="<%= results[index]['id'] %>"
+                        class="ticket_status">
+                        <span class="text"><%= results[index][key][1] %></span>
+                        <% if( results[index][key][0] == 'print' || results[index][key][0] == 'given' ){ %>
+                        <input id="<%= 'ticked_' + (index + 1)%>" type="checkbox" name="attended" <%
+                        if(results[index][key][0] == 'given') { %>checked<% }%> >
+                        <label for="<%= 'ticked_' + (index + 1) %>"></label>
+                        <% } %>
+                    </td>
                     <% } else { %>
                     <td></td>
                     <% } %>
