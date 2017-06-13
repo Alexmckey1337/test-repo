@@ -609,7 +609,7 @@
                     'Content-Type': 'application/json',
                 })
             };
-        const prifileId = $(this).data('user-id');
+        const prifileId = $(this).closest('td').data('user-id');
         fetch(`/api/v1.0/summit_ankets/${prifileId}/set_ticket_status/`, option)
             .then( res => res.json())
             .then(data => {
