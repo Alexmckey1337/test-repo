@@ -7,7 +7,7 @@ import redis
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied, MultipleObjectsReturned
+from django.core.exceptions import PermissionDenied, MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Count, Case, When, BooleanField
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -327,7 +327,9 @@ class OpenSummitListView(SummitListMixin):
         try:
             summit = self.get_queryset().get()
         except MultipleObjectsReturned:
-            return super(OpenSummitListView, self).dispatch(request, *args, **kwargs)
+            return super(OpenSummitListView, self).get(request, *args, **kwargs)
+        except ObjectDoesNotExist:
+            return super(OpenSummitListView, self).get(request, *args, **kwargs)
         else:
             return redirect(summit.get_absolute_url())
 

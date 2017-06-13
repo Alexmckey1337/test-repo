@@ -1715,7 +1715,10 @@ function makePayments(config = {}) {
         ;
 }
 function homeStatistics() {
-    getData('/api/v1.0/events/home_meetings/statistics/', getFilterParam()).then(data => {
+    let data = {};
+        Object.assign(data, getFilterParam());
+        Object.assign(data, getTabsFilterParam());
+    getData('/api/v1.0/events/home_meetings/statistics/', data).then(data => {
         let tmpl = document.getElementById('statisticsTmp').innerHTML;
         let rendered = _.template(tmpl)(data);
         document.getElementById('statisticsContainer').innerHTML = rendered;
@@ -2991,6 +2994,24 @@ function getTabsFilter() {
     });
     return data
 }
+function getTabsFilterParam() {
+    let data = {},
+        dataTabs = {},
+        dataRange = {},
+        type = $('#tabs').find('li.active').find('button').attr('data-id');
+    if (type > "0") {
+        dataTabs.type = type;
+        Object.assign(data, dataTabs);
+    }
+    let rangeDate = $('.tab-home-stats').find('.set-date').find('input').val();
+    if (rangeDate) {
+        let dateArr = rangeDate.split('-');
+        dataRange.from_date = dateArr[0].split('.').reverse().join('-');
+        dataRange.to_date = dateArr[1].split('.').reverse().join('-');
+        Object.assign(data, dataRange);
+    }
+    return data
+}
 function getFilterParam() {
     let $filterFields,
         data = {};
@@ -3103,6 +3124,7 @@ function homeReportsTable(config = {}) {
     config.status = status;
     Object.assign(config, getSearch('search_title'));
     Object.assign(config, getFilterParam());
+    Object.assign(config, getTabsFilterParam());
     getHomeReports(config).then(data => {
         makeHomeReportsTable(data, config);
     })
