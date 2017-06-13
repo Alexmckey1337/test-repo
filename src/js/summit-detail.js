@@ -24,6 +24,12 @@
         });
     }
 
+    $('#export_table').on('click', function () {
+        $('.preloader').css('display', 'block');
+        exportNewTableData(this).then(function () {
+            $('.preloader').css('display', 'none');
+        });
+    });
     function addUserToSummit(data) {
         let id = data.id,
             fullName = data.fullname,
