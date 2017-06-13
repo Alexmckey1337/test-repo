@@ -34,6 +34,7 @@
         }
     })();
     function ChurchReportsTable(config) {
+        Object.assign(config, getTabsFilterParam());
         getChurchReports(config).then(data => {
             makeChurchReportsTable(data);
         });

@@ -3147,6 +3147,7 @@ function churchReportsTable(config = {}) {
     config.status = status;
     Object.assign(config, getSearch('search_title'));
     Object.assign(config, getFilterParam());
+    Object.assign(config, getTabsFilterParam());
     getChurchReports(config).then(data => {
         makeChurchReportsTable(data, config);
     })
