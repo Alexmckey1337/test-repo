@@ -1,5 +1,7 @@
 (function ($) {
-    const SUMMIT_TYPE_ID = $('#summitUsersList').data('summit-type');
+    $summitUsersList = $('#summitUsersList');
+    const SUMMIT_TYPE_ID = $summitUsersList.data('summit-type');
+
     class PrintMasterStat {
         constructor(summitId) {
             this.summit = summitId;
@@ -281,13 +283,15 @@
         document.querySelector('#searchUsers').focus();
     });
     $('#changeSum').on('click', function () {
-        $('#summit-value').removeAttr('readonly');
-        $('#summit-value').focus();
+        const $summitValue = $('#summit-value');
+        $summitValue.removeAttr('readonly');
+        $summitValue.focus();
     });
 
     $('#changeSumDelete').on('click', function () {
-        $('#summit-valueDelete').removeAttr('readonly');
-        $('#summit-valueDelete').focus();
+        const $summitValueDelete = $('#summit-valueDelete');
+        $summitValueDelete.removeAttr('readonly');
+        $summitValueDelete.focus();
     });
 
     $('#preDeleteAnket').on('click', function () {
@@ -601,7 +605,7 @@
         dateFormat: 'yyyy-mm-dd',
         autoClose: true
     });
-    $('#summitUsersList').on('click', '.ticket_status', function () {
+    $summitUsersList.on('click', '.ticket_status', function () {
         let option = {
                 method: 'POST',
                 credentials: "same-origin",
