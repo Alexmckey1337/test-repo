@@ -494,7 +494,7 @@
         dateFormat: 'yyyy-mm-dd',
         autoClose: true
     });
-    $summitUsersList.on('click', '.ticket_status', function () {
+    $('#summitUsersList').on('click', '.ticket_status', function () {
         let option = {
                 method: 'POST',
                 credentials: "same-origin",
@@ -507,6 +507,11 @@
             .then( res => res.json())
             .then(data => {
                 $(this).find('.text').text(data.text);
+                if(data.new_status == 'given' || data.new_status == 'print' ) {
+                    $(this).find('div').show();
+                } else {
+                     $(this).find('div').hide();
+                }
             })
 
     });
