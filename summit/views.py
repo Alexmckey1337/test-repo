@@ -281,7 +281,7 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         profile.ticket_status = new_status
         profile.save()
 
-        return Response({'new_status': new_status})
+        return Response({'new_status': new_status, 'text': profile.get_ticket_status_display()})
 
 
 class SummitLessonViewSet(viewsets.ModelViewSet):

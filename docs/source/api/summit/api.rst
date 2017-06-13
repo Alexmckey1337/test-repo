@@ -527,7 +527,8 @@ Change ticket_status for profile
         content-type: application/json
 
         {
-          "new_status": "given"
+          "new_status": "given",
+          "text": "Given"
         }
 
     **Example response**:
