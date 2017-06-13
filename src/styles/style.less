@@ -222,6 +222,7 @@ button:hover {
 
 select {
   min-width: 60%;
+  max-width: 100%;
   height: 25px;
   padding: 5px;
   background: url(../img/select.png) right center no-repeat #fff;
@@ -885,6 +886,13 @@ h1 a {
 
 #filter_button::before {
   content: "\f0b0" !important;
+  font: 1.4em FontAwesome;
+  color: white;
+  background: none;
+}
+
+.print::before {
+  content: "\f02f" !important;
   font: 1.4em FontAwesome;
   color: white;
   background: none;
@@ -2277,6 +2285,24 @@ table label::before {
   margin: auto;
 }
 
+.ticket_status {
+  cursor: pointer;
+  padding-left: 40px;
+  & label {
+    width: 100%;
+    height: 100%;
+  }
+  & label::before {
+    width: 20px;
+    height: 20px;
+    right: auto;
+    left: 10px !important;
+    margin-left: 0;
+    margin-top: 5px;
+  }
+  position: relative;
+}
+
 #sort-form [disable] label::before {
   /*display: none*/
 }
@@ -2487,6 +2513,14 @@ input:checked ~ label.disable:before {
   & i {
     color: #FFF;
   }
+}
+
+.pop-up__stats {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .pop-up-universal {
@@ -2780,7 +2814,36 @@ input:checked ~ label.disable:before {
   position: relative;
 }
 
+.pop-up__stats {
+  & .main-text {
+    & > div {
+      display: flex;
+      justify-content: space-between;
+      margin: 1em 0;
+    }
+    & .select2 {
+      width: 250px !important;
+    }
+    & .date {
+      width: 120px;
+      padding: 0 .5em;
+      height: 2em;
+      line-height: 2em;
+    }
+  }
+}
+
+.pop-up__stats .top-text {
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  border-bottom: 1px solid #cdd0d4;
+  padding: 20px;
+  background-color: #e6e9ee;
+  position: relative;
+}
+
 .pop-up-universal .top-text > span,
+.pop-up__stats .top-text > span,
 .splash-screen .top-text > span {
   content: 'X';
   position: absolute;
@@ -4959,7 +5022,7 @@ span.green {
         &.save__info {
           display: none;
           &::before {
-           content: '\f00c';
+            content: '\f00c';
           }
         }
         &.edit.active {
@@ -5006,7 +5069,7 @@ span.green {
     & .input {
       width: 50%;
       & .select2 {
-        width: 100%!important;
+        width: 100% !important;
         height: 25px;
         z-index: 2;
       }
@@ -5060,15 +5123,15 @@ span.green {
       text-decoration: underline;
     }
     .select2-container .select2-selection--single {
-      height: 25px!important;
+      height: 25px !important;
     }
     .select2-container--default .select2-selection--single .select2-selection__rendered {
       line-height: 25px;
     }
     .select2-container--default .select2-selection--single .select2-selection__arrow {
       background: #e6e9ee;
-      height: calc(100% - 2px)!important;
-      width: 2em!important;
+      height: calc(100% - 2px) !important;
+      width: 2em !important;
       border-top-right-radius: 4px;
       border-bottom-right-radius: 4px;
       &::before {
@@ -6254,6 +6317,7 @@ div.code input#code {
       justify-content: space-between;
       height: 55px;
       padding: 0 30px;
+      z-index: 5;
       h1 {
         font-size: 2em;
         font-weight: 900;
@@ -6719,7 +6783,7 @@ div.code input#code {
     padding: 1.5em;
   }
   & p {
-      line-height: 1.3em;
+    line-height: 1.3em;
   }
   & .summa-wrap {
     display: block;
@@ -6787,11 +6851,12 @@ div.code input#code {
         content: '\f00d';
       }
       &#submit_password::before {
-      content: '\f00c';
-    }
+        content: '\f00c';
+      }
     }
   }
 }
+
 /* ------------------Home stats button------------------------------ */
 .tab-home-stats {
   display: flex;
@@ -6841,6 +6906,7 @@ div.code input#code {
       right: 0;
       width: 40px;
       height: 50px;
+      border: 1px solid #cdd0d4;
       border-left: 0;
       background-color: #f2f5fa;
       &::after {

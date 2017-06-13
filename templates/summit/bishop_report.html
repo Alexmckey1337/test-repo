@@ -1,0 +1,131 @@
+{% extends "layout_main.html" %}
+{% load i18n %}
+{% load static %}
+{% load summit_tags %}
+{% load payment_tags %}
+
+{% block header.top.h1 %}
+    <h1 id="summit-title" data-summit-id="{{ summit.id }}">
+        САММИТЫ |
+        {{ summit.type }} |
+        <a href="{{ summit.get_absolute_url }}">{{ summit }} | </a>
+        <span>{% trans "Statistics" %}</span>
+    </h1>
+{% endblock %}
+
+{% block header.buttons %}
+    <div class="top-panel">
+        <div class="tabs">
+            <ul class="nav tabs_link">
+                <li><a href="{{ summit.get_absolute_url }}">Участники</a></li>
+                <li><a href="{% url 'summit:stats' pk=summit.id %}">Статистика</a></li>
+                <li><a class="active" href="{% url 'summit:report' pk=summit.id %}">По ответственному</a></li>
+            </ul>
+        </div>
+        <div class="top-buttons-wrap">
+            <ul class="top-buttons">
+                 <li>
+                    <button id="download" class="print">Печать отчета</button>
+                </li>
+                <li>
+                    <button id="filter_button">Фильтр</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+{% block header.buttons.export %}
+{% endblock %}
+
+{% block pagination_top %}
+    <div class="top-pag">
+        <div class="table__count"></div>
+    </div>
+{% endblock %}
+
+{% block table %}
+    <div class="table-wrap clearfix">
+        <div id="bishopsReports" class="table scrollbar-inner"></div>
+    </div>
+{% endblock %}
+{% block pagination_bottom %}
+    <div class="table__count"></div>
+{% endblock %}
+
+{% block choose_user_modal.search_field %}
+    <input id="searchUsers" type="text" placeholder="Поиск" name="unregsearch">
+{% endblock %}
+
+{% block popup %}
+    <div class="popap" id='filterPopup'>
+        <div class="pop_cont">
+            <h2 class='popup_text'>
+                Фильтр
+            </h2>
+            <div class="popup_body">
+                <div class="container">
+                    <div class="col-6">
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Отдел</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <p class="input_block">
+                            <select class="select__db" data-filter="department" id="departments_filter">
+                                <option value="">ВСЕ</option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">{{ department.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
+                                                                              aria-hidden="true"></i>
+                    Очистить
+                </button>
+                <button class="close-popup">Отменить</button>
+                <button id="applyFilter" class="apply-filter">Применить</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+    {% block template_tables %}
+        <script type="text/template" id="databaseUsers">
+            <table>
+                <thead>
+                <tr>
+                    <% for( var key in user_table) { %>
+                        <% if(user_table[key].active) { %>
+                            <th data-order="<%=user_table[key].ordering_title%>"><%=user_table[key].title %></th>
+                        <% } %>
+                    <% } %>
+                </tr>
+                </thead>
+                <tbody>
+                <% for( var index in results) { %>
+                <tr>
+                    <% for( var key in user_table) { %>
+                        <% if(user_table[key].active) { %>
+                            <% if (key == 'user_name') { %>
+                                <td><a href="/account/<%= results[index].id %>"><%= results[index][key] %></a></td>
+                            <% } else { %>
+                            <td><%= results[index][key] %></td>
+                            <% } %>
+                        <% } %>
+                    <% } %>
+                </tr>
+                <% } %>
+                </tbody>
+            </table>
+        </script>
+    {% endblock %}
+    <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
+    <script src="{% static "libs/jquery-file-download/src/Scripts/jquery.fileDownload.js" %}"></script>
+    <script src="{% static "js/add_user.js" %}"></script>
+    <script src="{% static "js/summit_bishop.js" %}"></script>
+{% endblock %}

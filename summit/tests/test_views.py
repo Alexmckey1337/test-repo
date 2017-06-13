@@ -1,18 +1,26 @@
 from decimal import Decimal
 
 import pytest
+from django.db.models import OuterRef, Exists
 from django.urls import reverse
 from rest_framework import status
 
 from payment.serializers import PaymentShowSerializer
-from summit.models import Summit, SummitLesson, SummitAnket
+from summit.models import Summit, SummitLesson, SummitAnket, SummitAttend
 from summit.serializers import (
     SummitSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer, SummitAnketNoteSerializer)
-from summit.views import SummitProfileListView
+from summit.views import SummitProfileListView, SummitStatisticsView
 
 
 def get_queryset(s):
     return SummitAnket.objects.base_queryset().annotate_total_sum().annotate_full_name().filter(summit_id=s.summit)
+
+
+def get_stats_queryset(self):
+    subqs = SummitAttend.objects.filter(date=self.filter_date, anket=OuterRef('pk'))
+    qs = self.summit.ankets.select_related('user').annotate(attended=Exists(subqs)).annotate_full_name().order_by(
+        'user__last_name', 'user__first_name', 'user__middle_name')
+    return qs
 
 
 @pytest.mark.django_db
@@ -371,6 +379,43 @@ class TestSummitAnketTableViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert response.data['count'] == 10
 
+    @pytest.mark.parametrize('ticket_status,count', [('none', 2), ('download', 4), ('print', 8)],
+                             ids=['none', 'download', 'print'])
+    def test_user_list_filter_by_ticket_status(
+            self, monkeypatch, api_login_client, summit_anket_factory, summit_factory, ticket_status, count):
+        monkeypatch.setattr(SummitProfileListView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(SummitProfileListView, 'get_queryset', get_queryset)
+
+        summit = summit_factory()
+        summit_anket_factory.create_batch(2, summit=summit, ticket_status='none')
+        summit_anket_factory.create_batch(4, summit=summit, ticket_status='download')
+        summit_anket_factory.create_batch(8, summit=summit, ticket_status='print')
+
+        url = reverse('summit-profile-list', kwargs={'pk': summit.id})
+
+        response = api_login_client.get('{}?ticket_status={}'.format(url, ticket_status), format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == count
+
+    @pytest.mark.parametrize('has_photo,count', [('true', 1), ('false', 2), ('all', 3)],
+                             ids=['true', 'false', 'all'])
+    def test_user_list_filter_by_has_photo(
+            self, monkeypatch, api_login_client, summit_anket_factory, summit_factory, has_photo, count):
+        monkeypatch.setattr(SummitProfileListView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(SummitProfileListView, 'get_queryset', get_queryset)
+
+        summit = summit_factory()
+        summit_anket_factory.create_batch(1, summit=summit, user__image='photo.jpg')
+        summit_anket_factory.create_batch(2, summit=summit, user__image='')
+
+        url = reverse('summit-profile-list', kwargs={'pk': summit.id})
+
+        response = api_login_client.get('{}?has_photo={}'.format(url, has_photo), format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == count
+
     def test_user_list_filter_by_master(
             self, monkeypatch, api_login_client, summit_anket_factory, summit_factory, user_factory):
         master = user_factory(username='master')
@@ -406,6 +451,249 @@ class TestSummitAnketTableViewSet:
         summit_anket_factory.create_batch(32, user__master=other_user, summit=summit)
 
         url = reverse('summit-profile-list', kwargs={'pk': summit.id})
+
+        response = api_login_client.get(url, data={'master_tree': user.id}, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 11
+
+
+@pytest.mark.hh
+@pytest.mark.django_db
+class TestSummitStatisticsView:
+    @pytest.mark.parametrize(
+        'role,count', [
+            (SummitAnket.SUPERVISOR, 5),
+            (SummitAnket.CONSULTANT, 5),
+            (SummitAnket.VISITOR, 0),
+        ], ids=['supervisor', 'consultant', 'visitor'])
+    def test_filter_ankets_by_current_user(
+            self, monkeypatch, api_client, user_factory, summit_factory, summit_anket_factory, role, count):
+        monkeypatch.setattr(SummitStatisticsView, 'check_permissions', lambda s, r: 0)
+        user = user_factory()
+
+        summit = summit_factory()
+        summit_anket_factory.create_batch(4, summit=summit)
+        summit_anket_factory(user=user, summit=summit, role=role)
+
+        url = reverse('summit-stats', kwargs={'pk': summit.id})
+        api_client.force_login(user)
+
+        response = api_client.get(url, format='json')
+
+        assert len(response.data['results']) == count
+
+    def test_user_search_by_fio(self, monkeypatch, api_login_client, summit_anket_factory, summit_factory):
+        monkeypatch.setattr(SummitStatisticsView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(SummitStatisticsView, 'get_queryset', get_stats_queryset)
+        summit = summit_factory()
+        summit_anket_factory.create_batch(10, summit=summit)
+        summit_anket_factory(user__last_name='searchlast', user__first_name='searchfirst', summit=summit)
+
+        url = reverse('summit-stats', kwargs={'pk': summit.id})
+
+        response = api_login_client.get(
+            '{}?search_fio={}'.format(url, 'searchfirst searchlast'),
+            format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 1
+
+    def test_user_search_by_email(self, monkeypatch, api_login_client, summit_anket_factory, summit_factory):
+        monkeypatch.setattr(SummitStatisticsView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(SummitStatisticsView, 'get_queryset', get_stats_queryset)
+        summit = summit_factory()
+        summit_anket_factory.create_batch(10, summit=summit)
+        summit_anket_factory(user__email='mysupermail@test.com', summit=summit)
+        summit_anket_factory(user__email='test@mysupermail.com', summit=summit)
+
+        url = reverse('summit-stats', kwargs={'pk': summit.id})
+
+        response = api_login_client.get(
+            '{}?search_email={}'.format(url, 'mysupermail'),
+            format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 2
+
+    def test_user_search_by_phone(self, monkeypatch, api_login_client, summit_anket_factory, summit_factory):
+        monkeypatch.setattr(SummitStatisticsView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(SummitStatisticsView, 'get_queryset', get_stats_queryset)
+        summit = summit_factory()
+        summit_anket_factory.create_batch(10, summit=summit)
+        summit_anket_factory(user__phone_number='+380990002246', summit=summit)
+        summit_anket_factory(user__phone_number='+380992299000', summit=summit)
+
+        url = reverse('summit-stats', kwargs={'pk': summit.id})
+
+        response = api_login_client.get(
+            '{}?search_phone_number={}'.format(url, '99000'),
+            format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 2
+
+    def test_user_search_by_country(self, monkeypatch, api_login_client, summit_anket_factory, summit_factory):
+        monkeypatch.setattr(SummitStatisticsView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(SummitStatisticsView, 'get_queryset', get_stats_queryset)
+        summit = summit_factory()
+        summit_anket_factory.create_batch(10, summit=summit)
+        summit_anket_factory.create_batch(8, user__country='Ukraine', summit=summit)
+
+        url = reverse('summit-stats', kwargs={'pk': summit.id})
+
+        response = api_login_client.get(
+            '{}?search_country={}'.format(url, 'Ukraine'),
+            format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 8
+
+    def test_user_search_by_city(self, monkeypatch, api_login_client, summit_anket_factory, summit_factory):
+        monkeypatch.setattr(SummitStatisticsView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(SummitStatisticsView, 'get_queryset', get_stats_queryset)
+        summit = summit_factory()
+        summit_anket_factory.create_batch(10, summit=summit)
+        summit_anket_factory.create_batch(8, user__city='Tokio', summit=summit)
+
+        url = reverse('summit-stats', kwargs={'pk': summit.id})
+
+        response = api_login_client.get(
+            '{}?search_city={}'.format(url, 'Tokio'),
+            format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 8
+
+    def test_user_list_filter_by_hierarchy(
+            self, monkeypatch, api_login_client, summit_anket_factory, summit_factory, hierarchy_factory):
+        other_hierarchy = hierarchy_factory()
+        hierarchy = hierarchy_factory()
+        monkeypatch.setattr(SummitStatisticsView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(SummitStatisticsView, 'get_queryset', get_stats_queryset)
+        summit = summit_factory()
+        summit_anket_factory.create_batch(10, user__hierarchy=hierarchy, summit=summit)
+        summit_anket_factory.create_batch(20, user__hierarchy=other_hierarchy, summit=summit)
+
+        url = reverse('summit-stats', kwargs={'pk': summit.id})
+
+        response = api_login_client.get('{}?hierarchy={}'.format(url, hierarchy.id), format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 10
+
+    def test_user_list_filter_by_department(
+            self, monkeypatch, api_login_client, summit_anket_factory, summit_factory, department_factory):
+        other_department = department_factory()
+        department = department_factory()
+        monkeypatch.setattr(SummitStatisticsView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(SummitStatisticsView, 'get_queryset', get_stats_queryset)
+        summit = summit_factory()
+        profiles = summit_anket_factory.create_batch(10, summit=summit)
+        for p in profiles:
+            p.departments.set([department])
+        profiles = summit_anket_factory.create_batch(20, summit=summit)
+        for p in profiles:
+            p.departments.set([other_department])
+
+        url = reverse('summit-stats', kwargs={'pk': summit.id})
+
+        response = api_login_client.get('{}?department={}'.format(url, department.id), format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 10
+
+    @pytest.mark.parametrize('ticket_status,count', [('none', 2), ('download', 4), ('print', 8)],
+                             ids=['none', 'download', 'print'])
+    def test_user_list_filter_by_ticket_status(
+            self, monkeypatch, api_login_client, summit_anket_factory, summit_factory, ticket_status, count):
+        monkeypatch.setattr(SummitStatisticsView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(SummitStatisticsView, 'get_queryset', get_stats_queryset)
+
+        summit = summit_factory()
+        summit_anket_factory.create_batch(2, summit=summit, ticket_status='none')
+        summit_anket_factory.create_batch(4, summit=summit, ticket_status='download')
+        summit_anket_factory.create_batch(8, summit=summit, ticket_status='print')
+
+        url = reverse('summit-stats', kwargs={'pk': summit.id})
+
+        response = api_login_client.get('{}?ticket_status={}'.format(url, ticket_status), format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == count
+
+    @pytest.mark.parametrize('has_photo,count', [('true', 1), ('false', 2), ('all', 3)],
+                             ids=['true', 'false', 'all'])
+    def test_user_list_filter_by_has_photo(
+            self, monkeypatch, api_login_client, summit_anket_factory, summit_factory, has_photo, count):
+        monkeypatch.setattr(SummitStatisticsView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(SummitStatisticsView, 'get_queryset', get_stats_queryset)
+
+        summit = summit_factory()
+        summit_anket_factory.create_batch(1, summit=summit, user__image='photo.jpg')
+        summit_anket_factory.create_batch(2, summit=summit, user__image='')
+
+        url = reverse('summit-stats', kwargs={'pk': summit.id})
+
+        response = api_login_client.get('{}?has_photo={}'.format(url, has_photo), format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == count
+
+    @pytest.mark.parametrize('attended,count', [('true', 1), ('false', 2), ('all', 3)],
+                             ids=['true', 'false', 'all'])
+    def test_user_list_filter_by_attended(
+            self, monkeypatch, api_login_client, summit_anket_factory, summit_attend_factory,
+            summit_factory, attended, count):
+        monkeypatch.setattr(SummitStatisticsView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(SummitStatisticsView, 'get_queryset', get_stats_queryset)
+
+        summit = summit_factory()
+        summit_attend_factory.create_batch(1, anket__summit=summit)
+        summit_anket_factory.create_batch(2, summit=summit)
+
+        url = reverse('summit-stats', kwargs={'pk': summit.id})
+
+        response = api_login_client.get('{}?attended={}'.format(url, attended), format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == count
+
+    def test_user_list_filter_by_master(
+            self, monkeypatch, api_login_client, summit_anket_factory, summit_factory, user_factory):
+        master = user_factory(username='master')
+        monkeypatch.setattr(SummitStatisticsView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(SummitStatisticsView, 'get_queryset', get_stats_queryset)
+        summit = summit_factory()
+        summit_anket_factory.create_batch(10, user__master=master, summit=summit)
+        summit_anket_factory.create_batch(20, summit=summit)
+
+        url = reverse('summit-stats', kwargs={'pk': summit.id})
+
+        response = api_login_client.get('{}?master={}'.format(url, master.id), format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 10
+
+    def test_user_list_filter_by_master_tree(self, monkeypatch, api_login_client, summit_anket_factory, summit_factory,
+                                             user_factory):
+        monkeypatch.setattr(SummitStatisticsView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(SummitStatisticsView, 'get_queryset', get_stats_queryset)
+        summit = summit_factory()
+        user = user_factory()  # count: + 0, = 0, all_users_count: +1, = 1
+
+        # count: + 3, = 3, all_users_count: +3, = 4
+        summit_anket_factory.create_batch(3, user__master=user, summit=summit)
+        second_level_user = user_factory(master=user)  # count: + 3, = 0, all_users_count: +1, = 5
+        # count: + 8, = 11, all_users_count: +8, = 13
+        summit_anket_factory.create_batch(8, user__master=second_level_user, summit=summit)
+
+        summit_anket_factory.create_batch(15, summit=summit)  # count: + 0, = 11, all_users_count: +15, = 28
+        other_user = user_factory()  # count: + 0, = 11, all_users_count: +1, = 29
+        # count: + 0, = 11, all_users_count: + 32, = 61
+        summit_anket_factory.create_batch(32, user__master=other_user, summit=summit)
+
+        url = reverse('summit-stats', kwargs={'pk': summit.id})
 
         response = api_login_client.get(url, data={'master_tree': user.id}, format='json')
 

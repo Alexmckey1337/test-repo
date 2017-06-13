@@ -141,13 +141,14 @@ class MeetingStatisticSerializer(serializers.ModelSerializer):
 
 
 class MeetingDashboardSerializer(serializers.ModelSerializer):
-    unsold_night_reports = serializers.IntegerField(read_only=True)
-    unsold_home_reports = serializers.IntegerField(read_only=True)
-    unsold_service_reports = serializers.IntegerField(read_only=True)
+    meetings_submitted = serializers.IntegerField()
+    meetings_in_progress = serializers.IntegerField()
+    meetings_expired = serializers.IntegerField()
 
     class Meta:
         model = Meeting
-        fields = ('unsold_night_reports', 'unsold_home_reports', 'unsold_service_reports')
+        fields = ('meetings_submitted', 'meetings_in_progress', 'meetings_expired')
+        read_only_fields = ['__all__']
 
 
 class ChurchReportListSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMixin):

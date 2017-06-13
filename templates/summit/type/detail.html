@@ -5,8 +5,8 @@
 {% load payment_tags %}
 
 {% block header.top.h1 %}
-    <h1 id="summitType" data-id="{{ summit_type.id }}">
-        <a href="{% url 'summit:list' %}">САММИТ | </a>
+    <h1 id="summit-title">
+        <a href="{% url 'summit:type-list' %}">САММИТЫ | </a>
         <span>{{ summit_type.title }}</span>
     </h1>
 {% endblock %}
@@ -26,14 +26,22 @@
     <div class="top-panel">
         <div class="tabs">
             <ul class="nav tabs_link">
-                <li><a href="{% url 'summit:detail' pk=summit_type.id %}">Учаники</a></li>
-                <li><a class="active" href="{% url 'summit:stats' pk=summit_type.id %}">Статистика</a></li>
+                <li><a class="active" href="{% url 'summit:type-detail' pk=summit_type.id %}">Участники</a></li>
             </ul>
         </div>
         <div class="top-buttons-wrap">
             <ul class="top-buttons">
                 <li>
+                    <button id="download" class="print">Печать отчета</button>
+                </li>
+                <li>
+                    <button id="add">Добавить пользователя</button>
+                </li>
+                <li>
                     <button id="filter_button">Фильтр</button>
+                </li>
+                <li>
+                    <button id="export_table" data-export-url="/api/v1.0/summits/<id>/export_users/" class="download header__button">Export</button>
                 </li>
                 <li>
                     <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
@@ -47,17 +55,35 @@
         </div>
     </div>
 {% endblock %}
-{% block header.buttons.export %}
-    <li>
-        <form action="{% url "summit_ankets-export" %}?user__first_name=Сергей" method="post">
-            <button type="submit">Export</button>
-        </form>
-    </li>
-{% endblock %}
+
 {% block pagination_top %}
     <div class="top-pag">
-        <div class="table__count"></div>
-        <div class="pagination users__pagination"><!--pagination -->
+        <div id="carousel" class="carousel">
+            <span class="arrow-left"></span>
+            <div class="gallery">
+                <ul id="summitsTypes" class="images">
+                    {% with current_summit=request.GET.summit %}
+                        {% available_summits user summit_type as summits %}
+                        {% for summit in summits reversed %}
+                            <li data-id={{ summit.id }}
+                                        {% if summit.id|stringformat:"d" == current_summit %} class="active"
+                                        {% elif forloop.first and not current_summit %} class="active"{% endif %}>
+                            <span>
+                                {% if summit.description %}
+                                    {{ summit.description }}
+                                {% else %}
+                                    {{ summit.start_date }}
+                                {% endif %}
+                            </span></li>
+                        {% endfor %}
+                    {% endwith %}
+                </ul>
+            </div>
+            <span class="arrow-right"></span>
+        </div>
+
+        <div class="pagination"><!--pagination -->
+            <div class="pag-wrap"></div>
         </div><!--End pagination -->
     </div>
 {% endblock %}
@@ -272,12 +298,12 @@
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="select__db" data-filter="ticket_status" name="ticket_status"
-                                    id="ticket_status">
+                            <select class="select__db" data-filter="ticket_status" name="ticket_status" id="ticket_status">
                                 <option>ВСЕ</option>
                                 <option value="none">{% trans "Не создан" %}</option>
                                 <option value="download">{% trans "Создан" %}</option>
                                 <option value="print">{% trans "Напечатано" %}</option>
+                                <option value="given">{% trans "Выдано" %}</option>
                             </select>
                         </p>
                         <p class="input_block">
@@ -288,9 +314,7 @@
                             </select>
                         </p>
                         <p class="input_block">
-                            <input type="text" placeholder="от" data-filter="from_date" id="date_from"
-                                   class="select_date_filter"><input type="text" placeholder="до" data-filter="to_date"
-                                                                     id="date_to" class="select_date_filter">
+                            <input type="text" placeholder="от" data-filter="from_date" id="date_from" class="select_date_filter"><input type="text" placeholder="до" data-filter="to_date" id="date_to" class="select_date_filter">
                         </p>
                     </div>
                 </div>
@@ -363,7 +387,13 @@
                     <% } %>
                     <% } else if (key == 'ticket_status') { %>
                     <% if (results[index][key] != null) { %>
-                    <td data-id="<%= results[index][key][0] %>"><%= results[index][key][1] %></td>
+                    <td data-id="<%= results[index][key][0] %>" data-user-id="<%= results[index]['id'] %>" class="ticket_status">
+                        <span class="text"><%= results[index][key][1] %></span>
+                        <% if( results[index][key][0] == 'print' || results[index][key][0] == 'given' ){ %>
+                            <input id="<%= 'ticked_' + (index + 1)%>" type="checkbox" name="attended" <% if(results[index][key][0] == 'given') { %>checked<% }%> >
+                            <label for="<%= 'ticked_' + (index + 1) %>"></label>
+                        <% } %>
+                    </td>
                     <% } else { %>
                     <td></td>
                     <% } %>
@@ -407,5 +437,5 @@
     <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
     <script src="{% static "libs/jquery-file-download/src/Scripts/jquery.fileDownload.js" %}"></script>
     <script src="{% static "js/add_user.js" %}"></script>
-    <script src="{% static "js/summit_stats.js" %}"></script>
+    <script src="{% static "js/summit.js" %}"></script>
 {% endblock %}

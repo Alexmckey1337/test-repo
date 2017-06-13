@@ -82,7 +82,7 @@
                                 </div>
                                 <div class="input">
                                     <select disabled name="master" id="chooseResponsible" tabindex="8"
-                                            class="cleared must" data-validation="required">
+                                            class="cleared must">
                                     </select>
                                 </div>
                             </li>
@@ -364,7 +364,13 @@
                 <li>Иерархия</li>
                 <li><%=hierarchy.title%></li>
                 <li>Ответственный</li>
-                <li><%=master.fullname%></li>
+                <li>
+                    <% if (master == null) { %>
+                       Нет ответственного
+                    <% } else { %>
+                    <%=master.fullname%>
+                    <% } %>
+                </li>
                 <li>Телефон</li>
                 <li><%=phone_number%></li>
             </ul>

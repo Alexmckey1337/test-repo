@@ -1,114 +1,6 @@
 (function ($) {
-    const SUMMIT_ID = $('#summit-title').data('summit-id');
-    class PrintMasterStat {
-        constructor(summitId) {
-            this.summit = summitId;
-            this.masterId = null;
-            this.filter = [];
-            this.url = `/api/v1.0/summit/${summitId}/master/`
-        }
-
-        setMaster(id) {
-            this.masterId = id;
-        }
-
-        setFilterData(data) {
-            this.setMaster(data.id);
-            if (data.attended) {
-                this.filter.push({
-                    attended: data.attended,
-                });
-            }
-            if (data.date) {
-                this.filter.push({
-                    date: data.date
-                });
-            }
-            this.makeLink();
-        }
-
-        getMasters() {
-            let defaultOption = {
-                method: 'GET',
-                credentials: "same-origin",
-                headers: new Headers({
-                    'Content-Type': 'application/json',
-                })
-            };
-            return fetch(`/api/v1.0/summits/${this.summit}/bishop_high_masters/`, defaultOption)
-                .then(res => res.json());
-        }
-
-        show() {
-            this.getMasters()
-                .then(data => data.map(item => `<option value="${item.id}">${item.full_name}</option>`))
-                .then(options => {
-                    let content = `
-                    <div>
-                    <label>Выберите ответсвенного</label>
-                        <select class="master">`;
-                    content += options.join(',');
-                    content += `</select>
-                                    </div>
-                                        <div>
-                                        <label>Пристутствие</label>
-                                        <select class="attended">
-                                            <option value="">ВСЕ</option>
-                                            <option value="true">ДА</option>
-                                            <option value="false">НЕТ</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                    <label>Дата</label>
-                                    <input class="date" type="text">
-                                    </div>`;
-                    showStatPopup(content, 'Сформировать файл статистики', this.setFilterData.bind(this));
-                });
-
-        }
-
-        print() {
-            if (!this.masterId) {
-                showPopup('Выберите мастера для печати');
-                return
-            }
-            let defaultOption = {
-                method: 'GET',
-                credentials: "same-origin",
-                headers: new Headers({
-                    'Content-Type': 'application/json',
-                })
-            };
-            return fetch(`${this.url}${this.masterId}.pdf`, defaultOption).then(data => data.json()).catch(err => err);
-        }
-
-        makeLink() {
-            console.log(this.filter);
-            if (!this.masterId) {
-                showPopup('Выберите мастера для печати');
-                return
-            }
-            let link = `${this.url}${this.masterId}.pdf?`;
-            this.filter.forEach(item => {
-                let key = Object.keys(item);
-                link += `${key[0]}=${item[key[0]]}&`
-            });
-            link += 'short';
-            showPopup(`<a class="btn" href="${link}">Скачать</a>`, 'Скачать статистику');
-        }
-    }
-    $('#export_table').on('click', function () {
-        $('.preloader').css('display', 'block');
-        exportNewTableData(this).then(function () {
-            $('.preloader').css('display', 'none');
-        });
-    });
-    $('#download').on('click', function () {
-        let summitId = $('#summitsTypes').find('.active').data('id');
-        let stat = new PrintMasterStat(summitId);
-        stat.show();
-    });
-
+    const $summitUsersList = $('#summitUsersList');
+    const SUMMIT_ID = $summitUsersList.data('summit');
     function makeSummitInfo() {
         let width = 150,
             count = 1,
@@ -116,8 +8,8 @@
             $carousel = $('#carousel'),
             $list = $carousel.find('ul'),
             $listElements;
-        $listElements = $list.find('li');
-        $carousel.find('.arrow-left').on('click', function () {
+            $listElements = $list.find('li');
+            $carousel.find('.arrow-left').on('click', function () {
             position = Math.min(position + width * count, 0);
 
             $($list).css({
@@ -133,6 +25,12 @@
         });
     }
 
+    $('#export_table').on('click', function () {
+        $('.preloader').css('display', 'block');
+        exportNewTableData(this).then(function () {
+            $('.preloader').css('display', 'none');
+        });
+    });
     function addUserToSummit(data) {
         let id = data.id,
             fullName = data.fullname,
@@ -146,7 +44,7 @@
         $popup.show();
     }
 
-    createSummitUsersTable();
+    createSummitUsersTable({summit: SUMMIT_ID});
 
     makeSummitInfo();
     $('body').on('click', '#carousel li span', function () {
@@ -218,7 +116,7 @@
         $('.add-user-wrap').css('display', '');
     });
     $("#load-tickets").on('click', function () {
-        let summit_id = $('#summitsTypes').find('.active').data('id');
+        let summit_id = $('#summitUsersList').data('summit');
         ajaxRequest(`/api/v1.0/generate_summit_tickets/${summit_id}/`, null, function (data) {
             console.log(data);
         }, 'GET', true, {
@@ -281,15 +179,13 @@
         document.querySelector('#searchUsers').focus();
     });
     $('#changeSum').on('click', function () {
-        const $summitValue = $('#summit-value');
-        $summitValue.removeAttr('readonly');
-        $summitValue.focus();
+        $('#summit-value').removeAttr('readonly');
+        $('#summit-value').focus();
     });
 
     $('#changeSumDelete').on('click', function () {
-        const $summitValueDelete = $('#summit-valueDelete');
-        $summitValueDelete.removeAttr('readonly');
-        $summitValueDelete.focus();
+        $('#summit-valueDelete').removeAttr('readonly');
+        $('#summit-valueDelete').focus();
     });
 
     $('#preDeleteAnket').on('click', function () {
@@ -342,7 +238,7 @@
                     deleteSummitProfile(anketID).then(function (msg) {
                         $(div).hide().remove();
                         setTimeout(() => showPopup(msg), 100);
-                        createSummitUsersTable();
+                        createSummitUsersTable({summit: SUMMIT_ID});
                     });
                 });
             $(splashButtons).addClass('splash-buttons wrap').append(deleteBtn);
@@ -377,7 +273,7 @@
     });
 
     $('#applyChanges').on('click', function () {
-        let summit_id = $('#summitsTypes').find('.active').data('id');
+        let summit_id = $('#summitUsersList').data('summit');
         let sendData = {
             send_email: false,
             summit_id: summit_id
@@ -399,7 +295,7 @@
         let id = $(this).attr('data-id'),
             money = $('#summit-value').val(),
             description = $('#popup textarea').val(),
-            summit_id = $('#summitsTypes').find('.active').data('id');
+            summit_id = $('#summitUsersList').data('summit');
         registerUser(id, summit_id, money, description);
 
         document.querySelector('#popup').style.display = 'none';
@@ -494,7 +390,8 @@
         if (search) {
             param['search'] = search;
         }
-        param.summit_id = $('#summitsTypes').find('.active').data('id');
+        console.log(param);
+        param.summit_id = $('#summitUsersList').data('summit');
         getPotencialSammitUsers(param).then(function (data) {
             let html = '';
             data = data.results;
@@ -537,23 +434,22 @@
         $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
     });
 
-    $('#departments_filter').on('change', function () {
+     $('#departments_filter').on('change', function () {
         $('#master_tree').prop('disabled', true);
         let department_id = parseInt($(this).val());
         makePastorListNew(department_id, ['#master_tree', '#master']);
     });
     $('#master_tree').on('change', function () {
         $('#master').prop('disabled', true);
-        let master_tree = parseInt($(this).val());
+         let master_tree = parseInt($(this).val());
         makePastorListWithMasterTree({
             master_tree: master_tree
         }, ['#master'], null);
     });
-
     $('input[name="fullsearch"]').keyup(function () {
         let val = $(this).val();
         delay(function () {
-            createSummitUsersTable();
+            createSummitUsersTable({summit: SUMMIT_ID});
         }, 100);
     });
 
@@ -572,15 +468,13 @@
             right: '-300px'
         }, 10, 'linear')
     });
+    $('#filter_button').on('click', function () {
+        $('#filterPopup').css('display', 'block');
+    });
 
     $.validate({
         lang: 'ru',
         form: '#createUser',
-        onError: function (form) {
-          showPopup(`Введены некорректные данные`);
-          let top = $(form).find('div.has-error').first().offset().top;
-          $(form).find('.body').animate({scrollTop: top}, 500);
-        },
         onSuccess: function (form) {
             if ($(form).attr('name') == 'createUser') {
                 $(form).find('#saveNew').attr('disabled', true);
@@ -592,7 +486,7 @@
         }
     });
 
-    $('#filterPopup').find('.pop_cont').on('click', function (e) {
+    $('#filterPopup').find('.pop_cont').on('click',function (e) {
         e.stopPropagation();
     });
 
@@ -600,7 +494,7 @@
         dateFormat: 'yyyy-mm-dd',
         autoClose: true
     });
-    $summitUsersList.on('click', '.ticket_status', function () {
+    $('#summitUsersList').on('click', '.ticket_status', function () {
         let option = {
                 method: 'POST',
                 credentials: "same-origin",
@@ -613,7 +507,12 @@
             .then( res => res.json())
             .then(data => {
                 $(this).find('.text').text(data.text);
+                if(data.new_status == 'given' || data.new_status == 'print' ) {
+                    $(this).find('div').show();
+                } else {
+                     $(this).find('div').hide();
+                }
             })
 
-    })
+    });
 })(jQuery);

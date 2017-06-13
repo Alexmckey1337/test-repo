@@ -355,6 +355,7 @@ function createHomeGroupsTable(config = {}) {
         new OrderTable().sort(createHomeGroupsTable, ".table-wrap th");
     });
 }
+
 function makePastorListWithMasterTree(config, selector, active = null) {
     getShortUsers(config).then(data => {
         let options = '<option selected>ВСЕ</option>';
@@ -370,6 +371,7 @@ function makePastorListWithMasterTree(config, selector, active = null) {
         })
     })
 }
+
 function makePastorListNew(id, selector = [], active = null) {
     getResponsible(id, 2).then(function (data) {
         let options = '<option selected>ВСЕ</option>';
@@ -385,6 +387,7 @@ function makePastorListNew(id, selector = [], active = null) {
         })
     });
 }
+
 function makePastorList(departmentId, selector, active = null) {
     getResponsible(departmentId, 2).then(function (data) {
         let options = [];
@@ -471,6 +474,7 @@ function makeDepartmentList(selector, active = null) {
         $(selector).html(options).prop('disabled', false).select2();
     });
 }
+
 function getChurchesListINDepartament(department_ids) {
     return new Promise(function (resolve, reject) {
         let url;
@@ -500,6 +504,7 @@ function getChurchesListINDepartament(department_ids) {
         newAjaxRequest(data, status, reject)
     })
 }
+
 function getHomeGroupsINChurches(id) {
     return new Promise(function (resolve, reject) {
         let data = {
@@ -558,6 +563,69 @@ function createCSV(data) {
         file: new Blob(["\ufeff" + data.responseText], {type: type, endings: 'native'}),
         filename: filename
     };
+}
+
+function exportNewTableData(el) {
+    let _self = el;
+    return new Promise(function (resolve, reject) {
+        let url, filter, filterKeys, items, count;
+        let summitId = $('#summitsTypes').find('.active').data('id');
+        url = $(_self).attr('data-export-url');
+        url = url.replace('<id>', summitId);
+        filter = getFilterParam();
+        filterKeys = Object.keys(filter);
+        if (filterKeys && filterKeys.length) {
+            url += '?';
+            items = filterKeys.length;
+            count = 0;
+            filterKeys.forEach(function (key) {
+                count++;
+                url += key + '=' + filter[key];
+                if (count != items) {
+                    url += '&';
+                }
+            })
+        }
+        let data = {
+            url: url,
+            method: 'POST',
+        };
+        let status = {
+            200: function (data, statusText, req) {
+                // check for a filename
+                let file = createCSV(req);
+                if (typeof window.navigator.msSaveBlob !== 'undefined') {
+                    // IE workaround for "HTML7007"
+                    window.navigator.msSaveBlob(file.file, file.filename);
+                } else {
+                    let URL = window.URL || window.webkitURL;
+                    let downloadUrl = URL.createObjectURL(file.file);
+
+                    if (file.filename) {
+                        // use HTML5 a[download] attribute to specify filename
+                        let a = document.createElement("a");
+                        // safari doesn't support this yet
+                        if (typeof a.download === 'undefined') {
+                            window.location = downloadUrl;
+                        } else {
+                            a.href = downloadUrl;
+                            a.download = file.filename;
+                            document.body.appendChild(a);
+                            a.click();
+                        }
+                    } else {
+                        window.location = downloadUrl;
+                    }
+
+                    setTimeout(function () {
+                        URL.revokeObjectURL(downloadUrl);
+                    }, 100); // cleanup
+                    resolve(req);
+                }
+            }
+        };
+        newAjaxRequest(data, status, reject);
+    });
 }
 
 function exportTableData(el) {
@@ -931,7 +999,6 @@ function createChurchesDetailsTable(config = {}, id, link) {
     }
     Object.assign(config, getOrderingData());
     getChurchDetails(id, link, config).then(function (data) {
-        console.log(id);
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
@@ -1085,14 +1152,14 @@ function clearAddNewUser() {
 }
 
 function clearAddChurchData() {
-    $('#added_churches_date').val(''),
-        $('#added_churches_is_open').prop('checked', false),
-        $('#added_churches_title').val(''),
-        $('#added_churches_country').val(''),
-        $('#added_churches_city').val(''),
-        $('#added_churches_address').val(''),
-        $('#added_churches_phone').val(''),
-        $('#added_churches_site').val('')
+    $('#added_churches_date').val('');
+        $('#added_churches_is_open').prop('checked', false);
+        $('#added_churches_title').val('');
+        $('#added_churches_country').val('');
+        $('#added_churches_city').val('');
+        $('#added_churches_address').val('');
+        $('#added_churches_phone').val('');
+        $('#added_churches_site').val('');
 }
 
 function clearAddHomeGroupData() {
@@ -1648,7 +1715,10 @@ function makePayments(config = {}) {
         ;
 }
 function homeStatistics() {
-    getData('/api/v1.0/events/home_meetings/statistics/', getFilterParam()).then(data => {
+    let data = {};
+        Object.assign(data, getFilterParam());
+        Object.assign(data, getTabsFilterParam());
+    getData('/api/v1.0/events/home_meetings/statistics/', data).then(data => {
         let tmpl = document.getElementById('statisticsTmp').innerHTML;
         let rendered = _.template(tmpl)(data);
         document.getElementById('statisticsContainer').innerHTML = rendered;
@@ -1895,8 +1965,48 @@ function showPopup(text, title, callback) {
     });
 }
 
-function showPopupAddUser(data) {
+function showStatPopup(body, title, callback) {
+    title = title || 'Информационное сообщение';
+    let popup = document.getElementById('create_pop');
+    if (popup) {
+        popup.parentElement.removeChild(popup)
+    }
+    let div = document.createElement('div');
 
+    let html = `<div class="pop_cont" >
+        <div class="top-text">
+            <h3>${title}</h3><span id="close_pop">×</span></div>
+            <div class="main-text">${body}</div>
+            <div><button class="make">СФОРМИРОВАТЬ</button></div>
+        </div>`;
+    $(div)
+        .html(html)
+        .attr({
+            id: "create_pop"
+        })
+        .addClass('pop-up__stats')
+        .find('.date').datepicker({
+        dateFormat: 'yyyy-mm-dd',
+        autoClose: true
+    });
+    $(div).find('select').select2();
+    $(div).find('.make').on('click', function (e) {
+        e.stopPropagation();
+        let data = {
+            id: $(div).find('.master').val(),
+            attended: $(div).find('.attended').val(),
+            date: $(div).find('.date').val()
+        };
+        callback(data);
+    });
+    $('body').append(div);
+
+    $('#close_pop').on('click', function () {
+        $('.pop-up__stats').css('display', 'none').remove();
+    });
+}
+
+function showPopupAddUser(data) {
     let tmpl = document.getElementById('addUserSuccessPopup').innerHTML;
     let rendered = _.template(tmpl)(data);
     $('body').append(rendered);
@@ -1905,6 +2015,7 @@ function showPopupAddUser(data) {
         $('#addPopup').css('display', 'none').remove();
         $('#addNewUserPopup').find('form').css("transform", "translate3d(0px, 0px, 0px)");
         clearAddNewUser();
+        $('#addNewUserPopup').find('.body').scrollTop(0);
     });
     $('#addPopup').find('.addMore').on('click', function () {
         $('#addPopup').css('display', 'none').remove();
@@ -1912,6 +2023,7 @@ function showPopupAddUser(data) {
         $('#addNewUserPopup').find('form').css("transform", "translate3d(0px, 0px, 0px)");
         $('#addNewUserPopup').css('display', 'block');
         clearAddNewUser();
+        $('#addNewUserPopup').find('.body').scrollTop(0);
     });
 }
 
@@ -2118,7 +2230,7 @@ function initLocationSelect(config) {
 
 function createSummitUsersTable(data = {}) {
     let page = data.page || $('.pagination__input').val();
-    let summitId = data.summit || $('#summitsTypes').find('.active').data('id');
+    let summitId = data.summit || $('#summitsTypes').find('.active').data('id') || $('#summitUsersList').data('summit');
     let config = {
         page: page
     };
@@ -2350,6 +2462,11 @@ function initAddNewUser(config = {}) {
                 let department = $('#chooseDepartment').val();
                 getResponsible(department, status).then(function (data) {
                     let rendered = [];
+                    if (status > 5) {
+                        let option = document.createElement('option');
+                        $(option).val('').text('Нет ответственного');
+                        rendered.push(option);
+                    }
                     data.forEach(function (item) {
                         let option = document.createElement('option');
                         $(option).val(item.id).text(item.fullname);
@@ -2869,10 +2986,46 @@ function getSearch(title) {
         [title]: search
     }
 }
-function getFilterParam() {
-    let $filterFields,
+function getTabsFilter() {
+    const $tabsFilter = $('.tabs-filter');
+    let data = {};
+    const $button = $tabsFilter.find('.active').find('button[data-filter]');
+    const $input = $tabsFilter.find('input[data-filter]');
+
+    $button.each(function () {
+        let field = $(this).data('filter');
+        let value = $(this).data('filter-value');
+        console.log(field, value);
+        data[field] = value;
+    });
+
+    $input.each(function () {
+        let field = $(this).data('filter');
+        let value = $(this).val();
+        data[field] = value;
+    });
+    return data
+}
+function getTabsFilterParam() {
+    let data = {},
         dataTabs = {},
         dataRange = {},
+        type = $('#tabs').find('li.active').find('button').attr('data-id');
+    if (type > "0") {
+        dataTabs.type = type;
+        Object.assign(data, dataTabs);
+    }
+    let rangeDate = $('.tab-home-stats').find('.set-date').find('input').val();
+    if (rangeDate) {
+        let dateArr = rangeDate.split('-');
+        dataRange.from_date = dateArr[0].split('.').reverse().join('-');
+        dataRange.to_date = dateArr[1].split('.').reverse().join('-');
+        Object.assign(data, dataRange);
+    }
+    return data
+}
+function getFilterParam() {
+    let $filterFields,
         data = {};
     $filterFields = $('#filterPopup select, #filterPopup input');
     $filterFields.each(function () {
@@ -2890,27 +3043,11 @@ function getFilterParam() {
             }
         }
     });
+
     if ('master_tree' in data && ('pastor' in data || 'master' in data || 'leader' in data)) {
         delete data.master_tree;
     }
-    let type = $('#tabs').find('li.active').find('button').attr('data-id');
-    if (type == "1" || type == "2" || type == "3") {
-        dataTabs.type = type;
-        Object.assign(data, dataTabs);
-    }
-    let rangeDate = $('.tab-home-stats').find('.set-date').find('input').val();
-    if (rangeDate) {
-        let dateArr = rangeDate.split('-');
-        dataRange.from_date = dateArr[0].split('.').reverse().join('-');
-        dataRange.to_date = dateArr[1].split('.').reverse().join('-');
-        Object.assign(data, dataRange);
-    }
 
-    return data;
-}
-
-function filterParam() {
-    let data = getFilterParam();
     return data;
 }
 
@@ -2999,6 +3136,7 @@ function homeReportsTable(config = {}) {
     config.status = status;
     Object.assign(config, getSearch('search_title'));
     Object.assign(config, getFilterParam());
+    Object.assign(config, getTabsFilterParam());
     getHomeReports(config).then(data => {
         makeHomeReportsTable(data, config);
     })

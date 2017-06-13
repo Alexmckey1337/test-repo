@@ -1,0 +1,172 @@
+{% extends "summit/type/detail.html" %}
+{% load i18n %}
+{% load static %}
+{% load summit_tags %}
+{% load payment_tags %}
+
+{% block header.top.h1 %}
+    <h1 id="summit-title" data-summit-id="{{ summit.id }}">
+        САММИТЫ |
+        {{ summit.type }} |
+        <span>{{ summit }}</span>
+    </h1>
+{% endblock %}
+
+{% block header.buttons %}
+    <div class="top-panel">
+        <div class="tabs">
+            <ul class="nav tabs_link">
+                <li><a class="active" href="{{ summit.get_absolute_url }}">Участники</a></li>
+                <li><a href="{% url 'summit:stats' pk=summit.id %}">Статистика</a></li>
+                <li><a href="{% url 'summit:report' pk=summit.id %}">По ответственному</a></li>
+            </ul>
+        </div>
+        <div class="top-buttons-wrap">
+            <ul class="top-buttons">
+                <li>
+                    <button id="add">Добавить пользователя</button>
+                </li>
+                <li>
+                    <button id="filter_button">Фильтр</button>
+                </li>
+                <li>
+                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
+                </li>
+                {% if user.can_see_any_summit_ticket %}
+                    <li>
+                        <button id="load-tickets"><i class="fa fa-address-card-o" aria-hidden="true"></i></button>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block pagination_top %}
+    <div class="top-pag">
+        <div class="table__count"></div>
+        <div class="pagination users__pagination"><!--pagination -->
+        </div><!--End pagination -->
+    </div>
+{% endblock %}
+
+{% block table %}
+    <div class="table-wrap clearfix">
+        <div data-summit="{{ summit.id }}" id="summitUsersList" class="table scrollbar-inner"></div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+    {% block template_tables %}
+        <script type="text/template" id="databaseUsers">
+            <table>
+                <thead>
+                <tr>
+                    <% for( var key in user_table) { %>
+                    <% if(user_table[key].active) { %>
+                    <th data-order="<%=user_table[key].ordering_title%>"><%=user_table[key].title %></th>
+                    <% } %>
+                    <% } %>
+                </tr>
+                </thead>
+                <tbody>
+                <% for( var index in results) { %>
+                <tr>
+                    <% for( var key in user_table) { %>
+                    <% if(user_table[key].active) { %>
+                    <% if (key == 'full_name') { %>
+                    <% if (results[index][key] != null) { %>
+                    <td class="edit"><a href="<%= results[index].link %>"
+                                        data-link="<%= results[index].link %>"
+                                        data-id="<%=results[index].user_id %>"
+                        <% if(results[index].id) { %>
+                        data-ankets="<%= results[index].id %>"
+                        <% } %>><%= results[index][key] %></a>
+                        <span class="quick-edit"></span>
+                    </td>
+                    <% } else { %>
+                    <td></td>
+                    <% } %>
+                    <% } else if(key == 'code') { %>
+                    <% if (results[index][key] != null) { %>
+                    <td class="edit"><a
+                            href="/api/v1.0/generate_code/<%= results[index].code %>.pdf?code=<%= results[index].code %>"
+                            data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%=
+                        results[index][key] %></a></td>
+                    <% } else { %>
+                    <td></td>
+                    <% } %>
+                    <% } else if(key == 'get_title') { %>
+                    <% if (results[index][key] != null) { %>
+                    <td class="edit"><a href="<%= results[index].link %>" data-link="<%= results[index].link %>"
+                                        data-id="<%=results[index].id %>"><%= results[index][key] %></a><span
+                            class="quick-edit"></span></td>
+                    <% } else { %>
+                    <td></td>
+                    <% } %>
+                    <% } else if (key == 'master' || key == 'pastor' || key == 'leader') { %>
+                    <% if (results[index][key] != null) { %>
+                    <td><%= results[index][key].fullname %></td>
+                    <% } else { %>
+                    <td></td>
+                    <% } %>
+                    <% } else if (key == 'ticket_status') { %>
+                    <% if (results[index][key] != null) { %>
+                    <td data-id="<%= results[index][key][0] %>" data-user-id="<%= results[index]['id'] %>"
+                        class="ticket_status">
+                        <span class="text"><%= results[index][key][1] %></span>
+                        <div
+                            <% if( results[index][key][0] != 'print' && results[index][key][0] != 'given' ) { %>
+                                style="display:none"
+                            <% } %>
+                        >
+                            <input id="<%= 'ticked_' + (index + 1)%>" type="checkbox" name="attended"
+                                <% if(results[index][key][0] == 'given') { %>checked<% }%> >
+                            <label for="<%= 'ticked_' + (index + 1) %>"></label>
+                        </div>
+                    </td>
+                    <% } else { %>
+                    <td></td>
+                    <% } %>
+                    <% } else if (key == 'hierarchy' || key == 'church' ) { %>
+                    <% if (results[index][key] != null ) { %>
+                    <td><%= results[index][key].title %></td>
+                    <% } else { %>
+                    <td></td>
+                    <% } %>
+                    <% }else if (key == 'departments' || key == 'divisions') { %>
+                    <% if ( Array.isArray(results[index][key]) && results[index][key].length != 0) { %>
+                    <% if (results[index][key].length == 1) { %>
+                    <td><%= results[index][key][0].title %></td>
+                    <% } else { %>
+                    <td><%= results[index][key].reduce(function(sum, item, i) {
+                        return i < results[index][key].length - 1 ? sum + item.title + ', ' : sum + item.title
+                        }, "") %>
+                    </td>
+                    <% } %>
+                    <% } else { %>
+                    <td></td>
+                    <% } %>
+                    <% } else { %>
+                    <td><% if (results[index][key] === true ) { %>
+                        <p class="text__center">✔</p>
+                        <% } else if (results[index][key] === false){ %>
+
+                        <% } else { %>
+                        <%= results[index][key] %>
+                        <% } %>
+                    </td>
+                    <% } %>
+                    <% } %>
+                    <% } %>
+                </tr>
+                <% } %>
+                </tbody>
+            </table>
+        </script>
+    {% endblock %}
+    <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
+    <script src="{% static "libs/jquery-file-download/src/Scripts/jquery.fileDownload.js" %}"></script>
+    <script src="{% static "js/add_user.js" %}"></script>
+    <script src="{% static "js/summit-detail.js" %}"></script>
+{% endblock %}

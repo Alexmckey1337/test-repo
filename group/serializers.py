@@ -150,23 +150,13 @@ class AllHomeGroupsListSerializer(serializers.ModelSerializer):
         fields = ('id', 'get_title')
 
 
-class HomeMeetingsCountSerializer(serializers.ModelSerializer):
-    meetings_in_progress = serializers.IntegerField(read_only=True)
-    meetings_submitted = serializers.IntegerField(read_only=True)
-    meetings_expired = serializers.IntegerField(read_only=True)
-
-    class Meta:
-        model = HomeGroup
-        fields = ('meetings_in_progress', 'meetings_submitted', 'meetings_expired')
-
-
-class MeetingDashboardSerializer(serializers.ModelSerializer):
+class ChurchDashboardSerializer(serializers.ModelSerializer):
     churches_count = serializers.IntegerField()
+    peoples_in_churches = serializers.IntegerField()
     home_groups_count = serializers.IntegerField()
-    home_groups_users_count = serializers.IntegerField()
-    users_without_home_groups_count = serializers.IntegerField()
+    peoples_in_home_groups = serializers.IntegerField()
 
     class Meta:
         model = Church
-        fields = ('churches_count', 'home_groups_count', 'home_groups_users_count',
-                  'users_without_home_groups_count')
+        fields = ('churches_count', 'peoples_in_churches', 'home_groups_count', 'peoples_in_home_groups')
+        read_only_fields = ['__all__']
