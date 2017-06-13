@@ -7,7 +7,7 @@ import redis
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, MultipleObjectsReturned
 from django.db.models import Count, Case, When, BooleanField
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -322,6 +322,14 @@ class SummitListMixin(LoginRequiredMixin, ListView):
 class OpenSummitListView(SummitListMixin):
     template_name = 'summit/open/list.html'
     status = Summit.OPEN
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            summit = self.get_queryset().get()
+        except MultipleObjectsReturned:
+            return super(OpenSummitListView, self).dispatch(request, *args, **kwargs)
+        else:
+            return redirect(summit.get_absolute_url())
 
 
 class ClosedSummitListView(SummitListMixin):
