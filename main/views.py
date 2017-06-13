@@ -411,6 +411,7 @@ class SummitBishopReportView(LoginRequiredMixin, CanSeeSummitReportByBishopsMixi
     def get_context_data(self, **kwargs):
         ctx = super(SummitBishopReportView, self).get_context_data(**kwargs)
 
+        ctx['summit'] = get_object_or_404(Summit, pk=self.summit_id)
         ctx['departments'] = Department.objects.all()
         ctx['bishops'] = get_report_by_bishop_or_high(self.summit_id, self.report_date, self.department)
 

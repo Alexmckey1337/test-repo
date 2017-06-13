@@ -999,7 +999,6 @@ function createChurchesDetailsTable(config = {}, id, link) {
     }
     Object.assign(config, getOrderingData());
     getChurchDetails(id, link, config).then(function (data) {
-        console.log(id);
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
