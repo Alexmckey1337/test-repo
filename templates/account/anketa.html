@@ -311,7 +311,7 @@
                                         <select type="text" name="master" id="selectResponsible" readonly disabled>
                                             <option value="{{ account.master.id }}"
                                                     data-level="{{ account.master.level }}" selected
-                                                    disabled>{{ account.master }}</option>
+                                                    disabled>{{ account.master|default_if_none:"Нет ответственного"|default:"Нет ответственного" }}</option>
                                         </select>
                                     </li>
                                     <li>

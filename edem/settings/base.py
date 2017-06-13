@@ -405,3 +405,10 @@ CHANGE_HIERARCHY_LEVELS = {
     6: {0, 1, 2, 4, 5},
     7: {0, 1, 2, 4, 5, 6, 7},
 }
+
+NEW_TICKET_STATUS = {
+    'none': 'download',
+    'download': 'print',
+    'print': 'given',
+    'given': 'print',
+}

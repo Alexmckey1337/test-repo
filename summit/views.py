@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 
 from dbmail import send_db_mail
 from django.db import transaction, IntegrityError
+from django.conf import settings
 from django.db.models import Case, When, BooleanField, F, ExpressionWrapper, IntegerField, Subquery, OuterRef, Exists
 from django.db.models.functions import Concat
 from django.db.models import Value as V
@@ -309,6 +310,22 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         ankets = serializer(ankets, many=True)
 
         return Response(ankets.data)
+
+    @detail_route(methods=['post'])
+    def set_ticket_status(self, request, pk=None):
+        profile = self.get_object()
+        new_status = request.data.get('new_status', settings.NEW_TICKET_STATUS[profile.ticket_status])
+
+        if new_status not in map(lambda s: s[0], SummitAnket.TICKET_STATUSES):
+            raise exceptions.ValidationError({
+                'new_status': _('Incorrect status code.'),
+                'correct_statuses': ['none', 'download', 'print', 'given']
+            })
+
+        profile.ticket_status = new_status
+        profile.save()
+
+        return Response({'new_status': new_status, 'text': profile.get_ticket_status_display()})
 
 
 class SummitLessonViewSet(viewsets.ModelViewSet):

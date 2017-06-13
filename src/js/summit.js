@@ -598,5 +598,21 @@
     $('.select_date_filter').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true
+    });
+    $('#summitUsersList').on('click', '.ticket_status', function () {
+        let option = {
+                method: 'POST',
+                credentials: "same-origin",
+                headers: new Headers({
+                    'Content-Type': 'application/json',
+                })
+            };
+        const prifileId = $(this).data('user-id');
+        fetch(`/api/v1.0/summit_ankets/${prifileId}/set_ticket_status/`, option)
+            .then( res => res.json())
+            .then(data => {
+                $(this).find('.text').text(data.text);
+            })
+
     })
 })(jQuery);

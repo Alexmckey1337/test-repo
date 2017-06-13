@@ -203,11 +203,12 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
 
     visited = models.BooleanField(default=False)
 
-    NONE, DOWNLOADED, PRINTED = 'none', 'download', 'print'
+    NONE, DOWNLOADED, PRINTED, GIVEN = 'none', 'download', 'print', 'given'
     TICKET_STATUSES = (
         (NONE, _('Without ticket.')),
         (DOWNLOADED, _('Ticket is created.')),
         (PRINTED, _('Ticket is printed')),
+        (GIVEN, _('Ticket is given')),
     )
     ticket_status = models.CharField(_('Ticket status'), choices=TICKET_STATUSES, default=NONE, max_length=20)
 

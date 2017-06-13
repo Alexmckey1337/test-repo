@@ -563,6 +563,71 @@ Summit masters
           }
       ]
 
+Change ticket_status for profile
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:post:: /api/v1.0/summit_ankets/(int:profile_id)/set_ticket_status/
+
+    Change ticket_status of the profile.
+
+    If ``ticket_status`` is not sent -> status will changes:
+
+      - ``none`` -> ``download``
+      - ``download`` -> ``print``
+      - ``print`` -> ``given``
+      - ``given`` -> ``print``
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        POST /api/v1.0/summit_ankets/13/set_ticket_status/ HTTP/1.1
+        Host: vocrm.org
+        content-type: application/json
+
+        {
+          "new_status": "given",
+          "text": "Given"
+        }
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {
+           "new_status": "given"
+        }
+
+    **Example response (Bad request 1)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Vary: Accept, Cookie
+        Allow: POST,OPTIONS
+        Content-Type: application/json
+
+        {
+            "new_status": "Incorrect status code.",
+            "correct_statuses": [
+                "none",
+                "download",
+                "print",
+                "given"
+            ]
+        }
+
+    :form new_status: optional, one of the (``none``, ``download``, ``print``, ``given``)
+
+    :statuscode 200: success export
+    :statuscode 400: incorrect status code
+
+
 Export summit profiles
 ~~~~~~~~~~~~~~~~~~~~~~
 
