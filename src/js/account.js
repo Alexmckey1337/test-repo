@@ -44,13 +44,22 @@ function updateUser(id, data, success = null) {
     });
 }
 
-function makeResponsibleList(department, status) {
+function makeResponsibleList(department, status, flag = false) {
     let $selectResponsible = $('#selectResponsible');
     let activeMaster = $selectResponsible.val();
     let activeOption = $selectResponsible.find('option:selected');
     getResponsible(department, status).then(function (data) {
         let rendered = [];
         rendered.push(activeOption);
+        if (flag) {
+            if (status > 5) {
+                let option = document.createElement('option');
+                $(option).val('').text('Нет ответственного');
+                rendered.push(option);
+            } else {
+                rendered.splice(0,rendered.length);
+            }
+        }
         data.forEach(function (item) {
             let option = document.createElement('option');
             $(option).val(item.id).text(item.fullname);
@@ -708,7 +717,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     $('#selectHierarchy').on('change', function () {
         let department = $('#departments').val();
         let status = $(this).find('option:selected').data('level');
-        makeResponsibleList(department, status);
+        makeResponsibleList(department, status, true);
     });
     $('.sel__date').each(function () {
         let $el = $(this);

@@ -121,7 +121,7 @@ class UserSerializer(serializers.ModelSerializer):
 
             'hierarchy': {'required': True},
             'departments': {'required': True},
-            'master': {'required': True},
+            # 'master': {'required': True},
 
             'divisions': {'required': False},
         }
@@ -160,6 +160,15 @@ class UserSerializer(serializers.ModelSerializer):
         if not User.objects.filter(id=value).exists():
             raise ValidationError(_('User with id = %s does not exist.' % value))
         return value
+
+    def validate(self, attrs):
+        if 'master' in attrs.keys():
+            if 'hierarchy' in attrs.keys():
+                if attrs['hierarchy'].level < 6 and not attrs['master']:
+                    raise ValidationError({'master': _('Master is required field.')})
+            elif self.instance.hierarchy.level < 6 and not attrs['master']:
+                raise ValidationError({'master': _('Master is required field.')})
+        return attrs
 
 
 class UserForMoveSerializer(serializers.ModelSerializer):
@@ -250,7 +259,14 @@ class ExistUserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'fullname', 'phone_number', 'email', 'link')
 
 
-# class DashboardSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = ['__all__']
+class DashboardSerializer(serializers.ModelSerializer):
+    fathers_count = serializers.IntegerField()
+    juniors_count = serializers.IntegerField()
+    babies_count = serializers.IntegerField()
+    total_peoples = serializers.IntegerField()
+    leaders_count = serializers.IntegerField()
+
+    class Meta:
+        model = User
+        fields = ('total_peoples', 'fathers_count', 'juniors_count', 'babies_count', 'leaders_count')
+        read_only_fields = ['__all__']

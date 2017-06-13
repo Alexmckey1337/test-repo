@@ -1997,7 +1997,6 @@ function showStatPopup(body, title, callback) {
 }
 
 function showPopupAddUser(data) {
-
     let tmpl = document.getElementById('addUserSuccessPopup').innerHTML;
     let rendered = _.template(tmpl)(data);
     $('body').append(rendered);
@@ -2453,6 +2452,11 @@ function initAddNewUser(config = {}) {
                 let department = $('#chooseDepartment').val();
                 getResponsible(department, status).then(function (data) {
                     let rendered = [];
+                    if (status > 5) {
+                        let option = document.createElement('option');
+                        $(option).val('').text('Нет ответственного');
+                        rendered.push(option);
+                    }
                     data.forEach(function (item) {
                         let option = document.createElement('option');
                         $(option).val(item.id).text(item.fullname);
