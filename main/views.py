@@ -323,7 +323,7 @@ class OpenSummitListView(SummitListMixin):
     template_name = 'summit/open/list.html'
     status = Summit.OPEN
 
-    def dispatch(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         try:
             summit = self.get_queryset().get()
         except MultipleObjectsReturned:
