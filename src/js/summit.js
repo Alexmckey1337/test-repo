@@ -105,7 +105,8 @@
         });
     });
     $('#download').on('click', function () {
-        let stat = new PrintMasterStat($('#summitsTypes').find('.active').data('id'));
+        let summitId = $('#summitsTypes').find('.active').data('id');
+        let stat = new PrintMasterStat(summitId);
         stat.show();
     });
 
