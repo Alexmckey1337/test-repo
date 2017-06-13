@@ -25,7 +25,45 @@ from reportlab.pdfgen import canvas
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, PageBreak
 from rest_framework import exceptions
 
+from account.models import CustomUser
 from summit.models import SummitAnket
+
+
+def get_report_by_bishop_or_high(summit_id, report_date, department=None):
+    query = """
+            SELECT DISTINCT ON (bu.user_ptr_id) bu.user_ptr_id,
+              concat(bbu.last_name, ' ', bbu.first_name, ' ', bu.middle_name) user_name,
+              bu.phone_number phone_number,
+              array(
+              SELECT exists(
+                SELECT at.id
+                FROM summit_summitattend at
+                WHERE at.anket_id = a.id AND at.date = '{date}') attended
+              FROM summit_summitanket a
+                INNER JOIN account_customuser u ON a.user_id = u.user_ptr_id
+              WHERE (u.tree_id = bu.tree_id AND u.lft >= bu.lft AND u.rght <= bu.rght AND summit_id = {summit_id})
+              ORDER BY u.tree_id, u.lft) attended
+            FROM summit_summitanket ba
+              INNER JOIN account_customuser bu ON ba.user_id = bu.user_ptr_id
+              JOIN auth_user bbu ON bbu.id = bu.user_ptr_id
+              JOIN hierarchy_hierarchy h ON bu.hierarchy_id = h.id
+              JOIN account_customuser_departments bud ON bud.customuser_id = bu.user_ptr_id
+            WHERE summit_id = {summit_id} and h.level > {hierarchy_level}{department};
+        """.format(
+        summit_id=summit_id,
+        date=report_date.strftime('%Y-%m-%d'),
+        hierarchy_level=3,
+        department=' and bud.department_id = {}'.format(department) if department else '',
+    )
+    bishops = CustomUser.objects.raw(query)
+
+    return sorted([{
+        'id': b.id,
+        'user_name': b.user_name,
+        'total': len(b.attended),
+        'absent': len(list(filter(lambda a: not a, b.attended))),
+        'phone_number': b.phone_number
+    } for b in bishops], key=lambda b: b['user_name'])
 
 
 class NumberedCanvas(canvas.Canvas):

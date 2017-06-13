@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-24 15:14+0300\n"
-"PO-Revision-Date: 2017-02-02 17:42+0200\n"
+"POT-Creation-Date: 2017-06-13 13:37+0300\n"
+"PO-Revision-Date: 2017-06-13 13:45+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ru\n"
@@ -26,31 +26,35 @@ msgstr "Поле поиска по имени"
 
 #: account/abstract_models.py:8
 msgid "Middle name"
-msgstr ""
+msgstr "Отчество"
 
-#: account/abstract_models.py:10 group/models.py:16
+#: account/abstract_models.py:10 group/models.py:18
 #: templates/summit/profile.html:34
 msgid "City"
 msgstr "Город"
 
-#: account/abstract_models.py:11 group/models.py:43
+#: account/abstract_models.py:11 group/models.py:45
 #: templates/summit/profile.html:35
 msgid "Country"
 msgstr "Страна"
 
 #: account/abstract_models.py:15
+msgid "Renegade"
+msgstr ""
+
+#: account/abstract_models.py:16
 msgid "Baby"
 msgstr "Младенец"
 
-#: account/abstract_models.py:16
+#: account/abstract_models.py:17
 msgid "Junior"
 msgstr "Юноша"
 
-#: account/abstract_models.py:17
+#: account/abstract_models.py:18
 msgid "Father"
 msgstr "Отец"
 
-#: account/abstract_models.py:20
+#: account/abstract_models.py:21
 msgid "Spiritual Level"
 msgstr "Духовный уровень"
 
@@ -86,7 +90,7 @@ msgstr "Регион"
 msgid "District"
 msgstr "Район"
 
-#: account/models.py:45 group/models.py:17
+#: account/models.py:45 group/models.py:19
 msgid "Address"
 msgstr "Адрес"
 
@@ -110,7 +114,7 @@ msgstr ""
 msgid "Odnoklassniki URL"
 msgstr ""
 
-#: account/models.py:53 event/models.py:246
+#: account/models.py:53 event/models.py:22
 msgid "Image"
 msgstr "Фото"
 
@@ -160,28 +164,28 @@ msgstr "Дополнительный телефон"
 
 #: account/models.py:76
 msgid "Can login to site"
-msgstr ""
+msgstr "Имеет право для входа на сайт"
 
-#: account/models.py:303
+#: account/models.py:312
 msgid "Key"
 msgstr "Ключ"
 
-#: account/models.py:306 event/models.py:281 summit/models.py:354
-#: summit/models.py:433 templates/summit/profile.html:25
+#: account/models.py:315 event/models.py:35 summit/models.py:355
+#: summit/models.py:434 templates/summit/profile.html:25
 msgid "User"
 msgstr "Пользователь"
 
-#: account/models.py:308
+#: account/models.py:317
 msgid "Created"
 msgstr "Создано"
 
-#: account/models.py:311
+#: account/models.py:320
 msgid "Token"
-msgstr ""
+msgstr "Токен"
 
-#: account/models.py:312
+#: account/models.py:321
 msgid "Tokens"
-msgstr ""
+msgstr "Токены"
 
 #: account/old_views.py:51 account/old_views.py:85
 msgid "Вы не имеете право для входа на сайт."
@@ -217,34 +221,52 @@ msgstr ""
 msgid "Пароли не совпадают"
 msgstr ""
 
-#: account/serializers.py:160
+#: account/serializers.py:161 group/views.py:203 group/views.py:398
 #, python-format
 msgid "User with id = %s does not exist."
 msgstr "Пользователя с id =% s не существует."
 
-#: account/serializers.py:171
+#: account/serializers.py:168 account/serializers.py:170
+msgid "Master is required field."
+msgstr "'master' - обязательное поле"
+
+#: account/serializers.py:181
 msgid "Пользователь с такими ФИО и телефоном уже существует."
 msgstr ""
 
-#: account/views.py:149
+#: account/views.py:118
+msgid "Церковь установлена."
+msgstr ""
+
+#: account/views.py:132
+#, python-format
+msgid "\"%s\" is required."
+msgstr "\"%s\" обязательное"
+
+#: account/views.py:136
+#, python-format
+msgid "Object with pk = %s does not exist."
+msgstr "Пользователя с id = %s не существует."
+
+#: account/views.py:187
 msgid "Please, move disciples before reduce hierarchy."
 msgstr "Пожалуйста, перемещайте учеников, прежде чем уменьшать иерархию."
 
-#: account/views.py:157 summit/views.py:273
+#: account/views.py:195 event/views.py:102 summit/views.py:354
 msgid "При сохранении возникла ошибка. Попробуйте еще раз."
 msgstr ""
 
-#: account/views.py:245
+#: account/views.py:301
 #, python-format
 msgid "Min length of %s == 4"
 msgstr "Минимальная длина %s == 4"
 
-#: account/views.py:248
+#: account/views.py:305
 #, python-format
 msgid "One of [%s] parameters is required"
 msgstr "Один из [%s] параметров"
 
-#: account/views.py:263
+#: account/views.py:320
 msgid "Successfully logged out."
 msgstr "Успешно вышли"
 
@@ -276,240 +298,331 @@ msgstr ""
 msgid "Recent Actions"
 msgstr "Последние действия"
 
-#: edem/settings/base.py:171
+#: edem/settings/base.py:170
 msgid "Russian"
 msgstr ""
 
-#: event/models.py:17
-msgid "Monday"
-msgstr "Понедельник"
-
-#: event/models.py:18
-msgid "Tuesday"
-msgstr "Вторник"
-
-#: event/models.py:19
-msgid "Wednesday"
-msgstr "Среда"
-
-#: event/models.py:20
-msgid "Thursday"
-msgstr "Четверг"
-
-#: event/models.py:21
-msgid "Friday"
-msgstr "Пятница"
-
-#: event/models.py:22
-msgid "Saturday"
-msgstr "Суббота"
-
-#: event/models.py:23
-msgid "Sunday"
-msgstr "Воскресенье"
-
-#: event/models.py:244 payment/models.py:43 summit/models.py:415
+#: event/models.py:20 payment/models.py:43 summit/models.py:416
 #: templates/event/meeting_create_report.html:26
 #: templates/event/meeting_create_report.html:53
-#: templates/summit/ticket/detail.html:51
-#: templates/summit/ticket/list.html:120
+#: templates/summit/ticket/detail.html:51 templates/summit/ticket/list.html:120
 msgid "Name"
 msgstr "Имя"
 
-#: event/models.py:245 payment/models.py:45 summit/models.py:33
+#: event/models.py:21 payment/models.py:45 summit/models.py:33
 #: summit/models.py:63 templates/summit/ticket/detail.html:52
 #: templates/summit/ticket/list.html:121
 msgid "Code"
 msgstr "Код"
 
-#: event/models.py:249 event/models.py:261
+#: event/models.py:25 event/models.py:76
 msgid "Meeting type"
 msgstr ""
 
-#: event/models.py:250
+#: event/models.py:26
 msgid "Meeting types"
 msgstr ""
 
-#: event/models.py:262
-msgid "Date"
-msgstr "Дата"
-
-#: event/models.py:266
-msgid "Visitors"
-msgstr "Посетители"
-
-#: event/models.py:267
-msgid "Total sum"
-msgstr "Общая сумма"
-
-#: event/models.py:271 event/models.py:283
+#: event/models.py:38 event/models.py:94
 msgid "Meeting"
 msgstr ""
 
-#: event/models.py:272
-msgid "Meetings"
-msgstr ""
-
-#: event/models.py:285
+#: event/models.py:40
 msgid "Attended"
 msgstr ""
 
-#: event/models.py:287 summit/models.py:459
+#: event/models.py:41 summit/models.py:460
 #: templates/event/meeting_create_report.html:30
 #: templates/event/meeting_create_report.html:57
 msgid "Note"
 msgstr "Заметка"
 
-#: event/models.py:291
+#: event/models.py:45
 msgid "Meeting attend"
 msgstr ""
 
-#: event/models.py:292
+#: event/models.py:46
 msgid "Meeting attendees"
 msgstr ""
 
-#: group/models.py:14 summit/models.py:349
+#: event/models.py:64
+#, fuzzy
+#| msgid "In progress"
+msgid "in_progress"
+msgstr "В процессе"
+
+#: event/models.py:65
+msgid "submitted"
+msgstr ""
+
+#: event/models.py:66
+msgid "expired"
+msgstr ""
+
+#: event/models.py:68 summit/models.py:83 summit/models.py:364
+#: templates/summit/ticket/detail.html:40 templates/summit/ticket/list.html:62
+msgid "Status"
+msgstr "Статус"
+
+#: event/models.py:75 event/models.py:147 summit/models.py:532
+msgid "Date"
+msgstr "Дата"
+
+#: event/models.py:81 group/models.py:77
+msgid "Home Group"
+msgstr "Домашняя группа"
+
+#: event/models.py:83
+msgid "Visitors"
+msgstr "Посетители"
+
+#: event/models.py:87
+msgid "Total sum"
+msgstr "Общая сумма"
+
+#: event/models.py:95
+msgid "Meetings"
+msgstr ""
+
+#: event/models.py:146 group/models.py:53 group/models.py:69
+msgid "Church"
+msgstr "Церковь"
+
+#: event/models.py:148
+msgid "Count People"
+msgstr ""
+
+#: event/models.py:149
+msgid "New People"
+msgstr ""
+
+#: event/models.py:150
+msgid "Number of Repentance"
+msgstr ""
+
+#: event/models.py:151
+msgid "Tithe"
+msgstr ""
+
+#: event/models.py:152
+msgid "Donations"
+msgstr ""
+
+#: event/models.py:154
+msgid "Donations in Currency"
+msgstr ""
+
+#: event/models.py:156
+#, fuzzy
+#| msgid "Payments"
+msgid "Transfer Payments"
+msgstr "Платежи"
+
+#: event/models.py:158
+#, fuzzy
+#| msgid "Pastor"
+msgid "Pastor Tithe"
+msgstr "Пастор"
+
+#: event/models.py:163
+msgid "Church Report"
+msgstr "Отчет церкви"
+
+#: event/models.py:164
+msgid "Church Reports"
+msgstr "Отчеты церкви"
+
+#: event/serializers.py:23
+#, python-format
+msgid "Невозможно обновить методом UPDATE. Отчет - {%s} еще небыл подан."
+msgstr ""
+
+#: event/serializers.py:28
+#, python-format
+msgid ""
+"Невозможно подать отчет, переданная дата - %s. Отчет должен подаваться за ту "
+"неделю на которой был создан."
+msgstr ""
+
+#: event/serializers.py:86
+msgid "Переданный лидер не являетя лидером данной Домашней Группы"
+msgstr ""
+
+#: event/views.py:117
+#, python-format
+msgid ""
+"Невозможно подать отчет. Отчет типа - {%s} не должен содержать денежную "
+"сумму. "
+msgstr ""
+
+#: event/views.py:122
+msgid "Невозможно подать отчет. Список присутствующих не передан."
+msgstr ""
+
+#: event/views.py:126
+#, python-format
+msgid ""
+"Невозможно повторно подать отчет. Данный отчет - {%s}, уже был подан ранее. "
+msgstr ""
+
+#: event/views.py:134
+msgid "Переданный список присутствующих некорректен"
+msgstr ""
+
+#: event/views.py:160
+msgid "При обновлении возникла ошибка. Попробуйте еще раз."
+msgstr ""
+
+#: event/views.py:263
+msgid "Невозможно подать отчет. Данный отчет уже был подан ранее"
+msgstr ""
+
+#: group/models.py:16 summit/models.py:350
 #: templates/summit/ticket/detail.html:33 templates/summit/ticket/list.html:60
 msgid "Title"
 msgstr "Заглавие"
 
-#: group/models.py:15
+#: group/models.py:17
 msgid "Opening Date"
 msgstr "Дата открытия"
 
-#: group/models.py:18
+#: group/models.py:20
 msgid "Phone Number"
 msgstr "Номер телефона"
 
-#: group/models.py:19
+#: group/models.py:21
 msgid "Web Site"
 msgstr "Веб сайт"
 
-#: group/models.py:40 templates/summit/profile.html:33
+#: group/models.py:42 templates/summit/profile.html:33
 msgid "Department"
 msgstr "Департамент"
 
-#: group/models.py:42 summit/models.py:132 templates/summit/profile.html:30
+#: group/models.py:44 summit/models.py:132 templates/summit/profile.html:30
 msgid "Pastor"
 msgstr "Пастор"
 
-#: group/models.py:46 group/models.py:67 summit/models.py:366
+#: group/models.py:48 group/models.py:71 summit/models.py:367
 msgid "Users"
 msgstr "Пользователи"
 
-#: group/models.py:49 group/models.py:65
-msgid "Church"
-msgstr "Церковь"
-
-#: group/models.py:50
+#: group/models.py:54
 msgid "Churches"
 msgstr "Церкви"
 
-#: group/models.py:63
+#: group/models.py:67
 msgid "Leader"
 msgstr "Лидер"
 
-#: group/models.py:70
-msgid "Home Group"
-msgstr "Домашняя группа"
-
-#: group/models.py:71
+#: group/models.py:78
 msgid "Home Groups"
 msgstr "Домашние группы"
 
-#: group/resources.py:29 summit/admin_filters.py:15 summit/admin_filters.py:33
+#: group/resources.py:30 summit/admin_filters.py:15 summit/admin_filters.py:33
 #: summit/admin_filters.py:53
 msgid "Yes"
 msgstr "Да"
 
-#: group/resources.py:29 summit/admin_filters.py:16 summit/admin_filters.py:34
+#: group/resources.py:30 summit/admin_filters.py:16 summit/admin_filters.py:34
 #: summit/admin_filters.py:54
 msgid "No"
 msgstr "Нет"
 
-#: group/serializers.py:29 group/serializers.py:69
+#: group/serializers.py:38 group/serializers.py:82
 msgid "This field is required."
 msgstr "Это поле обязательное"
 
-#: group/serializers.py:31 group/serializers.py:71
+#: group/serializers.py:39
+#, python-brace-format
+msgid ""
+"Данный пользователь \"{pk_value}\" - не может быть назначен лидером Домашней "
+"Группы."
+msgstr ""
+
+#: group/serializers.py:41 group/serializers.py:85
 #, python-brace-format
 msgid "Incorrect type. Expected pk value, received {data_type}."
 msgstr "Неверный тип. Ожидаемое значение pk, полученное {data_type}."
 
-#: group/views.py:84
-msgid "Некоректные данные. Первичный ключ не передан."
-msgstr ""
-
-#: group/views.py:89 group/views.py:306
-msgid "Невозможно добавить пользователя. Данного пользователя не существует."
-msgstr ""
-
-#: group/views.py:96 group/views.py:311
+#: group/serializers.py:83
+#, python-brace-format
 msgid ""
-"Невозможно добавить пользователя методом PUT. Данный пользователь не состоит "
-"ни Церкви ни в Домашней Группе."
+"Данный пользователь \"{pk_value}\" - не может быть назначен пастором Церкви."
 msgstr ""
 
-#: group/views.py:115
+#: group/views.py:106
 msgid "Пользователь успешно добавлен."
 msgstr ""
 
-#: group/views.py:126
+#: group/views.py:124
+msgid "Пожалуйста, удалите сначала пользователя из домашней группы."
+msgstr ""
+
+#: group/views.py:127
+msgid ""
+"Невозможно удалить пользователя.Пользователь не принадлежит к данной Церкви."
+msgstr ""
+
+#: group/views.py:132
 msgid "Пользователь успешно удален из Церкви"
 msgstr ""
 
-#: group/views.py:144
-msgid "Length of search query must be > 2"
-msgstr "Длина поискового запроса должна быть > 2"
-
-#: group/views.py:166
-msgid ""
-"Невозможно добавить пользователя методом POST. Данный пользователь уже "
-"состоит в Церкви."
-msgstr ""
-
-#: group/views.py:170 group/views.py:352
-msgid ""
-"Невозможно добавить пользователя методом POST. Данный пользователь уже "
-"состоит в Домашней Группе."
-msgstr ""
-
-#: group/views.py:179 group/views.py:365
-msgid "Невозможно удалить пользователя. Данного пользователя не существует."
-msgstr ""
-
-#: group/views.py:183
-msgid ""
-"Невозможно удалить пользователя. Пользователь не принадлежит к данной Церкви."
-msgstr ""
-
-#: group/views.py:223 group/views.py:251
+#: group/views.py:175
 msgid "Некорректный запрос. Департамент не передан."
 msgstr ""
 
-#: group/views.py:241
-#, python-format
-msgid "Отдела с id=%s не существует."
+#: group/views.py:192 group/views.py:387
+msgid "master_tree_id is incorrect."
 msgstr ""
 
-#: group/views.py:300 group/views.py:361
+#: group/views.py:194 group/views.py:389
+msgid "You are don't have permissions for filter by this master."
+msgstr "У вас нет прав для фильтрации по данному ответственному."
+
+#: group/views.py:199 group/views.py:394
+msgid "\"user_id\" is required."
+msgstr "Поле \"user_id\" обязательное"
+
+#: group/views.py:221
+msgid "Length of search query must be > 2"
+msgstr "Длина поискового запроса должна быть > 2"
+
+#: group/views.py:244
+msgid ""
+"Невозможно добавить пользователя, данный пользователь уже состоит в Церкви."
+msgstr ""
+
+#: group/views.py:248 group/views.py:405
+msgid ""
+"Невозможно добавить пользователя, данный пользователь уже состоит в Домашней "
+"Группе."
+msgstr ""
+
+#: group/views.py:257
+msgid "Невозможно удалить пользователя.Данного пользователя не существует."
+msgstr ""
+
+#: group/views.py:371
+msgid "Некорректный запрос. Церковь не передана."
+msgstr ""
+
+#: group/views.py:409
+msgid ""
+"Невозможно добавить пользователя, пользователь является членом другой Церкви"
+msgstr ""
+
+#: group/views.py:414
 msgid "Некоректные данные"
 msgstr ""
 
-#: group/views.py:356
-msgid ""
-"Невозможно добавить пользователя методом POST. Пользователь является членом "
-"другой Церкви"
+#: group/views.py:418
+msgid "Невозможно удалить пользователя. Данного пользователя не существует."
 msgstr ""
 
-#: group/views.py:369
+#: group/views.py:422
 msgid ""
-"Невозможно удалить пользователя. Пользователь не принадлежит к данной "
+"Невозможно удалить пользователя.Пользователь не принадлежит к данной "
 "Домашней Группе."
-msgstr ""
-
-#: group/views.py:390
-msgid "Некорректный запрос. Церковь не передана."
 msgstr ""
 
 #: partnership/mixins.py:84
@@ -555,19 +668,19 @@ msgstr "Уровень"
 msgid "Responsible of partner"
 msgstr "Ответственный партнер"
 
-#: partnership/views.py:98
+#: partnership/views.py:99
 msgid "You do not have permission to update need of this partner."
 msgstr "У вас нет разрешения на обновление этого партнера."
 
-#: partnership/views.py:101
+#: partnership/views.py:102
 msgid "'need_text' is required field."
 msgstr "'need_text' - обязательное поле"
 
-#: partnership/views.py:161
+#: partnership/views.py:162
 msgid "Partner does not exist."
 msgstr "Партнер не существует."
 
-#: partnership/views.py:163
+#: partnership/views.py:164
 msgid "You do not have permission to create deal for this partner."
 msgstr "У вас нет разрешения на создание сделки для этого партнера."
 
@@ -591,8 +704,8 @@ msgid ""
 "name of currency"
 msgstr ""
 "Возможные значения: <br /><br />{value} — сумма, <br />{symbol} — валюта "
-"символ, <br />{short_name} —сокращенное обозначение валюты, <br />{name} — полное "
-"name of currency"
+"символ, <br />{short_name} —сокращенное обозначение валюты, <br />{name} — "
+"полное name of currency"
 
 #: payment/models.py:60
 msgid "Currencies"
@@ -637,8 +750,8 @@ msgstr "Деление"
 msgid "Effective sum"
 msgstr "Эффективная сумма"
 
-#: payment/models.py:135 summit/models.py:141 summit/models.py:355
-#: summit/models.py:395 templates/partner/partials/stat_deals.html:5
+#: payment/models.py:135 summit/models.py:141 summit/models.py:356
+#: summit/models.py:396 templates/partner/partials/stat_deals.html:5
 #: templates/partner/partials/stat_payments.html:11
 #: templates/summit/profile.html:56
 msgid "Date created"
@@ -652,7 +765,7 @@ msgstr "Дата отправки"
 msgid "Payment"
 msgstr "Платеж"
 
-#: payment/models.py:153 templates/home/main.html:54 templates/layout.html:43
+#: payment/models.py:153 templates/home/main.html:54 templates/layout.html:52
 #: templates/partner/partials/stat_payments.html:2
 #: templates/partner/stats.html:188
 msgid "Payments"
@@ -710,13 +823,8 @@ msgstr "Открыто"
 msgid "Close"
 msgstr "Закрыто"
 
-#: summit/models.py:83 summit/models.py:363
-#: templates/summit/ticket/detail.html:40 templates/summit/ticket/list.html:62
-msgid "Status"
-msgstr "Статус"
-
-#: summit/models.py:87 summit/models.py:350 summit/models.py:410
-#: summit/models.py:435 templates/summit/profile.html:44
+#: summit/models.py:87 summit/models.py:351 summit/models.py:411
+#: summit/models.py:436 templates/summit/profile.html:44
 #: templates/summit/ticket/detail.html:43
 msgid "Summit"
 msgstr "Саммит"
@@ -786,7 +894,7 @@ msgstr "Имя ответственного"
 msgid "Paid amount"
 msgstr "Выплаченная сумма"
 
-#: summit/models.py:175 summit/models.py:351
+#: summit/models.py:175 summit/models.py:352
 #: templates/summit/ticket/detail.html:17
 msgid "Ticket"
 msgstr "Билет"
@@ -795,7 +903,7 @@ msgstr "Билет"
 msgid "Visitor"
 msgstr "Посетитель"
 
-#: summit/models.py:183 summit/models.py:431
+#: summit/models.py:183 summit/models.py:432
 msgid "Consultant"
 msgstr "Консультант"
 
@@ -815,203 +923,250 @@ msgstr "Билет создан."
 msgid "Ticket is printed"
 msgstr "Билет напечатан"
 
-#: summit/models.py:206
+#: summit/models.py:205
+msgid "Ticket is given"
+msgstr "Билет выдан"
+
+#: summit/models.py:207
 msgid "Ticket status"
 msgstr "Билет создан"
 
-#: summit/models.py:359
+#: summit/models.py:360
 msgid "In progress"
 msgstr "В процессе"
 
-#: summit/models.py:360
+#: summit/models.py:361
 msgid "Complete"
 msgstr "Завершено"
 
-#: summit/models.py:361
+#: summit/models.py:362
 msgid "Error"
 msgstr "Ошибка"
 
-#: summit/models.py:367
+#: summit/models.py:368
 msgid "Is printed"
 msgstr "Напечатан"
 
-#: summit/models.py:371
+#: summit/models.py:372
 msgid "Summit ticket"
 msgstr "Билет саммита"
 
-#: summit/models.py:372
+#: summit/models.py:373
 msgid "List of summit tickets"
 msgstr "Список билетов саммита"
 
-#: summit/models.py:384
+#: summit/models.py:385 summit/models.py:531 summit/models.py:547
 msgid "Anket"
 msgstr "Анкета"
 
-#: summit/models.py:386
+#: summit/models.py:387
 msgid "Email"
 msgstr ""
 
-#: summit/models.py:388
+#: summit/models.py:389
 msgid "Subject"
 msgstr ""
 
-#: summit/models.py:389
+#: summit/models.py:390
 msgid "Text"
 msgstr "Текст"
 
-#: summit/models.py:390
+#: summit/models.py:391
 msgid "HTML text"
 msgstr "HTML текст"
 
-#: summit/models.py:391
+#: summit/models.py:392
 msgid "Error message"
 msgstr "Текст ошибки"
 
-#: summit/models.py:392
+#: summit/models.py:393
 msgid "Is success"
 msgstr ""
 
-#: summit/models.py:393
+#: summit/models.py:394
 msgid "Attach"
 msgstr "Прикрепить"
 
-#: summit/models.py:402
+#: summit/models.py:403
 msgid "Anket email"
 msgstr ""
 
-#: summit/models.py:403
+#: summit/models.py:404
 msgid "Anket emails"
 msgstr ""
 
-#: summit/models.py:413
+#: summit/models.py:414
 msgid "Viewers"
 msgstr "Зрители"
 
-#: summit/models.py:422
+#: summit/models.py:423
 msgid "Summit lesson"
 msgstr "Урок саммита"
 
-#: summit/models.py:423
+#: summit/models.py:424
 msgid "Summit lessons"
 msgstr "Уроки саммита"
 
-#: summit/models.py:441
+#: summit/models.py:442
 msgid "Summit consultant"
 msgstr "Консультант по саммиту"
 
-#: summit/models.py:442
+#: summit/models.py:443
 msgid "Summit consultants"
 msgstr "Консультанты по саммиту"
 
-#: summit/models.py:447
+#: summit/models.py:448
 msgid "Этот пользователь не участвует в данном саммите."
 msgstr ""
 
-#: summit/models.py:449
+#: summit/models.py:450
 msgid "Этот пользователь не является консультантом на данном саммите."
 msgstr ""
 
-#: summit/models.py:455
+#: summit/models.py:456
 msgid "Summit anket"
 msgstr "Анкета саммита"
 
-#: summit/models.py:457
+#: summit/models.py:458
 msgid "Owner of note"
 msgstr "Владелец заметки"
 
-#: summit/models.py:461
+#: summit/models.py:462
 msgid "Datetime created"
 msgstr "Дата и время создания"
 
-#: summit/models.py:475
+#: summit/models.py:476
 msgid "Summit Anket Note"
 msgstr "Примечание анкеты саммита"
 
-#: summit/models.py:476
+#: summit/models.py:477
 msgid "Summit Anket Notes"
 msgstr "Примечания анкеты саммита"
 
-#: summit/models.py:482
+#: summit/models.py:483
 msgid "Summit Visitor"
 msgstr "Посетители саммита"
 
-#: summit/models.py:485
+#: summit/models.py:486
 msgid "Longitude"
 msgstr "Долгота"
 
-#: summit/models.py:486
+#: summit/models.py:487
 msgid "Latitude"
 msgstr "Широта"
 
-#: summit/models.py:487
+#: summit/models.py:488
 msgid "Type"
 msgstr "Тип"
 
-#: summit/models.py:490
+#: summit/models.py:491
 msgid "Summit Users Location"
 msgstr "Местоположение пользователей саммита"
 
-#: summit/models.py:491
+#: summit/models.py:492
 msgid "Summit User Location"
 msgstr "Местоположение пользователя саммита"
 
-#: summit/models.py:501
+#: summit/models.py:502
 msgid "Саммит"
 msgstr ""
 
-#: summit/models.py:502
-msgid "Дата и Время"
-msgstr ""
-
 #: summit/models.py:503
-msgid "Название на Русском"
+msgid "Не отображать время"
 msgstr ""
 
 #: summit/models.py:504
-msgid "Имя автора на Русском"
+msgid "Дата и Время"
 msgstr ""
 
 #: summit/models.py:505
-msgid "Название на Английском"
+msgid "Название на Русском"
 msgstr ""
 
 #: summit/models.py:506
-msgid "Имя автора на Английском"
+msgid "Имя автора на Русском"
 msgstr ""
 
 #: summit/models.py:507
-msgid "Название на Немецком"
+msgid "Название на Английском"
 msgstr ""
 
 #: summit/models.py:508
+msgid "Имя автора на Английском"
+msgstr ""
+
+#: summit/models.py:509
+msgid "Название на Немецком"
+msgstr ""
+
+#: summit/models.py:510
 msgid "Имя автора на Немецком"
 msgstr ""
 
-#: summit/models.py:511 summit/models.py:512
+#: summit/models.py:513 summit/models.py:514
 msgid "Расписание Саммита"
 msgstr ""
 
-#: summit/views.py:115
+#: summit/models.py:536
+msgid "Summit Attend"
+msgstr "Посетитель саммита"
+
+#: summit/models.py:537
+msgid "Summit Attends"
+msgstr "Посетители саммита"
+
+#: summit/models.py:548
+msgid "Запрос регистрационного кода"
+msgstr ""
+
+#: summit/models.py:549
+msgid "Активна"
+msgstr ""
+
+#: summit/models.py:552
+msgid "Статус Анкеты"
+msgstr ""
+
+#: summit/models.py:553
+msgid "Статусы Анкет"
+msgstr ""
+
+#: summit/utils.py:65
+msgid "Invalid date."
+msgstr "Недопустимая дата."
+
+#: summit/views.py:164
 msgid ""
 "Summit profile has payments. Please, remove them before deleting profile."
-msgstr ""
-"В профиле саммита есть платежи. Удалите их перед удалением профиля."
+msgstr "В профиле саммита есть платежи. Удалите их перед удалением профиля."
 
-#: summit/views.py:276
+#: summit/views.py:277
+msgid "Incorrect status code."
+msgstr "Недопустимый код статуса"
+
+#: summit/views.py:357
 msgid "Билеты отмечены напечатаными."
 msgstr ""
 
-#: summit/views.py:305
+#: summit/views.py:386
 msgid "Невозможно получить объект. Передан некорректный регистрационный код"
 msgstr ""
 
-#: summit/views.py:505
+#: summit/views.py:596
+msgid "You do not have permission to download report. "
+msgstr "У вас нет разрешения на загрузку отчета."
+
+#: summit/views.py:619
 msgid "All tickets is already generated."
 msgstr "Все билеты уже сгенерированы."
 
-#: summit/views.py:527
+#: summit/views.py:641
 #, python-brace-format
 msgid "Невозможно создать запись, поле {data} не переданно"
+msgstr ""
+
+#: summit/views.py:726
+msgid "Запись о присутствии этой анкеты за сегоднящней день уже существует"
 msgstr ""
 
 #: templates/403.html:5 templates/403.html:9
@@ -1034,23 +1189,23 @@ msgstr "Страница не найдена!"
 msgid "We're sorry but the page you are looking for can't be found."
 msgstr "К сожалению, страница, которую вы ищете, не найдена."
 
-#: templates/account/anketa.html:37 templates/account/anketa.html:904
+#: templates/account/anketa.html:37 templates/account/anketa.html:921
 msgid "Change password"
 msgstr "Изменить пароль"
 
-#: templates/account/anketa.html:886
+#: templates/account/anketa.html:892
 msgid "Old password"
 msgstr "Старый пароль"
 
-#: templates/account/anketa.html:891
+#: templates/account/anketa.html:901
 msgid "New password"
 msgstr "Новый пароль"
 
-#: templates/account/anketa.html:896
+#: templates/account/anketa.html:910
 msgid "New password confirmation"
 msgstr "Подтверждение нового пароля"
 
-#: templates/account/anketa.html:902
+#: templates/account/anketa.html:919
 msgid "Cancel"
 msgstr "Отменить"
 
@@ -1110,7 +1265,7 @@ msgstr "Детали"
 msgid "Нет доступных саммитов."
 msgstr ""
 
-#: templates/layout.html:143
+#: templates/layout.html:152
 msgid "Summit tickets"
 msgstr "Билеты саммитов"
 
@@ -1159,20 +1314,40 @@ msgstr "Значение"
 msgid "Role"
 msgstr "Роль"
 
-#: templates/summit/summit_info.html:237
+#: templates/summit/summit_info.html:246 templates/summit/summit_stats.html:212
 msgid "Статус билета"
 msgstr ""
 
-#: templates/summit/summit_info.html:296
+#: templates/summit/summit_info.html:249 templates/summit/summit_stats.html:215
+msgid "Присутствие"
+msgstr ""
+
+#: templates/summit/summit_info.html:252 templates/summit/summit_stats.html:218
+msgid "Диапазон дат присутствия"
+msgstr ""
+
+#: templates/summit/summit_info.html:311 templates/summit/summit_stats.html:278
 msgid "Не создан"
 msgstr ""
 
-#: templates/summit/summit_info.html:297
+#: templates/summit/summit_info.html:312 templates/summit/summit_stats.html:279
 msgid "Создан"
 msgstr ""
 
-#: templates/summit/summit_info.html:298
+#: templates/summit/summit_info.html:313 templates/summit/summit_stats.html:280
 msgid "Напечатано"
+msgstr ""
+
+#: templates/summit/summit_info.html:314
+msgid "Выдано"
+msgstr ""
+
+#: templates/summit/summit_info.html:320 templates/summit/summit_stats.html:286
+msgid "Присутствовали"
+msgstr ""
+
+#: templates/summit/summit_info.html:321 templates/summit/summit_stats.html:287
+msgid "Отсутствовали"
 msgstr ""
 
 #: templates/summit/ticket/detail.html:31
@@ -1198,3 +1373,24 @@ msgstr "Напечатан"
 #: templates/summit/ticket/list.html:101
 msgid "Пометить напечатаным"
 msgstr ""
+
+#~ msgid "Monday"
+#~ msgstr "Понедельник"
+
+#~ msgid "Tuesday"
+#~ msgstr "Вторник"
+
+#~ msgid "Wednesday"
+#~ msgstr "Среда"
+
+#~ msgid "Thursday"
+#~ msgstr "Четверг"
+
+#~ msgid "Friday"
+#~ msgstr "Пятница"
+
+#~ msgid "Saturday"
+#~ msgstr "Суббота"
+
+#~ msgid "Sunday"
+#~ msgstr "Воскресенье"

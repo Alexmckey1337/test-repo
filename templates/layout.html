@@ -56,9 +56,8 @@
                         {% endif %}
                         <li><a data-title="Саммиты" href="#" id="summits__item" class="menu__item">Саммиты</a>
                             <ul class="sidebar-submenu">
-                                {% for summit in user.available_summit_types %}
-                                    <li><a href="{% url 'summit:detail' summit.id %}">{{ summit.title }}</a></li>
-                                {% endfor %}
+                                <li><a href="{% url "summit:open" %}">{% trans "Open" %}</a></li>
+                                <li><a href="{% url "summit:closed" %}">{% trans "Closed" %}</a></li>
                             </ul>
                         </li>
                         <li id="move-sidebar">
