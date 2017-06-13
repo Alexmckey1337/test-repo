@@ -1,8 +1,68 @@
 (function ($) {
     $(document).ready(function () {
         "use strict";
-        let userId = $('body').attr('data-user'),
-            sortCard = document.getElementById('drop'),
+        let userId = $('body').attr('data-user');
+
+        function getHomeGroupStats() {
+            let resData = {
+                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/events/home_meetings/dashboard_counts/`
+            };
+            return new Promise(function (resolve, reject) {
+                let codes = {
+                    200: function (data) {
+                        resolve(data);
+                    },
+                    400: function (data) {
+                        reject(data);
+                    }
+                };
+                newAjaxRequest(resData, codes, reject);
+            });
+        }
+        function getChurchData() {
+            let resData = {
+                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/dashboard_counts/`
+            };
+            return new Promise(function (resolve, reject) {
+                let codes = {
+                    200: function (data) {
+                        resolve(data);
+                    },
+                    400: function (data) {
+                        reject(data);
+                    }
+                };
+                newAjaxRequest(resData, codes, reject);
+            });
+        }
+        function getUsersData() {
+            let resData = {
+                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/dashboard_counts/`
+            };
+            return new Promise(function (resolve, reject) {
+                let codes = {
+                    200: function (data) {
+                        resolve(data);
+                    },
+                    400: function (data) {
+                        reject(data);
+                    }
+                };
+                newAjaxRequest(resData, codes, reject);
+            });
+        }
+
+
+
+        let tmpl = document.getElementById('mainStatisticsTmp').innerHTML;
+        let rendered = _.template(tmpl)(data);
+        $('#dashboard').append(rendered);
+
+
+
+
+
+        let sortCard = document.getElementById('drop'),
             arrSortClass = localStorage.arrHideWell ? JSON.parse(localStorage.arrHideWell) : [];
         let sortable = new Sortable(sortCard, {
             sort: true,

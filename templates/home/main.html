@@ -19,7 +19,7 @@
 {% endblock %}
 
 {% block main.content %}
-    <div class="main__container dashboard">
+    <div id="dashboard" class="main__container dashboard">
         <div class="dashboard-head">
             <h1><span>Ветка: </span>Сойникова наталья евгеньевна</h1>
             <div class="btn-block">
@@ -35,116 +35,94 @@
                 </div>
             </div>
         </div>
-        <div id="drop" class="grid_block drop">
-            <div class="col-sm-4 well">
-                <span>Всего церквей</span>
-                <p class="success">5</p>
-                <button class="vision"></button>
+        <script type="text/template" id="mainStatisticsTmp">
+            <div id="drop" class="grid_block drop">
+                <div class="col-sm-4 well">
+                    <span>Всего церквей</span>
+                    <p class="success">
+                        <%= (churches_count) ? churches_count : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
+                <div class="col-sm-4 well">
+                    <span>Всего домашних групп</span>
+                    <p class="success">
+                        <%= (home_groups_count) ? home_groups_count : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
+                <div class="col-sm-4 well">
+                    <span>Всего людей</span>
+                    <p class="success">
+                        <%= (total_peoples) ? total_peoples : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
+                <div class="col-sm-4 well success">
+                    <span>Всего людей в церквях</span>
+                    <p>
+                        <%= (peoples_in_churches) ? peoples_in_churches : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
+                <div class="col-sm-4 well error">
+                    <span>Всего людей в домашних группах</span>
+                    <p>
+                        <%= (home_groups_count) ? home_groups_count : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
+                <div class="col-sm-4 well">
+                    <span>Всего лидеров групп</span>
+                    <p>
+                        <%= (leaders_count) ? leaders_count : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
+                <div class="col-sm-4 well">
+                    <span>Всего отцы</span>
+                    <p>
+                        <%= (fathers_count) ? fathers_count : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
+                <div class="col-sm-4 well">
+                    <span>Всего юноши</span>
+                    <p>
+                        <%= (juniors_count) ? juniors_count : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
+                <div class="col-sm-4 well">
+                    <span>Всего младенцы</span>
+                    <p>
+                        <%= (babies_count) ? babies_count : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
+                <div class="col-sm-4 well success">
+                    <span>Заполнено отчетов (дом. группы)</span>
+                    <p>
+                        <%= (meetings_submitted) ? meetings_submitted : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
+                <div class="col-sm-4 well info">
+                    <span>Отчетов к заполнению (дом. группы)</span>
+                    <p>
+                        <%= (meetings_in_progress) ? meetings_in_progress : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
+                <div class="col-sm-4 well error">
+                    <span>Просрочено отчетов (дом. группы)</span>
+                    <p>
+                        <%= (meetings_expired) ? meetings_expired : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
             </div>
-            <div class="col-sm-4 well">
-                <span>Всего домашних групп</span>
-                <p class="success">51</p>
-                <button class="vision"></button>
-            </div>
-            <div class="col-sm-4 well">
-                <span>Всего людей</span>
-                <p class="success">500</p>
-                <button class="vision"></button>
-            </div>
-            <div class="col-sm-4 well success">
-                <span>Всего в домашних группах</span>
-                <p>350</p>
-                <button class="vision"></button>
-            </div>
-            <div class="col-sm-4 well error">
-                <span>Всего не в домашних группах</span>
-                <p>200</p>
-                <button class="vision"></button>
-            </div>
-            <div class="col-sm-4 well">
-                <span>Всего гостей</span>
-                <p>5</p>
-                <button class="vision"></button>
-            </div>
-            <div class="col-sm-4 well">
-                <span>Всего отцы</span>
-                <p>45</p>
-                <button class="vision"></button>
-            </div>
-            <div class="col-sm-4 well">
-                <span>Всего юноши</span>
-                <p>201</p>
-                <button class="vision"></button>
-            </div>
-            <div class="col-sm-4 well">
-                <span>Всего младенцы</span>
-                <p>245</p>
-                <button class="vision"></button>
-            </div>
-            <div class="col-sm-4 well error">
-                <span>Не заполнено отчётов ДГ</span>
-                <p>15</p>
-                <button class="vision"></button>
-            </div>
-            <div class="col-sm-4 well error">
-                <span>Не заполнено отчётов НМ</span>
-                <p>5</p>
-                <button class="vision"></button>
-            </div>
-            <div class="col-sm-4 well error">
-                <span>Не заполнено ВС</span>
-                <p>21</p>
-                <button class="vision"></button>
-            </div>
-        </div>
-
-
-{#            {% if user.can_see_churches or user.can_see_home_groups or user.can_see_user_list %}#}
-{#                <div class="col-sm-4">#}
-{#                    <h2>База данных</h2>#}
-{#                    <ul>#}
-{#                        {% if user.can_see_churches %}#}
-{#                            <li><a href="{% url 'db:churches' %}">Церкви</a></li>#}
-{#                        {% endif %}#}
-{#                        {% if user.can_see_home_groups %}#}
-{#                            <li><a href="{% url 'db:home_groups' %}">Домашние группы</a></li>#}
-{#                        {% endif %}#}
-{#                        {% if user.can_see_user_list %}#}
-{#                            <li><a href="{% url 'db:people' %}">Люди</a></li>#}
-{#                        {% endif %}#}
-{#                    </ul>#}
-{#                </div>#}
-{#            {% endif %}#}
-{#            {% if user.can_see_any_partner_block %}#}
-{#                <div class="col-sm-4">#}
-{#                    <h2>Партнёрство</h2>#}
-{#                    <ul>#}
-{#                        {% if user.can_see_deals %}#}
-{#                            <li><a href="{% url 'partner:deals' %}">Сделки</a></li>#}
-{#                        {% endif %}#}
-{#                        {% if user.can_see_partners %}#}
-{#                            <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>#}
-{#                        {% endif %}#}
-{#                        {% if user.can_see_partner_stats %}#}
-{#                            <li><a href="{% url 'partner:stats' %}">Статистика</a></li>#}
-{#                        {% endif %}#}
-{#                        {% if user.can_see_deal_payments %}#}
-{#                            <li><a href="{% url 'partner:payments' %}">{% trans "Payments" %}</a></li>#}
-{#                        {% endif %}#}
-{#                    </ul>#}
-{#                </div>#}
-{#            {% endif %}#}
-{#            <div class="col-sm-4">#}
-{#                <h2>Саммиты</h2>#}
-{#                <ul>#}
-{#                    {% for summit in user.available_summit_types %}#}
-{#                        <li><a href="{% url 'summit:detail' summit.id %}">{{ summit.title }}</a></li>#}
-{#                    {% empty %}#}
-{#                        <li>{% trans "Нет доступных саммитов." %}</li>#}
-{#                    {% endfor %}#}
-{#                </ul>#}
-{#            </div>#}
-{#        </div>#}
+        </script>
     </div>
 {% endblock %}
 
