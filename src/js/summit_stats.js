@@ -49,104 +49,6 @@ class SummitStat {
     }
 }
 
-class PrintMasterStat {
-    constructor(summitId) {
-        this.summit = summitId;
-        this.masterId = null;
-        this.filter = [];
-        this.url = `/api/v1.0/summit/${summitId}/master/`
-    }
-
-    setMaster(id) {
-        this.masterId = id;
-    }
-
-    setFilterData(data) {
-        this.setMaster(data.id);
-        if (data.attended) {
-            this.filter.push({
-                attended: data.attended,
-            });
-        }
-        if (data.date) {
-            this.filter.push({
-                date: data.date
-            });
-        }
-        this.makeLink();
-    }
-
-    getMasters() {
-        let defaultOption = {
-            method: 'GET',
-            credentials: "same-origin",
-            headers: new Headers({
-                'Content-Type': 'application/json',
-            })
-        };
-        return fetch(`/api/v1.0/summits/${this.summit}/bishop_high_masters/`, defaultOption)
-            .then(res => res.json());
-    }
-
-    show() {
-        this.getMasters()
-            .then(data => data.map(item => `<option value="${item.id}">${item.full_name}</option>`))
-            .then(options => {
-                let content = `
-                    <div>
-                    <label>Выберите ответсвенного</label>
-                        <select class="master">`;
-                content += options.join(',');
-                content += `</select>
-                                    </div>
-                                        <div>
-                                        <label>Пристутствие</label>
-                                        <select class="attended">
-                                            <option value="">ВСЕ</option>
-                                            <option value="true">ДА</option>
-                                            <option value="false">НЕТ</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                    <label>Дата</label>
-                                    <input class="date" type="text">
-                                    </div>`;
-                showStatPopup(content, 'Сформировать файл статистики', this.setFilterData.bind(this));
-            });
-
-    }
-
-    print() {
-        if (!this.masterId) {
-            showPopup('Выберите мастера для печати');
-            return
-        }
-        let defaultOption = {
-            method: 'GET',
-            credentials: "same-origin",
-            headers: new Headers({
-                'Content-Type': 'application/json',
-            })
-        };
-        return fetch(`${this.url}${this.masterId}.pdf`, defaultOption).then(data => data.json()).catch(err => err);
-    }
-
-    makeLink() {
-        console.log(this.filter);
-        if (!this.masterId) {
-            showPopup('Выберите мастера для печати');
-            return
-        }
-        let link = `${this.url}${this.masterId}.pdf?`;
-        this.filter.forEach(item => {
-            let key = Object.keys(item);
-            link += `${key[0]}=${item[key[0]]}&`
-        });
-        link += 'short';
-        showPopup(`<a class="btn" href="${link}">Скачать</a>`, 'Скачать статистику');
-    }
-}
-
 (function ($) {
     const summitId = $('#summit-title').data('summit-id');
     const summit = new SummitStat(summitId);
@@ -207,10 +109,6 @@ class PrintMasterStat {
         makePastorListWithMasterTree({
             master_tree: master_tree
         }, ['#master'], null);
-    });
-    $('#download').on('click', function () {
-        let stat = new PrintMasterStat(summitId);
-        stat.show();
     });
     summit.makeDataTable();
 })(jQuery);
