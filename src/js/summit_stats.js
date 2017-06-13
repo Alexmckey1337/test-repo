@@ -5,7 +5,6 @@ class SummitStat {
     }
 
     getStatsData(config = {}) {
-        console.log(config);
         let options = {
             credentials: 'same-origin',
             headers: new Headers({
@@ -96,6 +95,7 @@ class SummitStat {
             summit.makeDataTable();
         }, 100);
     });
+
     $('.select__db').select2();
 
     $('#departments_filter').on('change', function () {
