@@ -112,7 +112,7 @@
                     <% for( var key in user_table) { %>
                         <% if(user_table[key].active) { %>
                             <% if (key == 'user_name') { %>
-                                <td><a href="<%= results[index].id %>"><%= results[index][key] %></a></td>
+                                <td><a href="/account/<%= results[index].id %>"><%= results[index][key] %></a></td>
                             <% } else { %>
                             <td><%= results[index][key] %></td>
                             <% } %>
