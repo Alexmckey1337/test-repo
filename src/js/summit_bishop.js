@@ -34,7 +34,8 @@ class BishopReport {
     makeTable() {
         this.getReport().then(data => {
             this.data.results = data;
-            $('#bishopsReports').html(this.renderTable())
+            $('#bishopsReports').html(this.renderTable());
+            $('.table__count').html(`Показано ${this.data.results.length}`)
         });
     }
     getReport() {

@@ -34,11 +34,19 @@
 {% block header.buttons.export %}
 {% endblock %}
 
+{% block pagination_top %}
+    <div class="top-pag">
+        <div class="table__count"></div>
+    </div>
+{% endblock %}
 
 {% block table %}
     <div class="table-wrap clearfix">
         <div id="bishopsReports" class="table scrollbar-inner"></div>
     </div>
+{% endblock %}
+{% block pagination_bottom %}
+    <div class="table__count"></div>
 {% endblock %}
 
 {% block choose_user_modal.search_field %}
