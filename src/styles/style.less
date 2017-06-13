@@ -6891,14 +6891,11 @@ div.code input#code {
 /* ------------------dashboard------------------------------ */
 .dashboard {
   .dashboard-head {
+    position: relative;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
+    align-items: center;
     margin-bottom: 15px;
-    .filter-desk ul {
-      display: none;
-    }
-    .btn-block {
-      position: relative;
       button {
         position: absolute;
         top: 50%;
@@ -6923,6 +6920,7 @@ div.code input#code {
           content: '\f040';
         }
         &.active {
+          //display: none;
           right: 1.25em;
           &::before {
             content: '\f00d';
@@ -6938,21 +6936,25 @@ div.code input#code {
           content: '\f00c';
         }
       }
+    .select2-selection {
+      width: 260px;
     }
   }
   h1 {
+    margin-right: 10px;
+    color: #656d78;
     font-weight: 900;
-    span {
-      color: #656d78;
-    }
   }
   .grid_block {
     flex-wrap: wrap;
+    justify-content: flex-start;
   }
   .well {
     position: relative;
     padding: 35px;
     box-sizing: border-box;
+    margin-left: 15px;
+    margin-bottom: 15px;
     p {
       margin-top: 30px;
       padding: 15px;

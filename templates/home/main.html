@@ -21,19 +21,16 @@
 {% block main.content %}
     <div id="dashboard" class="main__container dashboard">
         <div class="dashboard-head">
-            <h1><span>Ветка: </span>Сойникова наталья евгеньевна</h1>
-            <div class="btn-block">
-                <button class="edit-desk"></button>
-                <button class="save"></button>
-                <div class="filter-desk">
-                    <ul>
-                        <li>Сойникова наталья евгеньевна</li>
-                        <li>Сойникова наталья евгеньевна</li>
-                        <li>Сойникова наталья евгеньевна</li>
-                        <li>Сойникова наталья евгеньевна</li>
-                    </ul>
-                </div>
-            </div>
+            <h1><span>Ветка: </span></h1>
+            <select id="master-filter">
+                {% for master in masters %}
+                    <option value="{{ master.id }}"{% if master.id == user.id  %}selected{% endif %}>
+                        {{ master.fullname }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button class="edit-desk"></button>
+            <button class="save"></button>
         </div>
         <script type="text/template" id="mainStatisticsTmp">
             <div id="drop" class="grid_block drop">
@@ -58,14 +55,14 @@
                     </p>
                     <button class="vision"></button>
                 </div>
-                <div class="col-sm-4 well success">
+                <div class="col-sm-4 well">
                     <span>Всего людей в церквях</span>
                     <p>
                         <%= (peoples_in_churches) ? peoples_in_churches : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>
-                <div class="col-sm-4 well error">
+                <div class="col-sm-4 well">
                     <span>Всего людей в домашних группах</span>
                     <p>
                         <%= (home_groups_count) ? home_groups_count : 0 %>
