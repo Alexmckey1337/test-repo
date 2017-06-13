@@ -4,7 +4,8 @@ from django.db import models
 from summit.models import SummitType
 from summit.permissions import can_see_summit, can_see_summit_type, can_see_any_summit, can_see_any_summit_type, \
     can_edit_summit_block, can_see_summit_block, can_see_any_summit_ticket, can_see_summit_ticket, \
-    can_see_summit_profiles, can_add_user_to_summit, can_download_summit_participant_report
+    can_see_summit_profiles, can_add_user_to_summit, can_download_summit_participant_report, \
+    can_see_report_by_bishop_or_high
 
 
 class SummitUserPermission(models.Model):
@@ -55,6 +56,13 @@ class SummitUserPermission(models.Model):
         with id = ``summit_id``
         """
         return can_download_summit_participant_report(self, summit_id)
+
+    def can_see_report_by_bishop_or_high(self, summit_id):
+        """
+        Checking that self user has the right to see report by bishops of the summit
+        with id = ``summit_id``
+        """
+        return can_see_report_by_bishop_or_high(self, summit_id)
 
     def available_summit_types(self):
         return SummitType.objects.filter(

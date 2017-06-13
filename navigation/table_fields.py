@@ -2,6 +2,8 @@
 from collections import OrderedDict
 from functools import wraps
 
+from django.utils.translation import ugettext_lazy as _
+
 from navigation.models import Table, ColumnType
 
 
@@ -48,6 +50,60 @@ def summit_table(user, prefix_ordering_title=''):
     table_columns = _filter_summit_columns(user.table.columns.select_related('columnType'))
 
     return _get_result_table(table_columns, prefix_ordering_title)
+
+
+def summit_statistics_table():
+    result_table = OrderedDict(
+        attended={
+            'id': 1,
+            'title': _('Присутствие'),
+            'ordering_title': 'attended',
+            'number': 1,
+            'active': True,
+            'editable': False
+        },
+        full_name={
+            'id': 2,
+            'title': _('ФИО'),
+            'ordering_title': 'last_name',
+            'number': 2,
+            'active': True,
+            'editable': False
+        },
+        responsible={
+            'id': 3,
+            'title': _('Ответственный'),
+            'ordering_title': 'responsible',
+            'number': 3,
+            'active': True,
+            'editable': False
+        },
+        phone_number={
+            'id': 5,
+            'title': _('Номер телефона'),
+            'ordering_title': 'user__phone_number',
+            'number': 5,
+            'active': True,
+            'editable': False
+        },
+        code={
+            'id': 6,
+            'title': _('Номер билета'),
+            'ordering_title': 'code',
+            'number': 6,
+            'active': True,
+            'editable': False
+        },
+        department={
+            'id': 4,
+            'title': _('Отдел'),
+            'ordering_title': 'department',
+            'number': 4,
+            'active': True,
+            'editable': False
+        },
+    )
+    return result_table
 
 
 def event_table():

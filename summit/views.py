@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from dbmail import send_db_mail
 from django.db import transaction, IntegrityError
 from django.conf import settings
-from django.db.models import Case, When, BooleanField, F, ExpressionWrapper, IntegerField, Subquery
+from django.db.models import Case, When, BooleanField, F, ExpressionWrapper, IntegerField, Subquery, OuterRef, Exists
 from django.db.models.functions import Concat
 from django.db.models import Value as V
 from django.http import HttpResponse
@@ -26,11 +26,12 @@ from common.views_mixins import ModelWithoutDeleteViewSet, ExportViewSetMixin
 from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import FilterByClub, SummitUnregisterFilter, ProfileFilter, \
-    FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend
-from summit.pagination import SummitPagination, SummitTicketPagination
-from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report
+    FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend, FilterBySummitAttendByDate
+from summit.pagination import SummitPagination, SummitTicketPagination, SummitStatisticsPagination
+from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report, \
+    can_see_report_by_bishop_or_high
 from summit.resources import SummitAnketResource
-from summit.utils import generate_ticket, SummitParticipantReport
+from summit.utils import generate_ticket, SummitParticipantReport, get_report_by_bishop_or_high
 from .models import (Summit, SummitAnket, SummitType, SummitLesson, SummitUserConsultant,
                      SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend, AnketStatus)
 from .serializers import (
@@ -39,7 +40,7 @@ from .serializers import (
     SummitAnketForSelectSerializer, SummitTypeForAppSerializer, SummitAnketForAppSerializer,
     SummitShortSerializer, SummitAnketShortSerializer, SummitLessonShortSerializer, SummitTicketSerializer,
     SummitAnketForTicketSerializer, SummitVisitorLocationSerializer, SummitEventTableSerializer,
-    SummitProfileTreeForAppSerializer, SummitAnketCodeSerializer, SummitAttendStatisticsSerializer)
+    SummitProfileTreeForAppSerializer, SummitAnketCodeSerializer, SummitAttendStatisticsSerializer, SummitAnketStatisticsSerializer)
 from .tasks import generate_tickets
 
 logger = logging.getLogger(__name__)
@@ -92,6 +93,7 @@ class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
 
     def check_permissions(self, request):
         super(SummitProfileListView, self).check_permissions(request)
+        # ``summit`` consultant or high
         if not CanSeeSummitProfiles().has_object_permission(request, self, self.summit):
             self.permission_denied(
                 request, message=getattr(CanSeeSummitProfiles, 'message', None)
@@ -147,6 +149,48 @@ class SummitProfileListExportView(SummitProfileListView, ExportViewSetMixin):
 
     def post(self, request, *args, **kwargs):
         return self._export(request, *args, **kwargs)
+
+
+class SummitStatisticsView(SummitProfileListView):
+    serializer_class = SummitAnketStatisticsSerializer
+    pagination_class = SummitStatisticsPagination
+
+    filter_date = None
+
+    ordering_fields = (
+        'last_name', 'first_name', 'middle_name',
+        'responsible',
+        'department',
+        'code',
+        'user__phone_number',
+        'attended',
+    )
+
+    filter_backends = (
+        filters.DjangoFilterBackend,
+        filters.OrderingFilter,
+        FieldSearchFilter,
+        FilterProfileMasterTreeWithSelf,
+        HasPhoto,
+        FilterBySummitAttendByDate,
+    )
+
+    def dispatch(self, request, *args, **kwargs):
+        filter_date = request.GET.get('date')
+        if not filter_date:
+            self.filter_date = datetime.now()
+        else:
+            try:
+                self.filter_date = datetime.strptime(filter_date, '%Y-%m-%d')
+            except ValueError:
+                raise exceptions.ValidationError(_('Invalid date.'))
+        return super(SummitStatisticsView, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        subqs = SummitAttend.objects.filter(date=self.filter_date, anket=OuterRef('pk'))
+        qs = self.summit.ankets.select_related('user').annotate(attended=Exists(subqs)).annotate_full_name().order_by(
+            'user__last_name', 'user__first_name', 'user__middle_name')
+        return qs.for_user(self.request.user)
 
 
 class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
@@ -607,6 +651,23 @@ def summit_report_by_participant(request, summit_id, master_id):
     response.write(pdf)
 
     return response
+
+
+@api_view(['GET'])
+def summit_report_by_bishops(request, summit_id):
+    can_see_report = can_see_report_by_bishop_or_high(request.user, summit_id)
+    if not can_see_report:
+        raise exceptions.PermissionDenied(_('You do not have permission to see report by bishops. '))
+    department = request.query_params.get('department', None)
+    report_date = request.query_params.get('date', datetime.now().strftime('%Y-%m-%d'))
+    try:
+        report_date = datetime.strptime(report_date, '%Y-%m-%d')
+    except ValueError:
+        report_date = datetime.now()
+
+    bishops = get_report_by_bishop_or_high(summit_id, report_date, department)
+
+    return Response(bishops)
 
 
 @api_view(['GET'])

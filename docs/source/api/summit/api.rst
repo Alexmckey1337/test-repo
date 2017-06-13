@@ -138,6 +138,65 @@ PDF report by participant of the summit
    :statuscode 404: there's no master
 
 
+Report by bishop+ of the summit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/summit/(int:summit_id)/report_by_bishops/
+
+   Report by bishops or high of the summit.
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      GET /api/v1.0/summit/4/report_by_bishops/?date=2042-02-04&department=1 HTTP/1.1
+      Host: vocrm.org
+      Accept: application/json
+
+   **Example response**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Vary: Accept, Cookie
+      Allow: GET,HEAD,OPTIONS
+      Content-Type: application/json
+
+      [
+          {
+              "id": 138,
+              "user_name": "First Super User",
+              "total": 100,
+              "absent": 13,
+              "phone_number": "+380333333333"
+          },
+          {
+              "id": 2282,
+              "user_name": "Second Bishop Level",
+              "total": 190,
+              "absent": 102,
+              "phone_number": "+380655555555"
+          }
+      ]
+
+   .. sourcecode:: http
+
+      HTTP/1.1 403 Forbidden
+      Allow: OPTIONS, GET
+      Content-Type: application/json
+      Vary: Accept
+
+      {
+          "detail": "You do not have permission to see report by bishops. "
+      }
+
+   :query string date: report date, format: ``YYYY-mm-dd``
+   :query int department: filter by ``department.id``
+
+   :statuscode 200: no error
+   :statuscode 404: there's no master
+
+
 
 List of summits
 ~~~~~~~~~~~~~~~
@@ -636,6 +695,133 @@ Export summit profiles
 
     :statuscode 200: success export
 
+
+Statistics by summit
+~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/summits/(int:summit_id)/stats/
+
+   List of users of summit (order by ``last_name``) with statistics by attending. Pagination by 30 profiles per page.
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      GET /api/v1.0/summits/2/stats/?date=2017-06-06&department=1&ordering=-attended HTTP/1.1
+      Host: vocrm.org
+      Accept: application/json
+
+   **Example response**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Vary: Accept, Cookie
+      Allow: GET,HEAD,OPTIONS
+      Content-Type: application/json
+
+      {
+          "links": {
+              "next": "http://crm.local:8000/api/v1.0/summits/2/stats/?date=2017-06-06&department=1&ordering=-attended&page=2",
+              "previous": null
+          },
+          "count": 1664,
+          "user_table": {
+              "attended": {
+                  "id": 1,
+                  "title": "Присутствие",
+                  "ordering_title": "attended",
+                  "number": 1,
+                  "active": true,
+                  "editable": false
+              },
+              "full_name": {
+                  "id": 2,
+                  "title": "ФИО",
+                  "ordering_title": "last_name",
+                  "number": 2,
+                  "active": true,
+                  "editable": false
+              },
+              "responsible": {
+                  "id": 3,
+                  "title": "Ответственный",
+                  "ordering_title": "responsible",
+                  "number": 3,
+                  "active": true,
+                  "editable": false
+              },
+              "phone_number": {
+                  "id": 5,
+                  "title": "Номер телефона",
+                  "ordering_title": "user__phone_number",
+                  "number": 5,
+                  "active": true,
+                  "editable": false
+              },
+              "code": {
+                  "id": 6,
+                  "title": "Номер билета",
+                  "ordering_title": "code",
+                  "number": 6,
+                  "active": true,
+                  "editable": false
+              },
+              "department": {
+                  "id": 4,
+                  "title": "Отдел",
+                  "ordering_title": "department",
+                  "number": 4,
+                  "active": true,
+                  "editable": false
+              }
+          },
+          "common_table": {},
+          "results": [
+              {
+                  "id": 25148,
+                  "user_id": 19566,
+                  "full_name": "First User Name",
+                  "responsible": "",
+                  "department": "Киев",
+                  "phone_number": "+38094444444",
+                  "code": "04025148",
+                  "attended": true
+              },
+              {
+                  "id": 25182,
+                  "user_id": 18733,
+                  "full_name": "Second User Name",
+                  "responsible": "Responsible",
+                  "department": "Киев",
+                  "phone_number": "+38094444444",
+                  "code": "04025182",
+                  "attended": true
+              },
+              {
+                  "id": 20449,
+                  "user_id": 9808,
+                  "full_name": "Other User Name",
+                  "responsible": "Master",
+                  "department": "Киев",
+                  "phone_number": "+38094444444",
+                  "code": "04020449",
+                  "attended": true
+              }
+          ]
+      }
+
+   :query int page: page number (one of ``int`` or ``last``). default is 1
+   :query int hierarchy: filter by ``hierarchy_id``
+   :query int master: filter by ``master_id``, returned children of master
+   :query int master_tree: filter by ``master_id``, returned descendants of master and self master
+   :query int department: filter by ``department_id``
+   :query int ticket_status: filter by ``ticket_status`` (one of ``none``, ``download``, ``print``)
+   :query string search_fio: search by ``last_name``, ``first_name``, ``middle_name``, ``search_name``
+   :query string search_email: search by ``email``
+   :query string search_phone_number: search by main ``phone_number``
+   :query string search_country: search by ``country``
+   :query string search_city: search by ``city``
 
 List of summit lessons
 ~~~~~~~~~~~~~~~~~~~~~~

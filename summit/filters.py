@@ -1,11 +1,12 @@
 import django_filters
 import rest_framework_filters as filters_new
+from django.db.models import OuterRef
 from rest_framework.filters import BaseFilterBackend
 
 from account.filters import FilterMasterTreeWithSelf
 from account.models import CustomUser
 from hierarchy.models import Hierarchy, Department
-from summit.models import Summit, SummitAnket
+from summit.models import Summit, SummitAnket, SummitAttend
 from datetime import datetime
 
 
@@ -86,5 +87,17 @@ class FilterBySummitAttend(BaseFilterBackend):
             queryset = queryset.filter(attends__date__range=[from_date, to_date])
         if int(is_visited) == 2:
             queryset = queryset.exclude(attends__date__range=[from_date, to_date])
+
+        return queryset
+
+
+class FilterBySummitAttendByDate(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        attended = request.query_params.get('attended', '')
+
+        if attended.upper() in ('TRUE', 'T', 'YES', 'Y', '1'):
+            return queryset.filter(attended=True)
+        elif attended.upper() in ('FALSE', 'F', 'NO', 'N', '0'):
+            return queryset.filter(attended=False)
 
         return queryset

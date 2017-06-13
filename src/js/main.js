@@ -91,6 +91,7 @@ $('.close_popup').on('click', function () {
     }
     $(this).closest('.popap').css('display', 'none');
 });
+
 /*search animate width*/
 $('.top input').click(function () {
     $('.top .search').animate({width: "80%"});
