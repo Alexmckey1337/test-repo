@@ -240,3 +240,50 @@
     padding: 0 10px 10px 30px;
   }
 }
+
+.ticket_status {
+  cursor: pointer;
+  padding-left: 40px;
+  position: relative;
+  label {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    &::before{
+      display: block;
+      position: absolute;
+      content: '';
+      top: -3px;
+      right: auto;
+      width: 20px;
+      height: 20px;
+      left: 10px !important;
+      margin-left: 0;
+      margin-top: 5px;
+      background: url('../img/scheck-box.png') no-repeat 0 0;
+    }
+  }
+}
+.ticket_code {
+  a {
+    color: #3cad3c;
+  }
+  label::before {
+    top: -15px;
+    right: 0;
+  }
+  label span {
+    position: absolute;
+    top: -12px;
+    right: 30px;
+    font-size: .8em;
+    font-family: 'Open Sans',sans-serif;
+    color: #656d78;
+    opacity: .5;
+  }
+}

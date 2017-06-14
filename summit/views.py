@@ -417,7 +417,6 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
     queryset = SummitAnket.objects.select_related('user').order_by('id')
     serializer_class = SummitAnketForAppSerializer
     filter_backends = (filters.DjangoFilterBackend,)
-    filter_fields = ('summit',)
     # permission_classes = (HasAPIAccess,)
     pagination_class = None
 

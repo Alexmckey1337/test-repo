@@ -309,10 +309,20 @@
                     <% } %>
                     <% } else if(key == 'code') { %>
                     <% if (results[index][key] != null) { %>
-                    <td class="edit"><a
-                            href="/api/v1.0/generate_code/<%= results[index].code %>.pdf?code=<%= results[index].code %>"
-                            data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%=
-                        results[index][key] %></a></td>
+                    <!-- Sorry, it's back-end's shit -->
+                    <td class="edit ticket_code" data-id="<%= results[index].id %>">
+                        <a <% if (results[index].active == false) { %>
+                                class="is-ban"
+                        <% } %>
+                           href="/api/v1.0/generate_code/<%= results[index].code %>.pdf?code=<%= results[index].code %>"
+                           data-link="<%= results[index].link %>" data-id="<%=results[index].id %>">
+                           <%= results[index][key] %></a>
+                        <div>
+                            <input id="<%= 'ticked_' + results[index].id%>" type="checkbox" name="active"
+                                <% if(results[index].active == false) { %>checked<% }%> >
+                            <label for="<%= 'ticked_' + results[index].id %>"><span>Блок</span></label>
+                        </div>
+                    </td>
                     <% } else { %>
                     <td></td>
                     <% } %>
