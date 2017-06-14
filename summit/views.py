@@ -466,6 +466,14 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
     pagination_class = None
     permission_classes = (IsAuthenticated,)
 
+    filter_backends = (
+        FieldSearchFilter,
+    )
+
+    field_search_fields = {
+        'search_fio': ('last_name', 'first_name', 'middle_name', 'search_name'),
+    }
+
     def dispatch(self, request, *args, **kwargs):
         return super(SummitProfileTreeForAppListView, self).dispatch(request, *args, **kwargs)
 
@@ -485,7 +493,7 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
     def annotate_queryset(self, qs):
         return qs.base_queryset().annotate_full_name().annotate(
             diff=ExpressionWrapper(F('user__rght') - F('user__lft'), output_field=IntegerField()),
-        ).order_by('-hierarchy__level')
+        ).order_by('-hierarchy__level', 'last_name', 'first_name', 'middle_name')
 
     def get_queryset(self):
         is_consultant_or_high = self.request.user.is_summit_consultant_or_high(self.summit)
