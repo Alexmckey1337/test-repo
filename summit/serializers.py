@@ -283,7 +283,17 @@ class UserForAppSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'middle_name', 'country', 'city',
-                  'email', 'phone_number')  # + ('region', 'district', 'address', 'image_source')
+                  'email', 'phone_number', 'email')  # + ('region', 'district', 'address', 'image_source')
+
+
+class VisitorsMasterForAppSerializer(serializers.ModelSerializer):
+    user_id = serializers.IntegerField(source='id', read_only=True)
+    hierarchy = serializers.CharField(read_only=True)
+    fullname = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ('user_id', 'fullname', 'hierarchy')
 
 
 class SummitAnketForAppSerializer(serializers.ModelSerializer):
@@ -292,10 +302,12 @@ class SummitAnketForAppSerializer(serializers.ModelSerializer):
     visitor_id = serializers.IntegerField(source='id')
     avatar_url = ImageWithoutHostField(source='user.image', use_url=False)
     status = AnketStatusSerializer(read_only=True)
+    master = VisitorsMasterForAppSerializer()
 
     class Meta:
         model = SummitAnket
-        fields = ('visitor_id', 'user', 'ticket_id', 'reg_code', 'avatar_url', 'status')
+        fields = ('visitor_id', 'user', 'ticket_id', 'reg_code', 'avatar_url',
+                  'status', 'master')
 
 
 class SummitAnketLocationSerializer(serializers.ModelSerializer):
@@ -331,11 +343,13 @@ class SummitAttendSerializer(serializers.ModelSerializer):
 
 
 class SummitAcceptMobileCodeSerializer(serializers.ModelSerializer):
+    visitor_id = serializers.IntegerField(source='id', read_only=True)
     avatar_url = ImageWithoutHostField(source='user.image', use_url=False)
+    ticket_id = serializers.CharField(source='code', read_only=True)
 
     class Meta:
         model = SummitAnket
-        fields = ('fullname', 'avatar_url')
+        fields = ('visitor_id', 'fullname', 'avatar_url', 'ticket_id')
 
 
 class AnketActiveStatusSerializer(serializers.ModelSerializer):
