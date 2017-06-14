@@ -29,7 +29,13 @@ from account.models import CustomUser
 from summit.models import SummitAnket
 
 
-def get_report_by_bishop_or_high(summit_id, report_date, department=None):
+def get_report_by_bishop_or_high(summit_id, report_date, department=None, fio=''):
+    fio_filter = ['']
+    for name in filter(lambda name: bool(name), fio.replace(',', ' ').split(' ')):
+        fio_filter.append(
+            "(bbu.last_name ilike '%%{name}%%' or "
+            "bbu.first_name ilike '%%{name}%%' or "
+            "bu.middle_name ilike '%%{name}%%')".format(name=name))
     query = """
             SELECT DISTINCT ON (bu.user_ptr_id) bu.user_ptr_id,
               concat(bbu.last_name, ' ', bbu.first_name, ' ', bu.middle_name) user_name,
@@ -48,12 +54,13 @@ def get_report_by_bishop_or_high(summit_id, report_date, department=None):
               JOIN auth_user bbu ON bbu.id = bu.user_ptr_id
               JOIN hierarchy_hierarchy h ON bu.hierarchy_id = h.id
               JOIN account_customuser_departments bud ON bud.customuser_id = bu.user_ptr_id
-            WHERE summit_id = {summit_id} and h.level > {hierarchy_level}{department};
+            WHERE summit_id = {summit_id} and h.level > {hierarchy_level}{department}{search_fio};
         """.format(
         summit_id=summit_id,
         date=report_date.strftime('%Y-%m-%d'),
         hierarchy_level=3,
         department=' and bud.department_id = {}'.format(department) if department else '',
+        search_fio=' and '.join(fio_filter)
     )
     bishops = CustomUser.objects.raw(query)
 

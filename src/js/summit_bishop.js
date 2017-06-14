@@ -40,7 +40,7 @@ class BishopReport {
     }
     getReport() {
         let url = `/api/v1.0/summit/${this.summitId}/report_by_bishops/?`;
-        const filter = getFilterParam();
+        const filter = Object.assign(getFilterParam(), getSearch('search_fio'));
         Object.keys(filter).forEach(key => {
             url += `${key}=${filter[key]}`
         });
@@ -172,4 +172,7 @@ class PrintMasterStat {
         let stat = new PrintMasterStat(summitId);
         stat.show();
     });
+     $('input[name="fullsearch"]').on('keyup', function () {
+         report.makeTable();
+     });
 })(jQuery);

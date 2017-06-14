@@ -674,13 +674,14 @@ def summit_report_by_bishops(request, summit_id):
     if not can_see_report:
         raise exceptions.PermissionDenied(_('You do not have permission to see report by bishops. '))
     department = request.query_params.get('department', None)
+    fio = request.query_params.get('search_fio', '')
     report_date = request.query_params.get('date', datetime.now().strftime('%Y-%m-%d'))
     try:
         report_date = datetime.strptime(report_date, '%Y-%m-%d')
     except ValueError:
         report_date = datetime.now()
 
-    bishops = get_report_by_bishop_or_high(summit_id, report_date, department)
+    bishops = get_report_by_bishop_or_high(summit_id, report_date, department, fio)
 
     return Response(bishops)
 

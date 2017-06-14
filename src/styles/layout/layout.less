@@ -1,0 +1,338 @@
+:root {
+  --lsb_width: 240px;
+}
+
+.page-width {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* -----------------Sidebar------------------------ */
+#sidebar {
+  width: var(--lsb_width);
+  height: 100vh;
+  background-color: #434a55;
+  position: relative;
+  overflow: hidden;
+  z-index: 9;
+  transition: width 0.3s;
+}
+
+#container {
+  width: ~'calc(100% - var(--lsb_width))';
+  transition: width .3s;
+  height: 100vh;
+  overflow: scroll;
+}
+
+#sidebar.toggle-sidebar .logo div:nth-child(2) {
+  font-size: 2em;
+}
+
+#sidebar.toggle-sidebar .logo div {
+  padding-top: 0
+}
+
+#sidebar ul li a {
+  display: block;
+  width: 120px;
+  font-size: 1.2em;
+  color: #fff;
+  text-decoration: none;
+  transition: color .1s ease;
+  padding: 35px 30px 40px 90px;
+  background: transparent;
+}
+
+#sidebar ul li {
+  //height: 90px;
+  box-sizing: border-box;
+  position: relative;
+  border-top: 1px solid #555b65;
+  list-style-type: none;
+}
+
+#sidebar .sidebar-submenu li a {
+  width: auto;
+  padding: 20px 30px 25px 30px;
+  transition: color .4s ease;
+  &:hover {
+    color: #3caeda;
+  }
+}
+
+.menu__item {
+  text-transform: uppercase;
+}
+
+.sidebar-submenu {
+  display: none;
+  //& li::after {
+  //  position: absolute;
+  //  left: 0;
+  //  bottom: 0;
+  //  width: 0;
+  //  height: 2px;
+  //  margin: 0 auto;
+  //  background-color: #3caeda;
+  //  transition: all .7s ease;
+  //  content: '';
+  //}
+  //& li:hover::after {
+  //  width: 100%;
+  //}
+}
+
+#sidebar .sb-menu_link__active {
+  &:before {
+    top: 0;
+    height: 100%;
+  }
+}
+
+#sidebar {
+  & ul {
+    & li {
+      &#move-sidebar {
+        position: absolute;
+        width: 100%;
+        left: 0;
+        bottom: 0;
+        background-color: #444b56;
+        transition: width .3s, color .3s;
+        &.active {
+          & button {
+            color: transparent;
+            &:before {
+              content: '\f101 ';
+            }
+          }
+        }
+        & button {
+          text-align: left;
+          display: block;
+          font-size: 1.2em;
+          color: #fff;
+          padding: 35px 30px 40px 90px;
+          background-color: transparent;
+          transition: color .1s ease;
+          &:before {
+            content: '\f100';
+            color: #CECECE;
+            font: 2em FontAwesome;
+            position: absolute;
+            top: 25px;
+            left: 30px;
+          }
+        }
+      }
+      & a, #sidebar & button {
+        &:before {
+          content: '';
+          color: #CECECE;
+          font: 2em FontAwesome;
+          position: absolute;
+          top: 25px;
+          left: 30px;
+        }
+        &:hover:before {
+          color: #3caeda;
+        }
+        &#databases__item:before {
+          content: '\f1c0';
+        }
+        &#churches__item:before {
+          content: '\f0c0';
+        }
+        &#partners__item:before {
+          content: '\f2b5';
+        }
+        &#events__reports:before {
+          content: '\f080';
+        }
+        &#summits__reports:before {
+          content: '\f080';
+        }
+        &#summits__item:before {
+          content: '\f274';
+        }
+        &#turn_aside {
+          &.active {
+            &:before {
+              transform: rotate(180deg);
+            }
+          }
+          &:before {
+            top: 0 !important;
+            content: '\f100';
+          }
+        }
+      }
+    }
+  }
+}
+
+#sidebar ul li:before {
+  content: '';
+  position: absolute;
+  top: 40px;
+  left: 0;
+  width: 2px;
+  margin: auto;
+  height: 0;
+  background-color: #3caeda;
+  transition: all .7s ease;
+}
+
+#sidebar ul li:not(:last-child).active:before,
+#sidebar ul li:hover:before {
+  top: 0;
+  height: 100%;
+}
+
+#sidebar.toggle-sidebar {
+  width: 90px;
+}
+
+#sidebar.toggle-sidebar ul li a {
+  color: #434a55;
+}
+
+#sidebar.toggle-sidebar .logo div {
+  display: block;
+}
+
+#sidebar.toggle-sidebar ~ .main-wrap {
+  padding-left: 90px;
+}
+
+#sidebar .scrollbar-macosx {
+  height: 100%;
+}
+
+#sidebar .scrollbar-macosx > .scroll-element.scroll-x {
+  display: none !important;
+}
+///////////////////////////////////////////////////////////
+
+#filter_button::before {
+  content: "\f0b0" !important;
+  font: 1.4em FontAwesome;
+  color: white;
+  background: none;
+}
+
+#fullName {
+  color: #333;
+  font-size: 2em;
+}
+
+#searchName {
+  padding-top: .7em;
+  opacity: .5;
+}
+
+#add::before {
+  content: "\f067" !important;
+  font: 1.4em FontAwesome;
+  color: white;
+  background: none;
+}
+
+#sort-on,#load-tickets {
+  font-size: 2em;
+  padding: 0.25em 0.5em;
+}
+
+#sdelki {
+  overflow: hidden;
+}
+
+button#completeDelete {
+  position: relative;
+}
+
+button#saveNew::before,
+button#save::before,
+.rows-wrap button::before,
+button#complete::before,
+button#completeDelete::before,
+.splash-battons button:last-child::before {
+  display: block;
+  content: '\f00c';
+  font: 1.2em FontAwesome;
+  margin-top: 0.1em;
+  position: absolute;
+  top: 10px;
+  left: 15px;
+  width: 19px;
+  height: 19px;
+}
+
+#getpass,
+#entry {
+  background-color: #3caeda;
+  position: relative;
+}
+
+#getpass:hover,
+#entry:hover {
+  background-color: #1094c7;
+}
+
+#getpass {
+  padding: 15px 15px 15px 50px;
+  font-size: 1.2em;
+}
+
+#getpass::before,
+#entry::before {
+  display: block;
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 15px;
+  width: 19px;
+  height: 19px;
+  background: url('../img/sprite-login.png') no-repeat -40px 0;
+}
+
+#getpass::before {
+  top: 13px;
+  background-position: -20px -1px;
+}
+
+
+#add_user_parners {
+  display: block
+}
+
+div#hint {
+  background: #434a55;
+  padding: 10px;
+  width: 75px;
+  left: 107.5px;
+  position: fixed;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  display: none;
+  z-index: 999;
+}
+
+div#hint:before {
+  border: 7.5px solid transparent;
+  border-right: 7.5px solid #434a55;
+  content: '';
+  position: absolute;
+  left: -14px;
+  top: 10px;
+}
+
+#edit-photo {
+  cursor: pointer;
+}
+
+#statistic_block {
+  margin-top: 15px;
+}
