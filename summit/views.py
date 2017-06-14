@@ -828,8 +828,9 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
     def accept_mobile_code(self, request):
         code = request.query_params.get('code', '')
         anket = get_object_or_404(SummitAnket, code=code)
-        AnketStatus.objects.update_or_create(
-            anket=anket, defaults={'reg_code_requested': True})
+        AnketStatus.objects.get_or_create(
+            anket=anket, defaults={'reg_code_requested': True,
+                                   'reg_code_requested_date': datetime.now()})
 
         if anket.status.active is False:
             return Response({'error_message': 'Данная анкета не активна', 'error_code': 1},

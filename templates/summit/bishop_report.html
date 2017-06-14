@@ -114,8 +114,10 @@
                             <% if (key == 'user_name'
                     ) { %>
                                 <td><a href="/account/<%= results[index].id %>"><%= results[index][key] %></a></td>
+                            <% } else if (key == 'absent') { %>
+                                <td><a href="/api/v1.0/summit/{{ summit.id }}/master/<%= results[index].id %>.pdf?attended=false&short"><%= results[index][key] %></a></td>
                             <% } else { %>
-                            <td><%= results[index][key] %></td>
+                                <td><%= results[index][key] %></td>
                             <% } %>
                         <% } %>
                     <% } %>
