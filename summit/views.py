@@ -824,7 +824,7 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
             anket=anket, defaults={'reg_code_requested': True,
                                    'reg_code_requested_date': datetime.now()})
 
-        if anket.status.active is False:
+        if not anket.status.active:
             return Response({'error_message': 'Данная анкета не активна', 'error_code': 1},
                             status=status.HTTP_200_OK)
 
