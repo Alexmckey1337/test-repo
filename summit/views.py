@@ -418,7 +418,7 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
     serializer_class = SummitAnketForAppSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = ('summit',)
-    permission_classes = (HasAPIAccess,)
+    # permission_classes = (HasAPIAccess,)
     pagination_class = None
 
     @list_route(methods=['GET'])
@@ -835,7 +835,7 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
         if active == 1:
             anket.status.active = True
         anket.status.active = False
-        anket.save()
+        anket.status.save()
 
         return Response({'message': _('Статус анкеты пользователя {%s} успешно изменен.') % anket.fullname,
                         'active': '%s' % active}, status=status.HTTP_200_OK)
