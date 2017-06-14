@@ -553,7 +553,7 @@ class AnketStatus(models.Model):
     anket = models.OneToOneField('summit.SummitAnket', related_name='status', verbose_name=_('Anket'))
     reg_code_requested = models.BooleanField(verbose_name=_('Запрос регистрационного кода'), default=False)
     reg_code_requested_date = models.DateTimeField(verbose_name=_('Дата ввода регистрационного кода'),
-                                                   null=True, default=None)
+                                                   null=True, blank=True)
     active = models.BooleanField(verbose_name=_('Активна'), default=True)
 
     class Meta:

@@ -824,11 +824,13 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
         anket = self.serializer_class(anket)
         return Response(anket.data)
 
-    @list_route(methods=['POST'], serializer_class=AnketActiveStatusSerializer)
+    @list_route(methods=['POST'], serializer_class=AnketActiveStatusSerializer,
+                permission_classes=(IsAuthenticated,))
     def anket_active_status(self, request):
         active = request.data.get('active', 1)
         anket_id = request.data.get('anket_id', None)
         anket = get_object_or_404(SummitAnket, pk=anket_id)
+        AnketStatus.objects.get_or_create(anket=anket)
 
         if active == 1:
             anket.status.active = True
