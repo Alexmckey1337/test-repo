@@ -1,0 +1,404 @@
+/*============styles for close deals popup==============*/
+
+.input-group {
+  float: left;
+  width: auto;
+  margin-right: 3em;
+  position: relative;
+  &.date input {
+    height: 33px;
+    border-radius: 3px;
+    border: 1px solid #cdd0d4;
+    padding: 0 1em;
+  }
+  & .select2-container .select2-selection--single .select2-selection__rendered {
+    padding-right: 40px;
+  }
+  & .fa {
+    font-size: 2em;
+    position: absolute;
+    right: 10%;
+    top: 0;
+  }
+  & .select2-container {
+    min-width: 17em;
+  }
+}
+
+#apply_date {
+  padding: 7px 12px 9px 20px;
+  & .fa {
+    color: white;
+    font-size: 1.5em;
+    position: relative;
+    left: -0.5em;
+  }
+}
+
+.no_visible {
+  display: none;
+}
+
+// grab bootsrap need delete
+
+.panel-primary {
+  border-color: #337ab7;
+  .well {
+    //background-color: #91e4fb;
+  }
+  .grid_block {
+    & .col-sm-4:nth-child(1) {
+      & .well {
+        background-color: #cbe8ba;
+      }
+    }
+    & .col-sm-4:nth-child(2) {
+      & .well {
+        background-color: #fefac0;
+      }
+    }
+    & .col-sm-4:nth-child(3) {
+      & .well {
+        background-color: #ffc3ae;
+      }
+    }
+  }
+  .panel-heading{
+    color: #263238;
+    background-color: transparent;
+  }
+}
+
+.success__block {
+  min-height: 1.3em;
+  color: #9FD468;
+  text-align: right;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: ~'calc(100% - 4em)';
+}
+
+.panel-success {
+  border-color: #d6e9c6;
+  .well {
+    //background-color: #91e4fb;
+  }
+  .grid_block {
+    & .col-sm-6:nth-child(1) {
+      & .well {
+        background-color: #cbe8ba;
+      }
+    }
+    & .col-sm-6:nth-child(2) {
+      & .well {
+        background-color: #ffc3ae;
+      }
+    }
+    & .col-sm-4:nth-child(1) {
+      & .well {
+        background-color: #c9f1fd;
+      }
+    }
+    & .col-sm-4:nth-child(2) {
+      & .well {
+        background-color: #cbe8ba;
+      }
+    }
+    & .col-sm-4:nth-child(3) {
+      & .well {
+        background-color: #c9f1fd;
+      }
+    }
+  }
+  .panel-heading{
+    color: #263238;
+    background-color: transparent;
+  }
+}
+
+.panel-heading {
+  padding: 10px 0;
+  border-bottom: 1px solid transparent;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+
+.panel-title {
+  margin-top: 0;
+  margin-bottom: 0;
+  //font-size: 1.5em;
+  color: inherit;
+  text-transform: uppercase;
+  font-family: UbuntuBold, sans-serif;
+}
+
+.panel {
+  margin-bottom: 20px;
+  background-color: #fff;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+.label-primary {
+  background-color: transparent; /*#337ab7*/
+}
+
+.label {
+  display: inline;
+  padding: .2em .6em .3em;
+  font-size: 75%;
+  font-family: 'UbuntuBold', sans-serif;
+  //font-weight: 700;
+  line-height: 1;
+  color: #263238; /*fff*/
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: .25em;
+}
+
+.well {
+  min-height: 20px;
+  padding: 19px;
+  margin-bottom: 20px;
+  background-color: #f5f5f5;
+  border: 1px solid #e3e3e3;
+  //border-radius: 4px;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .05);
+  & > span {
+    font-size: 1.5em;
+    //line-height: 3em;
+  }
+  & p {
+    padding: 10px;
+    & .label {
+      font-size: 120%;
+    }
+  }
+}
+
+.grid_block {
+  display: flex;
+  justify-content: space-between;
+  .col-sm-6 {
+    width: 49%;
+  }
+  .col-sm-4 {
+    width: 32%;
+  }
+  .error {
+    background: #ffc3ae !important;
+  }
+  .info {
+    background: #fefac0 !important;
+  }
+  .success {
+    background: #cbe8ba !important;
+  }
+}
+
+.cropper-crop-box {
+  overflow: hidden;
+  padding: 2px;
+  & .cropper-line.line-e {
+    position: absolute;
+    top: 0;
+    right: -3px;
+    left: auto;
+    width: 5px;
+    cursor: e-resize;
+  }
+  & .cropper-face {
+    top: -50px;
+    left: -50px;
+    opacity: 1 !important;
+    background: transparent !important;
+  }
+  & .cropper-face, & .cropper-viewer {
+    border-radius: 50%;
+    border: 50px solid rgba(0, 0, 0, 0.3);
+  }
+}
+
+// lessons anketa
+
+.a-sammits-select {
+  position: relative;
+  min-height: 34px;
+  padding-bottom: 20px;
+  & .selectdb {
+    left: 15px;
+    top: 0;
+    background-color: inherit;
+  }
+}
+
+.summit-tabs {
+  /*  padding-bottom: 15px;*/
+  position: relative;
+  & input.a-tab {
+    display: none;
+  }
+  & label.a-tab-lab {
+    display: inline-block;
+    margin: 0 -3px -1px 3px;
+    padding: 15px 25px;
+    font-weight: 600;
+    text-align: center;
+    color: #aaa;
+    border: 1px solid #ddd;
+    background: #f1f1f1;
+    border-radius: 4px 4px 0 0;
+    &:hover {
+      color: #656d78;
+      cursor: pointer;
+    }
+  }
+  & input.a-tab:checked + label.a-tab-lab {
+    color: #656d78;
+    border: 1px solid #ddd;
+    border-top: 1px solid #43b0db;
+    border-bottom: 1px solid #fff;
+    background: #fff;
+  }
+  & #a-tab1:checked ~ #sum-content1,
+  #a-tab2:checked ~ #sum-content2,
+  #a-tab3:checked ~ #sum-content3 {
+    display: block;
+  }
+  & #sum-content3 {
+    & .a-note__wrap {
+      display: inline-block;
+      padding-right: 15px;
+      padding-bottom: 15px;
+    }
+    & label, textarea {
+      display: block;
+    }
+    & textarea {
+      width: 300px;
+      min-height: 75px;
+      resize: none;
+      margin-top: 10px;
+      padding: 5px 10px;
+      font-size: 1.1em;
+    }
+    & table tr td {
+      padding: 9px 12px;
+    }
+    & table td:nth-child(4) {
+      text-align: center;
+    }
+  }
+  & #sum-content2 {
+    & table {
+      & thead tr {
+        background: #fafbfc;
+      }
+      & tbody tr td {
+        position: relative;
+        padding: 9px 40px;
+      }
+    }
+  }
+  & #sum-content1 {
+    & .popup__a-payment {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      background-color: rgba(0, 0, 0, 0.6);
+      z-index: 99;
+      & .splash-a-payment {
+        width: 400px;
+        padding: 10px 20px;
+        position: absolute;
+        margin: 180px auto 0;
+        left: 0;
+        right: 0;
+        z-index: 5;
+        border: 3px solid #cdd0d4;
+        background-color: #fff;
+      }
+      & h1 {
+        font-size: 1.8em;
+        font-family: "UbuntuMedium", sans-serif;
+        text-transform: none;
+        padding-bottom: 15px;
+        & span {
+          cursor: pointer;
+          display: inline-block;
+          padding-right: 15px;
+        }
+      }
+      & label, input, textarea {
+        display: block;
+        width: 200px;
+      }
+      & textarea {
+        resize: none;
+        width: 350px;
+        min-height: 75px;
+      }
+      & label {
+        padding-bottom: 15px;
+      }
+      & input, textarea {
+        margin-top: 10px;
+        padding: 5px 10px;
+      }
+    }
+  }
+  & #sum-content1 table tr td, #sum-content3 table tr td {
+    padding: 9px 12px;
+  }
+  & #sum-content2 table input[type="checkbox"],
+  #sum-content3 table input[type="checkbox"] {
+    display: none;
+  }
+  & #sum-content2 table input[type="checkbox"] + label,
+  #sum-content3 table input[type="checkbox"] + label {
+    position: relative;
+    top: inherit;
+    left: inherit;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    background: url(../img/scheck-box.png) no-repeat 0 0;
+  }
+  & #sum-content2 table input[type="checkbox"] + label {
+    position: absolute;
+    left: 10px;
+    top: 5px;
+  }
+  & #sum-content2 table label::before, #sum-content3 table label::before {
+    display: none;
+  }
+  & #sum-content2 table input[type="checkbox"]:checked + label, #sum-content3 table input[type="checkbox"]:checked + label {
+    background: url(../img/scheck-box.png) no-repeat 0 -20px;
+  }
+  & section {
+    display: none;
+    padding: 15px;
+    background: #fff;
+    border: 1px solid #ddd;
+    & table input[type=checkbox] {
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+
+  & .a-payment-btn {
+    padding-top: 15px;
+    & .a-payment {
+      padding-left: 20px;
+      &:nth-child(1) {
+        margin-right: 15px;
+      }
+    }
+  }
+}
