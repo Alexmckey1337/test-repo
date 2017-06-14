@@ -464,9 +464,6 @@
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
         updateSettings(createSummitUsersTable);
-        $(".table-sorting").animate({
-            right: '-300px'
-        }, 10, 'linear')
     });
     $('#filter_button').on('click', function () {
         $('#filterPopup').css('display', 'block');

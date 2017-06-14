@@ -14,7 +14,7 @@ django-db-mailer
 django-environ==0.4.1
 django-filebrowser
 django-filter==1.0.2
-django-grappelli==2.9.1
+django-grappelli==2.10.1
 django-import-export==0.5.1
 django-mptt==0.8.7
 django-redis==4.8.0
