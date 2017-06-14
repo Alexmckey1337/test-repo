@@ -106,7 +106,10 @@
   }
 }
 
-table,.account,#sort-form{
+table,
+.account,
+#sort-form,
+.check-box {
   label{
     color: #e6e9ee;
     display: block;
@@ -292,5 +295,20 @@ label{
 #summit_buttons{
   p{
     font-size: 1.8em;
+  }
+}
+
+.check-box {
+  position: relative;
+  margin-top: 10px;
+  cursor: pointer;
+  input[type=checkbox] {
+    display: none;
+  }
+}
+
+.table-sorting {
+ .check-box label::before {
+    right: 10px;
   }
 }
