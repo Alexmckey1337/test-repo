@@ -1,0 +1,156 @@
+/*****************************Events***************************/
+
+.events-wrap{
+  div{
+    display: inline-block;
+    width: 30%;
+    height: 250px;
+    background-color: gray;
+    margin-top: 25px;
+    position: relative;
+    background-size: cover !important;
+    &:hover{
+      .event-hover{
+        opacity: 1;
+      }
+      span{
+        opacity: 0;
+      }
+    }
+    &:not(.event-1){
+      margin-left: 30px;
+    }
+    span{
+      display: block;
+      position: absolute;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      font-size: 1.8em;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      text-align: center;
+      padding: 15px;
+      opacity: 1;
+      transition: all .5s ease;
+    }
+  }
+}
+
+.event-hover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  opacity: 0;
+  transition: all .5s ease;
+  text-align: center;
+  cursor: pointer;
+  h3{
+    display: block;
+    color: #3caeda;
+    border-bottom: 2px solid gray;
+    font-size: 1.8em;
+    padding: 15px;
+  }
+  p{
+    padding-top: 30px;
+    color: #fff;
+    font-size: 1.2em;
+  }
+  span{
+    font-family: "UbuntuBold", sans-serif;
+  }
+  button{
+    padding-left: 20px;
+    margin-top: 40px;
+    background-color: #3caeda;
+    &:hover{
+      background-color: #1094c7;
+    }
+  }
+}
+
+.event-1 {
+  background-image: url('../img/ev1.jpg');
+  background-size: cover;
+}
+
+.event-2 {
+  background-image: url('../img/ev2.jpg');
+  background-size: cover;
+}
+
+.event-3 {
+  background-image: url('../img/ev3.jpg');
+  background-size: cover;
+}
+
+.tabs-cont .pagination:first-child .element-select {
+  display: none;
+}
+
+.tab-content {
+  padding: 1em 2.5em;
+}
+
+.top-pag .element-select {
+  display: none;
+}
+
+span{
+  &.change,&.x,&.y{
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 105px;
+    width: 18px;
+    height: 19px;
+    background: url('../img/events.png') no-repeat -38px 0;
+    cursor: pointer;
+  }
+}
+
+.rows-wrap,#userinfo{
+  span{
+    &.x,&.y{
+      display: none
+    }
+  }
+}
+
+.total_visit {
+  margin: 0 5px;
+}
+
+#journal .col:first-child p:first-child,#journal .col:last-child p:first-child {
+  padding: 10px;
+}
+
+#journal{
+  .rows-wrap{
+    button{
+      width: 150px;
+      margin-top: 18px;
+      &::before{
+        background: url('../img/events.png') no-repeat -77px 0;
+      }
+    }
+  }
+  .rows{
+    margin-right: 210px;
+    margin-top: 9px;
+  }
+  .col{
+    &:last-child{
+      p{
+        &:nth-child(2){
+          width: 200px;
+        }
+      }
+    }
+  }
+}
