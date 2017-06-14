@@ -417,12 +417,7 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
     queryset = SummitAnket.objects.select_related('user').order_by('id')
     serializer_class = SummitAnketForAppSerializer
     filter_backends = (filters.DjangoFilterBackend,)
-    filter_fields = ('summit',)
-<<<<<<< HEAD
-    permission_classes = (HasAPIAccess,)
-=======
     # permission_classes = (HasAPIAccess,)
->>>>>>> f2477eda0401e29e58ab6300610bbc0b5e770edc
     pagination_class = None
 
     @list_route(methods=['GET'])
@@ -836,29 +831,18 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
         anket = self.serializer_class(anket)
         return Response(anket.data)
 
-<<<<<<< HEAD
-    @list_route(methods=['POST'], serializer_class=AnketActiveStatusSerializer)
-=======
     @list_route(methods=['POST'], serializer_class=AnketActiveStatusSerializer,
                 permission_classes=(IsAuthenticated,))
->>>>>>> f2477eda0401e29e58ab6300610bbc0b5e770edc
     def anket_active_status(self, request):
         active = request.data.get('active', 1)
         anket_id = request.data.get('anket_id', None)
         anket = get_object_or_404(SummitAnket, pk=anket_id)
-<<<<<<< HEAD
-=======
         AnketStatus.objects.get_or_create(anket=anket)
->>>>>>> f2477eda0401e29e58ab6300610bbc0b5e770edc
 
         if active == 1:
             anket.status.active = True
         anket.status.active = False
-<<<<<<< HEAD
-        anket.save()
-=======
         anket.status.save()
->>>>>>> f2477eda0401e29e58ab6300610bbc0b5e770edc
 
         return Response({'message': _('Статус анкеты пользователя {%s} успешно изменен.') % anket.fullname,
                         'active': '%s' % active}, status=status.HTTP_200_OK)
