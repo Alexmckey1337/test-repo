@@ -536,6 +536,7 @@ class SummitEventTable(models.Model):
 class SummitAttend(models.Model):
     anket = models.ForeignKey('summit.SummitAnket', related_name='attends', verbose_name=_('Anket'))
     date = models.DateField(verbose_name=_('Date'))
+
     # time = models.TimeField(verbose_name=_('Time'))
 
     class Meta:
@@ -562,3 +563,12 @@ class AnketStatus(models.Model):
 
     def __str__(self):
         return 'Anket %s. Reg_code_requested: %s. Active: %s' % (self.anket, self.reg_code_requested, self.active)
+
+
+@python_2_unicode_compatible
+class AnketPasses(models.Model):
+    anket = models.ForeignKey('summit.SummitAnket', related_name='passes_count', verbose_name=_('Anket'))
+    datetime = models.DateTimeField(verbose_name='Дата и время прохода', auto_now=True, editable=False)
+
+    def __str__(self):
+        return 'Проход анкеты %s. Дата\Время: %s.' % (self.anket, self.datetime)
