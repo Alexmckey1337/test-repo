@@ -1,0 +1,150 @@
+/* ------------------Pagination------------------------------ */
+.pagination {
+  padding: 20px 30px 15px 0;
+  float: right;
+  &.left {
+    float: left;
+    padding-left: 20px;
+  }
+  .query-none{
+    padding-left: 0;
+  }
+  & .pagination__input {
+    width: 5em;
+    height: 1em;
+    padding: .5em;
+  }
+  & .text {
+    padding-left: 0.7em;
+    padding-right: 1em;
+  }
+  & a {
+    font-size: 2em;
+    padding-right: 0.7em;
+    cursor: pointer;
+    & i {
+      position: relative;
+      top: 0.15em;
+    }
+  }
+}
+
+.full-width {
+  float: none !important;
+  overflow: hidden;
+  padding: 30px 30px 30px 30px;
+}
+
+.pag-wrap {
+  float: right;
+  *{
+    display: inline-block;
+  }
+  p{
+    color: #656d78;
+    font-family: "UbuntuBold", sans-serif;
+    font-size: 1.1em;
+    height: 15px;
+    text-align: center;
+    padding-top: 2px;
+    cursor: pointer;
+    border: 4px solid #fff;
+    &:hover{
+      span{
+        color: #3caeda;
+      }
+    }
+    span{
+      width: 16px;
+      margin: 0 5px;
+    }
+  }
+  div{
+    span{
+      width: 15px;
+      height: 14px;
+      background: url('../img/sprite-pag.png') no-repeat 0 0;
+      cursor: pointer;
+      vertical-align: sub;
+    }
+  }
+}
+
+.pag{
+  li {
+    color: #656d78;
+    font-family: "UbuntuBold", sans-serif;
+    font-size: 1.1em;
+    width: 16px;
+    height: 15px;
+    text-align: center;
+    padding-top: 2px;
+    cursor: pointer;
+    border: 4px solid #fff;
+    &:hover{
+      color: #3caeda;
+    }
+    &.active{
+      background: #3caeda;
+      border-radius: 50%;
+      color: #fff;
+      border: 2px solid #c1e6f3;
+    }
+  }
+}
+
+.prev {
+  padding-right: 10px;
+  span{
+    &:last-child{
+      background-position: -41px 0;
+    }
+  }
+}
+
+.next {
+  padding-left: 10px;
+  &:first-child,&:last-child{
+      background-position: -26px 0;
+  }
+  &.noarr{
+    span{
+      background: none;
+    }
+  }
+}
+
+.element-select {
+  float: left;
+  padding-top: 10px;
+  font-size: 1.1em;
+}
+
+.query {
+  padding: 10px;
+  background-color: #829bbf;
+  border-radius: 4px;
+  position: relative;
+  margin-bottom: 5px;
+  display: none;
+  &::after{
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    right: 10px;
+    width: 1px;
+    height: 1px;
+    border-color: #829bbf transparent transparent transparent;
+    border-style: solid;
+    border-width: 10px 10px 0 10px;
+    z-index: 0;
+  }
+  p{
+    color: #fff;
+  }
+}
+
+.double_arrow {
+  margin-left: 10px;
+  margin-right: 10px;
+}
