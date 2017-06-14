@@ -40,7 +40,7 @@ from .serializers import (
     SummitAnketForSelectSerializer, SummitTypeForAppSerializer, SummitAnketForAppSerializer,
     SummitShortSerializer, SummitAnketShortSerializer, SummitLessonShortSerializer, SummitTicketSerializer,
     SummitAnketForTicketSerializer, SummitVisitorLocationSerializer, SummitEventTableSerializer,
-    SummitProfileTreeForAppSerializer, SummitAnketCodeSerializer, SummitAttendStatisticsSerializer,
+    SummitProfileTreeForAppSerializer, SummitAnketCodeSerializer, AnketActiveStatusSerializer,
     SummitAnketStatisticsSerializer, SummitAcceptMobileCodeSerializer, SummitAttendSerializer
 )
 from .tasks import generate_tickets
@@ -418,7 +418,6 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
     serializer_class = SummitAnketForAppSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = ('summit',)
-    # filter_class = ProductFilter
     permission_classes = (HasAPIAccess,)
     pagination_class = None
 
@@ -808,22 +807,6 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
             raise exceptions.ValidationError(
                 _('Запись о присутствии этой анкеты за сегоднящней день уже существует'))
 
-    @list_route(methods=['GET'],
-                serializer_class=SummitAttendStatisticsSerializer,
-                permission_classes=(IsAuthenticated,))
-    def statistics(self, request):
-        summit_id = request.query_params.get('summit')
-        from_date = request.query_params.get('from_date')
-        to_date = request.query_params.get('to_date')
-        queryset = SummitAnket.objects.filter(summit=summit_id)
-
-        statsistics = {'absent_users': queryset.exclude(attends__date__range=[from_date, to_date]).count(),
-                       'attend_users': queryset.filter(attends__date__range=[from_date, to_date]).count()}
-        statsistics['total_users'] = statsistics['absent_users'] + statsistics['attend_users']
-        statsistics = self.serializer_class(statsistics)
-
-        return Response(statsistics.data)
-
     @list_route(methods=['GET'], serializer_class=SummitAcceptMobileCodeSerializer)
     def accept_mobile_code(self, request):
         code = request.query_params.get('code', '')
@@ -836,5 +819,20 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
             return Response({'error_message': 'Данная анкета не активна', 'error_code': 1},
                             status=status.HTTP_200_OK)
 
+        SummitAttend.objects.create(anket=anket, date=datetime.now().date())
         anket = self.serializer_class(anket)
         return Response(anket.data)
+
+    @list_route(methods=['POST'], serializer_class=AnketActiveStatusSerializer)
+    def anket_active_status(self, request):
+        active = request.data.get('active', 1)
+        anket_id = request.data.get('anket_id', None)
+        anket = get_object_or_404(SummitAnket, pk=anket_id)
+
+        if active == 1:
+            anket.status.active = True
+        anket.status.active = False
+        anket.save()
+
+        return Response({'message': _('Статус анкеты пользователя {%s} успешно изменен.') % anket.fullname,
+                        'active': '%s' % active}, status=status.HTTP_200_OK)

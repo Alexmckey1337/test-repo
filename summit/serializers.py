@@ -72,11 +72,12 @@ class SummitAnketStatisticsSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField()
     phone_number = serializers.CharField(source='user.phone_number')
     attended = serializers.BooleanField()
+    active = serializers.BooleanField(source='status.active')
 
     class Meta:
         model = SummitAnket
         fields = ('id', 'user_id', 'full_name', 'responsible',
-                  'department', 'phone_number', 'code', 'attended')
+                  'department', 'phone_number', 'code', 'attended', 'active')
 
 
 class SummitAnketShortSerializer(serializers.HyperlinkedModelSerializer):
@@ -329,19 +330,18 @@ class SummitAttendSerializer(serializers.ModelSerializer):
         fields = ('anket', 'code', 'date')
 
 
-class SummitAttendStatisticsSerializer(serializers.ModelSerializer):
-    attend_users = serializers.IntegerField()
-    absent_users = serializers.IntegerField()
-    total_users = serializers.IntegerField()
-
-    class Meta:
-        model = SummitAnket
-        fields = ('attend_users', 'absent_users', 'total_users')
-
-
 class SummitAcceptMobileCodeSerializer(serializers.ModelSerializer):
     avatar_url = ImageWithoutHostField(source='user.image', use_url=False)
 
     class Meta:
         model = SummitAnket
         fields = ('fullname', 'avatar_url')
+
+
+class AnketActiveStatusSerializer(serializers.ModelSerializer):
+    active = serializers.IntegerField(source='status.active')
+    anket_id = serializers.IntegerField(source='id', read_only=True)
+
+    class Meta:
+        model = SummitAnket
+        fields = ('anket_id', 'active')
