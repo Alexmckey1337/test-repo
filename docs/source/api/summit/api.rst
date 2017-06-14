@@ -191,6 +191,7 @@ Report by bishop+ of the summit
       }
 
    :query string date: report date, format: ``YYYY-mm-dd``
+   :query string search_fio: search by bishop fio
    :query int department: filter by ``department.id``
 
    :statuscode 200: no error
