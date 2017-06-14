@@ -8,15 +8,6 @@
 }
 
 /* -----------------Sidebar------------------------ */
-#sidebar {
-  width: var(--lsb_width);
-  height: 100vh;
-  background-color: #434a55;
-  position: relative;
-  overflow: hidden;
-  z-index: 9;
-  transition: width 0.3s;
-}
 
 #container {
   width: ~'calc(100% - var(--lsb_width))';
@@ -25,74 +16,51 @@
   overflow: scroll;
 }
 
-#sidebar.toggle-sidebar .logo div:nth-child(2) {
-  font-size: 2em;
-}
-
-#sidebar.toggle-sidebar .logo div {
-  padding-top: 0
-}
-
-#sidebar ul li a {
-  display: block;
-  width: 120px;
-  font-size: 1.2em;
-  color: #fff;
-  text-decoration: none;
-  transition: color .1s ease;
-  padding: 35px 30px 40px 90px;
-  background: transparent;
-}
-
-#sidebar ul li {
-  //height: 90px;
-  box-sizing: border-box;
+#sidebar{
+  width: var(--lsb_width);
+  height: 100vh;
+  background-color: #434a55;
   position: relative;
-  border-top: 1px solid #555b65;
-  list-style-type: none;
-}
-
-#sidebar .sidebar-submenu li a {
-  width: auto;
-  padding: 20px 30px 25px 30px;
-  transition: color .4s ease;
-  &:hover {
-    color: #3caeda;
+  overflow: hidden;
+  z-index: 9;
+  transition: width 0.3s;
+  .toggle-sidebar{
+    .logo{
+      div{
+        padding-top: 0;
+        &:nth-child(2){
+          font-size: 2em;
+        }
+      }
+    }
   }
-}
-
-.menu__item {
-  text-transform: uppercase;
-}
-
-.sidebar-submenu {
-  display: none;
-  //& li::after {
-  //  position: absolute;
-  //  left: 0;
-  //  bottom: 0;
-  //  width: 0;
-  //  height: 2px;
-  //  margin: 0 auto;
-  //  background-color: #3caeda;
-  //  transition: all .7s ease;
-  //  content: '';
-  //}
-  //& li:hover::after {
-  //  width: 100%;
-  //}
-}
-
-#sidebar .sb-menu_link__active {
-  &:before {
-    top: 0;
-    height: 100%;
-  }
-}
-
-#sidebar {
-  & ul {
-    & li {
+  ul{
+    li{
+      box-sizing: border-box;
+      position: relative;
+      border-top: 1px solid #555b65;
+      list-style-type: none;
+      &:before{
+        content: '';
+        position: absolute;
+        top: 40px;
+        left: 0;
+        width: 2px;
+        margin: auto;
+        height: 0;
+        background-color: #3caeda;
+        transition: all .7s ease;
+      }
+      a{
+      display: block;
+      width: 120px;
+      font-size: 1.2em;
+      color: #fff;
+      text-decoration: none;
+      transition: color .1s ease;
+      padding: 35px 30px 40px 90px;
+      background: transparent;
+    }
       &#move-sidebar {
         position: absolute;
         width: 100%;
@@ -168,38 +136,74 @@
           }
         }
       }
+      &:not(:last-child){
+        &.active{
+          &:before{
+            top: 0;
+            height: 100%;
+          }
+        }
+      }
+      &:hover{
+        &:before{
+          top: 0;
+          height: 100%;
+        }
+      }
+    }
+  }
+  .sidebar-submenu{
+    a{
+      width: auto;
+      padding: 20px 30px 25px 30px;
+      transition: color .4s ease;
+      &:hover {
+        color: #3caeda;
+      }
+    }
+  }
+  .sb-menu_link__active{
+    &:before {
+      top: 0;
+      height: 100%;
+    }
+  }
+  &.toggle-sidebar{
+    width: 90px;
+    ul{
+      a{
+        color: #434a55;
+      }
+    }
+    .logo{
+      div{
+        display: block;
+      }
     }
   }
 }
 
-#sidebar ul li:before {
-  content: '';
-  position: absolute;
-  top: 40px;
-  left: 0;
-  width: 2px;
-  margin: auto;
-  height: 0;
-  background-color: #3caeda;
-  transition: all .7s ease;
+
+.menu__item {
+  text-transform: uppercase;
 }
 
-#sidebar ul li:not(:last-child).active:before,
-#sidebar ul li:hover:before {
-  top: 0;
-  height: 100%;
-}
-
-#sidebar.toggle-sidebar {
-  width: 90px;
-}
-
-#sidebar.toggle-sidebar ul li a {
-  color: #434a55;
-}
-
-#sidebar.toggle-sidebar .logo div {
-  display: block;
+.sidebar-submenu {
+  display: none;
+  //& li::after {
+  //  position: absolute;
+  //  left: 0;
+  //  bottom: 0;
+  //  width: 0;
+  //  height: 2px;
+  //  margin: 0 auto;
+  //  background-color: #3caeda;
+  //  transition: all .7s ease;
+  //  content: '';
+  //}
+  //& li:hover::after {
+  //  width: 100%;
+  //}
 }
 
 #sidebar.toggle-sidebar ~ .main-wrap {
