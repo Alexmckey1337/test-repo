@@ -424,12 +424,18 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
     def by_reg_code(self, request):
         reg_code = request.query_params.get('reg_code')
         try:
-            reg_code = int('0x' + reg_code, 0)
-            visitor_id = int(str(reg_code)[:-4])
+            int_reg_code = int('0x' + reg_code, 0)
+            visitor_id = int(str(int_reg_code)[:-4])
         except ValueError:
             raise exceptions.ValidationError(_('Невозможно получить объект. '
                                                'Передан некорректный регистрационный код'))
+
         visitor = get_object_or_404(SummitAnket, pk=visitor_id)
+        if visitor.reg_code != reg_code:
+            print(visitor.reg_code, reg_code)
+            raise exceptions.ValidationError(_('Невозможно получить объект. '
+                                               'Передан некорректный регистрационный код'))
+
         AnketStatus.objects.get_or_create(
             anket=visitor, defaults={'reg_code_requested': True,
                                      'reg_code_requested_date': datetime.now()})
@@ -823,11 +829,13 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
             anket=anket, defaults={'reg_code_requested': True,
                                    'reg_code_requested_date': datetime.now()})
 
-        if anket.status.active is False:
+        if not anket.status.active:
             return Response({'error_message': 'Данная анкета не активна', 'error_code': 1},
                             status=status.HTTP_200_OK)
 
-        SummitAttend.objects.create(anket=anket, date=datetime.now().date())
+        if not SummitAttend.objects.filter(anket=anket, date=datetime.now().date()).exists():
+            SummitAttend.objects.create(anket=anket, date=datetime.now().date())
+
         anket = self.serializer_class(anket)
         return Response(anket.data)
 
@@ -839,10 +847,11 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
         anket = get_object_or_404(SummitAnket, pk=anket_id)
         AnketStatus.objects.get_or_create(anket=anket)
 
-        if active == 1:
+        if active:
             anket.status.active = True
-        anket.status.active = False
+        if not active:
+            anket.status.active = False
         anket.status.save()
 
         return Response({'message': _('Статус анкеты пользователя {%s} успешно изменен.') % anket.fullname,
-                        'active': '%s' % active}, status=status.HTTP_200_OK)
+                        'active': '%s' % anket.status.active}, status=status.HTTP_200_OK)
