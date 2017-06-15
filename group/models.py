@@ -44,8 +44,6 @@ class Church(CommonGroup):
                                on_delete=models.PROTECT, verbose_name=_('Pastor'))
     country = models.CharField(_('Country'), max_length=50)
     is_open = models.BooleanField(default=False)
-    users = models.ManyToManyField('account.CustomUser', related_name='churches',
-                                   blank=True, verbose_name=_('Users'))
 
     objects = ChurchManager()
 
@@ -67,8 +65,6 @@ class HomeGroup(CommonGroup):
                                on_delete=models.PROTECT, verbose_name=_('Leader'))
     church = models.ForeignKey('Church', related_name='home_group',
                                on_delete=models.CASCADE, verbose_name=_('Church'))
-    users = models.ManyToManyField('account.CustomUser', related_name='home_groups',
-                                   blank=True, verbose_name=_('Users'))
     active = models.BooleanField(default=True)
 
     objects = HomeGroupManager()
