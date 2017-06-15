@@ -8,22 +8,19 @@ from group.views import ChurchViewSet, HomeGroupViewSet
 
 
 def create_church_users(church, count, user_factory):
-    user_list = user_factory.create_batch(count)
-    church.users.set(user_list)
+    user_list = user_factory.create_batch(count, cchurch=church)
     return user_list
 
 
 def create_home_group_users(home_group, count, user_factory):
-    user_list = user_factory.create_batch(count)
-    home_group.users.set(user_list)
+    user_list = user_factory.create_batch(count, hhome_group=home_group)
     return user_list
 
 
 def create_home_group_of_church_users(church, user_factory, count):
     users = list()
     for home_group in church.home_group.all():
-        user_list = user_factory.create_batch(count)
-        home_group.users.set(user_list)
+        user_list = user_factory.create_batch(count, hhome_group=home_group)
         users += user_list
     return users
 
@@ -33,8 +30,7 @@ def create_home_group_of_church(church, home_group_factory, count):
 
 
 def create_users_for_potential_users_search(church, user_factory, name_type, count=1):
-    user_list = user_factory.create_batch(count, **{name_type: 'batman'})
-    church.users.set(user_list)
+    user_list = user_factory.create_batch(count, **{name_type: 'batman', 'cchurch': church})
     return user_list
 
 
@@ -279,29 +275,31 @@ class TestChurchViewSet:
         response = api_login_client.post(url, data={'user_id': non_exist_user_id}, format='json')
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert not church.users.filter(id=user.id).exists()
+        assert not church.uusers.filter(id=user.id).exists()
 
     def test_add_user_with_other_church(self, monkeypatch, api_login_client, church, church_factory, user):
         monkeypatch.setattr(ChurchViewSet, 'get_queryset', lambda s: s.queryset)
         url = reverse('church-add-user', kwargs={'pk': church.id})
         other_church = church_factory()
-        other_church.users.set([user])
+        user.cchurch = other_church
+        user.save()
 
         response = api_login_client.post(url, data={'user_id': user.id}, format='json')
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert not church.users.filter(id=user.id).exists()
+        assert not church.uusers.filter(id=user.id).exists()
 
     def test_add_user_with_home_group(self, monkeypatch, api_login_client, church, user, home_group_factory):
         monkeypatch.setattr(ChurchViewSet, 'get_queryset', lambda s: s.queryset)
         url = reverse('church-add-user', kwargs={'pk': church.id})
         group = home_group_factory(church=church)
-        group.users.set([user])
+        user.hhome_group = group
+        user.save()
 
         response = api_login_client.post(url, data={'user_id': user.id}, format='json')
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert not church.users.filter(id=user.id).exists()
+        assert not church.uusers.filter(id=user.id).exists()
 
     def test_add_user_success(self, monkeypatch, api_login_client, church, user):
         monkeypatch.setattr(ChurchViewSet, 'get_queryset', lambda s: s.queryset)
@@ -310,7 +308,7 @@ class TestChurchViewSet:
         response = api_login_client.post(url, data={'user_id': user.id}, format='json')
 
         assert response.status_code == status.HTTP_200_OK
-        assert church.users.filter(id=user.id).exists()
+        assert church.uusers.filter(id=user.id).exists()
 
     def test_del_user_without_user_id(self, monkeypatch, api_login_client, church):
         monkeypatch.setattr(ChurchViewSet, 'get_queryset', lambda s: s.queryset)
@@ -343,12 +341,13 @@ class TestChurchViewSet:
         monkeypatch.setattr(ChurchViewSet, 'get_queryset', lambda s: s.queryset)
         url = reverse('church-del-user', kwargs={'pk': church.id})
         user = user_factory()
-        church.users.set([user])
+        user.cchurch = church
+        user.save()
 
         response = api_login_client.post(url, data={'user_id': user.id}, format='json')
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
-        assert not church.users.filter(id=user.id).exists()
+        assert not church.uusers.filter(id=user.id).exists()
 
     @pytest.mark.parametrize('method,action,serializer_class', (
             ('get', 'list', ChurchListSerializer),
@@ -436,36 +435,39 @@ class TestHomeGroupViewSet:
         response = api_login_client.post(url, data={'user_id': non_exist_user_id}, format='json')
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert not home_group.users.filter(id=user.id).exists()
+        assert not home_group.uusers.filter(id=user.id).exists()
 
     def test_add_user_with_other_home_group(self, api_login_client, home_group, home_group_factory, user):
         url = reverse('homegroup-add-user', kwargs={'pk': home_group.id})
         other_home_group = home_group_factory()
-        other_home_group.users.set([user])
+        user.hhome_group = other_home_group
+        user.save()
 
         response = api_login_client.post(url, data={'user_id': user.id}, format='json')
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert not home_group.users.filter(id=user.id).exists()
+        assert not home_group.uusers.filter(id=user.id).exists()
 
     def test_add_user_with_church(self, api_login_client, home_group, user, church_factory):
         url = reverse('homegroup-add-user', kwargs={'pk': home_group.id})
         church = church_factory()
-        church.users.set([user])
+        user.cchurch = church
+        user.save()
 
         response = api_login_client.post(url, data={'user_id': user.id}, format='json')
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert not home_group.users.filter(id=user.id).exists()
+        assert not home_group.uusers.filter(id=user.id).exists()
 
     def test_add_user_to_home_group_and_delete_from_church(self, api_login_client, home_group, user):
         url = reverse('homegroup-add-user', kwargs={'pk': home_group.id})
         church = home_group.church
-        church.users.set([user])
+        user.cchurch = church
+        user.save()
 
         api_login_client.post(url, data={'user_id': user.id}, format='json')
 
-        assert not church.users.filter(id=user.id).exists()
+        assert not church.uusers.filter(id=user.id).exists()
 
     def test_add_user_success(self, api_login_client, home_group, user):
         url = reverse('homegroup-add-user', kwargs={'pk': home_group.id})
@@ -473,7 +475,7 @@ class TestHomeGroupViewSet:
         response = api_login_client.post(url, data={'user_id': user.id}, format='json')
 
         assert response.status_code == status.HTTP_200_OK
-        assert home_group.users.filter(id=user.id).exists()
+        assert home_group.uusers.filter(id=user.id).exists()
 
     def test_del_user_without_user_id(self, monkeypatch, api_login_client, home_group):
         monkeypatch.setattr(HomeGroupViewSet, 'get_queryset', lambda s: s.queryset)
@@ -507,22 +509,24 @@ class TestHomeGroupViewSet:
         monkeypatch.setattr(HomeGroupViewSet, 'get_queryset', lambda s: s.queryset)
         url = reverse('homegroup-del-user', kwargs={'pk': home_group.id})
         user = user_factory()
-        home_group.users.set([user])
+        user.hhome_group = home_group
+        user.save()
 
         api_login_client.post(url, data={'user_id': user.id}, format='json')
 
-        assert home_group.church.users.filter(id=user.id).exists()
+        assert home_group.church.uusers.filter(id=user.id).exists()
 
     def test_del_user_success(self, monkeypatch, api_login_client, home_group, user_factory):
         monkeypatch.setattr(HomeGroupViewSet, 'get_queryset', lambda s: s.queryset)
         url = reverse('homegroup-del-user', kwargs={'pk': home_group.id})
         user = user_factory()
-        home_group.users.set([user])
+        user.hhome_group = home_group
+        user.save()
 
         response = api_login_client.post(url, data={'user_id': user.id}, format='json')
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
-        assert not home_group.users.filter(id=user.id).exists()
+        assert not home_group.uusers.filter(id=user.id).exists()
 
     @pytest.mark.parametrize('method,action,serializer_class', (
             ('get', 'list', HomeGroupListSerializer),

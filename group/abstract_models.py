@@ -39,9 +39,11 @@ class GroupUserPermission(models.Model):
         return can_see_church_block(self, user)
 
     def set_home_group(self, home_group):
-        self.churches.clear()
-        self.home_groups.set([home_group])
+        self.cchurch = None
+        self.hhome_group = home_group
+        self.save()
 
     def set_church(self, church):
-        self.home_groups.clear()
-        self.churches.set([church])
+        self.hhome_group = None
+        self.cchurch = church
+        self.save()

@@ -127,7 +127,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                   'уже был подан ранее. ') % meeting)
 
         attends = data.pop('attends')
-        valid_visitors = list(meeting.home_group.users.values_list('id', flat=True))
+        valid_visitors = list(meeting.home_group.uusers.values_list('id', flat=True))
         valid_attends = [attend for attend in attends if attend.get('user') in valid_visitors]
 
         if not valid_attends:
@@ -168,7 +168,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                   pagination_class=MeetingVisitorsPagination)
     def visitors(self, request, pk):
         meeting = self.get_object()
-        visitors = meeting.home_group.users.all()
+        visitors = meeting.home_group.uusers.all()
 
         page = self.paginate_queryset(visitors)
         if page is not None:
