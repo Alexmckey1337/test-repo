@@ -55,23 +55,23 @@
             });
         }
 
-        function getLocalStorage() {
-            let arrSortClass = localStorage.arrHideWell ? JSON.parse(localStorage.arrHideWell) : [],
-                order = localStorage.order ? JSON.parse(localStorage.order) : [],
-                $arrWell = $('.dashboard').find('.well');
-            console.log('arrSortClass-->',arrSortClass);
-            console.log('$arrWell-1-->',$arrWell);
+        function initSort() {
+            let order = localStorage.order ? JSON.parse(localStorage.order) : [],
+                $arrCard = $('.dashboard').find('.well');
             if (order.length > 0) {
                 for (let i = 0; i < order.length; i++) {
                     let index = +order[i];
-                    $('#drop').append($arrWell[index]);
+                    $('#drop').append($arrCard[index]);
                 }
             }
-            console.log('$arrWell-2-->',$arrWell);
+        }
+
+        function hideCard() {
+            let arrSortClass = localStorage.arrHideCard ? JSON.parse(localStorage.arrHideCard) : [];
             if (arrSortClass.length > 0 ) {
                 for (let i = 0; i < arrSortClass.length; i++) {
                     let index = arrSortClass[i];
-                    $($arrWell[index]).addClass('hide').hide().find('.vision').addClass('active');
+                    $('.dashboard').find(`.well[data-id='${index}']`).addClass('hide').hide().find('.vision').addClass('active');
                 }
             }
         }
@@ -114,19 +114,19 @@
             $('.dashboard').find('.save').on('click', function () {
                 let state = sortable.option("disabled"),
                     order = sortable.toArray(),
-                    $arrWell = $('.dashboard').find('.well'),
-                    arrHideWell = [];
+                    $arrCard = $('.dashboard').find('.well'),
+                    arrHideCard = [];
                 $('.dashboard').find('.edit-desk').removeClass('active');
                 $('.dashboard').find('.drop').removeClass('active');
                 sortable.option("disabled", !state);
                 localStorage.order = JSON.stringify(order);
-                $arrWell.each(function (index) {
+                $arrCard.each(function () {
                     if ($(this).hasClass('hide')) {
-                        arrHideWell.push(index);
+                        let indx = $(this).attr('data-id');
+                        arrHideCard.push(indx);
                     }
                 });
-                console.log(arrHideWell);
-                localStorage.arrHideWell = JSON.stringify(arrHideWell);
+                localStorage.arrHideCard = JSON.stringify(arrHideCard);
 
                 $('.dashboard').find('.well.hide').hide();
             });
@@ -141,8 +141,10 @@
                 rendered = _.template(tmpl)(data);
             $('#dashboard').append(rendered);
 
-            getLocalStorage();
+            initSort();
             initSortable();
+            hideCard();
+
             $('.preloader').css('display', 'none');
         }).catch(function (err) {
         console.log(err);
