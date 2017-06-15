@@ -32,86 +32,91 @@
             <button class="edit-desk"></button>
             <button class="save"></button>
         </div>
-        <script type="text/template" id="mainStatisticsTmp">
+    </div>
+{% endblock %}
+
+{% block popup %}
+    {% create_user_form %}
+    <script type="text/template" id="mainStatisticsTmp">
             <div id="drop" class="grid_block drop">
-                <div class="col-sm-4 well">
+                <div class="col-sm-4 well" data-id="0">
                     <span>Всего церквей</span>
                     <p class="success">
                         <%= (churches_count) ? churches_count : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>
-                <div class="col-sm-4 well">
+                <div class="col-sm-4 well" data-id="1">
                     <span>Всего домашних групп</span>
                     <p class="success">
                         <%= (home_groups_count) ? home_groups_count : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>
-                <div class="col-sm-4 well">
+                <div class="col-sm-4 well" data-id="2">
                     <span>Всего людей</span>
                     <p class="success">
                         <%= (total_peoples) ? total_peoples : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>
-                <div class="col-sm-4 well">
+                <div class="col-sm-4 well" data-id="3">
                     <span>Всего людей в церквях</span>
                     <p>
                         <%= (peoples_in_churches) ? peoples_in_churches : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>
-                <div class="col-sm-4 well">
+                <div class="col-sm-4 well" data-id="4">
                     <span>Всего людей в домашних группах</span>
                     <p>
                         <%= (home_groups_count) ? home_groups_count : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>
-                <div class="col-sm-4 well">
+                <div class="col-sm-4 well" data-id="5">
                     <span>Всего лидеров групп</span>
                     <p>
                         <%= (leaders_count) ? leaders_count : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>
-                <div class="col-sm-4 well">
+                <div class="col-sm-4 well" data-id="6">
                     <span>Всего отцы</span>
                     <p>
                         <%= (fathers_count) ? fathers_count : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>
-                <div class="col-sm-4 well">
+                <div class="col-sm-4 well" data-id="7">
                     <span>Всего юноши</span>
                     <p>
                         <%= (juniors_count) ? juniors_count : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>
-                <div class="col-sm-4 well">
+                <div class="col-sm-4 well" data-id="8">
                     <span>Всего младенцы</span>
                     <p>
                         <%= (babies_count) ? babies_count : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>
-                <div class="col-sm-4 well success">
+                <div class="col-sm-4 well success" data-id="9">
                     <span>Заполнено отчетов (дом. группы)</span>
                     <p>
                         <%= (meetings_submitted) ? meetings_submitted : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>
-                <div class="col-sm-4 well info">
+                <div class="col-sm-4 well info" data-id="10">
                     <span>Отчетов к заполнению (дом. группы)</span>
                     <p>
                         <%= (meetings_in_progress) ? meetings_in_progress : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>
-                <div class="col-sm-4 well error">
+                <div class="col-sm-4 well error" data-id="11">
                     <span>Просрочено отчетов (дом. группы)</span>
                     <p>
                         <%= (meetings_expired) ? meetings_expired : 0 %>
@@ -120,12 +125,6 @@
                 </div>
             </div>
         </script>
-    </div>
-{% endblock %}
-
-{% block popup %}
-    {% create_user_form %}
-
 {% endblock %}
 {% block extra_scripts %}
     <script src='{% static "libs/Sortable/Sortable.min.js" %}'></script>
