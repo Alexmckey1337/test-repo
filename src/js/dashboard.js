@@ -1,7 +1,8 @@
 (function ($) {
     $(document).ready(function () {
         "use strict";
-        let userId = $('body').attr('data-user');
+        let userId = $('body').attr('data-user'),
+            sortable;
         $('.preloader').css('display', 'block');
 
         function getHomeGroupStats() {
@@ -56,19 +57,19 @@
         }
 
         function initSort() {
-            let order = localStorage.order ? JSON.parse(localStorage.order) : [],
-                $arrCard = $('.dashboard').find('.well');
+            let order = localStorage.order ? JSON.parse(localStorage.order) : [];
             if (order.length > 0) {
                 for (let i = 0; i < order.length; i++) {
-                    let index = +order[i];
-                    $('#drop').append($arrCard[index]);
+                    let index = +order[i],
+                        card = $('.dashboard').find(`.well[data-id='${index}']`)
+                    $('#drop').append(card);
                 }
             }
         }
 
         function hideCard() {
             let arrSortClass = localStorage.arrHideCard ? JSON.parse(localStorage.arrHideCard) : [];
-            if (arrSortClass.length > 0 ) {
+            if (arrSortClass.length > 0) {
                 for (let i = 0; i < arrSortClass.length; i++) {
                     let index = arrSortClass[i];
                     $('.dashboard').find(`.well[data-id='${index}']`).addClass('hide').hide().find('.vision').addClass('active');
@@ -77,7 +78,7 @@
         }
 
         function initSortable() {
-            let sortCard = document.getElementById('drop'),
+            let sortCard = document.getElementById('drop');
                 sortable = new Sortable(sortCard, {
                     sort: true,
                     animation: 150,
@@ -95,41 +96,9 @@
                             $(item).closest('.well').toggleClass('hide');
                         }
                     }
-            });
+                });
 
             sortable.option("disabled", true);
-
-            $('.dashboard').find('.edit-desk').on('click', function () {
-                $(this).toggleClass('active');
-                $('.dashboard').find('.drop').toggleClass('active');
-                let state = sortable.option("disabled");
-                sortable.option("disabled", !state);
-                if ($(this).hasClass('active')) {
-                    $('.dashboard').find('.well.hide').show();
-                } else {
-                    $('.dashboard').find('.well.hide').hide();
-                }
-            });
-
-            $('.dashboard').find('.save').on('click', function () {
-                let state = sortable.option("disabled"),
-                    order = sortable.toArray(),
-                    $arrCard = $('.dashboard').find('.well'),
-                    arrHideCard = [];
-                $('.dashboard').find('.edit-desk').removeClass('active');
-                $('.dashboard').find('.drop').removeClass('active');
-                sortable.option("disabled", !state);
-                localStorage.order = JSON.stringify(order);
-                $arrCard.each(function () {
-                    if ($(this).hasClass('hide')) {
-                        let indx = $(this).attr('data-id');
-                        arrHideCard.push(indx);
-                    }
-                });
-                localStorage.arrHideCard = JSON.stringify(arrHideCard);
-
-                $('.dashboard').find('.well.hide').hide();
-            });
         }
 
         Promise.all([getHomeGroupStats(), getChurchData(), getUsersData()]).then(values => {
@@ -147,10 +116,44 @@
 
             $('.preloader').css('display', 'none');
         }).catch(function (err) {
-        console.log(err);
-    });
+            console.log(err);
+        });
 
         $('#master-filter').select2();
+
+        $('.dashboard').find('.edit-desk').on('click', function () {
+            $(this).toggleClass('active');
+            $('.dashboard').find('.drop').toggleClass('active');
+            let state = sortable.option("disabled");
+            sortable.option("disabled", !state);
+            if ($(this).hasClass('active')) {
+                $('.dashboard').find('.well.hide').show();
+            } else {
+                $('.dashboard').find('.well.hide').removeClass('hide').find('.vision').removeClass('active');
+                initSort();
+                hideCard();
+            }
+        });
+
+        $('.dashboard').find('.save').on('click', function () {
+            let state = sortable.option("disabled"),
+                order = sortable.toArray(),
+                $arrCard = $('.dashboard').find('.well'),
+                arrHideCard = [];
+            $('.dashboard').find('.edit-desk').removeClass('active');
+            $('.dashboard').find('.drop').removeClass('active');
+            sortable.option("disabled", !state);
+            localStorage.order = JSON.stringify(order);
+            $arrCard.each(function () {
+                if ($(this).hasClass('hide')) {
+                    let indx = $(this).attr('data-id');
+                    arrHideCard.push(indx);
+                }
+            });
+            localStorage.arrHideCard = JSON.stringify(arrHideCard);
+
+            $('.dashboard').find('.well.hide').hide();
+        });
 
     });
 })(jQuery);
