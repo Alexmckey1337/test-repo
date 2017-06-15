@@ -1,0 +1,137 @@
+.dashboard {
+  .dashboard-head {
+    position: relative;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 15px;
+      button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 0;
+        padding: 0;
+        border: 0;
+        background: 0 0;
+        width: 1em;
+        height: 1em;
+        font-size: 1.5em;
+        &:before {
+          color: #656d78;
+          position: absolute;
+          left: 0;
+          top: 0;
+          font: 400 1em FontAwesome;
+        }
+      }
+      button.edit-desk {
+        &::before {
+          content: '\f040';
+        }
+        &.active {
+          //display: none;
+          right: 1.25em;
+          &::before {
+            content: '\f00d';
+          }
+          & + .save {
+            display: block;
+          }
+        }
+      }
+      button.save {
+        display: none;
+        &:before {
+          content: '\f00c';
+        }
+      }
+    .select2-selection {
+      width: 385px;
+    }
+  }
+  h1 {
+    margin-right: 10px;
+    color: #656d78;
+    font-weight: 900;
+  }
+  .grid_block {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+  .well {
+    position: relative;
+    padding: 35px;
+    box-sizing: border-box;
+    margin-left: 15px;
+    margin-bottom: 15px;
+    p {
+      margin-top: 30px;
+      padding: 15px;
+      font-size: 4em;
+      text-align: center;
+      font-family: "Roboto Condensed", sans-serif;
+      font-weight: 900;
+    }
+    .vision {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      display: none;
+      padding: 0;
+      border: 0;
+      color: #000;
+      background: 0 0;
+      width: 1em;
+      height: 1em;
+      font-size: 1.5em;
+      font-family: FontAwesome;
+    }
+  }
+  .sortable-ghost {
+    opacity: .5;
+  }
+  .sortable-chosen {
+    cursor: grab;
+  }
+  .drop.active {
+    .well {
+      box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+      transition: box-shadow 0.3s ease;
+      &:hover {
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+        cursor: grab;
+      }
+      .vision {
+        display: block;
+        &:before {
+          content: '\f06e';
+        }
+        &.active:before {
+          content: '\f070';
+        }
+      }
+    }
+  }
+ .select2-container--default .select2-selection--single .select2-selection__rendered {
+  font-size: 1.3em;
+  line-height: 35px;
+  }
+  .select2-selection__arrow {
+    width: 1px !important;
+    height: 1px !important;
+    background: none;
+    &::after {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      display: block;
+      font-family: FontAwesome;
+      font-size: 2em;
+      content: '\f107';
+      cursor: pointer;
+    }
+  }
+}
+#main .dashboard h1 {
+  padding: 0;
+}
