@@ -45,8 +45,33 @@ class SummitStat {
                 makeSortForm(data.user_table);
                 this.sortTable.sort(this.makeDataTable.bind(this), ".table-wrap th");
                 $('.preloader').css('display', 'none');
-            })
+                changeSummitStatusCode();
+            });
     }
+}
+
+function changeSummitStatusCode() {
+    $('#summitUsersList').find('.ticket_code').find('input').on('change', function () {
+        let id = $(this).closest('.ticket_code').attr('data-id'),
+            ban = $(this).prop("checked") ? 0 : 1,
+            option = {
+                method: 'POST',
+                credentials: "same-origin",
+                headers: new Headers({
+                    'Content-Type': 'application/json',
+                }),
+                body: JSON.stringify({
+                    anket_id: id,
+                    active: ban
+                })
+            };
+        console.log(option.body);
+        fetch(`http://127.0.0.1:8000/api/v1.0/summit_attends/anket_active_status/`, option)
+            .then(
+                $(this).closest('.ticket_code').find('a').toggleClass('is-ban')
+            )
+
+    });
 }
 
 (function ($) {

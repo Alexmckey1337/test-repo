@@ -33,7 +33,7 @@ from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_
 from summit.resources import SummitAnketResource
 from summit.utils import generate_ticket, SummitParticipantReport, get_report_by_bishop_or_high
 from .models import (Summit, SummitAnket, SummitType, SummitLesson, SummitUserConsultant,
-                     SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend, AnketStatus)
+                     SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend, AnketStatus, AnketPasses)
 from .serializers import (
     SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
     SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer,
@@ -431,14 +431,16 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
                                                'Передан некорректный регистрационный код'))
 
         visitor = get_object_or_404(SummitAnket, pk=visitor_id)
+
         if visitor.reg_code != reg_code:
-            print(visitor.reg_code, reg_code)
             raise exceptions.ValidationError(_('Невозможно получить объект. '
                                                'Передан некорректный регистрационный код'))
 
         AnketStatus.objects.get_or_create(
             anket=visitor, defaults={'reg_code_requested': True,
                                      'reg_code_requested_date': datetime.now()})
+
+        # AnketPasses.objects.create(anket=visitor)
 
         visitor = self.get_serializer(visitor)
         return Response(visitor.data)
