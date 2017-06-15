@@ -63,8 +63,8 @@ function makeResponsibleList(department, status, flag = false) {
         data.forEach(function (item) {
             let option = document.createElement('option');
             $(option).val(item.id).text(item.fullname);
-            if (activeMaster !== item.id) {
-                // $(option).attr('selected', true);
+            if (activeMaster == item.id) {
+                $(option).attr('selected', true);
             }
             rendered.push(option);
         });
