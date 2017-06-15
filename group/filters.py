@@ -14,7 +14,7 @@ class ChurchAllUserFilter(BaseFilterBackend):
         church_id = view.kwargs.get('pk')
         church = get_object_or_404(Church, pk=church_id)
         queryset = queryset.filter(
-            Q(churches=church) | Q(home_groups__in=church.home_group.all()))
+            Q(cchurch=church) | Q(hhome_group__in=church.home_group.all()))
 
         return queryset
 

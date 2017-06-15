@@ -795,7 +795,7 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
     queryset = SummitAttend.objects.prefetch_related('anket')
     serializer_class = SummitAnketCodeSerializer
     serializer_list_class = SummitAttendSerializer
-    # permission_classes = (HasAPIAccess,)
+    permission_classes = (HasAPIAccess,)
 
     def get_serializer_class(self):
         if self.action == 'list':

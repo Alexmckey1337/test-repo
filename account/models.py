@@ -7,11 +7,11 @@ from collections import OrderedDict
 
 from django.contrib.auth.models import User, UserManager
 from django.contrib.postgres.fields import ArrayField
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import signals
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from mptt.fields import TreeForeignKey
@@ -75,6 +75,14 @@ class CustomUser(MPTTModel, User, CustomUserAbstract,
 
     can_login = models.BooleanField(_('Can login to site'), default=False)
 
+    cchurch = models.ForeignKey('group.Church', on_delete=models.PROTECT,
+                                related_name='uusers', verbose_name=_('Church'),
+                                null=True, blank=True)
+
+    hhome_group = models.ForeignKey('group.HomeGroup', on_delete=models.PROTECT,
+                                    related_name='uusers', verbose_name=_('Home group'),
+                                    null=True, blank=True)
+
     objects = CustomUserManager()
 
     def __str__(self):
@@ -102,10 +110,10 @@ class CustomUser(MPTTModel, User, CustomUserAbstract,
         return self.get_absolute_url()
 
     def get_church(self):
-        home_group = self.home_groups.first()
+        home_group = self.hhome_group
         if home_group:
             return home_group.church
-        church = self.churches.first()
+        church = self.cchurch
         if church:
             return church
         return None

@@ -529,25 +529,26 @@ class ChurchDetailView(LoginRequiredMixin, CanSeeChurchesMixin, DetailView):
     def get_context_data(self, **kwargs):
         ctx = super(ChurchDetailView, self).get_context_data(**kwargs)
 
+        church = self.object
         extra_context = {
             'currencies': Currency.objects.all(),
             'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
-            'church_users': self.object.users.count(),
-            'church_all_users': self.object.users.count() + HomeGroup.objects.filter(
-                church_id=self.object.id).aggregate(home_users=Count('users'))['home_users'],
-            'parishioners_count': self.object.users.filter(hierarchy__level=0).count(),
-            'leaders_count': self.object.users.filter(hierarchy__level=1).count(),
-            'home_groups_count': self.object.home_group.count(),
-            'fathers_count': self.object.users.filter(
+            'church_users': church.uusers.count(),
+            'church_all_users': church.uusers.count() + HomeGroup.objects.filter(
+                church_id=church.id).aggregate(home_users=Count('uusers'))['home_users'],
+            'parishioners_count': church.uusers.filter(hierarchy__level=0).count(),
+            'leaders_count': church.uusers.filter(hierarchy__level=1).count(),
+            'home_groups_count': church.home_group.count(),
+            'fathers_count': church.uusers.filter(
                 spiritual_level=CustomUser.FATHER).count() + HomeGroup.objects.filter(
-                church__id=self.object.id).filter(users__spiritual_level=3).count(),
-            'juniors_count': self.object.users.filter(
+                church__id=church.id).filter(uusers__spiritual_level=3).count(),
+            'juniors_count': church.uusers.filter(
                 spiritual_level=CustomUser.JUNIOR).count() + HomeGroup.objects.filter(
-                church__id=self.object.id).filter(users__spiritual_level=2).count(),
-            'babies_count': self.object.users.filter(
+                church__id=church.id).filter(uusers__spiritual_level=2).count(),
+            'babies_count': church.uusers.filter(
                 spiritual_level=CustomUser.BABY).count() + HomeGroup.objects.filter(
-                church__id=self.object.id).filter(users__spiritual_level=1).count(),
-            'partners_count': self.object.users.filter(partnership__is_active=True).count(),
+                church__id=church.id).filter(uusers__spiritual_level=1).count(),
+            'partners_count': church.uusers.filter(partnership__is_active=True).count(),
         }
         ctx.update(extra_context)
 
@@ -563,12 +564,13 @@ class HomeGroupDetailView(LoginRequiredMixin, CanSeeHomeGroupsMixin, DetailView)
     def get_context_data(self, **kwargs):
         ctx = super(HomeGroupDetailView, self).get_context_data(**kwargs)
 
+        home_group = self.object
         extra_context = {
-            'users_count': self.object.users.count(),
-            'fathers_count': self.object.users.filter(spiritual_level=CustomUser.FATHER).count(),
-            'juniors_count': self.object.users.filter(spiritual_level=CustomUser.JUNIOR).count(),
-            'babies_count': self.object.users.filter(spiritual_level=CustomUser.BABY).count(),
-            'partners_count': self.object.users.filter(partnership__is_active=True).count(),
+            'users_count': home_group.uusers.count(),
+            'fathers_count': home_group.uusers.filter(spiritual_level=CustomUser.FATHER).count(),
+            'juniors_count': home_group.uusers.filter(spiritual_level=CustomUser.JUNIOR).count(),
+            'babies_count': home_group.uusers.filter(spiritual_level=CustomUser.BABY).count(),
+            'partners_count': home_group.uusers.filter(partnership__is_active=True).count(),
         }
         ctx.update(extra_context)
 
