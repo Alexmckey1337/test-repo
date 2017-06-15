@@ -262,7 +262,7 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
             raise exceptions.ValidationError(
                 _('Невозможно подать отчет. Данный отчет уже был подан ранее'))
 
-        if ChurchReport.objects.filter(persor=church_report.pastor, status=ChurchReport.EXPIRED).exists() and \
+        if ChurchReport.objects.filter(pastor=church_report.pastor, status=ChurchReport.EXPIRED).exists() and \
                         church_report.status == ChurchReport.IN_PROGRESS:
             raise exceptions.ValidationError('Невозможно подать отчет.\n'
                                              'Данный пастор имеет просроченные отчеты.')

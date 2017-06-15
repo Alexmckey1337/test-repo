@@ -452,7 +452,8 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
             raise exceptions.ValidationError('Некорректно заданный временной интвервал. ')
 
         ankets = SummitAnket.objects.filter(
-            status__reg_code_requested_date__date__range=[from_date, to_date])
+            status__reg_code_requested_date__date__range=[from_date, to_date]).order_by(
+            'status__reg_code_requested_date')
         ankets = self.serializer_class(ankets, many=True)
         return Response(ankets.data)
 

@@ -541,8 +541,8 @@ class SummitEventTable(models.Model):
 class SummitAttend(models.Model):
     anket = models.ForeignKey('summit.SummitAnket', related_name='attends', verbose_name=_('Anket'))
     date = models.DateField(verbose_name=_('Date'))
-
-    # time = models.TimeField(verbose_name=_('Time'))
+    time = models.TimeField(verbose_name=_('Time'), null=True)
+    status = models.CharField(verbose_name=_('Status'), max_length=20, default='')
 
     class Meta:
         verbose_name = _('Summit Attend')
@@ -551,7 +551,7 @@ class SummitAttend(models.Model):
         unique_together = ['anket', 'date']
 
     def __str__(self):
-        return '%s visitor of Summit. Date: %s' % (self.anket.user.fullname, self.date)
+        return '%s - visitor of Summit. Date: %s' % (self.anket.user.fullname, self.date)
 
 
 @python_2_unicode_compatible
