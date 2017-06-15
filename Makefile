@@ -14,5 +14,6 @@ docs:
 
 collectstatic:
 	python manage.py collectstatic --noinput --settings edem.settings.base
-	gulp scripts less font images
 	bower install
+	npm install
+	gulp scripts less font images
