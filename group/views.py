@@ -116,7 +116,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
         if user.cchurch != church:
             if user.hhome_group:
                 raise exceptions.ValidationError({
-                    'home_groups': [[user.hhome_group.id, user.hhome_group.get_title]],
+                    'home_group': [{'id': user.hhome_group.id, 'name': user.hhome_group.get_title}],
                     'detail': _('Пожалуйста, удалите сначала пользователя из домашней группы.')
                 })
             raise exceptions.ValidationError({
