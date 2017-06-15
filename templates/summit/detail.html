@@ -37,6 +37,9 @@
                         <button id="load-tickets"><i class="fa fa-address-card-o" aria-hidden="true"></i></button>
                     </li>
                 {% endif %}
+                <li>
+                    <button id="export_table" data-export-url="{% url "summit-profile-export" pk=summit.id %}" class="download header__button">Export</button>
+                </li>
             </ul>
         </div>
     </div>

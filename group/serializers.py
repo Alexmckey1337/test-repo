@@ -70,11 +70,11 @@ class GroupUserSerializer(serializers.ModelSerializer):
 
 
 class HomeGroupDetailSerializer(serializers.ModelSerializer):
-    users = GroupUserSerializer(many=True, read_only=True)
+    uusers = GroupUserSerializer(many=True, read_only=True)
 
     class Meta:
         model = HomeGroup
-        fields = ('id', 'users')
+        fields = ('id', 'uusers')
 
 
 class ChurchPastorRelatedField(serializers.PrimaryKeyRelatedField):
