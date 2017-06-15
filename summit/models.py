@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from account.abstract_models import CustomUserAbstract
 from payment.models import get_default_currency, AbstractPaymentPurpose
 from summit.managers import ProfileManager
+from datetime import datetime
 
 
 @python_2_unicode_compatible
@@ -350,6 +351,10 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
 
         return reg_code
 
+    @property
+    def get_passes_count(self):
+        return self.passes_count.filter(datetime__date=datetime.now().date()).count()
+
 
 @python_2_unicode_compatible
 class SummitTicket(models.Model):
@@ -571,4 +576,4 @@ class AnketPasses(models.Model):
     datetime = models.DateTimeField(verbose_name='Дата и время прохода', auto_now=True, editable=False)
 
     def __str__(self):
-        return 'Проход анкеты %s. Дата\Время: %s.' % (self.anket, self.datetime)
+        return 'Проход анкеты: %s. Дата и время: %s.' % (self.anket, self.datetime)
