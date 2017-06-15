@@ -59,12 +59,16 @@
             let arrSortClass = localStorage.arrHideWell ? JSON.parse(localStorage.arrHideWell) : [],
                 order = localStorage.order ? JSON.parse(localStorage.order) : [],
                 $arrWell = $('.dashboard').find('.well');
-
+            console.log('arrSortClass-->',arrSortClass);
+            console.log('$arrWell-1-->',$arrWell);
             if (order.length > 0) {
                 for (let i = 0; i < order.length; i++) {
                     let index = +order[i];
                     $('#drop').append($arrWell[index]);
                 }
+            }
+            console.log('$arrWell-2-->',$arrWell);
+            if (arrSortClass.length > 0 ) {
                 for (let i = 0; i < arrSortClass.length; i++) {
                     let index = arrSortClass[i];
                     $($arrWell[index]).addClass('hide').hide().find('.vision').addClass('active');
@@ -108,20 +112,20 @@
             });
 
             $('.dashboard').find('.save').on('click', function () {
+                let state = sortable.option("disabled"),
+                    order = sortable.toArray(),
+                    $arrWell = $('.dashboard').find('.well'),
+                    arrHideWell = [];
                 $('.dashboard').find('.edit-desk').removeClass('active');
                 $('.dashboard').find('.drop').removeClass('active');
-                let state = sortable.option("disabled");
-                let order = sortable.toArray();
                 sortable.option("disabled", !state);
                 localStorage.order = JSON.stringify(order);
-
-                let $arrWell = $('.dashboard').find('.well'),
-                    arrHideWell = [];
                 $arrWell.each(function (index) {
                     if ($(this).hasClass('hide')) {
                         arrHideWell.push(index);
                     }
                 });
+                console.log(arrHideWell);
                 localStorage.arrHideWell = JSON.stringify(arrHideWell);
 
                 $('.dashboard').find('.well.hide').hide();
@@ -133,9 +137,10 @@
             for (let i = 0; i < values.length; i++) {
                 Object.assign(data, values[i]);
             }
-            let tmpl = document.getElementById('mainStatisticsTmp').innerHTML;
-            let rendered = _.template(tmpl)(data);
+            let tmpl = document.getElementById('mainStatisticsTmp').innerHTML,
+                rendered = _.template(tmpl)(data);
             $('#dashboard').append(rendered);
+
             getLocalStorage();
             initSortable();
             $('.preloader').css('display', 'none');
