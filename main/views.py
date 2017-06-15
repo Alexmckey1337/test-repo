@@ -1,10 +1,13 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from datetime import datetime
+
 import redis
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Count, Case, When, BooleanField
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -14,13 +17,14 @@ from django.views.generic.base import ContextMixin, TemplateView
 
 from account.models import CustomUser
 from event.models import Meeting, ChurchReport
+from event.models import MeetingType
 from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
 from partnership.models import Partnership
 from payment.models import Currency
 from status.models import Division
-from summit.models import SummitType, SummitTicket, SummitAnket
-from event.models import MeetingType
+from summit.models import SummitType, SummitTicket, SummitAnket, Summit
+from summit.utils import get_report_by_bishop_or_high
 
 
 def entry(request):
@@ -237,11 +241,26 @@ class CanSeeSummitTypeMixin(View):
         return super(CanSeeSummitTypeMixin, self).dispatch(request, *args, **kwargs)
 
 
+class CanSeeSummitMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        summit = kwargs.get('pk')
+        if not (summit and request.user.can_see_summit(summit)):
+            raise PermissionDenied
+        return super(CanSeeSummitMixin, self).dispatch(request, *args, **kwargs)
+
+
 class CanSeeSummitTicketMixin(View):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.can_see_any_summit_ticket():
             raise PermissionDenied
         return super(CanSeeSummitTicketMixin, self).dispatch(request, *args, **kwargs)
+
+
+class CanSeeSummitReportByBishopsMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_report_by_bishop_or_high(kwargs.get('pk')):
+            raise PermissionDenied
+        return super(CanSeeSummitReportByBishopsMixin, self).dispatch(request, *args, **kwargs)
 
 
 class CanSeeSummitProfileMixin(View):
@@ -252,7 +271,7 @@ class CanSeeSummitProfileMixin(View):
 class SummitTypeView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
     model = SummitType
     context_object_name = 'summit_type'
-    template_name = 'summit/summit_info.html'
+    template_name = 'summit/type/detail.html'
     login_url = 'entry'
 
     def get_context_data(self, **kwargs):
@@ -266,11 +285,58 @@ class SummitTypeView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
         return ctx
 
 
-class SummitTypeStatisticsView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
-    model = SummitType
-    context_object_name = 'summit_type'
-    template_name = 'summit/summit_stats.html'
+class SummitDetailView(LoginRequiredMixin, CanSeeSummitMixin, DetailView):
+    model = Summit
+    context_object_name = 'summit'
+    template_name = 'summit/detail.html'
     login_url = 'entry'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(SummitDetailView, self).get_context_data(**kwargs)
+        extra_context = {
+            'departments': Department.objects.all(),
+            'masters': CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1),
+            'hierarchies': Hierarchy.objects.order_by('level'),
+        }
+        ctx.update(extra_context)
+        return ctx
+
+
+class SummitStatisticsView(SummitDetailView):
+    template_name = 'summit/stats.html'
+
+
+class SummitListMixin(LoginRequiredMixin, ListView):
+    model = Summit
+    context_object_name = 'summits'
+    login_url = 'entry'
+    template_name = None
+    status = None
+
+    def get_queryset(self):
+        available_summits = self.request.user.summit_ankets.filter(
+            role__gte=settings.SUMMIT_ANKET_ROLES['consultant']).values_list('summit_id', flat=True)
+        return super(SummitListMixin, self).get_queryset().filter(status=self.status, pk__in=available_summits)
+
+
+class OpenSummitListView(SummitListMixin):
+    template_name = 'summit/open/list.html'
+    status = Summit.OPEN
+
+    def get(self, request, *args, **kwargs):
+        try:
+            summit = self.get_queryset().get()
+        except MultipleObjectsReturned:
+            return super(OpenSummitListView, self).get(request, *args, **kwargs)
+        except ObjectDoesNotExist:
+            return super(OpenSummitListView, self).get(request, *args, **kwargs)
+        else:
+            return redirect(summit.get_absolute_url())
+
+
+class ClosedSummitListView(SummitListMixin):
+    template_name = 'summit/closed/list.html'
+    status = Summit.CLOSE
 
 
 class SummitTicketListView(LoginRequiredMixin, CanSeeSummitTicketMixin, ListView):
@@ -335,12 +401,39 @@ class SummitProfileDetailView(LoginRequiredMixin, CanSeeSummitProfileMixin, Deta
     login_url = 'entry'
 
 
+class SummitBishopReportView(LoginRequiredMixin, CanSeeSummitReportByBishopsMixin, TemplateView):
+    template_name = 'summit/bishop_report.html'
+    login_url = 'entry'
+    summit_id = None
+    report_date = None
+    department = None
+
+    def get(self, request, *args, **kwargs):
+        self.summit_id = kwargs.get('pk')
+        self.department = request.GET.get('department', None)
+        report_date = request.GET.get('date', datetime.now().strftime('%Y-%m-%d'))
+        try:
+            self.report_date = datetime.strptime(report_date, '%Y-%m-%d')
+        except ValueError:
+            self.report_date = datetime.now()
+        return super(SummitBishopReportView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(SummitBishopReportView, self).get_context_data(**kwargs)
+
+        ctx['summit'] = get_object_or_404(Summit, pk=self.summit_id)
+        ctx['departments'] = Department.objects.all()
+        ctx['bishops'] = get_report_by_bishop_or_high(self.summit_id, self.report_date, self.department)
+
+        return ctx
+
+
 @login_required(login_url='entry')
 def summits(request):
     ctx = {
         'summit_types': SummitType.objects.exclude(id=3)
     }
-    return render(request, 'summit/summits.html', context=ctx)
+    return render(request, 'summit/type/list.html', context=ctx)
 
 
 # database

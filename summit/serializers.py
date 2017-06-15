@@ -68,6 +68,18 @@ class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
                   )
 
 
+class SummitAnketStatisticsSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField()
+    phone_number = serializers.CharField(source='user.phone_number')
+    attended = serializers.BooleanField()
+    active = serializers.BooleanField(source='status.active')
+
+    class Meta:
+        model = SummitAnket
+        fields = ('id', 'user_id', 'full_name', 'responsible',
+                  'department', 'phone_number', 'code', 'attended', 'active')
+
+
 class SummitAnketShortSerializer(serializers.HyperlinkedModelSerializer):
     user = UserTableSerializer()
 
@@ -208,9 +220,11 @@ class CustomVisitorsLocationSerializer(serializers.ReadOnlyField):
 
 
 class AnketStatusSerializer(serializers.ModelSerializer):
+    reg_code_requested_date = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S')
+
     class Meta:
         model = AnketStatus
-        fields = ('reg_code_requested', 'active')
+        fields = ('reg_code_requested', 'reg_code_requested_date', 'active')
 
     def get_attribute(self, instance):
         instance = super().get_attribute(instance)
@@ -269,7 +283,17 @@ class UserForAppSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'middle_name', 'country', 'city',
-                  'email', 'phone_number')  # + ('region', 'district', 'address', 'image_source')
+                  'email', 'phone_number', 'email')  # + ('region', 'district', 'address', 'image_source')
+
+
+class VisitorsMasterForAppSerializer(serializers.ModelSerializer):
+    user_id = serializers.IntegerField(source='id', read_only=True)
+    hierarchy = serializers.CharField(read_only=True)
+    fullname = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ('user_id', 'fullname', 'hierarchy')
 
 
 class SummitAnketForAppSerializer(serializers.ModelSerializer):
@@ -278,10 +302,12 @@ class SummitAnketForAppSerializer(serializers.ModelSerializer):
     visitor_id = serializers.IntegerField(source='id')
     avatar_url = ImageWithoutHostField(source='user.image', use_url=False)
     status = AnketStatusSerializer(read_only=True)
+    master = VisitorsMasterForAppSerializer()
 
     class Meta:
         model = SummitAnket
-        fields = ('visitor_id', 'user', 'ticket_id', 'reg_code', 'avatar_url', 'status')
+        fields = ('visitor_id', 'user', 'ticket_id', 'reg_code', 'avatar_url',
+                  'status', 'master')
 
 
 class SummitAnketLocationSerializer(serializers.ModelSerializer):
@@ -309,17 +335,29 @@ class SummitAnketCodeSerializer(serializers.ModelSerializer):
 
 class SummitAttendSerializer(serializers.ModelSerializer):
     # time = serializers.TimeField()
+    code = serializers.CharField(source='anket.code', read_only=True)
 
     class Meta:
         model = SummitAttend
-        fields = ('id', 'anket', 'date')
+        fields = ('anket', 'code', 'date')
 
 
-class SummitAttendStatisticsSerializer(serializers.ModelSerializer):
-    attend_users = serializers.IntegerField()
-    absent_users = serializers.IntegerField()
-    total_users = serializers.IntegerField()
+class SummitAcceptMobileCodeSerializer(serializers.ModelSerializer):
+    visitor_id = serializers.IntegerField(source='id', read_only=True)
+    avatar_url = ImageWithoutHostField(source='user.image', use_url=False)
+    ticket_id = serializers.CharField(source='code', read_only=True)
+    passes_count = serializers.IntegerField(source='get_passes_count', read_only=True)
+    active = serializers.CharField(source='status.active', read_only=True)
 
     class Meta:
         model = SummitAnket
-        fields = ('attend_users', 'absent_users', 'total_users')
+        fields = ('visitor_id', 'fullname', 'avatar_url', 'ticket_id', 'passes_count', 'active')
+
+
+class AnketActiveStatusSerializer(serializers.ModelSerializer):
+    active = serializers.IntegerField(source='status.active')
+    anket_id = serializers.IntegerField(source='id', read_only=True)
+
+    class Meta:
+        model = SummitAnket
+        fields = ('anket_id', 'active')

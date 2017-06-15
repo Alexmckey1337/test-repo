@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from account.abstract_models import CustomUserAbstract
 from payment.models import get_default_currency, AbstractPaymentPurpose
 from summit.managers import ProfileManager
+from datetime import datetime
 
 
 @python_2_unicode_compatible
@@ -45,6 +46,9 @@ class SummitType(models.Model):
             return self.image.url
         else:
             return ''
+
+    def get_absolute_url(self):
+        return reverse('summit:type-detail', kwargs={'pk': self.id})
 
 
 @python_2_unicode_compatible
@@ -89,6 +93,9 @@ class Summit(models.Model):
 
     def __str__(self):
         return '%s %s' % (self.type.title, self.start_date)
+
+    def get_absolute_url(self):
+        return reverse('summit:detail', kwargs={'pk': self.id})
 
     def clean(self):
         """
@@ -197,11 +204,12 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
 
     visited = models.BooleanField(default=False)
 
-    NONE, DOWNLOADED, PRINTED = 'none', 'download', 'print'
+    NONE, DOWNLOADED, PRINTED, GIVEN = 'none', 'download', 'print', 'given'
     TICKET_STATUSES = (
         (NONE, _('Without ticket.')),
         (DOWNLOADED, _('Ticket is created.')),
         (PRINTED, _('Ticket is printed')),
+        (GIVEN, _('Ticket is given')),
     )
     ticket_status = models.CharField(_('Ticket status'), choices=TICKET_STATUSES, default=NONE, max_length=20)
 
@@ -342,6 +350,10 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
         reg_code = hex(int(reg_code)).split('x')[-1]
 
         return reg_code
+
+    @property
+    def get_passes_count(self):
+        return self.passes_count.filter(datetime__date=datetime.now().date()).count()
 
 
 @python_2_unicode_compatible
@@ -529,6 +541,7 @@ class SummitEventTable(models.Model):
 class SummitAttend(models.Model):
     anket = models.ForeignKey('summit.SummitAnket', related_name='attends', verbose_name=_('Anket'))
     date = models.DateField(verbose_name=_('Date'))
+
     # time = models.TimeField(verbose_name=_('Time'))
 
     class Meta:
@@ -545,6 +558,8 @@ class SummitAttend(models.Model):
 class AnketStatus(models.Model):
     anket = models.OneToOneField('summit.SummitAnket', related_name='status', verbose_name=_('Anket'))
     reg_code_requested = models.BooleanField(verbose_name=_('Запрос регистрационного кода'), default=False)
+    reg_code_requested_date = models.DateTimeField(verbose_name=_('Дата ввода регистрационного кода'),
+                                                   null=True, blank=True)
     active = models.BooleanField(verbose_name=_('Активна'), default=True)
 
     class Meta:
@@ -553,3 +568,12 @@ class AnketStatus(models.Model):
 
     def __str__(self):
         return 'Anket %s. Reg_code_requested: %s. Active: %s' % (self.anket, self.reg_code_requested, self.active)
+
+
+@python_2_unicode_compatible
+class AnketPasses(models.Model):
+    anket = models.ForeignKey('summit.SummitAnket', related_name='passes_count', verbose_name=_('Anket'))
+    datetime = models.DateTimeField(verbose_name='Дата и время прохода', auto_now=True, editable=False)
+
+    def __str__(self):
+        return 'Проход анкеты: %s. Дата и время: %s.' % (self.anket, self.datetime)

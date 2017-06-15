@@ -26,15 +26,18 @@ router_app.register(r'users', views.SummitAnketForAppViewSet, base_name='users')
 
 custom_urls = [
     url(r'^generate_code/.+\.pdf', views.generate_code, name='generate_code'),
-    url(r'^summit/(?P<summit_id>\d+)/master/(?P<master_id>\d+)\.pdf',
+    url(r'^summit/(?P<summit_id>\d+)/master/(?P<master_id>\d+)\.pdf$',
         views.summit_report_by_participant, name='summit-report-participant'),
-    url(r'^generate_summit_tickets/(?P<summit_id>\d+)/', views.generate_summit_tickets, name='generate_code'),
+    url(r'^summit/(?P<summit_id>\d+)/report_by_bishops/$',
+        views.summit_report_by_bishops, name='summit-report-bishops'),
+    url(r'^generate_summit_tickets/(?P<summit_id>\d+)/$', views.generate_summit_tickets, name='generate_code'),
 
     url(r'^summits/(?P<pk>\d+)/users/$', views.SummitProfileListView.as_view(), name='summit-profile-list'),
     url(r'^summits/(?P<pk>\d+)/bishop_high_masters/$',
         views.SummitBishopHighMasterListView.as_view(), name='summit-masters'),
     url(r'^summits/(?P<pk>\d+)/export_users/$',
         views.SummitProfileListExportView.as_view(), name='summit-profile-export'),
+    url(r'^summits/(?P<pk>\d+)/stats/$', views.SummitStatisticsView.as_view(), name='summit-stats'),
     url(r'^summit_ticket/(?P<ticket>\d+)/print/$', views.SummitTicketMakePrintedView.as_view(),
         name='summit-ticket-print'),
 ]

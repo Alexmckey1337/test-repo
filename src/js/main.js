@@ -91,6 +91,7 @@ $('.close_popup').on('click', function () {
     }
     $(this).closest('.popap').css('display', 'none');
 });
+
 /*search animate width*/
 $('.top input').click(function () {
     $('.top .search').animate({width: "80%"});
@@ -308,6 +309,19 @@ function accordionInfo() {
     $("#turn_aside").on('click', function (e) {
         e.preventDefault();
         setSidebarPosition()
+    });
+
+    $('#check-all').on('change', function () {
+        let $input = $("#sort-form input");
+        if($(this).is(":checked")) {
+            $input.each(function () {
+               $(this).prop( "checked", true);
+           });
+        } else {
+            $input.each(function () {
+               $(this).prop( "checked", false);
+           });
+        }
     });
 
 })(jQuery);

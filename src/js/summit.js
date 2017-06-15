@@ -1,5 +1,5 @@
 (function ($) {
-    const SUMMIT_TYPE_ID = $('#summitUsersList').data('summit-type');
+    const SUMMIT_ID = $('#summit-title').data('summit-id');
     class PrintMasterStat {
         constructor(summitId) {
             this.summit = summitId;
@@ -281,13 +281,15 @@
         document.querySelector('#searchUsers').focus();
     });
     $('#changeSum').on('click', function () {
-        $('#summit-value').removeAttr('readonly');
-        $('#summit-value').focus();
+        const $summitValue = $('#summit-value');
+        $summitValue.removeAttr('readonly');
+        $summitValue.focus();
     });
 
     $('#changeSumDelete').on('click', function () {
-        $('#summit-valueDelete').removeAttr('readonly');
-        $('#summit-valueDelete').focus();
+        const $summitValueDelete = $('#summit-valueDelete');
+        $summitValueDelete.removeAttr('readonly');
+        $summitValueDelete.focus();
     });
 
     $('#preDeleteAnket').on('click', function () {
@@ -492,7 +494,6 @@
         if (search) {
             param['search'] = search;
         }
-        console.log(param);
         param.summit_id = $('#summitsTypes').find('.active').data('id');
         getPotencialSammitUsers(param).then(function (data) {
             let html = '';
@@ -548,6 +549,7 @@
             master_tree: master_tree
         }, ['#master'], null);
     });
+
     $('input[name="fullsearch"]').keyup(function () {
         let val = $(this).val();
         delay(function () {
@@ -569,9 +571,6 @@
         $(".table-sorting").animate({
             right: '-300px'
         }, 10, 'linear')
-    });
-    $('#filter_button').on('click', function () {
-        $('#filterPopup').css('display', 'block');
     });
 
     $.validate({
@@ -600,5 +599,21 @@
     $('.select_date_filter').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true
+    });
+    $summitUsersList.on('click', '.ticket_status', function () {
+        let option = {
+                method: 'POST',
+                credentials: "same-origin",
+                headers: new Headers({
+                    'Content-Type': 'application/json',
+                })
+            };
+        const prifileId = $(this).data('user-id');
+        fetch(`/api/v1.0/summit_ankets/${prifileId}/set_ticket_status/`, option)
+            .then( res => res.json())
+            .then(data => {
+                $(this).find('.text').text(data.text);
+            })
+
     })
 })(jQuery);

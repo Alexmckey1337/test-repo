@@ -108,8 +108,8 @@ class SummitEventTableAdmin(admin.ModelAdmin):
 
 
 class AnketStatusAdmin(admin.ModelAdmin):
-    fields = ('anket', 'reg_code_requested', 'active')
-    list_display = ('anket', 'reg_code_requested', 'active')
+    fields = ('anket', 'reg_code_requested', 'reg_code_requested_date', 'active')
+    list_display = ('anket', 'reg_code_requested', 'reg_code_requested_date', 'active')
     readonly_fields = ('anket',)
 
 

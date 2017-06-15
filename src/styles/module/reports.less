@@ -1,0 +1,245 @@
+/**************Reports***********************/
+.reports{
+  .top-pag {
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e6e9ee;
+  }
+  table {
+    min-width: 0;
+    display: inline-block;
+    span{
+      display: inline-block;
+    }
+  }
+}
+
+.event-wrap {
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e6e9ee;
+  overflow: hidden;
+  table{
+    float: left;
+    margin-right: 20px;
+    th{
+      padding: 12px;
+      text-align: center;
+      width: 300px;
+    }
+    td{
+      width: 300px;
+      padding: 14px;
+    }
+    tr{
+      &.marg{
+        background-color: #fff;
+        td{
+          border: none;
+          background-color: #fff;
+          padding: 8px;
+        }
+      }
+      &:last-child{
+        background-color: #fff;
+        td{
+          background-color: #f6f7fb;
+          font-family: "UbuntuBold", sans-serif;
+          border: none;
+          text-align: right;
+          width: 100%;
+          font-family: "UbuntuBold", sans-serif;
+          background-color: #fff;
+        }
+      }
+      &:nth-child(odd){
+        background: #fafbfc;
+      }
+      &:nth-child(even){
+        background: #fff;
+      }
+    }
+    caption{
+      font-size: 1.6em;
+      font-family: "UbuntuLight", sans-serif;
+      padding: 20px 5px;
+      white-space: pre;
+      width: 300px;
+    }
+  }
+}
+
+.event-wrap-scroll {
+  overflow-x: auto; /*scroll!*/
+  white-space: nowrap;
+  table{
+    &:not(:first-child){
+      margin-left: 20px;
+    }
+  }
+}
+
+/*input validation*/
+
+.blue_icon_active {
+  background-position: -116px 35px !important;
+}
+
+@-moz-document url-prefix() {
+  table {
+    border-collapse: unset;
+  }
+  #sidebar .scrollbar-macosx {
+    overflow: hidden !important;
+  }
+  #sidebar .scrollbar-macosx {
+    overflow: hidden !important;
+  }
+  #sidebar .scrollbar-macosx,
+  .table-sorting .scrollbar-macosx {
+    overflow: hidden !important;
+  }
+}
+
+.manager_view {
+  display: block;
+}
+
+div{
+  &.butt-wrap{
+    p{
+      &:nth-child(3){
+        padding-top: 15px;
+      }
+    }
+  }
+  .code{
+    float: left;
+    padding: 20px;
+    input{
+      &#code{
+        border: 1px solid #cdd0d4;
+        border-radius: 3px;
+        background-color: #f2f5fa;
+        padding: 5px;
+      }
+    }
+  }
+}
+
+.no-pagin {
+  cursor: default !important;
+}
+
+.undone-pagination, .expired-pagination, .done-pagination {
+  display: none;
+}
+
+#impPopup {
+  .splash-buttons {
+    text-align: left;
+    margin: 10px 20px;
+  }
+  button {
+    text-align: center;
+    background-color: #3caeda;
+    padding: 10px 30px;
+  }
+  .splash-screen{
+    max-height: 500px;
+    max-width: 600px;
+    padding-bottom: 10px;
+  }
+}
+
+.crArea {
+  position: relative;
+  padding: 15px;
+  height: 270px;
+}
+
+.cropper-container {
+  top: 0 !important;
+}
+
+.cropper-face, .cropper-viewer {
+  border-radius: 50%;
+}
+
+.phone {
+  position: relative;
+  .select2-container--default{
+    .select2-selection--single{
+      .select2-selection__arrow{
+        left: 0;
+      }
+    }
+  }
+  input{
+    &[name='phone_numberCode']{
+      position: absolute;
+      left: 17%;
+      width: 19% !important;
+      border-radius: 3px;
+      padding: 6px 4px;
+    }
+    &[name="phone_number"]{
+      position: absolute;
+      left: 38%;
+      width: 58% !important;
+    }
+  }
+  .select2-selection__arrow{
+    width: 38px !important;
+  }
+}
+
+.member_club_block {
+  float: left;
+  padding: 20px;
+  user-select: none;
+}
+
+.member_user {
+  position: relative;
+  &:before{
+    content: '';
+    position: absolute;
+    right: 45px;
+    top: 12px;
+    display: inline-block;
+    width: 21px;
+    height: 12px;
+    background: url('../img/oc_icon.png') no-repeat center/cover;
+  }
+}
+
+.email_is_send {
+  position: relative;
+  &:after{
+    content: '';
+    position: absolute;
+    right: 75px;
+    top: 7px;
+    display: inline-block;
+    width: 21px;
+    height: 21px;
+    background: url('../img/send_email.png') no-repeat center/cover;
+  }
+}
+
+.member-icon {
+  position: relative;
+  &:before{
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    display: block;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: url(../img/oc_icon.png) no-repeat center / 21px auto;
+    background-color: white;
+    border: 1px solid gray;
+    z-index: 999;
+  }
+}

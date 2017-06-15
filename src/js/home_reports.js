@@ -19,6 +19,7 @@
             status: status
         };
         Object.assign(config, getFilterParam());
+        Object.assign(config, getTabsFilterParam());
         HomeReportsTable(config);
         $statusTabs.find('li').removeClass('current');
         $(this).closest('li').addClass('current');

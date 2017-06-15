@@ -5,54 +5,53 @@
 {% load payment_tags %}
 
 {% block header.top.h1 %}
-    <h1 id="summit-title">
-        <a href="{% url 'summit:list' %}">САММИТЫ | </a>
-        <span>{{ summit_type.title }}</span>
+    <h1 id="summit-title" data-summit-id="{{ summit.id }}">
+        САММИТЫ |
+        {{ summit.type }} |
+        <a href="{{ summit.get_absolute_url }}">{{ summit }} | </a>
+        <span>{% trans "Statistics" %}</span>
     </h1>
 {% endblock %}
 
-{% block header.buttons.filter %}
-    {% if summit_type.club_name %}
-        <div class="col-4">
-            <select name="summit_type" id="summit_type">
-                <option value="0">Все</option>
-                <option value="1">{{ summit_type.club_name }}</option>
-                <option value="2">Не {{ summit_type.club_name|lower }}</option>
-            </select>
-        </div>
-    {% endif %}
-{% endblock %}
 {% block header.buttons %}
     <div class="top-panel">
         <div class="tabs">
             <ul class="nav tabs_link">
-                <li><a class="active" href="{% url 'summit:detail' pk=summit_type.id %}">Участники</a></li>
-                <li><a href="{% url 'summit:stats' pk=summit_type.id %}">Статистика</a></li>
+                <li><a href="{{ summit.get_absolute_url }}">Участники</a></li>
+                <li><a class="active" href="{% url 'summit:stats' pk=summit.id %}">Посещаемость</a></li>
+                <li><a href="{% url 'summit:report' pk=summit.id %}">По ответственному</a></li>
             </ul>
         </div>
         <div class="top-buttons-wrap">
             <ul class="top-buttons">
                 <li>
-                    <button id="download" class="print">Печать отчета</button>
-                </li>
-                <li>
-                    <button id="add">Добавить пользователя</button>
-                </li>
-                <li>
                     <button id="filter_button">Фильтр</button>
-                </li>
-                <li>
-                    <button id="export_table" data-export-url="/api/v1.0/summits/<id>/export_users/" class="download header__button">Export</button>
                 </li>
                 <li>
                     <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
                 </li>
-                {% if user.can_see_any_summit_ticket %}
-                    <li>
-                        <button id="load-tickets"><i class="fa fa-address-card-o" aria-hidden="true"></i></button>
-                    </li>
-                {% endif %}
             </ul>
+        </div>
+    </div>
+    <div class="container-full">
+        <div class="tab-status tab-home-stats tabs-filter">
+            <ul id="tabs">
+                <li class="active">
+                    <button class="type" >Все</button>
+                </li>
+                <li>
+                    <button class="type" data-filter="attended" data-filter-value="true">Был</button>
+                </li>
+                <li>
+                    <button class="type" data-filter="attended" data-filter-value="false">Небыл</button>
+                </li>
+            </ul>
+                <button class="week active">Сегодня</button>
+                <button class="week day_prev">Вчера</button>
+            <div class="set-date">
+                <input type="text" placeholder="Выберите дату" id="tabsFilterData" class="select_date_filter" data-filter="date" value="">
+                <div class="cal-icon"></div>
+            </div>
         </div>
     </div>
 {% endblock %}
@@ -66,39 +65,15 @@
 
 {% block pagination_top %}
     <div class="top-pag">
-        <div id="carousel" class="carousel">
-            <span class="arrow-left"></span>
-            <div class="gallery">
-                <ul id="summitsTypes" class="images">
-                    {% with current_summit=request.GET.summit %}
-                        {% available_summits user summit_type as summits %}
-                        {% for summit in summits reversed %}
-                            <li data-id={{ summit.id }}
-                                        {% if summit.id|stringformat:"d" == current_summit %} class="active"
-                                        {% elif forloop.first and not current_summit %} class="active"{% endif %}>
-                            <span>
-                                {% if summit.description %}
-                                    {{ summit.description }}
-                                {% else %}
-                                    {{ summit.start_date }}
-                                {% endif %}
-                            </span></li>
-                        {% endfor %}
-                    {% endwith %}
-                </ul>
-            </div>
-            <span class="arrow-right"></span>
-        </div>
-
-        <div class="pagination"><!--pagination -->
-            <div class="pag-wrap"></div>
+        <div class="table__count"></div>
+        <div class="pagination users__pagination"><!--pagination -->
         </div><!--End pagination -->
     </div>
 {% endblock %}
 
 {% block table %}
     <div class="table-wrap clearfix">
-        <div data-summit-type="{{ summit_type.id }}" id="summitUsersList" class="table scrollbar-inner"></div>
+        <div data-summit="{{ summit.id }}" id="summitUsersList" class="table scrollbar-inner"></div>
 
     </div>
 {% endblock %}
@@ -239,22 +214,10 @@
                         <div class="label_block-wrapp">
                             <span class="label_block">Фильтр по городу</span>
                         </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Фотография</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">{% trans "Статус билета" %}</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">{% trans "Присутствие" %}</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">{% trans "Диапазон дат присутствия" %}</span>
-                        </div>
                     </div>
                     <div class="col-6">
                         <p class="input_block">
-                            <select class="selectdb" data-filter="department" id="departments_filter">
+                            <select class="select__db" data-filter="department" id="departments_filter">
                                 <option value="">ВСЕ</option>
                                 {% for department in departments %}
                                     <option value="{{ department.id }}">{{ department.title }}</option>
@@ -298,31 +261,6 @@
                         <p class="input_block">
                             <input type="text" data-filter="search_city" placeholder="город" id="search_city">
                         </p>
-                        <p class="input_block">
-                            <select class="select__db" data-filter="has_photo" name="has_photo" id="has_photo">
-                                <option>ВСЕ</option>
-                                <option value="true">Есть</option>
-                                <option value="false">Нет</option>
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="select__db" data-filter="ticket_status" name="ticket_status" id="ticket_status">
-                                <option>ВСЕ</option>
-                                <option value="none">{% trans "Не создан" %}</option>
-                                <option value="download">{% trans "Создан" %}</option>
-                                <option value="print">{% trans "Напечатано" %}</option>
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="select__db" data-filter="is_visited" name="visited" id="visited">
-                                <option>ВСЕ</option>
-                                <option value="1">{% trans "Присутствовали" %}</option>
-                                <option value="2">{% trans "Отсутствовали" %}</option>
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <input type="text" placeholder="от" data-filter="from_date" id="date_from" class="select_date_filter"><input type="text" placeholder="до" data-filter="to_date" id="date_to" class="select_date_filter">
-                        </p>
                     </div>
                 </div>
             </div>
@@ -332,7 +270,7 @@
                     Очистить
                 </button>
                 <button class="close-popup">Отменить</button>
-                <button onclick="applyFilter(this, createSummitUsersTable)" class="apply-filter">Применить</button>
+                <button id="applyFilter" class="apply-filter">Применить</button>
             </div>
         </div>
     </div>
@@ -371,10 +309,20 @@
                     <% } %>
                     <% } else if(key == 'code') { %>
                     <% if (results[index][key] != null) { %>
-                    <td class="edit"><a
-                            href="/api/v1.0/generate_code/<%= results[index].code %>.pdf?code=<%= results[index].code %>"
-                            data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%=
-                        results[index][key] %></a></td>
+                    <!-- Sorry, it's back-end's shit -->
+                    <td class="edit ticket_code" data-id="<%= results[index].id %>">
+                        <a <% if (results[index].active == false) { %>
+                                class="is-ban"
+                        <% } %>
+                           href="/api/v1.0/generate_code/<%= results[index].code %>.pdf?code=<%= results[index].code %>"
+                           data-link="<%= results[index].link %>" data-id="<%=results[index].id %>">
+                           <%= results[index][key] %></a>
+                        <div>
+                            <input id="<%= 'ticked_' + results[index].id%>" type="checkbox" name="active"
+                                <% if(results[index].active == false) { %>checked<% }%> >
+                            <label for="<%= 'ticked_' + results[index].id %>"><span>Блок</span></label>
+                        </div>
+                    </td>
                     <% } else { %>
                     <td></td>
                     <% } %>
@@ -438,5 +386,5 @@
     <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
     <script src="{% static "libs/jquery-file-download/src/Scripts/jquery.fileDownload.js" %}"></script>
     <script src="{% static "js/add_user.js" %}"></script>
-    <script src="{% static "js/summit.js" %}"></script>
+    <script src="{% static "js/summit_stats.js" %}"></script>
 {% endblock %}
