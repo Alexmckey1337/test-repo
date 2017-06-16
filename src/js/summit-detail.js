@@ -1,6 +1,7 @@
 (function ($) {
     const $summitUsersList = $('#summitUsersList');
     const SUMMIT_ID = $summitUsersList.data('summit');
+
     function makeSummitInfo() {
         let width = 150,
             count = 1,
@@ -8,8 +9,8 @@
             $carousel = $('#carousel'),
             $list = $carousel.find('ul'),
             $listElements;
-            $listElements = $list.find('li');
-            $carousel.find('.arrow-left').on('click', function () {
+        $listElements = $list.find('li');
+        $carousel.find('.arrow-left').on('click', function () {
             position = Math.min(position + width * count, 0);
 
             $($list).css({
@@ -434,14 +435,14 @@
         $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
     });
 
-     $('#departments_filter').on('change', function () {
+    $('#departments_filter').on('change', function () {
         $('#master_tree').prop('disabled', true);
         let department_id = parseInt($(this).val());
         makePastorListNew(department_id, ['#master_tree', '#master']);
     });
     $('#master_tree').on('change', function () {
         $('#master').prop('disabled', true);
-         let master_tree = parseInt($(this).val());
+        let master_tree = parseInt($(this).val());
         makePastorListWithMasterTree({
             master_tree: master_tree
         }, ['#master'], null);
@@ -483,7 +484,7 @@
         }
     });
 
-    $('#filterPopup').find('.pop_cont').on('click',function (e) {
+    $('#filterPopup').find('.pop_cont').on('click', function (e) {
         e.stopPropagation();
     });
 
@@ -491,7 +492,9 @@
         dateFormat: 'yyyy-mm-dd',
         autoClose: true
     });
-    $('#summitUsersList').on('click', '.ticket_status', function () {
+
+    $('#summitUsersList').on('click', '.ticket_status', _.debounce(function(e) {
+        console.log($(this));
         let option = {
                 method: 'POST',
                 credentials: "same-origin",
@@ -506,10 +509,11 @@
                 $(this).find('.text').text(data.text);
                 if(data.new_status == 'given' || data.new_status == 'print' ) {
                     $(this).find('div').show();
+                    (data.new_status == 'given') ? $(this).find('input').prop('checked', true) : $(this).find('input').prop('checked', false);
                 } else {
                      $(this).find('div').hide();
                 }
             })
 
-    });
+    },300));
 })(jQuery);

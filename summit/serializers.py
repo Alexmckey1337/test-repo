@@ -200,10 +200,6 @@ class SummitVisitorLocationSerializer(serializers.ModelSerializer):
 
 
 class CustomVisitorsLocationSerializer(serializers.ReadOnlyField):
-    def __init__(self, **kwargs):
-        self.fields = [f.split('.') for f in kwargs.pop('fields', [])]
-        super().__init__(**kwargs)
-
     def to_representation(self, value):
         date_time = self.context['request'].query_params.get('date_time', '')
         interval = int(self.context['request'].query_params.get('interval', 5))
@@ -242,7 +238,7 @@ class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
     children = ChildrenLink(view_name='summit-app-profile-list-master',
                             queryset=SummitAnket.objects.all())
     photo = ImageWithoutHostField(source='user.image', use_url=False)
-    visitor_locations = CustomVisitorsLocationSerializer()
+    # visitor_locations = CustomVisitorsLocationSerializer()
     status = AnketStatusSerializer(serializers.ModelSerializer)
 
     class Meta:
@@ -250,7 +246,9 @@ class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'user_id', 'master_id',
             'full_name', 'country', 'city', 'phone_number', 'extra_phone_numbers',
-            'master_fio', 'hierarchy_id', 'children', 'photo', 'visitor_locations', 'status'
+            'master_fio', 'hierarchy_id', 'children', 'photo',
+            # 'visitor_locations',
+            'status'
         )
 
 
