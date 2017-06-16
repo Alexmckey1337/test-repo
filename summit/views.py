@@ -423,6 +423,7 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
     @list_route(methods=['GET'])
     def by_reg_code(self, request):
         reg_code = request.query_params.get('reg_code')
+
         try:
             int_reg_code = int('0x' + reg_code, 0)
             visitor_id = int(str(int_reg_code)[:-4])
@@ -833,10 +834,9 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
             anket=anket, defaults={'reg_code_requested': True,
                                    'reg_code_requested_date': datetime.now()})
 
-        AnketPasses.objects.create(anket=anket)
-
-        if not SummitAttend.objects.filter(anket=anket, date=datetime.now().date()).exists():
-            SummitAttend.objects.create(anket=anket, date=datetime.now().date())
+        if anket.status.active:
+            SummitAttend.objects.get_or_create(anket=anket, date=datetime.now().date())
+            AnketPasses.objects.create(anket=anket)
 
         anket = self.serializer_class(anket)
         return Response(anket.data)

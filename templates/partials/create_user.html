@@ -208,7 +208,7 @@
                                 <input name="address" id="address" type="text" tabindex="23">
                             </li>
                         </ul>
-                        {% if request.user.is_partner %}
+                        {% if request.user.is_partner_manager_or_high %}
                         <h2>Партнерство</h2>
                         <ul class="info">
                             <li>
