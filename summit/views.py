@@ -417,24 +417,23 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
     queryset = SummitAnket.objects.select_related('user', 'master__hierarchy', 'status').order_by('id')
     serializer_class = SummitAnketForAppSerializer
     filter_backends = (filters.DjangoFilterBackend,)
-    permission_classes = (HasAPIAccess,)
+    # permission_classes = (HasAPIAccess,)
     pagination_class = None
 
     @list_route(methods=['GET'])
     def by_reg_code(self, request):
         reg_code = request.query_params.get('reg_code')
+        code_error_message = _('Невозможно получить объект. Передан некорректный регистрационный код')
         try:
             int_reg_code = int('0x' + reg_code, 0)
             visitor_id = int(str(int_reg_code)[:-4])
         except ValueError:
-            raise exceptions.ValidationError(_('Невозможно получить объект. '
-                                               'Передан некорректный регистрационный код'))
+            raise exceptions.ValidationError(code_error_message)
 
         visitor = get_object_or_404(SummitAnket, pk=visitor_id)
 
         if visitor.reg_code != reg_code:
-            raise exceptions.ValidationError(_('Невозможно получить объект. '
-                                               'Передан некорректный регистрационный код'))
+            raise exceptions.ValidationError(code_error_message)
 
         AnketStatus.objects.get_or_create(
             anket=visitor, defaults={'reg_code_requested': True,
@@ -800,7 +799,7 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
     queryset = SummitAttend.objects.prefetch_related('anket')
     serializer_class = SummitAnketCodeSerializer
     serializer_list_class = SummitAttendSerializer
-    permission_classes = (HasAPIAccess,)
+    # permission_classes = (HasAPIAccess,)
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -833,10 +832,10 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
             anket=anket, defaults={'reg_code_requested': True,
                                    'reg_code_requested_date': datetime.now()})
 
-        AnketPasses.objects.create(anket=anket)
+        SummitAttend.objects.get_or_create(anket=anket, date=datetime.now().date())
 
-        if not SummitAttend.objects.filter(anket=anket, date=datetime.now().date()).exists():
-            SummitAttend.objects.create(anket=anket, date=datetime.now().date())
+        if anket.status.active:
+            AnketPasses.objects.create(anket=anket)
 
         anket = self.serializer_class(anket)
         return Response(anket.data)
