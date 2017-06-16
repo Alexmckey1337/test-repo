@@ -297,7 +297,11 @@ CELERYBEAT_SCHEDULE = {
     # 'get_palace_logs': {
     #     'task': 'get_palace_logs',
     #     'schedule': 60
-    # }
+    # },
+    # 'anket_autoban': {
+    #     'task': 'anket_autoban',
+    #     'schedule': 24 * 2 * 60 * 60
+    # },
 }
 
 import djcelery
