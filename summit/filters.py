@@ -2,6 +2,7 @@ import django_filters
 import rest_framework_filters as filters_new
 from django.db.models import OuterRef
 from rest_framework.filters import BaseFilterBackend
+from django.db.models import Q
 
 from account.filters import FilterMasterTreeWithSelf
 from account.models import CustomUser
@@ -100,4 +101,14 @@ class FilterBySummitAttendByDate(BaseFilterBackend):
         elif attended.upper() in ('FALSE', 'F', 'NO', 'N', '0'):
             return queryset.filter(attended=False)
 
+        return queryset
+
+
+class FilterByElecTicketStatus(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        e_ticket = request.query_params.get('e_ticket', None)
+        if e_ticket in ('true', 'false'):
+            if e_ticket == 'false':
+                return queryset.filter(Q(status__reg_code_requested=None) | Q(status__reg_code_requested=False))
+            return queryset.filter(status__reg_code_requested=True)
         return queryset

@@ -25,8 +25,9 @@ from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet, ExportViewSetMixin
 from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
-from summit.filters import FilterByClub, SummitUnregisterFilter, ProfileFilter, \
-    FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend, FilterBySummitAttendByDate
+from summit.filters import (FilterByClub, SummitUnregisterFilter, ProfileFilter,
+                            FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend,
+                            FilterBySummitAttendByDate, FilterByElecTicketStatus)
 from summit.pagination import SummitPagination, SummitTicketPagination, SummitStatisticsPagination
 from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report, \
     can_see_report_by_bishop_or_high
@@ -69,7 +70,7 @@ class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
         'middle_name', 'user__born_date', 'country',
         'user__region', 'city', 'user__district',
         'user__address', 'user__phone_number',
-        'user__email', 'hierarchy__level', 'ticket_status',
+        'user__email', 'hierarchy__level', 'ticket_status', 'status__reg_code_requested'
     )
     filter_backends = (
         filters.DjangoFilterBackend,
@@ -79,6 +80,7 @@ class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
         FilterByClub,
         HasPhoto,
         FilterBySummitAttend,
+        FilterByElecTicketStatus,
     )
 
     field_search_fields = {
@@ -428,19 +430,18 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
     @list_route(methods=['GET'])
     def by_reg_code(self, request):
         reg_code = request.query_params.get('reg_code')
+        code_error_message = _('Невозможно получить объект. Передан некорректный регистрационный код')
 
         try:
             int_reg_code = int('0x' + reg_code, 0)
             visitor_id = int(str(int_reg_code)[:-4])
         except ValueError:
-            raise exceptions.ValidationError(_('Невозможно получить объект. '
-                                               'Передан некорректный регистрационный код'))
+            raise exceptions.ValidationError(code_error_message)
 
         visitor = get_object_or_404(SummitAnket, pk=visitor_id)
 
         if visitor.reg_code != reg_code:
-            raise exceptions.ValidationError(_('Невозможно получить объект. '
-                                               'Передан некорректный регистрационный код'))
+            raise exceptions.ValidationError(code_error_message)
 
         AnketStatus.objects.get_or_create(
             anket=visitor, defaults={'reg_code_requested': True,
