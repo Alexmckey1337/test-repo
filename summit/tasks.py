@@ -104,7 +104,8 @@ def anket_autoban(summit_id=7):
     to_date = datetime.now().date()
     from_date = to_date - timedelta(days=1)
     ankets_to_ban = SummitAnket.objects.filter(summit=summit_id).exclude(attends__date__range=[from_date, to_date])
+
     for anket in ankets_to_ban:
         AnketStatus.objects.get_or_create(anket=anket)
         anket.status.active = False
-        anket.save()
+        anket.status.save()
