@@ -423,6 +423,7 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
     filter_backends = (filters.DjangoFilterBackend,)
     permission_classes = (HasAPIAccess,)
     pagination_class = None
+    filter_fields = ('summit',)
 
     @list_route(methods=['GET'])
     def by_reg_code(self, request):
