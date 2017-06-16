@@ -5,11 +5,11 @@ import logging
 from datetime import datetime, timedelta
 
 from dbmail import send_db_mail
-from django.db import transaction, IntegrityError
 from django.conf import settings
+from django.db import transaction, IntegrityError
 from django.db.models import Case, When, BooleanField, F, ExpressionWrapper, IntegerField, Subquery, OuterRef, Exists
-from django.db.models.functions import Concat
 from django.db.models import Value as V
+from django.db.models.functions import Concat
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions, viewsets, filters, status, mixins, serializers
@@ -414,10 +414,10 @@ class SummitTypeForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
 class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
-    queryset = SummitAnket.objects.select_related('user').order_by('id')
+    queryset = SummitAnket.objects.select_related('user', 'master__hierarchy', 'status').order_by('id')
     serializer_class = SummitAnketForAppSerializer
     filter_backends = (filters.DjangoFilterBackend,)
-    # permission_classes = (HasAPIAccess,)
+    permission_classes = (HasAPIAccess,)
     pagination_class = None
 
     @list_route(methods=['GET'])
@@ -440,8 +440,6 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
             anket=visitor, defaults={'reg_code_requested': True,
                                      'reg_code_requested_date': datetime.now()})
 
-        # AnketPasses.objects.create(anket=visitor)
-
         visitor = self.get_serializer(visitor)
         return Response(visitor.data)
 
@@ -454,7 +452,8 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
             raise exceptions.ValidationError('Некорректно заданный временной интвервал. ')
 
         ankets = SummitAnket.objects.filter(
-            status__reg_code_requested_date__date__range=[from_date, to_date])
+            status__reg_code_requested_date__date__range=[from_date, to_date]).order_by(
+            'status__reg_code_requested_date')
         ankets = self.serializer_class(ankets, many=True)
         return Response(ankets.data)
 
@@ -712,11 +711,14 @@ def generate_summit_tickets(request, summit_id):
     ticket = SummitTicket.objects.create(
         summit_id=summit_id, owner=request.user, title='{}-{}'.format(
             min(ankets, key=lambda a: int(a[1]))[1], max(ankets, key=lambda a: int(a[1]))[1]))
+    logger.info('New ticket: {}'.format(ticket.id))
     ticket.users.set([a[0] for a in ankets])
 
-    generate_tickets.apply_async(args=[summit_id, ankets, ticket.id])
+    result = generate_tickets.apply_async(args=[summit_id, ankets, ticket.id])
+    logger.info('generate_ticket: {}'.format(result))
 
-    SummitAnket.objects.filter(id__in=[a[0] for a in ankets]).update(ticket_status=SummitAnket.DOWNLOADED)
+    result = SummitAnket.objects.filter(id__in=[a[0] for a in ankets]).update(ticket_status=SummitAnket.DOWNLOADED)
+    logger.info('Update profiles ticket_status: {}'.format(result))
 
     return Response(data={'ticket_id': ticket.id})
 
@@ -735,16 +737,16 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
         visitor = get_object_or_404(SummitAnket, pk=request.data.get('visitor_id'))
 
         for chunk in data:
-            if SummitVisitorLocation.objects.filter(visitor=visitor, date_time=chunk.get('date_time')).exists():
-                continue
-            SummitVisitorLocation.objects.create(visitor=visitor,
-                                                 date_time=chunk.get('date_time', datetime.now()),
-                                                 longitude=chunk.get('longitude', 0),
-                                                 latitude=chunk.get('latitude', 0),
-                                                 type=chunk.get('type', 1))
+            SummitVisitorLocation.objects.get_or_create(
+                visitor=visitor,
+                date_time=chunk.get('date_time', datetime.now()),
+                defaults={
+                    'longitude': chunk.get('longitude', 0),
+                    'latitude': chunk.get('latitude', 0),
+                    'type': chunk.get('type', 1)
+                })
 
-        return Response({'message': 'Successful created'},
-                        status=status.HTTP_201_CREATED)
+        return Response({'message': 'Successful created'}, status=status.HTTP_201_CREATED)
 
     @list_route(methods=['GET'])
     def get_location(self, request):
@@ -764,7 +766,7 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
             date_time = datetime.strptime(date_time.replace('T', ' '), date_format)
         except ValueError:
             raise exceptions.ValidationError(
-                'Не верный формат даты. Передайте дату в формате date %Y-%m-%dT%H:%M:%S')
+                'Не верный формат даты. Передайте дату в формате date %s' % date_format)
 
         interval = int(request.query_params.get('interval', 0))
         start_date = date_time - timedelta(minutes=interval)
@@ -831,9 +833,7 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
             anket=anket, defaults={'reg_code_requested': True,
                                    'reg_code_requested_date': datetime.now()})
 
-        if not anket.status.active:
-            return Response({'error_message': 'Данная анкета не активна', 'error_code': 1},
-                            status=status.HTTP_200_OK)
+        AnketPasses.objects.create(anket=anket)
 
         if not SummitAttend.objects.filter(anket=anket, date=datetime.now().date()).exists():
             SummitAttend.objects.create(anket=anket, date=datetime.now().date())
@@ -856,4 +856,4 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
         anket.status.save()
 
         return Response({'message': _('Статус анкеты пользователя {%s} успешно изменен.') % anket.fullname,
-                        'active': '%s' % anket.status.active}, status=status.HTTP_200_OK)
+                         'active': '%s' % anket.status.active}, status=status.HTTP_200_OK)

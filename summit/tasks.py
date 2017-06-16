@@ -10,8 +10,11 @@ from dbmail import send_db_mail
 from django.core.files import File
 
 from edem.settings.celery import app
-from summit.models import SummitAnket, SummitTicket
+from summit.models import SummitAnket, SummitTicket, SummitAttend
 from summit.utils import generate_ticket, generate_ticket_by_summit
+import requests
+from datetime import datetime, timedelta
+from django.core.exceptions import ObjectDoesNotExist
 
 
 @app.task(ignore_result=True, max_retries=10, default_retry_delay=10 * 60)
@@ -73,3 +76,21 @@ def generate_tickets(summit_id, ankets, ticket_id):
     except Exception as err:
         print(err)
     Group("summit_{}_ticket".format(ticket.owner.id)).send({'text': dumps(data)})
+
+
+@app.task(name='get_palace_logs', ignore_result=True, max_retries=5, default_retry_delay=10)
+def get_palace_logs():
+    url = 'https://armspalace.esport.in.ua/m-ticket/gatelog/getLogs/'
+    date_to = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    date_from = (datetime.now() - timedelta(minutes=3)).strftime('%Y-%m-%d %H:%M:%S')
+    data = requests.get(url + '?dateFrom=' + date_from + '&dateTo=' + date_to)
+
+    for _pass in data.json():
+        date_time = datetime.strptime(_pass['date'], '%Y-%m-%d %H:%M:%S')
+        try:
+            anket = SummitAnket.objects.get(code=_pass['barcode'])
+        except ObjectDoesNotExist:
+            continue
+        SummitAttend.objects.get_or_create(
+            anket=anket, date=date_time.date(), defaults={'time': date_time.time(),
+                                                          'status': _pass['status']})

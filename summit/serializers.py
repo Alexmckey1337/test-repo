@@ -76,7 +76,7 @@ class SummitAnketStatisticsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SummitAnket
-        fields = ('id', 'user_id', 'full_name', 'responsible',
+        fields = ('id', 'user_id', 'full_name', 'responsible', 'link',
                   'department', 'phone_number', 'code', 'attended', 'active')
 
 
@@ -346,10 +346,12 @@ class SummitAcceptMobileCodeSerializer(serializers.ModelSerializer):
     visitor_id = serializers.IntegerField(source='id', read_only=True)
     avatar_url = ImageWithoutHostField(source='user.image', use_url=False)
     ticket_id = serializers.CharField(source='code', read_only=True)
+    passes_count = serializers.IntegerField(source='get_passes_count', read_only=True)
+    active = serializers.BooleanField(source='status.active', read_only=True)
 
     class Meta:
         model = SummitAnket
-        fields = ('visitor_id', 'fullname', 'avatar_url', 'ticket_id')
+        fields = ('visitor_id', 'fullname', 'avatar_url', 'ticket_id', 'passes_count', 'active')
 
 
 class AnketActiveStatusSerializer(serializers.ModelSerializer):

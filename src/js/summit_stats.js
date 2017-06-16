@@ -56,7 +56,7 @@ function changeSummitStatusCode() {
             ban = $(this).prop("checked") ? 0 : 1,
             option = {
                 method: 'POST',
-                credentials: "same-origin",
+                credentials: 'same-origin',
                 headers: new Headers({
                     'Content-Type': 'application/json',
                 }),
@@ -65,8 +65,7 @@ function changeSummitStatusCode() {
                     active: ban
                 })
             };
-        console.log(option.body);
-        fetch(`http://127.0.0.1:8000/api/v1.0/summit_attends/anket_active_status/`, option)
+        fetch(`/api/v1.0/summit_attends/anket_active_status/`, option)
             .then(
                 $(this).closest('.ticket_code').find('a').toggleClass('is-ban')
             )

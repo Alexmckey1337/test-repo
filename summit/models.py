@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from account.abstract_models import CustomUserAbstract
 from payment.models import get_default_currency, AbstractPaymentPurpose
 from summit.managers import ProfileManager
+from datetime import datetime
 
 
 @python_2_unicode_compatible
@@ -350,6 +351,10 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
 
         return reg_code
 
+    @property
+    def get_passes_count(self):
+        return self.passes_count.filter(datetime__date=datetime.now().date()).count()
+
 
 @python_2_unicode_compatible
 class SummitTicket(models.Model):
@@ -536,8 +541,8 @@ class SummitEventTable(models.Model):
 class SummitAttend(models.Model):
     anket = models.ForeignKey('summit.SummitAnket', related_name='attends', verbose_name=_('Anket'))
     date = models.DateField(verbose_name=_('Date'))
-
-    # time = models.TimeField(verbose_name=_('Time'))
+    time = models.TimeField(verbose_name=_('Time'), null=True)
+    status = models.CharField(verbose_name=_('Status'), max_length=20, default='')
 
     class Meta:
         verbose_name = _('Summit Attend')
@@ -546,7 +551,7 @@ class SummitAttend(models.Model):
         unique_together = ['anket', 'date']
 
     def __str__(self):
-        return '%s visitor of Summit. Date: %s' % (self.anket.user.fullname, self.date)
+        return '%s - visitor of Summit. Date: %s' % (self.anket.user.fullname, self.date)
 
 
 @python_2_unicode_compatible
@@ -571,4 +576,4 @@ class AnketPasses(models.Model):
     datetime = models.DateTimeField(verbose_name='Дата и время прохода', auto_now=True, editable=False)
 
     def __str__(self):
-        return 'Проход анкеты %s. Дата\Время: %s.' % (self.anket, self.datetime)
+        return 'Проход анкеты: %s. Дата и время: %s.' % (self.anket, self.datetime)
