@@ -711,11 +711,14 @@ def generate_summit_tickets(request, summit_id):
     ticket = SummitTicket.objects.create(
         summit_id=summit_id, owner=request.user, title='{}-{}'.format(
             min(ankets, key=lambda a: int(a[1]))[1], max(ankets, key=lambda a: int(a[1]))[1]))
+    logger.info('New ticket: {}'.format(ticket.id))
     ticket.users.set([a[0] for a in ankets])
 
-    generate_tickets.apply_async(args=[summit_id, ankets, ticket.id])
+    result = generate_tickets.apply_async(args=[summit_id, ankets, ticket.id])
+    logger.info('generate_ticket: {}'.format(result))
 
-    SummitAnket.objects.filter(id__in=[a[0] for a in ankets]).update(ticket_status=SummitAnket.DOWNLOADED)
+    result = SummitAnket.objects.filter(id__in=[a[0] for a in ankets]).update(ticket_status=SummitAnket.DOWNLOADED)
+    logger.info('Update profiles ticket_status: {}'.format(result))
 
     return Response(data={'ticket_id': ticket.id})
 
