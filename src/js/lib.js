@@ -2003,11 +2003,18 @@ function showPopupAddUser(data) {
     let rendered = _.template(tmpl)(data);
     $('body').append(rendered);
 
-    $('#addPopup').find('.close').on('click', function () {
+    $('#addPopup').find('.close, .rewrite').on('click', function (e) {
+        e.preventDefault();
         $('#addPopup').css('display', 'none').remove();
         $('#addNewUserPopup').find('form').css("transform", "translate3d(0px, 0px, 0px)");
         clearAddNewUser();
         $('#addNewUserPopup').find('.body').scrollTop(0);
+        if ($(this).is('a')) {
+            let url = $(this).attr('href');
+            setTimeout(function () {
+                window.open(url);
+            }, 1000);
+        }
     });
     $('#addPopup').find('.addMore').on('click', function () {
         $('#addPopup').css('display', 'none').remove();
