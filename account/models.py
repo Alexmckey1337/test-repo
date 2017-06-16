@@ -27,6 +27,7 @@ from navigation.models import Table
 from partnership.abstract_models import PartnerUserPermission
 from partnership.permissions import can_edit_partner_block, can_see_partner_block, can_see_deal_block
 from summit.abstract_models import SummitUserPermission
+from summit.models import SummitAnket, Summit
 
 
 class CustomUserManager(TreeManager, UserManager):
@@ -98,6 +99,9 @@ class CustomUser(MPTTModel, User, CustomUserAbstract,
         super(CustomUser, self).save(*args, **kwargs)
         for profile in self.summit_ankets.all():
             profile.save()
+        SummitAnket.objects.filter(
+            summit__status=Summit.OPEN,
+            user_id__in=self.disciples.values_list('pk', flat=True)).update(responsible=self.fullname)
 
     def get_absolute_url(self):
         return reverse('account:detail', args=(self.id,))
