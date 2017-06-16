@@ -449,7 +449,7 @@
     $('input[name="fullsearch"]').keyup(function () {
         let val = $(this).val();
         delay(function () {
-            createSummitUsersTable({summit: SUMMIT_ID});
+            createSummitUsersTable({summit: SUMMIT_ID, page: 1});
         }, 100);
     });
 
