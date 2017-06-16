@@ -238,6 +238,9 @@
                             <span class="label_block">{% trans "Статус билета" %}</span>
                         </div>
                         <div class="label_block-wrapp">
+                            <span class="label_block">{% trans "Электронный билет" %}</span>
+                        </div>
+                        <div class="label_block-wrapp">
                             <span class="label_block">{% trans "Присутствие" %}</span>
                         </div>
                         <div class="label_block-wrapp">
@@ -306,6 +309,13 @@
                                 <option value="given">{% trans "Выдано" %}</option>
                             </select>
                         </p>
+                    <p>
+                        <select class="select__db" data-filter="e_ticket" name="e_ticket" id="Eticket">
+                            <option>ВСЕ</option>
+                            <option value="true">Есть</option>
+                            <option value="false">Нет</option>
+                        </select>
+                    </p>
                         <p class="input_block">
                             <select class="select__db" data-filter="is_visited" name="visited" id="visited">
                                 <option>ВСЕ</option>

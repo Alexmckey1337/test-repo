@@ -131,13 +131,23 @@
                     <% } else { %>
                     <td></td>
                     <% } %>
+                    <% } else if (key == 'e_ticket') { %>
+                        <% if (results[index][key]) { %>
+                        <td style="position: relative">
+                            <input id="<%= 'e_ticked_' + (index + 1) %>" type="checkbox" name="e_ticked"
+                                <% if(results[index][key]) { %> checked <% } %> disabled>
+                            <label for="<%= 'e_ticked_' + (index + 1) %>"> </label>
+                        </td>
+                        <% } else { %>
+                        <td></td>
+                        <% } %>
                     <% } else if (key == 'hierarchy' || key == 'church' ) { %>
-                    <% if (results[index][key] != null ) { %>
-                    <td><%= results[index][key].title %></td>
-                    <% } else { %>
-                    <td></td>
-                    <% } %>
-                    <% }else if (key == 'departments' || key == 'divisions') { %>
+                        <% if (results[index][key] != null ) { %>
+                            <td><%= results[index][key].title %></td>
+                        <% } else { %>
+                        <td></td>
+                        <% } %>
+                    <% } else if (key == 'departments' || key == 'divisions') { %>
                     <% if ( Array.isArray(results[index][key]) && results[index][key].length != 0) { %>
                     <% if (results[index][key].length == 1) { %>
                     <td><%= results[index][key][0].title %></td>
