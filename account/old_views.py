@@ -81,7 +81,7 @@ def password_forgot(request):
     try:
         user = User.objects.get(email=email, can_login=True)
     except User.DoesNotExist:
-        if User.objects.get(email=email).exists():
+        if User.objects.filter(email=email).exists():
             return Response(data={'detail': _('Вы не имеете право для входа на сайт.')},
                             status=status.HTTP_400_BAD_REQUEST)
         return Response(data={'detail': _('Пользователя с таким email не существует')},
