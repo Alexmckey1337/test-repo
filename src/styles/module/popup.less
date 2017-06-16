@@ -226,12 +226,12 @@
   transform: translateY(-50%) translateX(-50%);
   margin: 0 auto;
   box-shadow: 3px 7px 50px rgba(0, 0, 0, 0.5);
-  & .edit {
+  .edit {
     position: absolute;
     right: 0.7em;
     top: 1.7em;
   }
-  & .popup_text {
+  .popup_text {
     font-size: 1.5em;
     text-transform: uppercase;
     padding-bottom: 0.5em;
@@ -252,7 +252,7 @@
       font-size: 1.3em;
     }
   }
-  & .popup_body {
+  .popup_body {
     padding-bottom: 1em;
     border-bottom: 1px solid #eee;
     margin-bottom: 2em;
@@ -390,7 +390,7 @@
   }
 }
 
-.pop-up-universal,.splash-screen{
+.pop-up-universal,.splash-screen,.pop_cont{
   .top-text{
     span{
       content: 'X';
@@ -672,6 +672,8 @@ button{
     display: none !important;
   }
 }
+
+
 
 /* ------------------Add user------------------------------ */
 
@@ -1202,5 +1204,70 @@ button{
       content: '\f00c';
     }
     }
+  }
+}
+
+/* ------------------Create popup------------------------------ */
+
+.pop-up__stats{
+  .block{
+    font-size: .9em;
+    .info{
+      margin-top: 15px;
+      padding: 0 15px;
+      padding-left: 0;
+      li{
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-align: center;
+        align-items: center;
+        padding: .5em 0;
+        .label-wrapp{
+          position: relative;
+          width: 55%;
+          &::after{
+          position: absolute;
+          left: 3px;
+          bottom: 3px;
+          display: block;
+          width: 95%;
+          height: 2px;
+          background-image: radial-gradient(circle,#656d78 .6px,transparent 1px);
+          background-repeat: repeat-x;
+          background-size: 5px 2px;
+          content: '';
+        }
+          label{
+            position: relative;
+            padding-right: 5px;
+            font-weight: 900;
+            background-color: #fff;
+            z-index: 2;
+        }
+        }
+        .input{
+          width: 65%;
+          .select2{
+            width: 100% !important;
+          }
+          input{
+            height: 30px;
+            border: 1px solid #cdd0d4;
+            border-radius: 3px;
+            padding: 0 .5em;
+          }
+        }
+      }
+    }
+  }
+}
+.select2-container{
+  .select2-dropdown{
+    z-index: 10000;
+  }
+}
+.datepickers-container{
+  .datepicker{
+    z-index: 10000;
   }
 }
