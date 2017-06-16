@@ -10,7 +10,7 @@ from dbmail import send_db_mail
 from django.core.files import File
 
 from edem.settings.celery import app
-from summit.models import SummitAnket, SummitTicket, SummitAttend
+from summit.models import SummitAnket, SummitTicket, SummitAttend, AnketStatus
 from summit.utils import generate_ticket, generate_ticket_by_summit
 import requests
 from datetime import datetime, timedelta
@@ -94,3 +94,17 @@ def get_palace_logs():
         SummitAttend.objects.get_or_create(
             anket=anket, date=date_time.date(), defaults={'time': date_time.time(),
                                                           'status': _pass['status']})
+
+
+@app.task(name='anket_autoban', ignore_result=True, max_retrive=5, default_retry_delay=5 * 60)
+def anket_autoban(summit_id=7):
+    """
+    Automatic anket ban, if summit visitor absent for two days or longer.
+    """
+    to_date = datetime.now().date()
+    from_date = to_date - timedelta(days=1)
+    ankets_to_ban = SummitAnket.objects.filter(summit=summit_id).exclude(attends__date__range=[from_date, to_date])
+    for anket in ankets_to_ban:
+        AnketStatus.objects.get_or_create(anket=anket)
+        anket.status.active = False
+        anket.save()
