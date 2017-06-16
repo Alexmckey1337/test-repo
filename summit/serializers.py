@@ -76,7 +76,7 @@ class SummitAnketStatisticsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SummitAnket
-        fields = ('id', 'user_id', 'full_name', 'responsible',
+        fields = ('id', 'user_id', 'full_name', 'responsible', 'link',
                   'department', 'phone_number', 'code', 'attended', 'active')
 
 
