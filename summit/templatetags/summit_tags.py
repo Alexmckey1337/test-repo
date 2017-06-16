@@ -12,12 +12,14 @@ from account.models import CustomUser
 register = template.Library()
 
 
-@register.inclusion_tag('partials/create_user.html')
-def create_user_form():
+@register.inclusion_tag('partials/create_user.html', takes_context=True)
+def create_user_form(context):
+    request = context['request']
     currencies = Currency.objects.all()
     levels = CustomUser.SPIRITUAL_LEVEL_CHOICES
 
     ctx = {
+        'request': request,
         'currencies': currencies,
         'spiritual_levels': [{'id': v[0], 'title': v[1]} for v in levels]
     }
