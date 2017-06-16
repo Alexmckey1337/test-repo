@@ -14,21 +14,10 @@ register = template.Library()
 
 @register.inclusion_tag('partials/create_user.html')
 def create_user_form():
-    managers = Partnership.objects.filter(
-        level__lte=Partnership.MANAGER).select_related('user')
-    countries = Country.objects.all()
-    departments = Department.objects.all()
-    hierarchies = Hierarchy.objects.all()
-    divisions = Division.objects.all()
     currencies = Currency.objects.all()
     levels = CustomUser.SPIRITUAL_LEVEL_CHOICES
 
     ctx = {
-        'managers': managers,
-        'countries': countries,
-        'departments': departments,
-        'hierarchies': hierarchies,
-        'divisions': divisions,
         'currencies': currencies,
         'spiritual_levels': [{'id': v[0], 'title': v[1]} for v in levels]
     }
