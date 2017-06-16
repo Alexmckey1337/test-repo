@@ -132,15 +132,15 @@
                     <td></td>
                     <% } %>
                     <% } else if (key == 'e_ticket') { %>
-{#                        <% if (results[index][key]) { %>#}
+                        <% if (results[index][key]) { %>
                         <td style="position: relative">
                             <input id="<%= 'e_ticked_' + (index + 1) %>" type="checkbox" name="e_ticked"
                                 <% if(results[index][key]) { %> checked <% } %> disabled>
                             <label for="<%= 'e_ticked_' + (index + 1) %>" class="input__is_center"> </label>
                         </td>
-{#                        <% } else { %>#}
-{#                        <td></td>#}
-{#                        <% } %>#}
+                        <% } else { %>
+                        <td></td>
+                        <% } %>
                     <% } else if (key == 'hierarchy' || key == 'church' ) { %>
                         <% if (results[index][key] != null ) { %>
                             <td><%= results[index][key].title %></td>
