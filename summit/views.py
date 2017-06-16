@@ -5,11 +5,11 @@ import logging
 from datetime import datetime, timedelta
 
 from dbmail import send_db_mail
-from django.db import transaction, IntegrityError
 from django.conf import settings
+from django.db import transaction, IntegrityError
 from django.db.models import Case, When, BooleanField, F, ExpressionWrapper, IntegerField, Subquery, OuterRef, Exists
-from django.db.models.functions import Concat
 from django.db.models import Value as V
+from django.db.models.functions import Concat
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions, viewsets, filters, status, mixins, serializers
@@ -734,13 +734,14 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
         visitor = get_object_or_404(SummitAnket, pk=request.data.get('visitor_id'))
 
         for chunk in data:
-            if SummitVisitorLocation.objects.filter(visitor=visitor, date_time=chunk.get('date_time')).exists():
-                continue
-            SummitVisitorLocation.objects.create(visitor=visitor,
-                                                 date_time=chunk.get('date_time', datetime.now()),
-                                                 longitude=chunk.get('longitude', 0),
-                                                 latitude=chunk.get('latitude', 0),
-                                                 type=chunk.get('type', 1))
+            SummitVisitorLocation.objects.get_or_create(
+                visitor=visitor,
+                date_time=chunk.get('date_time', datetime.now()),
+                defaults={
+                    'longitude': chunk.get('longitude', 0),
+                    'latitude': chunk.get('latitude', 0),
+                    'type': chunk.get('type', 1)
+                })
 
         return Response({'message': 'Successful created'}, status=status.HTTP_201_CREATED)
 
@@ -852,4 +853,4 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
         anket.status.save()
 
         return Response({'message': _('Статус анкеты пользователя {%s} успешно изменен.') % anket.fullname,
-                        'active': '%s' % anket.status.active}, status=status.HTTP_200_OK)
+                         'active': '%s' % anket.status.active}, status=status.HTTP_200_OK)
