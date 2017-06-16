@@ -250,7 +250,9 @@ class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'user_id', 'master_id',
             'full_name', 'country', 'city', 'phone_number', 'extra_phone_numbers',
-            'master_fio', 'hierarchy_id', 'children', 'photo', 'visitor_locations', 'status'
+            'master_fio', 'hierarchy_id', 'children', 'photo',
+            'visitor_locations',
+            'status'
         )
 
 

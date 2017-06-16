@@ -90,6 +90,10 @@ class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
     }
 
     def dispatch(self, request, *args, **kwargs):
+        ip = request.META['REMOTE_ADDR']
+        if ip == '37.57.225.125':
+        # if ip == '127.0.0.1':
+            logger.error('{}: {} / {}'.format(ip, str(request.user), str(getattr(request, 'real_user', request.user))))
         self.summit = get_object_or_404(Summit, pk=kwargs.get('pk', None))
         return super(SummitProfileListView, self).dispatch(request, *args, **kwargs)
 
@@ -498,7 +502,7 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
         })
 
     def annotate_queryset(self, qs):
-        return qs.base_queryset().annotate_full_name().annotate(
+        return qs.select_related('status').base_queryset().annotate_full_name().annotate(
             diff=ExpressionWrapper(F('user__rght') - F('user__lft'), output_field=IntegerField()),
         ).order_by('-hierarchy__level', 'last_name', 'first_name', 'middle_name')
 
