@@ -294,10 +294,10 @@ CELERYBEAT_SCHEDULE = {
     #     'schedule': crontab(hour=0, minute=0, day_of_week='mon')
     # },
     # Executes every day, every 1 minutes
-    # 'get_palace_logs': {
-    #     'task': 'get_palace_logs',
-    #     'schedule': 60
-    # },
+    'get_palace_logs': {
+        'task': 'get_palace_logs',
+        'schedule': 60
+    },
     # 'anket_autoban': {
     #     'task': 'anket_autoban',
     #     'schedule': 24 * 2 * 60 * 60
