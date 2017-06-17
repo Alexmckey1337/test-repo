@@ -252,7 +252,7 @@ def generate_ticket(code):
         'name': '{} {}'.format(user.last_name, user.first_name),
         'first_name': user.first_name,
         'last_name': user.last_name,
-        'image': user.image.path,
+        'image': user.image.path if user.image else None,
         'code': anket.code,
         'pastor': '{} {}'.format(pastor.last_name, pastor.first_name) if pastor else '',
         'bishop': '{} {}'.format(bishop.last_name, bishop.first_name) if bishop else '',
