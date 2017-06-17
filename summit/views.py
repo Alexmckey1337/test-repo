@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import logging
 from datetime import datetime, timedelta
+import time
 
 from dbmail import send_db_mail
 from django.conf import settings
@@ -537,8 +538,8 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
             if is_consultant_or_high:
                 return self.annotate_queryset(self.summit.ankets.filter(user__master_id=self.master_id))
             return self.annotate_queryset(self.summit.ankets.filter(
-                user__master_id=self.master_id, user_id__in=set(
-                    self.request.user.get_descendants(include_self=True))))
+                user__master_id=self.master_id
+            ))
         elif is_consultant_or_high:
             return self.annotate_queryset(self.summit.ankets.filter(user__level=0))
         else:
