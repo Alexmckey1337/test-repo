@@ -88,7 +88,7 @@ def get_palace_logs():
     for _pass in data.json():
         date_time = datetime.strptime(_pass['date'], '%Y-%m-%d %H:%M:%S')
         try:
-            anket = SummitAnket.objects.get(code=_pass['barcode'])
+            anket = SummitAnket.objects.get(code=_pass['barcode'][4:])
         except ObjectDoesNotExist:
             continue
         SummitAttend.objects.get_or_create(
