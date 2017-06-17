@@ -139,7 +139,7 @@
                             <label for="<%= 'e_ticked_' + (index + 1) %>" class="input__is_center"> </label>
                         </td>
                         <% } else { %>
-                        <td></td>
+                        <td><%= results[index].reg_code %></td>
                         <% } %>
                     <% } else if (key == 'hierarchy' || key == 'church' ) { %>
                         <% if (results[index][key] != null ) { %>

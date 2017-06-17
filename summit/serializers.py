@@ -53,6 +53,7 @@ class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
     spiritual_level = serializers.CharField(source='get_spiritual_level_display')
     ticket_status = ReadOnlyChoiceWithKeyField(choices=SummitAnket.TICKET_STATUSES, read_only=True)
     e_ticket = serializers.BooleanField(source='status.reg_code_requested', read_only=True)
+    reg_code = serializers.CharField()
 
     class Meta:
         model = SummitAnket
@@ -66,6 +67,7 @@ class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
                   'ticket_status',
 
                   'total_sum', 'e_ticket',
+                  'reg_code',
                   )
 
 
