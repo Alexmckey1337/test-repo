@@ -49,3 +49,14 @@ def available_summits(user, summit_type=None):
     if summit_type:
         return summit_type.summits.filter(**qs_filter).distinct()
     return Summit.objects.filter(**qs_filter).distinct()
+
+
+@register.simple_tag
+def is_summit_consultant_or_high(user, summit):
+    return user.is_summit_consultant_or_high(summit)
+
+
+@register.simple_tag
+def is_summit_supervisor_or_high(user, summit):
+    return user.is_summit_supervisor_or_high(summit)
+

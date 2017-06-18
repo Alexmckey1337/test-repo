@@ -61,6 +61,7 @@
 
 {% block extra_scripts %}
     {% block template_tables %}
+        {% is_summit_supervisor_or_high user summit as is_supervisor %}
         <script type="text/template" id="databaseUsers">
             <table>
                 <thead>
@@ -79,7 +80,7 @@
                     <% if(user_table[key].active) { %>
                     <% if (key == 'full_name') { %>
                     <% if (results[index][key] != null) { %>
-                    <td class="edit"><a href="<%= results[index].link %>"
+                    <td{% if is_supervisor %} class="edit"{% endif %}><a href="<%= results[index].link %>"
                                         data-link="<%= results[index].link %>"
                                         data-id="<%=results[index].user_id %>"
                         <% if(results[index].id) { %>
