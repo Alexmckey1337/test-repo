@@ -129,10 +129,12 @@ function changeSummitStatusCode() {
     });
     $('#master_tree').on('change', function () {
         $('#master').prop('disabled', true);
+        let config = {};
         let master_tree = parseInt($(this).val());
-        makePastorListWithMasterTree({
-            master_tree: master_tree
-        }, ['#master'], null);
+        if (!isNaN(master_tree)) {
+            config = {master_tree: master_tree}
+        }
+        makePastorListWithMasterTree(config, ['#master'], null);
     });
     summit.makeDataTable();
 })(jQuery);
