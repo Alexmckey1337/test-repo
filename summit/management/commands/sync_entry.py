@@ -23,3 +23,5 @@ class Command(BaseCommand):
             SummitAttend.objects.get_or_create(
                 anket=anket, date=date_time.date(), defaults={'time': date_time.time(),
                                                               'status': _pass['status']})
+        self.stdout.write(
+            'Successfully updated entry\n')
