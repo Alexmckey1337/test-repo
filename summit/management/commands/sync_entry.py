@@ -23,13 +23,3 @@ class Command(BaseCommand):
             SummitAttend.objects.get_or_create(
                 anket=anket, date=date_time.date(), defaults={'time': date_time.time(),
                                                               'status': _pass['status']})
-        ankets = SummitAnket.objects.all()
-
-        summit_id = options.get('summit_id')
-        if summit_id:
-            ankets = ankets.filter(summit_id=summit_id)
-
-        for anket in ankets:
-            anket.update_value()
-        self.stdout.write(
-            'Successfully updated %s ankets\n' % ankets.count())
