@@ -296,7 +296,7 @@ CELERYBEAT_SCHEDULE = {
     # Executes every day, every 1 minutes
     'get_palace_logs': {
         'task': 'get_palace_logs',
-        'schedule': 60
+        'schedule': 10
     },
     # 'anket_autoban': {
     #     'task': 'anket_autoban',
