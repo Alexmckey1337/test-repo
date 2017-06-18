@@ -401,7 +401,7 @@ class SummitTicketMakePrintedView(GenericAPIView):
             with transaction.atomic():
                 ticket.is_printed = True
                 ticket.save()
-                ticket.users.update(ticket_status=SummitAnket.PRINTED)
+                ticket.users.exclude(ticket_status=SummitAnket.GIVEN).update(ticket_status=SummitAnket.PRINTED)
         except IntegrityError as err:
             data = {'detail': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
             logger.error(err)
@@ -446,6 +446,8 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
         AnketStatus.objects.get_or_create(
             anket=visitor, defaults={'reg_code_requested': True,
                                      'reg_code_requested_date': datetime.now()})
+        # visitor.ticket_status = SummitAnket.GIVEN
+        # visitor.save()
 
         visitor = self.get_serializer(visitor)
         return Response(visitor.data)
