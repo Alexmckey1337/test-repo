@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 import logging
 from datetime import datetime, timedelta
-import time
 
 from dbmail import send_db_mail
 from django.conf import settings
@@ -680,8 +679,9 @@ class SummitAnketWithNotesViewSet(viewsets.ModelViewSet):
     filter_fields = ('user',)
 
 
+@api_view(['GET'])
 def generate_code(request):
-    code = request.GET.get('code', '00000000')
+    code = request.query_params.get('code', '00000000')
 
     pdf = generate_ticket(code)
 
@@ -763,6 +763,10 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
     @list_route(methods=['POST'])
     def post(self, request):
         if not request.data.get('data'):
+            logger.warning({
+                'user': getattr(request, 'real_user', request.user).id,
+                'message': _('Невозможно создать запись, поле {data} не переданно')
+            })
             raise exceptions.ValidationError(_('Невозможно создать запись, поле {data} не переданно'))
         data = request.data.get('data')
         visitor = get_object_or_404(SummitAnket, pk=request.data.get('visitor_id'))
