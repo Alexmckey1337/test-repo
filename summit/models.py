@@ -493,7 +493,7 @@ class SummitAnketNote(models.Model):
 class SummitVisitorLocation(models.Model):
     visitor = models.ForeignKey('summit.SummitAnket', verbose_name=_('Summit Visitor'),
                                 related_name='visitor_locations')
-    date_time = models.DateTimeField(verbose_name='Date Time')
+    date_time = models.DateTimeField(verbose_name='Date Time', db_index=True)
     longitude = models.FloatField(verbose_name=_('Longitude'))
     latitude = models.FloatField(verbose_name=_('Latitude'))
     type = models.PositiveSmallIntegerField(verbose_name=_('Type'), default=1)
