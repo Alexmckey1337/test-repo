@@ -177,7 +177,7 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
     #: The amount paid for the summit
     value = models.DecimalField(_('Paid amount'), max_digits=12, decimal_places=0,
                                 default=Decimal('0'), editable=False)
-    code = models.CharField(max_length=8, blank=True)
+    code = models.CharField(max_length=8, blank=True, db_index=True)
 
     ticket = models.FileField(_('Ticket'), upload_to='tickets', null=True, blank=True)
 
@@ -540,7 +540,7 @@ class SummitEventTable(models.Model):
 @python_2_unicode_compatible
 class SummitAttend(models.Model):
     anket = models.ForeignKey('summit.SummitAnket', related_name='attends', verbose_name=_('Anket'))
-    date = models.DateField(verbose_name=_('Date'))
+    date = models.DateField(verbose_name=_('Date'), db_index=True)
     time = models.TimeField(verbose_name=_('Time'), null=True)
     status = models.CharField(verbose_name=_('Status'), max_length=20, default='')
 
