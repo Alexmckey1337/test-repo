@@ -160,13 +160,14 @@ class SummitParticipantReport(object):
         table_data = []
         for user in users:
             if u.user_id == user.master_id:
-                table_data.append([' + ' if user.attended else '   ', user.user_name, user.phone, user.code])
+                table_data.append(
+                    [' + ' if user.attended else '   ', user.user_name, user.phone, user.code, user.ticket_status])
         table_data = sorted(table_data, key=lambda a: a[1])
         if not table_data:
             return
         self._append_table_header(u)
 
-        table_data = [['Был', 'ФИО', 'Номер телефона', 'Код']] + table_data
+        table_data = [['Был', 'ФИО', 'Номер телефона', 'Код', 'Билет']] + table_data
         user_table = Table(table_data, colWidths=[
             self.width * 0.1, self.width * 0.5, self.width * 0.2, self.width * 0.2], normalizedData=1)
 
@@ -194,7 +195,7 @@ class SummitParticipantReport(object):
     def _get_participants(self):
         raw = """
             SELECT a.id, a.code, u.phone_number phone, a.user_id, u.master_id, u.level user_level,
-              h.level hierarchy_level,
+              h.level hierarchy_level, a.ticket_status ticket_status,
               concat(uu.last_name, ' ', uu.first_name, ' ', u.middle_name) user_name,
               exists(select at.id from summit_summitattend at WHERE at.anket_id = a.id AND at.date = '{date}') as attended
             FROM summit_summitanket a
