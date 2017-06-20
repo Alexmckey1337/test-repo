@@ -633,7 +633,7 @@ function exportTableData(el) {
     return new Promise(function (resolve, reject) {
         let url, filter, filterKeys, items, count;
         url = $(_self).attr('data-export-url');
-        filter = getFilterParam();
+        filter = Object.assign(getFilterParam(), getSearch('search_fio'));
         filterKeys = Object.keys(filter);
         if (filterKeys && filterKeys.length) {
             url += '?';

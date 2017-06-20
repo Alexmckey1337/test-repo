@@ -28,7 +28,7 @@
 
     $('#export_table').on('click', function () {
         $('.preloader').css('display', 'block');
-        exportNewTableData(this).then(function () {
+        exportTableData(this).then(function () {
             $('.preloader').css('display', 'none');
         });
     });
