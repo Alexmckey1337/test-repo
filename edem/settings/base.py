@@ -320,6 +320,8 @@ SITE_DOMAIN_URL = 'http://vocrm.org/'
 ARCHONS = [1, ]
 AXES_COOLOFF_TIME = 1
 
+LOG_FILE = env('LOG_FILE', default='/tmp/vocrm.log')
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -340,37 +342,43 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose'
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': LOG_FILE,
+            'formatter': 'verbose'
         }
     },
     'loggers': {
         'django.db.backends': {
             'level': 'ERROR',
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'propagate': False,
         },
         'account.views': {
             'level': 'DEBUG',
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'propagate': False,
         },
         'event.views': {
             'level': 'DEBUG',
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'propagate': False,
         },
         'summit.views': {
             'level': 'DEBUG',
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'propagate': False,
         },
         'raven': {
             'level': 'DEBUG',
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'propagate': False,
         },
         'sentry.errors': {
             'level': 'DEBUG',
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'propagate': False,
         },
     },
