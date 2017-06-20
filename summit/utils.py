@@ -164,8 +164,9 @@ class SummitParticipantReport(object):
         for user in users:
             if u.user_id == user.master_id:
                 table_data.append(
-                    [user.attended if user.attended else '   ', user.user_name, user.phone, user.code,
-                     user.get_ticket_status_display(), True if user.ticket_status == SummitAnket.GIVEN else False])
+                    [user.attended if user.attended else '   ', user.user_name, user.get_ticket_status_display(),
+                     user.phone, user.code,
+                     True if user.ticket_status == SummitAnket.PRINTED else False])
         table_data = sorted(table_data, key=lambda a: a[1])
         for l, t in enumerate(table_data):
             if t[5]:
@@ -175,12 +176,13 @@ class SummitParticipantReport(object):
             return
         self._append_table_header(u)
 
-        table_data = [['Был', 'ФИО', 'Номер телефона', 'Код', 'Билет']] + table_data
+        table_data = [['Был', 'ФИО', 'Билет', 'Номер телефона', 'Код']] + table_data
         user_table = Table(table_data, colWidths=[
-            self.width * 0.1, self.width * 0.5, self.width * 0.2, self.width * 0.2], normalizedData=1)
+            self.width * 0.1, self.width * 0.3, self.width * 0.2, self.width * 0.2, self.width * 0.2],
+                           normalizedData=1)
 
-        red_cells = [('TEXTCOLOR', (-1, line), (-1, line), colors.red) for line in red_lines]
-        red_cells += [('FONT', (-1, line), (-1, line), 'FreeSansBold') for line in red_lines]
+        red_cells = [('TEXTCOLOR', (2, line), (2, line), colors.red) for line in red_lines]
+        red_cells += [('FONT', (2, line), (2, line), 'FreeSansBold') for line in red_lines]
         user_table.setStyle(TableStyle([
             ('INNERGRID', (0, 0), (-1, -1), 0.15, colors.black),
             ('FONT', (0, 0), (-1, -1), 'FreeSans'),
