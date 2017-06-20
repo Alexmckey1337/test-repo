@@ -64,10 +64,12 @@ class ProfileFilter(django_filters.FilterSet):
     hierarchy = django_filters.ModelChoiceFilter(name='hierarchy', queryset=Hierarchy.objects.all())
     master = django_filters.ModelMultipleChoiceFilter(name="master", queryset=CustomUser.objects.all())
     department = django_filters.ModelChoiceFilter(name="departments", queryset=Department.objects.all())
+    attend_from = django_filters.TimeFilter(name="attends__time", lookup_expr='gte')
+    attend_to = django_filters.TimeFilter(name="attends__time", lookup_expr='lte')
 
     class Meta:
         model = SummitAnket
-        fields = ['master', 'hierarchy', 'department', 'ticket_status']
+        fields = ['master', 'hierarchy', 'department', 'ticket_status', 'attend_from', 'attend_to']
 
 
 class FilterProfileMasterTreeWithSelf(FilterMasterTreeWithSelf):
@@ -97,9 +99,9 @@ class FilterBySummitAttendByDate(BaseFilterBackend):
         attended = request.query_params.get('attended', '')
 
         if attended.upper() in ('TRUE', 'T', 'YES', 'Y', '1'):
-            return queryset.filter(attended=True)
+            return queryset.filter(attended__isnull=False)
         elif attended.upper() in ('FALSE', 'F', 'NO', 'N', '0'):
-            return queryset.filter(attended=False)
+            return queryset.filter(attended__isnull=True)
 
         return queryset
 

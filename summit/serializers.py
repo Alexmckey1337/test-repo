@@ -74,7 +74,7 @@ class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
 class SummitAnketStatisticsSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField()
     phone_number = serializers.CharField(source='user.phone_number')
-    attended = serializers.BooleanField()
+    attended = serializers.CharField()
     active = serializers.BooleanField(source='status.active')
 
     class Meta:

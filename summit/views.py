@@ -7,9 +7,11 @@ from datetime import datetime, timedelta
 from dbmail import send_db_mail
 from django.conf import settings
 from django.db import transaction, IntegrityError
-from django.db.models import Case, When, BooleanField, F, ExpressionWrapper, IntegerField, Subquery, OuterRef, Exists
+from django.db.models import (
+    Case, When, BooleanField, F, ExpressionWrapper, IntegerField, Subquery, OuterRef, CharField,
+    Func)
 from django.db.models import Value as V
-from django.db.models.functions import Concat
+from django.db.models.functions import Concat, Coalesce
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions, viewsets, filters, status, mixins, serializers
@@ -160,6 +162,11 @@ class SummitProfileListExportView(SummitProfileListView, ExportViewSetMixin):
         return self._export(request, *args, **kwargs)
 
 
+class ToChar(Func):
+    function = 'to_char'
+    template = "%(function)s(%(expressions)s, '%(time_format)s')"
+
+
 class SummitStatisticsView(SummitProfileListView):
     serializer_class = SummitAnketStatisticsSerializer
     pagination_class = SummitStatisticsPagination
@@ -196,8 +203,13 @@ class SummitStatisticsView(SummitProfileListView):
         return super(SummitStatisticsView, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        subqs = SummitAttend.objects.filter(date=self.filter_date, anket=OuterRef('pk'))
-        qs = self.summit.ankets.select_related('user').annotate(attended=Exists(subqs)).annotate_full_name().order_by(
+        subqs = SummitAttend.objects.filter(date=self.filter_date, anket=OuterRef('pk')).annotate(
+            first_time=Coalesce(
+                ToChar(F('time'), function='to_char', time_format='HH24:MI:SS', output_field=CharField()),
+                V('true'),
+                output_field=CharField()))
+        qs = self.summit.ankets.select_related('user', 'status').annotate(
+            attended=Subquery(subqs.values('first_time')[:1], output_field=CharField())).annotate_full_name().order_by(
             'user__last_name', 'user__first_name', 'user__middle_name')
         return qs.for_user(self.request.user)
 
