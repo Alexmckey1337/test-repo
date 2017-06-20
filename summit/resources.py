@@ -66,3 +66,29 @@ class SummitAnketResource(CustomFieldsModelResource):
 
     def dehydrate_email(self, profile):
         return profile.user.email
+
+
+class SummitStatisticsResource(CustomFieldsModelResource):
+    """For excel import/export"""
+    full_name = fields.Field()
+    phone_number = fields.Field()
+    attended = fields.Field(attribute='attended')
+
+    user_field_name = 'user'
+
+    class Meta:
+        model = SummitAnket
+        fields = (
+            'full_name', 'phone_number', 'attended',
+            'responsible', 'department', 'code',
+        )
+
+    def dehydrate_full_name(self, profile):
+        return profile.user.fullname
+
+    def dehydrate_phone_number(self, profile):
+        return profile.user.phone_number
+    #
+    # def dehydrate_attended(self, profile):
+    #     subqs = SummitAttend.objects.filter(date=self.filter_date, anket=profile)
+    #     return subqs.exists()

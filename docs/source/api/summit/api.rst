@@ -625,7 +625,7 @@ Change ticket_status for profile
 
     :form new_status: optional, one of the (``none``, ``download``, ``print``, ``given``)
 
-    :statuscode 200: success export
+    :statuscode 200: success
     :statuscode 400: incorrect status code
 
 
@@ -823,6 +823,69 @@ Statistics by summit
    :query string search_phone_number: search by main ``phone_number``
    :query string search_country: search by ``country``
    :query string search_city: search by ``city``
+   :query string date: date
+
+
+Export summit stats
+~~~~~~~~~~~~~~~~~~~
+
+.. http:post:: /api/v1.0/summits/(int:summit_id)/export_stats/
+
+    Export summit statistics.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        POST /api/v1.0/summits/13/export_stats/ HTTP/1.1
+        Host: vocrm.org
+        content-type: application/x-www-form-urlencoded
+        content-length: 33
+
+          fields=full_name,attended
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: POST,OPTIONS
+        Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+        Content-Disposition: attachment; filename=SummitAnket-2016-12-20.xlsx
+
+        ... body ...
+
+    *SummitStats-2016-12-20.xlsx content*
+
+    +----------------+----------+
+    | full_name      | attended |
+    +================+==========+
+    | Gates Bill     | False    |
+    +----------------+----------+
+    | Torvalds Linus | True     |
+    +----------------+----------+
+
+    :form fields: field names for export (comma-separated), optional. Default is (
+       ``full_name``, ``phone_number``, ``department``, ``attended``, ``responlible``, ``code``)
+    :form ids: user ids for export (comma-separated), optional.
+                                 If ``ids`` is empty then will be used filter by query parameters.
+
+    :query int hierarchy: filter by ``hierarchy_id``
+    :query int master: filter by ``master_id``, returned children of master
+    :query int master_tree: filter by ``master_id``, returned descendants of master and self master
+    :query int department: filter by ``department_id``
+    :query string search_fio: search by ``last_name``, ``first_name``, ``middle_name``, ``search_name``
+    :query string search_email: search by ``email``
+    :query string search_phone_number: search by main ``phone_number``
+    :query string search_country: search by ``country``
+    :query string search_city: search by ``city``
+    :query string date: date
+
+    :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
+                             ``application/json``, ``multipart/form-data``
+
+    :statuscode 200: success export
 
 List of summit lessons
 ~~~~~~~~~~~~~~~~~~~~~~

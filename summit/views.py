@@ -31,7 +31,7 @@ from summit.filters import (FilterByClub, SummitUnregisterFilter, ProfileFilter,
 from summit.pagination import SummitPagination, SummitTicketPagination, SummitStatisticsPagination
 from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report, \
     can_see_report_by_bishop_or_high
-from summit.resources import SummitAnketResource
+from summit.resources import SummitAnketResource, SummitStatisticsResource
 from summit.utils import generate_ticket, SummitParticipantReport, get_report_by_bishop_or_high
 from .models import (Summit, SummitAnket, SummitType, SummitLesson, SummitUserConsultant,
                      SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend, AnketStatus, AnketPasses)
@@ -199,6 +199,14 @@ class SummitStatisticsView(SummitProfileListView):
         qs = self.summit.ankets.select_related('user').annotate(attended=Exists(subqs)).annotate_full_name().order_by(
             'user__last_name', 'user__first_name', 'user__middle_name')
         return qs.for_user(self.request.user)
+
+
+class SummitStatisticsExportView(SummitStatisticsView, ExportViewSetMixin):
+    resource_class = SummitStatisticsResource
+    queryset = SummitAnket.objects.all()
+
+    def post(self, request, *args, **kwargs):
+        return self._export(request, *args, **kwargs)
 
 
 class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
