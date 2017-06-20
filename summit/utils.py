@@ -126,7 +126,8 @@ class SummitParticipantReport(object):
         self.styles = getSampleStyleSheet()
         self.styles.add(ParagraphStyle(name='RightAlign', fontName='FreeSans', alignment=TA_RIGHT, fontSize=8))
         self.styles.add(ParagraphStyle(name='LeftAlign', fontName='FreeSans', alignment=TA_LEFT, fontSize=8))
-        self.styles.add(ParagraphStyle(name='date', fontName='FreeSans', alignment=TA_RIGHT, fontSize=12))
+        self.styles.add(ParagraphStyle(name='date', fontName='FreeSans', alignment=TA_RIGHT, fontSize=12,
+                                       spaceAfter=25))
         self.styles.add(ParagraphStyle(
             name='Header1', fontName='FreeSansBold', alignment=TA_LEFT, fontSize=16, spaceAfter=5))
         self.styles.add(ParagraphStyle(
@@ -136,9 +137,10 @@ class SummitParticipantReport(object):
 
     def _append_document_header(self):
         self.elements.append(Paragraph(
+            'Отчет создан: {}'.upper().format(datetime.now().strftime('%d.%m.%Y %H:%M:%S')), self.styles['date']))
+        self.elements.append(Paragraph(
             'Отчет о посещаемости за {}'.upper().format(self.report_date.strftime('%d.%m.%Y')), self.styles['Header1']))
         self.elements.append(Paragraph(self.master.fullname.upper(), self.styles['Header12']))
-        # self.elements.append(Paragraph(self.report_date.strftime('%d.%m.%Y'), self.styles['date']))
 
     def _append_table_header(self, user):
         self.names[user.user_level] = user.user_name
@@ -158,19 +160,28 @@ class SummitParticipantReport(object):
 
     def _append_user_table(self, u, users):
         table_data = []
+        red_lines = []
         for user in users:
             if u.user_id == user.master_id:
                 table_data.append(
-                    [' + ' if user.attended else '   ', user.user_name, user.phone, user.code, user.ticket_status])
+                    [user.attended if user.attended else '   ', user.user_name, user.get_ticket_status_display(),
+                     user.phone, user.code,
+                     True if user.ticket_status == SummitAnket.PRINTED else False])
         table_data = sorted(table_data, key=lambda a: a[1])
+        for l, t in enumerate(table_data):
+            if t[5]:
+                red_lines.append(l+1)
+            table_data[l] = table_data[l][:-1]
         if not table_data:
             return
         self._append_table_header(u)
 
-        table_data = [['Был', 'ФИО', 'Номер телефона', 'Код', 'Билет']] + table_data
+        table_data = [['Был', 'ФИО', 'Билет', 'Номер телефона', 'Код']] + table_data
         user_table = Table(table_data, colWidths=[
             self.width * 0.1, self.width * 0.5, self.width * 0.2, self.width * 0.2], normalizedData=1)
 
+        red_cells = [('TEXTCOLOR', (2, line), (2, line), colors.red) for line in red_lines]
+        red_cells += [('FONT', (2, line), (2, line), 'FreeSansBold') for line in red_lines]
         user_table.setStyle(TableStyle([
             ('INNERGRID', (0, 0), (-1, -1), 0.15, colors.black),
             ('FONT', (0, 0), (-1, -1), 'FreeSans'),
@@ -187,7 +198,7 @@ class SummitParticipantReport(object):
             ('FONT', (0, 0), (-1, 0), 'FreeSansBold'),
             ('BACKGROUND', (0, 0), (-1, 0), colors.gray),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ]))
+        ] + red_cells))
         self.elements.append(user_table)
         if self.short is None:
             self.elements.append(PageBreak())
@@ -197,7 +208,8 @@ class SummitParticipantReport(object):
             SELECT a.id, a.code, u.phone_number phone, a.user_id, u.master_id, u.level user_level,
               h.level hierarchy_level, a.ticket_status ticket_status,
               concat(uu.last_name, ' ', uu.first_name, ' ', u.middle_name) user_name,
-              exists(select at.id from summit_summitattend at WHERE at.anket_id = a.id AND at.date = '{date}') as attended
+              (select CASE WHEN at.time ISNULL THEN '+' ELSE to_char(at.time, 'HH24:MI:SS') END
+              from summit_summitattend at WHERE at.anket_id = a.id AND at.date = '{date}' LIMIT 1) as attended
             FROM summit_summitanket a
               INNER JOIN account_customuser u ON a.user_id = u.user_ptr_id
               INNER JOIN auth_user uu ON u.user_ptr_id = uu.id

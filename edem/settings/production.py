@@ -160,17 +160,17 @@ LOGGING['handlers']['sentry'] = {
 }
 LOGGING['loggers']['account.views'] = {
     'level': 'INFO',
-    'handlers': ['console', 'sentry'],
+    'handlers': ['console', 'sentry', 'file'],
     'propagate': False,
 }
 LOGGING['loggers']['event.views'] = {
     'level': 'INFO',
-    'handlers': ['console', 'sentry'],
+    'handlers': ['console', 'sentry', 'file'],
     'propagate': False,
 }
 LOGGING['loggers']['summit.views'] = {
     'level': 'INFO',
-    'handlers': ['console', 'sentry'],
+    'handlers': ['console', 'sentry', 'file'],
     'propagate': False,
 }
 SENTRY_CELERY_LOGLEVEL = env.int('DJANGO_SENTRY_LOG_LEVEL', logging.INFO)
