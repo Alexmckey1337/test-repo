@@ -136,5 +136,11 @@ function changeSummitStatusCode() {
         }
         makePastorListWithMasterTree(config, ['#master'], null);
     });
+    $('#export_table').on('click', function () {
+        $('.preloader').css('display', 'block');
+        exportTableData(this).then(function () {
+            $('.preloader').css('display', 'none');
+        });
+    });
     summit.makeDataTable();
 })(jQuery);

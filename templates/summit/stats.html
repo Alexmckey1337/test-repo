@@ -28,6 +28,9 @@
                     <button id="filter_button">Фильтр</button>
                 </li>
                 <li>
+                    <button id="export_table" data-export-url="{% url "summit-stats-export" pk=summit.id %}" class="download header__button">Export</button>
+                </li>
+                <li>
                     <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
                 </li>
             </ul>
