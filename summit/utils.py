@@ -126,7 +126,8 @@ class SummitParticipantReport(object):
         self.styles = getSampleStyleSheet()
         self.styles.add(ParagraphStyle(name='RightAlign', fontName='FreeSans', alignment=TA_RIGHT, fontSize=8))
         self.styles.add(ParagraphStyle(name='LeftAlign', fontName='FreeSans', alignment=TA_LEFT, fontSize=8))
-        self.styles.add(ParagraphStyle(name='date', fontName='FreeSans', alignment=TA_RIGHT, fontSize=12))
+        self.styles.add(ParagraphStyle(name='date', fontName='FreeSans', alignment=TA_RIGHT, fontSize=12,
+                                       spaceAfter=25))
         self.styles.add(ParagraphStyle(
             name='Header1', fontName='FreeSansBold', alignment=TA_LEFT, fontSize=16, spaceAfter=5))
         self.styles.add(ParagraphStyle(
@@ -136,9 +137,10 @@ class SummitParticipantReport(object):
 
     def _append_document_header(self):
         self.elements.append(Paragraph(
+            'Отчет создан: {}'.upper().format(datetime.now().strftime('%d.%m.%Y %H:%M:%S')), self.styles['date']))
+        self.elements.append(Paragraph(
             'Отчет о посещаемости за {}'.upper().format(self.report_date.strftime('%d.%m.%Y')), self.styles['Header1']))
         self.elements.append(Paragraph(self.master.fullname.upper(), self.styles['Header12']))
-        # self.elements.append(Paragraph(self.report_date.strftime('%d.%m.%Y'), self.styles['date']))
 
     def _append_table_header(self, user):
         self.names[user.user_level] = user.user_name
