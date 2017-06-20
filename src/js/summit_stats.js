@@ -138,7 +138,7 @@ function changeSummitStatusCode() {
     });
     $('#export_table').on('click', function () {
         $('.preloader').css('display', 'block');
-        exportTableData(this).then(function () {
+        exportTableData(this, getTabsFilter()).then(function () {
             $('.preloader').css('display', 'none');
         });
     });
