@@ -163,7 +163,7 @@ class SummitParticipantReport(object):
         for user in users:
             if u.user_id == user.master_id:
                 table_data.append(
-                    [' + ' if user.attended else '   ', user.user_name, user.phone, user.code, user.ticket_status])
+                    [user.attended if user.attended else '   ', user.user_name, user.phone, user.code, user.ticket_status])
         table_data = sorted(table_data, key=lambda a: a[1])
         if not table_data:
             return
@@ -199,7 +199,8 @@ class SummitParticipantReport(object):
             SELECT a.id, a.code, u.phone_number phone, a.user_id, u.master_id, u.level user_level,
               h.level hierarchy_level, a.ticket_status ticket_status,
               concat(uu.last_name, ' ', uu.first_name, ' ', u.middle_name) user_name,
-              exists(select at.id from summit_summitattend at WHERE at.anket_id = a.id AND at.date = '{date}') as attended
+              (select CASE WHEN at.time ISNULL THEN '+' ELSE to_char(at.time, 'HH24:MI:SS') END
+              from summit_summitattend at WHERE at.anket_id = a.id AND at.date = '{date}') as attended
             FROM summit_summitanket a
               INNER JOIN account_customuser u ON a.user_id = u.user_ptr_id
               INNER JOIN auth_user uu ON u.user_ptr_id = uu.id
