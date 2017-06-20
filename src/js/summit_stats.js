@@ -142,5 +142,15 @@ function changeSummitStatusCode() {
             $('.preloader').css('display', 'none');
         });
     });
+    $('.select_time_filter').datepicker({
+        dateFormat: ' ',
+        minDate: new Date(),
+        maxDate: new Date(),
+        selectOtherYears: false,
+        selectOtherMonths: false,
+        timepicker: true,
+        onlyTimepicker: true,
+        classes: 'only-timepicker'
+    });
     summit.makeDataTable();
 })(jQuery);
