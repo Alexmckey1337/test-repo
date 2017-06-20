@@ -111,7 +111,8 @@ class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
         return self.list(request, *args, **kwargs)
 
     def get_queryset(self):
-        qs = self.summit.ankets.base_queryset().annotate_total_sum().annotate_full_name().order_by(
+        qs = self.summit.ankets.select_related('status')\
+            .base_queryset().annotate_total_sum().annotate_full_name().order_by(
             'user__last_name', 'user__first_name', 'user__middle_name')
         return qs.for_user(self.request.user)
 

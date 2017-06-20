@@ -9,15 +9,15 @@ from .models import SummitAnket
 
 class SummitAnketResource(CustomFieldsModelResource):
     """For excel import/export"""
-    full_name = fields.Field()
-    e_ticket = fields.Field()
-    email = fields.Field()
-    phone_number = fields.Field()
-    district = fields.Field()
-    address = fields.Field()
-    region = fields.Field()
-    repentance_date = fields.Field()
-    born_date = fields.Field()
+    full_name = fields.Field(attribute='full_name')
+    e_ticket = fields.Field(attribute='status__reg_code_requested')
+    email = fields.Field(attribute='user__email')
+    phone_number = fields.Field(attribute='user__phone_number')
+    district = fields.Field(attribute='user__district')
+    address = fields.Field(attribute='user__address')
+    region = fields.Field(attribute='user__region')
+    repentance_date = fields.Field(attribute='user__repentance_date')
+    born_date = fields.Field(attribute='user__born_date')
 
     user_field_name = 'user'
 
@@ -37,41 +37,17 @@ class SummitAnketResource(CustomFieldsModelResource):
 
     def dehydrate_spiritual_level(self, user):
         return user.get_spiritual_level_display()
-
-    def dehydrate_full_name(self, profile):
-        return profile.user.fullname
-
-    def dehydrate_e_ticket(self, profile):
-        if hasattr(profile, 'status'):
-            return profile.status.reg_code_requested
-        return False
-
-    def dehydrate_district(self, profile):
-        return profile.user.district
-
-    def dehydrate_address(self, profile):
-        return profile.user.address
-
-    def dehydrate_region(self, profile):
-        return profile.user.region
-
-    def dehydrate_repentance_date(self, profile):
-        return profile.user.repentance_date
-
-    def dehydrate_born_date(self, profile):
-        return profile.user.born_date
-
-    def dehydrate_phone_number(self, profile):
-        return profile.user.phone_number
-
-    def dehydrate_email(self, profile):
-        return profile.user.email
+    #
+    # def dehydrate_e_ticket(self, profile):
+    #     if hasattr(profile, 'status'):
+    #         return profile.status.reg_code_requested
+    #     return False
 
 
 class SummitStatisticsResource(CustomFieldsModelResource):
     """For excel import/export"""
-    full_name = fields.Field()
-    phone_number = fields.Field()
+    full_name = fields.Field(attribute='full_name')
+    phone_number = fields.Field(attribute='user__phone_number')
     attended = fields.Field(attribute='attended')
 
     user_field_name = 'user'
@@ -82,13 +58,3 @@ class SummitStatisticsResource(CustomFieldsModelResource):
             'full_name', 'phone_number', 'attended',
             'responsible', 'department', 'code',
         )
-
-    def dehydrate_full_name(self, profile):
-        return profile.user.fullname
-
-    def dehydrate_phone_number(self, profile):
-        return profile.user.phone_number
-    #
-    # def dehydrate_attended(self, profile):
-    #     subqs = SummitAttend.objects.filter(date=self.filter_date, anket=profile)
-    #     return subqs.exists()
