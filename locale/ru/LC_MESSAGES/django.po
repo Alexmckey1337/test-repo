@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-13 13:37+0300\n"
-"PO-Revision-Date: 2017-06-13 13:45+0300\n"
+"PO-Revision-Date: 2017-06-20 16:53+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ru\n"
@@ -917,19 +917,19 @@ msgstr "Без билета."
 
 #: summit/models.py:203
 msgid "Ticket is created."
-msgstr "Билет создан."
+msgstr "Создан."
 
 #: summit/models.py:204
 msgid "Ticket is printed"
-msgstr "Билет напечатан"
+msgstr "Напечатан"
 
 #: summit/models.py:205
 msgid "Ticket is given"
-msgstr "Билет выдан"
+msgstr "Выдан"
 
 #: summit/models.py:207
 msgid "Ticket status"
-msgstr "Билет создан"
+msgstr "Создан"
 
 #: summit/models.py:360
 msgid "In progress"
