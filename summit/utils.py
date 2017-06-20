@@ -178,8 +178,7 @@ class SummitParticipantReport(object):
 
         table_data = [['Был', 'ФИО', 'Билет', 'Номер телефона', 'Код']] + table_data
         user_table = Table(table_data, colWidths=[
-            self.width * 0.1, self.width * 0.3, self.width * 0.2, self.width * 0.2, self.width * 0.2],
-                           normalizedData=1)
+            self.width * 0.1, self.width * 0.5, self.width * 0.2, self.width * 0.2], normalizedData=1)
 
         red_cells = [('TEXTCOLOR', (2, line), (2, line), colors.red) for line in red_lines]
         red_cells += [('FONT', (2, line), (2, line), 'FreeSansBold') for line in red_lines]
