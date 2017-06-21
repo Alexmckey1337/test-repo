@@ -10,6 +10,7 @@ from rest_framework import status, filters, exceptions
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.generics import get_object_or_404
 
 from account.models import CustomUser
 from common.filters import FieldSearchFilter
@@ -209,7 +210,13 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     @list_route(methods=['GET'], serializer_class=MeetingDashboardSerializer)
     def dashboard_counts(self, request):
-        queryset = self.queryset.for_user(self.request.user)
+        user_id = request.query_params.get('user_id')
+        if user_id:
+            user = get_object_or_404(CustomUser, pk=user_id)
+        else:
+            user = self.request.user
+
+        queryset = self.queryset.for_user(user)
 
         dashboards_counts = queryset.aggregate(
             meetings_in_progress=Sum(Case(When(status=1, then=1),

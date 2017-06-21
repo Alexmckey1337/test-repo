@@ -246,13 +246,18 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
 
     @list_route(methods=['GET'], serializer_class=ChurchDashboardSerializer)
     def dashboard_counts(self, request):
-        queryset = self.queryset.for_user(self.request.user)
+        user_id = request.query_params.get('user_id')
+        if user_id:
+            user = get_object_or_404(CustomUser, pk=user_id)
+        else:
+            user = self.request.user
 
+        queryset = self.queryset.for_user(user)
         result = queryset.aggregate(
             peoples_in_churches=Count('uusers', distinct=True),
             peoples_in_home_groups=Count('home_group__uusers', distinct=True))
         result['churches_count'] = queryset.count()
-        result['home_groups_count'] = HomeGroup.objects.for_user(self.request.user).count()
+        result['home_groups_count'] = HomeGroup.objects.for_user(user).count()
 
         result = self.serializer_class(result)
         return Response(result.data)
