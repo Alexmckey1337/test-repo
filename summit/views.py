@@ -29,7 +29,7 @@ from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import (FilterByClub, SummitUnregisterFilter, ProfileFilter,
                             FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend,
-                            FilterBySummitAttendByDate, FilterByElecTicketStatus)
+                            FilterBySummitAttendByDate, FilterByElecTicketStatus, FilterByTime)
 from summit.pagination import SummitPagination, SummitTicketPagination, SummitStatisticsPagination
 from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report, \
     can_see_report_by_bishop_or_high
@@ -189,6 +189,7 @@ class SummitStatisticsView(SummitProfileListView):
         FilterProfileMasterTreeWithSelf,
         HasPhoto,
         FilterBySummitAttendByDate,
+        FilterByTime,
     )
 
     def dispatch(self, request, *args, **kwargs):
