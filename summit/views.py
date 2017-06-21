@@ -29,7 +29,7 @@ from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import (FilterByClub, SummitUnregisterFilter, ProfileFilter,
                             FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend,
-                            FilterBySummitAttendByDate, FilterByElecTicketStatus)
+                            FilterBySummitAttendByDate, FilterByElecTicketStatus, FilterByTime)
 from summit.pagination import SummitPagination, SummitTicketPagination, SummitStatisticsPagination
 from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report, \
     can_see_report_by_bishop_or_high
@@ -94,10 +94,6 @@ class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
     }
 
     def dispatch(self, request, *args, **kwargs):
-        ip = request.META['REMOTE_ADDR']
-        if ip == '37.57.225.125':
-        # if ip == '127.0.0.1':
-            logger.error('{}: {} / {}'.format(ip, str(request.user), str(getattr(request, 'real_user', request.user))))
         self.summit = get_object_or_404(Summit, pk=kwargs.get('pk', None))
         return super(SummitProfileListView, self).dispatch(request, *args, **kwargs)
 
@@ -189,6 +185,7 @@ class SummitStatisticsView(SummitProfileListView):
         FilterProfileMasterTreeWithSelf,
         HasPhoto,
         FilterBySummitAttendByDate,
+        FilterByTime,
     )
 
     def dispatch(self, request, *args, **kwargs):
@@ -206,6 +203,7 @@ class SummitStatisticsView(SummitProfileListView):
         subqs = SummitAttend.objects.filter(date=self.filter_date, anket=OuterRef('pk')).annotate(
             first_time=Coalesce(
                 ToChar(F('time'), function='to_char', time_format='HH24:MI:SS', output_field=CharField()),
+                ToChar(F('created_at'), function='to_char', time_format='HH24:MI:SS el', output_field=CharField()),
                 V('true'),
                 output_field=CharField()))
         qs = self.summit.ankets.select_related('user', 'status').annotate(
@@ -402,7 +400,7 @@ class SummitLessonViewSet(viewsets.ModelViewSet):
         return Response({'lesson': lesson.name, 'lesson_id': pk, 'anket_id': anket_id, 'checked': False})
 
 
-class SummitUnregisterUserViewSet(viewsets.ModelViewSet):
+class SummitUnregisterUserViewSet(ModelWithoutDeleteViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = SummitUnregisterUserSerializer
     filter_backends = (filters.SearchFilter,
@@ -650,7 +648,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(data, status=status.HTTP_204_NO_CONTENT)
 
 
-class SummitTicketViewSet(viewsets.ModelViewSet):
+class SummitTicketViewSet(viewsets.GenericViewSet):
     queryset = SummitTicket.objects.all()
     serializer_class = SummitTicketSerializer
     permission_classes = (IsAuthenticated,)
@@ -671,29 +669,7 @@ class SummitTicketViewSet(viewsets.ModelViewSet):
         return Response(summit_profiles.data)
 
 
-class SummitTypeViewSet(viewsets.ModelViewSet):
-    queryset = SummitType.objects.all()
-    serializer_class = SummitTypeSerializer
-    permission_classes = (IsAuthenticated,)
-
-    @detail_route(methods=['get'], )
-    def is_member(self, request, pk=None):
-        user_id = request.query_params.get('user_id')
-        if user_id and not user_id.isdigit():
-            return Response({'result': 'user_id должен быть числом.'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        if not user_id:
-            user_id = request.user.id
-        data = {
-            'result': SummitAnket.objects.filter(
-                user_id=user_id, summit__type_id=pk, visited=True).exists(),
-            'user_id': user_id,
-        }
-
-        return Response(data)
-
-
-class SummitAnketWithNotesViewSet(viewsets.ModelViewSet):
+class SummitAnketWithNotesViewSet(ModelWithoutDeleteViewSet):
     queryset = SummitAnket.objects.select_related('user', 'user__hierarchy', 'user__master'). \
         prefetch_related('user__divisions', 'user__departments', 'notes')
     serializer_class = SummitAnketWithNotesSerializer

@@ -37,11 +37,6 @@ class SummitAnketResource(CustomFieldsModelResource):
 
     def dehydrate_spiritual_level(self, user):
         return user.get_spiritual_level_display()
-    #
-    # def dehydrate_e_ticket(self, profile):
-    #     if hasattr(profile, 'status'):
-    #         return profile.status.reg_code_requested
-    #     return False
 
 
 class SummitStatisticsResource(CustomFieldsModelResource):

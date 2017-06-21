@@ -93,7 +93,7 @@ class NumberedCanvas(canvas.Canvas):
 
     def draw_page_number(self, page_count):
         # Change the position of this to wherever you want the page number to be
-        self.drawRightString(181 * mm, 15 * mm + (0.2 * inch),
+        self.drawRightString(181 * mm, 7 * mm,
                              "Page %d of %d" % (self._pageNumber, page_count))
 
 
@@ -115,7 +115,7 @@ class SummitParticipantReport(object):
         self._init_styles()
         self.buffer = BytesIO()
         self.doc = SimpleDocTemplate(
-            self.buffer, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72, pagesize=A4)
+            self.buffer, rightMargin=72, leftMargin=72, topMargin=22, bottomMargin=22, pagesize=A4)
         self.width = self.doc.width
 
     def _init_styles(self):
@@ -126,14 +126,13 @@ class SummitParticipantReport(object):
         self.styles = getSampleStyleSheet()
         self.styles.add(ParagraphStyle(name='RightAlign', fontName='FreeSans', alignment=TA_RIGHT, fontSize=8))
         self.styles.add(ParagraphStyle(name='LeftAlign', fontName='FreeSans', alignment=TA_LEFT, fontSize=8))
-        self.styles.add(ParagraphStyle(name='date', fontName='FreeSans', alignment=TA_RIGHT, fontSize=12,
-                                       spaceAfter=25))
+        self.styles.add(ParagraphStyle(name='date', fontName='FreeSans', alignment=TA_RIGHT, fontSize=12))
         self.styles.add(ParagraphStyle(
             name='Header1', fontName='FreeSansBold', alignment=TA_LEFT, fontSize=16, spaceAfter=5))
         self.styles.add(ParagraphStyle(
-            name='Header12', fontName='FreeSansBold', alignment=TA_LEFT, fontSize=14, spaceAfter=5, spaceBefore=25))
+            name='Header12', fontName='FreeSansBold', alignment=TA_LEFT, fontSize=14, spaceAfter=5))
         self.styles.add(ParagraphStyle(
-            name='Header2', fontName='FreeSans', alignment=TA_LEFT, fontSize=12, spaceAfter=5, spaceBefore=25))
+            name='Header2', fontName='FreeSans', alignment=TA_LEFT, fontSize=12, spaceAfter=5))
 
     def _append_document_header(self):
         self.elements.append(Paragraph(
@@ -208,7 +207,7 @@ class SummitParticipantReport(object):
             SELECT a.id, a.code, u.phone_number phone, a.user_id, u.master_id, u.level user_level,
               h.level hierarchy_level, a.ticket_status ticket_status,
               concat(uu.last_name, ' ', uu.first_name, ' ', u.middle_name) user_name,
-              (select CASE WHEN at.time ISNULL THEN '+' ELSE to_char(at.time, 'HH24:MI:SS') END
+              (select COALESCE(to_char(at.time, 'HH24:MI:SS'), to_char(at.created_at, 'HH24:MI:SS el'), '+')
               from summit_summitattend at WHERE at.anket_id = a.id AND at.date = '{date}' LIMIT 1) as attended
             FROM summit_summitanket a
               INNER JOIN account_customuser u ON a.user_id = u.user_ptr_id

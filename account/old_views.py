@@ -5,7 +5,6 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.mail import EmailMultiAlternatives
-from django.template import Context
 from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status
