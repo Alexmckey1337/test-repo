@@ -1,14 +1,15 @@
+from datetime import datetime
+
 import django_filters
 import rest_framework_filters as filters_new
 from django.db.models import OuterRef, Subquery
-from rest_framework.filters import BaseFilterBackend
 from django.db.models import Q
+from rest_framework.filters import BaseFilterBackend
 
 from account.filters import FilterMasterTreeWithSelf
 from account.models import CustomUser
 from hierarchy.models import Hierarchy, Department
 from summit.models import Summit, SummitAnket, SummitAttend
-from datetime import datetime
 
 
 class FilterByClub(BaseFilterBackend):
@@ -55,20 +56,20 @@ class FilterByTime(BaseFilterBackend):
         if attend_from and attend_to:
             attends = SummitAttend.objects.filter(
                 Q(date=d) &
-                Q(time__range=(attend_from, attend_to)) |
-                (Q(time__isnull=True) & Q(created_at__time__range=(attend_from, attend_to))),
+                (Q(time__range=(attend_from, attend_to)) |
+                 (Q(time__isnull=True) & Q(created_at__time__range=(attend_from, attend_to)))),
                 anket=OuterRef('pk'))
         elif attend_from:
             attends = SummitAttend.objects.filter(
                 Q(date=d) &
-                Q(time__gte=attend_from) |
-                (Q(time__isnull=True) & Q(created_at__time__gte=attend_from)),
+                (Q(time__gte=attend_from) |
+                 (Q(time__isnull=True) & Q(created_at__time__gte=attend_from))),
                 anket=OuterRef('pk'))
         elif attend_to:
             attends = SummitAttend.objects.filter(
                 Q(date=d) &
-                Q(time__lte=attend_to) |
-                (Q(time__isnull=True) & Q(created_at__time__lte=attend_to)),
+                (Q(time__lte=attend_to) |
+                 (Q(time__isnull=True) & Q(created_at__time__lte=attend_to))),
                 anket=OuterRef('pk'))
         else:
             return queryset
