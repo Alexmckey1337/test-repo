@@ -5,7 +5,7 @@
             sortable;
         $('.preloader').css('display', 'block');
 
-        function getHomeGroupStats() {
+        function getHomeGroupStats(id) {
             let resData = {
                 url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/events/home_meetings/dashboard_counts/`
             };
@@ -22,7 +22,7 @@
             });
         }
 
-        function getChurchData() {
+        function getChurchData(id) {
             let resData = {
                 url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/dashboard_counts/`
             };
@@ -39,7 +39,7 @@
             });
         }
 
-        function getUsersData() {
+        function getUsersData(id) {
             let resData = {
                 url: `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/dashboard_counts/`
             };
@@ -56,12 +56,32 @@
             });
         }
 
+        function init(id) {
+            Promise.all([getHomeGroupStats(id), getChurchData(id), getUsersData(id)]).then(values => {
+                let data = {};
+                for (let i = 0; i < values.length; i++) {
+                    Object.assign(data, values[i]);
+                }
+                let tmpl = document.getElementById('mainStatisticsTmp').innerHTML,
+                    rendered = _.template(tmpl)(data);
+                $('#dashboard').append(rendered);
+
+                initSort();
+                initSortable();
+                hideCard();
+
+                $('.preloader').css('display', 'none');
+            }).catch(function (err) {
+                console.log(err);
+            });
+        }
+
         function initSort() {
             let order = localStorage.order ? JSON.parse(localStorage.order) : [];
             if (order.length > 0) {
                 for (let i = 0; i < order.length; i++) {
                     let index = +order[i],
-                        card = $('.dashboard').find(`.well[data-id='${index}']`)
+                        card = $('.dashboard').find(`.well[data-id='${index}']`);
                     $('#drop').append(card);
                 }
             }
@@ -79,45 +99,47 @@
 
         function initSortable() {
             let sortCard = document.getElementById('drop');
-                sortable = new Sortable(sortCard, {
-                    sort: true,
-                    animation: 150,
-                    ghostClass: 'sortable-ghost',
-                    draggable: '.well',
-                    chosenClass: "sortable-chosen",
-                    dragClass: "sortable-drag",
-                    group: "localStorage-example",
-                    filter: ".vision",
-                    onFilter: function (evt) {
-                        let item = evt.item,
-                            ctrl = evt.target;
-                        if (Sortable.utils.is(ctrl, ".vision")) {
-                            $(item).find('.vision').toggleClass('active');
-                            $(item).closest('.well').toggleClass('hide');
-                        }
+            sortable = new Sortable(sortCard, {
+                sort: true,
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                draggable: '.well',
+                chosenClass: "sortable-chosen",
+                dragClass: "sortable-drag",
+                group: "localStorage-example",
+                filter: ".vision",
+                onFilter: function (evt) {
+                    let item = evt.item,
+                        ctrl = evt.target;
+                    if (Sortable.utils.is(ctrl, ".vision")) {
+                        $(item).find('.vision').toggleClass('active');
+                        $(item).closest('.well').toggleClass('hide');
                     }
-                });
+                }
+            });
 
             sortable.option("disabled", true);
         }
 
-        Promise.all([getHomeGroupStats(), getChurchData(), getUsersData()]).then(values => {
-            let data = {};
-            for (let i = 0; i < values.length; i++) {
-                Object.assign(data, values[i]);
-            }
-            let tmpl = document.getElementById('mainStatisticsTmp').innerHTML,
-                rendered = _.template(tmpl)(data);
-            $('#dashboard').append(rendered);
+        // Promise.all([getHomeGroupStats(), getChurchData(), getUsersData()]).then(values => {
+        //     let data = {};
+        //     for (let i = 0; i < values.length; i++) {
+        //         Object.assign(data, values[i]);
+        //     }
+        //     let tmpl = document.getElementById('mainStatisticsTmp').innerHTML,
+        //         rendered = _.template(tmpl)(data);
+        //     $('#dashboard').append(rendered);
+        //
+        //     initSort();
+        //     initSortable();
+        //     hideCard();
+        //
+        //     $('.preloader').css('display', 'none');
+        // }).catch(function (err) {
+        //     console.log(err);
+        // });
 
-            initSort();
-            initSortable();
-            hideCard();
-
-            $('.preloader').css('display', 'none');
-        }).catch(function (err) {
-            console.log(err);
-        });
+        init(userId);
 
         $('#master-filter').select2();
 
@@ -153,6 +175,11 @@
             localStorage.arrHideCard = JSON.stringify(arrHideCard);
 
             $('.dashboard').find('.well.hide').hide();
+        });
+
+        $('#master-filter').on('change', function () {
+            let userId = $(this).val();
+            console.log(userId);
         });
 
     });
