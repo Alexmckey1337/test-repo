@@ -1,6 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from datetime import datetime
 from decimal import Decimal
 
 from django.conf import settings
@@ -9,13 +10,13 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from account.abstract_models import CustomUserAbstract
 from payment.models import get_default_currency, AbstractPaymentPurpose
 from summit.managers import ProfileManager
-from datetime import datetime
 
 
 @python_2_unicode_compatible
@@ -543,6 +544,7 @@ class SummitAttend(models.Model):
     date = models.DateField(verbose_name=_('Date'), db_index=True)
     time = models.TimeField(verbose_name=_('Time'), null=True)
     status = models.CharField(verbose_name=_('Status'), max_length=20, default='')
+    created_at = models.DateTimeField(_('Created at'), null=True, default=timezone.now, editable=False)
 
     class Meta:
         verbose_name = _('Summit Attend')

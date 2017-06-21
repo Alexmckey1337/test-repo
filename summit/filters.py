@@ -1,14 +1,15 @@
+from datetime import datetime
+
 import django_filters
 import rest_framework_filters as filters_new
 from django.db.models import OuterRef, Subquery
-from rest_framework.filters import BaseFilterBackend
 from django.db.models import Q
+from rest_framework.filters import BaseFilterBackend
 
 from account.filters import FilterMasterTreeWithSelf
 from account.models import CustomUser
 from hierarchy.models import Hierarchy, Department
 from summit.models import Summit, SummitAnket, SummitAttend
-from datetime import datetime
 
 
 class FilterByClub(BaseFilterBackend):
@@ -53,11 +54,23 @@ class FilterByTime(BaseFilterBackend):
         attend_to = params.get('attend_to', None)
         d = view.filter_date
         if attend_from and attend_to:
-            attends = SummitAttend.objects.filter(date=d, time__range=(attend_from, attend_to), anket=OuterRef('pk'))
+            attends = SummitAttend.objects.filter(
+                Q(date=d) &
+                (Q(time__range=(attend_from, attend_to)) |
+                 (Q(time__isnull=True) & Q(created_at__time__range=(attend_from, attend_to)))),
+                anket=OuterRef('pk'))
         elif attend_from:
-            attends = SummitAttend.objects.filter(date=d, time__gte=attend_from, anket=OuterRef('pk'))
+            attends = SummitAttend.objects.filter(
+                Q(date=d) &
+                (Q(time__gte=attend_from) |
+                 (Q(time__isnull=True) & Q(created_at__time__gte=attend_from))),
+                anket=OuterRef('pk'))
         elif attend_to:
-            attends = SummitAttend.objects.filter(date=d, time__lte=attend_to, anket=OuterRef('pk'))
+            attends = SummitAttend.objects.filter(
+                Q(date=d) &
+                (Q(time__lte=attend_to) |
+                 (Q(time__isnull=True) & Q(created_at__time__lte=attend_to))),
+                anket=OuterRef('pk'))
         else:
             return queryset
         return queryset.filter(pk__in=Subquery(attends.values('anket_id')[:1]))
@@ -106,7 +119,7 @@ class FilterBySummitAttend(BaseFilterBackend):
 
         if int(is_visited) == 1:
             queryset = queryset.filter(attends__date__range=[from_date, to_date])
-        if int(is_visited) == 2:
+        elif int(is_visited) == 2:
             queryset = queryset.exclude(attends__date__range=[from_date, to_date])
 
         return queryset

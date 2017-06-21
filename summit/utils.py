@@ -207,7 +207,7 @@ class SummitParticipantReport(object):
             SELECT a.id, a.code, u.phone_number phone, a.user_id, u.master_id, u.level user_level,
               h.level hierarchy_level, a.ticket_status ticket_status,
               concat(uu.last_name, ' ', uu.first_name, ' ', u.middle_name) user_name,
-              (select CASE WHEN at.time ISNULL THEN '+' ELSE to_char(at.time, 'HH24:MI:SS') END
+              (select COALESCE(to_char(at.time, 'HH24:MI:SS'), to_char(at.created_at, 'HH24:MI:SS el'), '+')
               from summit_summitattend at WHERE at.anket_id = a.id AND at.date = '{date}' LIMIT 1) as attended
             FROM summit_summitanket a
               INNER JOIN account_customuser u ON a.user_id = u.user_ptr_id
