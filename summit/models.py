@@ -544,7 +544,7 @@ class SummitAttend(models.Model):
     date = models.DateField(verbose_name=_('Date'), db_index=True)
     time = models.TimeField(verbose_name=_('Time'), null=True)
     status = models.CharField(verbose_name=_('Status'), max_length=20, default='')
-    created_at = models.DateTimeField(_('Created at'), default=timezone.now, editable=False)
+    created_at = models.DateTimeField(_('Created at'), null=True, default=timezone.now, editable=False)
 
     class Meta:
         verbose_name = _('Summit Attend')
