@@ -7,7 +7,7 @@
 
         function getHomeGroupStats(id) {
             let resData = {
-                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/events/home_meetings/dashboard_counts/`
+                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/events/home_meetings/dashboard_counts/?user_id=${id}`
             };
             return new Promise(function (resolve, reject) {
                 let codes = {
@@ -24,7 +24,7 @@
 
         function getChurchData(id) {
             let resData = {
-                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/dashboard_counts/`
+                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/dashboard_counts/?user_id=${id}`
             };
             return new Promise(function (resolve, reject) {
                 let codes = {
@@ -41,7 +41,7 @@
 
         function getUsersData(id) {
             let resData = {
-                url: `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/dashboard_counts/`
+                url: `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/dashboard_counts/?user_id=${id}`
             };
             return new Promise(function (resolve, reject) {
                 let codes = {
@@ -121,24 +121,6 @@
             sortable.option("disabled", true);
         }
 
-        // Promise.all([getHomeGroupStats(), getChurchData(), getUsersData()]).then(values => {
-        //     let data = {};
-        //     for (let i = 0; i < values.length; i++) {
-        //         Object.assign(data, values[i]);
-        //     }
-        //     let tmpl = document.getElementById('mainStatisticsTmp').innerHTML,
-        //         rendered = _.template(tmpl)(data);
-        //     $('#dashboard').append(rendered);
-        //
-        //     initSort();
-        //     initSortable();
-        //     hideCard();
-        //
-        //     $('.preloader').css('display', 'none');
-        // }).catch(function (err) {
-        //     console.log(err);
-        // });
-
         init(userId);
 
         $('#master-filter').select2();
@@ -178,8 +160,10 @@
         });
 
         $('#master-filter').on('change', function () {
+            $('.preloader').css('display', 'block');
             let userId = $(this).val();
-            console.log(userId);
+            $('#drop').remove();
+            init(userId);
         });
 
     });
