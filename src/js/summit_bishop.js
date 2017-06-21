@@ -99,24 +99,38 @@ class PrintMasterStat {
             .then(data => data.map(item => `<option value="${item.id}">${item.full_name}</option>`))
             .then(options => {
                 let content = `
-                    <div>
-                    <label>Выберите ответсвенного</label>
-                        <select class="master">`;
-                content += options.join(',');
-                content += `</select>
-                                    </div>
-                                        <div>
-                                        <label>Пристутствие</label>
-                                        <select class="attended">
-                                            <option value="">ВСЕ</option>
-                                            <option value="true">ДА</option>
-                                            <option value="false">НЕТ</option>
-                                        </select>
-                                    </div>
-                                    <div>
+                    <div class="block">
+                        <ul class="info">
+                            <li>
+                                <div class="label-wrapp">
+                                    <label>Выберите ответсвенного</label>
+                                </div>
+                                <div class="input">
+                                    <select class="master">`; content += options.join(','); content += `</select>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="label-wrapp">
+                                    <label>Пристутствие</label>
+                                </div>
+                                <div class="input">
+                                    <select class="attended">
+                                        <option value="">ВСЕ</option>
+                                        <option value="true">ДА</option>
+                                        <option value="false">НЕТ</option>
+                                    </select>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="label-wrapp">
                                     <label>Дата</label>
+                                </div>
+                                <div class="input">
                                     <input class="date" type="text">
-                                    </div>`;
+                                </div>
+                            </li>
+                        </ul>
+                    </div>`;
                 showStatPopup(content, 'Сформировать файл статистики', this.setFilterData.bind(this));
             });
 

@@ -52,6 +52,8 @@ class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
     repentance_date = serializers.CharField(source='user.repentance_date')
     spiritual_level = serializers.CharField(source='get_spiritual_level_display')
     ticket_status = ReadOnlyChoiceWithKeyField(choices=SummitAnket.TICKET_STATUSES, read_only=True)
+    e_ticket = serializers.BooleanField(source='status.reg_code_requested', read_only=True)
+    reg_code = serializers.CharField()
 
     class Meta:
         model = SummitAnket
@@ -64,19 +66,20 @@ class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
                   'link',
                   'ticket_status',
 
-                  'total_sum',
+                  'total_sum', 'e_ticket',
+                  'reg_code',
                   )
 
 
 class SummitAnketStatisticsSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField()
     phone_number = serializers.CharField(source='user.phone_number')
-    attended = serializers.BooleanField()
+    attended = serializers.CharField()
     active = serializers.BooleanField(source='status.active')
 
     class Meta:
         model = SummitAnket
-        fields = ('id', 'user_id', 'full_name', 'responsible',
+        fields = ('id', 'user_id', 'full_name', 'responsible', 'link',
                   'department', 'phone_number', 'code', 'attended', 'active')
 
 
@@ -200,10 +203,6 @@ class SummitVisitorLocationSerializer(serializers.ModelSerializer):
 
 
 class CustomVisitorsLocationSerializer(serializers.ReadOnlyField):
-    def __init__(self, **kwargs):
-        self.fields = [f.split('.') for f in kwargs.pop('fields', [])]
-        super().__init__(**kwargs)
-
     def to_representation(self, value):
         date_time = self.context['request'].query_params.get('date_time', '')
         interval = int(self.context['request'].query_params.get('interval', 5))
@@ -242,7 +241,7 @@ class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
     children = ChildrenLink(view_name='summit-app-profile-list-master',
                             queryset=SummitAnket.objects.all())
     photo = ImageWithoutHostField(source='user.image', use_url=False)
-    visitor_locations = CustomVisitorsLocationSerializer()
+    # visitor_locations = CustomVisitorsLocationSerializer()
     status = AnketStatusSerializer(serializers.ModelSerializer)
 
     class Meta:
@@ -250,7 +249,11 @@ class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'user_id', 'master_id',
             'full_name', 'country', 'city', 'phone_number', 'extra_phone_numbers',
-            'master_fio', 'hierarchy_id', 'children', 'photo', 'visitor_locations', 'status'
+            'master_fio', 'hierarchy_id',
+            'children',
+            'photo',
+            # 'visitor_locations',
+            'status'
         )
 
 

@@ -129,10 +129,24 @@ function changeSummitStatusCode() {
     });
     $('#master_tree').on('change', function () {
         $('#master').prop('disabled', true);
+        let config = {};
         let master_tree = parseInt($(this).val());
-        makePastorListWithMasterTree({
-            master_tree: master_tree
-        }, ['#master'], null);
+        if (!isNaN(master_tree)) {
+            config = {master_tree: master_tree}
+        }
+        makePastorListWithMasterTree(config, ['#master'], null);
+    });
+    $('#export_table').on('click', function () {
+        $('.preloader').css('display', 'block');
+        exportTableData(this, getTabsFilter()).then(function () {
+            $('.preloader').css('display', 'none');
+        });
+    });
+    $('.select_time_filter').datepicker({
+        dateFormat: ' ',
+        timepicker: true,
+        onlyTimepicker: true,
+        classes: 'only-timepicker'
     });
     summit.makeDataTable();
 })(jQuery);

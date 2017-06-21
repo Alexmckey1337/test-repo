@@ -30,16 +30,16 @@
                     <button id="filter_button">Фильтр</button>
                 </li>
                 <li>
-                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
-                </li>
-                {% if user.can_see_any_summit_ticket %}
-                    <li>
-                        <button id="load-tickets"><i class="fa fa-address-card-o" aria-hidden="true"></i></button>
-                    </li>
-                {% endif %}
-                <li>
                     <button id="export_table" data-export-url="{% url "summit-profile-export" pk=summit.id %}" class="download header__button">Export</button>
                 </li>
+                <li>
+                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
+                </li>
+{#                {% if user.can_see_any_summit_ticket %}#}
+{#                    <li>#}
+{#                        <button id="load-tickets"><i class="fa fa-address-card-o" aria-hidden="true"></i></button>#}
+{#                    </li>#}
+{#                {% endif %}#}
             </ul>
         </div>
     </div>
@@ -61,6 +61,7 @@
 
 {% block extra_scripts %}
     {% block template_tables %}
+        {% is_summit_supervisor_or_high user summit as is_supervisor %}
         <script type="text/template" id="databaseUsers">
             <table>
                 <thead>
@@ -79,7 +80,7 @@
                     <% if(user_table[key].active) { %>
                     <% if (key == 'full_name') { %>
                     <% if (results[index][key] != null) { %>
-                    <td class="edit"><a href="<%= results[index].link %>"
+                    <td{% if is_supervisor %} class="edit"{% endif %}><a href="<%= results[index].link %>"
                                         data-link="<%= results[index].link %>"
                                         data-id="<%=results[index].user_id %>"
                         <% if(results[index].id) { %>
@@ -131,13 +132,23 @@
                     <% } else { %>
                     <td></td>
                     <% } %>
+                    <% } else if (key == 'e_ticket') { %>
+                        <% if (results[index][key]) { %>
+                        <td style="position: relative">
+                            <input id="<%= 'e_ticked_' + (index + 1) %>" type="checkbox" name="e_ticked"
+                                <% if(results[index][key]) { %> checked <% } %> disabled>
+                            <label for="<%= 'e_ticked_' + (index + 1) %>" class="input__is_center"> </label>
+                        </td>
+                        <% } else { %>
+                        <td><%= results[index].reg_code %></td>
+                        <% } %>
                     <% } else if (key == 'hierarchy' || key == 'church' ) { %>
-                    <% if (results[index][key] != null ) { %>
-                    <td><%= results[index][key].title %></td>
-                    <% } else { %>
-                    <td></td>
-                    <% } %>
-                    <% }else if (key == 'departments' || key == 'divisions') { %>
+                        <% if (results[index][key] != null ) { %>
+                            <td><%= results[index][key].title %></td>
+                        <% } else { %>
+                        <td></td>
+                        <% } %>
+                    <% } else if (key == 'departments' || key == 'divisions') { %>
                     <% if ( Array.isArray(results[index][key]) && results[index][key].length != 0) { %>
                     <% if (results[index][key].length == 1) { %>
                     <td><%= results[index][key][0].title %></td>

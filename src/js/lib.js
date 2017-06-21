@@ -628,12 +628,12 @@ function exportNewTableData(el) {
     });
 }
 
-function exportTableData(el) {
+function exportTableData(el, additionalFilter = {}) {
     let _self = el;
     return new Promise(function (resolve, reject) {
         let url, filter, filterKeys, items, count;
         url = $(_self).attr('data-export-url');
-        filter = getFilterParam();
+        filter = Object.assign(getFilterParam(), getSearch('search_fio'), additionalFilter);
         filterKeys = Object.keys(filter);
         if (filterKeys && filterKeys.length) {
             url += '?';
@@ -2003,11 +2003,18 @@ function showPopupAddUser(data) {
     let rendered = _.template(tmpl)(data);
     $('body').append(rendered);
 
-    $('#addPopup').find('.close').on('click', function () {
+    $('#addPopup').find('.close, .rewrite').on('click', function (e) {
+        e.preventDefault();
         $('#addPopup').css('display', 'none').remove();
         $('#addNewUserPopup').find('form').css("transform", "translate3d(0px, 0px, 0px)");
         clearAddNewUser();
         $('#addNewUserPopup').find('.body').scrollTop(0);
+        if ($(this).is('a')) {
+            let url = $(this).attr('href');
+            setTimeout(function () {
+                window.open(url);
+            }, 1000);
+        }
     });
     $('#addPopup').find('.addMore').on('click', function () {
         $('#addPopup').css('display', 'none').remove();

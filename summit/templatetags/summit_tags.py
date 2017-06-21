@@ -12,23 +12,14 @@ from account.models import CustomUser
 register = template.Library()
 
 
-@register.inclusion_tag('partials/create_user.html')
-def create_user_form():
-    managers = Partnership.objects.filter(
-        level__lte=Partnership.MANAGER).select_related('user')
-    countries = Country.objects.all()
-    departments = Department.objects.all()
-    hierarchies = Hierarchy.objects.all()
-    divisions = Division.objects.all()
+@register.inclusion_tag('partials/create_user.html', takes_context=True)
+def create_user_form(context):
+    request = context['request']
     currencies = Currency.objects.all()
     levels = CustomUser.SPIRITUAL_LEVEL_CHOICES
 
     ctx = {
-        'managers': managers,
-        'countries': countries,
-        'departments': departments,
-        'hierarchies': hierarchies,
-        'divisions': divisions,
+        'request': request,
         'currencies': currencies,
         'spiritual_levels': [{'id': v[0], 'title': v[1]} for v in levels]
     }
@@ -58,3 +49,14 @@ def available_summits(user, summit_type=None):
     if summit_type:
         return summit_type.summits.filter(**qs_filter).distinct()
     return Summit.objects.filter(**qs_filter).distinct()
+
+
+@register.simple_tag
+def is_summit_consultant_or_high(user, summit):
+    return user.is_summit_consultant_or_high(summit)
+
+
+@register.simple_tag
+def is_summit_supervisor_or_high(user, summit):
+    return user.is_summit_supervisor_or_high(summit)
+

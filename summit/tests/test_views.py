@@ -1,7 +1,8 @@
 from decimal import Decimal
 
 import pytest
-from django.db.models import OuterRef, Exists
+from django.db.models import OuterRef, Exists, F, CharField, Value, Subquery
+from django.db.models.functions import Coalesce
 from django.urls import reverse
 from rest_framework import status
 
@@ -9,7 +10,7 @@ from payment.serializers import PaymentShowSerializer
 from summit.models import Summit, SummitLesson, SummitAnket, SummitAttend
 from summit.serializers import (
     SummitSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer, SummitAnketNoteSerializer)
-from summit.views import SummitProfileListView, SummitStatisticsView
+from summit.views import SummitProfileListView, SummitStatisticsView, ToChar
 
 
 def get_queryset(s):
@@ -17,8 +18,13 @@ def get_queryset(s):
 
 
 def get_stats_queryset(self):
-    subqs = SummitAttend.objects.filter(date=self.filter_date, anket=OuterRef('pk'))
-    qs = self.summit.ankets.select_related('user').annotate(attended=Exists(subqs)).annotate_full_name().order_by(
+    subqs = SummitAttend.objects.filter(date=self.filter_date, anket=OuterRef('pk')).annotate(
+        first_time=Coalesce(
+            ToChar(F('time'), function='to_char', time_format='HH24:MI:SS', output_field=CharField()),
+            Value('true'),
+            output_field=CharField()))
+    qs = self.summit.ankets.select_related('user', 'status').annotate(
+        attended=Subquery(subqs.values('first_time')[:1], output_field=CharField())).annotate_full_name().order_by(
         'user__last_name', 'user__first_name', 'user__middle_name')
     return qs
 

@@ -28,6 +28,9 @@
                     <button id="filter_button">Фильтр</button>
                 </li>
                 <li>
+                    <button id="export_table" data-export-url="{% url "summit-stats-export" pk=summit.id %}" class="download header__button">Export</button>
+                </li>
+                <li>
                     <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
                 </li>
             </ul>
@@ -203,6 +206,9 @@
                             <span class="label_block">Ответственный</span>
                         </div>
                         <div class="label_block-wrapp">
+                            <span class="label_block">Фильтр по времени</span>
+                        </div>
+                        <div class="label_block-wrapp">
                             <span class="label_block">Фильтр по email</span>
                         </div>
                         <div class="label_block-wrapp">
@@ -249,6 +255,9 @@
                             </select>
                         </p>
                         <p class="input_block">
+                            <input type="text" placeholder="от" data-filter="attend_from" id="time_from" class="select_time_filter only-time"><input type="text" placeholder="до" data-filter="attend_to" id="time_to" class="select_time_filter only-time">
+                        </p>
+                        <p class="input_block">
                             <input type="email" data-filter="search_email" placeholder="email" id="search_email">
                         </p>
                         <p class="input_block">
@@ -261,6 +270,7 @@
                         <p class="input_block">
                             <input type="text" data-filter="search_city" placeholder="город" id="search_city">
                         </p>
+
                     </div>
                 </div>
             </div>

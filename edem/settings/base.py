@@ -282,7 +282,26 @@ CELERYBEAT_SCHEDULE = {
     'meetings_to_expired': {
         'task': 'meetings_to_expired',
         'schedule': crontab(hour=0, minute=0, day_of_week='mon')
-    }
+    },
+    # # Executes every monday evening at 00:05 A.M
+    # 'create_new_church_reports': {
+    #     'task': 'create_new_meetings',
+    #     'schedule': crontab(hour=0, minute=5, day_of_week='mon')
+    # },
+    # # Executes every monday evening at 00:00 A.M
+    # 'church_reports_to_expired': {
+    #     'task': 'meetings_to_expired',
+    #     'schedule': crontab(hour=0, minute=0, day_of_week='mon')
+    # },
+    # Executes every day, every 1 minutes
+    # 'get_palace_logs': {
+    #     'task': 'get_palace_logs',
+    #     'schedule': 10
+    # },
+    # 'anket_autoban': {
+    #     'task': 'anket_autoban',
+    #     'schedule': 24 * 2 * 60 * 60
+    # },
 }
 
 import djcelery
@@ -301,13 +320,16 @@ SITE_DOMAIN_URL = 'http://vocrm.org/'
 ARCHONS = [1, ]
 AXES_COOLOFF_TIME = 1
 
+LOG_FILE = env('LOG_FILE', default='/tmp/vocrm.log')
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
     'formatters': {
         'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s '
-                      '%(process)d %(thread)d %(message)s'
+            'format': '%(levelname)s || %(asctime)s || '
+                      '%(module)s || %(name)s || %(lineno)d || '
+                      '%(message)s'
         },
     },
     'filters': {
@@ -320,37 +342,43 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose'
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': LOG_FILE,
+            'formatter': 'verbose'
         }
     },
     'loggers': {
         'django.db.backends': {
             'level': 'ERROR',
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'propagate': False,
         },
         'account.views': {
             'level': 'DEBUG',
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'propagate': False,
         },
         'event.views': {
             'level': 'DEBUG',
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'propagate': False,
         },
         'summit.views': {
             'level': 'DEBUG',
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'propagate': False,
         },
         'raven': {
             'level': 'DEBUG',
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'propagate': False,
         },
         'sentry.errors': {
             'level': 'DEBUG',
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'propagate': False,
         },
     },

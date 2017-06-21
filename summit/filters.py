@@ -1,13 +1,15 @@
+from datetime import datetime
+
 import django_filters
 import rest_framework_filters as filters_new
-from django.db.models import OuterRef
+from django.db.models import OuterRef, Subquery
+from django.db.models import Q
 from rest_framework.filters import BaseFilterBackend
 
 from account.filters import FilterMasterTreeWithSelf
 from account.models import CustomUser
 from hierarchy.models import Hierarchy, Department
 from summit.models import Summit, SummitAnket, SummitAttend
-from datetime import datetime
 
 
 class FilterByClub(BaseFilterBackend):
@@ -40,6 +42,38 @@ class HasPhoto(BaseFilterBackend):
                 return queryset.filter(user__image='')
             return queryset.exclude(user__image='')
         return queryset
+
+
+class FilterByTime(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        """
+        Return a filtered queryset.
+        """
+        params = request.query_params
+        attend_from = params.get('attend_from', None)
+        attend_to = params.get('attend_to', None)
+        d = view.filter_date
+        if attend_from and attend_to:
+            attends = SummitAttend.objects.filter(
+                Q(date=d) &
+                (Q(time__range=(attend_from, attend_to)) |
+                 (Q(time__isnull=True) & Q(created_at__time__range=(attend_from, attend_to)))),
+                anket=OuterRef('pk'))
+        elif attend_from:
+            attends = SummitAttend.objects.filter(
+                Q(date=d) &
+                (Q(time__gte=attend_from) |
+                 (Q(time__isnull=True) & Q(created_at__time__gte=attend_from))),
+                anket=OuterRef('pk'))
+        elif attend_to:
+            attends = SummitAttend.objects.filter(
+                Q(date=d) &
+                (Q(time__lte=attend_to) |
+                 (Q(time__isnull=True) & Q(created_at__time__lte=attend_to))),
+                anket=OuterRef('pk'))
+        else:
+            return queryset
+        return queryset.filter(pk__in=Subquery(attends.values('anket_id')[:1]))
 
 
 class ProductFilter(django_filters.FilterSet):
@@ -85,7 +119,7 @@ class FilterBySummitAttend(BaseFilterBackend):
 
         if int(is_visited) == 1:
             queryset = queryset.filter(attends__date__range=[from_date, to_date])
-        if int(is_visited) == 2:
+        elif int(is_visited) == 2:
             queryset = queryset.exclude(attends__date__range=[from_date, to_date])
 
         return queryset
@@ -96,8 +130,18 @@ class FilterBySummitAttendByDate(BaseFilterBackend):
         attended = request.query_params.get('attended', '')
 
         if attended.upper() in ('TRUE', 'T', 'YES', 'Y', '1'):
-            return queryset.filter(attended=True)
+            return queryset.filter(attended__isnull=False)
         elif attended.upper() in ('FALSE', 'F', 'NO', 'N', '0'):
-            return queryset.filter(attended=False)
+            return queryset.filter(attended__isnull=True)
 
+        return queryset
+
+
+class FilterByElecTicketStatus(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        e_ticket = request.query_params.get('e_ticket', None)
+        if e_ticket in ('true', 'false'):
+            if e_ticket == 'false':
+                return queryset.filter(Q(status__reg_code_requested=None) | Q(status__reg_code_requested=False))
+            return queryset.filter(status__reg_code_requested=True)
         return queryset

@@ -5,7 +5,6 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.mail import EmailMultiAlternatives
-from django.template import Context
 from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status
@@ -81,7 +80,7 @@ def password_forgot(request):
     try:
         user = User.objects.get(email=email, can_login=True)
     except User.DoesNotExist:
-        if User.objects.get(email=email).exists():
+        if User.objects.filter(email=email).exists():
             return Response(data={'detail': _('Вы не имеете право для входа на сайт.')},
                             status=status.HTTP_400_BAD_REQUEST)
         return Response(data={'detail': _('Пользователя с таким email не существует')},

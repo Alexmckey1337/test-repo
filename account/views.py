@@ -244,14 +244,21 @@ class UserViewSet(viewsets.ModelViewSet, UserExportViewSetMixin):
 
     @list_route(methods=['GET'], serializer_class=DashboardSerializer)
     def dashboard_counts(self, request):
-        result = {}
-        current_user_descendants = User.objects.get(user_ptr=self.request.user).get_descendants()
+        user_id = request.query_params.get('user_id')
+        if user_id:
+            user = get_object_or_404(User, pk=user_id)
+        else:
+            user = self.request.user
 
-        result['total_peoples'] = current_user_descendants.count()
-        result['babies_count'] = current_user_descendants.filter(spiritual_level=User.BABY).count()
-        result['juniors_count'] = current_user_descendants.filter(spiritual_level=User.JUNIOR).count()
-        result['fathers_count'] = current_user_descendants.filter(spiritual_level=User.FATHER).count()
-        result['leaders_count'] = current_user_descendants.filter(home_group__leader__isnull=False).count()
+        current_user_descendants = User.objects.get(user_ptr=user).get_descendants()
+
+        result = {
+            'total_peoples': current_user_descendants.count(),
+            'babies_count': current_user_descendants.filter(spiritual_level=User.BABY).count(),
+            'juniors_count': current_user_descendants.filter(spiritual_level=User.JUNIOR).count(),
+            'fathers_count': current_user_descendants.filter(spiritual_level=User.FATHER).count(),
+            'leaders_count': current_user_descendants.filter(home_group__leader__isnull=False).count()
+        }
 
         result = self.serializer_class(result)
         return Response(result.data)
