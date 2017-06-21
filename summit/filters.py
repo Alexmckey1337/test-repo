@@ -106,7 +106,7 @@ class FilterBySummitAttend(BaseFilterBackend):
 
         if int(is_visited) == 1:
             queryset = queryset.filter(attends__date__range=[from_date, to_date])
-        if int(is_visited) == 2:
+        elif int(is_visited) == 2:
             queryset = queryset.exclude(attends__date__range=[from_date, to_date])
 
         return queryset
