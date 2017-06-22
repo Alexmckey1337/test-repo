@@ -44,7 +44,7 @@ from .serializers import (
     SummitAnketForTicketSerializer, SummitVisitorLocationSerializer, SummitEventTableSerializer,
     SummitProfileTreeForAppSerializer, SummitAnketCodeSerializer, AnketActiveStatusSerializer,
     SummitAnketStatisticsSerializer, SummitAcceptMobileCodeSerializer, SummitAttendSerializer,
-    MasterSerializer)
+    MasterSerializer, SummitProfileUpdateSerializer, SummitProfileCreateSerializer)
 from .tasks import generate_tickets
 
 logger = logging.getLogger(__name__)
@@ -203,12 +203,21 @@ class SummitStatisticsExportView(SummitStatisticsView, ExportViewSetMixin):
         return self._export(request, *args, **kwargs)
 
 
-class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
+class SummitProfileViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
                            mixins.DestroyModelMixin, GenericViewSet,
                            CreatePaymentMixin, ListPaymentMixin):
     queryset = SummitAnket.objects.base_queryset().annotate_total_sum().annotate_full_name()
     serializer_class = SummitAnketSerializer
+    serializer_update_class = SummitProfileUpdateSerializer
+    serializer_create_class = SummitProfileCreateSerializer
     permission_classes = (IsAuthenticated,)
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return self.serializer_create_class
+        if self.action in ('update', 'partial_update'):
+            return self.serializer_update_class
+        return self.serializer_class
 
     def perform_destroy(self, anket):
         if anket.payments.exists():
@@ -236,37 +245,6 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
             'users': SummitAnketShortSerializer(consultees, many=True).data,
             'consultants': SummitAnketShortSerializer(consultants, many=True).data,
         })
-
-    def _get_user_and_summit(self):
-        user_id = self.request.data.get('user_id')
-        summit_id = self.request.data.get('summit_id')
-        if not (user_id and summit_id):
-            raise exceptions.ValidationError({"message": _('Некоректные данные')})
-
-        try:
-            user = CustomUser.objects.filter(id=user_id).first()
-            summit = Summit.objects.filter(id=summit_id).first()
-        except CustomUser.DoesNotExist:
-            raise exceptions.ValidationError({"message": _('Такого пользователя не существует')})
-        except Summit.DoesNotExist:
-            raise exceptions.ValidationError({"message": _('Такой саммит отсутствует')})
-        return user, summit
-
-    @list_route(methods=['post'], )
-    def post_anket(self, request):
-        user, summit = self._get_user_and_summit()
-
-        profile, created = SummitAnket.objects.get_or_create(user=user, summit=summit, defaults={
-            'description': self.request.data.get('description', ''),
-            'creator': self.request.user,
-        })
-        if created:
-            profile.code = '0{}'.format(4 * 1000 * 1000 + profile.id)
-        elif self.request.data.get('description', None) is not None:
-            profile.description = self.request.data['description']
-        profile.save()
-
-        return Response({"message": "Данные успешно сохраненны"})
 
     @detail_route(methods=['get'])
     def notes(self, request, pk=None):

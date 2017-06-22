@@ -274,11 +274,7 @@
     });
 
     $('#applyChanges').on('click', function () {
-        let summit_id = $('#summitUsersList').data('summit');
-        let sendData = {
-            summit_id: summit_id
-        };
-
+        let profileID = $(this).data('id');
         let formData = $('#participantInfoForm').serializeArray();
         let data = {};
 
@@ -286,16 +282,15 @@
             data[item.name] = (item.value == 'on') ? true : item.value;
         });
 
-        Object.assign(sendData, data);
-        updateSummitParticipant(sendData);
+        updateSummitParticipant(profileID, data);
         closePopup(this);
     });
 
     $('#complete').on('click', function () {
-        let id = $(this).attr('data-id'),
+        let userID = $(this).attr('data-id'),
             description = $('#popup textarea').val(),
-            summit_id = $('#summitUsersList').data('summit');
-        registerUser(id, summit_id, description);
+            summitID = $('#summitUsersList').data('summit');
+        registerUser(userID, summitID, description);
 
         document.querySelector('#popup').style.display = 'none';
     });
@@ -311,14 +306,14 @@
         });
     }
 
-    function updateSummitParticipant(data) {
-        registerUserToSummit(JSON.stringify(data));
+    function updateSummitParticipant(profileID, data) {
+        updateSummitProfile(profileID, JSON.stringify(data));
     }
 
     function registerUser(id, summit_id, description) {
         let data = {
-            "user_id": id,
-            "summit_id": summit_id,
+            "user": id,
+            "summit": summit_id,
             "description": description,
         };
 

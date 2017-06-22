@@ -71,6 +71,18 @@ class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
                   )
 
 
+class SummitProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SummitAnket
+        fields = ('description',)
+
+
+class SummitProfileCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SummitAnket
+        fields = ('summit', 'user', 'description',)
+
+
 class SummitAnketStatisticsSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField()
     phone_number = serializers.CharField(source='user.phone_number')
@@ -210,7 +222,7 @@ class CustomVisitorsLocationSerializer(serializers.ReadOnlyField):
             date_time = datetime.strptime(date_time.replace('T', ' '), '%Y-%m-%d %H:%M:%S')
         except ValueError:
             end_date = datetime.now()
-            start_date = end_date - timedelta(minutes=2*interval)
+            start_date = end_date - timedelta(minutes=2 * interval)
         else:
             start_date = date_time - timedelta(minutes=interval)
             end_date = date_time + timedelta(minutes=interval)

@@ -782,16 +782,49 @@ function getPotencialSammitUsers(config) {
 }
 
 function registerUserToSummit(config) {
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/post_anket/', config, function (data) {
-        showPopup(data.message);
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/', config, function (data) {
+        showPopup("Пользователь добавлен в саммит.");
         createSummitUsersTable();
-        $("#send_email").prop("checked", false);
     }, 'POST', true, {
         'Content-Type': 'application/json'
     }, {
         400: function (data) {
-            showPopup(data.message);
-            $("#send_email").prop("checked", false);
+            data = data.responseJSON;
+            showPopup(data.detail);
+        },
+        404: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail);
+        },
+        403: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail);
+        }
+    });
+}
+
+function updateSummitProfile(profileID, config) {
+    ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${profileID}/`, config, function (data) {
+        showPopup("Данные участника саммита изменены.");
+        createSummitUsersTable();
+    }, 'PATCH', true, {
+        'Content-Type': 'application/json'
+    }, {
+        400: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail);
+        },
+        404: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail);
+        },
+        403: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail);
+        },
+        405: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail);
         }
     });
 }
@@ -2796,6 +2829,7 @@ function makeQuickEditSammitCart(el) {
         $('#summit-valueDelete').val(data.total_sum);
         $('#member').prop("checked", data.is_member);
         $('#userID').val(data.user_id);
+        $('#applyChanges').data('id', data.id);
         $('#preDeleteAnket').attr('data-id', data.user_id).attr('data-anket', data.id);
         $('#popupParticipantInfo').css('display', 'block');
     }, 'GET', true, {
