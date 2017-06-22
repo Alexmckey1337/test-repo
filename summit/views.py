@@ -219,6 +219,11 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mix
             return self.serializer_update_class
         return self.serializer_class
 
+    def perform_create(self, serializer):
+        profile = serializer.save()
+        profile.code = '0{}'.format(4*1000*1000 + profile.id)
+        profile.save()
+
     def perform_destroy(self, anket):
         if anket.payments.exists():
             payments = PaymentShowWithUrlSerializer(
