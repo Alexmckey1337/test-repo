@@ -545,6 +545,51 @@ class TestSummitProfileViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert profile.ticket_status == new_status
 
+    @pytest.mark.hh
+    def test_delete_without_payments(self, monkeypatch, api_client, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+        profile = summit_anket_factory()
+
+        url = reverse('summit_ankets-detail', kwargs={'pk': profile.pk})
+
+        response = api_client.delete(url, format='json')
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    @pytest.mark.hh
+    def test_delete_with_payments(self, monkeypatch, api_client, summit_anket_factory, payment_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory()
+        payment_factory(purpose=profile)
+
+        url = reverse('summit_ankets-detail', kwargs={'pk': profile.pk})
+        response = api_client.delete(url, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    @pytest.mark.hh
+    def test_predelete_status(self, monkeypatch, api_client, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+        profile = summit_anket_factory()
+
+        url = reverse('summit_ankets-predelete', kwargs={'pk': profile.pk})
+
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+
+    @pytest.mark.hh
+    def test_predelete_data(self, monkeypatch, api_client, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+        profile = summit_anket_factory()
+
+        url = reverse('summit_ankets-predelete', kwargs={'pk': profile.pk})
+
+        response = api_client.get(url, format='json')
+
+        assert set(response.data.keys()) == {'notes', 'lessons', 'summits', 'users', 'consultants'}
+
 
 @pytest.mark.django_db
 class TestSummitTicketMakePrintedView:
