@@ -70,9 +70,6 @@ events_patterns = [
 summit_patterns = [
     url(r'^$', login_required(redirect_to_summits, login_url='entry'), name='main'),
 
-    url(r'^types/$', views.summits, name='type-list'),
-    url(r'^types/(?P<pk>\d+)/$', views.SummitTypeView.as_view(), name='type-detail'),
-
     url(r'^(?P<pk>\d+)/$', views.SummitDetailView.as_view(), name='detail'),
     url(r'^open/$', views.OpenSummitListView.as_view(), name='open'),
     url(r'^closed/$', views.ClosedSummitListView.as_view(), name='closed'),

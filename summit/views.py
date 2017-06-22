@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 import logging
 from datetime import datetime, timedelta
 
-from dbmail import send_db_mail
 from django.conf import settings
 from django.db import transaction, IntegrityError
 from django.db.models import (
@@ -238,51 +237,36 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
             'consultants': SummitAnketShortSerializer(consultants, many=True).data,
         })
 
+    def _get_user_and_summit(self):
+        user_id = self.request.data.get('user_id')
+        summit_id = self.request.data.get('summit_id')
+        if not (user_id and summit_id):
+            raise exceptions.ValidationError({"message": _('Некоректные данные')})
+
+        try:
+            user = CustomUser.objects.filter(id=user_id).first()
+            summit = Summit.objects.filter(id=summit_id).first()
+        except CustomUser.DoesNotExist:
+            raise exceptions.ValidationError({"message": _('Такого пользователя не существует')})
+        except Summit.DoesNotExist:
+            raise exceptions.ValidationError({"message": _('Такой саммит отсутствует')})
+        return user, summit
+
     @list_route(methods=['post'], )
     def post_anket(self, request):
-        keys = request.data.keys()
-        if not ('user_id' in keys and 'summit_id' in keys):
-            return Response({"message": "Некоректные данные", 'status': False})
+        user, summit = self._get_user_and_summit()
 
-        user = CustomUser.objects.filter(id=request.data['user_id']).first()
-        if not user:
-            return Response({"message": "Такого пользователя не существует", 'status': False})
+        profile, created = SummitAnket.objects.get_or_create(user=user, summit=summit, defaults={
+            'description': self.request.data.get('description', ''),
+            'creator': self.request.user,
+        })
+        if created:
+            profile.code = '0{}'.format(4 * 1000 * 1000 + profile.id)
+        elif self.request.data.get('description', None) is not None:
+            profile.description = self.request.data['description']
+        profile.save()
 
-        summit = Summit.objects.filter(id=request.data['summit_id']).first()
-        if not summit:
-            return Response({"message": "Такой саммит отсутствует", 'status': False})
-
-        anket = SummitAnket.objects.filter(user=user, summit=summit)
-        visited = request.data.get('visited', None)
-        if anket.exists():
-            anket = anket.get()
-            if len(request.data['description']) > 0:
-                anket.description = request.data['description']
-            if visited in (True, False):
-                anket.visited = visited
-            anket.save()
-        else:
-            anket = SummitAnket.objects.create(
-                user=user, summit=summit, visited=visited, description=request.data['description'])
-            anket.code = '0{}'.format(4 * 1000 * 1000 + anket.id)
-            anket.creator = request.user
-            anket.save()
-        data = {"message": "Данные успешно сохраненны",
-                'status': True}
-        if (data['status'] and request.data.get('send_email', False) and
-                anket.summit.mail_template and anket.user.email and
-                (int(request.user.id) == 4035 or True)):
-            attach = generate_ticket(anket.code)
-            pdf_name = '{} ({}).pdf'.format(anket.user.fullname, anket.code)
-            send_db_mail(
-                anket.summit.mail_template.slug,
-                anket.user.email,
-                anket,
-                attachments=[(pdf_name, attach, 'application/pdf')],
-                signals_kwargs={'anket': anket}
-            )
-
-        return Response(data)
+        return Response({"message": "Данные успешно сохраненны"})
 
     @detail_route(methods=['get'])
     def notes(self, request, pk=None):

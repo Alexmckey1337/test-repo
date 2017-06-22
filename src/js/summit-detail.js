@@ -276,7 +276,6 @@
     $('#applyChanges').on('click', function () {
         let summit_id = $('#summitUsersList').data('summit');
         let sendData = {
-            send_email: false,
             summit_id: summit_id
         };
 
@@ -294,10 +293,9 @@
 
     $('#complete').on('click', function () {
         let id = $(this).attr('data-id'),
-            money = $('#summit-value').val(),
             description = $('#popup textarea').val(),
             summit_id = $('#summitUsersList').data('summit');
-        registerUser(id, summit_id, money, description);
+        registerUser(id, summit_id, description);
 
         document.querySelector('#popup').style.display = 'none';
     });
@@ -314,28 +312,14 @@
     }
 
     function updateSummitParticipant(data) {
-        // let member_club = $("#member").prop("checked");
-        // let send_email = $("#send_email").prop("checked");
-        // let data = {
-        //     "user_id": id,
-        //     "summit_id": summit_id,
-        //     "description": description,
-        //     "visited": member_club,
-        //     "send_email": send_email
-        // };
         registerUserToSummit(JSON.stringify(data));
     }
 
-    function registerUser(id, summit_id, money, description) {
-        let member_club = $("#member").prop("checked");
-        let send_email = $("#send_email").prop("checked");
+    function registerUser(id, summit_id, description) {
         let data = {
             "user_id": id,
             "summit_id": summit_id,
-            "value": money,
             "description": description,
-            "visited": member_club || false,
-            "send_email": send_email,
         };
 
         let json = JSON.stringify(data);

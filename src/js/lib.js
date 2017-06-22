@@ -782,18 +782,17 @@ function getPotencialSammitUsers(config) {
 }
 
 function registerUserToSummit(config) {
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/post_anket/', config, function (JSONobj) {
-        if (JSONobj.status) {
-            showPopup(JSONobj.message);
-            createSummitUsersTable();
-            // getUnregisteredUsers();
-            $("#send_email").prop("checked", false);
-        } else {
-            showPopup(JSONobj.message);
-            $("#send_email").prop("checked", false);
-        }
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/post_anket/', config, function (data) {
+        showPopup(data.message);
+        createSummitUsersTable();
+        $("#send_email").prop("checked", false);
     }, 'POST', true, {
         'Content-Type': 'application/json'
+    }, {
+        400: function (data) {
+            showPopup(data.message);
+            $("#send_email").prop("checked", false);
+        }
     });
 }
 
