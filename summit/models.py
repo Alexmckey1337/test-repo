@@ -168,7 +168,7 @@ class ProfileAbstract(models.Model):
 
 @python_2_unicode_compatible
 class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
-    user = models.ForeignKey('account.CustomUser', related_name='summit_ankets')
+    user = models.ForeignKey('account.CustomUser', related_name='summit_profiles')
     summit = models.ForeignKey('Summit', related_name='ankets', verbose_name='Саммит',
                                blank=True, null=True)
 
@@ -195,7 +195,7 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
         through='summit.SummitUserConsultant', through_fields=('user', 'summit'))
 
     #: Payments of the current anket
-    payments = GenericRelation('payment.Payment', related_query_name='summit_ankets')
+    payments = GenericRelation('payment.Payment', related_query_name='summit_profiles')
 
     # Editable fields
     description = models.CharField(max_length=255, blank=True)

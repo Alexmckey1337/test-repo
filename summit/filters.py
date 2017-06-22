@@ -86,7 +86,7 @@ class ProductFilter(django_filters.FilterSet):
 
 
 class SummitUnregisterFilter(filters_new.FilterSet):
-    summit_id = filters_new.CharFilter(name="summit_ankets__summit__id", exclude=True)
+    summit_id = filters_new.CharFilter(name="summit_profiles__summit__id", exclude=True)
 
     class Meta:
         model = CustomUser

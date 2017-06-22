@@ -97,7 +97,7 @@ class CustomUser(MPTTModel, User, CustomUserAbstract,
 
     def save(self, *args, **kwargs):
         super(CustomUser, self).save(*args, **kwargs)
-        for profile in self.summit_ankets.all():
+        for profile in self.summit_profiles.all():
             profile.save()
         SummitAnket.objects.filter(
             summit__status=Summit.OPEN,

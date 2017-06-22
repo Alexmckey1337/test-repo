@@ -296,7 +296,7 @@
     });
 
     function unsubscribeOfSummit(id) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/' + id + '/', null, function () {
+        ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_profiles/${id}/`, null, function () {
             let data = {};
             data['summit'] = summit_id;
             getUsersList(path, data);
@@ -331,7 +331,7 @@
 
         let json = JSON.stringify(data);
 
-        ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/summit_ankets/${id}/create_payment/`, json, function (JSONobj) {
+        ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/summit_profiles/${id}/create_payment/`, json, function (JSONobj) {
             showPopup('Оплата прошла успешно.');
         }, 'POST', true, {
             'Content-Type': 'application/json'
@@ -344,7 +344,7 @@
     }
 
     function show_payments(id) {
-        ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/summit_ankets/${id}/payments/`, null, function (data) {
+        ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/summit_profiles/${id}/payments/`, null, function (data) {
             let payments_table = '';
             let sum, date_time;
             data.forEach(function (payment) {
@@ -484,7 +484,7 @@
                 })
             };
         const prifileId = $(this).data('user-id');
-        fetch(`/api/v1.0/summit_ankets/${prifileId}/set_ticket_status/`, option)
+        fetch(`/api/v1.0/summit_profiles/${prifileId}/set_ticket_status/`, option)
             .then( res => res.json())
             .then(data => {
                 $(this).find('.text').text(data.text);

@@ -289,7 +289,7 @@ class SummitListMixin(LoginRequiredMixin, ListView):
     status = None
 
     def get_queryset(self):
-        available_summits = self.request.user.summit_ankets.filter(
+        available_summits = self.request.user.summit_profiles.filter(
             role__gte=settings.SUMMIT_ANKET_ROLES['consultant']).values_list('summit_id', flat=True)
         return super(SummitListMixin, self).get_queryset().filter(status=self.status, pk__in=available_summits)
 

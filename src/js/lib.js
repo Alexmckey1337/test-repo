@@ -226,7 +226,7 @@ function getChurches(config = {}) {
 
 function predeliteAnket(id) {
     let config = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${id}/predelete/`,
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_profiles/${id}/predelete/`,
     };
     return new Promise((resolve, reject) => {
         let codes = {
@@ -243,7 +243,7 @@ function predeliteAnket(id) {
 
 function deleteSummitProfile(id) {
     let config = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${id}/`,
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_profiles/${id}/`,
         method: "DELETE"
     };
     return new Promise((resolve, reject) => {
@@ -782,7 +782,7 @@ function getPotencialSammitUsers(config) {
 }
 
 function registerUserToSummit(config) {
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/', config, function (data) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_profiles/', config, function (data) {
         showPopup("Пользователь добавлен в саммит.");
         createSummitUsersTable();
     }, 'POST', true, {
@@ -804,7 +804,7 @@ function registerUserToSummit(config) {
 }
 
 function updateSummitProfile(profileID, config) {
-    ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${profileID}/`, config, function (data) {
+    ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_profiles/${profileID}/`, config, function (data) {
         showPopup("Данные участника саммита изменены.");
         createSummitUsersTable();
     }, 'PATCH', true, {
@@ -2822,7 +2822,7 @@ function makeQuickEditSammitCart(el) {
     anketID = $(el).closest('td').find('a').data('ankets');
     id = $(el).closest('td').find('a').data('id');
     link = $(el).closest('td').find('a').data('link');
-    url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${anketID}/`;
+    url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_profiles/${anketID}/`;
     ajaxRequest(url, null, function (data) {
         $('#fullNameCard').text(data.full_name);
         $('#userDescription').val(data.description);

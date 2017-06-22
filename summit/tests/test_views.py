@@ -5,7 +5,7 @@ import pytest
 from django.conf import settings
 from django.db import IntegrityError
 from django.urls import reverse
-from rest_framework import status, serializers
+from rest_framework import status
 
 from payment.serializers import PaymentShowSerializer
 from summit.models import Summit, SummitLesson, SummitAnket, SummitTicket
@@ -406,7 +406,7 @@ class TestSummitProfileListView:
 @pytest.mark.django_db
 class TestSummitProfileViewSet:
     def test_create_payment(self, api_client, creator, anket, currency_factory):
-        url = reverse('summit_ankets-create-payment', kwargs={'pk': anket.id})
+        url = reverse('summit_profiles-create-payment', kwargs={'pk': anket.id})
 
         api_client.force_login(creator['anket'].user)
         api_login_client = api_client
@@ -431,7 +431,7 @@ class TestSummitProfileViewSet:
 
     def test_payments(self, api_client, viewer, anket, payment_factory):
         payment_factory.create_batch(6, purpose=anket)
-        url = reverse('summit_ankets-payments', kwargs={'pk': anket.id})
+        url = reverse('summit_profiles-payments', kwargs={'pk': anket.id})
 
         api_client.force_login(viewer['anket'].user)
         api_login_client = api_client
@@ -443,7 +443,7 @@ class TestSummitProfileViewSet:
             assert response.data == PaymentShowSerializer(anket.payments.all(), many=True).data
 
     def test_create_note(self, api_login_client, anket):
-        url = reverse('summit_ankets-create-note', kwargs={'pk': anket.id})
+        url = reverse('summit_profiles-create-note', kwargs={'pk': anket.id})
 
         data = {
             'text': 'very long text',
@@ -459,7 +459,7 @@ class TestSummitProfileViewSet:
     def test_notes(self, api_client, summit_anket_factory, anket, anket_note_factory):
         anket_note_factory.create_batch(6)
         consultant_anket = summit_anket_factory(summit=anket.summit, role=SummitAnket.CONSULTANT)
-        url = reverse('summit_ankets-notes', kwargs={'pk': anket.id})
+        url = reverse('summit_profiles-notes', kwargs={'pk': anket.id})
 
         api_client.force_login(consultant_anket.user)
         response = api_client.get(url, format='json')
@@ -475,7 +475,7 @@ class TestSummitProfileViewSet:
         profiles = summit_anket_factory.create_batch(2, summit=summit)
         summit_anket_factory.create_batch(4, summit=other_summit)
 
-        url = reverse('summit_ankets-codes')
+        url = reverse('summit_profiles-codes')
 
         response = api_client.get('{}?summit_id={}'.format(url, summit.id), format='json')
 
@@ -492,7 +492,7 @@ class TestSummitProfileViewSet:
 
         profile = summit_anket_factory(ticket_status='none')
 
-        url = reverse('summit_ankets-set-ticket-status', kwargs={'pk': profile.pk})
+        url = reverse('summit_profiles-set-ticket-status', kwargs={'pk': profile.pk})
 
         response = api_client.post(url, data={'new_status': new_status}, format='json')
         profile.refresh_from_db()
@@ -507,7 +507,7 @@ class TestSummitProfileViewSet:
 
         profile = summit_anket_factory(ticket_status='none')
 
-        url = reverse('summit_ankets-set-ticket-status', kwargs={'pk': profile.pk})
+        url = reverse('summit_profiles-set-ticket-status', kwargs={'pk': profile.pk})
 
         response = api_client.post(url, data={'new_status': new_status}, format='json')
         profile.refresh_from_db()
@@ -521,7 +521,7 @@ class TestSummitProfileViewSet:
 
         profile = summit_anket_factory(ticket_status='invalid')
 
-        url = reverse('summit_ankets-set-ticket-status', kwargs={'pk': profile.pk})
+        url = reverse('summit_profiles-set-ticket-status', kwargs={'pk': profile.pk})
 
         response = api_client.post(url, format='json')
         profile.refresh_from_db()
@@ -537,7 +537,7 @@ class TestSummitProfileViewSet:
 
         profile = summit_anket_factory(ticket_status=old_status)
 
-        url = reverse('summit_ankets-set-ticket-status', kwargs={'pk': profile.pk})
+        url = reverse('summit_profiles-set-ticket-status', kwargs={'pk': profile.pk})
 
         response = api_client.post(url, format='json')
         profile.refresh_from_db()
@@ -545,50 +545,92 @@ class TestSummitProfileViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert profile.ticket_status == new_status
 
-    @pytest.mark.hh
     def test_delete_without_payments(self, monkeypatch, api_client, summit_anket_factory):
         monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
         profile = summit_anket_factory()
 
-        url = reverse('summit_ankets-detail', kwargs={'pk': profile.pk})
+        url = reverse('summit_profiles-detail', kwargs={'pk': profile.pk})
 
         response = api_client.delete(url, format='json')
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
-    @pytest.mark.hh
     def test_delete_with_payments(self, monkeypatch, api_client, summit_anket_factory, payment_factory):
         monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
 
         profile = summit_anket_factory()
         payment_factory(purpose=profile)
 
-        url = reverse('summit_ankets-detail', kwargs={'pk': profile.pk})
+        url = reverse('summit_profiles-detail', kwargs={'pk': profile.pk})
         response = api_client.delete(url, format='json')
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    @pytest.mark.hh
     def test_predelete_status(self, monkeypatch, api_client, summit_anket_factory):
         monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
         profile = summit_anket_factory()
 
-        url = reverse('summit_ankets-predelete', kwargs={'pk': profile.pk})
+        url = reverse('summit_profiles-predelete', kwargs={'pk': profile.pk})
 
         response = api_client.get(url, format='json')
 
         assert response.status_code == status.HTTP_200_OK
 
-    @pytest.mark.hh
     def test_predelete_data(self, monkeypatch, api_client, summit_anket_factory):
         monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
         profile = summit_anket_factory()
 
-        url = reverse('summit_ankets-predelete', kwargs={'pk': profile.pk})
+        url = reverse('summit_profiles-predelete', kwargs={'pk': profile.pk})
 
         response = api_client.get(url, format='json')
 
         assert set(response.data.keys()) == {'notes', 'lessons', 'summits', 'users', 'consultants'}
+
+    def test_partial_update_status_code(self, monkeypatch, api_client, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory()
+
+        url = reverse('summit_profiles-detail', kwargs={'pk': profile.pk})
+        response = api_client.patch(url, data={'description': 'two'}, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_partial_update_data(self, monkeypatch, api_client, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory(description='one')
+
+        url = reverse('summit_profiles-detail', kwargs={'pk': profile.pk})
+        api_client.patch(url, data={'description': 'two'}, format='json')
+        profile.refresh_from_db()
+
+        assert profile.description == 'two'
+
+    def test_create_status_code(self, monkeypatch, api_client, user_factory, summit_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+
+        user = user_factory()
+        summit = summit_factory()
+
+        url = reverse('summit_profiles-list')
+
+        response = api_client.post(url, data={'user': user.id, 'summit': summit.id}, format='json')
+
+        assert response.status_code == status.HTTP_201_CREATED
+
+    def test_create_summit_code(self, monkeypatch, api_client, user_factory, summit_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+
+        user = user_factory()
+        summit = summit_factory()
+
+        url = reverse('summit_profiles-list')
+
+        api_client.post(url, data={'user': user.id, 'summit': summit.id}, format='json')
+        profile = SummitAnket.objects.order_by('pk').last()
+
+        assert profile.code == '0{}'.format(4000000 + profile.id)
 
 
 @pytest.mark.django_db

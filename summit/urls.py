@@ -7,13 +7,13 @@ from rest_framework import routers
 from summit import views
 
 router_v1_0 = routers.DefaultRouter()
-router_v1_0.register(r'summit_ankets', views.SummitProfileViewSet, base_name='summit_ankets')
+router_v1_0.register(r'summit_profiles', views.SummitProfileViewSet, base_name='summit_profiles')
 router_v1_0.register(r'summit_tickets', views.SummitTicketViewSet)
 router_v1_0.register(r'summit_search', views.SummitUnregisterUserViewSet, base_name='summit_search')
 router_v1_0.register(r'summit_lessons', views.SummitLessonViewSet)
 
 router_v1_0.register(r'summit', views.SummitViewSet)
-router_v1_0.register(r'summit_ankets_with_notes', views.SummitAnketWithNotesViewSet,
+router_v1_0.register(r'summit_profiles_with_notes', views.SummitAnketWithNotesViewSet,
                      base_name='ankets_with_notes')
 router_v1_0.register(r'summit_visitors_location', views.SummitVisitorLocationViewSet)
 router_v1_0.register(r'summit_event_table', views.SummitEventTableViewSet)

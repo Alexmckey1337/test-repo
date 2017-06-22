@@ -25,7 +25,7 @@ class ProfileQuerySet(models.query.QuerySet):
     def for_user(self, user):
         if not is_authenticated(user):
             return self.none()
-        summit_ids = set(user.summit_ankets.filter(
+        summit_ids = set(user.summit_profiles.filter(
             role__gte=settings.SUMMIT_ANKET_ROLES['consultant']).values_list('summit_id', flat=True))
         return self.filter(summit__in=summit_ids)
 
