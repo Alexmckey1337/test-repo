@@ -7,7 +7,7 @@ from django.conf import settings
 from django.urls import reverse
 from rest_framework import serializers
 
-from account.models import CustomUser as User
+from account.models import CustomUser as User, CustomUser
 from account.serializers import UserTableSerializer, UserShortSerializer
 from common.fields import ListCharField, ReadOnlyChoiceWithKeyField
 from .models import (Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
@@ -364,3 +364,11 @@ class AnketActiveStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = SummitAnket
         fields = ('anket_id', 'active')
+
+
+class MasterSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField()
+
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'full_name')

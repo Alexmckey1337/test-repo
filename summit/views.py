@@ -14,7 +14,7 @@ from django.db.models import Value as V
 from django.db.models.functions import Concat, Coalesce
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
-from rest_framework import exceptions, viewsets, filters, status, mixins, serializers
+from rest_framework import exceptions, viewsets, filters, status, mixins
 from rest_framework.decorators import list_route, detail_route, api_view
 from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -38,14 +38,14 @@ from summit.utils import generate_ticket, SummitParticipantReport, get_report_by
 from .models import (Summit, SummitAnket, SummitType, SummitLesson, SummitUserConsultant,
                      SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend, AnketStatus, AnketPasses)
 from .serializers import (
-    SummitSerializer, SummitTypeSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
+    SummitSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
     SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer,
     SummitAnketForSelectSerializer, SummitTypeForAppSerializer, SummitAnketForAppSerializer,
     SummitShortSerializer, SummitAnketShortSerializer, SummitLessonShortSerializer, SummitTicketSerializer,
     SummitAnketForTicketSerializer, SummitVisitorLocationSerializer, SummitEventTableSerializer,
     SummitProfileTreeForAppSerializer, SummitAnketCodeSerializer, AnketActiveStatusSerializer,
-    SummitAnketStatisticsSerializer, SummitAcceptMobileCodeSerializer, SummitAttendSerializer
-)
+    SummitAnketStatisticsSerializer, SummitAcceptMobileCodeSerializer, SummitAttendSerializer,
+    MasterSerializer)
 from .tasks import generate_tickets
 
 logger = logging.getLogger(__name__)
@@ -58,11 +58,29 @@ def get_success_headers(data):
         return {}
 
 
-class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
+class SummitProfileListMixin(mixins.ListModelMixin, GenericAPIView):
+    summit = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.summit = get_object_or_404(Summit, pk=kwargs.get('pk', None))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def check_permissions(self, request):
+        super().check_permissions(request)
+        # ``summit`` consultant or high
+        if not CanSeeSummitProfiles().has_object_permission(request, self, self.summit):
+            self.permission_denied(
+                request, message=getattr(CanSeeSummitProfiles, 'message', None)
+            )
+
+
+class SummitProfileListView(SummitProfileListMixin):
     serializer_class = SummitAnketSerializer
     pagination_class = SummitPagination
     permission_classes = (IsAuthenticated,)
-    summit = None
 
     filter_class = ProfileFilter
     ordering_fields = (
@@ -93,56 +111,18 @@ class SummitProfileListView(mixins.ListModelMixin, GenericAPIView):
         'search_city': ('city',),
     }
 
-    def dispatch(self, request, *args, **kwargs):
-        self.summit = get_object_or_404(Summit, pk=kwargs.get('pk', None))
-        return super(SummitProfileListView, self).dispatch(request, *args, **kwargs)
-
-    def check_permissions(self, request):
-        super(SummitProfileListView, self).check_permissions(request)
-        # ``summit`` consultant or high
-        if not CanSeeSummitProfiles().has_object_permission(request, self, self.summit):
-            self.permission_denied(
-                request, message=getattr(CanSeeSummitProfiles, 'message', None)
-            )
-
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
-
     def get_queryset(self):
-        qs = self.summit.ankets.select_related('status')\
+        qs = self.summit.ankets.select_related('status') \
             .base_queryset().annotate_total_sum().annotate_full_name().order_by(
             'user__last_name', 'user__first_name', 'user__middle_name')
         return qs.for_user(self.request.user)
 
 
-class MasterSerializer(serializers.ModelSerializer):
-    full_name = serializers.CharField()
-
-    class Meta:
-        model = CustomUser
-        fields = ('id', 'full_name')
-
-
-class SummitBishopHighMasterListView(mixins.ListModelMixin, GenericAPIView):
+class SummitBishopHighMasterListView(SummitProfileListMixin):
     serializer_class = MasterSerializer
     permission_classes = (IsAuthenticated,)
     queryset = CustomUser.objects.all()
-    summit = None
     pagination_class = None
-
-    def dispatch(self, request, *args, **kwargs):
-        self.summit = get_object_or_404(Summit, pk=kwargs.get('pk', None))
-        return super(SummitBishopHighMasterListView, self).dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
-
-    def check_permissions(self, request):
-        super(SummitBishopHighMasterListView, self).check_permissions(request)
-        if not CanSeeSummitProfiles().has_object_permission(request, self, self.summit):
-            self.permission_denied(
-                request, message=getattr(CanSeeSummitProfiles, 'message', None)
-            )
 
     def get_queryset(self):
         subqs = self.summit.ankets.all()
@@ -188,7 +168,7 @@ class SummitStatisticsView(SummitProfileListView):
         FilterByTime,
     )
 
-    def dispatch(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         filter_date = request.GET.get('date')
         if not filter_date:
             self.filter_date = datetime.now()
@@ -197,18 +177,22 @@ class SummitStatisticsView(SummitProfileListView):
                 self.filter_date = datetime.strptime(filter_date, '%Y-%m-%d')
             except ValueError:
                 raise exceptions.ValidationError(_('Invalid date.'))
-        return super(SummitStatisticsView, self).dispatch(request, *args, **kwargs)
+        return super(SummitStatisticsView, self).get(request, *args, **kwargs)
 
-    def get_queryset(self):
+    def annotate_queryset(self, qs):
         subqs = SummitAttend.objects.filter(date=self.filter_date, anket=OuterRef('pk')).annotate(
             first_time=Coalesce(
                 ToChar(F('time'), function='to_char', time_format='HH24:MI:SS', output_field=CharField()),
                 ToChar(F('created_at'), function='to_char', time_format='HH24:MI:SS el', output_field=CharField()),
                 V('true'),
                 output_field=CharField()))
-        qs = self.summit.ankets.select_related('user', 'status').annotate(
+        qs = qs.select_related('user', 'status').annotate(
             attended=Subquery(subqs.values('first_time')[:1], output_field=CharField())).annotate_full_name().order_by(
             'user__last_name', 'user__first_name', 'user__middle_name')
+        return qs
+
+    def get_queryset(self):
+        qs = self.annotate_queryset(self.summit.ankets)
         return qs.for_user(self.request.user)
 
 
@@ -331,17 +315,14 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         ankets = SummitAnket.objects.filter(summit=summit_id)
 
         page = self.paginate_queryset(ankets)
-        if page is not None:
-            ankets = serializer(page, many=True)
-            return self.get_paginated_response(ankets.data)
-        ankets = serializer(ankets, many=True)
+        ankets = serializer(page, many=True)
 
-        return Response(ankets.data)
+        return self.get_paginated_response(ankets.data)
 
     @detail_route(methods=['post'])
     def set_ticket_status(self, request, pk=None):
         profile = self.get_object()
-        new_status = request.data.get('new_status', settings.NEW_TICKET_STATUS[profile.ticket_status])
+        new_status = request.data.get('new_status', settings.NEW_TICKET_STATUS.get(profile.ticket_status, None))
 
         if new_status not in map(lambda s: s[0], SummitAnket.TICKET_STATUSES):
             raise exceptions.ValidationError({
@@ -530,7 +511,7 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
             date_time = datetime.strptime(date_time.replace('T', ' '), '%Y-%m-%d %H:%M:%S')
         except ValueError:
             end_date = datetime.now()
-            start_date = end_date - timedelta(minutes=2*interval)
+            start_date = end_date - timedelta(minutes=2 * interval)
         else:
             start_date = date_time - timedelta(minutes=interval)
             end_date = date_time + timedelta(minutes=interval)

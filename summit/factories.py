@@ -80,3 +80,18 @@ class SummitAttendFactory(factory.DjangoModelFactory):
 
     anket = factory.SubFactory(SummitAnketFactory)
     date = factory.LazyFunction(datetime.datetime.now)
+
+
+class SummitTicketFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.SummitTicket
+
+    title = factory.Sequence(lambda n: 'Ticket #{}'.format(n))
+    summit = factory.SubFactory(SummitFactory)
+
+
+class ProfileStatusFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.AnketStatus
+
+    anket = factory.SubFactory(SummitAnketFactory)
