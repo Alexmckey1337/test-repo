@@ -4,6 +4,11 @@
 {% load summit_tags %}
 {% load payment_tags %}
 
+{% block extra_styles %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "libs/timedropper/timedropper.min.css" %}">
+{% endblock %}
+
 {% block header.top.h1 %}
     <h1 id="summit-title" data-summit-id="{{ summit.id }}">
         САММИТЫ |
@@ -395,6 +400,7 @@
     {% endblock %}
     <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
     <script src="{% static "libs/jquery-file-download/src/Scripts/jquery.fileDownload.js" %}"></script>
+    <script src="{% static "libs/timedropper/timedropper.min.js" %}"></script>
     <script src="{% static "js/add_user.js" %}"></script>
     <script src="{% static "js/summit_stats.js" %}"></script>
 {% endblock %}
