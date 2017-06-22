@@ -221,6 +221,7 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mix
 
     def perform_create(self, serializer):
         profile = serializer.save()
+        profile.creator = self.request.user
         profile.code = '0{}'.format(4*1000*1000 + profile.id)
         profile.save()
 
