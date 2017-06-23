@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime, timedelta
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import ExpressionWrapper, F, IntegerField
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import mixins, viewsets, exceptions, status, filters
@@ -9,8 +10,10 @@ from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
+from common.exception import InvalidRegCode
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
+from summit.regcode import decode_reg_code
 from .models import (
     SummitType, SummitAnket, AnketStatus, Summit, SummitVisitorLocation, SummitAttend, SummitEventTable,
     AnketPasses)
@@ -30,7 +33,7 @@ class SummitTypeForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     pagination_class = None
 
 
-class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = SummitAnket.objects.select_related('user', 'master__hierarchy', 'status').order_by('id')
     serializer_class = SummitAnketForAppSerializer
     filter_backends = (filters.DjangoFilterBackend,)
@@ -44,12 +47,14 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
         code_error_message = _('Невозможно получить объект. Передан некорректный регистрационный код')
 
         try:
-            int_reg_code = int('0x' + reg_code, 0)
-            visitor_id = int(str(int_reg_code)[:-4])
-        except ValueError:
+            visitor_id = decode_reg_code(reg_code)
+            visitor = SummitAnket.objects.get(pk=visitor_id)
+        except (ValueError, TypeError):
             raise exceptions.ValidationError(code_error_message)
-
-        visitor = get_object_or_404(SummitAnket, pk=visitor_id)
+        except InvalidRegCode:
+            raise exceptions.ValidationError(code_error_message)
+        except ObjectDoesNotExist:
+            raise exceptions.ValidationError(code_error_message)
 
         if visitor.reg_code != reg_code:
             raise exceptions.ValidationError(code_error_message)
@@ -67,6 +72,10 @@ class SummitAnketForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
     def by_reg_date(self, request):
         from_date = request.query_params.get('from_date', datetime.now().date() - timedelta(days=1))
         to_date = request.query_params.get('to_date', datetime.now().date() - timedelta(days=1))
+        if isinstance(from_date, str):
+            from_date = datetime.strptime(from_date, '%Y-%m-%d').date()
+        if isinstance(to_date, str):
+            to_date = datetime.strptime(to_date, '%Y-%m-%d').date()
 
         if from_date > to_date:
             raise exceptions.ValidationError('Некорректно заданный временной интвервал. ')

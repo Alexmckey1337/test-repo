@@ -17,6 +17,7 @@ from django.utils.translation import ugettext_lazy as _
 from account.abstract_models import CustomUserAbstract
 from payment.models import get_default_currency, AbstractPaymentPurpose
 from summit.managers import ProfileManager
+from summit.regcode import encode_reg_code
 
 
 @python_2_unicode_compatible
@@ -344,10 +345,7 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
 
     @property
     def reg_code(self):
-        reg_code = str(self.id) + '1324'
-        reg_code = hex(int(reg_code)).split('x')[-1]
-
-        return reg_code
+        return encode_reg_code(self.id)
 
     @property
     def get_passes_count(self):
