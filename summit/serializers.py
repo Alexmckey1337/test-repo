@@ -171,14 +171,6 @@ class SummitTypeSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'title', 'image')
 
 
-class SummitAnketWithNotesSerializer(serializers.ModelSerializer):
-    notes = SummitAnketNoteSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = SummitAnket
-        fields = ('code', 'notes')
-
-
 # FOR APP
 
 

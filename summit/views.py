@@ -38,7 +38,7 @@ from .models import (Summit, SummitAnket, SummitType, SummitLesson, SummitUserCo
                      SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend, AnketStatus, AnketPasses)
 from .serializers import (
     SummitSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
-    SummitAnketNoteSerializer, SummitAnketWithNotesSerializer, SummitLessonSerializer,
+    SummitAnketNoteSerializer, SummitLessonSerializer,
     SummitAnketForSelectSerializer, SummitTypeForAppSerializer, SummitAnketForAppSerializer,
     SummitShortSerializer, SummitAnketShortSerializer, SummitLessonShortSerializer, SummitTicketSerializer,
     SummitAnketForTicketSerializer, SummitVisitorLocationSerializer, SummitEventTableSerializer,
@@ -616,15 +616,6 @@ class SummitTicketViewSet(viewsets.GenericViewSet):
         summit_profiles = SummitAnketForTicketSerializer(users, many=True)
 
         return Response(summit_profiles.data)
-
-
-class SummitAnketWithNotesViewSet(ModelWithoutDeleteViewSet):
-    queryset = SummitAnket.objects.select_related('user', 'user__hierarchy', 'user__master'). \
-        prefetch_related('user__divisions', 'user__departments', 'notes')
-    serializer_class = SummitAnketWithNotesSerializer
-    pagination_class = None
-    filter_backends = (filters.DjangoFilterBackend,)
-    filter_fields = ('user',)
 
 
 @api_view(['GET'])
