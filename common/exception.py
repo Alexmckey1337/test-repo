@@ -1,0 +1,2 @@
+class InvalidRegCode(Exception):
+    pass

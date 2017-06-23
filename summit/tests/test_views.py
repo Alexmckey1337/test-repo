@@ -10,9 +10,12 @@ from rest_framework import status
 from payment.serializers import PaymentShowSerializer
 from summit.models import Summit, SummitLesson, SummitAnket, SummitTicket
 from summit.serializers import (
-    SummitSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer, SummitAnketNoteSerializer)
+    SummitSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer, SummitAnketNoteSerializer,
+    SummitAnketForAppSerializer)
+from summit.regcode import encode_reg_code
 from summit.views import SummitProfileListView, SummitStatisticsView, SummitBishopHighMasterListView, \
     SummitProfileViewSet, SummitTicketMakePrintedView
+from summit.views_app import SummitProfileForAppViewSet
 
 BISHOP_LEVEL = 4
 
@@ -1063,3 +1066,208 @@ class TestSummitBishopHighMasterListView:
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == (1 if h >= BISHOP_LEVEL else 0)
+
+
+@pytest.mark.hh
+@pytest.mark.django_db
+class TestSummitProfileForAppViewSet:
+    def test_by_reg_code_status_code(self, monkeypatch, api_client, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory()
+
+        url = '/api/app/users/by_reg_code/?reg_code={}'.format(profile.reg_code)
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_by_reg_code_profile_status_exist(
+            self, monkeypatch, api_client, summit_anket_factory, profile_status_factory):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory()
+        profile_status = profile_status_factory(
+            anket=profile, reg_code_requested=False, reg_code_requested_date=datetime(2000, 2, 4))
+
+        url = '/api/app/users/by_reg_code/?reg_code={}'.format(profile.reg_code)
+        response = api_client.get(url, format='json')
+
+        profile_status.refresh_from_db()
+        assert response.data == SummitAnketForAppSerializer(profile).data
+        assert not profile_status.reg_code_requested
+        assert profile_status.reg_code_requested_date == datetime(2000, 2, 4)
+
+    def test_by_reg_code_profile_status_not_exist(self, monkeypatch, api_client, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory()
+        assert not hasattr(profile, 'status')
+
+        url = '/api/app/users/by_reg_code/?reg_code={}'.format(profile.reg_code)
+        response = api_client.get(url, format='json')
+        profile = SummitAnket.objects.get(pk=profile.id)
+
+        assert hasattr(profile, 'status')
+        assert response.data == SummitAnketForAppSerializer(profile).data
+        assert profile.status.reg_code_requested
+
+    def test_by_reg_code_without_reg_code(self, monkeypatch, api_client):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        url = '/api/app/users/by_reg_code/'
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_by_reg_code_invalid_format(self, monkeypatch, api_client):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        url = '/api/app/users/by_reg_code/?reg_code=invalid'
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_by_reg_code_profile_not_exist(self, monkeypatch, api_client, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory()
+        profile_id = profile.id
+        profile.delete()
+
+        url = '/api/app/users/by_reg_code/?reg_code={}'.format(encode_reg_code(profile_id))
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_by_reg_code_invalid_reg_code(self, monkeypatch, api_client, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory()
+
+        code = encode_reg_code(profile.id)
+        code = str(int('0x' + code, 0) + 1)
+
+        url = '/api/app/users/by_reg_code/?reg_code={}'.format(code)
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_by_reg_date_status_code(self, monkeypatch, api_client):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        url = '/api/app/users/by_reg_date/'
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_by_reg_date_without_date(self, monkeypatch, api_client, summit_anket_factory, profile_status_factory):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        day = datetime.now() - timedelta(days=1)
+        early = day - timedelta(days=1)
+        later = day + timedelta(days=1)
+
+        early_profile = summit_anket_factory()
+        profile = summit_anket_factory()
+        later_profile = summit_anket_factory()
+        profile_status_factory(anket=early_profile, reg_code_requested_date=early)
+        profile_status_factory(anket=profile, reg_code_requested_date=day)
+        profile_status_factory(anket=later_profile, reg_code_requested_date=later)
+
+        url = '/api/app/users/by_reg_date/'
+        response = api_client.get(url, format='json')
+
+        assert set(p['visitor_id'] for p in response.data) == {profile.id}
+
+    def test_by_reg_date_without_to_date(self, monkeypatch, api_client, summit_anket_factory, profile_status_factory):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        day = datetime.now()
+        early = day - timedelta(days=1)
+        later = day + timedelta(days=1)
+
+        early_profile = summit_anket_factory()
+        profile = summit_anket_factory()
+        later_profile = summit_anket_factory()
+        profile_status_factory(anket=early_profile, reg_code_requested_date=early)
+        profile_status_factory(anket=profile, reg_code_requested_date=day)
+        profile_status_factory(anket=later_profile, reg_code_requested_date=later)
+
+        url = '/api/app/users/by_reg_date/?from_date={}'.format(day.strftime("%Y-%m-%d"))
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert set(p['visitor_id'] for p in response.data) == {profile.id, later_profile.id}
+
+    def test_by_reg_date_without_from_date(self, monkeypatch, api_client, summit_anket_factory, profile_status_factory):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        day = datetime(2000, 2, 4)
+        early = day - timedelta(days=1)
+        later = day + timedelta(days=1)
+
+        early_profile = summit_anket_factory()
+        profile = summit_anket_factory()
+        later_profile = summit_anket_factory()
+        profile_status_factory(anket=early_profile, reg_code_requested_date=early)
+        profile_status_factory(anket=profile, reg_code_requested_date=day)
+        profile_status_factory(anket=later_profile, reg_code_requested_date=later)
+
+        url = '/api/app/users/by_reg_date/?to_date={}'.format(day.strftime("%Y-%m-%d"))
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert set(p['visitor_id'] for p in response.data) == {early_profile.id, profile.id}
+
+    def test_by_reg_date_from_date_eq_to_date(
+            self, monkeypatch, api_client, summit_anket_factory, profile_status_factory):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        day = datetime(2000, 2, 4)
+        early = day - timedelta(days=1)
+        later = day + timedelta(days=1)
+
+        early_profile = summit_anket_factory()
+        profile = summit_anket_factory()
+        later_profile = summit_anket_factory()
+        profile_status_factory(anket=early_profile, reg_code_requested_date=early)
+        profile_status_factory(anket=profile, reg_code_requested_date=day)
+        profile_status_factory(anket=later_profile, reg_code_requested_date=later)
+
+        url = '/api/app/users/by_reg_date/?from_date={day}&to_date={day}'.format(day=day.strftime("%Y-%m-%d"))
+        response = api_client.get(url, format='json')
+
+        assert set(p['visitor_id'] for p in response.data) == {profile.id}
+
+    def test_by_reg_date_from_date_gt_to_date(self, monkeypatch, api_client):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        url = '/api/app/users/by_reg_date/?from_date=2000-02-22&to_date=1999-12-22'
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_by_reg_date_from_date_lt_to_date(
+            self, monkeypatch, api_client, summit_anket_factory, profile_status_factory):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        day = datetime(2000, 2, 4)
+        early = day - timedelta(days=1)
+        later = day + timedelta(days=1)
+        more_early = day - timedelta(days=2)
+        more_later = day + timedelta(days=2)
+
+        early_profile = summit_anket_factory()
+        profile = summit_anket_factory()
+        later_profile = summit_anket_factory()
+        profile_status_factory(reg_code_requested_date=more_early)
+        profile_status_factory(anket=early_profile, reg_code_requested_date=early)
+        profile_status_factory(anket=profile, reg_code_requested_date=day)
+        profile_status_factory(anket=later_profile, reg_code_requested_date=later)
+        profile_status_factory(reg_code_requested_date=more_later)
+
+        url = '/api/app/users/by_reg_date/?from_date={early}&to_date={later}'.format(
+            early=early.strftime("%Y-%m-%d"), later=later.strftime("%Y-%m-%d"))
+        response = api_client.get(url, format='json')
+
+        assert set(p['visitor_id'] for p in response.data) == {early_profile.id, profile.id, later_profile.id}
