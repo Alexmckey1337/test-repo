@@ -135,6 +135,9 @@ class SummitProfileListExportView(SummitProfileListView, ExportViewSetMixin):
     def post(self, request, *args, **kwargs):
         return self._export(request, *args, **kwargs)
 
+    def get_queryset(self):
+        return super().get_queryset().exclude(status__active=False)
+
 
 class ToChar(Func):
     function = 'to_char'
