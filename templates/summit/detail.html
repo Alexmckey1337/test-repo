@@ -27,7 +27,11 @@
                     <button id="add">Добавить пользователя</button>
                 </li>
                 <li>
-                    <button id="filter_button">Фильтр</button>
+                    <button id="filter_button"
+                            data-count="0"
+                    >
+                        Фильтр
+                    </button>
                 </li>
                 <li>
                     <button id="export_table" data-export-url="{% url "summit-profile-export" pk=summit.id %}" class="download header__button">Export</button>

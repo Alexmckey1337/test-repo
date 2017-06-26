@@ -460,3 +460,21 @@
     cursor: pointer;
   }
 }
+
+#filter_button {
+  position: relative;
+  &:after {
+    content: attr(data-count);
+    position: absolute;
+    display: block;
+    top: -.5em;
+    right: -0.5em;
+    width: 1.5em;
+    height: 1.5em;
+    background: red;
+    border-radius: 50%;
+    line-height: 1.5em;
+    color: #fff;
+    z-index: 1;
+  }
+}

@@ -3005,7 +3005,8 @@ function refreshFilter(el) {
     }, 700);
     $input.each(function () {
         $(this).val('')
-    })
+    });
+    $('#filter_button').attr('data-count', 0);
 }
 function getSearch(title) {
     let search = $('input[name="fullsearch"]').val();
@@ -3087,6 +3088,9 @@ function applyFilter(el, callback) {
     setTimeout(function () {
         hidePopup(self);
     }, 300);
+
+    let countArr = getCountFilter();
+    $('#filter_button').attr('data-count', countArr.length);
 }
 
 function makeTabs(page = 0) {
@@ -3412,4 +3416,20 @@ function getData(url, options = {}) {
 
 function pasteLink(el, link) {
     $(el).closest('.input').find('a').attr('href', link);
+}
+
+function getCountFilter() {
+    let $filterFields,
+        arrCount = [];
+    $filterFields = $('#filterPopup select, #filterPopup input');
+    $filterFields.each(function () {
+        if ($(this).val() == "ВСЕ") {
+            return
+        }
+         if ($(this).val()) {
+             arrCount.push($(this).val());
+         }
+    });
+
+    return arrCount;
 }
