@@ -2999,6 +2999,7 @@ function hidePopup(el) {
 
 function refreshFilter(el) {
     let $input = $(el).closest('.popap').find('input');
+    let $select = $(el).closest('.popap').find('select');
     $(el).addClass('refresh');
     setTimeout(function () {
         $(el).removeClass('refresh');
@@ -3006,8 +3007,11 @@ function refreshFilter(el) {
     $input.each(function () {
         $(this).val('')
     });
-    $('#filter_button').attr('data-count', 0);
+    $select.each(function () {
+        $(this).val(null).trigger("change");
+    });
 }
+
 function getSearch(title) {
     let search = $('input[name="fullsearch"]').val();
     if (!search) return {};
