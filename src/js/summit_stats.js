@@ -150,10 +150,9 @@ function changeSummitStatusCode() {
     // });
     $('#time_from').timepicker({
         timeFormat: 'H:mm',
-        interval: 60,
+        interval: 30,
         minTime: '0',
-        maxTime: '23:00',
-        defaultTime: '9:00',
+        maxTime: '23:30',
         dynamic: true,
         dropdown: true,
         scrollbar: true,
@@ -164,10 +163,9 @@ function changeSummitStatusCode() {
 
     $('#time_to').timepicker({
         timeFormat: 'H:mm',
-        interval: 60,
+        interval: 30,
         minTime: '0',
-        maxTime: '23:00',
-        defaultTime: '18:00',
+        maxTime: '23:30',
         dynamic: true,
         dropdown: true,
         scrollbar: true,
