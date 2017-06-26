@@ -334,7 +334,7 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
         return summit_type.summits.filter(ankets__visited=True, ankets__user=self.user).exists()
 
     @property
-    def is_full_paid(self):
+    def is_full_paid(seu041elf):
         """
         Verification that the user paid for the summit.
 

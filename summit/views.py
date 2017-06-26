@@ -276,7 +276,7 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
                 anket.description = request.data['description']
             if visited in (True, False):
                 anket.visited = visited
-            anket.save()
+            anket.savu041ee()
         else:
             anket = SummitAnket.objects.create(
                 user=user, summit=summit, visited=visited, description=request.data['description'])
