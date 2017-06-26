@@ -274,12 +274,7 @@
     });
 
     $('#applyChanges').on('click', function () {
-        let summit_id = $('#summitUsersList').data('summit');
-        let sendData = {
-            send_email: false,
-            summit_id: summit_id
-        };
-
+        let profileID = $(this).data('id');
         let formData = $('#participantInfoForm').serializeArray();
         let data = {};
 
@@ -287,23 +282,21 @@
             data[item.name] = (item.value == 'on') ? true : item.value;
         });
 
-        Object.assign(sendData, data);
-        updateSummitParticipant(sendData);
+        updateSummitParticipant(profileID, data);
         closePopup(this);
     });
 
     $('#complete').on('click', function () {
-        let id = $(this).attr('data-id'),
-            money = $('#summit-value').val(),
+        let userID = $(this).attr('data-id'),
             description = $('#popup textarea').val(),
-            summit_id = $('#summitUsersList').data('summit');
-        registerUser(id, summit_id, money, description);
+            summitID = $('#summitUsersList').data('summit');
+        registerUser(userID, summitID, description);
 
         document.querySelector('#popup').style.display = 'none';
     });
 
     function unsubscribeOfSummit(id) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/' + id + '/', null, function () {
+        ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_profiles/${id}/`, null, function () {
             let data = {};
             data['summit'] = summit_id;
             getUsersList(path, data);
@@ -313,29 +306,15 @@
         });
     }
 
-    function updateSummitParticipant(data) {
-        // let member_club = $("#member").prop("checked");
-        // let send_email = $("#send_email").prop("checked");
-        // let data = {
-        //     "user_id": id,
-        //     "summit_id": summit_id,
-        //     "description": description,
-        //     "visited": member_club,
-        //     "send_email": send_email
-        // };
-        registerUserToSummit(JSON.stringify(data));
+    function updateSummitParticipant(profileID, data) {
+        updateSummitProfile(profileID, JSON.stringify(data));
     }
 
-    function registerUser(id, summit_id, money, description) {
-        let member_club = $("#member").prop("checked");
-        let send_email = $("#send_email").prop("checked");
+    function registerUser(id, summit_id, description) {
         let data = {
-            "user_id": id,
-            "summit_id": summit_id,
-            "value": money,
+            "user": id,
+            "summit": summit_id,
             "description": description,
-            "visited": member_club || false,
-            "send_email": send_email,
         };
 
         let json = JSON.stringify(data);
@@ -352,7 +331,7 @@
 
         let json = JSON.stringify(data);
 
-        ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/summit_ankets/${id}/create_payment/`, json, function (JSONobj) {
+        ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/summit_profiles/${id}/create_payment/`, json, function (JSONobj) {
             showPopup('Оплата прошла успешно.');
         }, 'POST', true, {
             'Content-Type': 'application/json'
@@ -365,7 +344,7 @@
     }
 
     function show_payments(id) {
-        ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/summit_ankets/${id}/payments/`, null, function (data) {
+        ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/summit_profiles/${id}/payments/`, null, function (data) {
             let payments_table = '';
             let sum, date_time;
             data.forEach(function (payment) {
@@ -505,7 +484,7 @@
                 })
             };
         const prifileId = $(this).data('user-id');
-        fetch(`/api/v1.0/summit_ankets/${prifileId}/set_ticket_status/`, option)
+        fetch(`/api/v1.0/summit_profiles/${prifileId}/set_ticket_status/`, option)
             .then( res => res.json())
             .then(data => {
                 $(this).find('.text').text(data.text);

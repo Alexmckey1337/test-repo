@@ -567,7 +567,7 @@ Summit masters
 Change ticket_status for profile
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. http:post:: /api/v1.0/summit_ankets/(int:profile_id)/set_ticket_status/
+.. http:post:: /api/v1.0/summit_profiles/(int:profile_id)/set_ticket_status/
 
     Change ticket_status of the profile.
 
@@ -582,7 +582,7 @@ Change ticket_status for profile
 
     .. sourcecode:: http
 
-        POST /api/v1.0/summit_ankets/13/set_ticket_status/ HTTP/1.1
+        POST /api/v1.0/summit_profiles/13/set_ticket_status/ HTTP/1.1
         Host: vocrm.org
         content-type: application/json
 
@@ -1239,7 +1239,7 @@ Add new summit lesson
 Create anket payment
 ~~~~~~~~~~~~~~~~~~~~
 
-.. http:post:: /api/v1.0/summit_ankets/(int:anket_id)/create_payment/
+.. http:post:: /api/v1.0/summit_profiles/(int:anket_id)/create_payment/
 
    Create new payment for ``Summit Anket``.
 
@@ -1247,7 +1247,7 @@ Create anket payment
 
    .. sourcecode:: http
 
-      POST /api/v1.0/summit_ankets/4/create_payment/ HTTP/1.1
+      POST /api/v1.0/summit_profiles/4/create_payment/ HTTP/1.1
       Host: vocrm.org
       Accept: application/json
       content-type: application/json
@@ -1268,7 +1268,7 @@ Create anket payment
 List of profile payments
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. http:get:: /api/v1.0/summit_ankets/(int:profile_id)/payments/
+.. http:get:: /api/v1.0/summit_profiles/(int:profile_id)/payments/
 
    List of the payments of ``SummitAnket`` with ``id = profile_id``.
 
@@ -1276,7 +1276,7 @@ List of profile payments
 
    .. sourcecode:: http
 
-      GET /api/v1.0/summit_ankets/4/payments/ HTTP/1.1
+      GET /api/v1.0/summit_profiles/4/payments/ HTTP/1.1
       Host: vocrm.org
       Accept: application/json
 
@@ -1321,7 +1321,7 @@ List of profile payments
             "last_name": "Азиев",
             "middle_name": ""
           },
-          "purpose": "/api/v1.0/summit_ankets/269/"
+          "purpose": "/api/v1.0/summit_profiles/269/"
         },
         {
           "id": 6442,
@@ -1349,7 +1349,7 @@ List of profile payments
           "created_at": "03.07.2016 21:00",
           "sent_date": "04.07.2016",
           "manager": null,
-          "purpose": "/api/v1.0/summit_ankets/269/"
+          "purpose": "/api/v1.0/summit_profiles/269/"
         }
       ]
 
@@ -1372,13 +1372,13 @@ List of profile payments
 Pre delete information
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. http:get:: /api/v1.0/summit_ankets/(int:anket_id)/predelete/
+.. http:get:: /api/v1.0/summit_profiles/(int:anket_id)/predelete/
 
    **Example request**:
 
    .. sourcecode:: http
 
-      GET /api/v1.0/summit_ankets/4/predelete/ HTTP/1.1
+      GET /api/v1.0/summit_profiles/4/predelete/ HTTP/1.1
       Host: vocrm.org
       Accept: application/json
       content-type: application/json
@@ -1572,7 +1572,7 @@ Pre delete information
 Delete summit profile
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. http:delete:: /api/v1.0/summit_ankets/(int:anket_id)/
+.. http:delete:: /api/v1.0/summit_profiles/(int:anket_id)/
 
     Delete summit profile with ``id = anket_id``
 
@@ -1580,7 +1580,7 @@ Delete summit profile
 
     .. sourcecode:: http
 
-        DELETE /api/v1.0/summit_ankets/6/ HTTP/1.1
+        DELETE /api/v1.0/summit_profiles/6/ HTTP/1.1
         Host: vocrm.org
         Accept: application/json
         content-type: application/json
@@ -1633,7 +1633,7 @@ Delete summit profile
               "created_at": "03.07.2016 21:00",
               "sent_date": "04.07.2016",
               "manager": "None",
-              "purpose": "/api/v1.0/summit_ankets/3439/"
+              "purpose": "/api/v1.0/summit_profiles/3439/"
             }
           ]
         }

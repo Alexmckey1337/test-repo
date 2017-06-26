@@ -7,7 +7,7 @@ from django.conf import settings
 from django.urls import reverse
 from rest_framework import serializers
 
-from account.models import CustomUser as User
+from account.models import CustomUser as User, CustomUser
 from account.serializers import UserTableSerializer, UserShortSerializer
 from common.fields import ListCharField, ReadOnlyChoiceWithKeyField
 from .models import (Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
@@ -69,6 +69,18 @@ class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
                   'total_sum', 'e_ticket',
                   'reg_code',
                   )
+
+
+class SummitProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SummitAnket
+        fields = ('description',)
+
+
+class SummitProfileCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SummitAnket
+        fields = ('summit', 'user', 'description',)
 
 
 class SummitAnketStatisticsSerializer(serializers.ModelSerializer):
@@ -159,14 +171,6 @@ class SummitTypeSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'title', 'image')
 
 
-class SummitAnketWithNotesSerializer(serializers.ModelSerializer):
-    notes = SummitAnketNoteSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = SummitAnket
-        fields = ('code', 'notes')
-
-
 # FOR APP
 
 
@@ -210,7 +214,7 @@ class CustomVisitorsLocationSerializer(serializers.ReadOnlyField):
             date_time = datetime.strptime(date_time.replace('T', ' '), '%Y-%m-%d %H:%M:%S')
         except ValueError:
             end_date = datetime.now()
-            start_date = end_date - timedelta(minutes=2*interval)
+            start_date = end_date - timedelta(minutes=2 * interval)
         else:
             start_date = date_time - timedelta(minutes=interval)
             end_date = date_time + timedelta(minutes=interval)
@@ -364,3 +368,11 @@ class AnketActiveStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = SummitAnket
         fields = ('anket_id', 'active')
+
+
+class MasterSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField()
+
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'full_name')

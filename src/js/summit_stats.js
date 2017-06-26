@@ -142,11 +142,37 @@ function changeSummitStatusCode() {
             $('.preloader').css('display', 'none');
         });
     });
-    $('.select_time_filter').datepicker({
-        dateFormat: ' ',
-        timepicker: true,
-        onlyTimepicker: true,
-        classes: 'only-timepicker'
+    // $('.select_time_filter').datepicker({
+    //     dateFormat: ' ',
+    //     timepicker: true,
+    //     onlyTimepicker: true,
+    //     classes: 'only-timepicker'
+    // });
+    $('#time_from').timepicker({
+        timeFormat: 'H:mm',
+        interval: 30,
+        minTime: '0',
+        maxTime: '23:30',
+        dynamic: true,
+        dropdown: true,
+        scrollbar: true,
+        change: function () {
+            summit.makeDataTable();
+        }
     });
+
+    $('#time_to').timepicker({
+        timeFormat: 'H:mm',
+        interval: 30,
+        minTime: '0',
+        maxTime: '23:30',
+        dynamic: true,
+        dropdown: true,
+        scrollbar: true,
+        change: function () {
+            summit.makeDataTable();
+        }
+    });
+
     summit.makeDataTable();
 })(jQuery);
