@@ -7,7 +7,8 @@ from hierarchy.factories import HierarchyFactory, DepartmentFactory
 from payment.factories import PaymentFactory, CurrencyFactory
 from summit.factories import (
     SummitFactory, SummitLessonFactory, SummitAnketFactory, SummitTypeFactory, AnketEmailFactory,
-    SummitUserConsultantFactory, AnketNoteFactory, SummitAttendFactory, SummitTicketFactory, ProfileStatusFactory)
+    SummitUserConsultantFactory, AnketNoteFactory, SummitAttendFactory, SummitTicketFactory, ProfileStatusFactory,
+    VisitorLocationFactory)
 from summit.models import SummitAnket
 
 register(SummitFactory)
@@ -15,6 +16,7 @@ register(SummitTypeFactory)
 register(SummitAnketFactory)
 register(SummitAttendFactory)
 register(SummitTicketFactory)
+register(VisitorLocationFactory)
 register(ProfileStatusFactory)
 register(SummitLessonFactory)
 register(UserFactory)

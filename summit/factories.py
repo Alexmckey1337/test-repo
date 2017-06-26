@@ -95,3 +95,13 @@ class ProfileStatusFactory(factory.DjangoModelFactory):
         model = models.AnketStatus
 
     anket = factory.SubFactory(SummitAnketFactory)
+
+
+class VisitorLocationFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.SummitVisitorLocation
+
+    visitor = factory.SubFactory(SummitAnketFactory)
+    longitude = 11.11
+    latitude = 22.22
+    date_time = factory.LazyFunction(datetime.datetime.now)

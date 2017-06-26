@@ -206,22 +206,6 @@ class SummitVisitorLocationSerializer(serializers.ModelSerializer):
         fields = ('visitor_id', 'date_time', 'longitude', 'latitude', 'type')
 
 
-class CustomVisitorsLocationSerializer(serializers.ReadOnlyField):
-    def to_representation(self, value):
-        date_time = self.context['request'].query_params.get('date_time', '')
-        interval = int(self.context['request'].query_params.get('interval', 5))
-        try:
-            date_time = datetime.strptime(date_time.replace('T', ' '), '%Y-%m-%d %H:%M:%S')
-        except ValueError:
-            end_date = datetime.now()
-            start_date = end_date - timedelta(minutes=2 * interval)
-        else:
-            start_date = date_time - timedelta(minutes=interval)
-            end_date = date_time + timedelta(minutes=interval)
-        return value.filter(date_time__range=(start_date, end_date)).values(
-            'visitor_id', 'date_time', 'longitude', 'latitude', 'type').first()
-
-
 class AnketStatusSerializer(serializers.ModelSerializer):
     reg_code_requested_date = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S')
 
@@ -245,7 +229,6 @@ class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
     children = ChildrenLink(view_name='summit-app-profile-list-master',
                             queryset=SummitAnket.objects.all())
     photo = ImageWithoutHostField(source='user.image', use_url=False)
-    # visitor_locations = CustomVisitorsLocationSerializer()
     status = AnketStatusSerializer(serializers.ModelSerializer)
 
     class Meta:
@@ -256,7 +239,6 @@ class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
             'master_fio', 'hierarchy_id',
             'children',
             'photo',
-            # 'visitor_locations',
             'status'
         )
 

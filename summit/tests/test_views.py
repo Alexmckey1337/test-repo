@@ -7,15 +7,16 @@ from django.db import IntegrityError
 from django.urls import reverse
 from rest_framework import status
 
+from account.models import CustomUser
 from payment.serializers import PaymentShowSerializer
 from summit.models import Summit, SummitLesson, SummitAnket, SummitTicket
+from summit.regcode import encode_reg_code
 from summit.serializers import (
     SummitSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer, SummitAnketNoteSerializer,
     SummitAnketForAppSerializer)
-from summit.regcode import encode_reg_code
 from summit.views import SummitProfileListView, SummitStatisticsView, SummitBishopHighMasterListView, \
     SummitProfileViewSet, SummitTicketMakePrintedView
-from summit.views_app import SummitProfileForAppViewSet
+from summit.views_app import SummitProfileForAppViewSet, SummitProfileTreeForAppListView
 
 BISHOP_LEVEL = 4
 
@@ -1068,7 +1069,6 @@ class TestSummitBishopHighMasterListView:
         assert len(response.data) == (1 if h >= BISHOP_LEVEL else 0)
 
 
-@pytest.mark.hh
 @pytest.mark.django_db
 class TestSummitProfileForAppViewSet:
     def test_by_reg_code_status_code(self, monkeypatch, api_client, summit_anket_factory):
@@ -1271,3 +1271,157 @@ class TestSummitProfileForAppViewSet:
         response = api_client.get(url, format='json')
 
         assert set(p['visitor_id'] for p in response.data) == {early_profile.id, profile.id, later_profile.id}
+
+
+@pytest.mark.django_db
+class TestSummitProfileTreeForAppListView:
+    def test_locations_without_date_time_and_interval(
+            self, monkeypatch, api_client, summit_factory, visitor_location_factory):
+        monkeypatch.setattr(SummitProfileTreeForAppListView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(
+            SummitProfileTreeForAppListView, 'get_queryset', lambda s: s.annotate_queryset(s.summit.ankets.all()))
+        now = datetime.now()
+
+        summit = summit_factory()
+        early_location = visitor_location_factory(visitor__summit=summit, date_time=now - timedelta(minutes=11))
+        location = visitor_location_factory(visitor__summit=summit, date_time=now - timedelta(minutes=9))
+
+        url = '/api/app/summits/{}/users/'.format(summit.id)
+        response = api_client.get(url, format='json')
+        assert {p['id']: p['visitor_locations']['date_time'].date() if p['visitor_locations'] else None
+                for p in response.data['profiles']} == {
+                   location.visitor_id: now.date(), early_location.visitor_id: None}
+
+    def test_locations_with_date_time(
+            self, monkeypatch, api_client, summit_factory, visitor_location_factory):
+        monkeypatch.setattr(SummitProfileTreeForAppListView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(
+            SummitProfileTreeForAppListView, 'get_queryset', lambda s: s.annotate_queryset(s.summit.ankets.all()))
+        date_time = datetime(2000, 2, 24, 11, 33, 55)
+
+        summit = summit_factory()
+        early_location = visitor_location_factory(visitor__summit=summit, date_time=date_time - timedelta(minutes=6))
+        less_location = visitor_location_factory(visitor__summit=summit, date_time=date_time - timedelta(minutes=4))
+        more_location = visitor_location_factory(visitor__summit=summit, date_time=date_time + timedelta(minutes=4))
+        later_location = visitor_location_factory(visitor__summit=summit, date_time=date_time + timedelta(minutes=6))
+
+        url = '/api/app/summits/{}/users/?date_time=2000-02-24T11:33:55'.format(summit.id)
+        response = api_client.get(url, format='json')
+        assert {p['id']: p['visitor_locations']['date_time'].date() if p['visitor_locations'] else None
+                for p in response.data['profiles']} == {
+                   less_location.visitor_id: (date_time + timedelta(minutes=4)).date(),
+                   more_location.visitor_id: (date_time - timedelta(minutes=4)).date(),
+                   early_location.visitor_id: None,
+                   later_location.visitor_id: None,
+               }
+
+    def test_locations_with_interval(
+            self, monkeypatch, api_client, summit_factory, visitor_location_factory):
+        monkeypatch.setattr(SummitProfileTreeForAppListView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(
+            SummitProfileTreeForAppListView, 'get_queryset', lambda s: s.annotate_queryset(s.summit.ankets.all()))
+        now = datetime.now()
+
+        summit = summit_factory()
+        early_location = visitor_location_factory(visitor__summit=summit, date_time=now - timedelta(minutes=17))
+        location = visitor_location_factory(visitor__summit=summit, date_time=now - timedelta(minutes=15))
+
+        url = '/api/app/summits/{}/users/?interval=8'.format(summit.id)
+        response = api_client.get(url, format='json')
+        assert {p['id']: p['visitor_locations']['date_time'].date() if p['visitor_locations'] else None
+                for p in response.data['profiles']} == {
+                   location.visitor_id: now.date(), early_location.visitor_id: None}
+
+    def test_locations_with_date_time_and_interval(
+            self, monkeypatch, api_client, summit_factory, visitor_location_factory):
+        monkeypatch.setattr(SummitProfileTreeForAppListView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(
+            SummitProfileTreeForAppListView, 'get_queryset', lambda s: s.annotate_queryset(s.summit.ankets.all()))
+        date_time = datetime(2000, 2, 24, 11, 33, 55)
+
+        summit = summit_factory()
+        early_location = visitor_location_factory(visitor__summit=summit, date_time=date_time - timedelta(minutes=9))
+        less_location = visitor_location_factory(visitor__summit=summit, date_time=date_time - timedelta(minutes=7))
+        more_location = visitor_location_factory(visitor__summit=summit, date_time=date_time + timedelta(minutes=7))
+        later_location = visitor_location_factory(visitor__summit=summit, date_time=date_time + timedelta(minutes=9))
+
+        url = '/api/app/summits/{}/users/?date_time=2000-02-24T11:33:55&interval=8'.format(summit.id)
+        response = api_client.get(url, format='json')
+        assert {p['id']: p['visitor_locations']['date_time'].date() if p['visitor_locations'] else None
+                for p in response.data['profiles']} == {
+                   less_location.visitor_id: (date_time + timedelta(minutes=4)).date(),
+                   more_location.visitor_id: (date_time - timedelta(minutes=4)).date(),
+                   early_location.visitor_id: None,
+                   later_location.visitor_id: None,
+               }
+
+    def test_profiles_without_master_id_for_consultant_or_high(
+            self, monkeypatch, api_client, summit_factory, user_factory, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileTreeForAppListView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(CustomUser, 'is_summit_consultant_or_high', lambda s, a: True)
+
+        summit = summit_factory()
+        top_user = summit_anket_factory(summit=summit)
+        summit_anket_factory(summit=summit, user__master=top_user.user)
+
+        user = user_factory()
+        api_client.force_login(user=user)
+
+        url = '/api/app/summits/{}/users/'.format(summit.id)
+        response = api_client.get(url, format='json')
+        assert {p['id'] for p in response.data['profiles']} == {top_user.id}
+
+    def test_profiles_without_master_id_for_less_of_consultant(
+            self, monkeypatch, api_client, summit_factory, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileTreeForAppListView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(CustomUser, 'is_summit_consultant_or_high', lambda s, a: False)
+
+        summit = summit_factory()
+        top_user = summit_anket_factory(summit=summit)
+        profile = summit_anket_factory(summit=summit, user__master=top_user.user)
+        summit_anket_factory(summit=summit, user__master=top_user.user)
+        profile_child = summit_anket_factory.create_batch(2, summit=summit, user__master=profile.user)
+
+        api_client.force_login(user=profile.user)
+
+        url = '/api/app/summits/{}/users/'.format(summit.id)
+        response = api_client.get(url, format='json')
+        assert {p['id'] for p in response.data['profiles']} == {p.id for p in profile_child}
+
+    def test_profiles_with_master_id_for_consultant_or_high(
+            self, monkeypatch, api_client, summit_factory, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileTreeForAppListView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(CustomUser, 'is_summit_consultant_or_high', lambda s, a: True)
+
+        summit = summit_factory()
+        top_user = summit_anket_factory(summit=summit)
+        profile = summit_anket_factory(summit=summit, user__master=top_user.user)
+        master = summit_anket_factory(summit=summit, user__master=top_user.user)
+        summit_anket_factory(summit=summit, user__master=top_user.user)
+        summit_anket_factory.create_batch(2, summit=summit, user__master=profile.user)
+        master_child = summit_anket_factory.create_batch(2, summit=summit, user__master=master.user)
+
+        api_client.force_login(user=profile.user)
+
+        url = '/api/app/summits/{}/users/{}/'.format(summit.id, master.user.id)
+        response = api_client.get(url, format='json')
+        assert {p['id'] for p in response.data['profiles']} == {p.id for p in master_child}
+
+    def test_profiles_with_master_id_for_less_of_consultant(
+            self, monkeypatch, api_client, summit_factory, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileTreeForAppListView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(CustomUser, 'is_summit_consultant_or_high', lambda s, a: False)
+
+        summit = summit_factory()
+        top_user = summit_anket_factory(summit=summit)
+        profile = summit_anket_factory(summit=summit, user__master=top_user.user)
+        master = summit_anket_factory(summit=summit, user__master=top_user.user)
+        summit_anket_factory(summit=summit, user__master=top_user.user)
+        summit_anket_factory.create_batch(2, summit=summit, user__master=profile.user)
+        master_child = summit_anket_factory.create_batch(2, summit=summit, user__master=master.user)
+
+        api_client.force_login(user=profile.user)
+
+        url = '/api/app/summits/{}/users/{}/'.format(summit.id, master.user.id)
+        response = api_client.get(url, format='json')
+        assert {p['id'] for p in response.data['profiles']} == {p.id for p in master_child}

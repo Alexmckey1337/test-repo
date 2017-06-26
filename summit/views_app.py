@@ -109,8 +109,8 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
         'search_fio': ('last_name', 'first_name', 'middle_name', 'search_name'),
     }
 
-    def dispatch(self, request, *args, **kwargs):
-        return super(SummitProfileTreeForAppListView, self).dispatch(request, *args, **kwargs)
+    summit = None
+    master_id = None
 
     def get(self, request, *args, **kwargs):
         self.summit = get_object_or_404(Summit, pk=kwargs.get('summit_id', None))
@@ -122,33 +122,16 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
         profiles = serializer.data
-        ids = {p['id'] for p in profiles}
 
-        locations = SummitVisitorLocation.objects.filter(visitor__in=ids)
-        date_time = request.query_params.get('date_time', '')
-        interval = int(request.query_params.get('interval', 5))
-        try:
-            date_time = datetime.strptime(date_time.replace('T', ' '), '%Y-%m-%d %H:%M:%S')
-        except ValueError:
-            end_date = datetime.now()
-            start_date = end_date - timedelta(minutes=2 * interval)
-        else:
-            start_date = date_time - timedelta(minutes=interval)
-            end_date = date_time + timedelta(minutes=interval)
-        locations = locations.filter(date_time__range=(start_date, end_date)).values(
-            'visitor_id', 'date_time', 'longitude', 'latitude', 'type')
-        for p in profiles:
-            p['visitor_locations'] = None
-            for l in locations:
-                if l['visitor_id'] == p['id']:
-                    p['visitor_locations'] = l
-                    break
+        locations = self.get_locations({p['id'] for p in profiles})
+        self._set_profile_visitor_locations(profiles, locations)
 
         return Response({
             'profiles': profiles,
         })
 
-    def annotate_queryset(self, qs):
+    @staticmethod
+    def annotate_queryset(qs):
         return qs.select_related('status').base_queryset().annotate_full_name().annotate(
             diff=ExpressionWrapper(F('user__rght') - F('user__lft'), output_field=IntegerField()),
         ).order_by('-hierarchy__level', 'last_name', 'first_name', 'middle_name')
@@ -165,6 +148,80 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
             return self.annotate_queryset(self.summit.ankets.filter(user__level=0))
         else:
             return self.annotate_queryset(self.summit.ankets.filter(user__master_id=self.request.user.id))
+
+    def get_locations(self, ids):
+        start_date, end_date = self._get_start_and_end_date()
+        locations = SummitVisitorLocation.objects.filter(visitor__in=ids, date_time__range=(start_date, end_date))
+        return locations.values('visitor_id', 'date_time', 'longitude', 'latitude', 'type')
+
+    def _get_start_and_end_date(self):
+        """
+        If:
+            http://example.com/?date_time=2000-02-24T11:33:55&interval=7
+        Then returns:
+            start_date == datetime(2000, 2, 24, 11, 26, 55)
+            end_date == datetime(2000, 2, 24, 11, 40, 55)
+
+        Defaults:
+            interval == 5 min
+            start_date == NOW - 2 * `interval`
+            end_date == NOW
+
+        :return: datetime of start_date, end_date
+        """
+        date_time = self.request.query_params.get('date_time', '')
+        interval = int(self.request.query_params.get('interval', 5))
+        try:
+            date_time = datetime.strptime(date_time.replace('T', ' '), '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            end_date = datetime.now()
+            start_date = end_date - timedelta(minutes=2 * interval)
+        else:
+            start_date = date_time - timedelta(minutes=interval)
+            end_date = date_time + timedelta(minutes=interval)
+
+        return start_date, end_date
+
+    @staticmethod
+    def _set_profile_visitor_locations(profiles, locations):
+        """
+        If profile['id'] == location['visitor_id'], then:
+        ========================================================
+        FROM
+            profiles = [
+                {
+                    'id': 124,
+                    'other_field': 'something',
+                },
+            ]
+            locations = [
+                {
+                    'visitor_id': 124,
+                    'location_field': 'my_location',
+                },
+            ]
+        TO
+            profiles = [
+                {
+                    'id': 124,
+                    'other_field': 'something',
+                    'visitor_locations': {  # ADDED
+                        'visitor_id': 124,
+                        'location_field': 'my_location',
+                    },
+                },
+            ]
+        ========================================================
+        :param profiles: list of profiles (dicts)
+        :param locations: list of locations (dicts)
+        :return:
+        """
+        for p in profiles:
+            p['visitor_locations'] = None
+            for l in locations:
+                if l['visitor_id'] == p['id']:
+                    p['visitor_locations'] = l
+                    break
 
 
 class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
