@@ -61,7 +61,7 @@ def get_report_by_bishop_or_high(summit_id, report_date, department=None, fio=''
         hierarchy_level=3,
         department=' and bud.department_id = {}'.format(department) if department else '',
         search_fio=' and '.join(fio_filter),
-        hierarchy='and h.id = {}'.format(hierarchy) if hierarchy else ''
+        hierarchy=' and h.id = {}'.format(hierarchy) if hierarchy else ''
     )
     bishops = CustomUser.objects.raw(query)
 
