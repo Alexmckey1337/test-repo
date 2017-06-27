@@ -218,27 +218,27 @@ class CustomUser(MPTTModel, User, CustomUserAbstract,
 
     @property
     def is_senior_bishop(self):
-        return self.hierarchy is not None and self.hierarchy.level == 5
+        return self.hierarchy is not None and self.hierarchy.level == 60
 
     @property
     def is_senior_bishop_or_high(self):
-        return self.hierarchy is not None and self.hierarchy.level >= 5
+        return self.hierarchy is not None and self.hierarchy.level >= 60
 
     @property
     def is_apostle(self):
-        return self.hierarchy is not None and self.hierarchy.level == 6
+        return self.hierarchy is not None and self.hierarchy.level == 70
 
     @property
     def is_apostle_or_high(self):
-        return self.hierarchy is not None and self.hierarchy.level >= 6
+        return self.hierarchy is not None and self.hierarchy.level >= 70
 
     @property
     def is_archon(self):
-        return self.hierarchy is not None and self.hierarchy.level == 7
+        return self.hierarchy is not None and self.hierarchy.level == 80
 
     @property
     def is_archon_or_high(self):
-        return self.hierarchy is not None and self.hierarchy.level >= 7
+        return self.hierarchy is not None and self.hierarchy.level >= 80
 
     # PERMISSIONS
 

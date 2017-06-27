@@ -52,7 +52,7 @@ function makeResponsibleList(department, status, flag = false) {
         let rendered = [];
         rendered.push(activeOption);
         if (flag) {
-            if (status > 5) {
+            if (status > 60) {
                 let option = document.createElement('option');
                 $(option).val('').text('Нет ответственного');
                 rendered.push(option);

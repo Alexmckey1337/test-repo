@@ -2493,7 +2493,7 @@ function initAddNewUser(config = {}) {
                 let department = $('#chooseDepartment').val();
                 getResponsible(department, status).then(function (data) {
                     let rendered = [];
-                    if (status > 5) {
+                    if (status > 60) {
                         let option = document.createElement('option');
                         $(option).val('').text('Нет ответственного');
                         rendered.push(option);
