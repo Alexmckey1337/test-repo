@@ -69,6 +69,7 @@ def get_report_by_bishop_or_high(summit_id, report_date, department=None, fio=''
         'user_name': b.user_name,
         'total': len(b.attended),
         'absent': len(list(filter(lambda a: not a, b.attended))),
+        'attend': len(list(filter(lambda a: a, b.attended))),
         'phone_number': b.phone_number
     } for b in bishops], key=lambda b: b['user_name'])
 

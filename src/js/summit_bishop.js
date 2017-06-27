@@ -14,6 +14,11 @@ class BishopReport {
                     title: 'Всего',
                     active: true
                 },
+                attend: {
+                    ordering_title: 'attend',
+                    title: 'Присутствует',
+                    active: true
+                },
                 absent: {
                     ordering_title: 'absent',
                     title: 'Отсутствует',

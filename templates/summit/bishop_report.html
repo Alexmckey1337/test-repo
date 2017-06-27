@@ -120,6 +120,10 @@
                                 <td><a href="/account/<%= results[index].id %>"><%= results[index][key] %></a></td>
                             <% } else if (key == 'absent') { %>
                                 <td><a href="/api/v1.0/summit/{{ summit.id }}/master/<%= results[index].id %>.pdf?attended=false&short"><%= results[index][key] %></a></td>
+                            <% } else if (key == 'attend') { %>
+                                <td><a href="/api/v1.0/summit/{{ summit.id }}/master/<%= results[index].id %>.pdf?attended=true&short"><%= results[index][key] %></a></td>
+                            <% } else if (key == 'total') { %>
+                                <td><a href="/api/v1.0/summit/{{ summit.id }}/master/<%= results[index].id %>.pdf?short"><%= results[index][key] %></a></td>
                             <% } else { %>
                                 <td><%= results[index][key] %></td>
                             <% } %>
