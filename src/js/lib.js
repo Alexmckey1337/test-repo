@@ -1758,7 +1758,10 @@ function homeStatistics() {
 }
 
 function churchStatistics() {
-    getData('/api/v1.0/events/church_reports/statistics/', getFilterParam()).then(data => {
+    let data = {};
+        Object.assign(data, getFilterParam());
+        Object.assign(data, getTabsFilterParam());
+    getData('/api/v1.0/events/church_reports/statistics/', data).then(data => {
         let tmpl = document.getElementById('statisticsTmp').innerHTML;
         let rendered = _.template(tmpl)(data);
         document.getElementById('statisticsContainer').innerHTML = rendered;
