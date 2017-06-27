@@ -46,8 +46,11 @@ class BishopReport {
     getReport() {
         let url = `/api/v1.0/summit/${this.summitId}/report_by_bishops/?`;
         const filter = Object.assign(getFilterParam(), getSearch('search_fio'));
-        Object.keys(filter).forEach(key => {
-            url += `${key}=${filter[key]}`
+        Object.keys(filter).forEach((key, i, arr) => {
+            url += `${key}=${filter[key]}`;
+            if (i + 1 < arr.length) {
+                url += '&'
+            }
         });
         let options = {
             credentials: 'same-origin',
