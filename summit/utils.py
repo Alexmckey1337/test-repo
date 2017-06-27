@@ -29,7 +29,7 @@ from account.models import CustomUser
 from summit.models import SummitAnket
 
 
-def get_report_by_bishop_or_high(summit_id, report_date, department=None, fio=''):
+def get_report_by_bishop_or_high(summit_id, report_date, department=None, fio='', hierarchy=0):
     fio_filter = ['']
     for name in filter(lambda name: bool(name), fio.replace(',', ' ').split(' ')):
         fio_filter.append(
@@ -54,13 +54,14 @@ def get_report_by_bishop_or_high(summit_id, report_date, department=None, fio=''
               JOIN auth_user bbu ON bbu.id = bu.user_ptr_id
               JOIN hierarchy_hierarchy h ON bu.hierarchy_id = h.id
               JOIN account_customuser_departments bud ON bud.customuser_id = bu.user_ptr_id
-            WHERE summit_id = {summit_id} and h.level > {hierarchy_level}{department}{search_fio};
+            WHERE summit_id = {summit_id} and h.level > {hierarchy_level}{department}{search_fio}{hierarchy};
         """.format(
         summit_id=summit_id,
         date=report_date.strftime('%Y-%m-%d'),
         hierarchy_level=3,
         department=' and bud.department_id = {}'.format(department) if department else '',
-        search_fio=' and '.join(fio_filter)
+        search_fio=' and '.join(fio_filter),
+        hierarchy='and h.id = {}'.format(hierarchy) if hierarchy else ''
     )
     bishops = CustomUser.objects.raw(query)
 
