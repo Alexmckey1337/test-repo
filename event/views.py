@@ -95,12 +95,12 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                 for attend in valid_attends:
                     MeetingAttend.objects.create(
                         meeting_id=home_meeting.id,
-                        user_id=attend.get('user'),
+                        user_id=attend.get('user_id'),
                         attended=attend.get('attended', False),
                         note=attend.get('note', '')
                     )
         except IntegrityError:
-            data = {'message': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
+            data = {'detail': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         headers = self.get_success_headers(meeting.data)
@@ -110,29 +110,35 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
     def validate_to_submit(meeting, data):
         if Meeting.objects.filter(owner=meeting.owner, status=Meeting.EXPIRED).exists() and \
                         meeting.status == Meeting.IN_PROGRESS:
-            raise exceptions.ValidationError('Невозможно подать отчет.\n'
-                                             'Данный лидер имеет просроченные отчеты.')
+            raise exceptions.ValidationError({
+                'detail': _('Невозможно подать отчет. Данный лидер имеет просроченные отчеты.')
+            })
 
         if meeting.type.code == 'service' and data.get('total_sum'):
-            raise exceptions.ValidationError(
-                _('Невозможно подать отчет. Отчет типа - {%s} не должен содержать '
-                  'денежную сумму. ' % meeting.type.name))
+            raise exceptions.ValidationError({
+                'detail': _('Невозможно подать отчет. Отчет типа - {%s} не должен содержать '
+                            'денежную сумму. ' % meeting.type.name)
+            })
 
         if not data.get('attends'):
-            raise exceptions.ValidationError(
-                _('Невозможно подать отчет. Список присутствующих не передан.'))
+            raise exceptions.ValidationError({
+                'detail': _('Невозможно подать отчет. Список присутствующих не передан.')
+            })
 
         if meeting.status == Meeting.SUBMITTED:
-            raise exceptions.ValidationError(
-                _('Невозможно повторно подать отчет. Данный отчет - {%s}, '
-                  'уже был подан ранее. ') % meeting)
+            raise exceptions.ValidationError({
+                'detail': _('Невозможно повторно подать отчет. Данный отчет - {%s}, '
+                            'уже был подан ранее. ') % meeting
+            })
 
         attends = data.pop('attends')
         valid_visitors = list(meeting.home_group.uusers.values_list('id', flat=True))
-        valid_attends = [attend for attend in attends if attend.get('user') in valid_visitors]
+        valid_attends = [attend for attend in attends if attend.get('user_id') in valid_visitors]
 
         if not valid_attends:
-            raise exceptions.ValidationError(_('Переданный список присутствующих некорректен'))
+            raise exceptions.ValidationError({
+                'detail': _('Переданный список присутствующих некорректен')
+            })
 
         return valid_attends
 
@@ -158,7 +164,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                     )
 
         except IntegrityError as err:
-            data = {'message': _('При обновлении возникла ошибка. Попробуйте еще раз.')}
+            data = {'detail': _('При обновлении возникла ошибка. Попробуйте еще раз.')}
             logger.error(err)
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
@@ -266,13 +272,15 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
     def submit(self, request, pk):
         church_report = self.get_object()
         if church_report.status == ChurchReport.SUBMITTED:
-            raise exceptions.ValidationError(
-                _('Невозможно подать отчет. Данный отчет уже был подан ранее'))
+            raise exceptions.ValidationError({
+                'detail': _('Невозможно подать отчет. Данный отчет уже был подан ранее')
+            })
 
         if ChurchReport.objects.filter(pastor=church_report.pastor, status=ChurchReport.EXPIRED).exists() and \
                         church_report.status == ChurchReport.IN_PROGRESS:
-            raise exceptions.ValidationError('Невозможно подать отчет.\n'
-                                             'Данный пастор имеет просроченные отчеты.')
+            raise exceptions.ValidationError({
+                'detail': 'Невозможно подать отчет. Данный пастор имеет просроченные отчеты.'
+            })
 
         data = request.data
         church_report.status = ChurchReport.SUBMITTED
