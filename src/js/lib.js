@@ -3093,8 +3093,8 @@ function applyFilter(el, callback) {
         hidePopup(self);
     }, 300);
 
-    let countArr = getCountFilter();
-    $('#filter_button').attr('data-count', countArr.length);
+    let count = getCountFilter();
+    $('#filter_button').attr('data-count', count);
 }
 
 function makeTabs(page = 0) {
@@ -3424,16 +3424,16 @@ function pasteLink(el, link) {
 
 function getCountFilter() {
     let $filterFields,
-        arrCount = [];
+        count = 0;
     $filterFields = $('#filterPopup select, #filterPopup input');
     $filterFields.each(function () {
         if ($(this).val() == "ВСЕ") {
             return
         }
          if ($(this).val()) {
-             arrCount.push($(this).val());
+             count++;
          }
     });
 
-    return arrCount;
+    return count;
 }

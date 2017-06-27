@@ -181,6 +181,8 @@ class PrintMasterStat {
     $('#applyFilter').on('click', function () {
          report.makeTable();
          $(this).closest('#filterPopup').hide();
+         let count = getCountFilter();
+        $('#filter_button').attr('data-count', count);
     });
      $('#download').on('click', function () {
         let stat = new PrintMasterStat(summitId);
