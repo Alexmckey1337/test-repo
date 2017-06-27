@@ -1,6 +1,7 @@
 (function ($) {
     const $summitUsersList = $('#summitUsersList');
     const SUMMIT_ID = $summitUsersList.data('summit');
+
     function makeSummitInfo() {
         let width = 150,
             count = 1,
@@ -8,8 +9,8 @@
             $carousel = $('#carousel'),
             $list = $carousel.find('ul'),
             $listElements;
-            $listElements = $list.find('li');
-            $carousel.find('.arrow-left').on('click', function () {
+        $listElements = $list.find('li');
+        $carousel.find('.arrow-left').on('click', function () {
             position = Math.min(position + width * count, 0);
 
             $($list).css({
@@ -27,7 +28,7 @@
 
     $('#export_table').on('click', function () {
         $('.preloader').css('display', 'block');
-        exportNewTableData(this).then(function () {
+        exportTableData(this).then(function () {
             $('.preloader').css('display', 'none');
         });
     });
@@ -273,12 +274,7 @@
     });
 
     $('#applyChanges').on('click', function () {
-        let summit_id = $('#summitUsersList').data('summit');
-        let sendData = {
-            send_email: false,
-            summit_id: summit_id
-        };
-
+        let profileID = $(this).data('id');
         let formData = $('#participantInfoForm').serializeArray();
         let data = {};
 
@@ -286,23 +282,21 @@
             data[item.name] = (item.value == 'on') ? true : item.value;
         });
 
-        Object.assign(sendData, data);
-        updateSummitParticipant(sendData);
+        updateSummitParticipant(profileID, data);
         closePopup(this);
     });
 
     $('#complete').on('click', function () {
-        let id = $(this).attr('data-id'),
-            money = $('#summit-value').val(),
+        let userID = $(this).attr('data-id'),
             description = $('#popup textarea').val(),
-            summit_id = $('#summitUsersList').data('summit');
-        registerUser(id, summit_id, money, description);
+            summitID = $('#summitUsersList').data('summit');
+        registerUser(userID, summitID, description);
 
         document.querySelector('#popup').style.display = 'none';
     });
 
     function unsubscribeOfSummit(id) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/' + id + '/', null, function () {
+        ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_profiles/${id}/`, null, function () {
             let data = {};
             data['summit'] = summit_id;
             getUsersList(path, data);
@@ -312,29 +306,15 @@
         });
     }
 
-    function updateSummitParticipant(data) {
-        // let member_club = $("#member").prop("checked");
-        // let send_email = $("#send_email").prop("checked");
-        // let data = {
-        //     "user_id": id,
-        //     "summit_id": summit_id,
-        //     "description": description,
-        //     "visited": member_club,
-        //     "send_email": send_email
-        // };
-        registerUserToSummit(JSON.stringify(data));
+    function updateSummitParticipant(profileID, data) {
+        updateSummitProfile(profileID, JSON.stringify(data));
     }
 
-    function registerUser(id, summit_id, money, description) {
-        let member_club = $("#member").prop("checked");
-        let send_email = $("#send_email").prop("checked");
+    function registerUser(id, summit_id, description) {
         let data = {
-            "user_id": id,
-            "summit_id": summit_id,
-            "value": money,
+            "user": id,
+            "summit": summit_id,
             "description": description,
-            "visited": member_club || false,
-            "send_email": send_email,
         };
 
         let json = JSON.stringify(data);
@@ -351,7 +331,7 @@
 
         let json = JSON.stringify(data);
 
-        ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/summit_ankets/${id}/create_payment/`, json, function (JSONobj) {
+        ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/summit_profiles/${id}/create_payment/`, json, function (JSONobj) {
             showPopup('Оплата прошла успешно.');
         }, 'POST', true, {
             'Content-Type': 'application/json'
@@ -364,7 +344,7 @@
     }
 
     function show_payments(id) {
-        ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/summit_ankets/${id}/payments/`, null, function (data) {
+        ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/summit_profiles/${id}/payments/`, null, function (data) {
             let payments_table = '';
             let sum, date_time;
             data.forEach(function (payment) {
@@ -434,22 +414,24 @@
         $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
     });
 
-     $('#departments_filter').on('change', function () {
+    $('#departments_filter').on('change', function () {
         $('#master_tree').prop('disabled', true);
         let department_id = parseInt($(this).val());
         makePastorListNew(department_id, ['#master_tree', '#master']);
     });
     $('#master_tree').on('change', function () {
         $('#master').prop('disabled', true);
-         let master_tree = parseInt($(this).val());
-        makePastorListWithMasterTree({
-            master_tree: master_tree
-        }, ['#master'], null);
+        let config = {};
+        let master_tree = parseInt($(this).val());
+        if (!isNaN(master_tree)) {
+            config = {master_tree: master_tree}
+        }
+        makePastorListWithMasterTree(config, ['#master'], null);
     });
     $('input[name="fullsearch"]').keyup(function () {
         let val = $(this).val();
         delay(function () {
-            createSummitUsersTable({summit: SUMMIT_ID});
+            createSummitUsersTable({summit: SUMMIT_ID, page: 1});
         }, 100);
     });
 
@@ -464,9 +446,6 @@
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
         updateSettings(createSummitUsersTable);
-        $(".table-sorting").animate({
-            right: '-300px'
-        }, 10, 'linear')
     });
     $('#filter_button').on('click', function () {
         $('#filterPopup').css('display', 'block');
@@ -486,7 +465,7 @@
         }
     });
 
-    $('#filterPopup').find('.pop_cont').on('click',function (e) {
+    $('#filterPopup').find('.pop_cont').on('click', function (e) {
         e.stopPropagation();
     });
 
@@ -494,7 +473,9 @@
         dateFormat: 'yyyy-mm-dd',
         autoClose: true
     });
-    $('#summitUsersList').on('click', '.ticket_status', function () {
+
+    $('#summitUsersList').on('click', '.ticket_status', _.debounce(function(e) {
+        console.log($(this));
         let option = {
                 method: 'POST',
                 credentials: "same-origin",
@@ -503,16 +484,17 @@
                 })
             };
         const prifileId = $(this).data('user-id');
-        fetch(`/api/v1.0/summit_ankets/${prifileId}/set_ticket_status/`, option)
+        fetch(`/api/v1.0/summit_profiles/${prifileId}/set_ticket_status/`, option)
             .then( res => res.json())
             .then(data => {
                 $(this).find('.text').text(data.text);
                 if(data.new_status == 'given' || data.new_status == 'print' ) {
                     $(this).find('div').show();
+                    (data.new_status == 'given') ? $(this).find('input').prop('checked', true) : $(this).find('input').prop('checked', false);
                 } else {
                      $(this).find('div').hide();
                 }
             })
 
-    });
+    },300));
 })(jQuery);

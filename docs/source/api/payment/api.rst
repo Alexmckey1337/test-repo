@@ -10,7 +10,7 @@ Create payment
 
 .. http:post:: /api/v1.1/partnerships/(int:partner_id)/create_payment/
 .. http:post:: /api/v1.0/deals/(int:deal_id)/create_payment/
-.. http:post:: /api/v1.0/summit_ankets/(int:anket_id)/create_payment/
+.. http:post:: /api/v1.0/summit_profiles/(int:anket_id)/create_payment/
 
     Create new payment for ``Partner``, ``Deal`` or ``Summit Anket``.
 

@@ -462,14 +462,14 @@
                             <form action="/" name="editChurches" id="editChurches" data-action="update-church">
                                 <button class="edit" data-edit-block="editChurches"></button>
                                 <button class="save__info" type="submit"></button>
-                                <ul {% if account.home_groups.exists or account.churches.exists %}class="exists"{% endif %}>
-                                    {% if account.home_groups.exists %}
+                                <ul {% if account.hhome_group or account.cchurch %}class="exists"{% endif %}>
+                                    {% if account.hhome_group %}
                                         <li class="clearfix">
                                             <div class="label-wrapp">
                                                 <label for="church_title">Церковь</label>
                                             </div>
                                             <select type="text" id="church_list" name="church_title" readonly disabled>
-                                                <option value="{{ account.home_groups.get.church.id }}">{{ account.home_groups.get.church.get_title }}</option>
+                                                <option value="{{ account.hhome_group.church.id }}">{{ account.hhome_group.church.get_title }}</option>
                                             </select>
                                         </li>
                                         <li class="clearfix">
@@ -478,20 +478,20 @@
                                             </div>
                                             <select type="text" id="home_groups_list" name="home_groups" readonly
                                                     disabled>
-                                                <option value="{{ account.home_groups.get.id }}">{{ account.home_groups.get }}</option>
+                                                <option value="{{ account.hhome_group_id }}">{{ account.hhome_group }}</option>
                                             </select>
                                         </li>
                                         <li class="clearfix">
                                             <p class="label__block">Лидер</p>
-                                            <p class="output__block">{{ account.home_groups.get.leader.fullname }}</p>
+                                            <p class="output__block">{{ account.hhome_group.leader.fullname }}</p>
                                         </li>
-                                    {% elif account.churches.exists %}
+                                    {% elif account.cchurch %}
                                         <li class="clearfix">
                                             <div class="label-wrapp">
                                                 <label for="church_title">Церковь</label>
                                             </div>
                                             <select type="text" id="church_list" name="church_title" readonly disabled>
-                                                <option value="{{ account.churches.get.id }}">{{ account.churches.get }}</option>
+                                                <option value="{{ account.cchurch_id }}">{{ account.cchurch }}</option>
                                             </select>
                                         </li>
                                         <li class="clearfix hidden">
@@ -507,7 +507,7 @@
                                             <div class="label-wrapp">
                                                 <p class="label__block">Пастор</p>
                                             </div>
-                                            <p class="output__block">{{ account.churches.get.pastor.fullname }}</p>
+                                            <p class="output__block">{{ account.cchurch.pastor.fullname }}</p>
                                         </li>
                                     {% else %}
                                         <li class="clearfix no_church_in">Пользователь не состоит ни в церкви ни в
@@ -714,8 +714,8 @@
                         {% endfor %}
                     </div>
                 {% endif %}
-                {% if account.summit_ankets.exists %}
-                    {% regroup account.summit_ankets.all by summit.type as ankets %}
+                {% if account.summit_profiles.exists %}
+                    {% regroup account.summit_profiles.all by summit.type as ankets %}
                     <div class="a-sammits">
                         <div class="top-s">
                             <h3>Саммиты</h3>

@@ -18,7 +18,7 @@
         <div class="tabs">
             <ul class="nav tabs_link">
                 <li><a href="{{ summit.get_absolute_url }}">Участники</a></li>
-                <li><a href="{% url 'summit:stats' pk=summit.id %}">Статистика</a></li>
+                <li><a href="{% url 'summit:stats' pk=summit.id %}">Посещаемость</a></li>
                 <li><a class="active" href="{% url 'summit:report' pk=summit.id %}">По ответственному</a></li>
             </ul>
         </div>
@@ -28,7 +28,11 @@
                     <button id="download" class="print">Печать отчета</button>
                 </li>
                 <li>
-                    <button id="filter_button">Фильтр</button>
+                    <button id="filter_button"
+                            data-count="0"
+                    >
+                        Фильтр
+                    </button>
                 </li>
             </ul>
         </div>
@@ -111,10 +115,17 @@
                 <tr>
                     <% for( var key in user_table) { %>
                         <% if(user_table[key].active) { %>
-                            <% if (key == 'user_name') { %>
+                            <% if (key == 'user_name'
+                    ) { %>
                                 <td><a href="/account/<%= results[index].id %>"><%= results[index][key] %></a></td>
+                            <% } else if (key == 'absent') { %>
+                                <td><a href="/api/v1.0/summit/{{ summit.id }}/master/<%= results[index].id %>.pdf?attended=false&short"><%= results[index][key] %></a></td>
+                            <% } else if (key == 'attend') { %>
+                                <td><a href="/api/v1.0/summit/{{ summit.id }}/master/<%= results[index].id %>.pdf?attended=true&short"><%= results[index][key] %></a></td>
+                            <% } else if (key == 'total') { %>
+                                <td><a href="/api/v1.0/summit/{{ summit.id }}/master/<%= results[index].id %>.pdf?short"><%= results[index][key] %></a></td>
                             <% } else { %>
-                            <td><%= results[index][key] %></td>
+                                <td><%= results[index][key] %></td>
                             <% } %>
                         <% } %>
                     <% } %>

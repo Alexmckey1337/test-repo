@@ -45,8 +45,32 @@ class SummitStat {
                 makeSortForm(data.user_table);
                 this.sortTable.sort(this.makeDataTable.bind(this), ".table-wrap th");
                 $('.preloader').css('display', 'none');
-            })
+                changeSummitStatusCode();
+            });
     }
+}
+
+function changeSummitStatusCode() {
+    $('#summitUsersList').find('.ticket_code').find('input').on('change', function () {
+        let id = $(this).closest('.ticket_code').attr('data-id'),
+            ban = $(this).prop("checked") ? 0 : 1,
+            option = {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: new Headers({
+                    'Content-Type': 'application/json',
+                }),
+                body: JSON.stringify({
+                    anket_id: id,
+                    active: ban
+                })
+            };
+        fetch(`/api/v1.0/summit_attends/anket_active_status/`, option)
+            .then(
+                $(this).closest('.ticket_code').find('a').toggleClass('is-ban')
+            )
+
+    });
 }
 
 (function ($) {
@@ -89,6 +113,8 @@ class SummitStat {
         e.preventDefault();
         summit.makeDataTable();
         $(this).closest('#filterPopup').hide();
+        let count = getCountFilter();
+        $('#filter_button').attr('data-count', count);
     });
     $('input[name="fullsearch"]').keyup(function () {
         delay(function () {
@@ -105,10 +131,50 @@ class SummitStat {
     });
     $('#master_tree').on('change', function () {
         $('#master').prop('disabled', true);
+        let config = {};
         let master_tree = parseInt($(this).val());
-        makePastorListWithMasterTree({
-            master_tree: master_tree
-        }, ['#master'], null);
+        if (!isNaN(master_tree)) {
+            config = {master_tree: master_tree}
+        }
+        makePastorListWithMasterTree(config, ['#master'], null);
     });
+    $('#export_table').on('click', function () {
+        $('.preloader').css('display', 'block');
+        exportTableData(this, getTabsFilter()).then(function () {
+            $('.preloader').css('display', 'none');
+        });
+    });
+    // $('.select_time_filter').datepicker({
+    //     dateFormat: ' ',
+    //     timepicker: true,
+    //     onlyTimepicker: true,
+    //     classes: 'only-timepicker'
+    // });
+    $('#time_from').timepicker({
+        timeFormat: 'H:mm',
+        interval: 30,
+        minTime: '0',
+        maxTime: '23:30',
+        dynamic: true,
+        dropdown: true,
+        scrollbar: true,
+        change: function () {
+            summit.makeDataTable();
+        }
+    });
+
+    $('#time_to').timepicker({
+        timeFormat: 'H:mm',
+        interval: 30,
+        minTime: '0',
+        maxTime: '23:30',
+        dynamic: true,
+        dropdown: true,
+        scrollbar: true,
+        change: function () {
+            summit.makeDataTable();
+        }
+    });
+
     summit.makeDataTable();
 })(jQuery);

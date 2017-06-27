@@ -63,8 +63,8 @@ function makeResponsibleList(department, status, flag = false) {
         data.forEach(function (item) {
             let option = document.createElement('option');
             $(option).val(item.id).text(item.fullname);
-            if (activeMaster !== item.id) {
-                // $(option).attr('selected', true);
+            if (activeMaster == item.id) {
+                $(option).attr('selected', true);
             }
             rendered.push(option);
         });
@@ -365,7 +365,7 @@ function sendNote(anket_id, text, box) {
         "text": text
     };
     let json = JSON.stringify(data);
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/' + anket_id + '/create_note/', json, function (note) {
+    ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_profiles/${anket_id}/create_note/`, json, function (note) {
         box.before(function () {
             return '<div class="rows"><div><p>' + note.text + ' — ' + moment(note.date_created).format("DD.MM.YYYY HH:mm:ss")
                 + ' — Author: ' + note.owner_name

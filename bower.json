@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "bootstrap-validator": "^0.11.9",
-    "jquery-form-validator": "^2.3.54"
+    "jquery-form-validator": "^2.3.54",
+    "jquery-timepicker-wvega": "^1.3.5"
   }
 }

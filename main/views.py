@@ -239,14 +239,6 @@ def account(request, id):
 # summit
 
 
-class CanSeeSummitTypeMixin(View):
-    def dispatch(self, request, *args, **kwargs):
-        summit_type = kwargs.get('pk')
-        if not (summit_type and request.user.can_see_summit_type(summit_type)):
-            raise PermissionDenied
-        return super(CanSeeSummitTypeMixin, self).dispatch(request, *args, **kwargs)
-
-
 class CanSeeSummitMixin(View):
     def dispatch(self, request, *args, **kwargs):
         summit = kwargs.get('pk')
@@ -272,23 +264,6 @@ class CanSeeSummitReportByBishopsMixin(View):
 class CanSeeSummitProfileMixin(View):
     def dispatch(self, request, *args, **kwargs):
         return super(CanSeeSummitProfileMixin, self).dispatch(request, *args, **kwargs)
-
-
-class SummitTypeView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
-    model = SummitType
-    context_object_name = 'summit_type'
-    template_name = 'summit/type/detail.html'
-    login_url = 'entry'
-
-    def get_context_data(self, **kwargs):
-        ctx = super(SummitTypeView, self).get_context_data(**kwargs)
-        extra_context = {
-            'departments': Department.objects.all(),
-            'masters': CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1),
-            'hierarchies': Hierarchy.objects.order_by('level'),
-        }
-        ctx.update(extra_context)
-        return ctx
 
 
 class SummitDetailView(LoginRequiredMixin, CanSeeSummitMixin, DetailView):
@@ -320,7 +295,7 @@ class SummitListMixin(LoginRequiredMixin, ListView):
     status = None
 
     def get_queryset(self):
-        available_summits = self.request.user.summit_ankets.filter(
+        available_summits = self.request.user.summit_profiles.filter(
             role__gte=settings.SUMMIT_ANKET_ROLES['consultant']).values_list('summit_id', flat=True)
         return super(SummitListMixin, self).get_queryset().filter(status=self.status, pk__in=available_summits)
 
@@ -434,14 +409,6 @@ class SummitBishopReportView(LoginRequiredMixin, CanSeeSummitReportByBishopsMixi
         return ctx
 
 
-@login_required(login_url='entry')
-def summits(request):
-    ctx = {
-        'summit_types': SummitType.objects.exclude(id=3)
-    }
-    return render(request, 'summit/type/list.html', context=ctx)
-
-
 # database
 
 
@@ -535,25 +502,26 @@ class ChurchDetailView(LoginRequiredMixin, CanSeeChurchesMixin, DetailView):
     def get_context_data(self, **kwargs):
         ctx = super(ChurchDetailView, self).get_context_data(**kwargs)
 
+        church = self.object
         extra_context = {
             'currencies': Currency.objects.all(),
             'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
-            'church_users': self.object.users.count(),
-            'church_all_users': self.object.users.count() + HomeGroup.objects.filter(
-                church_id=self.object.id).aggregate(home_users=Count('users'))['home_users'],
-            'parishioners_count': self.object.users.filter(hierarchy__level=0).count(),
-            'leaders_count': self.object.users.filter(hierarchy__level=1).count(),
-            'home_groups_count': self.object.home_group.count(),
-            'fathers_count': self.object.users.filter(
+            'church_users': church.uusers.count(),
+            'church_all_users': church.uusers.count() + HomeGroup.objects.filter(
+                church_id=church.id).aggregate(home_users=Count('uusers'))['home_users'],
+            'parishioners_count': church.uusers.filter(hierarchy__level=0).count(),
+            'leaders_count': church.uusers.filter(hierarchy__level=1).count(),
+            'home_groups_count': church.home_group.count(),
+            'fathers_count': church.uusers.filter(
                 spiritual_level=CustomUser.FATHER).count() + HomeGroup.objects.filter(
-                church__id=self.object.id).filter(users__spiritual_level=3).count(),
-            'juniors_count': self.object.users.filter(
+                church__id=church.id).filter(uusers__spiritual_level=3).count(),
+            'juniors_count': church.uusers.filter(
                 spiritual_level=CustomUser.JUNIOR).count() + HomeGroup.objects.filter(
-                church__id=self.object.id).filter(users__spiritual_level=2).count(),
-            'babies_count': self.object.users.filter(
+                church__id=church.id).filter(uusers__spiritual_level=2).count(),
+            'babies_count': church.uusers.filter(
                 spiritual_level=CustomUser.BABY).count() + HomeGroup.objects.filter(
-                church__id=self.object.id).filter(users__spiritual_level=1).count(),
-            'partners_count': self.object.users.filter(partnership__is_active=True).count(),
+                church__id=church.id).filter(uusers__spiritual_level=1).count(),
+            'partners_count': church.uusers.filter(partnership__is_active=True).count(),
         }
         ctx.update(extra_context)
 
@@ -569,12 +537,13 @@ class HomeGroupDetailView(LoginRequiredMixin, CanSeeHomeGroupsMixin, DetailView)
     def get_context_data(self, **kwargs):
         ctx = super(HomeGroupDetailView, self).get_context_data(**kwargs)
 
+        home_group = self.object
         extra_context = {
-            'users_count': self.object.users.count(),
-            'fathers_count': self.object.users.filter(spiritual_level=CustomUser.FATHER).count(),
-            'juniors_count': self.object.users.filter(spiritual_level=CustomUser.JUNIOR).count(),
-            'babies_count': self.object.users.filter(spiritual_level=CustomUser.BABY).count(),
-            'partners_count': self.object.users.filter(partnership__is_active=True).count(),
+            'users_count': home_group.uusers.count(),
+            'fathers_count': home_group.uusers.filter(spiritual_level=CustomUser.FATHER).count(),
+            'juniors_count': home_group.uusers.filter(spiritual_level=CustomUser.JUNIOR).count(),
+            'babies_count': home_group.uusers.filter(spiritual_level=CustomUser.BABY).count(),
+            'partners_count': home_group.uusers.filter(partnership__is_active=True).count(),
         }
         ctx.update(extra_context)
 

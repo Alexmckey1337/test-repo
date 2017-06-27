@@ -17,7 +17,7 @@ from reportlab.lib.colors import HexColor
 from reportlab.lib.enums import TA_RIGHT, TA_LEFT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import mm, inch
+from reportlab.lib.units import mm
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -29,7 +29,13 @@ from account.models import CustomUser
 from summit.models import SummitAnket
 
 
-def get_report_by_bishop_or_high(summit_id, report_date, department=None):
+def get_report_by_bishop_or_high(summit_id, report_date, department=None, fio=''):
+    fio_filter = ['']
+    for name in filter(lambda name: bool(name), fio.replace(',', ' ').split(' ')):
+        fio_filter.append(
+            "(bbu.last_name ilike '%%{name}%%' or "
+            "bbu.first_name ilike '%%{name}%%' or "
+            "bu.middle_name ilike '%%{name}%%')".format(name=name))
     query = """
             SELECT DISTINCT ON (bu.user_ptr_id) bu.user_ptr_id,
               concat(bbu.last_name, ' ', bbu.first_name, ' ', bu.middle_name) user_name,
@@ -48,12 +54,13 @@ def get_report_by_bishop_or_high(summit_id, report_date, department=None):
               JOIN auth_user bbu ON bbu.id = bu.user_ptr_id
               JOIN hierarchy_hierarchy h ON bu.hierarchy_id = h.id
               JOIN account_customuser_departments bud ON bud.customuser_id = bu.user_ptr_id
-            WHERE summit_id = {summit_id} and h.level > {hierarchy_level}{department};
+            WHERE summit_id = {summit_id} and h.level > {hierarchy_level}{department}{search_fio};
         """.format(
         summit_id=summit_id,
         date=report_date.strftime('%Y-%m-%d'),
         hierarchy_level=3,
         department=' and bud.department_id = {}'.format(department) if department else '',
+        search_fio=' and '.join(fio_filter)
     )
     bishops = CustomUser.objects.raw(query)
 
@@ -62,6 +69,7 @@ def get_report_by_bishop_or_high(summit_id, report_date, department=None):
         'user_name': b.user_name,
         'total': len(b.attended),
         'absent': len(list(filter(lambda a: not a, b.attended))),
+        'attend': len(list(filter(lambda a: a, b.attended))),
         'phone_number': b.phone_number
     } for b in bishops], key=lambda b: b['user_name'])
 
@@ -86,7 +94,7 @@ class NumberedCanvas(canvas.Canvas):
 
     def draw_page_number(self, page_count):
         # Change the position of this to wherever you want the page number to be
-        self.drawRightString(181 * mm, 15 * mm + (0.2 * inch),
+        self.drawRightString(181 * mm, 7 * mm,
                              "Page %d of %d" % (self._pageNumber, page_count))
 
 
@@ -108,7 +116,7 @@ class SummitParticipantReport(object):
         self._init_styles()
         self.buffer = BytesIO()
         self.doc = SimpleDocTemplate(
-            self.buffer, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72, pagesize=A4)
+            self.buffer, rightMargin=72, leftMargin=72, topMargin=22, bottomMargin=22, pagesize=A4)
         self.width = self.doc.width
 
     def _init_styles(self):
@@ -123,15 +131,16 @@ class SummitParticipantReport(object):
         self.styles.add(ParagraphStyle(
             name='Header1', fontName='FreeSansBold', alignment=TA_LEFT, fontSize=16, spaceAfter=5))
         self.styles.add(ParagraphStyle(
-            name='Header12', fontName='FreeSansBold', alignment=TA_LEFT, fontSize=14, spaceAfter=5, spaceBefore=25))
+            name='Header12', fontName='FreeSansBold', alignment=TA_LEFT, fontSize=14, spaceAfter=5))
         self.styles.add(ParagraphStyle(
-            name='Header2', fontName='FreeSans', alignment=TA_LEFT, fontSize=12, spaceAfter=5, spaceBefore=25))
+            name='Header2', fontName='FreeSans', alignment=TA_LEFT, fontSize=12, spaceAfter=5))
 
     def _append_document_header(self):
         self.elements.append(Paragraph(
+            'Отчет создан: {}'.upper().format(datetime.now().strftime('%d.%m.%Y %H:%M:%S')), self.styles['date']))
+        self.elements.append(Paragraph(
             'Отчет о посещаемости за {}'.upper().format(self.report_date.strftime('%d.%m.%Y')), self.styles['Header1']))
         self.elements.append(Paragraph(self.master.fullname.upper(), self.styles['Header12']))
-        # self.elements.append(Paragraph(self.report_date.strftime('%d.%m.%Y'), self.styles['date']))
 
     def _append_table_header(self, user):
         self.names[user.user_level] = user.user_name
@@ -151,18 +160,28 @@ class SummitParticipantReport(object):
 
     def _append_user_table(self, u, users):
         table_data = []
+        red_lines = []
         for user in users:
             if u.user_id == user.master_id:
-                table_data.append([' + ' if user.attended else '   ', user.user_name, user.phone, user.code])
+                table_data.append(
+                    [user.attended if user.attended else '   ', user.user_name, user.get_ticket_status_display(),
+                     user.phone, user.code,
+                     True if user.ticket_status == SummitAnket.PRINTED else False])
         table_data = sorted(table_data, key=lambda a: a[1])
+        for l, t in enumerate(table_data):
+            if t[5]:
+                red_lines.append(l+1)
+            table_data[l] = table_data[l][:-1]
         if not table_data:
             return
         self._append_table_header(u)
 
-        table_data = [['Был', 'ФИО', 'Номер телефона', 'Код']] + table_data
+        table_data = [['Был', 'ФИО', 'Билет', 'Номер телефона', 'Код']] + table_data
         user_table = Table(table_data, colWidths=[
             self.width * 0.1, self.width * 0.5, self.width * 0.2, self.width * 0.2], normalizedData=1)
 
+        red_cells = [('TEXTCOLOR', (2, line), (2, line), colors.red) for line in red_lines]
+        red_cells += [('FONT', (2, line), (2, line), 'FreeSansBold') for line in red_lines]
         user_table.setStyle(TableStyle([
             ('INNERGRID', (0, 0), (-1, -1), 0.15, colors.black),
             ('FONT', (0, 0), (-1, -1), 'FreeSans'),
@@ -179,7 +198,7 @@ class SummitParticipantReport(object):
             ('FONT', (0, 0), (-1, 0), 'FreeSansBold'),
             ('BACKGROUND', (0, 0), (-1, 0), colors.gray),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ]))
+        ] + red_cells))
         self.elements.append(user_table)
         if self.short is None:
             self.elements.append(PageBreak())
@@ -187,9 +206,10 @@ class SummitParticipantReport(object):
     def _get_participants(self):
         raw = """
             SELECT a.id, a.code, u.phone_number phone, a.user_id, u.master_id, u.level user_level,
-              h.level hierarchy_level,
+              h.level hierarchy_level, a.ticket_status ticket_status,
               concat(uu.last_name, ' ', uu.first_name, ' ', u.middle_name) user_name,
-              exists(select at.id from summit_summitattend at WHERE at.anket_id = a.id AND at.date = '{date}') as attended
+              (select COALESCE(to_char(at.time, 'HH24:MI:SS'), to_char(at.created_at, 'HH24:MI:SS el'), '+')
+              from summit_summitattend at WHERE at.anket_id = a.id AND at.date = '{date}' LIMIT 1) as attended
             FROM summit_summitanket a
               INNER JOIN account_customuser u ON a.user_id = u.user_ptr_id
               INNER JOIN auth_user uu ON u.user_ptr_id = uu.id
@@ -245,7 +265,7 @@ def generate_ticket(code):
         'name': '{} {}'.format(user.last_name, user.first_name),
         'first_name': user.first_name,
         'last_name': user.last_name,
-        'image': user.image.path,
+        'image': user.image.path if user.image else None,
         'code': anket.code,
         'pastor': '{} {}'.format(pastor.last_name, pastor.first_name) if pastor else '',
         'bishop': '{} {}'.format(bishop.last_name, bishop.first_name) if bishop else '',

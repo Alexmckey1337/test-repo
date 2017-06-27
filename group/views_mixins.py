@@ -37,7 +37,7 @@ class HomeGroupListMixin:
                   filter_backends=(filters.OrderingFilter,))
     def home_groups(self, request, pk):
         instance = self.get_object()
-        queryset = instance.home_group.annotate(count_users=Count('users'))
+        queryset = instance.home_group.annotate(count_users=Count('uusers'))
         queryset = self.filter_queryset(queryset)
 
         page = self.paginate_queryset(queryset)
@@ -48,7 +48,7 @@ class HomeGroupListMixin:
 class BaseUserListMixin:
     user_serializer_class = GroupUserSerializer
 
-    user_field = 'users'
+    user_field = 'uusers'
 
     def get_object(self):  # pragma: no cover
         raise NotImplementedError()
@@ -92,7 +92,7 @@ class AllUserListMixin(BaseUserListMixin):
 
 
 class GroupUserExportViewSetMixin(BaseExportViewSetMixin):
-    user_field = 'users'
+    user_field = 'uusers'
 
     def get_object(self):  # pragma: no cover
         raise NotImplementedError()
@@ -109,7 +109,7 @@ class GroupUserExportViewSetMixin(BaseExportViewSetMixin):
 
 
 class ChurchAllUserExportViewSetMixin(BaseExportViewSetMixin):
-    user_field = 'users'
+    user_field = 'uusers'
 
     def get_object(self):  # pragma: no cover
         raise NotImplementedError()

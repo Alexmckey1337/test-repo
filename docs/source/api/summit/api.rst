@@ -191,6 +191,7 @@ Report by bishop+ of the summit
       }
 
    :query string date: report date, format: ``YYYY-mm-dd``
+   :query string search_fio: search by bishop fio
    :query int department: filter by ``department.id``
 
    :statuscode 200: no error
@@ -566,7 +567,7 @@ Summit masters
 Change ticket_status for profile
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. http:post:: /api/v1.0/summit_ankets/(int:profile_id)/set_ticket_status/
+.. http:post:: /api/v1.0/summit_profiles/(int:profile_id)/set_ticket_status/
 
     Change ticket_status of the profile.
 
@@ -581,7 +582,7 @@ Change ticket_status for profile
 
     .. sourcecode:: http
 
-        POST /api/v1.0/summit_ankets/13/set_ticket_status/ HTTP/1.1
+        POST /api/v1.0/summit_profiles/13/set_ticket_status/ HTTP/1.1
         Host: vocrm.org
         content-type: application/json
 
@@ -624,7 +625,7 @@ Change ticket_status for profile
 
     :form new_status: optional, one of the (``none``, ``download``, ``print``, ``given``)
 
-    :statuscode 200: success export
+    :statuscode 200: success
     :statuscode 400: incorrect status code
 
 
@@ -822,6 +823,69 @@ Statistics by summit
    :query string search_phone_number: search by main ``phone_number``
    :query string search_country: search by ``country``
    :query string search_city: search by ``city``
+   :query string date: date
+
+
+Export summit stats
+~~~~~~~~~~~~~~~~~~~
+
+.. http:post:: /api/v1.0/summits/(int:summit_id)/export_stats/
+
+    Export summit statistics.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        POST /api/v1.0/summits/13/export_stats/ HTTP/1.1
+        Host: vocrm.org
+        content-type: application/x-www-form-urlencoded
+        content-length: 33
+
+          fields=full_name,attended
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: POST,OPTIONS
+        Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+        Content-Disposition: attachment; filename=SummitAnket-2016-12-20.xlsx
+
+        ... body ...
+
+    *SummitStats-2016-12-20.xlsx content*
+
+    +----------------+----------+
+    | full_name      | attended |
+    +================+==========+
+    | Gates Bill     | False    |
+    +----------------+----------+
+    | Torvalds Linus | True     |
+    +----------------+----------+
+
+    :form fields: field names for export (comma-separated), optional. Default is (
+       ``full_name``, ``phone_number``, ``department``, ``attended``, ``responlible``, ``code``)
+    :form ids: user ids for export (comma-separated), optional.
+                                 If ``ids`` is empty then will be used filter by query parameters.
+
+    :query int hierarchy: filter by ``hierarchy_id``
+    :query int master: filter by ``master_id``, returned children of master
+    :query int master_tree: filter by ``master_id``, returned descendants of master and self master
+    :query int department: filter by ``department_id``
+    :query string search_fio: search by ``last_name``, ``first_name``, ``middle_name``, ``search_name``
+    :query string search_email: search by ``email``
+    :query string search_phone_number: search by main ``phone_number``
+    :query string search_country: search by ``country``
+    :query string search_city: search by ``city``
+    :query string date: date
+
+    :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
+                             ``application/json``, ``multipart/form-data``
+
+    :statuscode 200: success export
 
 List of summit lessons
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -1175,7 +1239,7 @@ Add new summit lesson
 Create anket payment
 ~~~~~~~~~~~~~~~~~~~~
 
-.. http:post:: /api/v1.0/summit_ankets/(int:anket_id)/create_payment/
+.. http:post:: /api/v1.0/summit_profiles/(int:anket_id)/create_payment/
 
    Create new payment for ``Summit Anket``.
 
@@ -1183,7 +1247,7 @@ Create anket payment
 
    .. sourcecode:: http
 
-      POST /api/v1.0/summit_ankets/4/create_payment/ HTTP/1.1
+      POST /api/v1.0/summit_profiles/4/create_payment/ HTTP/1.1
       Host: vocrm.org
       Accept: application/json
       content-type: application/json
@@ -1204,7 +1268,7 @@ Create anket payment
 List of profile payments
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. http:get:: /api/v1.0/summit_ankets/(int:profile_id)/payments/
+.. http:get:: /api/v1.0/summit_profiles/(int:profile_id)/payments/
 
    List of the payments of ``SummitAnket`` with ``id = profile_id``.
 
@@ -1212,7 +1276,7 @@ List of profile payments
 
    .. sourcecode:: http
 
-      GET /api/v1.0/summit_ankets/4/payments/ HTTP/1.1
+      GET /api/v1.0/summit_profiles/4/payments/ HTTP/1.1
       Host: vocrm.org
       Accept: application/json
 
@@ -1257,7 +1321,7 @@ List of profile payments
             "last_name": "Азиев",
             "middle_name": ""
           },
-          "purpose": "/api/v1.0/summit_ankets/269/"
+          "purpose": "/api/v1.0/summit_profiles/269/"
         },
         {
           "id": 6442,
@@ -1285,7 +1349,7 @@ List of profile payments
           "created_at": "03.07.2016 21:00",
           "sent_date": "04.07.2016",
           "manager": null,
-          "purpose": "/api/v1.0/summit_ankets/269/"
+          "purpose": "/api/v1.0/summit_profiles/269/"
         }
       ]
 
@@ -1308,13 +1372,13 @@ List of profile payments
 Pre delete information
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. http:get:: /api/v1.0/summit_ankets/(int:anket_id)/predelete/
+.. http:get:: /api/v1.0/summit_profiles/(int:anket_id)/predelete/
 
    **Example request**:
 
    .. sourcecode:: http
 
-      GET /api/v1.0/summit_ankets/4/predelete/ HTTP/1.1
+      GET /api/v1.0/summit_profiles/4/predelete/ HTTP/1.1
       Host: vocrm.org
       Accept: application/json
       content-type: application/json
@@ -1508,7 +1572,7 @@ Pre delete information
 Delete summit profile
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. http:delete:: /api/v1.0/summit_ankets/(int:anket_id)/
+.. http:delete:: /api/v1.0/summit_profiles/(int:anket_id)/
 
     Delete summit profile with ``id = anket_id``
 
@@ -1516,7 +1580,7 @@ Delete summit profile
 
     .. sourcecode:: http
 
-        DELETE /api/v1.0/summit_ankets/6/ HTTP/1.1
+        DELETE /api/v1.0/summit_profiles/6/ HTTP/1.1
         Host: vocrm.org
         Accept: application/json
         content-type: application/json
@@ -1569,7 +1633,7 @@ Delete summit profile
               "created_at": "03.07.2016 21:00",
               "sent_date": "04.07.2016",
               "manager": "None",
-              "purpose": "/api/v1.0/summit_ankets/3439/"
+              "purpose": "/api/v1.0/summit_profiles/3439/"
             }
           ]
         }

@@ -1,15 +1,24 @@
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 import pytest
-from django.db.models import OuterRef, Exists
+from django.conf import settings
+from django.db import IntegrityError
 from django.urls import reverse
 from rest_framework import status
 
+from account.models import CustomUser
 from payment.serializers import PaymentShowSerializer
-from summit.models import Summit, SummitLesson, SummitAnket, SummitAttend
+from summit.models import Summit, SummitLesson, SummitAnket, SummitTicket
+from summit.regcode import encode_reg_code
 from summit.serializers import (
-    SummitSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer, SummitAnketNoteSerializer)
-from summit.views import SummitProfileListView, SummitStatisticsView
+    SummitSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer, SummitAnketNoteSerializer,
+    SummitAnketForAppSerializer)
+from summit.views import SummitProfileListView, SummitStatisticsView, SummitBishopHighMasterListView, \
+    SummitProfileViewSet, SummitTicketMakePrintedView, SummitTicketViewSet
+from summit.views_app import SummitProfileForAppViewSet, SummitProfileTreeForAppListView
+
+BISHOP_LEVEL = 4
 
 
 def get_queryset(s):
@@ -17,10 +26,12 @@ def get_queryset(s):
 
 
 def get_stats_queryset(self):
-    subqs = SummitAttend.objects.filter(date=self.filter_date, anket=OuterRef('pk'))
-    qs = self.summit.ankets.select_related('user').annotate(attended=Exists(subqs)).annotate_full_name().order_by(
-        'user__last_name', 'user__first_name', 'user__middle_name')
+    qs = self.annotate_queryset(self.summit.ankets)
     return qs
+
+
+def save_db_error(self, *args, **kwargs):
+    raise IntegrityError()
 
 
 @pytest.mark.django_db
@@ -174,69 +185,7 @@ class TestSummitViewSet:
 
 
 @pytest.mark.django_db
-class TestSummitAnketTableViewSet:
-    def test_create_payment(self, api_client, creator, anket, currency_factory):
-        url = reverse('summit_ankets-create-payment', kwargs={'pk': anket.id})
-
-        api_client.force_login(creator['anket'].user)
-        api_login_client = api_client
-
-        data = {
-            'sum': '10',
-            'description': 'no desc',
-            'rate': '1.22',
-            'currency': currency_factory().id,
-        }
-        response = api_login_client.post(url, data=data, format='json')
-
-        assert response.status_code == creator['code']
-
-        if creator['code'] == status.HTTP_201_CREATED:
-            payment = anket.payments.get()
-            assert payment.sum == Decimal(data['sum'])
-            assert payment.rate == Decimal(data['rate'])
-            assert payment.description == data['description']
-            assert payment.currency_sum_id == data['currency']
-            assert response.data == PaymentShowSerializer(payment).data
-
-    def test_payments(self, api_client, viewer, anket, payment_factory):
-        payment_factory.create_batch(6, purpose=anket)
-        url = reverse('summit_ankets-payments', kwargs={'pk': anket.id})
-
-        api_client.force_login(viewer['anket'].user)
-        api_login_client = api_client
-
-        response = api_login_client.get(url, format='json')
-
-        assert response.status_code == viewer['code']
-        if viewer['code'] == status.HTTP_200_OK:
-            assert response.data == PaymentShowSerializer(anket.payments.all(), many=True).data
-
-    def test_create_note(self, api_login_client, anket):
-        url = reverse('summit_ankets-create-note', kwargs={'pk': anket.id})
-
-        data = {
-            'text': 'very long text',
-        }
-        response = api_login_client.post(url, data=data, format='json')
-
-        note = anket.notes.get()
-
-        assert response.status_code == status.HTTP_201_CREATED
-        assert note.text == data['text']
-        assert response.data == SummitAnketNoteSerializer(note).data
-
-    def test_notes(self, api_client, summit_anket_factory, anket, anket_note_factory):
-        anket_note_factory.create_batch(6)
-        consultant_anket = summit_anket_factory(summit=anket.summit, role=SummitAnket.CONSULTANT)
-        url = reverse('summit_ankets-notes', kwargs={'pk': anket.id})
-
-        api_client.force_login(consultant_anket.user)
-        response = api_client.get(url, format='json')
-
-        assert response.status_code == status.HTTP_200_OK
-        assert response.data == SummitAnketNoteSerializer(anket.notes.all(), many=True).data
-
+class TestSummitProfileListView:
     @pytest.mark.parametrize(
         'role,count', [
             (SummitAnket.SUPERVISOR, 5),
@@ -458,7 +407,334 @@ class TestSummitAnketTableViewSet:
         assert response.data['count'] == 11
 
 
-@pytest.mark.hh
+@pytest.mark.django_db
+class TestSummitProfileViewSet:
+    def test_create_payment(self, api_client, creator, anket, currency_factory):
+        url = reverse('summit_profiles-create-payment', kwargs={'pk': anket.id})
+
+        api_client.force_login(creator['anket'].user)
+        api_login_client = api_client
+
+        data = {
+            'sum': '10',
+            'description': 'no desc',
+            'rate': '1.22',
+            'currency': currency_factory().id,
+        }
+        response = api_login_client.post(url, data=data, format='json')
+
+        assert response.status_code == creator['code']
+
+        if creator['code'] == status.HTTP_201_CREATED:
+            payment = anket.payments.get()
+            assert payment.sum == Decimal(data['sum'])
+            assert payment.rate == Decimal(data['rate'])
+            assert payment.description == data['description']
+            assert payment.currency_sum_id == data['currency']
+            assert response.data == PaymentShowSerializer(payment).data
+
+    def test_payments(self, api_client, viewer, anket, payment_factory):
+        payment_factory.create_batch(6, purpose=anket)
+        url = reverse('summit_profiles-payments', kwargs={'pk': anket.id})
+
+        api_client.force_login(viewer['anket'].user)
+        api_login_client = api_client
+
+        response = api_login_client.get(url, format='json')
+
+        assert response.status_code == viewer['code']
+        if viewer['code'] == status.HTTP_200_OK:
+            assert response.data == PaymentShowSerializer(anket.payments.all(), many=True).data
+
+    def test_create_note(self, api_login_client, anket):
+        url = reverse('summit_profiles-create-note', kwargs={'pk': anket.id})
+
+        data = {
+            'text': 'very long text',
+        }
+        response = api_login_client.post(url, data=data, format='json')
+
+        note = anket.notes.get()
+
+        assert response.status_code == status.HTTP_201_CREATED
+        assert note.text == data['text']
+        assert response.data == SummitAnketNoteSerializer(note).data
+
+    def test_notes(self, api_client, summit_anket_factory, anket, anket_note_factory):
+        anket_note_factory.create_batch(6)
+        consultant_anket = summit_anket_factory(summit=anket.summit, role=SummitAnket.CONSULTANT)
+        url = reverse('summit_profiles-notes', kwargs={'pk': anket.id})
+
+        api_client.force_login(consultant_anket.user)
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == SummitAnketNoteSerializer(anket.notes.all(), many=True).data
+
+    def test_codes(self, monkeypatch, api_client, summit_factory, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+
+        summit = summit_factory()
+        other_summit = summit_factory()
+        profiles = summit_anket_factory.create_batch(2, summit=summit)
+        summit_anket_factory.create_batch(4, summit=other_summit)
+
+        url = reverse('summit_profiles-codes')
+
+        response = api_client.get('{}?summit_id={}'.format(url, summit.id), format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['ticket_count'] == len(profiles)
+        assert set(map(
+            lambda p: p['code'],
+            response.data['ticket_codes'])) == set(map(lambda p: p.code, profiles))
+
+    @pytest.mark.parametrize('new_status', map(lambda s: s[0], SummitAnket.TICKET_STATUSES))
+    def test_set_ticket_status_with_new_status(
+            self, monkeypatch, api_client, new_status, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory(ticket_status='none')
+
+        url = reverse('summit_profiles-set-ticket-status', kwargs={'pk': profile.pk})
+
+        response = api_client.post(url, data={'new_status': new_status}, format='json')
+        profile.refresh_from_db()
+
+        assert response.status_code == status.HTTP_200_OK
+        assert profile.ticket_status == new_status
+
+    @pytest.mark.parametrize('new_status', map(lambda s: 'invalid{}'.format(s[0]), SummitAnket.TICKET_STATUSES))
+    def test_set_ticket_status_with_invalid_new_status(
+            self, monkeypatch, api_client, new_status, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory(ticket_status='none')
+
+        url = reverse('summit_profiles-set-ticket-status', kwargs={'pk': profile.pk})
+
+        response = api_client.post(url, data={'new_status': new_status}, format='json')
+        profile.refresh_from_db()
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert profile.ticket_status == 'none'
+
+    def test_set_ticket_status_with_invalid_old_status(
+            self, monkeypatch, api_client, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory(ticket_status='invalid')
+
+        url = reverse('summit_profiles-set-ticket-status', kwargs={'pk': profile.pk})
+
+        response = api_client.post(url, format='json')
+        profile.refresh_from_db()
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert profile.ticket_status == 'invalid'
+
+    @pytest.mark.parametrize('old_status,new_status', settings.NEW_TICKET_STATUS.items(),
+                             ids=tuple(map(lambda s: '{}->{}'.format(*s), settings.NEW_TICKET_STATUS.items())))
+    def test_set_ticket_status_without_new_status(
+            self, monkeypatch, api_client, old_status, new_status, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory(ticket_status=old_status)
+
+        url = reverse('summit_profiles-set-ticket-status', kwargs={'pk': profile.pk})
+
+        response = api_client.post(url, format='json')
+        profile.refresh_from_db()
+
+        assert response.status_code == status.HTTP_200_OK
+        assert profile.ticket_status == new_status
+
+    def test_delete_without_payments(self, monkeypatch, api_client, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+        profile = summit_anket_factory()
+
+        url = reverse('summit_profiles-detail', kwargs={'pk': profile.pk})
+
+        response = api_client.delete(url, format='json')
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    def test_delete_with_payments(self, monkeypatch, api_client, summit_anket_factory, payment_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory()
+        payment_factory(purpose=profile)
+
+        url = reverse('summit_profiles-detail', kwargs={'pk': profile.pk})
+        response = api_client.delete(url, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_predelete_status(self, monkeypatch, api_client, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+        profile = summit_anket_factory()
+
+        url = reverse('summit_profiles-predelete', kwargs={'pk': profile.pk})
+
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_predelete_data(self, monkeypatch, api_client, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+        profile = summit_anket_factory()
+
+        url = reverse('summit_profiles-predelete', kwargs={'pk': profile.pk})
+
+        response = api_client.get(url, format='json')
+
+        assert set(response.data.keys()) == {'notes', 'lessons', 'summits', 'users', 'consultants'}
+
+    def test_partial_update_status_code(self, monkeypatch, api_client, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory()
+
+        url = reverse('summit_profiles-detail', kwargs={'pk': profile.pk})
+        response = api_client.patch(url, data={'description': 'two'}, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_partial_update_data(self, monkeypatch, api_client, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory(description='one')
+
+        url = reverse('summit_profiles-detail', kwargs={'pk': profile.pk})
+        api_client.patch(url, data={'description': 'two'}, format='json')
+        profile.refresh_from_db()
+
+        assert profile.description == 'two'
+
+    def test_create_status_code(self, monkeypatch, api_client, user_factory, summit_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+
+        user = user_factory()
+        summit = summit_factory()
+
+        url = reverse('summit_profiles-list')
+
+        response = api_client.post(url, data={'user': user.id, 'summit': summit.id}, format='json')
+
+        assert response.status_code == status.HTTP_201_CREATED
+
+    def test_create_summit_code(self, monkeypatch, api_client, user_factory, summit_factory):
+        monkeypatch.setattr(SummitProfileViewSet, 'check_permissions', lambda s, r: 0)
+
+        user = user_factory()
+        summit = summit_factory()
+
+        url = reverse('summit_profiles-list')
+
+        api_client.post(url, data={'user': user.id, 'summit': summit.id}, format='json')
+        profile = SummitAnket.objects.order_by('pk').last()
+
+        assert profile.code == '0{}'.format(4000000 + profile.id)
+
+
+@pytest.mark.django_db
+class TestSummitTicketMakePrintedView:
+    def test_status(self, monkeypatch, api_client, summit_ticket_factory):
+        monkeypatch.setattr(SummitTicketMakePrintedView, 'check_permissions', lambda s, r: 0)
+
+        ticket = summit_ticket_factory()
+
+        url = reverse('summit-ticket-print', kwargs={'ticket': ticket.pk})
+        response = api_client.post(url, format='json')
+        ticket.refresh_from_db()
+
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_summit_ticket(self, monkeypatch, api_client, summit_ticket_factory):
+        monkeypatch.setattr(SummitTicketMakePrintedView, 'check_permissions', lambda s, r: 0)
+
+        ticket = summit_ticket_factory()
+
+        url = reverse('summit-ticket-print', kwargs={'ticket': ticket.pk})
+        api_client.post(url, format='json')
+        ticket.refresh_from_db()
+
+        assert ticket.is_printed
+
+    @pytest.mark.parametrize('ticket_status', map(lambda s: s[0], SummitAnket.TICKET_STATUSES))
+    def test_summit_ticket_users(
+            self, monkeypatch, api_client, summit_ticket_factory, summit_anket_factory, ticket_status):
+        monkeypatch.setattr(SummitTicketMakePrintedView, 'check_permissions', lambda s, r: 0)
+
+        ticket = summit_ticket_factory()
+        profiles = summit_anket_factory.create_batch(2, ticket_status=ticket_status)
+        ticket.users.set([p.id for p in profiles])
+
+        url = reverse('summit-ticket-print', kwargs={'ticket': ticket.pk})
+        api_client.post(url, format='json')
+
+        if ticket_status == SummitAnket.GIVEN:
+            assert set(ticket.users.values_list('ticket_status', flat=True)) == {SummitAnket.GIVEN}
+        else:
+            assert set(ticket.users.values_list('ticket_status', flat=True)) == {SummitAnket.PRINTED}
+
+    def test_status_with_db_error(self, monkeypatch, api_client, summit_ticket_factory):
+        monkeypatch.setattr(SummitTicketMakePrintedView, 'check_permissions', lambda s, r: 0)
+
+        ticket = summit_ticket_factory()
+
+        url = reverse('summit-ticket-print', kwargs={'ticket': ticket.pk})
+        monkeypatch.setattr(SummitTicket, 'save', save_db_error)
+        response = api_client.post(url, format='json')
+        ticket.refresh_from_db()
+
+        assert response.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
+
+    def test_summit_ticket_db_error(self, monkeypatch, api_client, summit_ticket_factory):
+        monkeypatch.setattr(SummitTicketMakePrintedView, 'check_permissions', lambda s, r: 0)
+
+        ticket = summit_ticket_factory()
+
+        url = reverse('summit-ticket-print', kwargs={'ticket': ticket.pk})
+        monkeypatch.setattr(SummitTicket, 'save', save_db_error)
+        api_client.post(url, format='json')
+        ticket.refresh_from_db()
+
+        assert not ticket.is_printed
+
+    @pytest.mark.parametrize('ticket_status', map(lambda s: s[0], SummitAnket.TICKET_STATUSES))
+    def test_summit_ticket_users_db_error(
+            self, monkeypatch, api_client, summit_ticket_factory, summit_anket_factory, ticket_status):
+        monkeypatch.setattr(SummitTicketMakePrintedView, 'check_permissions', lambda s, r: 0)
+
+        ticket = summit_ticket_factory()
+        profiles = summit_anket_factory.create_batch(2, ticket_status=ticket_status)
+        ticket.users.set([p.id for p in profiles])
+
+        url = reverse('summit-ticket-print', kwargs={'ticket': ticket.pk})
+        monkeypatch.setattr(SummitTicket, 'save', save_db_error)
+        api_client.post(url, format='json')
+
+        assert set(ticket.users.values_list('ticket_status', flat=True)) == {ticket_status}
+
+
+@pytest.mark.django_db
+def test_app_request_count(api_client, summit_factory, profile_status_factory):
+    summit = summit_factory()
+    other_summit = summit_factory()
+
+    profile_status_factory(anket__summit=other_summit, reg_code_requested=False)
+    profile_status_factory.create_batch(2, anket__summit=other_summit, reg_code_requested=True)
+    profile_status_factory.create_batch(4, anket__summit=summit, reg_code_requested=False)
+    profile_status_factory.create_batch(8, anket__summit=summit, reg_code_requested=True)
+
+    url = reverse('summit-app-profile-list', kwargs={'summit_id': summit.id})
+
+    response = api_client.get(url, format='json')
+
+    assert response.data == {'total': 12, 'requested': 8}
+
+
 @pytest.mark.django_db
 class TestSummitStatisticsView:
     @pytest.mark.parametrize(
@@ -699,3 +975,524 @@ class TestSummitStatisticsView:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data['count'] == 11
+
+    def test_filter_by_date_with_date(
+            self, monkeypatch, api_client, summit_attend_factory, summit_factory):
+        monkeypatch.setattr(SummitStatisticsView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(SummitStatisticsView, 'get_queryset', get_stats_queryset)
+        monkeypatch.setattr(SummitStatisticsView, 'pagination_class', None)
+        now = datetime.now()
+        summit = summit_factory()
+
+        summit_attend_factory.create_batch(10, anket__summit=summit, date=now)
+        summit_attend_factory.create_batch(8, anket__summit=summit, date=(now - timedelta(days=2)))
+
+        url = reverse('summit-stats', kwargs={'pk': summit.id})
+
+        response = api_client.get(
+            '{}?date={}'.format(url, now.strftime('%Y-%m-%d')), format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(list(filter(lambda p: p['attended'], response.data))) == 10
+
+    def test_filter_by_date_without_date(
+            self, monkeypatch, api_client, summit_attend_factory, summit_factory):
+        monkeypatch.setattr(SummitStatisticsView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(SummitStatisticsView, 'get_queryset', get_stats_queryset)
+        monkeypatch.setattr(SummitStatisticsView, 'pagination_class', None)
+        now = datetime.now()
+        summit = summit_factory()
+
+        summit_attend_factory.create_batch(10, anket__summit=summit, date=now)
+        summit_attend_factory.create_batch(8, anket__summit=summit, date=(now - timedelta(days=2)))
+
+        url = reverse('summit-stats', kwargs={'pk': summit.id})
+
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(list(filter(lambda p: p['attended'], response.data))) == 10
+
+    def test_filter_by_date_with_invalid_date(
+            self, monkeypatch, api_client, summit_factory):
+        monkeypatch.setattr(SummitStatisticsView, 'check_permissions', lambda s, r: 0)
+        summit = summit_factory()
+
+        url = reverse('summit-stats', kwargs={'pk': summit.id})
+
+        response = api_client.get('{}?date={}'.format(url, '01.01.2017'), format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.django_db
+class TestSummitBishopHighMasterListView:
+    def test_filter_with_correct_summit(self, monkeypatch, api_client, summit_factory, summit_anket_factory):
+        monkeypatch.setattr(SummitBishopHighMasterListView, 'check_permissions', lambda s, r: 0)
+
+        summit = summit_factory()
+        summit_anket_factory(user__hierarchy__level=22, summit=summit)
+
+        url = reverse('summit-masters', kwargs={'pk': summit.id})
+
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) == 1
+
+    def test_filter_with_incorrect_summit(self, monkeypatch, api_client, summit_factory, summit_anket_factory):
+        monkeypatch.setattr(SummitBishopHighMasterListView, 'check_permissions', lambda s, r: 0)
+
+        summit = summit_factory()
+        summit_anket_factory(user__hierarchy__level=22, summit=summit)
+
+        other_summit = summit_factory()
+
+        url = reverse('summit-masters', kwargs={'pk': other_summit.id})
+
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) == 0
+
+    @pytest.mark.parametrize('h', range(11))
+    def test_filter_with_correct_hierarchy(self, monkeypatch, api_client, summit_anket_factory, h):
+        monkeypatch.setattr(SummitBishopHighMasterListView, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory(user__hierarchy__level=h)
+
+        url = reverse('summit-masters', kwargs={'pk': profile.summit.id})
+
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) == (1 if h >= BISHOP_LEVEL else 0)
+
+
+@pytest.mark.django_db
+class TestSummitProfileForAppViewSet:
+    def test_by_reg_code_status_code(self, monkeypatch, api_client, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory()
+
+        url = '/api/app/users/by_reg_code/?reg_code={}'.format(profile.reg_code)
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_by_reg_code_profile_status_exist(
+            self, monkeypatch, api_client, summit_anket_factory, profile_status_factory):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory()
+        profile_status = profile_status_factory(
+            anket=profile, reg_code_requested=False, reg_code_requested_date=datetime(2000, 2, 4))
+
+        url = '/api/app/users/by_reg_code/?reg_code={}'.format(profile.reg_code)
+        response = api_client.get(url, format='json')
+
+        profile_status.refresh_from_db()
+        assert response.data == SummitAnketForAppSerializer(profile).data
+        assert not profile_status.reg_code_requested
+        assert profile_status.reg_code_requested_date == datetime(2000, 2, 4)
+
+    def test_by_reg_code_profile_status_not_exist(self, monkeypatch, api_client, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory()
+        assert not hasattr(profile, 'status')
+
+        url = '/api/app/users/by_reg_code/?reg_code={}'.format(profile.reg_code)
+        response = api_client.get(url, format='json')
+        profile = SummitAnket.objects.get(pk=profile.id)
+
+        assert hasattr(profile, 'status')
+        assert response.data == SummitAnketForAppSerializer(profile).data
+        assert profile.status.reg_code_requested
+
+    def test_by_reg_code_without_reg_code(self, monkeypatch, api_client):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        url = '/api/app/users/by_reg_code/'
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_by_reg_code_invalid_format(self, monkeypatch, api_client):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        url = '/api/app/users/by_reg_code/?reg_code=invalid'
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_by_reg_code_profile_not_exist(self, monkeypatch, api_client, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory()
+        profile_id = profile.id
+        profile.delete()
+
+        url = '/api/app/users/by_reg_code/?reg_code={}'.format(encode_reg_code(profile_id))
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_by_reg_code_invalid_reg_code(self, monkeypatch, api_client, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        profile = summit_anket_factory()
+
+        code = encode_reg_code(profile.id)
+        code = str(int('0x' + code, 0) + 1)
+
+        url = '/api/app/users/by_reg_code/?reg_code={}'.format(code)
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_by_reg_date_status_code(self, monkeypatch, api_client):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        url = '/api/app/users/by_reg_date/'
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_by_reg_date_without_date(self, monkeypatch, api_client, summit_anket_factory, profile_status_factory):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        day = datetime.now() - timedelta(days=1)
+        early = day - timedelta(days=1)
+        later = day + timedelta(days=1)
+
+        early_profile = summit_anket_factory()
+        profile = summit_anket_factory()
+        later_profile = summit_anket_factory()
+        profile_status_factory(anket=early_profile, reg_code_requested_date=early)
+        profile_status_factory(anket=profile, reg_code_requested_date=day)
+        profile_status_factory(anket=later_profile, reg_code_requested_date=later)
+
+        url = '/api/app/users/by_reg_date/'
+        response = api_client.get(url, format='json')
+
+        assert set(p['visitor_id'] for p in response.data) == {profile.id}
+
+    def test_by_reg_date_without_to_date(self, monkeypatch, api_client, summit_anket_factory, profile_status_factory):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        day = datetime.now()
+        early = day - timedelta(days=1)
+        later = day + timedelta(days=1)
+
+        early_profile = summit_anket_factory()
+        profile = summit_anket_factory()
+        later_profile = summit_anket_factory()
+        profile_status_factory(anket=early_profile, reg_code_requested_date=early)
+        profile_status_factory(anket=profile, reg_code_requested_date=day)
+        profile_status_factory(anket=later_profile, reg_code_requested_date=later)
+
+        url = '/api/app/users/by_reg_date/?from_date={}'.format(day.strftime("%Y-%m-%d"))
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert set(p['visitor_id'] for p in response.data) == {profile.id, later_profile.id}
+
+    def test_by_reg_date_without_from_date(self, monkeypatch, api_client, summit_anket_factory, profile_status_factory):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        day = datetime(2000, 2, 4)
+        early = day - timedelta(days=1)
+        later = day + timedelta(days=1)
+
+        early_profile = summit_anket_factory()
+        profile = summit_anket_factory()
+        later_profile = summit_anket_factory()
+        profile_status_factory(anket=early_profile, reg_code_requested_date=early)
+        profile_status_factory(anket=profile, reg_code_requested_date=day)
+        profile_status_factory(anket=later_profile, reg_code_requested_date=later)
+
+        url = '/api/app/users/by_reg_date/?to_date={}'.format(day.strftime("%Y-%m-%d"))
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert set(p['visitor_id'] for p in response.data) == {early_profile.id, profile.id}
+
+    def test_by_reg_date_from_date_eq_to_date(
+            self, monkeypatch, api_client, summit_anket_factory, profile_status_factory):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        day = datetime(2000, 2, 4)
+        early = day - timedelta(days=1)
+        later = day + timedelta(days=1)
+
+        early_profile = summit_anket_factory()
+        profile = summit_anket_factory()
+        later_profile = summit_anket_factory()
+        profile_status_factory(anket=early_profile, reg_code_requested_date=early)
+        profile_status_factory(anket=profile, reg_code_requested_date=day)
+        profile_status_factory(anket=later_profile, reg_code_requested_date=later)
+
+        url = '/api/app/users/by_reg_date/?from_date={day}&to_date={day}'.format(day=day.strftime("%Y-%m-%d"))
+        response = api_client.get(url, format='json')
+
+        assert set(p['visitor_id'] for p in response.data) == {profile.id}
+
+    def test_by_reg_date_from_date_gt_to_date(self, monkeypatch, api_client):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        url = '/api/app/users/by_reg_date/?from_date=2000-02-22&to_date=1999-12-22'
+        response = api_client.get(url, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_by_reg_date_from_date_lt_to_date(
+            self, monkeypatch, api_client, summit_anket_factory, profile_status_factory):
+        monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
+
+        day = datetime(2000, 2, 4)
+        early = day - timedelta(days=1)
+        later = day + timedelta(days=1)
+        more_early = day - timedelta(days=2)
+        more_later = day + timedelta(days=2)
+
+        early_profile = summit_anket_factory()
+        profile = summit_anket_factory()
+        later_profile = summit_anket_factory()
+        profile_status_factory(reg_code_requested_date=more_early)
+        profile_status_factory(anket=early_profile, reg_code_requested_date=early)
+        profile_status_factory(anket=profile, reg_code_requested_date=day)
+        profile_status_factory(anket=later_profile, reg_code_requested_date=later)
+        profile_status_factory(reg_code_requested_date=more_later)
+
+        url = '/api/app/users/by_reg_date/?from_date={early}&to_date={later}'.format(
+            early=early.strftime("%Y-%m-%d"), later=later.strftime("%Y-%m-%d"))
+        response = api_client.get(url, format='json')
+
+        assert set(p['visitor_id'] for p in response.data) == {early_profile.id, profile.id, later_profile.id}
+
+
+@pytest.mark.django_db
+class TestSummitProfileTreeForAppListView:
+    def test_locations_without_date_time_and_interval(
+            self, monkeypatch, api_client, summit_factory, visitor_location_factory):
+        monkeypatch.setattr(SummitProfileTreeForAppListView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(
+            SummitProfileTreeForAppListView, 'get_queryset', lambda s: s.annotate_queryset(s.summit.ankets.all()))
+        now = datetime.now()
+
+        summit = summit_factory()
+        early_location = visitor_location_factory(visitor__summit=summit, date_time=now - timedelta(minutes=11))
+        location = visitor_location_factory(visitor__summit=summit, date_time=now - timedelta(minutes=9))
+
+        url = '/api/app/summits/{}/users/'.format(summit.id)
+        response = api_client.get(url, format='json')
+        assert {p['id']: p['visitor_locations']['date_time'].date() if p['visitor_locations'] else None
+                for p in response.data['profiles']} == {
+                   location.visitor_id: now.date(), early_location.visitor_id: None}
+
+    def test_locations_with_date_time(
+            self, monkeypatch, api_client, summit_factory, visitor_location_factory):
+        monkeypatch.setattr(SummitProfileTreeForAppListView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(
+            SummitProfileTreeForAppListView, 'get_queryset', lambda s: s.annotate_queryset(s.summit.ankets.all()))
+        date_time = datetime(2000, 2, 24, 11, 33, 55)
+
+        summit = summit_factory()
+        early_location = visitor_location_factory(visitor__summit=summit, date_time=date_time - timedelta(minutes=6))
+        less_location = visitor_location_factory(visitor__summit=summit, date_time=date_time - timedelta(minutes=4))
+        more_location = visitor_location_factory(visitor__summit=summit, date_time=date_time + timedelta(minutes=4))
+        later_location = visitor_location_factory(visitor__summit=summit, date_time=date_time + timedelta(minutes=6))
+
+        url = '/api/app/summits/{}/users/?date_time=2000-02-24T11:33:55'.format(summit.id)
+        response = api_client.get(url, format='json')
+        assert {p['id']: p['visitor_locations']['date_time'].date() if p['visitor_locations'] else None
+                for p in response.data['profiles']} == {
+                   less_location.visitor_id: (date_time + timedelta(minutes=4)).date(),
+                   more_location.visitor_id: (date_time - timedelta(minutes=4)).date(),
+                   early_location.visitor_id: None,
+                   later_location.visitor_id: None,
+               }
+
+    def test_locations_with_interval(
+            self, monkeypatch, api_client, summit_factory, visitor_location_factory):
+        monkeypatch.setattr(SummitProfileTreeForAppListView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(
+            SummitProfileTreeForAppListView, 'get_queryset', lambda s: s.annotate_queryset(s.summit.ankets.all()))
+        now = datetime.now()
+
+        summit = summit_factory()
+        early_location = visitor_location_factory(visitor__summit=summit, date_time=now - timedelta(minutes=17))
+        location = visitor_location_factory(visitor__summit=summit, date_time=now - timedelta(minutes=15))
+
+        url = '/api/app/summits/{}/users/?interval=8'.format(summit.id)
+        response = api_client.get(url, format='json')
+        assert {p['id']: p['visitor_locations']['date_time'].date() if p['visitor_locations'] else None
+                for p in response.data['profiles']} == {
+                   location.visitor_id: now.date(), early_location.visitor_id: None}
+
+    def test_locations_with_date_time_and_interval(
+            self, monkeypatch, api_client, summit_factory, visitor_location_factory):
+        monkeypatch.setattr(SummitProfileTreeForAppListView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(
+            SummitProfileTreeForAppListView, 'get_queryset', lambda s: s.annotate_queryset(s.summit.ankets.all()))
+        date_time = datetime(2000, 2, 24, 11, 33, 55)
+
+        summit = summit_factory()
+        early_location = visitor_location_factory(visitor__summit=summit, date_time=date_time - timedelta(minutes=9))
+        less_location = visitor_location_factory(visitor__summit=summit, date_time=date_time - timedelta(minutes=7))
+        more_location = visitor_location_factory(visitor__summit=summit, date_time=date_time + timedelta(minutes=7))
+        later_location = visitor_location_factory(visitor__summit=summit, date_time=date_time + timedelta(minutes=9))
+
+        url = '/api/app/summits/{}/users/?date_time=2000-02-24T11:33:55&interval=8'.format(summit.id)
+        response = api_client.get(url, format='json')
+        assert {p['id']: p['visitor_locations']['date_time'].date() if p['visitor_locations'] else None
+                for p in response.data['profiles']} == {
+                   less_location.visitor_id: (date_time + timedelta(minutes=4)).date(),
+                   more_location.visitor_id: (date_time - timedelta(minutes=4)).date(),
+                   early_location.visitor_id: None,
+                   later_location.visitor_id: None,
+               }
+
+    def test_profiles_without_master_id_for_consultant_or_high(
+            self, monkeypatch, api_client, summit_factory, user_factory, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileTreeForAppListView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(CustomUser, 'is_summit_consultant_or_high', lambda s, a: True)
+
+        summit = summit_factory()
+        top_user = summit_anket_factory(summit=summit)
+        summit_anket_factory(summit=summit, user__master=top_user.user)
+
+        user = user_factory()
+        api_client.force_login(user=user)
+
+        url = '/api/app/summits/{}/users/'.format(summit.id)
+        response = api_client.get(url, format='json')
+        assert {p['id'] for p in response.data['profiles']} == {top_user.id}
+
+    def test_profiles_without_master_id_for_less_of_consultant(
+            self, monkeypatch, api_client, summit_factory, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileTreeForAppListView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(CustomUser, 'is_summit_consultant_or_high', lambda s, a: False)
+
+        summit = summit_factory()
+        top_user = summit_anket_factory(summit=summit)
+        profile = summit_anket_factory(summit=summit, user__master=top_user.user)
+        summit_anket_factory(summit=summit, user__master=top_user.user)
+        profile_child = summit_anket_factory.create_batch(2, summit=summit, user__master=profile.user)
+
+        api_client.force_login(user=profile.user)
+
+        url = '/api/app/summits/{}/users/'.format(summit.id)
+        response = api_client.get(url, format='json')
+        assert {p['id'] for p in response.data['profiles']} == {p.id for p in profile_child}
+
+    def test_profiles_with_master_id_for_consultant_or_high(
+            self, monkeypatch, api_client, summit_factory, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileTreeForAppListView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(CustomUser, 'is_summit_consultant_or_high', lambda s, a: True)
+
+        summit = summit_factory()
+        top_user = summit_anket_factory(summit=summit)
+        profile = summit_anket_factory(summit=summit, user__master=top_user.user)
+        master = summit_anket_factory(summit=summit, user__master=top_user.user)
+        summit_anket_factory(summit=summit, user__master=top_user.user)
+        summit_anket_factory.create_batch(2, summit=summit, user__master=profile.user)
+        master_child = summit_anket_factory.create_batch(2, summit=summit, user__master=master.user)
+
+        api_client.force_login(user=profile.user)
+
+        url = '/api/app/summits/{}/users/{}/'.format(summit.id, master.user.id)
+        response = api_client.get(url, format='json')
+        assert {p['id'] for p in response.data['profiles']} == {p.id for p in master_child}
+
+    def test_profiles_with_master_id_for_less_of_consultant(
+            self, monkeypatch, api_client, summit_factory, summit_anket_factory):
+        monkeypatch.setattr(SummitProfileTreeForAppListView, 'check_permissions', lambda s, r: 0)
+        monkeypatch.setattr(CustomUser, 'is_summit_consultant_or_high', lambda s, a: False)
+
+        summit = summit_factory()
+        top_user = summit_anket_factory(summit=summit)
+        profile = summit_anket_factory(summit=summit, user__master=top_user.user)
+        master = summit_anket_factory(summit=summit, user__master=top_user.user)
+        summit_anket_factory(summit=summit, user__master=top_user.user)
+        summit_anket_factory.create_batch(2, summit=summit, user__master=profile.user)
+        master_child = summit_anket_factory.create_batch(2, summit=summit, user__master=master.user)
+
+        api_client.force_login(user=profile.user)
+
+        url = '/api/app/summits/{}/users/{}/'.format(summit.id, master.user.id)
+        response = api_client.get(url, format='json')
+        assert {p['id'] for p in response.data['profiles']} == {p.id for p in master_child}
+
+
+@pytest.mark.django_db
+class TestSummitProfileTreeForAppListView:
+    def test_users_without_code(self, monkeypatch, api_client, summit_ticket_factory, summit_anket_factory):
+        monkeypatch.setattr(SummitTicketViewSet, 'check_permissions', lambda s, r: 0)
+
+        ticket = summit_ticket_factory()
+        summit_anket_factory()
+        ticket_profiles = summit_anket_factory.create_batch(2)
+        ticket.users.set((p.id for p in ticket_profiles))
+
+        url = '/api/v1.0/summit_tickets/{}/users/'.format(ticket.id)
+        response = api_client.get(url, format='json')
+
+        assert len(response.data) == 2
+        assert {u['is_active'] for u in response.data} == {False}
+
+    def test_users_with_code(self, monkeypatch, api_client, summit_ticket_factory, summit_anket_factory):
+        monkeypatch.setattr(SummitTicketViewSet, 'check_permissions', lambda s, r: 0)
+
+        ticket = summit_ticket_factory()
+        summit_anket_factory.create_batch(4)
+        ticket_profiles = summit_anket_factory.create_batch(2)
+        code_profile = summit_anket_factory(code='22222')
+        ticket.users.set((p.id for p in ticket_profiles + [code_profile]))
+
+        url = '/api/v1.0/summit_tickets/{}/users/?code=22222'.format(ticket.id)
+        response = api_client.get(url, format='json')
+
+        assert len(response.data) == 3
+        assert {u['is_active'] for u in response.data if u['code'] != '22222'} == {False}
+        assert [u['is_active'] for u in response.data if u['code'] == '22222'] == [True]
+
+
+@pytest.mark.xfail
+@pytest.mark.django_db
+class TestSummitReportByBishops:
+    def test_dont_can_see_report(self):
+        assert False
+
+    def test_without_date(self):
+        assert False
+
+    def test_with_date(self):
+        assert False
+
+    def test_search_by_fio(self):
+        assert False
+
+    def test_filter_by_department(self):
+        assert False
+
+
+@pytest.mark.xfail
+@pytest.mark.django_db
+class TestGenerateSummitTickets:
+    def test_with_users_without_image(self):
+        assert False
+
+    def test_without_new_profiles(self):
+        assert False
+
+    def test_ticket_users(self):
+        assert False
+
+    def test_creating_ticket(self):
+        assert False
+
+    def test_ticket_status_of_ticket_users(self):
+        assert False

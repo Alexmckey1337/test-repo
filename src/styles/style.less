@@ -2103,6 +2103,15 @@ table tr:hover {
   margin-bottom: 10px;
 }
 
+.check-box {
+  position: relative;
+  margin-top: 10px;
+  cursor: pointer;
+  input[type=checkbox] {
+    display: none;
+  }
+}
+
 .top-text a {
   text-decoration: none;
   cursor: pointer;
@@ -2156,7 +2165,8 @@ table tr:hover {
 
 table label,
 .account label,
-#sort-form label {
+#sort-form label,
+.check-box label {
   color: #e6e9ee;
   display: block;
   position: relative;
@@ -2825,6 +2835,7 @@ input:checked ~ label.disable:before {
       width: 250px !important;
     }
     & .date {
+      border: 1px solid #cdd0d4;
       width: 120px;
       padding: 0 .5em;
       height: 2em;
@@ -3620,7 +3631,8 @@ span.change[style*="display: none"] ~ span.y {
 }
 
 .account label::before,
-#sort-form label::before {
+#sort-form label::before,
+.check-box label::before {
   display: block;
   position: absolute;
   content: '';
@@ -3629,6 +3641,10 @@ span.change[style*="display: none"] ~ span.y {
   width: 20px;
   height: 20px;
   background: url('../img/scheck-box.png') no-repeat 0 0;
+}
+
+.check-box label::before {
+  right: 10px;
 }
 
 .account label::before {
@@ -6978,3 +6994,16 @@ div.code input#code {
     }
   }
 }
+.input__is_center {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+  &:before {
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    margin: auto !important;
+  }
+}
+

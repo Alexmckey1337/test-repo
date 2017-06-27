@@ -14,6 +14,11 @@ class BishopReport {
                     title: 'Всего',
                     active: true
                 },
+                attend: {
+                    ordering_title: 'attend',
+                    title: 'Присутствует',
+                    active: true
+                },
                 absent: {
                     ordering_title: 'absent',
                     title: 'Отсутствует',
@@ -40,9 +45,12 @@ class BishopReport {
     }
     getReport() {
         let url = `/api/v1.0/summit/${this.summitId}/report_by_bishops/?`;
-        const filter = getFilterParam();
-        Object.keys(filter).forEach(key => {
-            url += `${key}=${filter[key]}`
+        const filter = Object.assign(getFilterParam(), getSearch('search_fio'));
+        Object.keys(filter).forEach((key, i, arr) => {
+            url += `${key}=${filter[key]}`;
+            if (i + 1 < arr.length) {
+                url += '&'
+            }
         });
         let options = {
             credentials: 'same-origin',
@@ -99,24 +107,38 @@ class PrintMasterStat {
             .then(data => data.map(item => `<option value="${item.id}">${item.full_name}</option>`))
             .then(options => {
                 let content = `
-                    <div>
-                    <label>Выберите ответсвенного</label>
-                        <select class="master">`;
-                content += options.join(',');
-                content += `</select>
-                                    </div>
-                                        <div>
-                                        <label>Пристутствие</label>
-                                        <select class="attended">
-                                            <option value="">ВСЕ</option>
-                                            <option value="true">ДА</option>
-                                            <option value="false">НЕТ</option>
-                                        </select>
-                                    </div>
-                                    <div>
+                    <div class="block">
+                        <ul class="info">
+                            <li>
+                                <div class="label-wrapp">
+                                    <label>Выберите ответсвенного</label>
+                                </div>
+                                <div class="input">
+                                    <select class="master">`; content += options.join(','); content += `</select>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="label-wrapp">
+                                    <label>Пристутствие</label>
+                                </div>
+                                <div class="input">
+                                    <select class="attended">
+                                        <option value="">ВСЕ</option>
+                                        <option value="true">ДА</option>
+                                        <option value="false">НЕТ</option>
+                                    </select>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="label-wrapp">
                                     <label>Дата</label>
+                                </div>
+                                <div class="input">
                                     <input class="date" type="text">
-                                    </div>`;
+                                </div>
+                            </li>
+                        </ul>
+                    </div>`;
                 showStatPopup(content, 'Сформировать файл статистики', this.setFilterData.bind(this));
             });
 
@@ -167,9 +189,14 @@ class PrintMasterStat {
     $('#applyFilter').on('click', function () {
          report.makeTable();
          $(this).closest('#filterPopup').hide();
+         let count = getCountFilter();
+        $('#filter_button').attr('data-count', count);
     });
      $('#download').on('click', function () {
         let stat = new PrintMasterStat(summitId);
         stat.show();
     });
+     $('input[name="fullsearch"]').on('keyup', function () {
+         report.makeTable();
+     });
 })(jQuery);

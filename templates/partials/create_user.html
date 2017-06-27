@@ -208,7 +208,7 @@
                                 <input name="address" id="address" type="text" tabindex="23">
                             </li>
                         </ul>
-                        {% if request.user.is_partner %}
+                        {% if request.user.is_partner_manager_or_high %}
                         <h2>Партнерство</h2>
                         <ul class="info">
                             <li>
@@ -375,7 +375,7 @@
                 <li><%=phone_number%></li>
             </ul>
         </div>
-        <a class="rewrite" href="/account/<%=id%>">Ошибка? Исправить карточку пользователя.</a>
+        <a class="rewrite" target="_blank" href="/account/<%=id%>">Ошибка? Исправить карточку пользователя.</a>
         <div class="btn-block">
             <button class="addMore">Создать ещё одного</button>
             <button class="close">Закрыть</button>

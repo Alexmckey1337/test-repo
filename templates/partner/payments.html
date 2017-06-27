@@ -31,7 +31,12 @@
         <div class="top-buttons-wrap">
             <ul class="top-buttons">
                 <li>
-                    <button id="filter_button" class="header__button">Фильтр</button>
+                    <button id="filter_button"
+                            class="header__button"
+                            data-count="0"
+                    >
+                        Фильтр
+                    </button>
                 </li>
                 {#            <li>#}
                 {#                <button id="export_table" data-export-url="{% url "users_v1_1-export" %}" class="download header__button">Export</button>#}

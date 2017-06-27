@@ -19,6 +19,18 @@
     }
 }
 
+@media screen and (max-width: 1360px) {
+  .header__button {
+    text-indent: -9999px;
+    width: 1em;
+    padding-right: 1px;
+    overflow: hidden;
+    &:before {
+      text-indent: 0;
+    }
+  }
+}
+
 @media screen and (max-width: 1200px) {
   .user-fio {
     & .right-info-r {
@@ -31,3 +43,4 @@
     }
   }
 }
+

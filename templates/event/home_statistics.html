@@ -38,7 +38,11 @@
             {% endblock %}
             {% block header.buttons.change_table %}
                 <li>
-                    <button id="filter_button">Фильтр</button>
+                    <button id="filter_button"
+                            data-count="0"
+                    >
+                        Фильтр
+                    </button>
                 </li>
             {% endblock %}
         </ul>
