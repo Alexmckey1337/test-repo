@@ -233,14 +233,6 @@ def account(request, id):
 # summit
 
 
-class CanSeeSummitTypeMixin(View):
-    def dispatch(self, request, *args, **kwargs):
-        summit_type = kwargs.get('pk')
-        if not (summit_type and request.user.can_see_summit_type(summit_type)):
-            raise PermissionDenied
-        return super(CanSeeSummitTypeMixin, self).dispatch(request, *args, **kwargs)
-
-
 class CanSeeSummitMixin(View):
     def dispatch(self, request, *args, **kwargs):
         summit = kwargs.get('pk')
@@ -266,23 +258,6 @@ class CanSeeSummitReportByBishopsMixin(View):
 class CanSeeSummitProfileMixin(View):
     def dispatch(self, request, *args, **kwargs):
         return super(CanSeeSummitProfileMixin, self).dispatch(request, *args, **kwargs)
-
-
-class SummitTypeView(LoginRequiredMixin, CanSeeSummitTypeMixin, DetailView):
-    model = SummitType
-    context_object_name = 'summit_type'
-    template_name = 'summit/type/detail.html'
-    login_url = 'entry'
-
-    def get_context_data(self, **kwargs):
-        ctx = super(SummitTypeView, self).get_context_data(**kwargs)
-        extra_context = {
-            'departments': Department.objects.all(),
-            'masters': CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1),
-            'hierarchies': Hierarchy.objects.order_by('level'),
-        }
-        ctx.update(extra_context)
-        return ctx
 
 
 class SummitDetailView(LoginRequiredMixin, CanSeeSummitMixin, DetailView):
@@ -314,7 +289,7 @@ class SummitListMixin(LoginRequiredMixin, ListView):
     status = None
 
     def get_queryset(self):
-        available_summits = self.request.user.summit_ankets.filter(
+        available_summits = self.request.user.summit_profiles.filter(
             role__gte=settings.SUMMIT_ANKET_ROLES['consultant']).values_list('summit_id', flat=True)
         return super(SummitListMixin, self).get_queryset().filter(status=self.status, pk__in=available_summits)
 
@@ -426,14 +401,6 @@ class SummitBishopReportView(LoginRequiredMixin, CanSeeSummitReportByBishopsMixi
         ctx['bishops'] = get_report_by_bishop_or_high(self.summit_id, self.report_date, self.department)
 
         return ctx
-
-
-@login_required(login_url='entry')
-def summits(request):
-    ctx = {
-        'summit_types': SummitType.objects.exclude(id=3)
-    }
-    return render(request, 'summit/type/list.html', context=ctx)
 
 
 # database

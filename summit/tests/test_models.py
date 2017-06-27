@@ -217,3 +217,14 @@ class TestAnketNote:
         note = anket_note_factory(owner=owner)
 
         assert note.owner_name == owner.fullname
+
+
+@pytest.mark.django_db
+class TestSummitTicket:
+    summit_title = 'Test Summit'
+
+    def test__str__(self, ticket, summit):
+        assert ticket.__str__() == '{summit}: {title} (progress)'.format(summit=summit, title=ticket.title)
+
+    def test_get_absolute_url(self, ticket):
+        assert ticket.get_absolute_url() == '/summits/tickets/{}/'.format(ticket.pk)

@@ -7,13 +7,17 @@ from hierarchy.factories import HierarchyFactory, DepartmentFactory
 from payment.factories import PaymentFactory, CurrencyFactory
 from summit.factories import (
     SummitFactory, SummitLessonFactory, SummitAnketFactory, SummitTypeFactory, AnketEmailFactory,
-    SummitUserConsultantFactory, AnketNoteFactory, SummitAttendFactory)
+    SummitUserConsultantFactory, AnketNoteFactory, SummitAttendFactory, SummitTicketFactory, ProfileStatusFactory,
+    VisitorLocationFactory)
 from summit.models import SummitAnket
 
 register(SummitFactory)
 register(SummitTypeFactory)
 register(SummitAnketFactory)
 register(SummitAttendFactory)
+register(SummitTicketFactory)
+register(VisitorLocationFactory)
+register(ProfileStatusFactory)
 register(SummitLessonFactory)
 register(UserFactory)
 register(PaymentFactory)
@@ -56,6 +60,11 @@ def summit_type(summit_type_factory):
 @pytest.fixture
 def summit(summit_factory, summit_type, currency):
     return summit_factory(type=summit_type, currency=currency)
+
+
+@pytest.fixture
+def ticket(summit_ticket_factory, summit):
+    return summit_ticket_factory(summit=summit)
 
 
 @pytest.fixture

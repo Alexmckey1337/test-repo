@@ -714,8 +714,8 @@
                         {% endfor %}
                     </div>
                 {% endif %}
-                {% if account.summit_ankets.exists %}
-                    {% regroup account.summit_ankets.all by summit.type as ankets %}
+                {% if account.summit_profiles.exists %}
+                    {% regroup account.summit_profiles.all by summit.type as ankets %}
                     <div class="a-sammits">
                         <div class="top-s">
                             <h3>Саммиты</h3>

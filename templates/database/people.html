@@ -12,7 +12,11 @@
                 </li>
             {% endif %}
             <li>
-                <button id="filter_button" class="header__button">Фильтр</button>
+                <button id="filter_button"
+                        class="header__button"
+                        data-count="0">
+                    Фильтр
+                </button>
             </li>
             {% if user.can_export_user_list %}
                 <li>

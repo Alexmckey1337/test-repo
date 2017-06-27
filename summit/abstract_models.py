@@ -73,37 +73,37 @@ class SummitUserPermission(models.Model):
         """
         Checking that the user is supervisor (or higher) of at least one summit
         """
-        return self.summit_ankets.filter(role__gte=settings.SUMMIT_ANKET_ROLES['supervisor']).exists()
+        return self.summit_profiles.filter(role__gte=settings.SUMMIT_ANKET_ROLES['supervisor']).exists()
 
     def is_summit_supervisor_or_high(self, summit):
         """
         Checking that the user is supervisor (or higher) of summit
         """
-        return self.summit_ankets.filter(summit=summit, role__gte=settings.SUMMIT_ANKET_ROLES['supervisor']).exists()
+        return self.summit_profiles.filter(summit=summit, role__gte=settings.SUMMIT_ANKET_ROLES['supervisor']).exists()
 
     def is_any_summit_consultant_or_high(self):
         """
         Checking that the user is consultant (or higher) of at least one summit
         """
-        return self.summit_ankets.filter(role__gte=settings.SUMMIT_ANKET_ROLES['consultant']).exists()
+        return self.summit_profiles.filter(role__gte=settings.SUMMIT_ANKET_ROLES['consultant']).exists()
 
     def is_summit_consultant_or_high(self, summit):
         """
         Checking that the user is consultant (or higher) of summit
         """
-        return self.summit_ankets.filter(summit=summit, role__gte=settings.SUMMIT_ANKET_ROLES['consultant']).exists()
+        return self.summit_profiles.filter(summit=summit, role__gte=settings.SUMMIT_ANKET_ROLES['consultant']).exists()
 
     def is_any_summit_visitor_or_high(self):
         """
         Checking that the user is visitor (or higher) of at least one summit
         """
-        return self.summit_ankets.filter(role__gte=settings.SUMMIT_ANKET_ROLES['visitor']).exists()
+        return self.summit_profiles.filter(role__gte=settings.SUMMIT_ANKET_ROLES['visitor']).exists()
 
     def is_summit_visitor_or_high(self, summit):
         """
         Checking that the user is visitor (or higher) of summit
         """
-        return self.summit_ankets.filter(summit=summit, role__gte=settings.SUMMIT_ANKET_ROLES['visitor']).exists()
+        return self.summit_profiles.filter(summit=summit, role__gte=settings.SUMMIT_ANKET_ROLES['visitor']).exists()
 
     def is_any_summit_type_supervisor_or_high(self):
         """
@@ -115,7 +115,7 @@ class SummitUserPermission(models.Model):
         """
         Checking that the user is supervisor (or higher) of summit
         """
-        return self.summit_ankets.filter(
+        return self.summit_profiles.filter(
             summit__type=summit_type, role__gte=settings.SUMMIT_ANKET_ROLES['supervisor']).exists()
 
     def is_any_summit_type_consultant_or_high(self):
@@ -128,7 +128,7 @@ class SummitUserPermission(models.Model):
         """
         Checking that the user is consultant (or higher) of summit
         """
-        return self.summit_ankets.filter(
+        return self.summit_profiles.filter(
             summit__type=summit_type, role__gte=settings.SUMMIT_ANKET_ROLES['consultant']).exists()
 
     def is_any_summit_type_visitor_or_high(self):
@@ -141,5 +141,5 @@ class SummitUserPermission(models.Model):
         """
         Checking that the user is visitor (or higher) of summit
         """
-        return self.summit_ankets.filter(
+        return self.summit_profiles.filter(
             summit__type=summit_type, role__gte=settings.SUMMIT_ANKET_ROLES['visitor']).exists()

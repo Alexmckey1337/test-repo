@@ -4,6 +4,11 @@
 {% load summit_tags %}
 {% load payment_tags %}
 
+{% block extra_styles %}
+    {{ block.super }}
+    <link rel="stylesheet" href='{% static "libs/jquery-timepicker-wvega/jquery.timepicker.css" %}'>
+{% endblock %}
+
 {% block header.top.h1 %}
     <h1 id="summit-title" data-summit-id="{{ summit.id }}">
         САММИТЫ |
@@ -25,7 +30,11 @@
         <div class="top-buttons-wrap">
             <ul class="top-buttons">
                 <li>
-                    <button id="filter_button">Фильтр</button>
+                    <button id="filter_button"
+                            data-count="0"
+                    >
+                        Фильтр
+                    </button>
                 </li>
                 <li>
                     <button id="export_table" data-export-url="{% url "summit-stats-export" pk=summit.id %}" class="download header__button">Export</button>
@@ -55,12 +64,19 @@
                 <input type="text" placeholder="Выберите дату" id="tabsFilterData" class="select_date_filter" data-filter="date" value="">
                 <div class="cal-icon"></div>
             </div>
+            <div class="set-time">
+                <input type="text" placeholder="от" data-filter="attend_from"
+                       id="time_from" class="select_time_filter only-time time_element">
+                <input type="text" placeholder="до" data-filter="attend_to"
+                       id="time_to" class="select_time_filter only-time time_element">
+                <div class="cal-icon"></div>
+            </div>
         </div>
     </div>
 {% endblock %}
 {% block header.buttons.export %}
     <li>
-        <form action="{% url "summit_ankets-export" %}?user__first_name=Сергей" method="post">
+        <form action="{% url "summit_profiles-export" %}?user__first_name=Сергей" method="post">
             <button type="submit">Export</button>
         </form>
     </li>
@@ -206,9 +222,6 @@
                             <span class="label_block">Ответственный</span>
                         </div>
                         <div class="label_block-wrapp">
-                            <span class="label_block">Фильтр по времени</span>
-                        </div>
-                        <div class="label_block-wrapp">
                             <span class="label_block">Фильтр по email</span>
                         </div>
                         <div class="label_block-wrapp">
@@ -253,9 +266,6 @@
                                     <option value="{{ master.id }}">{{ master.fullname }}</option>
                                 {% endfor %}
                             </select>
-                        </p>
-                        <p class="input_block">
-                            <input type="text" placeholder="от" data-filter="attend_from" id="time_from" class="select_time_filter only-time"><input type="text" placeholder="до" data-filter="attend_to" id="time_to" class="select_time_filter only-time">
                         </p>
                         <p class="input_block">
                             <input type="email" data-filter="search_email" placeholder="email" id="search_email">
@@ -395,6 +405,7 @@
     {% endblock %}
     <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
     <script src="{% static "libs/jquery-file-download/src/Scripts/jquery.fileDownload.js" %}"></script>
+    <script src="{% static "libs/jquery-timepicker-wvega/jquery.timepicker.js" %}"></script>
     <script src="{% static "js/add_user.js" %}"></script>
     <script src="{% static "js/summit_stats.js" %}"></script>
 {% endblock %}

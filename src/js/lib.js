@@ -226,7 +226,7 @@ function getChurches(config = {}) {
 
 function predeliteAnket(id) {
     let config = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${id}/predelete/`,
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_profiles/${id}/predelete/`,
     };
     return new Promise((resolve, reject) => {
         let codes = {
@@ -243,7 +243,7 @@ function predeliteAnket(id) {
 
 function deleteSummitProfile(id) {
     let config = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${id}/`,
+        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_profiles/${id}/`,
         method: "DELETE"
     };
     return new Promise((resolve, reject) => {
@@ -782,18 +782,50 @@ function getPotencialSammitUsers(config) {
 }
 
 function registerUserToSummit(config) {
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_ankets/post_anket/', config, function (JSONobj) {
-        if (JSONobj.status) {
-            showPopup(JSONobj.message);
-            createSummitUsersTable();
-            // getUnregisteredUsers();
-            $("#send_email").prop("checked", false);
-        } else {
-            showPopup(JSONobj.message);
-            $("#send_email").prop("checked", false);
-        }
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_profiles/', config, function (data) {
+        showPopup("Пользователь добавлен в саммит.");
+        createSummitUsersTable();
     }, 'POST', true, {
         'Content-Type': 'application/json'
+    }, {
+        400: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail);
+        },
+        404: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail);
+        },
+        403: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail);
+        }
+    });
+}
+
+function updateSummitProfile(profileID, config) {
+    ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_profiles/${profileID}/`, config, function (data) {
+        showPopup("Данные участника саммита изменены.");
+        createSummitUsersTable();
+    }, 'PATCH', true, {
+        'Content-Type': 'application/json'
+    }, {
+        400: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail);
+        },
+        404: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail);
+        },
+        403: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail);
+        },
+        405: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail);
+        }
     });
 }
 
@@ -2790,13 +2822,14 @@ function makeQuickEditSammitCart(el) {
     anketID = $(el).closest('td').find('a').data('ankets');
     id = $(el).closest('td').find('a').data('id');
     link = $(el).closest('td').find('a').data('link');
-    url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_ankets/${anketID}/`;
+    url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_profiles/${anketID}/`;
     ajaxRequest(url, null, function (data) {
         $('#fullNameCard').text(data.full_name);
         $('#userDescription').val(data.description);
         $('#summit-valueDelete').val(data.total_sum);
         $('#member').prop("checked", data.is_member);
         $('#userID').val(data.user_id);
+        $('#applyChanges').data('id', data.id);
         $('#preDeleteAnket').attr('data-id', data.user_id).attr('data-anket', data.id);
         $('#popupParticipantInfo').css('display', 'block');
     }, 'GET', true, {
@@ -2966,14 +2999,19 @@ function hidePopup(el) {
 
 function refreshFilter(el) {
     let $input = $(el).closest('.popap').find('input');
+    let $select = $(el).closest('.popap').find('select');
     $(el).addClass('refresh');
     setTimeout(function () {
         $(el).removeClass('refresh');
     }, 700);
     $input.each(function () {
         $(this).val('')
-    })
+    });
+    $select.each(function () {
+        $(this).val(null).trigger("change");
+    });
 }
+
 function getSearch(title) {
     let search = $('input[name="fullsearch"]').val();
     if (!search) return {};
@@ -3054,6 +3092,9 @@ function applyFilter(el, callback) {
     setTimeout(function () {
         hidePopup(self);
     }, 300);
+
+    let count = getCountFilter();
+    $('#filter_button').attr('data-count', count);
 }
 
 function makeTabs(page = 0) {
@@ -3379,4 +3420,20 @@ function getData(url, options = {}) {
 
 function pasteLink(el, link) {
     $(el).closest('.input').find('a').attr('href', link);
+}
+
+function getCountFilter() {
+    let $filterFields,
+        count = 0;
+    $filterFields = $('#filterPopup select, #filterPopup input');
+    $filterFields.each(function () {
+        if ($(this).val() == "ВСЕ") {
+            return
+        }
+         if ($(this).val()) {
+             count++;
+         }
+    });
+
+    return count;
 }

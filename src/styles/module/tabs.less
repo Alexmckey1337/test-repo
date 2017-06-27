@@ -436,7 +436,8 @@
       background-color: #f2f5fa;
     }
   }
-  .set-date {
+  .set-date,
+  .set-time {
     display: flex;
     input {
       height: 3em;
@@ -460,7 +461,20 @@
       }
     }
   }
+  .set-time {
+    margin-left: 20px;
+    & input {
+      width: 7em;
+    }
+    & .cal-icon::after {
+      font-size: 1.5em;
+      top: 1em;
+      right: .7em;
+      content: '\f017';
+    }
+  }
 }
+
 
 #tabs1{
   li.active {

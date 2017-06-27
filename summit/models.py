@@ -17,6 +17,7 @@ from django.utils.translation import ugettext_lazy as _
 from account.abstract_models import CustomUserAbstract
 from payment.models import get_default_currency, AbstractPaymentPurpose
 from summit.managers import ProfileManager
+from summit.regcode import encode_reg_code
 
 
 @python_2_unicode_compatible
@@ -47,9 +48,6 @@ class SummitType(models.Model):
             return self.image.url
         else:
             return ''
-
-    def get_absolute_url(self):
-        return reverse('summit:type-detail', kwargs={'pk': self.id})
 
 
 @python_2_unicode_compatible
@@ -171,7 +169,7 @@ class ProfileAbstract(models.Model):
 
 @python_2_unicode_compatible
 class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
-    user = models.ForeignKey('account.CustomUser', related_name='summit_ankets')
+    user = models.ForeignKey('account.CustomUser', related_name='summit_profiles')
     summit = models.ForeignKey('Summit', related_name='ankets', verbose_name='Саммит',
                                blank=True, null=True)
 
@@ -198,7 +196,7 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
         through='summit.SummitUserConsultant', through_fields=('user', 'summit'))
 
     #: Payments of the current anket
-    payments = GenericRelation('payment.Payment', related_query_name='summit_ankets')
+    payments = GenericRelation('payment.Payment', related_query_name='summit_profiles')
 
     # Editable fields
     description = models.CharField(max_length=255, blank=True)
@@ -347,10 +345,7 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
 
     @property
     def reg_code(self):
-        reg_code = str(self.id) + '1324'
-        reg_code = hex(int(reg_code)).split('x')[-1]
-
-        return reg_code
+        return encode_reg_code(self.id)
 
     @property
     def get_passes_count(self):

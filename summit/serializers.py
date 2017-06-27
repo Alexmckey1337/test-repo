@@ -7,7 +7,7 @@ from django.conf import settings
 from django.urls import reverse
 from rest_framework import serializers
 
-from account.models import CustomUser as User
+from account.models import CustomUser as User, CustomUser
 from account.serializers import UserTableSerializer, UserShortSerializer
 from common.fields import ListCharField, ReadOnlyChoiceWithKeyField
 from .models import (Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
@@ -69,6 +69,18 @@ class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
                   'total_sum', 'e_ticket',
                   'reg_code',
                   )
+
+
+class SummitProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SummitAnket
+        fields = ('description',)
+
+
+class SummitProfileCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SummitAnket
+        fields = ('summit', 'user', 'description',)
 
 
 class SummitAnketStatisticsSerializer(serializers.ModelSerializer):
@@ -159,14 +171,6 @@ class SummitTypeSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'title', 'image')
 
 
-class SummitAnketWithNotesSerializer(serializers.ModelSerializer):
-    notes = SummitAnketNoteSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = SummitAnket
-        fields = ('code', 'notes')
-
-
 # FOR APP
 
 
@@ -202,22 +206,6 @@ class SummitVisitorLocationSerializer(serializers.ModelSerializer):
         fields = ('visitor_id', 'date_time', 'longitude', 'latitude', 'type')
 
 
-class CustomVisitorsLocationSerializer(serializers.ReadOnlyField):
-    def to_representation(self, value):
-        date_time = self.context['request'].query_params.get('date_time', '')
-        interval = int(self.context['request'].query_params.get('interval', 5))
-        try:
-            date_time = datetime.strptime(date_time.replace('T', ' '), '%Y-%m-%d %H:%M:%S')
-        except ValueError:
-            end_date = datetime.now()
-            start_date = end_date - timedelta(minutes=2*interval)
-        else:
-            start_date = date_time - timedelta(minutes=interval)
-            end_date = date_time + timedelta(minutes=interval)
-        return value.filter(date_time__range=(start_date, end_date)).values(
-            'visitor_id', 'date_time', 'longitude', 'latitude', 'type').first()
-
-
 class AnketStatusSerializer(serializers.ModelSerializer):
     reg_code_requested_date = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S')
 
@@ -241,7 +229,6 @@ class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
     children = ChildrenLink(view_name='summit-app-profile-list-master',
                             queryset=SummitAnket.objects.all())
     photo = ImageWithoutHostField(source='user.image', use_url=False)
-    # visitor_locations = CustomVisitorsLocationSerializer()
     status = AnketStatusSerializer(serializers.ModelSerializer)
 
     class Meta:
@@ -252,7 +239,6 @@ class SummitProfileTreeForAppSerializer(serializers.ModelSerializer):
             'master_fio', 'hierarchy_id',
             'children',
             'photo',
-            # 'visitor_locations',
             'status'
         )
 
@@ -364,3 +350,11 @@ class AnketActiveStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = SummitAnket
         fields = ('anket_id', 'active')
+
+
+class MasterSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField()
+
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'full_name')
