@@ -380,17 +380,9 @@ class SummitBishopReportView(LoginRequiredMixin, CanSeeSummitReportByBishopsMixi
     template_name = 'summit/bishop_report.html'
     login_url = 'entry'
     summit_id = None
-    report_date = None
-    department = None
 
     def get(self, request, *args, **kwargs):
         self.summit_id = kwargs.get('pk')
-        self.department = request.GET.get('department', None)
-        report_date = request.GET.get('date', datetime.now().strftime('%Y-%m-%d'))
-        try:
-            self.report_date = datetime.strptime(report_date, '%Y-%m-%d')
-        except ValueError:
-            self.report_date = datetime.now()
         return super(SummitBishopReportView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -398,7 +390,7 @@ class SummitBishopReportView(LoginRequiredMixin, CanSeeSummitReportByBishopsMixi
 
         ctx['summit'] = get_object_or_404(Summit, pk=self.summit_id)
         ctx['departments'] = Department.objects.all()
-        ctx['bishops'] = get_report_by_bishop_or_high(self.summit_id, self.report_date, self.department)
+        ctx['hierarchies'] = Hierarchy.objects.order_by('level')
 
         return ctx
 

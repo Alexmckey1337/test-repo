@@ -523,7 +523,7 @@ def summit_report_by_bishops(request, summit_id):
         raise exceptions.PermissionDenied(_('You do not have permission to see report by bishops. '))
     department = request.query_params.get('department', None)
     fio = request.query_params.get('search_fio', '')
-    hierarchy = request.query_params.get('hierarchy', 0)
+    hierarchy = request.query_params.get('hierarchy', None)
     report_date = request.query_params.get('date', datetime.now().strftime('%Y-%m-%d'))
     try:
         report_date = datetime.strptime(report_date, '%Y-%m-%d')

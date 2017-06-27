@@ -29,7 +29,12 @@ from account.models import CustomUser
 from summit.models import SummitAnket
 
 
-def get_report_by_bishop_or_high(summit_id, report_date, department=None, fio='', hierarchy=0):
+def get_report_by_bishop_or_high(
+        summit_id: int,
+        report_date: datetime,
+        department: int = None,
+        fio: str = '',
+        hierarchy: int = None):
     fio_filter = ['']
     for name in filter(lambda name: bool(name), fio.replace(',', ' ').split(' ')):
         fio_filter.append(
