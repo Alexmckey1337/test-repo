@@ -15,7 +15,7 @@ from summit.serializers import (
     SummitSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer, SummitAnketNoteSerializer,
     SummitAnketForAppSerializer)
 from summit.views import SummitProfileListView, SummitStatisticsView, SummitBishopHighMasterListView, \
-    SummitProfileViewSet, SummitTicketMakePrintedView
+    SummitProfileViewSet, SummitTicketMakePrintedView, SummitTicketViewSet
 from summit.views_app import SummitProfileForAppViewSet, SummitProfileTreeForAppListView
 
 BISHOP_LEVEL = 4
@@ -1425,3 +1425,74 @@ class TestSummitProfileTreeForAppListView:
         url = '/api/app/summits/{}/users/{}/'.format(summit.id, master.user.id)
         response = api_client.get(url, format='json')
         assert {p['id'] for p in response.data['profiles']} == {p.id for p in master_child}
+
+
+@pytest.mark.django_db
+class TestSummitProfileTreeForAppListView:
+    def test_users_without_code(self, monkeypatch, api_client, summit_ticket_factory, summit_anket_factory):
+        monkeypatch.setattr(SummitTicketViewSet, 'check_permissions', lambda s, r: 0)
+
+        ticket = summit_ticket_factory()
+        summit_anket_factory()
+        ticket_profiles = summit_anket_factory.create_batch(2)
+        ticket.users.set((p.id for p in ticket_profiles))
+
+        url = '/api/v1.0/summit_tickets/{}/users/'.format(ticket.id)
+        response = api_client.get(url, format='json')
+
+        assert len(response.data) == 2
+        assert {u['is_active'] for u in response.data} == {False}
+
+    def test_users_with_code(self, monkeypatch, api_client, summit_ticket_factory, summit_anket_factory):
+        monkeypatch.setattr(SummitTicketViewSet, 'check_permissions', lambda s, r: 0)
+
+        ticket = summit_ticket_factory()
+        summit_anket_factory.create_batch(4)
+        ticket_profiles = summit_anket_factory.create_batch(2)
+        code_profile = summit_anket_factory(code='22222')
+        ticket.users.set((p.id for p in ticket_profiles + [code_profile]))
+
+        url = '/api/v1.0/summit_tickets/{}/users/?code=22222'.format(ticket.id)
+        response = api_client.get(url, format='json')
+
+        assert len(response.data) == 3
+        assert {u['is_active'] for u in response.data if u['code'] != '22222'} == {False}
+        assert [u['is_active'] for u in response.data if u['code'] == '22222'] == [True]
+
+
+@pytest.mark.xfail
+@pytest.mark.django_db
+class TestSummitReportByBishops:
+    def test_dont_can_see_report(self):
+        assert False
+
+    def test_without_date(self):
+        assert False
+
+    def test_with_date(self):
+        assert False
+
+    def test_search_by_fio(self):
+        assert False
+
+    def test_filter_by_department(self):
+        assert False
+
+
+@pytest.mark.xfail
+@pytest.mark.django_db
+class TestGenerateSummitTickets:
+    def test_with_users_without_image(self):
+        assert False
+
+    def test_without_new_profiles(self):
+        assert False
+
+    def test_ticket_users(self):
+        assert False
+
+    def test_creating_ticket(self):
+        assert False
+
+    def test_ticket_status_of_ticket_users(self):
+        assert False
