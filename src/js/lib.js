@@ -3009,8 +3009,9 @@ function hidePopup(el) {
 }
 
 function refreshFilter(el) {
-    let $input = $(el).closest('.popap').find('input');
-    let $select = $(el).closest('.popap').find('select');
+    let $input = $(el).closest('.popap').find('input'),
+        $select = $(el).closest('.popap').find('select'),
+        $selectCustom = $(el).closest('.popap').find('select.select__custom');
     $(el).addClass('refresh');
     setTimeout(function () {
         $(el).removeClass('refresh');
@@ -3020,6 +3021,9 @@ function refreshFilter(el) {
     });
     $select.each(function () {
         $(this).val(null).trigger("change");
+    });
+    $selectCustom.each(function () {
+        $(this).val('ВСЕ').trigger("change");
     });
 }
 
