@@ -126,7 +126,7 @@ function changeSummitStatusCode() {
 
     $('#departments_filter').on('change', function () {
         $('#master_tree').prop('disabled', true);
-        let department_id = parseInt($(this).val());
+        let department_id = parseInt($(this).val()) || null;
         makePastorListNew(department_id, ['#master_tree', '#master']);
     });
     $('#master_tree').on('change', function () {

@@ -1489,7 +1489,7 @@ function getResponsible(ids, level, search = "") {
                 url += '&department=' + id;
             });
         } else {
-            url += '&department=' + ids;
+            (ids !== null) && (url += '&department=' + ids);
         }
         ajaxRequest(url, null, function (data) {
             if (data) {
