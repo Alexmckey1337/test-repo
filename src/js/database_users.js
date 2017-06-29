@@ -71,9 +71,9 @@ $('document').ready(function () {
         lang: 'ru',
         form: '#createUser',
         onError: function (form) {
-          showPopup(`Введены некорректные данные`);
-          let top = $(form).find('div.has-error').first().offset().top;
-          $(form).find('.body').animate({scrollTop: top}, 500);
+            showPopup(`Введены некорректные данные`);
+            let top = $(form).find('div.has-error').first().offset().top;
+            $(form).find('.body').animate({scrollTop: top}, 500);
         },
         onSuccess: function (form) {
             if ($(form).attr('name') == 'createUser') {
@@ -107,33 +107,33 @@ $('document').ready(function () {
             });
             $('#tree_filter').html(options);
         }).then(function () {
-            if ($('#tree_filter').val() == "ВСЕ") {
-                getResponsible(departamentID, 2).then(function (data) {
-                    let options = [];
-                    let option = document.createElement('option');
-                    $(option).text('ВСЕ');
-                    options.push(option);
-                    data.forEach(function (item) {
+                if ($('#tree_filter').val() == "ВСЕ") {
+                    getResponsible(departamentID, 2).then(function (data) {
+                        let options = [];
                         let option = document.createElement('option');
-                        $(option).val(item.id).text(item.fullname);
+                        $(option).text('ВСЕ');
                         options.push(option);
+                        data.forEach(function (item) {
+                            let option = document.createElement('option');
+                            $(option).val(item.id).text(item.fullname);
+                            options.push(option);
+                        });
+                        $('#masters_filter').html(options);
                     });
-                    $('#masters_filter').html(options);
-                });
-            } else {
-                getPastorsByDepartment(departamentID).then(function (data) {
-                    let options = [];
-                    let option = document.createElement('option');
-                    $(option).text('ВСЕ');
-                    options.push(option);
-                    data.forEach(function (item) {
+                } else {
+                    getPastorsByDepartment(departamentID).then(function (data) {
+                        let options = [];
                         let option = document.createElement('option');
-                        $(option).val(item.id).text(item.fullname);
+                        $(option).text('ВСЕ');
                         options.push(option);
+                        data.forEach(function (item) {
+                            let option = document.createElement('option');
+                            $(option).val(item.id).text(item.fullname);
+                            options.push(option);
+                        });
+                        $('#masters_filter').html(options);
                     });
-                    $('#masters_filter').html(options);
-                });
-            }
+                }
         });
     });
     $treeFilter.on('change', function () {
