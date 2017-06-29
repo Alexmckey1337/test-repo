@@ -1,10 +1,20 @@
-from decimal import Decimal
 from datetime import date, datetime
+from decimal import Decimal
 from itertools import chain
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db.models import ManyToManyField
 from django.db.models.fields.files import ImageFieldFile
+
+
+def foreign_key_to_dict(instance=None, verbose: str = ''):
+    return {
+        'value': {
+            'id': instance.id if instance else None,
+            'name': str(instance)
+        },
+        'verbose_name': verbose
+    }
 
 
 def model_to_dict(instance, fields=None):
