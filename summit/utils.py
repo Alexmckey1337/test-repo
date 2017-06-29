@@ -108,7 +108,7 @@ class SummitParticipantReport(object):
             try:
                 self.report_date = datetime.strptime(report_date, '%Y-%m-%d')
             except ValueError:
-                raise exceptions.ValidationError(_('Invalid date.'))
+                raise exceptions.ValidationError({'detail': _('Invalid date.')})
         else:
             self.report_date = datetime.now()
         self.elements = list()

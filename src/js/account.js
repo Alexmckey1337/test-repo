@@ -400,7 +400,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     }, {
         400: function (data) {
             data = data.responseJSON;
-            showPopup(data.message);
+            showPopup(data.detail);
             $('#lesson' + data.lesson_id).prop('checked', data.checked);
         }
     });

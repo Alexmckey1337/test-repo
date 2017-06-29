@@ -48,7 +48,7 @@ def update_columns(request):
         column.save()
 
     response_dict = {
-        'message': 'Колонки успешно отредактированы',
+        'detail': 'Колонки успешно отредактированы',
         'status': True,
         'column_table': request.user.column_table
     }

@@ -177,7 +177,7 @@ class SummitStatisticsView(SummitProfileListView):
             try:
                 self.filter_date = datetime.strptime(filter_date, '%Y-%m-%d')
             except ValueError:
-                raise exceptions.ValidationError(_('Invalid date.'))
+                raise exceptions.ValidationError({'detail': _('Invalid date.')})
         return super(SummitStatisticsView, self).get(request, *args, **kwargs)
 
     def annotate_queryset(self, qs):
@@ -321,7 +321,7 @@ class SummitLessonViewSet(viewsets.ModelViewSet):
         is_consultant = SummitUserConsultant.objects.filter(
             consultant=current_user_anket, user_id=anket_id, summit=anket.summit).exists()
         if not is_consultant:
-            return Response({'message': 'Только консультант может отмечать уроки.',
+            return Response({'detail': 'Только консультант может отмечать уроки.',
                              'lesson_id': pk,
                              'checked': False},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -341,7 +341,7 @@ class SummitLessonViewSet(viewsets.ModelViewSet):
         is_consultant = SummitUserConsultant.objects.filter(
             consultant=current_user_anket, user_id=anket_id, summit=anket.summit).exists()
         if not is_consultant:
-            return Response({'message': 'Только консультант может отмечать уроки.',
+            return Response({'detail': 'Только консультант может отмечать уроки.',
                              'lesson_id': pk,
                              'checked': True},
                             status=status.HTTP_400_BAD_REQUEST)

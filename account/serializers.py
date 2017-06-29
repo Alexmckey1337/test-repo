@@ -158,7 +158,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def validate_move_to_master(self, value):
         if not User.objects.filter(id=value).exists():
-            raise ValidationError(_('User with id = %s does not exist.' % value))
+            raise ValidationError({'detail': _('User with id = %s does not exist.' % value)})
         return value
 
     def validate(self, attrs):
@@ -191,7 +191,7 @@ class UniqueFIOTelWithIdsValidator(UniqueTogetherValidator):
         if None not in checked_values and qs_exists(queryset):
             ids = list(queryset.values_list('id', flat=True))
             data = dict(zip(self.fields, checked_values))
-            raise ValidationError({'message': self.message,
+            raise ValidationError({'detail': self.message,
                                    'data': data,
                                    'ids': ids,
                                    'users': [reverse('account:detail', args=(pk,)) for pk in ids]
