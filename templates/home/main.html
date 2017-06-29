@@ -19,58 +19,114 @@
 {% endblock %}
 
 {% block main.content %}
-    <div class="main__container">
-        <div class="grid_block">
-            {% if user.can_see_churches or user.can_see_home_groups or user.can_see_user_list %}
-                <div class="col-sm-4">
-                    <h2>База данных</h2>
-                    <ul>
-                        {% if user.can_see_churches %}
-                            <li><a href="{% url 'db:churches' %}">Церкви</a></li>
-                        {% endif %}
-                        {% if user.can_see_home_groups %}
-                            <li><a href="{% url 'db:home_groups' %}">Домашние группы</a></li>
-                        {% endif %}
-                        {% if user.can_see_user_list %}
-                            <li><a href="{% url 'db:people' %}">Люди</a></li>
-                        {% endif %}
-                    </ul>
-                </div>
-            {% endif %}
-            {% if user.can_see_any_partner_block %}
-                <div class="col-sm-4">
-                    <h2>Партнёрство</h2>
-                    <ul>
-                        {% if user.can_see_deals %}
-                            <li><a href="{% url 'partner:deals' %}">Сделки</a></li>
-                        {% endif %}
-                        {% if user.can_see_partners %}
-                            <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
-                        {% endif %}
-                        {% if user.can_see_partner_stats %}
-                            <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
-                        {% endif %}
-                        {% if user.can_see_deal_payments %}
-                            <li><a href="{% url 'partner:payments' %}">{% trans "Payments" %}</a></li>
-                        {% endif %}
-                    </ul>
-                </div>
-            {% endif %}
-            <div class="col-sm-4">
-                <h2>Саммиты</h2>
-                <ul>
-                    <li><a href="{% url "summit:open" %}">{% trans "Open" %}</a></li>
-                    <li><a href="{% url "summit:closed" %}">{% trans "Closed" %}</a></li>
-                </ul>
-            </div>
+    <div id="dashboard" class="main__container dashboard">
+        <div class="dashboard-head">
+            <h1><span>Ветка: </span></h1>
+            <select id="master-filter">
+                {% for master in masters %}
+                    <option value="{{ master.id }}"{% if master.id == user.id  %}selected{% endif %}>
+                        {{ master.fullname }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button class="edit-desk"></button>
+            <button class="save"></button>
         </div>
     </div>
 {% endblock %}
 
 {% block popup %}
     {% create_user_form %}
-
+    <script type="text/template" id="mainStatisticsTmp">
+            <div id="drop" class="grid_block drop">
+                <a href="{% url 'db:main' %}" target="_blank" class="col-sm-4 well" data-id="0">
+                    <span>Всего церквей</span>
+                    <p class="success_hover">
+                        <%= (churches_count) ? churches_count : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </a>
+                <a href="{% url 'db:home_groups' %}" target="_blank" class="col-sm-4 well" data-id="1">
+                    <span>Всего домашних групп</span>
+                    <p class="success_hover">
+                        <%= (home_groups_count) ? home_groups_count : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </a>
+                <a href="{% url 'db:people' %}" target="_blank" class="col-sm-4 well" data-id="2">
+                    <span>Всего людей</span>
+                    <p class="success_hover">
+                        <%= (total_peoples) ? total_peoples : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </a>
+                <div class="col-sm-4 well" data-id="3">
+                    <span>Всего людей в церквях</span>
+                    <p>
+                        <%= (peoples_in_churches) ? peoples_in_churches : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
+                <div class="col-sm-4 well" data-id="4">
+                    <span>Всего людей в домашних группах</span>
+                    <p>
+                        <%= (home_groups_count) ? home_groups_count : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
+                <div class="col-sm-4 well" data-id="5">
+                    <span>Всего лидеров групп</span>
+                    <p>
+                        <%= (leaders_count) ? leaders_count : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
+                <div class="col-sm-4 well" data-id="6">
+                    <span>Всего отцы</span>
+                    <p>
+                        <%= (fathers_count) ? fathers_count : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
+                <div class="col-sm-4 well" data-id="7">
+                    <span>Всего юноши</span>
+                    <p>
+                        <%= (juniors_count) ? juniors_count : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
+                <div class="col-sm-4 well" data-id="8">
+                    <span>Всего младенцы</span>
+                    <p>
+                        <%= (babies_count) ? babies_count : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
+                <div class="col-sm-4 well success" data-id="9">
+                    <span>Заполнено отчетов (дом. группы)</span>
+                    <p>
+                        <%= (meetings_submitted) ? meetings_submitted : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
+                <div class="col-sm-4 well info" data-id="10">
+                    <span>Отчетов к заполнению (дом. группы)</span>
+                    <p>
+                        <%= (meetings_in_progress) ? meetings_in_progress : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
+                <div class="col-sm-4 well error" data-id="11">
+                    <span>Просрочено отчетов (дом. группы)</span>
+                    <p>
+                        <%= (meetings_expired) ? meetings_expired : 0 %>
+                    </p>
+                    <button class="vision"></button>
+                </div>
+            </div>
+        </script>
 {% endblock %}
 {% block extra_scripts %}
-
+    <script src='{% static "libs/Sortable/Sortable.min.js" %}'></script>
+    <script src='{% static "js/dashboard.js" %}'></script>
 {% endblock %}
