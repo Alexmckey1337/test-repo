@@ -104,7 +104,8 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         headers = self.get_success_headers(meeting.data)
-        return Response(meeting.data, status=status.HTTP_200_OK, headers=headers)
+        return Response({'message': _('Отчет Домашней Группы успещно подан')},
+                        status=status.HTTP_200_OK, headers=headers)
 
     @staticmethod
     def validate_to_submit(meeting, data):
@@ -128,7 +129,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         if meeting.status == Meeting.SUBMITTED:
             raise exceptions.ValidationError({
                 'detail': _('Невозможно повторно подать отчет. Данный отчет - {%s}, '
-                            'уже был подан ранее. ') % meeting
+                            'уже был подан ранее.') % meeting
             })
 
         attends = data.pop('attends')
@@ -137,7 +138,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
         if not valid_attends:
             raise exceptions.ValidationError({
-                'detail': _('Переданный список присутствующих некорректен')
+                'detail': _('Переданный список присутствующих некорректен.')
             })
 
         return valid_attends
@@ -158,7 +159,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                 self.perform_update(meeting)
                 for attend in attends:
                     MeetingAttend.objects.filter(id=attend.get('id')).update(
-                        user=attend.get('user'),
+                        user=attend.get('user_id'),
                         attended=attend.get('attended', False),
                         note=attend.get('note', '')
                     )
@@ -169,7 +170,8 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         headers = self.get_success_headers(meeting.data)
-        return Response(meeting.data, status=status.HTTP_200_OK, headers=headers)
+        return Response({'message': _('Отчет Домашней Группы успешно изменен.')},
+                        status=status.HTTP_200_OK, headers=headers)
 
     @detail_route(methods=['GET'], serializer_class=MeetingVisitorsSerializer,
                   pagination_class=MeetingVisitorsPagination)
@@ -184,7 +186,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
         visitors = self.serializer_class(visitors, many=True)
 
-        return Response(visitors.data)
+        return Response(visitors.data, status=status.HTTP_200_OK)
 
     @list_route(methods=['GET'], serializer_class=MeetingStatisticSerializer)
     def statistics(self, request):
@@ -212,7 +214,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             repentance_date__range=[from_date, to_date]).count()
 
         statistics = self.serializer_class(statistics)
-        return Response(statistics.data)
+        return Response(statistics.data, status=status.HTTP_200_OK)
 
     @list_route(methods=['GET'], serializer_class=MeetingDashboardSerializer)
     def dashboard_counts(self, request):
@@ -234,7 +236,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         )
 
         dashboards_counts = self.serializer_class(dashboards_counts)
-        return Response(dashboards_counts.data)
+        return Response(dashboards_counts.data, status=status.HTTP_200_OK)
 
 
 class ChurchReportViewSet(ModelWithoutDeleteViewSet):
@@ -289,7 +291,8 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
         self.perform_update(report)
         headers = self.get_success_headers(report.data)
 
-        return Response(report.data, status=status.HTTP_200_OK, headers=headers)
+        return Response({'message': _('Отчет Церкви успешно подан.')},
+                        status=status.HTTP_200_OK, headers=headers)
 
     @list_route(methods=['GET'], serializer_class=ChurchReportStatisticSerializer)
     def statistics(self, request):
@@ -304,4 +307,4 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
             total_pastor_tithe=Sum('pastor_tithe'))
 
         statistics = self.serializer_class(statistics)
-        return Response(statistics.data)
+        return Response(statistics.data, status=status.HTTP_200_OK)
