@@ -3319,7 +3319,9 @@ function createNewUser(callback) {
         }
     }).catch(function (data) {
         $preloader.css('display', 'none');
-        showPopup(data.detail[0]);
+        if (data.detail) {
+            showPopup(data.detail[0]);
+        }
     });
 
 }
