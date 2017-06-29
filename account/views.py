@@ -117,18 +117,18 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, viewsets.ModelViewSet, UserExp
     def set_home_group(self, request, pk):
         user = self.get_object()
         home_group = self._get_object_or_error(HomeGroup, 'home_group_id')
-        user.set_home_group(home_group)
+        user.set_home_group_and_log(home_group, getattr(request, 'real_user', getattr(request, 'user', None)))
 
-        return Response({'message': 'Домашняя группа установлена.'},
+        return Response({'detail': 'Домашняя группа установлена.'},
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['post'])
     def set_church(self, request, pk):
         user = self.get_object()
         church = self._get_object_or_error(Church, 'church_id')
-        user.set_church(church)
+        user.set_church_and_log(church, getattr(request, 'real_user', getattr(request, 'user', None)))
 
-        return Response({'message': _('Церковь установлена.')},
+        return Response({'detail': _('Церковь установлена.')},
                         status=status.HTTP_200_OK)
 
     # TODO tmp
@@ -142,11 +142,11 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, viewsets.ModelViewSet, UserExp
     def _get_object_or_error(self, model, field_name):
         obj_id = self.request.data.get(field_name, None)
         if not obj_id:
-            raise exceptions.ValidationError(_('"%s" is required.' % field_name))
+            raise exceptions.ValidationError({'detail': _('"%s" is required.' % field_name)})
         try:
             obj = get_object_or_404(model, pk=obj_id)
         except Http404:
-            raise exceptions.ValidationError(_('Object with pk = %s does not exist.' % obj_id))
+            raise exceptions.ValidationError({'detail': _('Object with pk = %s does not exist.' % obj_id)})
         return obj
 
     def dispatch(self, request, *args, **kwargs):
@@ -273,6 +273,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, viewsets.ModelViewSet, UserExp
 
         current_user_descendants = User.objects.get(user_ptr=user).get_descendants()
 
+        # TODO refactoring
         result = {
             'total_peoples': current_user_descendants.count(),
             'babies_count': current_user_descendants.filter(spiritual_level=User.BABY).count(),
