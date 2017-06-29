@@ -65,7 +65,7 @@ def log_perform_update(perform_update):
     def wrapper(self, serializer):
         new_obj, changes_dict = self.log_and_update_obj(serializer)
 
-        perform_update(self, serializer, new_obj=new_obj, changes_dict=changes_dict)
+        instance = perform_update(self, serializer, new_obj=new_obj, changes_dict=changes_dict)
 
         if changes_dict:
             new_rev_fields = get_reverse_fields(new_obj._meta.model, new_obj)
@@ -78,6 +78,7 @@ def log_perform_update(perform_update):
                 new_obj_dict=changes_dict['new'],
                 editor=getattr(self.request, 'real_user', self.request.user)
             )
+        return instance
 
     return wrapper
 
@@ -87,7 +88,7 @@ def log_perform_create(perform_create):
     def wrapper(self, serializer):
         new_obj, addition_dict = self.log_and_create_obj(serializer)
 
-        perform_create(self, serializer, new_obj=new_obj, addition_dict=addition_dict)
+        instance = perform_create(self, serializer, new_obj=new_obj, addition_dict=addition_dict)
 
         if addition_dict:
             new_rev_fields = get_reverse_fields(new_obj._meta.model, new_obj)
@@ -99,6 +100,7 @@ def log_perform_create(perform_create):
                 obj_dict=addition_dict,
                 editor=getattr(self.request, 'real_user', self.request.user)
             )
+        return instance
 
     return wrapper
 

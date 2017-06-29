@@ -68,7 +68,7 @@ class LogAndUpdateMixin(object):
 
     @log_perform_update
     def perform_update(self, serializer, **kwargs):
-        pass
+        return serializer.save()
 
 
 class LogAndCreateMixin(object):
@@ -84,7 +84,7 @@ class LogAndCreateMixin(object):
 
     @log_perform_create
     def perform_create(self, serializer, **kwargs):
-        pass
+        return serializer.save()
 
 
 class LogAndDestroyMixin(object):
