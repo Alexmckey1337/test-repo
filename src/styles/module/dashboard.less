@@ -46,12 +46,13 @@
         }
       }
     .select2-selection {
-      width: 385px;
+      width: 450px;
     }
   }
   h1 {
     margin-right: 10px;
     color: #656d78;
+    font-size: 2em;
     font-weight: 900;
   }
   .grid_block {
@@ -67,7 +68,7 @@
     p {
       margin-top: 30px;
       padding: 15px;
-      font-size: 4em;
+      font-size: 5em;
       text-align: center;
       font-family: "Roboto Condensed", sans-serif;
       font-weight: 900;
@@ -86,6 +87,19 @@
       font-size: 1.5em;
       font-family: FontAwesome;
     }
+    span {
+      color: #000;
+      font-family: "Roboto Condensed", sans-serif;
+      font-size: 1.7em;
+      font-weight: 900;
+    }
+    .success_hover {
+      background-color: transparent;
+      transition: background-color .4s ease;
+    }
+    &:hover .success_hover {
+      background-color: #cbe8ba;
+    }
   }
   .sortable-ghost {
     opacity: .5;
@@ -101,6 +115,9 @@
         box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
         cursor: grab;
       }
+      &:hover .success_hover {
+        background-color: transparent;
+      }
       .vision {
         display: block;
         &:before {
@@ -112,9 +129,15 @@
       }
     }
   }
+  .select2-container {
+    width: auto!important;
+  }
  .select2-container--default .select2-selection--single .select2-selection__rendered {
-  font-size: 1.3em;
-  line-height: 35px;
+   font-family: "Roboto Condensed", sans-serif;
+   font-size: 1.8em;
+   font-weight: 900;
+   line-height: 35px;
+   text-transform: uppercase;
   }
   .select2-selection__arrow {
     width: 1px !important;

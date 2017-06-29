@@ -121,6 +121,10 @@
             sortable.option("disabled", true);
         }
 
+        function stopGoLink(event) {
+            event.preventDefault();
+        }
+
         init(userId);
 
         $('#master-filter').select2();
@@ -132,10 +136,12 @@
             sortable.option("disabled", !state);
             if ($(this).hasClass('active')) {
                 $('.dashboard').find('.well.hide').show();
+                $('.dashboard').find('a.well').bind('click', stopGoLink);
             } else {
                 $('.dashboard').find('.well.hide').removeClass('hide').find('.vision').removeClass('active');
                 initSort();
                 hideCard();
+                $('.dashboard').find('a.well').unbind('click', stopGoLink);
             }
         });
 
@@ -157,6 +163,7 @@
             localStorage.arrHideCard = JSON.stringify(arrHideCard);
 
             $('.dashboard').find('.well.hide').hide();
+            $('.dashboard').find('a.well').unbind('click', stopGoLink);
         });
 
         $('#master-filter').on('change', function () {

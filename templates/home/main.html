@@ -39,27 +39,27 @@
     {% create_user_form %}
     <script type="text/template" id="mainStatisticsTmp">
             <div id="drop" class="grid_block drop">
-                <div class="col-sm-4 well" data-id="0">
+                <a href="{% url 'db:main' %}" target="_blank" class="col-sm-4 well" data-id="0">
                     <span>Всего церквей</span>
-                    <p class="success">
+                    <p class="success_hover">
                         <%= (churches_count) ? churches_count : 0 %>
                     </p>
                     <button class="vision"></button>
-                </div>
-                <div class="col-sm-4 well" data-id="1">
+                </a>
+                <a href="{% url 'db:home_groups' %}" target="_blank" class="col-sm-4 well" data-id="1">
                     <span>Всего домашних групп</span>
-                    <p class="success">
+                    <p class="success_hover">
                         <%= (home_groups_count) ? home_groups_count : 0 %>
                     </p>
                     <button class="vision"></button>
-                </div>
-                <div class="col-sm-4 well" data-id="2">
+                </a>
+                <a href="{% url 'db:people' %}" target="_blank" class="col-sm-4 well" data-id="2">
                     <span>Всего людей</span>
-                    <p class="success">
+                    <p class="success_hover">
                         <%= (total_peoples) ? total_peoples : 0 %>
                     </p>
                     <button class="vision"></button>
-                </div>
+                </a>
                 <div class="col-sm-4 well" data-id="3">
                     <span>Всего людей в церквях</span>
                     <p>
