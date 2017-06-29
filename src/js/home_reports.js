@@ -110,15 +110,15 @@
     //Filter
     $departmentsFilter.on('change', function () {
         let departamentID = $(this).val();
-        let config = {};
+        let config = {},
+            config2 = {};
         if (!departamentID) {
             departamentID = null;
         } else {
             config.department = departamentID;
+            config2.department_id = departamentID;
         }
-        getPastorsByDepartment({
-            department_id: departamentID
-        }).then(function (data) {
+        getPastorsByDepartment(config2).then(function (data) {
                 const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
                 $treeFilter.html('<option>ВСЕ</option>').append(pastors);
             });
