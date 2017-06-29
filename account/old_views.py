@@ -39,7 +39,7 @@ def login_view(request):
     Login user via email and password.
 
     :param request: data{'email': string, 'password': string}
-    :return: {'message': string, 'status': boolean}
+    :return: {'detail': string, 'status': boolean}
     """
     response_dict = dict()
     data = request.data
@@ -47,14 +47,14 @@ def login_view(request):
         user = User.objects.get(email__iexact=data['email'], can_login=True)
     except User.DoesNotExist:
         if User.objects.filter(email__iexact=data['email']).exists():
-            response_dict['message'] = _('Вы не имеете право для входа на сайт.')
+            response_dict['detail'] = _('Вы не имеете право для входа на сайт.')
             response_dict['status'] = False
             return Response(response_dict)
-        response_dict['message'] = "Пользователя с таким email не существует"
+        response_dict['detail'] = "Пользователя с таким email не существует"
         response_dict['status'] = False
         return Response(response_dict)
     except MultipleObjectsReturned:
-        response_dict['message'] = "Есть несколько пользователей с таким email"
+        response_dict['detail'] = "Есть несколько пользователей с таким email"
         response_dict['status'] = False
         return Response(response_dict)
 
@@ -62,10 +62,10 @@ def login_view(request):
     if user is not None:
         login(request, user)
         response_dict['uid'] = user.id
-        response_dict['message'] = "Добро пожаловать"
+        response_dict['detail'] = "Добро пожаловать"
         response_dict['status'] = True
     else:
-        response_dict['message'] = "Неверный пароль или email"
+        response_dict['detail'] = "Неверный пароль или email"
         response_dict['status'] = False
     return Response(response_dict)
 

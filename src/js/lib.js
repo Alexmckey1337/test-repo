@@ -875,16 +875,6 @@ function saveUserData(data, id) {
     }
 }
 
-// function saveChurchData(data, id) {
-//     if (id) {
-//         let json = JSON.stringify(data);
-//         ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/`, json, function (data) {
-//         }, 'PATCH', false, {
-//             'Content-Type': 'application/json'
-//         });
-//     }
-// }
-
 function saveChurchData(data, id) {
     if (id) {
         let json = JSON.stringify(data);
@@ -909,15 +899,6 @@ function saveChurchData(data, id) {
         });
     }
 }
-
-// function saveHomeGroupsData(data, id) {
-//     if (id) {
-//         let json = JSON.stringify(data);
-//         ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${id}/`, json, function (data) {
-//         }, 'PATCH', false, {
-//             'Content-Type': 'application/json'
-//         });
-//     }
 
 function saveHomeGroupsData(data, id) {
     if (id) {
@@ -944,47 +925,12 @@ function saveHomeGroupsData(data, id) {
     }
 }
 
-function saveHomeGroupsDataNew(data, id) {
-    if (id) {
-        let data = JSON.stringify(data);
-        let options = {
-            method: 'PATCH',
-            credentials: "same-origin",
-            headers: new Headers({
-                'Content-Type': 'application/json',
-            }),
-            body: data
-
-        };
-        return fetch(`${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/`, options)
-            .then(res => res.json());
-
-        // ajaxRequest(, json, function (data) {
-        // }, 'PATCH', false, {
-        //     'Content-Type': 'application/json'
-        // });
-    }
-}
-
 function deleteUserINHomeGroup(homeGroupId, user_id) {
     return new Promise(function (resolve, reject) {
         let json = JSON.stringify({
             "user_id": user_id
         });
         ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${homeGroupId}/del_user/`, json, function () {
-            resolve();
-        }, 'POST', false, {
-            'Content-Type': 'application/json'
-        });
-    })
-}
-
-function deleteUserINChurch(churchId, userId) {
-    return new Promise(function (resolve, reject) {
-        let json = JSON.stringify({
-            "user_id": userId
-        });
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${churchId}/del_user/`, json, function () {
             resolve();
         }, 'POST', false, {
             'Content-Type': 'application/json'
@@ -1046,9 +992,6 @@ function createChurchesDetailsTable(config = {}, id, link) {
             let DelUser = new DeleteChurchUser(ID, $('#church').data('id'), createChurchesDetailsTable);
             DelUser.popup();
 
-            // deleteUserINChurch($('#church').data('id'), ID).then(() => {
-            //     createChurchesDetailsTable(config = {}, id, link);
-            // });
         });
         makeSortForm(filterData.user_table);
         let paginationConfig = {
@@ -2059,16 +2002,12 @@ function showPopupAddUser(data) {
             }, 1000);
         }
     });
-    $('#addPopup').find('.rewrite').on('click', function (e) {
-        $('#addPopup').css('display', 'none').remove();
-        $('#addNewUserPopup').css('display', 'block');
-    });
     $('#addPopup').find('.addMore').on('click', function () {
         $('#addPopup').css('display', 'none').remove();
         $('body').addClass('no_scroll');
         $('#addNewUserPopup').find('form').css("transform", "translate3d(0px, 0px, 0px)");
         $('#addNewUserPopup').css('display', 'block');
-        initAddNewUser();
+        clearAddNewUser();
         $('#addNewUserPopup').find('.body').scrollTop(0);
     });
 }
@@ -2491,7 +2430,7 @@ function initAddNewUser(config = {}) {
     }
     if (configDefault.getStatuses) {
         getStatuses().then(function (data) {
-            let statuses = data.results;
+            let statuses = data;
             let rendered = [];
             let option = document.createElement('option');
             $(option).text('Выберите статус').attr('disabled', true).attr('selected', true);
@@ -2791,7 +2730,6 @@ function saveHomeGroups(el) {
         let html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
         showPopup(html);
     });
-    // saveHomeGroupsDataNew(data, id);
 }
 
 function editHomeGroups(el, id) {
@@ -3381,7 +3319,7 @@ function createNewUser(callback) {
         }
     }).catch(function (data) {
         $preloader.css('display', 'none');
-        showPopup(data.message[0]);
+        showPopup(data.detail[0]);
     });
 
 }

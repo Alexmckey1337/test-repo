@@ -43,7 +43,7 @@ function authUser() {
                 console.log(getCookie('key'));
             } else {
                 clearFields();
-                $('.account .invalid').html(res.message);
+                $('.account .invalid').html(res.detail);
                 document.querySelector(".account .invalid").style.display = 'block'
             }
         }).catch(function (res) {
@@ -53,31 +53,6 @@ function authUser() {
             $('.account .invalid').html(html).show();
             clearFields();
         });
-        // ajaxRequest(CONFIG.DOCUMENT_ROOT + 'rest-auth/login/', loginData, function (res) {
-        //     //showPopup(JSONobj.message);
-        //     if (res) {
-        //         setCookie('key', res.key, {
-        //             path: '/'
-        //         });
-        //         //showPopup(JSONobj.message);
-        //         next = getUrlParameter('next');
-        //         if (next) {
-        //             window.location.href = next;
-        //         } else {
-        //             window.location.href = '/';
-        //         }
-        //         console.log(getCookie('key'))
-        //     } else {
-        //         //loginError(JSONobj.message);
-        //         //alert(JSONobj.message)
-        //         clearFields();
-        //         $('.account .invalid').html(JSONobj.message);
-        //         document.querySelector(".account .invalid").style.display = 'block'
-        //     }
-        // }, 'POST', true, {
-        //     'Content-Type': 'application/json'
-        // },
-        // );
 
     } else {
         $('.account .invalid').html('Поле e-mail или пароль пустое');

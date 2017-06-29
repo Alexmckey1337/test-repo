@@ -845,7 +845,7 @@ Add user to church
         Vary: Accept
 
         {
-            "message": "Пользователь успешно добавлен."
+            "detail": "Пользователь успешно добавлен."
         }
 
     **Example response (Forbidden)**:
@@ -871,7 +871,7 @@ Add user to church
         Vary: Accept
 
         {
-            "message": "Некоректные данные"
+            "detail": "Некоректные данные"
         }
 
     **Example response (Bad request 2)**:
@@ -884,7 +884,7 @@ Add user to church
         Vary: Accept
 
         {
-            "message": "Невозможно добавить пользователя. Данного пользователя не существует."
+            "detail": "Невозможно добавить пользователя. Данного пользователя не существует."
         }
 
     **Example response (Bad request 3)**:
@@ -897,7 +897,7 @@ Add user to church
         Vary: Accept
 
         {
-            "message": "Невозможно добавить пользователя. Данный пользователь уже состоит в Церкви."
+            "detail": "Невозможно добавить пользователя. Данный пользователь уже состоит в Церкви."
         }
 
     **Example response (Bad request 4)**:
@@ -910,7 +910,7 @@ Add user to church
         Vary: Accept
 
         {
-            "message": "Невозможно добавить пользователя. Данный пользователь уже состоит в Домашней Группе."
+            "detail": "Невозможно добавить пользователя. Данный пользователь уже состоит в Домашней Группе."
         }
 
     :statuscode 201: success create
@@ -948,7 +948,7 @@ Del user from church
         Vary: Accept
 
         {
-            "message": "Пользователь успешно удален из Церкви"
+            "detail": "Пользователь успешно удален из Церкви"
         }
 
     **Example response (Bad request 1)**:
@@ -961,7 +961,7 @@ Del user from church
         Vary: Accept
 
         {
-            "message": "Некоректные данные"
+            "detail": "Некоректные данные"
         }
 
     **Example response (Bad request 2)**:
@@ -974,7 +974,7 @@ Del user from church
         Vary: Accept
 
         {
-            "message": "Невозможно удалить пользователя. Данного пользователя не существует."
+            "detail": "Невозможно удалить пользователя. Данного пользователя не существует."
         }
 
     **Example response (Bad request 3)**:
@@ -987,7 +987,7 @@ Del user from church
         Vary: Accept
 
         {
-            "message": "Невозможно удалить пользователя. Пользователь не принадлежит к данной Церкви."
+            "detail": "Невозможно удалить пользователя. Пользователь не принадлежит к данной Церкви."
         }
 
     :statuscode 204: no content
@@ -1688,7 +1688,7 @@ Add user to home group
         Vary: Accept
 
         {
-            "message": "Пользователь успешно добавлен."
+            "detail": "Пользователь успешно добавлен."
         }
 
     **Example response (Bad request 1, with "user_id": null)**
@@ -1701,7 +1701,7 @@ Add user to home group
         Vary: Accept
 
         {
-            "message": "Некоректные данные"
+            "detail": "Некоректные данные"
         }
 
     **Example response (Bad request 2, with user_id not exists)**
@@ -1714,7 +1714,7 @@ Add user to home group
         Vary: Accept
 
         {
-            "message": "Невозможно добавить пользователя. Данного пользователя не существует."
+            "detail": "Невозможно добавить пользователя. Данного пользователя не существует."
         }
 
     **Example response (Bad request 3)**:
@@ -1727,7 +1727,7 @@ Add user to home group
         Vary: Accept
 
         {
-            "message": "Невозможно добавить пользователя. Данный пользователь уже состоит в Домашней Группе."
+            "detail": "Невозможно добавить пользователя. Данный пользователь уже состоит в Домашней Группе."
         }
 
     **Example response (Bad request 4)**:
@@ -1740,7 +1740,7 @@ Add user to home group
         Vary: Accept
 
         {
-            "message": "Невозможно добавить пользователя. Пользователь не состоит в Церкви"
+            "detail": "Невозможно добавить пользователя. Пользователь не состоит в Церкви"
         }
 
     **Example response (Bad request 5)**:
@@ -1753,7 +1753,7 @@ Add user to home group
         Vary: Accept
 
         {
-            "message": "Невозможно добавить пользователя. Данный пользователь является членом другой Церкви"
+            "detail": "Невозможно добавить пользователя. Данный пользователь является членом другой Церкви"
         }
 
     **Example response (Forbidden)**:
@@ -1804,7 +1804,7 @@ Del user from home group
         Vary: Accept
 
         {
-            "message": "Пользователь успешно удален."
+            "detail": "Пользователь успешно удален."
         }
 
     **Example response (Bad request 1)**:
@@ -1817,7 +1817,7 @@ Del user from home group
         Vary: Accept
 
         {
-            "message": "Невозможно удалить пользователя. Пользователь не принадлежит к данной Домашней Группе."
+            "detail": "Невозможно удалить пользователя. Пользователь не принадлежит к данной Домашней Группе."
         }
 
     **Example response (Bad request 2, with "user_id": null)**:
@@ -1830,7 +1830,7 @@ Del user from home group
         Vary: Accept
 
         {
-            "message": "Некоректные данные"
+            "detail": "Некоректные данные"
         }
 
     **Example response (Bad request 3, with user_id not exists)**:
@@ -1843,7 +1843,7 @@ Del user from home group
         Vary: Accept
 
         {
-            "message": "Невозможно удалить пользователя. Данного пользователя не существует."
+            "detail": "Невозможно удалить пользователя. Данного пользователя не существует."
         }
 
     **Example response (Not Found, with home_group_id doesn't exists)**:

@@ -1,17 +1,18 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from datetime import datetime
+
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from django.utils.translation import ugettext_lazy as _
 
+from account.models import CustomUser
+from common.fields import ReadOnlyChoiceField
 from group.models import Church
 from group.serializers import (UserNameSerializer, ChurchNameSerializer,
                                HomeGroupNameSerializer)
-from account.models import CustomUser
 from .models import Meeting, MeetingAttend, MeetingType, ChurchReport, AbstractStatusModel
-from datetime import datetime
-from common.fields import ReadOnlyChoiceField
 
 
 class ValidateDataBeforeUpdateMixin(object):

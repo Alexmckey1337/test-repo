@@ -366,7 +366,7 @@ Create user, ``application/json``
         Content-Type: application/json
 
         {
-          "message": [
+          "detail": [
             "Пользователь с такими ФИО и телефоном уже существует."
           ],
           "data": {
@@ -1044,7 +1044,7 @@ Create new user, ``multipart/form-data``
         Content-Type: application/json
 
         {
-          "message": [
+          "detail": [
             "Пользователь с такими ФИО и телефоном уже существует."
           ],
           "data": {
