@@ -15,19 +15,19 @@ from common.fields import ReadOnlyChoiceField
 
 
 class ValidateDataBeforeUpdateMixin(object):
-
     @staticmethod
     def validate_before_serializer_update(instance, validated_data, not_editable_fields):
         if instance.status != AbstractStatusModel.SUBMITTED:
-            raise serializers.ValidationError(
-                _('Невозможно обновить методом UPDATE. '
-                  'Отчет - {%s} еще небыл подан.') % instance)
+            raise serializers.ValidationError({
+                'detail': _('Невозможно обновить методом UPDATE. Отчет - {%s} еще небыл подан.') % instance
+            })
 
         if instance.date.isocalendar()[1] > validated_data.get('date').isocalendar()[1]:
-            raise serializers.ValidationError(
-                _('Невозможно подать отчет, переданная дата - %s. '
-                  'Отчет должен подаваться за ту неделю на которой был создан.' % validated_data.get('date'))
-            )
+            raise serializers.ValidationError({
+                'detail': _('Невозможно подать отчет, переданная дата - %s. '
+                            'Отчет должен подаваться за ту неделю на которой был создан.' % validated_data.get('date'))
+            })
+
         [validated_data.pop(field, None) for field in not_editable_fields]
 
         return instance, validated_data
@@ -82,8 +82,9 @@ class MeetingSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMix
         owner = validated_data.get('owner')
         home_group = validated_data.get('home_group')
         if home_group.leader != owner:
-            raise serializers.ValidationError(
-                _('Переданный лидер не являетя лидером данной Домашней Группы'))
+            raise serializers.ValidationError({
+                'detail': _('Переданный лидер не являетя лидером данной Домашней Группы')
+            })
 
         meeting = Meeting.objects.create(**validated_data)
         return meeting
