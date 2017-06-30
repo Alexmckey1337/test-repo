@@ -171,6 +171,9 @@
             let userId = $(this).val();
             $('#drop').remove();
             init(userId);
+
+            //Fixed bugs for select2
+            $('#container').unbind('scroll');
         });
 
     });

@@ -14,10 +14,10 @@
     {% block header.tabs %}
         <div class="tabs">
             <ul class="nav tabs_link">
-                <li><a class="active" href="{% url 'events:meeting_report_list' %}">Отчёты домашних груп</a></li>
                 <li><a href="{% url 'events:church_report_list' %}">Отчёты церквей</a></li>
-                <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних груп</a></li>
                 <li><a href="{% url 'events:church_report_statistics' %}">Статистика церквей</a></li>
+                <li><a class="active" href="{% url 'events:meeting_report_list' %}">Отчёты домашних групп</a></li>
+                <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних групп</a></li>
             </ul>
         </div>
     {% endblock %}
