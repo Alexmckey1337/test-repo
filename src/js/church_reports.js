@@ -10,7 +10,7 @@
     function getChurchReports(config = {}) {
         return new Promise(function (resolve, reject) {
             let data = {
-                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/events/church_reports/`,
+                url: URLS.home_meeting.church_report(),
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'

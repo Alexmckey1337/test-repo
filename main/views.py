@@ -615,11 +615,6 @@ def index(request):
 
 
 @login_required(login_url='entry')
-def reports(request):
-    return render(request, 'report/reports.html')
-
-
-@login_required(login_url='entry')
 def event_info(request):
     return render(request, 'event/event_info.html')
 

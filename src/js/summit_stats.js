@@ -11,7 +11,7 @@ class SummitStat {
                 'Content-Type': 'application/json',
             }),
         };
-        let url = `/api/v1.0/summits/${this.summitID }/stats/?`;
+        let url = `${URLS.summit.stats(this.summitID)}?`;
         Object.keys(config).forEach((param, i, arr) => {
             url += `${param}=${config[param]}`;
             if (i + 1 < arr.length) {
@@ -65,7 +65,7 @@ function changeSummitStatusCode() {
                     active: ban
                 })
             };
-        fetch(`/api/v1.0/summit_attends/anket_active_status/`, option)
+        fetch(URLS.profile_status(), option)
             .then(
                 $(this).closest('.ticket_code').find('a').toggleClass('is-ban')
             )

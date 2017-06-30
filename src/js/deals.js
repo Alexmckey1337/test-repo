@@ -189,7 +189,7 @@ $(document).ready(function () {
             "description": description
         };
         let config = JSON.stringify(data);
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/' + id + '/', config, function () {
+        ajaxRequest(URLS.deal.detail(id), config, function () {
             update();
             document.getElementById('popup').style.display = '';
         }, 'PATCH', true, {
@@ -213,7 +213,7 @@ $(document).ready(function () {
                 "operation": $('#operation').val()
             };
             let json = JSON.stringify(data);
-            ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/deals/${id}/create_payment/`, json, function (JSONobj) {
+            ajaxRequest(URLS.deal.create_payment(id), json, function (JSONobj) {
                 update();
                 showPopup('Оплата прошла успешно.');
                 setTimeout(function () {

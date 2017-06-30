@@ -64,7 +64,7 @@ function authUser() {
 function authUserFunc(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/login/`,
+            url: URLS.login(),
             data: config,
             method: 'POST',
             headers: {

@@ -133,7 +133,7 @@ class DeleteChurchUser extends DeleteUser {
                 user_id: this.user
             })
         };
-        return fetch(`/api/v1.0/churches/${this.church}/del_user/`, options)
+        return fetch(URLS.church.del_user(this.church), options)
             .then(res => {
                 return (res.status == 204) ? res.status : res.json()
             })
@@ -171,7 +171,7 @@ class DeleteChurchUser extends DeleteUser {
         let massage = 'Пользователь удален из домашнєй группы';
         let info = '<p>Подтвердите удаление пользователя из церкви</p>';
         Promise.all(this.home_group.map((item) => {
-            fetch(`/api/v1.0/home_groups/${item}/del_user/`, options)
+            fetch(URLS.home_group.del_user(item), options)
         }))
             .then(() => {
                 this.home_group = [];
@@ -204,7 +204,7 @@ function getOrderingData() {
 function getChurches(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/`,
+            url: URLS.church.list(),
             data: config,
             method: 'GET',
             headers: {
@@ -226,7 +226,7 @@ function getChurches(config = {}) {
 
 function predeliteAnket(id) {
     let config = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_profiles/${id}/predelete/`,
+        url: URLS.summit_profile.predelete(id),
     };
     return new Promise((resolve, reject) => {
         let codes = {
@@ -243,7 +243,7 @@ function predeliteAnket(id) {
 
 function deleteSummitProfile(id) {
     let config = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_profiles/${id}/`,
+        url: URLS.summit_profile.detail(id),
         method: "DELETE"
     };
     return new Promise((resolve, reject) => {
@@ -260,7 +260,7 @@ function deleteSummitProfile(id) {
 }
 
 function addUserToChurch(user_id, id, exist = false) {
-    let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${user_id}/set_church/`;
+    let url = URLS.user.set_church(user_id);
     let config = {
         url: url,
         method: "POST",
@@ -282,7 +282,7 @@ function addUserToChurch(user_id, id, exist = false) {
 }
 
 function addUserToHomeGroup(user_id, hg_id, exist = false) {
-    let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${user_id}/set_home_group/`;
+    let url = URLS.user.set_home_group(user_id);
     let config = {
         url: url,
         method: "POST",
@@ -321,7 +321,7 @@ function createHomeGroupsTable(config = {}) {
         $('#tableHomeGroup').html(rendered);
         $('.quick-edit').on('click', function () {
             let id = $(this).closest('.edit').find('a').attr('data-id');
-            ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/`, null, function (data) {
+            ajaxRequest(URLS.home_group.detail(id), null, function (data) {
                 let quickEditCartTmpl, rendered;
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
@@ -479,7 +479,7 @@ function getChurchesListINDepartament(department_ids) {
     return new Promise(function (resolve, reject) {
         let url;
         if (department_ids instanceof Array) {
-            url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/for_select/?`;
+            url = `${URLS.church.for_select()}?`;
             let i = 0;
             department_ids.forEach(function (department_id) {
                 i++;
@@ -508,7 +508,7 @@ function getChurchesListINDepartament(department_ids) {
 function getHomeGroupsINChurches(id) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/for_select/?church_id=${id}`,
+            url: `${URLS.home_group.for_select()}?church_id=${id}`,
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -530,7 +530,7 @@ function getHomeGroupsINChurches(id) {
 function getHomeGroups(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/`,
+            url: URLS.home_group.list(),
             data: config,
             method: 'GET',
             headers: {
@@ -705,7 +705,7 @@ function newAjaxRequest(data, codes, fail) {
 function getUsers(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/`,
+            url: URLS.user.list(),
             data: config,
             method: 'GET',
             headers: {
@@ -728,7 +728,7 @@ function getUsers(config = {}) {
 function getShortUsers(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/short_users/`,
+            url: URLS.user.short(),
             data: config,
             method: 'GET',
             headers: {
@@ -748,11 +748,11 @@ function getShortUsers(config = {}) {
     });
 }
 
-function getSummitUsers(summit_id, config = {}) {
+function getSummitUsers(summitId, config = {}) {
     Object.assign(config, getFilterParam());
     return new Promise(function (resolve, reject) {
         let data = {
-            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/summits/${summit_id}/users/`,
+            url: URLS.summit.users(summitId),
             data: config,
             method: 'GET',
             headers: {
@@ -775,14 +775,14 @@ function getSummitUsers(summit_id, config = {}) {
 function getPotencialSammitUsers(config) {
     console.log(config);
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_search/', config, function (data) {
+        ajaxRequest(URLS.summit_search(), config, function (data) {
             resolve(data);
         });
     });
 }
 
 function registerUserToSummit(config) {
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_profiles/', config, function (data) {
+    ajaxRequest(CONFIG.DOCUMENT_ROOT + URLS.summit_profile.list(), config, function (data) {
         showPopup("Пользователь добавлен в саммит.");
         createSummitUsersTable();
     }, 'POST', true, {
@@ -804,7 +804,7 @@ function registerUserToSummit(config) {
 }
 
 function updateSummitProfile(profileID, config) {
-    ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_profiles/${profileID}/`, config, function (data) {
+    ajaxRequest(URLS.summit_profile.detail(profileID), config, function (data) {
         showPopup("Данные участника саммита изменены.");
         createSummitUsersTable();
     }, 'PATCH', true, {
@@ -831,7 +831,7 @@ function updateSummitProfile(profileID, config) {
 
 function getChurchUsers(id) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/users/`, null, function (data) {
+        ajaxRequest(URLS.church.users(id), null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -843,7 +843,7 @@ function getChurchUsers(id) {
 
 function getChurchDetails(id, link, config) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/${link}/`, config, function (data) {
+        ajaxRequest(`${URLS.church.detail(id)}${link}/`, config, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -855,7 +855,7 @@ function getChurchDetails(id, link, config) {
 
 function getHomeGroupUsers(config, id) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${id}/users`, config, function (data) {
+        ajaxRequest(URLS.home_group.users(id), config, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -868,7 +868,7 @@ function getHomeGroupUsers(config, id) {
 function saveUserData(data, id) {
     if (id) {
         let json = JSON.stringify(data);
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.1/users/${id}/`, json, function (data) {
+        ajaxRequest(URLS.user.detail(id), json, function (data) {
         }, 'PATCH', false, {
             'Content-Type': 'application/json'
         });
@@ -880,7 +880,7 @@ function saveChurchData(data, id) {
         let json = JSON.stringify(data);
         return new Promise(function (resolve, reject) {
             let data = {
-                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${id}/`,
+                url: URLS.church.detail(id),
                 data: json,
                 method: 'PATCH',
                 headers: {
@@ -905,7 +905,7 @@ function saveHomeGroupsData(data, id) {
         let json = JSON.stringify(data);
         return new Promise(function (resolve, reject) {
             let data = {
-                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/`,
+                url: URLS.home_group.detail(id),
                 data: json,
                 method: 'PATCH',
                 headers: {
@@ -930,7 +930,7 @@ function deleteUserINHomeGroup(homeGroupId, user_id) {
         let json = JSON.stringify({
             "user_id": user_id
         });
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/home_groups/${homeGroupId}/del_user/`, json, function () {
+        ajaxRequest(URLS.home_group.del_user(homeGroupId), json, function () {
             resolve();
         }, 'POST', false, {
             'Content-Type': 'application/json'
@@ -1054,7 +1054,7 @@ function createHomeGroupUsersTable(config = {}, id) {
 function addHomeGroupToDataBase(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/`,
+            url: URLS.home_group.list(),
             data: config,
             method: 'POST',
             headers: {
@@ -1164,7 +1164,7 @@ function createChurchesTable(config = {}) {
         $('#tableChurches').html(rendered);
         $('.quick-edit').on('click', function () {
             let id = $(this).closest('.edit').find('a').attr('data-id');
-            ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${id}/`, null, function (data) {
+            ajaxRequest(URLS.church.detail(id), null, function (data) {
                 let quickEditCartTmpl, rendered;
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
@@ -1203,7 +1203,7 @@ function createChurchesTable(config = {}) {
 function addChurchTODataBase(config) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/`,
+            url: URLS.church.list(),
             data: config,
             method: 'POST',
             headers: {
@@ -1256,7 +1256,7 @@ function addHomeGroup(e, el, callback) {
 
 function getCountryCodes() {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
+        ajaxRequest(URLS.country(), null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1268,7 +1268,7 @@ function getCountryCodes() {
 
 function getRegions(config = {}) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/regions/', config, function (data) {
+        ajaxRequest(URLS.region(), config, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1280,7 +1280,7 @@ function getRegions(config = {}) {
 
 function getCities(config = {}) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/cities/', config, function (data) {
+        ajaxRequest(URLS.city(), config, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1297,7 +1297,7 @@ function getPartnersList(data) {
     };
     Object.assign(config, data);
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/partnerships/', config, function (data) {
+        ajaxRequest(URLS.partner.list(), config, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1309,7 +1309,7 @@ function getPartnersList(data) {
 
 function getCountries() {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
+        ajaxRequest(URLS.country(), null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1321,7 +1321,7 @@ function getCountries() {
 
 function getCountriesList() {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/countries/', null, function (data) {
+        ajaxRequest(URLS.country(), null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1333,7 +1333,7 @@ function getCountriesList() {
 
 function getDepartments() {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/departments/', null, function (data) {
+        ajaxRequest(URLS.department(), null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1345,7 +1345,7 @@ function getDepartments() {
 
 function getDepartmentsOfUser(userId) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.1/users/${userId}/departments/`, null, function (data) {
+        ajaxRequest(URLS.user.departments(userId), null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1357,7 +1357,7 @@ function getDepartmentsOfUser(userId) {
 
 function getStatuses() {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
+        ajaxRequest(URLS.hierarchy(), null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1369,7 +1369,7 @@ function getStatuses() {
 
 function getCurrentUser(id) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/' + id + '/', null, function (data) {
+        ajaxRequest(URLS.user.detail(id), null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1381,7 +1381,7 @@ function getCurrentUser(id) {
 function getResponsibleBYHomeGroup(userID = null) {
     let masterTree = (userID) ? userID : $('body').data('user');
     return new Promise(function (resolve, reject) {
-        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/short_users/?master_tree=${masterTree}`;
+        let url = `${URLS.user.short()}?master_tree=${masterTree}`;
         ajaxRequest(url, null, function (data) {
             if (data) {
                 resolve(data);
@@ -1394,7 +1394,7 @@ function getResponsibleBYHomeGroup(userID = null) {
 function getResponsibleBYHomeGroupSupeMegaNew(config) {
     let masterTree = (config.userId) ? config.userId : $('body').data('user');
     return new Promise(function (resolve, reject) {
-        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/available_leaders/`;
+        let url = URLS.home_group.available_leaders();
         ajaxRequest(url, {master_tree: masterTree, department_id: config.departmentId}, function (data) {
             if (data) {
                 resolve(data);
@@ -1407,7 +1407,7 @@ function getResponsibleBYHomeGroupSupeMegaNew(config) {
 
 function getResponsibleBYHomeGroupNew(config) {
     return new Promise(function (resolve, reject) {
-        let url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/available_leaders/`;
+        let url = URLS.home_group.available_leaders();
         ajaxRequest(url, config, function (data) {
             if (data) {
                 resolve(data);
@@ -1426,7 +1426,7 @@ function getResponsible(ids, level, search = "") {
         responsibleLevel = level;
     }
     return new Promise(function (resolve, reject) {
-        let url = CONFIG.DOCUMENT_ROOT + 'api/v1.0/short_users/?level_gte=' + responsibleLevel + '&search=' + search;
+        let url = `${URLS.user.short()}?level_gte=${responsibleLevel}&search=${search}`;
         if (ids instanceof Array) {
             ids.forEach(function (id) {
                 url += '&department=' + id;
@@ -1446,7 +1446,7 @@ function getResponsible(ids, level, search = "") {
 
 function getResponsibleStatuses() {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/hierarchy/', null, function (data) {
+        ajaxRequest(URLS.hierarchy(), null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1458,7 +1458,7 @@ function getResponsibleStatuses() {
 
 function getUsersFromDatabase(config) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/users/', config, function (data) {
+        ajaxRequest(URLS.user.list(), config, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1470,7 +1470,7 @@ function getUsersFromDatabase(config) {
 
 function getUsersTOChurch(config) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/churches/potential_users_church/', config, function (data) {
+        ajaxRequest(URLS.church.potential_users_church(), config, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1482,7 +1482,7 @@ function getUsersTOChurch(config) {
 
 function getUsersTOHomeGroup(config, id) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/churches/${id}/potential_users_group/`, config, function (data) {
+        ajaxRequest(URLS.church.potential_users_group(id), config, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1494,7 +1494,7 @@ function getUsersTOHomeGroup(config, id) {
 
 function getDivisions() {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/divisions/', null, function (data) {
+        ajaxRequest(URLS.division(), null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1506,7 +1506,7 @@ function getDivisions() {
 
 function getManagers() {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.1/partnerships/simple/', null, function (data) {
+        ajaxRequest(URLS.partner.simple(), null, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1518,7 +1518,7 @@ function getManagers() {
 
 function getIncompleteDeals(data) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=False', data, function (response) {
+        ajaxRequest(`${URLS.deal.list()}?done=False`, data, function (response) {
             if (response) {
                 resolve(response);
             } else {
@@ -1530,7 +1530,7 @@ function getIncompleteDeals(data) {
 
 function getFinishedDeals(data) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?done=True', data, function (data) {
+        ajaxRequest(`${URLS.deal.list()}?done=True`, data, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1542,7 +1542,7 @@ function getFinishedDeals(data) {
 
 function getOverdueDeals(data) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/?expired=True', data, function (response) {
+        ajaxRequest(`${URLS.deal.list()}?expired=True`, data, function (response) {
             if (response) {
                 resolve(response);
             } else {
@@ -1554,7 +1554,7 @@ function getOverdueDeals(data) {
 
 function getPayment(id) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/deals/${id}/payments/`, null, function (data) {
+        ajaxRequest(URLS.deal.payments(id), null, function (data) {
             resolve(data);
         }, 'GET', true, {
             'Content-Type': 'application/json'
@@ -1571,7 +1571,7 @@ function getPayment(id) {
 function getPaymentsDeals(config) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/payments/deal/`,
+            url: URLS.payment.deals(),
             method: 'GET',
             data: config,
             headers: {
@@ -1693,7 +1693,7 @@ function homeStatistics() {
     let data = {};
         Object.assign(data, getFilterParam());
         Object.assign(data, getTabsFilterParam());
-    getData('/api/v1.0/events/home_meetings/statistics/', data).then(data => {
+    getData(URLS.home_meeting.stats(), data).then(data => {
         let tmpl = document.getElementById('statisticsTmp').innerHTML;
         let rendered = _.template(tmpl)(data);
         document.getElementById('statisticsContainer').innerHTML = rendered;
@@ -1884,7 +1884,7 @@ function tab_plugin() {
 
 // Counter counterNotifications
 function counterNotifications() {
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/notifications/today/', null, function (data) {
+    ajaxRequest(URLS.notification(), null, function (data) {
         $('.sms').attr('data-count', data.count);
     });
 }
@@ -2764,7 +2764,7 @@ function makeQuickEditSammitCart(el) {
     anketID = $(el).closest('td').find('a').data('ankets');
     id = $(el).closest('td').find('a').data('id');
     link = $(el).closest('td').find('a').data('link');
-    url = `${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_profiles/${anketID}/`;
+    url = URLS.summit_profile.detail(anketID);
     ajaxRequest(url, null, function (data) {
         $('#fullNameCard').text(data.full_name);
         $('#userDescription').val(data.description);
@@ -2783,7 +2783,7 @@ function makeQuickEditCart(el) {
     let id, link, url;
     id = $(el).closest('td').find('a').attr('data-id');
     link = $(el).closest('td').find('a').attr('data-link');
-    url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${id}/`;
+    url = URLS.user.detail(id);
     ajaxRequest(url, null, function (data) {
         let quickEditCartTmpl, rendered;
         quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
@@ -2898,7 +2898,7 @@ function updateSettings(callback, path) {
     });
     let json = JSON.stringify(data);
 
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/update_columns/', json, function (JSONobj) {
+    ajaxRequest(URLS.update_columns(), json, function (JSONobj) {
         $(".bgsort").remove();
         VOCRM['column_table'] = JSONobj['column_table'];
 
@@ -3155,7 +3155,7 @@ function getHomeReports(config = {}) {
     }
     return new Promise(function (resolve, reject) {
         let data = {
-            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/events/home_meetings/`,
+            url: URLS.home_meeting.list(),
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -3224,7 +3224,7 @@ function createNewUser(callback) {
             console.log(err);
         }
     }
-    let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/`;
+    let url = URLS.user.list();
     let config = {
         url: url,
         data: formData,
@@ -3258,7 +3258,7 @@ function createNewUser(callback) {
 function createPayment(data, id) {
     let resData = {
         method: 'POST',
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.1/partnerships/${id}/create_payment/`
+        url: URLS.partner.create_payment(id)
     };
     Object.assign(resData, data);
     return new Promise(function (resolve, reject) {
@@ -3276,7 +3276,7 @@ function createPayment(data, id) {
 
 function getChurchStats(id) {
     let resData = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${id}/statistics/`
+        url: URLS.church.stats(id)
     };
 
     return new Promise(function (resolve, reject) {
@@ -3294,7 +3294,7 @@ function getChurchStats(id) {
 
 function getHomeGroupStats(id) {
     let resData = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${id}/statistics/`
+        url: URLS.home_group.stats(id)
     };
     return new Promise(function (resolve, reject) {
         let codes = {
@@ -3311,7 +3311,7 @@ function getHomeGroupStats(id) {
 
 function getPastorsByDepartment(config) {
     let data = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/available_pastors/`,
+        url: URLS.church.available_pastors(),
         data: config
     };
     return new Promise(function (resolve, reject) {
@@ -3329,7 +3329,7 @@ function getPastorsByDepartment(config) {
 
 function getLeadersByChurch(config = {}) {
     let data = {
-        url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/available_leaders/`,
+        url: URLS.home_group.available_leaders(),
         data: config
     };
     return new Promise(function (resolve, reject) {

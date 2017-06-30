@@ -13,7 +13,7 @@ function changePass() {
     };
 
     let json = JSON.stringify(data);
-    ajaxRequest('/api/v1.0/password_view/', json, function (data) {
+    ajaxRequest(URLS.password_view(), json, function (data) {
         showPopup(data.detail);
         setTimeout(function () {
             window.location.href = '/entry/';

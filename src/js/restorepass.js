@@ -5,7 +5,7 @@ function sendPassToEmail() {
     };
 
     let json = JSON.stringify(data);
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/password_forgot/', json, function (data) {
+    ajaxRequest(URLS.password_forgot(), json, function (data) {
         showPopup(data.detail);
     }, 'POST', true, {
         'Content-Type': 'application/json'
