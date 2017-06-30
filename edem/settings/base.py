@@ -321,7 +321,8 @@ SITE_DOMAIN_URL = 'http://vocrm.org/'
 ARCHONS = [1, ]
 AXES_COOLOFF_TIME = 1
 
-LOG_FILE = env('LOG_FILE', default='/tmp/vocrm.log')
+# LOG_FILE = env('LOG_FILE', default='/tmp/vocrm.log')
+LOG_FILE = '/tmp/vocrm.log'
 
 LOGGING = {
     'version': 1,

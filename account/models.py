@@ -115,6 +115,13 @@ class CustomUser(MPTTModel, LogModel, User, CustomUserAbstract,
             summit__status=Summit.OPEN,
             user_id__in=self.disciples.values_list('pk', flat=True)).update(responsible=self.fullname)
 
+    # TODO hack
+    def regcode(self):
+        profile = self.summit_profiles.filter(summit_id=7).first()
+        if profile:
+            return profile.reg_code
+        return ''
+
     def get_absolute_url(self):
         return reverse('account:detail', args=(self.id,))
 
