@@ -1,0 +1,44 @@
+{% extends "layout_main.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block header.top.h1 %}
+    <h1>
+        {% trans "User logs" %} |
+        <a href="{{ user.get_absolute_url }}">{{ user.fullname }}</a>
+    </h1>
+{% endblock %}
+
+{% block header.buttons %}
+{% endblock %}
+
+{% block main.content %}
+    <table>
+        <tr>
+            <th>{% block user_column.name %}{% trans "Редактор" %}{% endblock %}</th>
+            <th>{% trans "Тип" %}</th>
+            <th>{% trans "Лог" %}</th>
+            <th>{% trans "Время изменения" %}</th>
+        </tr>
+        {% for log_message in log_messages %}
+            <tr>
+                <td>
+                    {% block user_column.value %}
+                        <a href="{% url "account:detail" log_message.user_id %}">{{ log_message.user }}</a>
+                    {% endblock %}
+                </td>
+                <td>{{ log_message.get_action_flag_display }}</td>
+                <td><a href="{{ log_message.get_absolute_url }}">{{ log_message.get_change_message }}</a></td>
+                <td>{{ log_message.action_time|date:"d M Y H:i:s" }}</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+{% endblock %}
+
+{% block extra_scripts %}
+{% endblock %}

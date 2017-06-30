@@ -837,19 +837,21 @@
     <div class="clearfix"></div>
     <div class="content">
         {% if log_messages %}
-            <h1 style="padding-left: 20px;">Меня меняли</h1>
+            <h1 style="padding-left: 20px;">
+                <a href="{% url "account:logs" user_id=account.id %}">{% trans "Меня меняли" %}</a>
+            </h1>
             <table>
                 <tr>
-                    <th>Редактор</th>
-                    <th>Тип</th>
-                    <th>Лог</th>
-                    <th>Время изменения</th>
+                    <th>{% trans "Редактор" %}</th>
+                    <th>{% trans "Тип" %}</th>
+                    <th>{% trans "Лог" %}</th>
+                    <th>{% trans "Время изменения" %}</th>
                 </tr>
                 {% for log_message in log_messages|slice:"20" %}
                     <tr>
                         <td><a href="{% url "account:detail" log_message.user_id %}">{{ log_message.user }}</a></td>
                         <td>{{ log_message.get_action_flag_display }}</td>
-                        <td>{{ log_message.get_change_message }}</td>
+                        <td><a href="{{ log_message.get_absolute_url }}">{{ log_message.get_change_message }}</a></td>
                         <td>{{ log_message.action_time|date:"d M Y H:i:s" }}</td>
                     </tr>
                 {% endfor %}
@@ -861,19 +863,21 @@
             </table>
         {% endif %}
         {% if log_messages_iam %}
-            <h1 style="padding-left: 20px;">Я менял</h1>
+            <h1 style="padding-left: 20px;">
+                <a href="{% url "account:owner_logs" user_id=account.id %}">{% trans "Я менял" %}</a>
+            </h1>
             <table>
                 <tr>
-                    <th>Жертва</th>
-                    <th>Тип</th>
-                    <th>Лог</th>
-                    <th>Время изменения</th>
+                    <th>{% trans "Кого" %}</th>
+                    <th>{% trans "Тип" %}</th>
+                    <th>{% trans "Лог" %}</th>
+                    <th>{% trans "Время изменения" %}</th>
                 </tr>
                 {% for log_message in log_messages_iam|slice:"20" %}
                     <tr>
                         <td><a href="{% url "account:detail" log_message.object_id %}">{{ log_message.object_repr }}</a></td>
                         <td>{{ log_message.get_action_flag_display }}</td>
-                        <td>{{ log_message.get_change_message }}</td>
+                        <td><a href="{{ log_message.get_absolute_url }}">{{ log_message.get_change_message }}</a></td>
                         <td>{{ log_message.action_time|date:"d M Y H:i:s" }}</td>
                     </tr>
                 {% endfor %}
@@ -889,18 +893,6 @@
 {% endblock %}
 
 {% block popup %}
-    <div id="deletePopup" class="add-user-wrap">
-        <div class="splash-screen">
-            <div class="top-text">
-                <h3>Вы уверены, что хотите удалить пользователя?</h3>
-                <span>&times;</span>
-            </div>
-            <div class="splash-buttons">
-                <button id="no">Нет</button>
-                <button id="yes">Да</button>
-            </div>
-        </div>
-    </div>
     {% if account.partnership %}
         {% create_payment_form account.partnership %}
     {% endif %}

@@ -280,6 +280,48 @@ def account(request, id):
     return render(request, 'account/anketa.html', context=ctx)
 
 
+class UserLogsListView(LoginRequiredMixin, ListView):
+    model = LogRecord
+    context_object_name = 'log_messages'
+    template_name = 'account/logs/user.html'
+    login_url = 'entry'
+
+    user = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.user = get_object_or_404(CustomUser, pk=kwargs.get('user_id'))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return LogRecord.objects.filter(
+            object_id=self.user.id,
+            content_type=ContentType.objects.get_for_model(self.user)
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['user'] = self.user
+        return ctx
+
+
+class OwnerLogsListView(UserLogsListView):
+    template_name = 'account/logs/owner.html'
+
+    def get_queryset(self):
+        return LogRecord.objects.filter(
+            user_id=self.user.id,
+            content_type=ContentType.objects.get_for_model(self.user)
+        )
+
+
+class UserLogDetailView(LoginRequiredMixin, DetailView):
+    model = LogRecord
+    context_object_name = 'log_message'
+    template_name = 'account/logs/detail.html'
+    login_url = 'entry'
+    pk_url_kwarg = 'log_id'
+
+
 # summit
 
 
