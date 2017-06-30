@@ -1,0 +1,16 @@
+{% extends "account/logs/user.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block header.top.h1 %}
+    <h1>
+        {% trans "Owner logs" %} |
+        <a href="{{ user.get_absolute_url }}">{{ user.fullname }}</a>
+    </h1>
+{% endblock %}
+
+{% block user_column.name %}{% trans "Редактируемый" %}{% endblock %}
+
+{% block user_column.value %}
+    <a href="{% url "account:detail" log_message.object_id %}">{{ log_message.object_repr }}</a>
+{% endblock %}

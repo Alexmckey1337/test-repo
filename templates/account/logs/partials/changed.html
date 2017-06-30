@@ -1,0 +1,29 @@
+{% load i18n %}
+<table>
+    <tr>
+        <th>{% trans "Поле" %}</th>
+        <th>{% trans "Было" %}</th>
+        <th>{% trans "Стало" %}</th>
+    </tr>
+    {% for k, v in fields %}
+        <tr>
+            <td>{{ v.verbose_name }}</td>
+            <td>
+                {% if v.value.old.name %}
+                    {{ v.value.old.name }}
+                {% else %}
+                    {{ v.value.old }}
+                {% endif %}
+            </td>
+            <td>
+                {% if v.value.new.name %}
+                    {{ v.value.new.name }}
+                {% else %}
+                    {{ v.value.new }}
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    <tr>
+    </tr>
+</table>

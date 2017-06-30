@@ -3,6 +3,7 @@ from typing import Tuple
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django.urls import reverse
 from django.utils import six
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible, smart_text
@@ -62,6 +63,9 @@ class LogRecord(models.Model):
         verbose_name_plural = _('log records')
         ordering = ('-action_time',)
 
+    def get_absolute_url(self):
+        return reverse('account:log-detail', kwargs={'log_id': self.id})
+
     def __repr__(self):
         return smart_text(self.action_time)
 
@@ -100,13 +104,28 @@ class LogRecord(models.Model):
             return ''
         return ugettext('%s: с %s на %s' % (name, old_value, new_value))
 
+    def _get_addition_data(self, f, value):
+        name = value.get('verbose_name', f)
+        if 'value' in value.keys():
+            value_dict = value['value']
+            value = '"{}"'.format(value_dict.get('name', '') if isinstance(value_dict, dict) else value_dict or '')
+        else:
+            return ''
+        return ugettext('%s: %s' % (name, value))
+
     def get_change_message(self):
         change_data = self.change_data
         changed = change_data.get('changed', {})
-        data = filter(lambda string: bool(string),
-                      map(self._get_change_data, six.iterkeys(changed), six.itervalues(changed)))
-        if changed == {}:
+        deletion = change_data.get('deletion', {})
+        addition = change_data.get('addition', {})
+        data = tuple(filter(lambda string: bool(string),
+                            map(self._get_change_data, six.iterkeys(changed), six.itervalues(changed))))
+        data += tuple(filter(lambda string: bool(string),
+                             map(self._get_addition_data, six.iterkeys(deletion), six.itervalues(deletion))))
+        data += tuple(filter(lambda string: bool(string),
+                             map(self._get_addition_data, six.iterkeys(addition), six.itervalues(addition))))
+        if changed == {} and addition == {} and deletion == {}:
             return 'Unknown'
-        if not changed:
+        if not (changed or addition or deletion):
             return ugettext('Without changes')
         return ', '.join(data)
