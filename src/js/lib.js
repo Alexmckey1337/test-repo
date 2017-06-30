@@ -1693,7 +1693,7 @@ function homeStatistics() {
     let data = {};
         Object.assign(data, getFilterParam());
         Object.assign(data, getTabsFilterParam());
-    getData(URLS.home_meeting.stats(), data).then(data => {
+    getData(URLS.event.home_meeting.stats(), data).then(data => {
         let tmpl = document.getElementById('statisticsTmp').innerHTML;
         let rendered = _.template(tmpl)(data);
         document.getElementById('statisticsContainer').innerHTML = rendered;
@@ -1704,7 +1704,7 @@ function churchStatistics() {
     let data = {};
         Object.assign(data, getFilterParam());
         Object.assign(data, getTabsFilterParam());
-    getData('/api/v1.0/events/church_reports/statistics/', data).then(data => {
+    getData(URLS.event.church_report.stats(), data).then(data => {
         let tmpl = document.getElementById('statisticsTmp').innerHTML;
         let rendered = _.template(tmpl)(data);
         document.getElementById('statisticsContainer').innerHTML = rendered;
@@ -3201,7 +3201,7 @@ function getHomeReports(config = {}) {
     }
     return new Promise(function (resolve, reject) {
         let data = {
-            url: URLS.home_meeting.list(),
+            url: URLS.event.home_meeting.list(),
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -3227,7 +3227,7 @@ function getChurchReports(config = {}) {
     }
     return new Promise(function (resolve, reject) {
         let data = {
-            url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/events/church_reports/`,
+            url: URLS.event.church_report.list(),
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

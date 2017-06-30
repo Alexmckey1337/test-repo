@@ -9,6 +9,7 @@ const USER = {
     set_church: (userId) => `/api/v1.1/users/${userId}/set_church/`,
     set_home_group: (userId) => `/api/v1.1/users/${userId}/set_home_group/`,
     departments: (userId) => `/api/v1.1/users/${userId}/departments/`,
+    dashboard_count: () => `/api/v1.1/users/dashboard_counts/`,
 };
 
 const SUMMIT = {
@@ -41,13 +42,26 @@ const SUMMIT_TICKET = {
     print: (ticketId) => `/api/v1.0/summit_tickets/${ticketId}/print/`,
 };
 
+const CHURCH_REPORT = {
+    list: () => `/api/v1.0/events/church_reports/`,
+    detail: (reportId) => `/api/v1.0/events/church_reports/${reportId}/`,
+    submit: (reportId) => `/api/v1.0/events/church_reports/${reportId}/submit/`,
+    stats: () => `/api/v1.0/events/church_reports/statistics/`,
+};
+
 const HOME_MEETING = {
+
     list: (reportId) => `/api/v1.0/events/home_meetings/`,
     detail: (reportId) => `/api/v1.0/events/home_meetings/${reportId}/`,
     visitors: (reportId) => `/api/v1.0/events/home_meetings/${reportId}/visitors/`,
     submit: (reportId) => `/api/v1.0/events/home_meetings/${reportId}/submit/`,
     stats: () => `/api/v1.0/events/home_meetings/statistics/`,
-    church_report: () => `/api/v1.0/events/church_reports/`,
+    dashboard_count: () => `/api/v1.0/events/home_meetings/dashboard_counts/`,
+};
+
+const EVENT = {
+    home_meeting: HOME_MEETING,
+    church_report: CHURCH_REPORT,
 };
 
 const PARTNER = {
@@ -79,6 +93,7 @@ const CHURCH = {
     available_pastors: () => `/api/v1.0/churches/available_pastors/`,
     potential_users_church: () => `/api/v1.0/churches/potential_users_church/`,
     potential_users_group: (churchId) => `/api/v1.0/churches/${churchId}/potential_users_group/`,
+    dashboard_count: () => `/api/v1.0/churches/dashboard_counts/`,
 };
 
 const HOME_GROUP = {
@@ -120,7 +135,7 @@ const URLS = {
     summit_profile: SUMMIT_PROFILE,
     summit_ticket: SUMMIT_TICKET,
     summit_lesson: SUMMIT_LESSON,
-    home_meeting: HOME_MEETING,
+    event: EVENT,
     church: CHURCH,
     home_group: HOME_GROUP,
 };

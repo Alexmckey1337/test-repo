@@ -20,7 +20,7 @@
     function getHomeReportDetailData(config = {}) {
         return new Promise(function (resolve, reject) {
             let data = {
-                url: URLS.home_meeting.detail(REPORTS_ID),
+                url: URLS.event.home_meeting.detail(REPORTS_ID),
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -42,7 +42,7 @@
     function getHomeReportDetailTableData(config = {}) {
         return new Promise(function (resolve, reject) {
             let data = {
-                url: URLS.home_meeting.visitors(REPORTS_ID),
+                url: URLS.event.home_meeting.visitors(REPORTS_ID),
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -148,7 +148,7 @@
         return new Promise((resolve, reject) => {
             let data = {
                 method: 'POST',
-                url: URLS.home_meeting.submit(REPORTS_ID),
+                url: URLS.event.home_meeting.submit(REPORTS_ID),
                 data: config,
                 contentType: 'application/json',
             };
@@ -168,7 +168,7 @@
         return new Promise((resolve, reject) => {
             let data = {
                 method: 'PUT',
-                url: URLS.home_meeting.detail(REPORTS_ID),
+                url: URLS.event.home_meeting.detail(REPORTS_ID),
                 data: config,
                 contentType: 'application/json',
             };

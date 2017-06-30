@@ -7,7 +7,7 @@
 
         function getHomeGroupStats(id) {
             let resData = {
-                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/events/home_meetings/dashboard_counts/?user_id=${id}`
+                url: `${URLS.event.home_meeting.dashboard_count()}?user_id=${id}`
             };
             return new Promise(function (resolve, reject) {
                 let codes = {
@@ -24,7 +24,7 @@
 
         function getChurchData(id) {
             let resData = {
-                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/dashboard_counts/?user_id=${id}`
+                url: `${URLS.church.dashboard_count()}?user_id=${id}`
             };
             return new Promise(function (resolve, reject) {
                 let codes = {
@@ -41,7 +41,7 @@
 
         function getUsersData(id) {
             let resData = {
-                url: `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/dashboard_counts/?user_id=${id}`
+                url: `${URLS.user.dashboard_count()}?user_id=${id}`
             };
             return new Promise(function (resolve, reject) {
                 let codes = {

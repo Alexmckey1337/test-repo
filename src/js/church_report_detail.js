@@ -7,7 +7,7 @@
     function getChurchReportDetailData(config = {}) {
         return new Promise(function (resolve, reject) {
             let data = {
-                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/events/church_reports/${REPORTS_ID}/`,
+                url: URLS.event.church_report.detail(REPORTS_ID),
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -164,7 +164,7 @@
         return new Promise((resolve, reject) => {
             let data = {
                 method: 'POST',
-                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/events/church_reports/${REPORTS_ID}/submit/`,
+                url: URLS.event.church_report.submit(REPORTS_ID),
                 data: config,
                 contentType: 'application/json',
             };
@@ -283,7 +283,7 @@
         return new Promise((resolve, reject) => {
             let data = {
                 method: 'PUT',
-                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/events/church_reports/${REPORTS_ID}/`,
+                url: URLS.event.church_report.detail(REPORTS_ID),
                 data: config,
                 contentType: 'application/json',
             };
