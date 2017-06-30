@@ -782,7 +782,7 @@ function getPotencialSammitUsers(config) {
 }
 
 function registerUserToSummit(config) {
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + URLS.summit_profile.list(), config, function (data) {
+    ajaxRequest(URLS.summit_profile.list(), config, function (data) {
         showPopup("Пользователь добавлен в саммит.");
         createSummitUsersTable();
     }, 'POST', true, {
