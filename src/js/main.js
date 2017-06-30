@@ -71,7 +71,7 @@ $('.close').on('click', function () {
 
 $('#logout_button').on('click', function (e) {
     e.preventDefault();
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/logout/', null, function (data) {
+    ajaxRequest(URLS.logout(), null, function (data) {
         deleteCookie('key');
         window.location.href = '/entry';
     }, 'POST', true, {

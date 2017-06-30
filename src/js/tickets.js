@@ -14,8 +14,8 @@
 
     $('.ticket_title').click(function () {
         let self = $(this);
-        let ticket_id = $(this).data('id');
-        let url = `/api/v1.0/summit_tickets/${ticket_id}/users/`;
+        let ticketID = $(this).data('id');
+        let url = URLS.summit_ticket.users(ticketID);
         let code = getParameterByName('code');
         if (code) {
             url += `?code=${code}`
@@ -34,9 +34,9 @@
             });
     });
     $('.tickets_table').on('click', '.mark_printed', function () {
-        let ticket_id = $(this).data('id');
+        let ticketID = $(this).data('id');
         let self = $(this);
-        fetch(`/api/v1.0/summit_ticket/${ticket_id}/print/`, {'credentials': 'include', 'method': "POST"})
+        fetch(URLS.summit_ticket.print(ticketID), {'credentials': 'include', 'method': "POST"})
             .then(function (response) {
                 return response.json();
             })

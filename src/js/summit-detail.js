@@ -118,7 +118,7 @@
     });
     $("#load-tickets").on('click', function () {
         let summit_id = $('#summitUsersList').data('summit');
-        ajaxRequest(`/api/v1.0/generate_summit_tickets/${summit_id}/`, null, function (data) {
+        ajaxRequest(URLS.generate_summit_tickets(summit_id), null, function (data) {
             console.log(data);
         }, 'GET', true, {
             'Content-Type': 'application/json'
@@ -296,7 +296,7 @@
     });
 
     function unsubscribeOfSummit(id) {
-        ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_profiles/${id}/`, null, function () {
+        ajaxRequest(URLS.summit_profile.detail(id), null, function () {
             let data = {};
             data['summit'] = summit_id;
             getUsersList(path, data);
@@ -331,7 +331,7 @@
 
         let json = JSON.stringify(data);
 
-        ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/summit_profiles/${id}/create_payment/`, json, function (JSONobj) {
+        ajaxRequest(URLS.summit_profile.create_payment(id), json, function (JSONobj) {
             showPopup('Оплата прошла успешно.');
         }, 'POST', true, {
             'Content-Type': 'application/json'
@@ -344,7 +344,7 @@
     }
 
     function show_payments(id) {
-        ajaxRequest(config.DOCUMENT_ROOT + `api/v1.0/summit_profiles/${id}/payments/`, null, function (data) {
+        ajaxRequest(URLS.summit_profile.list_payments(id), null, function (data) {
             let payments_table = '';
             let sum, date_time;
             data.forEach(function (payment) {
@@ -483,8 +483,8 @@
                     'Content-Type': 'application/json',
                 })
             };
-        const prifileId = $(this).data('user-id');
-        fetch(`/api/v1.0/summit_profiles/${prifileId}/set_ticket_status/`, option)
+        const profileId = $(this).data('user-id');
+        fetch(URLS.summit_profile.set_ticket_status(profileId), option)
             .then( res => res.json())
             .then(data => {
                 $(this).find('.text').text(data.text);

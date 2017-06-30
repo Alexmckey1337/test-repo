@@ -11,7 +11,7 @@
     });
 
     function filterByMonth(params = {}) {
-        let url = '/api/v1.1/partnerships/stats_payments/?',
+        let url = `${URLS.partner.stats_payment()}?`,
             partner_id = $('#stats_manager').val();
         if (partner_id) {
             params.partner_id = partner_id;
@@ -82,7 +82,7 @@
         }
     });
     function renderDealTable(params = {}) {
-        let url = '/api/v1.1/partnerships/stat_deals/?',
+        let url = `${URLS.partner.stats_deal()}?`,
             partner_id = $('#stats_manager').val();
         if (partner_id) {
             params.partner_id = partner_id;
@@ -92,7 +92,7 @@
         });
     }
     function renderPaymentTable(params = {}) {
-        let url = '/api/v1.1/partnerships/stat_payments/?',
+        let url = `${URLS.partner.stat_payment()}?`,
             partner_id = $('#stats_manager').val();
         if (partner_id) {
             params.partner_id = partner_id;

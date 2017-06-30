@@ -1,6 +1,6 @@
 (function ($) {
     const USER_ID = $('body').data('user');
-    const ID = $('#church').data('id');
+    const CHURCH_ID = $('#church').data('id');
     const D_ID = $('#added_home_group_church').data('department');
     let responsibleList = false;
     let link = $('.get_info .active').data('link');
@@ -31,13 +31,13 @@
     // }
 
     function addUserToChurch(data) {
-        let id = data.id;
+        let userId = data.id;
         let config = {};
-        config.user_id = id;
+        config.user_id = userId;
         return new Promise(function (resolve, reject) {
             let data = {
                 method: 'POST',
-                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/churches/${ID}/add_user/`,
+                url: URLS.church.add_user(CHURCH_ID),
                 data: config
             };
             let status = {
@@ -80,13 +80,13 @@
                         config.id = id;
                         addUserToChurch(config).then(function (data) {
                             $(_self).text('Добавлен').attr('disabled', true);
-                            getChurchStats(ID).then(function (data) {
+                            getChurchStats(CHURCH_ID).then(function (data) {
                                 let keys = Object.keys(data);
                                 keys.forEach(function (item) {
                                     $('#' + item).text(data[item]);
                                 })
                             });
-                            createChurchesUsersTable(ID);
+                            createChurchesUsersTable(CHURCH_ID);
                         });
                     });
                     $(rows_wrap).addClass('rows-wrap').append(button).append(rows);
@@ -106,7 +106,7 @@
         })
     }
 
-    createChurchesDetailsTable({}, ID, link);
+    createChurchesDetailsTable({}, CHURCH_ID, link);
 
     $('#added_home_group_pastor').select2();
     $('#added_home_group_date').datepicker({
@@ -118,7 +118,7 @@
         clearAddHomeGroupData();
         if (!responsibleList) {
             responsibleList = true;
-            makeResponsibleList(ID, USER_ID);
+            makeResponsibleList(CHURCH_ID, USER_ID);
         }
         setTimeout(function () {
             $('#addHomeGroup').css('display', 'block');
@@ -164,7 +164,7 @@
         if (canEdit) {
             $('#church').addClass('can_edit');
         }
-        createChurchesDetailsTable({}, ID, link);
+        createChurchesDetailsTable({}, CHURCH_ID, link);
         $('.get_info button').removeClass('active');
         $(this).addClass('active');
         $('#export_table').attr('data-export-url', exportUrl);
