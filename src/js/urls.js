@@ -76,9 +76,9 @@ const CHURCH = {
     del_user: (churchId) => `/api/v1.0/churches/${churchId}/del_user/`,
     add_user: (churchId) => `/api/v1.0/churches/${churchId}/add_user/`,
     for_select: () => `/api/v1.0/churches/for_select/`,
-    available_pastors: () => `/api/v1.0/church/available_pastors/`,
-    potential_users_church: () => `/api/v1.0/church/potential_users_church/`,
-    potential_users_group: (churchId) => `/api/v1.0/church/${churchId}/potential_users_group/`,
+    available_pastors: () => `/api/v1.0/churches/available_pastors/`,
+    potential_users_church: () => `/api/v1.0/churches/potential_users_church/`,
+    potential_users_group: (churchId) => `/api/v1.0/churches/${churchId}/potential_users_group/`,
 };
 
 const HOME_GROUP = {
