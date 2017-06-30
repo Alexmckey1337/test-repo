@@ -104,7 +104,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         headers = self.get_success_headers(meeting.data)
-        return Response({'message': _('Отчет Домашней Группы успещно подан')},
+        return Response({'message': _('Отчет Домашней Группы успешно подан')},
                         status=status.HTTP_200_OK, headers=headers)
 
     @staticmethod
