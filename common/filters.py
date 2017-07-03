@@ -156,7 +156,7 @@ class BaseFilterMasterTree(BaseFilterBackend):
 
         try:
             master = CustomUser.objects.get(pk=master_id)
-        except ObjectDoesNotExist:
+        except (ObjectDoesNotExist, ValueError):
             return queryset
 
         if master.is_leaf_node():

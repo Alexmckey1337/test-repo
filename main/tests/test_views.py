@@ -1,6 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import pytest
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
@@ -102,3 +103,34 @@ class TestDatabasePage(LoginUserMixin):
         response = self.client.get(self.url)
 
         self.assertEqual(len(response.context['masters']), 21)
+
+
+@pytest.mark.urls('main.tests.urls')
+@pytest.mark.django_db
+class TestDealPaymentView:
+    def test_variable_in_context_code(self, client, deal):
+        url = '/payment/deal/{}/'.format(deal.id)
+        response = client.get(url)
+        assert response.status_code == 302
+
+    @pytest.mark.parametrize('variable', ['payments', 'deal', 'partners'])
+    def test_variable_in_context(self, login_client, deal, variable):
+        url = '/payment/deal/{}/'.format(deal.id)
+        response = login_client.get(url)
+        assert variable in response.context.keys()
+
+
+@pytest.mark.urls('main.tests.urls')
+@pytest.mark.django_db
+@pytest.mark.hh
+class TestPartnerPaymentView:
+    def test_variable_in_context_code(self, client, deal):
+        url = '/payment/deal/{}/'.format(deal.id)
+        response = client.get(url)
+        assert response.status_code == 302
+
+    @pytest.mark.parametrize('variable', ['payments', 'extra_payments', 'deal_payments', 'partner', 'partners'])
+    def test_variable_in_context(self, login_client, partner, variable):
+        url = '/payment/partner/{}/'.format(partner.id)
+        response = login_client.get(url)
+        assert variable in response.context.keys()

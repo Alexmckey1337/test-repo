@@ -178,6 +178,10 @@ $(document).ready(function () {
             description = $('#deal-description').val();
         updateDeals(id, description);
     });
+    $('#popup-payments .detail').on('click', function () {
+        let url = $(this).attr('data-detail-url');
+        window.location.href = url;
+    });
 
     function updateDeals(id, description) {
         let data = {
@@ -185,7 +189,7 @@ $(document).ready(function () {
             "description": description
         };
         let config = JSON.stringify(data);
-        ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/' + id + '/', config, function () {
+        ajaxRequest(URLS.deal.detail(id), config, function () {
             update();
             document.getElementById('popup').style.display = '';
         }, 'PATCH', true, {
@@ -209,7 +213,7 @@ $(document).ready(function () {
                 "operation": $('#operation').val()
             };
             let json = JSON.stringify(data);
-            ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/deals/${id}/create_payment/`, json, function (JSONobj) {
+            ajaxRequest(URLS.deal.create_payment(id), json, function (JSONobj) {
                 update();
                 showPopup('Оплата прошла успешно.');
                 setTimeout(function () {
@@ -230,13 +234,17 @@ $(document).ready(function () {
     function showPayments(id) {
         getPayment(id).then(function (data) {
             let payments_table = '';
-            let sum, date_time;
+            let sum, date_time, manager;
             data.forEach(function (payment) {
                 sum = payment.effective_sum_str.replace('.000', '');
-                date_time = payment.created_at;
-                payments_table += `<tr><td>${sum}</td><td>${date_time}</td></tr>`
+                date_time = payment.sent_date;
+                manager = `${payment.manager.last_name} ${payment.manager.first_name} ${payment.manager.middle_name}`;
+                payments_table += `<tr><td>${sum}</td><td>${date_time}</td><td>${manager}</td></tr>`
             });
             $('#popup-payments table').html(payments_table);
+            var detail_url = $('#popup-payments .detail').data('detail-url').replace('0', id);
+            console.log(detail_url);
+            $('#popup-payments .detail').attr('data-detail-url', detail_url);
             $('#popup-payments').css('display', 'block');
         })
     }

@@ -11,11 +11,14 @@ from django.db.models import Q
 from django.db.models import Sum
 from django.db.models import Value
 from django.db.models.functions import Coalesce
+from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
+from analytics.models import LogModel
 from partnership.managers import DealManager, PartnerManager
 from payment.models import Payment, get_default_currency, AbstractPaymentPurpose
+from analytics.decorators import log_change_payment
 
 
 @python_2_unicode_compatible
@@ -96,6 +99,19 @@ class Partnership(AbstractPaymentPurpose):
         format_data['value'] = self.value
         return self.currency.output_format.format(**format_data)
 
+    def can_user_edit_payment(self, user):
+        """
+        Checking that the ``user`` can edit payment of current partner
+
+        :param user:
+        :return: True or False
+        """
+        return (user.is_partner_supervisor_or_high or
+                (user.is_partner_manager and self.responsible and self.responsible.user == user))
+
+    def payment_page_url(self):
+        return reverse('payment-partner', kwargs={'pk': self.pk})
+
     @property
     def is_responsible(self):
         return self.level <= Partnership.MANAGER
@@ -142,7 +158,7 @@ class Partnership(AbstractPaymentPurpose):
 
 
 @python_2_unicode_compatible
-class Deal(AbstractPaymentPurpose):
+class Deal(LogModel, AbstractPaymentPurpose):
     value = models.DecimalField(max_digits=12, decimal_places=0,
                                 default=Decimal('0'))
     #: Currency of value
@@ -165,11 +181,13 @@ class Deal(AbstractPaymentPurpose):
 
     objects = DealManager()
 
+    tracking_fields = ('done', 'value', 'currency', 'description', 'expired', 'date', 'date_created')
+
     class Meta:
         ordering = ('-date_created',)
 
     def __str__(self):
-        return "%s : %s" % (self.partnership, self.date)
+        return "%s : %s" % (self.partnership, self.date_created)
 
     def save(self, *args, **kwargs):
         if not self.id and self.partnership:
@@ -177,7 +195,8 @@ class Deal(AbstractPaymentPurpose):
             self.responsible = self.partnership.responsible
         super(Deal, self).save(*args, **kwargs)
 
-    def update_after_cancel_payment(self):
+    @log_change_payment(['done'])
+    def update_after_cancel_payment(self, editor, payment):
         self.done = False
         self.save()
 
@@ -200,6 +219,28 @@ class Deal(AbstractPaymentPurpose):
         format_data = self.currency.output_dict()
         format_data['value'] = self.value
         return self.currency.output_format.format(**format_data)
+
+    def can_user_edit(self, user):
+        """
+        Checking that the ``user`` can edit current deal
+
+        :param user:
+        :return: True or False
+        """
+        return (user.is_partner_supervisor_or_high or
+                (user.is_partner_manager and self.responsible and self.responsible.user == user))
+
+    def can_user_edit_payment(self, user):
+        """
+        Checking that the ``user`` can edit payment of current deal
+
+        :param user:
+        :return: True or False
+        """
+        return self.can_user_edit(user)
+
+    def payment_page_url(self):
+        return reverse('payment-deal', kwargs={'pk': self.pk})
 
     @property
     def month(self):

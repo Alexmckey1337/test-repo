@@ -1,0 +1,33 @@
+{% extends "layout_main.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block header.top.h1 %}
+    <h1>
+        {% trans "User logs" %} |
+        <a href="{% url "account:detail" log_message.object_id %}">{{ log_message.object_repr }}</a>
+    </h1>
+{% endblock %}
+
+{% block header.buttons %}
+{% endblock %}
+
+{% block main.content %}
+    {% if log_message.action_flag == 2 %}
+        {% include "account/logs/partials/changed.html" with fields=log_message.change_data.changed.items %}
+    {% elif log_message.action_flag == 1 %}
+        {% include "account/logs/partials/addition.html" with fields=log_message.change_data.addition.items %}
+    {% elif log_message.action_flag == 3 %}
+        {% include "account/logs/partials/deletion.html" with fields=log_message.change_data.deletion.items %}
+    {% endif %}
+            <ul>
+                <li>
+                    <a href="{% url "account:detail" log_message.user_id %}">{{ log_message.user }}</a>
+                </li>
+                <li>{{ log_message.get_action_flag_display }}</li>
+                <li>{{ log_message.action_time|date:"d M Y H:i:s" }}</li>
+            </ul>
+{% endblock %}
+
+{% block extra_scripts %}
+{% endblock %}

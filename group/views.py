@@ -1,6 +1,6 @@
 # -*- coding: utf-8
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count, Case, When, BooleanField, CharField
+from django.db.models import Count, Case, When, BooleanField
 from django.db.models import Q
 from django.db.models import Value as V
 from django.db.models.functions import Concat
@@ -101,9 +101,9 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
         user = self._get_user(request.data.get('user_id', None))
 
         self._validate_user_for_add_user(user)
-        user.set_church(church)
+        user.set_church_and_log(church, getattr(request, 'real_user', getattr(request, 'user', None)))
 
-        return Response({'message': _('Пользователь успешно добавлен.')},
+        return Response({'detail': _('Пользователь успешно добавлен.')},
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['post'])
@@ -116,7 +116,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
         if user.cchurch != church:
             if user.hhome_group:
                 raise exceptions.ValidationError({
-                    'home_group': [{'id': user.hhome_group.id, 'name': user.hhome_group.get_title}],
+                    'home_groups': [{'id': user.hhome_group.id, 'name': user.hhome_group.get_title}],
                     'detail': _('Пожалуйста, удалите сначала пользователя из домашней группы.')
                 })
             raise exceptions.ValidationError({
@@ -124,9 +124,8 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
                             'Пользователь не принадлежит к данной Церкви.')
             })
 
-        user.cchurch = None
-        user.save()
-        return Response({'message': _('Пользователь успешно удален из Церкви')},
+        user.set_church_and_log(None, getattr(request, 'real_user', getattr(request, 'user', None)))
+        return Response({'detail': _('Пользователь успешно удален из Церкви')},
                         status=status.HTTP_204_NO_CONTENT)
 
     @detail_route(methods=['GET'])
@@ -169,7 +168,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
     @list_route(methods=['GET'], serializer_class=ChurchWithoutPaginationSerializer, pagination_class=None)
     def for_select(self, request):
         if not request.query_params.get('department'):
-            raise exceptions.ValidationError(_("Некорректный запрос. Департамент не передан."))
+            raise exceptions.ValidationError({'detail': _("Некорректный запрос. Департамент не передан.")})
 
         departments = request.query_params.getlist('department')
 
@@ -186,18 +185,18 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
         try:
             return master.get_descendants(include_self=True).filter(hierarchy__level__gte=2).get(pk=master_tree_id)
         except ValueError:
-            raise exceptions.ValidationError(_("master_tree_id is incorrect."))
+            raise exceptions.ValidationError({'detail': _("master_tree_id is incorrect.")})
         except ObjectDoesNotExist:
-            raise exceptions.ValidationError(_("You are don't have permissions for filter by this master."))
+            raise exceptions.ValidationError({'detail': _("You are don't have permissions for filter by this master.")})
 
     @staticmethod
     def _get_user(user_id=None):
         if not user_id:
-            raise exceptions.ValidationError(_('"user_id" is required.'))
+            raise exceptions.ValidationError({'detail': _('"user_id" is required.')})
         try:
             user = get_object_or_404(CustomUser, pk=user_id)
         except Http404:
-            raise exceptions.ValidationError(_('User with id = %s does not exist.' % user_id))
+            raise exceptions.ValidationError({'detail': _('User with id = %s does not exist.' % user_id)})
         return user
 
     @staticmethod
@@ -238,11 +237,11 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
     def _validate_user_for_add_user(user):
         if user.cchurch:
             raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя, данный пользователь уже состоит в Церкви.'))
+                {'detail': _('Невозможно добавить пользователя, данный пользователь уже состоит в Церкви.')})
 
         if user.hhome_group:
             raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя, данный пользователь уже состоит в Домашней Группе.'))
+                {'detail': _('Невозможно добавить пользователя, данный пользователь уже состоит в Домашней Группе.')})
 
     @list_route(methods=['GET'], serializer_class=ChurchDashboardSerializer)
     def dashboard_counts(self, request):
@@ -306,9 +305,9 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         user = self._get_user(request.data.get('user_id', None))
 
         self._validate_user_for_add_user(user, home_group)
-        user.set_home_group(home_group)
+        user.set_home_group_and_log(home_group, getattr(request, 'real_user', getattr(request, 'user', None)))
 
-        return Response({'message': 'Пользователь успешно добавлен.'},
+        return Response({'detail': 'Пользователь успешно добавлен.'},
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['post'])
@@ -319,9 +318,7 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
 
         self._validate_user_for_del_user(user, home_group)
 
-        user.hhome_group = None
-        user.cchurch = home_group.church
-        user.save()
+        user.del_home_group_and_log(getattr(request, 'real_user', getattr(request, 'user', None)))
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -362,7 +359,7 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         church_id = request.query_params.get('church_id')
 
         if not church_id:
-            raise exceptions.ValidationError(_("Некорректный запрос. Церковь не передана."))
+            raise exceptions.ValidationError({'detail': _("Некорректный запрос. Церковь не передана.")})
 
         home_groups = HomeGroup.objects.filter(church_id=church_id)
         home_groups = self.serializer_class(home_groups, many=True)
@@ -378,33 +375,33 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         try:
             return master.get_descendants(include_self=True).filter(hierarchy__level__gte=1).get(pk=master_tree_id)
         except ValueError:
-            raise exceptions.ValidationError(_("master_tree_id is incorrect."))
+            raise exceptions.ValidationError({'detail': _("master_tree_id is incorrect.")})
         except ObjectDoesNotExist:
-            raise exceptions.ValidationError(_("You are don't have permissions for filter by this master."))
+            raise exceptions.ValidationError({'detail': _("You are don't have permissions for filter by this master.")})
 
     @staticmethod
     def _get_user(user_id=None):
         if not user_id:
-            raise exceptions.ValidationError(_('"user_id" is required.'))
+            raise exceptions.ValidationError({'detail': _('"user_id" is required.')})
         try:
             user = get_object_or_404(CustomUser, pk=user_id)
         except Http404:
-            raise exceptions.ValidationError(_('User with id = %s does not exist.' % user_id))
+            raise exceptions.ValidationError({'detail': _('User with id = %s does not exist.' % user_id)})
         return user
 
     @staticmethod
     def _validate_user_for_add_user(user, home_group):
         if user.hhome_group:
             raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя, данный пользователь уже состоит в Домашней Группе.'))
+                {'detail': _('Невозможно добавить пользователя, данный пользователь уже состоит в Домашней Группе.')})
 
         if user.cchurch and user.cchurch != home_group.church:
             raise exceptions.ValidationError(
-                _('Невозможно добавить пользователя, пользователь является членом другой Церкви'))
+                {'detail': _('Невозможно добавить пользователя, пользователь является членом другой Церкви')})
 
     @staticmethod
     def _validate_user_for_del_user(user, home_group):
         if user.hhome_group != home_group:
             raise exceptions.ValidationError(
-                _('Невозможно удалить пользователя.'
-                  'Пользователь не принадлежит к данной Домашней Группе.'))
+                {'detail': _('Невозможно удалить пользователя.'
+                             'Пользователь не принадлежит к данной Домашней Группе.')})

@@ -44,10 +44,13 @@ class BishopReport {
         });
     }
     getReport() {
-        let url = `/api/v1.0/summit/${this.summitId}/report_by_bishops/?`;
+        let url = `${URLS.summit.report_by_bishop(this.summitId)}?`;
         const filter = Object.assign(getFilterParam(), getSearch('search_fio'));
-        Object.keys(filter).forEach(key => {
-            url += `${key}=${filter[key]}`
+        Object.keys(filter).forEach((key, i, arr) => {
+            url += `${key}=${filter[key]}`;
+            if (i + 1 < arr.length) {
+                url += '&'
+            }
         });
         let options = {
             credentials: 'same-origin',
@@ -65,7 +68,7 @@ class PrintMasterStat {
         this.summit = summitId;
         this.masterId = null;
         this.filter = [];
-        this.url = `/api/v1.0/summit/${summitId}/master/`
+        this.url = URLS.summit.master(summitId)
     }
 
     setMaster(id) {
@@ -95,7 +98,7 @@ class PrintMasterStat {
                 'Content-Type': 'application/json',
             })
         };
-        return fetch(`/api/v1.0/summits/${this.summit}/bishop_high_masters/`, defaultOption)
+        return fetch(URLS.summit.bishop_high_masters(this.summit), defaultOption)
             .then(res => res.json());
     }
 

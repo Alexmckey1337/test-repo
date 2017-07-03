@@ -1,5 +1,5 @@
 function updateUser(id, data, success = null) {
-    let url = `${CONFIG.DOCUMENT_ROOT}api/v1.1/users/${id}/`;
+    let url = URLS.user.detail(id);
     let config = {
         url: url,
         data: data,
@@ -89,7 +89,7 @@ $("#tabs1 li").on('click', function () {
 
 $('#send_need').on('click', function () {
     let need_text = $('#id_need_text').val();
-    let url = CONFIG.DOCUMENT_ROOT + `api/v1.1/partnerships/${$(this).data('partner')}/update_need/`;
+    let url = URLS.partner.update_need($(this).data('partner'));
     let need = JSON.stringify({'need_text': need_text});
     ajaxRequest(url, need, function () {
         showPopup('Нужда сохранена.');
@@ -210,7 +210,7 @@ $('#send_new_deal').on('click', function () {
     let date = $('#new_deal_date').val();
 
     if (description && value && date) {
-        let url = CONFIG.DOCUMENT_ROOT + 'api/v1.0/deals/';
+        let url = URLS.deal.list();
 
         let deal = JSON.stringify({
             'date_created': date.trim().split('.').reverse().join('-'),
@@ -317,28 +317,7 @@ $('#deletePopup span').click(function () {
     $('#deletePopup').hide();
 });
 
-$('#yes').click(function () {
-    let id = $(this).attr('data-id');
-    deleteUser(id);
-    $('#deletePopup').hide();
-});
-
-function deleteUser(id) {
-    let data = {
-        "id": id
-    };
-    let json = JSON.stringify(data);
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + 'api/v1.0/delete_user/', json, function (JSONobj) {
-        if (JSONobj.status) {
-            showPopup('Пользователь успешно удален');
-            window.location.href = "/"
-        }
-    }, 'POST', true, {
-        'Content-Type': 'application/json'
-    });
-}
-
-function create_payment(id, sum, description, rate, currency) {
+function create_payment(partnerId, sum, description, rate, currency) {
     let data = {
         "sum": sum,
         "description": description,
@@ -348,7 +327,7 @@ function create_payment(id, sum, description, rate, currency) {
 
     let json = JSON.stringify(data);
 
-    ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.1/partnerships/${id}/create_payment/`, json, function (JSONobj) {
+    ajaxRequest(URLS.partner.create_payment(partnerId), json, function (JSONobj) {
         showPopup('Оплата прошла успешно.');
     }, 'POST', true, {
         'Content-Type': 'application/json'
@@ -360,12 +339,12 @@ function create_payment(id, sum, description, rate, currency) {
     });
 }
 
-function sendNote(anket_id, text, box) {
+function sendNote(profileId, text, box) {
     let data = {
         "text": text
     };
     let json = JSON.stringify(data);
-    ajaxRequest(`${CONFIG.DOCUMENT_ROOT}api/v1.0/summit_profiles/${anket_id}/create_note/`, json, function (note) {
+    ajaxRequest(URLS.summit_profile.create_note(profileId), json, function (note) {
         box.before(function () {
             return '<div class="rows"><div><p>' + note.text + ' — ' + moment(note.date_created).format("DD.MM.YYYY HH:mm:ss")
                 + ' — Author: ' + note.owner_name
@@ -377,15 +356,15 @@ function sendNote(anket_id, text, box) {
     });
 }
 
-function changeLessonStatus(lesson_id, anket_id, checked) {
+function changeLessonStatus(lessonId, profileId, checked) {
     let data = {
-        "anket_id": anket_id
+        "anket_id": profileId
     };
     let url;
     if (checked) {
-        url = CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_lessons/' + lesson_id + '/add_viewer/';
+        url = URLS.summit_lesson.add_viewer(lessonId);
     } else {
-        url = CONFIG.DOCUMENT_ROOT + 'api/v1.0/summit_lessons/' + lesson_id + '/del_viewer/';
+        url = URLS.summit_lesson.del_viewer(lessonId);
     }
     let json = JSON.stringify(data);
     ajaxRequest(url, json, function (data) {
@@ -400,7 +379,7 @@ function changeLessonStatus(lesson_id, anket_id, checked) {
     }, {
         400: function (data) {
             data = data.responseJSON;
-            showPopup(data.message);
+            showPopup(data.detail);
             $('#lesson' + data.lesson_id).prop('checked', data.checked);
         }
     });

@@ -55,6 +55,9 @@ partner_patterns = [
 ]
 account_patterns = [
     url(r'^(\d+)/$', views.account, name='detail'),
+    url(r'^(?P<user_id>\d+)/logs/$', views.UserLogsListView.as_view(), name='logs'),
+    url(r'^(?P<user_id>\d+)/owner_logs/$', views.OwnerLogsListView.as_view(), name='owner_logs'),
+    url(r'^logs/(?P<log_id>\d+)/$', views.UserLogDetailView.as_view(), name='log-detail'),
 ]
 
 events_patterns = [
@@ -90,6 +93,8 @@ urlpatterns = [
     url(r'^partner/', include(partner_patterns, namespace='partner')),
     url(r'^events/', include(events_patterns, namespace='events')),
     url(r'^summits/', include(summit_patterns, namespace='summit')),
+    url(r'^payment/deal/(?P<pk>\d+)/$', views.DealPaymentView.as_view(), name='payment-deal'),
+    url(r'^payment/partner/(?P<pk>\d+)/$', views.PartnerPaymentView.as_view(), name='payment-partner'),
 
     url(r'^churches/(?P<pk>\d+)/$', views.ChurchDetailView.as_view(), name='church_detail'),
     url(r'^home_groups/(?P<pk>\d+)/$', views.HomeGroupDetailView.as_view(), name='home_group_detail'),

@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import logging
+
 from django.contrib.auth import logout as django_logout
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction, IntegrityError
@@ -22,6 +23,8 @@ from account.filters import FilterByUserBirthday, UserFilter, ShortUserFilter, F
 from account.models import CustomUser as User
 from account.permissions import CanSeeUserList, CanCreateUser, CanExportUserList
 from account.serializers import HierarchyError, UserForMoveSerializer
+from analytics.decorators import log_perform_update, log_perform_create
+from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
 from common.parsers import MultiPartAndJsonParser
 from common.views_mixins import ExportViewSetMixin
@@ -33,6 +36,16 @@ from .serializers import UserShortSerializer, UserTableSerializer, UserSerialize
     UserSingleSerializer, PartnershipSerializer, ExistUserSerializer, UserCreateSerializer, DashboardSerializer
 
 logger = logging.getLogger(__name__)
+
+
+def get_reverse_fields(cls, obj):
+    rev_fields = dict()
+    for field in cls.get_tracking_reverse_fields():
+        rev_fields[field] = {
+            "value": list(getattr(obj, field).values_list('id', flat=True)),
+            'verbose_name': field
+        }
+    return rev_fields
 
 
 class UserPagination(PageNumberPagination):
@@ -57,7 +70,7 @@ class UserExportViewSetMixin(ExportViewSetMixin):
         return self._export(request, *args, **kwargs)
 
 
-class UserViewSet(viewsets.ModelViewSet, UserExportViewSetMixin):
+class UserViewSet(LogAndCreateUpdateDestroyMixin, viewsets.ModelViewSet, UserExportViewSetMixin):
     queryset = User.objects.select_related(
         'hierarchy', 'master__hierarchy').prefetch_related(
         'divisions', 'departments'
@@ -104,18 +117,18 @@ class UserViewSet(viewsets.ModelViewSet, UserExportViewSetMixin):
     def set_home_group(self, request, pk):
         user = self.get_object()
         home_group = self._get_object_or_error(HomeGroup, 'home_group_id')
-        user.set_home_group(home_group)
+        user.set_home_group_and_log(home_group, getattr(request, 'real_user', getattr(request, 'user', None)))
 
-        return Response({'message': 'Домашняя группа установлена.'},
+        return Response({'detail': 'Домашняя группа установлена.'},
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['post'])
     def set_church(self, request, pk):
         user = self.get_object()
         church = self._get_object_or_error(Church, 'church_id')
-        user.set_church(church)
+        user.set_church_and_log(church, getattr(request, 'real_user', getattr(request, 'user', None)))
 
-        return Response({'message': _('Церковь установлена.')},
+        return Response({'detail': _('Церковь установлена.')},
                         status=status.HTTP_200_OK)
 
     # TODO tmp
@@ -129,11 +142,11 @@ class UserViewSet(viewsets.ModelViewSet, UserExportViewSetMixin):
     def _get_object_or_error(self, model, field_name):
         obj_id = self.request.data.get(field_name, None)
         if not obj_id:
-            raise exceptions.ValidationError(_('"%s" is required.' % field_name))
+            raise exceptions.ValidationError({'detail': _('"%s" is required.' % field_name)})
         try:
             obj = get_object_or_404(model, pk=obj_id)
         except Http404:
-            raise exceptions.ValidationError(_('Object with pk = %s does not exist.' % obj_id))
+            raise exceptions.ValidationError({'detail': _('Object with pk = %s does not exist.' % obj_id)})
         return obj
 
     def dispatch(self, request, *args, **kwargs):
@@ -197,13 +210,15 @@ class UserViewSet(viewsets.ModelViewSet, UserExportViewSetMixin):
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response(serializer.data)
 
-    def perform_update(self, serializer):
-        user = serializer.save()
-        self._update_partnership(user)
-        self._update_divisions(user)
+    @log_perform_update
+    def perform_update(self, serializer, **kwargs):
+        new_obj = kwargs.get('new_obj')
+        self._update_partnership(new_obj)
+        self._update_divisions(new_obj)
 
-    def perform_create(self, serializer):
-        user = serializer.save()
+    @log_perform_create
+    def perform_create(self, serializer, **kwargs):
+        user = kwargs.get('new_obj')
         self._create_partnership(user)
 
         return user
@@ -211,7 +226,13 @@ class UserViewSet(viewsets.ModelViewSet, UserExportViewSetMixin):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = self.perform_create(serializer)
+        try:
+            with transaction.atomic():
+                user = self.perform_create(serializer)
+        except IntegrityError as err:
+            data = {'detail': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
+            logger.error(err)
+            return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         serializer = self.serializer_single_class(user)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -252,6 +273,7 @@ class UserViewSet(viewsets.ModelViewSet, UserExportViewSetMixin):
 
         current_user_descendants = User.objects.get(user_ptr=user).get_descendants()
 
+        # TODO refactoring
         result = {
             'total_peoples': current_user_descendants.count(),
             'babies_count': current_user_descendants.filter(spiritual_level=User.BABY).count(),

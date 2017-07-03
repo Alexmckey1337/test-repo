@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
+from analytics.models import LogModel
 from payment.managers import PaymentManager
 
 
@@ -26,7 +27,7 @@ class AbstractPaymentPurpose(models.Model):
     class Meta:
         abstract = True
 
-    def update_after_cancel_payment(self):
+    def update_after_cancel_payment(self, *args, **kwargs):
         pass
 
     update_after_cancel_payment.alters_data = True
@@ -35,6 +36,15 @@ class AbstractPaymentPurpose(models.Model):
         pass
 
     update_value.alters_data = True
+
+    def can_user_edit_payment(self, user):
+        """
+        Checking that the ``user`` can edit payment of PaymentPurpose
+
+        :param user:
+        :return: True or False
+        """
+        return False
 
 
 @python_2_unicode_compatible
@@ -99,15 +109,16 @@ class Currency(models.Model):
 
         :return: dict
         """
-        return {
+        output = {
             'name': self.name,
             'short_name': self.short_name,
             'symbol': self.symbol or ''
         }
+        return output
 
 
 @python_2_unicode_compatible
-class Payment(models.Model):
+class Payment(LogModel):
     #: Sum of the payment
     sum = models.DecimalField(_('Sum'), max_digits=12, decimal_places=0,
                               default=Decimal('0'))
@@ -146,6 +157,8 @@ class Payment(models.Model):
     purpose = GenericForeignKey()
 
     objects = PaymentManager()
+
+    tracking_fields = ('sum', 'currency_sum', 'sent_date', 'rate', 'description', 'purpose')
 
     class Meta:
         ordering = ('-created_at',)

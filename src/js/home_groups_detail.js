@@ -14,7 +14,7 @@
         return new Promise(function (resolve, reject) {
             let data = {
                 method: 'POST',
-                url: `${CONFIG.DOCUMENT_ROOT}api/v1.0/home_groups/${ID}/add_user/`,
+                url: URLS.home_group.add_user(ID),
                 data: config
             };
             let status = {

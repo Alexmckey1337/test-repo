@@ -12,7 +12,7 @@ from django.db.models import (
 from django.db.models import Value as V
 from django.db.models.functions import Concat, Coalesce
 from django.http import HttpResponse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from rest_framework import exceptions, viewsets, filters, status, mixins
 from rest_framework.decorators import list_route, detail_route, api_view
 from rest_framework.generics import get_object_or_404, GenericAPIView
@@ -22,6 +22,8 @@ from rest_framework.settings import api_settings
 from rest_framework.viewsets import GenericViewSet
 
 from account.models import CustomUser
+from account.signals import obj_add, obj_delete
+from analytics.utils import model_to_dict
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet, ExportViewSetMixin
 from payment.serializers import PaymentShowWithUrlSerializer
@@ -177,7 +179,7 @@ class SummitStatisticsView(SummitProfileListView):
             try:
                 self.filter_date = datetime.strptime(filter_date, '%Y-%m-%d')
             except ValueError:
-                raise exceptions.ValidationError(_('Invalid date.'))
+                raise exceptions.ValidationError({'detail': _('Invalid date.')})
         return super(SummitStatisticsView, self).get(request, *args, **kwargs)
 
     def annotate_queryset(self, qs):
@@ -227,15 +229,36 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mix
         profile.code = '0{}'.format(4*1000*1000 + profile.id)
         profile.save()
 
-    def perform_destroy(self, anket):
-        if anket.payments.exists():
+        new_dict = model_to_dict(profile, fields=('summit',))
+        obj_add.send(
+            sender=self.__class__,
+            obj=profile.user,
+            obj_dict=new_dict,
+            editor=getattr(self.request, 'real_user', self.request.user),
+            reason={
+                'text': ugettext('Added to the summit'),
+            }
+        )
+
+    def perform_destroy(self, profile):
+        if profile.payments.exists():
             payments = PaymentShowWithUrlSerializer(
-                anket.payments.all(), many=True, context={'request': self.request}).data
+                profile.payments.all(), many=True, context={'request': self.request}).data
             raise exceptions.ValidationError({
                 'detail': _('Summit profile has payments. Please, remove them before deleting profile.'),
                 'payments': payments,
             })
-        anket.delete()
+        deletion_dict = model_to_dict(profile, fields=('summit',))
+        obj_delete.send(
+            sender=self.__class__,
+            obj=profile.user,
+            obj_dict=deletion_dict,
+            editor=getattr(self.request, 'real_user', self.request.user),
+            reason={
+                'text': ugettext('Deleted from the summit'),
+            }
+        )
+        profile.delete()
 
     @detail_route(methods=['get'], )
     def predelete(self, request, pk=None):
@@ -321,7 +344,7 @@ class SummitLessonViewSet(viewsets.ModelViewSet):
         is_consultant = SummitUserConsultant.objects.filter(
             consultant=current_user_anket, user_id=anket_id, summit=anket.summit).exists()
         if not is_consultant:
-            return Response({'message': 'Только консультант может отмечать уроки.',
+            return Response({'detail': 'Только консультант может отмечать уроки.',
                              'lesson_id': pk,
                              'checked': False},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -341,7 +364,7 @@ class SummitLessonViewSet(viewsets.ModelViewSet):
         is_consultant = SummitUserConsultant.objects.filter(
             consultant=current_user_anket, user_id=anket_id, summit=anket.summit).exists()
         if not is_consultant:
-            return Response({'message': 'Только консультант может отмечать уроки.',
+            return Response({'detail': 'Только консультант может отмечать уроки.',
                              'lesson_id': pk,
                              'checked': True},
                             status=status.HTTP_400_BAD_REQUEST)

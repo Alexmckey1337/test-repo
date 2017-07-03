@@ -9,7 +9,9 @@ from rest_framework.decorators import list_route, detail_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
+from common.views_mixins import ModelWithoutDeleteViewSet
 from partnership.filters import FilterByPartnerBirthday, DateFilter, FilterPartnerMasterTreeWithSelf, PartnerUserFilter
 from partnership.mixins import PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin, PartnerExportViewSetMixin
 from partnership.pagination import PartnershipPagination, DealPagination
@@ -52,6 +54,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         'search_city': ('user__city',),
     }
     permission_classes = (IsAuthenticated,)
+    permission_update_classes = (IsAuthenticated, CanUpdatePartner)
     permission_list_classes = (IsAuthenticated, CanSeePartners)
     filter_class = PartnerUserFilter
 
@@ -69,6 +72,8 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
     def get_permissions(self):
         if self.action in ('list', 'retrieve'):
             return [permission() for permission in self.permission_list_classes]
+        if self.action == ('update', 'partial_update'):
+            return [permission() for permission in self.permission_update_classes]
         return super(PartnershipViewSet, self).get_permissions()
 
     @list_route(permission_classes=(IsAuthenticated, CanSeePartners))
@@ -107,12 +112,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         return Response({'need_text': text})
 
 
-class DealViewSet(mixins.RetrieveModelMixin,
-                  mixins.CreateModelMixin,
-                  mixins.UpdateModelMixin,
-                  mixins.ListModelMixin,
-                  viewsets.GenericViewSet,
-                  DealCreatePaymentMixin,
+class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, DealCreatePaymentMixin,
                   DealListPaymentMixin):
     queryset = Deal.objects.base_queryset(). \
         annotate_full_name(). \

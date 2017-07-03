@@ -24,11 +24,17 @@
     text-indent: -9999px;
     width: 1em;
     padding-right: 1px;
-    overflow: hidden;
+    //overflow: hidden;
     &:before {
       text-indent: 0;
     }
   }
+  #filter_button:after {
+    top: 0;
+    right: 0;
+    font-size: .5em;
+    text-indent: 0;
+}
 }
 
 @media screen and (max-width: 1200px) {

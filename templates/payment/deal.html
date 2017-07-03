@@ -1,0 +1,109 @@
+{% extends "payment/all.html" %}
+{% load i18n %}
+{% load payment_tags %}
+
+{% block header.top.h1 %}
+    {% trans "Payments by deals" %},
+    {% trans "Partner" %} <a href="{% url 'payment-partner' pk=deal.partnership_id %}">{{ deal.full_name }}</a>
+{% endblock %}
+
+{% block main.content %}
+    {% can_i_edit_payment deal as can_edit %}
+    {% payment_table payments can_edit %}
+{% endblock %}
+
+{% block popup %}
+    {{ block.super }}
+    <div id="popup-move" class="pop-up-splash">
+        <div class="splash-screen">
+            <div class="top-text">
+                <h3>{% trans "Edit payment" %}</h3>
+            </div>
+            <div class="user-info">
+                <div class="left-side">
+                    <p>{% trans "Partner" %}:</p>
+                    <p>{% trans "Deal" %}:</p>
+                </div>
+                <div class="right-side">
+                    <select class="partners" required>
+                    <option value="">-----</option>
+                        {% for partner in partners %}
+                            <option value="{{ partner.id }}"
+                                    {% if partner == deal.partner %}selected{% endif %}>
+                                {{ partner.full_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <select class="deals" disabled required>
+                        <option value="">-----</option>
+                    </select>
+                </div>
+            </div>
+            <div class="splash-buttons">
+                <button class="close">{% trans "Cancel" %}</button>
+                <button class="complete" data-payment-id="">{% trans "Move" %}</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+    {{ block.super }}
+    <script>
+
+        $('.move_payment').on('click', function () {
+            var id = $(this).data('payment-id');
+            $('#popup-move .complete').attr('data-payment-id', id);
+            $('#popup-move').css('display', 'block');
+        });
+        {# --------------------------------------------------------------- #}
+        $('select.partners').on('change', function () {
+            var v = $(this).val();
+            var deal_select = $('select.deals');
+            var options = '<option value="">------</option>';
+            if (v) {
+                ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/deals/?partnership__user=${v}`, null, function (deals) {
+                    deals.results.forEach(function (deal) {
+                        options += `<option value="${deal.id}">${deal.date_created}</option>`;
+                    });
+                    deal_select.html(options);
+                    deal_select.prop('disabled', false);
+                }, 'GET', true, {
+                    'Content-Type': 'application/json'
+                });
+            } else {
+                deal_select.html(options);
+                deal_select.prop('disabled', false);
+            }
+        });
+
+        {# --------------------------------------------------------------- #}
+
+        $('#popup-move .complete').on('click', function () {
+            var id = $(this).data('payment-id');
+            var deal_val = $('select.deals').val();
+            if (deal_val) {
+                var data = {
+                    'object_id': deal_val
+                };
+                var json = JSON.stringify(data);
+                ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/payments/${id}/`, json, function (JSONobj) {
+                    showPopup('Сохранено.');
+                    setTimeout(function () {
+                        window.location.reload()
+                    }, 1500);
+                }, 'PATCH', true, {
+                    'Content-Type': 'application/json'
+                }, {
+                    403: function (data) {
+                        data = data.responseJSON;
+                        showPopup(data.detail);
+                        reject();
+                    }
+                });
+            } else {
+                showPopup('Select new deal.');
+            }
+        });
+    </script>
+{% endblock %}
