@@ -4,7 +4,6 @@ Events REST API
 
 
 
-
 Meetings Report Create
 ----------------------
 
@@ -32,7 +31,8 @@ Meetings Report Create
     The following field is responsible for this:
 
         -   ``can_submit``: True if MeetingReport owner can submit report, else False.
-        -   ``cant_submit_cause``: message to user, why report can't be submit. For default - because he have reports with status ``expired``.
+        -   ``cant_submit_cause``: message to user, why report can't be submit.
+        For default - because he have reports with status ``expired``.
 
 
     **Example request**:
@@ -150,6 +150,7 @@ Meetings Report Create
         }
 
     ``link`` - it is a link to created object.
+
 
 
 Meetings Filters
@@ -442,6 +443,7 @@ _____________________
 
     Meeting.status changed to ``expired = 3`` automatically.
     When next week started and Meeting report status stayed ``in_progress = 1``
+
 
 
 
@@ -1015,8 +1017,8 @@ Church Report Submit
         }
 
     ``transfer_payments`` - automatic calculated on client and send to server.
-    Meeting.status changed to ``expired = 3`` automatically.
-    When next week started and Meeting report status stayed ``in_progress = 1``
+    Meeting.status changed to ``expired = 3`` automatically,
+    when next week started and Meeting report status stayed ``in_progress = 1``
 
 
 
@@ -1067,7 +1069,7 @@ Church Report Update
 
     .. sourcecode:: http
 
-        HTTP 200 OK
+        HTTP/1.1 200 OK
         Allow: GET, PUT, PATCH, HEAD, OPTIONS
         Content-Type: application/json
         Vary: Accept
