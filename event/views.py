@@ -104,7 +104,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         headers = self.get_success_headers(meeting.data)
-        return Response({'message': _('Отчет Домашней Группы успешно подан')},
+        return Response({'message': _('Отчет Домашней Группы успешно подан.')},
                         status=status.HTTP_200_OK, headers=headers)
 
     @staticmethod
@@ -118,7 +118,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         if meeting.type.code == 'service' and data.get('total_sum'):
             raise exceptions.ValidationError({
                 'detail': _('Невозможно подать отчет. Отчет типа - {%s} не должен содержать '
-                            'денежную сумму. ' % meeting.type.name)
+                            'денежную сумму.' % meeting.type.name)
             })
 
         if not data.get('attends'):
@@ -278,7 +278,7 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
         church_report = self.get_object()
         if church_report.status == ChurchReport.SUBMITTED:
             raise exceptions.ValidationError({
-                'detail': _('Невозможно подать отчет. Данный отчет уже был подан ранее')
+                'detail': _('Невозможно подать отчет. Данный отчет уже был подан ранее.')
             })
 
         if ChurchReport.objects.filter(pastor=church_report.pastor, status=ChurchReport.EXPIRED).exists() and \
