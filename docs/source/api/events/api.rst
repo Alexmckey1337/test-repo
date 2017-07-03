@@ -508,7 +508,7 @@ _____________________
         }
 
 
-    **Example response object**:
+    **Example updated object**:
 
     .. sourcecode:: http
 
@@ -798,7 +798,6 @@ ______________________
 
 
 
-------------------------------------------------------------------------
 Visitors Table Columns, api/v1.0/events/home_meetings/<int(id)>/visitors
 ------------------------------------------------------------------------
 
@@ -1065,6 +1064,20 @@ Church Report Update
 
 
     **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP 200 OK
+        Allow: GET, PUT, PATCH, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "message": "Отчет Церкви успешно обновлен."
+        }
+
+
+    **Example updated object**:
 
     .. sourcecode:: http
 

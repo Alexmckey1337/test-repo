@@ -297,6 +297,20 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
         return Response({'message': _('Отчет Церкви успешно подан.')},
                         status=status.HTTP_200_OK, headers=headers)
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+
+        return Response({
+            "message": _("Отчет Церкви успешно обновлен")}, status=status.HTTP_200_OK,
+        )
+
     @list_route(methods=['GET'], serializer_class=ChurchReportStatisticSerializer)
     def statistics(self, request):
         queryset = self.filter_queryset(self.queryset)
