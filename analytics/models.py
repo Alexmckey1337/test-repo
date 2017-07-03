@@ -36,6 +36,7 @@ class LogRecord(models.Model):
     user = models.ForeignKey(
         'account.CustomUser',
         models.CASCADE,
+        blank=True, null=True,
         verbose_name=_('user'),
         related_name='log_records'
     )

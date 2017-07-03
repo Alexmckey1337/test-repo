@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from analytics.decorators import log_perform_update, log_perform_destroy
 from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
+from common.test_helpers.utils import get_real_user
 from payment.filters import PaymentFilterByPurpose, PaymentFilter, FilterByDealFIO, FilterByDealDate, \
     FilterByDealManagerFIO
 from payment.serializers import PaymentUpdateSerializer, PaymentShowSerializer, PaymentDealShowSerializer
@@ -52,7 +53,7 @@ class PaymentUpdateDestroyView(LogAndCreateUpdateDestroyMixin,
     def perform_destroy(self, instance, **kwargs):
         instance.delete()
         instance.purpose.update_after_cancel_payment(
-            editor=getattr(self.request, 'real_user', self.request.user), payment=instance)
+            editor=get_real_user(self.request), payment=instance)
 
     # Helpers
 
@@ -62,10 +63,10 @@ class PaymentUpdateDestroyView(LogAndCreateUpdateDestroyMixin,
         if payment.content_type.model == 'deal':
             if any(map(lambda k: old_data[k] != new_data[k], old_data.keys())):
                 purpose.update_after_cancel_payment(
-                    editor=getattr(self.request, 'real_user', self.request.user), payment=payment)
+                    editor=get_real_user(self.request), payment=payment)
         else:
             purpose.update_after_cancel_payment(
-                editor=getattr(self.request, 'real_user', self.request.user), payment=payment)
+                editor=get_real_user(self.request), payment=payment)
 
 
 class PaymentListView(mixins.ListModelMixin, GenericAPIView):

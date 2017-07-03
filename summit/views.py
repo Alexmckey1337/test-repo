@@ -25,6 +25,7 @@ from account.models import CustomUser
 from account.signals import obj_add, obj_delete
 from analytics.utils import model_to_dict
 from common.filters import FieldSearchFilter
+from common.test_helpers.utils import get_real_user
 from common.views_mixins import ModelWithoutDeleteViewSet, ExportViewSetMixin
 from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
@@ -234,7 +235,7 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mix
             sender=self.__class__,
             obj=profile.user,
             obj_dict=new_dict,
-            editor=getattr(self.request, 'real_user', self.request.user),
+            editor=get_real_user(self.request),
             reason={
                 'text': ugettext('Added to the summit'),
             }
@@ -253,7 +254,7 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mix
             sender=self.__class__,
             obj=profile.user,
             obj_dict=deletion_dict,
-            editor=getattr(self.request, 'real_user', self.request.user),
+            editor=get_real_user(self.request),
             reason={
                 'text': ugettext('Deleted from the summit'),
             }
