@@ -4,28 +4,36 @@ Events REST API
 
 
 
-
 Meetings Report Create
 ----------------------
 
     Meetings - is a events that are held by home groups.
     For default Meetings reports create and verification at the beginning of every week.
     Meetings reports created for each HomeGroup objects and each event type.
-    Meeting objects may be 3 types:
+    ``Meeting objects`` may be ``three types``:
 
         -   ``service``
         -   ``home group``
         -   ``night``
 
-    All Meeting objects have a ``Meeting.status`` field, we have three different statuses:
+    All Meeting objects have a ``Meeting.status`` field, we have ``three different statuses``:
 
         -   ``in_progress = int(1)``
         -   ``submitted = int(2)``
         -   ``expired = int(3)``
 
-    Meeting reports will be created automatically by python Celery scheduler.
+    ``Meeting reports`` will be ``created automatically`` by python Celery scheduler.
     To create reports in the manual mode ``POST`` required data to next API view:
     If the date field is missing in the POST request, for ``default`` will be set the date ``today``.
+
+    If HomeGroup leader have a reports with status ``expired = int(3)``
+    he don`t may fill reports with another statuses. He must submit first all expired reports.
+    The following field is responsible for this:
+
+        -   ``can_submit``: True if MeetingReport owner can submit report, else False.
+        -   ``cant_submit_cause``: message to user, why report can't be submit.
+        For default - because he have reports with status ``expired``.
+
 
     **Example request**:
 
@@ -37,10 +45,10 @@ Meetings Report Create
         Vary: Accept
 
         {
-            "home_group": 18,
-            "owner": 15160,
+            "home_group": 24,
+            "owner": 15188,
             "type": 2,
-            "date": "2017-03-04"
+            "date": "2017-07-03"
         }
 
     **Example response**:
@@ -53,13 +61,15 @@ Meetings Report Create
         Vary: Accept
 
         {
-            "id": 171,
-            "home_group": 18,
-            "owner": 15160,
+            "id": 306,
+            "home_group": 24,
+            "owner": 15188,
             "type": 2,
-            "date": "04.03.2017",
+            "date": "03.07.2017",
             "total_sum": "0",
-            "status": 1
+            "status": 1,
+            "can_submit": true,
+            "cant_submit_cause": ""
         }
 
 
@@ -75,7 +85,8 @@ Meetings Report Create
         Host: vocrm.org
         Accept: application/json
 
-    **Example response**:
+
+    **Example response:**
 
     .. sourcecode:: http
 
@@ -85,35 +96,60 @@ Meetings Report Create
         Vary: Accept
 
         {
-            "count": 1,
-            "results": [
-                {
-                    "id": 165,
-                    "home_group": {
-                        "id": 18,
-                        "title": "Домашнаяя Группа №3"
-                    },
-                    "owner": {
-                        "id": 15160,
-                        "fullname": "П Ростислав С"
-                    },
-                    "type": {
-                        "id": 1,
-                        "code": "service"
-                    },
-                    "date": "01.04.2017",
-                    "status": "submitted",
-                    "total_sum": "1500",
-                    "phone_number": "093-093-22-22",
-                    "visitors_attended": 2,
-                    "visitors_absent": 0
-                }
-            ],
-            "links": {
-                "next": null,
-                "previous": null
-            }
+        "result": [
+            {
+                "id": 306,
+                "home_group": {
+                    "id": 24,
+                    "title": "Домашняя Группа №2"
+                },
+                "owner": {
+                    "id": 15188,
+                    "fullname": "  test12345"
+                },
+                "type": {
+                    "id": 2,
+                    "code": "home",
+                    "name": "Домашняя Группа"
+                },
+                "date": "03.07.2017",
+                "total_sum": "0",
+                "status": "in_progress",
+                "can_submit": true,
+                "cant_submit_cause": "",
+                "phone_number": "",
+                "visitors_attended": 0,
+                "visitors_absent": 0,
+                "link": "/events/home/reports/306/"
+            },
+            {
+                "id": 305,
+                "home_group": {
+                    "id": 23,
+                    "title": "Домашняя Группа №1"
+                },
+                "owner": {
+                    "id": 15192,
+                    "fullname": "  test1234"
+                },
+                "type": {
+                    "id": 1,
+                    "code": "service",
+                    "name": "Воскресное Служение"
+                },
+                "date": "15.06.2017",
+                "total_sum": "0",
+                "status": "submitted",
+                "can_submit": true,
+                "cant_submit_cause": "",
+                "phone_number": "",
+                "visitors_attended": 0,
+                "visitors_absent": 0,
+                "link": "/events/home/reports/305/"
+            }]
         }
+
+    ``link`` - it is a link to created object.
 
 
 
@@ -176,7 +212,9 @@ ________________
                     "total_sum": "222",
                     "phone_number": "093-093-22-22",
                     "visitors_attended": 1,
-                    "visitors_absent": 1
+                    "visitors_absent": 1,
+                    "can_submit": true,
+                    "cant_submit_cause": ""
                 }
             ]
         }
@@ -194,7 +232,6 @@ _____________________
     ``POST`` their report with required data and may specify a list of ``meeting visitors``.
     For default Meetings visitors are a members of home group where Meeting owner is a leader.
     To ``GET Meeting.visitors`` use the next API view:
-    The ``date`` field is ``limited to a week`` when the report was created.
 
     **Example request**:
 
@@ -204,28 +241,59 @@ _____________________
         Host: vocrm.org
         Accept: application/json
 
+
     **Example response**:
 
     .. sourcecode:: http
 
         HTTP/1.1 200 OK
-        Allow: GET, HEAD, OPTIONS
+        Allow: GET, POST, HEAD, OPTIONS
         Content-Type: application/json
         Vary: Accept
 
-        [
-            {
-                "id": 10717,
-                "fullname": "Красная Юлия Евгеньевна"
+        {
+            "links": {
+                "next": null,
+                "previous": null
             },
-            {
-                "id": 6977,
-                "fullname": "Краснова Надежда Васильевна"
-            }
-        ]
+            "results": [
+                {
+                    "user_id": 1,
+                    "fullname": "Аккаунт Технический №1",
+                    "spiritual_level": "Junior",
+                    "phone_number": "+38099664224"
+                },
+                {
+                    "user_id": 4,
+                    "fullname": "Аккаунт Технический №4",
+                    "spiritual_level": "Baby",
+                    "phone_number": ""
+                },
+                {
+                    "user_id": 10,
+                    "fullname": "Аккаунт Технический №10",
+                    "spiritual_level": "Baby",
+                    "phone_number": ""
+                },
+                {
+                    "user_id": 9,
+                    "fullname": "Аккаунт Технический №9",
+                    "spiritual_level": "Baby",
+                    "phone_number": ""
+                },
+                {
+                    "user_id": 5,
+                    "fullname": "Аккаунт Технический №5",
+                    "spiritual_level": "Baby",
+                    "phone_number": ""
+                }
+            ]
+        }
 
     Before submit Meeting object status automatically changed from ``in_progress = 1`` to ``submitted = 2``.
     For ``submit`` Meeting, client must ``POST`` request with required data to next API view.
+
+    The ``date`` field is ``limited to a week`` when the report was created.
 
     **Fillable fields for this request:**
 
@@ -247,26 +315,38 @@ _____________________
 
     .. sourcecode:: http
 
-        POST /api/v1.0/events/home_meetings/<id=165>/submit  HTTP/1.1
+        POST /api/v1.0/events/home_meetings/306/submit/  HTTP/1.1
         Host: vocrm.org
         Accept: application/json
         Content-type: application/json
 
         {
-            "id": 165,
-            "date": "2017-04-01",
-            "total_sum": "1500",
             "attends": [
-                {
-                    "user": 10717,
+                  {
+                    "user_id": 1,
                     "attended": true,
-                    "note": "Comment"
-                },
-                {
-                    "user": 6977,
+                    "note": "Present"
+                  },
+                  {
+                    "user_id": 4,
                     "attended": true,
-                    "note": "Comment"
-                }
+                    "note": "Not visited"
+                  },
+                  {
+                    "user_id": 10,
+                    "attended": true,
+                    "note": "Not visited"
+                  },
+                  {
+                    "user_id": 9,
+                    "attended": true,
+                    "note": "Not visited"
+                  },
+                  {
+                    "user_id": 5,
+                    "attended": true,
+                    "note": "Not visited"
+                  }
             ]
         }
 
@@ -280,41 +360,89 @@ _____________________
         Vary: Accept
 
         {
-            "id": 165,
+            "message": "Отчет Домашней Группы успешно подан."
+        }
+
+    **Example created object**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "id": 307,
             "home_group": {
-                "id": 18,
-                "title": "Домашнаяя Группа №3"
+                "id": 24,
+                "title": "Домашняя Группа №2"
             },
             "owner": {
-                "id": 15160,
-                "fullname": "П Ростислав С"
+                "id": 15188,
+                "fullname": "  test12345"
             },
             "type": {
-                "id": 1,
-                "code": "service"
+                "id": 2,
+                "code": "home",
+                "name": "Домашняя Группа"
             },
-            "date": "01.04.2017",
+            "date": "10.07.2017",
+            "total_sum": "0",
             "status": 2,
-            "total_sum": "1500",
+            "can_submit": true,
+            "cant_submit_cause": "",
             "attends": [
                 {
-                    "id": 340,
-                    "user": 10717,
+                    "id": 414,
+                    "user_id": 1,
+                    "fullname": "Аккаунт Технический №1",
+                    "spiritual_level": "Junior",
                     "attended": true,
-                    "note": "Comment"
+                    "note": "Present",
+                    "phone_number": "+38099664224"
                 },
                 {
-                    "id": 341,
-                    "user": 6977,
+                    "id": 415,
+                    "user_id": 4,
+                    "fullname": "Аккаунт Технический №4",
+                    "spiritual_level": "Baby",
                     "attended": true,
-                    "note": "Comment"
+                    "note": "Not visited",
+                    "phone_number": ""
+                },
+                {
+                    "id": 416,
+                    "user_id": 10,
+                    "fullname": "Аккаунт Технический №10",
+                    "spiritual_level": "Baby",
+                    "attended": true,
+                    "note": "Not visited",
+                    "phone_number": ""
+                },
+                {
+                    "id": 417,
+                    "user_id": 9,
+                    "fullname": "Аккаунт Технический №9",
+                    "spiritual_level": "Baby",
+                    "attended": true,
+                    "note": "Not visited",
+                    "phone_number": ""
+                },
+                {
+                    "id": 418,
+                    "user_id": 5,
+                    "fullname": "Аккаунт Технический №5",
+                    "spiritual_level": "Baby",
+                    "attended": true,
+                    "note": "Not visited",
+                    "phone_number": ""
                 }
             ]
         }
 
     Meeting.status changed to ``expired = 3`` automatically.
     When next week started and Meeting report status stayed ``in_progress = 1``
-
 
 
 
@@ -343,18 +471,24 @@ _____________________
         content-type: application/json
 
         {
-            "date": "2017-04-01",
+            "date": "2017-07-04",
             "total_sum": "35000",
             "attends": [
                 {
-                    "id": 340,
-                    "user": 10717,
+                    "id": 409,
+                    "user_id": 1,
                     "attended": false,
                     "note": "Update Comment"
                 },
                 {
-                    "id": 341,
-                    "user": 6977,
+                    "id": 410,
+                    "user_id": 4,
+                    "attended": false,
+                    "note": "Update Comment"
+                },
+                {
+                    "id": 411,
+                    "user_id": 10,
                     "attended": false,
                     "note": "Update Comment"
                 }
@@ -367,56 +501,106 @@ _____________________
     .. sourcecode:: http
 
         HTTP/1.1 200 OK
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "message": "Отчет Домашней Группы успешно изменен."
+        }
+
+
+    **Example updated object**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
         Allow: GET, PUT, PATCH, HEAD, OPTIONS
         Content-Type: application/json
         Vary: Accept
 
         {
-            "id": 165,
+            "id": 306,
             "home_group": {
-                "id": 18,
-                "title": "Домашнаяя Группа №3"
+                "id": 24,
+                "title": "Домашняя Группа №2"
             },
             "owner": {
-                "id": 15160,
-                "fullname": "П Ростислав С"
+                "id": 15188,
+                "fullname": "  test12345"
             },
             "type": {
-                "id": 1,
-                "code": "service"
+                "id": 2,
+                "code": "home",
+                "name": "Домашняя Группа"
             },
-            "date": "01.04.2017",
-            "status": 2,
+            "date": "04.07.2017",
             "total_sum": "35000",
+            "status": 2,
+            "can_submit": true,
+            "cant_submit_cause": "",
             "attends": [
                 {
-                    "id": 340,
-                    "user": 10717,
-                    "attended": false,
-                    "note": "Update Comment"
+                    "id": 412,
+                    "user_id": 9,
+                    "fullname": "Аккаунт Технический №9",
+                    "spiritual_level": "Baby",
+                    "attended": true,
+                    "note": "Not visited",
+                    "phone_number": ""
                 },
                 {
-                    "id": 341,
-                    "user": 6977,
+                    "id": 413,
+                    "user_id": 5,
+                    "fullname": "Аккаунт Технический №5",
+                    "spiritual_level": "Baby",
+                    "attended": true,
+                    "note": "Not visited",
+                    "phone_number": ""
+                },
+                {
+                    "id": 409,
+                    "user_id": 1,
+                    "fullname": "Аккаунт Технический №1",
+                    "spiritual_level": "Junior",
                     "attended": false,
-                    "note": "Update Comment"
+                    "note": "Update Comment",
+                    "phone_number": "+38099664224"
+                },
+                {
+                    "id": 410,
+                    "user_id": 4,
+                    "fullname": "Аккаунт Технический №4",
+                    "spiritual_level": "Baby",
+                    "attended": false,
+                    "note": "Update Comment",
+                    "phone_number": ""
+                },
+                {
+                    "id": 411,
+                    "user_id": 10,
+                    "fullname": "Аккаунт Технический №10",
+                    "spiritual_level": "Baby",
+                    "attended": false,
+                    "note": "Update Comment",
+                    "phone_number": ""
                 }
             ]
         }
+
 
     **Example request (reports with status ``in_progress`` or ``expired``)**:
 
     .. sourcecode:: http
 
-        GET /api/v1.0/events/home_meetings HTTP/1.1
+        GET /api/v1.0/events/home_meetings/306 HTTP/1.1
         Host: vocrm.org
         Accept: application/json
         content-type: application/json
 
         {
-            "id": 166,
-            "date": "2017-04-14",
-            "total_sum": "15000",
+            "date": "2017-07-03",
+            "total_sum": "22222",
             "attends": []
         }
 
@@ -429,11 +613,10 @@ _____________________
         Content-Type: application/json
         Vary: Accept
 
-        [
-            "Невозможно обновить методом UPDATE.
-             Отчет - {Отчет ДГ - Домашняя Группа №1 (Ночная Молитва): 14 April 2017}
-             еще небыл подан."
-        ]
+        {
+            "detail": "Невозможно обновить методом UPDATE.
+                        Отчет - {Отчет ДГ - Домашняя Группа №2 (Домашняя Группа): 15 June 2017} еще небыл подан."
+        }
 
 
 
@@ -529,11 +712,10 @@ ________________
 
 
 
-
 Meetings Table Columns
 ______________________
 
-    **Fields in pagination response**:
+    **Fields in paginated response**:
 
     .. sourcecode:: http
 
@@ -618,6 +800,65 @@ ______________________
 
 
 
+Visitors Table Columns, api/v1.0/events/home_meetings/<int(id)>/visitors
+------------------------------------------------------------------------
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+
+        {
+            "table_columns": {
+                "attended": {
+                    "ordering_title": "attended",
+                    "active": true,
+                    "editable": true,
+                    "title": "Присутствие",
+                    "number": 1,
+                    "id": 815441
+                },
+                "user": {
+                    "ordering_title": "user__last_name",
+                    "active": true,
+                    "editable": false,
+                    "title": "ФИО",
+                    "number": 2,
+                    "id": 815442
+                },
+                "spiritual_level": {
+                    "ordering_title": "user__last_name",
+                    "active": true,
+                    "editable": true,
+                    "title": "Духовный Уровень",
+                    "number": 3,
+                    "id": 815443
+                },
+                "phone_number": {
+                    "ordering_title": "user__phone_number",
+                    "active": true,
+                    "editable": true,
+                    "title": "Телефонный номер",
+                    "number": 4,
+                    "id": 815444
+                },
+                "note": {
+                    "ordering_title": "note",
+                    "active": true,
+                    "editable": true,
+                    "title": "Комментарий",
+                    "number": 5,
+                    "id": 815445
+                }
+            }
+        }
+
+
+
+
 
 Church Reports Create
 _____________________
@@ -633,6 +874,7 @@ _____________________
     When report created his status is ``in_progress``.
     To create report in manual mode - ``POST`` required data to next API view:
     If not ``date, today`` will be ``set automatically``.
+    ``link`` - link to objects.
 
     **Example request**:
 
@@ -658,22 +900,24 @@ _____________________
         Vary: Accept
 
         {
-            "id": 48,
+            "id": 62,
             "pastor": 15160,
             "church": 18,
-            "date": "2017-05-02",
-            "count_people": 0,
-            "tithe": "0",
-            "donations": "0",
-            "transfer_payments": "0",
+            "date": "03.07.2017",
             "status": 1,
-            "link": "/events/church/reports/48/",
-            "new_people": 0,
-            "count_repentance": 0,
+            "link": "/events/church/reports/62/",
+            "total_peoples": 0,
+            "total_new_peoples": 0,
+            "total_repentance": 0,
+            "total_tithe": "0",
+            "total_donations": "0",
+            "total_pastor_tithe": "0",
             "currency_donations": "",
-            "pastor_tithe": "0"
+            "transfer_payments": "0.0",
+            "can_submit": true,
+            "cant_submit_cause": "",
+            "comment": ""
         }
-
 
 
 
@@ -688,11 +932,11 @@ Church Report Submit
     **Fillable fields for this request:**
 
         -   <datetime> ``date``: Date of the Church meeting, ``required = True``
-        -   <int> ``current_people``: Total people on meeting, ``required = True``
-        -   <int> ``count_repentance``: Total new repentance, ``required = True``
-        -   <float> ``tithe``: Total sum of tithe, ``required = True``
-        -   <float> ``donations``: Total sun of donations, ``required = True``
-        -   <float> ``pastor_tithe``: Sum of Pastor tithe, ``required = True``
+        -   <int> ``total_peoples``: Total people on meeting, ``required = True``
+        -   <int> ``total_repentance``: Total new repentance, ``required = True``
+        -   <float> ``total_tithe``: Total sum of tithe, ``required = True``
+        -   <float> ``total_donations``: Total sun of donations, ``required = True``
+        -   <float> ``total_pastor_tithe``: Sum of Pastor tithe, ``required = True``
         -   <str> ``currency_donations``: Total donations in any currency, ``required = False``
 
     **All other required fields automatically adds in each Meeting object:**
@@ -706,20 +950,21 @@ Church Report Submit
 
     .. sourcecode:: http
 
-        POST /api/v1.0/events/church_reports/<id=48>/submit  HTTP/1.1
+        POST /api/v1.0/events/church_reports/<id=60>/submit  HTTP/1.1
         Allow: POST, OPTIONS
         Content-Type: application/json
         Vary: Accept
 
         {
-            "date": "2017-05-02",
-            "count_people": 200,
-            "new_people": 20,
-            "count_repentance": 10,
-            "tithe": 20000,
-            "donations": 10000,
-            "pastor_tithe": 3000,
-            "currency_donations": "20 euro, 30$"
+            "date": "2017-07-04",
+            "total_peoples": 200,
+            "total_new_peoples": 20,
+            "total_repentance": 10,
+            "total_tithe": 20000,
+            "total_donations": 10000,
+            "total_pastor_tithe": 3000,
+            "currency_donations": "20 euro, 30$",
+            "comment": ""
         }
 
     **Example response**:
@@ -732,25 +977,48 @@ Church Report Submit
         Vary: Accept
 
         {
-            "id": 48,
-            "pastor": 15160,
-            "church": 18,
-            "date": "2017-05-02",
-            "status": 2,
-            "link": "/events/church/reports/48/",
-            "count_people": 200,
-            "new_people": 20,
-            "count_repentance": 10,
-            "tithe": "20000",
-            "donations": "10000",
-            "pastor_tithe": "3000",
-            "currency_donations": "20 euro, 30$",
-            "transfer_payments": "0"
+            "message": "Отчет Церкви успешно подан."
         }
 
-    Meeting.status changed to ``expired = 3`` automatically.
-    When next week started and Meeting report status stayed ``in_progress = 1``
 
+    **Example created object**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "id": 60,
+            "pastor": {
+                "id": 10,
+                "fullname": "Аккаунт Технический №10"
+            },
+            "church": {
+                "id": 25,
+                "title": "Курлык Курлык"
+            },
+            "date": "04.07.2017",
+            "status": 2,
+            "link": "/events/church/reports/60/",
+            "total_peoples": 200,
+            "total_new_peoples": 20,
+            "total_repentance": 10,
+            "total_tithe": "20000",
+            "total_donations": "10000",
+            "total_pastor_tithe": "3000",
+            "currency_donations": "20 euro, 30$",
+            "transfer_payments": "0.0",
+            "can_submit": true,
+            "cant_submit_cause": "",
+            "comment": ""
+        }
+
+    ``transfer_payments`` - automatic calculated on client and send to server.
+    Meeting.status changed to ``expired = 3`` automatically,
+    when next week started and Meeting report status stayed ``in_progress = 1``
 
 
 
@@ -763,14 +1031,14 @@ Church Report Update
     Fields that can be updated:
 
         -   ``date``
-        -   ``count_people``
-        -   ``new_people``
-        -   ``count_repentance``
-        -   ``tithe``
-        -   ``donations``
-        -   ``pastor_tithe``
+        -   ``total_peoples``
+        -   ``total_new_peoples``
+        -   ``total_repentance``
+        -   ``total_tithe``
+        -   ``total_donations``
+        -   ``total_pastor_tithe``
         -   ``currency_donations``
-        -   ``transfer_payments``
+        -   ``comment``
 
     To ``UPDATE`` a Church Report object send request for next API view:
 
@@ -778,22 +1046,24 @@ Church Report Update
 
     .. sourcecode:: http
 
-        PUT /api/v1.0/events/church_reports/<id=165> HTTP/1.1
+        PUT /api/v1.0/events/church_reports/<id=60> HTTP/1.1
         Host: vocrm.org
         Accept: application/json
         Content-type: application/json
 
         {
-            "date": "2017-05-04",
-            "count_people": 1111,
-            "new_people": 111,
-            "count_repentance": 11,
-            "tithe": "11111",
-            "donations": "11111",
-            "pastor_tithe": "1111",
-            "currency_donations": "11 euro, 11$",
-            "transfer_payments": "1111"
+            "date": "02.07.2017",
+            "link": "/events/church/reports/60/",
+            "total_peoples": 333,
+            "total_new_peoples": 33,
+            "total_repentance": 3,
+            "total_tithe": "3333",
+            "total_donations": "3333",
+            "total_pastor_tithe": "333",
+            "currency_donations": "33 dollars",
+            "comment": "three three"
         }
+
 
     **Example response**:
 
@@ -805,20 +1075,37 @@ Church Report Update
         Vary: Accept
 
         {
-            "id": 48,
-            "pastor": 15160,
-            "church": 18,
-            "date": "04.05.2017",
+            "message": "Отчет Церкви успешно обновлен."
+        }
+
+
+    **Example updated object**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Allow: GET, PUT, PATCH, HEAD, OPTIONS
+        Content-Type: application/json
+        Vary: Accept
+
+        {
+            "id": 60,
+            "pastor": 10,
+            "church": 25,
+            "date": "06.07.2017",
             "status": 2,
-            "link": "/events/church/reports/48/",
-            "count_people": 1111,
-            "new_people": 111,
-            "count_repentance": 11,
-            "tithe": "11111",
-            "donations": "11111",
-            "pastor_tithe": "1111",
-            "currency_donations": "11 euro, 11$",
-            "transfer_payments": "1111"
+            "link": "/events/church/reports/60/",
+            "total_peoples": 333,
+            "total_new_peoples": 33,
+            "total_repentance": 3,
+            "total_tithe": "3333",
+            "total_donations": "3333",
+            "total_pastor_tithe": "333",
+            "currency_donations": "33 dollars",
+            "transfer_payments": "0.0",
+            "can_submit": true,
+            "cant_submit_cause": "",
+            "comment": "three three"
         }
 
 
@@ -856,24 +1143,29 @@ Church Reports Filters
         Vary: Accept
 
         {
-            "id": 49,
+            "id": 60,
             "pastor": {
-                "id": 15160,
-                "fullname": "П Ростислав С"
+                "id": 10,
+                "fullname": "Аккаунт Технический №10"
             },
             "church": {
-                "id": 18,
-                "title": "Певая Церковь"
+                "id": 25,
+                "title": "Курлык Курлык"
             },
-            "date": "03.06.2017",
+            "date": "06.07.2017",
             "status": 2,
-            "link": "/events/church/reports/49/",
-            "count_people": 20000,
-            "new_people": 2000,
-            "count_repentance": 1000,
-            "tithe": "20000000",
-            "donations": "1000000",
-            "pastor_tithe": "300000"
+            "link": "/events/church/reports/60/",
+            "total_peoples": 333,
+            "total_new_peoples": 33,
+            "total_repentance": 3,
+            "total_tithe": "3333",
+            "total_donations": "3333",
+            "total_pastor_tithe": "333",
+            "currency_donations": "33 dollars",
+            "transfer_payments": "0.0",
+            "can_submit": true,
+            "cant_submit_cause": "",
+            "comment": "three three"
         }
 
 
@@ -920,7 +1212,7 @@ _________________________
             "total_pastor_tithe": "300000"
         }
 
-    Also Church Reports statistics support filters by query params
+    Also Church Reports statistics support filters by query params.
 
     **Example request**:
 
@@ -956,7 +1248,7 @@ _________________________
 Church Reports Table Columns
 ----------------------------
 
-    **Fields in pagination response**:
+    **Fields in paginated response**:
 
     .. sourcecode:: http
 
@@ -1037,3 +1329,16 @@ Church Reports Table Columns
                 }
             }
         }
+
+
+
+Celery tasks functions:
+-----------------------
+
+    -   ``create_new_meetings()`` - create new HomeMeeting objects for all ``active`` Home Groups.
+
+    -   ``meetings_to_expired()`` - change status to ``expired = 3`` for all expired Meeting reports.
+
+    -   ``create_church_reports()`` - create new ChurchReport objects for all ``is_open`` Churches.
+
+    -   ``church_reports_to_expire()`` - change status to ``expired = 3`` for all expired Church reports.

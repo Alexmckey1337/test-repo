@@ -20,13 +20,15 @@ class ValidateDataBeforeUpdateMixin(object):
     def validate_before_serializer_update(instance, validated_data, not_editable_fields):
         if instance.status != AbstractStatusModel.SUBMITTED:
             raise serializers.ValidationError({
-                'detail': _('Невозможно обновить методом UPDATE. Отчет - {%s} еще небыл подан.') % instance
+                'detail': _('Невозможно обновить методом UPDATE. Отчет - {%s} еще небыл подан.'
+                            % instance)
             })
 
         if instance.date.isocalendar()[1] > validated_data.get('date').isocalendar()[1]:
             raise serializers.ValidationError({
                 'detail': _('Невозможно подать отчет, переданная дата - %s. '
-                            'Отчет должен подаваться за ту неделю на которой был создан.' % validated_data.get('date'))
+                            'Отчет должен подаваться за ту неделю на которой был создан.'
+                            % validated_data.get('date'))
             })
 
         [validated_data.pop(field, None) for field in not_editable_fields]
@@ -37,18 +39,20 @@ class ValidateDataBeforeUpdateMixin(object):
 class MeetingTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = MeetingType
-        fields = ('id', 'code', 'name')
+        fields = ('id', 'code', 'name',)
 
 
 class MeetingAttendSerializer(serializers.ModelSerializer):
     fullname = serializers.CharField(source='user.fullname')
     spiritual_level = ReadOnlyChoiceField(source='user.spiritual_level',
-                                          choices=CustomUser.SPIRITUAL_LEVEL_CHOICES, read_only=True)
+                                          choices=CustomUser.SPIRITUAL_LEVEL_CHOICES,
+                                          read_only=True)
     user_id = serializers.IntegerField(source='user.id', read_only=True)
 
     class Meta:
         model = MeetingAttend
-        fields = ('id', 'user_id', 'fullname', 'spiritual_level', 'attended', 'note', 'phone_number')
+        fields = ('id', 'user_id', 'fullname', 'spiritual_level', 'attended', 'note',
+                  'phone_number',)
 
 
 class MeetingVisitorsSerializer(serializers.ModelSerializer):
@@ -58,7 +62,7 @@ class MeetingVisitorsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('user_id', 'fullname', 'spiritual_level', 'phone_number')
+        fields = ('user_id', 'fullname', 'spiritual_level', 'phone_number',)
 
 
 class MeetingSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMixin):
@@ -71,12 +75,12 @@ class MeetingSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMix
     class Meta:
         model = Meeting
         fields = ('id', 'home_group', 'owner', 'type', 'date', 'total_sum',
-                  'status', 'can_submit', 'cant_submit_cause')
+                  'status', 'can_submit', 'cant_submit_cause',)
 
         validators = [
             UniqueTogetherValidator(
                 queryset=Meeting.objects.all(),
-                fields=('home_group', 'type', 'date')
+                fields=('home_group', 'type', 'date',)
             )]
 
     def create(self, validated_data):
@@ -101,7 +105,10 @@ class MeetingListSerializer(MeetingSerializer):
 
     class Meta(MeetingSerializer.Meta):
         fields = MeetingSerializer.Meta.fields + (
-            'phone_number', 'visitors_attended', 'visitors_absent', 'link')
+            'phone_number',
+            'visitors_attended',
+            'visitors_absent',
+            'link',)
         read_only_fields = ['__all__']
 
 
@@ -115,7 +122,7 @@ class MeetingDetailSerializer(MeetingSerializer):
     not_editable_fields = ['home_group', 'owner', 'type', 'status']
 
     class Meta(MeetingSerializer.Meta):
-        fields = MeetingSerializer.Meta.fields + ('attends', 'table_columns')
+        fields = MeetingSerializer.Meta.fields + ('attends', 'table_columns',)
 
     def update(self, instance, validated_data):
         instance, validated_data = self.validate_before_serializer_update(
@@ -138,7 +145,7 @@ class MeetingStatisticSerializer(serializers.ModelSerializer):
         model = Meeting
         fields = ('total_visitors', 'total_visits', 'total_absent', 'total_donations',
                   'new_repentance', 'reports_in_progress', 'reports_submitted',
-                  'reports_expired')
+                  'reports_expired',)
         read_only_fields = ['__all__']
 
 
@@ -158,17 +165,20 @@ class ChurchReportListSerializer(serializers.ModelSerializer, ValidateDataBefore
     church = ChurchNameSerializer()
     date = serializers.DateField(default=datetime.now().date())
     total_peoples = serializers.IntegerField(source='count_people', required=False)
-    total_donations = serializers.DecimalField(source='donations', max_digits=13, decimal_places=0, required=False)
-    total_pastor_tithe = serializers.DecimalField(source='pastor_tithe', max_digits=13, decimal_places=0,
-                                                  required=False)
-    total_tithe = serializers.DecimalField(source='tithe', max_digits=13, decimal_places=0, required=False)
+    total_donations = serializers.DecimalField(source='donations', max_digits=13,
+                                               decimal_places=0, required=False)
+    total_pastor_tithe = serializers.DecimalField(source='pastor_tithe', max_digits=13,
+                                                  decimal_places=0, required=False)
+    total_tithe = serializers.DecimalField(source='tithe', max_digits=13,
+                                           decimal_places=0, required=False)
     total_new_peoples = serializers.IntegerField(source='new_people', required=False)
     total_repentance = serializers.IntegerField(source='count_repentance', required=False)
 
     class Meta:
         model = ChurchReport
-        fields = ('id', 'pastor', 'church', 'date', 'status', 'link', 'total_peoples', 'total_new_peoples',
-                  'total_repentance', 'total_tithe', 'total_donations', 'total_pastor_tithe')
+        fields = ('id', 'pastor', 'church', 'date', 'status', 'link',
+                  'total_peoples', 'total_new_peoples', 'total_repentance',
+                  'total_tithe', 'total_donations', 'total_pastor_tithe',)
         read_only_fields = ['__all__']
 
 
@@ -184,8 +194,13 @@ class ChurchReportSerializer(ChurchReportListSerializer):
     not_editable_fields = ['church', 'pastor', 'status']
 
     class Meta(ChurchReportListSerializer.Meta):
-        fields = ChurchReportListSerializer.Meta.fields + ('currency_donations', 'transfer_payments',
-                                                           'can_submit', 'cant_submit_cause', 'comment')
+        fields = ChurchReportListSerializer.Meta.fields + (
+            'currency_donations',
+            'transfer_payments',
+            'can_submit',
+            'cant_submit_cause',
+            'comment',)
+
         read_only_fields = None
 
         validators = [
@@ -219,5 +234,5 @@ class ChurchReportStatisticSerializer(serializers.ModelSerializer):
         model = ChurchReport
         fields = ('id', 'total_peoples', 'total_new_peoples', 'total_repentance',
                   'total_tithe', 'total_donations', 'total_transfer_payments',
-                  'total_pastor_tithe')
+                  'total_pastor_tithe',)
         read_only_fields = ['__all__']
