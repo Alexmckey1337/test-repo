@@ -16,19 +16,20 @@ from account.models import CustomUser
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
 from .filters import (ChurchReportFilter, MeetingFilter, MeetingCustomFilter, MeetingFilterByMaster,
-                      ChurchReportDepartmentFilter, ChurchReportFilterByMaster)
+                      ChurchReportDepartmentFilter, ChurchReportFilterByMaster,)
 from .models import Meeting, ChurchReport, MeetingAttend
 from .pagination import MeetingPagination, MeetingVisitorsPagination, ChurchReportPagination
 from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingDetailSerializer,
                           MeetingListSerializer, ChurchReportStatisticSerializer,
                           MeetingStatisticSerializer, ChurchReportSerializer,
-                          ChurchReportListSerializer, MeetingDashboardSerializer, ChurchReportDetailSerializer)
+                          ChurchReportListSerializer, MeetingDashboardSerializer,
+                          ChurchReportDetailSerializer,)
 
 logger = logging.getLogger(__name__)
 
 
 class MeetingViewSet(ModelWithoutDeleteViewSet):
-    queryset = Meeting.objects.all()
+    queryset = Meeting.objects.prefetch_related('owner', 'visitors')
 
     serializer_class = MeetingSerializer
     serializer_retrieve_class = MeetingDetailSerializer
@@ -41,7 +42,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                        MeetingCustomFilter,
                        FieldSearchFilter,
                        filters.OrderingFilter,
-                       MeetingFilterByMaster)
+                       MeetingFilterByMaster,)
 
     filter_fields = ('data', 'type', 'owner', 'home_group', 'status', 'department', 'church')
 
@@ -104,8 +105,10 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         headers = self.get_success_headers(meeting.data)
-        return Response({'message': _('Отчет Домашней Группы успешно подан.')},
-                        status=status.HTTP_200_OK, headers=headers)
+        return Response(
+            {'message': _('Отчет Домашней Группы успешно подан.')},
+            status=status.HTTP_200_OK, headers=headers,
+        )
 
     @staticmethod
     def validate_to_submit(meeting, data):
@@ -159,7 +162,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                 self.perform_update(meeting)
                 for attend in attends:
                     MeetingAttend.objects.filter(id=attend.get('id')).update(
-                        user=attend.get('user_id'),
+                        user=attend.get('user_id', None),
                         attended=attend.get('attended', False),
                         note=attend.get('note', '')
                     )
@@ -170,8 +173,10 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         headers = self.get_success_headers(meeting.data)
-        return Response({'message': _('Отчет Домашней Группы успешно изменен.')},
-                        status=status.HTTP_200_OK, headers=headers)
+        return Response(
+            {'message': _('Отчет Домашней Группы успешно изменен.')},
+            status=status.HTTP_200_OK, headers=headers,
+        )
 
     @detail_route(methods=['GET'], serializer_class=MeetingVisitorsSerializer,
                   pagination_class=MeetingVisitorsPagination)
@@ -197,18 +202,24 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
         statistics = queryset.aggregate(
             total_visitors=Count('visitors'),
-            total_visits=Sum(Case(When(attends__attended=True, then=1),
-                                  output_field=IntegerField(), default=0)),
-            total_absent=Sum(Case(When(attends__attended=False, then=1),
-                                  output_field=IntegerField(), default=0)),
+            total_visits=Sum(Case(
+                When(attends__attended=True, then=1),
+                output_field=IntegerField(), default=0)),
+            total_absent=Sum(Case(
+                When(attends__attended=False, then=1),
+                output_field=IntegerField(), default=0)),
         )
         statistics.update(queryset.aggregate(
-            reports_in_progress=Sum(Case(When(status=1, then=1),
-                                         output_field=IntegerField(), default=0)),
-            reports_submitted=Sum(Case(When(status=2, then=1),
-                                       output_field=IntegerField(), default=0)),
-            reports_expired=Sum(Case(When(status=3, then=1),
-                                     output_field=IntegerField(), default=0))))
+            reports_in_progress=Sum(Case(
+                When(status=1, then=1),
+                output_field=IntegerField(), default=0)),
+            reports_submitted=Sum(Case(
+                When(status=2, then=1),
+                output_field=IntegerField(), default=0)),
+            reports_expired=Sum(Case(
+                When(status=3, then=1),
+                output_field=IntegerField(), default=0))))
+
         statistics.update(queryset.aggregate(total_donations=Sum('total_sum')))
         statistics['new_repentance'] = CustomUser.objects.filter(
             repentance_date__range=[from_date, to_date]).count()
@@ -227,12 +238,15 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         queryset = self.queryset.for_user(user)
 
         dashboards_counts = queryset.aggregate(
-            meetings_in_progress=Sum(Case(When(status=1, then=1),
-                                          output_field=IntegerField(), default=0)),
-            meetings_submitted=Sum(Case(When(status=2, then=1),
-                                        output_field=IntegerField(), default=0)),
-            meetings_expired=Sum(Case(When(status=3, then=1),
-                                      output_field=IntegerField(), default=0))
+            meetings_in_progress=Sum(Case(
+                When(status=1, then=1),
+                output_field=IntegerField(), default=0)),
+            meetings_submitted=Sum(Case(
+                When(status=2, then=1),
+                output_field=IntegerField(), default=0)),
+            meetings_expired=Sum(Case(
+                When(status=3, then=1),
+                output_field=IntegerField(), default=0))
         )
 
         dashboards_counts = self.serializer_class(dashboards_counts)
@@ -240,7 +254,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
 
 class ChurchReportViewSet(ModelWithoutDeleteViewSet):
-    queryset = ChurchReport.objects.all()
+    queryset = ChurchReport.objects.prefetch_related('church', 'pastor')
 
     serializer_class = ChurchReportSerializer
     serializer_list_class = ChurchReportListSerializer
@@ -281,10 +295,11 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
                 'detail': _('Невозможно подать отчет. Данный отчет уже был подан ранее.')
             })
 
-        if ChurchReport.objects.filter(pastor=church_report.pastor, status=ChurchReport.EXPIRED).exists() and \
-                        church_report.status == ChurchReport.IN_PROGRESS:
+        if ChurchReport.objects.filter(
+                pastor=church_report.pastor,
+                status=ChurchReport.EXPIRED).exists() and church_report.status == ChurchReport.IN_PROGRESS:
             raise exceptions.ValidationError({
-                'detail': 'Невозможно подать отчет. Данный пастор имеет просроченные отчеты.'
+                'detail': _('Невозможно подать отчет. Данный пастор имеет просроченные отчеты.')
             })
 
         data = request.data
@@ -294,8 +309,10 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
         self.perform_update(report)
         headers = self.get_success_headers(report.data)
 
-        return Response({'message': _('Отчет Церкви успешно подан.')},
-                        status=status.HTTP_200_OK, headers=headers)
+        return Response(
+            {'message': _('Отчет Церкви успешно подан.')},
+            status=status.HTTP_200_OK, headers=headers,
+        )
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
@@ -307,8 +324,9 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
         if getattr(instance, '_prefetched_objects_cache', None):
             instance._prefetched_objects_cache = {}
 
-        return Response({
-            "message": _("Отчет Церкви успешно обновлен")}, status=status.HTTP_200_OK,
+        return Response(
+            {"message": _("Отчет Церкви успешно обновлен")},
+            status=status.HTTP_200_OK,
         )
 
     @list_route(methods=['GET'], serializer_class=ChurchReportStatisticSerializer)

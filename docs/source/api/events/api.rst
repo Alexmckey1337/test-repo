@@ -1212,7 +1212,7 @@ _________________________
             "total_pastor_tithe": "300000"
         }
 
-    Also Church Reports statistics support filters by query params
+    Also Church Reports statistics support filters by query params.
 
     **Example request**:
 
@@ -1329,3 +1329,16 @@ Church Reports Table Columns
                 }
             }
         }
+
+
+
+Celery tasks functions:
+-----------------------
+
+    -   ``create_new_meetings()`` - create new HomeMeeting objects for all ``active`` Home Groups.
+
+    -   ``meetings_to_expired()`` - change status to ``expired = 3`` for all expired Meeting reports.
+
+    -   ``create_church_reports()`` - create new ChurchReport objects for all ``is_open`` Churches.
+
+    -   ``church_reports_to_expire()`` - change status to ``expired = 3`` for all expired Church reports.
