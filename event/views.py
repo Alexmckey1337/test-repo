@@ -280,6 +280,9 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
         )
     }
 
+    def get_queryset(self):
+        return self.queryset.for_user(self.request.user)
+
     def get_serializer_class(self):
         if self.action == 'list':
             return self.serializer_list_class
