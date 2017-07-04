@@ -114,8 +114,8 @@
         setDate: new Date(),
         autoClose: true,
     });
-    $('#partner').click(function () {
-        $('.hidden-partner').toggle()
+    $('#partner').on('change', function () {
+        $('.hidden-partner').toggle();
     });
 
     $('.editprofile .top-text span').on('click', function () {
