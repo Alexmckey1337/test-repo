@@ -2,9 +2,11 @@ from datetime import date, datetime
 from decimal import Decimal
 from itertools import chain
 
+from copy import deepcopy
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db.models import ManyToManyField
 from django.db.models.fields.files import ImageFieldFile
+from django.http import QueryDict
 
 
 def foreign_key_to_dict(instance=None, verbose: str = ''):
@@ -15,6 +17,12 @@ def foreign_key_to_dict(instance=None, verbose: str = ''):
         },
         'verbose_name': verbose
     }
+
+
+def query_dict_to_dict(query_dict):
+    if isinstance(query_dict, QueryDict):
+        return dict(query_dict.lists())
+    return deepcopy(query_dict)
 
 
 def model_to_dict(instance, fields=None):

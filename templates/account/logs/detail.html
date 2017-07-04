@@ -1,6 +1,7 @@
 {% extends "layout_main.html" %}
 {% load i18n %}
 {% load static %}
+{% load common_tags %}
 
 {% block header.top.h1 %}
     <h1>
@@ -27,7 +28,19 @@
                 <li>{{ log_message.get_action_flag_display }}</li>
                 <li>{{ log_message.action_time|date:"d M Y H:i:s" }}</li>
             </ul>
+    {% if request.user.is_superuser %}
+        <pre id="change_data_json"></pre>
+        <pre id="raw_data_json"></pre>
+    {% endif %}
 {% endblock %}
 
 {% block extra_scripts %}
+    {% if request.user.is_superuser %}
+        <script>
+            var change_data = {{ log_message.change_data|js|safe }},
+                raw_data = {{ log_message.raw_data|js|safe }};
+            $('#change_data_json').html(JSON.stringify(change_data, null, 4));
+            $('#raw_data_json').html(JSON.stringify(raw_data, null, 4));
+        </script>
+    {% endif %}
 {% endblock %}
