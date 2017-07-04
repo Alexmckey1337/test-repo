@@ -128,7 +128,7 @@
                 let name = elem.attr('name');
                 if (name == 'attended') {
                     data[elem.attr('name')] = elem.prop("checked")
-                } else if (name == 'user') {
+                } else if (name == 'user_id') {
                     data[elem.attr('name')] = parseInt(elem.val());
                 } else {
                     data[elem.attr('name')] = elem.val();
