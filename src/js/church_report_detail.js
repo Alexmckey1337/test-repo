@@ -55,7 +55,8 @@
         let nextSunday = (moment(dateReportsFormatted).day() === 0) ? moment(dateReportsFormatted).format() : moment(dateReportsFormatted).day(7).format();
         $(dateData).val(data.date).attr({
             'size': data.date.length,
-            'name': 'date'
+            'name': 'date',
+            'data-validation': 'required'
         }).datepicker({
             autoClose: true,
             minDate: new Date(thisMonday),
@@ -82,7 +83,9 @@
                                 <label for="total_peoples">Количество людей на собрании</label>
                             </div>
                             <div class="input">
-                                <input id="total_peoples" type="text" name="total_peoples" value="${data.total_peoples}">
+                                <input id="total_peoples" type="text" name="total_peoples" 
+                                data-validation="number required"
+                                value="${(data.status == 1 || data.status == 3) ? '' : data.total_peoples}">
                             </div>
                         </li>
                         <li>
@@ -90,7 +93,9 @@
                                 <label for="total_new_peoples">Количество новых людей</label>
                             </div>
                             <div class="input">
-                                <input id="total_new_peoples" type="text" name="total_new_peoples" value="${data.total_new_peoples}">
+                                <input id="total_new_peoples" type="text" name="total_new_peoples"
+                                data-validation="number required"
+                                value="${(data.status == 1 || data.status == 3) ? '' : data.total_new_peoples}">
                             </div>
                         </li>
                         <li>
@@ -98,7 +103,9 @@
                                 <label for="total_repentance">Количество покаяний</label>
                             </div>
                             <div class="input">
-                                <input id="total_repentance" type="text" name="total_repentance" value="${data.total_repentance}">
+                                <input id="total_repentance" type="text" name="total_repentance"
+                                data-validation="number required"
+                                value="${(data.status == 1 || data.status == 3) ? '' : data.total_repentance}">
                             </div>
                         </li>
                         <li>
@@ -119,7 +126,9 @@
                                 <label for="total_tithe">Десятины</label>
                             </div>
                             <div class="input">
-                                <input id="total_tithe" type="text" name="total_tithe" value="${data.total_tithe}">
+                                <input id="total_tithe" type="text" name="total_tithe"
+                                 data-validation="number required" data-validation-allowing="float"
+                                value="${(data.status == 1 || data.status == 3) ? '' : data.total_tithe}">
                             </div>
                         </li>
                         <li>
@@ -127,7 +136,9 @@
                                 <label for="total_donations">Пожертвования</label>
                             </div>
                             <div class="input">
-                                <input id="total_donations" type="text" name="total_donations" value="${data.total_donations}">
+                                <input id="total_donations" type="text" name="total_donations"
+                                data-validation="number required" data-validation-allowing="float"
+                                value="${(data.status == 1 || data.status == 3) ? '' : data.total_donations}">
                             </div>
                         </li>
                         <li>
@@ -135,7 +146,7 @@
                                 <label for="currency_donations">Пожертвования в другой валюте</label>
                             </div>
                             <div class="input">
-                                <textarea name="currency_donations" id="currency_donations">${data.currency_donations}</textarea>
+                                <textarea name="currency_donations" data-validation="required" id="currency_donations">${data.currency_donations}</textarea>
                             </div>
                         </li>
                         <li>
@@ -143,7 +154,8 @@
                                 <label for="transfer_payments">15% к перечислению</label>
                             </div>
                             <div class="input">
-                                <input name="transfer_payments" id="transfer_payments" value="${data.transfer_payments}" readonly>
+                                <input name="transfer_payments" id="transfer_payments"
+                                 value="${(data.status == 1 || data.status == 3) ? '' : data.transfer_payments}" readonly>
                             </div>
                         </li>
                         <li>
@@ -151,7 +163,9 @@
                                 <label for="total_pastor_tithe">Десятина пастора</label>
                             </div>
                             <div class="input">
-                                <input name="total_pastor_tithe" id="total_pastor_tithe" value="${data.total_pastor_tithe}">
+                                <input name="total_pastor_tithe" id="total_pastor_tithe"
+                                data-validation="number required" data-validation-allowing="float"
+                                value="${(data.status == 1 || data.status == 3) ? '' : data.total_pastor_tithe}">
                             </div>
                         </li>
                     </ul>
@@ -206,6 +220,10 @@
                 showPopup(data.cant_submit_cause);
             });
         }
+        $.validate({
+            lang: 'ru',
+            form: '#databaseChurchReportsForm'
+        });
     });
 
     $('#save').on('click', function () {
