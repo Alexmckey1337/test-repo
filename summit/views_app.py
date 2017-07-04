@@ -12,6 +12,7 @@ from rest_framework.response import Response
 
 from common.exception import InvalidRegCode
 from common.filters import FieldSearchFilter
+from common.test_helpers.utils import get_real_user
 from common.views_mixins import ModelWithoutDeleteViewSet
 from summit.regcode import decode_reg_code
 from .models import (
@@ -233,8 +234,9 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
     @list_route(methods=['POST'])
     def post(self, request):
         if not request.data.get('data'):
+            user = get_real_user(request)
             logger.warning({
-                'user': getattr(request, 'real_user', request.user).id,
+                'user': user.id if user else None,
                 'message': _('Невозможно создать запись, поле {data} не переданно')
             })
             raise exceptions.ValidationError(_('Невозможно создать запись, поле {data} не переданно'))

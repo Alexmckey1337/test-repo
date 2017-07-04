@@ -136,6 +136,7 @@ const URLS = {
     summit_ticket: SUMMIT_TICKET,
     summit_lesson: SUMMIT_LESSON,
     event: EVENT,
+    home_meeting: HOME_MEETING,
     church: CHURCH,
     home_group: HOME_GROUP,
 };

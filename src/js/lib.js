@@ -2447,7 +2447,7 @@ function initAddNewUser(config = {}) {
                 let department = $('#chooseDepartment').val();
                 getResponsible(department, status).then(function (data) {
                     let rendered = [];
-                    if (status > 5) {
+                    if (status > 60) {
                         let option = document.createElement('option');
                         $(option).val('').text('Нет ответственного');
                         rendered.push(option);
@@ -3202,6 +3202,7 @@ function getHomeReports(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
             url: URLS.event.home_meeting.list(),
+            url: URLS.home_meeting.list(),
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

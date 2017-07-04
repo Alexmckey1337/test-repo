@@ -164,9 +164,9 @@ class UserSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if 'master' in attrs.keys():
             if 'hierarchy' in attrs.keys():
-                if attrs['hierarchy'].level < 6 and not attrs['master']:
+                if attrs['hierarchy'].level < 70 and not attrs['master']:
                     raise ValidationError({'master': _('Master is required field.')})
-            elif self.instance.hierarchy.level < 6 and not attrs['master']:
+            elif self.instance.hierarchy.level < 70 and not attrs['master']:
                 raise ValidationError({'master': _('Master is required field.')})
         return attrs
 

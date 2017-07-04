@@ -75,9 +75,9 @@ CHANGE_FIELD = (
     ('phone_number', 201),
 )
 
-ALL_HIERARCHIES = {0, 1, 2, 4, 5, 6, 7}
-HIERARCHY_LEVELS_UP = list(itertools.combinations_with_replacement(list(ALL_HIERARCHIES), 2))
-HIERARCHY_LEVELS_DOWN = list(itertools.combinations(reversed(list(ALL_HIERARCHIES)), 2))
+ALL_HIERARCHIES = [0, 1, 2, 4, 60, 70, 80]
+HIERARCHY_LEVELS_UP = list(itertools.combinations_with_replacement(ALL_HIERARCHIES, 2))
+HIERARCHY_LEVELS_DOWN = list(itertools.combinations(reversed(ALL_HIERARCHIES), 2))
 
 
 def get_hierarchies_down_correct():
@@ -88,7 +88,7 @@ def get_hierarchies_down_correct():
 
 def get_hierarchies_down_incorrect():
     for h in HIERARCHY_LEVELS_DOWN:
-        for l in (ALL_HIERARCHIES - settings.CHANGE_HIERARCHY_LEVELS[h[1]]):
+        for l in (set(ALL_HIERARCHIES) - settings.CHANGE_HIERARCHY_LEVELS[h[1]]):
             yield (h[0], h[1], l)
 
 

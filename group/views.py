@@ -15,6 +15,7 @@ from rest_framework.response import Response
 from account.models import CustomUser
 from account.serializers import AddExistUserSerializer
 from common.filters import FieldSearchFilter
+from common.test_helpers.utils import get_real_user
 from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet
 from group.filters import (HomeGroupFilter, ChurchFilter, FilterChurchMasterTree, FilterHomeGroupMasterTree,
                            HomeGroupsDepartmentFilter)
@@ -101,7 +102,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
         user = self._get_user(request.data.get('user_id', None))
 
         self._validate_user_for_add_user(user)
-        user.set_church_and_log(church, getattr(request, 'real_user', getattr(request, 'user', None)))
+        user.set_church_and_log(church, get_real_user(request))
 
         return Response({'detail': _('Пользователь успешно добавлен.')},
                         status=status.HTTP_200_OK)
@@ -124,7 +125,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
                             'Пользователь не принадлежит к данной Церкви.')
             })
 
-        user.set_church_and_log(None, getattr(request, 'real_user', getattr(request, 'user', None)))
+        user.set_church_and_log(None, get_real_user(request))
         return Response({'detail': _('Пользователь успешно удален из Церкви')},
                         status=status.HTTP_204_NO_CONTENT)
 
@@ -305,7 +306,7 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         user = self._get_user(request.data.get('user_id', None))
 
         self._validate_user_for_add_user(user, home_group)
-        user.set_home_group_and_log(home_group, getattr(request, 'real_user', getattr(request, 'user', None)))
+        user.set_home_group_and_log(home_group, get_real_user(request))
 
         return Response({'detail': 'Пользователь успешно добавлен.'},
                         status=status.HTTP_200_OK)
@@ -318,7 +319,7 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
 
         self._validate_user_for_del_user(user, home_group)
 
-        user.del_home_group_and_log(getattr(request, 'real_user', getattr(request, 'user', None)))
+        user.del_home_group_and_log(get_real_user(request))
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 

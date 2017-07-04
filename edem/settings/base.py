@@ -321,7 +321,8 @@ SITE_DOMAIN_URL = 'http://vocrm.org/'
 ARCHONS = [1, ]
 AXES_COOLOFF_TIME = 1
 
-LOG_FILE = env('LOG_FILE', default='/tmp/vocrm.log')
+# LOG_FILE = env('LOG_FILE', default='/tmp/vocrm.log')
+LOG_FILE = '/tmp/vocrm.log'
 
 LOGGING = {
     'version': 1,
@@ -420,9 +421,9 @@ HIERARCHIES = (
     dict(title='Сотник (Отв-й за 5 ячеек)', level=2),
     dict(title='Ответственный Киев', level=4),
     dict(title='Епископ', level=4),
-    dict(title='Старший епископ', level=5),
-    dict(title='Апостол', level=6),
-    dict(title='Архонт', level=7),
+    dict(title='Старший епископ', level=60),
+    dict(title='Апостол', level=70),
+    dict(title='Архонт', level=80),
 )
 
 CHANGE_HIERARCHY_LEVELS = {
@@ -430,9 +431,9 @@ CHANGE_HIERARCHY_LEVELS = {
     1: {0},
     2: {0, 1},
     4: {0, 1, 2, 4},
-    5: {0, 1, 2, 4},
-    6: {0, 1, 2, 4, 5},
-    7: {0, 1, 2, 4, 5, 6, 7},
+    60: {0, 1, 2, 4},
+    70: {0, 1, 2, 4, 60},
+    80: {0, 1, 2, 4, 60, 70, 80},
 }
 
 NEW_TICKET_STATUS = {

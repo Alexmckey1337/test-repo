@@ -4,6 +4,7 @@ from django.utils.translation import ugettext
 
 from account.signals import obj_edit, obj_add, obj_delete
 from analytics.utils import model_to_dict, get_reverse_fields
+from common.test_helpers.utils import get_real_user
 
 
 def log_change_payment(fields):
@@ -76,7 +77,7 @@ def log_perform_update(perform_update):
                 new_obj=new_obj,
                 old_obj_dict=changes_dict['old'],
                 new_obj_dict=changes_dict['new'],
-                editor=getattr(self.request, 'real_user', self.request.user)
+                editor=get_real_user(self.request)
             )
         return instance
 
@@ -98,7 +99,7 @@ def log_perform_create(perform_create):
                 sender=self.__class__,
                 obj=new_obj,
                 obj_dict=addition_dict,
-                editor=getattr(self.request, 'real_user', self.request.user)
+                editor=get_real_user(self.request)
             )
         return instance
 
@@ -115,7 +116,7 @@ def log_perform_destroy(perform_destroy):
                 sender=self.__class__,
                 obj=deletion_obj,
                 obj_dict=deletion_dict,
-                editor=getattr(self.request, 'real_user', self.request.user)
+                editor=get_real_user(self.request)
             )
 
         perform_destroy(self, instance, new_obj=deletion_obj, changes_dict=deletion_dict)

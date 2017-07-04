@@ -115,6 +115,13 @@ class CustomUser(MPTTModel, LogModel, User, CustomUserAbstract,
             summit__status=Summit.OPEN,
             user_id__in=self.disciples.values_list('pk', flat=True)).update(responsible=self.fullname)
 
+    # TODO hack
+    def regcode(self):
+        profile = self.summit_profiles.filter(summit_id=7).first()
+        if profile:
+            return profile.reg_code
+        return ''
+
     def get_absolute_url(self):
         return reverse('account:detail', args=(self.id,))
 
@@ -230,27 +237,27 @@ class CustomUser(MPTTModel, LogModel, User, CustomUserAbstract,
 
     @property
     def is_senior_bishop(self):
-        return self.hierarchy is not None and self.hierarchy.level == 5
+        return self.hierarchy is not None and self.hierarchy.level == 60
 
     @property
     def is_senior_bishop_or_high(self):
-        return self.hierarchy is not None and self.hierarchy.level >= 5
+        return self.hierarchy is not None and self.hierarchy.level >= 60
 
     @property
     def is_apostle(self):
-        return self.hierarchy is not None and self.hierarchy.level == 6
+        return self.hierarchy is not None and self.hierarchy.level == 70
 
     @property
     def is_apostle_or_high(self):
-        return self.hierarchy is not None and self.hierarchy.level >= 6
+        return self.hierarchy is not None and self.hierarchy.level >= 70
 
     @property
     def is_archon(self):
-        return self.hierarchy is not None and self.hierarchy.level == 7
+        return self.hierarchy is not None and self.hierarchy.level == 80
 
     @property
     def is_archon_or_high(self):
-        return self.hierarchy is not None and self.hierarchy.level >= 7
+        return self.hierarchy is not None and self.hierarchy.level >= 80
 
     # PERMISSIONS
 

@@ -27,6 +27,7 @@ from analytics.decorators import log_perform_update, log_perform_create
 from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
 from common.parsers import MultiPartAndJsonParser
+from common.test_helpers.utils import get_real_user
 from common.views_mixins import ExportViewSetMixin
 from group.models import HomeGroup, Church
 from hierarchy.serializers import DepartmentSerializer
@@ -117,7 +118,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, viewsets.ModelViewSet, UserExp
     def set_home_group(self, request, pk):
         user = self.get_object()
         home_group = self._get_object_or_error(HomeGroup, 'home_group_id')
-        user.set_home_group_and_log(home_group, getattr(request, 'real_user', getattr(request, 'user', None)))
+        user.set_home_group_and_log(home_group, get_real_user(request))
 
         return Response({'detail': 'Домашняя группа установлена.'},
                         status=status.HTTP_200_OK)
@@ -126,7 +127,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, viewsets.ModelViewSet, UserExp
     def set_church(self, request, pk):
         user = self.get_object()
         church = self._get_object_or_error(Church, 'church_id')
-        user.set_church_and_log(church, getattr(request, 'real_user', getattr(request, 'user', None)))
+        user.set_church_and_log(church, get_real_user(request))
 
         return Response({'detail': _('Церковь установлена.')},
                         status=status.HTTP_200_OK)
