@@ -47,6 +47,7 @@ const CHURCH_REPORT = {
     detail: (reportId) => `/api/v1.0/events/church_reports/${reportId}/`,
     submit: (reportId) => `/api/v1.0/events/church_reports/${reportId}/submit/`,
     stats: () => `/api/v1.0/events/church_reports/statistics/`,
+    dashboard_count: () => `/api/v1.0/events/church_reports/dashboard_counts/`,
 };
 
 const HOME_MEETING = {
@@ -136,7 +137,6 @@ const URLS = {
     summit_ticket: SUMMIT_TICKET,
     summit_lesson: SUMMIT_LESSON,
     event: EVENT,
-    home_meeting: HOME_MEETING,
     church: CHURCH,
     home_group: HOME_GROUP,
 };

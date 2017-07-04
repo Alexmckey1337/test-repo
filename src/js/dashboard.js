@@ -5,6 +5,23 @@
             sortable;
         $('.preloader').css('display', 'block');
 
+        function getChurchStats(id) {
+            let resData = {
+                url: `${URLS.event.church_report.dashboard_count()}?user_id=${id}`
+            };
+            return new Promise(function (resolve, reject) {
+                let codes = {
+                    200: function (data) {
+                        resolve(data);
+                    },
+                    400: function (data) {
+                        reject(data);
+                    }
+                };
+                newAjaxRequest(resData, codes, reject);
+            });
+        }
+
         function getHomeGroupStats(id) {
             let resData = {
                 url: `${URLS.event.home_meeting.dashboard_count()}?user_id=${id}`
@@ -57,7 +74,7 @@
         }
 
         function init(id) {
-            Promise.all([getHomeGroupStats(id), getChurchData(id), getUsersData(id)]).then(values => {
+            Promise.all([getChurchStats(id), getHomeGroupStats(id), getChurchData(id), getUsersData(id)]).then(values => {
                 let data = {};
                 for (let i = 0; i < values.length; i++) {
                     Object.assign(data, values[i]);

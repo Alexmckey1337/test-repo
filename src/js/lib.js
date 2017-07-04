@@ -3202,7 +3202,6 @@ function getHomeReports(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
             url: URLS.event.home_meeting.list(),
-            url: URLS.home_meeting.list(),
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

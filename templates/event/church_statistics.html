@@ -192,7 +192,35 @@
                             </div>
                         </div>
                     </div>
-
+                    <div class="grid_block">
+                        <div class="col-sm-4">
+                            <div class="well success"><span>Заполненные отчёты</span>
+                                <p style="font-size:4em;text-align: center">
+                                    <span id="closed_planned_sum_deals" class="label label-primary">
+                                        <%= (church_reports_submitted) ? church_reports_submitted : 0 %>
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="well info"><span>Отчёты к заполнению</span>
+                                <p style="font-size:4em;text-align: center">
+                                    <span id="closed_paid_sum_deals" class="label label-primary">
+                                        <%= (church_reports_in_progress) ? church_reports_in_progress : 0 %>
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="well error"><span>Просроченные отчёты</span>
+                                <p style="font-size:4em;text-align: center">
+                                    <span id="closed_percent_paid_sum_deals" class="label label-primary">
+                                        <%= (church_reports_expired) ? church_reports_expired : 0 %>
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                     <div class="grid_block">
                         <div class="col-sm-4">
                             <div class="well info"><span>Десятины</span>

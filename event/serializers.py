@@ -187,7 +187,7 @@ class ChurchReportSerializer(ChurchReportListSerializer):
     pastor = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
         church__pastor__id__isnull=False).distinct(), required=False)
     status = serializers.IntegerField(default=1)
-    # transfer_payments = serializers.DecimalField(max_digits=13, decimal_places=1)
+    transfer_payments = serializers.DecimalField(max_digits=13, decimal_places=1)
     can_submit = serializers.BooleanField(read_only=True)
     cant_submit_cause = serializers.CharField(read_only=True)
 
@@ -199,7 +199,7 @@ class ChurchReportSerializer(ChurchReportListSerializer):
             'can_submit',
             'cant_submit_cause',
             'comment',
-            # 'transfer_payments',
+            'transfer_payments',
         )
 
         read_only_fields = None
