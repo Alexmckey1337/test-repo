@@ -3147,7 +3147,6 @@ function churchReportsTable(config = {}) {
 }
 
 function makeHomeReportsTable(data, config = {}) {
-    console.log(config);
     let tmpl = $('#databaseHomeReports').html();
     let rendered = _.template(tmpl)(data);
     $('#homeReports').html(rendered);
@@ -3171,7 +3170,6 @@ function makeHomeReportsTable(data, config = {}) {
 }
 
 function makeChurchReportsTable(data, config = {}) {
-    console.log(config);
     let tmpl = $('#databaseChurchReports').html();
     let rendered = _.template(tmpl)(data);
     $('#churchReports').html(rendered);
