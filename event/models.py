@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
 
-from event.managers import MeetingManager
+from event.managers import MeetingManager, ChurchReportManager
 from navigation.table_fields import meeting_table
 
 
@@ -158,6 +158,8 @@ class ChurchReport(AbstractStatusModel):
     pastor_tithe = models.DecimalField(_('Pastor Tithe'), max_digits=12,
                                        decimal_places=0, default=0)
     comment = models.TextField(_('Comment'), blank=True)
+
+    objects = ChurchReportManager()
 
     class Meta:
         ordering = ('-id', '-date')

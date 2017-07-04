@@ -23,7 +23,7 @@ from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingD
                           MeetingListSerializer, ChurchReportStatisticSerializer,
                           MeetingStatisticSerializer, ChurchReportSerializer,
                           ChurchReportListSerializer, MeetingDashboardSerializer,
-                          ChurchReportDetailSerializer,)
+                          ChurchReportDetailSerializer, ChurchReportsDashboardSerializer,)
 
 logger = logging.getLogger(__name__)
 
@@ -254,7 +254,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
 
 class ChurchReportViewSet(ModelWithoutDeleteViewSet):
-    queryset = ChurchReport.objects.prefetch_related('church', 'pastor')
+    queryset = ChurchReport.objects.all()
 
     serializer_class = ChurchReportSerializer
     serializer_list_class = ChurchReportListSerializer
@@ -339,7 +339,42 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
             total_tithe=Sum('tithe'),
             total_donations=Sum('donations'),
             total_transfer_payments=Sum('transfer_payments'),
-            total_pastor_tithe=Sum('pastor_tithe'))
+            total_pastor_tithe=Sum('pastor_tithe'),
+            church_reports_in_progress=Sum(Case(
+                When(status=1, then=1),
+                output_field=IntegerField(), default=0)),
+            church_reports_submitted=Sum(Case(
+                When(status=2, then=1),
+                output_field=IntegerField(), default=0)),
+            church_reports_expired=Sum(Case(
+                When(status=3, then=1),
+                output_field=IntegerField(), default=0))
+        )
 
         statistics = self.serializer_class(statistics)
         return Response(statistics.data, status=status.HTTP_200_OK)
+
+    @list_route(methods=['GET'], serializer_class=ChurchReportsDashboardSerializer)
+    def dashboard_counts(self, request):
+        user_id = request.query_params.get('user_id')
+        if user_id:
+            user = get_object_or_404(CustomUser, pk=user_id)
+        else:
+            user = self.request.user
+
+        queryset = self.queryset.for_user(user)
+
+        dashboards_counts = queryset.aggregate(
+            church_reports_in_progress=Sum(Case(
+                When(status=1, then=1),
+                output_field=IntegerField(), default=0)),
+            church_reports_submitted=Sum(Case(
+                When(status=2, then=1),
+                output_field=IntegerField(), default=0)),
+            church_reports_expired=Sum(Case(
+                When(status=3, then=1),
+                output_field=IntegerField(), default=0))
+        )
+
+        dashboards_counts = self.serializer_class(dashboards_counts)
+        return Response(dashboards_counts.data, status=status.HTTP_200_OK)

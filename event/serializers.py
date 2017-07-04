@@ -196,10 +196,11 @@ class ChurchReportSerializer(ChurchReportListSerializer):
     class Meta(ChurchReportListSerializer.Meta):
         fields = ChurchReportListSerializer.Meta.fields + (
             'currency_donations',
-            'transfer_payments',
             'can_submit',
             'cant_submit_cause',
-            'comment',)
+            'comment',
+            # 'transfer_payments',
+        )
 
         read_only_fields = None
 
@@ -229,10 +230,26 @@ class ChurchReportStatisticSerializer(serializers.ModelSerializer):
     total_donations = serializers.DecimalField(max_digits=13, decimal_places=0)
     total_transfer_payments = serializers.DecimalField(max_digits=13, decimal_places=1)
     total_pastor_tithe = serializers.DecimalField(max_digits=13, decimal_places=0)
+    church_reports_in_progress = serializers.IntegerField()
+    church_reports_submitted = serializers.IntegerField()
+    church_reports_expired = serializers.IntegerField()
 
     class Meta:
         model = ChurchReport
         fields = ('id', 'total_peoples', 'total_new_peoples', 'total_repentance',
                   'total_tithe', 'total_donations', 'total_transfer_payments',
-                  'total_pastor_tithe',)
+                  'total_pastor_tithe', 'church_reports_in_progress',
+                  'church_reports_submitted', 'church_reports_expired')
+        read_only_fields = ['__all__']
+
+
+class ChurchReportsDashboardSerializer(serializers.ModelSerializer):
+    church_reports_submitted = serializers.IntegerField()
+    church_reports_in_progress = serializers.IntegerField()
+    church_reports_expired = serializers.IntegerField()
+
+    class Meta:
+        model = ChurchReport
+        fields = ('church_reports_submitted', 'church_reports_in_progress',
+                  'church_reports_expired')
         read_only_fields = ['__all__']
