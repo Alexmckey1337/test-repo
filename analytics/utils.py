@@ -21,8 +21,16 @@ def foreign_key_to_dict(instance=None, verbose: str = ''):
 
 def query_dict_to_dict(query_dict):
     if isinstance(query_dict, QueryDict):
-        return dict(query_dict.lists())
-    return deepcopy(query_dict)
+        data = dict(query_dict.lists())
+    else:
+        data = deepcopy(query_dict)
+    image = data.pop('image', None)
+    image_source = data.pop('image_source', None)
+    if image is not None:
+        data['image'] = [i.name for i in image]
+    if image_source is not None:
+        data['image_source'] = [i.name for i in image_source]
+    return data
 
 
 def model_to_dict(instance, fields=None):
