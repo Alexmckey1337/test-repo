@@ -4,6 +4,7 @@ from itertools import chain
 
 from copy import deepcopy
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models import ManyToManyField
 from django.db.models.fields.files import ImageFieldFile
 from django.http import QueryDict
@@ -24,12 +25,11 @@ def query_dict_to_dict(query_dict):
         data = dict(query_dict.lists())
     else:
         data = deepcopy(query_dict)
-    image = data.pop('image', None)
-    image_source = data.pop('image_source', None)
-    if image is not None:
-        data['image'] = [i.name for i in image]
-    if image_source is not None:
-        data['image_source'] = [i.name for i in image_source]
+    for field, value in data.items():
+        if isinstance(value, InMemoryUploadedFile):
+            data[field] = value.name
+        elif isinstance(value, (list, tuple)) and any([isinstance(v, InMemoryUploadedFile) for v in value]):
+            data[field] = [i.name for i in value]
     return data
 
 
