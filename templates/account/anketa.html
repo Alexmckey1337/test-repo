@@ -161,14 +161,13 @@
                                     </li>
                                     <li class="clearfix">
                                         <div class="label-wrapp">
-                                            <label for="extra_phone_numbers"><i class="fa fa-phone"
-                                                                            aria-hidden="true"></i></label>
+                                            <label for="extra_phone_numbers">
+                                                <i class="fa fa-phone" aria-hidden="true"></i>
+                                            </label>
                                         </div>
                                         <input type="text" id="extra_phone_numbers"
                                                value="{% if account.extra_phone_numbers %}{{ account.extra_phone_numbers|default:""|join:", " }}{% endif %}"
-                                               data-validation="custom"
-                                               data-validation-regexp="^((\+|[0-9]{1})([0-9]*))?$"
-                                               data-validation-optional="true" readonly>
+                                               readonly>
                                     </li>
                                     <li class="clearfix">
                                         <div class="label-wrapp">
