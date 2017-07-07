@@ -113,25 +113,24 @@
 }
 
 .logo {
-  height: 90px;
-  padding-top: 10px;
+  height: auto;
+  min-height: 90px;
+  padding-top: 27px;
   text-align: center;
   position: relative;
   box-sizing: border-box;
-  div{
-    display: inline-block;
-    padding-top: 17px;
+  a{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    color: #fff;
+    text-transform: uppercase;
     transition: all .3s ease;
-    cursor: default;
+    cursor: pointer;
     font-size: 2.8em;
     font-family: "UbuntuLight", sans-serif;
-    &:nth-child(2){
-      font-size: 2.8em;
-      font-family: "UbuntuMedium", sans-serif;
+    span{
       color: #3caeda;
-    }
-    a{
-      color: #fff;
     }
   }
 }
