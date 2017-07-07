@@ -81,7 +81,7 @@ def model_to_dict(instance, fields=None):
             }
         elif f.is_relation:
             obj_id = f.value_from_object(instance)
-            obj = f.remote_field.model.objects.get(pk=obj_id) if obj_id else ''
+            obj = getattr(instance, f.name)
             data[f.name] = {
                 'value': {
                     'id': obj_id,
