@@ -299,6 +299,21 @@ class SummitAnketForAppSerializer(serializers.ModelSerializer):
                   'status', 'master')
 
 
+class SummitAnketDrawForAppSerializer(serializers.ModelSerializer):
+    user = UserForAppSerializer()
+    ticket_id = serializers.CharField(source='code')
+    visitor_id = serializers.IntegerField(source='id')
+    avatar_url = ImageWithoutHostField(source='user.image', use_url=False)
+    status = AnketStatusSerializer(read_only=True)
+    master = VisitorsMasterForAppSerializer()
+    count = serializers.CharField(source='c')
+
+    class Meta:
+        model = SummitAnket
+        fields = ('visitor_id', 'user', 'ticket_id', 'reg_code', 'avatar_url',
+                  'status', 'master', 'count')
+
+
 class SummitAnketLocationSerializer(serializers.ModelSerializer):
     fullname = serializers.CharField(source='user.fullname')
 

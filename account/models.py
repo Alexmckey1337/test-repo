@@ -46,7 +46,7 @@ class CustomUser(MPTTModel, LogModel, User, CustomUserAbstract,
     district = models.CharField(_('District'), max_length=50, blank=True)
     address = models.CharField(_('Address'), max_length=300, blank=True)
 
-    phone_number = models.CharField(_('Phone number'), max_length=23, blank=True)
+    phone_number = models.CharField(_('Phone number'), max_length=23, blank=True, db_index=True)
     skype = models.CharField(_('Skype'), max_length=50, blank=True)
     facebook = models.URLField(_('Facebook URL'), default='', blank=True, null=True)
     vkontakte = models.URLField(_('Vkontakte URL'), default='', blank=True, null=True)
@@ -56,7 +56,7 @@ class CustomUser(MPTTModel, LogModel, User, CustomUserAbstract,
     image_source = models.ImageField(_('Source of image'), upload_to='images/', blank=True)
     description = models.TextField(_('Description'), blank=True)
     #: Born date
-    born_date = models.DateField(_('Born date'), blank=True, null=True)
+    born_date = models.DateField(_('Born date'), blank=True, null=True, db_index=True)
     #: Date of repentance (дата покаяния)
     repentance_date = models.DateField(_('Repentance date'), blank=True, null=True)
     #: Date of coming (дата прихода)
@@ -65,7 +65,7 @@ class CustomUser(MPTTModel, LogModel, User, CustomUserAbstract,
 
     departments = models.ManyToManyField('hierarchy.Department', related_name='users', verbose_name=_('Departments'))
     hierarchy = models.ForeignKey('hierarchy.Hierarchy', related_name='users', null=True, blank=True,
-                                  on_delete=models.SET_NULL, verbose_name=_('Hierarchy'))
+                                  on_delete=models.SET_NULL, verbose_name=_('Hierarchy'), db_index=True)
     master = TreeForeignKey('self', related_name='disciples', null=True, blank=True, verbose_name=_('Master'),
                             on_delete=models.PROTECT, db_index=True)
 
@@ -79,11 +79,11 @@ class CustomUser(MPTTModel, LogModel, User, CustomUserAbstract,
 
     cchurch = models.ForeignKey('group.Church', on_delete=models.PROTECT,
                                 related_name='uusers', verbose_name=_('Church'),
-                                null=True, blank=True)
+                                null=True, blank=True, db_index=True)
 
     hhome_group = models.ForeignKey('group.HomeGroup', on_delete=models.PROTECT,
                                     related_name='uusers', verbose_name=_('Home group'),
-                                    null=True, blank=True)
+                                    null=True, blank=True, db_index=True)
 
     objects = CustomUserManager()
 

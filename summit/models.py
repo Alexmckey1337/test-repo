@@ -127,8 +127,8 @@ class Summit(models.Model):
 class ProfileAbstract(models.Model):
     """ Cloned the user when create/update profile """
 
-    first_name = models.CharField(_('Fisrt name'), max_length=255, blank=True, editable=False)
-    last_name = models.CharField(_('Last name'), max_length=255, blank=True, editable=False)
+    first_name = models.CharField(_('Fisrt name'), max_length=255, blank=True, editable=False, db_index=True)
+    last_name = models.CharField(_('Last name'), max_length=255, blank=True, editable=False, db_index=True)
 
     pastor = models.CharField(_('Name of pastor'), max_length=255, blank=True, editable=False)
     bishop = models.CharField(_('Name of bishop'), max_length=255, blank=True, editable=False)
@@ -155,13 +155,13 @@ class ProfileAbstract(models.Model):
 
     departments = models.ManyToManyField('hierarchy.Department',
                                          verbose_name=_('Departments'), editable=False)
-    department = models.CharField(_('Titles of departments'), max_length=255, blank=True, editable=False)
+    department = models.CharField(_('Titles of departments'), max_length=255, blank=True, editable=False, db_index=True)
 
     hierarchy = models.ForeignKey('hierarchy.Hierarchy', null=True, blank=True,
-                                  on_delete=models.SET_NULL, verbose_name=_('Hierarchy'), editable=False)
+                                  on_delete=models.SET_NULL, verbose_name=_('Hierarchy'), editable=False, db_index=True)
     hierarchy_title = models.CharField(_('Title of hierarchy'), max_length=255, blank=True, editable=False)
     master = models.ForeignKey('account.CustomUser', null=True, blank=True, verbose_name=_('Master'),
-                               on_delete=models.PROTECT, editable=False)
+                               on_delete=models.PROTECT, editable=False, db_index=True)
     responsible = models.CharField(_('Name of master'), max_length=255, blank=True, editable=False)
 
     class Meta:
@@ -172,7 +172,7 @@ class ProfileAbstract(models.Model):
 class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
     user = models.ForeignKey('account.CustomUser', related_name='summit_profiles')
     summit = models.ForeignKey('Summit', related_name='ankets', verbose_name='Саммит',
-                               blank=True, null=True)
+                               blank=True, null=True, db_index=True)
 
     #: The amount paid for the summit
     value = models.DecimalField(_('Paid amount'), max_digits=12, decimal_places=0,
@@ -190,7 +190,7 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
         (CONSULTANT, _('Consultant')),
         (SUPERVISOR, _('Supervisor')),
     )
-    role = models.PositiveSmallIntegerField(_('Summit Role'), choices=ROLES, default=VISITOR)
+    role = models.PositiveSmallIntegerField(_('Summit Role'), choices=ROLES, default=VISITOR, db_index=True)
 
     summit_consultants = models.ManyToManyField(
         'summit.Summit', related_name='consultant_ankets',

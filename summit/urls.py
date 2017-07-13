@@ -20,6 +20,7 @@ router_v1_0.register(r'summit_attends', views_app.SummitAttendViewSet)
 router_app = routers.DefaultRouter()
 router_app.register(r'summits', views_app.SummitTypeForAppViewSet, base_name='summits')
 router_app.register(r'users', views_app.SummitProfileForAppViewSet, base_name='users')
+router_app.register(r'draw_users', views_app.SummitProfileWithLess10AbsentForAppViewSet, base_name='draw_users')
 
 custom_urls = [
     url(r'^generate_code/.+\.pdf', views.generate_code, name='generate_code'),
