@@ -215,16 +215,16 @@
   position: fixed;
   max-width: 940px;
   min-width: 435px;
-  height: auto;
-  top: 50%;
-  left: 50%;
+  height: 100%;
+  top: 0;
+  right: 0;
   padding: 2em 3.2em;
   background: #fff;
   border: 1px solid #f3f3f3;
   z-index: 9999;
   border-radius: 3px;
-  transform: translateY(-50%) translateX(-50%);
-  margin: 0 auto;
+  margin: 0 auto;    display: flex;
+  flex-direction: column;
   box-shadow: 3px 7px 50px rgba(0, 0, 0, 0.5);
   .edit {
     position: absolute;
@@ -239,6 +239,7 @@
     border-bottom: 1px solid #eee;
     user-select: none;
     cursor: default;
+    height: 35px;
     & .close {
       position: absolute;
       top: 1em;
@@ -256,6 +257,11 @@
     padding-bottom: 1em;
     border-bottom: 1px solid #eee;
     margin-bottom: 2em;
+    flex: 1;
+  }
+  &>.container{
+    height: 90px;
+    align-content: flex-start;
   }
 }
 
@@ -287,6 +293,11 @@
   z-index: 99;
 }
 
+#chooseUserINBases{
+  h3{
+    padding-left:40px;
+  }
+}
 .choose-user-wrap{
   .search {
     border: 1px solid #cdd0d4;
@@ -358,19 +369,18 @@
     z-index: 1 !important;
   }
 }
-
+.flex-wrap{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
 .splash-screen {
   max-width: 666px;
   min-width: 466px;
   background-color: #fff;
   border-radius: 3px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  margin: auto;
-  height: 410px;
+  height: auto;
   .wrap {
     padding: 2em 3em;
   }
@@ -379,7 +389,7 @@
   }
   .top-text{
     h3{
-    padding-left:50px;
+    //padding-left:50px;
     span{
       left: 0;
       top:0;
@@ -412,6 +422,9 @@
       font-family: "UbuntuLight", sans-serif;
       color: #888f98;
       cursor: pointer;
+    }
+    h3{
+      //padding-left:40px;
     }
   }
 }
@@ -474,7 +487,7 @@
   }
   textarea {
     display: block;
-    width: 88%;
+    width: 100%;
     height: 80px;
     margin: 0 auto;
     resize: none;
@@ -488,10 +501,10 @@
 
 .summa-wrap {
   overflow: hidden;
-  margin: 1em 2.25em;
+  margin: 1em 0em;
   display: flex;
   align-items: flex-start;
-  & > div {
+  & > div:last-child {
     margin-left: 1em;
   }
 }
@@ -518,11 +531,13 @@
     margin-right: 1em;
   }
 }
-
+#payment-form{
+  padding: 0 20px;
+}
 .input__wrap {
-  height: 5em;
+  padding: 17px 0;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
   user-select: none;
   & > div {
@@ -615,7 +630,7 @@ input#deal-value, input#summit-value, input#summit-valueNew, input#summit-valueD
 }
 
 .splash-bauttons {
-  padding: 30px;
+  padding:17px 0px;
   text-align: right;
 }
 
@@ -691,14 +706,14 @@ button{
 
 #addNewUserPopup {
   .editprofile-screen {
-    right: -550px;
+    right: 0px;
     max-width: 520px;
     width: 520px;
     height: auto;
     background-color: transparent;
     overflow: hidden;
     z-index: 25;
-    left: auto;
+    position: absolute;
     & form {
       display: inline-flex;
       transition: transform .2s ease;
@@ -751,7 +766,6 @@ button{
       height: 55px;
       padding: 0 30px;
       h1 {
-        font-size: 2em;
         font-weight: 900;
       }
       & .header_step {
@@ -1149,7 +1163,7 @@ button{
   }
   .summa-wrap {
     display: block;
-    margin: 1em 1.25em 4em 1.25em;
+    margin: 1em 1.25em 4em 0em;
     overflow: visible;
     & .summa {
       display: flex;

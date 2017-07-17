@@ -835,7 +835,7 @@
         <hr>
     </div>
     <div class="clearfix"></div>
-    <div class="content">
+    <div class="content padding-table">
         {% if log_messages %}
             <h1 style="padding-left: 20px;">
                 <a href="{% url "account:logs" user_id=account.id %}">{% trans "Меня меняли" %}</a>
@@ -897,82 +897,89 @@
         {% create_payment_form account.partnership %}
     {% endif %}
     <div id="popup-create_deal" class="pop-up-splash">
-        <div class="splash-screen">
-            <div class="top-text">
-                <h3>Создать сделку</h3>
-                <span>&times;</span>
-            </div>
-            <div class="summa-wrap">
-                <div class="summa">
-                    <label>Сумма:</label>
-                    <input maxlength="6"
-                           onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
-                           type="text" id="new_deal_sum">
+        <div class="flex-wrap">
+            <div class="splash-screen">
+                <div class="top-text">
+                    <h3>Создать сделку</h3>
+                    <span>&times;</span>
                 </div>
-                <div class="date">
-                    <label>Дата:</label>
-                    <input type="text" id="new_deal_date" class="sel__date" required></div>
-            </div>
-            <textarea maxlength="40" placeholder="Добавить коментарий"></textarea>
-            <div class="splash-bauttons">
-                <button id="close-deal">Отменить</button>
-                <button id="send_new_deal" data-partner="{{ account.partnership.id }}">Создать</button>
+                <div class="padding-wrap">
+                    <div class="summa-wrap">
+                    <div class="summa">
+                        <label>Сумма:</label>
+                        <input maxlength="6"
+                               onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
+                               type="text" id="new_deal_sum">
+                    </div>
+                    <div class="date">
+                        <label>Дата:</label>
+                        <input type="text" id="new_deal_date" class="sel__date" required></div>
+                </div>
+                    <textarea maxlength="40" placeholder="Добавить коментарий"></textarea>
+                    <div class="splash-bauttons">
+                        <button id="close-deal">Отменить</button>
+                        <button id="send_new_deal" data-partner="{{ account.partnership.id }}">Создать</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     {% if user == account %}
         <div id="popup-change_password" class="pop-up-splash">
-            <div class="splash-screen">
-                <div class="top-text">
-                    <h3>Изменить пароль</h3>
-                    <span>&times;</span>
+            <div class="flex-wrap">
+                <div class="splash-screen">
+                    <div class="top-text">
+                        <h3>Изменить пароль</h3>
+                        <span>&times;</span>
+                    </div>
+                    <form id="change-password-form" action="{% url "rest_password_change" %}" method="post">
+                        <p>Ваш новый пароль должен быть длиной от 8 до 16 знаков и может содержать буквы верхнего и
+                            нижнего регистров, а также цифры.
+                        </p>
+                        <p>Ваш новый пароль не должен совпадать со старым паролем, а также быть похожим на Ваш электронный адрес</p>
+                        <div class="summa-wrap">
+                            <div class="summa">
+                                <div class="label-wrapp">
+                                    <label for="old_password">{% trans "Old password" %}:</label>
+                                </div>
+                                <div class="input-wrapp">
+                                    <input type="password" name="old_password" id="old_password" required>
+                                    <span id="error-old_password" class="password-error"></span>
+                                </div>
+                            </div>
+                            <div class="summa">
+                                <div class="label-wrapp">
+                                    <label for="new_password1">{% trans "New password" %}:</label>
+                                </div>
+                                <div class="input-wrapp">
+                                    <input type="password" name="new_password1" id="new_password1" required>
+                                    <span id="error-new_password1" class="password-error"></span>
+                                </div>
+                            </div>
+                            <div class="summa">
+                                <div class="label-wrapp">
+                                    <label for="new_password2">{% trans "New password confirmation" %}:</label>
+                                </div>
+                                <div class="input-wrapp">
+                                    <input type="password" name="new_password2" id="new_password2" required>
+                                    <span id="error-new_password2" class="password-error"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="splash-buttons">
+                            <button id="close-password">{% trans "Cancel" %}</button>
+                            <button type="submit" id="submit_password" data-partner="{{ account.partnership.id }}">
+                                {% trans "Change password" %}
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <form id="change-password-form" action="{% url "rest_password_change" %}" method="post">
-                    <p>Ваш новый пароль должен быть длиной от 8 до 16 знаков и может содержать буквы верхнего и
-                        нижнего регистров, а также цифры.
-                    </p>
-                    <p>Ваш новый пароль не должен совпадать со старым паролем, а также быть похожим на Ваш электронный адрес</p>
-                    <div class="summa-wrap">
-                        <div class="summa">
-                            <div class="label-wrapp">
-                                <label for="old_password">{% trans "Old password" %}:</label>
-                            </div>
-                            <div class="input-wrapp">
-                                <input type="password" name="old_password" id="old_password" required>
-                                <span id="error-old_password" class="password-error"></span>
-                            </div>
-                        </div>
-                        <div class="summa">
-                            <div class="label-wrapp">
-                                <label for="new_password1">{% trans "New password" %}:</label>
-                            </div>
-                            <div class="input-wrapp">
-                                <input type="password" name="new_password1" id="new_password1" required>
-                                <span id="error-new_password1" class="password-error"></span>
-                            </div>
-                        </div>
-                        <div class="summa">
-                            <div class="label-wrapp">
-                                <label for="new_password2">{% trans "New password confirmation" %}:</label>
-                            </div>
-                            <div class="input-wrapp">
-                                <input type="password" name="new_password2" id="new_password2" required>
-                                <span id="error-new_password2" class="password-error"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="splash-buttons">
-                        <button id="close-password">{% trans "Cancel" %}</button>
-                        <button type="submit" id="submit_password" data-partner="{{ account.partnership.id }}">
-                            {% trans "Change password" %}
-                        </button>
-                    </div>
-                </form>
             </div>
         </div>
     {% endif %}
     <div id="impPopup">
-        <div class="splash-screen">
+        <div class="flex-wrap">
+            <div class="splash-screen">
             <div class="top-text">
                 <h3>Редактирование картинки</h3>
                 <span class="close">×</span>
@@ -983,6 +990,7 @@
             <div class="splash-buttons">
                 <button class="cr" id="editCropImg">Изменить</button>
             </div>
+        </div>
         </div>
     </div>
     {{ block.super }}

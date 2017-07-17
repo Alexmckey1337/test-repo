@@ -77,7 +77,8 @@
 {% block popup %}
     {% create_payment_form %}
     <div id="popup-payments" class="pop-up-splash">
-        <div class="splash-screen">
+        <div class="flex-wrap">
+            <div class="splash-screen">
             <div class="top-text">
                 <h3>Платежи</h3>
                 <span>&times;</span>
@@ -88,28 +89,31 @@
                 <button class="close">Закрыть</button>
             </div>
         </div>
+        </div>
     </div>
     <div id="popup" class="pop-up-splash">
-        <div class="splash-screen">
-            <div class="top-text">
-                <h3>Завершить сделку</h3>
-            </div>
-            <div class="user-info">
-                <div class="left-side">
-                    <p>Клиент:</p>
-                    <p>Последняя сделка:</p>
-                    <p>Ответственный:</p>
+        <div class="flex-wrap">
+            <div class="splash-screen">
+                <div class="top-text">
+                    <h3>Завершить сделку</h3>
                 </div>
-                <div class="right-side">
-                    <p><input id="client-name" value="" disabled></p>
-                    <p><input id="deal-date" value="" disabled></p>
-                    <p><input id="responsible-name" value="" disabled></p>
+                <div class="user-info">
+                    <div class="left-side">
+                        <p>Клиент:</p>
+                        <p>Последняя сделка:</p>
+                        <p>Ответственный:</p>
+                    </div>
+                    <div class="right-side">
+                        <p><input id="client-name" value="" disabled></p>
+                        <p><input id="deal-date" value="" disabled></p>
+                        <p><input id="responsible-name" value="" disabled></p>
+                    </div>
                 </div>
-            </div>
-            <textarea placeholder="Добавить коментарий" id="deal-description"></textarea>
-            <div class="splash-bauttons">
-                <button class="close">Отменить</button>
-                <button id="complete">Завершить</button>
+                <textarea placeholder="Добавить коментарий" id="deal-description"></textarea>
+                <div class="splash-bauttons">
+                    <button class="close">Отменить</button>
+                    <button id="complete">Завершить</button>
+                </div>
             </div>
         </div>
     </div>

@@ -113,7 +113,7 @@
                                 {% endfor %}
                             </select>
                         </p>
-                     <p class="input_block">
+                        <p class="input_block">
                             <select class="selectdb" data-filter="master_tree" id="tree_filter">
                                 <option value="">ВСЕ</option>
                                 {% for master in masters %}
@@ -176,34 +176,36 @@
         </div>
     </div>
     <div id="popup" class="pop-up-splash">
-        <div class="splash-screen">
-            <div class="top-text">
-                <h3>Завершить сделку</h3>
-            </div>
-            <div class="user-info">
-                <div class="left-side">
-                    <p>Клиент:</p>
-                    <p>Последняя сделка:</p>
-                    <p>Ответственный:</p>
+        <div class="flex-wrap">
+            <div class="splash-screen">
+                <div class="top-text">
+                    <h3>Завершить сделку</h3>
                 </div>
-                <div class="right-side">
-                    <p id="client-name"></p>
-                    <p id="deal-date"></p>
-                    <p id="responsible-name"></p>
+                <div class="user-info">
+                    <div class="left-side">
+                        <p>Клиент:</p>
+                        <p>Последняя сделка:</p>
+                        <p>Ответственный:</p>
+                    </div>
+                    <div class="right-side">
+                        <p id="client-name"></p>
+                        <p id="deal-date"></p>
+                        <p id="responsible-name"></p>
+                    </div>
                 </div>
-            </div>
-            <div class="summa-wrap">
-                <div class="summa">
-                    <p>Сумма:</p>
-                    <!-- <span id="deal-value"></span> -->
-                    <input readonly="readonly" type="text" id="deal-value">
-                    <span id="changeSum" class="change-summ"></span>
+                <div class="summa-wrap">
+                    <div class="summa">
+                        <p>Сумма:</p>
+                        <!-- <span id="deal-value"></span> -->
+                        <input readonly="readonly" type="text" id="deal-value">
+                        <span id="changeSum" class="change-summ"></span>
+                    </div>
                 </div>
-            </div>
-            <textarea placeholder="Добавить коментарий" id="deal-description"></textarea>
-            <div class="splash-bauttons">
-                <button id="close">Отменить</button>
-                <button id="complete">Завершить</button>
+                <textarea placeholder="Добавить коментарий" id="deal-description"></textarea>
+                <div class="splash-bauttons">
+                    <button id="close">Отменить</button>
+                    <button id="complete">Завершить</button>
+                </div>
             </div>
         </div>
     </div>

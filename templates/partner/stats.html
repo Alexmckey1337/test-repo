@@ -195,7 +195,8 @@
 
 {% block popup %}
     <div id="popup" class="pop-up-splash">
-        <div class="splash-screen">
+        <div class="flex-wrap">
+            <div class="splash-screen">
             <div class="top-text">
                 <h3>Завершить сделку</h3>
             </div>
@@ -224,6 +225,7 @@
                 <button id="close">Отменить</button>
                 <button id="complete">Завершить</button>
             </div>
+        </div>
         </div>
     </div>
     {{ block.super }}

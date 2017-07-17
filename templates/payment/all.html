@@ -22,7 +22,8 @@
 
 {% block popup %}
     <div id="popup" class="pop-up-splash">
-        <div class="splash-screen">
+        <div class="flex-wrap">
+            <div class="splash-screen">
             <div class="top-text">
                 <h3>{% trans "Edit payment" %}</h3>
             </div>
@@ -45,6 +46,7 @@
                 <button class="close">{% trans "Cancel" %}</button>
                 <button class="complete" data-payment-id="">{% trans "Edit" %}</button>
             </div>
+        </div>
         </div>
     </div>
 {% endblock %}

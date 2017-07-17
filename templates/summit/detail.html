@@ -73,84 +73,92 @@
 
 {% block create_user %}
     <div id="popup" class="pop-up-splash">
-        <div class="splash-screen">
-            <div class="top-text">
-                <h3><span>←</span> Информация об участнике</h3>
-            </div>
-            <div class="user-info">
-                <div class="left-side">
-                    <p>Клиент:</p>
-                    <p>Ответственный:</p>
+        <div class="flex-wrap">
+            <div class="splash-screen">
+                <div class="top-text">
+                    <h3><span>←</span> Информация об участнике</h3>
                 </div>
-                <div class="right-side">
-                    <p id="client-name"></p>
-                    <p id="responsible-name"></p>
+                <div class="user-info">
+                    <div class="left-side">
+                        <p>Клиент:</p>
+                        <p>Ответственный:</p>
+                    </div>
+                    <div class="right-side">
+                        <p id="client-name"></p>
+                        <p id="responsible-name"></p>
+                    </div>
                 </div>
-            </div>
-            <textarea placeholder="Добавить коментарий"></textarea>
-            <div class="splash-bauttons">
-                <button id="close">Отменить</button>
-                <button id="complete">Завершить</button>
+                <textarea placeholder="Добавить коментарий"></textarea>
+                <div class="splash-bauttons">
+                    <button id="close">Отменить</button>
+                    <button id="complete">Завершить</button>
+                </div>
             </div>
         </div>
     </div>
     <div id="popupParticipantInfo" class="pop-up-splash">
-        <div class="splash-screen">
-            <div class="top-text">
-                <h3>Информация об участнике</h3>
-                <span class="close close-popup">&times;</span>
-            </div>
-            <h2 id="fullNameCard"></h2>
-            <form class="form__wrap" id="participantInfoForm">
-                <textarea maxlength="150" name="description" id="userDescription"
-                          placeholder="Добавить коментарий"></textarea>
-            </form>
-            <div class="splash-bauttons">
-                <button id="preDeleteAnket" class="delete_btn">Удалить</button>
-                <button class="close">Отменить</button>
-                <button id="applyChanges">Применить</button>
+        <div class="flex-wrap">
+            <div class="splash-screen">
+                <div class="top-text">
+                    <h3>Информация об участнике</h3>
+                    <span class="close close-popup">&times;</span>
+                </div>
+                <h2 id="fullNameCard"></h2>
+                <form class="form__wrap" id="participantInfoForm">
+                    <textarea maxlength="150" name="description" id="userDescription"
+                              placeholder="Добавить коментарий"></textarea>
+                </form>
+                <div class="splash-bauttons">
+                    <button id="preDeleteAnket" class="delete_btn">Удалить</button>
+                    <button class="close">Отменить</button>
+                    <button id="applyChanges">Применить</button>
+                </div>
             </div>
         </div>
     </div>
     {% create_payment_form %}
     <div id="popup-payments" class="pop-up-splash">
-        <div class="splash-screen">
-            <div class="top-text">
-                <h3>Платежи</h3>
-                <span class="close close-popup">&times;</span>
-            </div>
-            <table></table>
-            <div class="splash-bauttons">
-                <button id="close-payments">Закрыть</button>
+        <div class="flex-wrap">
+            <div class="splash-screen">
+                <div class="top-text">
+                    <h3>Платежи</h3>
+                    <span class="close close-popup">&times;</span>
+                </div>
+                <table></table>
+                <div class="splash-bauttons">
+                    <button id="close-payments">Закрыть</button>
+                </div>
             </div>
         </div>
     </div>
     <div id="popupForNew" class="pop-up-splash">
-        <div class="splash-screen">
-            <div class="top-text">
-                <h3><span>←</span> Информация об участнике</h3>
-            </div>
-            <div class="user-info">
-                <div class="left-side">
-                    <p>Клиент:</p>
-                    <p>Ответственный:</p>
+        <div class="flex-wrap">
+            <div class="splash-screen">
+                <div class="top-text">
+                    <h3><span>←</span> Информация об участнике</h3>
                 </div>
-                <div class="right-side">
-                    <p id="client-nameNew"></p>
-                    <p id="responsible-nameNew"></p>
+                <div class="user-info">
+                    <div class="left-side">
+                        <p>Клиент:</p>
+                        <p>Ответственный:</p>
+                    </div>
+                    <div class="right-side">
+                        <p id="client-nameNew"></p>
+                        <p id="responsible-nameNew"></p>
+                    </div>
                 </div>
-            </div>
-            <div class="summa-wrap">
-                <div class="code">
-                    <input placeholder="Номер пропуска" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                           type="text" id="code">
-                    <input id="check" type="checkbox">
+                <div class="summa-wrap">
+                    <div class="code">
+                        <input placeholder="Номер пропуска" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                               type="text" id="code">
+                        <input id="check" type="checkbox">
+                    </div>
                 </div>
-            </div>
-            <textarea placeholder="Добавить коментарий"></textarea>
-            <div class="splash-bauttons">
-                <button class="close-popup">Отменить</button>
-                <button id="completeNew">Завершить</button>
+                <textarea placeholder="Добавить коментарий"></textarea>
+                <div class="splash-bauttons">
+                    <button class="close-popup">Отменить</button>
+                    <button id="completeNew">Завершить</button>
+                </div>
             </div>
         </div>
     </div><!--End Pop-up-splash-->
@@ -269,7 +277,7 @@
                                 <option value="given">{% trans "Выдано" %}</option>
                             </select>
                         </p>
-                        <p>
+                        <p class="input_block">
                             <select class="select__db select__custom" data-filter="e_ticket" name="e_ticket" id="Eticket">
                                 <option>ВСЕ</option>
                                 <option value="true">Есть</option>

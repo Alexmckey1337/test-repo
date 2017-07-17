@@ -89,7 +89,8 @@
 
 {% block add_user_modal %}
     <div class="add-user-wrap popup" id="addUser"><!--Add -user -->
-        <div class="splash-screen">
+        <div class="flex-wrap">
+            <div class="splash-screen">
             <div class="top-text">
                 <h3>Добавить участника</h3>
                 <span class="close">&times;</span>
@@ -103,12 +104,14 @@
                 {% endblock %}
             </div>
         </div>
+        </div>
     </div>
 {% endblock %}
 
 {% block choose_user_modal %}
     <div class="choose-user-wrap popup" id="chooseUserINBases"><!--Choose -user -->
-        <div class="splash-screen">
+        <div class="flex-wrap">
+            <div class="splash-screen">
             <div class="top-text">
                 <h3><span>←</span> Выбрать участника из базы</h3>
                 <span class="close">&times;</span>
@@ -119,6 +122,7 @@
                 {% endblock %}
             </div>
             <div id="searchedUsers" class="scrollwrap scrollbar-macosx"></div>
+        </div>
         </div>
     </div><!--End Choose -user -->
 {% endblock %}
