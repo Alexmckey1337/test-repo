@@ -9,7 +9,7 @@ from django.conf import settings
 from django.db import transaction, IntegrityError
 from django.db.models import (
     Case, When, BooleanField, F, Subquery, OuterRef, CharField,
-    Func)
+    Func, Q)
 from django.db.models import Value as V
 from django.db.models.functions import Concat, Coalesce
 from django.http import HttpResponse
@@ -597,12 +597,14 @@ def attend_stats(request, summit_id):
         if not master:
             profiles = SummitAnket.objects.none()
         else:
-            profiles = FilterProfileMasterTreeWithSelf().filter_queryset(request, profiles, None)
+            profiles = profiles.filter(Q(master_path__contains=[master_id]) | Q(user_id=master_id))
     attends = SummitAttend.objects.filter(anket__in=Subquery(profiles.values('pk')))
+    all_attends = SummitAttend.objects.filter(anket__summit_id=summit_id)
 
+    all_attends_by_date = collections.Counter(all_attends.values_list('date', flat=True))
     attends_by_date = collections.Counter(attends.values_list('date', flat=True))
-    for d, c in attends_by_date.items():
-        attends_by_date[d] = (c, profiles.filter(date__lte=d).count())
+    for d in all_attends_by_date.keys():
+        attends_by_date[d] = (attends_by_date.get(d, 0), profiles.filter(date__lte=d).count())
     return Response([
         (datetime(d.year, d.month, d.day).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
     ])

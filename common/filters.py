@@ -160,6 +160,8 @@ class BaseFilterMasterTree(BaseFilterBackend):
             return queryset
 
         if master.is_leaf_node():
+            if self.include_self_master:
+                return queryset.filter(**{'%sid' % self.user_field_prefix: master.id})
             return queryset.none()
 
         filter_by_master_tree = {
