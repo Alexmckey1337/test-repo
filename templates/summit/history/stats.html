@@ -1,0 +1,45 @@
+{% extends "layout_main.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block header.top.h1 %}
+    <h1 id="summit-title" data-summit-id="{{ summit.id }}">
+        {% trans "Summit" %} |
+        {{ summit.type }} |
+        <a href="{{ summit.get_absolute_url }}">{{ summit }} | </a>
+        <span>{% trans "Statistics" %}</span>
+    </h1>
+{% endblock %}
+
+{% block header.buttons %}
+    <div class="top-panel">
+        <div class="tabs">
+            <ul class="nav tabs_link">
+                <li><a href="{{ summit.get_absolute_url }}">Участники</a></li>
+                <li><a href="{% url 'summit:stats' pk=summit.id %}">Посещаемость</a></li>
+                <li><a href="{% url 'summit:report' pk=summit.id %}">По ответственному</a></li>
+                <li><a class="active" href="{% url 'summit:history-stats' pk=summit.id %}">{% trans "Statistics" %}</a></li>
+            </ul>
+        </div>
+        <div class="top-buttons-wrap">
+            <ul class="top-buttons">
+                 <li>
+                    <button id="print" class="print">Печать</button>
+                </li>
+                <li>
+                    <button id="filter_button"
+                            data-count="0"
+                    >
+                        Фильтр
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+{% block header.buttons.export %}
+{% endblock %}
+
+{% block main.content %}
+    <h1>gogogogo</h1>
+{% endblock %}

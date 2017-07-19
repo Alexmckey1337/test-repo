@@ -20,6 +20,7 @@
                 <li><a href="{{ summit.get_absolute_url }}">Участники</a></li>
                 <li><a href="{% url 'summit:stats' pk=summit.id %}">Посещаемость</a></li>
                 <li><a class="active" href="{% url 'summit:report' pk=summit.id %}">По ответственному</a></li>
+                <li><a href="{% url 'summit:history-stats' pk=summit.id %}">{% trans "Statistics" %}</a></li>
             </ul>
         </div>
         <div class="top-buttons-wrap">

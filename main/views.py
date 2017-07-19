@@ -487,6 +487,26 @@ class SummitBishopReportView(LoginRequiredMixin, CanSeeSummitReportByBishopsMixi
         return ctx
 
 
+class SummitHistoryStatisticsView(LoginRequiredMixin, TemplateView):
+    template_name = 'summit/history/stats.html'
+    login_url = 'entry'
+    summit_id = None
+
+    def get(self, request, *args, **kwargs):
+        self.summit_id = kwargs.get('pk')
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+
+        ctx['summit'] = get_object_or_404(Summit, pk=self.summit_id)
+        ctx['departments'] = Department.objects.all()
+        # TODO
+        ctx['masters'] = CustomUser.objects.filter(summit_profiles__summit_id=self.summit_id)[:100]
+
+        return ctx
+
+
 # database
 
 
