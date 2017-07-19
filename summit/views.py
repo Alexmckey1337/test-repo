@@ -1,7 +1,9 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import collections
 import logging
+from collections import OrderedDict
 from datetime import datetime
 
 from django.conf import settings
@@ -227,7 +229,7 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mix
     def perform_create(self, serializer):
         profile = serializer.save()
         profile.creator = self.request.user if self.request.user.is_authenticated else None
-        profile.code = '0{}'.format(4*1000*1000 + profile.id)
+        profile.code = '0{}'.format(4 * 1000 * 1000 + profile.id)
         profile.save()
 
         new_dict = model_to_dict(profile, fields=('summit',))
@@ -580,3 +582,26 @@ def generate_summit_tickets(request, summit_id):
     logger.info('Update profiles ticket_status: {}'.format(result))
 
     return Response(data={'ticket_id': ticket.id})
+
+
+@api_view(['GET'])
+def attend_stats(request, summit_id):
+    department = request.query_params.get('department', None)
+    master_id = request.query_params.get('master_tree', None)
+
+    profiles = SummitAnket.objects.filter(summit_id=summit_id)
+
+    if department:
+        profiles = profiles.filter(departments__id=department)
+    if master_id:
+        master = CustomUser.objects.filter(pk=master_id)
+        if not master:
+            profiles = SummitAnket.objects.none()
+        else:
+            profiles = FilterProfileMasterTreeWithSelf().filter_queryset(request, profiles, None)
+    attends = SummitAttend.objects.filter(anket__in=Subquery(profiles.values('pk')))
+
+    attends_by_date = collections.Counter(attends.values_list('date', flat=True))
+    for d, c in attends_by_date.items():
+        attends_by_date[d] = (c, profiles.filter(date__lte=d).count())
+    return Response(OrderedDict((d.strftime("%Y-%m-%d"), c) for d, c in attends_by_date.items()))
