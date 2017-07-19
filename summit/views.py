@@ -604,4 +604,5 @@ def attend_stats(request, summit_id):
     attends_by_date = collections.Counter(attends.values_list('date', flat=True))
     for d, c in attends_by_date.items():
         attends_by_date[d] = (c, profiles.filter(date__lte=d).count())
-    return Response(OrderedDict((d.strftime("%Y-%m-%d"), c) for d, c in attends_by_date.items()))
+    return Response(OrderedDict(
+        (d.strftime("%Y-%m-%d"), attends_by_date[d]) for d in sorted(attends_by_date.keys())))
