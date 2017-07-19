@@ -6,7 +6,9 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
+from django.core.validators import int_list_validator
 from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
@@ -124,6 +126,10 @@ class Summit(models.Model):
         return self.type.club_name
 
 
+def validate_master_path(value):
+    return int_list_validator(sep='.', message=_('Enter only digits separated by dots.'))
+
+
 class ProfileAbstract(models.Model):
     """ Cloned the user when create/update profile """
 
@@ -162,6 +168,11 @@ class ProfileAbstract(models.Model):
     hierarchy_title = models.CharField(_('Title of hierarchy'), max_length=255, blank=True, editable=False)
     master = models.ForeignKey('account.CustomUser', null=True, blank=True, verbose_name=_('Master'),
                                on_delete=models.PROTECT, editable=False, db_index=True)
+    master_path = ArrayField(
+        models.PositiveIntegerField(_('User id')),
+        verbose_name=_('Master path'),
+        default=[], editable=False
+    )
     responsible = models.CharField(_('Name of master'), max_length=255, blank=True, editable=False)
 
     class Meta:
@@ -262,6 +273,8 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
         master = self.user.master
         self.responsible = master.fullname if master else ''
         self.master = master
+        master_path = ".".join(map(lambda p: str(p), self.user.get_ancestors().values_list('pk', flat=True)))
+        self.master_path = master_path
 
         hierarchy = self.user.hierarchy
         self.hierarchy = hierarchy
