@@ -501,8 +501,7 @@ class SummitHistoryStatisticsView(LoginRequiredMixin, TemplateView):
 
         ctx['summit'] = get_object_or_404(Summit, pk=self.summit_id)
         ctx['departments'] = Department.objects.all()
-        # TODO
-        ctx['masters'] = CustomUser.objects.filter(summit_profiles__summit_id=self.summit_id)[:100]
+        ctx['masters'] = CustomUser.objects.filter(summit_profiles__summit_id=self.summit_id, hierarchy__level__gte=4)
 
         return ctx
 
