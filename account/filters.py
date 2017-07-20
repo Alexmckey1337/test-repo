@@ -3,6 +3,7 @@ import django_filters
 from account.models import CustomUser as User
 from common.filters import BaseFilterByBirthday, BaseFilterMasterTree
 from hierarchy.models import Hierarchy, Department
+from summit.models import Summit
 
 
 class FilterByUserBirthday(BaseFilterByBirthday):
@@ -33,7 +34,8 @@ class ShortUserFilter(django_filters.FilterSet):
     level_lt = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='lt')
     level_lte = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='lte')
     department = django_filters.ModelMultipleChoiceFilter(name="departments", queryset=Department.objects.all())
+    summit = django_filters.ModelChoiceFilter(name="summit_profiles__summit_id", queryset=Summit.objects.all())
 
     class Meta:
         model = User
-        fields = ['level_gt', 'level_gte', 'level_lt', 'level_lte', 'department']
+        fields = ['level_gt', 'level_gte', 'level_lt', 'level_lte', 'department', 'master', 'summit']

@@ -6,13 +6,15 @@ import logging
 from django.contrib.auth import logout as django_logout
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction, IntegrityError
+from django.db.models import Value as V
+from django.db.models.functions import Concat
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 from rest_auth.views import LogoutView as RestAuthLogoutView
 from rest_framework import status, mixins, exceptions
 from rest_framework import viewsets, filters
 from rest_framework.decorators import list_route, detail_route
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser, FormParser
 from rest_framework.permissions import IsAuthenticated
@@ -22,10 +24,11 @@ from rest_framework.viewsets import GenericViewSet
 from account.filters import FilterByUserBirthday, UserFilter, ShortUserFilter, FilterMasterTreeWithSelf
 from account.models import CustomUser as User
 from account.permissions import CanSeeUserList, CanCreateUser, CanExportUserList
-from account.serializers import HierarchyError, UserForMoveSerializer
+from account.serializers import HierarchyError, UserForMoveSerializer, UserForSelectSerializer
 from analytics.decorators import log_perform_update, log_perform_create
 from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
+from common.pagination import ForSelectPagination
 from common.parsers import MultiPartAndJsonParser
 from common.test_helpers.utils import get_real_user
 from common.views_mixins import ExportViewSetMixin
@@ -63,6 +66,33 @@ class UserPagination(PageNumberPagination):
             'user_table': user_table(self.request.user),
             'results': data
         })
+
+
+class UserForSelectView(mixins.ListModelMixin, GenericAPIView):
+    queryset = User.objects.select_related(
+        'hierarchy').order_by('last_name', 'first_name', 'middle_name')
+
+    serializer_class = UserForSelectSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = ForSelectPagination
+
+    filter_backends = (filters.DjangoFilterBackend,
+                       filters.SearchFilter,
+                       FilterMasterTreeWithSelf)
+    filter_class = ShortUserFilter
+    search_fields = ('first_name', 'last_name', 'middle_name')
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.queryset.annotate(
+            full_name=Concat('last_name', V(' '), 'first_name', V(' '), 'middle_name'))
+
+    def paginate_queryset(self, queryset):
+        if self.request.query_params.get('without_pagination', None) is not None:
+            return None
+        return super().paginate_queryset(queryset)
 
 
 class UserExportViewSetMixin(ExportViewSetMixin):

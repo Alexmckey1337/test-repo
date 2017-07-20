@@ -253,6 +253,14 @@ class UserShortSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'fullname', 'hierarchy')
 
 
+class UserForSelectSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(source='full_name')
+
+    class Meta:
+        model = User
+        fields = ('id', 'title')
+
+
 class ExistUserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
