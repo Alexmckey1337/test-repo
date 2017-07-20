@@ -10,7 +10,7 @@ services:
     build: ./compose/postgres
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
-      - postgres_backup_dev:/backups
+      - /Users/dezertir/Downloads:/backups
     environment:
       - POSTGRES_USER=crm_user
       - POSTGRES_DB=crm_db

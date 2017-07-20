@@ -41,5 +41,65 @@
 {% endblock %}
 
 {% block main.content %}
-    <h1>gogogogo</h1>
+    <div class="charts">
+        <div class="charts_head">
+            <h1 class="department_title">Отдeл: <span>ВСЕ</span></h1>
+            <h1 class="master_title">Ответственный: <span>ВСЕ</span></h1>
+        </div>
+        <canvas id="chart_attends"></canvas>
+    </div>
 {% endblock %}
+
+{% block popup %}
+    <div class="popap" id='filterPopup'>
+        <div class="pop_cont">
+            <h2 class='popup_text'>
+                Фильтр
+            </h2>
+            <div class="popup_body">
+                <div class="container">
+                    <div class="col-6">
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Отдел</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Ответственный</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <p class="input_block">
+                            <select class="select__db" data-filter="department" id="departments_filter">
+                                <option value="">ВСЕ</option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">{{ department.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <select class="select__db" data-filter="master_tree" id="master">
+                                <option value="">ВСЕ</option>
+                                {% for master in masters %}
+                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
+                                                                              aria-hidden="true"></i>
+                    Очистить
+                </button>
+                <button class="close-popup">Отменить</button>
+                <button id="applyFilter" class="apply-filter">Применить</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{% static "libs/chart.js/dist/Chart.min.js" %}"></script>
+    <script src="{% static "js/summit_statistics.js" %}"></script>
+{% endblock %}
+
