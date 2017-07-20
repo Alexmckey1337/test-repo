@@ -151,14 +151,21 @@ $('document').ready(function () {
         $('#filter_button').attr('data-count', count);
     });
 
+    // function printCharts() {
+    //     window.print();
+    //     let bg = `<div id="bg-print"></div>`;
+    //     $('body').append(bg);
+    // }
+
     $('#print').on('click', function () {
         $('body').addClass('is-print');
-        setTimeout(window.print, 1000);
+        setTimeout(window.print, 300);
     });
 
     (function () {
         let afterPrint = function () {
             $('body').removeClass('is-print');
+            // $('#bg-print').remove();
         };
 
         if (window.matchMedia) {
