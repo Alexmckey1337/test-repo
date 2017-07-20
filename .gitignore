@@ -22,4 +22,3 @@ public/static/
 /deploy
 /.cache/
 *.html~
-dev.yml
