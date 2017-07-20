@@ -588,6 +588,7 @@ def attend_stats(request, summit_id):
     department = request.query_params.get('department', None)
     master_id = request.query_params.get('master_tree', None)
 
+    summit = get_object_or_404(Summit, pk=summit_id)
     profiles = SummitAnket.objects.filter(summit_id=summit_id)
 
     if department:
@@ -598,15 +599,17 @@ def attend_stats(request, summit_id):
             profiles = SummitAnket.objects.none()
         else:
             profiles = profiles.filter(Q(master_path__contains=[master_id]) | Q(user_id=master_id))
-    attends = SummitAttend.objects.filter(anket__in=Subquery(profiles.values('pk')))
-    all_attends = SummitAttend.objects.filter(anket__summit_id=summit_id)
+    attends = SummitAttend.objects.filter(
+        anket__in=Subquery(profiles.values('pk')), date__range=(summit.start_date, summit.end_date))
+    all_attends = SummitAttend.objects.filter(
+        anket__summit_id=summit_id, date__range=(summit.start_date, summit.end_date))
 
     all_attends_by_date = collections.Counter(all_attends.values_list('date', flat=True))
     attends_by_date = collections.Counter(attends.values_list('date', flat=True))
     for d in all_attends_by_date.keys():
         attends_by_date[d] = (attends_by_date.get(d, 0), profiles.filter(date__lte=d).count())
     return Response([
-        (datetime(d.year, d.month, d.day).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
+        (d.strftime('%Y-%m-%d'), attends_by_date[d]) for d in sorted(attends_by_date.keys())
     ])
 
 
