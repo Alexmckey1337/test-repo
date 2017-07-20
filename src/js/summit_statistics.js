@@ -3,12 +3,18 @@ function initChart(summitId, update = false) {
         let labels = _.map(res, (el) => moment(el[0] * 1000).format('DD.MM')),
             peopleVisit = _.map(res, (el) => el[1][0]),
             peopleAll = _.map(res, (el) => el[1][1]),
-            config = setConfig(labels, peopleVisit, peopleAll);
-        (update) ? updateChart(window.ChartAttends, labels, peopleVisit, peopleAll) : renderChart(config);
+            config = setConfig(labels, peopleVisit, peopleAll),
+            option = {
+                chart: window.ChartAttends,
+                labels: labels,
+                peopleVisit: peopleVisit,
+                peopleAll: peopleAll,
+            };
+        (update) ? updateChart(option) : renderChart(config);
     });
 }
 
-function updateChart(chart, labels, peopleVisit, peopleAll) {
+function updateChart({chart, labels, peopleVisit, peopleAll}) {
     chart.data.labels = labels;
     chart.data.datasets[0].data = peopleAll;
     chart.data.datasets[1].data = peopleVisit;
@@ -24,6 +30,15 @@ const CHARTCOLORS = {
     purple: 'rgb(153, 102, 255)',
     grey: 'rgb(201, 203, 207)'
 };
+
+function getRandomColor() {
+    let letters = '0123456789ABCDEF',
+        color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
 
 function setConfig(labels = [], peopleVisit = [], peopleAll = []) {
     let config = {
@@ -131,11 +146,23 @@ $('document').ready(function () {
     });
 
     $('.select__db').select2();
+    let data = {
+        without_pagination: '',
+        level_gte: 4,
+        summit: summitId
+    };
+    makeResponsibleSummitStats(data, ['#master']);
 
     $('#departments_filter').on('change', function () {
         $('#master_tree').prop('disabled', true);
         let department_id = parseInt($(this).val()) || null;
-        makePastorListNew(department_id, ['#master']);
+        let data = {
+            without_pagination: '',
+            level_gte: 4,
+            department: department_id,
+            summit: summitId,
+        };
+        makeResponsibleSummitStats(data, ['#master']);
     });
 
     $('#applyFilter').on('click', function (e) {
@@ -151,21 +178,15 @@ $('document').ready(function () {
         $('#filter_button').attr('data-count', count);
     });
 
-    // function printCharts() {
-    //     window.print();
-    //     let bg = `<div id="bg-print"></div>`;
-    //     $('body').append(bg);
-    // }
-
     $('#print').on('click', function () {
         $('body').addClass('is-print');
+        // window.ChartAttends.update();
         setTimeout(window.print, 300);
     });
 
     (function () {
         let afterPrint = function () {
             $('body').removeClass('is-print');
-            // $('#bg-print').remove();
         };
 
         if (window.matchMedia) {

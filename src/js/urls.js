@@ -9,6 +9,7 @@ const USER = {
     set_church: (userId) => `/api/v1.1/users/${userId}/set_church/`,
     set_home_group: (userId) => `/api/v1.1/users/${userId}/set_home_group/`,
     departments: (userId) => `/api/v1.1/users/${userId}/departments/`,
+    list_user: () => `/api/v1.1/users/for_select/`,
 };
 
 const SUMMIT = {

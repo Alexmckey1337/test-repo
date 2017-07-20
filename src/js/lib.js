@@ -3409,3 +3409,42 @@ function getSummitAttends(summitId, config = {}) {
         newAjaxRequest(data, status, reject)
     });
 }
+
+function getResponsibleForSelect(config={}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: URLS.user.list_user(),
+            data: config,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}
+
+function makeResponsibleSummitStats(config, selector = [], active = null) {
+    getResponsibleForSelect(config).then(function (data) {
+        let options = '<option selected>ВСЕ</option>';
+        data.forEach(function (item) {
+            options += `<option value="${item.id}"`;
+            if (active == item.id) {
+                options += 'selected';
+            }
+            options += `>${item.title}</option>`;
+        });
+        selector.forEach(item => {
+            $(item).html(options).prop('disabled', false).select2();
+        })
+    });
+}
