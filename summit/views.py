@@ -9,7 +9,7 @@ from django.conf import settings
 from django.db import transaction, IntegrityError
 from django.db.models import (
     Case, When, BooleanField, F, Subquery, OuterRef, CharField,
-    Func, Q)
+    Func, Q, Count)
 from django.db.models import Value as V
 from django.db.models.functions import Concat, Coalesce
 from django.http import HttpResponse
@@ -608,3 +608,42 @@ def attend_stats(request, summit_id):
     return Response([
         (datetime(d.year, d.month, d.day).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
     ])
+
+
+class HistorySummitStatByMasterDisciplesView(GenericAPIView):
+    queryset = SummitAnket.objects.all()
+
+    permission_classes = (IsAuthenticated,)
+
+    filter_backends = (filters.DjangoFilterBackend,
+                       filters.SearchFilter)
+    # filter_class = ShortUserFilter
+    search_fields = ('first_name', 'last_name', 'middle_name')
+
+    summit = None
+
+    def get(self, request, *args, **kwargs):
+        self.summit = get_object_or_404(Summit, pk=kwargs.get('summit_id'))
+        master = self._get_master(kwargs.get('master_id'))
+        master_desciples = self.get_queryset().filter(master=master)
+
+        master_desciples = list(master_desciples.annotate_full_name().values('user_id', 'full_name'))
+        for profile in master_desciples:
+            master_id = profile['user_id']
+            profile['count'] = SummitAnket.objects.filter(
+                Q(summit=self.summit) &
+                (Q(master_path__contains=[master_id]) | Q(user_id=master_id))).count()
+
+        # return Response(master_desciples)
+        return Response([[m['full_name'], [m['count']]] for m in master_desciples])
+
+    def get_queryset(self):
+        return self.queryset.filter(summit=self.summit)
+
+    def _get_master(self, master_id):
+        if not master_id:
+            return None
+        try:
+            return CustomUser.objects.get(pk=master_id)
+        except CustomUser.DoesNotExist:
+            return None
