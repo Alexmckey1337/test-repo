@@ -3,14 +3,14 @@ from __future__ import unicode_literals
 
 import collections
 import logging
+from collections import defaultdict
 from datetime import datetime, time
 
-from collections import defaultdict
 from django.conf import settings
 from django.db import transaction, IntegrityError
 from django.db.models import (
     Case, When, BooleanField, F, Subquery, OuterRef, CharField,
-    Func, Q, Count)
+    Func, Q)
 from django.db.models import Value as V
 from django.db.models.functions import Concat, Coalesce
 from django.http import HttpResponse
@@ -33,7 +33,8 @@ from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import (FilterByClub, SummitUnregisterFilter, ProfileFilter,
                             FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend,
-                            FilterBySummitAttendByDate, FilterByElecTicketStatus, FilterByTime)
+                            FilterBySummitAttendByDate, FilterByElecTicketStatus, FilterByTime, FilterByDepartment,
+                            FilterByMasterTree)
 from summit.pagination import SummitPagination, SummitTicketPagination, SummitStatisticsPagination
 from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report, \
     can_see_report_by_bishop_or_high
@@ -584,78 +585,75 @@ def generate_summit_tickets(request, summit_id):
     return Response(data={'ticket_id': ticket.id})
 
 
-class HistorySummitAttendStatsView(GenericAPIView):
-    def get(self, request, *args, **kwargs):
-        summit_id = kwargs.get('summit_id')
-        department = request.query_params.get('department', None)
-        master_id = request.query_params.get('master_tree', None)
+class HistorySummitStatsMixin(GenericAPIView):
+    queryset = SummitAnket.objects.all()
 
-        summit = get_object_or_404(Summit, pk=summit_id)
-        profiles = SummitAnket.objects.filter(summit_id=summit_id)
+    pagination_class = None
+    permission_classes = (IsAuthenticated,)
 
-        if department:
-            profiles = profiles.filter(departments__id=department)
-        if master_id:
-            master = CustomUser.objects.filter(pk=master_id)
-            if not master:
-                profiles = SummitAnket.objects.none()
-            else:
-                profiles = profiles.filter(Q(master_path__contains=[master_id]) | Q(user_id=master_id))
+    filter_backends = (
+        FilterByDepartment,
+        FilterByMasterTree,
+    )
+
+    summit = None
+    _profiles = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.summit = get_object_or_404(Summit, pk=kwargs.get('summit_id'))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.summit.ankets.all()
+
+    @property
+    def profiles(self):
+        if self._profiles is None:
+            self._profiles = self.filter_queryset(self.get_queryset())
+        return self._profiles
+
+    def get_attends(self):
+        filter_attends = SummitAttend.objects.filter(
+            anket__in=Subquery(self.profiles.values('pk')), date__range=(self.summit.start_date, self.summit.end_date))
         attends = SummitAttend.objects.filter(
-            anket__in=Subquery(profiles.values('pk')), date__range=(summit.start_date, summit.end_date))
-        all_attends = SummitAttend.objects.filter(
-            anket__summit_id=summit_id, date__range=(summit.start_date, summit.end_date))
+            anket__summit=self.summit, date__range=(self.summit.start_date, self.summit.end_date))
+        return filter_attends, attends
 
-        all_attends_by_date = collections.Counter(all_attends.values_list('date', flat=True))
-        attends_by_date = collections.Counter(attends.values_list('date', flat=True))
+
+class HistorySummitAttendStatsView(HistorySummitStatsMixin):
+    """
+    Getting statistics for attends
+    """
+    def get(self, request, *args, **kwargs):
+        filter_attends, attends = self.get_attends()
+
+        all_attends_by_date = collections.Counter(attends.values_list('date', flat=True))
+        attends_by_date = collections.Counter(filter_attends.values_list('date', flat=True))
         for d in all_attends_by_date.keys():
-            attends_by_date[d] = (attends_by_date.get(d, 0), profiles.filter(date__lte=d).count())
+            attends_by_date[d] = (attends_by_date.get(d, 0), self.profiles.filter(date__lte=d).count())
         return Response([
             (datetime(d.year, d.month, d.day).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
         ])
 
 
-class HistorySummitLatecomerStatsView(GenericAPIView):
-    queryset = SummitAnket.objects.all()
-
-    permission_classes = (IsAuthenticated,)
-
-    filter_backends = (filters.DjangoFilterBackend,
-                       filters.SearchFilter)
-    # filter_class = ShortUserFilter
-    search_fields = ('first_name', 'last_name', 'middle_name')
-
+class HistorySummitLatecomerStatsView(HistorySummitStatsMixin):
+    """
+    Getting statistics on latecomers
+    """
     start_time = time(11, 30)
 
     def get(self, request, *args, **kwargs):
-        summit_id = kwargs.get('summit_id')
-        department = request.query_params.get('department', None)
-        master_id = request.query_params.get('master_tree', None)
+        filter_attends, attends = self.get_attends()
 
-        summit = get_object_or_404(Summit, pk=summit_id)
-        profiles = SummitAnket.objects.filter(summit_id=summit_id)
-
-        if department:
-            profiles = profiles.filter(departments__id=department)
-        if master_id:
-            master = CustomUser.objects.filter(pk=master_id)
-            if not master:
-                profiles = SummitAnket.objects.none()
-            else:
-                profiles = profiles.filter(Q(master_path__contains=[master_id]) | Q(user_id=master_id))
-        attends = SummitAttend.objects.filter(
-            anket__in=Subquery(profiles.values('pk')), date__range=(summit.start_date, summit.end_date))
-        all_attends = SummitAttend.objects.filter(
-            anket__summit_id=summit_id, date__range=(summit.start_date, summit.end_date))
-
-        all_attends_by_date = collections.Counter(all_attends.values_list('date', flat=True))
-        attends = attends.values('date', 'time', 'created_at')
+        all_attends_by_date = collections.Counter(attends.values_list('date', flat=True))
+        filter_attends = filter_attends.values('date', 'time', 'created_at')
         attends_by_date = defaultdict(list)
-        for a in attends:
+        for a in filter_attends:
             attends_by_date[a['date']].append(a['time'] or (a['created_at'].time() if a['created_at'] else None))
         for d in all_attends_by_date.keys():
-            attends_by_date[d] = [
-                len(list(filter(lambda t: t and t > self.start_time, attends_by_date[d]))), len(attends_by_date[d])]
+            late_count = len(list(filter(lambda t: t and t > self.start_time, attends_by_date[d])))
+            attend_count = len(attends_by_date[d])
+            attends_by_date[d] = [late_count, attend_count - late_count]
         return Response([
             (datetime(d.year, d.month, d.day).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
         ])
