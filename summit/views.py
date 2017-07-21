@@ -616,6 +616,15 @@ class HistorySummitAttendStatsView(GenericAPIView):
 
 
 class HistorySummitLatecomerStatsView(GenericAPIView):
+    queryset = SummitAnket.objects.all()
+
+    permission_classes = (IsAuthenticated,)
+
+    filter_backends = (filters.DjangoFilterBackend,
+                       filters.SearchFilter)
+    # filter_class = ShortUserFilter
+    search_fields = ('first_name', 'last_name', 'middle_name')
+
     start_time = time(11, 30)
 
     def get(self, request, *args, **kwargs):
