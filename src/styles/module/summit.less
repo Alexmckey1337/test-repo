@@ -286,15 +286,36 @@
 #main .charts {
   margin: 0 30px;
   .charts_head {
+    margin-top: 10px;
     h1 {
       font-weight: 900;
       span {
         font-weight: 400;
       }
     }
+    .pre_filter {
+      display: flex;
+      align-items: center;
+      .select2 {
+        width: 350px!important;
+      }
+      ._preloader {
+        width: 30px;
+        height: 30px;
+        margin-left: 5px;
+      }
+    }
   }
-  .half_charts {
+  //.half_charts {
+  //  margin-top: 30px;
+  //  width: 80%;
+  //}
+  canvas {
     margin-top: 30px;
-    width: 80%;
+  }
+  .clearfix {
+    content: "";
+    display: table;
+    clear: both;
   }
 }

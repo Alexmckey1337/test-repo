@@ -3386,8 +3386,28 @@ function getCountFilter() {
     return count;
 }
 
+function getPreSummitFilterParam() {
+    let $filterFields,
+        data = {};
+    $filterFields = $('.charts_head select');
+    $filterFields.each(function () {
+        if ($(this).val() == "ВСЕ") {
+            return
+        }
+        let prop = $(this).data('filter');
+        if (prop) {
+            if ($(this).val()) {
+                data[prop] = $(this).val();
+            }
+        }
+    });
+
+    return data;
+}
+
 function getSummitStats(url, config = {}) {
-    Object.assign(config, getFilterParam());
+    // Object.assign(config, getFilterParam());
+    Object.assign(config, getPreSummitFilterParam());
     return new Promise(function (resolve, reject) {
         let data = {
             url: url,

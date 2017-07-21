@@ -57,6 +57,7 @@ function initChart(id, update = false) {
             },
             select = 'chart_attends';
         (update) ? updateChart(option) : renderChart(select, config);
+        $('.preloader_chart').hide();
     });
 }
 
@@ -307,32 +308,61 @@ $('document').ready(function () {
     initPieChart();
 
     $('#departments_filter').on('change', function () {
-        $('#master_tree').prop('disabled', true);
-        let department_id = parseInt($(this).val()) || null;
-        let data = {
-            without_pagination: '',
-            level_gte: 4,
-            department: department_id,
-            summit: summitId,
-        };
+        let department_id = parseInt($(this).val()) || null,
+            update = true,
+            data;
+        if (department_id !== null) {
+            data = {
+                without_pagination: '',
+                level_gte: 4,
+                department: department_id,
+                summit: summitId,
+            }
+        } else {
+           data = {
+                without_pagination: '',
+                level_gte: 4,
+                summit: summitId,
+            }
+        }
         makeResponsibleSummitStats(data, ['#master']);
-    });
-
-    $('#applyFilter').on('click', function (e) {
-        e.preventDefault();
-        let update = true,
-            depart = $('#departments_filter option:selected').text(),
-            master = $('#master option:selected').text();
         initChart(summitId, update);
         initBarChart(summitId, update);
-        let filter = $('#master').val();
-        (filter !== 'ВСЕ') ? updatePieChart(summitId, filter) : $('#pie_stats').hide();
-        $('.department_title').find('span').text(depart);
-        $('.master_title').find('span').text(master);
-        $(this).closest('#filterPopup').hide();
-        let count = getCountFilter();
-        $('#filter_button').attr('data-count', count);
+        $('#pie_stats').hide();
+        $(this).closest('.pre_filter').find('.preloader_chart').show();
     });
+
+    $('#master').on('change', function () {
+        let update = true,
+            filter = $('#master').val();
+        initChart(summitId, update);
+        initBarChart(summitId, update);
+        if (filter !== 'ВСЕ') {
+            updatePieChart(summitId, filter);
+            $('#pie_stats').show();
+        } else {
+            $('#pie_stats').hide();
+        }
+        $(this).closest('.pre_filter').find('.preloader_chart').show();
+    });
+
+    $('.preloader_chart').hide();
+
+    // $('#applyFilter').on('click', function (e) {
+    //     e.preventDefault();
+    //     let update = true,
+    //         depart = $('#departments_filter option:selected').text(),
+    //         master = $('#master option:selected').text();
+    //     initChart(summitId, update);
+    //     initBarChart(summitId, update);
+    //     let filter = $('#master').val();
+    //     (filter !== 'ВСЕ') ? updatePieChart(summitId, filter) : $('#pie_stats').hide();
+    //     // $('.department_title').find('span').text(depart);
+    //     // $('.master_title').find('span').text(master);
+    //     $(this).closest('#filterPopup').hide();
+    //     let count = getCountFilter();
+    //     $('#filter_button').attr('data-count', count);
+    // });
 
     $('#print').on('click', function () {
         $('body').addClass('is-print');
