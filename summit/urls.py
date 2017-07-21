@@ -29,7 +29,8 @@ custom_urls = [
     url(r'^summit/(?P<summit_id>\d+)/report_by_bishops/$',
         views.summit_report_by_bishops, name='summit-report-bishops'),
     url(r'^generate_summit_tickets/(?P<summit_id>\d+)/$', views.generate_summit_tickets, name='generate_code'),
-    url(r'^summit/(?P<summit_id>\d+)/stats/attends/$', views.attend_stats, name='attend_stats'),
+    url(r'^summit/(?P<summit_id>\d+)/stats/attends/$',
+        views.HistorySummitAttendStatsView.as_view(), name='attend_stats'),
     url(r'^summit/(?P<summit_id>\d+)/stats/master/(?P<master_id>\d+)/disciples/$',
         views.HistorySummitStatByMasterDisciplesView.as_view(), name='master-disciples-stats'),
 

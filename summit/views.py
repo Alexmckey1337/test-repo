@@ -613,6 +613,37 @@ def attend_stats(request, summit_id):
     ])
 
 
+class HistorySummitAttendStatsView(GenericAPIView):
+    def get(self, request, *args, **kwargs):
+        summit_id = kwargs.get('summit_id')
+        department = request.query_params.get('department', None)
+        master_id = request.query_params.get('master_tree', None)
+
+        summit = get_object_or_404(Summit, pk=summit_id)
+        profiles = SummitAnket.objects.filter(summit_id=summit_id)
+
+        if department:
+            profiles = profiles.filter(departments__id=department)
+        if master_id:
+            master = CustomUser.objects.filter(pk=master_id)
+            if not master:
+                profiles = SummitAnket.objects.none()
+            else:
+                profiles = profiles.filter(Q(master_path__contains=[master_id]) | Q(user_id=master_id))
+        attends = SummitAttend.objects.filter(
+            anket__in=Subquery(profiles.values('pk')), date__range=(summit.start_date, summit.end_date))
+        all_attends = SummitAttend.objects.filter(
+            anket__summit_id=summit_id, date__range=(summit.start_date, summit.end_date))
+
+        all_attends_by_date = collections.Counter(all_attends.values_list('date', flat=True))
+        attends_by_date = collections.Counter(attends.values_list('date', flat=True))
+        for d in all_attends_by_date.keys():
+            attends_by_date[d] = (attends_by_date.get(d, 0), profiles.filter(date__lte=d).count())
+        return Response([
+            (datetime(d.year, d.month, d.day).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
+        ])
+
+
 class HistorySummitStatByMasterDisciplesView(GenericAPIView):
     queryset = SummitAnket.objects.all()
 
@@ -631,14 +662,20 @@ class HistorySummitStatByMasterDisciplesView(GenericAPIView):
         master_desciples = self.get_queryset().filter(master=master).order_by('last_name', 'first_name', 'middle_name')
 
         master_desciples = list(master_desciples.annotate_full_name().values('user_id', 'full_name'))
+        master_count = 0
         for profile in master_desciples:
             master_id = profile['user_id']
-            profile['count'] = SummitAnket.objects.filter(
+            count = SummitAnket.objects.filter(
                 Q(summit=self.summit) &
                 (Q(master_path__contains=[master_id]) | Q(user_id=master_id))).count()
+            if count <= 1:
+                master_count += count
+            else:
+                profile['count'] = count
+        master_desciples.append({'user_id': master.id, 'full_name': '({})'.format(str(master)), 'count': master_count})
 
-        # return Response(master_desciples)
-        return Response([[m['full_name'], [m['count']]] for m in master_desciples])
+        data = [[m['full_name'], [m['count']]] for m in master_desciples if m.get('count')]
+        return Response(data)
 
     def get_queryset(self):
         return self.queryset.filter(summit=self.summit)
