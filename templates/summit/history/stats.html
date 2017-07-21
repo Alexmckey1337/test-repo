@@ -18,7 +18,7 @@
                 <li><a href="{{ summit.get_absolute_url }}">Участники</a></li>
                 <li><a href="{% url 'summit:stats' pk=summit.id %}">Посещаемость</a></li>
                 <li><a href="{% url 'summit:report' pk=summit.id %}">По ответственному</a></li>
-                <li><a class="active" href="{% url 'summit:history-stats' pk=summit.id %}">{% trans "Statistics" %}</a>
+                <li><a class="active" href="{% url 'summit:history-stats' pk=summit.id %}">Статистика</a>
                 </li>
             </ul>
         </div>
@@ -86,9 +86,9 @@
             </div>
         <canvas id="chart_attends"></canvas>
         <canvas id="chart_latecomer"></canvas>
-        {#        <div class="half_charts">#}
-        <canvas id="pie_stats"></canvas>
-        {#        </div>#}
+        <div class="half_charts">
+            <canvas id="pie_stats"></canvas>
+        </div>
     </div>
     <div class="clearfix"></div>
     </div>

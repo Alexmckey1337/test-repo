@@ -89,8 +89,8 @@ function initBarChart(id, update = false) {
             option = {
                 chart: window.ChartLatecomers,
                 labels: labels,
-                line1: peopleInTime,
-                line2: peopleLate,
+                line1: peopleLate,
+                line2: peopleInTime,
             },
             select = 'chart_latecomer';
         (update) ? updateChart(option) : renderBarChart(select, config);
