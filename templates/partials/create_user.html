@@ -226,9 +226,9 @@
                                         <div class="label-wrapp">
                                             <label for="partnerFrom">Партнёр с</label>
                                         </div>
-                                            <div class="input">
-                                                <input type="text" id="partnerFrom" readonly="readonly"
-                                                   data-validation="required">
+                                        <div class="input">
+                                            <input type="text" id="partnerFrom" readonly="readonly"
+                                               data-validation="required">
                                         </div>
                                     </li>
                                     <li>
@@ -240,7 +240,7 @@
                                             <input type="number" id="val_partnerships" data-validation="required">
                                             <select id="payment_currency" required>
                                                 {% for currency in currencies %}
-                                                    <option value="{{ currency.id }}" {% if currency == purpose.currency %}selected{% endif %}>
+                                                    <option value="{{ currency.id }}" {% if currency.code == 'uah' %}selected{% endif %}>
                                                         {{ currency.short_name }}
                                                     </option>
                                                 {% endfor %}
