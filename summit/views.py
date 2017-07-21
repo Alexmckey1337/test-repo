@@ -628,7 +628,7 @@ class HistorySummitStatByMasterDisciplesView(GenericAPIView):
     def get(self, request, *args, **kwargs):
         self.summit = get_object_or_404(Summit, pk=kwargs.get('summit_id'))
         master = self._get_master(kwargs.get('master_id'))
-        master_desciples = self.get_queryset().filter(master=master)
+        master_desciples = self.get_queryset().filter(master=master).order_by('last_name', 'first_name', 'middle_name')
 
         master_desciples = list(master_desciples.annotate_full_name().values('user_id', 'full_name'))
         for profile in master_desciples:
