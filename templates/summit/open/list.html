@@ -16,7 +16,13 @@
                     <td><a href="{{ summit.get_absolute_url }}">{{ summit }}</a></td>
     {#                <td><a href="{{ summit.type.get_absolute_url }}">{{ summit.type }}</a></td>#}
                     <td>{{ summit.type }}</td>
-                    <td><a href="{% url "summit:stats" pk=summit.id %}">{% trans "Statistics" %}</a></td>
+                    <td>
+                        {% if summit.status == 'open' %}
+                            <a href="{% url "summit:stats" pk=summit.id %}">{% trans "Statistics" %}</a>
+                        {% elif summit.status == 'close' %}
+                            <a href="{% url "summit:history-stats" pk=summit.id %}">{% trans "Statistics" %}</a>
+                        {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
             <tr></tr>

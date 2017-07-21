@@ -352,6 +352,14 @@ class CanSeeSummitProfileMixin(View):
         return super(CanSeeSummitProfileMixin, self).dispatch(request, *args, **kwargs)
 
 
+class CanSeeSummitHistoryStatsMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        summit = kwargs.get('pk')
+        if not (summit and request.user.can_see_summit_history_stats(summit)):
+            raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)
+
+
 class SummitDetailView(LoginRequiredMixin, CanSeeSummitMixin, DetailView):
     model = Summit
     context_object_name = 'summit'
@@ -383,7 +391,8 @@ class SummitListMixin(LoginRequiredMixin, ListView):
     def get_queryset(self):
         available_summits = self.request.user.summit_profiles.filter(
             role__gte=settings.SUMMIT_ANKET_ROLES['consultant']).values_list('summit_id', flat=True)
-        return super(SummitListMixin, self).get_queryset().filter(status=self.status, pk__in=available_summits)
+        return super(SummitListMixin, self).get_queryset().order_by(
+            '-start_date').filter(status=self.status, pk__in=available_summits)
 
 
 class OpenSummitListView(SummitListMixin):
@@ -487,7 +496,7 @@ class SummitBishopReportView(LoginRequiredMixin, CanSeeSummitReportByBishopsMixi
         return ctx
 
 
-class SummitHistoryStatisticsView(LoginRequiredMixin, TemplateView):
+class SummitHistoryStatisticsView(LoginRequiredMixin, CanSeeSummitHistoryStatsMixin, TemplateView):
     template_name = 'summit/history/stats.html'
     login_url = 'entry'
     summit_id = None
@@ -501,7 +510,6 @@ class SummitHistoryStatisticsView(LoginRequiredMixin, TemplateView):
 
         ctx['summit'] = get_object_or_404(Summit, pk=self.summit_id)
         ctx['departments'] = Department.objects.all()
-        ctx['masters'] = CustomUser.objects.filter(summit_profiles__summit_id=self.summit_id, hierarchy__level__gte=4)
 
         return ctx
 

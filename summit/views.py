@@ -606,6 +606,14 @@ class HistorySummitStatsMixin(GenericAPIView):
     def get_queryset(self):
         return self.summit.ankets.all()
 
+    def check_permissions(self, request):
+        super().check_permissions(request)
+        # ``summit`` supervisor or high
+        if not request.user.can_see_summit_history_stats(self.summit):
+            self.permission_denied(
+                request, message=_('You do not have permission to see statistics.')
+            )
+
     @property
     def profiles(self):
         if self._profiles is None:
@@ -673,9 +681,12 @@ class HistorySummitStatByMasterDisciplesView(GenericAPIView):
     summit = None
     master = None
 
-    def get(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         self.summit = get_object_or_404(Summit, pk=kwargs.get('summit_id'))
         self.master = get_object_or_404(CustomUser, pk=kwargs.get('master_id'))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
         disciples_profiles = list(self.get_queryset().annotate_full_name().values('user_id', 'full_name'))
 
         master_count = 0
@@ -698,3 +709,11 @@ class HistorySummitStatByMasterDisciplesView(GenericAPIView):
 
     def get_queryset(self):
         return self.queryset.filter(summit=self.summit, master=self.master)
+
+    def check_permissions(self, request):
+        super().check_permissions(request)
+        # ``summit`` supervisor or high
+        if not request.user.can_see_summit_history_stats(self.summit):
+            self.permission_denied(
+                request, message=_('You do not have permission to see statistics.')
+            )
