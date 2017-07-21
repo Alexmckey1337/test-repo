@@ -3,8 +3,9 @@ from __future__ import unicode_literals
 
 import collections
 import logging
-from datetime import datetime
+from datetime import datetime, time
 
+from collections import defaultdict
 from django.conf import settings
 from django.db import transaction, IntegrityError
 from django.db.models import (
@@ -583,36 +584,6 @@ def generate_summit_tickets(request, summit_id):
     return Response(data={'ticket_id': ticket.id})
 
 
-@api_view(['GET'])
-def attend_stats(request, summit_id):
-    department = request.query_params.get('department', None)
-    master_id = request.query_params.get('master_tree', None)
-
-    summit = get_object_or_404(Summit, pk=summit_id)
-    profiles = SummitAnket.objects.filter(summit_id=summit_id)
-
-    if department:
-        profiles = profiles.filter(departments__id=department)
-    if master_id:
-        master = CustomUser.objects.filter(pk=master_id)
-        if not master:
-            profiles = SummitAnket.objects.none()
-        else:
-            profiles = profiles.filter(Q(master_path__contains=[master_id]) | Q(user_id=master_id))
-    attends = SummitAttend.objects.filter(
-        anket__in=Subquery(profiles.values('pk')), date__range=(summit.start_date, summit.end_date))
-    all_attends = SummitAttend.objects.filter(
-        anket__summit_id=summit_id, date__range=(summit.start_date, summit.end_date))
-
-    all_attends_by_date = collections.Counter(all_attends.values_list('date', flat=True))
-    attends_by_date = collections.Counter(attends.values_list('date', flat=True))
-    for d in all_attends_by_date.keys():
-        attends_by_date[d] = (attends_by_date.get(d, 0), profiles.filter(date__lte=d).count())
-    return Response([
-        (datetime(d.year, d.month, d.day).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
-    ])
-
-
 class HistorySummitAttendStatsView(GenericAPIView):
     def get(self, request, *args, **kwargs):
         summit_id = kwargs.get('summit_id')
@@ -639,6 +610,43 @@ class HistorySummitAttendStatsView(GenericAPIView):
         attends_by_date = collections.Counter(attends.values_list('date', flat=True))
         for d in all_attends_by_date.keys():
             attends_by_date[d] = (attends_by_date.get(d, 0), profiles.filter(date__lte=d).count())
+        return Response([
+            (datetime(d.year, d.month, d.day).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
+        ])
+
+
+class HistorySummitLatecomerStatsView(GenericAPIView):
+    start_time = time(11, 30)
+
+    def get(self, request, *args, **kwargs):
+        summit_id = kwargs.get('summit_id')
+        department = request.query_params.get('department', None)
+        master_id = request.query_params.get('master_tree', None)
+
+        summit = get_object_or_404(Summit, pk=summit_id)
+        profiles = SummitAnket.objects.filter(summit_id=summit_id)
+
+        if department:
+            profiles = profiles.filter(departments__id=department)
+        if master_id:
+            master = CustomUser.objects.filter(pk=master_id)
+            if not master:
+                profiles = SummitAnket.objects.none()
+            else:
+                profiles = profiles.filter(Q(master_path__contains=[master_id]) | Q(user_id=master_id))
+        attends = SummitAttend.objects.filter(
+            anket__in=Subquery(profiles.values('pk')), date__range=(summit.start_date, summit.end_date))
+        all_attends = SummitAttend.objects.filter(
+            anket__summit_id=summit_id, date__range=(summit.start_date, summit.end_date))
+
+        all_attends_by_date = collections.Counter(all_attends.values_list('date', flat=True))
+        attends = attends.values('date', 'time', 'created_at')
+        attends_by_date = defaultdict(list)
+        for a in attends:
+            attends_by_date[a['date']].append(a['time'] or (a['created_at'].time() if a['created_at'] else None))
+        for d in all_attends_by_date.keys():
+            attends_by_date[d] = [
+                len(list(filter(lambda t: t and t > self.start_time, attends_by_date[d]))), len(attends_by_date[d])]
         return Response([
             (datetime(d.year, d.month, d.day).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
         ])
