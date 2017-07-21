@@ -3410,6 +3410,29 @@ function getSummitAttends(summitId, config = {}) {
     });
 }
 
+function getSummitStatsForMaster(summitId, masterId, config = {}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: URLS.summit.stats_by_master(summitId, masterId),
+            data: config,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}
+
 function getResponsibleForSelect(config={}) {
     return new Promise(function (resolve, reject) {
         let data = {
