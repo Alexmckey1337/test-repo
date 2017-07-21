@@ -660,45 +660,41 @@ class HistorySummitLatecomerStatsView(HistorySummitStatsMixin):
 
 
 class HistorySummitStatByMasterDisciplesView(GenericAPIView):
-    queryset = SummitAnket.objects.all()
+    """
+    Getting statistics by disciples of master
+
+    Returns counts of the disciples of master.disciples.
+    """
+    queryset = SummitAnket.objects.order_by('last_name', 'first_name', 'middle_name')
 
     permission_classes = (IsAuthenticated,)
-
-    filter_backends = (filters.DjangoFilterBackend,
-                       filters.SearchFilter)
-    # filter_class = ShortUserFilter
-    search_fields = ('first_name', 'last_name', 'middle_name')
+    pagination_class = None
 
     summit = None
+    master = None
 
     def get(self, request, *args, **kwargs):
         self.summit = get_object_or_404(Summit, pk=kwargs.get('summit_id'))
-        master = self._get_master(kwargs.get('master_id'))
-        master_desciples = self.get_queryset().filter(master=master).order_by('last_name', 'first_name', 'middle_name')
+        self.master = get_object_or_404(CustomUser, pk=kwargs.get('master_id'))
+        disciples_profiles = list(self.get_queryset().annotate_full_name().values('user_id', 'full_name'))
 
-        master_desciples = list(master_desciples.annotate_full_name().values('user_id', 'full_name'))
         master_count = 0
-        for profile in master_desciples:
+        for profile in disciples_profiles:
             master_id = profile['user_id']
             count = SummitAnket.objects.filter(
                 Q(summit=self.summit) &
-                (Q(master_path__contains=[master_id]) | Q(user_id=master_id))).count()
+                (Q(master_path__contains=[master_id]) |
+                 Q(user_id=master_id))
+            ).count()
             if count <= 1:
                 master_count += count
             else:
                 profile['count'] = count
-        master_desciples.append({'user_id': master.id, 'full_name': '({})'.format(str(master)), 'count': master_count})
+        disciples_profiles.append(
+            {'user_id': self.master.id, 'full_name': '({})'.format(str(self.master)), 'count': master_count})
 
-        data = [[m['full_name'], [m['count']]] for m in master_desciples if m.get('count')]
+        data = [[m['full_name'], [m['count']]] for m in disciples_profiles if m.get('count')]
         return Response(data)
 
     def get_queryset(self):
-        return self.queryset.filter(summit=self.summit)
-
-    def _get_master(self, master_id):
-        if not master_id:
-            return None
-        try:
-            return CustomUser.objects.get(pk=master_id)
-        except CustomUser.DoesNotExist:
-            return None
+        return self.queryset.filter(summit=self.summit, master=self.master)
