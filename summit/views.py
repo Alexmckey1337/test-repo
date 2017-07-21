@@ -609,7 +609,7 @@ def attend_stats(request, summit_id):
     for d in all_attends_by_date.keys():
         attends_by_date[d] = (attends_by_date.get(d, 0), profiles.filter(date__lte=d).count())
     return Response([
-        (d.strftime('%Y-%m-%d'), attends_by_date[d]) for d in sorted(attends_by_date.keys())
+        (datetime(d.year, d.month, d.day).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
     ])
 
 

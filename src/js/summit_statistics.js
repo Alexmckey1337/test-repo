@@ -14,10 +14,41 @@ function initChart(summitId, update = false) {
     });
 }
 
+function initPieChart() {
+    let config = setPieConfig();
+    renderPieChart(config);
+}
+
+function updatePieChart(summitId, masterId) {
+    getSummitStatsForMaster(summitId, masterId).then(res => {
+        let labels = _.map(res, (el) => el[0] ),
+            peoples = _.map(res, (el) => el[1][0]),
+            colors = [];
+        for (let i = 0; i < labels.length; i++) {
+            colors.push(getRandomColor());
+        }
+        let option = {
+                chart: window.PieStats,
+                labels: labels,
+                peoples: peoples,
+                colors: colors,
+            };
+        $('#pie_stats').show();
+        renderUpdatePieChart(option);
+    })
+}
+
 function updateChart({chart, labels, peopleVisit, peopleAll}) {
     chart.data.labels = labels;
     chart.data.datasets[0].data = peopleAll;
     chart.data.datasets[1].data = peopleVisit;
+    chart.update();
+}
+
+function renderUpdatePieChart({chart, labels, peoples, colors}) {
+    chart.data.labels = labels;
+    chart.data.datasets[0].data = peoples;
+    chart.data.datasets[0].backgroundColor = colors;
     chart.update();
 }
 
@@ -30,6 +61,30 @@ const CHARTCOLORS = {
     purple: 'rgb(153, 102, 255)',
     grey: 'rgb(201, 203, 207)'
 };
+
+const PLUGINS = [{
+    afterDatasetsDraw: function (chart, easing) {
+        let ctx = chart.ctx;
+        chart.data.datasets.forEach(function (dataset, i) {
+            let meta = chart.getDatasetMeta(i);
+            if (!meta.hidden) {
+                meta.data.forEach(function (element, index) {
+                    ctx.fillStyle = 'rgb(0, 0, 0)';
+                    let fontSize = 12,
+                        fontStyle = 'normal',
+                        fontFamily = 'Helvetica Neue';
+                    ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
+                    let dataString = dataset.data[index].toString();
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    let padding = 8,
+                        position = element.tooltipPosition();
+                    ctx.fillText(dataString, position.x, position.y - (fontSize / 2) - padding);
+                });
+            }
+        });
+    }
+}];
 
 function getRandomColor() {
     let letters = '0123456789ABCDEF',
@@ -123,7 +178,43 @@ function setConfig(labels = [], peopleVisit = [], peopleAll = []) {
                     hoverRadius: 7
                 }
             }
-        }
+        },
+        plugins: PLUGINS
+    };
+
+    return config;
+}
+
+function setPieConfig(labels = [], peoples = [], colors = []) {
+    let config = {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: peoples,
+                backgroundColor: colors,
+                label: 'Dataset 1'
+            }],
+            labels: labels
+        },
+        options: {
+            responsive: true,
+            legend: {
+                position: 'top',
+                labels: {
+                    fontSize: 14,
+                }
+            },
+            title: {
+                display: true,
+                text: 'Разбивка по ответственному',
+                fontSize: 18,
+            },
+            animation: {
+                animateScale: true,
+                animateRotate: true
+            }
+        },
+        plugins: PLUGINS
     };
 
     return config;
@@ -132,6 +223,12 @@ function setConfig(labels = [], peopleVisit = [], peopleAll = []) {
 function renderChart(config) {
     let ctx = document.getElementById("chart_attends").getContext("2d");
     window.ChartAttends = new Chart(ctx, config);
+}
+
+function renderPieChart(config) {
+    let ctx = document.getElementById("pie_stats").getContext("2d");
+    window.PieStats = new Chart(ctx, config);
+    $('#pie_stats').hide();
 }
 
 $('document').ready(function () {
@@ -153,6 +250,8 @@ $('document').ready(function () {
     };
     makeResponsibleSummitStats(data, ['#master']);
 
+    initPieChart();
+
     $('#departments_filter').on('change', function () {
         $('#master_tree').prop('disabled', true);
         let department_id = parseInt($(this).val()) || null;
@@ -171,6 +270,8 @@ $('document').ready(function () {
             depart = $('#departments_filter option:selected').text(),
             master = $('#master option:selected').text();
         initChart(summitId, update);
+        let filter = $('#master').val();
+        (filter !== 'ВСЕ') ? updatePieChart(summitId, filter) : $('#pie_stats').hide();
         $('.department_title').find('span').text(depart);
         $('.master_title').find('span').text(master);
         $(this).closest('#filterPopup').hide();
@@ -180,7 +281,6 @@ $('document').ready(function () {
 
     $('#print').on('click', function () {
         $('body').addClass('is-print');
-        // window.ChartAttends.update();
         setTimeout(window.print, 300);
     });
 
