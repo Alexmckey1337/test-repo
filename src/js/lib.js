@@ -3386,11 +3386,11 @@ function getCountFilter() {
     return count;
 }
 
-function getSummitAttends(summitId, config = {}) {
+function getSummitStats(url, config = {}) {
     Object.assign(config, getFilterParam());
     return new Promise(function (resolve, reject) {
         let data = {
-            url: URLS.summit.attends(summitId),
+            url: url,
             data: config,
             method: 'GET',
             headers: {

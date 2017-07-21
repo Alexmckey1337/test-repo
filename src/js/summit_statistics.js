@@ -1,16 +1,98 @@
-function initChart(summitId, update = false) {
-    getSummitAttends(summitId).then(res => {
+function initChart(id, update = false) {
+    let url = URLS.summit.attends(id);
+    getSummitStats(url).then(res => {
         let labels = _.map(res, (el) => moment(el[0] * 1000).format('DD.MM')),
             peopleVisit = _.map(res, (el) => el[1][0]),
             peopleAll = _.map(res, (el) => el[1][1]),
-            config = setConfig(labels, peopleVisit, peopleAll),
+            datasets = [{
+                label: "Всего людей",
+                borderColor: CHARTCOLORS.blue,
+                backgroundColor: CHARTCOLORS.blue,
+                data: peopleAll,
+                fill: false,
+            }, {
+                label: "Присутствовало",
+                borderColor: CHARTCOLORS.red,
+                backgroundColor: CHARTCOLORS.red,
+                data: peopleVisit,
+                fill: false,
+            }],
+            title = "Статистика посещаемости саммита",
+            callback = {
+                    footer: (tooltipItems, data) => {
+                        let all = data.datasets[tooltipItems[0].datasetIndex].data[tooltipItems[0].index],
+                            visit = data.datasets[tooltipItems[1].datasetIndex].data[tooltipItems[1].index],
+                            diff = all - visit;
+                        return `Отсутствовало: ${diff}`;
+                    },
+                },
+            xAxes = [{
+                    display: true,
+                    scaleLabel: {
+                        show: true,
+                        labelString: 'Day'
+                    }
+                }],
+            yAxes = [{
+                    display: true,
+                    scaleLabel: {
+                        show: true,
+                        labelString: 'Value'
+                    },
+                    ticks: {
+                        min: 0,
+                        callback: function (value) {
+                            if (Math.floor(value) === value) {
+                                return value;
+                            }
+                        }
+                    }
+                }],
+            config = setConfig('line', labels, datasets, title, xAxes, yAxes, callback),
             option = {
                 chart: window.ChartAttends,
                 labels: labels,
-                peopleVisit: peopleVisit,
-                peopleAll: peopleAll,
-            };
-        (update) ? updateChart(option) : renderChart(config);
+                line1: peopleAll,
+                line2: peopleVisit,
+            },
+            select = 'chart_attends';
+        (update) ? updateChart(option) : renderChart(select, config);
+    });
+}
+
+function initBarChart(id, update = false) {
+    let url = URLS.summit.stats_latecomer(id);
+    getSummitStats(url).then(res => {
+        let labels = _.map(res, (el) => moment(el[0] * 1000).format('DD.MM')),
+            peopleLate = _.map(res, (el) => el[1][0]),
+            peopleInTime = _.map(res, (el) => el[1][1]),
+            datasets = [{
+                label: "Опоздавшие",
+                borderColor: CHARTCOLORS.red,
+                backgroundColor: CHARTCOLORS.red,
+                data: peopleLate,
+            }, {
+                label: "Вовремя",
+                borderColor: CHARTCOLORS.green,
+                backgroundColor: CHARTCOLORS.green,
+                data: peopleInTime,
+            }],
+            title = "Статистика опоздавших",
+            xAxes = [{
+                stacked: true,
+            }],
+            yAxes = [{
+                stacked: true,
+            }],
+            config = setConfig('bar', labels, datasets, title, xAxes, yAxes),
+            option = {
+                chart: window.ChartLatecomers,
+                labels: labels,
+                line1: peopleInTime,
+                line2: peopleLate,
+            },
+            select = 'chart_latecomer';
+        (update) ? updateChart(option) : renderBarChart(select, config);
     });
 }
 
@@ -38,10 +120,10 @@ function updatePieChart(summitId, masterId) {
     })
 }
 
-function updateChart({chart, labels, peopleVisit, peopleAll}) {
+function updateChart({chart, labels, line1, line2}) {
     chart.data.labels = labels;
-    chart.data.datasets[0].data = peopleAll;
-    chart.data.datasets[1].data = peopleVisit;
+    chart.data.datasets[0].data = line1;
+    chart.data.datasets[1].data = line2;
     chart.update();
 }
 
@@ -72,7 +154,7 @@ const PLUGINS = [{
                     ctx.fillStyle = 'rgb(0, 0, 0)';
                     let fontSize = 12,
                         fontStyle = 'normal',
-                        fontFamily = 'Helvetica Neue';
+                        fontFamily = 'Open Sans, sans-serif';
                     ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
                     let dataString = dataset.data[index].toString();
                     ctx.textAlign = 'center';
@@ -95,82 +177,48 @@ function getRandomColor() {
     return color;
 }
 
-function setConfig(labels = [], peopleVisit = [], peopleAll = []) {
+function setConfig(type = 'line', labels = [], datasets = [], title = '', xAxes = [], yAxes = [], callback = {} ) {
     let config = {
-        type: 'line',
+        type: type,
         data: {
             labels: labels,
-            datasets: [{
-                label: "Всего людей",
-                borderColor: CHARTCOLORS.blue,
-                backgroundColor: CHARTCOLORS.blue,
-                data: peopleAll,
-                fill: false,
-            }, {
-                label: "Присутствовало",
-                borderColor: CHARTCOLORS.red,
-                backgroundColor: CHARTCOLORS.red,
-                data: peopleVisit,
-                fill: false,
-            }]
+            datasets: datasets,
         },
         options: {
             responsive: true,
             title: {
                 display: true,
-                text: "Статистика посещаемости саммита",
+                text: title,
                 fontSize: 18,
+                fontFamily: 'Open Sans, sans-serif'
             },
             legend: {
                 display: true,
                 labels: {
                     fontSize: 14,
-                }
+                },
+                fontFamily: 'Open Sans, sans-serif'
             },
             tooltips: {
                 mode: 'index',
-                callbacks: {
-                    footer: (tooltipItems, data) => {
-                        let all = data.datasets[tooltipItems[0].datasetIndex].data[tooltipItems[0].index],
-                            visit = data.datasets[tooltipItems[1].datasetIndex].data[tooltipItems[1].index],
-                            diff = all - visit;
-                        return `Отсутствовало: ${diff}`;
-                    },
-                },
+                callbacks: callback,
                 footerFontStyle: 'normal',
                 titleFontSize: 15,
                 bodyFontSize: 13,
                 footerFontSize: 13,
                 titleMarginBottom: 12,
                 bodySpacing: 6,
+                titleFontFamily: 'Open Sans, sans-serif',
+                bodyFontFamily: 'Open Sans, sans-serif',
+                footerFontFamily: 'Open Sans, sans-serif'
             },
             hover: {
                 mode: 'index',
                 intersect: true
             },
             scales: {
-                xAxes: [{
-                    display: true,
-                    scaleLabel: {
-                        show: true,
-                        labelString: 'Day'
-                    }
-                }],
-                yAxes: [{
-                    display: true,
-                    scaleLabel: {
-                        show: true,
-                        labelString: 'Value'
-                    },
-                    ticks: {
-                        min: 0,
-                        callback: function (value) {
-                            if (Math.floor(value) === value) {
-                                return value;
-                            }
-                        }
-                    }
-                }]
+                xAxes: xAxes,
+                yAxes: yAxes,
             },
             elements: {
                 point: {
@@ -199,7 +247,7 @@ function setPieConfig(labels = [], peoples = [], colors = []) {
         options: {
             responsive: true,
             legend: {
-                position: 'top',
+                position: 'left',
                 labels: {
                     fontSize: 14,
                 }
@@ -220,9 +268,14 @@ function setPieConfig(labels = [], peoples = [], colors = []) {
     return config;
 }
 
-function renderChart(config) {
-    let ctx = document.getElementById("chart_attends").getContext("2d");
+function renderChart(select, config) {
+    let ctx = document.getElementById(select).getContext("2d");
     window.ChartAttends = new Chart(ctx, config);
+}
+
+function renderBarChart(select, config) {
+    let ctx = document.getElementById(select).getContext("2d");
+    window.ChartLatecomers = new Chart(ctx, config);
 }
 
 function renderPieChart(config) {
@@ -234,6 +287,7 @@ function renderPieChart(config) {
 $('document').ready(function () {
     let summitId = $('#summit-title').data('summit-id');
     initChart(summitId);
+    initBarChart(summitId);
 
     $('#filter_button').on('click', function () {
         $('#filterPopup').css('display', 'block').find('.pop_cont').on('click', function (e) {
@@ -270,6 +324,7 @@ $('document').ready(function () {
             depart = $('#departments_filter option:selected').text(),
             master = $('#master option:selected').text();
         initChart(summitId, update);
+        initBarChart(summitId, update);
         let filter = $('#master').val();
         (filter !== 'ВСЕ') ? updatePieChart(summitId, filter) : $('#pie_stats').hide();
         $('.department_title').find('span').text(depart);

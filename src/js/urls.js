@@ -20,6 +20,7 @@ const SUMMIT = {
     bishop_high_masters: (summitId) => `/api/v1.0/summits/${summitId}/bishop_high_masters/`,
     attends: (summitId) => `/api/v1.0/summit/${summitId}/stats/attends/`,
     stats_by_master: (summitId, masterId) => `/api/v1.0/summit/${summitId}/stats/master/${masterId}/disciples/`,
+    stats_latecomer: (summitId) => `/api/v1.0/summit/${summitId}/stats/latecomers/`,
 };
 
 const SUMMIT_PROFILE = {
