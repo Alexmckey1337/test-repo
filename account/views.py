@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction, IntegrityError
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
+from django_filters import rest_framework
 from rest_auth.views import LogoutView as RestAuthLogoutView
 from rest_framework import status, mixins, exceptions
 from rest_framework import viewsets, filters
@@ -17,7 +18,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from account.filters import FilterByUserBirthday, UserFilter, ShortUserFilter, FilterMasterTreeWithSelf
 from account.models import CustomUser as User
@@ -25,10 +26,10 @@ from account.permissions import CanSeeUserList, CanCreateUser, CanExportUserList
 from account.serializers import HierarchyError, UserForMoveSerializer
 from analytics.decorators import log_perform_update, log_perform_create
 from analytics.mixins import LogAndCreateUpdateDestroyMixin
-from common.filters import FieldSearchFilter
+from common.filters import FieldSearchFilter, OrderingFilter
 from common.parsers import MultiPartAndJsonParser
 from common.test_helpers.utils import get_real_user
-from common.views_mixins import ExportViewSetMixin
+from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet
 from group.models import HomeGroup, Church
 from hierarchy.serializers import DepartmentSerializer
 from navigation.table_fields import user_table
@@ -71,7 +72,7 @@ class UserExportViewSetMixin(ExportViewSetMixin):
         return self._export(request, *args, **kwargs)
 
 
-class UserViewSet(LogAndCreateUpdateDestroyMixin, viewsets.ModelViewSet, UserExportViewSetMixin):
+class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, UserExportViewSetMixin):
     queryset = User.objects.select_related(
         'hierarchy', 'master__hierarchy').prefetch_related(
         'divisions', 'departments'
@@ -84,9 +85,9 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, viewsets.ModelViewSet, UserExp
 
     pagination_class = UserPagination
     filter_backends = (
-        filters.DjangoFilterBackend,
+        rest_framework.DjangoFilterBackend,
         FieldSearchFilter,
-        filters.OrderingFilter,
+        OrderingFilter,
         FilterByUserBirthday,
         FilterMasterTreeWithSelf,
     )
@@ -113,6 +114,16 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, viewsets.ModelViewSet, UserExp
     parser_dict_fields = ['partner']
 
     resource_class = UserResource
+
+    def list(self, request, *args, **kwargs):
+        """
+        Getting list of users for table
+
+
+        By default ordering by ``last_name``, ``first_name``, ``middle_name``.
+        Pagination by 30 users per page. Filtered only active users.
+        """
+        return super().list(request, *args, **kwargs)
 
     @detail_route(methods=['post'])
     def set_home_group(self, request, pk):
