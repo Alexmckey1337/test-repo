@@ -13,6 +13,7 @@ from rest_framework.validators import UniqueTogetherValidator, qs_exists
 
 from account.models import CustomUser as User
 from common.fields import ReadOnlyChoiceField
+from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
 from navigation.models import Table
 from partnership.models import Partnership
@@ -279,3 +280,19 @@ class DashboardSerializer(serializers.ModelSerializer):
         model = User
         fields = ('total_peoples', 'fathers_count', 'juniors_count', 'babies_count', 'leaders_count')
         read_only_fields = ['__all__']
+
+
+class ChurchIdSerializer(serializers.ModelSerializer):
+    church_id = serializers.ModelField(model_field='pk')
+
+    class Meta:
+        model = Church
+        fields = ('church_id',)
+
+
+class HomeGroupIdSerializer(serializers.ModelSerializer):
+    home_group_id = serializers.ModelField(model_field='pk')
+
+    class Meta:
+        model = HomeGroup
+        fields = ('home_group_id',)

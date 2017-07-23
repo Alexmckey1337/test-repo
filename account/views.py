@@ -23,7 +23,8 @@ from rest_framework.viewsets import GenericViewSet
 from account.filters import FilterByUserBirthday, UserFilter, ShortUserFilter, FilterMasterTreeWithSelf
 from account.models import CustomUser as User
 from account.permissions import CanSeeUserList, CanCreateUser, CanExportUserList
-from account.serializers import HierarchyError, UserForMoveSerializer, UserUpdateSerializer
+from account.serializers import HierarchyError, UserForMoveSerializer, UserUpdateSerializer, ChurchIdSerializer, \
+    HomeGroupIdSerializer
 from analytics.decorators import log_perform_update, log_perform_create
 from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter, OrderingFilter
@@ -128,7 +129,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         """
         return super().list(request, *args, **kwargs)
 
-    @detail_route(methods=['post'])
+    @detail_route(methods=['post'], serializer_class=HomeGroupIdSerializer)
     def set_home_group(self, request, pk):
         """
         Set home group for user
@@ -140,7 +141,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         return Response({'detail': 'Домашняя группа установлена.'},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'])
+    @detail_route(methods=['post'], serializer_class=ChurchIdSerializer)
     def set_church(self, request, pk):
         """
         Set church for user
