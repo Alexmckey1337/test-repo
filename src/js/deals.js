@@ -460,11 +460,27 @@ $(document).ready(function () {
     let incompleteConfig = {
             done: true,
         },
+        expiredConfig = {
+            expired: true,
+        },
+        doneConfig = {
+            done: false,
+        },
         incompleteOption = {
             id: 'incompleteList',
             pagination: '.undone__pagination'
+        },
+        expiredOption = {
+            id: 'overdueList',
+            pagination: '.expired__pagination'
+        },
+        doneOption = {
+            id: 'completedList',
+            pagination: '.done__pagination'
         };
     $('.preloader').show();
     createDealsTable(incompleteConfig, incompleteOption);
+    // createDealsTable(expiredConfig, expiredOption);
+    // createDealsTable(doneConfig, doneOption);
 });
 

@@ -218,7 +218,8 @@
                                         </button>
                                     </td>
                                     <% } %>
-                                <% } else if(!results[index].done && check_payment_permissions) { %>
+                                <% } %>
+                                <% if(!results[index].done && check_payment_permissions) { %>
                                     <% if((parseInt(results[index].total_sum.match(/\d+/)) - parseInt(results[index].value.match(/\d+/))) < 0 ){ %>
                                     <td>
                                         <button class="pay inline__button"
