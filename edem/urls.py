@@ -33,7 +33,7 @@ class SwaggerSchemaView(APIView):
     ]
 
     def get(self, request):
-        generator = SchemaGenerator(title="CRM API", urlconf="edem.api_urls")
+        generator = SchemaGenerator(title="CRM API", url='/api/', urlconf="edem.api_urls")
         schema = generator.get_schema(request=request)
 
         if not schema:

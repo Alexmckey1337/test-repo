@@ -1,4 +1,5 @@
 import django_filters
+from django.utils.translation import ugettext_lazy as _
 
 from account.models import CustomUser as User
 from common.filters import BaseFilterByBirthday, BaseFilterMasterTree
@@ -19,9 +20,12 @@ class FilterMasterTreeWithSelf(BaseFilterMasterTree):
 
 
 class UserFilter(django_filters.FilterSet):
-    hierarchy = django_filters.ModelChoiceFilter(name='hierarchy', queryset=Hierarchy.objects.all())
-    master = django_filters.ModelMultipleChoiceFilter(name="master", queryset=User.objects.all())
-    department = django_filters.ModelChoiceFilter(name="departments", queryset=Department.objects.all())
+    hierarchy = django_filters.ModelChoiceFilter(name='hierarchy', queryset=Hierarchy.objects.all(),
+                                                 help_text=_('Hierarchy'))
+    master = django_filters.ModelMultipleChoiceFilter(name="master", queryset=User.objects.all(),
+                                                      help_text=_('Master'))
+    department = django_filters.ModelChoiceFilter(name="departments", queryset=Department.objects.all(),
+                                                  help_text=_('Department'))
 
     class Meta:
         model = User
