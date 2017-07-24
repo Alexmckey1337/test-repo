@@ -26,15 +26,15 @@ $(document).ready(function () {
         makeTabs(currentLiNum);
     }
 
-    init();
+    // init();
 
-    $('input[name=fullsearch]').on('keyup', function () {
-        let config = {};
-        config.search = $(this).val();
-        getExpiredDeals(config);
-        getDoneDeals(config);
-        getUndoneDeals(config);
-    });
+    // $('input[name=fullsearch]').on('keyup', function () {
+    //     let config = {};
+    //     config.search = $(this).val();
+    //     getExpiredDeals(config);
+    //     getDoneDeals(config);
+    //     getUndoneDeals(config);
+    // });
 
     function sumCurrency(sum, operation, rate, currencyEl, currencyName) {
         let userPay;
@@ -405,55 +405,66 @@ $(document).ready(function () {
         getExpiredDeals(config);
     }
 
-    $.datepicker.setDefaults($.datepicker.regional["ru"]);
+    // $.datepicker.setDefaults($.datepicker.regional["ru"]);
 
-    $("#done_datepicker_from").datepicker({
-        dateFormat: "yyyy-mm-dd",
-        maxDate: new Date(),
-        autoClose: true,
-        setDate: '-1m',
-        onSelect: function (date) {
-            let doneToDate = $('#done_datepicker_to').val();
-            sortDoneDeals(date, doneToDate);
-        }
-    });
+    // $("#done_datepicker_from").datepicker({
+    //     dateFormat: "yyyy-mm-dd",
+    //     maxDate: new Date(),
+    //     autoClose: true,
+    //     setDate: '-1m',
+    //     onSelect: function (date) {
+    //         let doneToDate = $('#done_datepicker_to').val();
+    //         sortDoneDeals(date, doneToDate);
+    //     }
+    // });
 
-    $("#done_datepicker_to").datepicker({
-        dateFormat: "yyyy-mm-dd",
-        setDate: new Date(),
-        autoClose: true,
-        onSelect: function (date) {
-            let doneFromDate = $('#done_datepicker_from').val();
-            sortDoneDeals(doneFromDate, date);
-        }
-    });
+    // $("#done_datepicker_to").datepicker({
+    //     dateFormat: "yyyy-mm-dd",
+    //     setDate: new Date(),
+    //     autoClose: true,
+    //     onSelect: function (date) {
+    //         let doneFromDate = $('#done_datepicker_from').val();
+    //         sortDoneDeals(doneFromDate, date);
+    //     }
+    // });
 
-    $("#expired_datepicker_from").datepicker({
-        dateFormat: "yyyy-mm-dd",
-        maxDate: new Date(),
-        setDate: '-1m',
-        autoClose: true,
-        onSelect: function (date) {
-            let expiredToDate = $('#expired_to_date').val();
-            sortExpiredDeals(date, expiredToDate);
-        }
-    });
+    // $("#expired_datepicker_from").datepicker({
+    //     dateFormat: "yyyy-mm-dd",
+    //     maxDate: new Date(),
+    //     setDate: '-1m',
+    //     autoClose: true,
+    //     onSelect: function (date) {
+    //         let expiredToDate = $('#expired_to_date').val();
+    //         sortExpiredDeals(date, expiredToDate);
+    //     }
+    // });
+    //
+    // $("#expired_datepicker_to").datepicker({
+    //     dateFormat: "yy-mm-dd",
+    //     maxDate: new Date(),
+    //     setDate: '-1m',
+    //     autoClose: true,
+    //     onSelect: function (date) {
+    //         let expiredFromDate = $('#expired_from_date').val();
+    //         sortExpiredDeals(expiredFromDate, date);
+    //     }
+    // });
+    // $('#sent_date').datepicker({
+    //     dateFormat: "yyyy-mm-dd",
+    //     startDate: new Date(),
+    //     maxDate: new Date(),
+    //     autoClose: true
+    // });
 
-    $("#expired_datepicker_to").datepicker({
-        dateFormat: "yy-mm-dd",
-        maxDate: new Date(),
-        setDate: '-1m',
-        autoClose: true,
-        onSelect: function (date) {
-            let expiredFromDate = $('#expired_from_date').val();
-            sortExpiredDeals(expiredFromDate, date);
-        }
-    });
-    $('#sent_date').datepicker({
-        dateFormat: "yyyy-mm-dd",
-        startDate: new Date(),
-        maxDate: new Date(),
-        autoClose: true
-    });
+    //My variant
+    let incompleteConfig = {
+            done: true,
+        },
+        incompleteOption = {
+            id: 'incompleteList',
+            pagination: '.undone__pagination'
+        };
+    $('.preloader').show();
+    createDealsTable(incompleteConfig, incompleteOption);
 });
 

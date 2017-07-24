@@ -3385,3 +3385,59 @@ function getCountFilter() {
 
     return count;
 }
+
+function createDealsTable(config={}, option) {
+    Object.assign(config, getSearch('search_fio'));
+    // Object.assign(config, getFilterParam());
+    Object.assign(config, getOrderingData());
+    getDeals(config).then(function (data) {
+        let count = data.count,
+            page = config['page'] || 1,
+            pages = Math.ceil(count / CONFIG.pagination_count),
+            showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
+            id = option.id,
+            text = `Показано ${showCount} из ${count}`,
+            paginationConfig = {
+            container: option.pagination,
+            currentPage: page,
+            pages: pages,
+            callback: createDealsTable
+        };
+        makeDealsDataTable(data, id);
+        makePagination(paginationConfig);
+        $('.table__count').text(text);
+        makeSortForm(data.user_table);
+        $('.preloader').css('display', 'none');
+        new OrderTable().sort(createDealsTable, ".table-wrap th");
+    }).catch(function (err) {
+        console.log(err);
+    });
+}
+
+function makeDealsDataTable(data, id) {
+    let tmpl = document.getElementById('databaseDeals').innerHTML,
+        rendered = _.template(tmpl)(data);
+    document.getElementById(id).innerHTML = rendered;
+    $('.show_payments').on('click', function () {
+        let id = $(this).data('id');
+        showPayments(id);
+    });
+}
+
+function getDeals(config = {}) {
+    let data = {
+        url: URLS.deal.list(),
+        data: config
+    };
+    return new Promise(function (resolve, reject) {
+        let codes = {
+            200: function (data) {
+                resolve(data);
+            },
+            400: function (data) {
+                reject(data);
+            }
+        };
+        newAjaxRequest(data, codes, reject);
+    });
+}
