@@ -225,7 +225,11 @@ function setConfig(type = 'line', labels = [], datasets = [], title = '', xAxes 
                 point: {
                     radius: 5,
                     hoverRadius: 7
+                },
+                rectangle: {
+                    borderWidth: 1000
                 }
+
             }
         },
         plugins: PLUGINS
@@ -243,12 +247,13 @@ function setPieConfig(labels = [], peoples = [], colors = []) {
                 backgroundColor: colors,
                 label: 'Dataset 1'
             }],
-            labels: labels
+            labels: labels,
+            borderWidth: 100
         },
         options: {
-            responsive: true,
+            responsive: false,
             legend: {
-                position: 'left',
+                position: 'top',
                 labels: {
                     fontSize: 14,
                 }
@@ -261,7 +266,7 @@ function setPieConfig(labels = [], peoples = [], colors = []) {
             animation: {
                 animateScale: true,
                 animateRotate: true
-            }
+            },
         },
         plugins: PLUGINS
     };
