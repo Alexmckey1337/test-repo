@@ -357,11 +357,14 @@
     }
   }
 }
-
+#tabStatus{
+  li{
+    border-bottom: none;
+  }
+}
 .tab-status {
   position: relative;
   height: 49px;
-  border-bottom: 1px solid #cdd0d4;
   margin-top: 15px;
   button {
     background-color: #fff;
@@ -371,10 +374,11 @@
   }
   li {
     height: 100%;
+    box-sizing: border-box;
     text-align: center;
+    border-bottom: 1px solid #cdd0d4;
     border-top: 1px solid #cdd0d4;
     border-right: 1px solid #cdd0d4;
-    border-bottom: 1px solid #cdd0d4;
     &.current {
       border-bottom: 0;
     }

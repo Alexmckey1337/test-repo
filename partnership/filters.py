@@ -30,7 +30,8 @@ class PartnerUserFilter(django_filters.FilterSet):
     hierarchy = django_filters.ModelChoiceFilter(name='user__hierarchy', queryset=Hierarchy.objects.all())
     master = django_filters.ModelMultipleChoiceFilter(name="user__master", queryset=CustomUser.objects.all())
     department = django_filters.ModelChoiceFilter(name="user__departments", queryset=Department.objects.all())
+    is_active = django_filters.BooleanFilter(name='is_active')
 
     class Meta:
         model = Partnership
-        fields = ['master', 'hierarchy', 'department', 'user', 'responsible__user', 'responsible']
+        fields = ['master', 'hierarchy', 'department', 'user', 'responsible__user', 'responsible', 'is_active']

@@ -768,6 +768,9 @@
     border: 0;
     border-bottom: 1px solid #cdd0d4;
     background-color: transparent;
+    &:first-child{
+      border-top: 1px solid #cdd0d4;
+    }
     p {
       //width: 33%;
     }
@@ -780,7 +783,7 @@
   }
   .payment_title {
     padding: 15px 10px;
-    border-bottom: 1px solid #cdd0d4;
+    //border-bottom: 1px solid #cdd0d4;
     margin-top:15px;
   }
   .sdelki_title {
@@ -834,11 +837,11 @@
 
 .summit_wrapper,.sdelki-content{
   .rows{
-    border-top: 1px solid #cdd0d4 !important;
     background-color: #fff;
     border-radius: 0 !important;
     margin-right: 0;
     margin-left: 0;
+
   }
 }
 
@@ -847,7 +850,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border: 0;
     & p:last-child {
       min-width: 20%;
     }
