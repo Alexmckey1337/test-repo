@@ -1,16 +1,19 @@
 import operator
 from datetime import datetime, timedelta
 
+import coreapi
+import coreschema
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
 from django.db.models.constants import LOOKUP_SEP
 from django.template import loader
 from django.utils import six
+from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions
 from rest_framework.compat import template_render
-from rest_framework.filters import BaseFilterBackend
+from rest_framework import filters
 
 from account.models import CustomUser
 
@@ -18,7 +21,7 @@ if six.PY3:
     from functools import reduce
 
 
-class FieldSearchFilter(BaseFilterBackend):
+class FieldSearchFilter(filters.BaseFilterBackend):
     # The URL query parameter used for the search.
     # search_param = api_settings.SEARCH_PARAM
     template = 'rest_framework/filters/search.html'
@@ -118,8 +121,21 @@ class FieldSearchFilter(BaseFilterBackend):
     def get_fields(self, view):
         return [view.field_search_fields.keys()] if hasattr(view, 'field_search_fields') else []
 
+    def get_schema_fields(self, view):
+        return [
+            coreapi.Field(
+                name=field_name,
+                required=False,
+                location='query',
+                schema=coreschema.String(
+                    title=field_name.replace('search_', '').capitalize(),
+                    description="Search by fields: [``{}``]".format("``, ``".join(fields))
+                )
+            ) for field_name, fields in view.field_search_fields.items()
+        ]
 
-class BaseFilterByBirthday(BaseFilterBackend):
+
+class BaseFilterByBirthday(filters.BaseFilterBackend):
     born_date_field = ''
 
     def filter_queryset(self, request, queryset, view):
@@ -146,8 +162,21 @@ class BaseFilterByBirthday(BaseFilterBackend):
 
         return queryset.filter(query)
 
+    def get_schema_fields(self, view):
+        return [
+            coreapi.Field(
+                name=self.born_date_field,
+                required=False,
+                location='query',
+                schema=coreschema.String(
+                    title="Birthday",
+                    description="Day of birth, format: ``%Y-%m-%d``"
+                )
+            )
+        ]
 
-class BaseFilterMasterTree(BaseFilterBackend):
+
+class BaseFilterMasterTree(filters.BaseFilterBackend):
     include_self_master = False
     user_field_prefix = ''
 
@@ -172,3 +201,33 @@ class BaseFilterMasterTree(BaseFilterBackend):
         if self.include_self_master:
             return qs
         return qs.exclude(**{'%sid' % self.user_field_prefix: master.id})
+
+    def get_schema_fields(self, view):
+        return [
+            coreapi.Field(
+                name="master_tree",
+                required=False,
+                location='query',
+                schema=coreschema.Integer(
+                    title='Master tree',
+                    description="Id of user (master) for filter by master tree"
+                )
+            )
+        ]
+
+
+class OrderingFilter(filters.OrderingFilter):
+    def get_schema_fields(self, view):
+        ordering_fields = getattr(view, "ordering_fields", self.ordering_fields)
+        return [
+            coreapi.Field(
+                name=self.ordering_param,
+                required=False,
+                location='query',
+                schema=coreschema.String(
+                    title=force_text(self.ordering_title),
+                    description=("Ordering by one of (``{}``)".format("``, ``".join(ordering_fields))
+                                 if ordering_fields else force_text(self.ordering_description))
+                )
+            )
+        ]

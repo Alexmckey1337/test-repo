@@ -25,30 +25,30 @@
 
 <body>
 <div class="page-width vocrm-login ">
-    <div class="logo">
-        <div><span>V</span><span>O</span></div>
-        <div><span>C</span><span>R</span><span>M</span></div>
-    </div>
-
-    <div class="account">
+        <div class="account">
         {% block body %}
-        <div class="splash-screen" id="login_popup">
-            <div class="top-text">
-                <h3>Войти в систему</h3>
+        <div class="login-wrap">
+            <div class="logo">
+                <a data-title="Дэшборд" href="/">vo<span>crm</span></a>
             </div>
-            <div class="entry-input1">
-                <input type="mail" id="login">
+            <div class="splash-screen" id="login_popup">
+                <div class="top-text">
+                    <h3>Войти в систему</h3>
+                </div>
+                <div class="entry-input1">
+                    <input type="mail" id="login">
+                </div>
+                <div class="entry-input2">
+                    <input type="password" id="psw">
+                </div>
+                <div class="splash-bauttons">
+                    <input type="checkbox" id="save-profile">
+                    <label class="disable" for="save-profile">Чужой компьютер</label>
+                    <button id="entry" autocomplete="on">Войти</button>
+                </div>
+                <a href="{% url "restore" %}" class="restore">Восстановить пароль</a>
+                <div class="invalid" autocomplete="on">Неверно введён e-mail или пароль</div>
             </div>
-            <div class="entry-input2">
-                <input type="password" id="psw">
-            </div>
-            <div class="splash-bauttons">
-                <input type="checkbox" id="save-profile">
-                <label class="disable" for="save-profile">Чужой компьютер</label>
-                <button id="entry" autocomplete="on">Войти</button>
-            </div>
-            <a href="{% url "restore" %}" class="restore">Восстановить пароль</a>
-            <div class="invalid" autocomplete="on">Неверно введён e-mail или пароль</div>
         </div>
         {% endblock %}
 

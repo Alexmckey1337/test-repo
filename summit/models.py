@@ -273,7 +273,7 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
         master = self.user.master
         self.responsible = master.fullname if master else ''
         self.master = master
-        master_path = ".".join(map(lambda p: str(p), self.user.get_ancestors().values_list('pk', flat=True)))
+        master_path = list(self.user.get_ancestors().values_list('pk', flat=True))
         self.master_path = master_path
 
         hierarchy = self.user.hierarchy
