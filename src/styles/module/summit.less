@@ -296,6 +296,9 @@
     .pre_filter {
       display: flex;
       align-items: center;
+      h1,span{
+        font-size: 24px;
+      }
       .select2 {
         width: 350px!important;
       }
@@ -304,11 +307,19 @@
         height: 30px;
         margin-left: 5px;
       }
+      .select2-container{
+        .select2-selection--single{
+          .select2-selection__rendered{
+            height: 100%;
+            padding-top:3px;
+          }
+        }
+      }
     }
   }
   .half_charts {
     margin-top: 30px;
-    width: 50%;
+    width: 100%;
   }
   canvas {
     margin-top: 30px;
