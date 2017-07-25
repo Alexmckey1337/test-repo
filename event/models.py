@@ -6,13 +6,13 @@ from datetime import date
 
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models import Sum
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
 
 from event.managers import MeetingManager
 from navigation.table_fields import meeting_table
+from django.utils.functional import cached_property
 
 
 @python_2_unicode_compatible
@@ -124,7 +124,7 @@ class Meeting(AbstractStatusModel):
     def table_columns(self):
         return meeting_table(self.owner, category_title='attends')
 
-    @property
+    @cached_property
     def can_submit(self):
         if Meeting.objects.filter(owner=self.owner, status=Meeting.EXPIRED).exists() \
                 and self.status == Meeting.IN_PROGRESS:

@@ -52,6 +52,6 @@ class DealSerializer(DealCreateSerializer):
     class Meta(DealCreateSerializer.Meta):
         fields = ('id', 'partnership', 'date', 'date_created',
                   'value', 'done', 'expired', 'description',
-                  'full_name', 'responsible_name',
+                  'full_name', 'responsible_name', 'partner_link',
                   'total_sum', 'currency',
                   )

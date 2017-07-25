@@ -203,6 +203,10 @@ class Deal(LogModel, AbstractPaymentPurpose):
     update_after_cancel_payment.alters_data = True
 
     @property
+    def partner_link(self):
+        return self.partnership.user.link
+
+    @property
     def value_str(self):
         """
         Deal value with currency.
