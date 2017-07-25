@@ -89,12 +89,24 @@ class MeetingSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMix
         return meeting
 
 
+class OwnerRelatedField(serializers.RelatedField):
+    def get_attribute(self, instance):
+        return instance.owner_id, instance.owner_name
+
+    def to_representation(self, value):
+        owner_id, owner_name = value
+        return {
+            'id': owner_id,
+            'fullname': owner_name
+        }
+
+
 class MeetingListSerializer(MeetingSerializer):
     visitors_absent = serializers.IntegerField()
     visitors_attended = serializers.IntegerField()
     type = MeetingTypeSerializer()
     home_group = HomeGroupNameSerializer()
-    owner = UserNameSerializer()
+    owner = OwnerRelatedField(read_only=True)
     status = serializers.JSONField(source='get_status_display')
 
     class Meta(MeetingSerializer.Meta):

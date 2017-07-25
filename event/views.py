@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import logging
 
 from django.db import transaction, IntegrityError
-from django.db.models import IntegerField, Sum, When, Case, Count
+from django.db.models import IntegerField, Sum, When, Case, Count, OuterRef, Exists, Q, BooleanField
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status, filters, exceptions
 from rest_framework.decorators import list_route, detail_route
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 class MeetingViewSet(ModelWithoutDeleteViewSet):
-    queryset = Meeting.objects.all()
+    queryset = Meeting.objects.select_related('owner', 'type', 'home_group__leader')
 
     serializer_class = MeetingSerializer
     serializer_retrieve_class = MeetingDetailSerializer
@@ -69,14 +69,23 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     def get_queryset(self):
         if self.action == 'list':
-            return self.queryset.for_user(self.request.user).annotate(
+            subqs = Meeting.objects.filter(owner=OuterRef('owner'), status=Meeting.EXPIRED)
+            return self.queryset.prefetch_related('attends').annotate_owner_name().for_user(
+                self.request.user
+            ).annotate(
                 visitors_attended=Sum(Case(
                     When(attends__attended=True, then=1),
                     output_field=IntegerField(), default=0)),
 
                 visitors_absent=Sum(Case(When(
                     attends__attended=False, then=1),
-                    output_field=IntegerField(), default=0)))
+                    output_field=IntegerField(), default=0))
+            ).annotate(
+                can_s=Exists(subqs)
+            ).annotate(
+                can_submit=Case(
+                    When(Q(status=True) & Q(can_s=True), then=False), output_field=BooleanField(), default=True)
+            )
 
         return self.queryset.for_user(self.request.user)
 
@@ -297,3 +306,7 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
 
         statistics = self.serializer_class(statistics)
         return Response(statistics.data)
+
+
+"""
+"""
