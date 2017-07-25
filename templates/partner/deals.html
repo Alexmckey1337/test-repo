@@ -17,8 +17,8 @@
             </ul>
         </div>
         <div class="top-buttons-wrap">
-{#            <ul class="top-buttons">#}
-{#            </ul>#}
+            {#            <ul class="top-buttons">#}
+            {#            </ul>#}
         </div>
     </div>
 {% endblock %}
@@ -27,7 +27,7 @@
 
     {% get_simple_managers as managers %}
     <div class="content">
-        <div  id="sdelki">
+        <div id="sdelki">
             <div class="top-pag">
                 <div class="tab-status">
                     <ul id="tabs">
@@ -57,17 +57,35 @@
             </div>
             <div class="tabs-cont">
                 <div class="pagination undone__pagination"></div>
-                <div id="incomplete"></div>
+                <div id="incomplete" class="table-wrap clearfix"><!--Table -->
+                    <div class="query-none" style="display:none">
+                        <p></p>
+                    </div>
+                    <div class="table scrollbar-inner" id="incompleteList"></div>
+                </div><!--End Table-wrap -->
+                <div class="table__count"></div>
                 <div class="pagination undone__pagination"></div>
             </div>
             <div class="tabs-cont">
                 <div class="pagination expired__pagination"></div>
-                <div id="overdue"></div>
+                <div id="overdue" class="table-wrap clearfix"><!--Table -->
+                    <div class="query-none" style="display:none">
+                        <p></p>
+                    </div>
+                    <div class="table scrollbar-inner" id="overdueList"></div>
+                </div><!--End Table-wrap -->
+                <div class="table__count"></div>
                 <div class="pagination expired__pagination"></div>
             </div>
             <div class="tabs-cont">
                 <div class="pagination done__pagination"></div>
-                <div id="completed"></div>
+                <div id="completed" class="table-wrap clearfix"><!--Table -->
+                    <div class="query-none" style="display:none">
+                        <p></p>
+                    </div>
+                    <div class="table scrollbar-inner" id="completedList"></div>
+                </div><!--End Table-wrap -->
+                <div class="table__count"></div>
                 <div class="pagination done__pagination"></div>
             </div>
         </div><!--End sdelki -->
@@ -79,16 +97,16 @@
     <div id="popup-payments" class="pop-up-splash">
         <div class="flex-wrap">
             <div class="splash-screen">
-            <div class="top-text">
-                <h3>Платежи</h3>
-                <span>&times;</span>
+                <div class="top-text">
+                    <h3>Платежи</h3>
+                    <span>&times;</span>
+                </div>
+                <table></table>
+                <div class="splash-bauttons">
+                    <button class="detail" data-detail-url="{% url "payment-deal" pk=0 %}">{% trans "Detail" %}</button>
+                    <button class="close">Закрыть</button>
+                </div>
             </div>
-            <table></table>
-            <div class="splash-bauttons">
-                <button class="detail" data-detail-url="{% url "payment-deal" pk=0 %}">{% trans "Detail" %}</button>
-                <button class="close">Закрыть</button>
-            </div>
-        </div>
         </div>
     </div>
     <div id="popup" class="pop-up-splash">
@@ -135,52 +153,154 @@
     <script src='{% static "libs/numeral/min/numeral.min.js" %}'></script>
     <script src='{% static "js/deals.js" %}'></script>
     {% block template_tables %}
+        <script type="text/template" id="databaseDeals">
+         <table>
+            <thead>
+            <tr>
+                <% for( var key in table_columns) { %>
+                    <% if (table_columns[key].active) { %>
+                        <th data-order="<%=table_columns[key].ordering_title%>"><%=table_columns[key].title %></th>
+                    <% } %>
+                <% } %>
+            </tr>
+            </thead>
+            <tbody>
+                <% results.map(function(value, index) { %>
+                <tr>
+                    <% for( var key in table_columns) { %>
+                        <% if(table_columns[key].active) { %>
 
+                            <% if (key == 'full_name') { %>
+                                <% if (results[index][key] != null) { %>
+                                    <td><a href="<%= results[index].link %>"
+                                                        data-link="<%= results[index].link %>"
+                                                        data-id="<%=results[index].id %>"
+                                                        <% if(results[index].ankets_id) { %>
+                                                            data-ankets="<%= results[index].ankets_id %>"
+                                                        <% } %>><%= results[index][key] %></a>
+                                        </td>
+                                <% } else { %>
+                                    <td></td>
+                                <% } %>
+
+                            <% } else if (key == 'responsible' ) { %>
+                                <% if (results[index].responsible_name != null ) { %>
+                                    <td><%= results[index].responsible_name%></td>
+                                <% } else { %>
+                                    <td></td>
+                                <% } %>
+
+                            <% } else if (key == 'sum' ) { %>
+                                <% if (results[index].total_sum != null || results[index].value != null) { %>
+                                    <td>
+                                        <button class="show_payments inline__button" data-id="<%=results[index].id%>">
+                                            <span><%= results[index].total_sum %>/<%= results[index].value %></span>
+                                        </button>
+                                    </td>
+                                <% } else { %>
+                                    <td></td>
+                                <% } %>
+
+                            <% } else if (key == 'action' ) { %>
+                                <% if(!results[index].done && can_close_deal) { %>
+                                    <% if((parseInt(results[index].total_sum.match(/\d+/)) - parseInt(results[index].value.match(/\d+/))) >= 0 ){ %>
+                                    <td>
+                                        <button class="complete inline__button"
+                                                data-id="<%= results[index].id%>"
+                                                data-name="<%=results[index].full_name%>"
+                                                data-date="<%=results[index].date_created%>"
+                                                data-responsible="<%=results[index].responsible_name%>"
+                                                data-total_sum="<%=results[index].total_sum %>"
+                                                data-value="<%=results[index].value%>"
+                                                data-currency-name="<%=results[index].currency.short_name %>"
+                                                data-currency-id="<%=results[index].currency.id %>"
+                                        >Завершить
+                                        </button>
+                                    </td>
+                                    <% } %>
+                                <% } else if(!results[index].done && check_payment_permissions) { %>
+                                    <% if((parseInt(results[index].total_sum.match(/\d+/)) - parseInt(results[index].value.match(/\d+/))) < 0 ){ %>
+                                    <td>
+                                        <button class="pay inline__button"
+                                                data-id="<%=results[index].id%>"
+                                                data-name="<%=results[index].full_name%>"
+                                                data-date="<%=results[index].date_created%>"
+                                                data-responsible="<%=results[index].responsible_name%>"
+                                                data-total_sum="<%=results[index].total_sum %>"
+                                                data-value="<%=results[index].value%>"
+                                                data-currency-name="<%=results[index].currency.short_name %>"
+                                                data-currency-id="<%=results[index].currency.id %>"
+                                        >Платеж
+                                        </button>
+                                    <td>
+                                    <% } %>
+                                <% } else { %>
+                                    <td></td>
+                                <% } %>
+
+                            <% }  else if (results[index][key] != null ) { %>
+                                <td><%= results[index][key] %></td>
+                            <% } else { %>
+                                <td></td>
+                            <% } %>
+
+                        <% } %>
+                    <% } %>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </script>
     {% endblock %}
     <script type="text/template" id="showDeals">
-    <% results.forEach(function(item) { %>
-    <div class="rows-wrap" id="<%=item.id%>">
-        <% if(!item.done && can_close_deal) { %>
+        <% results.forEach(function(item) { %>
+        <div class="rows-wrap" id="<%=item.id%>">
+            <% if(!item.done && can_close_deal) { %>
             <% if((parseInt(item.total_sum.match(/\d+/)) - parseInt(item.value.match(/\d+/))) >= 0 ){ %>
-                <button class="complete"
-                        data-id="<%= item.id%>"
-                        data-name="<%=item.full_name%>"
-                        data-date="<%=item.date_created%>"
-                        data-responsible="<%=item.responsible_name%>"
-                        data-total_sum="<%=item.total_sum %>"
-                        data-value="<%=item.value%>"
-                        data-currency-name="<%=item.currency.short_name %>"
-                        data-currency-id="<%=item.currency.id %>"
-                >Завершить</button>
+            <button class="complete"
+                    data-id="<%= item.id%>"
+                    data-name="<%=item.full_name%>"
+                    data-date="<%=item.date_created%>"
+                    data-responsible="<%=item.responsible_name%>"
+                    data-total_sum="<%=item.total_sum %>"
+                    data-value="<%=item.value%>"
+                    data-currency-name="<%=item.currency.short_name %>"
+                    data-currency-id="<%=item.currency.id %>"
+            >Завершить
+            </button>
             <% } %>
-        <% } %>
-        <% if(!item.done && check_payment_permissions) { %>
+            <% } %>
+            <% if(!item.done && check_payment_permissions) { %>
             <% if((parseInt(item.total_sum.match(/\d+/)) - parseInt(item.value.match(/\d+/))) < 0 ){ %>
-                <button class="pay"
-                        data-id="<%=item.id%>"
-                        data-name="<%=item.full_name%>"
-                        data-date="<%=item.date_created%>"
-                        data-responsible="<%=item.responsible_name%>"
-                        data-total_sum="<%=item.total_sum %>"
-                        data-value="<%=item.value%>"
-                        data-currency-name="<%=item.currency.short_name %>"
-                        data-currency-id="<%=item.currency.id %>"
-                >Платеж</button>
+            <button class="pay"
+                    data-id="<%=item.id%>"
+                    data-name="<%=item.full_name%>"
+                    data-date="<%=item.date_created%>"
+                    data-responsible="<%=item.responsible_name%>"
+                    data-total_sum="<%=item.total_sum %>"
+                    data-value="<%=item.value%>"
+                    data-currency-name="<%=item.currency.short_name %>"
+                    data-currency-id="<%=item.currency.id %>"
+            >Платеж
+            </button>
             <% } %>
-        <% } %>
-        <div class="rows">
-            <div class="col">
-                <p>
-                    <span><%=item.full_name%></span>
-                </p>
-            </div>
-            <div class="col">
-                <p>Сделка за: <span><%= item.date_created %></span></p>
-                <p>Менеджер: <span><%= item.responsible_name %></span></p>
-                <p>Сумма: <button class="show_payments inline__button" data-id="<%=item.id%>"><span><%= item.total_sum %>/<%= item.value %></span></button></p>
+            <% } %>
+            <div class="rows">
+                <div class="col">
+                    <p>
+                        <span><%=item.full_name%></span>
+                    </p>
+                </div>
+                <div class="col">
+                    <p>Сделка за: <span><%= item.date_created %></span></p>
+                    <p>Менеджер: <span><%= item.responsible_name %></span></p>
+                    <p>Сумма:
+                        <button class="show_payments inline__button" data-id="<%=item.id%>"><span><%= item.total_sum %>/<%= item.value %></span>
+                        </button>
+                    </p>
+                </div>
             </div>
         </div>
-    </div>
-    <% }) %>
-</script>
+        <% }) %>
+    </script>
 {% endblock %}
