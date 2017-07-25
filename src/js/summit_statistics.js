@@ -221,6 +221,7 @@ function setConfig(type = 'line', labels = [], datasets = [], title = '', xAxes 
                 xAxes: xAxes,
                 yAxes: yAxes,
             },
+
             elements: {
                 point: {
                     radius: 5,
