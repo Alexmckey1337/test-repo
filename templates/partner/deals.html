@@ -17,8 +17,24 @@
             </ul>
         </div>
         <div class="top-buttons-wrap">
-            {#            <ul class="top-buttons">#}
-            {#            </ul>#}
+            <ul class="top-buttons">
+                <li>
+                    <button id="filter_button"
+                            class="header__button"
+                            data-count="0"
+                    >
+                        Фильтр
+                    </button>
+                </li>
+{#                <li>#}
+{#                    <button type="submit" id="export_table" data-export-url="{% url "partner-export" %}"#}
+{#                            class="download header__button">Export#}
+{#                    </button>#}
+{#                </li>#}
+                <li>
+                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
+                </li>
+            </ul>
         </div>
     </div>
 {% endblock %}
@@ -31,7 +47,7 @@
             <div class="top-pag">
                 <div class="tab-status">
                     <ul id="tabs">
-                        <li>
+                        <li class="current">
                             <a href="#incomplete">Незавершённые (<span id="incomplete-count"></span>)</a>
                         </li>
                         <li>
@@ -55,9 +71,10 @@
                         все</a></p>
                 </div>
             </div>
-            <div class="tabs-cont">
+            <div id="incomplete"  class="tabs-cont">
+                <div class="table__count"></div>
                 <div class="pagination undone__pagination"></div>
-                <div id="incomplete" class="table-wrap clearfix"><!--Table -->
+                <div class="table-wrap clearfix"><!--Table -->
                     <div class="query-none" style="display:none">
                         <p></p>
                     </div>
@@ -66,9 +83,10 @@
                 <div class="table__count"></div>
                 <div class="pagination undone__pagination"></div>
             </div>
-            <div class="tabs-cont">
+            <div id="overdue" class="tabs-cont">
+                <div class="table__count"></div>
                 <div class="pagination expired__pagination"></div>
-                <div id="overdue" class="table-wrap clearfix"><!--Table -->
+                <div class="table-wrap clearfix"><!--Table -->
                     <div class="query-none" style="display:none">
                         <p></p>
                     </div>
@@ -77,9 +95,10 @@
                 <div class="table__count"></div>
                 <div class="pagination expired__pagination"></div>
             </div>
-            <div class="tabs-cont">
+            <div id="completed" class="tabs-cont">
+                <div class="table__count"></div>
                 <div class="pagination done__pagination"></div>
-                <div id="completed" class="table-wrap clearfix"><!--Table -->
+                <div class="table-wrap clearfix"><!--Table -->
                     <div class="query-none" style="display:none">
                         <p></p>
                     </div>
@@ -137,6 +156,50 @@
             </div>
         </div>
     </div>
+    <div class="popap" id='filterPopup'>
+        <div class="pop_cont">
+            <h2 class='popup_text'>
+                Фильтр
+            </h2>
+            <div class="popup_body">
+                <div class="container">
+                    <div class="col-6">
+                        {% if request.user.is_partner_supervisor_or_high %}
+                            <div class="label_block-wrapp">
+                            <span class="label_block">Менеджер</span>
+                        </div>
+                        {% endif %}
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Фильтр по дате сделки</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        {% if request.user.is_partner_supervisor_or_high %}
+                            <p class="input_block">
+                                <select class="selectdb" data-filter="partnership__responsible__user" id="masters_filter">
+                                    <option value="">ВСЕ</option>
+                                    {% for manager in managers %}
+                                        <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                                    {% endfor %}
+                                </select>
+                            </p>
+                        {% endif %}
+                        <p class="input_block">
+                            <input type="text" placeholder="от" data-filter="from_date" id="date_from" class="select_date_filter">
+                            <input type="text" placeholder="до" data-filter="to_date" id="date_to" class="select_date_filter">
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
+                                                                                  aria-hidden="true"></i>
+                    Очистить</button>
+                <button class="close-popup">Отменить</button>
+                <button class="apply-filter">Применить</button>
+            </div>
+        </div>
+    </div>
     {{ block.super }}
 {% endblock %}
 
@@ -168,28 +231,25 @@
                 <% results.map(function(value, index) { %>
                 <tr>
                     <% for( var key in table_columns) { %>
-                        <% if(table_columns[key].active) { %>
-
+                        <% if(table_columns.hasOwnProperty(key) && table_columns[key].active) { %>
                             <% if (key == 'full_name') { %>
                                 <% if (results[index][key] != null) { %>
-                                    <td><a href="<%= results[index].link %>"
-                                                        data-link="<%= results[index].link %>"
-                                                        data-id="<%=results[index].id %>"
-                                                        <% if(results[index].ankets_id) { %>
-                                                            data-ankets="<%= results[index].ankets_id %>"
-                                                        <% } %>><%= results[index][key] %></a>
-                                        </td>
+                                    <td><a href="<%= results[index].﻿partner_link %>"
+                                           data-link="<%= results[index].﻿partner_link %>"
+                                           data-id="<%=results[index].id %>"
+                                        <% if(results[index].ankets_id) { %>
+                                            data-ankets="<%= results[index].ankets_id %>"
+                                        <% } %>><%= results[index][key] %></a>
+                                    </td>
                                 <% } else { %>
                                     <td></td>
                                 <% } %>
-
                             <% } else if (key == 'responsible' ) { %>
                                 <% if (results[index].responsible_name != null ) { %>
                                     <td><%= results[index].responsible_name%></td>
                                 <% } else { %>
                                     <td></td>
                                 <% } %>
-
                             <% } else if (key == 'sum' ) { %>
                                 <% if (results[index].total_sum != null || results[index].value != null) { %>
                                     <td>
@@ -200,108 +260,47 @@
                                 <% } else { %>
                                     <td></td>
                                 <% } %>
-
                             <% } else if (key == 'action' ) { %>
-                                <% if(!results[index].done && can_close_deal) { %>
-                                    <% if((parseInt(results[index].total_sum.match(/\d+/)) - parseInt(results[index].value.match(/\d+/))) >= 0 ){ %>
-                                    <td>
-                                        <button class="complete inline__button"
-                                                data-id="<%= results[index].id%>"
-                                                data-name="<%=results[index].full_name%>"
-                                                data-date="<%=results[index].date_created%>"
-                                                data-responsible="<%=results[index].responsible_name%>"
-                                                data-total_sum="<%=results[index].total_sum %>"
-                                                data-value="<%=results[index].value%>"
-                                                data-currency-name="<%=results[index].currency.short_name %>"
-                                                data-currency-id="<%=results[index].currency.id %>"
-                                        >Завершить
-                                        </button>
-                                    </td>
-                                    <% } %>
-                                <% } %>
-                                <% if(!results[index].done && check_payment_permissions) { %>
-                                    <% if((parseInt(results[index].total_sum.match(/\d+/)) - parseInt(results[index].value.match(/\d+/))) < 0 ){ %>
-                                    <td>
-                                        <button class="pay inline__button"
-                                                data-id="<%=results[index].id%>"
-                                                data-name="<%=results[index].full_name%>"
-                                                data-date="<%=results[index].date_created%>"
-                                                data-responsible="<%=results[index].responsible_name%>"
-                                                data-total_sum="<%=results[index].total_sum %>"
-                                                data-value="<%=results[index].value%>"
-                                                data-currency-name="<%=results[index].currency.short_name %>"
-                                                data-currency-id="<%=results[index].currency.id %>"
-                                        >Платеж
-                                        </button>
-                                    <td>
-                                    <% } %>
-                                <% } else { %>
-                                    <td></td>
-                                <% } %>
+                                <td>
+                                <% if( (!results[index].done && can_close_deal) && ((parseInt(results[index].total_sum.match(/\d+/)) - parseInt(results[index].value.match(/\d+/))) >= 0 )) { %>
 
+                                            <button class="complete inline__button"
+                                                    data-id="<%= results[index].id%>"
+                                                    data-name="<%=results[index].full_name%>"
+                                                    data-date="<%=results[index].date_created%>"
+                                                    data-responsible="<%=results[index].responsible_name%>"
+                                                    data-total_sum="<%=results[index].total_sum %>"
+                                                    data-value="<%=results[index].value%>"
+                                                    data-currency-name="<%=results[index].currency.short_name %>"
+                                                    data-currency-id="<%=results[index].currency.id %>"
+                                            >Закрыть сделку
+                                            </button>
+                                <% } else if ((!results[index].done && check_payment_permissions) && ((parseInt(results[index].total_sum.match(/\d+/)) - parseInt(results[index].value.match(/\d+/))) < 0 )) {  %>
+
+                                            <button class="pay inline__button"
+                                                    data-id="<%=results[index].id%>"
+                                                    data-name="<%=results[index].full_name%>"
+                                                    data-date="<%=results[index].date_created%>"
+                                                    data-responsible="<%=results[index].responsible_name%>"
+                                                    data-total_sum="<%=results[index].total_sum %>"
+                                                    data-value="<%=results[index].value%>"
+                                                    data-currency-name="<%=results[index].currency.short_name %>"
+                                                    data-currency-id="<%=results[index].currency.id %>"
+                                            >Добавить платеж
+                                            </button>
+                                <% } %>
+                                </td>
                             <% }  else if (results[index][key] != null ) { %>
                                 <td><%= results[index][key] %></td>
                             <% } else { %>
                                 <td></td>
                             <% } %>
-
                         <% } %>
                     <% } %>
                 </tr>
-                <% }) %>
+                <% }).join('') %>
             </tbody>
         </table>
     </script>
     {% endblock %}
-    <script type="text/template" id="showDeals">
-        <% results.forEach(function(item) { %>
-        <div class="rows-wrap" id="<%=item.id%>">
-            <% if(!item.done && can_close_deal) { %>
-            <% if((parseInt(item.total_sum.match(/\d+/)) - parseInt(item.value.match(/\d+/))) >= 0 ){ %>
-            <button class="complete"
-                    data-id="<%= item.id%>"
-                    data-name="<%=item.full_name%>"
-                    data-date="<%=item.date_created%>"
-                    data-responsible="<%=item.responsible_name%>"
-                    data-total_sum="<%=item.total_sum %>"
-                    data-value="<%=item.value%>"
-                    data-currency-name="<%=item.currency.short_name %>"
-                    data-currency-id="<%=item.currency.id %>"
-            >Завершить
-            </button>
-            <% } %>
-            <% } %>
-            <% if(!item.done && check_payment_permissions) { %>
-            <% if((parseInt(item.total_sum.match(/\d+/)) - parseInt(item.value.match(/\d+/))) < 0 ){ %>
-            <button class="pay"
-                    data-id="<%=item.id%>"
-                    data-name="<%=item.full_name%>"
-                    data-date="<%=item.date_created%>"
-                    data-responsible="<%=item.responsible_name%>"
-                    data-total_sum="<%=item.total_sum %>"
-                    data-value="<%=item.value%>"
-                    data-currency-name="<%=item.currency.short_name %>"
-                    data-currency-id="<%=item.currency.id %>"
-            >Платеж
-            </button>
-            <% } %>
-            <% } %>
-            <div class="rows">
-                <div class="col">
-                    <p>
-                        <span><%=item.full_name%></span>
-                    </p>
-                </div>
-                <div class="col">
-                    <p>Сделка за: <span><%= item.date_created %></span></p>
-                    <p>Менеджер: <span><%= item.responsible_name %></span></p>
-                    <p>Сумма:
-                        <button class="show_payments inline__button" data-id="<%=item.id%>"><span><%= item.total_sum %>/<%= item.value %></span>
-                        </button>
-                    </p>
-                </div>
-            </div>
-        </div>
-        <% }) %>
-    </script>
 {% endblock %}
