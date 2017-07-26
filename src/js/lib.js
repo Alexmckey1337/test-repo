@@ -3669,7 +3669,11 @@ function createDealsPayment(id, sum, description) {
 }
 
 function updateDealsTable() {
-    createIncompleteDealsTable();
-    createExpiredDealsTable();
-    createDoneDealsTable();
+    $('.preloader').css('display', 'block');
+    let pageIncompleteDeals = $('#incomplete').find('.pagination__input').val(),
+        pageExpiredDeals = $('#overdue').find('.pagination__input').val(),
+        pageDoneDeals = $('#completed').find('.pagination__input').val();
+    createIncompleteDealsTable({page: pageIncompleteDeals});
+    createExpiredDealsTable({page: pageExpiredDeals});
+    createDoneDealsTable({page: pageDoneDeals});
 }
