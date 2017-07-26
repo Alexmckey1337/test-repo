@@ -424,7 +424,7 @@ class SummitTicketListView(LoginRequiredMixin, CanSeeSummitTicketMixin, ListView
     def dispatch(self, request, *args, **kwargs):
         response = super(SummitTicketListView, self).dispatch(request, *args, **kwargs)
         try:
-            r = redis.StrictRedis(host='localhost', port=6379, db=0)
+            r = redis.StrictRedis(host='redis', port=6379, db=0)
             r.srem('summit:ticket:{}'.format(request.user.id), *list(self.get_queryset().values_list('id', flat=True)))
         except Exception as err:
             print(err)
@@ -435,7 +435,7 @@ class SummitTicketListView(LoginRequiredMixin, CanSeeSummitTicketMixin, ListView
         code = self.request.GET.get('code', '')
         qs = super(SummitTicketListView, self).get_queryset()
         try:
-            r = redis.StrictRedis(host='localhost', port=6379, db=0)
+            r = redis.StrictRedis(host='redis', port=6379, db=0)
             ticket_ids = r.smembers('summit:ticket:{}'.format(self.request.user.id))
         except Exception as err:
             ticket_ids = None
@@ -462,7 +462,7 @@ class SummitTicketDetailView(LoginRequiredMixin, CanSeeSummitTicketMixin, Detail
     def dispatch(self, request, *args, **kwargs):
         response = super(SummitTicketDetailView, self).dispatch(request, *args, **kwargs)
         try:
-            r = redis.StrictRedis(host='localhost', port=6379, db=0)
+            r = redis.StrictRedis(host='redis', port=6379, db=0)
             r.srem('summit:ticket:{}'.format(request.user.id), self.object.id)
         except Exception as err:
             print(err)

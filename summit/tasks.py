@@ -70,7 +70,7 @@ def generate_tickets(summit_id, ankets, ticket_id):
         'file': ticket.attachment.url
     }
     try:
-        r = redis.StrictRedis(host='localhost', port=6379, db=0)
+        r = redis.StrictRedis(host='redis', port=6379, db=0)
         r.sadd('summit:ticket:{}'.format(ticket.owner.id), ticket_id)
         r.expire('summit:ticket:{}'.format(ticket.owner.id), 7 * 24 * 60 * 60)
     except Exception as err:
