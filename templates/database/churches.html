@@ -141,56 +141,102 @@
             <form action="" onsubmit="addChurch(event, this, createChurchesTable)">
                 <div class="popup_body">
                     <div class="container container_block">
-                        <div class="column">
-                            <div class="label_block-wrapp">
-                                <span class="label_block">Дата открытия</span>
-                            </div>
-                            <div class="label_block-wrapp">
-                                <span class="label_block">Открыта</span>
-                            </div>
-                            <div class="label_block-wrapp">
-                                <span class="label_block">Название</span>
-                            </div>
-                            <div class="label_block-wrapp end__block">
-                                <span class="label_block">Выберите отдел</span>
-                            </div>
-                            <div class="label_block-wrapp">
-                                <span class="label_block">Страна</span>
-                            </div>
-                            <div class="label_block-wrapp">
-                                <span class="label_block">Город</span>
-                            </div>
-                            <div class="label_block-wrapp end__block">
-                                <span class="label_block">Пастор</span>
-                            </div>
-                            <div class="label_block-wrapp">
-                                <span class="label_block">Адрес служения</span>
-                            </div>
-                            <div class="label_block-wrapp">
-                                <span class="label_block">Телефон</span>
-                            </div>
-                            <div class="label_block-wrapp">
-                                <span class="label_block">Сайт</span>
-                            </div>
-                        </div>
-                        <div>
-                            <p><input type="text" id="added_churches_date" required></p>
-                            <p><input type="checkbox" id="added_churches_is_open"></p>
-                            <p><input type="text" id="added_churches_title"></p>
-                            <p class="end__block"><select name="department" id="department_select">
-                                {% for item in request.user.departments.all %}
-                                    <option value="{{ item.id }}">{{ item.title }}</option>
-                                {% endfor %}
-                            </select></p>
-                            <p><input type="text" id="added_churches_country" required></p>
-                            <p><input type="text" id="added_churches_city" required></p>
-                            <p class="end__block"><select name="pastor" id="pastor_select" disabled required>
+{#                        <div class="column">#}
+{#                            <div class="label_block-wrapp">#}
+{#                                <span class="label_block">Дата открытия</span>#}
+{#                            </div>#}
+{#                            <div class="label_block-wrapp">#}
+{#                                <span class="label_block">Открыта</span>#}
+{#                            </div>#}
+{#                            <div class="label_block-wrapp">#}
+{#                                <span class="label_block">Название</span>#}
+{#                            </div>#}
+{#                            <div class="label_block-wrapp end__block">#}
+{#                                <span class="label_block">Выберите отдел</span>#}
+{#                            </div>#}
+{#                            <div class="label_block-wrapp">#}
+{#                                <span class="label_block">Страна</span>#}
+{#                            </div>#}
+{#                            <div class="label_block-wrapp">#}
+{#                                <span class="label_block">Город</span>#}
+{#                            </div>#}
+{#                            <div class="label_block-wrapp end__block">#}
+{#                                <span class="label_block">Пастор</span>#}
+{#                            </div>#}
+{#                            <div class="label_block-wrapp">#}
+{#                                <span class="label_block">Адрес служения</span>#}
+{#                            </div>#}
+{#                            <div class="label_block-wrapp">#}
+{#                                <span class="label_block">Телефон</span>#}
+{#                            </div>#}
+{#                            <div class="label_block-wrapp">#}
+{#                                <span class="label_block">Сайт</span>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div>#}
+{#                            <p><input type="text" id="added_churches_date" required></p>#}
+{#                            <p><input type="checkbox" id="added_churches_is_open"></p>#}
+{#                            <p><input type="text" id="added_churches_title"></p>#}
+{#                            <p class="end__block"><select name="department" id="department_select">#}
+{#                                {% for item in request.user.departments.all %}#}
+{#                                    <option value="{{ item.id }}">{{ item.title }}</option>#}
+{#                                {% endfor %}#}
+{#                            </select></p>#}
+{#                            <p><input type="text" id="added_churches_country" required></p>#}
+{#                            <p><input type="text" id="added_churches_city" required></p>#}
+{#                            <p class="end__block"><select name="pastor" id="pastor_select" disabled required>#}
+{#                                <option value="0">Выберите пастора</option>#}
+{#                            </select></p>#}
+{#                            <p><input type="text" id="added_churches_address"></p>#}
+{#                            <p><input type="tel" id="added_churches_phone"></p>#}
+{#                            <p><input type="url" id="added_churches_site"></p>#}
+{#                        </div>#}
+                        <label>
+                            <span class="label_block">Дата открытия</span>
+                            <input type="text" id="added_churches_date" required>
+                        </label>
+                        <label>
+                            <span class="label_block">Открыта</span>
+                            <input type="checkbox" id="added_churches_is_open">
+                        </label>
+                        <label>
+                            <span class="label_block">Название</span>
+                            <input type="text" id="added_churches_title">
+                        </label>
+                        <label>
+                            <span class="label_block">Выберите отдел</span>
+                            <select name="department" id="department_select">#}
+{#                                {% for item in request.user.departments.all %}}
+{#                                    <option value="{{ item.id }}">{{ item.title }}</option>}
+{#                                {% endfor %}}
+{#                            </select>
+                        </label>
+                        <label>
+                            <span class="label_block">Страна</span>
+                            <input type="text" id="added_churches_country" required>
+                        </label>
+                        <label>
+                            <span class="label_block">Город</span>
+                            <input type="text" id="added_churches_city" required>
+                        </label>
+                        <label>
+                            <span class="label_block">Пастор</span>
+                            <select name="pastor" id="pastor_select" disabled required>
                                 <option value="0">Выберите пастора</option>
-                            </select></p>
-                            <p><input type="text" id="added_churches_address"></p>
-                            <p><input type="tel" id="added_churches_phone"></p>
-                            <p><input type="url" id="added_churches_site"></p>
-                        </div>
+                         </select>
+                        </label>
+                        <label>
+                           <span class="label_block">Адрес служения</span>
+                           <input type="text" id="added_churches_address">
+                        </label>
+                        <label>
+                            <span class="label_block">Телефон</span>
+                            <input type="tel" id="added_churches_phone">
+                        </label>
+                        <label>
+                            <span class="label_block">Сайт</span>
+                            <input type="url" id="added_churches_site">
+                        </label>
                     </div>
                 </div>
                 <div class="container">

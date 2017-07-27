@@ -20,7 +20,7 @@
       }
     }
     & .select2 {
-      width: 96% !important;
+      //width: 96% !important;
     }
   }
   & input {
@@ -258,6 +258,46 @@
     border-bottom: 1px solid #eee;
     margin-bottom: 2em;
     flex: 1;
+    & .container{
+      flex-direction: column;
+      label{
+        margin-bottom:10px;
+        position: relative;
+        width: 100%;
+        &:before{
+          position: absolute;
+          right: 0px;
+          bottom: 8px;
+          display: block;
+          width: 100%;
+          z-index: -1;
+          height: 2px;
+          background-image: radial-gradient(circle,#656d78 .6px,transparent 1px);
+          background-repeat: repeat-x;
+          background-size: 5px 2px;
+          content: '';
+        }
+        &:last-child{
+          margin-bottom:0;
+        }
+        .label_block{
+          width: auto;
+          height: 25px;
+          display: block;
+          float: left;
+          box-sizing: border-box;
+          position: relative;
+          margin-bottom: 0;
+          line-height:25px;
+          background: #fff;
+        }
+        input,.select2{
+          width: 250px !important;
+          box-sizing: border-box;
+          float: right;
+        }
+      }
+    }
   }
   &>.container{
     height: 90px;
@@ -537,9 +577,11 @@
     margin-right: 1em;
   }
 }
+
 #payment-form{
   padding: 0 20px;
 }
+
 .input__wrap {
   padding: 17px 0;
   display: flex;
@@ -1293,11 +1335,13 @@ button{
     }
   }
 }
+
 .select2-container{
   .select2-dropdown{
     z-index: 10000;
   }
 }
+
 .datepickers-container{
   .datepicker{
     z-index: 10000;
