@@ -52,74 +52,78 @@
     </div>
     <div class="popap" id='filterPopup'>
         <div class="pop_cont">
-            <h2 class='popup_text'>
-                Фильтр
-            </h2>
+{#            <h2 class='popup_text'>#}
+{#                Фильтр#}
+{#            </h2>#}
+            <div class="popup_text">
+                <h2>Фильтр</h2>
+                <span class="close close-popup"><i class="fa fa-times" aria-hidden="true"></i></span>
+            </div>
             <div class="popup_body">
                 <div class="container">
-                    <div class="col-6">
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Отдел</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Ветка</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Пастор</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Открыта</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Дата открытия</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Фильтр по стране</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Фильтр по городу</span>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="department" id="departments_filter">
-                                <option value="">ВСЕ</option>
-                                {% for department in departments %}
-                                    <option value="{{ department.id }}">{{ department.title }}</option>
-                                {% endfor %}
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="master_tree" id="tree_filter">
-                                <option value="">ВСЕ</option>
-                            </select>
-                        </p>
-                        <p class="input_block">
-
-                            <select class="selectdb" data-filter="pastor" id="pastor_filter">
-                                <option value="">ВСЕ</option>
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select name="search_is_open" data-filter="is_open" id="search_is_open">
-                                <option value="1">ВСЕ</option>
-                                <option value="2">ДА</option>
-                                <option value="3">НЕТ</option>
-                            </select>
+{#                    <div class="col-6">#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Отдел</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Ветка</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Пастор</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Открыта</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Дата открытия</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Фильтр по стране</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Фильтр по городу</span>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <div class="col-6">#}
+{#                        <p class="input_block">#}
+{#                            <select class="selectdb" data-filter="department" id="departments_filter">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                                {% for department in departments %}#}
+{#                                    <option value="{{ department.id }}">{{ department.title }}</option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <select class="selectdb" data-filter="master_tree" id="tree_filter">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                            </select>#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{##}
+{#                            <select class="selectdb" data-filter="pastor" id="pastor_filter">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                            </select>#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <select name="search_is_open" data-filter="is_open" id="search_is_open">#}
+{#                                <option value="1">ВСЕ</option>#}
+{#                                <option value="2">ДА</option>#}
+{#                                <option value="3">НЕТ</option>#}
+{#                            </select>#}
 {#                            <input type="checkbox" data-filter="is_open" id="search_is_open">#}
-                        </p>
-                        <p class="input_block">
-                            <input type="text" data-filter="opening_date" id="search_date_open">
-                        </p>
-                        <p class="input_block">
-                            <input type="text" data-filter="country" placeholder="страна или часть названия"
-                                   id="search_country">
-                        </p>
-                        <p class="input_block">
-                            <input type="text" data-filter="city" placeholder="город или часть названия"
-                                   id="search_city">
-                        </p>
-                    </div>
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <input type="text" data-filter="opening_date" id="search_date_open">#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <input type="text" data-filter="country" placeholder="страна или часть названия"#}
+{#                                   id="search_country">#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <input type="text" data-filter="city" placeholder="город или часть названия"#}
+{#                                   id="search_city">#}
+{#                        </p>#}
+{#                    </div>#}
                     <label>
                         <span class="label_block">Отдел</span>
                         <select class="selectdb" data-filter="department" id="departments_filter">
@@ -151,12 +155,17 @@
                     </label>
                     <label>
                         <span class="label_block">Дата открытия</span>
+                        <input type="text" data-filter="opening_date" id="search_date_open">
                     </label>
                     <label>
                         <span class="label_block">Фильтр по стране</span>
+                        <input type="text" data-filter="country" placeholder="страна или часть названия"
+                                   id="search_country">
                     </label>
                     <label>
                         <span class="label_block">Фильтр по городу</span>
+                        <input type="text" data-filter="city" placeholder="город или часть названия"
+                                   id="search_city">
                     </label>
                 </div>
             </div>
@@ -171,11 +180,14 @@
     </div>
     <div class="popap" id='addChurch'>
         <div class="pop_cont">
+{#            <div class="popup_text">#}
+{#                <h3>Создание новой церкви</h3>#}
+{#                <span class="close close-popup"><i class="fa fa-times" aria-hidden="true"></i></span>#}
+{#            </div>#}
             <div class="popup_text">
-                <h3>Создание новой церкви</h3>
+                <h2>Создание новой церкви</h2>
                 <span class="close close-popup"><i class="fa fa-times" aria-hidden="true"></i></span>
             </div>
-
             <form action="" onsubmit="addChurch(event, this, createChurchesTable)">
                 <div class="popup_body">
                     <div class="container container_block">
@@ -293,68 +305,95 @@
         <div class="container bb-1">
             <div class="header">
                 <div><input type="text" class="title" id="church_title" value="<%=get_title %>"></div>
-                <div class="row">
-                    <div class="label_block-wrapp">
-                        <label class="label_block" for="is_open">Открыта</label>
-                    </div>
-                    <input type="checkbox" id="is_open_church"<% if(is_open) { %>
-                    checked <% } %> >
-                </div>
+                <label>
+                    <span class="label_block">Открыта</span>
+                    <input type="checkbox" id="is_open_church"<% if(is_open) { %> checked <% } %> >
+                    <div></div>
+                </label>
                 <% if(opening_date) { %>
-                <div class="row">
-                    <div class="label_block-wrapp">
-                        <label class="label_block" for="openingDate">Дата открытия</label>
-                    </div>
+                <label >
+                    <span class="label_block">Дата открытия</span>
                     <input type="text" class="date" id="openingDate" value="<%= opening_date.split('.').reverse().join('-') %>">
-                </div>
+                </label>
+
                 <% } else { %>
-                <div>
-                    <div class="label_block-wrapp">
-                        <label class="label_block" for="opening_date">Дата открытия</label>
-                    </div>
+                <label>
+                    <span class="label_block" for="opening_date">Дата открытия</span>
                     <input type="text" id="opening_date" class="date" value="">
-                </div>
+                </label>
                 <% } %>
                 <div class="hidden"><input type="text" id="churchID" value="<%= id %>"></div>
             </div>
         </div>
         <div class="container start">
-            <div class="column">
-                <div class="label_block-wrapp">
-                    <span class="label_block">Отдел:</span>
-                </div>
-                <div class="label_block-wrapp">
-                    <span class="label_block">Пастор:</span>
-                </div>
-                <div class="label_block-wrapp">
-                    <span class="label_block">Страна</span>
-                </div>
-                <div class="label_block-wrapp">
-                    <span class="label_block">Нас.пункт:</span>
-                </div>
-                <div class="label_block-wrapp">
-                    <span class="label_block">Адрес:</span>
-                </div>
-                <div class="label_block-wrapp">
-                    <span class="label_block">Телефон:</span>
-                </div>
-                <div class="label_block-wrapp">
-                    <span class="label_block">Сайт:</span>
-                </div>
-            </div>
-            <div>
-                <div><select name="" id="editDepartmentSelect">
+            <label>
+                <span class="label_block">Отдел:</span>
+                <select name="" id="editDepartmentSelect">
                     <option value="<%= department %>"><%= department %></option>
-                </select></div>
-                <div><select name="" id="editPastorSelect">
+                </select>
+            </label>
+            <label>
+                <span class="label_block">Пастор:</span>
+                <select name="" id="editPastorSelect">
                     <option value="<%= pastor %>"><%= pastor %></option>
-                </select></div>
-                <p><input type="text" id="country" value="<%=country %>"></p>
-                <p><input type="text" id="city" value="<%=city %>"></p>
-                <p><input type="text" id="address" value="<%=address %>"></p>
-                <p><input type="text" id="phone_number" value="<%=phone_number %>"></p>
-                <p><input type="text" id="web_site" value="<%=website %>"></p>
-            </div>
+                </select>
+            </label>
+            <label>
+                <span class="label_block">Страна</span>
+                <input type="text" id="country" value="<%=country %>">
+            </label>
+            <label>
+                <span class="label_block">Нас.пункт:</span>
+                <input type="text" id="city" value="<%=city %>">
+            </label>
+            <label>
+                <span class="label_block">Адрес:</span>
+                <input type="text" id="address" value="<%=address %>">
+            </label>
+            <label>
+                <span class="label_block">Телефон:</span>
+                <input type="text" id="phone_number" value="<%=phone_number %>">
+            </label>
+            <label>
+                <span class="label_block">Сайт:</span>
+                <input type="text" id="web_site" value="<%=website %>">
+            </label>
+{#            <div class="column">#}
+{#                <div class="label_block-wrapp">#}
+{#                    <span class="label_block">Отдел:</span>#}
+{#                </div>#}
+{#                <div class="label_block-wrapp">#}
+{#                    <span class="label_block">Пастор:</span>#}
+{#                </div>#}
+{#                <div class="label_block-wrapp">#}
+{#                    <span class="label_block">Страна</span>#}
+{#                </div>#}
+{#                <div class="label_block-wrapp">#}
+{#                    <span class="label_block">Нас.пункт:</span>#}
+{#                </div>#}
+{#                <div class="label_block-wrapp">#}
+{#                    <span class="label_block">Адрес:</span>#}
+{#                </div>#}
+{#                <div class="label_block-wrapp">#}
+{#                    <span class="label_block">Телефон:</span>#}
+{#                </div>#}
+{#                <div class="label_block-wrapp">#}
+{#                    <span class="label_block">Сайт:</span>#}
+{#                </div>#}
+{#            </div>#}
+{#            <div>#}
+{#                <div><select name="" id="editDepartmentSelect">#}
+{#                    <option value="<%= department %>"><%= department %></option>#}
+{#                </select></div>#}
+{#                <div><select name="" id="editPastorSelect">#}
+{#                    <option value="<%= pastor %>"><%= pastor %></option>#}
+{#                </select></div>#}
+{#                <p><input type="text" id="country" value="<%=country %>"></p>#}
+{#                <p><input type="text" id="city" value="<%=city %>"></p>#}
+{#                <p><input type="text" id="address" value="<%=address %>"></p>#}
+{#                <p><input type="text" id="phone_number" value="<%=phone_number %>"></p>#}
+{#                <p><input type="text" id="web_site" value="<%=website %>"></p>#}
+{#            </div>#}
         </div>
     </script>
 {% endblock %}
