@@ -138,44 +138,45 @@
 
 #addChurch, #addHomeGroup {
   .container {
-    & .column {
+    .column {
       width: 200px;
     }
-    & .label_block-wrapp::after {
-      bottom: 12px;
+    .label_block-wrapp{
+      &::after{
+        bottom: 12px;
+      }
     }
     & > div:first-of-type {
-      & p,
-      & span {
+      p, span {
         line-height: 35px;
       }
     }
     & > div {
-      & span, & p {
+      span, p {
         height: 35px;
         text-align: left;
         font-size: 1em;
         line-height: 35px;
         //margin-bottom: .5em;
       }
-      & .end__block {
+      .end__block {
         margin-bottom: 2em;
       }
 
     }
-    & input {
+    input {
       min-width: 17em;
-      height: auto;
+      height: 25px;
       padding: 5px 6px;
     }
   }
-  & .container_block {
+  .container_block {
     justify-content: flex-start;
-    & .select2 {
+    .select2 {
       width: 250px;
     }
   }
-  & .add-church {
+  .add-church {
     position: relative;
     &:before {
       font: 1.2em FontAwesome;
@@ -187,7 +188,7 @@
 }
 
 #filterPopup {
-  & .label_block-wrapp {
+  .label_block-wrapp {
     height: 35px;
     font-size: 1em;
     padding: 0 1em 0 0;
@@ -196,8 +197,10 @@
       bottom: 20px;
     }
   }
-  & .label_block-wrapp:first-child {
-    margin-top: .5em;
+  .label_block-wrapp{
+    &:first-child{
+      margin-top: .5em;
+    }
   }
 }
 
@@ -667,8 +670,36 @@
       color: #656d78 !important;
     }
     .select2-selection__arrow{
-      height: 23px !important;
+      background: #e6e9ee;
+      height: calc(100% - 2px)!important;
+      width: 2em!important;
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+      &::before{
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: .6em;
+        margin: auto;
+        display: block;
+        width: 0;
+        height: 0;
+        border-left: .4em solid transparent;
+        border-right: .4em solid transparent;
+        border-top: .6em solid #656d78;
+        border-bottom: 0 solid transparent;
+      }
     }
+  }
+  .select2-search--dropdown{
+    .select2-search__field{
+      border: 1px solid #cdd0d4;
+    }
+  }
+  .select2-dropdown{
+    border: 1px solid #cdd0d4;
+    z-index: 10000;
   }
 }
 
