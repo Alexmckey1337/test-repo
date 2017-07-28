@@ -171,11 +171,8 @@
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" data-filter="home_group" id="home_group_filter">
+                            <select class="selectdb" data-filter="owner" id="masters_filter">
                                 <option value="">ВСЕ</option>
-                                {% for home_group in home_groups %}
-                                    <option value="{{ home_group.id }}">{{ home_group.get_title }}</option>
-                                {% endfor %}
                             </select>
                         </p>
                         <p class="input_block">
