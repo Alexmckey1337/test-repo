@@ -284,24 +284,15 @@ CELERYBEAT_SCHEDULE = {
         'task': 'meetings_to_expired',
         'schedule': crontab(hour=0, minute=0, day_of_week='mon')
     },
-    # Executes every monday evening at 00:05 A.M
-    'create_new_church_reports': {
-        'task': 'create_new_meetings',
-        'schedule': crontab(hour=0, minute=5, day_of_week='mon')
-    },
-    # Executes every monday evening at 00:00 A.M
-    'church_reports_to_expired': {
-        'task': 'meetings_to_expired',
-        'schedule': crontab(hour=0, minute=0, day_of_week='mon')
-    },
-    # Executes every day, every 1 minutes
-    # 'get_palace_logs': {
-    #     'task': 'get_palace_logs',
-    #     'schedule': 10
+    # # Executes every monday evening at 00:05 A.M
+    # 'create_new_church_reports': {
+    #     'task': 'create_new_church_reports',
+    #     'schedule': crontab(hour=0, minute=5, day_of_week='mon')
     # },
-    # 'anket_autoban': {
-    #     'task': 'anket_autoban',
-    #     'schedule': 24 * 2 * 60 * 60
+    # # Executes every monday evening at 00:00 A.M
+    # 'church_reports_to_expired': {
+    #     'task': 'church_reports_to_expired',
+    #     'schedule': crontab(hour=0, minute=0, day_of_week='mon')
     # },
 }
 
