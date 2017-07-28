@@ -26,7 +26,7 @@ class TestFilterPartnerMasterTreeWithSelf:
             type('Request', (), {'query_params': {'master_tree': partner.user.id}}),
             qs, None
         )
-        assert filter_qs.count() == 0
+        assert filter_qs.count() == 1
 
     def test_with_master(self, partner_factory):
         partner = partner_factory()  # count: + 1, = 1, all_users_count: +1, = 1

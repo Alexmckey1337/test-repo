@@ -48,10 +48,11 @@ class DealSerializer(DealCreateSerializer):
     responsible_name = serializers.CharField(read_only=True)
     total_sum = DecimalWithCurrencyField(max_digits=12, decimal_places=0, read_only=True, currency_field='currency')
     currency = CurrencySerializer()
+    payment_status = serializers.IntegerField()
 
     class Meta(DealCreateSerializer.Meta):
         fields = ('id', 'partnership', 'date', 'date_created',
                   'value', 'done', 'expired', 'description',
-                  'full_name', 'responsible_name',
-                  'total_sum', 'currency',
+                  'full_name', 'responsible_name', 'partner_link',
+                  'total_sum', 'currency', 'payment_status',
                   )

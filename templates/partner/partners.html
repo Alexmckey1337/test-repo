@@ -9,8 +9,8 @@
             <ul class="nav tabs_link">
                 <li><a href="{% url 'partner:deals' %}">Сделки</a></li>
                 <li><a class="active" href="{% url 'partner:list' %}">Список партнёров</a></li>
-                <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
                 <li><a href="{% url 'partner:payments' %}">Таблица платежей</a></li>
+                <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
             </ul>
         </div>
         <div class="top-buttons-wrap">
@@ -93,6 +93,9 @@
                         <div class="label_block-wrapp">
                             <span class="label_block">Фильтр по городу</span>
                         </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Фильтр по дню рождению</span>
+                        </div>
                     </div>
                     <div class="col-6">
                         {% if request.user.is_partner_supervisor_or_high %}
@@ -113,7 +116,7 @@
                                 {% endfor %}
                             </select>
                         </p>
-                     <p class="input_block">
+                        <p class="input_block">
                             <select class="selectdb" data-filter="master_tree" id="tree_filter">
                                 <option value="">ВСЕ</option>
                                 {% for master in masters %}
@@ -149,6 +152,9 @@
                         <p class="input_block">
                             <input type="text" data-filter="search_city" placeholder="город или часть названия" id="search_city">
                         </p>
+                        <p class="input_block">
+                            <input type="text" placeholder="от" data-filter="from_date" id="date_from" class="select_date_filter"><input type="text" placeholder="до" data-filter="to_date" id="date_to" class="select_date_filter">
+                        </p>
                     </div>
                 </div>
             </div>
@@ -176,34 +182,36 @@
         </div>
     </div>
     <div id="popup" class="pop-up-splash">
-        <div class="splash-screen">
-            <div class="top-text">
-                <h3>Завершить сделку</h3>
-            </div>
-            <div class="user-info">
-                <div class="left-side">
-                    <p>Клиент:</p>
-                    <p>Последняя сделка:</p>
-                    <p>Ответственный:</p>
+        <div class="flex-wrap">
+            <div class="splash-screen">
+                <div class="top-text">
+                    <h3>Завершить сделку</h3>
                 </div>
-                <div class="right-side">
-                    <p id="client-name"></p>
-                    <p id="deal-date"></p>
-                    <p id="responsible-name"></p>
+                <div class="user-info">
+                    <div class="left-side">
+                        <p>Клиент:</p>
+                        <p>Последняя сделка:</p>
+                        <p>Ответственный:</p>
+                    </div>
+                    <div class="right-side">
+                        <p id="client-name"></p>
+                        <p id="deal-date"></p>
+                        <p id="responsible-name"></p>
+                    </div>
                 </div>
-            </div>
-            <div class="summa-wrap">
-                <div class="summa">
-                    <p>Сумма:</p>
-                    <!-- <span id="deal-value"></span> -->
-                    <input readonly="readonly" type="text" id="deal-value">
-                    <span id="changeSum" class="change-summ"></span>
+                <div class="summa-wrap">
+                    <div class="summa">
+                        <p>Сумма:</p>
+                        <!-- <span id="deal-value"></span> -->
+                        <input readonly="readonly" type="text" id="deal-value">
+                        <span id="changeSum" class="change-summ"></span>
+                    </div>
                 </div>
-            </div>
-            <textarea placeholder="Добавить коментарий" id="deal-description"></textarea>
-            <div class="splash-bauttons">
-                <button id="close">Отменить</button>
-                <button id="complete">Завершить</button>
+                <textarea placeholder="Добавить коментарий" id="deal-description"></textarea>
+                <div class="splash-bauttons">
+                    <button id="close">Отменить</button>
+                    <button id="complete">Завершить</button>
+                </div>
             </div>
         </div>
     </div>

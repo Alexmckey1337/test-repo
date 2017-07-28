@@ -11,9 +11,6 @@
         text-decoration: underline;
         cursor: pointer;
     }
-    #ohoho {
-        margin-bottom: 40px;
-    }
     </style>
 {% endblock %}
 
@@ -23,8 +20,8 @@
             <ul class="nav tabs_link">
                 <li><a href="{% url 'partner:deals' %}">Сделки</a></li>
                 <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
-                <li><a class="active" href="{% url 'partner:stats' %}">Статистика</a></li>
                 <li><a href="{% url 'partner:payments' %}">Таблица платежей</a></li>
+                <li><a class="active" href="{% url 'partner:stats' %}">Статистика</a></li>
             </ul>
         </div>
 
@@ -185,7 +182,7 @@
                         </div>
                     </div>
                 </div>
-                <h1 style="text-align: center;">{% trans "Payments" %} - <span id="detail-payments" class="details">{% trans "Detail" %}</span></h1>
+                <h1>{% trans "Payments" %} - <span id="detail-payments" class="details">{% trans "Detail" %}</span></h1>
                 <div class="deaals"></div>
             </div>
         </div><!--End stats -->
@@ -195,7 +192,8 @@
 
 {% block popup %}
     <div id="popup" class="pop-up-splash">
-        <div class="splash-screen">
+        <div class="flex-wrap">
+            <div class="splash-screen">
             <div class="top-text">
                 <h3>Завершить сделку</h3>
             </div>
@@ -224,6 +222,7 @@
                 <button id="close">Отменить</button>
                 <button id="complete">Завершить</button>
             </div>
+        </div>
         </div>
     </div>
     {{ block.super }}

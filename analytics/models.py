@@ -58,6 +58,7 @@ class LogRecord(models.Model):
     action_flag = models.PositiveSmallIntegerField(_('action flag'), choices=ACTIONS, default=CHANGE)
 
     change_data = JSONField(_('change data'), blank=True)
+    raw_data = JSONField(_('raw data'), blank=True, default={})
 
     class Meta:
         verbose_name = _('log record')

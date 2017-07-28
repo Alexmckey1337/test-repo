@@ -1,14 +1,16 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import collections
 import logging
-from datetime import datetime
+from collections import defaultdict
+from datetime import datetime, time
 
 from django.conf import settings
 from django.db import transaction, IntegrityError
 from django.db.models import (
     Case, When, BooleanField, F, Subquery, OuterRef, CharField,
-    Func)
+    Func, Q)
 from django.db.models import Value as V
 from django.db.models.functions import Concat, Coalesce
 from django.http import HttpResponse
@@ -31,7 +33,8 @@ from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import (FilterByClub, SummitUnregisterFilter, ProfileFilter,
                             FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend,
-                            FilterBySummitAttendByDate, FilterByElecTicketStatus, FilterByTime)
+                            FilterBySummitAttendByDate, FilterByElecTicketStatus, FilterByTime, FilterByDepartment,
+                            FilterByMasterTree)
 from summit.pagination import SummitPagination, SummitTicketPagination, SummitStatisticsPagination
 from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report, \
     can_see_report_by_bishop_or_high
@@ -227,7 +230,7 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mix
     def perform_create(self, serializer):
         profile = serializer.save()
         profile.creator = self.request.user if self.request.user.is_authenticated else None
-        profile.code = '0{}'.format(4*1000*1000 + profile.id)
+        profile.code = '0{}'.format(4 * 1000 * 1000 + profile.id)
         profile.save()
 
         new_dict = model_to_dict(profile, fields=('summit',))
@@ -580,3 +583,137 @@ def generate_summit_tickets(request, summit_id):
     logger.info('Update profiles ticket_status: {}'.format(result))
 
     return Response(data={'ticket_id': ticket.id})
+
+
+class HistorySummitStatsMixin(GenericAPIView):
+    queryset = SummitAnket.objects.all()
+
+    pagination_class = None
+    permission_classes = (IsAuthenticated,)
+
+    filter_backends = (
+        FilterByDepartment,
+        FilterByMasterTree,
+    )
+
+    summit = None
+    _profiles = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.summit = get_object_or_404(Summit, pk=kwargs.get('summit_id'))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.summit.ankets.all()
+
+    def check_permissions(self, request):
+        super().check_permissions(request)
+        # ``summit`` supervisor or high
+        if not request.user.can_see_summit_history_stats(self.summit):
+            self.permission_denied(
+                request, message=_('You do not have permission to see statistics.')
+            )
+
+    @property
+    def profiles(self):
+        if self._profiles is None:
+            self._profiles = self.filter_queryset(self.get_queryset())
+        return self._profiles
+
+    def get_attends(self):
+        filter_attends = SummitAttend.objects.filter(
+            anket__in=Subquery(self.profiles.values('pk')), date__range=(self.summit.start_date, self.summit.end_date))
+        attends = SummitAttend.objects.filter(
+            anket__summit=self.summit, date__range=(self.summit.start_date, self.summit.end_date))
+        return filter_attends, attends
+
+
+class HistorySummitAttendStatsView(HistorySummitStatsMixin):
+    """
+    Getting statistics for attends
+    """
+    def get(self, request, *args, **kwargs):
+        filter_attends, attends = self.get_attends()
+
+        all_attends_by_date = collections.Counter(attends.values_list('date', flat=True))
+        attends_by_date = collections.Counter(filter_attends.values_list('date', flat=True))
+        for d in all_attends_by_date.keys():
+            attends_by_date[d] = (attends_by_date.get(d, 0), self.profiles.filter(date__lte=d).count())
+        return Response([
+            (datetime(d.year, d.month, d.day).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
+        ])
+
+
+class HistorySummitLatecomerStatsView(HistorySummitStatsMixin):
+    """
+    Getting statistics on latecomers
+    """
+    start_time = time(11, 30)
+
+    def get(self, request, *args, **kwargs):
+        filter_attends, attends = self.get_attends()
+
+        all_attends_by_date = collections.Counter(attends.values_list('date', flat=True))
+        filter_attends = filter_attends.values('date', 'time', 'created_at')
+        attends_by_date = defaultdict(list)
+        for a in filter_attends:
+            attends_by_date[a['date']].append(a['time'] or (a['created_at'].time() if a['created_at'] else None))
+        for d in all_attends_by_date.keys():
+            late_count = len(list(filter(lambda t: t and t > self.start_time, attends_by_date[d])))
+            attend_count = len(attends_by_date[d])
+            attends_by_date[d] = [late_count, attend_count - late_count]
+        return Response([
+            (datetime(d.year, d.month, d.day).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
+        ])
+
+
+class HistorySummitStatByMasterDisciplesView(GenericAPIView):
+    """
+    Getting statistics by disciples of master
+
+    Returns counts of the disciples of master.disciples.
+    """
+    queryset = SummitAnket.objects.order_by('last_name', 'first_name', 'middle_name')
+
+    permission_classes = (IsAuthenticated,)
+    pagination_class = None
+
+    summit = None
+    master = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.summit = get_object_or_404(Summit, pk=kwargs.get('summit_id'))
+        self.master = get_object_or_404(CustomUser, pk=kwargs.get('master_id'))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        disciples_profiles = list(self.get_queryset().annotate_full_name().values('user_id', 'full_name'))
+
+        master_count = 0
+        for profile in disciples_profiles:
+            master_id = profile['user_id']
+            count = SummitAnket.objects.filter(
+                Q(summit=self.summit) &
+                (Q(master_path__contains=[master_id]) |
+                 Q(user_id=master_id))
+            ).count()
+            if count <= 1:
+                master_count += count
+            else:
+                profile['count'] = count
+        disciples_profiles.append(
+            {'user_id': self.master.id, 'full_name': '({})'.format(str(self.master)), 'count': master_count})
+
+        data = [[m['full_name'], [m['count']]] for m in disciples_profiles if m.get('count')]
+        return Response(data)
+
+    def get_queryset(self):
+        return self.queryset.filter(summit=self.summit, master=self.master)
+
+    def check_permissions(self, request):
+        super().check_permissions(request)
+        # ``summit`` supervisor or high
+        if not request.user.can_see_summit_history_stats(self.summit):
+            self.permission_denied(
+                request, message=_('You do not have permission to see statistics.')
+            )

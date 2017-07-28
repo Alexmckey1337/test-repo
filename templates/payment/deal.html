@@ -15,33 +15,35 @@
 {% block popup %}
     {{ block.super }}
     <div id="popup-move" class="pop-up-splash">
-        <div class="splash-screen">
-            <div class="top-text">
-                <h3>{% trans "Edit payment" %}</h3>
-            </div>
-            <div class="user-info">
-                <div class="left-side">
-                    <p>{% trans "Partner" %}:</p>
-                    <p>{% trans "Deal" %}:</p>
+        <div class="flex-wrap">
+            <div class="splash-screen">
+                <div class="top-text">
+                    <h3>{% trans "Edit payment" %}</h3>
                 </div>
-                <div class="right-side">
-                    <select class="partners" required>
-                    <option value="">-----</option>
-                        {% for partner in partners %}
-                            <option value="{{ partner.id }}"
-                                    {% if partner == deal.partner %}selected{% endif %}>
-                                {{ partner.full_name }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                    <select class="deals" disabled required>
+                <div class="user-info">
+                    <div class="left-side">
+                        <p>{% trans "Partner" %}:</p>
+                        <p>{% trans "Deal" %}:</p>
+                    </div>
+                    <div class="right-side">
+                        <select class="partners" required>
                         <option value="">-----</option>
-                    </select>
+                            {% for partner in partners %}
+                                <option value="{{ partner.id }}"
+                                        {% if partner == deal.partner %}selected{% endif %}>
+                                    {{ partner.full_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <select class="deals" disabled required>
+                            <option value="">-----</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="splash-buttons">
-                <button class="close">{% trans "Cancel" %}</button>
-                <button class="complete" data-payment-id="">{% trans "Move" %}</button>
+                <div class="splash-buttons">
+                    <button class="close">{% trans "Cancel" %}</button>
+                    <button class="complete" data-payment-id="">{% trans "Move" %}</button>
+                </div>
             </div>
         </div>
     </div>

@@ -83,6 +83,10 @@ def can_see_summit_ticket(user, summit):
     return user.is_summit_supervisor_or_high(summit)
 
 
+def can_see_summit_history_stats(user, summit):
+    return user.is_summit_supervisor_or_high(summit)
+
+
 def can_see_summit_profiles(user, summit):
     return user.is_summit_consultant_or_high(summit)
 

@@ -7,9 +7,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.db.models import Q
-from django.db.models import Sum
-from django.db.models import Value
+from django.db.models import Q, Sum, Value
 from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
@@ -201,6 +199,10 @@ class Deal(LogModel, AbstractPaymentPurpose):
         self.save()
 
     update_after_cancel_payment.alters_data = True
+
+    @property
+    def partner_link(self):
+        return self.partnership.user.link
 
     @property
     def value_str(self):

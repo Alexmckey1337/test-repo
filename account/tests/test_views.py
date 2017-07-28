@@ -39,7 +39,6 @@ FIELD_CODES = (
     ('middle_name', 400),
     ('phone_number', 400),
     ('departments', 400),
-    ('master', 400),
     ('hierarchy', 400),
 )
 

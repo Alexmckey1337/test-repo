@@ -10,6 +10,7 @@ const USER = {
     set_home_group: (userId) => `/api/v1.1/users/${userId}/set_home_group/`,
     departments: (userId) => `/api/v1.1/users/${userId}/departments/`,
     dashboard_count: () => `/api/v1.1/users/dashboard_counts/`,
+    list_user: () => `/api/v1.1/users/for_select/`,
 };
 
 const SUMMIT = {
@@ -18,6 +19,9 @@ const SUMMIT = {
     report_by_bishop: (summitId) => `/api/v1.0/summit/${summitId}/report_by_bishops/`,
     master: (summitId) => `/api/v1.0/summit/${summitId}/master/`,
     bishop_high_masters: (summitId) => `/api/v1.0/summits/${summitId}/bishop_high_masters/`,
+    attends: (summitId) => `/api/v1.0/summit/${summitId}/stats/attends/`,
+    stats_by_master: (summitId, masterId) => `/api/v1.0/summit/${summitId}/stats/master/${masterId}/disciples/`,
+    stats_latecomer: (summitId) => `/api/v1.0/summit/${summitId}/stats/latecomers/`,
 };
 
 const SUMMIT_PROFILE = {

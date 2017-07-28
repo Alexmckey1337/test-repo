@@ -2,9 +2,12 @@ from datetime import date, datetime
 from decimal import Decimal
 from itertools import chain
 
+from copy import deepcopy
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models import ManyToManyField
 from django.db.models.fields.files import ImageFieldFile
+from django.http import QueryDict
 
 
 def foreign_key_to_dict(instance=None, verbose: str = ''):
@@ -15,6 +18,20 @@ def foreign_key_to_dict(instance=None, verbose: str = ''):
         },
         'verbose_name': verbose
     }
+
+
+def query_dict_to_dict(query_dict):
+    if isinstance(query_dict, QueryDict):
+        data = dict(query_dict.lists())
+    else:
+        data = query_dict
+    data = deepcopy(data)
+    for field, value in data.items():
+        if isinstance(value, InMemoryUploadedFile):
+            data[field] = value.name
+        elif isinstance(value, (list, tuple)) and any([isinstance(v, InMemoryUploadedFile) for v in value]):
+            data[field] = [i.name for i in value]
+    return data
 
 
 def model_to_dict(instance, fields=None):
@@ -65,7 +82,7 @@ def model_to_dict(instance, fields=None):
             }
         elif f.is_relation:
             obj_id = f.value_from_object(instance)
-            obj = f.remote_field.model.objects.get(pk=obj_id) if obj_id else ''
+            obj = getattr(instance, f.name)
             data[f.name] = {
                 'value': {
                     'id': obj_id,

@@ -3,7 +3,7 @@ from functools import wraps
 from django.utils.translation import ugettext
 
 from account.signals import obj_edit, obj_add, obj_delete
-from analytics.utils import model_to_dict, get_reverse_fields
+from analytics.utils import model_to_dict, get_reverse_fields, query_dict_to_dict
 from common.test_helpers.utils import get_real_user
 
 
@@ -64,6 +64,7 @@ def log_perform_update(perform_update):
 
     @wraps(perform_update)
     def wrapper(self, serializer):
+        raw_data = query_dict_to_dict(self.request.data)
         new_obj, changes_dict = self.log_and_update_obj(serializer)
 
         instance = perform_update(self, serializer, new_obj=new_obj, changes_dict=changes_dict)
@@ -77,7 +78,8 @@ def log_perform_update(perform_update):
                 new_obj=new_obj,
                 old_obj_dict=changes_dict['old'],
                 new_obj_dict=changes_dict['new'],
-                editor=get_real_user(self.request)
+                editor=get_real_user(self.request),
+                raw_data=raw_data,
             )
         return instance
 
@@ -87,6 +89,7 @@ def log_perform_update(perform_update):
 def log_perform_create(perform_create):
     @wraps(perform_create)
     def wrapper(self, serializer):
+        raw_data = query_dict_to_dict(self.request.data)
         new_obj, addition_dict = self.log_and_create_obj(serializer)
 
         instance = perform_create(self, serializer, new_obj=new_obj, addition_dict=addition_dict)
@@ -99,7 +102,8 @@ def log_perform_create(perform_create):
                 sender=self.__class__,
                 obj=new_obj,
                 obj_dict=addition_dict,
-                editor=get_real_user(self.request)
+                editor=get_real_user(self.request),
+                raw_data=raw_data,
             )
         return instance
 

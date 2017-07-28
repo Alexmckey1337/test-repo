@@ -1490,8 +1490,97 @@ Export user data
 
     :statuscode 200: success export
 
+
 List users for select
 ~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.1/users/for_select/
+
+    List of the users for select.
+
+    **Example request (with pagination)**:
+
+    .. sourcecode:: http
+
+        GET /api/v1.1/users/for_select/?level_gte=4&level_lt=6 HTTP/1.1
+        Host: vocrm.org
+        Accept: application/json
+
+    **Example response (with pagination)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: GET,POST,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {
+            "count": 140,
+            "next": "http://vocrm.org/api/v1.1/users/for_select/?level_gte=4&level_lt=6&page=2",
+            "previous": null,
+            "results": [
+                {
+                    "id": 10,
+                    "title": "Аккаунт Технический №10"
+                },
+                {
+                    "id": 2,
+                    "title": "Аккаунт Технический №2"
+                },
+                {
+                    "id": 120,
+                    "title": "Сойникова Наталья Евгеньевна"
+                }
+            ]
+        }
+
+    **Example request (without pagination)**:
+
+    .. sourcecode:: http
+
+        GET /api/v1.1/users/for_select/?without_pagination&level_gte=4&level_lt=6 HTTP/1.1
+        Host: vocrm.org
+        Accept: application/json
+
+    **Example response (without pagination)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: GET,POST,HEAD,OPTIONS
+        Content-Type: application/json
+
+        [
+            {
+                "id": 10,
+                "title": "Аккаунт Технический №10"
+            },
+            {
+                "id": 2,
+                "title": "Аккаунт Технический №2"
+            },
+            {
+                "id": 120,
+                "title": "Сойникова Наталья Евгеньевна"
+            }
+        ]
+
+    :query int level_gt: filter by ``hierarchy__level`` -> ``user.hierarchy.level > level_gt``
+    :query int level_gte: filter by ``hierarchy__level`` -> ``user.hierarchy.level >= level_gte``
+    :query int level_lt: filter by ``hierarchy__level`` -> ``user.hierarchy.level < level_lt``
+    :query int level_lte: filter by ``hierarchy__level`` -> ``user.hierarchy.level <= level_lte``
+    :query int department: filter by ``department_id``
+    :query int summit: filter by ``summit_id``, returns users who were at the summit
+    :query int master_tree: filter by ``master_id``, returns descendants of master and self master
+    :query string search: search by ``last_name``, ``first_name``, ``middle_name``
+
+    :statuscode 200: no error
+
+
+List of short users
+~~~~~~~~~~~~~~~~~~~
 
 .. http:get:: /api/v1.0/short_users/
 
@@ -1541,7 +1630,7 @@ List users for select
     :query int level_lte: filter by ``hierarchy__level`` -> ``user.hierarchy.level <= level_lte``
     :query int department: filter by ``department_id``
     :query int exclude_by_user_tree: exclude users with ``user_id`` in ``exclude.descendants``
-    :query int master_tree: filter by ``master_id``, returned descendants of master and self master
+    :query int master_tree: filter by ``master_id``, returns descendants of master and self master
     :query string search: search by ``last_name``, ``first_name``, ``middle_name``
 
     :statuscode 200: no error

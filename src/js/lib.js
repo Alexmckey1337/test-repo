@@ -2908,7 +2908,6 @@ function updateSettings(callback, path) {
         }
     });
     let json = JSON.stringify(data);
-
     ajaxRequest(URLS.update_columns(), json, function (JSONobj) {
         $(".bgsort").remove();
         VOCRM['column_table'] = JSONobj['column_table'];
@@ -3453,4 +3452,422 @@ function getCountFilter() {
     });
 
     return count;
+}
+
+function btnDeals() {
+    $("button.pay").on('click', function () {
+        let id = $(this).data('id');
+        let value = $(this).data('value');
+        let total_sum = $(this).data('total_sum');
+        let diff = numeral(value).value() - numeral(total_sum).value();
+        let currencyName = $(this).data('currency-name');
+        let currencyID = $(this).data('currency-id');
+        diff = diff > 0 ? diff : 0;
+        $('#new_payment_sum').val(diff);
+        $('#complete-payment').attr('data-id', id);
+        $('#purpose-id').val(id);
+        $('#popup-create_payment').css('display', 'block');
+        sumChangeListener(currencyName, currencyID);
+    });
+
+    $("button.complete").on('click', function () {
+        let client_name = $(this).attr('data-name'),
+            deal_date = $(this).attr('data-date'),
+            responsible_name = $(this).attr('data-responsible');
+        $('#complete').attr('data-id', $(this).data('id'));
+        $('#client-name').val(client_name);
+        $('#deal-date').val(deal_date);
+        $('#responsible-name').val(responsible_name);
+        $('#popup').css('display', 'block');
+    });
+}
+
+function createIncompleteDealsTable(config={}) {
+    Object.assign(config, {done: 3});
+    Object.assign(config, getSearch('search'));
+    Object.assign(config, getFilterParam());
+    Object.assign(config, getOrderingData());
+    getDeals(config).then(function (data) {
+        let count = data.count,
+            page = config['page'] || 1,
+            pages = Math.ceil(count / CONFIG.pagination_count),
+            showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
+            id = 'incompleteList',
+            text = `Показано ${showCount} из ${count}`,
+            paginationConfig = {
+            container: '.undone__pagination',
+            currentPage: page,
+            pages: pages,
+            callback: createIncompleteDealsTable
+        };
+        makeDealsDataTable(data, id);
+        makePagination(paginationConfig);
+        $('#incomplete').find('.table__count').text(text);
+        makeSortForm(data.table_columns);
+        $('.preloader').css('display', 'none');
+        new OrderTable().sort(createIncompleteDealsTable, ".table-wrap th");
+        btnDeals();
+    });
+}
+
+function createExpiredDealsTable(config={}) {
+    Object.assign(config, {expired: 2});
+    Object.assign(config, getSearch('search'));
+    Object.assign(config, getFilterParam());
+    Object.assign(config, getOrderingData());
+    getDeals(config).then(function (data) {
+        let count = data.count,
+            page = config['page'] || 1,
+            pages = Math.ceil(count / CONFIG.pagination_count),
+            showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
+            id = 'overdueList',
+            text = `Показано ${showCount} из ${count}`,
+            paginationConfig = {
+            container: '.expired__pagination',
+            currentPage: page,
+            pages: pages,
+            callback: createExpiredDealsTable
+        };
+        makeDealsDataTable(data, id);
+        makePagination(paginationConfig);
+        $('#overdue').find('.table__count').text(text);
+        makeSortForm(data.table_columns);
+        $('.preloader').css('display', 'none');
+        new OrderTable().sort(createExpiredDealsTable, ".table-wrap th");
+        btnDeals();
+    });
+}
+
+function createDoneDealsTable(config={}) {
+    Object.assign(config, {done: 2});
+    Object.assign(config, getSearch('search'));
+    Object.assign(config, getFilterParam());
+    Object.assign(config, getOrderingData());
+    getDeals(config).then(function (data) {
+        let count = data.count,
+            page = config['page'] || 1,
+            pages = Math.ceil(count / CONFIG.pagination_count),
+            showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
+            id = 'completedList',
+            text = `Показано ${showCount} из ${count}`,
+            paginationConfig = {
+            container: '.done__pagination',
+            currentPage: page,
+            pages: pages,
+            callback: createDoneDealsTable
+        };
+        makeDealsDataTable(data, id);
+        makePagination(paginationConfig);
+        $('#completed').find('.table__count').text(text);
+        makeSortForm(data.table_columns);
+        $('.preloader').css('display', 'none');
+        new OrderTable().sort(createDoneDealsTable, ".table-wrap th");
+    });
+}
+
+function makeDealsDataTable(data, id) {
+    let tmpl = document.getElementById('databaseDeals').innerHTML,
+        rendered = _.template(tmpl)(data);
+    document.getElementById(id).innerHTML = rendered;
+    $('.show_payments').on('click', function () {
+        let id = $(this).data('id');
+        showPayments(id);
+    });
+}
+
+function showPayments(id) {
+    getPayment(id).then(function (data) {
+        let payments_table = '';
+        let sum, date_time, manager;
+        data.forEach(function (payment) {
+            sum = payment.effective_sum_str.replace('.000', '');
+            date_time = payment.sent_date;
+            manager = `${payment.manager.last_name} ${payment.manager.first_name} ${payment.manager.middle_name}`;
+            payments_table += `<tr><td>${sum}</td><td>${date_time}</td><td>${manager}</td></tr>`
+        });
+        $('#popup-payments table').html(payments_table);
+        let detail_url = $('#popup-payments .detail').data('detail-url').replace('0', id);
+        console.log(detail_url);
+        $('#popup-payments .detail').attr('data-detail-url', detail_url);
+        $('#popup-payments').css('display', 'block');
+    })
+}
+
+function getDeals(options = {}) {
+    let keys = Object.keys(options),
+        url = URLS.deal.list();
+    if (keys.length) {
+        url += '?';
+        keys.forEach(item => {
+            url += item + '=' + options[item] + "&"
+        });
+    }
+    let defaultOption = {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        })
+    };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
+
+
+
+
+
+    // let data = {
+    //     url: URLS.deal.list(),
+    //     data: config
+    // };
+    // return new Promise(function (resolve, reject) {
+    //     let codes = {
+    //         200: function (data) {
+    //             resolve(data);
+    //         },
+    //         400: function (data) {
+    //             reject(data);
+    //         }
+    //     };
+    //     newAjaxRequest(data, codes, reject);
+    // });
+}
+
+let sumChangeListener = (function () {
+    let $form = $('#payment-form');
+    let currencyID, currencyName, new_payment_sum, new_payment_rate, operation;
+    let $currencies = $form.find('#new_payment_currency');
+    let $currencyOptions = $currencies.find('option');
+    let $operation = $form.find('#operation');
+    let $operationLabel = $form.find('label[for="operation"]');
+    let $newPaymentSumEl = $form.find('#new_payment_sum');
+    let $newPaymentRateEl = $form.find('#new_payment_rate');
+    let $inUserCurrencyEl = $form.find('#in_user_currency');
+
+    $operationLabel.on('click', function () {
+        let operation = $operation.val();
+        let newOperation = (operation == '*') ? '/' : '*';
+        $operation.val(newOperation);
+        operation = newOperation;
+        new_payment_rate = $newPaymentRateEl.val();
+        new_payment_sum = $newPaymentSumEl.val();
+        sumCurrency(new_payment_sum, operation, new_payment_rate, $inUserCurrencyEl, currencyName);
+    });
+    $currencies.on('change', function () {
+        if ($(this).val() != currencyID) {
+            $('#new_payment_rate').prop('readonly', false);
+        } else {
+            $('#new_payment_rate').prop('readonly', true).val('1.000').trigger('change');
+        }
+    });
+    $form.on('keypress', function (e) {
+        return e.keyCode != 13;
+    });
+
+    $newPaymentSumEl.on('change', function () {
+        new_payment_sum = $newPaymentSumEl.val();
+        operation = $operation.val();
+        sumCurrency(new_payment_sum, operation, new_payment_rate, $inUserCurrencyEl, currencyName);
+    });
+
+    $newPaymentSumEl.on('keypress', function (e) {
+        if (e.keyCode == 13) {
+            new_payment_sum = $newPaymentSumEl.val();
+            operation = $operation.val();
+            sumCurrency(new_payment_sum, operation, new_payment_rate, $inUserCurrencyEl, currencyName);
+        }
+    });
+    $newPaymentRateEl.on('change', function () {
+        new_payment_rate = $newPaymentRateEl.val();
+        sumCurrency(new_payment_sum, operation, new_payment_rate, $inUserCurrencyEl, currencyName);
+    });
+    $newPaymentRateEl.on('keypress', function (e) {
+        if (e.keyCode == 13) {
+            new_payment_rate = $newPaymentRateEl.val();
+            operation = $operation.val();
+            sumCurrency(new_payment_sum, operation, new_payment_rate, $inUserCurrencyEl, currencyName);
+        }
+    });
+    // $operation.on('change', function () {
+    //     operation = $operation.val();
+    //     new_payment_rate = $newPaymentRateEl.val();
+    //     new_payment_sum = $newPaymentSumEl.val();
+    //     sumCurrency(new_payment_sum, operation, new_payment_rate, $inUserCurrencyEl, currencyName);
+    // });
+    return function (currency_name, currency_id) {
+        $('#new_payment_rate').prop('readonly', true);
+        currencyID = currency_id;
+        currencyName = currency_name;
+        $newPaymentRateEl.val('1.000');
+        new_payment_sum = $newPaymentSumEl.val();
+        new_payment_rate = $newPaymentRateEl.val();
+        $operation.val('*');
+        operation = '*';
+
+        $currencyOptions.each(function () {
+            $(this).prop('selected', false);
+            if ($(this).val() == currencyID) {
+                $(this).prop('selected', true);
+            }
+        });
+
+        sumCurrency(new_payment_sum, operation, new_payment_rate, $inUserCurrencyEl, currencyName);
+    }
+
+})();
+
+function sumCurrency(sum, operation, rate, currencyEl, currencyName) {
+    let userPay;
+    if (operation == "*") {
+        userPay = parseFloat(sum) * parseFloat(rate);
+    } else if (operation == "/") {
+        userPay = parseFloat(sum) * (1 / parseFloat(rate));
+    }
+    currencyEl.text(parseInt(userPay) + currencyName);
+}
+
+function createDealsPayment(id, sum, description) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            "sum": sum,
+            "description": description,
+            "rate": $('#new_payment_rate').val(),
+            "currency": $('#new_payment_currency').val(),
+            "sent_date": $('#sent_date').val(),
+            "operation": $('#operation').val()
+        };
+        let json = JSON.stringify(data);
+        ajaxRequest(URLS.deal.create_payment(id), json, function (JSONobj) {
+            updateDealsTable();
+            showPopup('Оплата прошла успешно.');
+            setTimeout(function () {
+                resolve()
+            }, 1500);
+        }, 'POST', true, {
+            'Content-Type': 'application/json'
+        }, {
+            403: function (data) {
+                data = data.responseJSON;
+                showPopup(data.detail);
+                reject();
+            }
+        });
+    })
+}
+
+function updateDealsTable() {
+    $('.preloader').css('display', 'block');
+    let pageIncompleteDeals = $('#incomplete').find('.pagination__input').val(),
+        pageExpiredDeals = $('#overdue').find('.pagination__input').val(),
+        pageDoneDeals = $('#completed').find('.pagination__input').val();
+    createIncompleteDealsTable({page: pageIncompleteDeals});
+    // createExpiredDealsTable({page: pageExpiredDeals});
+    createDoneDealsTable({page: pageDoneDeals});
+}
+
+function getPreSummitFilterParam() {
+    let $filterFields,
+        data = {};
+    $filterFields = $('.charts_head select');
+    $filterFields.each(function () {
+        if ($(this).val() == "ВСЕ") {
+            return
+        }
+        let prop = $(this).data('filter');
+        if (prop) {
+            if ($(this).val()) {
+                data[prop] = $(this).val();
+            }
+        }
+    });
+
+    return data;
+}
+
+function getSummitStats(url, config = {}) {
+    // Object.assign(config, getFilterParam());
+    Object.assign(config, getPreSummitFilterParam());
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: url,
+            data: config,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}
+
+function getSummitStatsForMaster(summitId, masterId, config = {}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: URLS.summit.stats_by_master(summitId, masterId),
+            data: config,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}
+
+function getResponsibleForSelect(config={}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: URLS.user.list_user(),
+            data: config,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}
+
+function makeResponsibleSummitStats(config, selector = [], active = null) {
+    getResponsibleForSelect(config).then(function (data) {
+        let options = '<option selected>ВСЕ</option>';
+        data.forEach(function (item) {
+            options += `<option value="${item.id}"`;
+            if (active == item.id) {
+                options += 'selected';
+            }
+            options += `>${item.title}</option>`;
+        });
+        selector.forEach(item => {
+            $(item).html(options).prop('disabled', false).select2();
+        })
+    });
 }

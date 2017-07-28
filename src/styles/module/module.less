@@ -29,7 +29,7 @@
 
 #main {
   h1 {
-    padding: 0 1em;
+    padding:0 10px;
   }
   & > h1 {
     font-weight: 900;
@@ -113,25 +113,24 @@
 }
 
 .logo {
-  height: 90px;
-  padding-top: 10px;
+  height: auto;
+  min-height: 90px;
+  padding-top: 27px;
   text-align: center;
   position: relative;
   box-sizing: border-box;
-  div{
-    display: inline-block;
-    padding-top: 17px;
+  a{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    color: #fff;
+    text-transform: uppercase;
     transition: all .3s ease;
-    cursor: default;
+    cursor: pointer;
     font-size: 2.8em;
     font-family: "UbuntuLight", sans-serif;
-    &:nth-child(2){
-      font-size: 2.8em;
-      font-family: "UbuntuMedium", sans-serif;
+    span{
       color: #3caeda;
-    }
-    a{
-      color: #fff;
     }
   }
 }
@@ -381,10 +380,6 @@
       justify-content: space-between;
       height: 55px;
       padding: 0 30px;
-      h1 {
-        font-size: 2em;
-        font-weight: 900;
-      }
       & .header_step {
         color: #aab2bd;
       }
@@ -715,7 +710,8 @@
 #additionalInformation {
   & h2 {
     font-weight: 900;
-    font-family: 'Roboto Condensed', sans-serif;
+    //font-family: 'Roboto Condensed', sans-serif;
+    font-family: "UbuntuLight", sans-serif;
     font-size: 1.7em;
     text-transform: uppercase;
     color: #434a54;

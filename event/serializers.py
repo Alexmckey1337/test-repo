@@ -12,7 +12,7 @@ from common.fields import ReadOnlyChoiceField
 from group.models import Church
 from group.serializers import (UserNameSerializer, ChurchNameSerializer,
                                HomeGroupNameSerializer)
-from .models import Meeting, MeetingAttend, MeetingType, ChurchReport, AbstractStatusModel
+from .models import Meeting, MeetingAttend, MeetingType, ChurchReport, AbstractStatusModel, ChurchReportPastor
 
 
 class ValidateDataBeforeUpdateMixin(object):
@@ -95,12 +95,24 @@ class MeetingSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMix
         return meeting
 
 
+class OwnerRelatedField(serializers.RelatedField):
+    def get_attribute(self, instance):
+        return instance.owner_id, instance.owner_name
+
+    def to_representation(self, value):
+        owner_id, owner_name = value
+        return {
+            'id': owner_id,
+            'fullname': owner_name
+        }
+
+
 class MeetingListSerializer(MeetingSerializer):
     visitors_absent = serializers.IntegerField()
     visitors_attended = serializers.IntegerField()
     type = MeetingTypeSerializer()
     home_group = HomeGroupNameSerializer()
-    owner = UserNameSerializer()
+    owner = OwnerRelatedField(read_only=True)
     status = serializers.JSONField(source='get_status_display')
 
     class Meta(MeetingSerializer.Meta):
@@ -160,8 +172,14 @@ class MeetingDashboardSerializer(serializers.ModelSerializer):
         read_only_fields = ['__all__']
 
 
+class ChurchReportPastorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChurchReportPastor
+        fields = ('id', 'fullname')
+
+
 class ChurchReportListSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMixin):
-    pastor = UserNameSerializer()
+    pastor = ChurchReportPastorSerializer()
     church = ChurchNameSerializer()
     date = serializers.DateField(default=datetime.now().date())
     total_peoples = serializers.IntegerField(source='count_people', required=False)
@@ -184,8 +202,7 @@ class ChurchReportListSerializer(serializers.ModelSerializer, ValidateDataBefore
 
 class ChurchReportSerializer(ChurchReportListSerializer):
     church = serializers.PrimaryKeyRelatedField(queryset=Church.objects.all(), required=False)
-    pastor = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
-        church__pastor__id__isnull=False).distinct(), required=False)
+    pastor = serializers.PrimaryKeyRelatedField(queryset=ChurchReportPastor.objects.all())
     status = serializers.IntegerField(default=1)
     transfer_payments = serializers.DecimalField(max_digits=13, decimal_places=1)
     can_submit = serializers.BooleanField(read_only=True)

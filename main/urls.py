@@ -81,6 +81,8 @@ summit_patterns = [
     url(r'^profile/(?P<pk>\d+)/$', views.SummitProfileDetailView.as_view(), name='profile-detail'),
     url(r'^tickets/$', views.SummitTicketListView.as_view(), name='tickets'),
     url(r'^tickets/(?P<pk>\d+)/$', views.SummitTicketDetailView.as_view(), name='ticket-detail'),
+
+    url(r'^(?P<pk>\d+)/history/statistics/$', views.SummitHistoryStatisticsView.as_view(), name='history-stats'),
 ]
 
 urlpatterns = [

@@ -10,7 +10,6 @@
   padding: 30px 0 15px 30px;
   opacity: 0.5;
 }
-
 .table{
   td{
     a{
@@ -21,7 +20,11 @@
     display: none;
   }
 }
-
+.content{
+  &>table{
+    padding: 0 30px;
+  }
+}
 #database{
   th{
     &.up{
@@ -233,4 +236,13 @@ span{
 .query-none {
   position: relative;
   padding-left: 30px;
+}
+
+#sdelki {
+  .tab-status ul {
+    top: 1px;
+    li.current {
+      border-bottom: none;
+    }
+  }
 }

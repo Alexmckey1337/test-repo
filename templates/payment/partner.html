@@ -24,29 +24,31 @@
 {% block popup %}
     {{ block.super }}
     <div id="popup-move" class="pop-up-splash">
-        <div class="splash-screen">
-            <div class="top-text">
-                <h3>{% trans "Edit payment" %}</h3>
-            </div>
-            <div class="user-info">
-                <div class="left-side">
-                    <p>{% trans "Partner" %}:</p>
+        <div class="flex-wrap">
+            <div class="splash-screen">
+                <div class="top-text">
+                    <h3>{% trans "Edit payment" %}</h3>
                 </div>
-                <div class="right-side">
-                    <select class="partners" required>
-                        <option value="">-----</option>
-                        {% for new_partner in partners %}
-                            <option value="{{ new_partner.id }}"
-                                    {% if new_partner == partner %}selected{% endif %}>
-                                {{ new_partner.user.fullname }}
-                            </option>
-                        {% endfor %}
-                    </select>
+                <div class="user-info">
+                    <div class="left-side">
+                        <p>{% trans "Partner" %}:</p>
+                    </div>
+                    <div class="right-side">
+                        <select class="partners" required>
+                            <option value="">-----</option>
+                            {% for new_partner in partners %}
+                                <option value="{{ new_partner.id }}"
+                                        {% if new_partner == partner %}selected{% endif %}>
+                                    {{ new_partner.user.fullname }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="splash-buttons">
-                <button class="close">{% trans "Cancel" %}</button>
-                <button class="complete" data-payment-id="">{% trans "Move" %}</button>
+                <div class="splash-buttons">
+                    <button class="close">{% trans "Cancel" %}</button>
+                    <button class="complete" data-payment-id="">{% trans "Move" %}</button>
+                </div>
             </div>
         </div>
     </div>

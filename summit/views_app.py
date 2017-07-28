@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timedelta
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import ExpressionWrapper, F, IntegerField
+from django.db.models import ExpressionWrapper, F, IntegerField, Count
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import mixins, viewsets, exceptions, status, filters
 from rest_framework.decorators import list_route, api_view
@@ -22,7 +22,8 @@ from .permissions import HasAPIAccess
 from .serializers import (
     SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitProfileTreeForAppSerializer,
     SummitVisitorLocationSerializer, SummitAnketCodeSerializer, SummitAttendSerializer,
-    SummitAcceptMobileCodeSerializer, AnketActiveStatusSerializer, SummitEventTableSerializer)
+    SummitAcceptMobileCodeSerializer, AnketActiveStatusSerializer, SummitEventTableSerializer,
+    SummitAnketDrawForAppSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,19 @@ class SummitTypeForAppViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = SummitTypeForAppSerializer
     permission_classes = (AllowAny,)
     pagination_class = None
+
+
+class SummitProfileWithLess10AbsentForAppViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    queryset = SummitAnket.objects.select_related('user', 'master__hierarchy', 'status').order_by('id')
+    serializer_class = SummitAnketDrawForAppSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    permission_classes = (HasAPIAccess,)
+    pagination_class = None
+    filter_fields = ('summit',)
+
+    def get_queryset(self):
+        return super().get_queryset().annotate(c=Count('attends')).filter(c__gte=10)
 
 
 class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):

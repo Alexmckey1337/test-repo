@@ -5,12 +5,19 @@
   width: auto;
   margin-right: 3em;
   position: relative;
-  &.date input {
-    height: 33px;
-    border-radius: 3px;
-    border: 1px solid #cdd0d4;
-    padding: 0 1em;
+  &.date {
+    input{
+      height: 33px;
+      border-radius: 3px;
+      border: 1px solid #cdd0d4;
+      padding: 0 1em;
+    }
+    .fa{
+      right: 3%;
+      top:49%;
+    }
   }
+
   & .select2-container .select2-selection--single .select2-selection__rendered {
     padding-right: 40px;
   }
@@ -18,7 +25,8 @@
     font-size: 2em;
     position: absolute;
     right: 10%;
-    top: 0;
+    top: 50%;
+    transform: translateY(-50%);
   }
   & .select2-container {
     min-width: 17em;

@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import logging
 
 from django.db import transaction, IntegrityError
-from django.db.models import IntegerField, Sum, When, Case, Count
+from django.db.models import IntegerField, Sum, When, Case, Count, OuterRef, Exists, Q, BooleanField
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status, filters, exceptions
 from rest_framework.decorators import list_route, detail_route
@@ -17,19 +17,20 @@ from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
 from .filters import (ChurchReportFilter, MeetingFilter, MeetingCustomFilter, MeetingFilterByMaster,
                       ChurchReportDepartmentFilter, ChurchReportFilterByMaster,)
-from .models import Meeting, ChurchReport, MeetingAttend
+from .models import Meeting, ChurchReport, MeetingAttend, ChurchReportPastor
 from .pagination import MeetingPagination, MeetingVisitorsPagination, ChurchReportPagination
 from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingDetailSerializer,
-                          MeetingListSerializer, ChurchReportStatisticSerializer,
+                          MeetingListSerializer, ChurchReportStatisticSerializer, ChurchReportPastorSerializer,
                           MeetingStatisticSerializer, ChurchReportSerializer,
                           ChurchReportListSerializer, MeetingDashboardSerializer,
                           ChurchReportDetailSerializer, ChurchReportsDashboardSerializer,)
+from payment.views_mixins import CreatePaymentMixin
 
 logger = logging.getLogger(__name__)
 
 
 class MeetingViewSet(ModelWithoutDeleteViewSet):
-    queryset = Meeting.objects.prefetch_related('owner', 'visitors')
+    queryset = Meeting.objects.select_related('owner', 'type', 'home_group__leader')
 
     serializer_class = MeetingSerializer
     serializer_retrieve_class = MeetingDetailSerializer
@@ -70,14 +71,23 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     def get_queryset(self):
         if self.action == 'list':
-            return self.queryset.for_user(self.request.user).annotate(
+            subqs = Meeting.objects.filter(owner=OuterRef('owner'), status=Meeting.EXPIRED)
+            return self.queryset.prefetch_related('attends').annotate_owner_name().for_user(
+                self.request.user
+            ).annotate(
                 visitors_attended=Sum(Case(
                     When(attends__attended=True, then=1),
                     output_field=IntegerField(), default=0)),
 
                 visitors_absent=Sum(Case(When(
                     attends__attended=False, then=1),
-                    output_field=IntegerField(), default=0)))
+                    output_field=IntegerField(), default=0))
+            ).annotate(
+                can_s=Exists(subqs)
+            ).annotate(
+                can_submit=Case(
+                    When(Q(status=True) & Q(can_s=True), then=False), output_field=BooleanField(), default=True)
+            )
 
         return self.queryset.for_user(self.request.user)
 
@@ -253,7 +263,13 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         return Response(dashboards_counts.data, status=status.HTTP_200_OK)
 
 
-class ChurchReportViewSet(ModelWithoutDeleteViewSet):
+class ChurchReportPastorViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
+    queryset = ChurchReportPastor.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ChurchReportPastorSerializer
+
+
+class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
     queryset = ChurchReport.objects.all()
 
     serializer_class = ChurchReportSerializer
@@ -381,3 +397,7 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
 
         dashboards_counts = self.serializer_class(dashboards_counts)
         return Response(dashboards_counts.data, status=status.HTTP_200_OK)
+
+
+"""
+"""

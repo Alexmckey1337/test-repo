@@ -6,7 +6,7 @@ from datetime import datetime
 from django.db import transaction
 
 from edem.settings.celery import app
-from event.models import Meeting, MeetingType, ChurchReport
+from event.models import Meeting, MeetingType, ChurchReport, ChurchReportPastor
 from group.models import HomeGroup, Church
 
 
@@ -44,8 +44,9 @@ def create_church_reports():
     open_churches = Church.objects.filter(is_open=True)
 
     for church in open_churches:
+        report_pastor = ChurchReportPastor.objects.get_or_create(user_id=church.pastor.id)[0]
         ChurchReport.objects.get_or_create(church=church,
-                                           pastor=church.pastor,
+                                           pastor=report_pastor,
                                            date=current_date)
 
 

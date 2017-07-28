@@ -24,6 +24,7 @@ def receive_obj_edit(sender, new_obj, old_obj_dict, new_obj_dict, editor, reason
             object_id=new_obj.id,
             object_repr=str(new_obj),
             action_flag=LogRecord.CHANGE,
+            raw_data=kwargs.get('raw_data', {}),
             change_data={
                 "changed": diff_dict,
                 "reason": reason
@@ -47,6 +48,7 @@ def receive_obj_add(sender, obj, obj_dict, editor, reason=ugettext('Create objec
             object_id=obj.id,
             object_repr=str(obj),
             action_flag=LogRecord.ADDITION,
+            raw_data=kwargs.get('raw_data', {}),
             change_data={
                 "addition": diff_dict,
                 "reason": reason

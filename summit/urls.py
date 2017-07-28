@@ -20,6 +20,7 @@ router_v1_0.register(r'summit_attends', views_app.SummitAttendViewSet)
 router_app = routers.DefaultRouter()
 router_app.register(r'summits', views_app.SummitTypeForAppViewSet, base_name='summits')
 router_app.register(r'users', views_app.SummitProfileForAppViewSet, base_name='users')
+router_app.register(r'draw_users', views_app.SummitProfileWithLess10AbsentForAppViewSet, base_name='draw_users')
 
 custom_urls = [
     url(r'^generate_code/.+\.pdf', views.generate_code, name='generate_code'),
@@ -28,6 +29,12 @@ custom_urls = [
     url(r'^summit/(?P<summit_id>\d+)/report_by_bishops/$',
         views.summit_report_by_bishops, name='summit-report-bishops'),
     url(r'^generate_summit_tickets/(?P<summit_id>\d+)/$', views.generate_summit_tickets, name='generate_code'),
+    url(r'^summit/(?P<summit_id>\d+)/stats/attends/$',
+        views.HistorySummitAttendStatsView.as_view(), name='attend-stats'),
+    url(r'^summit/(?P<summit_id>\d+)/stats/latecomers/$',
+        views.HistorySummitLatecomerStatsView.as_view(), name='latecomer-stats'),
+    url(r'^summit/(?P<summit_id>\d+)/stats/master/(?P<master_id>\d+)/disciples/$',
+        views.HistorySummitStatByMasterDisciplesView.as_view(), name='master-disciples-stats'),
 
     url(r'^summits/(?P<pk>\d+)/users/$', views.SummitProfileListView.as_view(), name='summit-profile-list'),
     url(r'^summits/(?P<pk>\d+)/bishop_high_masters/$',

@@ -1,5 +1,7 @@
 from datetime import datetime
 
+import coreapi
+import coreschema
 import django_filters
 import rest_framework_filters as filters_new
 from django.db.models import OuterRef, Subquery
@@ -42,6 +44,62 @@ class HasPhoto(BaseFilterBackend):
                 return queryset.filter(user__image='')
             return queryset.exclude(user__image='')
         return queryset
+
+
+class FilterByDepartment(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        """
+        Return a filtered queryset.
+        """
+        department = request.query_params.get('department', None)
+        if department:
+            queryset = queryset.filter(departments__id=department)
+        return queryset
+
+    def get_schema_fields(self, view):
+        assert coreapi is not None, 'coreapi must be installed to use `get_schema_fields()`'
+        assert coreschema is not None, 'coreschema must be installed to use `get_schema_fields()`'
+        return [
+            coreapi.Field(
+                name='department',
+                required=False,
+                location='query',
+                schema=coreschema.Integer(
+                    title='Department',
+                    description=' Id of the department'
+                )
+            )
+        ]
+
+
+class FilterByMasterTree(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        """
+        Return a filtered queryset.
+        """
+        master_id = request.query_params.get('master_tree', None)
+        if master_id:
+            master = CustomUser.objects.filter(pk=master_id)
+            if not master:
+                queryset = queryset.none()
+            else:
+                queryset = queryset.filter(Q(master_path__contains=[master_id]) | Q(user_id=master_id))
+        return queryset
+
+    def get_schema_fields(self, view):
+        assert coreapi is not None, 'coreapi must be installed to use `get_schema_fields()`'
+        assert coreschema is not None, 'coreschema must be installed to use `get_schema_fields()`'
+        return [
+            coreapi.Field(
+                name='master_tree',
+                required=False,
+                location='query',
+                schema=coreschema.Integer(
+                    title='Master',
+                    description='Master tree'
+                )
+            )
+        ]
 
 
 class FilterByTime(BaseFilterBackend):

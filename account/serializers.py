@@ -13,10 +13,32 @@ from rest_framework.validators import UniqueTogetherValidator, qs_exists
 
 from account.models import CustomUser as User
 from common.fields import ReadOnlyChoiceField
+from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
 from navigation.models import Table
 from partnership.models import Partnership
 from status.models import Division
+
+BASE_USER_FIELDS = (
+    'id',
+    # 'username',
+    'email', 'first_name', 'last_name', 'middle_name', 'search_name',
+    'facebook', 'vkontakte', 'odnoklassniki', 'skype',
+    'description', 'spiritual_level',
+
+    'phone_number', 'extra_phone_numbers',
+    'born_date', 'coming_date', 'repentance_date',
+
+    'country', 'region', 'city', 'district', 'address',
+    # #################################################
+    'image', 'image_source',
+
+    'master', 'hierarchy',
+    'partnership',
+    'departments', 'divisions',
+    # read_only
+    'fullname',
+)
 
 
 class HierarchyError(Exception):
@@ -86,34 +108,13 @@ def exist_users_with_level_not_in_levels(users, levels):
     return users.exclude(hierarchy__level__in=levels).exists()
 
 
-class UserSerializer(serializers.ModelSerializer):
+class BaseUserSerializer(serializers.ModelSerializer):
     partnership = PartnershipSerializer(required=False)
     move_to_master = serializers.IntegerField(write_only=True, required=False)
 
     class Meta:
         model = User
-        fields = ('id',
-                  # 'username',
-                  'email', 'first_name', 'last_name', 'middle_name', 'search_name',
-                  'facebook', 'vkontakte', 'odnoklassniki', 'skype',
-                  'description',
-
-                  'phone_number',
-                  'extra_phone_numbers',
-                  'born_date',
-                  'coming_date', 'repentance_date',
-
-                  'country', 'region', 'city', 'district', 'address',
-                  # #################################################
-                  'image', 'image_source',
-                  'move_to_master',
-
-                  'departments', 'master', 'hierarchy',
-                  'divisions',
-                  'partnership',
-                  # read_only
-                  'fullname', 'spiritual_level',
-                  )
+        fields = BASE_USER_FIELDS
         extra_kwargs = {
             'first_name': {'required': True},
             'last_name': {'required': True},
@@ -125,6 +126,36 @@ class UserSerializer(serializers.ModelSerializer):
 
             'divisions': {'required': False},
         }
+
+    def validate_hierarchy(self, value):
+        reduce_level = lambda: self.instance and self.instance.hierarchy and value.level < self.instance.hierarchy.level
+
+        def has_disciples():
+            return exist_users_with_level_not_in_levels(
+                self.instance.disciples, settings.CHANGE_HIERARCHY_LEVELS[value.level])
+
+        has_move_disciples = lambda: 'move_to_master' in self.initial_data.keys()
+        if reduce_level() and has_disciples() and not has_move_disciples():
+            raise HierarchyError()
+        return value
+
+    def validate(self, attrs):
+        if 'master' in attrs.keys():
+            if 'hierarchy' in attrs.keys():
+                if attrs['hierarchy'].level < 70 and not attrs['master']:
+                    raise ValidationError({'master': _('Master is required field.')})
+            elif self.instance.hierarchy.level < 70 and not attrs['master']:
+                raise ValidationError({'master': _('Master is required field.')})
+        return attrs
+
+
+class UserSerializer(BaseUserSerializer):
+    pass
+
+
+class UserUpdateSerializer(BaseUserSerializer):
+    class Meta(BaseUserSerializer.Meta):
+        fields = BASE_USER_FIELDS + ('move_to_master',)
 
     def update(self, user, validated_data):
         departments = validated_data.pop('departments', None)
@@ -144,31 +175,10 @@ class UserSerializer(serializers.ModelSerializer):
 
         return user
 
-    def validate_hierarchy(self, value):
-        reduce_level = lambda: self.instance and self.instance.hierarchy and value.level < self.instance.hierarchy.level
-
-        def has_disciples():
-            return exist_users_with_level_not_in_levels(
-                self.instance.disciples, settings.CHANGE_HIERARCHY_LEVELS[value.level])
-
-        has_move_disciples = lambda: 'move_to_master' in self.initial_data.keys()
-        if reduce_level() and has_disciples() and not has_move_disciples():
-            raise HierarchyError()
-        return value
-
     def validate_move_to_master(self, value):
         if not User.objects.filter(id=value).exists():
             raise ValidationError({'detail': _('User with id = %s does not exist.' % value)})
         return value
-
-    def validate(self, attrs):
-        if 'master' in attrs.keys():
-            if 'hierarchy' in attrs.keys():
-                if attrs['hierarchy'].level < 70 and not attrs['master']:
-                    raise ValidationError({'master': _('Master is required field.')})
-            elif self.instance.hierarchy.level < 70 and not attrs['master']:
-                raise ValidationError({'master': _('Master is required field.')})
-        return attrs
 
 
 class UserForMoveSerializer(serializers.ModelSerializer):
@@ -198,8 +208,8 @@ class UniqueFIOTelWithIdsValidator(UniqueTogetherValidator):
                                    }, )
 
 
-class UserCreateSerializer(UserSerializer):
-    class Meta(UserSerializer.Meta):
+class UserCreateSerializer(BaseUserSerializer):
+    class Meta(BaseUserSerializer.Meta):
         validators = (UniqueFIOTelWithIdsValidator(
             queryset=User.objects.all(),
             fields=['phone_number', 'first_name', 'last_name', 'middle_name']
@@ -212,10 +222,10 @@ class UserCreateSerializer(UserSerializer):
 
         validated_data['username'] = username
 
-        return super(UserSerializer, self).create(validated_data)
+        return super(BaseUserSerializer, self).create(validated_data)
 
 
-class UserSingleSerializer(UserSerializer):
+class UserSingleSerializer(BaseUserSerializer):
     departments = DepartmentTitleSerializer(many=True, read_only=True)
     master = MasterWithHierarchySerializer(required=False, allow_null=True)
     hierarchy = HierarchyTitleSerializer()
@@ -253,6 +263,14 @@ class UserShortSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'fullname', 'hierarchy')
 
 
+class UserForSelectSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(source='full_name')
+
+    class Meta:
+        model = User
+        fields = ('id', 'title')
+
+
 class ExistUserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
@@ -270,3 +288,19 @@ class DashboardSerializer(serializers.ModelSerializer):
         model = User
         fields = ('total_peoples', 'fathers_count', 'juniors_count', 'babies_count', 'leaders_count')
         read_only_fields = ['__all__']
+
+
+class ChurchIdSerializer(serializers.ModelSerializer):
+    church_id = serializers.ModelField(model_field='pk')
+
+    class Meta:
+        model = Church
+        fields = ('church_id',)
+
+
+class HomeGroupIdSerializer(serializers.ModelSerializer):
+    home_group_id = serializers.ModelField(model_field='pk')
+
+    class Meta:
+        model = HomeGroup
+        fields = ('home_group_id',)

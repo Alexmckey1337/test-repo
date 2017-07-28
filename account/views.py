@@ -6,13 +6,16 @@ import logging
 from django.contrib.auth import logout as django_logout
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction, IntegrityError
+from django.db.models import Value as V
+from django.db.models.functions import Concat
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
+from django_filters import rest_framework
 from rest_auth.views import LogoutView as RestAuthLogoutView
+from rest_framework import filters
 from rest_framework import status, mixins, exceptions
-from rest_framework import viewsets, filters
 from rest_framework.decorators import list_route, detail_route
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser, FormParser
 from rest_framework.permissions import IsAuthenticated
@@ -22,19 +25,24 @@ from rest_framework.viewsets import GenericViewSet
 from account.filters import FilterByUserBirthday, UserFilter, ShortUserFilter, FilterMasterTreeWithSelf
 from account.models import CustomUser as User
 from account.permissions import CanSeeUserList, CanCreateUser, CanExportUserList
-from account.serializers import HierarchyError, UserForMoveSerializer
+from account.serializers import HierarchyError, UserForMoveSerializer, UserUpdateSerializer, ChurchIdSerializer, \
+    HomeGroupIdSerializer
+from account.serializers import UserForSelectSerializer
 from analytics.decorators import log_perform_update, log_perform_create
 from analytics.mixins import LogAndCreateUpdateDestroyMixin
-from common.filters import FieldSearchFilter
+from common.filters import FieldSearchFilter, OrderingFilter
+from common.pagination import ForSelectPagination
 from common.parsers import MultiPartAndJsonParser
 from common.test_helpers.utils import get_real_user
-from common.views_mixins import ExportViewSetMixin
+from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet
 from group.models import HomeGroup, Church
 from hierarchy.serializers import DepartmentSerializer
 from navigation.table_fields import user_table
 from .resources import UserResource
-from .serializers import UserShortSerializer, UserTableSerializer, UserSerializer, \
-    UserSingleSerializer, PartnershipSerializer, ExistUserSerializer, UserCreateSerializer, DashboardSerializer
+from .serializers import (
+    UserShortSerializer, UserTableSerializer, UserSingleSerializer,
+    PartnershipSerializer, ExistUserSerializer, UserCreateSerializer, DashboardSerializer
+)
 
 logger = logging.getLogger(__name__)
 
@@ -65,28 +73,56 @@ class UserPagination(PageNumberPagination):
         })
 
 
+class UserForSelectView(mixins.ListModelMixin, GenericAPIView):
+    queryset = User.objects.select_related(
+        'hierarchy').order_by('last_name', 'first_name', 'middle_name')
+
+    serializer_class = UserForSelectSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = ForSelectPagination
+
+    filter_backends = (filters.DjangoFilterBackend,
+                       filters.SearchFilter,
+                       FilterMasterTreeWithSelf)
+    filter_class = ShortUserFilter
+    search_fields = ('first_name', 'last_name', 'middle_name')
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.queryset.annotate(
+            full_name=Concat('last_name', V(' '), 'first_name', V(' '), 'middle_name'))
+
+    def paginate_queryset(self, queryset):
+        if self.request.query_params.get('without_pagination', None) is not None:
+            return None
+        return super().paginate_queryset(queryset)
+
+
 class UserExportViewSetMixin(ExportViewSetMixin):
     @list_route(methods=['post'], permission_classes=(IsAuthenticated, CanExportUserList))
     def export(self, request, *args, **kwargs):
         return self._export(request, *args, **kwargs)
 
 
-class UserViewSet(LogAndCreateUpdateDestroyMixin, viewsets.ModelViewSet, UserExportViewSetMixin):
+class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, UserExportViewSetMixin):
     queryset = User.objects.select_related(
         'hierarchy', 'master__hierarchy').prefetch_related(
         'divisions', 'departments'
     ).filter(is_active=True).order_by('last_name', 'first_name', 'middle_name')
 
-    serializer_class = UserSerializer
+    serializer_class = UserUpdateSerializer
     serializer_list_class = UserTableSerializer
     serializer_create_class = UserCreateSerializer
+    serializer_update_class = UserUpdateSerializer
     serializer_single_class = UserSingleSerializer
 
     pagination_class = UserPagination
     filter_backends = (
-        filters.DjangoFilterBackend,
+        rest_framework.DjangoFilterBackend,
         FieldSearchFilter,
-        filters.OrderingFilter,
+        OrderingFilter,
         FilterByUserBirthday,
         FilterMasterTreeWithSelf,
     )
@@ -114,8 +150,21 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, viewsets.ModelViewSet, UserExp
 
     resource_class = UserResource
 
-    @detail_route(methods=['post'])
+    def list(self, request, *args, **kwargs):
+        """
+        Getting list of users for table
+
+
+        By default ordering by ``last_name``, ``first_name``, ``middle_name``.
+        Pagination by 30 users per page. Filtered only active users.
+        """
+        return super().list(request, *args, **kwargs)
+
+    @detail_route(methods=['post'], serializer_class=HomeGroupIdSerializer)
     def set_home_group(self, request, pk):
+        """
+        Set home group for user
+        """
         user = self.get_object()
         home_group = self._get_object_or_error(HomeGroup, 'home_group_id')
         user.set_home_group_and_log(home_group, get_real_user(request))
@@ -123,8 +172,11 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, viewsets.ModelViewSet, UserExp
         return Response({'detail': 'Домашняя группа установлена.'},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'])
+    @detail_route(methods=['post'], serializer_class=ChurchIdSerializer)
     def set_church(self, request, pk):
+        """
+        Set church for user
+        """
         user = self.get_object()
         church = self._get_object_or_error(Church, 'church_id')
         user.set_church_and_log(church, get_real_user(request))
@@ -135,6 +187,9 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, viewsets.ModelViewSet, UserExp
     # TODO tmp
     @detail_route(methods=['get'])
     def departments(self, request, pk):
+        """
+        List of user.departments
+        """
         departments = get_object_or_404(User, pk=pk).departments.all()
         serializer = DepartmentSerializer(departments, many=True)
 
@@ -182,6 +237,8 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, viewsets.ModelViewSet, UserExp
             return self.serializer_single_class
         if self.action == 'create':
             return self.serializer_create_class
+        if self.action in ('update', 'partial_update'):
+            return self.serializer_update_class
         return self.serializer_class
 
     def get_user_disciples(self, user):
@@ -189,7 +246,16 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, viewsets.ModelViewSet, UserExp
         serializer = UserForMoveSerializer(disciples, many=True)
         return serializer.data
 
+    def partial_update(self, request, *args, **kwargs):
+        """
+        Partial update of the user
+        """
+        return super().partial_update(request, *args, **kwargs)
+
     def update(self, request, *args, **kwargs):
+        """
+        Update of the user
+        """
         partial = kwargs.pop('partial', False)
         user = self.get_object()
         data = request.data
@@ -225,6 +291,9 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, viewsets.ModelViewSet, UserExp
         return user
 
     def create(self, request, *args, **kwargs):
+        """
+        Create new user
+        """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:

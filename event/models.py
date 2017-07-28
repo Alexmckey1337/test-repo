@@ -4,15 +4,17 @@ from __future__ import unicode_literals
 import datetime
 from datetime import date
 
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models import Sum
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
 
 from event.managers import MeetingManager, ChurchReportManager
 from navigation.table_fields import meeting_table
+from django.utils.functional import cached_property
+from payment.models import AbstractPaymentPurpose
 
 
 @python_2_unicode_compatible
@@ -124,7 +126,7 @@ class Meeting(AbstractStatusModel):
     def table_columns(self):
         return meeting_table(self.owner, category_title='attends')
 
-    @property
+    @cached_property
     def can_submit(self):
         if Meeting.objects.filter(owner=self.owner, status=Meeting.EXPIRED).exists() \
                 and self.status == Meeting.IN_PROGRESS:
@@ -139,9 +141,26 @@ class Meeting(AbstractStatusModel):
         return ''
 
 
-class ChurchReport(AbstractStatusModel):
-    pastor = models.ForeignKey('account.CustomUser',
-                               limit_choices_to={'hierarchy__level__gte': 2})
+class ChurchReportPastor(AbstractPaymentPurpose):
+    user = models.OneToOneField('account.CustomUser', related_name='church_report_pastor',
+                                verbose_name=_('Church Report Pastor'))
+
+    payments = GenericRelation('payment.Payment', related_query_name='church_report_pastors')
+
+    @property
+    def fullname(self):
+        return self.user.fullname
+
+    class Meta:
+        verbose_name = _('Church Report Pastor')
+        verbose_name_plural = _('Church Report Pastors')
+
+    def __str__(self):
+        return '%s' % self.user.fullname
+
+
+class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
+    pastor = models.ForeignKey('ChurchReportPastor')
     church = models.ForeignKey('group.Church', on_delete=models.PROTECT,
                                verbose_name=_('Church'))
     date = models.DateField(_('Date'))
@@ -160,6 +179,9 @@ class ChurchReport(AbstractStatusModel):
     comment = models.TextField(_('Comment'), blank=True)
 
     objects = ChurchReportManager()
+
+    payments = GenericRelation('payment.Payment', related_query_name='church_reports')
+    comment = models.TextField(_('Comment'), blank=True)
 
     class Meta:
         ordering = ('-id', '-date')
@@ -183,7 +205,7 @@ class ChurchReport(AbstractStatusModel):
     def department(self):
         return self.church.department
 
-    @property
+    @cached_property
     def can_submit(self):
         if ChurchReport.objects.filter(pastor=self.pastor, status=ChurchReport.EXPIRED).exists() \
                 and self.status == ChurchReport.IN_PROGRESS:

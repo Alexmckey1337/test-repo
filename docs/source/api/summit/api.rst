@@ -60,7 +60,7 @@ Info by summit
       }
 
    :statuscode 200: no error
-   :statuscode 404: there's no summit
+       :statuscode 404: there's no summit
 
 
 PDF report by participant of the summit
@@ -129,13 +129,13 @@ PDF report by participant of the summit
 
    :query string date: report date, format: ``YYYY-mm-dd``
    :query string attended: filter users by attended, one of (
-         [``True``, ``true``, ``TRUE``, ``t``, ``yes``, ``Yes`` , ``YES``, ``1``] or
+             [``True``, ``true``, ``TRUE``, ``t``, ``yes``, ``Yes`` , ``YES``, ``1``] or
          [``False``, ``false``, ``FALSE``, ``f``, ``no``, ``No`` , ``NO``, ``0``])
    :query string short: if exist -> without break page
 
-   :statuscode 200: no error
-   :statuscode 400: bad request
-   :statuscode 404: there's no master
+       :statuscode 200: no error
+       :statuscode 400: bad request
+       :statuscode 404: there's no master
 
 
 Report by bishop+ of the summit
@@ -192,11 +192,68 @@ Report by bishop+ of the summit
 
    :query string date: report date, format: ``YYYY-mm-dd``
    :query string search_fio: search by bishop fio
-   :query int department: filter by ``department.id``
+       :query int department: filter by ``department.id``
    :query int hierarchy: filter by ``hierarchy.id``
 
    :statuscode 200: no error
-   :statuscode 404: there's no master
+       :statuscode 404: there's no master
+
+
+Statistics by summit attends
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/v1.0/summit/(int:summit_id)/report_by_bishops/
+
+   Statistics by summit attends. Available filters by ``master_tree``, ``department``
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      GET /api/v1.0/summit/4/stats/attends/?master_tree=2282&department=2 HTTP/1.1
+      Host: vocrm.org
+      Accept: application/json
+
+   **Example response**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Vary: Accept, Cookie
+      Allow: GET,HEAD,OPTIONS
+      Content-Type: application/json
+
+      {
+          "2017-07-14": [
+              482,
+              1028
+          ],
+          "2017-07-13": [
+              814,
+              1028
+          ],
+          "2017-07-12": [
+              828,
+              1028
+          ]
+      }
+
+   .. sourcecode:: http
+
+      HTTP/1.1 403 Forbidden
+      Allow: OPTIONS, GET
+      Content-Type: application/json
+      Vary: Accept
+
+      {
+          "detail": "You do not have permission to see report by bishops. "
+      }
+
+   :query int department: filter by ``department.id``
+   :query int master_tree: filter by ``master_id``, returned descendants of master and self master
+
+   :statuscode 200: no error
+   :statuscode 404: there's no summit
 
 
 
@@ -627,7 +684,7 @@ Change ticket_status for profile
     :form new_status: optional, one of the (``none``, ``download``, ``print``, ``given``)
 
     :statuscode 200: success
-    :statuscode 400: incorrect status code
+        :statuscode 400: incorrect status code
 
 
 Export summit profiles
@@ -671,13 +728,13 @@ Export summit profiles
     +-----+-----------+------+
 
     :form fields: field names for export (comma-separated), optional. Default is (
-                   ``last_name``, ``first_name``, ``middle_name``,
+                       ``last_name``, ``first_name``, ``middle_name``,
                    ``email``, ``phone_number``, ``skype``,
                    ``country``, ``city``, ``address``, ``region``,
                    ``departments``, ``hierarchy``, ``master``, ``spiritual_level``, ``divisions``, ``fullname``
                    ``born_date``, ``facebook``, ``vkontakte``, ``description``, ``code``)
     :form ids: user ids for export (comma-separated), optional.
-                         If ``ids`` is empty then will be used filter by query parameters.
+                             If ``ids`` is empty then will be used filter by query parameters.
 
     .. important:: **Query Parameters** used only if ids is empty
 
@@ -868,9 +925,9 @@ Export summit stats
     +----------------+----------+
 
     :form fields: field names for export (comma-separated), optional. Default is (
-       ``full_name``, ``phone_number``, ``department``, ``attended``, ``responlible``, ``code``)
+           ``full_name``, ``phone_number``, ``department``, ``attended``, ``responlible``, ``code``)
     :form ids: user ids for export (comma-separated), optional.
-                                 If ``ids`` is empty then will be used filter by query parameters.
+                                     If ``ids`` is empty then will be used filter by query parameters.
 
     :query int hierarchy: filter by ``hierarchy_id``
     :query int master: filter by ``master_id``, returned children of master
@@ -883,7 +940,7 @@ Export summit stats
     :query string search_city: search by ``city``
     :query string date: date
 
-    :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
+        :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
                              ``application/json``, ``multipart/form-data``
 
     :statuscode 200: success export
@@ -944,7 +1001,7 @@ List of summit lessons
       }
 
    :statuscode 200: no error
-   :statuscode 404: there's no summit
+       :statuscode 404: there's no summit
 
 
 
@@ -1014,10 +1071,10 @@ Add new summit lesson
       }
 
    :form name: lesson name
-   :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
+       :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
                             ``application/json``, ``multipart/form-data``
    :statuscode 201: lesson created
-   :statuscode 400: bad request — summit don't exist or pair ``(summit, lesson.name)`` not unique
+       :statuscode 400: bad request — summit don't exist or pair ``(summit, lesson.name)`` not unique
    :statuscode 404: there's no summit
 
 
@@ -1075,7 +1132,7 @@ Add new summit lesson
       }
 
    :statuscode 200: no error
-   :statuscode 404: there's no summit
+       :statuscode 404: there's no summit
 
 
 .. http:post:: /api/v1.0/summit/(int:summit_id)/add_consultant/
@@ -1150,11 +1207,11 @@ Add new summit lesson
       }
 
    :form anket_id: visitor id
-   :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
+       :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
                             ``application/json``, ``multipart/form-data``
    :statuscode 201: created consultant
-   :statuscode 404: there's no summit
-   :statuscode 400: bad request — selected summit don't have anket with id = ``anket_id``
+       :statuscode 404: there's no summit
+       :statuscode 400: bad request — selected summit don't have anket with id = ``anket_id``
    :statuscode 403: current user is not ``Supervisor`` of this summit
 
 
@@ -1230,11 +1287,11 @@ Add new summit lesson
       }
 
    :form anket_id: visitor id
-   :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
+       :reqheader Content-Type: one of ``application/x-www-form-urlencoded``,
                             ``application/json``, ``multipart/form-data``
    :statuscode 201: created consultant
-   :statuscode 404: there's no summit
-   :statuscode 400: bad request — selected summit don't have anket with id = ``anket_id``
+       :statuscode 404: there's no summit
+       :statuscode 400: bad request — selected summit don't have anket with id = ``anket_id``
    :statuscode 403: current user is not ``Supervisor`` of this summit
 
 Create anket payment
@@ -1368,7 +1425,7 @@ List of profile payments
       }
 
    :statuscode 200: no error
-         :statuscode 404: there's no summit
+             :statuscode 404: there's no summit
 
 Pre delete information
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -1567,7 +1624,7 @@ Pre delete information
       }
 
    :statuscode 200: no error
-   :statuscode 404: there's no summit profile
+       :statuscode 404: there's no summit profile
 
 
 Delete summit profile
@@ -1666,6 +1723,6 @@ Delete summit profile
         }
 
     :statuscode 204: profile deleted
-    :statuscode 400: profile have payments
-    :statuscode 404: profile does not exist
-    :statuscode 403: user does not permissions for delete profile
+        :statuscode 400: profile have payments
+        :statuscode 404: profile does not exist
+        :statuscode 403: user does not permissions for delete profile

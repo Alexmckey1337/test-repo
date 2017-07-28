@@ -20,9 +20,14 @@ custom_urls = [
     url(r'^password_view/$', old_views.password_view, ),
 ]
 
-urlpatterns = [
-    url(r'^v1.0/', include(router_v1_0.urls)),
-    url(r'^v1.1/', include(router_v1_1.urls)),
+custom_v1_1_urls = [
+    url(r'^users/for_select/$', views.UserForSelectView.as_view(), name="users-select"),
+]
 
+urlpatterns = [
     url(r'^v1.0/', include(custom_urls)),
+    url(r'^v1.0/', include(router_v1_0.urls)),
+
+    url(r'^v1.1/', include(custom_v1_1_urls)),
+    url(r'^v1.1/', include(router_v1_1.urls)),
 ]
