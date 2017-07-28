@@ -192,6 +192,12 @@ class DealListView(LoginRequiredMixin, CanSeeDealsMixin, TemplateView):
     template_name = 'partner/deals.html'
     login_url = 'entry'
 
+    def get_context_data(self, **kwargs):
+        ctx = super(DealListView, self).get_context_data(**kwargs)
+
+        ctx['managers'] = CustomUser.objects.filter(partnership__level=2).distinct()
+
+        return ctx
 
 class PartnerStatisticsListView(LoginRequiredMixin, CanSeePartnerStatsMixin, TemplateView):
     template_name = 'partner/stats.html'
