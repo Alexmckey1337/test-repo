@@ -181,7 +181,6 @@ class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
     objects = ChurchReportManager()
 
     payments = GenericRelation('payment.Payment', related_query_name='church_reports')
-    comment = models.TextField(_('Comment'), blank=True)
 
     class Meta:
         ordering = ('-id', '-date')

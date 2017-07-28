@@ -42,7 +42,7 @@ class ChurchReportQuerySet(models.query.QuerySet):
     def for_user(self, user):
         if not is_authenticated(user):
             return self.none()
-        return self.filter(pastor__in=user.get_descendants(include_self=True))
+        return self.filter(pastor__user__in=user.get_descendants(include_self=True))
 
 
 class ChurchReportManager(models.Manager):

@@ -397,7 +397,3 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
 
         dashboards_counts = self.serializer_class(dashboards_counts)
         return Response(dashboards_counts.data, status=status.HTTP_200_OK)
-
-
-"""
-"""
