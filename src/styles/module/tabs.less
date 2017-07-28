@@ -226,6 +226,18 @@
     margin-left: 10px;
     position: relative;
     vertical-align: middle;
+    .print{
+      position: relative;
+      .fa{
+        position: absolute;
+        top:50%;
+        left: 20px;
+
+        transform: translateY(-50%);
+        color: #fff;
+        font-size: 18px;
+      }
+    }
     &.dropdown{
       &:hover{
         .top-buttons-submenu{
@@ -364,7 +376,7 @@
 }
 .tab-status {
   position: relative;
-  height: 49px;
+  height: 50px;
   margin-top: 15px;
   button {
     background-color: #fff;
@@ -380,7 +392,9 @@
     border-top: 1px solid #cdd0d4;
     border-right: 1px solid #cdd0d4;
     &.current {
-      border-bottom: 0;
+      a{
+        color: #656d78;
+      }
     }
     button {
       background-color: transparent;

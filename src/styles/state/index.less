@@ -30,7 +30,38 @@
     text-decoration: line-through;
   }
 }
-
+.is-print {
+  width: 1100px;
+  min-width: 1100px;
+  height: auto;
+  overflow: hidden;
+  #container{
+    height: auto;
+    width: 100%;
+    overflow: hidden;
+  }
+  .page-width {
+    overflow: visible;
+  }
+  #sidebar,
+  #header {
+    display: none;
+  }
+  #main{
+    .charts{
+      .pre_filter{
+        .select2-container--default{
+          .select2-selection--single{
+            border: none;
+          }
+        }
+        .select2-selection__arrow{
+          background: none;
+        }
+      }
+    }
+  }
+}
 .padding-table{
   padding: 0 30px;
 }
@@ -46,6 +77,8 @@
 .is-blue{
   background-color: #c9f1fd;
 }
+
+
 
 .input__is_center {
     position: absolute !important;

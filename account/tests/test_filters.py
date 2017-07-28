@@ -9,6 +9,7 @@ from account.models import CustomUser
 
 class BaseTestFilterMasterTree:
     filter_class = None
+    count = 0
 
     def test_without_master_tree(self, user_factory):
         user_factory.create_batch(6)
@@ -26,7 +27,7 @@ class BaseTestFilterMasterTree:
             type('Request', (), {'query_params': {'master_tree': user.id}}),
             qs, None
         )
-        assert filter_qs.count() == 0
+        assert filter_qs.count() == self.count
 
 
 @pytest.mark.django_db
@@ -55,6 +56,7 @@ class TestFilterMasterTree(BaseTestFilterMasterTree):
 @pytest.mark.django_db
 class TestFilterMasterTreeWithSelf(BaseTestFilterMasterTree):
     filter_class = FilterMasterTreeWithSelf
+    count = 1
 
     def test_with_master(self, user_factory):
         user = user_factory()  # count: + 1, = 1, all_users_count: +1, = 1

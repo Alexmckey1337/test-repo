@@ -116,6 +116,7 @@ function changeSummitStatusCode() {
         let count = getCountFilter();
         $('#filter_button').attr('data-count', count);
     });
+
     $('input[name="fullsearch"]').keyup(function () {
         delay(function () {
             summit.makeDataTable();

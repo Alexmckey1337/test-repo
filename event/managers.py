@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models import Value as V
+from django.db.models.functions import Concat
 from rest_framework.compat import is_authenticated
 
 
@@ -11,6 +13,13 @@ class MeetingQuerySet(models.query.QuerySet):
             return self.none()
         return self.filter(owner__in=user.get_descendants(include_self=True))
 
+    def annotate_owner_name(self):
+        return self.annotate(
+            owner_name=Concat(
+                'owner__last_name', V(' '),
+                'owner__first_name', V(' '),
+                'owner__middle_name'))
+
 
 class MeetingManager(models.Manager):
     def get_queryset(self):
@@ -21,3 +30,6 @@ class MeetingManager(models.Manager):
 
     def for_user(self, user):
         return self.get_queryset().for_user(user=user)
+
+    def annotate_owner_name(self):
+        return self.get_queryset().annotate_owner_name()

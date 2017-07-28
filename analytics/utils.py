@@ -24,7 +24,8 @@ def query_dict_to_dict(query_dict):
     if isinstance(query_dict, QueryDict):
         data = dict(query_dict.lists())
     else:
-        data = deepcopy(query_dict)
+        data = query_dict
+    data = deepcopy(data)
     for field, value in data.items():
         if isinstance(value, InMemoryUploadedFile):
             data[field] = value.name

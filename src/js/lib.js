@@ -3010,7 +3010,7 @@ function getFilterParam() {
         if ($(this).val() == "ВСЕ") {
             return
         }
-        let prop = $(this).attr('data-filter');
+        let prop = $(this).data('filter');
         if (prop) {
             if ($(this).attr('type') === 'checkbox') {
                 data[prop] = ucFirst($(this).is(':checked').toString());
@@ -3695,4 +3695,110 @@ function updateDealsTable() {
     createIncompleteDealsTable({page: pageIncompleteDeals});
     // createExpiredDealsTable({page: pageExpiredDeals});
     createDoneDealsTable({page: pageDoneDeals});
+}
+
+function getPreSummitFilterParam() {
+    let $filterFields,
+        data = {};
+    $filterFields = $('.charts_head select');
+    $filterFields.each(function () {
+        if ($(this).val() == "ВСЕ") {
+            return
+        }
+        let prop = $(this).data('filter');
+        if (prop) {
+            if ($(this).val()) {
+                data[prop] = $(this).val();
+            }
+        }
+    });
+
+    return data;
+}
+
+function getSummitStats(url, config = {}) {
+    // Object.assign(config, getFilterParam());
+    Object.assign(config, getPreSummitFilterParam());
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: url,
+            data: config,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}
+
+function getSummitStatsForMaster(summitId, masterId, config = {}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: URLS.summit.stats_by_master(summitId, masterId),
+            data: config,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}
+
+function getResponsibleForSelect(config={}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: URLS.user.list_user(),
+            data: config,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}
+
+function makeResponsibleSummitStats(config, selector = [], active = null) {
+    getResponsibleForSelect(config).then(function (data) {
+        let options = '<option selected>ВСЕ</option>';
+        data.forEach(function (item) {
+            options += `<option value="${item.id}"`;
+            if (active == item.id) {
+                options += 'selected';
+            }
+            options += `>${item.title}</option>`;
+        });
+        selector.forEach(item => {
+            $(item).html(options).prop('disabled', false).select2();
+        })
+    });
 }
