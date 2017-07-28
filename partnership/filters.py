@@ -4,17 +4,30 @@ from account.models import CustomUser
 from common.filters import BaseFilterByBirthday, BaseFilterMasterTree
 from hierarchy.models import Hierarchy, Department
 from partnership.models import Deal, Partnership
+from rest_framework import filters
 
 
-class DateFilter(django_filters.FilterSet):
-    to_date = django_filters.DateFilter(name="date_created", lookup_expr='lte')
+class DateAndValueFilter(django_filters.FilterSet):
     from_date = django_filters.DateFilter(name="date_created", lookup_expr='gte')
+    to_date = django_filters.DateFilter(name="date_created", lookup_expr='lte')
+    from_value = django_filters.NumberFilter(name="value", lookup_expr='gte')
+    to_value = django_filters.NumberFilter(name="value", lookup_expr='lte')
 
     class Meta:
         model = Deal
-        fields = ['partnership__responsible__user',
+        fields = ['partnership__responsible__user', 'currency_id',
                   'partnership__user', 'value', 'date_created', 'date',
-                  'expired', 'done', 'to_date', 'from_date', ]
+                  'expired', 'done', 'to_date', 'from_date', 'from_value', 'to_value']
+
+
+class DealFilterByPaymentStatus(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        payment_status = request.query_params.get('payment_status')
+
+        if payment_status:
+            return queryset.filter(payment_status=payment_status)
+
+        return queryset
 
 
 class FilterByPartnerBirthday(BaseFilterByBirthday):
@@ -31,6 +44,8 @@ class PartnerUserFilter(django_filters.FilterSet):
     master = django_filters.ModelMultipleChoiceFilter(name="user__master", queryset=CustomUser.objects.all())
     department = django_filters.ModelChoiceFilter(name="user__departments", queryset=Department.objects.all())
     is_active = django_filters.BooleanFilter(name='is_active')
+    value_to = django_filters.NumberFilter(name="value", lookup_expr='lte')
+    value_from = django_filters.NumberFilter(name="value", lookup_expr='gte')
 
     class Meta:
         model = Partnership

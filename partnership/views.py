@@ -8,11 +8,13 @@ from rest_framework import exceptions, filters, mixins, status, viewsets
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.db.models import Sum, When, Case, F, IntegerField, Q
 
 from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
-from partnership.filters import FilterByPartnerBirthday, DateFilter, FilterPartnerMasterTreeWithSelf, PartnerUserFilter
+from partnership.filters import (FilterByPartnerBirthday, DateAndValueFilter, FilterPartnerMasterTreeWithSelf,
+                                 PartnerUserFilter, DealFilterByPaymentStatus)
 from partnership.mixins import PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin, PartnerExportViewSetMixin
 from partnership.pagination import PartnershipPagination, DealPagination
 from partnership.permissions import CanSeeDeals, CanSeePartners, CanCreateDeals, CanUpdateDeals, CanUpdatePartner
@@ -125,8 +127,14 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
     pagination_class = DealPagination
     filter_backends = (rest_framework.DjangoFilterBackend,
                        filters.SearchFilter,
-                       filters.OrderingFilter,)
-    filter_class = DateFilter
+                       filters.OrderingFilter,
+                       DealFilterByPaymentStatus,)
+    ordering_fields = ('value',
+                       'responsible__user__last_name',
+                       'partnership__user__last_name',
+                       'date_created',
+                       'done')
+    filter_class = DateAndValueFilter
     search_fields = ('partnership__user__first_name',
                      'partnership__user__last_name',
                      'partnership__user__search_name',
@@ -144,7 +152,18 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
         return self.serializer_class
 
     def get_queryset(self):
-        return self.queryset.for_user(user=self.request.user)
+        """
+        payment_status = 0, it's a deal with payments total sum = 0;
+        payment_status = 1, it's a deal with partial paid;
+        payment_status = 2, it's a deal with full paid;
+        """
+        return self.queryset.for_user(self.request.user).annotate(
+            total_payments=Sum('payments__effective_sum')).annotate(
+            payment_status=Case(
+                When(Q(total_payments__lt=F('value')) & Q(total_payments__gt=0), then=1),
+                When(total_payments__gte=F('value'), then=2),
+                default=0, output_field=IntegerField())
+        )
 
     def get_permissions(self):
         if self.action in ('list', 'retrieve'):

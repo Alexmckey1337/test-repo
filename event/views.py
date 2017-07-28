@@ -17,12 +17,13 @@ from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
 from .filters import (ChurchReportFilter, MeetingFilter, MeetingCustomFilter, MeetingFilterByMaster,
                       ChurchReportDepartmentFilter, ChurchReportFilterByMaster)
-from .models import Meeting, ChurchReport, MeetingAttend
+from .models import Meeting, ChurchReport, MeetingAttend, ChurchReportPastor
 from .pagination import MeetingPagination, MeetingVisitorsPagination, ChurchReportPagination
 from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingDetailSerializer,
-                          MeetingListSerializer, ChurchReportStatisticSerializer,
+                          MeetingListSerializer, ChurchReportStatisticSerializer, ChurchReportPastorSerializer,
                           MeetingStatisticSerializer, ChurchReportSerializer,
                           ChurchReportListSerializer, MeetingDashboardSerializer)
+from payment.views_mixins import CreatePaymentMixin
 
 logger = logging.getLogger(__name__)
 
@@ -231,7 +232,13 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         return Response(dashboards_counts.data)
 
 
-class ChurchReportViewSet(ModelWithoutDeleteViewSet):
+class ChurchReportPastorViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
+    queryset = ChurchReportPastor.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ChurchReportPastorSerializer
+
+
+class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
     queryset = ChurchReport.objects.all()
 
     serializer_class = ChurchReportSerializer

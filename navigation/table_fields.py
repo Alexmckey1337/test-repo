@@ -25,10 +25,10 @@ def group_table(user, category_title=None):
 
 
 @check_user_table_exist
-def deal_table(user):
+def deal_table(user, prefix_ordering_title=''):
     table_columns = _filter_deals_columns(user.table.columns.select_related('columnType'))
 
-    return _get_result_table(table_columns)
+    return _get_result_table(table_columns, prefix_ordering_title)
 
 
 def _filter_deals_columns(table_columns):

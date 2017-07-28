@@ -12,16 +12,16 @@ def create_deal_columns(apps, schema_editor):
     deal = Category.objects.create(title='deal', common=True)
 
     Deal_columns.objects.bulk_create([
-        Deal_columns(title='full_name', verbose_title='ФИО', ordering_title='partnership__fullname', number=1,
+        Deal_columns(title='full_name', verbose_title='ФИО', ordering_title='partnership__user__last_name', number=1,
                      active=True, editable=True, category_id=deal.id),
         Deal_columns(title='date_created', verbose_title='Дата сделки', ordering_title='date_created', number=2,
                      active=True, editable=True, category_id=deal.id),
-        Deal_columns(title='responsible', verbose_title='Менеджер', ordering_title='responsible__fullname',
+        Deal_columns(title='responsible', verbose_title='Менеджер', ordering_title='responsible__user__last_name',
                      number=3, active=True, editable=True, category_id=deal.id),
         Deal_columns(title='sum', verbose_title='Сумма', ordering_title='value',
                      number=4, active=True, editable=True, category_id=deal.id),
         Deal_columns(title='action', verbose_title='Действие', ordering_title='done',
-                     number=5, active=True, editable=False, category_id=deal.id),
+                     number=6, active=True, editable=False, category_id=deal.id),
     ])
 
 

@@ -12,7 +12,7 @@ from common.fields import ReadOnlyChoiceField
 from group.models import Church
 from group.serializers import (UserNameSerializer, ChurchNameSerializer,
                                HomeGroupNameSerializer)
-from .models import Meeting, MeetingAttend, MeetingType, ChurchReport, AbstractStatusModel
+from .models import Meeting, MeetingAttend, MeetingType, ChurchReport, AbstractStatusModel, ChurchReportPastor
 
 
 class ValidateDataBeforeUpdateMixin(object):
@@ -151,8 +151,14 @@ class MeetingDashboardSerializer(serializers.ModelSerializer):
         read_only_fields = ['__all__']
 
 
+class ChurchReportPastorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChurchReportPastor
+        fields = ('id', 'fullname')
+
+
 class ChurchReportListSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMixin):
-    pastor = UserNameSerializer()
+    pastor = ChurchReportPastorSerializer()
     church = ChurchNameSerializer()
     date = serializers.DateField(default=datetime.now().date())
 
@@ -165,8 +171,7 @@ class ChurchReportListSerializer(serializers.ModelSerializer, ValidateDataBefore
 
 class ChurchReportSerializer(ChurchReportListSerializer):
     church = serializers.PrimaryKeyRelatedField(queryset=Church.objects.all(), required=False)
-    pastor = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
-        church__pastor__id__isnull=False).distinct(), required=False)
+    pastor = serializers.PrimaryKeyRelatedField(queryset=ChurchReportPastor.objects.all())
     status = serializers.IntegerField(default=1)
     can_submit = serializers.BooleanField(read_only=True)
     cant_submit_cause = serializers.CharField(read_only=True)
