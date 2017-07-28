@@ -19,35 +19,35 @@ function initChart(id, update = false) {
             }],
             title = "Статистика посещаемости саммита",
             callback = {
-                    footer: (tooltipItems, data) => {
-                        let all = data.datasets[tooltipItems[0].datasetIndex].data[tooltipItems[0].index],
-                            visit = data.datasets[tooltipItems[1].datasetIndex].data[tooltipItems[1].index],
-                            diff = all - visit;
-                        return `Отсутствовало: ${diff}`;
-                    },
+                footer: (tooltipItems, data) => {
+                    let all = data.datasets[tooltipItems[0].datasetIndex].data[tooltipItems[0].index],
+                        visit = data.datasets[tooltipItems[1].datasetIndex].data[tooltipItems[1].index],
+                        diff = all - visit;
+                    return `Отсутствовало: ${diff}`;
                 },
+            },
             xAxes = [{
-                    display: true,
-                    scaleLabel: {
-                        show: true,
-                        labelString: 'Day'
-                    }
-                }],
+                display: true,
+                scaleLabel: {
+                    show: true,
+                    labelString: 'Day'
+                }
+            }],
             yAxes = [{
-                    display: true,
-                    scaleLabel: {
-                        show: true,
-                        labelString: 'Value'
-                    },
-                    ticks: {
-                        min: 0,
-                        callback: function (value) {
-                            if (Math.floor(value) === value) {
-                                return value;
-                            }
+                display: true,
+                scaleLabel: {
+                    show: true,
+                    labelString: 'Value'
+                },
+                ticks: {
+                    min: 0,
+                    callback: function (value) {
+                        if (Math.floor(value) === value) {
+                            return value;
                         }
                     }
-                }],
+                }
+            }],
             config = setConfig('line', labels, datasets, title, xAxes, yAxes, callback),
             option = {
                 chart: window.ChartAttends,
@@ -104,18 +104,18 @@ function initPieChart() {
 
 function updatePieChart(summitId, masterId) {
     getSummitStatsForMaster(summitId, masterId).then(res => {
-        let labels = _.map(res, (el) => el[0] ),
+        let labels = _.map(res, (el) => el[0]),
             peoples = _.map(res, (el) => el[1][0]),
             colors = [];
         for (let i = 0; i < labels.length; i++) {
             colors.push(getRandomColor());
         }
         let option = {
-                chart: window.PieStats,
-                labels: labels,
-                peoples: peoples,
-                colors: colors,
-            };
+            chart: window.PieStats,
+            labels: labels,
+            peoples: peoples,
+            colors: colors,
+        };
         $('#pie_stats').show();
         renderUpdatePieChart(option);
     })
@@ -178,7 +178,7 @@ function getRandomColor() {
     return color;
 }
 
-function setConfig(type = 'line', labels = [], datasets = [], title = '', xAxes = [], yAxes = [], callback = {} ) {
+function setConfig(type = 'line', labels = [], datasets = [], title = '', xAxes = [], yAxes = [], callback = {}) {
     let config = {
         type: type,
         data: {
@@ -221,6 +221,7 @@ function setConfig(type = 'line', labels = [], datasets = [], title = '', xAxes 
                 xAxes: xAxes,
                 yAxes: yAxes,
             },
+
             elements: {
                 point: {
                     radius: 5,
@@ -290,6 +291,34 @@ function renderPieChart(config) {
     $('#pie_stats').hide();
 }
 
+function getBoxWidth(labelOpts, fontSize) {
+    return labelOpts.usePointStyle ?
+        fontSize * Math.SQRT2 :
+        labelOpts.boxWidth;
+}
+
+Chart.NewLegend = Chart.Legend.extend({
+    afterFit: function () {
+        this.height = this.height + 30;
+    },
+});
+
+function createNewLegendAndAttach(chartInstance, legendOpts) {
+    let legend = new Chart.NewLegend({
+        ctx: chartInstance.chart.ctx,
+        options: legendOpts,
+        chart: chartInstance
+    });
+
+    if (chartInstance.legend) {
+        Chart.layoutService.removeBox(chartInstance, chartInstance.legend);
+        delete chartInstance.newLegend;
+    }
+
+    chartInstance.newLegend = legend;
+    Chart.layoutService.addBox(chartInstance, legend);
+}
+
 $('document').ready(function () {
     let summitId = $('#summit-title').data('summit-id');
     initChart(summitId);
@@ -324,7 +353,7 @@ $('document').ready(function () {
                 summit: summitId,
             }
         } else {
-           data = {
+            data = {
                 without_pagination: '',
                 level_gte: 4,
                 summit: summitId,
@@ -390,4 +419,37 @@ $('document').ready(function () {
 
         window.onafterprint = afterPrint;
     }());
+
+    // Register the legend plugin
+    Chart.plugins.register({
+        beforeInit: function (chartInstance) {
+            let legendOpts = chartInstance.options.legend;
+
+            if (legendOpts) {
+                createNewLegendAndAttach(chartInstance, legendOpts);
+            }
+        },
+        beforeUpdate: function (chartInstance) {
+            let legendOpts = chartInstance.options.legend;
+
+            if (legendOpts) {
+                legendOpts = Chart.helpers.configMerge(Chart.defaults.global.legend, legendOpts);
+
+                if (chartInstance.newLegend) {
+                    chartInstance.newLegend.options = legendOpts;
+                } else {
+                    createNewLegendAndAttach(chartInstance, legendOpts);
+                }
+            } else {
+                Chart.layoutService.removeBox(chartInstance, chartInstance.newLegend);
+                delete chartInstance.newLegend;
+            }
+        },
+        afterEvent: function (chartInstance, e) {
+            let legend = chartInstance.newLegend;
+            if (legend) {
+                legend.handleEvent(e);
+            }
+        }
+    });
 });

@@ -595,7 +595,15 @@
       }
     }
   }
-
+  .summit_wrapper{
+    .rows{
+      border:none;
+      border-bottom: 1px solid #cdd0d4;
+      &:last-child{
+        border-bottom: none;
+      }
+    }
+  }
 }
 
 .user-fiowrap {
@@ -708,6 +716,18 @@
     //font-family: 'Roboto Condensed', sans-serif;
     font-size: 1.5em;
   }
+  &#Sdelki{
+    #tabStatus{
+      border-bottom: 1px solid #cdd0d4;
+    }
+    .sdelki-content{
+      .rows{
+        &:first-child{
+          border-top: none;
+        }
+      }
+    }
+  }
 }
 
 .a-note {
@@ -768,9 +788,6 @@
     border: 0;
     border-bottom: 1px solid #cdd0d4;
     background-color: transparent;
-    &:first-child{
-      border-top: 1px solid #cdd0d4;
-    }
     p {
       //width: 33%;
     }
