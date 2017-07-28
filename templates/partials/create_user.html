@@ -3,96 +3,148 @@
 <div class="splash-screen editprofile-screen">
     <form action="./" name="createUser" id="createUser" novalidate>
         <div class="step first_step">
-            <div class="header">
-                <h1 class="header_title">Создание пользователя</h1>
-                <h1 class="header_step">Шаг 1 из 2</h1>
-            </div>
-            <div class="body">
-                <p>Обязательные поля отмечены *</p>
-                <div class="block">
-                        <ul class="info">
-                            <li>
-                                <div class="label-wrapp">
-                                    <label for="last_name">Фамилия*</label>
-                                </div>
-                                <div class="input">
-                                    <input class="must" type="text" name="last_name" id="last_name"
-                                       data-validation="length" data-validation-length="min2" tabindex="1"
-                                       placeholder="Фамилия на русском">
-                                </div>
-                            </li>
-                            <li>
-                                <div class="label-wrapp">
-                                    <label for="first_name">Имя*</label>
-                                </div>
-                                <div class="input">
-                                    <input class="must" type="text" name="first_name" id="first_name" data-validation="length"
-                                       data-validation-length="min2" tabindex="2"
-                                       placeholder="Имя на русском">
-                                </div>
-                            </li>
-                            <li>
-                                <div class="label-wrapp">
-                                    <label for="middle_name">Отчество</label>
-                                </div>
-                                <input name="middle_name" id="middle_name" type="text" tabindex="3"
-                                       placeholder="Отчество на русском">
-                            </li>
-                            <li>
-                                <div class="label-wrapp">
-                                    <label for="search_name">Имя на родном языке</label>
-                                </div>
-                                <input type="text" name="search_name" id="search_name"tabindex="4"
-                                       placeholder="Фамилия и имя на любом языке">
-                            </li>
-                            <li>
-                                <div class="label-wrapp">
-                                    <label for="phoneNumber">Телефон*</label>
-                                </div>
-                                <div class="phone">
-                                    <select style="width: 96%" name="" id="chooseCountryCode"></select>
+            <div class="pop_cont">
+                <div class="popup_text">
+                    <h2>Создание пользователя</h2>
+                    <h3>Шаг 1 из 2</h3>
+                </div>
+                <div class="popup_body">
+                    <div class="container">
+                        <p>Обязательные поля отмечены *</p>
+                        <label>
+                            <span class="label_block">Фамилия*</span>
+                            <input class="must" type="text" name="last_name" id="last_name" data-validation="length"
+                                   data-validation-length="min2" tabindex="1" placeholder="Фамилия на русском">
+                        </label>
+                        <label>
+                            <span class="label_block">Имя*</span>
+                            <input class="must" type="text" name="first_name" id="first_name" data-validation="length"
+                                   data-validation-length="min2" tabindex="2" placeholder="Имя на русском">
+                        </label>
+                        <label>
+                            <span class="label_block">Отчество</span>
+                            <input name="middle_name" id="middle_name" type="text" tabindex="3" placeholder="Отчество на русском">
+                        </label>
+                        <label>
+                            <span class="label_block">Имя на родном языке</span>
+                            <input type="text" name="search_name" id="search_name"tabindex="4" placeholder="Фамилия и имя на любом языке">
+                        </label>
+                        <label>
+                            <span class="label_block">Телефон*</span>
+                            <div class="phone">
+                                    <select name="" id="chooseCountryCode"></select>
                                     <input id="phoneNumberCode" type="text" readonly data-validation="required">
                                     <input class="must" id="phoneNumber" type="text"  tabindex="5"
                                            required data-validation="required number">
                                 </div>
-                            </li>
-                            <li>
-                                <div class="label-wrapp">
-                                    <label for="chooseDepartment">Отдел церкви*</label>
-                                </div>
-                                <div class="input">
-                                    <select multiple disabled id="chooseDepartment" tabindex="6"
-                                            class="must" data-validation="required">
-                                    </select>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="label-wrapp">
-                                    <label for="chooseStatus">Иерархия*</label>
-                                </div>
-                                <div class="input">
-                                    <select name="hierarchy" id="chooseStatus" class="cleared must" tabindex="7"
-                                            data-validation="required">
-                                    </select>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="label-wrapp">
-                                    <label for="chooseResponsible">Ответственный*</label>
-                                </div>
-                                <div class="input">
-                                    <select disabled name="master" id="chooseResponsible" tabindex="8"
-                                            class="cleared must">
-                                    </select>
-                                </div>
-                            </li>
-                        </ul>
+                        </label>
+                        <label>
+                            <span class="label_block">Отдел церкви*</span>
+                            <select multiple disabled id="chooseDepartment" tabindex="6" class="must"
+                                    data-validation="required"></select>
+                        </label>
+                        <label>
+                            <span class="label_block">Иерархия*</span>
+                            <select name="hierarchy" id="chooseStatus" class="cleared must" tabindex="7"
+                                    data-validation="required"></select>
+                        </label>
+                        <label>
+                            <span class="label_block">Ответственный*</span>
+                            <select disabled name="master" id="chooseResponsible" tabindex="8" class="cleared must"></select>
+                        </label>
+                    </div>
                 </div>
             </div>
-            <div class="btn-block">
-                <a href="#" class="btn closeForm" tabindex="10">Отменить</a>
-                <a href="#" class="btn nextForm" tabindex="9">Продолжить</a>
-            </div>
+{#            <div class="header">#}
+{#                <h1 class="header_title">Создание пользователя</h1>#}
+{#                <h1 class="header_step">Шаг 1 из 2</h1>#}
+{#            </div>#}
+{#            <div class="body">#}
+{#                <p>Обязательные поля отмечены *</p>#}
+{#                <div class="block">#}
+{#                        <ul class="info">#}
+{#                            <li>#}
+{#                                <div class="label-wrapp">#}
+{#                                    <label for="last_name">Фамилия*</label>#}
+{#                                </div>#}
+{#                                <div class="input">#}
+{#                                    <input class="must" type="text" name="last_name" id="last_name"#}
+{#                                       data-validation="length" data-validation-length="min2" tabindex="1"#}
+{#                                       placeholder="Фамилия на русском">#}
+{#                                </div>#}
+{#                            </li>#}
+{#                            <li>#}
+{#                                <div class="label-wrapp">#}
+{#                                    <label for="first_name">Имя*</label>#}
+{#                                </div>#}
+{#                                <div class="input">#}
+{#                                    <input class="must" type="text" name="first_name" id="first_name" data-validation="length"#}
+{#                                       data-validation-length="min2" tabindex="2"#}
+{#                                       placeholder="Имя на русском">#}
+{#                                </div>#}
+{#                            </li>#}
+{#                            <li>#}
+{#                                <div class="label-wrapp">#}
+{#                                    <label for="middle_name">Отчество</label>#}
+{#                                </div>#}
+{#                                <input name="middle_name" id="middle_name" type="text" tabindex="3"#}
+{#                                       placeholder="Отчество на русском">#}
+{#                            </li>#}
+{#                            <li>#}
+{#                                <div class="label-wrapp">#}
+{#                                    <label for="search_name">Имя на родном языке</label>#}
+{#                                </div>#}
+{#                                <input type="text" name="search_name" id="search_name"tabindex="4"#}
+{#                                       placeholder="Фамилия и имя на любом языке">#}
+{#                            </li>#}
+{#                            <li>#}
+{#                                <div class="label-wrapp">#}
+{#                                    <label for="phoneNumber">Телефон*</label>#}
+{#                                </div>#}
+{#                                <div class="phone">#}
+{#                                    <select style="width: 96%" name="" id="chooseCountryCode"></select>#}
+{#                                    <input id="phoneNumberCode" type="text" readonly data-validation="required">#}
+{#                                    <input class="must" id="phoneNumber" type="text"  tabindex="5"#}
+{#                                           required data-validation="required number">#}
+{#                                </div>#}
+{#                            </li>#}
+{#                            <li>#}
+{#                                <div class="label-wrapp">#}
+{#                                    <label for="chooseDepartment">Отдел церкви*</label>#}
+{#                                </div>#}
+{#                                <div class="input">#}
+{#                                    <select multiple disabled id="chooseDepartment" tabindex="6"#}
+{#                                            class="must" data-validation="required">#}
+{#                                    </select>#}
+{#                                </div>#}
+{#                            </li>#}
+{#                            <li>#}
+{#                                <div class="label-wrapp">#}
+{#                                    <label for="chooseStatus">Иерархия*</label>#}
+{#                                </div>#}
+{#                                <div class="input">#}
+{#                                    <select name="hierarchy" id="chooseStatus" class="cleared must" tabindex="7"#}
+{#                                            data-validation="required">#}
+{#                                    </select>#}
+{#                                </div>#}
+{#                            </li>#}
+{#                            <li>#}
+{#                                <div class="label-wrapp">#}
+{#                                    <label for="chooseResponsible">Ответственный*</label>#}
+{#                                </div>#}
+{#                                <div class="input">#}
+{#                                    <select disabled name="master" id="chooseResponsible" tabindex="8"#}
+{#                                            class="cleared must">#}
+{#                                    </select>#}
+{#                                </div>#}
+{#                            </li>#}
+{#                        </ul>#}
+{#                </div>#}
+{#            </div>#}
+{#            <div class="btn-block">#}
+{#                <a href="#" class="btn closeForm" tabindex="10">Отменить</a>#}
+{#                <a href="#" class="btn nextForm" tabindex="9">Продолжить</a>#}
+{#            </div>#}
         </div>
         <div class="step second_step">
             <div class="header">
