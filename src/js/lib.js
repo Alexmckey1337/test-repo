@@ -3693,6 +3693,6 @@ function updateDealsTable() {
         pageExpiredDeals = $('#overdue').find('.pagination__input').val(),
         pageDoneDeals = $('#completed').find('.pagination__input').val();
     createIncompleteDealsTable({page: pageIncompleteDeals});
-    createExpiredDealsTable({page: pageExpiredDeals});
+    // createExpiredDealsTable({page: pageExpiredDeals});
     createDoneDealsTable({page: pageDoneDeals});
 }
