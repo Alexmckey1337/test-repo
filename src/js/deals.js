@@ -460,7 +460,7 @@ $(document).ready(function () {
 
     $('.preloader').show();
     createIncompleteDealsTable();
-    createExpiredDealsTable();
+    // createExpiredDealsTable();
     createDoneDealsTable();
 
     $('#overdue, #completed').hide();
@@ -477,7 +477,7 @@ $(document).ready(function () {
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
         updateSettings(createIncompleteDealsTable);
-        updateSettings(createExpiredDealsTable);
+        // updateSettings(createExpiredDealsTable);
         updateSettings(createDoneDealsTable);
     });
 
@@ -536,7 +536,7 @@ $(document).ready(function () {
         $('.preloader').css('display', 'block');
         delay(function () {
             createIncompleteDealsTable();
-            createExpiredDealsTable();
+            // createExpiredDealsTable();
             createDoneDealsTable();
         }, 1000);
     });
@@ -581,7 +581,7 @@ $(document).ready(function () {
     
     $('.apply-filter').on('click', function () {
         applyFilter(this, createIncompleteDealsTable);
-        applyFilter(this, createExpiredDealsTable);
+        // applyFilter(this, createExpiredDealsTable);
         applyFilter(this, createDoneDealsTable);
     })
 

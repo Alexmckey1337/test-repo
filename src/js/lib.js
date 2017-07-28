@@ -2897,7 +2897,6 @@ function updateSettings(callback, path) {
         }
     });
     let json = JSON.stringify(data);
-    console.log(json);
     ajaxRequest(URLS.update_columns(), json, function (JSONobj) {
         $(".bgsort").remove();
         VOCRM['column_table'] = JSONobj['column_table'];
@@ -3011,7 +3010,7 @@ function getFilterParam() {
         if ($(this).val() == "ВСЕ") {
             return
         }
-        let prop = $(this).data('filter');
+        let prop = $(this).attr('data-filter');
         if (prop) {
             if ($(this).attr('type') === 'checkbox') {
                 data[prop] = ucFirst($(this).is(':checked').toString());
@@ -3432,10 +3431,9 @@ function createIncompleteDealsTable(config={}) {
             pages: pages,
             callback: createIncompleteDealsTable
         };
-        $('#incomplete-count').html(count);
         makeDealsDataTable(data, id);
         makePagination(paginationConfig);
-        $('.table__count').text(text);
+        $('#incomplete').find('.table__count').text(text);
         makeSortForm(data.table_columns);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createIncompleteDealsTable, ".table-wrap th");
@@ -3461,10 +3459,9 @@ function createExpiredDealsTable(config={}) {
             pages: pages,
             callback: createExpiredDealsTable
         };
-        $('#overdue-count').text(count);
         makeDealsDataTable(data, id);
         makePagination(paginationConfig);
-        $('.table__count').text(text);
+        $('#overdue').find('.table__count').text(text);
         makeSortForm(data.table_columns);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createExpiredDealsTable, ".table-wrap th");
@@ -3490,10 +3487,9 @@ function createDoneDealsTable(config={}) {
             pages: pages,
             callback: createDoneDealsTable
         };
-        $('#completed-count').html(count);
         makeDealsDataTable(data, id);
         makePagination(paginationConfig);
-        $('.table__count').text(text);
+        $('#completed').find('.table__count').text(text);
         makeSortForm(data.table_columns);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createDoneDealsTable, ".table-wrap th");
@@ -3528,22 +3524,45 @@ function showPayments(id) {
     })
 }
 
-function getDeals(config = {}) {
-    let data = {
-        url: URLS.deal.list(),
-        data: config
+function getDeals(options = {}) {
+    let keys = Object.keys(options),
+        url = URLS.deal.list();
+    if (keys.length) {
+        url += '?';
+        keys.forEach(item => {
+            url += item + '=' + options[item] + "&"
+        });
+    }
+    let defaultOption = {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        })
     };
-    return new Promise(function (resolve, reject) {
-        let codes = {
-            200: function (data) {
-                resolve(data);
-            },
-            400: function (data) {
-                reject(data);
-            }
-        };
-        newAjaxRequest(data, codes, reject);
-    });
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
+
+
+
+
+
+    // let data = {
+    //     url: URLS.deal.list(),
+    //     data: config
+    // };
+    // return new Promise(function (resolve, reject) {
+    //     let codes = {
+    //         200: function (data) {
+    //             resolve(data);
+    //         },
+    //         400: function (data) {
+    //             reject(data);
+    //         }
+    //     };
+    //     newAjaxRequest(data, codes, reject);
+    // });
 }
 
 let sumChangeListener = (function () {
