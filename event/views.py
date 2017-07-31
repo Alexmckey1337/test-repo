@@ -48,8 +48,8 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
     filter_fields = ('data', 'type', 'owner', 'home_group', 'status', 'department', 'church')
 
     ordering_fields = ('id', 'date', 'owner__last_name', 'home_group__title', 'type__code',
-                       'status', 'phone_number', 'visitors_attended', 'visitors_absent',
-                       'total_sum')
+                       'status', 'home_group__phone_number', 'visitors_attended', 'visitors_absent',
+                       'total_sum',)
 
     filter_class = MeetingFilter
 
@@ -286,6 +286,10 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
                        filters.OrderingFilter,)
 
     filter_class = ChurchReportFilter
+
+    ordering_fields = ('id', 'date', 'church__title', 'pastor__user__last_name', 'count_people',
+                       'new_people', 'count_repentance', 'tithe', 'donations',
+                       'pastor_tithe')
 
     field_search_fields = {
         'search_date': ('date',),
