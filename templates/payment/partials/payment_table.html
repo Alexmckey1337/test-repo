@@ -28,9 +28,11 @@
                             data-payment-id="{{ payment.id }}"
                             data-payment-date="{{ payment.sent_date|date:'Y-m-d' }}"
                             data-payment-sum="{{ payment.sum }}"
-                            data-payment-currency="{{ payment.currency_sum_id }}"
+                            data-payment-currency-id="{{ payment.currency_sum_id }}"
+                            data-payment-currency-name="{{ payment.currency_sum.short_name }}"
                             data-payment-rate="{{ payment.rate }}"
                             data-payment-description="{{ payment.description }}"
+                            data-payment-operation="{{ payment.operation }}"
                     >{% trans "Edit" %}</button>
                 </td>
                 <td>
