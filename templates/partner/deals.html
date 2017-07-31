@@ -99,18 +99,33 @@
                 </div>
                 <div class="padding-wrap">
                     <div class="user-info">
-                    <div class="left-side">
-                        <p>Клиент:</p>
-                        <p>Последняя сделка:</p>
-                        <p>Ответственный:</p>
+                        <label>
+                            <span class="label-wrapp">Клиент:</span>
+                            <input id="client-name" value="" disabled>
+                        </label>
+                        <label>
+                            <span class="label-wrapp">Последняя сделка:</span>
+                            <input id="deal-date" value="" disabled>
+                        </label>
+                        <label>
+                            <span class="label-wrapp">Ответственный:</span>
+                            <input id="responsible-name" value="" disabled>
+                        </label>
+                        <label class="textarea">
+                            <textarea placeholder="Добавить коментарий" id="deal-description"></textarea>
+                        </label>
+{#                        <div class="left-side">#}
+{#                            <p>Клиент:</p>#}
+{#                            <p>Последняя сделка:</p>#}
+{#                            <p>Ответственный:</p>#}
+{#                        </div>#}
+{#                        <div class="right-side">#}
+{#                            <p><input id="client-name" value="" disabled></p>#}
+{#                            <p><input id="deal-date" value="" disabled></p>#}
+{#                            <p><input id="responsible-name" value="" disabled></p>#}
+{#                        </div>#}
                     </div>
-                    <div class="right-side">
-                        <p><input id="client-name" value="" disabled></p>
-                        <p><input id="deal-date" value="" disabled></p>
-                        <p><input id="responsible-name" value="" disabled></p>
-                    </div>
-                </div>
-                    <textarea placeholder="Добавить коментарий" id="deal-description"></textarea>
+{#                    <textarea placeholder="Добавить коментарий" id="deal-description"></textarea>#}
                     <div class="splash-bauttons">
                     <button class="close">Отменить</button>
                     <button id="complete">Завершить</button>

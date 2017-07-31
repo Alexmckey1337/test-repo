@@ -464,8 +464,54 @@
 
 .user-info {
   display: flex;
-  margin-top: 15px;
+  margin-top: 10px;
   overflow: hidden;
+  flex-direction: column;
+  label{
+    margin-bottom:10px;
+    position: relative;
+    &.textarea{
+      &::after{
+        display: none;
+      }
+    }
+    &::after{
+      position: absolute;
+      left: 0px;
+      top: 13px;
+      display: block;
+      width: 100%;
+      height: 2px;
+      background-image: radial-gradient(circle,#656d78 .6px,transparent 1px);
+      background-repeat: repeat-x;
+      background-size: 5px 2px;
+      content: '';
+      z-index: 1;
+    }
+    &:last-child{
+      margin-bottom:0;
+    }
+    span{
+      display: block;
+      float: left;
+      height: 25px;
+      line-height: 25px;
+      position: relative;
+      z-index: 5;
+      background: #fff;
+      padding-right: 5pxgot ;
+    }
+    input{
+      z-index: 5;
+      float: right;
+      border: none;
+      height: 25px;
+      padding: 0;
+      width: 250px;
+      background: #fff;
+      box-sizing: border-box;
+    }
+  }
 }
 
 .right-side {
@@ -636,7 +682,7 @@ input#deal-value, input#summit-value, input#summit-valueNew, input#summit-valueD
 }
 
 .splash-bauttons {
-  padding:17px 0px;
+  margin: 10px 0;
   text-align: right;
 }
 
