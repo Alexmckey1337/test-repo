@@ -318,7 +318,7 @@
           position: relative;
           #phoneNumberCode{
             position: absolute;
-            left: 0;
+            left: 23px;
             width: 60px!important;
 
           }
@@ -333,6 +333,15 @@
           float: right;
           height: 25px;
           background: #fff;
+        }
+        #chooseResponsible{
+          position: relative;
+          &::after{
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: red;
+          }
         }
       }
     }
