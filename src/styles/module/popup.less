@@ -237,7 +237,30 @@
         margin-bottom:10px;
         position: relative;
         width: 100%;
-        display: block;
+        display: flex;
+        justify-content: space-between;
+        &.has-error{
+          .select2-container{
+            .select2-selection--single{
+              border-color: rgb(185, 74, 72) !important;
+              .select2-selection__rendered{
+                color: rgb(185, 74, 72) !important;
+              }
+            }
+          }
+          input,textarea{
+            &::-webkit-input-placeholder{
+              display: none;
+              color: transparent;
+            }
+          }
+        }
+        .help-block{
+          position: absolute;
+          bottom: 6px;
+          right: 50px;
+          color: rgb(185, 74, 72);
+        }
         &:before{
           position: absolute;
           right: 0px;
@@ -343,6 +366,21 @@
             background: red;
           }
         }
+        &.money{
+          .input{
+            width: 250px;
+            float: right;
+            box-sizing: border-box;
+            input{
+              width: 200px !important;
+              float: left;
+            }
+            select{
+              width: 50px!important;
+              float: right;
+            }
+          }
+        }
       }
     }
   }
@@ -351,6 +389,22 @@
       flex-direction: column;
       height: 100%;
 
+  }
+  .closeForm,.nextForm{
+    display: block;
+    background-color: #aab2bd;
+    padding: 12px 20px 12px 45px;
+    color: #fff;
+    border-radius: 4px;
+    border: 0;
+    cursor: pointer;
+    font-size: 1.1em;
+    -webkit-transition: all .3s ease;
+    transition: all .3s ease;
+    &:hover{
+      background: #3caeda;
+
+    }
   }
 }
 
@@ -804,8 +858,8 @@ button{
 #addNewUserPopup {
   .editprofile-screen {
     right: 0px;
-    max-width: 520px;
-    width: 520px;
+    max-width: 610px;
+    width: 610px;
     height: auto;
     background-color: transparent;
     overflow: hidden;
@@ -814,279 +868,76 @@ button{
     form {
       display: inline-flex;
       transition: transform .2s ease;
+      transform: translateX(0%);
+      &.active{
+        transform: translateX(-50%);
+      }
     }
     .step {
       position: relative;
-      width: 520px;
+      width: 607px;
       height: 100vh;
       //padding: 0 10px;
       background-color: #fff;
-      .popup_text{
-        display: flex;
-        justify-content: space-between;
-        h3{
-          margin-left:15px;
-          color: rgba(160, 160, 160, 0.67);
-          font-size: 1.5em;
-          line-height: 1.4;
-          text-transform: lowercase;
-        }
-      }
-    }
-    //select {
-    //  padding: 6px;
-    //  border-radius: 3px;
-    //  border: 1px solid #cdd0d4;
-    //  box-sizing: border-box;
-    //  background: url('../img/down.png') center right no-repeat #fff;
-    //  padding-right: 38px;
-    //}
-    //select,
-    //input {
-    //  height: 35px;
-    //}
-
-    & select:read-only,
-    & input:read-only {
-      border-color: #cdd0d4 !important;
-    }
-    & select[disabled] {
-      background-color: #eee;
-    }
-    //& input#phoneNumberCode {
-    //  left: 38px;
-    //  width: 62px !important;
-    //  border-radius: 3px;
-    //}
-    //& input#phoneNumber {
-    //  right: 0;
-    //}
-    //& input#phoneNumberCode,
-    //& input#phoneNumber {
-    //  position: absolute;
-    //  top: 0;
-    //  height: 25px;
-    //  margin-left: 0;
-    //  padding: 4px;
-    //}
-    & .header {
-      display: flex;
-      justify-content: space-between;
-      height: 55px;
-      padding: 0 30px;
-      h1 {
-        font-weight: 900;
-      }
-      & .header_step {
-        color: #aab2bd;
-      }
-    }
-    & .body {
-      padding: 1em 20px 1em 35px;
-      overflow-y: scroll;
-      & .block {
-        font-size: .9em;
-      }
-      & h2 {
-        margin: 0;
-        margin-top: 20px;
-        font-size: 1.6em;
-      }
-      & p, label {
-        font-size: 1.1em;
-      }
-      & input {
-        border: 1px solid #cdd0d4;
-        border-radius: 3px;
-        padding: 0 .5em;
-      }
-      & ul.info,
-      & ul.hidden-partner {
-        margin-top: 15px;
-        padding: 0 15px;
-        & li {
-          display: flex;
-          align-items: center;
-          padding: .5em 0;
-          & .label-wrapp {
-            position: relative;
-            width: 55%;
-            &::after {
-              position: absolute;
-              left: 3px;
-              bottom: 3px;
-              display: block;
-              width: 95%;
-              height: 2px;
-              background-image: radial-gradient(circle, #656d78 .6px, transparent 1px);
-              background-repeat: repeat-x;
-              background-size: 5px 2px;
-              content: '';
-            }
-          }
-          & label {
-            position: relative;
-            padding-right: 5px;
-            font-weight: 900;
-            background-color: #fff;
-            z-index: 2;
-          }
-          & input,
-          & select,
-          & .select2,
-          & .phone,
-          & .money_block {
-            min-width: auto;
-            width: 65% !important;
-          }
-          & .input {
-            width: 65% !important;
-            & input,
-            & select,
-            & .select2,
-            & select[disabled] {
-              margin-left: 0;
-            }
-            & input {
-              width: 94% !important;
-            }
-            & select,
-            & .select2 {
-              width: 100% !important;
-            }
-          }
-          & input {
-            margin-left: 12px;
-          }
-          & select {
-            margin-left: 3px;
-          }
-          & select[disabled] {
-            margin-left: 7px;
-          }
-          & .phone .select2 {
-            width: 100% !important;
-          }
-          & .select2-search__field {
-            margin-left: 0;
-            padding: 0;
-            border: none;
-          }
-          &.select2-selection__choice {
-            padding: .2em .5em;
-          }
-        }
-      }
-      & ul.hidden-partner {
-        width: 100%;
-        padding: 0;
-        & .money_block .input {
-          display: flex;
-          flex-wrap: wrap;
-          width: 100% !important;
-          & input {
-            width: 43% !important;
-            margin-left: 0;
-            height: 33px;
-          }
-          & select {
-            width: 50% !important;
-          }
-        }
-      }
-      & .upload-photo {
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        padding: 1em .5em;
-        & .anketa-photo {
-          flex-shrink: 0;
-          width: 100px;
-          height: 100px;
-          border: 3px solid #b3d7e8;
-          border-radius: 50%;
-          overflow: hidden;
-        }
-        & .anketa-photo:hover {
-          box-shadow: 0 0 0 2px #43b0db;
-        }
-        & input {
-          width: 30px;
-        }
-        #file_upload {
-          position: relative;
-          padding-left: 50px;
-          color: #333;
-          background-color: transparent;
-          &::before {
-            position: absolute;
-            top: .2em;
-            left: .2em;
-            color: #aab2bd;
-            font: 2em FontAwesome;
-            content: "\f093";
-          }
-        }
-        & .btn-wrap {
-          margin-left: 15px;
-        }
-      }
-    }
-    .first_step .body {
-      height: ~'calc(100% - 195px)';
-      ul.info {
-        padding-left: 0;
-      }
-    }
-    .second_step .body {
-      height: ~'calc(100% - 215px)';
-    }
-    & .btn-block {
-      display: flex;
-      justify-content: flex-start;
-      flex-wrap: wrap;
-      height: 55px;
-      padding: 30px 0;
-      & button {
+      .pop_cont{
         position: relative;
-        padding: 20px 70px;
+        padding:0;
+        .popup_text{
+          display: flex;
+          justify-content: space-between;
+          box-shadow: 0 4px 14px -2px grey;
+          height: auto;
+          padding:25px 2em;
+          h3{
+            margin-left:15px;
+            color: rgba(160, 160, 160, 0.67);
+            font-size: 1.5em;
+            line-height: 1.4;
+            text-transform: lowercase;
+          }
+        }
+        .popup_body{
+          padding: 0 2em;
+          padding-bottom:50px;
+        }
       }
-      & button::before {
-        display: block;
-        font: 1.2em FontAwesome;
-        margin-top: .1em;
-        position: absolute;
-        top: 17px;
-        left: 15px;
-        width: 19px;
-        height: 19px;
-      }
-      & .closeForm::before {
+    }
+    .btn-block {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      height: 100%;
+      width: 100%;
+      box-shadow: 0 -4px 14px -2px grey;
+      position: relative;
+      padding: 25px 0;
+      z-index: 5;
+      .closeForm::before {
         content: '\f00d';
       }
-      & .nextForm::before {
+      .nextForm::before {
         content: '\f178';
       }
-      & a {
+      a, button{
         position: relative;
         display: block;
         font-size: 1.1em;
+        height: 39px;
+        line-height: 39px;
         &::before {
-          font: 1.4em FontAwesome;
+          font: 1.2em FontAwesome;
           position: absolute;
-          top: .9em;
-          left: 1em;
-          display: block;
+          left: 1.5em;
+          top:50%;
+          transform: translateY(-50%);
         }
       }
-      & .prevForm {
+      .prevForm {
         color: #3caeda;
         padding: 0 0 15px 65px;
         margin-left: 10px;
         &::before {
           content: '\f177';
-          top: -0.15em;
-          left: 28px;
         }
         &:hover {
           text-decoration: underline;
@@ -1094,8 +945,7 @@ button{
       }
       .btn {
         background-color: #aab2bd;
-        margin-left: 32px;
-        padding: 20px 70px;
+        padding: 0px 20px 0px 45px;
         color: #fff;
         border-radius: 4px;
         border: 0;
@@ -1103,28 +953,19 @@ button{
         cursor: pointer;
         &:hover {
           background-color: #3caeda;
+          text-decoration: none;
         }
       }
     }
+
     .second_step {
       .header {
         box-shadow: 0 4px 14px -2px #808080;
       }
-      .btn-block {
-        box-shadow: 0 -4px 14px -2px grey;
-      }
       .btn,
       button {
-        margin-left: 36px;
-      }
-      .btn-block {
-        position: relative;
-        padding-top: 50px;
-        z-index: 5;
-        .prevForm {
-          position: absolute;
-          top: 20px;
-        }
+        padding-top:0;
+        padding-bottom:0;
       }
       //Checkbox
       .input_checkbox {
@@ -1173,6 +1014,18 @@ button{
       }
       .user {
         color: #aab2bd;
+      }
+      .popup_text{
+        margin-bottom:0;
+        position: relative;
+        z-index: 2;
+      }
+      .popup_body{
+        height: calc(100vh - (100px + 30px + 48px));
+        margin-bottom:0;
+        overflow-y: scroll;
+        position: relative;
+        z-index: 1;
       }
     }
     .select2-search__field{

@@ -146,7 +146,7 @@
         if (!flag) {
                showPopup(`Обязательные поля не заполнены либо введены некорректные данные`);
            } else {
-               $(this).closest('form').css("transform","translate3d(-520px, 0px, 0px)");
+               $(this).closest('form').addClass('active');
                let user = `${$('#last_name').val()} ${$('#first_name').val()} ${$('#middle_name').val()}`;
                $('.second_step').find('.user').html(user);
         }
@@ -154,7 +154,7 @@
 
     $('.btn-block').find('.prevForm').on('click', function (e) {
         e.preventDefault();
-        $(this).closest('form').css("transform","translate3d(0px, 0px, 0px)");
+        $(this).closest('form').removeClass('active');
     });
 
     $("#createUser").find('input').each(function () {
