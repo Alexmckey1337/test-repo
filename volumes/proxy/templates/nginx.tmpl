@@ -208,6 +208,13 @@ server {
 	include /etc/nginx/vhost.d/default;
 	{{ end }}
 
+	location /static/ {
+		alias /app/public/static/;
+	}
+	location /media/ {
+		alias /app/public/media/;
+	}
+
 	location / {
 		{{ if eq $proto "uwsgi" }}
 		include uwsgi_params;
@@ -220,11 +227,11 @@ server {
 		auth_basic	"Restricted {{ $host }}";
 		auth_basic_user_file	{{ (printf "/etc/nginx/htpasswd/%s" $host) }};
 		{{ end }}
-                {{ if (exists (printf "/etc/nginx/vhost.d/%s_location" $host)) }}
-                include {{ printf "/etc/nginx/vhost.d/%s_location" $host}};
-                {{ else if (exists "/etc/nginx/vhost.d/default_location") }}
-                include /etc/nginx/vhost.d/default_location;
-                {{ end }}
+		{{ if (exists (printf "/etc/nginx/vhost.d/%s_location" $host)) }}
+		include {{ printf "/etc/nginx/vhost.d/%s_location" $host}};
+		{{ else if (exists "/etc/nginx/vhost.d/default_location") }}
+		include /etc/nginx/vhost.d/default_location;
+		{{ end }}
 	}
 }
 
@@ -246,6 +253,13 @@ server {
 	include /etc/nginx/vhost.d/default;
 	{{ end }}
 
+	location /static/ {
+		alias /app/public/static/;
+	}
+	location /media/ {
+		alias /app/public/media/;
+	}
+
 	location / {
 		{{ if eq $proto "uwsgi" }}
 		include uwsgi_params;
@@ -257,11 +271,11 @@ server {
 		auth_basic	"Restricted {{ $host }}";
 		auth_basic_user_file	{{ (printf "/etc/nginx/htpasswd/%s" $host) }};
 		{{ end }}
-                {{ if (exists (printf "/etc/nginx/vhost.d/%s_location" $host)) }}
-                include {{ printf "/etc/nginx/vhost.d/%s_location" $host}};
-                {{ else if (exists "/etc/nginx/vhost.d/default_location") }}
-                include /etc/nginx/vhost.d/default_location;
-                {{ end }}
+		{{ if (exists (printf "/etc/nginx/vhost.d/%s_location" $host)) }}
+		include {{ printf "/etc/nginx/vhost.d/%s_location" $host}};
+		{{ else if (exists "/etc/nginx/vhost.d/default_location") }}
+		include /etc/nginx/vhost.d/default_location;
+		{{ end }}
 	}
 }
 
