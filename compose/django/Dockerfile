@@ -28,7 +28,7 @@ RUN sed -i 's/\r//' /entrypoint.sh \
     && chown django /daphne.sh \
     && chmod +x /asgi_worker.sh \
     && chown django /asgi_worker.sh
-COPY /compose/django/conf.d/* /etc/nginx/conf.d
+COPY ./compose/django/conf.d/* /etc/nginx/conf.d/
 
 WORKDIR /app
 
