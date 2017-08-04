@@ -300,6 +300,10 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
             return self.queryset.for_user(self.request.user).annotate(count_users=Count('uusers'))
         return self.queryset.for_user(self.request.user)
 
+    def perform_create(self, serializer):
+        serializer.save()
+        print(serializer.data)
+
     @detail_route(methods=['post'])
     def add_user(self, request, pk):
         home_group = get_object_or_404(HomeGroup, pk=pk)
@@ -406,3 +410,5 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
             raise exceptions.ValidationError(
                 {'detail': _('Невозможно удалить пользователя.'
                              'Пользователь не принадлежит к данной Домашней Группе.')})
+
+

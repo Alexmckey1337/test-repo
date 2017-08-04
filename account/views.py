@@ -75,7 +75,7 @@ class UserPagination(PageNumberPagination):
 
 
 class DuplicatesAvoidedPagination(PageNumberPagination):
-    page_size = 10000
+    page_size = 10
     page_size_query_param = 'page_size'
 
     def get_paginated_response(self, data):
@@ -417,6 +417,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
             users.append(User.objects.get(phone_number__contains=request.query_params.get('phone_number')))
 
         users = list(set([user for user in users if users.count(user) == count]))
+
         page = self.paginate_queryset(users)
         if page is not None:
             users = self.get_serializer(page, many=True)

@@ -26,10 +26,12 @@ class UserFilter(django_filters.FilterSet):
                                                       help_text=_('Master'))
     department = django_filters.ModelChoiceFilter(name="departments", queryset=Department.objects.all(),
                                                   help_text=_('Department'))
+    repentance_date_from = django_filters.DateFilter(name='repentance_date', lookup_expr='gte')
+    repentance_date_to = django_filters.DateFilter(name='repentance_date', lookup_expr='lte')
 
     class Meta:
         model = User
-        fields = ['master', 'hierarchy', 'department']
+        fields = ['master', 'hierarchy', 'department', 'repentance_date_from', 'repentance_date_to']
 
 
 class ShortUserFilter(django_filters.FilterSet):
