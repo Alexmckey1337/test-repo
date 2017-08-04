@@ -239,6 +239,7 @@ class DealPaymentView(LoginRequiredMixin, DetailView):
 
         ctx['payments'] = self.object.payments.base_queryset().annotate_manager_name()
         # TODO test
+        ctx['currencies'] = Currency.objects.all()
         ctx['partners'] = Partnership.objects.annotate_full_name().filter(
             pk__in=Partnership.objects.exclude(pk=self.object.partnership.id)[:11].values_list('id', flat=True))
 
