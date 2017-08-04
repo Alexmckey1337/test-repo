@@ -1026,16 +1026,20 @@ function createHomeGroupUsersTable(config = {}, id) {
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINHomeGroups').html(rendered).on('click', '.delete_btn', function () {
-            let ID = $(this).closest('td').find('a').data('id');
-            deleteUserINHomeGroup($('#home_group').data('id'), ID).then(() => {
-                createHomeGroupUsersTable(config = {}, id)
-            });
+            let ID = $(this).closest('td').find('a').data('id'),
+                userName = $(this).closest('td').find('a').text();
+            initDeleteUserINHomeGroup(id, ID, userName);
+            // deleteUserINHomeGroup($('#home_group').data('id'), ID).then(() => {
+            //     createHomeGroupUsersTable(config = {}, id)
+            // });
         });
         $('.quick-edit').on('click', function () {
-            let user_id = $(this).closest('.edit').find('a').data('id');
-            deleteUserINHomeGroup(id, user_id).then(function () {
-                createHomeGroupUsersTable(config, id);
-            })
+            let ID = $(this).closest('.edit').find('a').data('id'),
+                userName = $(this).closest('td').find('a').text();
+            initDeleteUserINHomeGroup(id, ID, userName);
+            // deleteUserINHomeGroup(id, user_id).then(function () {
+            //     createHomeGroupUsersTable(config, id);
+            // })
         });
         makeSortForm(filterData.user_table);
         let paginationConfig = {
@@ -1049,6 +1053,20 @@ function createHomeGroupUsersTable(config = {}, id) {
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createHomeGroupUsersTable, ".table-wrap th");
     })
+}
+
+function initDeleteUserINHomeGroup(id, ID, userName) {
+    let content = `
+                    <div class="block">
+                        <p>Вы действительно хотите удалить пользователя ${userName} из домашней группы?</p>
+                    </div>`;
+    function deleteUser() {
+        deleteUserINHomeGroup(id, ID).then(() => {
+            let config = {};
+            createHomeGroupUsersTable(config, id)
+        });
+    }
+    showConfirmPopup(content, 'Подтверждение удаления из домашней группы', deleteUser);
 }
 
 function addHomeGroupToDataBase(config = {}) {
@@ -1981,6 +1999,45 @@ function showStatPopup(body, title, callback) {
 
     $('#close_pop').on('click', function () {
         $('.pop-up__stats').css('display', 'none').remove();
+    });
+}
+
+function showConfirmPopup(body, title, callback) {
+    title = title || 'Информационное сообщение';
+    let popup = document.getElementById('create_pop');
+    if (popup) {
+        popup.parentElement.removeChild(popup)
+    }
+    let div = document.createElement('div');
+
+    let html = `<div class="pop_cont" >
+        <div class="top-text">
+            <h3>${title}</h3><span id="close_pop">×</span></div>
+            <div class="main-text">${body}</div>
+            <div class="btn_block">
+                <button class="cancel">Отменить</button>
+                <button class="ok">Подтвердить</button>
+            </div>
+        </div>`;
+    $(div)
+        .html(html)
+        .attr({
+            id: "create_pop"
+        })
+        .addClass('pop-up__confirm');
+    $(div).find('.ok').on('click', function (e) {
+        e.preventDefault();
+        callback();
+        $('.pop-up__confirm').css('display', 'none').remove();
+    });
+    $(div).find('.cancel').on('click', function (e) {
+        e.preventDefault();
+        $('.pop-up__confirm').css('display', 'none').remove();
+    });
+    $('body').append(div);
+
+    $('#close_pop').on('click', function () {
+        $('.pop-up__confirm').css('display', 'none').remove();
     });
 }
 
@@ -3612,26 +3669,6 @@ function getDeals(options = {}) {
     if (typeof url === "string") {
         return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
     }
-
-
-
-
-
-    // let data = {
-    //     url: URLS.deal.list(),
-    //     data: config
-    // };
-    // return new Promise(function (resolve, reject) {
-    //     let codes = {
-    //         200: function (data) {
-    //             resolve(data);
-    //         },
-    //         400: function (data) {
-    //             reject(data);
-    //         }
-    //     };
-    //     newAjaxRequest(data, codes, reject);
-    // });
 }
 
 let sumChangeListener = (function () {

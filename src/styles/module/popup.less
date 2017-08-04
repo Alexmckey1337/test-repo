@@ -1312,3 +1312,40 @@ button{
     z-index: 10000;
   }
 }
+
+.pop-up__confirm {
+  .block {
+    margin: 20px 0;
+    p {
+      line-height: 1.3em;
+    }
+  }
+  .btn_block {
+    display: flex;
+    justify-content: flex-end;
+    button {
+      position: relative;
+      &::before {
+        content: '';
+        position: absolute;
+        top: 11px;
+        left: 15px;
+        width: 19px;
+        height: 19px;
+      }
+    }
+    .ok {
+      &::before {
+        content: '\f00c'!important;
+        font: 1.4em FontAwesome;
+      }
+    }
+    .cancel {
+      margin-right: 10px;
+      &::before {
+        content: '\f00d'!important;
+        font: 1.4em FontAwesome;
+      }
+    }
+  }
+}
