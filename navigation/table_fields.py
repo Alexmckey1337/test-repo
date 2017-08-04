@@ -36,6 +36,17 @@ def _filter_deals_columns(table_columns):
 
 
 @check_user_table_exist
+def payment_table(user, prefix_ordering_title=''):
+    table_columns = _filter_payment_columns(user.table.columns.select_related('columnType'))
+
+    return _get_result_table(table_columns, prefix_ordering_title)
+
+
+def _filter_payment_columns(table_columns):
+    return table_columns.filter(columnType__category__title='payment')
+
+
+@check_user_table_exist
 def meeting_table(user, category_title=None):
     table_columns = _filter_meeting_columns(user.table.columns.select_related('columnType'), category_title)
 
