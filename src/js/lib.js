@@ -3612,26 +3612,6 @@ function getDeals(options = {}) {
     if (typeof url === "string") {
         return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
     }
-
-
-
-
-
-    // let data = {
-    //     url: URLS.deal.list(),
-    //     data: config
-    // };
-    // return new Promise(function (resolve, reject) {
-    //     let codes = {
-    //         200: function (data) {
-    //             resolve(data);
-    //         },
-    //         400: function (data) {
-    //             reject(data);
-    //         }
-    //     };
-    //     newAjaxRequest(data, codes, reject);
-    // });
 }
 
 let sumChangeListener = (function () {

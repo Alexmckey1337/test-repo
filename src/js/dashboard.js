@@ -74,7 +74,7 @@
         }
 
         function init(id) {
-            Promise.all([getChurchStats(id), getHomeGroupStats(id), getChurchData(id), getUsersData(id)]).then(values => {
+            Promise.all([getHomeGroupStats(id), getChurchData(id), getUsersData(id)]).then(values => {
                 let data = {};
                 for (let i = 0; i < values.length; i++) {
                     Object.assign(data, values[i]);
