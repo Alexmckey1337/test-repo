@@ -304,3 +304,9 @@ class HomeGroupIdSerializer(serializers.ModelSerializer):
     class Meta:
         model = HomeGroup
         fields = ('home_group_id',)
+
+
+class DuplicatesAvoidedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'last_name', 'first_name', 'middle_name', 'phone_number')

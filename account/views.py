@@ -40,9 +40,10 @@ from hierarchy.serializers import DepartmentSerializer
 from navigation.table_fields import user_table
 from .resources import UserResource
 from .serializers import (
-    UserShortSerializer, UserTableSerializer, UserSingleSerializer,
-    PartnershipSerializer, ExistUserSerializer, UserCreateSerializer, DashboardSerializer
+    UserShortSerializer, UserTableSerializer, UserSingleSerializer, PartnershipSerializer, ExistUserSerializer,
+    UserCreateSerializer, DashboardSerializer, DuplicatesAvoidedSerializer,
 )
+from django.db.models.functions import Length
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +70,17 @@ class UserPagination(PageNumberPagination):
             },
             'count': self.page.paginator.count,
             'user_table': user_table(self.request.user),
+            'results': data
+        })
+
+
+class DuplicatesAvoidedPagination(PageNumberPagination):
+    page_size = 10000
+    page_size_query_param = 'page_size'
+
+    def get_paginated_response(self, data):
+        return Response({
+            'count': self.page.paginator.count,
             'results': data
         })
 
@@ -354,6 +366,64 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
 
         result = self.serializer_class(result)
         return Response(result.data)
+
+    @staticmethod
+    def check_duplicates(param):
+        def func(string, data):
+            string = string.lower()
+            result = []
+            while data:
+                value = data[0][0].lower()
+                count = 0
+                for num in range(len(string)):
+                    if value[num] != string[num]:
+                        count += 1
+                result.append([data[0], count])
+                data = data[1:]
+            return [var[0] for var in result if var[1] < 2]
+
+        qs = User.objects.annotate(str_len=Length(param[0])).filter(str_len=len(param[1]))
+        data = list(qs.values_list(param[0], 'id'))
+        duplicates = func(param[1], data)
+
+        return duplicates
+
+    @list_route(methods=['GET'], serializer_class=DuplicatesAvoidedSerializer,
+                pagination_class=DuplicatesAvoidedPagination)
+    def duplicates_avoided(self, request):
+        users = []
+        count = 0
+
+        if request.query_params.get('last_name'):
+            count += 1
+            duplicates = self.check_duplicates(['last_name', request.query_params.get('last_name')])
+            for user in duplicates:
+                users.append(User.objects.get(id=user[1]))
+
+        if request.query_params.get('first_name'):
+            count += 1
+            duplicates = self.check_duplicates(['first_name', request.query_params.get('first_name')])
+            for user in duplicates:
+                users.append(User.objects.get(id=user[1]))
+
+        if request.query_params.get('middle_name'):
+            count += 1
+            duplicates = self.check_duplicates(['middle_name', request.query_params.get('middle_name')])
+            for user in duplicates:
+                users.append(User.objects.get(id=user[1]))
+
+        if request.query_params.get('phone_number'):
+            count += 1
+            users.append(User.objects.get(phone_number__contains=request.query_params.get('phone_number')))
+
+        users = list(set([user for user in users if users.count(user) == count]))
+        page = self.paginate_queryset(users)
+        if page is not None:
+            users = self.get_serializer(page, many=True)
+            return self.get_paginated_response(users.data)
+
+        users = self.serializer_class(users, many=True)
+        return Response(users.data, status=status.HTTP_200_OK)
 
 
 class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
