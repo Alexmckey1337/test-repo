@@ -28,8 +28,8 @@
                     <li><a data-title="Отчеты" href="{% url 'events:main' %}" id="events__reports"
                                class="menu__item">Отчеты</a>
                             <ul class="sidebar-submenu">
-                                <li><a href="{% url 'events:church_report_list' %}">Отчёты церквей</a></li>
-                                <li><a href="{% url 'events:church_report_statistics' %}">Статистика церквей</a></li>
+{#                                <li><a href="{% url 'events:church_report_list' %}">Отчёты церквей</a></li>#}
+{#                                <li><a href="{% url 'events:church_report_statistics' %}">Статистика церквей</a></li>#}
                                 <li><a href="{% url 'events:meeting_report_list' %}">Отчёты домашних групп</a></li>
                                 <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних групп</a></li>
                             </ul>
@@ -44,11 +44,11 @@
                                     {% if user.can_see_partners %}
                                         <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
                                     {% endif %}
+                                    {% if user.can_see_deal_payments %}
+                                        <li><a href="{% url 'partner:payments' %}">{% trans "Платежи" %}</a></li>
+                                    {% endif %}
                                     {% if user.can_see_partner_stats %}
                                         <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
-                                    {% endif %}
-                                    {% if user.can_see_deal_payments %}
-                                        <li><a href="{% url 'partner:payments' %}">{% trans "Payments" %}</a></li>
                                     {% endif %}
                                 </ul>
                             </li>

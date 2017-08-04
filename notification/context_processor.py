@@ -11,7 +11,7 @@ def notifications(request):
     birthdays = Notification.objects.filter(date=date)
 
     try:
-        r = redis.StrictRedis(host='localhost', port=6379, db=0)
+        r = redis.StrictRedis(host='redis', port=6379, db=0)
         ticket_ids = r.smembers('summit:ticket:{}'.format(request.user.id))
         tickets = SummitTicket.objects.filter(id__in=ticket_ids)
     except Exception as err:

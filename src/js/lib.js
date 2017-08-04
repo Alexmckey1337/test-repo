@@ -3586,9 +3586,9 @@ function showPayments(id) {
             payments_table += `<tr><td>${sum}</td><td>${date_time}</td><td>${manager}</td></tr>`
         });
         $('#popup-payments table').html(payments_table);
-        let detail_url = $('#popup-payments .detail').data('detail-url').replace('0', id);
-        console.log(detail_url);
-        $('#popup-payments .detail').attr('data-detail-url', detail_url);
+        // let detail_url = $('#popup-payments .detail').data('detail-url').replace('0', id);
+        // console.log(detail_url);
+        // $('#popup-payments .detail').attr('data-detail-url', detail_url);
         $('#popup-payments').css('display', 'block');
     })
 }
