@@ -1,15 +1,12 @@
 (function ($) {
     let filterInit = (function () {
         let init = false;
-        const USER_ID = $('body').data('user');
         return function () {
             if (!init) {
-                getHGLeaders({
-                    master_tree: USER_ID
-                }).then(res => {
+                getHGLeaders().then(res => {
                     const leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
-                    $('#tree_filter').html('<option>ВСЕ</option>').append(leaders);
-                    $('#leader_filter').html('<option>ВСЕ</option>').append(leaders);
+                    $('#tree_filter').html('<option value="">ВСЕ</option>').append(leaders);
+                    $('#leader_filter').html('<option value="">ВСЕ</option>').append(leaders);
                 });
                 init = true;
             }
@@ -106,8 +103,8 @@
         }
         getHGLeaders(config).then(function (data) {
             const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
-            $('#tree_filter').html('<option>ВСЕ</option>').append(pastors);
-            $('#leader_filter').html('<option>ВСЕ</option>').append(pastors);
+            $('#tree_filter').html('<option value="">ВСЕ</option>').append(pastors);
+            $('#leader_filter').html('<option value="">ВСЕ</option>').append(pastors);
         })
     });
     $treeFilter.on('change', function () {
@@ -120,7 +117,7 @@
         }
         getHGLeaders(config).then(function (data) {
             const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
-            $('#leader_filter').html('<option>ВСЕ</option>').append(pastors);
+            $('#leader_filter').html('<option value="">ВСЕ</option>').append(pastors);
         });
     });
 })(jQuery);

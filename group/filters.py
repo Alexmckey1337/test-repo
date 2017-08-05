@@ -104,6 +104,8 @@ class FilterHGLeadersByMasterTree(BaseFilterBackend):
         if not master_tree_id and not master.is_staff:
             return master
         try:
+            if master.is_staff:
+                return CustomUser.objects.get(pk=master_tree_id)
             return master.get_descendants(include_self=True).get(pk=master_tree_id)
         except ValueError:
             raise exceptions.ValidationError({'detail': _("master_tree_id is incorrect.")})
