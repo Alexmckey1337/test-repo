@@ -9,7 +9,7 @@ from django.contrib.auth.models import User, UserManager
 from django.contrib.postgres.fields import ArrayField
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models import signals
+from django.db.models import signals, Subquery
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
@@ -24,6 +24,7 @@ from account.permissions import (
     can_create_user, can_export_user_list, can_see_user_list, can_edit_status_block,
     can_edit_description_block, can_see_account_page)
 from group.abstract_models import GroupUserPermission
+from group.models import Church
 from navigation.models import Table
 from partnership.abstract_models import PartnerUserPermission
 from partnership.permissions import can_edit_partner_block, can_see_partner_block, can_see_deal_block
@@ -131,15 +132,6 @@ class CustomUser(MPTTModel, LogModel, User, CustomUserAbstract,
     @property
     def link(self):
         return self.get_absolute_url()
-
-    def get_church(self):
-        home_group = self.hhome_group
-        if home_group:
-            return home_group.church
-        church = self.cchurch
-        if church:
-            return church
-        return None
 
     @property
     def column_table(self):

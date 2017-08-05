@@ -1412,8 +1412,8 @@ function getResponsibleBYHomeGroup(userID = null) {
 function getResponsibleBYHomeGroupSupeMegaNew(config) {
     let masterTree = (config.userId) ? config.userId : $('body').data('user');
     return new Promise(function (resolve, reject) {
-        let url = URLS.home_group.available_leaders();
-        ajaxRequest(url, {master_tree: masterTree, department_id: config.departmentId}, function (data) {
+        let url = URLS.home_group.potential_leaders();
+        ajaxRequest(url, {master_tree: masterTree, department: config.departmentId}, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1423,9 +1423,9 @@ function getResponsibleBYHomeGroupSupeMegaNew(config) {
     })
 }
 
-function getResponsibleBYHomeGroupNew(config) {
+function getPotentialLeadersForHG(config) {
     return new Promise(function (resolve, reject) {
-        let url = URLS.home_group.available_leaders();
+        let url = URLS.home_group.potential_leaders();
         ajaxRequest(url, config, function (data) {
             if (data) {
                 resolve(data);
@@ -3452,9 +3452,9 @@ function getPastorsByDepartment(config) {
     });
 }
 
-function getLeadersByChurch(config = {}) {
+function getHGLeaders(config = {}) {
     let data = {
-        url: URLS.home_group.available_leaders(),
+        url: URLS.home_group.leaders(),
         data: config
     };
     return new Promise(function (resolve, reject) {

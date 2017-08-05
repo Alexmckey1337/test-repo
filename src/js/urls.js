@@ -109,7 +109,8 @@ const HOME_GROUP = {
     del_user: (groupId) => `/api/v1.0/home_groups/${groupId}/del_user/`,
     add_user: (groupId) => `/api/v1.0/home_groups/${groupId}/add_user/`,
     for_select: () => `/api/v1.0/home_groups/for_select/`,
-    available_leaders: () => `/api/v1.0/home_groups/available_leaders/`,
+    leaders: () => `/api/v1.0/home_groups/leaders/`,
+    potential_leaders: () => `/api/v1.0/home_groups/potential_leaders/`,
 };
 
 const PAYMENT = {

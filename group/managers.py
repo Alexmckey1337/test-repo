@@ -9,6 +9,8 @@ class ChurchQuerySet(models.query.QuerySet):
     def for_user(self, user):
         if not is_authenticated(user):
             return self.none()
+        if user.is_staff:
+            return self
         return self.filter(pastor__in=user.get_descendants(include_self=True))
 
 
@@ -30,6 +32,8 @@ class HomeGroupQuerySet(models.query.QuerySet):
     def for_user(self, user):
         if not is_authenticated(user):
             return self.none()
+        if user.is_staff:
+            return self
         return self.filter(leader__in=user.get_descendants(include_self=True))
 
 
