@@ -43,7 +43,7 @@ from .serializers import (
     UserShortSerializer, UserTableSerializer, UserSingleSerializer, PartnershipSerializer, ExistUserSerializer,
     UserCreateSerializer, DashboardSerializer, DuplicatesAvoidedSerializer,
 )
-from django.db.models.functions import Length
+from django.contrib.postgres.search import TrigramSimilarity
 
 logger = logging.getLogger(__name__)
 
@@ -371,56 +371,34 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         result = self.serializer_class(result)
         return Response(result.data)
 
-    @staticmethod
-    def check_duplicates(param):
-        def func(string, data):
-            string = string.lower()
-            result = []
-            while data:
-                value = data[0][0].lower()
-                count = 0
-                for num in range(len(string)):
-                    if value[num] != string[num]:
-                        count += 1
-                result.append([data[0], count])
-                data = data[1:]
-            return [var[0] for var in result if var[1] < 2]
-
-        qs = User.objects.annotate(str_len=Length(param[0])).filter(str_len=len(param[1]))
-        data = list(qs.values_list(param[0], 'id'))
-        duplicates = func(param[1], data)
-
-        return duplicates
-
     @list_route(methods=['GET'], serializer_class=DuplicatesAvoidedSerializer,
                 pagination_class=DuplicatesAvoidedPagination)
     def duplicates_avoided(self, request):
+        valid_keys = ['last_name', 'first_name', 'middle_name']
+        params = [(k, v) for (k, v) in request.query_params.items() if k in valid_keys]
+
         users = []
         count = 0
-
-        if request.query_params.get('last_name'):
+        for k, v in params:
             count += 1
-            duplicates = self.check_duplicates(['last_name', request.query_params.get('last_name')])
-            for user in duplicates:
-                users.append(User.objects.get(id=user[1]))
-
-        if request.query_params.get('first_name'):
-            count += 1
-            duplicates = self.check_duplicates(['first_name', request.query_params.get('first_name')])
-            for user in duplicates:
-                users.append(User.objects.get(id=user[1]))
-
-        if request.query_params.get('middle_name'):
-            count += 1
-            duplicates = self.check_duplicates(['middle_name', request.query_params.get('middle_name')])
-            for user in duplicates:
-                users.append(User.objects.get(id=user[1]))
+            users += User.objects.annotate(similarity=TrigramSimilarity(k, v)).filter(similarity__gt=0.5)
 
         if request.query_params.get('phone_number'):
             count += 1
-            users.append(User.objects.get(phone_number__contains=request.query_params.get('phone_number')))
+            users += User.objects.filter(phone_number__contains=request.query_params.get('phone_number'))
 
-        users = list(set([user for user in users if users.count(user) == count]))
+        def get_duplicates(users, count):
+            _dict = {}
+            for user in users:
+                if user not in _dict:
+                    _dict[user] = 1
+                else:
+                    _dict[user] += 1
+
+            return [(x, y) for (x, y) in _dict.items() if y == count]
+
+        users_list = get_duplicates(users, count)
+        users = [user[0] for user in users_list]
 
         page = self.paginate_queryset(users)
         if page is not None:
