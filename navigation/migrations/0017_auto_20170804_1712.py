@@ -13,16 +13,32 @@ def create_payment_columns(apps, schema_editor):
 
     Payment_columns.objects.bulk_create([
         Payment_columns(title='sent_date', verbose_title='Дата отправки', ordering_title='sent_date', number=1,
-                        active=True, editable=True, category_id=payment.id),
+                        active=True, editable=False, category_id=payment.id),
         Payment_columns(title='sum', verbose_title='Сумма', ordering_title='sum', number=2,
                         active=True, editable=True, category_id=payment.id),
         Payment_columns(title='manager', verbose_title='Менеджер', ordering_title='manager__user__last_name',
                         number=3, active=True, editable=True, category_id=payment.id),
         Payment_columns(title='description', verbose_title='Примечание', ordering_title='description',
                         number=4, active=True, editable=True, category_id=payment.id),
+        Payment_columns(title='purpose_fio', verbose_title='Примечание',
+                        ordering_title='deals__partnership__user__last_name',
+                        number=5, active=True, editable=True, category_id=payment.id),
+        Payment_columns(title='purpose_date', verbose_title='Примечание', ordering_title='deals__date_created',
+                        number=6, active=True, editable=True, category_id=payment.id),
+        Payment_columns(title='purpose_manager_fio', verbose_title='Примечание',
+                        ordering_title='deals__partnership__responsible__user__last_name',
+                        number=7, active=True, editable=True, category_id=payment.id),
         Payment_columns(title='created_at', verbose_title='Дата создания', ordering_title='created_at',
-                        number=5, active=True, editable=False, category_id=payment.id),
+                        number=8, active=True, editable=True, category_id=payment.id),
     ])
+
+
+def delete_payments_columns(apps, schema_editor):
+    Deal_columns = apps.get_model("navigation", "ColumnType")
+    Category = apps.get_model("navigation", "Category")
+
+    Deal_columns.objects.filter(category__title='payments').delete()
+    Category.objects.filter(title="deal").delete()
 
 
 class Migration(migrations.Migration):
@@ -31,4 +47,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(create_payment_columns, delete_payments_columns)
     ]

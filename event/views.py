@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 import logging
 
 from django.db import transaction, IntegrityError
-from django.db.models import IntegerField, Sum, When, Case, Count, OuterRef, Exists, Q, BooleanField
+from django.db.models import (IntegerField, Sum, When, Case, Count, OuterRef, Exists, Q,
+                              BooleanField, CharField, Value as V)
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status, filters, exceptions
 from rest_framework.decorators import list_route, detail_route
@@ -16,14 +17,14 @@ from account.models import CustomUser
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
 from .filters import (ChurchReportFilter, MeetingFilter, MeetingCustomFilter, MeetingFilterByMaster,
-                      ChurchReportDepartmentFilter, ChurchReportFilterByMaster,)
+                      ChurchReportDepartmentFilter, ChurchReportFilterByMaster, )
 from .models import Meeting, ChurchReport, MeetingAttend, ChurchReportPastor
 from .pagination import MeetingPagination, MeetingVisitorsPagination, ChurchReportPagination
 from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingDetailSerializer,
                           MeetingListSerializer, ChurchReportStatisticSerializer, ChurchReportPastorSerializer,
                           MeetingStatisticSerializer, ChurchReportSerializer,
                           ChurchReportListSerializer, MeetingDashboardSerializer,
-                          ChurchReportDetailSerializer, ChurchReportsDashboardSerializer,)
+                          ChurchReportDetailSerializer, ChurchReportsDashboardSerializer, )
 from payment.views_mixins import CreatePaymentMixin
 
 logger = logging.getLogger(__name__)
@@ -87,7 +88,11 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
             ).annotate(
                 can_submit=Case(
                     When(Q(status=True) & Q(can_s=True), then=False), output_field=BooleanField(), default=True)
-            )
+            ).annotate(
+                cant_submit_cause=Case(
+                    When(Q(status=True) & Q(can_s=True), then=V(
+                        'Невозможно подать отчет. Данный лидер имеет просроченные отчеты.')),
+                    output_field=CharField(), default=V('')))
 
         return self.queryset.for_user(self.request.user)
 

@@ -58,15 +58,13 @@ class PaymentShowSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(format='%d.%m.%Y %H:%M')
     sent_date = serializers.DateTimeField(format='%d.%m.%Y')
     purpose = PurposeRelatedField(read_only=True)
-    deal_created_at = serializers.CharField(source='purpose.partnership.user.fullname', read_only=True)
 
     class Meta:
         model = Payment
         fields = ('id', 'sum', 'effective_sum',
                   'sum_str', 'effective_sum_str', 'operation',
                   'currency_sum', 'currency_rate', 'rate', 'description',
-                  'created_at', 'sent_date', 'deal_created_at',
-                  'manager', 'purpose')
+                  'created_at', 'sent_date', 'manager', 'purpose')
 
 
 class PaymentShowWithUrlSerializer(serializers.HyperlinkedModelSerializer):
