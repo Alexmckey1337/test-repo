@@ -49,8 +49,10 @@ class OrderTable {
 }
 
 class DeleteUser {
-    constructor(id) {
+    constructor(id, userName, title) {
         this.user = id;
+        this.user_name = userName;
+        this.title = title;
     }
 
     deleteUser() {
@@ -73,12 +75,12 @@ class DeleteUser {
             popup.parentElement.removeChild(popup)
         }
 
-        let body = `<div class="pop_cont" >
+        let body = `<div class="pop_cont pop-up__confirm" >
             <div class="top-text">
                 <h3>Удаление пользователя</h3><span class="close_pop">×</span>
             </div>
                 <div class="main-text">
-                    <p>${(massage) ? massage : "Подтвердите удаление пользователя из церкви" }</p>
+                    <p>${(massage) ? massage : `Вы действительно хотите удалить пользователя ${this.user_name} из ${this.title}?` }</p>
                     ${(info) ? info : ''}
                     <div class="buttons"></div>
                 </div>
@@ -98,8 +100,8 @@ class DeleteUser {
 }
 
 class DeleteChurchUser extends DeleteUser {
-    constructor(userId, churchId, callback) {
-        super(userId);
+    constructor(userId, churchId, callback, userName, title) {
+        super(userId, userName, title);
         this.church = churchId;
         this.callback = callback;
         this.delAll = false;
@@ -114,11 +116,12 @@ class DeleteChurchUser extends DeleteUser {
         let container = document.createElement('div');
         let btn = document.createElement('button');
         let cancel = document.createElement('button');
+        $(container).addClass('btn_block');
         (this.delAll) ?
-            $(btn).text('Удалить из домашних групп').on('click', this.deleteFromHomeGroup.bind(this)) :
-            $(btn).text('Подтвердить').on('click', this.deleteFromChurch.bind(this));
+            $(btn).text('Удалить из домашних групп').addClass('ok').on('click', this.deleteFromHomeGroup.bind(this)) :
+            $(btn).text('Подтвердить').addClass('ok').on('click', this.deleteFromChurch.bind(this));
         $(cancel).text('Отменить').addClass('close_pop');
-        $(container).append(btn).append(cancel);
+        $(container).append(cancel).append(btn);
         return container
     }
 
@@ -185,33 +188,51 @@ class DeleteChurchUser extends DeleteUser {
 }
 
 class DeleteHomeGroupUser extends DeleteUser {
-    constructor(userId, groupId, userName, callback) {
-        super(userId);
+    constructor(groupId, userId, callback, userName, title) {
+        super(userId, userName, title);
         this.home_group = groupId;
         this.callback = callback;
-        this.user_name = userName;
+        this.show_delete = true;
     }
 
     btn() {
+        if (!this.show_delete) {
+            return
+        }
         let container = document.createElement('div');
         let btn = document.createElement('button');
         let cancel = document.createElement('button');
-        $(btn).text('Подтвердить').on('click', this.deleteFromHomeGroup.bind(this));
+        $(container).addClass('btn_block');
+        $(btn).text('Подтвердить').addClass('ok').on('click', this.deleteFromHomeGroup.bind(this));
         $(cancel).text('Отменить').addClass('close_pop');
         $(container).append(cancel).append(btn);
         return container
     }
 
     deleteFromHomeGroup() {
-        let massage = 'Пользователь удален из домашней группы',
-            info = `<p>Вы действительно хотите удалить пользователя ${this.user_name} из домашней группы?</p>`;
-        deleteUserINHomeGroup(this.user, this.home_group).then(() => {
-            let config = {};
-            this.popup(massage, info);
-            console.log(massage);
-            console.log(info);
-            this.callback(config, this.user)
-        }).catch(err => {
+        let options = {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            }),
+            body: JSON.stringify({
+                user_id: this.user
+            })
+        };
+        return fetch(URLS.home_group.del_user(this.home_group), options)
+            .then(res => {
+                return (res.status == 204) ? res.status : res.json()
+            })
+            .then(data => {
+                if (data === 204) {
+                    this.show_delete = false;
+                    this.popup('Пользователь удален из домашней группы');
+                    this.callback();
+                }
+            })
+            .catch(err => {
+                this.show_delete = false;
                 this.popup(JSON.parse(err));
             });
     }
@@ -1021,8 +1042,9 @@ function createChurchesDetailsTable(config = {}, id, link) {
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINChurches').html(rendered).on('click', '.delete_btn', function () {
-            let ID = $(this).closest('td').find('a').data('id');
-            let DelUser = new DeleteChurchUser(ID, $('#church').data('id'), createChurchesDetailsTable);
+            let ID = $(this).closest('td').find('a').data('id'),
+                userName = $(this).closest('td').find('a').text(),
+                DelUser = new DeleteChurchUser(ID, $('#church').data('id'), createChurchesDetailsTable, userName, 'церкви');
             DelUser.popup();
 
         });
@@ -1061,12 +1083,8 @@ function createHomeGroupUsersTable(config = {}, id) {
         $('#tableUserINHomeGroups').html(rendered).on('click', '.delete_btn', function () {
             let ID = $(this).closest('td').find('a').data('id'),
                 userName = $(this).closest('td').find('a').text(),
-                DelUser = new DeleteHomeGroupUser(id, ID, userName, createHomeGroupUsersTable);
+                DelUser = new DeleteHomeGroupUser(id, ID, createHomeGroupUsersTable, userName, 'домашней группы');
             DelUser.popup();
-            // initDeleteUserINHomeGroup(id, ID, userName);
-            // deleteUserINHomeGroup($('#home_group').data('id'), ID).then(() => {
-            //     createHomeGroupUsersTable(config = {}, id)
-            // });
         });
         // $('.quick-edit').on('click', function () {
         //     let ID = $(this).closest('.edit').find('a').data('id'),
@@ -1088,20 +1106,6 @@ function createHomeGroupUsersTable(config = {}, id) {
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createHomeGroupUsersTable, ".table-wrap th");
     })
-}
-
-function initDeleteUserINHomeGroup(id, ID, userName) {
-    let content = `
-                    <div class="block">
-                        <p>Вы действительно хотите удалить пользователя ${userName} из домашней группы?</p>
-                    </div>`;
-    function deleteUser() {
-        deleteUserINHomeGroup(id, ID).then(() => {
-            let config = {};
-            createHomeGroupUsersTable(config, id)
-        });
-    }
-    showConfirmPopup(content, 'Подтверждение удаления из домашней группы', deleteUser);
 }
 
 function addHomeGroupToDataBase(config = {}) {
@@ -2036,78 +2040,6 @@ function showStatPopup(body, title, callback) {
         $('.pop-up__stats').css('display', 'none').remove();
     });
 }
-
-function showConfirmPopup(body, title, callback) {
-    title = title || 'Информационное сообщение';
-    let popup = document.getElementById('create_pop');
-    if (popup) {
-        popup.parentElement.removeChild(popup)
-    }
-    let div = document.createElement('div');
-
-    let html = `<div class="pop_cont" >
-        <div class="top-text">
-            <h3>${title}</h3><span id="close_pop">×</span></div>
-            <div class="main-text">${body}</div>
-            <div class="btn_block">
-                <button class="cancel">Отменить</button>
-                <button class="ok">Подтвердить</button>
-            </div>
-        </div>`;
-    $(div)
-        .html(html)
-        .attr({
-            id: "create_pop"
-        })
-        .addClass('pop-up__confirm')
-        .addClass('pop-up-universal');
-    $(div).find('.ok').on('click', function (e) {
-        e.preventDefault();
-        callback();
-        $('.pop-up__confirm').css('display', 'none').remove();
-    });
-    $(div).find('.cancel').on('click', function (e) {
-        e.preventDefault();
-        $('.pop-up__confirm').css('display', 'none').remove();
-    });
-    $('body').append(div);
-
-    $('#close_pop').on('click', function () {
-        $('.pop-up__confirm').css('display', 'none').remove();
-    });
-}
-
-// function showTablePopup(title) {
-//     title = title || 'Результаты поиска совпадений';
-//     let popup = document.getElementById('create_pop');
-//     if (popup) {
-//         popup.parentElement.removeChild(popup)
-//     }
-//     let div = document.createElement('div');
-//
-//     let html = `<div class="pop_cont" >
-//                     <div class="top-text">
-//                         <h3>${title}</h3><span id="close_pop">×</span>
-//                     </div>
-//                     <div class="main-text">
-//                         <div class="top-pag">
-//                             <div class="table__count"></div>
-//                             <div class="pagination duplicate_users__pagination"></div>
-//                         </div>
-//                         <div id="table_duplicate" class="table-wrap clearfix"></div>
-//                     </div>
-//             </div>`;
-//     $(div).html(html)
-//           .attr({
-//             id: "create_pop"
-//           })
-//           .addClass('pop-up__table');
-//     $('body').append(div);
-//
-//     $('#close_pop').on('click', function () {
-//         $('.pop-up__table').css('display', 'none').remove();
-//     });
-// }
 
 function showPopupAddUser(data) {
     let tmpl = document.getElementById('addUserSuccessPopup').innerHTML;
