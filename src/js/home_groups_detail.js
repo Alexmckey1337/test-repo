@@ -181,19 +181,13 @@
             });
             $(this).removeClass('active');
         } else {
-            // let church_id = $(this).closest('form').attr('data-id');
-            // let user_id = $('body').attr('data-user');
-            // let config = {
-            //     master_tree: user_id,
-            //     // church_id: church_id,
-            // };
-            let leaderId = $('#homeGroupLeader').val();
-
-             getResponsibleBYHomeGroup().then(function (res) {
-                    return res.map(function (leader) {
-                        return '<option value="' + leader.id + '" ' + (leaderId == leader.id ? 'selected' : '') + '>' + leader.fullname + '</option>';
-                    });
-                }).then(function (data) {
+            let leaderId = $('#homeGroupLeader').val(),
+                departmentId = $(this).closest('form').attr('data-departament_id');
+            getResponsibleBYHomeGroupSupeMegaNew({departmentId: departmentId})
+                .then(res => {
+                    return res.map(leader => `<option value="${leader.id}" ${(leaderId == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
+                })
+                .then(data => {
                     $('#homeGroupLeader').html(data).prop('disabled', false).select2();
                 });
             $input.each(function (i, el) {
