@@ -181,13 +181,13 @@
             });
             $(this).removeClass('active');
         } else {
-            let leaderId = $('#homeGroupLeader').val(),
-                departmentId = $(this).closest('form').attr('data-departament_id');
-            getResponsibleBYHomeGroupSupeMegaNew({departmentId: departmentId})
-                .then(res => {
-                    return res.map(leader => `<option value="${leader.id}" ${(leaderId == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
-                })
-                .then(data => {
+            let leaderId = $('#homeGroupLeader').val();
+
+             getPotentialLeadersForHG({church: $('#church').val()}).then(function (res) {
+                    return res.map(function (leader) {
+                        return '<option value="' + leader.id + '" ' + (leaderId == leader.id ? 'selected' : '') + '>' + leader.fullname + '</option>';
+                    });
+                }).then(function (data) {
                     $('#homeGroupLeader').html(data).prop('disabled', false).select2();
                 });
             $input.each(function (i, el) {

@@ -229,8 +229,8 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
         return qs.annotate(
             can_add=Case(
                 When(Q(hhome_group__isnull=True) &
-                     (Q(cchurch__isnull=True) | Q(cchurch_id=pk)) &
-                     Q(lft__gte=user.lft) & Q(rght__lte=user.rght) & Q(tree_id=user.tree_id),
+                     (Q(cchurch__isnull=True) | Q(cchurch_id=pk)),
+                     # & Q(lft__gte=user.lft) & Q(rght__lte=user.rght) & Q(tree_id=user.tree_id),
                      then=True), default=False, output_field=BooleanField()))
 
     def filter_potential_users_for_church(self, qs):
