@@ -14,7 +14,7 @@ def create_payment_columns(apps, schema_editor):
     Payment_columns.objects.bulk_create([
         Payment_columns(title='sent_date', verbose_title='Дата отправки', ordering_title='sent_date', number=1,
                         active=True, editable=False, category_id=payment.id),
-        Payment_columns(title='sum', verbose_title='Сумма', ordering_title='sum', number=2,
+        Payment_columns(title='sum_str', verbose_title='Сумма', ordering_title='sum', number=2,
                         active=True, editable=True, category_id=payment.id),
         Payment_columns(title='manager', verbose_title='Менеджер', ordering_title='manager__user__last_name',
                         number=3, active=True, editable=True, category_id=payment.id),
