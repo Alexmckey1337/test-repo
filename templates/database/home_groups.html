@@ -6,7 +6,7 @@
 {% block header.buttons.top %}
     <div class="top-buttons-wrap">
         <ul class="top-buttons">
-            {% if user.is_pastor_or_high and user.get_church %}
+            {% if user.can_create_home_group %}
                 <li>
                     <button id="add">Добавить группу</button>
                 </li>
@@ -112,7 +112,7 @@
             </div>
         </div>
     </div>
-    {% if user.is_pastor_or_high and user.get_church %}
+    {% if user.can_create_home_group %}
         <div class="popap" id='addHomeGroup'>
             <div class="pop_cont">
                 <div class="popup_text">
@@ -151,11 +151,29 @@
                             <div>
                                 <p><input id="added_home_group_date" required></p>
                                 <p class="end__block"><input type="text" id="added_home_group_title"></p>
-                                <p id="added_home_group_church" data-id="{{ user.get_church.id }}"
-                                   data-department="{{ user.get_church.department.id }}"
-                                   data-user="{{ user.id }}">
-                                    {{ user.get_church.get_title }}
+                                <p>
+                                {% if not user.is_staff %}
+                                    <input id="available_master_tree_id" type="hidden" value="{{ user.id }}">
+                                {% endif %}
+                                    <select id="added_home_group_church_select" required>
+                                        {% if user.is_staff %}
+                                            {% for church in churches %}
+                                                <option value="{{ church.id }}">{{ church.get_title }}</option>
+                                            {% endfor %}
+                                        {% else %}
+                                        {% for church in user.get_churches %}
+                                            <option value="{{ church.department_id }}">{{ church.get_title }}</option>
+                                        {% endfor %}
+                                        {% endif %}
+                                    </select>
                                 </p>
+                                {% comment %}
+                                    <p id="added_home_group_church" data-id="{{ user.get_church.id }}"
+                                       data-department="{{ user.get_church.department_id }}"
+                                       data-user="{{ user.id }}">
+                                        {{ user.get_church.get_title }}
+                                    </p>
+                                {% endcomment %}
                                 <p><select id="added_home_group_pastor" required>
                                     <option>Выберите пастора</option>
                                 </select></p>

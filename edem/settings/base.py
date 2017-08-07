@@ -359,6 +359,11 @@ LOGGING = {
             'handlers': ['console', 'file'],
             'propagate': False,
         },
+        'group.views': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
         'summit.views': {
             'level': 'DEBUG',
             'handlers': ['console', 'file'],

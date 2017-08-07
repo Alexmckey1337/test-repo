@@ -10,7 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied, MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Count, Case, When, BooleanField
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.views.generic import DetailView, ListView
@@ -57,7 +57,7 @@ def events(request):
 
 @login_required(login_url='entry')
 def meeting_report_list(request):
-    if not request.user.hierarchy or request.user.hierarchy.level < 1:
+    if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
         return redirect('/')
 
     ctx = {
@@ -73,7 +73,7 @@ def meeting_report_list(request):
 
 @login_required(login_url='entry')
 def meeting_report_detail(request, pk):
-    if not request.user.hierarchy or request.user.hierarchy.level < 1:
+    if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
         return redirect('/')
 
     ctx = {
@@ -85,7 +85,7 @@ def meeting_report_detail(request, pk):
 
 @login_required(login_url='entry')
 def meeting_report_statistics(request):
-    if not request.user.hierarchy or request.user.hierarchy.level < 1:
+    if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
         return redirect('/')
 
     ctx = {
@@ -101,7 +101,7 @@ def meeting_report_statistics(request):
 
 @login_required(login_url='entry')
 def church_report_list(request):
-    if not request.user.hierarchy or request.user.hierarchy.level < 2:
+    if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 2):
         return redirect('/')
 
     ctx = {
@@ -204,6 +204,7 @@ class DealListView(LoginRequiredMixin, CanSeeDealsMixin, TemplateView):
         ctx['currencies'] = Currency.objects.all()
 
         return ctx
+
 
 class PartnerStatisticsListView(LoginRequiredMixin, CanSeePartnerStatsMixin, TemplateView):
     template_name = 'partner/stats.html'
@@ -544,6 +545,17 @@ class CanSeeChurchesMixin(View):
         return super(CanSeeChurchesMixin, self).dispatch(request, *args, **kwargs)
 
 
+class CanSeeChurchMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            church = self.get_object()
+        except Http404:
+            raise PermissionDenied
+        if not request.user.can_see_church(church):
+            raise PermissionDenied
+        return super(CanSeeChurchMixin, self).dispatch(request, *args, **kwargs)
+
+
 class CanSeeHomeGroupsMixin(View):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.can_see_home_groups():
@@ -611,7 +623,7 @@ class HomeGroupListView(LoginRequiredMixin, TabsMixin, CanSeeHomeGroupsMixin, Te
         return ctx
 
 
-class ChurchDetailView(LoginRequiredMixin, CanSeeChurchesMixin, DetailView):
+class ChurchDetailView(LoginRequiredMixin, CanSeeChurchMixin, DetailView):
     model = Church
     context_object_name = 'church'
     template_name = 'group/church_detail.html'

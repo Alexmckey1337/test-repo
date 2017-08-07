@@ -1,9 +1,11 @@
 from django.db import models
+from django.db.models import Subquery
 from django.utils.translation import ugettext
 
 from account.signals import obj_edit
 from analytics.utils import foreign_key_to_dict
-from group.permissions import can_see_churches, can_see_home_groups, can_edit_church_block, can_see_church_block
+from group import permissions
+from group.models import Church
 
 
 class GroupUserPermission(models.Model):
@@ -14,13 +16,13 @@ class GroupUserPermission(models.Model):
         """
         Checking that the ``self`` user has the right to see list of churches
         """
-        return can_see_churches(self)
+        return permissions.can_see_churches(self)
 
     def can_see_home_groups(self):
         """
         Checking that the ``self`` user has the right to see list of home groups
         """
-        return can_see_home_groups(self)
+        return permissions.can_see_home_groups(self)
 
     def can_edit_church_block(self, user):
         """
@@ -32,14 +34,98 @@ class GroupUserPermission(models.Model):
         - church
         - home_group
         """
-        return can_edit_church_block(self, user)
+        return permissions.can_edit_church_block(self, user)
 
     def can_see_church_block(self, user):
         """
         Use for ``/account/<user.id>/`` page. Checking that the ``self`` user has the right
         to see church block of ``user``
         """
-        return can_see_church_block(self, user)
+        return permissions.can_see_church_block(self, user)
+
+    def can_see_church(self, church):
+        """
+        Checking that the ``self`` has the right to see ``church``
+        """
+        return permissions.can_see_church(self, church)
+
+    def can_create_church(self):
+        """
+        Checking that the ``self`` has the right to create church
+        """
+        return permissions.can_create_church(self)
+
+    def can_edit_church(self, church):
+        """
+        Checking that the ``self`` has the right to edit ``church``
+        """
+        return permissions.can_edit_church(self, church)
+
+    def can_add_user_to_church(self, user, church):
+        """
+        Checking that the ``self`` has the right to add ``user`` to ``church``
+        """
+        return permissions.can_add_user_to_church(self, user, church)
+
+    def can_del_user_from_church(self, user, church):
+        """
+        Checking that the ``self`` has the right to remove ``user`` from ``church``
+        """
+        return permissions.can_del_user_from_church(self, user, church)
+
+    def can_export_churches(self):
+        """
+        Checking that the ``self`` has the right to export list of churches
+        """
+        return permissions.can_export_churches(self)
+
+    def can_export_groups_of_church(self, church):
+        """
+        Checking that the ``self`` has the right to export list of home groups of ``church``
+        """
+        return permissions.can_export_groups_of_church(self, church)
+
+    def can_export_users_of_church(self, church):
+        """
+        Checking that the ``self`` has the right to export list of users of ``church``
+        """
+        return permissions.can_export_users_of_church(self, church)
+
+    def can_see_home_group(self, home_group):
+        """
+        Checking that the ``self`` has the right to see ``home_group``
+        """
+        return permissions.can_see_home_group(self, home_group)
+
+    def can_create_home_group(self):
+        """
+        Checking that the ``self`` has the right to create home group
+        """
+        return permissions.can_create_home_group(self)
+
+    def can_edit_home_group(self, home_group):
+        """
+        Checking that the ``self`` has the right to edit ``home_group``
+        """
+        return permissions.can_edit_home_group(self, home_group)
+
+    def can_add_user_to_home_group(self, user, home_group):
+        """
+        Checking that the ``self`` has the right to add ``user`` to ``home_group``
+        """
+        return permissions.can_add_user_to_home_group(self, user, home_group)
+
+    def can_del_user_from_home_group(self, user, home_group):
+        """
+        Checking that the ``self`` has the right to remove ``user`` from ``home_group``
+        """
+        return permissions.can_del_user_from_home_group(self, user, home_group)
+
+    def can_export_home_groups(self):
+        """
+        Checking that the ``self`` has the right to export list of home groups
+        """
+        return permissions.can_export_home_groups(self)
 
     def set_home_group(self, home_group):
         self.cchurch = None
@@ -121,3 +207,18 @@ class GroupUserPermission(models.Model):
                 'text': ugettext('Delete home group')
             }
         )
+
+    # TODO refactoring
+    def get_church(self):
+        home_group = self.hhome_group
+        if home_group:
+            return home_group.church
+        church = self.cchurch
+        if church:
+            return church
+        return None
+
+    # TODO refactoring
+    def get_churches(self):
+        users = self.get_descendants(include_self=True)
+        return Church.objects.filter(pastor__in=Subquery(users.values('pk')))

@@ -1095,7 +1095,7 @@ function getAddHomeGroupData() {
     return {
         "opening_date": $('#added_home_group_date').val(),
         "title": $('#added_home_group_title').val(),
-        "church": parseInt($('#added_home_group_church').data('id')),
+        "church": parseInt($('#added_home_group_church_select').val()),
         "leader": $('#added_home_group_pastor').val(),
         "city": $('#added_home_group_city').val(),
         "address": $('#added_home_group_address').val(),
@@ -1412,8 +1412,8 @@ function getResponsibleBYHomeGroup(userID = null) {
 function getResponsibleBYHomeGroupSupeMegaNew(config) {
     let masterTree = (config.userId) ? config.userId : $('body').data('user');
     return new Promise(function (resolve, reject) {
-        let url = URLS.home_group.available_leaders();
-        ajaxRequest(url, {master_tree: masterTree, department_id: config.departmentId}, function (data) {
+        let url = URLS.home_group.potential_leaders();
+        ajaxRequest(url, {master_tree: masterTree, department: config.departmentId}, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1423,9 +1423,9 @@ function getResponsibleBYHomeGroupSupeMegaNew(config) {
     })
 }
 
-function getResponsibleBYHomeGroupNew(config) {
+function getPotentialLeadersForHG(config) {
     return new Promise(function (resolve, reject) {
-        let url = URLS.home_group.available_leaders();
+        let url = URLS.home_group.potential_leaders();
         ajaxRequest(url, config, function (data) {
             if (data) {
                 resolve(data);
@@ -2040,6 +2040,38 @@ function showConfirmPopup(body, title, callback) {
         $('.pop-up__confirm').css('display', 'none').remove();
     });
 }
+
+// function showTablePopup(title) {
+//     title = title || 'Результаты поиска совпадений';
+//     let popup = document.getElementById('create_pop');
+//     if (popup) {
+//         popup.parentElement.removeChild(popup)
+//     }
+//     let div = document.createElement('div');
+//
+//     let html = `<div class="pop_cont" >
+//                     <div class="top-text">
+//                         <h3>${title}</h3><span id="close_pop">×</span>
+//                     </div>
+//                     <div class="main-text">
+//                         <div class="top-pag">
+//                             <div class="table__count"></div>
+//                             <div class="pagination duplicate_users__pagination"></div>
+//                         </div>
+//                         <div id="table_duplicate" class="table-wrap clearfix"></div>
+//                     </div>
+//             </div>`;
+//     $(div).html(html)
+//           .attr({
+//             id: "create_pop"
+//           })
+//           .addClass('pop-up__table');
+//     $('body').append(div);
+//
+//     $('#close_pop').on('click', function () {
+//         $('.pop-up__table').css('display', 'none').remove();
+//     });
+// }
 
 function showPopupAddUser(data) {
     let tmpl = document.getElementById('addUserSuccessPopup').innerHTML;
@@ -3452,9 +3484,9 @@ function getPastorsByDepartment(config) {
     });
 }
 
-function getLeadersByChurch(config = {}) {
+function getHGLeaders(config = {}) {
     let data = {
-        url: URLS.home_group.available_leaders(),
+        url: URLS.home_group.leaders(),
         data: config
     };
     return new Promise(function (resolve, reject) {
@@ -3907,4 +3939,25 @@ function makeResponsibleSummitStats(config, selector = [], active = null) {
             $(item).html(options).prop('disabled', false).select2();
         })
     });
+}
+
+function getDuplicates(options = {}) {
+    let keys = Object.keys(options),
+        url = URLS.user.find_duplicates();
+    if (keys.length) {
+        url += '?';
+        keys.forEach(item => {
+            url += item + '=' + options[item] + "&"
+        });
+    }
+    let defaultOption = {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        })
+    };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
 }
