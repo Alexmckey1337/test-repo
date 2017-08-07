@@ -5,8 +5,27 @@ from __future__ import unicode_literals
 from django.db import migrations
 
 
-class Migration(migrations.Migration):
+def create_payment_columns(apps, schema_editor):
+    Payment_columns = apps.get_model("navigation", "ColumnType")
+    Category = apps.get_model("navigation", "Category")
 
+    payment = Category.objects.create(title='payment', common=True)
+
+    Payment_columns.objects.bulk_create([
+        Payment_columns(title='sent_date', verbose_title='Дата отправки', ordering_title='sent_date', number=1,
+                        active=True, editable=True, category_id=payment.id),
+        Payment_columns(title='sum', verbose_title='Сумма', ordering_title='sum', number=2,
+                        active=True, editable=True, category_id=payment.id),
+        Payment_columns(title='manager', verbose_title='Менеджер', ordering_title='manager__user__last_name',
+                        number=3, active=True, editable=True, category_id=payment.id),
+        Payment_columns(title='description', verbose_title='Примечание', ordering_title='description',
+                        number=4, active=True, editable=True, category_id=payment.id),
+        Payment_columns(title='created_at', verbose_title='Дата создания', ordering_title='created_at',
+                        number=5, active=True, editable=False, category_id=payment.id),
+    ])
+
+
+class Migration(migrations.Migration):
     dependencies = [
         ('navigation', '0016_auto_20170731_1608'),
     ]

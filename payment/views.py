@@ -74,7 +74,10 @@ class PaymentListView(mixins.ListModelMixin, GenericAPIView):
     serializer_class = PaymentShowSerializer
     permission_classes = (IsAuthenticated,)
 
-    filter_backends = (PaymentFilterByPurpose,)
+    filter_backends = (PaymentFilterByPurpose,
+                       filters.OrderingFilter,)
+
+    ordering_fields = ('deals__partnership__user__last_name',)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
