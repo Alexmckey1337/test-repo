@@ -2041,6 +2041,38 @@ function showConfirmPopup(body, title, callback) {
     });
 }
 
+// function showTablePopup(title) {
+//     title = title || 'Результаты поиска совпадений';
+//     let popup = document.getElementById('create_pop');
+//     if (popup) {
+//         popup.parentElement.removeChild(popup)
+//     }
+//     let div = document.createElement('div');
+//
+//     let html = `<div class="pop_cont" >
+//                     <div class="top-text">
+//                         <h3>${title}</h3><span id="close_pop">×</span>
+//                     </div>
+//                     <div class="main-text">
+//                         <div class="top-pag">
+//                             <div class="table__count"></div>
+//                             <div class="pagination duplicate_users__pagination"></div>
+//                         </div>
+//                         <div id="table_duplicate" class="table-wrap clearfix"></div>
+//                     </div>
+//             </div>`;
+//     $(div).html(html)
+//           .attr({
+//             id: "create_pop"
+//           })
+//           .addClass('pop-up__table');
+//     $('body').append(div);
+//
+//     $('#close_pop').on('click', function () {
+//         $('.pop-up__table').css('display', 'none').remove();
+//     });
+// }
+
 function showPopupAddUser(data) {
     let tmpl = document.getElementById('addUserSuccessPopup').innerHTML;
     let rendered = _.template(tmpl)(data);
@@ -3907,4 +3939,25 @@ function makeResponsibleSummitStats(config, selector = [], active = null) {
             $(item).html(options).prop('disabled', false).select2();
         })
     });
+}
+
+function getDuplicates(options = {}) {
+    let keys = Object.keys(options),
+        url = URLS.user.find_duplicates();
+    if (keys.length) {
+        url += '?';
+        keys.forEach(item => {
+            url += item + '=' + options[item] + "&"
+        });
+    }
+    let defaultOption = {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        })
+    };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
 }
