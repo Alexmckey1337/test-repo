@@ -186,7 +186,6 @@
         (lastName != null) && (config.last_name = lastName);
         (phoneNumber != null) && (config.phone_number = phoneNumber);
         getDuplicates(config).then(data => {
-            $('#duplicate_count').html(data.count);
             let table = `<table>
                         <thead>
                             <tr>
@@ -227,17 +226,36 @@
             $('.pop-up__table').find('.table__count').text(text);
             $('#table_duplicate').html('').append(table);
             $('#createUser').find('._preloader').css('opacity', '0');
+            $('.preloader').css('display', 'none');
+            $('.pop-up__table').css('display', 'block');
+        });
+    }
+
+        function makeDuplicateCount(config={}) {
+        let firstName = $('#first_name').val() || null,
+            middleName = $('#middle_name').val() || null,
+            lastName = $('#last_name').val() || null,
+            phoneNumber = $('#phoneNumber').val() || null;
+        (firstName != null) && (config.first_name = firstName);
+        (middleName != null) && (config.middle_name = middleName);
+        (lastName != null) && (config.last_name = lastName);
+        (phoneNumber != null) && (config.phone_number = phoneNumber);
+        config.only_count = true;
+        getDuplicates(config).then(data => {
+            $('#duplicate_count').html(data.count);
+            $('#createUser').find('._preloader').css('opacity', '0');
         });
     }
 
     let inputs = $('#first_name, #last_name, #middle_name, #phoneNumber');
     inputs.on('focusout', function () {
         $('#createUser').find('._preloader').css('opacity', '1');
-        makeDuplicateUsers();
+        makeDuplicateCount();
     });
 
      $('#duplicate_link').on('click', function () {
-         $('.pop-up__table').show();
+         $('.preloader').css('display', 'block');
+         makeDuplicateUsers();
      });
 
     $('.pop-up__table').find('.close_pop').on('click', function () {
@@ -249,7 +267,7 @@
 	        if (keycode == '13') {
 	            event.preventDefault();
 	            $('#createUser').find('._preloader').css('opacity', '1');
-	            makeDuplicateUsers();
+	            makeDuplicateCount();
             }
 	        event.stopPropagation();
     });
