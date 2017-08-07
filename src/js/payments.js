@@ -51,6 +51,8 @@
 
     $('.clear-filter').on('click', function () {
         refreshFilter(this);
-    })
+    });
+
+    $('.selectdb').select2();
 
 })(jQuery);
