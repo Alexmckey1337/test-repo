@@ -307,6 +307,9 @@ class HomeGroupIdSerializer(serializers.ModelSerializer):
 
 
 class DuplicatesAvoidedSerializer(serializers.ModelSerializer):
+    master = MasterNameSerializer(read_only=True, allow_null=True)
+
     class Meta:
         model = User
-        fields = ('id', 'last_name', 'first_name', 'middle_name', 'phone_number')
+        fields = ('id', 'last_name', 'first_name', 'middle_name', 'phone_number',
+                  'master', 'city', 'link')

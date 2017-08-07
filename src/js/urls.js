@@ -11,6 +11,7 @@ const USER = {
     departments: (userId) => `/api/v1.1/users/${userId}/departments/`,
     dashboard_count: () => `/api/v1.1/users/dashboard_counts/`,
     list_user: () => `/api/v1.1/users/for_select/`,
+    find_duplicates: () => `/api/v1.1/users/duplicates_avoided/`,
 };
 
 const SUMMIT = {

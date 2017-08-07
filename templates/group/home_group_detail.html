@@ -31,7 +31,7 @@
     <div class="accordion">
         <h2 class="info-title">Основная информация:</h2>
         <div class="info">
-            <form action="/" id="editHomeGroupForm" data-id="{{ home_group.id }}">
+            <form action="/" id="editHomeGroupForm" data-id="{{ home_group.id }}" data-departament_id="{{ home_group.church.department.id }}">
                 <button class="edit"></button>
                 <button class="save__info" type="submit"></button>
                 <div class="success__block"></div>

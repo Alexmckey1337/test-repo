@@ -792,6 +792,26 @@ button{
       overflow-y: scroll;
       & .block {
         font-size: .9em;
+        .duplicate_users {
+          display: flex;
+          align-items: center;
+          width: 90%;
+          margin-top: 20px;
+          padding: 15px;
+          border: 1px solid #ff0000;
+          border-radius: 5px;
+          a {
+            color: #3caeda;
+            font-size: 1.2em;
+            text-decoration: underline;
+          }
+          ._preloader {
+            width: 25px;
+            height: 25px;
+            margin-left: 10px;
+            opacity: 0;
+          }
+        }
       }
       & h2 {
         margin: 0;
@@ -1348,4 +1368,8 @@ button{
       }
     }
   }
+}
+
+#create_pop.pop-up__table .pop_cont {
+  width: 900px;
 }

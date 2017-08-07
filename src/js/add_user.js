@@ -176,4 +176,111 @@
        e.stopPropagation();
     });
 
+    function makeDuplicateUsers(config={}) {
+        let firstName = $('#first_name').val() || null,
+            middleName = $('#middle_name').val() || null,
+            lastName = $('#last_name').val() || null,
+            phoneNumber = $('#phoneNumber').val() || null;
+        (firstName != null) && (config.first_name = firstName);
+        (middleName != null) && (config.middle_name = middleName);
+        (lastName != null) && (config.last_name = lastName);
+        (phoneNumber != null) && (config.phone_number = phoneNumber);
+        getDuplicates(config).then(data => {
+            let table = `<table>
+                        <thead>
+                            <tr>
+                                <th>ФИО</th>
+                                <th>Город</th>
+                                <th>Ответственный</th>
+                                <th>Номер телефонна</th>
+                            </tr>
+                        </thead>
+                        <tbody>${data.results.map(item => {
+                            let master = item.﻿master;
+                            if (master == null) {
+                                master = '';
+                            } else {
+                                master = master.fullname;
+                            }
+                            
+                            return `<tr>
+                                       <td><a target="_blank" href="${item.link}">${item.last_name} ${item.first_name} ${item.middle_name}</a></td>
+                                       <td>${item.city}</td>
+                                       <td>${master}</td>
+                                       <td>********${item.phone_number.slice(-4)}</td>
+                                     </tr>`;
+                            }).join('')}</tbody>
+                        </table>`;
+            let count = data.count,
+                page = config.page || 1,
+                pages = Math.ceil(count / CONFIG.pagination_duplicates_count),
+                showCount = (count < CONFIG.pagination_duplicates_count) ? count : data.results.length,
+                text = `Показано ${showCount} из ${count}`,
+                paginationConfig = {
+                    container: ".duplicate_users__pagination",
+                    currentPage: page,
+                    pages: pages,
+                    callback: makeDuplicateUsers
+                };
+            makePagination(paginationConfig);
+            $('.pop-up__table').find('.table__count').text(text);
+            $('#table_duplicate').html('').append(table);
+            $('#createUser').find('._preloader').css('opacity', '0');
+            $('.preloader').css('display', 'none');
+            $('.pop-up__table').css('display', 'block');
+        });
+    }
+
+        function makeDuplicateCount(config={}) {
+        let firstName = $('#first_name').val() || null,
+            middleName = $('#middle_name').val() || null,
+            lastName = $('#last_name').val() || null,
+            phoneNumber = $('#phoneNumber').val() || null;
+        (firstName != null) && (config.first_name = firstName);
+        (middleName != null) && (config.middle_name = middleName);
+        (lastName != null) && (config.last_name = lastName);
+        (phoneNumber != null) && (config.phone_number = phoneNumber);
+        config.only_count = true;
+        getDuplicates(config).then(data => {
+            $('#duplicate_count').html(data.count);
+            $('#createUser').find('._preloader').css('opacity', '0');
+        });
+    }
+
+    let inputs = $('#first_name, #last_name, #middle_name, #phoneNumber');
+    inputs.on('focusout', function () {
+        $('#createUser').find('._preloader').css('opacity', '1');
+        makeDuplicateCount();
+    });
+
+     $('#duplicate_link').on('click', function () {
+         $('.preloader').css('display', 'block');
+         makeDuplicateUsers();
+     });
+
+    $('.pop-up__table').find('.close_pop').on('click', function () {
+        $('.pop-up__table').hide();
+    });
+
+    $('#last_name, #first_name, #middle_name, #phoneNumber').keypress(function (event) {
+        let keycode = (event.keyCode ? event.keyCode : event.which);
+	        if (keycode == '13') {
+	            event.preventDefault();
+	            $('#createUser').find('._preloader').css('opacity', '1');
+	            makeDuplicateCount();
+            }
+	        event.stopPropagation();
+    });
+
+        $("#createUser").find('input').each(function () {
+
+        $(this).keypress(function(event) {
+	        let keycode = (event.keyCode ? event.keyCode : event.which);
+	        if (keycode == '13') {
+	            event.preventDefault();
+            }
+	        event.stopPropagation();
+        });
+    });
+
 })(jQuery);
