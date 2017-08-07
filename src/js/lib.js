@@ -168,7 +168,7 @@ class DeleteChurchUser extends DeleteUser {
             })
         };
         this.delAll = false;
-        let massage = 'Пользователь удален из домашнєй группы';
+        let massage = 'Пользователь удален из домашней группы';
         let info = '<p>Подтвердите удаление пользователя из церкви</p>';
         Promise.all(this.home_group.map((item) => {
             fetch(URLS.home_group.del_user(item), options)
@@ -179,6 +179,39 @@ class DeleteChurchUser extends DeleteUser {
             })
             .catch(err => {
                 this.show_delete = false;
+                this.popup(JSON.parse(err));
+            });
+    }
+}
+
+class DeleteHomeGroupUser extends DeleteUser {
+    constructor(userId, groupId, userName, callback) {
+        super(userId);
+        this.home_group = groupId;
+        this.callback = callback;
+        this.user_name = userName;
+    }
+
+    btn() {
+        let container = document.createElement('div');
+        let btn = document.createElement('button');
+        let cancel = document.createElement('button');
+        $(btn).text('Подтвердить').on('click', this.deleteFromHomeGroup.bind(this));
+        $(cancel).text('Отменить').addClass('close_pop');
+        $(container).append(cancel).append(btn);
+        return container
+    }
+
+    deleteFromHomeGroup() {
+        let massage = 'Пользователь удален из домашней группы',
+            info = `<p>Вы действительно хотите удалить пользователя ${this.user_name} из домашней группы?</p>`;
+        deleteUserINHomeGroup(this.user, this.home_group).then(() => {
+            let config = {};
+            this.popup(massage, info);
+            console.log(massage);
+            console.log(info);
+            this.callback(config, this.user)
+        }).catch(err => {
                 this.popup(JSON.parse(err));
             });
     }
@@ -1027,20 +1060,22 @@ function createHomeGroupUsersTable(config = {}, id) {
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINHomeGroups').html(rendered).on('click', '.delete_btn', function () {
             let ID = $(this).closest('td').find('a').data('id'),
-                userName = $(this).closest('td').find('a').text();
-            initDeleteUserINHomeGroup(id, ID, userName);
+                userName = $(this).closest('td').find('a').text(),
+                DelUser = new DeleteHomeGroupUser(id, ID, userName, createHomeGroupUsersTable);
+            DelUser.popup();
+            // initDeleteUserINHomeGroup(id, ID, userName);
             // deleteUserINHomeGroup($('#home_group').data('id'), ID).then(() => {
             //     createHomeGroupUsersTable(config = {}, id)
             // });
         });
-        $('.quick-edit').on('click', function () {
-            let ID = $(this).closest('.edit').find('a').data('id'),
-                userName = $(this).closest('td').find('a').text();
-            initDeleteUserINHomeGroup(id, ID, userName);
-            // deleteUserINHomeGroup(id, user_id).then(function () {
-            //     createHomeGroupUsersTable(config, id);
-            // })
-        });
+        // $('.quick-edit').on('click', function () {
+        //     let ID = $(this).closest('.edit').find('a').data('id'),
+        //         userName = $(this).closest('td').find('a').text();
+        //     initDeleteUserINHomeGroup(id, ID, userName);
+        //     // deleteUserINHomeGroup(id, user_id).then(function () {
+        //     //     createHomeGroupUsersTable(config, id);
+        //     // })
+        // });
         makeSortForm(filterData.user_table);
         let paginationConfig = {
             container: ".users__pagination",
@@ -2024,7 +2059,8 @@ function showConfirmPopup(body, title, callback) {
         .attr({
             id: "create_pop"
         })
-        .addClass('pop-up__confirm');
+        .addClass('pop-up__confirm')
+        .addClass('pop-up-universal');
     $(div).find('.ok').on('click', function (e) {
         e.preventDefault();
         callback();
