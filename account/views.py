@@ -400,6 +400,10 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         users_list = get_duplicates(users, count)
         users = [user[0] for user in users_list]
 
+        if request.query_params.get('only_count'):
+            return Response(
+                {'count': len(users_list)}, status=status.HTTP_200_OK)
+
         page = self.paginate_queryset(users)
         if page is not None:
             users = self.get_serializer(page, many=True)
