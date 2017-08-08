@@ -37,8 +37,8 @@ def delete_payments_columns(apps, schema_editor):
     Deal_columns = apps.get_model("navigation", "ColumnType")
     Category = apps.get_model("navigation", "Category")
 
-    Deal_columns.objects.filter(category__title='payments').delete()
-    Category.objects.filter(title="deal").delete()
+    Deal_columns.objects.filter(category__title='payment').delete()
+    Category.objects.filter(title="payment").delete()
 
 
 class Migration(migrations.Migration):
