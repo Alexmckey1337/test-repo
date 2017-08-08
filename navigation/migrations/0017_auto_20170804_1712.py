@@ -21,7 +21,7 @@ def create_payment_columns(apps, schema_editor):
                         number=3, active=True, editable=True, category_id=payment.id),
         Payment_columns(title='description', verbose_title='Примечание', ordering_title='description',
                         number=4, active=True, editable=True, category_id=payment.id),
-        Payment_columns(title='sent_date', verbose_title='Дата отправки', ordering_title='sent_date', number=5,
+        Payment_columns(title='sent_date', verbose_title='Дата поступления', ordering_title='sent_date', number=5,
                         active=True, editable=True, category_id=payment.id),
         Payment_columns(title='purpose_date', verbose_title='Дата сделки', ordering_title='deals__date_created',
                         number=6, active=True, editable=True, category_id=payment.id),
