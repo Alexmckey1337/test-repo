@@ -380,13 +380,18 @@ function createHomeGroupsTable(config = {}) {
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
                 $('#quickEditCartPopup').find('.popup_body').html(rendered);
-                getResponsibleBYHomeGroupSupeMegaNew({departmentId: data.department})
-                    .then(res => {
-                        return res.map(leader => `<option value="${leader.id}" ${(data.leader.id == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
-                    })
-                    .then(data => {
-                        $('#homeGroupLeader').html(data).select2();
-                    });
+                getPotentialLeadersForHG({church: data.church.id}).then(function (res) {
+                    return res.map(leader => `<option value="${leader.id}" ${(data.leader.id == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
+                }).then(data => {
+                    $('#homeGroupLeader').html(data).select2();
+                });
+                // getResponsibleBYHomeGroupSupeMegaNew({departmentId: data.department})
+                //     .then(res => {
+                //         return res.map(leader => `<option value="${leader.id}" ${(data.leader.id == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
+                //     })
+                //     .then(data => {
+                //         $('#homeGroupLeader').html(data).select2();
+                //     });
                 setTimeout(function () {
                     $('.date').datepicker({
                         dateFormat: 'yyyy-mm-dd',
