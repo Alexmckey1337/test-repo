@@ -120,4 +120,5 @@
             $('#leader_filter').html('<option value="">ВСЕ</option>').append(pastors);
         });
     });
+    $('#added_home_group_church_select').select2();
 })(jQuery);
