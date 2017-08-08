@@ -139,6 +139,23 @@ class BaseUserSerializer(serializers.ModelSerializer):
             raise HierarchyError()
         return value
 
+    @staticmethod
+    def make_phone_number(phone_number):
+        return '+' + ''.join([x for x in phone_number if x.isdigit()])
+
+    def validate_phone_number(self, value):
+        value = self.make_phone_number(value)
+        if len(value) < 10:
+            raise ValidationError({'message': _('The length of the phone number must be at least 10 characters')})
+        return value
+
+    def validate_extra_phone_numbers(self, value):
+        value = [self.make_phone_number(number) for number in value]
+        for number in value:
+            if len(number) < 10:
+                raise ValidationError({'message': _('The length of the phone number must be at least 10 characters')})
+        return value
+
     def validate(self, attrs):
         if 'master' in attrs.keys():
             if 'hierarchy' in attrs.keys():
@@ -219,7 +236,6 @@ class UserCreateSerializer(BaseUserSerializer):
         username = generate_key()[:20]
         # while User.objects.filter(username=username).exists():
         #     username = generate_key()
-
         validated_data['username'] = username
 
         return super(BaseUserSerializer, self).create(validated_data)
