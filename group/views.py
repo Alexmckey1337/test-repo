@@ -388,7 +388,7 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         """
         Leaders
         """
-        leaders = self.filter_queryset(CustomUser.objects.filter(home_group__isnull=False))
+        leaders = self.filter_queryset(CustomUser.objects.filter(home_group__isnull=False)).distinct()
         return Response(UserNameSerializer(leaders, many=True).data)
 
     @detail_route(methods=["GET"])
