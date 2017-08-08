@@ -381,7 +381,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         count = 0
         for k, v in params:
             count += 1
-            users += User.objects.annotate(similarity=TrigramSimilarity(k, v)).filter(similarity__gt=0.5)
+            users += User.objects.annotate(similarity=TrigramSimilarity(k, v)).filter(similarity__gt=0.4)
 
         if request.query_params.get('phone_number'):
             count += 1
