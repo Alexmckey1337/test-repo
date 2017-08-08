@@ -145,15 +145,15 @@ class BaseUserSerializer(serializers.ModelSerializer):
 
     def validate_phone_number(self, value):
         value = self.make_phone_number(value)
-        if len(value) < 10:
-            raise ValidationError({'message': _('The length of the phone number must be at least 10 characters')})
+        if len(value) < 11:
+            raise ValidationError({'message': _('The length of the phone number must be at least 10 digist')})
         return value
 
     def validate_extra_phone_numbers(self, value):
         value = [self.make_phone_number(number) for number in value]
         for number in value:
-            if len(number) < 10:
-                raise ValidationError({'message': _('The length of the phone number must be at least 10 characters')})
+            if len(number) < 11:
+                raise ValidationError({'message': _('The length of the phone number must be at least 10 digist')})
         return value
 
     def validate(self, attrs):
