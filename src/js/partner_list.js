@@ -106,4 +106,9 @@
         autoClose: true,
         position: "left top",
     });
+    $('.select_rep_date_filter').datepicker({
+        dateFormat: 'yyyy-mm-dd',
+        autoClose: true,
+        position: "left top",
+    });
 }());
