@@ -116,19 +116,24 @@
         }, 100)
     });
     $('#addUserToChurch').on('click', function () {
-        $('#addUser').css('display', 'block');
+        // $('#addUser').css('display', 'block');
         initAddNewUser({
             getDepartments: false,
         });
-    });
-    $('#choose').on('click', function () {
-        $(this).closest('.popup').css('display', 'none');
         $('#searchedUsers').html('');
         $('#searchUserFromDatabase').val('');
         $('.choose-user-wrap .splash-screen').removeClass('active');
+        document.querySelector('#searchUserFromDatabase').focus();
         $('#chooseUserINBases').css('display', 'block');
     });
-    $('#add_new').on('click', function () {
+    // $('#choose').on('click', function () {
+    //     $(this).closest('.popup').css('display', 'none');
+    //     $('#searchedUsers').html('');
+    //     $('#searchUserFromDatabase').val('');
+    //     $('.choose-user-wrap .splash-screen').removeClass('active');
+    //     $('#chooseUserINBases').css('display', 'block');
+    // });
+    $('#addNewUser').on('click', function () {
         let department_id = $('#church').data('department_id');
         let department_title = $('#church').data('department_title');
         let option = document.createElement('option');
