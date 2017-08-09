@@ -32,6 +32,7 @@
             $('.preloader').css('display', 'none');
         });
     });
+
     function addUserToSummit(data) {
         let id = data.id,
             fullName = data.fullname,
