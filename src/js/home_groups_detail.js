@@ -7,6 +7,10 @@
     const CH_ID = $homeGroup.data('church-id');
     const HG_TITLE = $homeGroup.data('departament_title');
 
+    function reRenderTable(config) {
+        addUserToHomeGroup(config).then(() => createHomeGroupUsersTable());
+    }
+
     function addUserToHomeGroup(data) {
         let id = data.id;
         let config = {};
@@ -148,7 +152,7 @@
         onSuccess: function (form) {
             if ($(form).attr('name') == 'createUser') {
                 $(form).find('#saveNew').attr('disabled', true);
-                createNewUser(addUserToHomeGroup).then(function() {
+                createNewUser(reRenderTable).then(function() {
                     $(form).find('#saveNew').attr('disabled', false);
                 });
             }
