@@ -126,19 +126,19 @@ class Meeting(AbstractStatusModel):
     def table_columns(self):
         return meeting_table(self.owner, category_title='attends')
 
-    # @cached_property
-    # def can_submit(self):
-    #     if Meeting.objects.filter(owner=self.owner, status=Meeting.EXPIRED).exists() \
-    #             and self.status == Meeting.IN_PROGRESS:
-    #         return False
-    #     return True
-    #
-    # @property
-    # def cant_submit_cause(self):
-    #     if not self.can_submit:
-    #         return 'Невозможно подать отчет.\n' \
-    #                'Данный лидер имеет просроченные отчеты.'
-    #     return ''
+    @cached_property
+    def can_submit(self):
+        if Meeting.objects.filter(owner=self.owner, status=Meeting.EXPIRED).exists() \
+                and self.status == Meeting.IN_PROGRESS:
+            return False
+        return True
+
+    @property
+    def cant_submit_cause(self):
+        if not self.can_submit:
+            return 'Невозможно подать отчет.\n' \
+                   'Данный лидер имеет просроченные отчеты.'
+        return ''
 
 
 class ChurchReportPastor(AbstractPaymentPurpose):
