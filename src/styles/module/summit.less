@@ -103,6 +103,9 @@
     color: #656d78;
     padding-left: 40px;
     margin-top: 10px;
+    &.disable{
+      display: none;
+    }
     &:before{
       top: 7px;
       left: 5px;
@@ -114,8 +117,8 @@
   }
   .splash-screen{
     height: 230px;
-    max-width: 350px;
-    min-width: 350px;
+    max-width: 300px;
+    min-width: 300px;
     &.getpassword{
       height: 190px;
     }
@@ -125,8 +128,9 @@
     display: none;
     top: -75px;
     left: 0;
-    width: 310px;
+    width: 300px;
     padding: 20px;
+    box-sizing: border-box;
     font-size: 1.2em;
     background-color: #ffd9d9;
     border-radius: 3px;
@@ -232,7 +236,7 @@
     cursor: pointer;
   }
   .splash-bauttons{
-    padding: 0 10px 10px 30px;
+    padding: 0 10px 10px 14px;
   }
 }
 
