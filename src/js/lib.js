@@ -3308,6 +3308,10 @@ function createNewUser(callback) {
         }
     }).catch(function (data) {
         $preloader.css('display', 'none');
+        if (data.phone_number) {
+            showPopup(data.phone_number.message);
+            $('#createUser').css("transform","translate3d(0px, 0px, 0px)");
+        }
         if (data.detail) {
             showPopup(data.detail[0]);
         }

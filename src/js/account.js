@@ -32,14 +32,18 @@ function updateUser(id, data, success = null) {
                         msg += item;
                         msg += ' ';
                     });
+                } else if (typeof errObj[key] == 'object') {
+                    let errKeys = Object.keys(errObj[key]),
+                        html = errKeys.map(errkey => `${errObj[key][errkey]}`).join('');
+                    msg += html;
                 } else {
                     msg += errObj[key];
                 }
                 msg += '; ';
             }
         }
-
         showPopup(msg);
+
         return false;
     });
 }
@@ -621,8 +625,6 @@ function changeLessonStatus(lessonId, profileId, checked) {
                 }
                 $('#fullName').text(data.fullname);
                 $('#searchName').text(data.search_name);
-            }).catch(function (data) {
-                console.log(data);
             });
         } else if (action == 'update-church') {
             let $existBlock = $('#editChurches').find('ul');
