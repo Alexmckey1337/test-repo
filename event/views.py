@@ -87,12 +87,12 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                 can_s=Exists(subqs)
             ).annotate(
                 can_submit=Case(
-                    When(Q(status=True) & Q(can_s=True), then=False), output_field=BooleanField(), default=True)
-            ).annotate(
-                cant_submit_cause=Case(
-                    When(Q(status=True) & Q(can_s=True), then=V(
-                        'Невозможно подать отчет. Данный лидер имеет просроченные отчеты.')),
-                    output_field=CharField(), default=V('')))
+                    When(Q(status=True) & Q(can_s=True), then=False), output_field=BooleanField(), default=True))
+            # ).annotate(
+            #     cant_submit_cause=Case(
+            #         When(Q(status=True) & Q(can_s=True), then=V(
+            #             'Невозможно подать отчет. Данный лидер имеет просроченные отчеты.')),
+            #         output_field=CharField(), default=V('')))
 
         return self.queryset.for_user(self.request.user)
 
