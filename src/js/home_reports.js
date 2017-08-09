@@ -85,10 +85,14 @@
         });
     }
 
-    $('input[name=fullsearch]').on('keyup', function () {
-        $('.preloader').show();
+    $('input[name="fullsearch"]').on('keyup', _.debounce(function (e) {
+        $('.preloader').css('display', 'block');
         homeReportsTable();
-    });
+    }, 500));
+    // $('input[name=fullsearch]').on('keyup', function () {
+    //     $('.preloader').show();
+    //     homeReportsTable();
+    // });
 
     $('.tab-home-stats').find('.type').on('click', function () {
         $(this).closest('#tabs').find('li').removeClass('active');

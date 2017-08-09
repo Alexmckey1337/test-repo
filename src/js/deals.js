@@ -74,15 +74,20 @@ $(document).ready(function () {
         window.location.href = url;
     });
 
-    $('input[name="fullsearch"]').keyup(function () {
-        let search = $(this).val();
+    $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
         $('.preloader').css('display', 'block');
-        delay(function () {
-            createIncompleteDealsTable();
-            // createExpiredDealsTable();
-            createDoneDealsTable();
-        }, 1000);
-    });
+        createIncompleteDealsTable();
+        createDoneDealsTable();
+    }, 500));
+    // $('input[name="fullsearch"]').keyup(function () {
+    //     let search = $(this).val();
+    //     $('.preloader').css('display', 'block');
+    //     delay(function () {
+    //         createIncompleteDealsTable();
+    //         // createExpiredDealsTable();
+    //         createDoneDealsTable();
+    //     }, 1000);
+    // });
 
     function updateDeals(id, description) {
         let data = {
