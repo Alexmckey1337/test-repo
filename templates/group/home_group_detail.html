@@ -35,25 +35,25 @@
                 <button class="edit"></button>
                 <button class="save__info" type="submit"></button>
                 <div class="success__block"></div>
-                <div class="info-block info-block_edit">
-                    <div class="title-wrapper">
-                        <span>Дата открытия:</span>
-                    </div>
-                    <input type="text" class="date" id="opening_date" value="{{ home_group.opening_date }}"
+                <div class="popup_body">
+                    <div class="container container_block">
+                        <label>
+                            <span class="label_block">Дата открытия:</span>
+                            <input type="text" class="date" id="opening_date" value="{{ home_group.opening_date }}"
                                disabled="disabled" readonly>
-                    <div class="title-wrapper">
-                        <span>Церковь:</span>
-                    </div>
-                    <div class="input">
+                        </label>
+                        <label>
+                            <span class="label_block">Церковь:</span>
+                            <div class="input">
                         <input type="text" id="church" value="{{ home_group.church }}" readonly>
                         <a href="/churches/{{ home_group.church.id }}" target="_blank">
                             <i class="fa fa-external-link" aria-hidden="true"></i>
                         </a>
                     </div>
-                    <div class="title-wrapper">
-                        <span>Лидер домашней группы:</span>
-                    </div>
-                    <div class="input">
+                        </label>
+                        <label>
+                            <span class="label_block">Лидер домашней группы:</span>
+                            <div class="input">
                         <select name="" id="homeGroupLeader" readonly="readonly" disabled="disabled">
                             <option value="{{ home_group.leader.id }}">{{ home_group.leader }}</option>
                         </select>
@@ -61,56 +61,131 @@
                             <i class="fa fa-external-link" aria-hidden="true"></i>
                         </a>
                     </div>
-                    <div class="title-wrapper">
-                        <span>Город:</span>
-                    </div>
-                    <input type="text" id="city" value="{{ home_group.city }}" readonly>
-                    <div class="title-wrapper">
-                        <span>Адрес:</span>
-                    </div>
-                    <input type="text" id="address" value="{{ home_group.address }}" readonly>
-                    <div class="title-wrapper">
-                        <span>Телефонный номер:</span>
-                    </div>
-                    <input type="text" id="phone_number" value="{{ home_group.phone_number }}" readonly>
-                    <div class="title-wrapper">
-                        <span>Сайт:</span>
-                    </div>
-                    <div class="input">
+                        </label>
+                        <label>
+                            <span class="label_block">Город:</span>
+                            <input type="text" id="city" value="{{ home_group.city }}" readonly>
+                        </label>
+                        <label>
+                            <span class="label_block">Адрес:</span>
+                            <input type="text" id="address" value="{{ home_group.address }}" readonly>
+                        </label>
+                        <label>
+                            <span class="label_block">Телефонный номер:</span>
+                            <input type="text" id="phone_number" value="{{ home_group.phone_number }}" readonly>
+                        </label>
+                        <label>
+                            <span class="label_block">Сайт:</span>
+                            <div class="input">
                         <input type="text" id="web_site" value="{{ home_group.website }}" readonly>
                         <a href="{{ home_group.website }}" target="_blank" id="site-link"
-                           {% if not home_group.website %}class="link-hide"{% endif %}
-                        >
+                           {% if not home_group.website %}class="link-hide"{% endif %}>
                             <i class="fa fa-external-link" aria-hidden="true"></i>
                         </a>
                     </div>
+                        </label>
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
+{#                <div class="info-block info-block_edit">#}
+{#                    <div class="title-wrapper">#}
+{#                        <span>Дата открытия:</span>#}
+{#                    </div>#}
+{#                    <input type="text" class="date" id="opening_date" value="{{ home_group.opening_date }}"#}
+{#                               disabled="disabled" readonly>#}
+{#                    <div class="title-wrapper">#}
+{#                        <span>Церковь:</span>#}
+{#                    </div>#}
+{#                    <div class="input">#}
+{#                        <input type="text" id="church" value="{{ home_group.church }}" readonly>#}
+{#                        <a href="/churches/{{ home_group.church.id }}" target="_blank">#}
+{#                            <i class="fa fa-external-link" aria-hidden="true"></i>#}
+{#                        </a>#}
+{#                    </div>#}
+{#                    <div class="title-wrapper">#}
+{#                        <span>Лидер домашней группы:</span>#}
+{#                    </div>#}
+{#                    <div class="input">#}
+{#                        <select name="" id="homeGroupLeader" readonly="readonly" disabled="disabled">#}
+{#                            <option value="{{ home_group.leader.id }}">{{ home_group.leader }}</option>#}
+{#                        </select>#}
+{#                        <a href="{{ home_group.leader.get_absolute_url }}" target="_blank">#}
+{#                            <i class="fa fa-external-link" aria-hidden="true"></i>#}
+{#                        </a>#}
+{#                    </div>#}
+{#                    <div class="title-wrapper">#}
+{#                        <span>Город:</span>#}
+{#                    </div>#}
+{#                    <input type="text" id="city" value="{{ home_group.city }}" readonly>#}
+{#                    <div class="title-wrapper">#}
+{#                        <span>Адрес:</span>#}
+{#                    </div>#}
+{#                    <input type="text" id="address" value="{{ home_group.address }}" readonly>#}
+{#                    <div class="title-wrapper">#}
+{#                        <span>Телефонный номер:</span>#}
+{#                    </div>#}
+{#                    <input type="text" id="phone_number" value="{{ home_group.phone_number }}" readonly>#}
+{#                    <div class="title-wrapper">#}
+{#                        <span>Сайт:</span>#}
+{#                    </div>#}
+{#                    <div class="input">#}
+{#                        <input type="text" id="web_site" value="{{ home_group.website }}" readonly>#}
+{#                        <a href="{{ home_group.website }}" target="_blank" id="site-link"#}
+{#                           {% if not home_group.website %}class="link-hide"{% endif %}>#}
+{#                            <i class="fa fa-external-link" aria-hidden="true"></i>#}
+{#                        </a>#}
+{#                    </div>#}
+{#                </div>#}
+            </form>
+        </div>
             <h2 class="info-title">Сводная информация:</h2>
             <div class="info info-calc">
-                <div class="info-block">
-                    <div class="title-wrapper">
-                        <span>Количество людей:</span>
+                <div class="popup_body">
+                    <div class="container container_block">
+                        <label>
+                            <span class="label_block">Количество людей:</span>
+                            <p class="count"><span id="users_count">{{ users_count }}</span></p>
+                        </label>
+                        <label>
+                            <span class="label_block">Количество Отцов:</span>
+                            <p class="count"><span id="fathers_count">{{ fathers_count }}</span></p>
+                        </label>
+                        <label>
+                            <span class="label_block">Количество Юношей:</span>
+                            <p class="count"><span id="juniors_count">{{ juniors_count }}</span></p>
+                        </label>
+                        <label>
+                            <span class="label_block">Количество Младенцев:</span>
+                            <p class="count"><span id="babies_count">{{ babies_count }}</span></p>
+                        </label>
+                        <label>
+                            <span class="label_block">Количество Партнеров:</span>
+                            <p class="count"><span id="partners_count">{{ partners_count }}</span></p>
+                        </label>
                     </div>
-                    <p><span id="users_count">{{ users_count }}</span></p>
-                    <div class="title-wrapper">
-                        <span>Количество Отцов:</span>
-                    </div>
-                    <p><span id="fathers_count">{{ fathers_count }}</p>
-                    <div class="title-wrapper">
-                        <span>Количество Юношей:</span>
-                    </div>
-                    <p><span id="juniors_count">{{ juniors_count }}</span></p>
-                    <div class="title-wrapper">
-                        <span>Количество Младенцев:</span>
-                    </div>
-                    <p><span id="babies_count">{{ babies_count }}</span></p>
-                    <div class="title-wrapper">
-                        <span>Количество Партнеров:</span>
-                    </div>
-                    <p><span id="partners_count">{{ partners_count }}</span></p>
                 </div>
+{#                <div class="info-block">#}
+{#                    <div class="title-wrapper">#}
+{#                        <span>Количество людей:</span>#}
+{#                    </div>#}
+{#                    <p><span id="users_count">{{ users_count }}</span></p>#}
+{#                    <div class="title-wrapper">#}
+{#                        <span>Количество Отцов:</span>#}
+{#                    </div>#}
+{#                    <p><span id="fathers_count">{{ fathers_count }}</span></p>#}
+{#                    <div class="title-wrapper">#}
+{#                        <span>Количество Юношей:</span>#}
+{#                    </div>#}
+{#                    <p><span id="juniors_count">{{ juniors_count }}</span></p>#}
+{#                    <div class="title-wrapper">#}
+{#                        <span>Количество Младенцев:</span>#}
+{#                    </div>#}
+{#                    <p><span id="babies_count">{{ babies_count }}</span></p>#}
+{#                    <div class="title-wrapper">#}
+{#                        <span>Количество Партнеров:</span>#}
+{#                    </div>#}
+{#                    <p><span id="partners_count">{{ partners_count }}</span></p>#}
+{#                </div>#}
             </div>
     </div>
     {% block pagination_top %}

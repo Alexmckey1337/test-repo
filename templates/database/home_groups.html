@@ -53,54 +53,81 @@
     </div>
     <div class="popap" id='filterPopup'>
         <div class="pop_cont">
-            <h2 class='popup_text'>
-                Фильтр
-            </h2>
+            <h2 class='popup_text'>Фильтр</h2>
             <div class="popup_body">
                 <div class="container">
-                    <div class="col-6">
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Церковь</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Ветка</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Лидер</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Дата открытия</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Фильтр по городу</span>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="church" id="church_filter">
-                                <option value="">ВСЕ</option>
-                                {% for church in churches %}
-                                    <option value="{{ church.id }}">{{ church.get_title }}</option>
-                                {% endfor %}
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="master_tree" id="tree_filter">
-                                <option value="">ВСЕ</option>
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="leader" id="leader_filter">
-                                <option value="">ВСЕ</option>
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <input type="text" data-filter="opening_date" id="search_date_open">
-                        </p>
-                        <p class="input_block">
-                            <input type="text" data-filter="city" placeholder="город или часть названия" id="search_city">
-                        </p>
-                    </div>
+                    <label>
+                        <span class="label_block">Церковь</span>
+                        <select class="selectdb" data-filter="church" id="church_filter">
+                            <option value="">ВСЕ</option>
+                            {% for church in churches %}
+                                <option value="{{ church.id }}">{{ church.get_title }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Ветка</span>
+                        <select class="selectdb" data-filter="master_tree" id="tree_filter">
+                            <option value="">ВСЕ</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Лидер</span>
+                        <select class="selectdb" data-filter="leader" id="leader_filter">
+                            <option value="">ВСЕ</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Дата открытия</span>
+                        <input type="text" data-filter="opening_date" id="search_date_open">
+                    </label>
+                    <label>
+                        <span class="label_block">Фильтр по городу</span>
+                        <input type="text" data-filter="city" placeholder="город или часть названия" id="search_city">
+                    </label>
+{#                    <div class="col-6">#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Церковь</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Ветка</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Лидер</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Дата открытия</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Фильтр по городу</span>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <div class="col-6">#}
+{#                        <p class="input_block">#}
+{#                            <select class="selectdb" data-filter="church" id="church_filter">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                                {% for church in churches %}#}
+{#                                    <option value="{{ church.id }}">{{ church.get_title }}</option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <select class="selectdb" data-filter="master_tree" id="tree_filter">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                            </select>#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <select class="selectdb" data-filter="leader" id="leader_filter">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                            </select>#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <input type="text" data-filter="opening_date" id="search_date_open">#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <input type="text" data-filter="city" placeholder="город или часть названия" id="search_city">#}
+{#                        </p>#}
+{#                    </div>#}
                 </div>
             </div>
             <div class="container">
@@ -182,54 +209,88 @@
         <div class="header">
             <div><input type="text" class="title" id="home_groups_title" value="<%=get_title %>"></div>
             <% if(opening_date) { %>
-                <div class="row">
-                    <div class="label_block-wrapp">
-                        <label class="label_block" for="opening_date">Дата открытия</label>
-                    </div>
-                    <input type="text" class="date" id="opening_date" value="<%= opening_date.split('.').reverse().join('-') %>">
-                </div>
+            <label>
+                <span class="label_block">Дата открытия</span>
+                <input type="text" class="date" id="opening_date" value="<%= opening_date.split('.').reverse().join('-') %>">
+            </label>
+{#                <div class="row">#}
+{#                    <div class="label_block-wrapp">#}
+{#                        <label class="label_block" for="opening_date">Дата открытия</label>#}
+{#                    </div>#}
+{#                    <input type="text" class="date" id="opening_date" value="<%= opening_date.split('.').reverse().join('-') %>">#}
+{#                </div>#}
             <% } else { %>
-                <div class="row">
-                    <div class="label_block-wrapp">
-                        <label class="label_block" for="opening_date">Дата открытия</label>
-                    </div>
+                <label>
+                    <span class="label_block">Дата открытия</span>
                     <input type="text" id="opening_date" class="date" value="">
-                </div>
+                </label>
+{#                <div class="row">#}
+{#                    <div class="label_block-wrapp">#}
+{#                        <label class="label_block" for="opening_date">Дата открытия</label>#}
+{#                    </div>#}
+{#                    <input type="text" id="opening_date" class="date" value="">#}
+{#                </div>#}
             <% } %>
             <div class="hidden"><input type="text" id="homeGroupsID" value="<%= id %>"></div>
         </div>
    </div>
     <div class="container start">
-        <div class="column">
-            <div class="label_block-wrapp">
-                <span class="label_block">Церковь:</span>
-            </div>
-            <div class="label_block-wrapp">
-                <span class="label_block">Лидер:</span>
-            </div>
-            <div class="label_block-wrapp">
-                <span class="label_block">Город:</span>
-            </div>
-            <div class="label_block-wrapp">
-                <span class="label_block">Адрес:</span>
-            </div>
-            <div class="label_block-wrapp">
-                <span class="label_block">Телефон:</span>
-            </div>
-            <div class="label_block-wrapp">
-                <span class="label_block">Сайт:</span>
-            </div>
-        </div>
-        <div class="col-7">
-            <div><input type="text" data-id="<%= church.id %>" value="<%= church.title %>" readonly></div>
-            <div><select name="" id="homeGroupLeader">
+{#        <div class="column">#}
+{#            <div class="label_block-wrapp">#}
+{#                <span class="label_block">Церковь:</span>#}
+{#            </div>#}
+{#            <div class="label_block-wrapp">#}
+{#                <span class="label_block">Лидер:</span>#}
+{#            </div>#}
+{#            <div class="label_block-wrapp">#}
+{#                <span class="label_block">Город:</span>#}
+{#            </div>#}
+{#            <div class="label_block-wrapp">#}
+{#                <span class="label_block">Адрес:</span>#}
+{#            </div>#}
+{#            <div class="label_block-wrapp">#}
+{#                <span class="label_block">Телефон:</span>#}
+{#            </div>#}
+{#            <div class="label_block-wrapp">#}
+{#                <span class="label_block">Сайт:</span>#}
+{#            </div>#}
+{#        </div>#}
+        <label>
+            <span class="label_block">Церковь:</span>
+            <input type="text" data-id="<%= church.id %>" value="<%= church.title %>" readonly>
+        </label>
+        <label>
+            <span class="label_block">Лидер:</span>
+            <select name="" id="homeGroupLeader">
                 <option value="<%= leader %>"><%= leader %></option>
-            </select></div>
-            <p><input type="text" id="city" value="<%=city %>"></p>
-            <p><input type="text" id="address" value="<%=address %>"></p>
-            <p><input type="text" id="phone_number" value="<%=phone_number %>"></p>
-            <p><input type="text" id="web_site" value="<%=website %>"></p>
-        </div>
+            </select>
+        </label>
+        <label>
+            <span class="label_block">Город:</span>
+            <input type="text" id="city" value="<%=city %>">
+        </label>
+        <label>
+            <span class="label_block">Адрес:</span>
+            <input type="text" id="address" value="<%=address %>">
+        </label>
+        <label>
+            <span class="label_block">Телефон:</span>
+            <input type="text" id="phone_number" value="<%=phone_number %>">
+        </label>
+        <label>
+            <span class="label_block">Сайт:</span>
+            <input type="text" id="web_site" value="<%=website %>">
+        </label>
+{#        <div class="col-7">#}
+{#            <div><input type="text" data-id="<%= church.id %>" value="<%= church.title %>" readonly></div>#}
+{#            <div><select name="" id="homeGroupLeader">#}
+{#                <option value="<%= leader %>"><%= leader %></option>#}
+{#            </select></div>#}
+{#            <p><input type="text" id="city" value="<%=city %>"></p>#}
+{#            <p><input type="text" id="address" value="<%=address %>"></p>#}
+{#            <p><input type="text" id="phone_number" value="<%=phone_number %>"></p>#}
+{#            <p><input type="text" id="web_site" value="<%=website %>"></p>#}
+{#        </div>#}
     </div>
 </script>
 {% endblock %}

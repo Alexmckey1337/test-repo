@@ -142,6 +142,7 @@
                             </form>
                         </div>
                     </li>
+
                     <li id="editContact">
                         <div class="right-info__block">
                             <h4>Контактные данные</h4>
@@ -149,40 +150,64 @@
                             <form action="/" id="editContactForm" name="editContact" data-action="update-user">
                                 <button class="edit" data-edit-block="editContact"></button>
                                 <button class="save__info" type="submit"></button>
-                                <ul>
-                                    <li class="clearfix">
-                                        <div class="label-wrapp">
-                                            <label for="phone_number"><i class="fa fa-mobile" aria-hidden="true"></i></label>
-                                        </div>
-                                        <input type="text" name="phone_number" value="{{ account.phone_number }}"
+                                <div class="popup_body">
+                                    <div class="container">
+                                        <label>
+                                            <span class="label_block"><i class="fa fa-phone" aria-hidden="true"></i></span>
+                                            <input type="text" name="phone_number" value="{{ account.phone_number }}"
                                                data-validation="custom"
                                                data-validation-regexp="^((\+|[0-9]{1})([0-9]*))?$"
                                                data-validation-optional="true" readonly>
-                                    </li>
-                                    <li class="clearfix">
-                                        <div class="label-wrapp">
-                                            <label for="extra_phone_numbers">
-                                                <i class="fa fa-phone" aria-hidden="true"></i>
-                                            </label>
-                                        </div>
-                                        <input type="text" id="extra_phone_numbers"
-                                               value="{% if account.extra_phone_numbers %}{{ account.extra_phone_numbers|default:""|join:", " }}{% endif %}"
-                                               readonly>
-                                    </li>
-                                    <li class="clearfix">
-                                        <div class="label-wrapp">
-                                            <label for="email"><i class="fa fa-envelope"></i></label>
-                                        </div>
-                                        <input type="email" name="email" value="{{ account.email }}"
+                                        </label>
+                                        <label>
+                                            <span class="label_block"><i class="fa fa-mobile" aria-hidden="true"></i></span>
+                                            <input type="text" id="extra_phone_numbers" value="{% if account.extra_phone_numbers %}{{ account.extra_phone_numbers|default:""|join:", " }}{% endif %}" readonly>
+                                        </label>
+                                        <label>
+                                            <span class="label_block"><i class="fa fa-envelope"></i></span>
+                                            <input type="email" name="email" value="{{ account.email }}"
                                                data-validation="email" data-validation-optional="true" readonly>
-                                    </li>
-                                    <li class="clearfix">
-                                        <div class="label-wrapp">
-                                            <label for="skype"><i class="fa fa-skype"></i></label>
-                                        </div>
-                                        <input type="text" name="skype" value="{{ account.skype }}" readonly>
-                                    </li>
-                                </ul>
+                                        </label>
+                                        <label>
+                                            <span class="label_block"><i class="fa fa-skype"></i></span>
+                                            <input type="text" name="skype" value="{{ account.skype }}" readonly>
+                                        </label>
+                                    </div>
+                                </div>
+{#                                <ul>#}
+{#                                    <li class="clearfix">#}
+{#                                        <div class="block-wrapp">#}
+{#                                            <span><i class="fa fa-mobile" aria-hidden="true"></i></span>#}
+{#                                            <input type="text" name="phone_number" value="{{ account.phone_number }}"#}
+{#                                               data-validation="custom"#}
+{#                                               data-validation-regexp="^((\+|[0-9]{1})([0-9]*))?$"#}
+{#                                               data-validation-optional="true" readonly>#}
+{#                                        </div>#}
+{#                                    </li>#}
+{#                                    <li class="clearfix">#}
+{#                                        <div class="block-wrapp">#}
+{#                                            <span>#}
+{#                                                <i class="fa fa-phone" aria-hidden="true"></i>#}
+{#                                            </span>#}
+{#                                        </div>#}
+{#                                        <input type="text" id="extra_phone_numbers"#}
+{#                                               value="{% if account.extra_phone_numbers %}{{ account.extra_phone_numbers|default:""|join:", " }}{% endif %}"#}
+{#                                               readonly>#}
+{#                                    </li>#}
+{#                                    <li class="clearfix">#}
+{#                                        <div class="label-wrapp">#}
+{#                                            <label for="email"><i class="fa fa-envelope"></i></label>#}
+{#                                        </div>#}
+{#                                        <input type="email" name="email" value="{{ account.email }}"#}
+{#                                               data-validation="email" data-validation-optional="true" readonly>#}
+{#                                    </li>#}
+{#                                    <li class="clearfix">#}
+{#                                        <div class="label-wrapp">#}
+{#                                            <label for="skype"><i class="fa fa-skype"></i></label>#}
+{#                                        </div>#}
+{#                                        <input type="text" name="skype" value="{{ account.skype }}" readonly>#}
+{#                                    </li>#}
+{#                                </ul>#}
                             </form>
                         </div>
                     </li>
