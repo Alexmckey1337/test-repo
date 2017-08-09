@@ -64,8 +64,7 @@ class PaymentShowSerializer(serializers.ModelSerializer):
         fields = ('id', 'sum', 'effective_sum',
                   'sum_str', 'effective_sum_str', 'operation',
                   'currency_sum', 'currency_rate', 'rate', 'description',
-                  'created_at', 'sent_date',
-                  'manager', 'purpose')
+                  'created_at', 'sent_date', 'manager', 'purpose')
 
 
 class PaymentShowWithUrlSerializer(serializers.HyperlinkedModelSerializer):

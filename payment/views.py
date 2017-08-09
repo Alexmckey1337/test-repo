@@ -15,6 +15,7 @@ from payment.filters import PaymentFilterByPurpose, PaymentFilter, FilterByDealF
 from payment.serializers import PaymentUpdateSerializer, PaymentShowSerializer, PaymentDealShowSerializer
 from .models import Payment
 from .permissions import PaymentManagerOrSupervisor
+from .pagination import PaymentPagination
 
 
 class PaymentUpdateDestroyView(LogAndCreateUpdateDestroyMixin,
@@ -103,6 +104,7 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
     queryset = Payment.objects.base_queryset()
     serializer_class = PaymentDealShowSerializer
     permission_classes = (IsAuthenticated,)
+    pagination_class = PaymentPagination
 
     filter_backends = (filters.DjangoFilterBackend,
                        FieldSearchFilter,
@@ -111,7 +113,9 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
                        FilterByDealManagerFIO,
                        filters.OrderingFilter,)
     ordering_fields = ('sum', 'effective_sum', 'currency_sum__name', 'currency_rate__name', 'created_at', 'sent_date',
-                       'manager__last_name')
+                       'manager__last_name', 'description',
+                       'deals__partnership__user__last_name', 'deals__date_created',
+                       'deals__partnership__responsible__user__last_name')
     field_search_fields = {
         'search_description': ('description',),
     }

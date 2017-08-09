@@ -1,4 +1,5 @@
 {% extends "layout_main.html" %}
+{% load i18n %}
 
 {% block body_id %} id="database"{% endblock %}
 
@@ -10,10 +11,14 @@
                     {% if user.can_see_churches %}
                         <li><a{% if active_tab == 'churches' %} class="active"{% endif %}
                                 href="{% url 'db:churches' %}">Церкви</a></li>
+                    {% else %}
+                        <li><span class="disable">{% trans "Churches" %}</span></li>
                     {% endif %}
                     {% if user.can_see_home_groups %}
                         <li><a{% if active_tab == 'home_groups' %} class="active"{% endif %}
                                 href="{% url 'db:home_groups' %}">Домашние группы</a></li>
+                    {% else %}
+                        <li><span class="disable">{% trans "Home groups" %}</span></li>
                     {% endif %}
                     <li><a{% if active_tab == 'people' %} class="active"{% endif %}
                             href="{% url 'db:people' %}">Люди</a></li>

@@ -33,3 +33,24 @@ class MeetingManager(models.Manager):
 
     def annotate_owner_name(self):
         return self.get_queryset().annotate_owner_name()
+
+
+class ChurchReportQuerySet(models.query.QuerySet):
+    def base_queryset(self):
+        return self
+
+    def for_user(self, user):
+        if not is_authenticated(user):
+            return self.none()
+        return self.filter(pastor__user__in=user.get_descendants(include_self=True))
+
+
+class ChurchReportManager(models.Manager):
+    def get_queryset(self):
+        return ChurchReportQuerySet(self.model, using=self._db)
+
+    def base_queryset(self):
+        return self.get_queryset().base_queryset()
+
+    def for_user(self, user):
+        return self.get_queryset().for_user(user=user)

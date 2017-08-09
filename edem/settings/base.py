@@ -286,22 +286,13 @@ CELERYBEAT_SCHEDULE = {
     },
     # # Executes every monday evening at 00:05 A.M
     # 'create_new_church_reports': {
-    #     'task': 'create_new_meetings',
+    #     'task': 'create_new_church_reports',
     #     'schedule': crontab(hour=0, minute=5, day_of_week='mon')
     # },
     # # Executes every monday evening at 00:00 A.M
     # 'church_reports_to_expired': {
-    #     'task': 'meetings_to_expired',
+    #     'task': 'church_reports_to_expired',
     #     'schedule': crontab(hour=0, minute=0, day_of_week='mon')
-    # },
-    # Executes every day, every 1 minutes
-    # 'get_palace_logs': {
-    #     'task': 'get_palace_logs',
-    #     'schedule': 10
-    # },
-    # 'anket_autoban': {
-    #     'task': 'anket_autoban',
-    #     'schedule': 24 * 2 * 60 * 60
     # },
 }
 
@@ -366,6 +357,11 @@ LOGGING = {
         'event.views': {
             'level': 'DEBUG',
             'handlers': ['console', 'file'],
+            'propagate': False,
+        },
+        'group.views': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
             'propagate': False,
         },
         'summit.views': {

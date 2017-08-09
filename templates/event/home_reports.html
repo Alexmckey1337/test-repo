@@ -14,11 +14,10 @@
     {% block header.tabs %}
         <div class="tabs">
             <ul class="nav tabs_link">
-                <li><a class="active"
-                       href="{% url 'events:meeting_report_list' %}">Отчёты домашних груп</a></li>
-                {#                <li><a href="{% url 'events:church_report_list' %}">Отчёты церквей</a></li>#}
-                <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних груп</a></li>
-                {#                <li><a href="{% url 'events:church_report_statistics' %}">Статистика церквей</a></li>#}
+{#                <li><a href="{% url 'events:church_report_list' %}">Отчёты церквей</a></li>#}
+{#                <li><a href="{% url 'events:church_report_statistics' %}">Статистика церквей</a></li>#}
+                <li><a class="active" href="{% url 'events:meeting_report_list' %}">Отчёты домашних групп</a></li>
+                <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних групп</a></li>
             </ul>
         </div>
     {% endblock %}
@@ -146,17 +145,11 @@
                             <span class="label_block">Церковь</span>
                         </div>
                         <div class="label_block-wrapp">
-                            <span class="label_block">Домашняя группа</span>
-                        </div>
-                        <div class="label_block-wrapp">
                             <span class="label_block">Лидер домашней группы</span>
                         </div>
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Тип</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Фильтр по дате</span>#}
-{#                        </div>#}
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Домашняя группа</span>
+                        </div>
                     </div>
                     <div class="col-6">
                         <p class="input_block">
@@ -170,48 +163,23 @@
                         <p class="input_block">
                             <select class="selectdb" data-filter="master_tree" id="master_tree_filter">
                                 <option value="">ВСЕ</option>
-                                {% for owner in owners %}
-                                    <option value="{{ owner.id }}">{{ owner.fullname }}</option>
-                                {% endfor %}
                             </select>
                         </p>
                         <p class="input_block">
                             <select class="selectdb" data-filter="church" id="church_filter">
                                 <option value="">ВСЕ</option>
-                                {% for church in churches %}
-                                    <option value="{{ church.id }}">{{ church.title }}</option>
-                                {% endfor %}
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="home_group" id="home_group_filter">
-                                <option value="">ВСЕ</option>
-                                {% for home_group in home_groups %}
-                                    <option value="{{ home_group.id }}">{{ home_group.get_title }}</option>
-                                {% endfor %}
                             </select>
                         </p>
                         <p class="input_block">
                             <select class="selectdb" data-filter="owner" id="masters_filter">
                                 <option value="">ВСЕ</option>
-                                {% for owner in owners %}
-                                    <option value="{{ owner.id }}">{{ owner.fullname }}</option>
-                                {% endfor %}
                             </select>
                         </p>
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="type" id="type_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                                {% for type in types %}#}
-{#                                    <option value="{{ type.id }}">{{ type.name }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <input type="text" placeholder="от" data-filter="from_date" id="date_from"#}
-{#                                   class="select_date_filter"><input type="text" placeholder="до" data-filter="to_date"#}
-{#                                                                     id="date_to" class="select_date_filter">#}
-{#                        </p>#}
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="owner" id="masters_filter">
+                                <option value="">ВСЕ</option>
+                            </select>
+                        </p>
                     </div>
                 </div>
             </div>

@@ -7,11 +7,22 @@
       border: 1px solid #cdd0d4;
       border-radius: 3px;
       padding: 0 .5em;
-      &#date_from, &#date_to, &.select_from_filter, &.select_to_filter, &#time_from,  &#time_to {
+      &#date_from,
+      &.select_rep_date_filter,
+      &#date_to,
+      &.select_from_filter,
+      &.select_to_filter,
+      &#time_from,
+      &#time_to,
+      &#value_from,
+      &#value_to {
         width: ~'calc(45% - 12px)';
         float: left;
       }
-      &#date_from, &.select_from_filter {
+      &#date_from,
+      &#value_from,
+      &#repentance_date_from,
+      &.select_from_filter {
         margin-right: 10px;
       }
       &[type=checkbox] {
@@ -884,6 +895,26 @@ button{
       overflow-y: scroll;
       & .block {
         font-size: .9em;
+        .duplicate_users {
+          display: flex;
+          align-items: center;
+          width: 90%;
+          margin-top: 20px;
+          padding: 15px;
+          border: 1px solid #ff0000;
+          border-radius: 5px;
+          a {
+            color: #3caeda;
+            font-size: 1.2em;
+            text-decoration: underline;
+          }
+          ._preloader {
+            width: 25px;
+            height: 25px;
+            margin-left: 10px;
+            opacity: 0;
+          }
+        }
       }
       & h2 {
         margin: 0;
@@ -1403,4 +1434,45 @@ button{
   .datepicker{
     z-index: 10000;
   }
+}
+
+.pop-up__confirm {
+  .block {
+    margin: 20px 0;
+    p {
+      line-height: 1.3em;
+    }
+  }
+  .btn_block {
+    display: flex;
+    justify-content: flex-end;
+    button {
+      position: relative;
+      &::before {
+        content: '';
+        position: absolute;
+        top: 11px;
+        left: 15px;
+        width: 19px;
+        height: 19px;
+      }
+    }
+    .ok {
+      &::before {
+        content: '\f00c'!important;
+        font: 1.4em FontAwesome;
+      }
+    }
+    .close_pop {
+      margin-right: 10px;
+      &::before {
+        content: '\f00d'!important;
+        font: 1.4em FontAwesome;
+      }
+    }
+  }
+}
+
+#create_pop.pop-up__table .pop_cont {
+  width: 900px;
 }

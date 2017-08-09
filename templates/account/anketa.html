@@ -108,13 +108,17 @@
                                         <div class="label-wrapp">
                                             <label for="first_name">Имя</label>
                                         </div>
-                                        <input type="text" name="first_name" value="{{ account.first_name }}" readonly>
+                                        <input type="text" name="first_name" value="{{ account.first_name }}"
+                                               data-validation="required"
+                                               data-validation-optional="true" readonly>
                                     </li>
                                     <li class="clearfix">
                                         <div class="label-wrapp">
                                             <label for="last_name">Фамилия</label>
                                         </div>
-                                        <input type="text" name="last_name" value="{{ account.last_name }}" readonly>
+                                        <input type="text" name="last_name" value="{{ account.last_name }}"
+                                               data-validation="required"
+                                               data-validation-optional="true" readonly>
                                     </li>
                                     <li class="clearfix">
                                         <div class="label-wrapp">
@@ -155,8 +159,7 @@
                                             <label for="phone_number"><i class="fa fa-mobile" aria-hidden="true"></i></label>
                                         </div>
                                         <input type="text" name="phone_number" value="{{ account.phone_number }}"
-                                               data-validation="custom"
-                                               data-validation-regexp="^((\+|[0-9]{1})([0-9]*))?$"
+                                               data-validation="required"
                                                data-validation-optional="true" readonly>
                                     </li>
                                     <li class="clearfix">

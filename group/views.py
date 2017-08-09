@@ -1,4 +1,7 @@
 # -*- coding: utf-8
+
+import logging
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count, Case, When, BooleanField
 from django.db.models import Q
@@ -18,16 +21,21 @@ from common.filters import FieldSearchFilter
 from common.test_helpers.utils import get_real_user
 from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet
 from group.filters import (HomeGroupFilter, ChurchFilter, FilterChurchMasterTree, FilterHomeGroupMasterTree,
-                           HomeGroupsDepartmentFilter)
+                           HomeGroupsDepartmentFilter, FilterHGLeadersByMasterTree, FilterHGLeadersByChurch,
+                           FilterHGLeadersByDepartment, FilterPotentialHGLeadersByMasterTree,
+                           FilterPotentialHGLeadersByChurch, FilterPotentialHGLeadersByDepartment)
 from group.pagination import ChurchPagination, HomeGroupPagination
+from group.permissions import CanSeeChurch, CanCreateChurch, CanEditChurch, CanExportChurch, \
+    CanSeeHomeGroup, CanCreateHomeGroup, CanEditHomeGroup, CanExportHomeGroup
 from group.resources import ChurchResource, HomeGroupResource
 from group.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin)
 from .models import HomeGroup, Church
 from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSerializer,
                           HomeGroupListSerializer, ChurchStatsSerializer, UserNameSerializer,
                           AllHomeGroupsListSerializer, HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer,
-                          ChurchDashboardSerializer
-                          )
+                          ChurchDashboardSerializer)
+
+logger = logging.getLogger(__name__)
 
 
 class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
@@ -38,6 +46,12 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
     serializer_list_class = ChurchListSerializer
 
     permission_classes = (IsAuthenticated,)
+    permission_list_classes = (CanSeeChurch,)
+    permission_retrieve_classes = permission_list_classes
+    permission_create_classes = (CanCreateChurch,)
+    permission_update_classes = (CanEditChurch,)
+    permission_partial_update_classes = permission_update_classes
+
     pagination_class = ChurchPagination
 
     filter_backends = (filters.DjangoFilterBackend,
@@ -58,6 +72,10 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
 
     resource_class = ChurchResource
 
+    def get_permissions(self):
+        permission_classes = getattr(self, 'permission_{}_classes'.format(self.action), self.permission_classes)
+        return [permission() for permission in permission_classes]
+
     def get_serializer_class(self):
         if self.action == 'list':
             return self.serializer_list_class
@@ -70,6 +88,10 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
                 count_users=Count('uusers', distinct=True) + Count(
                     'home_group__uusers', distinct=True))
         return self.queryset.for_user(self.request.user)
+
+    @list_route(methods=['post'], permission_classes=(CanExportChurch,))
+    def export(self, request, *args, **kwargs):
+        return self._export(request, *args, **kwargs)
 
     @list_route(methods=['GET'], serializer_class=UserNameSerializer)
     def available_pastors(self, request):
@@ -97,11 +119,12 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
 
     @detail_route(methods=['post', 'put'])
     def add_user(self, request, pk):
-        # TODO filter by perm
         church = get_object_or_404(Church, pk=pk)
         user = self._get_user(request.data.get('user_id', None))
 
+        request.user.can_add_user_to_church(user, church)
         self._validate_user_for_add_user(user)
+
         user.set_church_and_log(church, get_real_user(request))
 
         return Response({'detail': _('Пользователь успешно добавлен.')},
@@ -113,6 +136,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
         church = self.get_object()
 
         user = self._get_user(user_id)
+        request.user.can_del_user_from_church(user, church)
 
         if user.cchurch != church:
             if user.hhome_group:
@@ -129,7 +153,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
         return Response({'detail': _('Пользователь успешно удален из Церкви')},
                         status=status.HTTP_204_NO_CONTENT)
 
-    @detail_route(methods=['GET'])
+    @detail_route(methods=['GET'], permission_classes=(CanSeeChurch,))
     def statistics(self, request, pk):
         stats = {}
         church = get_object_or_404(Church, pk=pk)
@@ -200,18 +224,23 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
             raise exceptions.ValidationError({'detail': _('User with id = %s does not exist.' % user_id)})
         return user
 
-    @staticmethod
-    def filter_potential_users_for_group(qs, pk):
-        return qs.annotate(can_add=Case(When(Q(hhome_group__isnull=True) & (Q(
-            cchurch__isnull=True) | Q(cchurch_id=pk)), then=True), default=False, output_field=BooleanField()))
+    def filter_potential_users_for_group(self, qs, pk):
+        user = self.request.user
+        return qs.annotate(
+            can_add=Case(
+                When(Q(hhome_group__isnull=True) &
+                     (Q(cchurch__isnull=True) | Q(cchurch_id=pk)),
+                     # & Q(lft__gte=user.lft) & Q(rght__lte=user.rght) & Q(tree_id=user.tree_id),
+                     then=True), default=False, output_field=BooleanField()))
 
-    @staticmethod
-    def filter_potential_users_for_church(qs):
+    def filter_potential_users_for_church(self, qs):
+        user = self.request.user
         return qs.annotate(can_add=Case(When(Q(hhome_group__isnull=True) & Q(
-            cchurch__isnull=True), then=True), default=False, output_field=BooleanField()))
+            cchurch__isnull=True) &
+                                             Q(lft__gte=user.lft) & Q(rght__lte=user.rght) & Q(tree_id=user.tree_id),
+                                             then=True), default=False, output_field=BooleanField()))
 
-    @staticmethod
-    def _get_potential_users(request, filter, *args):
+    def _get_potential_users(self, request, filter, *args):
         params = request.query_params
         search = params.get('search', '').strip()
         if len(search) < 3:
@@ -270,6 +299,12 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
     serializer_list_class = HomeGroupListSerializer
 
     permission_classes = (IsAuthenticated,)
+    permission_list_classes = (CanSeeHomeGroup,)
+    permission_retrieve_classes = permission_list_classes
+    permission_create_classes = (CanCreateHomeGroup,)
+    permission_update_classes = (CanEditHomeGroup,)
+    permission_partial_update_classes = permission_update_classes
+
     pagination_class = HomeGroupPagination
 
     filter_backends = (filters.DjangoFilterBackend,
@@ -290,6 +325,10 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
 
     resource_class = HomeGroupResource
 
+    def get_permissions(self):
+        permission_classes = getattr(self, 'permission_{}_classes'.format(self.action), self.permission_classes)
+        return [permission() for permission in permission_classes]
+
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
             return self.serializer_list_class
@@ -300,10 +339,15 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
             return self.queryset.for_user(self.request.user).annotate(count_users=Count('uusers'))
         return self.queryset.for_user(self.request.user)
 
+    @list_route(methods=['post'], permission_classes=(CanExportHomeGroup,))
+    def export(self, request, *args, **kwargs):
+        return self._export(request, *args, **kwargs)
+
     @detail_route(methods=['post'])
     def add_user(self, request, pk):
         home_group = get_object_or_404(HomeGroup, pk=pk)
         user = self._get_user(request.data.get('user_id', None))
+        request.user.can_add_user_to_home_group(user, home_group)
 
         self._validate_user_for_add_user(user, home_group)
         user.set_home_group_and_log(home_group, get_real_user(request))
@@ -317,28 +361,35 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         home_group = get_object_or_404(HomeGroup, pk=pk)
         user = self._get_user(user_id)
 
+        request.user.can_del_user_from_church(user, home_group)
         self._validate_user_for_del_user(user, home_group)
 
         user.del_home_group_and_log(get_real_user(request))
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @list_route(methods=['GET'], serializer_class=UserNameSerializer)
-    def available_leaders(self, request):
-        church_id = request.query_params.get('church_id')
-        department_id = request.query_params.get('department_id')
-        master_tree_id = request.query_params.get('master_tree')
+    @list_route(methods=['GET'],
+                filter_backends=(
+                        FilterPotentialHGLeadersByMasterTree,
+                        FilterPotentialHGLeadersByChurch,
+                        FilterPotentialHGLeadersByDepartment,))
+    def potential_leaders(self, request):
+        """
+        Potential leaders
+        """
+        leaders = self.filter_queryset(CustomUser.objects.filter(hierarchy__level__gte=1))
 
-        master = self._get_master(request.user, master_tree_id)
+        return Response(UserNameSerializer(leaders, many=True).data)
 
-        leaders = master.get_descendants(include_self=True).filter(hierarchy__level__gte=1)
-        if church_id:
-            leaders = leaders.filter(Q(hhome_group__church_id=church_id) | Q(cchurch_id=church_id))
-        if department_id:
-            leaders = leaders.filter(departments=department_id)
-
-        leaders = self.serializer_class(leaders, many=True)
-        return Response(leaders.data)
+    @list_route(
+        methods=['GET'],
+        filter_backends=(FilterHGLeadersByMasterTree, FilterHGLeadersByChurch, FilterHGLeadersByDepartment,))
+    def leaders(self, request):
+        """
+        Leaders
+        """
+        leaders = self.filter_queryset(CustomUser.objects.filter(home_group__isnull=False)).distinct()
+        return Response(UserNameSerializer(leaders, many=True).data)
 
     @detail_route(methods=["GET"])
     def statistics(self, request, pk):

@@ -10,7 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied, MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Count, Case, When, BooleanField
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.views.generic import DetailView, ListView
@@ -57,7 +57,7 @@ def events(request):
 
 @login_required(login_url='entry')
 def meeting_report_list(request):
-    if not request.user.hierarchy or request.user.hierarchy.level < 1:
+    if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
         return redirect('/')
 
     ctx = {
@@ -73,7 +73,7 @@ def meeting_report_list(request):
 
 @login_required(login_url='entry')
 def meeting_report_detail(request, pk):
-    if not request.user.hierarchy or request.user.hierarchy.level < 1:
+    if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
         return redirect('/')
 
     ctx = {
@@ -85,7 +85,7 @@ def meeting_report_detail(request, pk):
 
 @login_required(login_url='entry')
 def meeting_report_statistics(request):
-    if not request.user.hierarchy or request.user.hierarchy.level < 1:
+    if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
         return redirect('/')
 
     ctx = {
@@ -101,10 +101,12 @@ def meeting_report_statistics(request):
 
 @login_required(login_url='entry')
 def church_report_list(request):
-    if not request.user.hierarchy or request.user.hierarchy.level < 2:
+    if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 2):
         return redirect('/')
 
-    ctx = {}
+    ctx = {
+        'departments': Department.objects.all(),
+    }
 
     return render(request, 'event/church_reports.html', context=ctx)
 
@@ -119,7 +121,7 @@ def church_report_detail(request, pk):
         'pastor': request.user,
     }
 
-    return render(request, 'event/CHURCH_REPORT_DETAIL.html', context=ctx)
+    return render(request, 'event/church_report_detail.html', context=ctx)
 
 
 @login_required(login_url='entry')
@@ -127,7 +129,11 @@ def church_statistics(request):
     if not request.user.hierarchy or request.user.hierarchy.level < 2:
         return redirect('/')
 
-    return render(request, 'event/CHURCH_REPORT_STATISTICS.html', context={})
+    ctx = {
+        'departments': Department.objects.all(),
+    }
+
+    return render(request, 'event/church_statistics.html', context=ctx)
 
 
 # partner
@@ -191,6 +197,13 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, TemplateView):
 class DealListView(LoginRequiredMixin, CanSeeDealsMixin, TemplateView):
     template_name = 'partner/deals.html'
     login_url = 'entry'
+    def get_context_data(self, **kwargs):
+        ctx = super(DealListView, self).get_context_data(**kwargs)
+
+        ctx['managers'] = CustomUser.objects.filter(partnership__level__lte=2).distinct()
+        ctx['currencies'] = Currency.objects.all()
+
+        return ctx
 
 
 class PartnerStatisticsListView(LoginRequiredMixin, CanSeePartnerStatsMixin, TemplateView):
@@ -227,6 +240,7 @@ class DealPaymentView(LoginRequiredMixin, DetailView):
 
         ctx['payments'] = self.object.payments.base_queryset().annotate_manager_name()
         # TODO test
+        ctx['currencies'] = Currency.objects.all()
         ctx['partners'] = Partnership.objects.annotate_full_name().filter(
             pk__in=Partnership.objects.exclude(pk=self.object.partnership.id)[:11].values_list('id', flat=True))
 
@@ -424,7 +438,7 @@ class SummitTicketListView(LoginRequiredMixin, CanSeeSummitTicketMixin, ListView
     def dispatch(self, request, *args, **kwargs):
         response = super(SummitTicketListView, self).dispatch(request, *args, **kwargs)
         try:
-            r = redis.StrictRedis(host='localhost', port=6379, db=0)
+            r = redis.StrictRedis(host='redis', port=6379, db=0)
             r.srem('summit:ticket:{}'.format(request.user.id), *list(self.get_queryset().values_list('id', flat=True)))
         except Exception as err:
             print(err)
@@ -435,7 +449,7 @@ class SummitTicketListView(LoginRequiredMixin, CanSeeSummitTicketMixin, ListView
         code = self.request.GET.get('code', '')
         qs = super(SummitTicketListView, self).get_queryset()
         try:
-            r = redis.StrictRedis(host='localhost', port=6379, db=0)
+            r = redis.StrictRedis(host='redis', port=6379, db=0)
             ticket_ids = r.smembers('summit:ticket:{}'.format(self.request.user.id))
         except Exception as err:
             ticket_ids = None
@@ -462,7 +476,7 @@ class SummitTicketDetailView(LoginRequiredMixin, CanSeeSummitTicketMixin, Detail
     def dispatch(self, request, *args, **kwargs):
         response = super(SummitTicketDetailView, self).dispatch(request, *args, **kwargs)
         try:
-            r = redis.StrictRedis(host='localhost', port=6379, db=0)
+            r = redis.StrictRedis(host='redis', port=6379, db=0)
             r.srem('summit:ticket:{}'.format(request.user.id), self.object.id)
         except Exception as err:
             print(err)
@@ -529,6 +543,17 @@ class CanSeeChurchesMixin(View):
         if not request.user.can_see_churches():
             raise PermissionDenied
         return super(CanSeeChurchesMixin, self).dispatch(request, *args, **kwargs)
+
+
+class CanSeeChurchMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            church = self.get_object()
+        except Http404:
+            raise PermissionDenied
+        if not request.user.can_see_church(church):
+            raise PermissionDenied
+        return super(CanSeeChurchMixin, self).dispatch(request, *args, **kwargs)
 
 
 class CanSeeHomeGroupsMixin(View):
@@ -598,7 +623,7 @@ class HomeGroupListView(LoginRequiredMixin, TabsMixin, CanSeeHomeGroupsMixin, Te
         return ctx
 
 
-class ChurchDetailView(LoginRequiredMixin, CanSeeChurchesMixin, DetailView):
+class ChurchDetailView(LoginRequiredMixin, CanSeeChurchMixin, DetailView):
     model = Church
     context_object_name = 'church'
     template_name = 'group/church_detail.html'

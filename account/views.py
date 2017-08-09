@@ -40,9 +40,10 @@ from hierarchy.serializers import DepartmentSerializer
 from navigation.table_fields import user_table
 from .resources import UserResource
 from .serializers import (
-    UserShortSerializer, UserTableSerializer, UserSingleSerializer,
-    PartnershipSerializer, ExistUserSerializer, UserCreateSerializer, DashboardSerializer
+    UserShortSerializer, UserTableSerializer, UserSingleSerializer, PartnershipSerializer, ExistUserSerializer,
+    UserCreateSerializer, DashboardSerializer, DuplicatesAvoidedSerializer,
 )
+from django.contrib.postgres.search import TrigramSimilarity
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +70,21 @@ class UserPagination(PageNumberPagination):
             },
             'count': self.page.paginator.count,
             'user_table': user_table(self.request.user),
+            'results': data
+        })
+
+
+class DuplicatesAvoidedPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+
+    def get_paginated_response(self, data):
+        return Response({
+            'links': {
+                'next': self.get_next_link(),
+                'previous': self.get_previous_link()
+            },
+            'count': self.page.paginator.count,
             'results': data
         })
 
@@ -354,6 +370,45 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
 
         result = self.serializer_class(result)
         return Response(result.data)
+
+    @list_route(methods=['GET'], serializer_class=DuplicatesAvoidedSerializer,
+                pagination_class=DuplicatesAvoidedPagination)
+    def duplicates_avoided(self, request):
+        valid_keys = ['last_name', 'first_name', 'middle_name']
+        params = [(k, v) for (k, v) in request.query_params.items() if k in valid_keys]
+
+        users = []
+        count = 0
+        for k, v in params:
+            count += 1
+            users += User.objects.annotate(similarity=TrigramSimilarity(k, v)).filter(similarity__gt=0.4)
+
+        if request.query_params.get('phone_number'):
+            count += 1
+            users += User.objects.filter(phone_number__contains=request.query_params.get('phone_number'))
+
+        def get_duplicates(users, count):
+            _dict = {}
+            for user in users:
+                if user not in _dict:
+                    _dict[user] = 1
+                else:
+                    _dict[user] += 1
+            return [(x, y) for (x, y) in _dict.items() if y == count]
+
+        users_list = get_duplicates(users, count)
+        users = [user[0] for user in users_list]
+
+        if request.query_params.get('only_count'):
+            return Response({'count': len(users_list)}, status=status.HTTP_200_OK)
+
+        page = self.paginate_queryset(users)
+        if page is not None:
+            users = self.get_serializer(page, many=True)
+            return self.get_paginated_response(users.data)
+
+        users = self.serializer_class(users, many=True)
+        return Response(users.data, status=status.HTTP_200_OK)
 
 
 class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):

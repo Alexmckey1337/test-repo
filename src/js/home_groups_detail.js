@@ -181,17 +181,12 @@
             });
             $(this).removeClass('active');
         } else {
-            // let church_id = $(this).closest('form').attr('data-id');
-            // let user_id = $('body').attr('data-user');
-            // let config = {
-            //     master_tree: user_id,
-            //     // church_id: church_id,
-            // };
-            let leaderId = $('#homeGroupLeader').val();
+            let leaderId = $('#homeGroupLeader').val(),
+                churchId = $('#editHomeGroupForm').attr('data-departament_id');
 
-             getResponsibleBYHomeGroup().then(function (res) {
+             getPotentialLeadersForHG({church: churchId}).then(function (res) {
                     return res.map(function (leader) {
-                        return '<option value="' + leader.id + '" ' + (leaderId == leader.id ? 'selected' : '') + '>' + leader.fullname + '</option>';
+                        return `<option value="${leader.id}" ${(leaderId == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`;
                     });
                 }).then(function (data) {
                     $('#homeGroupLeader').html(data).prop('disabled', false).select2();

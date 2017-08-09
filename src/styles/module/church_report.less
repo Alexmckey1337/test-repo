@@ -1,0 +1,59 @@
+#databaseChurchReportsForm {
+  h3 {
+    text-transform: uppercase;
+    font-size: 1.3em;
+    font-weight: 900;
+  }
+  .report-block {
+    display: flex;
+    margin-top: 15px;
+  }
+  & ul.info {
+    & li {
+      display: flex;
+      align-items: center;
+      padding: .5em 0;
+      & .label-wrapp {
+        position: relative;
+        width: 55%;
+        &::after {
+          position: absolute;
+          left: 3px;
+          bottom: 3px;
+          display: block;
+          width: 95%;
+          height: 2px;
+          background-image: radial-gradient(circle, #656d78 .6px, transparent 1px);
+          background-repeat: repeat-x;
+          background-size: 5px 2px;
+          content: '';
+        }
+      }
+      & label,
+      & span {
+        position: relative;
+        padding-right: 5px;
+        background-color: #fff;
+        z-index: 2;
+        font-size: 1.1em;
+      }
+      & input {
+        width: 100%;
+        height: 20px;
+      }
+      & textarea {
+        width: 100%;
+        resize: none;
+      }
+      #comment {
+        height: 60px;
+      }
+    }
+    & .input {
+      width: 35%;
+    }
+  }
+  .help-block.form-error {
+    z-index: -1;
+  }
+}
