@@ -17,6 +17,10 @@
         });
     }
 
+    function reRenderTable(config) {
+        addUserToChurch(config).then(() => createChurchesUsersTable(CHURCH_ID));
+    }
+
     function addUserToChurch(data) {
         let userId = data.id;
         let config = {};
@@ -202,7 +206,7 @@
         onSuccess: function (form) {
             if ($(form).attr('name') == 'createUser') {
                 $(form).find('#saveNew').attr('disabled', true);
-                createNewUser(addUserToChurch).then(function () {
+                createNewUser(reRenderTable).then(function () {
                     $(form).find('#saveNew').attr('disabled', false);
                 });
             }
