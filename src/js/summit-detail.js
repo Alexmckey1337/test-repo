@@ -445,8 +445,9 @@
     //         createSummitUsersTable({summit: SUMMIT_ID, page: 1});
     //     }, 100);
     // });
-
-    $('#searchUsers').on('keyup', makePotencialSammitUsersList);
+    $('#searchUsers').on('keyup', _.debounce(function () {
+        makePotencialSammitUsersList();
+    }, 500));
     $('#summitsTypes').find('li').on('click', function () {
         $('.preloader').css('display', 'block');
         let config = {};

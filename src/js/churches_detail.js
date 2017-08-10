@@ -143,14 +143,14 @@
         $('#chooseDepartment').html(option).attr('disabled', false);
         $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
     });
-    $('#searchUserFromDatabase').on('keyup', function () {
+    $('#searchUserFromDatabase').on('keyup', _.debounce(function () {
         let search = $(this).val();
         if (search.length < 3) return;
         let config = {};
         config.search = search;
         config.department = D_ID;
         makeUsersFromDatabaseList(config);
-    });
+    }, 500));
 
     $('.get_info button').on('click', function () {
         let link = $(this).data('link');
