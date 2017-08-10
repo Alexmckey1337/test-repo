@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from summit.models import SummitTicket
-from .serializers import NotificationSerializer
+from .serializers import BirthdayNotificationSerializer, RepentanceNotificationSerializer
 from account.models import CustomUser
 from account.filters import FilterByUserBirthday, FilterByUserRepentance
 from rest_framework.pagination import PageNumberPagination
@@ -31,7 +31,6 @@ class NotificationPagination(PageNumberPagination):
 
 class NotificationViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
-    serializer_class = NotificationSerializer
     permission_classes = (IsAuthenticated,)
     pagination_class = NotificationPagination
 
@@ -46,22 +45,38 @@ class NotificationViewSet(viewsets.ModelViewSet):
             print(err)
         return Response({'tickets_count': tickets.count()})
 
-    @list_route(methods=['GET'], filter_backends=[FilterByUserBirthday])
+    @list_route(methods=['GET'], filter_backends=[FilterByUserBirthday],
+                serializer_class=BirthdayNotificationSerializer, pagination_class=NotificationPagination)
     def birthdays(self, request):
-        queryset = self.filter_queryset(self.queryset)
-        birthdays = self.serializer_class(queryset, many=True)
+        current_user_descendants = CustomUser.objects.get(id=self.request.user.id).get_descendants()
+        birthdays = self.filter_queryset(current_user_descendants)
 
         if request.query_params.get('only_count'):
-            return Response({'birthdays_count': len(queryset)})
+            return Response({'birthdays_count': len(birthdays)})
+
+        page = self.paginate_queryset(birthdays)
+        if page is not None:
+            birthdays = self.get_serializer(page, many=True)
+            return self.get_paginated_response(birthdays.data)
+
+        birthdays = self.serializer_class(birthdays, many=True)
 
         return Response(birthdays.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'], filter_backends=[FilterByUserRepentance])
+    @list_route(methods=['GET'], filter_backends=[FilterByUserRepentance],
+                serializer_class=RepentanceNotificationSerializer, pagination_class=NotificationPagination)
     def repentance(self, request):
-        queryset = self.filter_queryset(self.queryset)
-        repentance = self.serializer_class(queryset, many=True)
+        current_user_descendants = CustomUser.objects.get(id=self.request.user.id).get_descendants()
+        repentance = self.filter_queryset(current_user_descendants)
 
         if request.query_params.get('only_count'):
-            return Response({'repentance_count': len(queryset)})
+            return Response({'repentance_count': len(repentance)})
+
+        page = self.paginate_queryset(repentance)
+        if page is not None:
+            repentance = self.get_serializer(page, many=True)
+            return self.get_paginated_response(repentance.data)
+
+        repentance = self.serializer_class(repentance, many=True)
 
         return Response(repentance.data, status=status.HTTP_200_OK)
