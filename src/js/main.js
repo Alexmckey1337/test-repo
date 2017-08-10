@@ -9,7 +9,7 @@ const CONFIG = {
 
 const VOCRM = {};
 
-counterNotifications();
+// counterNotifications();
 
 $(window).on('hashchange', function () {
     location.reload();
@@ -301,7 +301,7 @@ function accordionInfo() {
     });
 }
 
-(function ($) {
+$(document).ready(function () {
     let $createUser = $('#createUser');
     $createUser.on('submit', function (e) {
         e.preventDefault();
@@ -314,15 +314,28 @@ function accordionInfo() {
 
     $('#check-all').on('change', function () {
         let $input = $("#sort-form input");
-        if($(this).is(":checked")) {
+        if ($(this).is(":checked")) {
             $input.each(function () {
-               $(this).prop( "checked", true);
-           });
+                $(this).prop("checked", true);
+            });
         } else {
             $input.each(function () {
-               $(this).prop( "checked", false);
-           });
+                $(this).prop("checked", false);
+            });
         }
     });
 
-})(jQuery);
+    let count = true;
+
+    Promise.all([counterNotifications(), birhtdayNotifications(count), repentanceNotifications(count)]).then(values => {
+        let data = {};
+        for (let i = 0; i < values.length; i++) {
+            Object.assign(data, values[i]);
+        }
+        let count = Object.values(data).reduce((prev, current) => prev + current);
+        $('.sms').attr('data-count', count);
+        (count > 0) && $("#without_notifications").remove();
+    });
+
+
+});

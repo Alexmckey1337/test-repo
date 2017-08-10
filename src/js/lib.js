@@ -1886,10 +1886,49 @@ function tab_plugin() {
 }
 
 // Counter counterNotifications
+// function counterNotifications() {
+//     ajaxRequest(URLS.notification(), null, function (data) {
+//         $('.sms').attr('data-count', data.count);
+//     });
+// }
+
 function counterNotifications() {
-    ajaxRequest(URLS.notification(), null, function (data) {
-        $('.sms').attr('data-count', data.count);
-    });
+    let url = URLS.notification_tickets();
+    let defaultOption = {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        })
+    };
+
+    return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+}
+
+function birhtdayNotifications(count=false) {
+    let url = (count) ? `${URLS.users_birthdays()}&only_count=true` : URLS.users_birthdays();
+    let defaultOption = {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        })
+    };
+
+    return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+}
+
+function repentanceNotifications(count=false) {
+    let url = (count) ? `${URLS.users_repentance_days()}&only_count=true` : URLS.users_repentance_days();
+    let defaultOption = {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        })
+    };
+
+    return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
 }
 
 function ajaxRequest(url, data, callback, method, withCredentials, headers, statusCode) {
