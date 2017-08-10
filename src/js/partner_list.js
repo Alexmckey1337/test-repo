@@ -9,11 +9,16 @@
         });
     });
     $('#accountable').select2();
-    $('input[name=fullsearch]').on('keyup', function () {
-        getPartners({
-            page: 1
-        });
-    });
+
+    $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
+        $('.preloader').css('display', 'block');
+        getPartners({page: 1});
+    }, 500));
+    // $('input[name=fullsearch]').on('keyup', function () {
+    //     getPartners({
+    //         page: 1
+    //     });
+    // });
 
     getPartners({});
 

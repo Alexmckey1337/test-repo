@@ -81,10 +81,14 @@
         churchReportsTable();
     });
 
-     $('input[name=fullsearch]').on('keyup', function () {
-        $('.preloader').show();
+     $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
+        $('.preloader').css('display', 'block');
         churchReportsTable();
-    });
+    }, 500));
+    //  $('input[name=fullsearch]').on('keyup', function () {
+    //     $('.preloader').show();
+    //     churchReportsTable();
+    // });
     $('.selectdb').select2();
 
     // Sort table

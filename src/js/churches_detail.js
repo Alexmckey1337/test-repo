@@ -116,19 +116,24 @@
         }, 100)
     });
     $('#addUserToChurch').on('click', function () {
-        $('#addUser').css('display', 'block');
+        // $('#addUser').css('display', 'block');
         initAddNewUser({
             getDepartments: false,
         });
-    });
-    $('#choose').on('click', function () {
-        $(this).closest('.popup').css('display', 'none');
         $('#searchedUsers').html('');
         $('#searchUserFromDatabase').val('');
         $('.choose-user-wrap .splash-screen').removeClass('active');
+        document.querySelector('#searchUserFromDatabase').focus();
         $('#chooseUserINBases').css('display', 'block');
     });
-    $('#add_new').on('click', function () {
+    // $('#choose').on('click', function () {
+    //     $(this).closest('.popup').css('display', 'none');
+    //     $('#searchedUsers').html('');
+    //     $('#searchUserFromDatabase').val('');
+    //     $('.choose-user-wrap .splash-screen').removeClass('active');
+    //     $('#chooseUserINBases').css('display', 'block');
+    // });
+    $('#addNewUser').on('click', function () {
         let department_id = $('#church').data('department_id');
         let department_title = $('#church').data('department_title');
         let option = document.createElement('option');
@@ -138,14 +143,14 @@
         $('#chooseDepartment').html(option).attr('disabled', false);
         $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
     });
-    $('#searchUserFromDatabase').on('keyup', function () {
+    $('#searchUserFromDatabase').on('keyup', _.debounce(function () {
         let search = $(this).val();
         if (search.length < 3) return;
         let config = {};
         config.search = search;
         config.department = D_ID;
         makeUsersFromDatabaseList(config);
-    });
+    }, 500));
 
     $('.get_info button').on('click', function () {
         let link = $(this).data('link');

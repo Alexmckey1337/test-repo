@@ -170,16 +170,16 @@
         });
     });
 
-    $('#add_new').on('click', function () {
+    $('#addNewUser').on('click', function () {
+        $(this).closest('.popup').css('display', 'none');
         $('#addNewUserPopup').css('display', 'block');
-        $(this).closest('#addUser').css('display', 'none');
     });
 
-    $('#choose').on('click', function () {
-        $('.choose-user-wrap').css('display', 'block');
-        $('.add-user-wrap').css('display', 'none');
-        document.querySelector('#searchUsers').focus();
-    });
+    // $('#choose').on('click', function () {
+    //     $('.choose-user-wrap').css('display', 'block');
+    //     $('.add-user-wrap').css('display', 'none');
+    //     document.querySelector('#searchUsers').focus();
+    // });
     $('#changeSum').on('click', function () {
         $('#summit-value').removeAttr('readonly');
         $('#summit-value').focus();
@@ -410,9 +410,14 @@
     $('.select__db').select2();
     //    Events
     $("#add").on('click', function () {
-        $('#addUser').css('display', 'block');
+        // $('#addUser').css('display', 'block');
         initAddNewUser();
         $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
+        $('#searchedUsers').html('');
+        $('#searchUsers').val('');
+        $('.choose-user-wrap .splash-screen').removeClass('active');
+        $('#chooseUserINBases').css('display', 'block');
+        document.querySelector('#searchUsers').focus();
     });
 
     $('#departments_filter').on('change', function () {
@@ -429,14 +434,20 @@
         }
         makePastorListWithMasterTree(config, ['#master'], null);
     });
-    $('input[name="fullsearch"]').keyup(function () {
-        let val = $(this).val();
-        delay(function () {
-            createSummitUsersTable({summit: SUMMIT_ID, page: 1});
-        }, 100);
-    });
 
-    $('#searchUsers').on('keyup', makePotencialSammitUsersList);
+    $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
+        $('.preloader').css('display', 'block');
+        createSummitUsersTable({summit: SUMMIT_ID, page: 1});
+    }, 500));
+    // $('input[name="fullsearch"]').keyup(function () {
+    //     let val = $(this).val();
+    //     delay(function () {
+    //         createSummitUsersTable({summit: SUMMIT_ID, page: 1});
+    //     }, 100);
+    // });
+    $('#searchUsers').on('keyup', _.debounce(function () {
+        makePotencialSammitUsersList();
+    }, 500));
     $('#summitsTypes').find('li').on('click', function () {
         $('.preloader').css('display', 'block');
         let config = {};

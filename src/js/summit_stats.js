@@ -117,11 +117,15 @@ function changeSummitStatusCode() {
         $('#filter_button').attr('data-count', count);
     });
 
-    $('input[name="fullsearch"]').keyup(function () {
-        delay(function () {
-            summit.makeDataTable();
-        }, 100);
-    });
+    $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
+        $('.preloader').css('display', 'block');
+        summit.makeDataTable();
+    }, 500));
+    // $('input[name="fullsearch"]').keyup(function () {
+    //     delay(function () {
+    //         summit.makeDataTable();
+    //     }, 100);
+    // });
 
     $('.select__db').select2();
 

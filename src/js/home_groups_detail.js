@@ -91,20 +91,24 @@
 
 // Events
     $('#add_userToHomeGroup').on('click', function () {
-        $('#addUser').css('display', 'block');
-        initAddNewUser({
-            getDepartments: false,
-        });
-    });
-    $('#choose').on('click', function () {
-        $(this).closest('.popup').css('display', 'none');
+        // $('#addUser').css('display', 'block');
+        initAddNewUser({getDepartments: false});
         $('#searchedUsers').html('');
         $('#searchUserFromDatabase').val('');
         $('.choose-user-wrap .splash-screen').removeClass('active');
+        document.querySelector('#searchUserFromDatabase').focus();
         $('#chooseUserINBases').css('display', 'block');
     });
 
-    $('#add_new').on('click', function () {
+    // $('#choose').on('click', function () {
+    //     $(this).closest('.popup').css('display', 'none');
+    //     $('#searchedUsers').html('');
+    //     $('#searchUserFromDatabase').val('');
+    //     $('.choose-user-wrap .splash-screen').removeClass('active');
+    //     $('#chooseUserINBases').css('display', 'block');
+    // });
+
+    $('#addNewUser').on('click', function () {
         let departament_id = $('#home_group').data('departament_id');
         let departament_title = $('#home_group').data('departament_title');
         let option = document.createElement('option');
@@ -114,15 +118,14 @@
         $('#chooseDepartment').html(option).attr('required', false).attr('disabled', false);
         $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
     });
-
-    $('#searchUserFromDatabase').on('keyup', function () {
+    $('#searchUserFromDatabase').on('keyup', _.debounce(function () {
         let search = $(this).val();
         if (search.length < 3) return;
         let config = {};
         config.search = search;
         config.department = HG_ID;
         makeUsersFromDatabaseList(config, ID);
-    });
+    }, 500));
 
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');

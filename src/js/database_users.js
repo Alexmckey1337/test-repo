@@ -28,13 +28,17 @@ $('document').ready(function () {
     $('.editprofile').on('click', function (e) {
         e.stopPropagation();
     });
-    $('input[name="fullsearch"]').keyup(function () {
-        let search = $(this).val();
+    $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
         $('.preloader').css('display', 'block');
-        delay(function () {
-            createUsersTable({})
-        }, 1000);
-    });
+        createUsersTable({});
+    }, 500));
+    // $('input[name="fullsearch"]').keyup(function () {
+    //     let search = $(this).val();
+    //     $('.preloader').css('display', 'block');
+    //     delay(function () {
+    //         createUsersTable({})
+    //     }, 1000);
+    // });
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
         updateSettings(createUsersTable);

@@ -40,7 +40,8 @@ class BishopReport {
         this.getReport().then(data => {
             this.data.results = data;
             $('#bishopsReports').html(this.renderTable());
-            $('.table__count').html(`Показано ${this.data.results.length}`)
+            $('.table__count').html(`Показано ${this.data.results.length}`);
+            $('.preloader').css('display', 'none');
         });
     }
     getReport() {
@@ -196,7 +197,12 @@ class PrintMasterStat {
         let stat = new PrintMasterStat(summitId);
         stat.show();
     });
-     $('input[name="fullsearch"]').on('keyup', function () {
-         report.makeTable();
-     });
+
+     $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
+        $('.preloader').css('display', 'block');
+        report.makeTable();
+    }, 500));
+     // $('input[name="fullsearch"]').on('keyup', function () {
+     //     report.makeTable();
+     // });
 })(jQuery);
