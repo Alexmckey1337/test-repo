@@ -23,7 +23,7 @@ from .serializers import (
     SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitProfileTreeForAppSerializer,
     SummitVisitorLocationSerializer, SummitAnketCodeSerializer, SummitAttendSerializer,
     SummitAcceptMobileCodeSerializer, AnketActiveStatusSerializer, SummitEventTableSerializer,
-    SummitAnketDrawForAppSerializer)
+    SummitAnketDrawForAppSerializer, SummitNameAnketCodeSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +81,7 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
         # visitor.save()
 
         visitor = self.get_serializer(visitor)
-        return Response(visitor.data)
+        return Response(visitor.data, status=status.HTTP_200_OK)
 
     @list_route(methods=['GET'])
     def by_reg_date(self, request):
@@ -99,7 +99,16 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
             status__reg_code_requested_date__date__range=[from_date, to_date]).order_by(
             'status__reg_code_requested_date')
         ankets = self.serializer_class(ankets, many=True)
-        return Response(ankets.data)
+        return Response(ankets.data, status=status.HTTP_200_OK)
+
+    @list_route(methods=['GET'], serializer_class=SummitNameAnketCodeSerializer,
+                permission_classes=(IsAuthenticated,))
+    def get_ticket(self, request):
+        user_id = request.query_params.get('user_id')
+        anket = SummitAnket.objects.filter(summit_id=7).get(user_id=user_id)
+        anket = self.serializer_class(anket)
+
+        return Response(anket.data, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])

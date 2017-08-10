@@ -365,7 +365,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
             'babies_count': current_user_descendants.filter(spiritual_level=User.BABY).count(),
             'juniors_count': current_user_descendants.filter(spiritual_level=User.JUNIOR).count(),
             'fathers_count': current_user_descendants.filter(spiritual_level=User.FATHER).count(),
-            'leaders_count': current_user_descendants.filter(home_group__leader__isnull=False).count()
+            'leaders_count': current_user_descendants.filter(home_group__leader__isnull=False).distinct().count()
         }
 
         result = self.serializer_class(result)
