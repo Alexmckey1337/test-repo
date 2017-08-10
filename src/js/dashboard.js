@@ -192,6 +192,16 @@
             //Fixed bugs for select2
             $('#container').unbind('scroll');
         });
+        let config = {
+            master_tree: userId,
+            level_gte: 1
+        };
+        getShortUsers(config).then(data => {
+            const options = data.map(option =>
+                `<option value="${option.id}" ${(userId == option.id) ? 'selected' : ''}>${option.fullname}</option>`);
+            $('#master-filter').append(options);
+        })
+
 
     });
 })(jQuery);
