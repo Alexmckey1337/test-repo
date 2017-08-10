@@ -2,13 +2,11 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
+from account.models import CustomUser
 
-from .models import Notification
 
-
-class NotificationSerializer(serializers.HyperlinkedModelSerializer):
-    theme = serializers.StringRelatedField()
+class NotificationSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Notification
-        fields = ('url', 'id', 'theme', 'fullname', 'uid', 'description', 'date', 'common', 'system',)
+        model = CustomUser
+        fields = ('id', 'link', 'first_name', 'middle_name', 'last_name')

@@ -197,6 +197,7 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, TemplateView):
 class DealListView(LoginRequiredMixin, CanSeeDealsMixin, TemplateView):
     template_name = 'partner/deals.html'
     login_url = 'entry'
+
     def get_context_data(self, **kwargs):
         ctx = super(DealListView, self).get_context_data(**kwargs)
 

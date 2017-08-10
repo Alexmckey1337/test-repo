@@ -31,6 +31,7 @@ class CustomUserAdmin(UserAdmin, MPTTModelAdmin, ImportExportModelAdmin):
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
         (_('Groups'), {'fields': ('groups',)}),
     )
+    readonly_fields = ('master',)
     change_password_form = AdminPasswordChangeForm
     resource_class = UserResource
 
