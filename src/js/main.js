@@ -446,7 +446,7 @@ $(document).ready(function () {
         if (count > 0) {
             $("#without_notifications").remove();
             if (data.birthdays_count > 0) {
-                let birthdayNote = `<div class="notification_row notification_row__birth" data-type="birthdays"><p>Дни рождени: <span>${data.birthdays_count}</span></p></div>`;
+                let birthdayNote = `<div class="notification_row notification_row__birth" data-type="birthdays"><p>Дни рождения: <span>${data.birthdays_count}</span></p></div>`;
                 box.append(birthdayNote);
             }
             if (data.repentance_count > 0) {
