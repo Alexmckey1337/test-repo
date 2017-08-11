@@ -337,6 +337,13 @@ class SummitAnketCodeSerializer(serializers.ModelSerializer):
         fields = ('code',)
 
 
+class SummitNameAnketCodeSerializer(SummitAnketCodeSerializer):
+    name = serializers.CharField(source='summit.__str__', read_only=True)
+
+    class Meta(SummitAnketCodeSerializer.Meta):
+        fields = SummitAnketCodeSerializer.Meta.fields + ('name',)
+
+
 class SummitAttendSerializer(serializers.ModelSerializer):
     # time = serializers.TimeField()
     code = serializers.CharField(source='anket.code', read_only=True)

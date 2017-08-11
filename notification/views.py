@@ -45,11 +45,12 @@ class NotificationViewSet(viewsets.ModelViewSet):
             print(err)
         return Response({'tickets_count': tickets.count()})
 
-    @list_route(methods=['GET'], filter_backends=[FilterByUserBirthday],
-                serializer_class=BirthdayNotificationSerializer, pagination_class=NotificationPagination)
+    @list_route(methods=['GET'],
+                filter_backends=[FilterByUserBirthday],
+                serializer_class=BirthdayNotificationSerializer,
+                pagination_class=NotificationPagination)
     def birthdays(self, request):
-        current_user_descendants = CustomUser.objects.get(id=self.request.user.id).get_descendants()
-        birthdays = self.filter_queryset(current_user_descendants)
+        birthdays = self.filter_queryset(self.request.user.get_descendants())
 
         if request.query_params.get('only_count'):
             return Response({'birthdays_count': len(birthdays)})
@@ -63,11 +64,12 @@ class NotificationViewSet(viewsets.ModelViewSet):
 
         return Response(birthdays.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'], filter_backends=[FilterByUserRepentance],
-                serializer_class=RepentanceNotificationSerializer, pagination_class=NotificationPagination)
+    @list_route(methods=['GET'],
+                filter_backends=[FilterByUserRepentance],
+                serializer_class=RepentanceNotificationSerializer,
+                pagination_class=NotificationPagination)
     def repentance(self, request):
-        current_user_descendants = CustomUser.objects.get(id=self.request.user.id).get_descendants()
-        repentance = self.filter_queryset(current_user_descendants)
+        repentance = self.filter_queryset(self.request.user.get_descendants())
 
         if request.query_params.get('only_count'):
             return Response({'repentance_count': len(repentance)})
