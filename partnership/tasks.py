@@ -6,10 +6,28 @@ from decimal import Decimal
 
 from edem.settings.celery import app
 from partnership.models import Partnership, Deal
+from django.db.models import Count
+
+
+def partnerships_deactivate():
+    valid_partners = Partnership.objects.filter(is_active=True).annotate(
+        count=Count('deals')).filter(count__gte=3)
+
+    def generate_partner_list(queryset):
+        for partner in queryset:
+            for deal in partner.deals.all()[:3]:
+                if deal.expired and not deal.done:
+                    pass
+                else:
+                    break
+            yield(partner.id)
+
+    Partnership.objects.filter(id__in=generate_partner_list(valid_partners)).update(is_active=False)
 
 
 @app.task(name='create_new_deals')
 def create_new_deals():
+    # partnerships_deactivate()
     current_date = datetime.now()
     current_month = current_date.month
     current_year = current_date.year
