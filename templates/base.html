@@ -212,7 +212,9 @@
                 console.log(count);
                 console.log(data);
                 console.log(+count + 1);
-                $("#without_notifications").remove();
+                if ($("#without_notifications").length > 0) {
+                    $("#without_notifications").remove();
+                }
                 if ($('#ticket_notifications').length > 0) {
                     var el = "<li><a href='" + data.ticket_url + "'>" + data.ticket_title + "</a></li>";
                     $('#ticket_notifications').append(el);
