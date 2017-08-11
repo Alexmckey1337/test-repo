@@ -325,17 +325,140 @@ $(document).ready(function () {
         }
     });
 
-    let count = true;
+    function makeBirthdayUsers(config={}) {
+        $('.preloader').css('display', 'block');
+        birhtdayNotifications(config).then(data => {
+            let table = `<table>
+                        <thead>
+                            <tr>
+                                <th>ФИО</th>
+                                <th>Дата рождения</th>
+                                <th>Ответственный</th>
+                                <th>Номер телефонна</th>
+                            </tr>
+                        </thead>
+                        <tbody>${data.results.map(item => {
+                            let master = item.﻿master;
+                            if (master == null) {
+                                master = '';
+                            } else {
+                                master = master.fullname;
+                            }
 
-    Promise.all([counterNotifications(), birhtdayNotifications(count), repentanceNotifications(count)]).then(values => {
-        let data = {};
+                            return `<tr>
+                                       <td><a target="_blank" href="${item.link}">${item.fullname}</a></td>
+                                       <td>${item.born_date}</td>
+                                       <td>${master}</td>
+                                       <td>${item.phone_number}</td>
+                                     </tr>`;
+                            }).join('')}</tbody>
+                        </table>`;
+           let count = data.count,
+                page = config.page || 1,
+                pages = Math.ceil(count / CONFIG.pagination_duplicates_count),
+                showCount = (count < CONFIG.pagination_duplicates_count) ? count : data.results.length,
+                text = `Показано ${showCount} из ${count}`,
+                paginationConfig = {
+                    container: ".special_users__pagination",
+                    currentPage: page,
+                    pages: pages,
+                    callback: makeBirthdayUsers
+                };
+            makePagination(paginationConfig);
+            $('.pop-up_special__table').find('.table__count').text(text);
+            $('#table_special-users').html('').append(table);
+            $('.pop-up_special__table').find('.top-text h3').text('Дни рождения');
+            $('.preloader').css('display', 'none');
+            $('.pop-up_special__table').css('display', 'block');
+        });
+    }
+
+    function makeRepentanceUsers(config={}) {
+        $('.preloader').css('display', 'block');
+        repentanceNotifications(config).then(data => {
+            let table = `<table>
+                        <thead>
+                            <tr>
+                                <th>ФИО</th>
+                                <th>Дата покаяния</th>
+                                <th>Ответственный</th>
+                                <th>Номер телефонна</th>
+                            </tr>
+                        </thead>
+                        <tbody>${data.results.map(item => {
+                            let master = item.﻿master;
+                            if (master == null) {
+                                master = '';
+                            } else {
+                                master = master.fullname;
+                            }
+
+                            return `<tr>
+                                       <td><a target="_blank" href="${item.link}">${item.fullname}</a></td>
+                                       <td>${item.repentance_date}</td>
+                                       <td>${master}</td>
+                                       <td>${item.phone_number}</td>
+                                     </tr>`;
+                            }).join('')}</tbody>
+                        </table>`;
+           let count = data.count,
+                page = config.page || 1,
+                pages = Math.ceil(count / CONFIG.pagination_duplicates_count),
+                showCount = (count < CONFIG.pagination_duplicates_count) ? count : data.results.length,
+                text = `Показано ${showCount} из ${count}`,
+                paginationConfig = {
+                    container: ".special_users__pagination",
+                    currentPage: page,
+                    pages: pages,
+                    callback: makeRepentanceUsers
+                };
+            makePagination(paginationConfig);
+            $('.pop-up_special__table').find('.table__count').text(text);
+            $('#table_special-users').html('').append(table);
+            $('.pop-up_special__table').find('.top-text h3').text('Дни покаяний');
+            $('.preloader').css('display', 'none');
+            $('.pop-up_special__table').css('display', 'block');
+        });
+    }
+
+    $('.pop-up_special__table').find('.close_pop').on('click', function () {
+       $('.pop-up_special__table').css('display', 'none');
+    });
+
+    $('.pop-up__table').on('click', function () {
+       $(this).css('display', 'none');
+    });
+
+    $('.pop-up__table').find('.pop_cont').on('click', function (e) {
+        e.stopPropagation();
+    });
+
+    let count = true,
+        config = {};
+    Promise.all([counterNotifications(), birhtdayNotifications(config, count), repentanceNotifications(config, count)]).then(values => {
+        let data = {},
+            box = $('.hover-wrapper');
         for (let i = 0; i < values.length; i++) {
             Object.assign(data, values[i]);
         }
         let count = Object.values(data).reduce((prev, current) => prev + current);
         $('.sms').attr('data-count', count);
-        (count > 0) && $("#without_notifications").remove();
+        if (count > 0) {
+            $("#without_notifications").remove();
+            if (data.birthdays_count > 0) {
+                let birthdayNote = `<div class="notification_row notification_row__birth" data-type="birthdays"><p>Дни рождени: <span>${data.birthdays_count}</span></p></div>`;
+                box.append(birthdayNote);
+            }
+            if (data.repentance_count > 0) {
+                let repentanceNote = `<div class="notification_row notification_row__rep" data-type="repentance"><p>Дата покаяния: <span>${data.repentance_count}</span></p></div>`;
+                box.append(repentanceNote);
+            }
+            box.on('click', '.notification_row', function () {
+                let type = $(this).attr('data-type');
+                (type == 'birthdays') && makeBirthdayUsers();
+                (type == 'repentance') && makeRepentanceUsers();
+            })
+        }
     });
-
 
 });

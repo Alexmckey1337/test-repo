@@ -103,7 +103,8 @@
   }
 }
 
-.pop-up-universal {
+.pop-up-universal,
+.pop-up__table {
   position: fixed;
   top: 0;
   left: 0;
@@ -111,6 +112,9 @@
   height: 100%;
   background-color: rgba(0, 0, 0, .8);
   z-index: 9999;
+}
+
+.pop-up-universal {
   & .buttons {
     margin-top: 1em;
   }
@@ -1477,6 +1481,7 @@ button{
   }
 }
 
-#create_pop.pop-up__table .pop_cont {
+#create_duplicate_pop.pop-up__table .pop_cont,
+#create_special_pop.pop-up__table .pop_cont{
   width: 900px;
 }

@@ -1905,28 +1905,42 @@ function counterNotifications() {
     return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
 }
 
-function birhtdayNotifications(count=false) {
-    let url = (count) ? `${URLS.users_birthdays()}&only_count=true` : URLS.users_birthdays();
-    let defaultOption = {
+function birhtdayNotifications(options = {}, count = false) {
+    let keys = Object.keys(options),
+        today = moment().format('YYYY-MM-DD'),
+        url = (count) ? `${URLS.users_birthdays(today)}&only_count=true&` : `${URLS.users_birthdays(today)}&`,
+        defaultOption = {
         method: 'GET',
         credentials: 'same-origin',
         headers: new Headers({
             'Content-Type': 'application/json',
         })
     };
+    if (keys.length) {
+        keys.forEach(item => {
+            url += item + '=' + options[item] + "&"
+        });
+    }
 
     return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
 }
 
-function repentanceNotifications(count=false) {
-    let url = (count) ? `${URLS.users_repentance_days()}&only_count=true` : URLS.users_repentance_days();
-    let defaultOption = {
+function repentanceNotifications(options = {}, count = false) {
+    let keys = Object.keys(options),
+        today = moment().format('YYYY-MM-DD'),
+        url = (count) ? `${URLS.users_repentance_days(today)}&only_count=true&` : `${URLS.users_repentance_days(today)}`,
+        defaultOption = {
         method: 'GET',
         credentials: 'same-origin',
         headers: new Headers({
             'Content-Type': 'application/json',
         })
     };
+    if (keys.length) {
+        keys.forEach(item => {
+            url += item + '=' + options[item] + "&"
+        });
+    }
 
     return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
 }
