@@ -435,9 +435,10 @@ $(document).ready(function () {
 
     let count = true,
         config = {};
-    Promise.all([counterNotifications(), birhtdayNotifications(config, count), repentanceNotifications(config, count)]).then(values => {
+    if ($('#sms_notification').length > 0) {
+            Promise.all([counterNotifications(), birhtdayNotifications(config, count), repentanceNotifications(config, count)]).then(values => {
         let data = {},
-            box = $('.hover-wrapper');
+            box = $('.massage-hover').find('.hover-wrapper');
         for (let i = 0; i < values.length; i++) {
             Object.assign(data, values[i]);
         }
@@ -460,5 +461,6 @@ $(document).ready(function () {
             })
         }
     });
+    }
 
 });

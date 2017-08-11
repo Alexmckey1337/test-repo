@@ -115,7 +115,7 @@
                                             </li>
                                         {% endblock %}
                                         {% block header.notification.button %}
-                                            <li class="sms" data-count="{{ notifications.count }}">
+                                            <li id="sms_notification" class="sms" data-count="{{ notifications.count }}">
                                                 {% if notifications.count %}
                                                     <span>{{ notifications.count }}</span>
                                                 {% else %}
