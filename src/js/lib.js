@@ -1886,10 +1886,63 @@ function tab_plugin() {
 }
 
 // Counter counterNotifications
+// function counterNotifications() {
+//     ajaxRequest(URLS.notification(), null, function (data) {
+//         $('.sms').attr('data-count', data.count);
+//     });
+// }
+
 function counterNotifications() {
-    ajaxRequest(URLS.notification(), null, function (data) {
-        $('.sms').attr('data-count', data.count);
-    });
+    let url = URLS.notification_tickets();
+    let defaultOption = {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        })
+    };
+
+    return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+}
+
+function birhtdayNotifications(options = {}, count = false) {
+    let keys = Object.keys(options),
+        today = moment().format('YYYY-MM-DD'),
+        url = (count) ? `${URLS.users_birthdays(today)}&only_count=true&` : `${URLS.users_birthdays(today)}&`,
+        defaultOption = {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        })
+    };
+    if (keys.length) {
+        keys.forEach(item => {
+            url += item + '=' + options[item] + "&"
+        });
+    }
+
+    return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+}
+
+function repentanceNotifications(options = {}, count = false) {
+    let keys = Object.keys(options),
+        today = moment().format('YYYY-MM-DD'),
+        url = (count) ? `${URLS.users_repentance_days(today)}&only_count=true&` : `${URLS.users_repentance_days(today)}`,
+        defaultOption = {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        })
+    };
+    if (keys.length) {
+        keys.forEach(item => {
+            url += item + '=' + options[item] + "&"
+        });
+    }
+
+    return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
 }
 
 function ajaxRequest(url, data, callback, method, withCredentials, headers, statusCode) {

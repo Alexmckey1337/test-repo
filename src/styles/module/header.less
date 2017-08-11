@@ -365,6 +365,22 @@
       }
     }
   }
+  .notification_row p {
+    position: relative;
+    padding: 1.5em 1.5em 1.5em 4em;
+    &::before {
+      position: absolute;
+      left: 1.3em;
+      font-family: FontAwesome;
+      font-size: 1.3em;
+    }
+  }
+  .notification_row__birth p::before {
+      content: '\f1fd';
+  }
+  .notification_row__rep p::before {
+      content: '\f133';
+  }
   &.active-window{
     display: block;
   }

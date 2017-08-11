@@ -74,6 +74,22 @@
 {% block extra_scripts %}
 
 {% endblock %}
+{% block notifications_modal %}
+<div id="create_special_pop" class="pop-up__table pop-up_special__table" style="display: none;">
+    <div class="pop_cont">
+        <div class="top-text">
+            <h3>Уведомления</h3><span class="close_pop">×</span>
+        </div>
+        <div class="main-text">
+            <div class="top-pag">
+                <div class="table__count"></div>
+                <div class="pagination special_users__pagination"></div>
+            </div>
+            <div id="table_special-users" class="table-wrap clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 {% block template_tables %}
 <script type="text/template" id="databaseUsers">
      <table>
@@ -196,7 +212,9 @@
                 console.log(count);
                 console.log(data);
                 console.log(+count + 1);
-                $("#without_notifications").remove();
+                if ($("#without_notifications").length > 0) {
+                    $("#without_notifications").remove();
+                }
                 if ($('#ticket_notifications').length > 0) {
                     var el = "<li><a href='" + data.ticket_url + "'>" + data.ticket_title + "</a></li>";
                     $('#ticket_notifications').append(el);
