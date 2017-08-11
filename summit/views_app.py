@@ -24,6 +24,7 @@ from .serializers import (
     SummitVisitorLocationSerializer, SummitAnketCodeSerializer, SummitAttendSerializer,
     SummitAcceptMobileCodeSerializer, AnketActiveStatusSerializer, SummitEventTableSerializer,
     SummitAnketDrawForAppSerializer, SummitNameAnketCodeSerializer)
+from account.models import CustomUser
 
 logger = logging.getLogger(__name__)
 
@@ -105,10 +106,13 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
                 permission_classes=(IsAuthenticated,))
     def get_ticket(self, request):
         user_id = request.query_params.get('user_id')
-        anket = SummitAnket.objects.filter(summit_id=7).get(user_id=user_id)
-        anket = self.serializer_class(anket)
+        user = get_object_or_404(CustomUser, pk=user_id)
+        # anket = SummitAnket.objects.filter(user=user).order_by('-summit__start_date').first()
+        # anket = self.serializer_class(anket)
+        ankets = SummitAnket.objects.filter(user=user).filter(summit__status=Summit.OPEN)
+        ankets = self.serializer_class(ankets, many=True)
 
-        return Response(anket.data, status=status.HTTP_200_OK)
+        return Response(ankets.data, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
