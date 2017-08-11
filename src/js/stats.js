@@ -2,7 +2,8 @@
     $(document).ready(function () {
         $('#date_field_stats').datepicker({
             maxDate: new Date(),
-            startDate: new Date()
+            startDate: new Date(),
+            autoClose: true,
         });
         $('#stats_manager').select2();
         if( !$('#statistic_block').hasClass('no_visible')) {
@@ -31,16 +32,16 @@
 
                 for (let k in partners) {
                     if (!partners.hasOwnProperty(k)) continue;
-                    document.getElementById(`partners_${k}`).innerHTML = partners[k];
+                    document.getElementById(`partners_${k}`).innerHTML = String(partners[k]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ');
                     total_partners += partners[k];
                 }
                 for (let k in deals) {
                     if (!deals.hasOwnProperty(k)) continue;
-                    document.getElementById(`deals_${k}`).innerHTML = deals[k];
+                    document.getElementById(`deals_${k}`).innerHTML = String(deals[k]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ');
                     total_deals += deals[k];
                 }
-                document.getElementById('total_partners').innerHTML = ''+total_partners/2;
-                document.getElementById('total_deals').innerHTML = ''+total_deals/2;
+                document.getElementById('total_partners').innerHTML = ''+String(total_partners/2).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ');
+                document.getElementById('total_deals').innerHTML = ''+String(total_deals/2).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ');
 
                 return data.sum;
             })

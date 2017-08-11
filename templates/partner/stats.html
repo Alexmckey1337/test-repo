@@ -240,7 +240,7 @@
                             <div class="well"><span>Запланированная сумма</span>
                                 <p style="font-size:4em;text-align: center">
                                     <span id="planned_sum_deals" class="label label-primary">
-                                        <%=total_paid_sum.sum_planed%>
+                                        <%=String(total_paid_sum.sum_planed).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ')%>
                                     </span>
                                 </p>
                             </div>
@@ -249,7 +249,7 @@
                             <div class="well"><span>Выполнено</span>
                                 <p style="font-size:4em;text-align: center">
                                     <span id="paid_sum_deals" class="label label-primary">
-                                        <%=total_paid_sum.sum_paid%>
+                                        <%=String(total_paid_sum.sum_paid).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ')%>
                                     </span>
                                 </p>
                             </div>
@@ -273,7 +273,7 @@
                             <div class="well"><span>Запланированная сумма закрытых сделок</span>
                                 <p style="font-size:4em;text-align: center">
                                     <span id="closed_planned_sum_deals" class="label label-primary">
-                                        <%=closed_paid_sum.sum_planed%>
+                                        <%=String(closed_paid_sum.sum_planed).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ')%>
                                     </span>
                                 </p>
                             </div>
@@ -282,7 +282,7 @@
                             <div class="well"><span>Выполнено по закрытым сделкам</span>
                                 <p style="font-size:4em;text-align: center">
                                     <span id="closed_paid_sum_deals" class="label label-primary">
-                                        <%=closed_paid_sum.sum_paid%>
+                                        <%=String(closed_paid_sum.sum_paid).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ')%>
                                     </span>
                                 </p>
                             </div>
