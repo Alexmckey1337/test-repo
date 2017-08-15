@@ -30,6 +30,10 @@ from partnership.models import Partnership, Deal
 def partnerships_deactivate_raw():
 
     def make_partners_list(key='done'):
+
+        if key not in ['done', 'expired']:
+            return []
+
         raw = """
         SELECT "partnership_partnership"."id",
         (SELECT array_agg(U0.%s)

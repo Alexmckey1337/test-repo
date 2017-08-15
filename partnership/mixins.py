@@ -192,14 +192,10 @@ class PartnerExportViewSetMixin(ExportViewSetMixin):
 
 class CheckPartnerStatusMixin(object):
     @staticmethod
-    def check_partnership_status(partner_id):
-        partner = Partnership.objects.get(id=partner_id)
-
+    def partnership_status_review(partner):
         value = False
         for deal in partner.deals.order_by('-date_created')[:3]:
-            if deal.expired and not deal.done:
-                pass
-            else:
+            if not (deal.expired and not deal.done):
                 value = True
 
         if value and not partner.is_active:

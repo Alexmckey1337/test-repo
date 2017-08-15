@@ -189,3 +189,7 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
         # self.check_partnership_status(self.get_object().partnership.id)
 
         return super(DealViewSet, self).update(request, *args, **kwargs)
+
+    def perform_update(self, serializer):
+        serializer.save()
+        self.partnership_status_review(self.get_object().partnership)
