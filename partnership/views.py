@@ -15,7 +15,8 @@ from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
 from partnership.filters import (FilterByPartnerBirthday, DateAndValueFilter, FilterPartnerMasterTreeWithSelf,
                                  PartnerUserFilter, DealFilterByPaymentStatus)
-from partnership.mixins import PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin, PartnerExportViewSetMixin
+from partnership.mixins import (PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin,
+                                PartnerExportViewSetMixin, CheckPartnerStatusMixin)
 from partnership.pagination import PartnershipPagination, DealPagination
 from partnership.permissions import CanSeeDeals, CanSeePartners, CanCreateDeals, CanUpdateDeals, CanUpdatePartner
 from partnership.resources import PartnerResource
@@ -115,7 +116,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
 
 
 class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, DealCreatePaymentMixin,
-                  DealListPaymentMixin):
+                  DealListPaymentMixin, CheckPartnerStatusMixin):
     queryset = Deal.objects.base_queryset(). \
         annotate_full_name(). \
         annotate_responsible_name(). \
@@ -183,3 +184,8 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
             raise exceptions.PermissionDenied(detail=_('You do not have permission to create deal for this partner.'))
 
         return super(DealViewSet, self).create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        # self.check_partnership_status(self.get_object().partnership.id)
+
+        return super(DealViewSet, self).update(request, *args, **kwargs)

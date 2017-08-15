@@ -188,3 +188,24 @@ class PartnerExportViewSetMixin(ExportViewSetMixin):
     @list_route(methods=['post'], permission_classes=(IsAuthenticated, CanExportPartnerList,))
     def export(self, request, *args, **kwargs):
         return self._export(request, *args, **kwargs)
+
+
+class CheckPartnerStatusMixin(object):
+    @staticmethod
+    def check_partnership_status(partner_id):
+        partner = Partnership.objects.get(id=partner_id)
+
+        value = False
+        for deal in partner.deals.order_by('-date_created')[:3]:
+            if deal.expired and not deal.done:
+                pass
+            else:
+                value = True
+
+        if value and not partner.is_active:
+            partner.is_active = True
+            partner.save()
+
+        if not value and partner.is_active:
+            partner.is_active = False
+            partner.save()
