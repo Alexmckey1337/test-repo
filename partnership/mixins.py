@@ -190,7 +190,7 @@ class PartnerExportViewSetMixin(ExportViewSetMixin):
         return self._export(request, *args, **kwargs)
 
 
-class CheckPartnerStatusMixin(object):
+class PartnerStatusReviewMixin(object):
     @staticmethod
     def partnership_status_review(partner):
         value = False

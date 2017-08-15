@@ -16,7 +16,7 @@ from common.views_mixins import ModelWithoutDeleteViewSet
 from partnership.filters import (FilterByPartnerBirthday, DateAndValueFilter, FilterPartnerMasterTreeWithSelf,
                                  PartnerUserFilter, DealFilterByPaymentStatus)
 from partnership.mixins import (PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin,
-                                PartnerExportViewSetMixin, CheckPartnerStatusMixin)
+                                PartnerExportViewSetMixin, PartnerStatusReviewMixin)
 from partnership.pagination import PartnershipPagination, DealPagination
 from partnership.permissions import CanSeeDeals, CanSeePartners, CanCreateDeals, CanUpdateDeals, CanUpdatePartner
 from partnership.resources import PartnerResource
@@ -116,7 +116,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
 
 
 class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, DealCreatePaymentMixin,
-                  DealListPaymentMixin, CheckPartnerStatusMixin):
+                  DealListPaymentMixin, PartnerStatusReviewMixin):
     queryset = Deal.objects.base_queryset(). \
         annotate_full_name(). \
         annotate_responsible_name(). \
@@ -185,11 +185,8 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
 
         return super(DealViewSet, self).create(request, *args, **kwargs)
 
-    def update(self, request, *args, **kwargs):
-        # self.check_partnership_status(self.get_object().partnership.id)
-
-        return super(DealViewSet, self).update(request, *args, **kwargs)
-
-    def perform_update(self, serializer):
-        serializer.save()
+    def perform_update(self, serializer, **kwargs):
+        response = super(LogAndCreateUpdateDestroyMixin, self).perform_create(serializer, **kwargs)
         self.partnership_status_review(self.get_object().partnership)
+
+        return response
