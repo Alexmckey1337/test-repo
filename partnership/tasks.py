@@ -1,11 +1,14 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import logging
 from datetime import datetime, date
 from decimal import Decimal
 
 from edem.settings.celery import app
 from partnership.models import Partnership, Deal
+
+logger = logging.getLogger(__name__)
 
 
 # def partnerships_deactivate():
@@ -27,12 +30,16 @@ from partnership.models import Partnership, Deal
 #     return Partnership.objects.filter(id__in=generate_partner_list(valid_partners)).update(is_active=False)
 
 
+class DealKeyError(Exception):
+    pass
+
+
 def partnerships_deactivate_raw():
 
     def make_partners_list(key='done'):
 
         if key not in ['done', 'expired']:
-            return []
+            raise DealKeyError('Invalid key')
 
         raw = """
         SELECT "partnership_partnership"."id",
@@ -61,7 +68,10 @@ def partnerships_deactivate_raw():
 
 @app.task(name='create_new_deals')
 def create_new_deals():
-    # partnerships_deactivate_raw()
+    try:
+        partnerships_deactivate_raw()
+    except DealKeyError as err:
+        logger.error(err)
     current_date = datetime.now()
     current_month = current_date.month
     current_year = current_date.year

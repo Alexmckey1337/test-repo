@@ -369,6 +369,11 @@ LOGGING = {
             'handlers': ['console', 'file'],
             'propagate': False,
         },
+        'partnership.tasks': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'file'],
+            'propagate': False,
+        },
         'raven': {
             'level': 'DEBUG',
             'handlers': ['console', 'file'],
