@@ -104,7 +104,7 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
 
     @list_route(methods=['GET'], serializer_class=SummitNameAnketCodeSerializer,
                 permission_classes=(IsAuthenticated,))
-    def get_ticket(self, request):
+    def get_tickets(self, request):
         user_id = request.query_params.get('user_id')
         user = get_object_or_404(CustomUser, pk=user_id)
         # anket = SummitAnket.objects.filter(user=user).order_by('-summit__start_date').first()
