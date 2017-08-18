@@ -136,7 +136,7 @@
         }
         &:before{
           position: absolute;
-          right: 0px;
+          left: 0px;
           top: 15px;
           display: block;
           width: 100%;
@@ -156,6 +156,20 @@
           float: right;
           border-radius: 3px;
           text-align: left;
+          height: 25px;
+        }
+        select{
+          &[multiple]{
+            &+.select2-container--focus,&+.select2{
+              height:auto;
+            }
+          }
+          &:disabled{
+            &+.select2{
+              height: 25px;
+              background: #f2f5fa;
+            }
+          }
         }
         input{
           border: 1px solid #cdd0d4;
@@ -225,6 +239,11 @@
             border:1px solid #cdd0d4;
             padding: 5px 6px;
           }
+          &.output__block{
+            width: 250px;
+            padding-top:3px;
+            background: #f2f5fa;
+          }
         }
         .label_block{
           width: auto;
@@ -235,7 +254,7 @@
           position: relative;
           margin-bottom: 0;
           line-height:25px;
-          background: inherit;
+          background: #fff;
           font-size: 1.1em;
           padding: 0 1em 0 0;
         }
@@ -262,9 +281,19 @@
         }
         .input{
           position: relative;
+          background: #fff;
           a{
             position: absolute;
             right: -15px;
+          }
+          #payment_value{
+            width: 190px!important;
+            float: left;
+          }
+          #payment_currency{
+            width: 60px !important;
+            float: left !important;
+            height: 25px;
           }
         }
         .birthday{

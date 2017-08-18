@@ -62,9 +62,6 @@
     }
   }
   .right-info{
-    span{
-      display: inline-block;
-    }
     li{
       ul{
         float: none;
@@ -80,12 +77,19 @@
     padding: 0;
     border: none;
     .container{
-      span{
+      .label_block{
         background: #f2f5fa;
       }
       select,input{
         &[readonly],&[disabled="disabled"]{
           background: #f2f5fa;
+        }
+      }
+      input{
+        &[type='checkbox']{
+          &+div{
+            background: #f2f5fa;
+          }
         }
       }
     }
@@ -323,19 +327,19 @@
           //float: right;
           //text-align: left;
           &#payment_value {
-            width: 25%;
-            max-width: 7em;
-            float: left;
-            margin-left: 0.6em;
+            //width: 25%;
+            //max-width: 7em;
+            //float: left;
+            //margin-left: 0.6em;
           }
           &#payment_currency {
-            width: 25%;
-            min-width: 5em;
-            max-width: 7em;
-            float: left;
-            margin-left: .3em;
-            padding: 0.1em;
-            height: auto;
+            //width: 25%;
+            //min-width: 5em;
+            //max-width: 7em;
+            //float: left;
+            //margin-left: .3em;
+            //padding: 0.1em;
+            //height: auto;
           }
           //&:read-only {
           //  border: 2px solid transparent;
@@ -412,7 +416,7 @@
         & input[type="file"] {
           opacity: 1;
           position: relative;
-          height: 1.5em;
+          background: #fff;
           text-indent: -9999px;
           cursor: pointer;
           &:before {
@@ -420,7 +424,7 @@
             font: 1.2em FontAwesome;
             position: absolute;
             left: 1em;
-            top: 0;
+            top: 5px;
             text-indent: -1px;
           }
           &:hover:before {
@@ -770,7 +774,9 @@
         margin-bottom: 0;
       }
       & textarea {
-        margin-top: -15px;
+        border-radius: 3px;
+        padding: 6px 5px;
+        margin-top:-15px;
       }
     }
     & .right-info {
@@ -791,8 +797,8 @@
         & input,
         & select,
         & .select2 {
-          float: right;
-          margin-bottom: .3em;
+          //float: right;
+          //margin-bottom: .3em;
         }
       }
     }
