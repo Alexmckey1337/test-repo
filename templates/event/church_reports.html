@@ -14,10 +14,10 @@
     {% block header.tabs %}
         <div class="tabs">
             <ul class="nav tabs_link">
-                <li><a href="{% url 'events:meeting_report_list' %}">Отчёты домашних груп</a></li>
                 <li><a class="active" href="{% url 'events:church_report_list' %}">Отчёты церквей</a></li>
-                <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних групп</a></li>
                 <li><a href="{% url 'events:church_report_statistics' %}">Статистика церквей</a></li>
+                <li><a href="{% url 'events:meeting_report_list' %}">Отчёты домашних групп</a></li>
+                <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних групп</a></li>
             </ul>
         </div>
     {% endblock %}
@@ -36,6 +36,14 @@
             {% endblock %}
             {% block header.buttons.change_table %}
                 <li>
+                    <button id="filter_button"
+                            class="header__button"
+                            data-count="0"
+                    >
+                        Фильтр
+                    </button>
+                </li>
+                <li>
                     <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
                 </li>
             {% endblock %}
@@ -44,15 +52,25 @@
 {% endblock %}
 
 {% block main.content %}
+        <div class="container-full">
+        <div class="tab-status tab-home-stats">
+                <button class="week active">Текущая неделя</button>
+                <button class="week week_prev">Прошедшая неделя</button>
+            <div class="set-date">
+                <input type="text" placeholder="Диапазон дат" id="date_range" class="select_date_filter">
+                <div class="cal-icon"></div>
+            </div>
+        </div>
+    </div>
     {% block pagination_top %}
         <div class="top-pag">
             <div class="tab-status">
                 <ul id="statusTabs">
                     <li class="current">
-                        <button data-status="1">Заполненные отчёты</button>
+                        <button data-status="1">Отчёты к заполнению</button>
                     </li>
                     <li>
-                        <button data-status="2">Не заполненные отчёты</button>
+                        <button data-status="2">Заполненные отчёты</button>
                     </li>
                     <li>
                         <button data-status="3">Просроченные отчёты</button>
@@ -75,13 +93,13 @@
             </div>
         </div>
         <div class="table__count"></div>
-        <div class="pagination users__pagination"><!--pagination -->
+        <div class="pagination reports__pagination"><!--pagination -->
         </div><!--End pagination -->
     {% endblock %}
 
     {% block table %}
-        <div class="table-wrap clearfix" id="homeReports"><!--Table -->
-            <div class="table scrollbar-inner" id="tableHomeReports"></div>
+        <div class="table-wrap clearfix" id="churchReports"><!--Table -->
+            <div class="table scrollbar-inner" id="tableChurchReports"></div>
             <div class="query-none">
                 <p></p>
             </div>
@@ -90,70 +108,125 @@
 
     {% block pagination_bottom %}
         <div class="table__count"></div>
-        <div class="pagination users__pagination"></div>
+        <div class="pagination reports__pagination"></div>
     {% endblock %}
 {% endblock %}
 
 {% block popup %}
-
+    <div class="popap" id='filterPopup'>
+        <div class="pop_cont">
+            <h2 class='popup_text'>
+                Фильтр
+            </h2>
+            <div class="popup_body">
+                <div class="container">
+                    <div class="col-6">
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Отдел</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Ветка</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Пастор</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Церковь</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="department" id="departments_filter">
+                                <option value="">ВСЕ</option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">{{ department.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="master_tree" id="tree_filter">
+                                <option value="">ВСЕ</option>
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="pastor" id="pastor_filter">
+                                <option value="">ВСЕ</option>
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="church" id="church_filter">
+                                <option value="">ВСЕ</option>
+                            </select>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
+                                                                              aria-hidden="true"></i>
+                    Очистить
+                </button>
+                <button class="close-popup">Отменить</button>
+                <button onclick="applyFilter(this, churchReportsTable)" class="apply-filter">Применить</button>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 {% block extra_scripts %}
-    <script src="{% static "js/events_church_reports.js" %}"></script>
+    <script src="{% static "js/church_reports.js" %}"></script>
 {% endblock %}
 {% block template_tables %}
-<script type="text/template" id="databaseHomeReports">
+<script type="text/template" id="databaseChurchReports">
      <table>
-        <thead>
-        <tr>
-            <% for( var key in table_columns) { %>
+            <thead>
+            <tr>
+                <% for( var key in table_columns) { %>
                 <% if(table_columns[key].active) { %>
-                    <th data-order="<%=table_columns[key].ordering_title%>"><%=table_columns[key].title %></th>
+                <th data-order="<%=table_columns[key].ordering_title%>"><%=table_columns[key].title %></th>
                 <% } %>
-            <% } %>
-        </tr>
-        </thead>
-        <tbody>
+                <% } %>
+            </tr>
+            </thead>
+            <tbody>
             <% for( var index in results) { %>
             <tr>
                 <% for( var key in table_columns) { %>
-                    <% if(table_columns[key].active) { %>
-                        <% if (key == 'home_group') { %>
-                            <% if (results[index][key] != null) { %>
-                                    <td class="edit">
-                                        <%= results[index][key].title %>
-                                    </td>
-                                <% } else { %>
-                                    <td></td>
-                                <% } %>
-                        <% } else if(key == 'owner') { %>
-                            <% if (results[index][key] != null) { %>
-                                <td class="edit">
-                                <%= results[index][key].fullname %>
-                                </td>
-                            <% } else { %>
-                                <td></td>
-                            <% } %>
-                        <% } else if (key == 'type') { %>
-                            <% if (results[index][key] != null) { %>
-                                <td><%= results[index][key].code %></td>
-                            <% } else { %>
-                                <td></td>
-                            <% } %>
-                        <% }  else { %>
-                            <td><% if (results[index][key] === true ) { %>
-                                <p class="text__center">✔</p>
-                                <% } else if (results[index][key] === false){ %>
+                <% if(table_columns[key].active) { %>
+                <% if(key == 'id') { %>
+                <td>
+                    <a href="./<%= results[index][key] %>" class="reports_id"><%= results[index][key] %></a>
+                </td>
+                <% } else if (key == 'church') { %>
+                <% if (results[index][key] != null) { %>
+                <td>
+                    <a href="/churches/<%= results[index][key].id %>"><%= results[index][key].title %></a>
+                </td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else if(key == 'pastor') { %>
+                <% if (results[index][key] != null) { %>
+                <td>
+                    <a href="/account/<%= results[index][key].id %>"><%= results[index][key].fullname %></a>
+                </td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else { %>
+                <td><% if (results[index][key] === true ) { %>
+                    <p class="text__center">✔</p>
+                    <% } else if (results[index][key] === false){ %>
 
-                                <% } else { %>
-                                <%= results[index][key] %>
-                                <% } %>
-                            </td>
-                        <% } %>
+                    <% } else { %>
+                    <%= results[index][key] %>
                     <% } %>
+                </td>
+                <% } %>
+                <% } %>
                 <% } %>
             </tr>
             <% } %>
-        </tbody>
-    </table>
+            </tbody>
+        </table>
 </script>
 {% endblock %}

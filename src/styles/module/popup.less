@@ -488,7 +488,7 @@
   }
   .splash-screen{
     &.active{
-      height: 500px;
+      height: 610px;
       .scrollwrap{
         height: 340px;
       }
@@ -541,6 +541,11 @@
   max-width: 760px;
   min-width: 760px;
   transition: height .5s ease;
+    .splash-buttons {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
 }
 }
 
@@ -571,6 +576,7 @@
   background-color: #fff;
   border-radius: 3px;
   height: auto;
+  z-index: 0;
   .wrap {
     padding: 2em 3em;
   }
@@ -649,6 +655,52 @@
   display: flex;
   margin-top: 15px;
   overflow: hidden;
+  flex-direction: column;
+  label{
+    margin-bottom:10px;
+    position: relative;
+    &.textarea{
+      &::after{
+        display: none;
+      }
+    }
+    &::after{
+      position: absolute;
+      left: 0px;
+      top: 13px;
+      display: block;
+      width: 100%;
+      height: 2px;
+      background-image: radial-gradient(circle,#656d78 .6px,transparent 1px);
+      background-repeat: repeat-x;
+      background-size: 5px 2px;
+      content: '';
+      z-index: -1;
+    }
+    &:last-child{
+      margin-bottom:0;
+    }
+    span{
+      display: block;
+      float: left;
+      height: 25px;
+      line-height: 25px;
+      position: relative;
+      z-index: 5;
+      background: #fff;
+      padding-right: 5px;
+    }
+    input{
+      z-index: 5;
+      float: right;
+      border: none;
+      height: 25px;
+      padding: 0;
+      width: 250px;
+      background: #fff;
+      box-sizing: border-box;
+    }
+  }
 }
 
 .right-side {
@@ -682,6 +734,8 @@
     margin: 0 auto;
     resize: none;
     box-sizing: border-box;
+    border: 1px solid #cdd0d4;
+    border-radius: 3px;
     &::-webkit-input-placeholder,&:-moz-placeholder,&::-moz-placeholder,&:-ms-input-placeholder{
       font-style: italic;
     }
@@ -734,60 +788,92 @@
   & > div {
     & input {
       padding: .3em;
+      height:25px;
+      box-sizing: border-box;
+      border: 1px solid #cdd0d4;
+      border-radius: 3px;
       &#sent_date {
         width: 7em;
       }
     }
-    & select {
+    select {
       padding: .37em 2em .37em .3em;
       min-width: inherit;
+      height: 25px;
+      box-sizing: border-box;
+      border: 1px solid #cdd0d4;
+      border-radius: 3px;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      border-left:none;
     }
-  }
-  & .summa {
-    & input {
-      width: 5em;
+    &.summa,&.rate{
+      input {
+        width: 5em;
+      }
     }
-  }
-  & .rate {
-    & input {
-      width: 5em;
+    &.summa{
+      input{
+        border-bottom-right-radius: 0;
+        border-top-right-radius: 0;
+      }
     }
-    & label[for="operation"] {
-      cursor: pointer;
-      display: inline-block;
-      width: 1em;
-      height: 1em;
-      padding: .5em;
+    &.rate{
+      label[for="operation"]{
+        cursor: pointer;
+        display: inline-block;
+        width: auto;
+        margin-right:0px;
+        height: 25px;
+        display: flex;
+        box-sizing: border-box;
+        padding-left:.3em;
+        align-items: center;
+        border: 1px solid #cdd0d4;
+        border-radius: 3px;
+        border-bottom-right-radius: 0;
+        border-top-right-radius: 0;
+        border-right: none;
+        i{
+          margin-right:5px;
+        }
+        input{
+          margin-right:0;
+        }
+      }
+      #operation {
+        width: 10px;
+        height: 25px;
+        padding: 0;
+        margin-right:0;
+        border: none;
+        background: 0 0;
+        user-select: none;
+        border: 1px solid #cdd0d4;
+        border-radius: 3px;
+        border-bottom-left-radius: 0;
+        border-top-left-radius: 0;
+        border-left: none;
+        padding-right:.3em;
+      }
+      input{
+        margin-right:10px;
+      }
     }
-    & #operation {
-      width: 1em;
-      height: 1em;
-      padding: 0;
-      border: 0;
-      background: 0 0;
-      user-select: none;
+    &.currency {
+      select {
+        width: 9em;
+      }
     }
-  }
-  & .currency {
-    & select {
-      width: 9em;
+    &.result {
+      b {
+        font-weight: 700;
+        text-transform: uppercase;
+      }
     }
-  }
-  & .result {
-    & b {
-      font-weight: 700;
-      text-transform: uppercase;
+    &:last-child{
+      margin-right:0px;
     }
-  }
-}
-
-.summa{
-  p {
-    display: inline-block;
-    -webkit-user-select: none; /* Chrome all / Safari all */
-    -moz-user-select: none; /* Firefox all */
-    -ms-user-select: none; /* IE 10+ */
-    user-select: none; /* Likely future */
   }
   span{
     display: inline-block;
@@ -823,6 +909,20 @@ input#deal-value, input#summit-value, input#summit-valueNew, input#summit-valueD
 .splash-bauttons {
   padding:17px 0px;
   text-align: right;
+  button{
+    &#complete-payment{
+      position: relative;
+      &::after{
+        display: block;
+        font: 1.2em FontAwesome;
+        content: '\f00c';
+        position: absolute;
+        left: 1.5em;
+        top:50%;
+        transform: translateY(-50%);
+      }
+    }
+  }
 }
 
 .small,.add-user-wrap button,.splash-bauttons button:first-child {
@@ -1240,4 +1340,45 @@ button{
   .datepicker{
     z-index: 10000;
   }
+}
+
+.pop-up__confirm {
+  .block {
+    margin: 20px 0;
+    p {
+      line-height: 1.3em;
+    }
+  }
+  .btn_block {
+    display: flex;
+    justify-content: flex-end;
+    button {
+      position: relative;
+      &::before {
+        content: '';
+        position: absolute;
+        top: 11px;
+        left: 15px;
+        width: 19px;
+        height: 19px;
+      }
+    }
+    .ok {
+      &::before {
+        content: '\f00c'!important;
+        font: 1.4em FontAwesome;
+      }
+    }
+    .close_pop {
+      margin-right: 10px;
+      &::before {
+        content: '\f00d'!important;
+        font: 1.4em FontAwesome;
+      }
+    }
+  }
+}
+
+#create_pop.pop-up__table .pop_cont {
+  width: 900px;
 }

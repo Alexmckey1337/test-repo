@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 import logging
 
 from django.db import transaction, IntegrityError
-from django.db.models import IntegerField, Sum, When, Case, Count, OuterRef, Exists, Q, BooleanField
+from django.db.models import (IntegerField, Sum, When, Case, Count, OuterRef, Exists, Q,
+                              BooleanField, CharField, Value as V)
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status, filters, exceptions
 from rest_framework.decorators import list_route, detail_route
@@ -16,13 +17,15 @@ from account.models import CustomUser
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
 from .filters import (ChurchReportFilter, MeetingFilter, MeetingCustomFilter, MeetingFilterByMaster,
-                      ChurchReportDepartmentFilter, ChurchReportFilterByMaster)
-from .models import Meeting, ChurchReport, MeetingAttend
+                      ChurchReportDepartmentFilter, ChurchReportFilterByMaster, )
+from .models import Meeting, ChurchReport, MeetingAttend, ChurchReportPastor
 from .pagination import MeetingPagination, MeetingVisitorsPagination, ChurchReportPagination
 from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingDetailSerializer,
-                          MeetingListSerializer, ChurchReportStatisticSerializer,
+                          MeetingListSerializer, ChurchReportStatisticSerializer, ChurchReportPastorSerializer,
                           MeetingStatisticSerializer, ChurchReportSerializer,
-                          ChurchReportListSerializer, MeetingDashboardSerializer)
+                          ChurchReportListSerializer, MeetingDashboardSerializer,
+                          ChurchReportDetailSerializer, ChurchReportsDashboardSerializer, )
+from payment.views_mixins import CreatePaymentMixin
 
 logger = logging.getLogger(__name__)
 
@@ -41,13 +44,13 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                        MeetingCustomFilter,
                        FieldSearchFilter,
                        filters.OrderingFilter,
-                       MeetingFilterByMaster)
+                       MeetingFilterByMaster,)
 
     filter_fields = ('data', 'type', 'owner', 'home_group', 'status', 'department', 'church')
 
     ordering_fields = ('id', 'date', 'owner__last_name', 'home_group__title', 'type__code',
-                       'status', 'phone_number', 'visitors_attended', 'visitors_absent',
-                       'total_sum')
+                       'status', 'home_group__phone_number', 'visitors_attended', 'visitors_absent',
+                       'total_sum',)
 
     filter_class = MeetingFilter
 
@@ -84,8 +87,12 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                 can_s=Exists(subqs)
             ).annotate(
                 can_submit=Case(
-                    When(Q(status=True) & Q(can_s=True), then=False), output_field=BooleanField(), default=True)
-            )
+                    When(Q(status=True) & Q(can_s=True), then=False), output_field=BooleanField(), default=True))
+            # ).annotate(
+            #     cant_submit_cause=Case(
+            #         When(Q(status=True) & Q(can_s=True), then=V(
+            #             'Невозможно подать отчет. Данный лидер имеет просроченные отчеты.')),
+            #         output_field=CharField(), default=V('')))
 
         return self.queryset.for_user(self.request.user)
 
@@ -104,44 +111,53 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                 for attend in valid_attends:
                     MeetingAttend.objects.create(
                         meeting_id=home_meeting.id,
-                        user_id=attend.get('user'),
+                        user_id=attend.get('user_id'),
                         attended=attend.get('attended', False),
                         note=attend.get('note', '')
                     )
         except IntegrityError:
-            data = {'message': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
+            data = {'detail': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         headers = self.get_success_headers(meeting.data)
-        return Response(meeting.data, status=status.HTTP_200_OK, headers=headers)
+        return Response(
+            {'message': _('Отчет Домашней Группы успешно подан.')},
+            status=status.HTTP_200_OK, headers=headers,
+        )
 
     @staticmethod
     def validate_to_submit(meeting, data):
         if Meeting.objects.filter(owner=meeting.owner, status=Meeting.EXPIRED).exists() and \
                         meeting.status == Meeting.IN_PROGRESS:
-            raise exceptions.ValidationError('Невозможно подать отчет.\n'
-                                             'Данный лидер имеет просроченные отчеты.')
+            raise exceptions.ValidationError({
+                'detail': _('Невозможно подать отчет. Данный лидер имеет просроченные отчеты.')
+            })
 
         if meeting.type.code == 'service' and data.get('total_sum'):
-            raise exceptions.ValidationError(
-                _('Невозможно подать отчет. Отчет типа - {%s} не должен содержать '
-                  'денежную сумму. ' % meeting.type.name))
+            raise exceptions.ValidationError({
+                'detail': _('Невозможно подать отчет. Отчет типа - {%s} не должен содержать '
+                            'денежную сумму.' % meeting.type.name)
+            })
 
         if not data.get('attends'):
-            raise exceptions.ValidationError(
-                _('Невозможно подать отчет. Список присутствующих не передан.'))
+            raise exceptions.ValidationError({
+                'detail': _('Невозможно подать отчет. Список присутствующих не передан.')
+            })
 
         if meeting.status == Meeting.SUBMITTED:
-            raise exceptions.ValidationError(
-                _('Невозможно повторно подать отчет. Данный отчет - {%s}, '
-                  'уже был подан ранее. ') % meeting)
+            raise exceptions.ValidationError({
+                'detail': _('Невозможно повторно подать отчет. Данный отчет - {%s}, '
+                            'уже был подан ранее.') % meeting
+            })
 
         attends = data.pop('attends')
         valid_visitors = list(meeting.home_group.uusers.values_list('id', flat=True))
-        valid_attends = [attend for attend in attends if attend.get('user') in valid_visitors]
+        valid_attends = [attend for attend in attends if attend.get('user_id') in valid_visitors]
 
         if not valid_attends:
-            raise exceptions.ValidationError(_('Переданный список присутствующих некорректен'))
+            raise exceptions.ValidationError({
+                'detail': _('Переданный список присутствующих некорректен.')
+            })
 
         return valid_attends
 
@@ -161,18 +177,21 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                 self.perform_update(meeting)
                 for attend in attends:
                     MeetingAttend.objects.filter(id=attend.get('id')).update(
-                        user=attend.get('user'),
+                        user=attend.get('user_id', None),
                         attended=attend.get('attended', False),
                         note=attend.get('note', '')
                     )
 
         except IntegrityError as err:
-            data = {'message': _('При обновлении возникла ошибка. Попробуйте еще раз.')}
+            data = {'detail': _('При обновлении возникла ошибка. Попробуйте еще раз.')}
             logger.error(err)
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         headers = self.get_success_headers(meeting.data)
-        return Response(meeting.data, status=status.HTTP_200_OK, headers=headers)
+        return Response(
+            {'message': _('Отчет Домашней Группы успешно изменен.')},
+            status=status.HTTP_200_OK, headers=headers,
+        )
 
     @detail_route(methods=['GET'], serializer_class=MeetingVisitorsSerializer,
                   pagination_class=MeetingVisitorsPagination)
@@ -187,7 +206,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
         visitors = self.serializer_class(visitors, many=True)
 
-        return Response(visitors.data)
+        return Response(visitors.data, status=status.HTTP_200_OK)
 
     @list_route(methods=['GET'], serializer_class=MeetingStatisticSerializer)
     def statistics(self, request):
@@ -198,24 +217,30 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
         statistics = queryset.aggregate(
             total_visitors=Count('visitors'),
-            total_visits=Sum(Case(When(attends__attended=True, then=1),
-                                  output_field=IntegerField(), default=0)),
-            total_absent=Sum(Case(When(attends__attended=False, then=1),
-                                  output_field=IntegerField(), default=0)),
+            total_visits=Sum(Case(
+                When(attends__attended=True, then=1),
+                output_field=IntegerField(), default=0)),
+            total_absent=Sum(Case(
+                When(attends__attended=False, then=1),
+                output_field=IntegerField(), default=0)),
         )
         statistics.update(queryset.aggregate(
-            reports_in_progress=Sum(Case(When(status=1, then=1),
-                                         output_field=IntegerField(), default=0)),
-            reports_submitted=Sum(Case(When(status=2, then=1),
-                                       output_field=IntegerField(), default=0)),
-            reports_expired=Sum(Case(When(status=3, then=1),
-                                     output_field=IntegerField(), default=0))))
+            reports_in_progress=Sum(Case(
+                When(status=1, then=1),
+                output_field=IntegerField(), default=0)),
+            reports_submitted=Sum(Case(
+                When(status=2, then=1),
+                output_field=IntegerField(), default=0)),
+            reports_expired=Sum(Case(
+                When(status=3, then=1),
+                output_field=IntegerField(), default=0))))
+
         statistics.update(queryset.aggregate(total_donations=Sum('total_sum')))
         statistics['new_repentance'] = CustomUser.objects.filter(
             repentance_date__range=[from_date, to_date]).count()
 
         statistics = self.serializer_class(statistics)
-        return Response(statistics.data)
+        return Response(statistics.data, status=status.HTTP_200_OK)
 
     @list_route(methods=['GET'], serializer_class=MeetingDashboardSerializer)
     def dashboard_counts(self, request):
@@ -228,23 +253,33 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         queryset = self.queryset.for_user(user)
 
         dashboards_counts = queryset.aggregate(
-            meetings_in_progress=Sum(Case(When(status=1, then=1),
-                                          output_field=IntegerField(), default=0)),
-            meetings_submitted=Sum(Case(When(status=2, then=1),
-                                        output_field=IntegerField(), default=0)),
-            meetings_expired=Sum(Case(When(status=3, then=1),
-                                      output_field=IntegerField(), default=0))
+            meetings_in_progress=Sum(Case(
+                When(status=1, then=1),
+                output_field=IntegerField(), default=0)),
+            meetings_submitted=Sum(Case(
+                When(status=2, then=1),
+                output_field=IntegerField(), default=0)),
+            meetings_expired=Sum(Case(
+                When(status=3, then=1),
+                output_field=IntegerField(), default=0))
         )
 
         dashboards_counts = self.serializer_class(dashboards_counts)
-        return Response(dashboards_counts.data)
+        return Response(dashboards_counts.data, status=status.HTTP_200_OK)
 
 
-class ChurchReportViewSet(ModelWithoutDeleteViewSet):
+class ChurchReportPastorViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
+    queryset = ChurchReportPastor.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ChurchReportPastorSerializer
+
+
+class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
     queryset = ChurchReport.objects.all()
 
     serializer_class = ChurchReportSerializer
     serializer_list_class = ChurchReportListSerializer
+    serializer_retrieve_class = ChurchReportDetailSerializer
 
     permission_classes = (IsAuthenticated,)
     pagination_class = ChurchReportPagination
@@ -257,6 +292,10 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
 
     filter_class = ChurchReportFilter
 
+    ordering_fields = ('id', 'date', 'church__title', 'pastor__user__last_name', 'count_people',
+                       'new_people', 'count_repentance', 'tithe', 'donations',
+                       'pastor_tithe')
+
     field_search_fields = {
         'search_date': ('date',),
         'search_title': (
@@ -266,22 +305,30 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
         )
     }
 
+    def get_queryset(self):
+        return self.queryset.for_user(self.request.user)
+
     def get_serializer_class(self):
         if self.action == 'list':
             return self.serializer_list_class
+        if self.action == 'retrieve':
+            return self.serializer_retrieve_class
         return self.serializer_class
 
     @detail_route(methods=['POST'])
     def submit(self, request, pk):
         church_report = self.get_object()
         if church_report.status == ChurchReport.SUBMITTED:
-            raise exceptions.ValidationError(
-                _('Невозможно подать отчет. Данный отчет уже был подан ранее'))
+            raise exceptions.ValidationError({
+                'detail': _('Невозможно подать отчет. Данный отчет уже был подан ранее.')
+            })
 
-        if ChurchReport.objects.filter(pastor=church_report.pastor, status=ChurchReport.EXPIRED).exists() and \
-                        church_report.status == ChurchReport.IN_PROGRESS:
-            raise exceptions.ValidationError('Невозможно подать отчет.\n'
-                                             'Данный пастор имеет просроченные отчеты.')
+        if ChurchReport.objects.filter(
+                pastor=church_report.pastor,
+                status=ChurchReport.EXPIRED).exists() and church_report.status == ChurchReport.IN_PROGRESS:
+            raise exceptions.ValidationError({
+                'detail': _('Невозможно подать отчет. Данный пастор имеет просроченные отчеты.')
+            })
 
         data = request.data
         church_report.status = ChurchReport.SUBMITTED
@@ -290,7 +337,25 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
         self.perform_update(report)
         headers = self.get_success_headers(report.data)
 
-        return Response(report.data, status=status.HTTP_200_OK, headers=headers)
+        return Response(
+            {'message': _('Отчет Церкви успешно подан.')},
+            status=status.HTTP_200_OK, headers=headers,
+        )
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+
+        return Response(
+            {"message": _("Отчет Церкви успешно обновлен")},
+            status=status.HTTP_200_OK,
+        )
 
     @list_route(methods=['GET'], serializer_class=ChurchReportStatisticSerializer)
     def statistics(self, request):
@@ -302,11 +367,42 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet):
             total_tithe=Sum('tithe'),
             total_donations=Sum('donations'),
             total_transfer_payments=Sum('transfer_payments'),
-            total_pastor_tithe=Sum('pastor_tithe'))
+            total_pastor_tithe=Sum('pastor_tithe'),
+            church_reports_in_progress=Sum(Case(
+                When(status=1, then=1),
+                output_field=IntegerField(), default=0)),
+            church_reports_submitted=Sum(Case(
+                When(status=2, then=1),
+                output_field=IntegerField(), default=0)),
+            church_reports_expired=Sum(Case(
+                When(status=3, then=1),
+                output_field=IntegerField(), default=0))
+        )
 
         statistics = self.serializer_class(statistics)
-        return Response(statistics.data)
+        return Response(statistics.data, status=status.HTTP_200_OK)
 
+    @list_route(methods=['GET'], serializer_class=ChurchReportsDashboardSerializer)
+    def dashboard_counts(self, request):
+        user_id = request.query_params.get('user_id')
+        if user_id:
+            user = get_object_or_404(CustomUser, pk=user_id)
+        else:
+            user = self.request.user
 
-"""
-"""
+        queryset = self.queryset.for_user(user)
+
+        dashboards_counts = queryset.aggregate(
+            church_reports_in_progress=Sum(Case(
+                When(status=1, then=1),
+                output_field=IntegerField(), default=0)),
+            church_reports_submitted=Sum(Case(
+                When(status=2, then=1),
+                output_field=IntegerField(), default=0)),
+            church_reports_expired=Sum(Case(
+                When(status=3, then=1),
+                output_field=IntegerField(), default=0))
+        )
+
+        dashboards_counts = self.serializer_class(dashboards_counts)
+        return Response(dashboards_counts.data, status=status.HTTP_200_OK)

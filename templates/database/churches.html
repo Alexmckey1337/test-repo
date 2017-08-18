@@ -6,9 +6,11 @@
 {% block header.buttons.top %}
     <div class="top-buttons-wrap">
         <ul class="top-buttons">
-            <li>
-                <button id="add" class="header__button">Добавить церковь</button>
-            </li>
+            {% if user.can_create_church %}
+                <li>
+                    <button id="add" class="header__button">Добавить церковь</button>
+                </li>
+            {% endif %}
             <li>
                 <button id="filter_button"
                         class="header__button"
@@ -17,9 +19,11 @@
                     Фильтр
                 </button>
             </li>
-            <li>
-                <button id="export_table" data-export-url="{% url "church-export" %}" class="download header__button">Export</button>
-            </li>
+            {% if user.can_export_churches %}
+                <li>
+                    <button id="export_table" data-export-url="{% url "church-export" %}" class="download header__button">Export</button>
+                </li>
+            {% endif %}
             <li>
                 <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
             </li>
@@ -257,10 +261,10 @@
                         <label>
                             <span class="label_block">Выберите отдел</span>
                             <select name="department" id="department_select">#}
-{#                                {% for item in request.user.departments.all %}}
-{#                                    <option value="{{ item.id }}">{{ item.title }}</option>}
-{#                                {% endfor %}}
-{#                          </select>
+                                {% for item in request.user.departments.all %}}
+                                    <option value="{{ item.id }}">{{ item.title }}</option>}
+                                {% endfor %}}
+                          </select>
                         </label>
                         <label>
                             <span class="label_block">Страна</span>

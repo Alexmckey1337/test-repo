@@ -1,16 +1,14 @@
 (function ($) {
-    const USER_ID = $('body').data('user');
     const CHURCH_ID = $('#church').data('id');
     const D_ID = $('#added_home_group_church').data('department');
     let responsibleList = false;
     let link = $('.get_info .active').data('link');
 
-    function makeResponsibleList(id, user_id) {
+    function setOptionsToPotentialLeadersSelect(churchId) {
         let config = {
-                master_tree: user_id,
-                church_id: id,
+                church: churchId,
             };
-        getResponsibleBYHomeGroupNew(config).then(function (data) {
+        getPotentialLeadersForHG(config).then(function (data) {
             let options = data.map( (item) => {
                 let option = document.createElement('option');
                 return $(option).val(item.id).text(item.fullname);
@@ -18,17 +16,10 @@
             $('#added_home_group_pastor').html(options).prop('disabled', false).select2();
         });
     }
-    // function makeResponsibleList(USER_ID) {
-    //     getResponsibleBYHomeGroup(USER_ID).then(function (data) {
-    //         let options = [];
-    //         data.forEach(function (item) {
-    //             let option = document.createElement('option');
-    //             $(option).val(item.id).text(item.fullname);
-    //             options.push(option);
-    //         });
-    //         $('#added_home_group_pastor').html(options).prop('disabled', false);
-    //     })
-    // }
+
+    function reRenderTable(config) {
+        addUserToChurch(config).then(() => createChurchesUsersTable(CHURCH_ID));
+    }
 
     function addUserToChurch(data) {
         let userId = data.id;
@@ -118,26 +109,31 @@
         clearAddHomeGroupData();
         if (!responsibleList) {
             responsibleList = true;
-            makeResponsibleList(CHURCH_ID, USER_ID);
+            setOptionsToPotentialLeadersSelect(CHURCH_ID);
         }
         setTimeout(function () {
             $('#addHomeGroup').css('display', 'block');
         }, 100)
     });
     $('#addUserToChurch').on('click', function () {
-        $('#addUser').css('display', 'block');
+        // $('#addUser').css('display', 'block');
         initAddNewUser({
             getDepartments: false,
         });
-    });
-    $('#choose').on('click', function () {
-        $(this).closest('.popup').css('display', 'none');
         $('#searchedUsers').html('');
         $('#searchUserFromDatabase').val('');
         $('.choose-user-wrap .splash-screen').removeClass('active');
+        document.querySelector('#searchUserFromDatabase').focus();
         $('#chooseUserINBases').css('display', 'block');
     });
-    $('#add_new').on('click', function () {
+    // $('#choose').on('click', function () {
+    //     $(this).closest('.popup').css('display', 'none');
+    //     $('#searchedUsers').html('');
+    //     $('#searchUserFromDatabase').val('');
+    //     $('.choose-user-wrap .splash-screen').removeClass('active');
+    //     $('#chooseUserINBases').css('display', 'block');
+    // });
+    $('#addNewUser').on('click', function () {
         let department_id = $('#church').data('department_id');
         let department_title = $('#church').data('department_title');
         let option = document.createElement('option');
@@ -215,7 +211,7 @@
         onSuccess: function (form) {
             if ($(form).attr('name') == 'createUser') {
                 $(form).find('#saveNew').attr('disabled', true);
-                createNewUser(addUserToChurch).then(function () {
+                createNewUser(reRenderTable).then(function () {
                     $(form).find('#saveNew').attr('disabled', false);
                 });
             }

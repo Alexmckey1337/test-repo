@@ -15,8 +15,8 @@
         <div class="tabs">
             <ul class="nav tabs_link">
                 <li><a
-                       href="{% url 'events:meeting_report_list' %}">Отчёты домашних груп</a></li>
-                <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних груп</a></li>
+                       href="{% url 'events:meeting_report_list' %}">Отчёты домашних групп</a></li>
+                <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних групп</a></li>
             </ul>
         </div>
     {% endblock %}
@@ -104,7 +104,7 @@
                         <% } else if (key == 'user') { %>
                                     <td>
                                         <%= item.fullname %>
-                                        <input type="text" name="user" hidden value="<%= item.user_id %>">
+                                        <input type="text" name="user_id" hidden value="<%= item.user_id %>">
                                         <% if(item.id) { %>
                                         <input type="text" name="id" hidden value="<%= item.id %>">
                                         <% } %>

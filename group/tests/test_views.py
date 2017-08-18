@@ -29,8 +29,8 @@ def create_home_group_of_church(church, home_group_factory, count):
     return home_group_factory.create_batch(count, church=church)
 
 
-def create_users_for_potential_users_search(church, user_factory, name_type, count=1):
-    user_list = user_factory.create_batch(count, **{name_type: 'batman', 'cchurch': church})
+def create_users_for_potential_users_search(church, user_factory, name_type, user=None, count=1):
+    user_list = user_factory.create_batch(count, **{name_type: 'batman', 'cchurch': church, 'master': user})
     return user_list
 
 
@@ -161,23 +161,25 @@ class TestChurchViewSet:
             (True, 'church-potential-users-group')
     ), ids=('church', 'group'))
     def test_potential_users_search_by_name(
-            self, api_login_client, church, church_factory, user_factory, name_type, is_detail, url_name):
+            self, api_client, church, church_factory, user_factory, name_type, is_detail, url_name):
 
-        user_factory.create_batch(4, **{name_type: 'batman'})  # users count +4, = 4
+        user = user_factory(is_staff=True)
+        user_factory.create_batch(4, **{name_type: 'batman', 'master': user})  # users count +4, = 4
 
         create_users_for_potential_users_search(
-            church, user_factory, name_type, count=3)  # users count +0|3, = 4|7 (church|group)
+            church, user_factory, name_type, user, count=3)  # users count +0|3, = 4|7 (church|group)
 
         other_church = church_factory()
         create_users_for_potential_users_search(
-            other_church, user_factory, name_type, count=6)  # users count +0|3, = 4|7 (church|group)
+            other_church, user_factory, name_type, user, count=6)  # users count +0|3, = 4|7 (church|group)
 
         if is_detail:
             url = reverse(url_name, kwargs={'pk': church.id})
         else:
             url = reverse(url_name)
 
-        response = api_login_client.get(url, data={'search': 'batm'}, format='json')
+        api_client.force_login(user)
+        response = api_client.get(url, data={'search': 'batm'}, format='json')
 
         assert response.status_code == status.HTTP_200_OK
         count = 7 if is_detail else 4
@@ -356,9 +358,10 @@ class TestChurchViewSet:
             ('put', 'update', ChurchSerializer),
             ('patch', 'partial_update', ChurchSerializer),
     ), ids=('get-list', 'post-create', 'get-retrieve', 'put-update', 'patch-partial_update'))
-    def test_get_serializer_class(self, rf, fake_church_view_set, method, action, serializer_class):
+    def test_get_serializer_class(self, rf, fake_church_view_set, method, action, serializer_class, user_factory):
         method_action = getattr(rf, method)
         request = method_action('/')
+        request.user = user_factory(is_staff=True)
         view = fake_church_view_set.as_view({method: action})
 
         instance = view(request)
@@ -373,9 +376,10 @@ class TestChurchViewSet:
             ('put', 'update', False),
             ('patch', 'partial_update', False),
     ), ids=('get-list', 'post-create', 'get-retrieve', 'put-update', 'patch-partial_update'))
-    def test_get_queryset(self, rf, fake_church_view_set, method, action, has_field, annotate_field_name):
+    def test_get_queryset(self, rf, fake_church_view_set, method, action, has_field, annotate_field_name, user_factory):
         method_action = getattr(rf, method)
-        request = method_action('/')
+        request = method_action('/', pk=1)
+        request.user = user_factory(is_staff=True)
         view = fake_church_view_set.as_view({method: action})
 
         instance = view(request)
@@ -535,9 +539,10 @@ class TestHomeGroupViewSet:
             ('put', 'update', HomeGroupSerializer),
             ('patch', 'partial_update', HomeGroupSerializer),
     ), ids=('get-list', 'post-create', 'get-retrieve', 'put-update', 'patch-partial_update'))
-    def test_get_serializer_class(self, rf, fake_home_group_view_set, method, action, serializer_class):
+    def test_get_serializer_class(self, rf, fake_home_group_view_set, method, action, serializer_class, user_factory):
         method_action = getattr(rf, method)
         request = method_action('/')
+        request.user = user_factory(is_staff=True)
         view = fake_home_group_view_set.as_view({method: action})
 
         instance = view(request, pk=1)

@@ -32,43 +32,41 @@ function updateUser(id, data, success = null) {
                         msg += item;
                         msg += ' ';
                     });
+                } else if (typeof errObj[key] == 'object') {
+                    let errKeys = Object.keys(errObj[key]),
+                        html = errKeys.map(errkey => `${errObj[key][errkey]}`).join('');
+                    msg += html;
                 } else {
                     msg += errObj[key];
                 }
                 msg += '; ';
             }
         }
-
         showPopup(msg);
+
         return false;
     });
 }
 
 function makeResponsibleList(department, status, flag = false) {
-    let $selectResponsible = $('#selectResponsible');
-    let activeMaster = $selectResponsible.val();
-    let activeOption = $selectResponsible.find('option:selected');
+    let $selectResponsible = $('#selectResponsible'),
+        activeMaster = $selectResponsible.find('option:selected').val();
     getResponsible(department, status).then(function (data) {
-        let rendered = [];
-        rendered.push(activeOption);
+        let defaultOption = `<option value="none" disabled="disabled" selected="selected">Выберите ответственного</option>`
+        let options = data.map(option =>
+                `<option value="${option.id}" ${(activeMaster == option.id) ? 'selected' : ''}>${option.fullname}</option>`);
         if (flag) {
             if (status > 60) {
-                let option = document.createElement('option');
-                $(option).val('').text('Нет ответственного');
-                rendered.push(option);
+                $selectResponsible.empty()
+                    .html(defaultOption)
+                    .append(`<option value="">Нет ответственного</option>`)
+                    .append(options);
             } else {
-                rendered.splice(0,rendered.length);
+                $selectResponsible.empty().html(defaultOption).append(options);
             }
+        } else {
+            $selectResponsible.empty().html(defaultOption).append(options);
         }
-        data.forEach(function (item) {
-            let option = document.createElement('option');
-            $(option).val(item.id).text(item.fullname);
-            if (activeMaster == item.id) {
-                $(option).attr('selected', true);
-            }
-            rendered.push(option);
-        });
-        $selectResponsible.html(rendered);
     })
 }
 
@@ -385,7 +383,7 @@ function changeLessonStatus(lessonId, profileId, checked) {
     });
 }
 
-(function ($) {
+$('document').ready(function () {
     let $img = $(".crArea img");
     let flagCroppImg = false;
 
@@ -535,6 +533,10 @@ function changeLessonStatus(lessonId, profileId, checked) {
     });
     $('.save__info').on('click', function (e) {
         e.preventDefault();
+        if ($('#selectResponsible').val() == null) {
+            showPopup('Выберите ответственного');
+            return
+        }
         $(this).closest('form').find('.edit').removeClass('active');
         let _self = this;
         let $block = $(this).closest('.right-info__block');
@@ -621,8 +623,6 @@ function changeLessonStatus(lessonId, profileId, checked) {
                 }
                 $('#fullName').text(data.fullname);
                 $('#searchName').text(data.search_name);
-            }).catch(function (data) {
-                console.log(data);
             });
         } else if (action == 'update-church') {
             let $existBlock = $('#editChurches').find('ul');
@@ -692,7 +692,10 @@ function changeLessonStatus(lessonId, profileId, checked) {
         makeResponsibleList(department, status);
     });
     // after fix
-    makeResponsibleList($('#departments').val(), $('#selectHierarchy').find('option:selected').data('level'));
+    let depart = $('#departments').val(),
+        stat = $('#selectHierarchy').find('option:selected').attr('data-level');
+    makeResponsibleList(depart, stat);
+
     $('#selectHierarchy').on('change', function () {
         let department = $('#departments').val();
         let status = $(this).find('option:selected').data('level');
@@ -827,5 +830,4 @@ function changeLessonStatus(lessonId, profileId, checked) {
     //         window.location.href = `/account/${id}`;
     //     }
     // })
-})
-(jQuery);
+});

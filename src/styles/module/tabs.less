@@ -460,16 +460,22 @@
   }
   .set-date,
   .set-time {
+    position: relative;
     display: flex;
+    border: 1px solid #cdd0d4;
+    overflow: hidden;
     input {
       height: auto;
       padding: .5em;
+      z-index: 2;
+      background-color: transparent;
+      border: 0;
     }
     & .cal-icon {
-      position: relative;
+      position: absolute;
+      right: 0;
       width: 40px;
       height: 50px;
-      border: 1px solid #cdd0d4;
       border-left: 0;
       background-color: #f2f5fa;
       &::after {
@@ -487,6 +493,10 @@
     margin-left: 20px;
     & input {
       width: 7em;
+      &.last {
+        width: 9em;
+        border-left: 1px solid #cdd0d4;
+      }
     }
     & .cal-icon::after {
       font-size: 1.5em;
@@ -893,5 +903,18 @@
     &:hover{
       color: #3caeda;
     }
+  }
+}
+
+#sdelki .tab-status {
+  border-bottom: 1px solid #cdd0d4;
+}
+
+#sdelki .inline__button {
+  color: #3caeda!important;
+  border-bottom: 1px dotted transparent;
+  transition: .4s border-bottom ease;
+  &:hover {
+    border-bottom: 1px dotted #3caeda;
   }
 }

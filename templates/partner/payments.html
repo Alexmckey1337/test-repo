@@ -23,8 +23,8 @@
             <ul class="nav tabs_link">
                 <li><a href="{% url 'partner:deals' %}">Сделки</a></li>
                 <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
-                <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
                 <li><a class="active" href="{% url 'partner:payments' %}">Таблица платежей</a></li>
+                <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
             </ul>
         </div>
 
@@ -41,9 +41,9 @@
                 {#            <li>#}
                 {#                <button id="export_table" data-export-url="{% url "users_v1_1-export" %}" class="download header__button">Export</button>#}
                 {#            </li>#}
-                {#            <li>#}
-                {#                <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>#}
-                {#            </li>#}
+                <li>
+                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
+                </li>
             </ul>
         </div>
     </div>
@@ -151,12 +151,12 @@
                 </div>
             </div>
             <div class="container">
-                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
+                <button class="clear-filter"><i class="fa fa-refresh"
                                                                               aria-hidden="true"></i>
                     Очистить
                 </button>
                 <button class="close-popup">Отменить</button>
-                <button onclick="applyFilter(this, makePayments)" class="apply-filter">Применить</button>
+                <button class="apply-filter">Применить</button>
             </div>
         </div>
     </div>

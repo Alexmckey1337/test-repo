@@ -2,23 +2,42 @@
   .col {
     width: auto !important;
   }
+
   .a-sammits {
-  & .col {
-    width: 25%;
+    & .col {
+      width: 25%;
+    }
+  }
+
+  .deskboard .well p {
+    padding: 50px 15px;
   }
 }
+
+@media screen and (max-width: 1500px) {
+  #dashboard {
+    .well {
+      width: 31%;
+    }
+  }
 }
 
 @media screen and (max-width: 1430px) {
-	.anketa-photo {
-		width: 140px;
-		height: 140px;
-	}
-    .col {
-      width: 30%;
-    }
-    .charts .half_charts {
-      width: 80%;
+  .anketa-photo {
+    width: 140px;
+    height: 140px;
+  }
+
+  .col {
+    width: 30%;
+  }
+
+  .deskboard .well p {
+    padding: 30px 15px;
+  }
+
+  .charts .half_charts {
+    width: 80%;
   }
 }
 
@@ -32,15 +51,21 @@
       text-indent: 0;
     }
   }
+
   #filter_button:after {
     top: 0;
     right: 0;
     font-size: .5em;
     text-indent: 0;
-}
+  }
 }
 
 @media screen and (max-width: 1200px) {
+  .vocrm-login {
+    background: none;
+
+  }
+
   .user-fio {
     & .right-info-r {
       width: ~'calc(60% - 1.5em)';
@@ -48,6 +73,31 @@
       padding: 1.5em 2em .5em 0;
       & h3#fullname {
         font: 1.2em "UbuntuMedium", sans-serif;
+      }
+    }
+  }
+
+  #create_pop.pop-up__table .pop_cont {
+    width: 800px;
+  }
+}
+
+@media screen and (max-width: 992px) {
+  #create_pop.pop-up__table .pop_cont {
+    width: 90vw;
+  }
+}
+
+@media screen and (max-width: 728px) {
+  #create_pop {
+    .pop_cont {
+      min-width: 95%;
+      width: 95%;
+      box-sizing: border-box;
+      padding: 0;
+      .main-text {
+        padding: 10px 0;
+
       }
     }
   }

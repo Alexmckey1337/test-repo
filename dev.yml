@@ -53,6 +53,7 @@ services:
       - POSTGRES_USER=crm_user
       - POSTGRES_DB=crm_db
       - POSTGRES_PASSWORD=crm_pass
+      - USE_DOCKER=yes
     volumes:
       - .:/app
     links:

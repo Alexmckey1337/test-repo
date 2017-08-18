@@ -1,16 +1,10 @@
 (function ($) {
-    makePayments().then((data) => {
+    createPaymentsTable({});
 
-    });
     $('input[name="fullsearch"]').keyup(function () {
-        let search = $(this).val();
         $('.preloader').css('display', 'block');
         delay(function () {
-            makePayments({
-                search_purpose_fio: search
-            }).then(() => {
-
-            })
+            createPaymentsTable({});
         }, 1000);
     });
     $('#filter_button').on('click', ()=> {
@@ -45,4 +39,20 @@
         minView: 'months'
     });
     $('.custom_select').select2();
+
+    $('#sort_save').on('click', function () {
+        $('.preloader').css('display', 'block');
+        updateSettings(createPaymentsTable);
+    });
+
+    $('.apply-filter').on('click', function () {
+        applyFilter(this, createPaymentsTable);
+    });
+
+    $('.clear-filter').on('click', function () {
+        refreshFilter(this);
+    });
+
+    $('.selectdb').select2();
+
 })(jQuery);

@@ -49,8 +49,10 @@ class OrderTable {
 }
 
 class DeleteUser {
-    constructor(id) {
+    constructor(id, userName, title) {
         this.user = id;
+        this.user_name = userName;
+        this.title = title;
     }
 
     deleteUser() {
@@ -73,12 +75,12 @@ class DeleteUser {
             popup.parentElement.removeChild(popup)
         }
 
-        let body = `<div class="pop_cont" >
+        let body = `<div class="pop_cont pop-up__confirm" >
             <div class="top-text">
                 <h3>Удаление пользователя</h3><span class="close_pop">×</span>
             </div>
                 <div class="main-text">
-                    <p>${(massage) ? massage : "Подтвердите удаление пользователя из церкви" }</p>
+                    <p>${(massage) ? massage : `Вы действительно хотите удалить пользователя ${this.user_name} из ${this.title}?` }</p>
                     ${(info) ? info : ''}
                     <div class="buttons"></div>
                 </div>
@@ -98,8 +100,8 @@ class DeleteUser {
 }
 
 class DeleteChurchUser extends DeleteUser {
-    constructor(userId, churchId, callback) {
-        super(userId);
+    constructor(userId, churchId, callback, userName, title) {
+        super(userId, userName, title);
         this.church = churchId;
         this.callback = callback;
         this.delAll = false;
@@ -114,11 +116,12 @@ class DeleteChurchUser extends DeleteUser {
         let container = document.createElement('div');
         let btn = document.createElement('button');
         let cancel = document.createElement('button');
+        $(container).addClass('btn_block');
         (this.delAll) ?
-            $(btn).text('Удалить из домашних групп').on('click', this.deleteFromHomeGroup.bind(this)) :
-            $(btn).text('Подтвердить').on('click', this.deleteFromChurch.bind(this));
+            $(btn).text('Удалить из домашних групп').addClass('ok').on('click', this.deleteFromHomeGroup.bind(this)) :
+            $(btn).text('Подтвердить').addClass('ok').on('click', this.deleteFromChurch.bind(this));
         $(cancel).text('Отменить').addClass('close_pop');
-        $(container).append(btn).append(cancel);
+        $(container).append(cancel).append(btn);
         return container
     }
 
@@ -168,7 +171,7 @@ class DeleteChurchUser extends DeleteUser {
             })
         };
         this.delAll = false;
-        let massage = 'Пользователь удален из домашнєй группы';
+        let massage = 'Пользователь удален из домашней группы';
         let info = '<p>Подтвердите удаление пользователя из церкви</p>';
         Promise.all(this.home_group.map((item) => {
             fetch(URLS.home_group.del_user(item), options)
@@ -176,6 +179,57 @@ class DeleteChurchUser extends DeleteUser {
             .then(() => {
                 this.home_group = [];
                 this.popup(massage, info);
+            })
+            .catch(err => {
+                this.show_delete = false;
+                this.popup(JSON.parse(err));
+            });
+    }
+}
+
+class DeleteHomeGroupUser extends DeleteUser {
+    constructor(groupId, userId, callback, userName, title) {
+        super(userId, userName, title);
+        this.home_group = groupId;
+        this.callback = callback;
+        this.show_delete = true;
+    }
+
+    btn() {
+        if (!this.show_delete) {
+            return
+        }
+        let container = document.createElement('div');
+        let btn = document.createElement('button');
+        let cancel = document.createElement('button');
+        $(container).addClass('btn_block');
+        $(btn).text('Подтвердить').addClass('ok').on('click', this.deleteFromHomeGroup.bind(this));
+        $(cancel).text('Отменить').addClass('close_pop');
+        $(container).append(cancel).append(btn);
+        return container
+    }
+
+    deleteFromHomeGroup() {
+        let options = {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            }),
+            body: JSON.stringify({
+                user_id: this.user
+            })
+        };
+        return fetch(URLS.home_group.del_user(this.home_group), options)
+            .then(res => {
+                return (res.status == 204) ? res.status : res.json()
+            })
+            .then(data => {
+                if (data === 204) {
+                    this.show_delete = false;
+                    this.popup('Пользователь удален из домашней группы');
+                    this.callback();
+                }
             })
             .catch(err => {
                 this.show_delete = false;
@@ -326,13 +380,18 @@ function createHomeGroupsTable(config = {}) {
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
                 $('#quickEditCartPopup').find('.popup_body').html(rendered);
-                getResponsibleBYHomeGroupSupeMegaNew({departmentId: data.department})
-                    .then(res => {
-                        return res.map(leader => `<option value="${leader.id}" ${(data.leader.id == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
-                    })
-                    .then(data => {
-                        $('#homeGroupLeader').html(data).select2();
-                    });
+                getPotentialLeadersForHG({church: data.church.id}).then(function (res) {
+                    return res.map(leader => `<option value="${leader.id}" ${(data.leader.id == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
+                }).then(data => {
+                    $('#homeGroupLeader').html(data).select2();
+                });
+                // getResponsibleBYHomeGroupSupeMegaNew({departmentId: data.department})
+                //     .then(res => {
+                //         return res.map(leader => `<option value="${leader.id}" ${(data.leader.id == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
+                //     })
+                //     .then(data => {
+                //         $('#homeGroupLeader').html(data).select2();
+                //     });
                 setTimeout(function () {
                     $('.date').datepicker({
                         dateFormat: 'yyyy-mm-dd',
@@ -988,8 +1047,9 @@ function createChurchesDetailsTable(config = {}, id, link) {
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINChurches').html(rendered).on('click', '.delete_btn', function () {
-            let ID = $(this).closest('td').find('a').data('id');
-            let DelUser = new DeleteChurchUser(ID, $('#church').data('id'), createChurchesDetailsTable);
+            let ID = $(this).closest('td').find('a').data('id'),
+                userName = $(this).closest('td').find('a').text(),
+                DelUser = new DeleteChurchUser(ID, $('#church').data('id'), createChurchesDetailsTable, userName, 'церкви');
             DelUser.popup();
 
         });
@@ -1026,17 +1086,19 @@ function createHomeGroupUsersTable(config = {}, id) {
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINHomeGroups').html(rendered).on('click', '.delete_btn', function () {
-            let ID = $(this).closest('td').find('a').data('id');
-            deleteUserINHomeGroup($('#home_group').data('id'), ID).then(() => {
-                createHomeGroupUsersTable(config = {}, id)
-            });
+            let ID = $(this).closest('td').find('a').data('id'),
+                userName = $(this).closest('td').find('a').text(),
+                DelUser = new DeleteHomeGroupUser(id, ID, createHomeGroupUsersTable, userName, 'домашней группы');
+            DelUser.popup();
         });
-        $('.quick-edit').on('click', function () {
-            let user_id = $(this).closest('.edit').find('a').data('id');
-            deleteUserINHomeGroup(id, user_id).then(function () {
-                createHomeGroupUsersTable(config, id);
-            })
-        });
+        // $('.quick-edit').on('click', function () {
+        //     let ID = $(this).closest('.edit').find('a').data('id'),
+        //         userName = $(this).closest('td').find('a').text();
+        //     initDeleteUserINHomeGroup(id, ID, userName);
+        //     // deleteUserINHomeGroup(id, user_id).then(function () {
+        //     //     createHomeGroupUsersTable(config, id);
+        //     // })
+        // });
         makeSortForm(filterData.user_table);
         let paginationConfig = {
             container: ".users__pagination",
@@ -1077,7 +1139,7 @@ function getAddHomeGroupData() {
     return {
         "opening_date": $('#added_home_group_date').val(),
         "title": $('#added_home_group_title').val(),
-        "church": parseInt($('#added_home_group_church').data('id')),
+        "church": ($('#added_home_group_church_select').length) ? parseInt($('#added_home_group_church_select').val()) : $('#added_home_group_church').attr('data-id'),
         "leader": $('#added_home_group_pastor').val(),
         "city": $('#added_home_group_city').val(),
         "address": $('#added_home_group_address').val(),
@@ -1394,8 +1456,8 @@ function getResponsibleBYHomeGroup(userID = null) {
 function getResponsibleBYHomeGroupSupeMegaNew(config) {
     let masterTree = (config.userId) ? config.userId : $('body').data('user');
     return new Promise(function (resolve, reject) {
-        let url = URLS.home_group.available_leaders();
-        ajaxRequest(url, {master_tree: masterTree, department_id: config.departmentId}, function (data) {
+        let url = URLS.home_group.potential_leaders();
+        ajaxRequest(url, {master_tree: masterTree, department: config.departmentId}, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -1405,9 +1467,9 @@ function getResponsibleBYHomeGroupSupeMegaNew(config) {
     })
 }
 
-function getResponsibleBYHomeGroupNew(config) {
+function getPotentialLeadersForHG(config) {
     return new Promise(function (resolve, reject) {
-        let url = URLS.home_group.available_leaders();
+        let url = URLS.home_group.potential_leaders();
         ajaxRequest(url, config, function (data) {
             if (data) {
                 resolve(data);
@@ -1591,109 +1653,50 @@ function getPaymentsDeals(config) {
     });
 }
 
-function makePayments(config = {}) {
+function createPaymentsTable(config) {
     Object.assign(config, getSearch('search_purpose_fio'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
-    return getPaymentsDeals(config).then(function (response) {
-            console.log(config);
-            let page = config['page'] || 1;
-            let count = response.count;
-            let pages = Math.ceil(count / CONFIG.pagination_count);
-            let data = {};
-            let id = "paymentsList";
-            let text = `Показано ${CONFIG.pagination_count} из ${count}`;
-
-            data.count = response.count;
-            data.table_columns = {};
-            data.table_columns.sent_date = {
-                active: true,
-                editable: true,
-                id: '',
-                number: '',
-                ordering_title: 'sent_date',
-                title: 'Дата отправки'
-            };
-            data.table_columns.sum_str = {
-                active: true,
-                editable: true,
-                id: '',
-                number: '',
-                ordering_title: 'sum',
-                title: 'Сумма'
-            };
-            data.table_columns.manager = {
-                active: true,
-                editable: true,
-                id: '',
-                number: '',
-                ordering_title: 'manager__last_name',
-                title: 'Менеджер'
-            };
-            data.table_columns.description = {
-                active: true,
-                editable: true,
-                id: '',
-                number: '',
-                ordering_title: 'no_ordering',
-                title: 'Примечание'
-            };
-            data.table_columns.purpose_fio = {
-                active: true,
-                editable: true,
-                id: '',
-                number: '',
-                ordering_title: 'no_ordering',
-                title: 'Плательщик'
-            };
-            data.table_columns.purpose_date = {
-                active: true,
-                editable: true,
-                id: '',
-                number: '',
-                ordering_title: 'no_ordering',
-                title: 'Дата сделки'
-            };
-            data.table_columns.purpose_manager_fio = {
-                active: true,
-                editable: true,
-                id: '',
-                number: '',
-                ordering_title: 'no_ordering',
-                title: 'Ответственный'
-            };
-            data.table_columns.created_at = {
-                active: true,
-                editable: true,
-                id: '',
-                number: '',
-                ordering_title: 'created_at',
-                title: 'Дата создания'
-            };
-            data.results = response.results;
-            makePaymentsTable(data, id);
-
-            let paginationConfig = {
-                container: ".payments__pagination",
-                currentPage: page,
-                pages: pages,
-                callback: makePayments
-            };
-            makePagination(paginationConfig);
-            $('.table__count').text(text);
-            // makeSortForm(response.user_table);
-            new OrderTable().sort(makePayments, ".table-wrap th");
-            $('.preloader').hide();
-            return data;
-        }
-    )
-        ;
+    getPaymentsDeals(config).then(function (data) {
+        let count = data.count;
+        let page = config['page'] || 1;
+        let pages = Math.ceil(count / CONFIG.pagination_count);
+        let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
+        let id = "paymentsList";
+        let text = `Показано ${showCount} из ${count}`;
+        let paginationConfig = {
+            container: ".payments__pagination",
+            currentPage: page,
+            pages: pages,
+            callback: createPaymentsTable
+        };
+        makePaymentsTable(data, id);
+        makePagination(paginationConfig);
+        $('.table__count').text(text);
+        makeSortForm(data.table_columns);
+        $('.preloader').css('display', 'none');
+        new OrderTable().sort(createPaymentsTable, ".table-wrap th");
+    }).catch(function (err) {
+        console.log(err);
+    });
 }
+
 function homeStatistics() {
     let data = {};
         Object.assign(data, getFilterParam());
         Object.assign(data, getTabsFilterParam());
-    getData(URLS.home_meeting.stats(), data).then(data => {
+    getData(URLS.event.home_meeting.stats(), data).then(data => {
+        let tmpl = document.getElementById('statisticsTmp').innerHTML;
+        let rendered = _.template(tmpl)(data);
+        document.getElementById('statisticsContainer').innerHTML = rendered;
+    })
+}
+
+function churchStatistics() {
+    let data = {};
+        Object.assign(data, getFilterParam());
+        Object.assign(data, getTabsFilterParam());
+    getData(URLS.event.church_report.stats(), data).then(data => {
         let tmpl = document.getElementById('statisticsTmp').innerHTML;
         let rendered = _.template(tmpl)(data);
         document.getElementById('statisticsContainer').innerHTML = rendered;
@@ -2897,7 +2900,6 @@ function updateSettings(callback, path) {
         }
     });
     let json = JSON.stringify(data);
-
     ajaxRequest(URLS.update_columns(), json, function (JSONobj) {
         $(".bgsort").remove();
         VOCRM['column_table'] = JSONobj['column_table'];
@@ -3124,8 +3126,18 @@ function homeReportsTable(config = {}) {
     })
 }
 
+function churchReportsTable(config = {}) {
+    let status = $('#statusTabs').find('.current').find('button').data('status');
+    config.status = status;
+    Object.assign(config, getSearch('search_title'));
+    Object.assign(config, getFilterParam());
+    Object.assign(config, getTabsFilterParam());
+    getChurchReports(config).then(data => {
+        makeChurchReportsTable(data, config);
+    })
+}
+
 function makeHomeReportsTable(data, config = {}) {
-    console.log(config);
     let tmpl = $('#databaseHomeReports').html();
     let rendered = _.template(tmpl)(data);
     $('#homeReports').html(rendered);
@@ -3148,6 +3160,29 @@ function makeHomeReportsTable(data, config = {}) {
     $('.preloader').hide();
 }
 
+function makeChurchReportsTable(data, config = {}) {
+    let tmpl = $('#databaseChurchReports').html();
+    let rendered = _.template(tmpl)(data);
+    $('#churchReports').html(rendered);
+    let count = data.count;
+    let pages = Math.ceil(count / CONFIG.pagination_count);
+    let page = config.page || 1;
+    let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
+    let text = `Показано ${showCount} из ${count}`;
+    let paginationConfig = {
+        container: ".reports__pagination",
+        currentPage: page,
+        pages: pages,
+        callback: churchReportsTable
+    };
+    // $('.table__count').text(data.count);
+    makePagination(paginationConfig);
+    makeSortForm(data.table_columns);
+    $('.table__count').text(text);
+    new OrderTable().sort(churchReportsTable, ".table-wrap th");
+    $('.preloader').hide();
+}
+
 function getHomeReports(config = {}) {
     if (!config.status) {
         let status = parseInt($('#statusTabs').find('.current').find('button').data('status'));
@@ -3155,7 +3190,7 @@ function getHomeReports(config = {}) {
     }
     return new Promise(function (resolve, reject) {
         let data = {
-            url: URLS.home_meeting.list(),
+            url: URLS.event.home_meeting.list(),
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -3170,6 +3205,31 @@ function getHomeReports(config = {}) {
                 reject('Вы должны авторизоватся');
             }
 
+        };
+        newAjaxRequest(data, status);
+    })
+}
+function getChurchReports(config = {}) {
+    if (!config.status) {
+        let status = parseInt($('#statusTabs').find('.current').find('button').data('status'));
+        config.status = status || 1;
+    }
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: URLS.event.church_report.list(),
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: config
+        };
+        let status = {
+            200: function (req) {
+                resolve(req);
+            },
+            403: function () {
+                reject('Вы должны авторизоватся');
+            }
         };
         newAjaxRequest(data, status);
     })
@@ -3248,6 +3308,10 @@ function createNewUser(callback) {
         }
     }).catch(function (data) {
         $preloader.css('display', 'none');
+        if (data.phone_number) {
+            showPopup(data.phone_number.message);
+            $('#createUser').css("transform","translate3d(0px, 0px, 0px)");
+        }
         if (data.detail) {
             showPopup(data.detail[0]);
         }
@@ -3327,9 +3391,9 @@ function getPastorsByDepartment(config) {
     });
 }
 
-function getLeadersByChurch(config = {}) {
+function getHGLeaders(config = {}) {
     let data = {
-        url: URLS.home_group.available_leaders(),
+        url: URLS.home_group.leaders(),
         data: config
     };
     return new Promise(function (resolve, reject) {
@@ -3384,6 +3448,298 @@ function getCountFilter() {
     });
 
     return count;
+}
+
+function btnDeals() {
+    $("button.pay").on('click', function () {
+        let id = $(this).data('id');
+        let value = $(this).data('value');
+        let total_sum = $(this).data('total_sum');
+        let diff = numeral(value).value() - numeral(total_sum).value();
+        let currencyName = $(this).data('currency-name');
+        let currencyID = $(this).data('currency-id');
+        diff = diff > 0 ? diff : 0;
+        $('#new_payment_sum').val(diff);
+        $('#complete-payment').attr('data-id', id);
+        $('#purpose-id').val(id);
+        $('#popup-create_payment').css('display', 'block');
+        sumChangeListener(currencyName, currencyID);
+    });
+
+    $("button.complete").on('click', function () {
+        let client_name = $(this).attr('data-name'),
+            deal_date = $(this).attr('data-date'),
+            responsible_name = $(this).attr('data-responsible');
+        $('#complete').attr('data-id', $(this).data('id'));
+        $('#client-name').val(client_name);
+        $('#deal-date').val(deal_date);
+        $('#responsible-name').val(responsible_name);
+        $('#popup').css('display', 'block');
+    });
+}
+
+function createIncompleteDealsTable(config={}) {
+    Object.assign(config, {done: 3});
+    Object.assign(config, getSearch('search'));
+    Object.assign(config, getFilterParam());
+    Object.assign(config, getOrderingData());
+    getDeals(config).then(function (data) {
+        let count = data.count,
+            page = config['page'] || 1,
+            pages = Math.ceil(count / CONFIG.pagination_count),
+            showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
+            id = 'incompleteList',
+            text = `Показано ${showCount} из ${count}`,
+            paginationConfig = {
+            container: '.undone__pagination',
+            currentPage: page,
+            pages: pages,
+            callback: createIncompleteDealsTable
+        };
+        makeDealsDataTable(data, id);
+        makePagination(paginationConfig);
+        $('#incomplete').find('.table__count').text(text);
+        makeSortForm(data.table_columns);
+        $('.preloader').css('display', 'none');
+        new OrderTable().sort(createIncompleteDealsTable, ".table-wrap th");
+        btnDeals();
+    });
+}
+
+function createExpiredDealsTable(config={}) {
+    Object.assign(config, {expired: 2});
+    Object.assign(config, getSearch('search'));
+    Object.assign(config, getFilterParam());
+    Object.assign(config, getOrderingData());
+    getDeals(config).then(function (data) {
+        let count = data.count,
+            page = config['page'] || 1,
+            pages = Math.ceil(count / CONFIG.pagination_count),
+            showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
+            id = 'overdueList',
+            text = `Показано ${showCount} из ${count}`,
+            paginationConfig = {
+            container: '.expired__pagination',
+            currentPage: page,
+            pages: pages,
+            callback: createExpiredDealsTable
+        };
+        makeDealsDataTable(data, id);
+        makePagination(paginationConfig);
+        $('#overdue').find('.table__count').text(text);
+        makeSortForm(data.table_columns);
+        $('.preloader').css('display', 'none');
+        new OrderTable().sort(createExpiredDealsTable, ".table-wrap th");
+        btnDeals();
+    });
+}
+
+function createDoneDealsTable(config={}) {
+    Object.assign(config, {done: 2});
+    Object.assign(config, getSearch('search'));
+    Object.assign(config, getFilterParam());
+    Object.assign(config, getOrderingData());
+    getDeals(config).then(function (data) {
+        let count = data.count,
+            page = config['page'] || 1,
+            pages = Math.ceil(count / CONFIG.pagination_count),
+            showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
+            id = 'completedList',
+            text = `Показано ${showCount} из ${count}`,
+            paginationConfig = {
+            container: '.done__pagination',
+            currentPage: page,
+            pages: pages,
+            callback: createDoneDealsTable
+        };
+        makeDealsDataTable(data, id);
+        makePagination(paginationConfig);
+        $('#completed').find('.table__count').text(text);
+        makeSortForm(data.table_columns);
+        $('.preloader').css('display', 'none');
+        new OrderTable().sort(createDoneDealsTable, ".table-wrap th");
+    });
+}
+
+function makeDealsDataTable(data, id) {
+    let tmpl = document.getElementById('databaseDeals').innerHTML,
+        rendered = _.template(tmpl)(data);
+    document.getElementById(id).innerHTML = rendered;
+    $('.show_payments').on('click', function () {
+        let id = $(this).data('id');
+        showPayments(id);
+    });
+}
+
+function showPayments(id) {
+    getPayment(id).then(function (data) {
+        let payments_table = '';
+        let sum, date_time, manager;
+        data.forEach(function (payment) {
+            sum = payment.effective_sum_str.replace('.000', '');
+            date_time = payment.sent_date;
+            manager = `${payment.manager.last_name} ${payment.manager.first_name} ${payment.manager.middle_name}`;
+            payments_table += `<tr><td>${sum}</td><td>${date_time}</td><td>${manager}</td></tr>`
+        });
+        $('#popup-payments table').html(payments_table);
+        // let detail_url = $('#popup-payments .detail').data('detail-url').replace('0', id);
+        // console.log(detail_url);
+        // $('#popup-payments .detail').attr('data-detail-url', detail_url);
+        $('#popup-payments').css('display', 'block');
+    })
+}
+
+function getDeals(options = {}) {
+    let keys = Object.keys(options),
+        url = URLS.deal.list();
+    if (keys.length) {
+        url += '?';
+        keys.forEach(item => {
+            url += item + '=' + options[item] + "&"
+        });
+    }
+    let defaultOption = {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        })
+    };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
+}
+
+let sumChangeListener = (function () {
+    let $form = $('#payment-form');
+    let currencyID, currencyName, new_payment_sum, new_payment_rate, operation;
+    let $currencies = $form.find('#new_payment_currency');
+    let $currencyOptions = $currencies.find('option');
+    let $operation = $form.find('#operation');
+    let $operationLabel = $form.find('label[for="operation"]');
+    let $newPaymentSumEl = $form.find('#new_payment_sum');
+    let $newPaymentRateEl = $form.find('#new_payment_rate');
+    let $inUserCurrencyEl = $form.find('#in_user_currency');
+
+    $operationLabel.on('click', function () {
+        let operation = $operation.val();
+        let newOperation = (operation == '*') ? '/' : '*';
+        $operation.val(newOperation);
+        operation = newOperation;
+        new_payment_rate = $newPaymentRateEl.val();
+        new_payment_sum = $newPaymentSumEl.val();
+        sumCurrency(new_payment_sum, operation, new_payment_rate, $inUserCurrencyEl, currencyName);
+    });
+    $currencies.on('change', function () {
+        if ($(this).val() != currencyID) {
+            $('#new_payment_rate').prop('readonly', false);
+        } else {
+            $('#new_payment_rate').prop('readonly', true).val('1.000').trigger('change');
+        }
+    });
+    $form.on('keypress', function (e) {
+        return e.keyCode != 13;
+    });
+
+    $newPaymentSumEl.on('change', function () {
+        new_payment_sum = $newPaymentSumEl.val();
+        operation = $operation.val();
+        sumCurrency(new_payment_sum, operation, new_payment_rate, $inUserCurrencyEl, currencyName);
+    });
+
+    $newPaymentSumEl.on('keypress', function (e) {
+        if (e.keyCode == 13) {
+            new_payment_sum = $newPaymentSumEl.val();
+            operation = $operation.val();
+            sumCurrency(new_payment_sum, operation, new_payment_rate, $inUserCurrencyEl, currencyName);
+        }
+    });
+    $newPaymentRateEl.on('change', function () {
+        new_payment_rate = $newPaymentRateEl.val();
+        sumCurrency(new_payment_sum, operation, new_payment_rate, $inUserCurrencyEl, currencyName);
+    });
+    $newPaymentRateEl.on('keypress', function (e) {
+        if (e.keyCode == 13) {
+            new_payment_rate = $newPaymentRateEl.val();
+            operation = $operation.val();
+            sumCurrency(new_payment_sum, operation, new_payment_rate, $inUserCurrencyEl, currencyName);
+        }
+    });
+    // $operation.on('change', function () {
+    //     operation = $operation.val();
+    //     new_payment_rate = $newPaymentRateEl.val();
+    //     new_payment_sum = $newPaymentSumEl.val();
+    //     sumCurrency(new_payment_sum, operation, new_payment_rate, $inUserCurrencyEl, currencyName);
+    // });
+    return function (currency_name, currency_id) {
+        $('#new_payment_rate').prop('readonly', true);
+        currencyID = currency_id;
+        currencyName = currency_name;
+        $newPaymentRateEl.val('1.000');
+        new_payment_sum = $newPaymentSumEl.val();
+        new_payment_rate = $newPaymentRateEl.val();
+        $operation.val('*');
+        operation = '*';
+
+        $currencyOptions.each(function () {
+            $(this).prop('selected', false);
+            if ($(this).val() == currencyID) {
+                $(this).prop('selected', true);
+            }
+        });
+
+        sumCurrency(new_payment_sum, operation, new_payment_rate, $inUserCurrencyEl, currencyName);
+    }
+
+})();
+
+function sumCurrency(sum, operation, rate, currencyEl, currencyName) {
+    let userPay;
+    if (operation == "*") {
+        userPay = parseFloat(sum) * parseFloat(rate);
+    } else if (operation == "/") {
+        userPay = parseFloat(sum) * (1 / parseFloat(rate));
+    }
+    currencyEl.text(parseInt(userPay) + currencyName);
+}
+
+function createDealsPayment(id, sum, description) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            "sum": sum,
+            "description": description,
+            "rate": $('#new_payment_rate').val(),
+            "currency": $('#new_payment_currency').val(),
+            "sent_date": $('#sent_date').val(),
+            "operation": $('#operation').val()
+        };
+        let json = JSON.stringify(data);
+        ajaxRequest(URLS.deal.create_payment(id), json, function (JSONobj) {
+            updateDealsTable();
+            showPopup('Оплата прошла успешно.');
+            setTimeout(function () {
+                resolve()
+            }, 1500);
+        }, 'POST', true, {
+            'Content-Type': 'application/json'
+        }, {
+            403: function (data) {
+                data = data.responseJSON;
+                showPopup(data.detail);
+                reject();
+            }
+        });
+    })
+}
+
+function updateDealsTable() {
+    $('.preloader').css('display', 'block');
+    let pageIncompleteDeals = $('#incomplete').find('.pagination__input').val(),
+        pageExpiredDeals = $('#overdue').find('.pagination__input').val(),
+        pageDoneDeals = $('#completed').find('.pagination__input').val();
+    createIncompleteDealsTable({page: pageIncompleteDeals});
+    // createExpiredDealsTable({page: pageExpiredDeals});
+    createDoneDealsTable({page: pageDoneDeals});
 }
 
 function getPreSummitFilterParam() {
@@ -3490,4 +3846,25 @@ function makeResponsibleSummitStats(config, selector = [], active = null) {
             $(item).html(options).prop('disabled', false).select2();
         })
     });
+}
+
+function getDuplicates(options = {}) {
+    let keys = Object.keys(options),
+        url = URLS.user.find_duplicates();
+    if (keys.length) {
+        url += '?';
+        keys.forEach(item => {
+            url += item + '=' + options[item] + "&"
+        });
+    }
+    let defaultOption = {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        })
+    };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
 }

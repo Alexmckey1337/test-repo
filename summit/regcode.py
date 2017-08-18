@@ -1,6 +1,6 @@
 from common.exception import InvalidRegCode
 
-REG_CODE_SALT: str = '1324'
+REG_CODE_SALT = '1324'
 
 
 def encode_reg_code(profile_id: int) -> str:

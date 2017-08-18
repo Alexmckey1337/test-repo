@@ -1,7 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from datetime import date
+from datetime import date, datetime
 
 from django.db import models
 from django.urls import reverse
@@ -9,6 +9,8 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
 
 from group.managers import ChurchManager, HomeGroupManager
+from event.models import Meeting, MeetingType
+from django.db import transaction
 
 
 @python_2_unicode_compatible
@@ -68,6 +70,20 @@ class HomeGroup(CommonGroup):
     active = models.BooleanField(default=True)
 
     objects = HomeGroupManager()
+
+    def save(self, *args, **kwargs):
+        value = False
+        if not self.pk:
+            value = True
+        super(HomeGroup, self).save(*args, **kwargs)
+        if value:
+            meeting_types = MeetingType.objects.all()
+            with transaction.atomic():
+                for meeting_type in meeting_types:
+                    Meeting.objects.create(home_group=self,
+                                           owner=self.leader,
+                                           date=datetime.now().date(),
+                                           type=meeting_type)
 
     class Meta:
         verbose_name = _('Home Group')

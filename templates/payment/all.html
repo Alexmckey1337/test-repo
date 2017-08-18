@@ -1,17 +1,10 @@
 {% extends "layout.html" %}
 {% load i18n %}
 {% load payment_tags %}
+{% load static %}
 
 {% block main_styles %}
     {{ block.super }}
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
-
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 {% endblock %}
 
 {% block header.top.h1 %}{% trans "Payments" %}{% endblock %}
@@ -21,6 +14,58 @@
 {% endblock %}
 
 {% block popup %}
+    <div id="popup-edit_payment" class="pop-up-splash">
+        <div class="flex-wrap">
+            <div class="splash-screen">
+                <div class="top-text">
+                    <h3>Изменить платеж</h3>
+                    <span>&times;</span>
+                </div>
+                <form action="" id="payment-form" method="post">
+                    <input id="purpose-id" type="hidden" value="{{ purpose.id }}" name="id">
+                    <div class="input__wrap">
+                        <div class="summa">
+                            <label for="new_payment_sum">Сумма:</label>
+                            <input maxlength="6"
+                                   min="0"
+                                   onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
+                                   name="sum"
+                                   type="number" id="new_payment_sum"
+                                   step="1"
+                                   required>
+
+                            <select name="currency" id="new_payment_currency" required>
+                                {% for currency in currencies %}
+                                    <option value="{{ currency.id }}">
+                                        {{ currency.short_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="rate">
+                            <label for="new_payment_rate">Курс:</label>
+                            <input type="number" name="rate" id="new_payment_rate" min="0" step="0.001" readonly required>
+                            <label for="operation"><i class="fa fa-exchange" aria-hidden="true"></i></label>
+                            <input id="operation" name="operation" readonly>
+                        </div>
+                        <div class="result">
+                            <b>Итого:</b> <span id="in_user_currency">0</span>
+                        </div>
+                        <div class="sent_date">
+                            <label for="sent_date">Дата:</label>
+                            <input type="text" name="sent_date" id="sent_date" readonly required>
+                        </div>
+
+                    </div>
+                    <textarea id="payment-description" name="description" maxlength="40" placeholder="Добавить коментарий"></textarea>
+                    <div class="splash-bauttons">
+                        <button id="close-payment">Отменить</button>
+                        <button type="submit" id="complete-payment">Изменить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <div id="popup" class="pop-up-splash">
         <div class="flex-wrap">
             <div class="splash-screen">
@@ -53,77 +98,5 @@
 
 {% block extra_scripts %}
     {{ block.super }}
-    <script>
-        function showPaymentEditForm(d, id) {
-            $('#popup .payment-date').val(d.date);
-            $('#popup .payment-sum').val(d.sum);
-            $('#popup .payment-currency').val(d.currency);
-            $('#popup .payment-rate').val(d.rate);
-            $('#popup .payment-description').val(d.description);
-            $('#popup .complete').attr('data-payment-id', id);
-            $('#popup').css('display', 'block');
-        }
-        {# --------------------------------------------------------------- #}
-
-        var payment_id, date, sum, currency, rate, description;
-        $('.edit_payment').on('click', function () {
-            payment_id = $(this).data('payment-id');
-            date = $(this).data('payment-date');
-            sum = $(this).data('payment-sum');
-            currency = $(this).data('payment-currency');
-            rate = $(this).data('payment-rate');
-            description = $(this).data('payment-description');
-            var data = {
-                'date': date,
-                'sum': sum,
-                'currency': currency,
-                'rate': rate,
-                'description': description
-            };
-            showPaymentEditForm(data, payment_id)
-        });
-        {# --------------------------------------------------------------- #}
-
-        $('#popup .complete').on('click', function () {
-            var id = $(this).data('payment-id');
-            var data = {
-                'sent_date': $('#popup .payment-date').val(),
-                'sum': $('#popup .payment-sum').val(),
-                'currency_sum': $('#popup .payment-currency').val(),
-                'rate': $('#popup .payment-rate').val(),
-                'description': $('#popup .payment-description').val()
-            };
-            var json = JSON.stringify(data);
-            ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/payments/${id}/`, json, function (JSONobj) {
-                showPopup('Сохранено.');
-                setTimeout(function () {
-                    window.location.reload()
-                }, 1500);
-            }, 'PATCH', true, {
-                'Content-Type': 'application/json'
-            }, {
-                403: function (data) {
-                    data = data.responseJSON;
-                    showPopup(data.detail);
-                }
-            });
-        });
-        {# --------------------------------------------------------------- #}
-        $('.delete_payment').on('click', function () {
-            var id = $(this).data('payment-id');
-            ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/payments/${id}/`, null, function (JSONobj) {
-                showPopup('Удалено.');
-                setTimeout(function () {
-                    window.location.reload()
-                }, 1500);
-            }, 'DELETE', true, {
-                'Content-Type': 'application/json'
-            }, {
-                403: function (data) {
-                    data = data.responseJSON;
-                    showPopup(data.detail);
-                }
-            });
-        });
-    </script>
+    <script src='{% static "js/payment_all.js" %}'></script>
 {% endblock %}
