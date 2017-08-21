@@ -20,6 +20,15 @@ class CustomUserQuerySet(TreeQuerySet):
             'divisions', 'departments'
         ).filter(is_active=True)
 
+    def for_user_update(self, user):
+        if not is_authenticated(user):
+            return self.none()
+        if user.is_staff:
+            return self
+        if not user.hierarchy:
+            return self.none()
+        return self
+
 
 class CustomUserManager(TreeManager, UserManager):
     use_in_migrations = False
