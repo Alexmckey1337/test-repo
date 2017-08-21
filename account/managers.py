@@ -41,3 +41,6 @@ class CustomUserManager(TreeManager, UserManager):
 
     def for_user(self, user):
         return self.get_queryset().for_user(user=user)
+
+    def for_user_update(self, user):
+        return self.get_queryset().for_user(user=user)
