@@ -235,10 +235,16 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
 
     def filter_potential_users_for_church(self, qs):
         user = self.request.user
-        return qs.annotate(can_add=Case(When(Q(hhome_group__isnull=True) & Q(
-            cchurch__isnull=True) &
-                                             Q(lft__gte=user.lft) & Q(rght__lte=user.rght) & Q(tree_id=user.tree_id),
-                                             then=True), default=False, output_field=BooleanField()))
+        if user.is_staff:
+            return qs.annotate(can_add=Case(When(
+                Q(hhome_group__isnull=True) & Q(cchurch__isnull=True),
+                then=True), default=False, output_field=BooleanField()))
+                # & Q(lft__gte=user.lft) & Q(rght__lte=user.rght) & Q(tree_id=user.tree_id),
+
+        return qs.annotate(can_add=Case(When(
+            Q(hhome_group__isnull=True) & Q(cchurch__isnull=True)
+            & Q(lft__gte=user.lft) & Q(rght__lte=user.rght) & Q(tree_id=user.tree_id),
+            then=True), default=False, output_field=BooleanField()))
 
     def _get_potential_users(self, request, filter, *args):
         params = request.query_params
