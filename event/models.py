@@ -14,7 +14,7 @@ from django.utils.translation import ugettext as _
 from event.managers import MeetingManager, ChurchReportManager
 from navigation.table_fields import meeting_table
 from django.utils.functional import cached_property
-from payment.models import AbstractPaymentPurpose
+from payment.models import AbstractPaymentPurpose, get_default_currency
 
 
 @python_2_unicode_compatible
@@ -136,8 +136,7 @@ class Meeting(AbstractStatusModel):
     @property
     def cant_submit_cause(self):
         if not self.can_submit:
-            return 'Невозможно подать отчет.\n' \
-                   'Данный лидер имеет просроченные отчеты.'
+            return _('Невозможно подать отчет. Данный лидер имеет просроченные отчеты.')
         return ''
 
 
@@ -147,13 +146,16 @@ class ChurchReportPastor(AbstractPaymentPurpose):
 
     payments = GenericRelation('payment.Payment', related_query_name='church_report_pastors')
 
-    @property
-    def fullname(self):
-        return self.user.fullname
+    currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
+                                 default=get_default_currency, null=True)
 
     class Meta:
         verbose_name = _('Church Report Pastor')
         verbose_name_plural = _('Church Report Pastors')
+
+    @property
+    def fullname(self):
+        return self.user.fullname
 
     def __str__(self):
         return '%s' % self.user.fullname
@@ -181,6 +183,9 @@ class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
     objects = ChurchReportManager()
 
     payments = GenericRelation('payment.Payment', related_query_name='church_reports')
+
+    currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
+                                 default=get_default_currency, null=True)
 
     class Meta:
         ordering = ('-id', '-date')
@@ -214,7 +219,7 @@ class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
     @property
     def cant_submit_cause(self):
         if not self.can_submit:
-            return 'Невозможно подать отчет. Данный пастор имеет просроченные отчеты.'
+            return _('Невозможно подать отчет. Данный пастор имеет просроченные отчеты.')
         return ''
 
 

@@ -20,12 +20,11 @@ def create_new_meetings():
     meeting_types = MeetingType.objects.all()
 
     for home_group in active_home_groups:
-        with transaction.atomic():
-            for meeting_type in meeting_types:
-                Meeting.objects.get_or_create(home_group=home_group,
-                                              owner=home_group.leader,
-                                              date=current_date,
-                                              type=meeting_type)
+        for meeting_type in meeting_types:
+            Meeting.objects.get_or_create(home_group=home_group,
+                                          owner=home_group.leader,
+                                          date=current_date,
+                                          type=meeting_type)
 
 
 @app.task(name='meetings_to_expired', ignore_result=True,

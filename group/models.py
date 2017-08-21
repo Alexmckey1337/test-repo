@@ -36,7 +36,7 @@ class CommonGroup(models.Model):
     def get_title(self):
         if self.title:
             return self.title
-        return '{} {}'.format(self.city, self.owner_name)
+        return '{} {}'.format(self.owner_name, self.city)
 
 
 class Church(CommonGroup):
@@ -72,11 +72,10 @@ class HomeGroup(CommonGroup):
     objects = HomeGroupManager()
 
     def save(self, *args, **kwargs):
-        value = False
-        if not self.pk:
-            value = True
+        is_create = True if not self.pk else False
         super(HomeGroup, self).save(*args, **kwargs)
-        if value:
+
+        if is_create:
             meeting_types = MeetingType.objects.all()
             with transaction.atomic():
                 for meeting_type in meeting_types:
@@ -84,6 +83,9 @@ class HomeGroup(CommonGroup):
                                            owner=self.leader,
                                            date=datetime.now().date(),
                                            type=meeting_type)
+
+        if self.leader and self.pk:
+            Meeting.objects.filter(home_group=self, status=Meeting.IN_PROGRESS).update(owner=self.leader)
 
     class Meta:
         verbose_name = _('Home Group')

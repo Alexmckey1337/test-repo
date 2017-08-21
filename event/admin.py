@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
-from .models import (MeetingAttend, Meeting, MeetingType, ChurchReport,
+from .models import (MeetingAttend, Meeting, MeetingType, ChurchReport, ChurchReportPastor,
                      Event, Participation, EventType, EventAnket, Week)
 
 
@@ -54,8 +54,16 @@ class ParticipationAdmin(admin.ModelAdmin):
         model = Participation
 
 
+class ChurchReportPastorAdmin(admin.ModelAdmin):
+    list_display = ('id',)
+
+    class Meta:
+        model = ChurchReportPastor
+
+
 admin.site.register(Participation, ParticipationAdmin)
 admin.site.register(MeetingType)
 admin.site.register(Meeting)
 admin.site.register(MeetingAttend)
 admin.site.register(ChurchReport)
+admin.site.register(ChurchReportPastor, ChurchReportPastorAdmin)
