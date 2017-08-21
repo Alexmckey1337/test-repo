@@ -19,7 +19,7 @@ from django.utils.translation import ugettext_lazy as _
 from analytics.decorators import log_change_payment
 from account.abstract_models import CustomUserAbstract
 from payment.models import get_default_currency, AbstractPaymentPurpose
-from summit.managers import ProfileManager
+from summit.managers import ProfileManager, SummitManager
 from summit.regcode import encode_reg_code
 
 
@@ -87,6 +87,8 @@ class Summit(models.Model):
         (CLOSE, _('Close')),
     )
     status = models.CharField(_('Status'), choices=STATUSES, default=OPEN, max_length=20)
+
+    objects = SummitManager()
 
     class Meta:
         ordering = ('type',)
