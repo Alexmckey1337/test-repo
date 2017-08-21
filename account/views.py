@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import logging
 
 from django.contrib.auth import logout as django_logout
+from django.contrib.postgres.search import TrigramSimilarity
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction, IntegrityError
 from django.db.models import Value as V
@@ -43,7 +44,6 @@ from .serializers import (
     UserShortSerializer, UserTableSerializer, UserSingleSerializer, PartnershipSerializer, ExistUserSerializer,
     UserCreateSerializer, DashboardSerializer, DuplicatesAvoidedSerializer,
 )
-from django.contrib.postgres.search import TrigramSimilarity
 
 logger = logging.getLogger(__name__)
 
@@ -234,17 +234,10 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         return super(UserViewSet, self).get_permissions()
 
     def get_queryset(self):
-        user = self.request.user
-        if user.is_staff:
-            return self.queryset
-        if not user.hierarchy:
-            return self.queryset.none()
         if self.action in ('list', 'retrieve'):
-            return user.get_descendants(include_self=True).select_related(
-                'hierarchy', 'master__hierarchy').prefetch_related(
-                'divisions', 'departments'
-            ).filter(is_active=True).order_by('last_name', 'first_name', 'middle_name')
-        return self.queryset
+            return self.queryset.for_user(self.request.user).order_by('last_name', 'first_name', 'middle_name')
+        else:
+            return self.queryset.for_user_update(self.request.user).order_by('last_name', 'first_name', 'middle_name')
 
     def get_serializer_class(self):
         if self.action == 'list':

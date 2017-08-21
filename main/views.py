@@ -404,10 +404,8 @@ class SummitListMixin(LoginRequiredMixin, ListView):
     status = None
 
     def get_queryset(self):
-        available_summits = self.request.user.summit_profiles.filter(
-            role__gte=settings.SUMMIT_ANKET_ROLES['consultant']).values_list('summit_id', flat=True)
         return super(SummitListMixin, self).get_queryset().order_by(
-            '-start_date').filter(status=self.status, pk__in=available_summits)
+            '-start_date').for_user(self.request.user).filter(status=self.status)
 
 
 class OpenSummitListView(SummitListMixin):

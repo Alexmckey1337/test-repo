@@ -5,24 +5,24 @@ import binascii
 import os
 from collections import OrderedDict
 
-from django.contrib.auth.models import User, UserManager
+from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models import signals, Subquery
+from django.db.models import signals
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from mptt.fields import TreeForeignKey
-from mptt.managers import TreeManager
 from mptt.models import MPTTModel
 
 from account.abstract_models import CustomUserAbstract
-from analytics.models import LogModel
+from account.managers import CustomUserManager
 from account.permissions import (
     can_create_user, can_export_user_list, can_see_user_list, can_edit_status_block,
     can_edit_description_block, can_see_account_page)
+from analytics.models import LogModel
 from group.abstract_models import GroupUserPermission
 from group.models import Church
 from navigation.models import Table
@@ -30,10 +30,6 @@ from partnership.abstract_models import PartnerUserPermission
 from partnership.permissions import can_edit_partner_block, can_see_partner_block, can_see_deal_block
 from summit.abstract_models import SummitUserPermission
 from summit.models import SummitAnket, Summit
-
-
-class CustomUserManager(TreeManager, UserManager):
-    use_in_migrations = False
 
 
 @python_2_unicode_compatible
