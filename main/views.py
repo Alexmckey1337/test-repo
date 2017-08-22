@@ -653,7 +653,7 @@ class ChurchDetailView(LoginRequiredMixin, CanSeeChurchMixin, DetailView):
                 spiritual_level=CustomUser.BABY).count() + HomeGroup.objects.filter(
                 church__id=church.id).filter(uusers__spiritual_level=1).count(),
             'partners_count': church.uusers.filter(partnership__is_active=True).count() + CustomUser.objects.filter(
-                hhome_group__church_id=1, partnership__is_active=True).count(),
+                hhome_group__church_id=church.id, partnership__is_active=True).count(),
         }
         ctx.update(extra_context)
 
