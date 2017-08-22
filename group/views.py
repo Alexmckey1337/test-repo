@@ -67,7 +67,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
     filter_class = ChurchFilter
 
     field_search_fields = {
-        'search_title': ('title', 'pastor__last_name', 'pastor__first_name', 'pastor__middle_name'),
+        'search_title': ('title', 'pastor__last_name', 'pastor__first_name', 'pastor__middle_name', 'city'),
     }
 
     resource_class = ChurchResource
@@ -326,7 +326,7 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
     filter_class = HomeGroupFilter
 
     field_search_fields = {
-        'search_title': ('title', 'leader__last_name', 'leader__first_name', 'leader__middle_name')
+        'search_title': ('title', 'leader__last_name', 'leader__first_name', 'leader__middle_name', 'city')
     }
 
     resource_class = HomeGroupResource
@@ -387,14 +387,14 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
 
         return Response(UserNameSerializer(leaders, many=True).data)
 
-    @list_route(
-        methods=['GET'],
-        filter_backends=(FilterHGLeadersByMasterTree, FilterHGLeadersByChurch, FilterHGLeadersByDepartment,))
+    @list_route(methods=['GET'],
+                filter_backends=(FilterHGLeadersByMasterTree, FilterHGLeadersByChurch, FilterHGLeadersByDepartment,))
     def leaders(self, request):
         """
         Leaders
         """
-        leaders = self.filter_queryset(CustomUser.objects.filter(home_group__isnull=False)).distinct()
+        leaders = self.filter_queryset(CustomUser.objects.filter(home_group__leader__isnull=False)).distinct()
+
         return Response(UserNameSerializer(leaders, many=True).data)
 
     @detail_route(methods=["GET"])
