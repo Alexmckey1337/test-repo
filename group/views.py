@@ -100,7 +100,10 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
 
         master = self._get_master(request.user, master_tree_id)
 
-        pastors = master.get_descendants(include_self=True).filter(hierarchy__level__gte=2)
+        if request.user.is_staff and not master_tree_id:
+            pastors = CustomUser.objects.filter(hierarchy__level__gte=2)
+        else:
+            pastors = master.get_descendants(include_self=True).filter(hierarchy__level__gte=2)
         if department_id:
             pastors = pastors.filter(departments=department_id)
 
@@ -203,11 +206,12 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
 
     # Helpers
 
-    @staticmethod
-    def _get_master(master, master_tree_id):
+    def _get_master(self, master, master_tree_id):
         if not master_tree_id:
             return master
         try:
+            if self.request.user.is_staff:
+                return CustomUser.objects.filter(hierarchy__level__gte=2).get(pk=master_tree_id)
             return master.get_descendants(include_self=True).filter(hierarchy__level__gte=2).get(pk=master_tree_id)
         except ValueError:
             raise exceptions.ValidationError({'detail': _("master_tree_id is incorrect.")})
