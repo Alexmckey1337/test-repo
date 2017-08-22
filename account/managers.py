@@ -1,10 +1,9 @@
 from django.contrib.auth.models import UserManager
-from mptt.managers import TreeManager
-from mptt.querysets import TreeQuerySet
 from rest_framework.compat import is_authenticated
+from treebeard.mp_tree import MP_NodeQuerySet
 
 
-class CustomUserQuerySet(TreeQuerySet):
+class CustomUserQuerySet(MP_NodeQuerySet):
     def base_queryset(self):
         return self
 
@@ -30,7 +29,7 @@ class CustomUserQuerySet(TreeQuerySet):
         return self
 
 
-class CustomUserManager(TreeManager, UserManager):
+class CustomUserManager(UserManager):
     use_in_migrations = False
 
     def get_queryset(self):
