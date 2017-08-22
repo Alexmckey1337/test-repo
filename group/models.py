@@ -15,7 +15,7 @@ from django.db import transaction
 
 @python_2_unicode_compatible
 class CommonGroup(models.Model):
-    title = models.CharField(_('Title'), max_length=50, blank=True)
+    title = models.CharField(_('Title'), max_length=50)
     opening_date = models.DateField(_('Opening Date'), default=date.today)
     city = models.CharField(_('City'), max_length=50)
     address = models.CharField(_('Address'), max_length=300, blank=True)
