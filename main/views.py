@@ -638,8 +638,10 @@ class ChurchDetailView(LoginRequiredMixin, CanSeeChurchMixin, DetailView):
             'church_users': church.uusers.count(),
             'church_all_users': church.uusers.count() + HomeGroup.objects.filter(
                 church_id=church.id).aggregate(home_users=Count('uusers'))['home_users'],
-            'parishioners_count': church.uusers.filter(hierarchy__level=0).count(),
-            'leaders_count': church.uusers.filter(hierarchy__level=1).count(),
+            'parishioners_count': church.uusers.filter(hierarchy__level=0).count() + CustomUser.objects.filter(
+                hhome_group__church_id=church.id).filter(hierarchy__level=0).count(),
+            'leaders_count': CustomUser.objects.filter(
+                home_group__church_id=church.id, home_group__leader__isnull=False).distinct().count(),
             'home_groups_count': church.home_group.count(),
             'fathers_count': church.uusers.filter(
                 spiritual_level=CustomUser.FATHER).count() + HomeGroup.objects.filter(
@@ -650,7 +652,8 @@ class ChurchDetailView(LoginRequiredMixin, CanSeeChurchMixin, DetailView):
             'babies_count': church.uusers.filter(
                 spiritual_level=CustomUser.BABY).count() + HomeGroup.objects.filter(
                 church__id=church.id).filter(uusers__spiritual_level=1).count(),
-            'partners_count': church.uusers.filter(partnership__is_active=True).count(),
+            'partners_count': church.uusers.filter(partnership__is_active=True).count() + CustomUser.objects.filter(
+                hhome_group__church_id=1, partnership__is_active=True).count(),
         }
         ctx.update(extra_context)
 
