@@ -3,6 +3,7 @@ import datetime
 from decimal import Decimal
 
 import itertools
+
 import pytest
 from django.conf import settings
 from django.urls import reverse
@@ -10,6 +11,7 @@ from rest_framework import status
 
 from account.models import CustomUser
 from account.tests.conftest import get_values, change_field
+from hierarchy.models import Hierarchy
 
 FIELD_CODES = (
     # optional fields
@@ -196,7 +198,9 @@ class TestUserViewSet:
 
     def test_user_list_filter_by_master(self, api_login_client, user_factory):
         master = user_factory(username='master')
-        user_factory.create_batch(10, master=master)
+        # user_factory.create_batch(10, master=master)
+        for i in range(10):
+            master.add_child(username='user{}'.format(i), master=master)
         user_factory.create_batch(20)
 
         url = reverse('users_v1_1-list')
@@ -210,8 +214,12 @@ class TestUserViewSet:
     def test_user_list_filter_by_multi_master(self, api_login_client, user_factory):
         master = user_factory(username='master')
         other_master = user_factory(username='other_master')
-        user_factory.create_batch(10, master=master)
-        user_factory.create_batch(40, master=other_master)
+        # user_factory.create_batch(10, master=master)
+        for i in range(10):
+            master.add_child(username='master{}'.format(i), master=master)
+        # user_factory.create_batch(40, master=other_master)
+        for i in range(40):
+            other_master.add_child(username='other_master{}'.format(i), master=other_master)
         user_factory.create_batch(20)
 
         url = reverse('users_v1_1-list')
@@ -227,13 +235,20 @@ class TestUserViewSet:
     def test_user_list_filter_by_master_tree(self, api_login_client, user_factory):
         user = user_factory()  # count: + 0, = 0, all_users_count: +1, = 1
 
-        user_factory.create_batch(3, master=user)  # count: + 3, = 3, all_users_count: +3, = 4
-        second_level_user = user_factory(master=user)  # count: + 1, = 4, all_users_count: +1, = 5
-        user_factory.create_batch(8, master=second_level_user)  # count: + 8, = 12, all_users_count: +8, = 13
+        # user_factory.create_batch(3, master=user)  # count: + 3, = 3, all_users_count: +3, = 4
+        for i in range(3):
+            user.add_child(username='user{}'.format(i), master=user)
+        # second_level_user = user_factory(master=user)  # count: + 1, = 4, all_users_count: +1, = 5
+        second_level_user = user.add_child(username='second_level_user', master=user)
+        # user_factory.create_batch(8, master=second_level_user)  # count: + 8, = 12, all_users_count: +8, = 13
+        for i in range(8):
+            second_level_user.add_child(username='second_level_user{}'.format(i), master=second_level_user)
 
         user_factory.create_batch(15)  # count: + 0, = 12, all_users_count: +15, = 28
         other_user = user_factory()  # count: + 0, = 12, all_users_count: +1, = 29
-        user_factory.create_batch(32, master=other_user)  # count: + 0, = 12, all_users_count: + 32, = 61
+        # user_factory.create_batch(32, master=other_user)  # count: + 0, = 12, all_users_count: + 32, = 61
+        for i in range(32):
+            other_user.add_child(username='other_user{}'.format(i), master=other_user)
 
         url = reverse('users_v1_1-list')
 
@@ -354,11 +369,18 @@ class TestUserViewSet:
                                                                      hierarchy_factory):
         hierarchy = hierarchy_factory(level=1)
         current_user = user_factory(hierarchy=hierarchy)
-        first_level = user_factory(hierarchy=hierarchy, master=current_user)
-        second_level = user_factory(hierarchy=hierarchy, master=first_level)
-        user_factory(hierarchy=hierarchy, master=current_user)
-        user_factory.create_batch(8, hierarchy=hierarchy, master=first_level)
-        user_factory.create_batch(7, hierarchy=hierarchy, master=second_level)
+        # first_level = user_factory(hierarchy=hierarchy, master=current_user)
+        first_level = current_user.add_child(hierarchy=hierarchy, username='current_user_child', master=current_user)
+        # second_level = user_factory(hierarchy=hierarchy, master=first_level)
+        second_level = first_level.add_child(hierarchy=hierarchy, username='first_level_child', master=first_level)
+        # user_factory(hierarchy=hierarchy, master=current_user)
+        current_user.add_child(hierarchy=hierarchy, username='current_user_other', master=current_user)
+        # user_factory.create_batch(8, hierarchy=hierarchy, master=first_level)
+        for i in range(8):
+            first_level.add_child(hierarchy=hierarchy, username='first_level{}'.format(i), master=first_level)
+        # user_factory.create_batch(7, hierarchy=hierarchy, master=second_level)
+        for i in range(7):
+            second_level.add_child(hierarchy=hierarchy, username='second_level{}'.format(i), master=second_level)
         user_factory.create_batch(55)
 
         url = reverse('users_v1_1-list')
@@ -387,6 +409,7 @@ class TestUserViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert response.data['count'] == 22
 
+    @pytest.mark.hh
     def test_create_user_with_all_fields(self, request, api_client, staff_user, user_data):
         url = reverse('users_v1_1-list')
 
@@ -396,6 +419,7 @@ class TestUserViewSet:
 
         assert response.status_code == status.HTTP_201_CREATED
 
+    @pytest.mark.hh
     @pytest.mark.parametrize(
         "field,code", FIELD_CODES, ids=[f[0] for f in FIELD_CODES])
     def test_create_user_without_one_field(self, request, api_client, staff_user, user_data, field, code):
@@ -408,6 +432,7 @@ class TestUserViewSet:
 
         assert response.status_code == code
 
+    @pytest.mark.hh
     @pytest.mark.parametrize(
         "field,code", CHANGE_FIELD, ids=[f[0] for f in CHANGE_FIELD])
     def test_create_user_uniq_fields(
@@ -428,6 +453,7 @@ class TestUserViewSet:
 
         assert response.status_code == code
 
+    @pytest.mark.hh
     def test_update_user_with_all_fields(self, request, api_client, staff_user, user_data, user_factory,
                                          partner_factory):
         user_data = get_values(user_data, request)
@@ -493,7 +519,10 @@ class TestUserViewSet:
         hierarchy_from = hierarchy_factory(level=h1)
         hierarchy_to = hierarchy_factory(level=h2)
         user = user_factory(hierarchy=hierarchy_from)
-        user_factory.create_batch(2, master=user, hierarchy__level=l)
+        # user_factory.create_batch(2, master=user, hierarchy__level=l)
+        hierarchy = Hierarchy.objects.create(level=l, title='hhierarchy{}'.format(l))
+        for i in range(2):
+            user.add_child(hierarchy=hierarchy, username='user{}{}{}{}'.format(i, h1, h2, l), master=user)
 
         api_client.force_login(user=staff_user)
         url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
@@ -509,7 +538,10 @@ class TestUserViewSet:
         hierarchy_from = hierarchy_factory(level=h1)
         hierarchy_to = hierarchy_factory(level=h2)
         user = user_factory(hierarchy=hierarchy_from)
-        user_factory.create_batch(2, master=user, hierarchy__level=l)
+        # user_factory.create_batch(2, master=user, hierarchy__level=l)
+        hierarchy = Hierarchy.objects.create(level=l, title='hhierarchy{}'.format(l))
+        for i in range(2):
+            user.add_child(hierarchy=hierarchy, username='user{}{}{}{}'.format(i, h1, h2, l), master=user)
 
         api_client.force_login(user=staff_user)
         url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
@@ -526,7 +558,10 @@ class TestUserViewSet:
         hierarchy_to = hierarchy_factory(level=h2)
         user = user_factory(hierarchy=hierarchy_from)
         other_user = user_factory()
-        user_factory.create_batch(2, master=user, hierarchy__level=l)
+        # user_factory.create_batch(2, master=user, hierarchy__level=l)
+        hierarchy = Hierarchy.objects.create(level=l, title='hhierarchy{}'.format(l))
+        for i in range(2):
+            user.add_child(hierarchy=hierarchy, username='user{}{}{}{}'.format(i, h1, h2, l), master=user)
 
         api_client.force_login(user=staff_user)
         url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
@@ -546,7 +581,10 @@ class TestUserViewSet:
         hierarchy_from = hierarchy_factory(level=h1)
         hierarchy_to = hierarchy_factory(level=h2)
         user = user_factory(hierarchy=hierarchy_from)
-        user_factory.create_batch(2, master=user, hierarchy__level=l)
+        # user_factory.create_batch(2, master=user, hierarchy__level=l)
+        hierarchy = Hierarchy.objects.create(level=l, title='hhierarchy{}'.format(l))
+        for i in range(2):
+            user.add_child(hierarchy=hierarchy, username='user{}{}{}{}'.format(i, h1, h2, l), master=user)
 
         api_client.force_login(user=staff_user)
         url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
@@ -567,7 +605,10 @@ class TestUserViewSet:
         hierarchy_to = hierarchy_factory(level=h2)
         user = user_factory(hierarchy=hierarchy_from)
         other_user = user_factory()
-        user_factory.create_batch(2, master=user, hierarchy__level=l)
+        # user_factory.create_batch(2, master=user, hierarchy__level=l)
+        hierarchy = Hierarchy.objects.create(level=l, title='hhierarchy{}'.format(l))
+        for i in range(2):
+            user.add_child(hierarchy=hierarchy, username='user{}{}{}{}'.format(i, h1, h2, l), master=user)
         assert user.disciples.exists()
         assert not other_user.disciples.exists()
 

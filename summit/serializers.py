@@ -187,7 +187,7 @@ class ChildrenLink(serializers.RelatedField):
     def get_attribute(self, instance):
         summit_id = instance.summit_id
         master_id = instance.user_id
-        has_children = instance.diff // 2 > 0
+        has_children = instance.numchild > 0
 
         return summit_id, master_id, has_children
 

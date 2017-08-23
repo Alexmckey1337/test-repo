@@ -24,7 +24,9 @@ def set_path(apps, schema_editor):
         user.save()
 
     # set path for not root elements
-    levels = range(1, CustomUser.objects.order_by('-level')[0].level + 1)
+    max_level = CustomUser.objects.order_by('-level').first()
+    max_level = max_level.level if max_level else 0
+    levels = range(1, max_level + 1)
     for level in levels:
         for master in CustomUser.objects.filter(level=level-1):
             for i, user in enumerate(CustomUser.objects.filter(master=master, level=level), start=1):

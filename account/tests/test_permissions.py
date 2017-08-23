@@ -28,13 +28,16 @@ class TestCanSeeAccountPage:
         request = type('Request', (), {'user': user})
         assert CanSeeAccountPage().has_object_permission(request, None, u) == has_perm
 
-    def test_is_ancestor(self, user, user_factory):
-        u = user_factory(master=user)
+    def test_is_ancestor(self, user):
+        # u = user_factory(master=user)
+        u = user.add_child(username='user', master=user)
         request = type('Request', (), {'user': user})
         assert CanSeeAccountPage().has_object_permission(request, None, u)
 
     def test_not_is_ancestor(self, user, user_factory):
-        u = user_factory(master=user_factory())
+        # u = user_factory(master=user_factory())
+        other_user = user_factory()
+        u = other_user.add_child(username='user', master=other_user)
         request = type('Request', (), {'user': user})
         assert not CanSeeAccountPage().has_object_permission(request, None, u)
 
@@ -106,8 +109,9 @@ class TestCanSeeUserList:
         request = type('Request', (), {'user': user})
         assert CanSeeUserList().has_permission(request, None) == is_staff
 
-    def test_have_children(self, user, user_factory):
-        user_factory(master=user)
+    def test_have_children(self, user):
+        # user_factory(master=user)
+        user.add_child(username='user', master=user)
         request = type('Request', (), {'user': user})
         assert CanSeeUserList().has_permission(request, None)
 
@@ -132,12 +136,15 @@ class TestCanSeeAccountPageFunc:
         monkeypatch.setattr(CustomUser, 'is_partner_supervisor_or_high', property(lambda s: has_perm))
         assert can_see_account_page(user, u) == has_perm
 
-    def test_is_ancestor(self, user, user_factory):
-        u = user_factory(master=user)
+    def test_is_ancestor(self, user):
+        # u = user_factory(master=user)
+        u = user.add_child(username='user', master=user)
         assert can_see_account_page(user, u)
 
     def test_not_is_ancestor(self, user, user_factory):
-        u = user_factory(master=user_factory())
+        # u = user_factory(master=user_factory())
+        other_user = user_factory()
+        u = other_user.add_child(username='user', master=other_user)
         assert not can_see_account_page(user, u)
 
     def test_is_partner_responsible(self, partner, partner_factory):
@@ -199,8 +206,9 @@ class TestCanSeeUserListFunc:
         user.save()
         assert can_see_user_list(user) == is_staff
 
-    def test_have_children(self, user, user_factory):
-        user_factory(master=user)
+    def test_have_children(self, user):
+        # user_factory(master=user)
+        user.add_child(username='user', master=user)
         assert can_see_user_list(user)
 
     def test_dont_have_children(self, user):
@@ -223,12 +231,15 @@ class TestCanEditStatusBlock:
         u = user_factory()
         assert can_edit_status_block(profile.user, u) == (level >= settings.SUMMIT_ANKET_ROLES['supervisor'])
 
-    def test_is_ancestor(self, user, user_factory):
-        u = user_factory(master=user)
+    def test_is_ancestor(self, user):
+        # u = user_factory(master=user)
+        u = user.add_child(username='user', master=user)
         assert can_edit_status_block(user, u)
 
     def test_not_is_ancestor(self, user, user_factory):
-        u = user_factory(master=user_factory())
+        # u = user_factory(master=user_factory())
+        other_user = user_factory()
+        u = other_user.add_child(username='user', master=other_user)
         assert not can_edit_status_block(user, u)
 
 
@@ -248,10 +259,13 @@ class TestCanEditDescriptionBlock:
         u = user_factory()
         assert can_edit_description_block(profile.user, u) == (level >= settings.SUMMIT_ANKET_ROLES['supervisor'])
 
-    def test_is_ancestor(self, user, user_factory):
-        u = user_factory(master=user)
+    def test_is_ancestor(self, user):
+        # u = user_factory(master=user)
+        u = user.add_child(username='user', master=user)
         assert can_edit_description_block(user, u)
 
     def test_not_is_ancestor(self, user, user_factory):
-        u = user_factory(master=user_factory())
+        # u = user_factory(master=user_factory())
+        other_user = user_factory()
+        u = other_user.add_child(username='user', master=other_user)
         assert not can_edit_description_block(user, u)

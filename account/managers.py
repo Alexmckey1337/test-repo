@@ -14,7 +14,7 @@ class CustomUserQuerySet(MP_NodeQuerySet):
             return self
         if not user.hierarchy:
             return self.none()
-        return user.get_descendants(include_self=True).select_related(
+        return user.__class__.get_tree(user).select_related(
             'hierarchy', 'master__hierarchy').prefetch_related(
             'divisions', 'departments'
         ).filter(is_active=True)
@@ -33,7 +33,7 @@ class CustomUserManager(UserManager):
     use_in_migrations = False
 
     def get_queryset(self):
-        return CustomUserQuerySet(self.model, using=self._db)
+        return CustomUserQuerySet(self.model, using=self._db).order_by('path')
 
     def base_queryset(self):
         return self.get_queryset().base_queryset()
