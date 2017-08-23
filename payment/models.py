@@ -152,7 +152,7 @@ class Payment(LogModel):
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True,
                                      limit_choices_to={'model__in': ('summitanket', 'partnership', 'deal',
-                                                                     'churchreport', 'churchreportpastor')})
+                                                                     'churchreport',)})
     object_id = models.PositiveIntegerField(blank=True, null=True)
     #: Purpose of payment
     purpose = GenericForeignKey()

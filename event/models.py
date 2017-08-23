@@ -15,6 +15,7 @@ from event.managers import MeetingManager, ChurchReportManager
 from navigation.table_fields import meeting_table
 from django.utils.functional import cached_property
 from payment.models import AbstractPaymentPurpose, get_default_currency
+from decimal import Decimal
 
 
 @python_2_unicode_compatible
@@ -73,6 +74,7 @@ class AbstractStatusModel(models.Model):
         abstract = True
 
 
+@python_2_unicode_compatible
 class Meeting(AbstractStatusModel):
     date = models.DateField(_('Date'))
     type = models.ForeignKey(MeetingType, verbose_name=_('Meeting type'))
@@ -140,29 +142,33 @@ class Meeting(AbstractStatusModel):
         return ''
 
 
-class ChurchReportPastor(AbstractPaymentPurpose):
-    user = models.OneToOneField('account.CustomUser', related_name='church_report_pastor',
-                                verbose_name=_('Church Report Pastor'))
+# class ChurchReportPastor(AbstractPaymentPurpose):
+#     user = models.OneToOneField('account.CustomUser', related_name='church_report_pastor',
+#                                 verbose_name=_('Church Report Pastor'))
+#
+#     payments = GenericRelation('payment.Payment', related_query_name='church_report_pastors')
+#
+#     currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
+#                                  default=get_default_currency, null=True)
+#
+#     # objects = ChurchReportPastorManager()
+#
+#     class Meta:
+#         verbose_name = _('Church Report Pastor')
+#         verbose_name_plural = _('Church Report Pastors')
+#
+#     @property
+#     def fullname(self):
+#         return self.user.fullname
+#
+#     def __str__(self):
+#         return '%s' % self.user.fullname
 
-    payments = GenericRelation('payment.Payment', related_query_name='church_report_pastors')
 
-    currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
-                                 default=get_default_currency, null=True)
-
-    class Meta:
-        verbose_name = _('Church Report Pastor')
-        verbose_name_plural = _('Church Report Pastors')
-
-    @property
-    def fullname(self):
-        return self.user.fullname
-
-    def __str__(self):
-        return '%s' % self.user.fullname
-
-
+@python_2_unicode_compatible
 class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
-    pastor = models.ForeignKey('ChurchReportPastor')
+    pastor = models.ForeignKey('account.CustomUser',
+                               limit_choices_to={'hierarchy__level__gte': 2})
     church = models.ForeignKey('group.Church', on_delete=models.PROTECT,
                                verbose_name=_('Church'))
     date = models.DateField(_('Date'))
@@ -174,18 +180,19 @@ class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
                                     decimal_places=0, default=0)
     currency_donations = models.CharField(_('Donations in Currency'),
                                           max_length=150, blank=True)
+    comment = models.TextField(_('Comment'), blank=True)
+
     transfer_payments = models.DecimalField(_('Transfer Payments'), max_digits=12,
                                             decimal_places=1, default=0)
     pastor_tithe = models.DecimalField(_('Pastor Tithe'), max_digits=12,
                                        decimal_places=0, default=0)
-    comment = models.TextField(_('Comment'), blank=True)
 
-    objects = ChurchReportManager()
-
+    # value = models.DecimalField(max_digits=12, decimal_places=0, default=Dec)
     payments = GenericRelation('payment.Payment', related_query_name='church_reports')
-
     currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
                                  default=get_default_currency, null=True)
+
+    objects = ChurchReportManager()
 
     class Meta:
         ordering = ('-id', '-date')
@@ -221,6 +228,28 @@ class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
         if not self.can_submit:
             return _('Невозможно подать отчет. Данный пастор имеет просроченные отчеты.')
         return ''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class DayOfTheWeekField(models.CharField):

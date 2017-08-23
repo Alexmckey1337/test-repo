@@ -293,7 +293,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
 
         queryset = self.queryset.for_user(user)
         result = queryset.aggregate(
-            peoples_in_churches=Count('uusers', distinct=True),
+            peoples_in_churches=Count('uusers', distinct=True) + Count('home_group__uusers', distinct=True),
             peoples_in_home_groups=Count('home_group__uusers', distinct=True))
         result['churches_count'] = queryset.count()
         result['home_groups_count'] = HomeGroup.objects.for_user(user).count()

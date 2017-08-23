@@ -5,7 +5,7 @@ import logging
 
 from django.db import transaction, IntegrityError
 from django.db.models import (IntegerField, Sum, When, Case, Count, OuterRef, Exists, Q,
-                              BooleanField, CharField, Value as V)
+                              BooleanField, F)
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status, filters, exceptions
 from rest_framework.decorators import list_route, detail_route
@@ -18,10 +18,10 @@ from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
 from .filters import (ChurchReportFilter, MeetingFilter, MeetingCustomFilter, MeetingFilterByMaster,
                       ChurchReportDepartmentFilter, ChurchReportFilterByMaster, )
-from .models import Meeting, ChurchReport, MeetingAttend, ChurchReportPastor
+from .models import Meeting, ChurchReport, MeetingAttend
 from .pagination import MeetingPagination, MeetingVisitorsPagination, ChurchReportPagination
 from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingDetailSerializer,
-                          MeetingListSerializer, ChurchReportStatisticSerializer, ChurchReportPastorSerializer,
+                          MeetingListSerializer, ChurchReportStatisticSerializer,
                           MeetingStatisticSerializer, ChurchReportSerializer,
                           ChurchReportListSerializer, MeetingDashboardSerializer,
                           ChurchReportDetailSerializer, ChurchReportsDashboardSerializer, )
@@ -268,14 +268,14 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         return Response(dashboards_counts.data, status=status.HTTP_200_OK)
 
 
-class ChurchReportPastorViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
-    queryset = ChurchReportPastor.objects.all()
-    permission_classes = (IsAuthenticated,)
-    serializer_class = ChurchReportPastorSerializer
+# class ChurchReportPastorViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
+#     queryset = ChurchReportPastor.objects.base_queryset().annotate_total_pastor_sum()
+#     permission_classes = (IsAuthenticated,)
+#     serializer_class = ChurchReportPastorSerializer
 
 
 class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
-    queryset = ChurchReport.objects.all()
+    queryset = ChurchReport.objects.base_queryset().annotate_total_sum().annotate_value()
 
     serializer_class = ChurchReportSerializer
     serializer_list_class = ChurchReportListSerializer
@@ -306,7 +306,13 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
     }
 
     def get_queryset(self):
-        return self.queryset.for_user(self.request.user)
+        return self.queryset.for_user(self.request.user).annotate(
+            total_payments=Sum('payments__effective_sum')).annotate(
+            payment_status=Case(
+                When(Q(total_payments__lt=F('value')) & Q(total_payments__gt=0), then=1),
+                When(total_payments__gte=F('value'), then=2),
+                default=0, output_field=IntegerField())
+        )
 
     def get_serializer_class(self):
         if self.action == 'list':

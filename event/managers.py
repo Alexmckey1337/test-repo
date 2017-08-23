@@ -1,7 +1,8 @@
 from django.db import models
-from django.db.models import Value as V
+from django.db.models import Sum, Value as V, F
 from django.db.models.functions import Concat
 from rest_framework.compat import is_authenticated
+from django.db.models.functions import Coalesce
 
 
 class MeetingQuerySet(models.query.QuerySet):
@@ -42,7 +43,13 @@ class ChurchReportQuerySet(models.query.QuerySet):
     def for_user(self, user):
         if not is_authenticated(user):
             return self.none()
-        return self.filter(pastor__user__in=user.get_descendants(include_self=True))
+        return self.filter(pastor__in=user.get_descendants(include_self=True))
+
+    def annotate_total_sum(self):
+        return self.annotate(total_sum=Coalesce(Sum('payments__effective_sum'), V(0)))
+
+    def annotate_value(self):
+        return self.annotate(value=F('transfer_payments') + F('pastor_tithe'))
 
 
 class ChurchReportManager(models.Manager):

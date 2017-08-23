@@ -17,7 +17,7 @@ from partnership.models import Partnership, Deal
 from payment.permissions import PaymentPermission
 from payment.serializers import PaymentCreateSerializer, PaymentShowSerializer
 from summit.models import SummitAnket
-from event.models import ChurchReport, ChurchReportPastor
+from event.models import ChurchReport
 
 
 def get_success_headers(data):
@@ -42,7 +42,7 @@ class PaymentCheckPermissionMixin:
         elif isinstance(purpose, SummitAnket):
             method_name = 'has_object_permission'
             args = (request, self, purpose.summit)
-        elif isinstance(purpose, (ChurchReport, ChurchReportPastor)):
+        elif isinstance(purpose, ChurchReport):
             method_name = 'has_object_permission'
             args = (request, self, purpose)
         else:  # pragma: no cover
