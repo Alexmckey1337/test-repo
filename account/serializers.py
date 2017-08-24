@@ -3,15 +3,19 @@ from __future__ import unicode_literals
 
 import binascii
 import os
+import traceback
 
 from django.conf import settings
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
+from rest_framework.compat import set_many
 from rest_framework.exceptions import ValidationError
+from rest_framework.serializers import raise_errors_on_nested_writes
+from rest_framework.utils import model_meta
 from rest_framework.validators import UniqueTogetherValidator, qs_exists
 
-from account.models import CustomUser as User
+from account.models import CustomUser as User, CustomUser
 from common.fields import ReadOnlyChoiceField
 from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
@@ -178,16 +182,21 @@ class UserUpdateSerializer(BaseUserSerializer):
 
     def update(self, user, validated_data):
         departments = validated_data.pop('departments', None)
+        master = validated_data.get('master', None)
         move_to_master = validated_data.pop('move_to_master', None)
 
         if move_to_master is not None:
             disciples = user.disciples.all()
             master = User.objects.get(id=move_to_master)
             disciples.update(master=master)
+            for d in disciples:
+                d.move(master, pos='last-child')
 
         for attr, value in validated_data.items():
             setattr(user, attr, value)
         user.save()
+        if master:
+            user.move(master, pos='last-child')
 
         if departments is not None and isinstance(departments, (list, tuple)):
             user.departments.set(departments)
@@ -239,8 +248,50 @@ class UserCreateSerializer(BaseUserSerializer):
         # while User.objects.filter(username=username).exists():
         #     username = generate_key()
         validated_data['username'] = username
+        master = validated_data.get('master')
 
-        return super(BaseUserSerializer, self).create(validated_data)
+        raise_errors_on_nested_writes('create', self, validated_data)
+
+        ModelClass = self.Meta.model
+
+        # Remove many-to-many relationships from validated_data.
+        # They are not valid arguments to the default `.create()` method,
+        # as they require that the instance has already been saved.
+        info = model_meta.get_field_info(ModelClass)
+        many_to_many = {}
+        for field_name, relation_info in info.relations.items():
+            if relation_info.to_many and (field_name in validated_data):
+                many_to_many[field_name] = validated_data.pop(field_name)
+
+        try:
+            if master:
+                instance = master.add_child(**validated_data)
+            else:
+                instance = CustomUser.add_root(**validated_data)
+        except TypeError:
+            tb = traceback.format_exc()
+            msg = (
+                'Got a `TypeError` when calling `%s.objects.create()`. '
+                'This may be because you have a writable field on the '
+                'serializer class that is not a valid argument to '
+                '`%s.objects.create()`. You may need to make the field '
+                'read-only, or override the %s.create() method to handle '
+                'this correctly.\nOriginal exception was:\n %s' %
+                (
+                    ModelClass.__name__,
+                    ModelClass.__name__,
+                    self.__class__.__name__,
+                    tb
+                )
+            )
+            raise TypeError(msg)
+
+        # Save many-to-many relationships after the instance is created.
+        if many_to_many:
+            for field_name, value in many_to_many.items():
+                set_many(instance, field_name, value)
+
+        return instance
 
 
 class UserSingleSerializer(BaseUserSerializer):
