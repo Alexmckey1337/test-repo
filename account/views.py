@@ -25,7 +25,8 @@ from rest_framework.viewsets import GenericViewSet
 
 from account.filters import FilterByUserBirthday, UserFilter, ShortUserFilter, FilterMasterTreeWithSelf
 from account.models import CustomUser as User
-from account.permissions import CanSeeUserList, CanCreateUser, CanExportUserList
+from account.permissions import CanSeeUserList, CanCreateUser, CanExportUserList, SeeUserListPermission, \
+    EditUserPermission, ExportUserListPermission
 from account.serializers import HierarchyError, UserForMoveSerializer, UserUpdateSerializer, ChurchIdSerializer, \
     HomeGroupIdSerializer
 from account.serializers import UserForSelectSerializer
@@ -234,10 +235,15 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         return super(UserViewSet, self).get_permissions()
 
     def get_queryset(self):
-        if self.action in ('list', 'retrieve'):
-            return self.queryset.for_user(self.request.user).order_by('last_name', 'first_name', 'middle_name')
+        if self.action in ('update', 'partial_update'):
+            return EditUserPermission(self.request.user, queryset=self.queryset).get_queryset().order_by(
+                'last_name', 'first_name', 'middle_name')
+        elif self.action == 'export':
+            return ExportUserListPermission(self.request.user, queryset=self.queryset).get_queryset().order_by(
+                'last_name', 'first_name', 'middle_name')
         else:
-            return self.queryset.for_user_update(self.request.user).order_by('last_name', 'first_name', 'middle_name')
+            return SeeUserListPermission(self.request.user, queryset=self.queryset).get_queryset().order_by(
+                'last_name', 'first_name', 'middle_name')
 
     def get_serializer_class(self):
         if self.action == 'list':

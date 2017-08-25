@@ -6,7 +6,10 @@ from rest_framework.compat import is_authenticated
 
 class CustomUserQuerySet(TreeQuerySet):
     def base_queryset(self):
-        return self
+        return self.select_related(
+            'hierarchy', 'master__hierarchy').prefetch_related(
+            'divisions', 'departments'
+        ).filter(is_active=True)
 
     def for_user(self, user):
         if not is_authenticated(user):
@@ -15,19 +18,7 @@ class CustomUserQuerySet(TreeQuerySet):
             return self
         if not user.hierarchy:
             return self.none()
-        return user.get_descendants(include_self=True).select_related(
-            'hierarchy', 'master__hierarchy').prefetch_related(
-            'divisions', 'departments'
-        ).filter(is_active=True)
-
-    def for_user_update(self, user):
-        if not is_authenticated(user):
-            return self.none()
-        if user.is_staff:
-            return self
-        if not user.hierarchy:
-            return self.none()
-        return self
+        return user.get_descendants(include_self=True)
 
 
 class CustomUserManager(TreeManager, UserManager):
@@ -40,7 +31,4 @@ class CustomUserManager(TreeManager, UserManager):
         return self.get_queryset().base_queryset()
 
     def for_user(self, user):
-        return self.get_queryset().for_user(user=user)
-
-    def for_user_update(self, user):
         return self.get_queryset().for_user(user=user)

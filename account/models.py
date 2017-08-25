@@ -20,8 +20,9 @@ from mptt.models import MPTTModel
 from account.abstract_models import CustomUserAbstract
 from account.managers import CustomUserManager
 from account.permissions import (
-    can_create_user, can_export_user_list, can_see_user_list, can_edit_status_block,
-    can_edit_description_block, can_see_account_page)
+    can_edit_status_block,
+    can_edit_description_block, can_see_account_page, SeeUserListPermission, CreateUserPermission,
+    ExportUserListPermission)
 from analytics.models import LogModel
 from group.abstract_models import GroupUserPermission
 from group.models import Church
@@ -267,19 +268,19 @@ class CustomUser(MPTTModel, LogModel, User, CustomUserAbstract,
         """
         Checking that the ``self`` user has the right to create a new user
         """
-        return can_create_user(self)
+        return CreateUserPermission(self).has_permission()
 
     def can_export_user_list(self):
         """
         Checking that the ``self`` user has the right to export list of users
         """
-        return can_export_user_list(self)
+        return ExportUserListPermission(self).has_permission()
 
     def can_see_user_list(self):
         """
         Checking that the ``self`` user has the right to see list of users
         """
-        return can_see_user_list(self)
+        return SeeUserListPermission(self).has_permission()
 
     # Account page: /account/<user_id>/
 

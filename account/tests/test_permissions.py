@@ -6,8 +6,8 @@ from django.conf import settings
 
 from account.models import CustomUser
 from account.permissions import CanSeeAccountPage, can_see_account_page, CanCreateUser, CanExportUserList, \
-    CanSeeUserList, can_create_user, can_export_user_list, can_see_user_list, can_edit_status_block, \
-    can_edit_description_block
+    CanSeeUserList, can_edit_status_block, \
+    can_edit_description_block, SeeUserListPermission, CreateUserPermission, ExportUserListPermission
 
 
 @pytest.mark.django_db
@@ -155,25 +155,26 @@ class TestCanCreateUserFunc:
     def test_is_staff(self, user, is_staff):
         user.is_staff = is_staff
         user.save()
-        assert can_create_user(user) == is_staff
+        assert CreateUserPermission(user).has_permission() == is_staff
 
     @pytest.mark.parametrize('hierarchy_level', list(range(11)))
     def test_hierarchy_level(self, user, hierarchy_level, hierarchy_factory):
         user.hierarchy = hierarchy_factory(level=hierarchy_level)
         user.save()
-        assert can_create_user(user) == user.is_leader_or_high
+        assert CreateUserPermission(user).has_permission() == user.is_leader_or_high
 
     @pytest.mark.parametrize('level', list(settings.PARTNER_LEVELS.values()), ids=list(settings.PARTNER_LEVELS.keys()))
     def test_by_partnership(self, monkeypatch, user, level):
         has_perm = level <= settings.PARTNER_LEVELS['supervisor']
         monkeypatch.setattr(CustomUser, 'is_partner_supervisor_or_high', property(lambda s: has_perm))
-        assert can_create_user(user) == has_perm
+        assert CreateUserPermission(user).has_permission() == has_perm
 
     @pytest.mark.parametrize(
         'level', list(settings.SUMMIT_ANKET_ROLES.values()), ids=list(settings.SUMMIT_ANKET_ROLES.keys()))
     def test_by_summit_level(self, summit_anket_factory, level):
         profile = summit_anket_factory(role=level, user__hierarchy__level=0)
-        assert can_create_user(profile.user) == (level >= settings.SUMMIT_ANKET_ROLES['supervisor'])
+        assert (CreateUserPermission(profile.user).has_permission() ==
+                (level >= settings.SUMMIT_ANKET_ROLES['supervisor']))
 
 
 @pytest.mark.django_db
@@ -182,29 +183,29 @@ class TestCanExportUserListFunc:
     def test_is_staff(self, user, is_staff):
         user.is_staff = is_staff
         user.save()
-        assert can_export_user_list(user) == is_staff
+        assert ExportUserListPermission(user).has_permission() == is_staff
 
     @pytest.mark.parametrize('hierarchy_level', list(range(11)))
     def test_hierarchy_level(self, user, hierarchy_level, hierarchy_factory):
         user.hierarchy = hierarchy_factory(level=hierarchy_level)
         user.save()
-        assert can_export_user_list(user) == user.is_pastor_or_high
+        assert ExportUserListPermission(user).has_permission() == user.is_pastor_or_high
 
 
 @pytest.mark.django_db
-class TestCanSeeUserListFunc:
+class TestSeeUserListPermission:
     @pytest.mark.parametrize('is_staff', (True, False))
     def test_is_staff(self, user, is_staff):
         user.is_staff = is_staff
         user.save()
-        assert can_see_user_list(user) == is_staff
+        assert SeeUserListPermission(user).has_permission() == is_staff
 
     def test_have_children(self, user, user_factory):
         user_factory(master=user)
-        assert can_see_user_list(user)
+        assert SeeUserListPermission(user).has_permission()
 
     def test_dont_have_children(self, user):
-        assert not can_see_user_list(user)
+        assert not SeeUserListPermission(user).has_permission()
 
 
 @pytest.mark.django_db
