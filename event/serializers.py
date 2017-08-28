@@ -174,6 +174,14 @@ class MeetingDashboardSerializer(serializers.ModelSerializer):
         read_only_fields = ['__all__']
 
 
+class MeetingTotalSerializer(MeetingDashboardSerializer):
+    user = UserNameSerializer(source='owner', read_only=True)
+    master = UserNameSerializer(source='owner.master', read_only=True)
+
+    class Meta(MeetingDashboardSerializer.Meta):
+        fields = MeetingDashboardSerializer.Meta.fields + ('user', 'master')
+
+
 # class ChurchReportPastorSerializer(serializers.ModelSerializer):
 #     total_pastor_sum = serializers.DecimalField(max_digits=12, decimal_places=0, read_only=True)
 #
@@ -193,23 +201,25 @@ class ChurchReportListSerializer(serializers.HyperlinkedModelSerializer, Validat
                                                   decimal_places=0, required=False)
     total_tithe = serializers.DecimalField(source='tithe', max_digits=13,
                                            decimal_places=0, required=False)
+    currency_donations = serializers.CharField(required=False)
     total_new_peoples = serializers.IntegerField(source='new_people', required=False)
     total_repentance = serializers.IntegerField(source='count_repentance', required=False)
     can_submit = serializers.BooleanField(read_only=True)
     cant_submit_cause = serializers.CharField(read_only=True)
+
     total_sum = DecimalWithCurrencyField(max_digits=12, decimal_places=0, read_only=True,
-                                         currency_field='currency', required=False)
-    value = serializers.DecimalField(max_digits=12, decimal_places=0, read_only=True, required=False)
-    payment_status = serializers.IntegerField()
-    # currency = CurrencySerializer()
+                                         currency_field='currency')
+    value = serializers.DecimalField(max_digits=12, decimal_places=0, read_only=True)
+    payment_status = serializers.IntegerField(read_only=True)
+    currency = CurrencySerializer(read_only=True)
 
     class Meta:
         model = ChurchReport
         fields = ('id', 'pastor', 'church', 'date', 'status', 'link',
                   'total_peoples', 'total_new_peoples', 'total_repentance',
-                  'total_tithe', 'total_donations', 'total_pastor_tithe',
+                  'total_tithe', 'total_donations', 'total_pastor_tithe', 'currency_donations',
                   'can_submit', 'cant_submit_cause',
-                  'value', 'total_sum', 'payment_status',)
+                  'value', 'total_sum', 'payment_status', 'currency')
         read_only_fields = ['__all__']
 
 
@@ -220,7 +230,7 @@ class ChurchReportSerializer(ChurchReportListSerializer):
     status = serializers.IntegerField(default=1)
     transfer_payments = serializers.DecimalField(max_digits=13, decimal_places=1)
 
-    not_editable_fields = ['church', 'pastor', 'status']
+    not_editable_fields = ['church', 'pastor', 'status', 'payment_status', 'value', 'total_sum']
 
     class Meta(ChurchReportListSerializer.Meta):
         fields = ChurchReportListSerializer.Meta.fields + (

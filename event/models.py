@@ -15,7 +15,6 @@ from event.managers import MeetingManager, ChurchReportManager
 from navigation.table_fields import meeting_table
 from django.utils.functional import cached_property
 from payment.models import AbstractPaymentPurpose, get_default_currency
-from decimal import Decimal
 
 
 @python_2_unicode_compatible
@@ -187,7 +186,6 @@ class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
     pastor_tithe = models.DecimalField(_('Pastor Tithe'), max_digits=12,
                                        decimal_places=0, default=0)
 
-    # value = models.DecimalField(max_digits=12, decimal_places=0, default=Dec)
     payments = GenericRelation('payment.Payment', related_query_name='church_reports')
     currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
                                  default=get_default_currency, null=True)
