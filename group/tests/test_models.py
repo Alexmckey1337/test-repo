@@ -13,7 +13,7 @@ class TestChurch:
     def test__str__without_title(self, church, pastor):
         church.title = ''
         church.save()
-        assert church.__str__() == '{} {}'.format(church.city, pastor.last_name)
+        assert church.__str__() == '{} {}'.format(pastor.last_name, church.city)
 
     def test_get_title_with_title(self, church):
         assert church.get_title == church.title
@@ -21,7 +21,7 @@ class TestChurch:
     def test_get_title_without_title(self, church, pastor):
         church.title = ''
         church.save()
-        assert church.get_title == '{} {}'.format(church.city, pastor.last_name)
+        assert church.get_title == '{} {}'.format(pastor.last_name, church.city)
 
     def test_get_absolute_url(self, church):
         assert church.get_absolute_url() == reverse('church_detail', args=(church.id,))
@@ -41,7 +41,7 @@ class TestHomeGroup:
     def test__str__without_title(self, home_group, leader):
         home_group.title = ''
         home_group.save()
-        assert home_group.__str__() == '{} {}'.format(home_group.city, leader.last_name)
+        assert home_group.__str__() == '{} {}'.format(leader.last_name, home_group.city)
 
     def test_get_title_with_title(self, home_group):
         assert home_group.get_title == home_group.title
@@ -49,7 +49,7 @@ class TestHomeGroup:
     def test_get_title_without_title(self, home_group, leader):
         home_group.title = ''
         home_group.save()
-        assert home_group.get_title == '{} {}'.format(home_group.city, leader.last_name)
+        assert home_group.get_title == '{} {}'.format(leader.last_name, home_group.city)
 
     def test_get_absolute_url(self, home_group):
         assert home_group.get_absolute_url() == reverse('home_group_detail', args=(home_group.id,))
