@@ -1,8 +1,7 @@
 import copy
 import datetime
-from decimal import Decimal
-
 import itertools
+from decimal import Decimal
 
 import pytest
 from django.conf import settings
@@ -409,7 +408,6 @@ class TestUserViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert response.data['count'] == 22
 
-    @pytest.mark.hh
     def test_create_user_with_all_fields(self, request, api_client, staff_user, user_data):
         url = reverse('users_v1_1-list')
 
@@ -419,7 +417,6 @@ class TestUserViewSet:
 
         assert response.status_code == status.HTTP_201_CREATED
 
-    @pytest.mark.hh
     @pytest.mark.parametrize(
         "field,code", FIELD_CODES, ids=[f[0] for f in FIELD_CODES])
     def test_create_user_without_one_field(self, request, api_client, staff_user, user_data, field, code):
@@ -432,7 +429,6 @@ class TestUserViewSet:
 
         assert response.status_code == code
 
-    @pytest.mark.hh
     @pytest.mark.parametrize(
         "field,code", CHANGE_FIELD, ids=[f[0] for f in CHANGE_FIELD])
     def test_create_user_uniq_fields(
@@ -453,7 +449,126 @@ class TestUserViewSet:
 
         assert response.status_code == code
 
-    @pytest.mark.hh
+    def test_create_root_user(self, api_client, staff_user, hierarchy_factory, department_factory):
+        url = reverse('users_v1_1-list')
+
+        api_client.force_login(user=staff_user)
+        user_data = {
+            'first_name': 'first',
+            'last_name': 'last',
+            'middle_name': 'middle',
+            'hierarchy': hierarchy_factory(level=100).id,
+            'phone_number': '1234567890',
+            'departments': (department_factory().id,),
+        }
+        response = api_client.post(url, data=user_data, format='json')
+
+        # assert response.data == ''
+        assert response.status_code == status.HTTP_201_CREATED
+
+        new_user = CustomUser.objects.get(pk=response.data['id'])
+        staff_user.refresh_from_db()
+
+        assert len(new_user.path) == CustomUser.steplen
+        assert new_user.depth == 1
+
+    def test_create_user_with_parent(self, api_client, staff_user, hierarchy_factory, department_factory):
+        url = reverse('users_v1_1-list')
+
+        api_client.force_login(user=staff_user)
+        user_data = {
+            'first_name': 'first',
+            'last_name': 'last',
+            'middle_name': 'middle',
+            'hierarchy': hierarchy_factory(level=1).id,
+            'master': staff_user.id,
+            'phone_number': '1234567890',
+            'departments': (department_factory().id,),
+        }
+        response = api_client.post(url, data=user_data, format='json')
+
+        assert response.status_code == status.HTTP_201_CREATED
+
+        new_user = CustomUser.objects.get(pk=response.data['id'])
+        staff_user.refresh_from_db()
+
+        assert len(new_user.path) == CustomUser.steplen * 2
+        assert new_user.path.startswith(staff_user.path)
+        assert staff_user.numchild == 1
+        assert new_user.depth == 2
+
+    def test_move_user(self, user, api_login_client, user_factory):
+        master = user_factory(username='master')
+        user.move(master, 'last-child')
+        user.refresh_from_db()
+        child = user.add_child(master=user, username='child')
+
+        new_master = user_factory(username='new_master')
+
+        url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
+
+        data = {
+            'master': new_master.id,
+        }
+        api_login_client.force_login(user=user_factory(is_staff=True))
+        response = api_login_client.patch(url, data=data, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+
+        user.refresh_from_db()
+        master.refresh_from_db()
+        new_master.refresh_from_db()
+        child.refresh_from_db()
+
+        assert user.path.startswith(new_master.path)
+        assert child.path.startswith(new_master.path)
+        assert child.path.startswith(user.path)
+        assert master.numchild == 0
+        assert user.depth == 2
+        assert child.depth == 3
+        assert new_master.numchild == 1
+        assert len(user.path) == CustomUser.steplen * 2
+        assert len(child.path) == CustomUser.steplen * 3
+
+    def test_move_user_to_root(self, api_login_client, user_factory, hierarchy_factory):
+        master = user_factory(username='master')
+        user = master.add_child(hierarchy=hierarchy_factory(level=100), master=master, username='user')
+        child = user.add_child(master=user, username='child')
+
+        url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
+
+        data = {
+            'master': None,
+        }
+        api_login_client.force_login(user=user_factory(is_staff=True))
+        response = api_login_client.patch(url, data=data, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+
+        user.refresh_from_db()
+        master.refresh_from_db()
+        child.refresh_from_db()
+
+        assert master.numchild == 0
+        assert user.depth == 1
+        assert child.depth == 2
+        assert len(user.path) == CustomUser.steplen
+        assert len(child.path) == CustomUser.steplen * 2
+
+    def test_move_user_to_descendant(self, api_login_client, user_factory):
+        user = user_factory(username='user')
+        new_master = user.add_child()
+
+        url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
+
+        data = {
+            'master': new_master.id,
+        }
+        api_login_client.force_login(user=user_factory(is_staff=True))
+        response = api_login_client.patch(url, data=data, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
     def test_update_user_with_all_fields(self, request, api_client, staff_user, user_data, user_factory,
                                          partner_factory):
         user_data = get_values(user_data, request)

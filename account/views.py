@@ -267,8 +267,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         """
         partial = kwargs.pop('partial', False)
         user = self.get_object()
-        data = request.data
-        serializer = self.get_serializer(user, data=data, partial=partial)
+        serializer = self.get_serializer(user, data=request.data, partial=partial)
         try:
             serializer.is_valid(raise_exception=True)
         except HierarchyError:

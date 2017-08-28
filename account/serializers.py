@@ -187,21 +187,29 @@ class UserUpdateSerializer(BaseUserSerializer):
 
         if move_to_master is not None:
             disciples = user.disciples.all()
-            master = User.objects.get(id=move_to_master)
-            disciples.update(master=master)
+            to_master = User.objects.get(id=move_to_master)
+            disciples.update(master=to_master)
             for d in disciples:
-                d.move(master, pos='last-child')
+                d.move(to_master, pos='last-child')
 
         for attr, value in validated_data.items():
             setattr(user, attr, value)
         user.save()
         if master:
             user.move(master, pos='last-child')
+        elif 'master' in validated_data and master is None:
+            root = user.get_root()
+            user.move(root, 'last-sibling')
 
         if departments is not None and isinstance(departments, (list, tuple)):
             user.departments.set(departments)
 
         return user
+
+    def validate_master(self, master):
+        if master and master.is_descendant_of(self.instance):
+            raise ValidationError({'master': _("Can't move user to a descendant.")})
+        return master
 
     def validate_move_to_master(self, value):
         if not User.objects.filter(id=value).exists():
