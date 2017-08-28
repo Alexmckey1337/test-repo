@@ -11,7 +11,7 @@ class MeetingQuerySet(models.query.QuerySet):
     def for_user(self, user):
         if not is_authenticated(user):
             return self.none()
-        return self.filter(owner__in=user.get_descendants(include_self=True))
+        return self.filter(owner__in=user.__class__.get_tree(user))
 
     def annotate_owner_name(self):
         return self.annotate(
@@ -42,7 +42,7 @@ class ChurchReportQuerySet(models.query.QuerySet):
     def for_user(self, user):
         if not is_authenticated(user):
             return self.none()
-        return self.filter(pastor__user__in=user.get_descendants(include_self=True))
+        return self.filter(pastor__user__in=user.__class__.get_tree(user))
 
 
 class ChurchReportManager(models.Manager):

@@ -75,14 +75,24 @@ class TestDatabasePage(LoginUserMixin):
         h1 = HierarchyFactory(level=1)
         self.login_user.hierarchy = h1
         self.login_user.save()  # in masters +1 = 1
-        UserFactory.create_batch(4, hierarchy=h1, master=self.login_user)  # in masters +4 = 5
+        # UserFactory.create_batch(4, hierarchy=h1, master=self.login_user)  # in masters +4 = 5
+        for i in range(4):
+            self.login_user.add_child(username='user{}'.format(i), hierarchy=h1, master=self.login_user)
         UserFactory.create_batch(4, hierarchy=h1)
-        m1 = UserFactory(hierarchy=h1, master=self.login_user)  # in masters +1 = 6
-        m2 = UserFactory(hierarchy=h1, master=self.login_user)  # in masters +1 = 7
+        # m1 = UserFactory(hierarchy=h1, master=self.login_user)  # in masters +1 = 6
+        m1 = self.login_user.add_child(username='m1user', hierarchy=h1, master=self.login_user)
+        # m2 = UserFactory(hierarchy=h1, master=self.login_user)  # in masters +1 = 7
+        m2 = self.login_user.add_child(username='m2user', hierarchy=h1, master=self.login_user)
         m3 = UserFactory(hierarchy=h1)
-        UserFactory.create_batch(3, hierarchy=h1, master=m1)  # in masters +3 = 10
-        UserFactory.create_batch(3, hierarchy=h1, master=m2)  # in masters +3 = 13
-        UserFactory.create_batch(3, hierarchy=h1, master=m3)
+        # UserFactory.create_batch(3, hierarchy=h1, master=m1)  # in masters +3 = 10
+        for i in range(3):
+            m1.add_child(username='m1user{}'.format(i), hierarchy=h1, master=m1)
+        # UserFactory.create_batch(3, hierarchy=h1, master=m2)  # in masters +3 = 13
+        for i in range(3):
+            m2.add_child(username='m2user{}'.format(i), hierarchy=h1, master=m2)
+        # UserFactory.create_batch(3, hierarchy=h1, master=m3)
+        for i in range(3):
+            m3.add_child(username='m3user{}'.format(i), hierarchy=h1, master=m3)
         response = self.client.get(self.url)
 
         self.assertEqual(len(response.context['masters']), 13)
@@ -92,14 +102,24 @@ class TestDatabasePage(LoginUserMixin):
         h2 = HierarchyFactory(level=2)
         self.login_user.hierarchy = h2
         self.login_user.save()  # in masters +1 = 1
-        UserFactory.create_batch(4, hierarchy=h1, master=self.login_user)  # in masters +4 = 5
+        # UserFactory.create_batch(4, hierarchy=h1, master=self.login_user)  # in masters +4 = 5
+        for i in range(4):
+            self.login_user.add_child(username='user{}'.format(i), hierarchy=h1, master=self.login_user)
         UserFactory.create_batch(4, hierarchy=h1)  # in masters +4 = 9
-        m1 = UserFactory(hierarchy=h1, master=self.login_user)  # in masters +1 = 10
-        m2 = UserFactory(hierarchy=h1, master=self.login_user)  # in masters +1 = 11
+        # m1 = UserFactory(hierarchy=h1, master=self.login_user)  # in masters +1 = 10
+        m1 = self.login_user.add_child(username='m1user', hierarchy=h1, master=self.login_user)
+        # m2 = UserFactory(hierarchy=h1, master=self.login_user)  # in masters +1 = 11
+        m2 = self.login_user.add_child(username='m2user', hierarchy=h1, master=self.login_user)
         m3 = UserFactory(hierarchy=h1)  # in masters +1 = 12
-        UserFactory.create_batch(3, hierarchy=h1, master=m1)  # in masters +3 = 15
-        UserFactory.create_batch(3, hierarchy=h1, master=m2)  # in masters +3 = 18
-        UserFactory.create_batch(3, hierarchy=h1, master=m3)  # in masters +3 = 21
+        # UserFactory.create_batch(3, hierarchy=h1, master=m1)  # in masters +3 = 15
+        for i in range(3):
+            m1.add_child(username='m1user{}'.format(i), hierarchy=h1, master=m1)
+        # UserFactory.create_batch(3, hierarchy=h1, master=m2)  # in masters +3 = 18
+        for i in range(3):
+            m2.add_child(username='m2user{}'.format(i), hierarchy=h1, master=m2)
+        # UserFactory.create_batch(3, hierarchy=h1, master=m3)  # in masters +3 = 21
+        for i in range(3):
+            m3.add_child(username='m3user{}'.format(i), hierarchy=h1, master=m3)
         response = self.client.get(self.url)
 
         self.assertEqual(len(response.context['masters']), 21)
@@ -122,7 +142,6 @@ class TestDealPaymentView:
 
 @pytest.mark.urls('main.tests.urls')
 @pytest.mark.django_db
-@pytest.mark.hh
 class TestPartnerPaymentView:
     def test_variable_in_context_code(self, client, deal):
         url = '/payment/deal/{}/'.format(deal.id)

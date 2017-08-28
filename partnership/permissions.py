@@ -197,7 +197,7 @@ def can_see_partner_block(current_user, user):
     """
     return (
         current_user.is_partner_supervisor_or_high or
-        current_user.is_ancestor_of(user) or
+        user.is_descendant_of(current_user) or
         current_user.is_partner_responlible_of(user)
     )
 

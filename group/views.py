@@ -103,7 +103,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
         if request.user.is_staff and not master_tree_id:
             pastors = CustomUser.objects.filter(hierarchy__level__gte=2)
         else:
-            pastors = master.get_descendants(include_self=True).filter(hierarchy__level__gte=2)
+            pastors = master.__class__.get_tree(master).filter(hierarchy__level__gte=2)
         if department_id:
             pastors = pastors.filter(departments=department_id)
 
@@ -212,7 +212,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
         try:
             if self.request.user.is_staff:
                 return CustomUser.objects.filter(hierarchy__level__gte=2).get(pk=master_tree_id)
-            return master.get_descendants(include_self=True).filter(hierarchy__level__gte=2).get(pk=master_tree_id)
+            return master.__class__.get_tree(master).filter(hierarchy__level__gte=2).get(pk=master_tree_id)
         except ValueError:
             raise exceptions.ValidationError({'detail': _("master_tree_id is incorrect.")})
         except ObjectDoesNotExist:
@@ -234,7 +234,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
             can_add=Case(
                 When(Q(hhome_group__isnull=True) &
                      (Q(cchurch__isnull=True) | Q(cchurch_id=pk)),
-                     # & Q(lft__gte=user.lft) & Q(rght__lte=user.rght) & Q(tree_id=user.tree_id),
+                     # & Q(path__startswith=user.path) & Q(depth__gte=user.depth),
                      then=True), default=False, output_field=BooleanField()))
 
     def filter_potential_users_for_church(self, qs):
@@ -243,11 +243,11 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
             return qs.annotate(can_add=Case(When(
                 Q(hhome_group__isnull=True) & Q(cchurch__isnull=True),
                 then=True), default=False, output_field=BooleanField()))
-                # & Q(lft__gte=user.lft) & Q(rght__lte=user.rght) & Q(tree_id=user.tree_id),
+                # & Q(path__startswith=user.path) & Q(depth__gte=user.depth),
 
         return qs.annotate(can_add=Case(When(
             Q(hhome_group__isnull=True) & Q(cchurch__isnull=True)
-            & Q(lft__gte=user.lft) & Q(rght__lte=user.rght) & Q(tree_id=user.tree_id),
+            & Q(path__startswith=user.path) & Q(depth__gte=user.depth),
             then=True), default=False, output_field=BooleanField()))
 
     def _get_potential_users(self, request, filter, *args):
@@ -435,7 +435,7 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         if not master_tree_id:
             return master
         try:
-            return master.get_descendants(include_self=True).filter(hierarchy__level__gte=1).get(pk=master_tree_id)
+            return master.__class__.get_tree(master).filter(hierarchy__level__gte=1).get(pk=master_tree_id)
         except ValueError:
             raise exceptions.ValidationError({'detail': _("master_tree_id is incorrect.")})
         except ObjectDoesNotExist:

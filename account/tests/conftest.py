@@ -125,7 +125,7 @@ def user_data(partner):
         'odnoklassniki': 'http://ok.com/test',
         'skype': 'test_skype',
         'phone_number': '1234567890',
-        'extra_phone_numbers': ['1111', '2222', '3333'],
+        'extra_phone_numbers': ['1111222233', '2222333311', '3333111122'],
         'born_date': date(2000, 1, 1),
         'coming_date': date(2000, 2, 20),
         'repentance_date': date(2000, 2, 20),

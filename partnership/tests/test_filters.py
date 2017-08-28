@@ -31,15 +31,26 @@ class TestFilterPartnerMasterTreeWithSelf:
     def test_with_master(self, partner_factory):
         partner = partner_factory()  # count: + 1, = 1, all_users_count: +1, = 1
 
-        partner_factory.create_batch(3, user__master=partner.user)  # count: + 3, = 4, all_users_count: +3, = 4
-        second_level_partner = partner_factory(user__master=partner.user)  # count: + 1, = 5, all_users_count: +1, = 5
-        partner_factory.create_batch(
-            8, user__master=second_level_partner.user)  # count: + 8, = 13, all_users_count: +8, = 13
+        # count: + 3, = 4, all_users_count: +3, = 4
+        for i in range(3):
+            user = partner.user.add_child(username='partner{}'.format(i), master=partner.user)
+            partner_factory(user=user)
+        user = partner.user.add_child(username='second_partner', master=partner.user)
+        second_level_partner = partner_factory(user=user)  # count: + 1, = 5, all_users_count: +1, = 5
+        # partner_factory.create_batch(
+        #     8, user__master=second_level_partner.user)  # count: + 8, = 13, all_users_count: +8, = 13
+        for i in range(8):
+            spu = second_level_partner.user.add_child(
+                username='second_partner{}'.format(i), master=second_level_partner.user)
+            partner_factory(user=spu)
 
         partner_factory.create_batch(15)  # count: + 0, = 13, all_users_count: +15, = 28
         other_partner = partner_factory()  # count: + 0, = 13, all_users_count: +1, = 29
-        partner_factory.create_batch(
-            32, user__master=other_partner.user)  # count: + 0, = 13, all_users_count: + 32, = 61
+        # partner_factory.create_batch(
+        #     32, user__master=other_partner.user)  # count: + 0, = 13, all_users_count: + 32, = 61
+        for i in range(32):
+            u = other_partner.user.add_child(username='other_partner{}'.format(i), master=other_partner.user)
+            partner_factory(user=u)
 
         qs = Partnership.objects.all()
         filter_qs = FilterPartnerMasterTreeWithSelf().filter_queryset(

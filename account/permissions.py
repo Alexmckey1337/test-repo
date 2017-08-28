@@ -40,7 +40,8 @@ def can_see_account_page(current_user, user):
     return (
         current_user.is_staff or
         current_user.is_partner_supervisor_or_high or
-        current_user.is_ancestor_of(user, include_self=True) or
+        user == current_user or
+        user.is_descendant_of(current_user) or
         current_user.is_partner_responsible_of(user)
     )
 
@@ -62,7 +63,7 @@ class SeeUserListPermission(BaseUserPermission):
         """
         Checking that the ``user`` has the right to see list of users
         """
-        return not self.user.is_leaf_node or self.user.is_staff
+        return not self.user.is_leaf() or self.user.is_staff
 
     def get_queryset(self):
         """
@@ -86,7 +87,7 @@ class EditUserPermission(BaseUserPermission):
         """
         Checking that the ``user`` has the right to edit users
         """
-        return not self.user.is_leaf_node or self.user.is_staff
+        return not self.user.is_leaf() or self.user.is_staff
 
     def get_queryset(self):
         """
@@ -118,7 +119,7 @@ def can_edit_status_block(current_user, user):
     return (
         current_user.is_partner_supervisor_or_high or
         current_user.is_any_summit_supervisor_or_high() or
-        current_user.is_ancestor_of(user)
+        user.is_descendant_of(current_user)
     )
 
 
@@ -131,5 +132,5 @@ def can_edit_description_block(current_user, user):
     return (
         current_user.is_partner_supervisor_or_high or
         current_user.is_any_summit_supervisor_or_high() or
-        current_user.is_ancestor_of(user)
+        user.is_descendant_of(current_user)
     )

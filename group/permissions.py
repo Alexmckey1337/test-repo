@@ -86,7 +86,7 @@ def can_see_churches(user):
     """
     return (
         user.is_main_bishop_or_high or
-        user.get_descendants(include_self=True).exclude(church__isnull=True).exists() or user.is_staff
+        user.__class__.get_tree(user).exclude(church__isnull=True).exists() or user.is_staff
     )
 
 
@@ -129,7 +129,7 @@ def can_export_churches(user):
     """
     Checking that the ``user`` has the right to export list of churches
     """
-    return user.get_descendants(include_self=True).exclude(church__isnull=True).exists()
+    return user.__class__.get_tree(user).exclude(church__isnull=True).exists()
 
 
 def can_export_groups_of_church(user, church):
@@ -152,7 +152,7 @@ def can_see_home_groups(user):
     """
     return (
         user.is_main_bishop_or_high or
-        user.get_descendants(include_self=True).exclude(home_group__isnull=True).exists() or user.is_staff
+        user.__class__.get_tree(user).exclude(home_group__isnull=True).exists() or user.is_staff
     )
 
 
@@ -195,7 +195,7 @@ def can_export_home_groups(user):
     """
     Checking that the ``user`` has the right to export list of home groups
     """
-    return user.get_descendants(include_self=True).exclude(home_group__isnull=True).exists()
+    return user.__class__.get_tree(user).exclude(home_group__isnull=True).exists()
 
 
 def can_edit_church_block(current_user, user):

@@ -60,6 +60,7 @@ def home_group(home_group_factory, church, leader):
 @pytest.fixture
 def fake_church_view_set(monkeypatch):
     monkeypatch.setattr(ChurchViewSet, 'dispatch', fake_dispatch)
+    monkeypatch.setattr(HomeGroupViewSet, 'permission_classes', (AllowAny,))
 
     return ChurchViewSet
 

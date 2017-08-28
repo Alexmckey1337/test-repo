@@ -188,15 +188,16 @@ class BaseFilterMasterTree(filters.BaseFilterBackend):
         except (ObjectDoesNotExist, ValueError):
             return queryset
 
-        if master.is_leaf_node():
+        if master.is_leaf():
             if self.include_self_master:
                 return queryset.filter(**{'%sid' % self.user_field_prefix: master.id})
             return queryset.none()
 
+        # return cls.objects.filter(path__startswith=parent.path,
+        #                           depth__gte=parent.depth)
         filter_by_master_tree = {
-            '%stree_id' % self.user_field_prefix: master.tree_id,
-            '%slft__gte' % self.user_field_prefix: master.lft,
-            '%srght__lte' % self.user_field_prefix: master.rght,
+            '%spath__startswith' % self.user_field_prefix: master.path,
+            '%sdepth__gte' % self.user_field_prefix: master.depth,
         }
 
         qs = queryset.filter(**filter_by_master_tree)
