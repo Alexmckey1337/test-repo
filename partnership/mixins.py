@@ -37,13 +37,12 @@ class PartnerStatMixin:
         partner_id = request.query_params.get('partner_id')
 
         if not partner_id or partner_id == 'all':
-            user = get_object_or_404(CustomUser, pk=current_partner.user.id)
+            partner = current_partner
         else:
             partner = get_object_or_404(Partnership, pk=partner_id)
-            user = get_object_or_404(CustomUser, pk=partner.user.id)
 
-        stats['active_partners'] = CustomUser.objects.for_user(user).filter(
-            partnership__is_active=True).count()
+        stats['active_partners'] = Partnership.objects.filter(
+            responsible=partner, is_active=True).count()
         stats['deals'] = self.stats_by_deals(deals, deals_with_sum)
         stats['partners'] = self.stats_by_partners(deals, deals_with_sum)
         stats['sum'] = self.stats_by_sum(deals, deals_with_sum)

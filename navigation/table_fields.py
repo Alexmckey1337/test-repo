@@ -46,9 +46,20 @@ def _filter_payment_columns(table_columns):
     return table_columns.filter(columnType__category__title='payment')
 
 
+def _filter_meetings_summary_columns(table_columns):
+    return table_columns.filter(columnType__category__title='meetings_summary')
+
+
 @check_user_table_exist
 def meeting_table(user, category_title=None):
     table_columns = _filter_meeting_columns(user.table.columns.select_related('columnType'), category_title)
+
+    return _get_result_table(table_columns)
+
+
+@check_user_table_exist
+def meetings_summary_table(user, category_title=None):
+    table_columns = _filter_meetings_summary_columns(user.table.columns.select_related('columnType'))
 
     return _get_result_table(table_columns)
 

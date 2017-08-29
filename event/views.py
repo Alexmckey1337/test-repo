@@ -19,7 +19,8 @@ from common.views_mixins import ModelWithoutDeleteViewSet
 from .filters import (ChurchReportFilter, MeetingFilter, MeetingCustomFilter, MeetingFilterByMaster,
                       ChurchReportDepartmentFilter, ChurchReportFilterByMaster, )
 from .models import Meeting, ChurchReport, MeetingAttend
-from .pagination import MeetingPagination, MeetingVisitorsPagination, ChurchReportPagination
+from .pagination import (MeetingPagination, MeetingVisitorsPagination, ChurchReportPagination,
+                         MeetingSummaryPagination)
 from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingDetailSerializer,
                           MeetingListSerializer, ChurchReportStatisticSerializer,
                           MeetingStatisticSerializer, ChurchReportSerializer,
@@ -30,6 +31,9 @@ from payment.views_mixins import CreatePaymentMixin
 from .mixins import EventUserTreeSummaryMixin
 
 logger = logging.getLogger(__name__)
+
+MEETINGS_ORDERING_FIELDS = ('last_name', 'id', 'master__last_name', 'meetings_submitted',
+                            'meetings_expired', 'meetings_in_progress')
 
 
 class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeSummaryMixin):
@@ -264,11 +268,14 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeSummaryMixin):
         dashboards_counts = self.serializer_class(dashboards_counts)
         return Response(dashboards_counts.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'], serializer_class=MeetingSummarySerializer)
+    @list_route(methods=['GET'], serializer_class=MeetingSummarySerializer,
+                filter_backends=(filters.OrderingFilter,),
+                ordering_fields=MEETINGS_ORDERING_FIELDS,
+                pagination_class=MeetingSummaryPagination)
     def meetings_summary(self, request):
         user = self.user_for_tree(request)
 
-        queryset = CustomUser.objects.for_user(user).filter(
+        queryset = self.filter_queryset(CustomUser.objects.for_user(user).filter(
             home_group__id__isnull=False).annotate(
             meetings_in_progress=Sum(Case(
                 When(home_group__meeting__status=1, then=1),
@@ -279,10 +286,12 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeSummaryMixin):
             meetings_expired=Sum(Case(
                 When(home_group__meeting__status=3, then=1),
                 output_field=IntegerField(), default=0), distinct=True))
+        )
 
-        result = self.serializer_class(queryset, many=True)
-        return Response(result.data, status=status.HTTP_200_OK)
-
+        page = self.paginate_queryset(queryset)
+        result = self.serializer_class(page, many=True)
+        # return Response(result.data, status=status.HTTP_200_OK)
+        return self.get_paginated_response(result.data)
 
 # class ChurchReportPastorViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
 #     queryset = ChurchReportPastor.objects.base_queryset().annotate_total_pastor_sum()
