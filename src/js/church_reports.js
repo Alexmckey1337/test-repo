@@ -152,4 +152,17 @@
         });
     });
 
+    $("#popup-create_payment .top-text span").on('click', () => {
+        $('#new_payment_sum').val('');
+        $('#popup-create_payment textarea').val('');
+        $('#popup-create_payment').css('display', 'none');
+    });
+
+    $('#sent_date').datepicker({
+        dateFormat: "yyyy-mm-dd",
+        startDate: new Date(),
+        maxDate: new Date(),
+        autoClose: true
+    });
+
 })();

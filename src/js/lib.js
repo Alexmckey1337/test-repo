@@ -3234,6 +3234,7 @@ function makeChurchReportsTable(data, config = {}) {
     $('.table__count').text(text);
     new OrderTable().sort(churchReportsTable, ".table-wrap th");
     $('.preloader').hide();
+    btnDeals();
 }
 
 function getHomeReports(config = {}) {
