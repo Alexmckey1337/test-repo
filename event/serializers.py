@@ -11,7 +11,7 @@ from account.models import CustomUser
 from common.fields import ReadOnlyChoiceField
 from group.models import Church
 from group.serializers import (UserNameSerializer, ChurchNameSerializer,
-                               HomeGroupNameSerializer)
+                               HomeGroupNameSerializer, UserNameWithLinkSerializer)
 from .models import Meeting, MeetingAttend, MeetingType, ChurchReport, AbstractStatusModel
 from common.fields import DecimalWithCurrencyField
 from payment.serializers import CurrencySerializer
@@ -174,16 +174,16 @@ class MeetingDashboardSerializer(serializers.ModelSerializer):
         read_only_fields = ['__all__']
 
 
-class MeetingTotalSerializer(serializers.ModelSerializer):
-    master = UserNameSerializer()
+class MeetingSummarySerializer(serializers.ModelSerializer):
+    master = UserNameWithLinkSerializer()
     meetings_submitted = serializers.IntegerField(read_only=True)
     meetings_in_progress = serializers.IntegerField(read_only=True)
     meetings_expired = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = CustomUser
-        fields = ('id', 'fullname', 'master', 'meetings_submitted', 'meetings_in_progress',
-                  'meetings_expired')
+        fields = ('id', 'fullname', 'link', 'master',
+                  'meetings_submitted', 'meetings_in_progress', 'meetings_expired')
 
 
 # class ChurchReportPastorSerializer(serializers.ModelSerializer):
@@ -299,11 +299,11 @@ class ChurchReportsDashboardSerializer(serializers.ModelSerializer):
 
 class ChurchReportSummarySerializer(serializers.ModelSerializer):
     master = UserNameSerializer()
-    churchreports_submitted = serializers.IntegerField(read_only=True)
-    churchreports_in_progress = serializers.IntegerField(read_only=True)
-    ch_expired = serializers.IntegerField(read_only=True)
+    reports_submitted = serializers.IntegerField(read_only=True)
+    reports_in_progress = serializers.IntegerField(read_only=True)
+    reports_expired = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = CustomUser
-        fields = ('id', 'fullname', 'master', 'meetings_submitted', 'meetings_in_progress',
-                  'meetings_expired')
+        fields = ('id', 'fullname', 'link', 'master',
+                  'reports_submitted', 'reports_in_progress', 'reports_expired', )

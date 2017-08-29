@@ -44,7 +44,8 @@ def create_church_reports():
     for church in open_churches:
         ChurchReport.objects.get_or_create(church=church,
                                            pastor=church.pastor,
-                                           date=current_date)
+                                           date=current_date,
+                                           currency=church.report_currency)
 
 
 @app.task(name='church_reports_to_expired', ignore_result=True,

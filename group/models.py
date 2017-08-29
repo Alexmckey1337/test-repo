@@ -11,6 +11,7 @@ from django.utils.translation import ugettext as _
 from group.managers import ChurchManager, HomeGroupManager
 from event.models import Meeting, MeetingType
 from django.db import transaction
+from payment.models import get_default_currency
 
 
 @python_2_unicode_compatible
@@ -46,6 +47,7 @@ class Church(CommonGroup):
                                on_delete=models.PROTECT, verbose_name=_('Pastor'))
     country = models.CharField(_('Country'), max_length=50)
     is_open = models.BooleanField(default=False)
+    report_currency = models.IntegerField(default=get_default_currency(), verbose_name=_('Report Currency'))
 
     objects = ChurchManager()
 

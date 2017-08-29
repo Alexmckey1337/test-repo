@@ -24,13 +24,15 @@ from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingD
                           MeetingListSerializer, ChurchReportStatisticSerializer,
                           MeetingStatisticSerializer, ChurchReportSerializer,
                           ChurchReportListSerializer, MeetingDashboardSerializer,
-                          ChurchReportDetailSerializer, ChurchReportsDashboardSerializer, MeetingTotalSerializer)
+                          ChurchReportDetailSerializer, ChurchReportsDashboardSerializer, MeetingSummarySerializer,
+                          ChurchReportSummarySerializer)
 from payment.views_mixins import CreatePaymentMixin
+from .mixins import EventUserTreeSummaryMixin
 
 logger = logging.getLogger(__name__)
 
 
-class MeetingViewSet(ModelWithoutDeleteViewSet):
+class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeSummaryMixin):
     queryset = Meeting.objects.select_related('owner', 'type', 'home_group__leader')
 
     serializer_class = MeetingSerializer
@@ -244,12 +246,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     @list_route(methods=['GET'], serializer_class=MeetingDashboardSerializer)
     def dashboard_counts(self, request):
-        user_id = request.query_params.get('user_id')
-        if user_id:
-            user = get_object_or_404(CustomUser, pk=user_id)
-        else:
-            user = self.request.user
-
+        user = self.user_for_tree(request)
         queryset = self.queryset.for_user(user)
 
         dashboards_counts = queryset.aggregate(
@@ -267,13 +264,9 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         dashboards_counts = self.serializer_class(dashboards_counts)
         return Response(dashboards_counts.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'], serializer_class=MeetingTotalSerializer)
-    def summary_leaders_stats(self, request):
-        user_id = request.query_params.get('user_id')
-        if user_id:
-            user = get_object_or_404(CustomUser, pk=user_id)
-        else:
-            user = self.request.user
+    @list_route(methods=['GET'], serializer_class=MeetingSummarySerializer)
+    def meetings_summary(self, request):
+        user = self.user_for_tree(request)
 
         queryset = CustomUser.objects.for_user(user).filter(
             home_group__id__isnull=False).annotate(
@@ -288,7 +281,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
                 output_field=IntegerField(), default=0), distinct=True))
 
         result = self.serializer_class(queryset, many=True)
-        return Response(result.data)
+        return Response(result.data, status=status.HTTP_200_OK)
 
 
 # class ChurchReportPastorViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
@@ -297,7 +290,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 #     serializer_class = ChurchReportPastorSerializer
 
 
-class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
+class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin, EventUserTreeSummaryMixin):
     queryset = ChurchReport.objects.base_queryset().annotate_total_sum().annotate_value()
 
     serializer_class = ChurchReportSerializer
@@ -414,12 +407,7 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
 
     @list_route(methods=['GET'], serializer_class=ChurchReportsDashboardSerializer)
     def dashboard_counts(self, request):
-        user_id = request.query_params.get('user_id')
-        if user_id:
-            user = get_object_or_404(CustomUser, pk=user_id)
-        else:
-            user = self.request.user
-
+        user = self.user_for_tree(request)
         queryset = self.queryset.for_user(user)
 
         dashboards_counts = queryset.aggregate(
@@ -437,25 +425,21 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
         dashboards_counts = self.serializer_class(dashboards_counts)
         return Response(dashboards_counts.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'], serializer_class=MeetingTotalSerializer)
-    def summary_leaders_stats(self, request):
-        user_id = request.query_params.get('user_id')
-        if user_id:
-            user = get_object_or_404(CustomUser, pk=user_id)
-        else:
-            user = self.request.user
+    @list_route(methods=['GET'], serializer_class=ChurchReportSummarySerializer)
+    def reports_summary(self, request):
+        user = self.user_for_tree(request)
 
         queryset = CustomUser.objects.for_user(user).filter(
-            home_group__id__isnull=False).annotate(
-            meetings_in_progress=Sum(Case(
-                When(home_group__meeting__status=1, then=1),
+            church__id__isnull=False).annotate(
+            reports_in_progress=Sum(Case(
+                When(church__churchreport__status=1, then=1),
                 output_field=IntegerField(), default=0), distinct=True),
-            meetings_submitted=Sum(Case(
-                When(home_group__meeting__status=2, then=1),
+            reports_submitted=Sum(Case(
+                When(church__churchreport__status=2, then=1),
                 output_field=IntegerField(), default=0), distinct=True),
-            meetings_expired=Sum(Case(
-                When(home_group__meeting__status=3, then=1),
+            reports_expired=Sum(Case(
+                When(church__churchreport__status=3, then=1),
                 output_field=IntegerField(), default=0), distinct=True))
 
         result = self.serializer_class(queryset, many=True)
-        return Response(result.data)
+        return Response(result.data, status=status.HTTP_200_OK)
