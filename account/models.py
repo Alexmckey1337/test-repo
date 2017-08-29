@@ -104,9 +104,6 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
     class Meta:
         ordering = ['-date_joined']
 
-    class MPTTMeta:
-        parent_attr = 'master'
-
     def save(self, *args, **kwargs):
         super(CustomUser, self).save(*args, **kwargs)
         for profile in self.summit_profiles.all():
