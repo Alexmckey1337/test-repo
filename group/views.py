@@ -301,6 +301,13 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
         result = self.serializer_class(result)
         return Response(result.data)
 
+    @detail_route(methods=['POST'])
+    def change_report_currency(self, request):
+        currency_id = request.query_params.get('currency_id', 2)
+        self.get_object().update(report_currency=int(currency_id))
+
+        return Response({'message': 'Валюта Церкви успешно установленно в %s' % currency_id})
+
 
 class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportViewSetMixin):
     queryset = HomeGroup.objects.all()

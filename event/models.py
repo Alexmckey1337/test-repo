@@ -188,7 +188,7 @@ class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
 
     payments = GenericRelation('payment.Payment', related_query_name='church_reports')
     currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
-                                 default=get_default_currency, null=True)
+                                 default=get_default_currency(), null=True)
 
     objects = ChurchReportManager()
 
@@ -226,28 +226,6 @@ class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
         if not self.can_submit:
             return _('Невозможно подать отчет. Данный пастор имеет просроченные отчеты.')
         return ''
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 class DayOfTheWeekField(models.CharField):
