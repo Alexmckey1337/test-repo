@@ -12,7 +12,7 @@ class MeetingQuerySet(models.query.QuerySet):
     def for_user(self, user):
         if not is_authenticated(user):
             return self.none()
-        return self.filter(owner__in=user.get_descendants())
+        return self.filter(owner__in=user.__class__.get_tree(user))
 
     def annotate_owner_name(self):
         return self.annotate(
@@ -43,7 +43,7 @@ class ChurchReportQuerySet(models.query.QuerySet):
     def for_user(self, user):
         if not is_authenticated(user):
             return self.none()
-        return self.filter(pastor__in=user.get_descendants())
+        return self.filter(pastor__in=user.__class__.get_tree(user))
 
     def annotate_total_sum(self):
         return self.annotate(total_sum=Coalesce(Sum('payments__effective_sum'), V(0)))
