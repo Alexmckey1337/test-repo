@@ -122,7 +122,10 @@ class TestPartnershipViewSet:
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
         monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
         master = partner_factory(user__username='master')
-        partner_factory.create_batch(10, user__master=master.user)
+        # partner_factory.create_batch(10, user__master=master.user)
+        for i in range(10):
+            u = master.user.add_child(username='master{}'.format(i), master=master.user)
+            partner_factory(user=u)
         partner_factory.create_batch(20)
 
         url = reverse('partner-list')
@@ -138,8 +141,14 @@ class TestPartnershipViewSet:
         monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
         master = partner_factory(user__username='master')
         other_master = partner_factory(user__username='other_master')
-        partner_factory.create_batch(10, user__master=master.user)
-        partner_factory.create_batch(40, user__master=other_master.user)
+        # partner_factory.create_batch(10, user__master=master.user)
+        for i in range(10):
+            u = master.user.add_child(username='partner{}'.format(i), master=master.user)
+            partner_factory(user=u)
+        # partner_factory.create_batch(40, user__master=other_master.user)
+        for i in range(40):
+            u = other_master.user.add_child(username='other_partner{}'.format(i), master=other_master.user)
+            partner_factory(user=u)
         partner_factory.create_batch(20)
 
         url = reverse('partner-list')
@@ -157,15 +166,27 @@ class TestPartnershipViewSet:
         monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
         partner = partner_factory()  # count: + 0, = 0, all_users_count: +1, = 1
 
-        partner_factory.create_batch(3, user__master=partner.user)  # count: + 3, = 3, all_users_count: +3, = 4
-        second_level_partner = partner_factory(user__master=partner.user)  # count: + 1, = 4, all_users_count: +1, = 5
-        partner_factory.create_batch(
-            8, user__master=second_level_partner.user)  # count: + 8, = 12, all_users_count: +8, = 13
+        # partner_factory.create_batch(3, user__master=partner.user)  # count: + 3, = 3, all_users_count: +3, = 4
+        for i in range(3):
+            u = partner.user.add_child(username='partner{}'.format(i), master=partner.user)
+            partner_factory(user=u)
+        # second_level_partner = partner_factory(user__master=partner.user)  # count: + 1, = 4, all_users_count: +1, = 5
+        u = partner.user.add_child(username='second_partner', master=partner.user)
+        second_level_partner = partner_factory(user=u)
+        # partner_factory.create_batch(
+        #     8, user__master=second_level_partner.user)  # count: + 8, = 12, all_users_count: +8, = 13
+        for i in range(8):
+            u = second_level_partner.user.add_child(
+                username='second_partner{}'.format(i), master=second_level_partner.user)
+            partner_factory(user=u)
 
         partner_factory.create_batch(15)  # count: + 0, = 12, all_users_count: +15, = 28
         other_partner = partner_factory()  # count: + 0, = 12, all_users_count: +1, = 29
-        partner_factory.create_batch(
-            32, user__master=other_partner.user)  # count: + 0, = 12, all_users_count: + 32, = 61
+        # partner_factory.create_batch(
+        #     32, user__master=other_partner.user)  # count: + 0, = 12, all_users_count: + 32, = 61
+        for i in range(32):
+            u = other_partner.user.add_child(username='other_partner{}'.format(i), master=other_partner.user)
+            partner_factory(user=u)
 
         url = reverse('partner-list')
 

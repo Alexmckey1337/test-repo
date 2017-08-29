@@ -103,10 +103,12 @@
      $('.tab-home-stats').find('.week').on('click', function () {
         $(this).closest('.tab-home-stats').find('.week').removeClass('active');
         $(this).addClass('active');
-        if (!$(this).hasClass('week_prev')) {
+        if ($(this).hasClass('week_now')) {
             $('.set-date').find('input').val(`${thisMonday}-${thisSunday}`);
-        } else {
+        } else if ($(this).hasClass('week_prev')) {
             $('.set-date').find('input').val(`${lastMonday}-${lastSunday}`);
+        } else {
+            $('.set-date').find('input').val('');
         }
         homeReportsTable();
     });

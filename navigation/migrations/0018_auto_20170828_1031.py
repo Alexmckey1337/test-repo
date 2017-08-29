@@ -18,7 +18,7 @@ def create_church_report_columns(apps, schema_editor):
         Church_report_columns(title='currency_donations', verbose_title='Пожертвования в другой валюте',
                               ordering_title='currency_donations', number=12, active=True, editable=True,
                               category_id=church_report.id),
-        Church_report_columns(title='sum', verbose_title='Сумма', ordering_title='value', number=13,
+        Church_report_columns(title='value', verbose_title='Сумма', ordering_title='value', number=13,
                               active=True, editable=True, category_id=church_report.id),
         Church_report_columns(title='action', verbose_title='Действие', ordering_title='payment_status',
                               number=14, active=True, editable=True, category_id=church_report.id),

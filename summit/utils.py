@@ -52,8 +52,8 @@ def get_report_by_bishop_or_high(
                 WHERE at.anket_id = a.id AND at.date = '{date}') attended
               FROM summit_summitanket a
                 INNER JOIN account_customuser u ON a.user_id = u.user_ptr_id
-              WHERE (u.tree_id = bu.tree_id AND u.lft >= bu.lft AND u.rght <= bu.rght AND summit_id = {summit_id})
-              ORDER BY u.tree_id, u.lft) attended
+              WHERE (u.path like bu.path||'%%' AND u.depth >= bu.depth AND summit_id = {summit_id})
+              ORDER BY u.path) attended
             FROM summit_summitanket ba
               INNER JOIN account_customuser bu ON ba.user_id = bu.user_ptr_id
               JOIN auth_user bbu ON bbu.id = bu.user_ptr_id
@@ -220,13 +220,12 @@ class SummitParticipantReport(object):
               INNER JOIN account_customuser u ON a.user_id = u.user_ptr_id
               INNER JOIN auth_user uu ON u.user_ptr_id = uu.id
               LEFT JOIN hierarchy_hierarchy h ON u.hierarchy_id = h.id
-              WHERE (u.tree_id = {tree_id} AND u.lft >= {lft} AND u.rght <= {rght} AND summit_id = {summit_id})
-              ORDER BY u.tree_id, u.lft;
+              WHERE (u.path like '{path}%' AND u.depth >= {depth} AND summit_id = {summit_id})
+              ORDER BY u.path;
         """.format(
             date=self.report_date.strftime('%Y-%m-%d'),
-            tree_id=self.master.tree_id,
-            lft=self.master.lft,
-            rght=self.master.rght,
+            path=self.master.path,
+            depth=self.master.depth,
             summit_id=self.summit_id
         )
         return list(SummitAnket.objects.raw(raw))
@@ -309,7 +308,7 @@ def generate_ticket_by_summit(ankets):
       concat(uu1.last_name, ' ', uu1.first_name) AS user_name
     FROM summit_summitanket a
       INNER JOIN account_customuser u1 ON a.user_id = u1.user_ptr_id
-      LEFT JOIN account_customuser u2 ON u1.lft > u2.lft AND u1.rght < u2.rght AND u1.tree_id = u2.tree_id
+      LEFT JOIN account_customuser u2 ON u1.path like u2.path||'%%' AND u1.depth >= u2.depth
       INNER JOIN auth_user uu1 ON u1.user_ptr_id = uu1.id
       LEFT JOIN auth_user uu2 ON u2.user_ptr_id = uu2.id
       LEFT JOIN hierarchy_hierarchy h ON u2.hierarchy_id = h.id

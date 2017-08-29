@@ -174,12 +174,16 @@ class MeetingDashboardSerializer(serializers.ModelSerializer):
         read_only_fields = ['__all__']
 
 
-class MeetingTotalSerializer(MeetingDashboardSerializer):
-    user = UserNameSerializer(source='owner', read_only=True)
-    master = UserNameSerializer(source='owner.master', read_only=True)
+class MeetingTotalSerializer(serializers.ModelSerializer):
+    master = UserNameSerializer()
+    meetings_submitted = serializers.IntegerField(read_only=True)
+    meetings_in_progress = serializers.IntegerField(read_only=True)
+    meetings_expired = serializers.IntegerField(read_only=True)
 
-    class Meta(MeetingDashboardSerializer.Meta):
-        fields = MeetingDashboardSerializer.Meta.fields + ('user', 'master')
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'fullname', 'master', 'meetings_submitted', 'meetings_in_progress',
+                  'meetings_expired')
 
 
 # class ChurchReportPastorSerializer(serializers.ModelSerializer):
@@ -202,6 +206,7 @@ class ChurchReportListSerializer(serializers.HyperlinkedModelSerializer, Validat
     total_tithe = serializers.DecimalField(source='tithe', max_digits=13,
                                            decimal_places=0, required=False)
     currency_donations = serializers.CharField(required=False)
+    transfer_payments = serializers.DecimalField(max_digits=12, decimal_places=1, read_only=True)
     total_new_peoples = serializers.IntegerField(source='new_people', required=False)
     total_repentance = serializers.IntegerField(source='count_repentance', required=False)
     can_submit = serializers.BooleanField(read_only=True)
@@ -216,7 +221,7 @@ class ChurchReportListSerializer(serializers.HyperlinkedModelSerializer, Validat
     class Meta:
         model = ChurchReport
         fields = ('id', 'pastor', 'church', 'date', 'status', 'link',
-                  'total_peoples', 'total_new_peoples', 'total_repentance',
+                  'total_peoples', 'total_new_peoples', 'total_repentance', 'transfer_payments',
                   'total_tithe', 'total_donations', 'total_pastor_tithe', 'currency_donations',
                   'can_submit', 'cant_submit_cause',
                   'value', 'total_sum', 'payment_status', 'currency')

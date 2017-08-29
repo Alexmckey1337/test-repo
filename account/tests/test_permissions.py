@@ -6,8 +6,8 @@ from django.conf import settings
 
 from account.models import CustomUser
 from account.permissions import CanSeeAccountPage, can_see_account_page, CanCreateUser, CanExportUserList, \
-    CanSeeUserList, can_create_user, can_export_user_list, can_see_user_list, can_edit_status_block, \
-    can_edit_description_block
+    CanSeeUserList, can_edit_status_block, \
+    can_edit_description_block, SeeUserListPermission, CreateUserPermission, ExportUserListPermission
 
 
 @pytest.mark.django_db
@@ -28,13 +28,16 @@ class TestCanSeeAccountPage:
         request = type('Request', (), {'user': user})
         assert CanSeeAccountPage().has_object_permission(request, None, u) == has_perm
 
-    def test_is_ancestor(self, user, user_factory):
-        u = user_factory(master=user)
+    def test_is_ancestor(self, user):
+        # u = user_factory(master=user)
+        u = user.add_child(username='user', master=user)
         request = type('Request', (), {'user': user})
         assert CanSeeAccountPage().has_object_permission(request, None, u)
 
     def test_not_is_ancestor(self, user, user_factory):
-        u = user_factory(master=user_factory())
+        # u = user_factory(master=user_factory())
+        other_user = user_factory()
+        u = other_user.add_child(username='user', master=other_user)
         request = type('Request', (), {'user': user})
         assert not CanSeeAccountPage().has_object_permission(request, None, u)
 
@@ -106,8 +109,9 @@ class TestCanSeeUserList:
         request = type('Request', (), {'user': user})
         assert CanSeeUserList().has_permission(request, None) == is_staff
 
-    def test_have_children(self, user, user_factory):
-        user_factory(master=user)
+    def test_have_children(self, user):
+        # user_factory(master=user)
+        user.add_child(username='user', master=user)
         request = type('Request', (), {'user': user})
         assert CanSeeUserList().has_permission(request, None)
 
@@ -132,12 +136,15 @@ class TestCanSeeAccountPageFunc:
         monkeypatch.setattr(CustomUser, 'is_partner_supervisor_or_high', property(lambda s: has_perm))
         assert can_see_account_page(user, u) == has_perm
 
-    def test_is_ancestor(self, user, user_factory):
-        u = user_factory(master=user)
+    def test_is_ancestor(self, user):
+        # u = user_factory(master=user)
+        u = user.add_child(username='user', master=user)
         assert can_see_account_page(user, u)
 
     def test_not_is_ancestor(self, user, user_factory):
-        u = user_factory(master=user_factory())
+        # u = user_factory(master=user_factory())
+        other_user = user_factory()
+        u = other_user.add_child(username='user', master=other_user)
         assert not can_see_account_page(user, u)
 
     def test_is_partner_responsible(self, partner, partner_factory):
@@ -155,25 +162,26 @@ class TestCanCreateUserFunc:
     def test_is_staff(self, user, is_staff):
         user.is_staff = is_staff
         user.save()
-        assert can_create_user(user) == is_staff
+        assert CreateUserPermission(user).has_permission() == is_staff
 
     @pytest.mark.parametrize('hierarchy_level', list(range(11)))
     def test_hierarchy_level(self, user, hierarchy_level, hierarchy_factory):
         user.hierarchy = hierarchy_factory(level=hierarchy_level)
         user.save()
-        assert can_create_user(user) == user.is_leader_or_high
+        assert CreateUserPermission(user).has_permission() == user.is_leader_or_high
 
     @pytest.mark.parametrize('level', list(settings.PARTNER_LEVELS.values()), ids=list(settings.PARTNER_LEVELS.keys()))
     def test_by_partnership(self, monkeypatch, user, level):
         has_perm = level <= settings.PARTNER_LEVELS['supervisor']
         monkeypatch.setattr(CustomUser, 'is_partner_supervisor_or_high', property(lambda s: has_perm))
-        assert can_create_user(user) == has_perm
+        assert CreateUserPermission(user).has_permission() == has_perm
 
     @pytest.mark.parametrize(
         'level', list(settings.SUMMIT_ANKET_ROLES.values()), ids=list(settings.SUMMIT_ANKET_ROLES.keys()))
     def test_by_summit_level(self, summit_anket_factory, level):
         profile = summit_anket_factory(role=level, user__hierarchy__level=0)
-        assert can_create_user(profile.user) == (level >= settings.SUMMIT_ANKET_ROLES['supervisor'])
+        assert (CreateUserPermission(profile.user).has_permission() ==
+                (level >= settings.SUMMIT_ANKET_ROLES['supervisor']))
 
 
 @pytest.mark.django_db
@@ -182,29 +190,30 @@ class TestCanExportUserListFunc:
     def test_is_staff(self, user, is_staff):
         user.is_staff = is_staff
         user.save()
-        assert can_export_user_list(user) == is_staff
+        assert ExportUserListPermission(user).has_permission() == is_staff
 
     @pytest.mark.parametrize('hierarchy_level', list(range(11)))
     def test_hierarchy_level(self, user, hierarchy_level, hierarchy_factory):
         user.hierarchy = hierarchy_factory(level=hierarchy_level)
         user.save()
-        assert can_export_user_list(user) == user.is_pastor_or_high
+        assert ExportUserListPermission(user).has_permission() == user.is_pastor_or_high
 
 
 @pytest.mark.django_db
-class TestCanSeeUserListFunc:
+class TestSeeUserListPermission:
     @pytest.mark.parametrize('is_staff', (True, False))
     def test_is_staff(self, user, is_staff):
         user.is_staff = is_staff
         user.save()
-        assert can_see_user_list(user) == is_staff
+        assert SeeUserListPermission(user).has_permission() == is_staff
 
-    def test_have_children(self, user, user_factory):
-        user_factory(master=user)
-        assert can_see_user_list(user)
+    def test_have_children(self, user):
+        # user_factory(master=user)
+        user.add_child(username='user', master=user)
+        assert SeeUserListPermission(user).has_permission()
 
     def test_dont_have_children(self, user):
-        assert not can_see_user_list(user)
+        assert not SeeUserListPermission(user).has_permission()
 
 
 @pytest.mark.django_db
@@ -223,12 +232,15 @@ class TestCanEditStatusBlock:
         u = user_factory()
         assert can_edit_status_block(profile.user, u) == (level >= settings.SUMMIT_ANKET_ROLES['supervisor'])
 
-    def test_is_ancestor(self, user, user_factory):
-        u = user_factory(master=user)
+    def test_is_ancestor(self, user):
+        # u = user_factory(master=user)
+        u = user.add_child(username='user', master=user)
         assert can_edit_status_block(user, u)
 
     def test_not_is_ancestor(self, user, user_factory):
-        u = user_factory(master=user_factory())
+        # u = user_factory(master=user_factory())
+        other_user = user_factory()
+        u = other_user.add_child(username='user', master=other_user)
         assert not can_edit_status_block(user, u)
 
 
@@ -248,10 +260,13 @@ class TestCanEditDescriptionBlock:
         u = user_factory()
         assert can_edit_description_block(profile.user, u) == (level >= settings.SUMMIT_ANKET_ROLES['supervisor'])
 
-    def test_is_ancestor(self, user, user_factory):
-        u = user_factory(master=user)
+    def test_is_ancestor(self, user):
+        # u = user_factory(master=user)
+        u = user.add_child(username='user', master=user)
         assert can_edit_description_block(user, u)
 
     def test_not_is_ancestor(self, user, user_factory):
-        u = user_factory(master=user_factory())
+        # u = user_factory(master=user_factory())
+        other_user = user_factory()
+        u = other_user.add_child(username='user', master=other_user)
         assert not can_edit_description_block(user, u)

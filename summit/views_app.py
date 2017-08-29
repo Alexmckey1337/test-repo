@@ -160,9 +160,8 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
 
     @staticmethod
     def annotate_queryset(qs):
-        return qs.select_related('status').base_queryset().annotate_full_name().annotate(
-            diff=ExpressionWrapper(F('user__rght') - F('user__lft'), output_field=IntegerField()),
-        ).order_by('-hierarchy__level', 'last_name', 'first_name', 'middle_name')
+        return qs.select_related('status').base_queryset().annotate_full_name().order_by(
+            '-hierarchy__level', 'last_name', 'first_name', 'middle_name')
 
     def get_queryset(self):
         is_consultant_or_high = self.request.user.is_summit_consultant_or_high(self.summit)

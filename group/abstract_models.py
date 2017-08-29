@@ -220,5 +220,5 @@ class GroupUserPermission(models.Model):
 
     # TODO refactoring
     def get_churches(self):
-        users = self.get_descendants(include_self=True)
+        users = self.__class__.get_tree(self)
         return Church.objects.filter(pastor__in=Subquery(users.values('pk')))

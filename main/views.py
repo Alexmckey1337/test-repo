@@ -185,8 +185,8 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, TemplateView):
         elif not user.hierarchy:
             extra_context['masters'] = list()
         elif user.hierarchy.level < 2:
-            extra_context['masters'] = user.get_descendants(
-                include_self=True).filter(is_active=True, hierarchy__level__gte=1)
+            extra_context['masters'] = user.__class__.get_tree(
+                user).filter(is_active=True, hierarchy__level__gte=1)
         else:
             extra_context['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
 
@@ -587,8 +587,8 @@ class PeopleListView(LoginRequiredMixin, TabsMixin, CanSeeUserListMixin, Templat
         elif not user.hierarchy:
             extra_ctx['masters'] = list()
         elif user.hierarchy.level < 2:
-            extra_ctx['masters'] = user.get_descendants(
-                include_self=True).filter(is_active=True, hierarchy__level__gte=1)
+            extra_ctx['masters'] = user.__class__.get_tree(
+                user).filter(is_active=True, hierarchy__level__gte=1)
         else:
             extra_ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
         ctx.update(extra_ctx)
@@ -696,7 +696,7 @@ def index(request):
     elif not user.hierarchy:
         ctx['masters'] = list()
     elif user.hierarchy.level < 2:
-        ctx['masters'] = user.get_descendants(include_self=True).filter(is_active=True, hierarchy__level__gte=1)
+        ctx['masters'] = user.__class__.get_tree(user).filter(is_active=True, hierarchy__level__gte=1)
     else:
         ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
     return render(request, 'home/main.html', context=ctx)

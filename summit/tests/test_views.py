@@ -371,7 +371,10 @@ class TestSummitProfileListView:
         monkeypatch.setattr(SummitProfileListView, 'check_permissions', lambda s, r: 0)
         monkeypatch.setattr(SummitProfileListView, 'get_queryset', get_queryset)
         summit = summit_factory()
-        summit_anket_factory.create_batch(10, user__master=master, summit=summit)
+        # summit_anket_factory.create_batch(10, user__master=master, summit=summit)
+        for i in range(10):
+            u = master.add_child(username='user{}'.format(i), master=master)
+            summit_anket_factory(user=u, summit=summit)
         summit_anket_factory.create_batch(20, summit=summit)
 
         url = reverse('summit-profile-list', kwargs={'pk': summit.id})
@@ -389,15 +392,25 @@ class TestSummitProfileListView:
         user = user_factory()  # count: + 0, = 0, all_users_count: +1, = 1
 
         # count: + 3, = 3, all_users_count: +3, = 4
-        summit_anket_factory.create_batch(3, user__master=user, summit=summit)
-        second_level_user = user_factory(master=user)  # count: + 3, = 0, all_users_count: +1, = 5
+        # summit_anket_factory.create_batch(3, user__master=user, summit=summit)
+        for i in range(3):
+            u = user.add_child(username='user{}'.format(i), master=user)
+            summit_anket_factory(user=u, summit=summit)
+        # second_level_user = user_factory(master=user)  # count: + 3, = 0, all_users_count: +1, = 5
+        second_level_user = user.add_child(username='user', master=user)
         # count: + 8, = 11, all_users_count: +8, = 13
-        summit_anket_factory.create_batch(8, user__master=second_level_user, summit=summit)
+        # summit_anket_factory.create_batch(8, user__master=second_level_user, summit=summit)
+        for i in range(8):
+            u = second_level_user.add_child(username='second_user{}'.format(i), master=second_level_user)
+            summit_anket_factory(user=u, summit=summit)
 
         summit_anket_factory.create_batch(15, summit=summit)  # count: + 0, = 11, all_users_count: +15, = 28
         other_user = user_factory()  # count: + 0, = 11, all_users_count: +1, = 29
         # count: + 0, = 11, all_users_count: + 32, = 61
-        summit_anket_factory.create_batch(32, user__master=other_user, summit=summit)
+        # summit_anket_factory.create_batch(32, user__master=other_user, summit=summit)
+        for i in range(32):
+            u = other_user.add_child(username='other_user{}'.format(i), master=other_user)
+            summit_anket_factory(user=u, summit=summit)
 
         url = reverse('summit-profile-list', kwargs={'pk': summit.id})
 
@@ -941,7 +954,10 @@ class TestSummitStatisticsView:
         monkeypatch.setattr(SummitStatisticsView, 'check_permissions', lambda s, r: 0)
         monkeypatch.setattr(SummitStatisticsView, 'get_queryset', get_stats_queryset)
         summit = summit_factory()
-        summit_anket_factory.create_batch(10, user__master=master, summit=summit)
+        # summit_anket_factory.create_batch(10, user__master=master, summit=summit)
+        for i in range(10):
+            u = master.add_child(username='master{}'.format(i), master=master)
+            summit_anket_factory(user=u, summit=summit)
         summit_anket_factory.create_batch(20, summit=summit)
 
         url = reverse('summit-stats', kwargs={'pk': summit.id})
@@ -959,15 +975,25 @@ class TestSummitStatisticsView:
         user = user_factory()  # count: + 0, = 0, all_users_count: +1, = 1
 
         # count: + 3, = 3, all_users_count: +3, = 4
-        summit_anket_factory.create_batch(3, user__master=user, summit=summit)
-        second_level_user = user_factory(master=user)  # count: + 3, = 0, all_users_count: +1, = 5
+        # summit_anket_factory.create_batch(3, user__master=user, summit=summit)
+        for i in range(3):
+            u = user.add_child(username='user{}'.format(i), master=user)
+            summit_anket_factory(user=u, summit=summit)
+        # second_level_user = user_factory(master=user)  # count: + 3, = 0, all_users_count: +1, = 5
+        second_level_user = user.add_child(username='secord_user', master=user)
         # count: + 8, = 11, all_users_count: +8, = 13
         summit_anket_factory.create_batch(8, user__master=second_level_user, summit=summit)
+        for i in range(8):
+            u = second_level_user.add_child(username='second_user{}'.format(i), master=second_level_user)
+            summit_anket_factory(user=u, summit=summit)
 
         summit_anket_factory.create_batch(15, summit=summit)  # count: + 0, = 11, all_users_count: +15, = 28
         other_user = user_factory()  # count: + 0, = 11, all_users_count: +1, = 29
         # count: + 0, = 11, all_users_count: + 32, = 61
-        summit_anket_factory.create_batch(32, user__master=other_user, summit=summit)
+        # summit_anket_factory.create_batch(32, user__master=other_user, summit=summit)
+        for i in range(32):
+            u = other_user.add_child(username='other_user{}'.format(i), master=other_user)
+            summit_anket_factory(user=u, summit=summit)
 
         url = reverse('summit-stats', kwargs={'pk': summit.id})
 
@@ -1364,7 +1390,9 @@ class TestSummitProfileTreeForAppListView:
 
         summit = summit_factory()
         top_user = summit_anket_factory(summit=summit)
-        summit_anket_factory(summit=summit, user__master=top_user.user)
+        # summit_anket_factory(summit=summit, user__master=top_user.user)
+        u = top_user.user.add_child(username='top_user', master=top_user.user)
+        summit_anket_factory(user=u, summit=summit)
 
         user = user_factory()
         api_client.force_login(user=user)
@@ -1380,9 +1408,17 @@ class TestSummitProfileTreeForAppListView:
 
         summit = summit_factory()
         top_user = summit_anket_factory(summit=summit)
-        profile = summit_anket_factory(summit=summit, user__master=top_user.user)
-        summit_anket_factory(summit=summit, user__master=top_user.user)
-        profile_child = summit_anket_factory.create_batch(2, summit=summit, user__master=profile.user)
+        # profile = summit_anket_factory(summit=summit, user__master=top_user.user)
+        u = top_user.user.add_child(username='top_user', master=top_user.user)
+        profile = summit_anket_factory(user=u, summit=summit)
+        # summit_anket_factory(summit=summit, user__master=top_user.user)
+        u = top_user.user.add_child(username='top_user_other', master=top_user.user)
+        summit_anket_factory(user=u, summit=summit)
+        # profile_child = summit_anket_factory.create_batch(2, summit=summit, user__master=profile.user)
+        profile_child = []
+        u = profile.user.add_child(username='profile_user', master=profile.user)
+        for i in range(2):
+            profile_child.append(summit_anket_factory(user=u, summit=summit))
 
         api_client.force_login(user=profile.user)
 
@@ -1397,11 +1433,24 @@ class TestSummitProfileTreeForAppListView:
 
         summit = summit_factory()
         top_user = summit_anket_factory(summit=summit)
-        profile = summit_anket_factory(summit=summit, user__master=top_user.user)
-        master = summit_anket_factory(summit=summit, user__master=top_user.user)
-        summit_anket_factory(summit=summit, user__master=top_user.user)
-        summit_anket_factory.create_batch(2, summit=summit, user__master=profile.user)
-        master_child = summit_anket_factory.create_batch(2, summit=summit, user__master=master.user)
+        # profile = summit_anket_factory(summit=summit, user__master=top_user.user)
+        u = top_user.user.add_child(username='top_user', master=top_user.user)
+        profile = summit_anket_factory(user=u, summit=summit)
+        # master = summit_anket_factory(summit=summit, user__master=top_user.user)
+        u = top_user.user.add_child(username='top_user_other', master=top_user.user)
+        master = summit_anket_factory(user=u, summit=summit)
+        # summit_anket_factory(summit=summit, user__master=top_user.user)
+        u = top_user.user.add_child(username='top_user_again', master=top_user.user)
+        summit_anket_factory(user=u, summit=summit)
+        # summit_anket_factory.create_batch(2, summit=summit, user__master=profile.user)
+        for i in range(2):
+            u = profile.user.add_child(username='profile{}'.format(i), master=profile.user)
+            summit_anket_factory(user=u, summit=summit)
+        # master_child = summit_anket_factory.create_batch(2, summit=summit, user__master=master.user)
+        master_child = []
+        for i in range(2):
+            u = master.user.add_child(username='master{}'.format(i), master=master.user)
+            master_child.append(summit_anket_factory(user=u, summit=summit))
 
         api_client.force_login(user=profile.user)
 
@@ -1416,11 +1465,24 @@ class TestSummitProfileTreeForAppListView:
 
         summit = summit_factory()
         top_user = summit_anket_factory(summit=summit)
-        profile = summit_anket_factory(summit=summit, user__master=top_user.user)
-        master = summit_anket_factory(summit=summit, user__master=top_user.user)
-        summit_anket_factory(summit=summit, user__master=top_user.user)
-        summit_anket_factory.create_batch(2, summit=summit, user__master=profile.user)
-        master_child = summit_anket_factory.create_batch(2, summit=summit, user__master=master.user)
+        # profile = summit_anket_factory(summit=summit, user__master=top_user.user)
+        u = top_user.user.add_child(username='top_user', master=top_user.user)
+        profile = summit_anket_factory(user=u, summit=summit)
+        # master = summit_anket_factory(summit=summit, user__master=top_user.user)
+        u = top_user.user.add_child(username='top_user_other', master=top_user.user)
+        master = summit_anket_factory(user=u, summit=summit)
+        # summit_anket_factory(summit=summit, user__master=top_user.user)
+        u = top_user.user.add_child(username='top_user_again', master=top_user.user)
+        summit_anket_factory(user=u, summit=summit)
+        # summit_anket_factory.create_batch(2, summit=summit, user__master=profile.user)
+        for i in range(2):
+            u = profile.user.add_child(username='profile{}'.format(i), master=profile.user)
+            summit_anket_factory(user=u, summit=summit)
+        # master_child = summit_anket_factory.create_batch(2, summit=summit, user__master=master.user)
+        master_child = []
+        for i in range(2):
+            u = master.user.add_child(username='master{}'.format(i), master=master.user)
+            master_child.append(summit_anket_factory(user=u, summit=summit))
 
         api_client.force_login(user=profile.user)
 

@@ -267,30 +267,29 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         dashboards_counts = self.serializer_class(dashboards_counts)
         return Response(dashboards_counts.data, status=status.HTTP_200_OK)
 
-    # @list_route(methods=['GET'], serializer_class=MeetingTotalSerializer)
-    # def total_view(self, request):
-    #     user_id = request.query_params.get('user_id')
-    #     if user_id:
-    #         user = get_object_or_404(CustomUser, pk=user_id)
-    #     else:
-    #         user = self.request.user
-    #
-    #     queryset = self.queryset.for_user(user)
-    #
-    #     queryset = queryset.annotate(
-    #         meetings_in_progress=Sum(Case(
-    #             When(status=1, then=1),
-    #             output_field=IntegerField(), default=0)),
-    #         meetings_submitted=Sum(Case(
-    #             When(status=2, then=1),
-    #             output_field=IntegerField(), default=0)),
-    #         meetings_expired=Sum(Case(
-    #             When(status=3, then=1),
-    #             output_field=IntegerField(), default=0))
-    #     )
-    #
-    #     result = self.serializer_class(queryset, many=True)
-    #     return Response(result.data)
+    @list_route(methods=['GET'], serializer_class=MeetingTotalSerializer)
+    def summary_leaders_stats(self, request):
+        user_id = request.query_params.get('user_id')
+        if user_id:
+            user = get_object_or_404(CustomUser, pk=user_id)
+        else:
+            user = self.request.user
+
+        queryset = CustomUser.objects.for_user(user).filter(
+            home_group__id__isnull=False).annotate(
+            meetings_in_progress=Sum(Case(
+                When(home_group__meeting__status=1, then=1),
+                output_field=IntegerField(), default=0), distinct=True),
+            meetings_submitted=Sum(Case(
+                When(home_group__meeting__status=2, then=1),
+                output_field=IntegerField(), default=0), distinct=True),
+            meetings_expired=Sum(Case(
+                When(home_group__meeting__status=3, then=1),
+                output_field=IntegerField(), default=0), distinct=True))
+
+        result = self.serializer_class(queryset, many=True)
+        return Response(result.data)
+
 
 # class ChurchReportPastorViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
 #     queryset = ChurchReportPastor.objects.base_queryset().annotate_total_pastor_sum()
@@ -316,9 +315,9 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
 
     filter_class = ChurchReportFilter
 
-    ordering_fields = ('id', 'date', 'church__title', 'pastor__user__last_name', 'count_people',
+    ordering_fields = ('id', 'date', 'church__title', 'pastor__last_name', 'count_people',
                        'new_people', 'count_repentance', 'tithe', 'donations', 'pastor_tithe',
-                       'currency_donations',
+                       'currency_donations', 'transfer_payments',
                        'total_sum', 'value', 'payment_status')
 
     field_search_fields = {
