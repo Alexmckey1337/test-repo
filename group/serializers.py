@@ -17,6 +17,11 @@ class UserNameSerializer(serializers.ModelSerializer):
         fields = ('id', 'fullname',)
 
 
+class UserNameWithLinkSerializer(UserNameSerializer):
+    class Meta(UserNameSerializer.Meta):
+        fields = UserNameSerializer.Meta.fields + ('link',)
+
+
 class ChurchNameSerializer(serializers.ModelSerializer):
     # title = serializers.CharField(source='get_title', read_only=True)
 
