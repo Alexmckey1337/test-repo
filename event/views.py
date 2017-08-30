@@ -276,7 +276,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeSummaryMixin):
         user = self.user_for_tree(request)
 
         queryset = self.filter_queryset(CustomUser.objects.for_user(user).filter(
-            home_group__id__isnull=False).annotate(
+            home_group__leader__isnull=False).annotate(
             meetings_in_progress=Sum(Case(
                 When(home_group__meeting__status=1, then=1),
                 output_field=IntegerField(), default=0), distinct=True),
@@ -439,7 +439,7 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin, EventUs
         user = self.user_for_tree(request)
 
         queryset = CustomUser.objects.for_user(user).filter(
-            church__id__isnull=False).annotate(
+            church__pastor__isnull=False).annotate(
             reports_in_progress=Sum(Case(
                 When(church__churchreport__status=1, then=1),
                 output_field=IntegerField(), default=0), distinct=True),

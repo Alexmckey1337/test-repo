@@ -17,7 +17,6 @@ from partnership.permissions import CanSeePartnerStatistics, CanCreatePartnerPay
     CanExportPartnerList
 from payment.models import Payment, Currency
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
-from account.models import CustomUser
 
 
 class PartnerStatMixin:
@@ -36,13 +35,6 @@ class PartnerStatMixin:
 
         partner_id = request.query_params.get('partner_id')
 
-        if not partner_id or partner_id == 'all':
-            partner = current_partner
-        else:
-            partner = get_object_or_404(Partnership, pk=partner_id)
-
-        stats['active_partners'] = Partnership.objects.filter(
-            responsible=partner, is_active=True).count()
         stats['deals'] = self.stats_by_deals(deals, deals_with_sum)
         stats['partners'] = self.stats_by_partners(deals, deals_with_sum)
         stats['sum'] = self.stats_by_sum(deals, deals_with_sum)
