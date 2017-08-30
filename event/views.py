@@ -9,7 +9,6 @@ from django.db.models import (IntegerField, Sum, When, Case, Count, OuterRef, Ex
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status, filters, exceptions
 from rest_framework.decorators import list_route, detail_route
-from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -32,8 +31,11 @@ from .mixins import EventUserTreeSummaryMixin
 
 logger = logging.getLogger(__name__)
 
-MEETINGS_ORDERING_FIELDS = ('last_name', 'id', 'master__last_name', 'meetings_submitted',
-                            'meetings_expired', 'meetings_in_progress')
+MEETINGS_SUMMARY_ORDERING_FIELDS = ('last_name', 'master__last_name', 'meetings_submitted',
+                                    'meetings_expired', 'meetings_in_progress')
+
+REPORTS_SUMMARY_ORDERING_FIELDS = ('last_name', 'id', 'master__last_name', 'reports_submitted',
+                                   'reports_expired', 'reports_in_progress')
 
 
 class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeSummaryMixin):
@@ -270,7 +272,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeSummaryMixin):
 
     @list_route(methods=['GET'], serializer_class=MeetingSummarySerializer,
                 filter_backends=(filters.OrderingFilter,),
-                ordering_fields=MEETINGS_ORDERING_FIELDS,
+                ordering_fields=MEETINGS_SUMMARY_ORDERING_FIELDS,
                 pagination_class=MeetingSummaryPagination)
     def meetings_summary(self, request):
         user = self.user_for_tree(request)
@@ -290,6 +292,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeSummaryMixin):
         page = self.paginate_queryset(queryset)
         result = self.serializer_class(page, many=True)
         return self.get_paginated_response(result.data)
+
 
 # class ChurchReportPastorViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
 #     queryset = ChurchReportPastor.objects.base_queryset().annotate_total_pastor_sum()
@@ -434,7 +437,7 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin, EventUs
 
     @list_route(methods=['GET'], serializer_class=ChurchReportSummarySerializer,
                 filter_backends=(filters.OrderingFilter,),
-                ordering_fields = [],
+                ordering_fields=REPORTS_SUMMARY_ORDERING_FIELDS,
                 pagination_class=ReportsSummaryPagination)
     def reports_summary(self, request):
         user = self.user_for_tree(request)
@@ -450,7 +453,7 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin, EventUs
             reports_expired=Sum(Case(
                 When(church__churchreport__status=3, then=1),
                 output_field=IntegerField(), default=0), distinct=True)).distinct()
-        )
+            )
 
         page = self.paginate_queryset(queryset)
         result = self.serializer_class(page, many=True)
