@@ -69,6 +69,7 @@ events_patterns = [
     url(r'^church/reports/$', views.church_report_list, name='church_report_list'),
     url(r'^church/reports/(?P<pk>\d+)/$', views.church_report_detail, name='church_report_detail'),
     url(r'^church/statistics/$', views.church_statistics, name='church_report_statistics'),
+    url(r'^church/summary/$', views.reports_summary, name='reports_summary'),
 ]
 
 summit_patterns = [
