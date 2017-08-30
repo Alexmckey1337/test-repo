@@ -274,8 +274,9 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeSummaryMixin):
 
     @list_route(methods=['GET'], serializer_class=MeetingSummarySerializer,
                 filter_backends=(filters.OrderingFilter, EventSummaryFilter,
-                                 EventSummaryMasterFilter,),
+                                 EventSummaryMasterFilter, FieldSearchFilter),
                 ordering_fields=MEETINGS_SUMMARY_ORDERING_FIELDS,
+                field_search_fields={'search_fio': ('last_name', 'first_name', 'middle_name')},
                 pagination_class=MeetingSummaryPagination)
     def meetings_summary(self, request):
         user = self.user_for_tree(request)
