@@ -3,11 +3,11 @@ from account.models import CustomUser
 
 
 class EventUserTreeSummaryMixin(object):
-    def user_for_tree(self, request):
-        user_id = request.query_params.get('user_id')
-        if user_id:
-            user = get_object_or_404(CustomUser, pk=user_id)
+    @staticmethod
+    def user_for_tree(request):
+        master_id = request.query_params.get('master_id')
+        if master_id:
+            user = get_object_or_404(CustomUser, pk=master_id)
         else:
-            user = self.request.user
-
+            user = request.user
         return user
