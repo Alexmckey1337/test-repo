@@ -38,6 +38,8 @@ MEETINGS_SUMMARY_ORDERING_FIELDS = ('last_name', 'master__last_name', 'meetings_
 REPORTS_SUMMARY_ORDERING_FIELDS = ('last_name', 'master__last_name', 'reports_submitted',
                                    'reports_expired', 'reports_in_progress')
 
+EVENTS_SUMMARY_SEARCH_FIELDS = {'search_fio': ('last_name', 'first_name', 'middle_name')},
+
 
 class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeSummaryMixin):
     queryset = Meeting.objects.select_related('owner', 'type', 'home_group__leader')
@@ -276,7 +278,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeSummaryMixin):
                 filter_backends=(filters.OrderingFilter, EventSummaryFilter,
                                  EventSummaryMasterFilter, FieldSearchFilter),
                 ordering_fields=MEETINGS_SUMMARY_ORDERING_FIELDS,
-                field_search_fields={'search_fio': ('last_name', 'first_name', 'middle_name')},
+                field_search_fields=EVENTS_SUMMARY_SEARCH_FIELDS,
                 pagination_class=MeetingSummaryPagination)
     def meetings_summary(self, request):
         user = self.user_for_tree(request)
@@ -442,8 +444,9 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin, EventUs
 
     @list_route(methods=['GET'], serializer_class=ChurchReportSummarySerializer,
                 filter_backends=(filters.OrderingFilter, EventSummaryMasterFilter,
-                                 EventSummaryFilter),
+                                 EventSummaryFilter, FieldSearchFilter),
                 ordering_fields=REPORTS_SUMMARY_ORDERING_FIELDS,
+                field_search_fields=EVENTS_SUMMARY_SEARCH_FIELDS,
                 pagination_class=ReportsSummaryPagination)
     def reports_summary(self, request):
         user = self.user_for_tree(request)
