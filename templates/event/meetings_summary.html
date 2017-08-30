@@ -203,6 +203,21 @@
                 <% } else { %>
                 <td></td>
                 <% } %>
+                <% } else if (key == 'meetings_expired' || key == 'meetings_in_progress' || key == 'meetings_submitted') { %>
+                <% if (results[index][key] != null) { %>
+                <td class="url"
+                    data-url="{% url 'events:meeting_report_list' %}"
+                    data-type="<%=key%>"
+                    <% if (results[index].owner != null) { %>
+                    data-id="<%=results[index].owner.id%>">
+                    <% } else { %>
+                    data-id="">
+                    <% } %>
+                    <%= results[index][key] %>
+                </td>
+                <% } else { %>
+                <td></td>
+                <% } %>
                 <% } else { %>
                 <td><% if (results[index][key] === true ) { %>
                     <p class="text__center">✔</p>
