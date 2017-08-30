@@ -106,7 +106,7 @@ def meetings_summary(request):
 
     ctx = {}
 
-    return render(request, 'event/meetings_summary', context=ctx)
+    return render(request, 'event/meetings_summary.html', context=ctx)
 
 
 @login_required(login_url='entry')

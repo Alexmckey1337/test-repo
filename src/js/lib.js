@@ -3179,6 +3179,17 @@ function homeReportsTable(config = {}) {
     })
 }
 
+function homeLiderReportsTable(config = {}) {
+    let status = $('#statusTabs').find('.current').find('button').data('status');
+    config.status = status;
+    Object.assign(config, getSearch('search_title'));
+    Object.assign(config, getFilterParam());
+    Object.assign(config, getTabsFilterParam());
+    getHomeLiderReports(config).then(data => {
+        makeHomeLiderReportsTable(data, config);
+    })
+}
+
 function churchReportsTable(config = {}) {
     let status = $('#statusTabs').find('.current').find('button').data('status');
     config.status = status;
@@ -3213,6 +3224,29 @@ function makeHomeReportsTable(data, config = {}) {
     $('.preloader').hide();
 }
 
+function makeHomeLiderReportsTable(data, config = {}) {
+    let tmpl = $('#databaseHomeLiderReports').html();
+    let rendered = _.template(tmpl)(data);
+    $('#homeLiderReports').html(rendered);
+    let count = data.count;
+    let pages = Math.ceil(count / CONFIG.pagination_count);
+    let page = config.page || 1;
+    let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
+    let text = `Показано ${showCount} из ${count}`;
+    let paginationConfig = {
+        container: ".reports__pagination",
+        currentPage: page,
+        pages: pages,
+        callback: homeLiderReportsTable
+    };
+    // $('.table__count').text(data.count);
+    makePagination(paginationConfig);
+    makeSortForm(data.table_columns);
+    $('.table__count').text(text);
+    new OrderTable().sort(homeLiderReportsTable, ".table-wrap th");
+    $('.preloader').hide();
+}
+
 function makeChurchReportsTable(data, config = {}) {
     let tmpl = $('#databaseChurchReports').html();
     let rendered = _.template(tmpl)(data);
@@ -3244,6 +3278,28 @@ function getHomeReports(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
             url: URLS.event.home_meeting.list(),
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: config
+        };
+        let status = {
+            200: function (req) {
+                resolve(req);
+            },
+            403: function () {
+                reject('Вы должны авторизоватся');
+            }
+
+        };
+        newAjaxRequest(data, status);
+    })
+}
+function getHomeLiderReports(config = {}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: URLS.event.home_meeting.summary(),
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

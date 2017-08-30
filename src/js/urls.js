@@ -63,6 +63,7 @@ const HOME_MEETING = {
     submit: (reportId) => `/api/v1.0/events/home_meetings/${reportId}/submit/`,
     stats: () => `/api/v1.0/events/home_meetings/statistics/`,
     dashboard_count: () => `/api/v1.0/events/home_meetings/dashboard_counts/`,
+    summary: () => `/api/v1.0/events/home_meetings/meetings_summary/`,
 };
 
 const EVENT = {

@@ -52,31 +52,31 @@
 {% endblock %}
 
 {% block main.content %}
-    <div class="container-full">
-        <div class="tab-status tab-home-stats">
-            <ul id="tabs">
-                <li class="active">
-                    <button class="type" data-id="0">Все</button>
-                </li>
-                <li>
-                    <button class="type" data-id="2">Домашняя</button>
-                </li>
-                <li>
-                    <button class="type" data-id="3">Ночная</button>
-                </li>
-                <li>
-                    <button class="type" data-id="1">Служение</button>
-                </li>
-            </ul>
-                <button class="week week_all">Все</button>
-                <button class="week week_now active">Текущая неделя</button>
-                <button class="week week_prev">Прошедшая неделя</button>
-            <div class="set-date">
-                <input type="text" placeholder="Диапазон дат" id="date_range" class="select_date_filter">
-                <div class="cal-icon"></div>
-            </div>
-        </div>
-    </div>
+{#    <div class="container-full">#}
+{#        <div class="tab-status tab-home-stats">#}
+{#            <ul id="tabs">#}
+{#                <li class="active">#}
+{#                    <button class="type" data-id="0">Все</button>#}
+{#                </li>#}
+{#                <li>#}
+{#                    <button class="type" data-id="2">Домашняя</button>#}
+{#                </li>#}
+{#                <li>#}
+{#                    <button class="type" data-id="3">Ночная</button>#}
+{#                </li>#}
+{#                <li>#}
+{#                    <button class="type" data-id="1">Служение</button>#}
+{#                </li>#}
+{#            </ul>#}
+{#                <button class="week week_all active">Все</button>#}
+{#                <button class="week week_now">Текущая неделя</button>#}
+{#                <button class="week week_prev">Прошедшая неделя</button>#}
+{#            <div class="set-date">#}
+{#                <input type="text" placeholder="Диапазон дат" id="date_range" class="select_date_filter">#}
+{#                <div class="cal-icon"></div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
     {% block pagination_top %}
         <div class="top-pag"></div>
         <div class="table__count"></div>
@@ -85,7 +85,7 @@
     {% endblock %}
 
     {% block table %}
-        <div class="table-wrap clearfix" id="HomeLiderReports"><!--Table -->
+        <div class="table-wrap clearfix" id="homeLiderReports"><!--Table -->
             <div class="table scrollbar-inner" id="tableHomeLiderReports"></div>
             <div class="query-none">
                 <p></p>
@@ -162,13 +162,13 @@
                     Очистить
                 </button>
                 <button class="close-popup">Отменить</button>
-                <button onclick="applyFilter(this, homeReportsTable)" class="apply-filter">Применить</button>
+                <button onclick="applyFilter(this, homeLiderReportsTable)" class="apply-filter">Применить</button>
             </div>
         </div>
     </div>
 {% endblock %}
 {% block extra_scripts %}
-    <script src="{% static "js/home_lider_reports.js" %}"></script>
+    <script src="{% static "js/meetings_summary.js" %}"></script>
 {% endblock %}
 {% block template_tables %}
     <script type="text/template" id="databaseHomeLiderReports">
@@ -200,12 +200,6 @@
                 <td>
                     <a href="<%= results[index][key].link %>"><%= results[index][key].fullname %></a>
                 </td>
-                <% } else { %>
-                <td></td>
-                <% } %>
-                <% } else if (key == 'type') { %>
-                <% if (results[index][key] != null) { %>
-                <td><%= results[index][key].name %></td>
                 <% } else { %>
                 <td></td>
                 <% } %>
