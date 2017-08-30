@@ -8,6 +8,7 @@ from account.models import CustomUser
 from partnership.models import Partnership, Deal
 from payment.models import Payment, Currency
 from summit.models import SummitAnket
+from event.models import ChurchReport
 
 
 class CurrencySerializer(serializers.ModelSerializer):
@@ -43,6 +44,8 @@ class PurposeRelatedField(serializers.RelatedField):
             return reverse('partner-detail', kwargs={'pk': value.id})
         elif isinstance(value, SummitAnket):
             return reverse('summit_profiles-detail', kwargs={'pk': value.id})
+        elif isinstance(value, ChurchReport):
+            return reverse('events:church_report_detail', kwargs={'pk': value.id})
         raise Exception('Unexpected type of tagged object')
 
 

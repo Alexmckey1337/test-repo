@@ -11,7 +11,7 @@ class ChurchQuerySet(models.query.QuerySet):
             return self.none()
         if user.is_staff:
             return self
-        return self.filter(pastor__in=user.get_descendants(include_self=True))
+        return self.filter(pastor__in=user.__class__.get_tree(user))
 
 
 class ChurchManager(models.Manager):
@@ -34,7 +34,7 @@ class HomeGroupQuerySet(models.query.QuerySet):
             return self.none()
         if user.is_staff:
             return self
-        return self.filter(leader__in=user.get_descendants(include_self=True))
+        return self.filter(leader__in=user.__class__.get_tree(user))
 
 
 class HomeGroupManager(models.Manager):

@@ -81,7 +81,7 @@ class SummitProfileListMixin(mixins.ListModelMixin, GenericAPIView):
             )
 
 
-class SummitProfileListView(SummitProfileListMixin):
+class SummitProfileListView(SummitProfileListMixin, mixins.RetrieveModelMixin):
     serializer_class = SummitAnketSerializer
     pagination_class = SummitPagination
     permission_classes = (IsAuthenticated,)

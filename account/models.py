@@ -5,24 +5,26 @@ import binascii
 import os
 from collections import OrderedDict
 
-from django.contrib.auth.models import User, UserManager
+from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models import signals, Subquery
+from django.db.models import signals
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from mptt.fields import TreeForeignKey
-from mptt.managers import TreeManager
 from mptt.models import MPTTModel
+from treebeard.mp_tree import MP_Node
 
 from account.abstract_models import CustomUserAbstract
-from analytics.models import LogModel
+from account.managers import CustomUserManager
 from account.permissions import (
-    can_create_user, can_export_user_list, can_see_user_list, can_edit_status_block,
-    can_edit_description_block, can_see_account_page)
+    can_edit_status_block,
+    can_edit_description_block, can_see_account_page, SeeUserListPermission, CreateUserPermission,
+    ExportUserListPermission)
+from analytics.models import LogModel
 from group.abstract_models import GroupUserPermission
 from group.models import Church
 from navigation.models import Table
@@ -32,16 +34,13 @@ from summit.abstract_models import SummitUserPermission
 from summit.models import SummitAnket, Summit
 
 
-class CustomUserManager(TreeManager, UserManager):
-    use_in_migrations = False
-
-
 @python_2_unicode_compatible
-class CustomUser(MPTTModel, LogModel, User, CustomUserAbstract,
+class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
                  GroupUserPermission, PartnerUserPermission, SummitUserPermission):
     """
     User model
     """
+    steplen = 6
 
     region = models.CharField(_('Region'), max_length=50, blank=True)
     district = models.CharField(_('District'), max_length=50, blank=True)
@@ -67,8 +66,8 @@ class CustomUser(MPTTModel, LogModel, User, CustomUserAbstract,
     departments = models.ManyToManyField('hierarchy.Department', related_name='users', verbose_name=_('Departments'))
     hierarchy = models.ForeignKey('hierarchy.Hierarchy', related_name='users', null=True, blank=True,
                                   on_delete=models.SET_NULL, verbose_name=_('Hierarchy'), db_index=True)
-    master = TreeForeignKey('self', related_name='disciples', null=True, blank=True, verbose_name=_('Master'),
-                            on_delete=models.PROTECT, db_index=True)
+    master = models.ForeignKey('self', related_name='disciples', null=True, blank=True, verbose_name=_('Master'),
+                               on_delete=models.PROTECT, db_index=True)
 
     extra_phone_numbers = ArrayField(
         models.CharField(_('Number'), max_length=255),
@@ -104,9 +103,6 @@ class CustomUser(MPTTModel, LogModel, User, CustomUserAbstract,
 
     class Meta:
         ordering = ['-date_joined']
-
-    class MPTTMeta:
-        parent_attr = 'master'
 
     def save(self, *args, **kwargs):
         super(CustomUser, self).save(*args, **kwargs)
@@ -271,19 +267,19 @@ class CustomUser(MPTTModel, LogModel, User, CustomUserAbstract,
         """
         Checking that the ``self`` user has the right to create a new user
         """
-        return can_create_user(self)
+        return CreateUserPermission(self).has_permission()
 
     def can_export_user_list(self):
         """
         Checking that the ``self`` user has the right to export list of users
         """
-        return can_export_user_list(self)
+        return ExportUserListPermission(self).has_permission()
 
     def can_see_user_list(self):
         """
         Checking that the ``self`` user has the right to see list of users
         """
-        return can_see_user_list(self)
+        return SeeUserListPermission(self).has_permission()
 
     # Account page: /account/<user_id>/
 

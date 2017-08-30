@@ -75,8 +75,8 @@ Update need field of partner:
 Permissions
 ~~~~~~~~~~~
 
-Classes
-"""""""
+DRF classes
+"""""""""""
 Use with django-rest-framework
 
 .. autoclass:: account.permissions.CanCreateUser
@@ -124,19 +124,22 @@ Use with django-rest-framework
     :noindex:
 
 
-Functions
-"""""""""
+Permission classes and functions
+""""""""""""""""""""""""""""""""
 
 .. autofunction:: account.permissions.can_see_account_page
     :noindex:
 
-.. autofunction:: account.permissions.can_create_user
+.. autoclass:: account.permissions.CreateUserPermission
+    :members:
     :noindex:
 
-.. autofunction:: account.permissions.can_export_user_list
+.. autoclass:: account.permissions.ExportUserListPermission
+    :members:
     :noindex:
 
-.. autofunction:: account.permissions.can_see_user_list
+.. autoclass:: account.permissions.SeeUserListPermission
+    :members:
     :noindex:
 
 .. autofunction:: account.permissions.can_edit_status_block

@@ -17,6 +17,7 @@ from partnership.models import Partnership, Deal
 from payment.permissions import PaymentPermission
 from payment.serializers import PaymentCreateSerializer, PaymentShowSerializer
 from summit.models import SummitAnket
+from event.models import ChurchReport
 
 
 def get_success_headers(data):
@@ -41,6 +42,9 @@ class PaymentCheckPermissionMixin:
         elif isinstance(purpose, SummitAnket):
             method_name = 'has_object_permission'
             args = (request, self, purpose.summit)
+        elif isinstance(purpose, ChurchReport):
+            method_name = 'has_object_permission'
+            args = (request, self, purpose)
         else:  # pragma: no cover
             raise exceptions.PermissionDenied(detail=self.payment_permission_invalid_object_message)
 
@@ -97,7 +101,9 @@ class CreatePaymentMixin(PaymentCheckPermissionMixin):
             'editor_name': request.user.fullname,
             'sum': payment.effective_sum_str,
         }
-        Group("payments_{}".format(purpose.user.id)).send({'text': dumps(data)})
+        # if purpose_model not in
+        if not isinstance(purpose, ChurchReport):
+            Group("payments_{}".format(purpose.user.id)).send({'text': dumps(data)})
 
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 

@@ -9,6 +9,7 @@ from group.pagination import HomeGroupPagination, GroupUsersPagination
 from group.resources import GroupUserResource, HomeGroupResource
 from group.serializers import HomeGroupListSerializer, GroupUserSerializer
 
+
 GROUP_USER_ORDERING_FIELDS = ('id', 'last_name', 'spiritual_level', 'leader__last_name',
                               'phone_number', 'born_date', 'repentance_date')
 
@@ -69,6 +70,7 @@ class UserListMixin(BaseUserListMixin):
                   ordering_fields=GROUP_USER_ORDERING_FIELDS,
                   filter_backends=(filters.OrderingFilter,))
     def users(self, request, pk):
+
         instance = self.get_object()
         queryset = getattr(instance, self.user_field).all()
         queryset = self.filter_queryset(queryset)

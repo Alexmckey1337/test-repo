@@ -15,3 +15,6 @@ class UserFactory(factory.DjangoModelFactory):
     middle_name = factory.Sequence(lambda n: 'middle{}'.format(n))
 
     hierarchy = factory.SubFactory('hierarchy.factories.HierarchyFactory')
+
+    depth = 1
+    path = factory.Sequence(lambda n: '%06d' % n)

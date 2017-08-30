@@ -11,11 +11,12 @@ from django.utils.translation import ugettext as _
 from group.managers import ChurchManager, HomeGroupManager
 from event.models import Meeting, MeetingType
 from django.db import transaction
+from payment.models import get_default_currency
 
 
 @python_2_unicode_compatible
 class CommonGroup(models.Model):
-    title = models.CharField(_('Title'), max_length=50, blank=True)
+    title = models.CharField(_('Title'), max_length=50)
     opening_date = models.DateField(_('Opening Date'), default=date.today)
     city = models.CharField(_('City'), max_length=50)
     address = models.CharField(_('Address'), max_length=300, blank=True)
@@ -36,7 +37,7 @@ class CommonGroup(models.Model):
     def get_title(self):
         if self.title:
             return self.title
-        return '{} {}'.format(self.city, self.owner_name)
+        return '{} {}'.format(self.owner_name, self.city)
 
 
 class Church(CommonGroup):
@@ -46,6 +47,7 @@ class Church(CommonGroup):
                                on_delete=models.PROTECT, verbose_name=_('Pastor'))
     country = models.CharField(_('Country'), max_length=50)
     is_open = models.BooleanField(default=False)
+    report_currency = models.IntegerField(default=get_default_currency(), verbose_name=_('Report Currency'))
 
     objects = ChurchManager()
 
@@ -72,11 +74,10 @@ class HomeGroup(CommonGroup):
     objects = HomeGroupManager()
 
     def save(self, *args, **kwargs):
-        value = False
-        if not self.pk:
-            value = True
+        is_create = True if not self.pk else False
         super(HomeGroup, self).save(*args, **kwargs)
-        if value:
+
+        if is_create:
             meeting_types = MeetingType.objects.all()
             with transaction.atomic():
                 for meeting_type in meeting_types:
@@ -84,6 +85,9 @@ class HomeGroup(CommonGroup):
                                            owner=self.leader,
                                            date=datetime.now().date(),
                                            type=meeting_type)
+
+        if self.leader and self.pk:
+            Meeting.objects.filter(home_group=self, status=Meeting.IN_PROGRESS).update(owner=self.leader)
 
     class Meta:
         verbose_name = _('Home Group')

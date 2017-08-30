@@ -23,7 +23,8 @@ from .serializers import (
     SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitProfileTreeForAppSerializer,
     SummitVisitorLocationSerializer, SummitAnketCodeSerializer, SummitAttendSerializer,
     SummitAcceptMobileCodeSerializer, AnketActiveStatusSerializer, SummitEventTableSerializer,
-    SummitAnketDrawForAppSerializer)
+    SummitAnketDrawForAppSerializer, SummitNameAnketCodeSerializer)
+from account.models import CustomUser
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +82,7 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
         # visitor.save()
 
         visitor = self.get_serializer(visitor)
-        return Response(visitor.data)
+        return Response(visitor.data, status=status.HTTP_200_OK)
 
     @list_route(methods=['GET'])
     def by_reg_date(self, request):
@@ -99,7 +100,19 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
             status__reg_code_requested_date__date__range=[from_date, to_date]).order_by(
             'status__reg_code_requested_date')
         ankets = self.serializer_class(ankets, many=True)
-        return Response(ankets.data)
+        return Response(ankets.data, status=status.HTTP_200_OK)
+
+    @list_route(methods=['GET'], serializer_class=SummitNameAnketCodeSerializer,
+                permission_classes=(IsAuthenticated,))
+    def get_tickets(self, request):
+        user_id = request.query_params.get('user_id')
+        user = get_object_or_404(CustomUser, pk=user_id)
+        # anket = SummitAnket.objects.filter(user=user).order_by('-summit__start_date').first()
+        # anket = self.serializer_class(anket)
+        ankets = SummitAnket.objects.filter(user=user).filter(summit__status=Summit.OPEN)
+        ankets = self.serializer_class(ankets, many=True)
+
+        return Response(ankets.data, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -147,9 +160,8 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
 
     @staticmethod
     def annotate_queryset(qs):
-        return qs.select_related('status').base_queryset().annotate_full_name().annotate(
-            diff=ExpressionWrapper(F('user__rght') - F('user__lft'), output_field=IntegerField()),
-        ).order_by('-hierarchy__level', 'last_name', 'first_name', 'middle_name')
+        return qs.select_related('status').base_queryset().annotate_full_name().order_by(
+            '-hierarchy__level', 'last_name', 'first_name', 'middle_name')
 
     def get_queryset(self):
         is_consultant_or_high = self.request.user.is_summit_consultant_or_high(self.summit)

@@ -5,7 +5,7 @@ import logging
 
 from django.db import transaction, IntegrityError
 from django.db.models import (IntegerField, Sum, When, Case, Count, OuterRef, Exists, Q,
-                              BooleanField, CharField, Value as V)
+                              BooleanField, F)
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status, filters, exceptions
 from rest_framework.decorators import list_route, detail_route
@@ -18,19 +18,25 @@ from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
 from .filters import (ChurchReportFilter, MeetingFilter, MeetingCustomFilter, MeetingFilterByMaster,
                       ChurchReportDepartmentFilter, ChurchReportFilterByMaster, )
-from .models import Meeting, ChurchReport, MeetingAttend, ChurchReportPastor
-from .pagination import MeetingPagination, MeetingVisitorsPagination, ChurchReportPagination
+from .models import Meeting, ChurchReport, MeetingAttend
+from .pagination import (MeetingPagination, MeetingVisitorsPagination, ChurchReportPagination,
+                         MeetingSummaryPagination, ReportsSummaryPagination)
 from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingDetailSerializer,
-                          MeetingListSerializer, ChurchReportStatisticSerializer, ChurchReportPastorSerializer,
+                          MeetingListSerializer, ChurchReportStatisticSerializer,
                           MeetingStatisticSerializer, ChurchReportSerializer,
                           ChurchReportListSerializer, MeetingDashboardSerializer,
-                          ChurchReportDetailSerializer, ChurchReportsDashboardSerializer, )
+                          ChurchReportDetailSerializer, ChurchReportsDashboardSerializer, MeetingSummarySerializer,
+                          ChurchReportSummarySerializer)
 from payment.views_mixins import CreatePaymentMixin
+from .mixins import EventUserTreeSummaryMixin
 
 logger = logging.getLogger(__name__)
 
+MEETINGS_ORDERING_FIELDS = ('last_name', 'id', 'master__last_name', 'meetings_submitted',
+                            'meetings_expired', 'meetings_in_progress')
 
-class MeetingViewSet(ModelWithoutDeleteViewSet):
+
+class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeSummaryMixin):
     queryset = Meeting.objects.select_related('owner', 'type', 'home_group__leader')
 
     serializer_class = MeetingSerializer
@@ -244,12 +250,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
 
     @list_route(methods=['GET'], serializer_class=MeetingDashboardSerializer)
     def dashboard_counts(self, request):
-        user_id = request.query_params.get('user_id')
-        if user_id:
-            user = get_object_or_404(CustomUser, pk=user_id)
-        else:
-            user = self.request.user
-
+        user = self.user_for_tree(request)
         queryset = self.queryset.for_user(user)
 
         dashboards_counts = queryset.aggregate(
@@ -267,15 +268,37 @@ class MeetingViewSet(ModelWithoutDeleteViewSet):
         dashboards_counts = self.serializer_class(dashboards_counts)
         return Response(dashboards_counts.data, status=status.HTTP_200_OK)
 
+    @list_route(methods=['GET'], serializer_class=MeetingSummarySerializer,
+                filter_backends=(filters.OrderingFilter,),
+                ordering_fields=MEETINGS_ORDERING_FIELDS,
+                pagination_class=MeetingSummaryPagination)
+    def meetings_summary(self, request):
+        user = self.user_for_tree(request)
 
-class ChurchReportPastorViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
-    queryset = ChurchReportPastor.objects.all()
-    permission_classes = (IsAuthenticated,)
-    serializer_class = ChurchReportPastorSerializer
+        queryset = self.filter_queryset(CustomUser.objects.for_user(user).filter(
+            home_group__leader__isnull=False).annotate(
+            meetings_in_progress=Sum(Case(
+                When(home_group__meeting__status=1, then=1),
+                output_field=IntegerField(), default=0), distinct=True),
+            meetings_submitted=Sum(Case(
+                When(home_group__meeting__status=2, then=1),
+                output_field=IntegerField(), default=0), distinct=True),
+            meetings_expired=Sum(Case(
+                When(home_group__meeting__status=3, then=1),
+                output_field=IntegerField(), default=0), distinct=True)).distinct())
+
+        page = self.paginate_queryset(queryset)
+        result = self.serializer_class(page, many=True)
+        return self.get_paginated_response(result.data)
+
+# class ChurchReportPastorViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
+#     queryset = ChurchReportPastor.objects.base_queryset().annotate_total_pastor_sum()
+#     permission_classes = (IsAuthenticated,)
+#     serializer_class = ChurchReportPastorSerializer
 
 
-class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
-    queryset = ChurchReport.objects.all()
+class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin, EventUserTreeSummaryMixin):
+    queryset = ChurchReport.objects.base_queryset().annotate_total_sum().annotate_value()
 
     serializer_class = ChurchReportSerializer
     serializer_list_class = ChurchReportListSerializer
@@ -292,9 +315,10 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
 
     filter_class = ChurchReportFilter
 
-    ordering_fields = ('id', 'date', 'church__title', 'pastor__user__last_name', 'count_people',
-                       'new_people', 'count_repentance', 'tithe', 'donations',
-                       'pastor_tithe')
+    ordering_fields = ('id', 'date', 'church__title', 'pastor__last_name', 'count_people',
+                       'new_people', 'count_repentance', 'tithe', 'donations', 'pastor_tithe',
+                       'currency_donations', 'transfer_payments',
+                       'total_sum', 'value', 'payment_status')
 
     field_search_fields = {
         'search_date': ('date',),
@@ -306,7 +330,13 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
     }
 
     def get_queryset(self):
-        return self.queryset.for_user(self.request.user)
+        return self.queryset.for_user(self.request.user).annotate(
+            total_payments=Sum('payments__effective_sum')).annotate(
+            payment_status=Case(
+                When(Q(total_payments__lt=F('value')) & Q(total_payments__gt=0), then=1),
+                When(total_payments__gte=F('value'), then=2),
+                default=0, output_field=IntegerField())
+        )
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -384,12 +414,7 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
 
     @list_route(methods=['GET'], serializer_class=ChurchReportsDashboardSerializer)
     def dashboard_counts(self, request):
-        user_id = request.query_params.get('user_id')
-        if user_id:
-            user = get_object_or_404(CustomUser, pk=user_id)
-        else:
-            user = self.request.user
-
+        user = self.user_for_tree(request)
         queryset = self.queryset.for_user(user)
 
         dashboards_counts = queryset.aggregate(
@@ -406,3 +431,27 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
 
         dashboards_counts = self.serializer_class(dashboards_counts)
         return Response(dashboards_counts.data, status=status.HTTP_200_OK)
+
+    @list_route(methods=['GET'], serializer_class=ChurchReportSummarySerializer,
+                filter_backends=(filters.OrderingFilter,),
+                ordering_fields = [],
+                pagination_class=ReportsSummaryPagination)
+    def reports_summary(self, request):
+        user = self.user_for_tree(request)
+
+        queryset = self.filter_queryset(CustomUser.objects.for_user(user).filter(
+            church__pastor__isnull=False).annotate(
+            reports_in_progress=Sum(Case(
+                When(church__churchreport__status=1, then=1),
+                output_field=IntegerField(), default=0), distinct=True),
+            reports_submitted=Sum(Case(
+                When(church__churchreport__status=2, then=1),
+                output_field=IntegerField(), default=0), distinct=True),
+            reports_expired=Sum(Case(
+                When(church__churchreport__status=3, then=1),
+                output_field=IntegerField(), default=0), distinct=True)).distinct()
+        )
+
+        page = self.paginate_queryset(queryset)
+        result = self.serializer_class(page, many=True)
+        return self.get_paginated_response(result.data)

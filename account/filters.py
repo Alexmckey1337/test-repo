@@ -11,6 +11,10 @@ class FilterByUserBirthday(BaseFilterByBirthday):
     born_date_field = 'born_date'
 
 
+class FilterByUserRepentance(BaseFilterByBirthday):
+    born_date_field = 'repentance_date'
+
+
 class FilterMasterTree(BaseFilterMasterTree):
     include_self_master = False
 

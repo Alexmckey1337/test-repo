@@ -187,7 +187,7 @@ class ChildrenLink(serializers.RelatedField):
     def get_attribute(self, instance):
         summit_id = instance.summit_id
         master_id = instance.user_id
-        has_children = instance.diff // 2 > 0
+        has_children = instance.numchild > 0
 
         return summit_id, master_id, has_children
 
@@ -335,6 +335,13 @@ class SummitAnketCodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = SummitAnket
         fields = ('code',)
+
+
+class SummitNameAnketCodeSerializer(SummitAnketCodeSerializer):
+    name = serializers.CharField(source='summit.__str__', read_only=True)
+
+    class Meta(SummitAnketCodeSerializer.Meta):
+        fields = SummitAnketCodeSerializer.Meta.fields + ('name',)
 
 
 class SummitAttendSerializer(serializers.ModelSerializer):

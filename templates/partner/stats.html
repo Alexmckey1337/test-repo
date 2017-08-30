@@ -78,6 +78,22 @@
                                     </p>
                                 </div>
                             </div>
+{#                            <div class="grid_block">#}
+{#                                <div class="col-sm-6">#}
+{#                                    <div class="well"><span>Активных партнеров</span>#}
+{#                                        <p style="font-size:4em;text-align: center">#}
+{#                                            <span id="active_partners" class="label label-primary"></span>#}
+{#                                        </p>#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                                <div class="col-sm-6">#}
+{#                                    <div class="well"><span>Не активных партнеров</span>#}
+{#                                        <p style="font-size:4em;text-align: center">#}
+{#                                            <span id="inert_partners" class="label label-primary"></span>#}
+{#                                        </p>#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                            </div>#}
                             <div class="grid_block">
                                 <div class="col-sm-4">
                                     <div class="well is-green"><span>Партнеров оплатило</span>
@@ -240,7 +256,7 @@
                             <div class="well"><span>Запланированная сумма</span>
                                 <p style="font-size:4em;text-align: center">
                                     <span id="planned_sum_deals" class="label label-primary">
-                                        <%=total_paid_sum.sum_planed%>
+                                        <%=String(total_paid_sum.sum_planed).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ')%>
                                     </span>
                                 </p>
                             </div>
@@ -249,7 +265,7 @@
                             <div class="well"><span>Выполнено</span>
                                 <p style="font-size:4em;text-align: center">
                                     <span id="paid_sum_deals" class="label label-primary">
-                                        <%=total_paid_sum.sum_paid%>
+                                        <%=String(total_paid_sum.sum_paid).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ')%>
                                     </span>
                                 </p>
                             </div>
@@ -261,7 +277,7 @@
                                         <% if (total_paid_sum.sum_planed == 0) { %>
                                             100.00
                                         <% }  else { %>
-                                        <%=(total_paid_sum.sum_paid/total_paid_sum.sum_planed*100).toFixed(2)%>
+                                        <%=String((total_paid_sum.sum_paid/total_paid_sum.sum_planed*100).toFixed(2)).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ')%>
                                         <% } %>
                                     </span>
                                 </p>
@@ -273,7 +289,7 @@
                             <div class="well"><span>Запланированная сумма закрытых сделок</span>
                                 <p style="font-size:4em;text-align: center">
                                     <span id="closed_planned_sum_deals" class="label label-primary">
-                                        <%=closed_paid_sum.sum_planed%>
+                                        <%=String(closed_paid_sum.sum_planed).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ')%>
                                     </span>
                                 </p>
                             </div>
@@ -282,7 +298,7 @@
                             <div class="well"><span>Выполнено по закрытым сделкам</span>
                                 <p style="font-size:4em;text-align: center">
                                     <span id="closed_paid_sum_deals" class="label label-primary">
-                                        <%=closed_paid_sum.sum_paid%>
+                                        <%=String(closed_paid_sum.sum_paid).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ')%>
                                     </span>
                                 </p>
                             </div>
@@ -294,7 +310,7 @@
                                         <% if (closed_paid_sum.sum_planed == 0) { %>
                                             100.00
                                         <% }  else { %>
-                                        <%=(closed_paid_sum.sum_paid/closed_paid_sum.sum_planed*100).toFixed(2)%>
+                                        <%=String((closed_paid_sum.sum_paid/closed_paid_sum.sum_planed*100).toFixed(2)).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ')%>
                                         <% } %>
                                     </span>
                                 </p>

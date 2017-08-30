@@ -54,6 +54,13 @@ class ParticipationAdmin(admin.ModelAdmin):
         model = Participation
 
 
+# class ChurchReportPastorAdmin(admin.ModelAdmin):
+#     list_display = ('id',)
+#
+#     class Meta:
+#         model = ChurchReportPastor
+
+
 admin.site.register(Participation, ParticipationAdmin)
 admin.site.register(MeetingType)
 admin.site.register(Meeting)

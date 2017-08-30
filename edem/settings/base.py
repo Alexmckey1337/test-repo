@@ -369,6 +369,11 @@ LOGGING = {
             'handlers': ['console', 'file'],
             'propagate': False,
         },
+        'partnership.tasks': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'file'],
+            'propagate': False,
+        },
         'raven': {
             'level': 'DEBUG',
             'handlers': ['console', 'file'],
@@ -425,7 +430,7 @@ HIERARCHIES = (
 CHANGE_HIERARCHY_LEVELS = {
     0: set(),
     1: {0},
-    2: {0, 1},
+    2: {0, 1, 2},
     4: {0, 1, 2, 4},
     60: {0, 1, 2, 4},
     70: {0, 1, 2, 4, 60},

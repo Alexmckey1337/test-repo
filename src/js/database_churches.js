@@ -61,9 +61,13 @@
         filterInit();
         $('#filterPopup').css('display', 'block');
     });
-    $('input[name="fullsearch"]').on('keyup', function () {
+    $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
+        $('.preloader').css('display', 'block');
         createChurchesTable();
-    });
+    }, 500));
+    // $('input[name="fullsearch"]').on('keyup', function () {
+    //     createChurchesTable();
+    // });
 
     $('#export_table').on('click', function () {
         $('.preloader').css('display', 'block');

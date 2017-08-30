@@ -33,6 +33,8 @@ class PartnerStatMixin:
 
         deals_with_sum = deals.annotate_total_sum()
 
+        partner_id = request.query_params.get('partner_id')
+
         stats['deals'] = self.stats_by_deals(deals, deals_with_sum)
         stats['partners'] = self.stats_by_partners(deals, deals_with_sum)
         stats['sum'] = self.stats_by_sum(deals, deals_with_sum)
@@ -188,3 +190,20 @@ class PartnerExportViewSetMixin(ExportViewSetMixin):
     @list_route(methods=['post'], permission_classes=(IsAuthenticated, CanExportPartnerList,))
     def export(self, request, *args, **kwargs):
         return self._export(request, *args, **kwargs)
+
+
+class PartnerStatusReviewMixin(object):
+    @staticmethod
+    def partnership_status_review(partner):
+        value = False
+        for deal in partner.deals.order_by('-date_created')[:3]:
+            if not (deal.expired and not deal.done):
+                value = True
+
+        if value and not partner.is_active:
+            partner.is_active = True
+            partner.save()
+
+        if not value and partner.is_active:
+            partner.is_active = False
+            partner.save()

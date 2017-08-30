@@ -7,13 +7,12 @@ from django.contrib.auth.forms import AdminPasswordChangeForm
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
-from mptt.admin import MPTTModelAdmin
 
 from .models import CustomUser
 from .resources import UserResource
 
 
-class CustomUserAdmin(UserAdmin, MPTTModelAdmin, ImportExportModelAdmin):
+class CustomUserAdmin(UserAdmin, ImportExportModelAdmin):
     list_display = ('fullname', 'username', 'email', 'date_joined',
                     'is_staff', 'is_active', 'can_login')
     list_display_links = ('fullname', 'username')
@@ -31,6 +30,7 @@ class CustomUserAdmin(UserAdmin, MPTTModelAdmin, ImportExportModelAdmin):
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
         (_('Groups'), {'fields': ('groups',)}),
     )
+    readonly_fields = ('master',)
     change_password_form = AdminPasswordChangeForm
     resource_class = UserResource
 

@@ -66,15 +66,10 @@ class CommonGroupMasterTreeFilter(BaseFilterBackend):
         except ObjectDoesNotExist:
             return queryset
 
-        if master.is_leaf_node():
-            return queryset.none()
+        if master.is_leaf():
+            return queryset.filter(pk=master_id, hierarchy__level__gte=self.level)
 
-        master_tree_id = master.tree_id
-        master_left = master.lft
-        master_right = master.rght
-
-        users = CustomUser.objects.filter(hierarchy__level__gte=self.level).filter(
-            tree_id=master_tree_id, lft__gte=master_left, rght__lte=master_right)
+        users = CustomUser.get_tree(master).filter(hierarchy__level__gte=self.level)
 
         return queryset.filter(**{self.search: [user.id for user in users]})
 
@@ -97,7 +92,7 @@ class FilterHGLeadersByMasterTree(BaseFilterBackend):
         if not master_tree_id and request.user.is_staff:
             return queryset
         master = self._get_master(request.user, master_tree_id)
-        return queryset.intersection(master.get_descendants(include_self=True))
+        return queryset.intersection(master.__class__.get_tree(master))
 
     @staticmethod
     def _get_master(master, master_tree_id):
@@ -106,7 +101,7 @@ class FilterHGLeadersByMasterTree(BaseFilterBackend):
         try:
             if master.is_staff:
                 return CustomUser.objects.get(pk=master_tree_id)
-            return master.get_descendants(include_self=True).get(pk=master_tree_id)
+            return master.__class__.get_tree(master).get(pk=master_tree_id)
         except ValueError:
             raise exceptions.ValidationError({'detail': _("master_tree_id is incorrect.")})
         except ObjectDoesNotExist:
@@ -158,12 +153,13 @@ class FilterPotentialHGLeadersByChurch(BaseFilterBackend):
     query_name = 'church'
 
     def filter_queryset(self, request, queryset, view):
-        church_id = request.query_params.get(self.query_name)
-        if not church_id:
-            return queryset
-        return queryset.filter(
-            (Q(hhome_group__isnull=True) | Q(hhome_group__church_id=church_id)) &
-            (Q(cchurch__isnull=True) | Q(cchurch_id=church_id)))
+        return queryset
+        # church_id = request.query_params.get(self.query_name)
+        #  if not church_id:
+        #     return queryset
+        # return queryset.filter(
+        #     (Q(hhome_group__isnull=True) | Q(hhome_group__church_id=church_id)) &
+        #     (Q(cchurch__isnull=True) | Q(cchurch_id=church_id)))
 
     def get_schema_fields(self, view):
         return [

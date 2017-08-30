@@ -1,12 +1,16 @@
 (function ($) {
     createPaymentsTable({});
 
-    $('input[name="fullsearch"]').keyup(function () {
+    $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
         $('.preloader').css('display', 'block');
-        delay(function () {
-            createPaymentsTable({});
-        }, 1000);
-    });
+        createPaymentsTable({});
+    }, 500));
+    // $('input[name="fullsearch"]').keyup(function () {
+    //     $('.preloader').css('display', 'block');
+    //     delay(function () {
+    //         createPaymentsTable({});
+    //     }, 1000);
+    // });
     $('#filter_button').on('click', ()=> {
         $('#filterPopup').show();
     });

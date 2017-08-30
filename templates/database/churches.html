@@ -3,6 +3,8 @@
 
 {% block header.top.h1 %}<h1>База данных / Церкви</h1>{% endblock %}
 
+{% block datauser %} data-user="{% if not request.user.is_staff %}{{ request.user.id }}{% endif %}"{% endblock %}
+
 {% block header.buttons.top %}
     <div class="top-buttons-wrap">
         <ul class="top-buttons">

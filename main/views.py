@@ -100,6 +100,16 @@ def meeting_report_statistics(request):
 
 
 @login_required(login_url='entry')
+def meetings_summary(request):
+    if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
+        return redirect('/')
+
+    ctx = {}
+
+    return render(request, 'event/meetings_summary', context=ctx)
+
+
+@login_required(login_url='entry')
 def church_report_list(request):
     if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 2):
         return redirect('/')
@@ -185,8 +195,8 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, TemplateView):
         elif not user.hierarchy:
             extra_context['masters'] = list()
         elif user.hierarchy.level < 2:
-            extra_context['masters'] = user.get_descendants(
-                include_self=True).filter(is_active=True, hierarchy__level__gte=1)
+            extra_context['masters'] = user.__class__.get_tree(
+                user).filter(is_active=True, hierarchy__level__gte=1)
         else:
             extra_context['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
 
@@ -197,6 +207,7 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, TemplateView):
 class DealListView(LoginRequiredMixin, CanSeeDealsMixin, TemplateView):
     template_name = 'partner/deals.html'
     login_url = 'entry'
+
     def get_context_data(self, **kwargs):
         ctx = super(DealListView, self).get_context_data(**kwargs)
 
@@ -403,10 +414,8 @@ class SummitListMixin(LoginRequiredMixin, ListView):
     status = None
 
     def get_queryset(self):
-        available_summits = self.request.user.summit_profiles.filter(
-            role__gte=settings.SUMMIT_ANKET_ROLES['consultant']).values_list('summit_id', flat=True)
         return super(SummitListMixin, self).get_queryset().order_by(
-            '-start_date').filter(status=self.status, pk__in=available_summits)
+            '-start_date').for_user(self.request.user).filter(status=self.status)
 
 
 class OpenSummitListView(SummitListMixin):
@@ -588,8 +597,8 @@ class PeopleListView(LoginRequiredMixin, TabsMixin, CanSeeUserListMixin, Templat
         elif not user.hierarchy:
             extra_ctx['masters'] = list()
         elif user.hierarchy.level < 2:
-            extra_ctx['masters'] = user.get_descendants(
-                include_self=True).filter(is_active=True, hierarchy__level__gte=1)
+            extra_ctx['masters'] = user.__class__.get_tree(
+                user).filter(is_active=True, hierarchy__level__gte=1)
         else:
             extra_ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
         ctx.update(extra_ctx)
@@ -639,19 +648,22 @@ class ChurchDetailView(LoginRequiredMixin, CanSeeChurchMixin, DetailView):
             'church_users': church.uusers.count(),
             'church_all_users': church.uusers.count() + HomeGroup.objects.filter(
                 church_id=church.id).aggregate(home_users=Count('uusers'))['home_users'],
-            'parishioners_count': church.uusers.filter(hierarchy__level=0).count(),
-            'leaders_count': church.uusers.filter(hierarchy__level=1).count(),
+            'parishioners_count': church.uusers.filter(hierarchy__level=0).count() + CustomUser.objects.filter(
+                hhome_group__church_id=church.id, hierarchy__level=0).count(),
+            'leaders_count': CustomUser.objects.filter(
+                home_group__church_id=church.id, home_group__leader__isnull=False).distinct().count(),
             'home_groups_count': church.home_group.count(),
             'fathers_count': church.uusers.filter(
                 spiritual_level=CustomUser.FATHER).count() + HomeGroup.objects.filter(
-                church__id=church.id).filter(uusers__spiritual_level=3).count(),
+                church__id=church.id, uusers__spiritual_level=3).count(),
             'juniors_count': church.uusers.filter(
                 spiritual_level=CustomUser.JUNIOR).count() + HomeGroup.objects.filter(
-                church__id=church.id).filter(uusers__spiritual_level=2).count(),
+                church__id=church.id, uusers__spiritual_level=2).count(),
             'babies_count': church.uusers.filter(
                 spiritual_level=CustomUser.BABY).count() + HomeGroup.objects.filter(
-                church__id=church.id).filter(uusers__spiritual_level=1).count(),
-            'partners_count': church.uusers.filter(partnership__is_active=True).count(),
+                church__id=church.id, uusers__spiritual_level=1).count(),
+            'partners_count': church.uusers.filter(partnership__is_active=True).count() + CustomUser.objects.filter(
+                hhome_group__church_id=church.id, partnership__is_active=True).count(),
         }
         ctx.update(extra_context)
 
@@ -694,7 +706,7 @@ def index(request):
     elif not user.hierarchy:
         ctx['masters'] = list()
     elif user.hierarchy.level < 2:
-        ctx['masters'] = user.get_descendants(include_self=True).filter(is_active=True, hierarchy__level__gte=1)
+        ctx['masters'] = user.__class__.get_tree(user).filter(is_active=True, hierarchy__level__gte=1)
     else:
         ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
     return render(request, 'home/main.html', context=ctx)

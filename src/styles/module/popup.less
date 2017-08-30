@@ -366,7 +366,8 @@
   }
 }
 
-.pop-up-universal {
+.pop-up-universal,
+.pop-up__table {
   position: fixed;
   top: 0;
   left: 0;
@@ -374,6 +375,9 @@
   height: 100%;
   background-color: rgba(0, 0, 0, .8);
   z-index: 9999;
+}
+
+.pop-up-universal {
   & .buttons {
     margin-top: 1em;
   }
@@ -488,9 +492,10 @@
   }
   .splash-screen{
     &.active{
-      height: 610px;
+      height: 600px;
       .scrollwrap{
         height: 340px;
+        margin-bottom: 25px;
       }
     }
   }
@@ -537,14 +542,13 @@
   }
   .splash-screen {
   overflow: hidden;
-  height: 150px;
+  height: 270px;
   max-width: 760px;
   min-width: 760px;
   transition: height .5s ease;
     .splash-buttons {
       display: flex;
       justify-content: flex-end;
-      margin-top: 10px;
     }
 }
 }
@@ -1383,6 +1387,7 @@ button{
   }
 }
 
-#create_pop.pop-up__table .pop_cont {
+#create_duplicate_pop.pop-up__table .pop_cont,
+#create_special_pop.pop-up__table .pop_cont{
   width: 900px;
 }

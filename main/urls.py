@@ -65,6 +65,7 @@ events_patterns = [
     url(r'^home/reports/$', views.meeting_report_list, name='meeting_report_list'),
     url(r'^home/reports/(?P<pk>\d+)/$', views.meeting_report_detail, name='meeting_report_detail'),
     url(r'^home/statistics/$', views.meeting_report_statistics, name='meeting_report_statistics'),
+    url(r'^home/summary/$', views.meetings_summary, name='meetings_summary'),
     url(r'^church/reports/$', views.church_report_list, name='church_report_list'),
     url(r'^church/reports/(?P<pk>\d+)/$', views.church_report_detail, name='church_report_detail'),
     url(r'^church/statistics/$', views.church_statistics, name='church_report_statistics'),

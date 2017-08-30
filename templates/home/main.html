@@ -23,11 +23,11 @@
         <div class="dashboard-head">
             <h1><span>Ветка: </span></h1>
             <select id="master-filter">
-                {% for master in masters %}
-                    <option value="{{ master.id }}"{% if master.id == user.id  %}selected{% endif %}>
-                        {{ master.fullname }}
-                    </option>
-                {% endfor %}
+{#                {% for master in masters %}#}
+{#                    <option value="{{ master.id }}"{% if master.id == user.id  %}selected{% endif %}>#}
+{#                        {{ master.fullname }}#}
+{#                    </option>#}
+{#                {% endfor %}#}
             </select>
             <button class="edit-desk"></button>
             <button class="save"></button>
@@ -42,105 +42,105 @@
                 <a href="{% url 'db:main' %}" target="_blank" class="col-sm-4 well" data-id="0">
                     <span>Всего церквей</span>
                     <p class="success_hover">
-                        <%= (churches_count) ? churches_count : 0 %>
+                        <%= (churches_count) ? String(churches_count).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
                 </a>
                 <a href="{% url 'db:home_groups' %}" target="_blank" class="col-sm-4 well" data-id="1">
                     <span>Всего домашних групп</span>
                     <p class="success_hover">
-                        <%= (home_groups_count) ? home_groups_count : 0 %>
+                        <%= (home_groups_count) ? String(home_groups_count).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
                 </a>
                 <a href="{% url 'db:people' %}" target="_blank" class="col-sm-4 well" data-id="2">
                     <span>Всего людей</span>
                     <p class="success_hover">
-                        <%= (total_peoples) ? total_peoples : 0 %>
+                        <%= (total_peoples) ? String(total_peoples).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
                 </a>
                 <div class="col-sm-4 well" data-id="3">
                     <span>Всего людей в церквях</span>
                     <p>
-                        <%= (peoples_in_churches) ? peoples_in_churches : 0 %>
+                        <%= (peoples_in_churches) ? String(peoples_in_churches).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>
                 <div class="col-sm-4 well" data-id="4">
                     <span>Всего людей в домашних группах</span>
                     <p>
-                        <%= (home_groups_count) ? home_groups_count : 0 %>
+                        <%= (peoples_in_home_groups) ? String(peoples_in_home_groups).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>
                 <div class="col-sm-4 well" data-id="5">
                     <span>Всего лидеров групп</span>
                     <p>
-                        <%= (leaders_count) ? leaders_count : 0 %>
+                        <%= (leaders_count) ? String(leaders_count).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>
                 <div class="col-sm-4 well" data-id="6">
                     <span>Всего отцы</span>
                     <p>
-                        <%= (fathers_count) ? fathers_count : 0 %>
+                        <%= (fathers_count) ? String(fathers_count).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>
                 <div class="col-sm-4 well" data-id="7">
                     <span>Всего юноши</span>
                     <p>
-                        <%= (juniors_count) ? juniors_count : 0 %>
+                        <%= (juniors_count) ? String(juniors_count).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>
                 <div class="col-sm-4 well" data-id="8">
                     <span>Всего младенцы</span>
                     <p>
-                        <%= (babies_count) ? babies_count : 0 %>
+                        <%= (babies_count) ? String(babies_count).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>
 {#                <div class="col-sm-4 well success" data-id="9">#}
 {#                    <span>Заполнено отчетов (церкви)</span>#}
 {#                    <p>#}
-{#                        <%= (church_reports_submitted) ? church_reports_submitted : 0 %>#}
+{#                        <%= (church_reports_submitted) ? String(church_reports_submitted).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>#}
 {#                    </p>#}
 {#                    <button class="vision"></button>#}
 {#                </div>#}
 {#                <div class="col-sm-4 well info" data-id="10">#}
 {#                    <span>Отчетов к заполнению (церкви)</span>#}
 {#                    <p>#}
-{#                        <%= (church_reports_in_progress) ? church_reports_in_progress : 0 %>#}
+{#                        <%= (church_reports_in_progress) ? String(church_reports_in_progress).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>#}
 {#                    </p>#}
 {#                    <button class="vision"></button>#}
 {#                </div>#}
 {#                <div class="col-sm-4 well error" data-id="11">#}
 {#                    <span>Просрочено отчетов (церкви)</span>#}
 {#                    <p>#}
-{#                        <%= (church_reports_expired) ? church_reports_expired : 0 %>#}
+{#                        <%= (church_reports_expired) ? String(church_reports_expired).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>#}
 {#                    </p>#}
 {#                    <button class="vision"></button>#}
 {#                </div>#}
                 <div class="col-sm-4 well success" data-id="12">
                     <span>Заполнено отчетов (дом. группы)</span>
                     <p>
-                        <%= (meetings_submitted) ? meetings_submitted : 0 %>
+                        <%= (meetings_submitted) ? String(meetings_submitted).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>
                 <div class="col-sm-4 well info" data-id="13">
                     <span>Отчетов к заполнению (дом. группы)</span>
                     <p>
-                        <%= (meetings_in_progress) ? meetings_in_progress : 0 %>
+                        <%= (meetings_in_progress) ? String(meetings_in_progress).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>
                 <div class="col-sm-4 well error" data-id="14">
                     <span>Просрочено отчетов (дом. группы)</span>
                     <p>
-                        <%= (meetings_expired) ? meetings_expired : 0 %>
+                        <%= (meetings_expired) ? String(meetings_expired).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
                 </div>

@@ -25,6 +25,8 @@ class ProfileQuerySet(models.query.QuerySet):
     def for_user(self, user):
         if not is_authenticated(user):
             return self.none()
+        if user.is_staff:
+            return self
         summit_ids = set(user.summit_profiles.filter(
             role__gte=settings.SUMMIT_ANKET_ROLES['consultant']).values_list('summit_id', flat=True))
         return self.filter(summit__in=summit_ids)
@@ -42,6 +44,32 @@ class ProfileManager(models.Manager):
 
     def annotate_full_name(self):
         return self.get_queryset().annotate_full_name()
+
+    def for_user(self, user):
+        return self.get_queryset().for_user(user=user)
+
+
+class SummitQuerySet(models.query.QuerySet):
+    def base_queryset(self):
+        return self.select_related(
+            'type', 'currency')
+
+    def for_user(self, user):
+        if not is_authenticated(user):
+            return self.none()
+        if user.is_staff:
+            return self
+        summit_ids = set(user.summit_profiles.filter(
+            role__gte=settings.SUMMIT_ANKET_ROLES['consultant']).values_list('summit_id', flat=True))
+        return self.filter(pk__in=summit_ids)
+
+
+class SummitManager(models.Manager):
+    def get_queryset(self):
+        return SummitQuerySet(self.model, using=self._db)
+
+    def base_queryset(self):
+        return self.get_queryset().base_queryset()
 
     def for_user(self, user):
         return self.get_queryset().for_user(user=user)

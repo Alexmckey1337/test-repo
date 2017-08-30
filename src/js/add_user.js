@@ -223,11 +223,11 @@
                     callback: makeDuplicateUsers
                 };
             makePagination(paginationConfig);
-            $('.pop-up__table').find('.table__count').text(text);
+            $('.pop-up_duplicate__table').find('.table__count').text(text);
             $('#table_duplicate').html('').append(table);
             $('#createUser').find('._preloader').css('opacity', '0');
             $('.preloader').css('display', 'none');
-            $('.pop-up__table').css('display', 'block');
+            $('.pop-up_duplicate__table').css('display', 'block');
         });
     }
 

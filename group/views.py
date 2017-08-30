@@ -67,7 +67,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
     filter_class = ChurchFilter
 
     field_search_fields = {
-        'search_title': ('title', 'pastor__last_name', 'pastor__first_name', 'pastor__middle_name'),
+        'search_title': ('title', 'pastor__last_name', 'pastor__first_name', 'pastor__middle_name', 'city'),
     }
 
     resource_class = ChurchResource
@@ -100,7 +100,10 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
 
         master = self._get_master(request.user, master_tree_id)
 
-        pastors = master.get_descendants(include_self=True).filter(hierarchy__level__gte=2)
+        if request.user.is_staff and not master_tree_id:
+            pastors = CustomUser.objects.filter(hierarchy__level__gte=2)
+        else:
+            pastors = master.__class__.get_tree(master).filter(hierarchy__level__gte=2)
         if department_id:
             pastors = pastors.filter(departments=department_id)
 
@@ -203,12 +206,13 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
 
     # Helpers
 
-    @staticmethod
-    def _get_master(master, master_tree_id):
+    def _get_master(self, master, master_tree_id):
         if not master_tree_id:
             return master
         try:
-            return master.get_descendants(include_self=True).filter(hierarchy__level__gte=2).get(pk=master_tree_id)
+            if self.request.user.is_staff:
+                return CustomUser.objects.filter(hierarchy__level__gte=2).get(pk=master_tree_id)
+            return master.__class__.get_tree(master).filter(hierarchy__level__gte=2).get(pk=master_tree_id)
         except ValueError:
             raise exceptions.ValidationError({'detail': _("master_tree_id is incorrect.")})
         except ObjectDoesNotExist:
@@ -230,15 +234,21 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
             can_add=Case(
                 When(Q(hhome_group__isnull=True) &
                      (Q(cchurch__isnull=True) | Q(cchurch_id=pk)),
-                     # & Q(lft__gte=user.lft) & Q(rght__lte=user.rght) & Q(tree_id=user.tree_id),
+                     # & Q(path__startswith=user.path) & Q(depth__gte=user.depth),
                      then=True), default=False, output_field=BooleanField()))
 
     def filter_potential_users_for_church(self, qs):
         user = self.request.user
-        return qs.annotate(can_add=Case(When(Q(hhome_group__isnull=True) & Q(
-            cchurch__isnull=True) &
-                                             Q(lft__gte=user.lft) & Q(rght__lte=user.rght) & Q(tree_id=user.tree_id),
-                                             then=True), default=False, output_field=BooleanField()))
+        if user.is_staff:
+            return qs.annotate(can_add=Case(When(
+                Q(hhome_group__isnull=True) & Q(cchurch__isnull=True),
+                then=True), default=False, output_field=BooleanField()))
+                # & Q(path__startswith=user.path) & Q(depth__gte=user.depth),
+
+        return qs.annotate(can_add=Case(When(
+            Q(hhome_group__isnull=True) & Q(cchurch__isnull=True)
+            & Q(path__startswith=user.path) & Q(depth__gte=user.depth),
+            then=True), default=False, output_field=BooleanField()))
 
     def _get_potential_users(self, request, filter, *args):
         params = request.query_params
@@ -283,13 +293,21 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
 
         queryset = self.queryset.for_user(user)
         result = queryset.aggregate(
-            peoples_in_churches=Count('uusers', distinct=True),
+            peoples_in_churches=Count('uusers', distinct=True) + Count('home_group__uusers', distinct=True),
             peoples_in_home_groups=Count('home_group__uusers', distinct=True))
         result['churches_count'] = queryset.count()
         result['home_groups_count'] = HomeGroup.objects.for_user(user).count()
 
         result = self.serializer_class(result)
         return Response(result.data)
+
+    @detail_route(methods=['POST'])
+    def change_report_currency(self, request, pk):
+        church = get_object_or_404(Church, pk=pk)
+        church.report_currency = int(request.data.get('currency_id', 2))
+        church.save()
+
+        return Response({'message': 'Валюта Церкви успешно установленно в %s' % church.report_currency})
 
 
 class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportViewSetMixin):
@@ -320,7 +338,7 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
     filter_class = HomeGroupFilter
 
     field_search_fields = {
-        'search_title': ('title', 'leader__last_name', 'leader__first_name', 'leader__middle_name')
+        'search_title': ('title', 'leader__last_name', 'leader__first_name', 'leader__middle_name', 'city')
     }
 
     resource_class = HomeGroupResource
@@ -381,14 +399,14 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
 
         return Response(UserNameSerializer(leaders, many=True).data)
 
-    @list_route(
-        methods=['GET'],
-        filter_backends=(FilterHGLeadersByMasterTree, FilterHGLeadersByChurch, FilterHGLeadersByDepartment,))
+    @list_route(methods=['GET'],
+                filter_backends=(FilterHGLeadersByMasterTree, FilterHGLeadersByChurch, FilterHGLeadersByDepartment,))
     def leaders(self, request):
         """
         Leaders
         """
-        leaders = self.filter_queryset(CustomUser.objects.filter(home_group__isnull=False)).distinct()
+        leaders = self.filter_queryset(CustomUser.objects.filter(home_group__leader__isnull=False)).distinct()
+
         return Response(UserNameSerializer(leaders, many=True).data)
 
     @detail_route(methods=["GET"])
@@ -425,7 +443,7 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         if not master_tree_id:
             return master
         try:
-            return master.get_descendants(include_self=True).filter(hierarchy__level__gte=1).get(pk=master_tree_id)
+            return master.__class__.get_tree(master).filter(hierarchy__level__gte=1).get(pk=master_tree_id)
         except ValueError:
             raise exceptions.ValidationError({'detail': _("master_tree_id is incorrect.")})
         except ObjectDoesNotExist:

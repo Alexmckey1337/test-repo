@@ -118,15 +118,14 @@
         $('#chooseDepartment').html(option).attr('required', false).attr('disabled', false);
         $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
     });
-
-    $('#searchUserFromDatabase').on('keyup', function () {
+    $('#searchUserFromDatabase').on('keyup', _.debounce(function () {
         let search = $(this).val();
         if (search.length < 3) return;
         let config = {};
         config.search = search;
         config.department = HG_ID;
         makeUsersFromDatabaseList(config, ID);
-    });
+    }, 500));
 
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');

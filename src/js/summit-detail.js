@@ -434,14 +434,20 @@
         }
         makePastorListWithMasterTree(config, ['#master'], null);
     });
-    $('input[name="fullsearch"]').keyup(function () {
-        let val = $(this).val();
-        delay(function () {
-            createSummitUsersTable({summit: SUMMIT_ID, page: 1});
-        }, 100);
-    });
 
-    $('#searchUsers').on('keyup', makePotencialSammitUsersList);
+    $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
+        $('.preloader').css('display', 'block');
+        createSummitUsersTable({summit: SUMMIT_ID, page: 1});
+    }, 500));
+    // $('input[name="fullsearch"]').keyup(function () {
+    //     let val = $(this).val();
+    //     delay(function () {
+    //         createSummitUsersTable({summit: SUMMIT_ID, page: 1});
+    //     }, 100);
+    // });
+    $('#searchUsers').on('keyup', _.debounce(function () {
+        makePotencialSammitUsersList();
+    }, 500));
     $('#summitsTypes').find('li').on('click', function () {
         $('.preloader').css('display', 'block');
         let config = {};
