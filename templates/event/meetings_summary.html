@@ -16,7 +16,7 @@
             <ul class="nav tabs_link">
 {#                <li><a href="{% url 'events:church_report_list' %}">Отчёты церквей</a></li>#}
 {#                <li><a href="{% url 'events:church_report_statistics' %}">Статистика церквей</a></li>#}
-                <li><a class="active" href="{% url 'events:meeting_report_list' %}">Отчёты домашних групп</a></li>
+                <li><a href="{% url 'events:meeting_report_list' %}">Отчёты домашних групп</a></li>
                 <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних групп</a></li>
             </ul>
         </div>
@@ -54,7 +54,6 @@
 {% block main.content %}
     <div class="container-full">
         <div class="tab-status tab-home-stats">
-            <a class="stats_lider" href="{% url 'events:meetings_summary' %}">По лидеру</a>
             <ul id="tabs">
                 <li class="active">
                     <button class="type" data-id="0">Все</button>
@@ -79,43 +78,15 @@
         </div>
     </div>
     {% block pagination_top %}
-        <div class="top-pag">
-            <div class="tab-status">
-                <ul id="statusTabs">
-                    <li class="current">
-                        <button data-status="1">Отчёты к заполнению</button>
-                    </li>
-                    <li>
-                        <button data-status="2">Заполненные отчёты</button>
-                    </li>
-                    <li>
-                        <button data-status="3">Просроченные отчёты</button>
-                    </li>
-                </ul>
-            </div>
-            <div id="period_expired" class="period">
-                <p>Период с <input type="text" id="expired_datepicker_from" readonly="readonly"> по <input type="text"
-                                                                                                           id="expired_datepicker_to"
-                                                                                                           readonly="readonly"><a
-                        id="show-all-expired" href="javascript:void(0);">Показать
-                    все</a></p>
-            </div>
-            <div id="period_done" class="period">
-                <p>Период с <input type="text" id="done_datepicker_from" readonly="readonly"> по <input type="text"
-                                                                                                        id="done_datepicker_to"
-                                                                                                        readonly="readonly"><a
-                        id="show-all-done" href="javascript:void(0);">Показать
-                    все</a></p>
-            </div>
-        </div>
+        <div class="top-pag"></div>
         <div class="table__count"></div>
         <div class="pagination reports__pagination"><!--pagination -->
         </div><!--End pagination -->
     {% endblock %}
 
     {% block table %}
-        <div class="table-wrap clearfix" id="homeReports"><!--Table -->
-            <div class="table scrollbar-inner" id="tableHomeReports"></div>
+        <div class="table-wrap clearfix" id="HomeLiderReports"><!--Table -->
+            <div class="table scrollbar-inner" id="tableHomeLiderReports"></div>
             <div class="query-none">
                 <p></p>
             </div>
@@ -197,10 +168,10 @@
     </div>
 {% endblock %}
 {% block extra_scripts %}
-    <script src="{% static "js/home_reports.js" %}"></script>
+    <script src="{% static "js/home_lider_reports.js" %}"></script>
 {% endblock %}
 {% block template_tables %}
-    <script type="text/template" id="databaseHomeReports">
+    <script type="text/template" id="databaseHomeLiderReports">
         <table>
             <thead>
             <tr>
@@ -216,22 +187,18 @@
             <tr>
                 <% for( var key in table_columns) { %>
                 <% if(table_columns[key].active) { %>
-                <% if(key == 'id') { %>
-                <td>
-                    <a href="./<%= results[index][key] %>" class="reports_id"><%= results[index][key] %></a>
-                </td>
-                <% } else if (key == 'home_group') { %>
+                <% if(key == 'owner') { %>
                 <% if (results[index][key] != null) { %>
                 <td>
-                    <a href="/home_groups/<%= results[index][key].id %>"><%= results[index][key].title %></a>
+                    <a href="<%= results[index][key].link %>" class="reports_id"><%= results[index][key].fullname %></a>
                 </td>
                 <% } else { %>
                 <td></td>
                 <% } %>
-                <% } else if(key == 'owner') { %>
+                <% } else if (key == 'master') { %>
                 <% if (results[index][key] != null) { %>
                 <td>
-                    <a href="/account/<%= results[index][key].id %>"><%= results[index][key].fullname %></a>
+                    <a href="<%= results[index][key].link %>"><%= results[index][key].fullname %></a>
                 </td>
                 <% } else { %>
                 <td></td>
