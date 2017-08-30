@@ -19,13 +19,13 @@ def create_meetings_summary_columns(apps, schema_editor):
                                 ordering_title='master__last_name', number=2,
                                 active=True, editable=True, category_id=reports_summary.id),
         Reports_summary_columns(title='reports_submitted', verbose_title='Заполненные отчеты',
-                                ordering_title='meetings_submitted',
+                                ordering_title='reports_submitted',
                                 number=3, active=True, editable=True, category_id=reports_summary.id),
         Reports_summary_columns(title='reports_in_progress', verbose_title='Отчеты к заполнению',
-                                ordering_title='meetings_in_progress',
+                                ordering_title='reports_in_progress',
                                 number=4, active=True, editable=True, category_id=reports_summary.id),
         Reports_summary_columns(title='reports_expired', verbose_title='Просроченные отчеты',
-                                ordering_title='meetings_expired', number=5,
+                                ordering_title='reports_expired', number=5,
                                 active=True, editable=True, category_id=reports_summary.id),
     ])
 
