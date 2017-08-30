@@ -42,6 +42,9 @@
                 }
                 document.getElementById('total_partners').innerHTML = ''+String(total_partners/2).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ');
                 document.getElementById('total_deals').innerHTML = ''+String(total_deals/2).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ');
+                // document.getElementById('active_partners').innerHTML = ''+String(data.active_partners).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ');
+                // let inertPartners = (total_deals/2) - data.active_partners;
+                // document.getElementById('inert_partners').innerHTML = ''+String(inertPartners).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ');
 
                 return data.sum;
             })
