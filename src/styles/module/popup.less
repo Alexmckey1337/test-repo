@@ -150,7 +150,7 @@
         &:last-child{
           margin-bottom:0;
         }
-        input,.select2,select,.phone,.input,.birthday{
+        input,.select2,select,.phone,.input,.birthday,{
           width: 250px !important;
           box-sizing: border-box;
           float: right;
@@ -524,7 +524,7 @@
   }
   button{
     padding: 10px;
-    width: 90px;
+    width: auto;
     margin-right: 30px;
     &::before{
       display: none;
@@ -560,6 +560,11 @@
   justify-content: center;
   align-items: center;
   height: 100%;
+  .top-text{
+    h3{
+      padding-left:40px;
+    }
+  }
 }
 
 .login-wrap{
@@ -580,12 +585,8 @@
   .wrap {
     padding: 2em 3em;
   }
-  h2 {
-    //margin: 0.5em 2em;
-  }
   .top-text{
     h3{
-    //padding-left:50px;
     span{
       left: 0;
       top:0;
@@ -618,9 +619,6 @@
       font-family: "UbuntuLight", sans-serif;
       color: #888f98;
       cursor: pointer;
-    }
-    h3{
-      //padding-left:40px;
     }
   }
 }
@@ -690,7 +688,7 @@
       background: #fff;
       padding-right: 5px;
     }
-    input{
+    input,p{
       z-index: 5;
       float: right;
       border: none;
@@ -786,7 +784,7 @@
   align-items: center;
   user-select: none;
   & > div {
-    & input {
+    input {
       padding: .3em;
       height:25px;
       box-sizing: border-box;
@@ -808,6 +806,12 @@
       border-left:none;
     }
     &.summa,&.rate{
+      display: flex;
+      align-items: center;
+      margin-right:10px;
+      label{
+        margin-right:3px;
+      }
       input {
         width: 5em;
       }

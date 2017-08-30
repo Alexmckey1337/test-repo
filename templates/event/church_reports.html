@@ -120,45 +120,72 @@
             </h2>
             <div class="popup_body">
                 <div class="container">
-                    <div class="col-6">
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Отдел</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Ветка</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Пастор</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Церковь</span>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="department" id="departments_filter">
-                                <option value="">ВСЕ</option>
-                                {% for department in departments %}
-                                    <option value="{{ department.id }}">{{ department.title }}</option>
-                                {% endfor %}
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="master_tree" id="tree_filter">
-                                <option value="">ВСЕ</option>
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="pastor" id="pastor_filter">
-                                <option value="">ВСЕ</option>
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="church" id="church_filter">
-                                <option value="">ВСЕ</option>
-                            </select>
-                        </p>
-                    </div>
+                    <label>
+                        <span class="label_block">Отдел</span>
+                        <select class="selectdb" data-filter="department" id="departments_filter">
+                            <option value="">ВСЕ</option>
+                            {% for department in departments %}
+                                <option value="{{ department.id }}">{{ department.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Ветка</span>
+                        <select class="selectdb" data-filter="master_tree" id="tree_filter">
+                            <option value="">ВСЕ</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Пастор</span>
+                        <select class="selectdb" data-filter="pastor" id="pastor_filter">
+                            <option value="">ВСЕ</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Церковь</span>
+                        <select class="selectdb" data-filter="church" id="church_filter">
+                            <option value="">ВСЕ</option>
+                        </select>
+                    </label>
+{#                    <div class="col-6">#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Отдел</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Ветка</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Пастор</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Церковь</span>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <div class="col-6">#}
+{#                        <p class="input_block">#}
+{#                            <select class="selectdb" data-filter="department" id="departments_filter">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                                {% for department in departments %}#}
+{#                                    <option value="{{ department.id }}">{{ department.title }}</option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <select class="selectdb" data-filter="master_tree" id="tree_filter">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                            </select>#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <select class="selectdb" data-filter="pastor" id="pastor_filter">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                            </select>#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <select class="selectdb" data-filter="church" id="church_filter">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                            </select>#}
+{#                        </p>#}
+{#                    </div>#}
                 </div>
             </div>
             <div class="container">

@@ -464,6 +464,8 @@
     display: flex;
     border: 1px solid #cdd0d4;
     overflow: hidden;
+    height: 100%;
+    padding-right:40px;
     input {
       height: auto;
       padding: .5em;
@@ -611,7 +613,7 @@
   padding-left: 1.2em;
   button {
     float: right;
-    width: 130px;
+    width: 130px ;
     background-color: #3caeda;
     position: relative;
     margin-right: 30px;
@@ -738,9 +740,10 @@
   transition: all .3s ease;
   text-align: left;
   margin-right: 174px;
+  border-bottom: 1px solid transparent !important;
   &:hover{
     background-color: #fbfcfd;
-    border-bottom: 1px solid #999fa7;
+    border-bottom-color: #999fa7 !important;
   }
   .col{
     &:first-child{

@@ -1285,45 +1285,74 @@
                         <span>&times;</span>
                     </div>
                     <form id="change-password-form" action="{% url "rest_password_change" %}" method="post">
-                        <p>Ваш новый пароль должен быть длиной от 8 до 16 знаков и может содержать буквы верхнего и
-                            нижнего регистров, а также цифры.
-                        </p>
-                        <p>Ваш новый пароль не должен совпадать со старым паролем, а также быть похожим на Ваш электронный адрес</p>
-                        <div class="summa-wrap">
-                            <div class="summa">
-                                <div class="label-wrapp">
-                                    <label for="old_password">{% trans "Old password" %}:</label>
-                                </div>
-                                <div class="input-wrapp">
-                                    <input type="password" name="old_password" id="old_password" required>
-                                    <span id="error-old_password" class="password-error"></span>
-                                </div>
-                            </div>
-                            <div class="summa">
-                                <div class="label-wrapp">
-                                    <label for="new_password1">{% trans "New password" %}:</label>
-                                </div>
-                                <div class="input-wrapp">
-                                    <input type="password" name="new_password1" id="new_password1" required>
-                                    <span id="error-new_password1" class="password-error"></span>
-                                </div>
-                            </div>
-                            <div class="summa">
-                                <div class="label-wrapp">
-                                    <label for="new_password2">{% trans "New password confirmation" %}:</label>
-                                </div>
-                                <div class="input-wrapp">
-                                    <input type="password" name="new_password2" id="new_password2" required>
-                                    <span id="error-new_password2" class="password-error"></span>
-                                </div>
+                        <div class="popup_body">
+                            <div class="container container_block">
+                                <p>Ваш новый пароль должен быть длиной от 8 до 16 знаков и может содержать буквы
+                                    верхнего и нижнего регистров, а также цифры.</p>
+                                <p>Ваш новый пароль не должен совпадать со старым паролем, а также быть похожим на Ваш
+                                    электронный адрес</p>
+                                <label>
+                                    <span class="label_block">{% trans "Old password" %}:</span>
+                                    <div class="input-wrapp">
+                                        <input type="password" name="old_password" id="old_password" required>
+                                        <span id="error-old_password" class="password-error"></span>
+                                    </div>
+                                </label>
+                                <label>
+                                    <span class="label_block">{% trans "New password" %}:</span>
+                                    <div class="input-wrapp">
+                                        <input type="password" name="new_password1" id="new_password1" required>
+                                        <span id="error-new_password1" class="password-error"></span>
+                                    </div>
+                                </label>
+                                <label>
+                                    <span class="label_block">{% trans "New password confirmation" %}:</span>
+                                    <div class="input-wrapp">
+                                        <input type="password" name="new_password2" id="new_password2" required>
+                                        <span id="error-new_password2" class="password-error"></span>
+                                    </div>
+                                </label>
                             </div>
                         </div>
-                        <div class="splash-buttons">
+                        <div class="container">
                             <button id="close-password">{% trans "Cancel" %}</button>
                             <button type="submit" id="submit_password" data-partner="{{ account.partnership.id }}">
                                 {% trans "Change password" %}
                             </button>
                         </div>
+{#                        <p>Ваш новый пароль должен быть длиной от 8 до 16 знаков и может содержать буквы верхнего и#}
+{#                            нижнего регистров, а также цифры.#}
+{#                        </p>#}
+{#                        <p>Ваш новый пароль не должен совпадать со старым паролем, а также быть похожим на Ваш электронный адрес</p>#}
+{#                        <div class="summa-wrap">#}
+{#                            <div class="summa">#}
+{#                                <div class="label-wrapp">#}
+{#                                    <label for="old_password">{% trans "Old password" %}:</label>#}
+{#                                </div>#}
+{#                                <div class="input-wrapp">#}
+{#                                    <input type="password" name="old_password" id="old_password" required>#}
+{#                                    <span id="error-old_password" class="password-error"></span>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                            <div class="summa">#}
+{#                                <div class="label-wrapp">#}
+{#                                    <label for="new_password1">{% trans "New password" %}:</label>#}
+{#                                </div>#}
+{#                                <div class="input-wrapp">#}
+{#                                    <input type="password" name="new_password1" id="new_password1" required>#}
+{#                                    <span id="error-new_password1" class="password-error"></span>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                            <div class="summa">#}
+{#                                <div class="label-wrapp">#}
+{#                                    <label for="new_password2">{% trans "New password confirmation" %}:</label>#}
+{#                                </div>#}
+{#                                <div class="input-wrapp">#}
+{#                                    <input type="password" name="new_password2" id="new_password2" required>#}
+{#                                    <span id="error-new_password2" class="password-error"></span>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
                     </form>
                 </div>
             </div>
