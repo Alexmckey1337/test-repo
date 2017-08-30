@@ -35,9 +35,9 @@ class HomeGroupFilter(django_filters.FilterSet):
 
 class HomeGroupsDepartmentFilter(BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        department = request.query_params.get('department')
-        if department:
-            queryset = queryset.filter(church__department=department)
+        department_id = request.query_params.get('department_id')
+        if department_id in [department.id for department in Department.objects.all()]:
+            queryset = queryset.filter(church__department__id=department_id)
 
         return queryset
 

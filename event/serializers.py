@@ -175,7 +175,7 @@ class MeetingDashboardSerializer(serializers.ModelSerializer):
 
 
 class MeetingSummarySerializer(serializers.ModelSerializer):
-    owner = UserNameWithLinkSerializer(source='hhome_group.leader', read_only=True)
+    owner = serializers.CharField(source='fullname', read_only=True)
     master = UserNameWithLinkSerializer()
     meetings_submitted = serializers.IntegerField(read_only=True)
     meetings_in_progress = serializers.IntegerField(read_only=True)
@@ -183,7 +183,7 @@ class MeetingSummarySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('owner', 'master', 'meetings_submitted', 'meetings_in_progress',
+        fields = ('id', 'owner', 'link', 'master', 'meetings_submitted', 'meetings_in_progress',
                   'meetings_expired')
 
 
@@ -299,6 +299,7 @@ class ChurchReportsDashboardSerializer(serializers.ModelSerializer):
 
 
 class ChurchReportSummarySerializer(serializers.ModelSerializer):
+    pastor = serializers.CharField(source='fullname', read_only=True)
     master = UserNameWithLinkSerializer()
     reports_submitted = serializers.IntegerField(read_only=True)
     reports_in_progress = serializers.IntegerField(read_only=True)
@@ -306,5 +307,5 @@ class ChurchReportSummarySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('fullname', 'link', 'master',
+        fields = ('id', 'pastor', 'link', 'master',
                   'reports_submitted', 'reports_in_progress', 'reports_expired', )

@@ -23,7 +23,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from account.filters import FilterByUserBirthday, UserFilter, ShortUserFilter, FilterMasterTreeWithSelf
+from account.filters import (FilterByUserBirthday, UserFilter, ShortUserFilter, FilterMasterTreeWithSelf,
+                             FilterDashboardMasterTreeWithSelf)
 from account.models import CustomUser as User
 from account.permissions import CanSeeUserList, CanCreateUser, CanExportUserList, SeeUserListPermission, \
     EditUserPermission, ExportUserListPermission
@@ -417,7 +418,7 @@ class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
     permission_classes = (IsAuthenticated,)
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
-                       FilterMasterTreeWithSelf,
+                       FilterDashboardMasterTreeWithSelf,
                        filters.OrderingFilter,)
     # filter_fields = ('first_name', 'last_name', 'hierarchy')
     filter_class = ShortUserFilter

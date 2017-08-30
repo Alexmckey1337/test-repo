@@ -5,6 +5,7 @@ from account.models import CustomUser as User
 from common.filters import BaseFilterByBirthday, BaseFilterMasterTree
 from hierarchy.models import Hierarchy, Department
 from summit.models import Summit
+from account.models import CustomUser
 
 
 class FilterByUserBirthday(BaseFilterByBirthday):
@@ -21,6 +22,13 @@ class FilterMasterTree(BaseFilterMasterTree):
 
 class FilterMasterTreeWithSelf(BaseFilterMasterTree):
     include_self_master = True
+
+
+class FilterDashboardMasterTreeWithSelf(FilterMasterTreeWithSelf):
+    def filter_queryset(self, request, queryset, view):
+        if request.user.is_staff:
+            return CustomUser.objects.filter(hierarchy__level__gt=1)
+        return super(FilterDashboardMasterTreeWithSelf, self).filter_queryset(request, queryset, view)
 
 
 class UserFilter(django_filters.FilterSet):
