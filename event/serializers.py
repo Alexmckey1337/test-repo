@@ -299,7 +299,6 @@ class ChurchReportsDashboardSerializer(serializers.ModelSerializer):
 
 
 class ChurchReportSummarySerializer(serializers.ModelSerializer):
-    pastor = serializers.CharField(source='cchurch.pastor', read_only=True)
     master = UserNameWithLinkSerializer()
     reports_submitted = serializers.IntegerField(read_only=True)
     reports_in_progress = serializers.IntegerField(read_only=True)
@@ -307,5 +306,5 @@ class ChurchReportSummarySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('pastor', 'master',
+        fields = ('fullname', 'link', 'master',
                   'reports_submitted', 'reports_in_progress', 'reports_expired', )
