@@ -34,6 +34,7 @@ from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSeria
                           HomeGroupListSerializer, ChurchStatsSerializer, UserNameSerializer,
                           AllHomeGroupsListSerializer, HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer,
                           ChurchDashboardSerializer)
+from payment.models import Currency
 
 logger = logging.getLogger(__name__)
 
@@ -304,7 +305,14 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
     @detail_route(methods=['POST'])
     def change_report_currency(self, request, pk):
         church = get_object_or_404(Church, pk=pk)
-        church.report_currency = int(request.data.get('currency_id', 2))
+        valid_currency = [currency.id for currency in Currency.objects.all()]
+        currency_id = int(request.data.get('currency_id'))
+
+        if currency_id not in valid_currency:
+            raise exceptions.ValidationError(
+                {'message': _('Currency with {id=%s} does not exists' % currency_id)})
+
+        church.report_currency = request.data.get('currency_id', 2)
         church.save()
 
         return Response({'message': 'Валюта Церкви успешно установленно в %s' % church.report_currency})
