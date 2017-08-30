@@ -18,7 +18,7 @@ def create_meetings_summary_columns(apps, schema_editor):
         Meeting_summary_columns(title='master', verbose_title='Ответственный',
                                 ordering_title='master__last_name', number=2,
                                 active=True, editable=True, category_id=meeting_summary.id),
-        Meeting_summary_columns(title='meetings_submitted', verbose_title='Зполненные отчеты',
+        Meeting_summary_columns(title='meetings_submitted', verbose_title='Заполненные отчеты',
                                 ordering_title='meetings_submitted',
                                 number=3, active=True, editable=True, category_id=meeting_summary.id),
         Meeting_summary_columns(title='meetings_in_progress', verbose_title='Отчеты к заполнению',

@@ -38,3 +38,10 @@ class MeetingSummaryPagination(MeetingPagination):
 
     def get_columns(self):
         return meetings_summary_table(self.request.user, self.category)
+
+
+class ReportsSummaryPagination(MeetingPagination):
+    category = None
+
+    def get_columns(self):
+        return None
