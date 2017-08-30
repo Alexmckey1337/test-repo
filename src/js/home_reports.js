@@ -15,32 +15,61 @@
         from_date: thisMonday.split('.').reverse().join('-'),
         to_date: thisSunday.split('.').reverse().join('-')
     };
-    let filterInit = (function () {
-        let init = false;
-        return function () {
-            if (!init) {
-                getPastorsByDepartment({
-                    master_tree: USER_ID
-                }).then(res => {
-                    let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
-                    $treeFilter.html('<option>ВСЕ</option>').append(leaders);
-                });
-                getChurches().then(res => {
-                    let churches = res.results.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
-                    $churchFilter.html('<option>ВСЕ</option>').append(churches);
-                });
-                getHomeGroups().then(res => {
-                   let groups = res.results.map(group=> `<option value="${group.id}">${group.get_title}</option>`);
-                    $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
-                });
-                getHGLeaders().then(res => {
-                   let liders = res.map(lider=> `<option value="${lider.id}">${lider.fullname}</option>`);
-                    $liderFilter.html('<option>ВСЕ</option>').append(liders);
-                });
-                init = true;
-            }
+    let init = false;
+
+    function filterInit(liderID=null) {
+        if (!init) {
+            getPastorsByDepartment({
+                master_tree: USER_ID
+            }).then(res => {
+                let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
+                $treeFilter.html('<option>ВСЕ</option>').append(leaders);
+            });
+            getChurches().then(res => {
+                let churches = res.results.map(church => `<option value="${church.id}">${church.get_title}</option>`);
+                $churchFilter.html('<option>ВСЕ</option>').append(churches);
+            });
+            getHomeGroups().then(res => {
+                let groups = res.results.map(group => `<option value="${group.id}">${group.get_title}</option>`);
+                $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
+            });
+            getHGLeaders().then(res => {
+                let liders = res.map(lider => `<option value="${lider.id}">${lider.fullname}</option>`);
+                $liderFilter.html('<option>ВСЕ</option>').append(liders);
+                if (liderID != null) {
+                    $liderFilter.find(`option[value='${liderID}']`).prop('selected', true).trigger('change');
+                    $('.apply-filter').trigger('click');
+                }
+            });
+            init = true;
         }
-    })();
+    }
+    // let filterInit = (function () {
+    //     let init = false;
+    //     return function () {
+    //         if (!init) {
+    //             getPastorsByDepartment({
+    //                 master_tree: USER_ID
+    //             }).then(res => {
+    //                 let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
+    //                 $treeFilter.html('<option>ВСЕ</option>').append(leaders);
+    //             });
+    //             getChurches().then(res => {
+    //                 let churches = res.results.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
+    //                 $churchFilter.html('<option>ВСЕ</option>').append(churches);
+    //             });
+    //             getHomeGroups().then(res => {
+    //                let groups = res.results.map(group=> `<option value="${group.id}">${group.get_title}</option>`);
+    //                 $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
+    //             });
+    //             getHGLeaders().then(res => {
+    //                let liders = res.map(lider=> `<option value="${lider.id}">${lider.fullname}</option>`);
+    //                 $liderFilter.html('<option>ВСЕ</option>').append(liders);
+    //             });
+    //             init = true;
+    //         }
+    //     }
+    // })();
     HomeReportsTable(configData);
     // Events
     let $statusTabs = $('#statusTabs');
@@ -89,10 +118,6 @@
         $('.preloader').css('display', 'block');
         homeReportsTable();
     }, 500));
-    // $('input[name=fullsearch]').on('keyup', function () {
-    //     $('.preloader').show();
-    //     homeReportsTable();
-    // });
 
     $('.tab-home-stats').find('.type').on('click', function () {
         $(this).closest('#tabs').find('li').removeClass('active');
@@ -186,5 +211,14 @@
             $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
         });
     });
+
+    //Parsing URL
+    let path = window.location.href.split('?')[1];
+    if (path != undefined) {
+        let filterParam = parseUrlQuery();
+        $('.week_all').trigger('click');
+        $('#statusTabs').find(`button[data-status='${filterParam.type}']`).trigger('click');
+        filterInit(filterParam.nameId);
+    }
 
 })();

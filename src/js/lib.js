@@ -3239,7 +3239,14 @@ function makeHomeLiderReportsTable(data, config = {}) {
         pages: pages,
         callback: homeLiderReportsTable
     };
-    // $('.table__count').text(data.count);
+    $('.table__count').text(data.count);
+    $('#homeLiderReports').find('table').on('click', (e) => {
+        if (e.target.className != 'url') return;
+        let url = e.target.getAttribute('data-url'),
+            type = e.target.getAttribute('data-type'),
+            nameId = e.target.getAttribute('data-id');
+        window.location = `${url}?type=${type}&nameId=${nameId}`;
+    });
     makePagination(paginationConfig);
     makeSortForm(data.table_columns);
     $('.table__count').text(text);
@@ -3976,4 +3983,16 @@ function getDuplicates(options = {}) {
     if (typeof url === "string") {
         return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
     }
+}
+
+function parseUrlQuery() {
+    let data = {};
+    if(location.search) {
+        let pair = (location.search.substr(1)).split('&');
+        for(let i = 0; i < pair.length; i ++) {
+            let param = pair[i].split('=');
+            data[param[0]] = param[1];
+        }
+    }
+    return data;
 }
