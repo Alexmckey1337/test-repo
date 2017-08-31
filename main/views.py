@@ -637,7 +637,7 @@ class HomeGroupListView(LoginRequiredMixin, TabsMixin, CanSeeHomeGroupsMixin, Te
 
     def get_context_data(self, **kwargs):
         ctx = super(HomeGroupListView, self).get_context_data(**kwargs)
-
+        ctx['departments'] = Department.objects.all()
         ctx['churches'] = Church.objects.all()
 
         return ctx

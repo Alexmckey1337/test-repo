@@ -60,6 +60,9 @@
                 <div class="container">
                     <div class="col-6">
                         <div class="label_block-wrapp">
+                            <span class="label_block">Отдел</span>
+                        </div>
+                        <div class="label_block-wrapp">
                             <span class="label_block">Церковь</span>
                         </div>
                         <div class="label_block-wrapp">
@@ -76,6 +79,14 @@
                         </div>
                     </div>
                     <div class="col-6">
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="department_id" id="departments_filter">
+                                <option value="">ВСЕ</option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">{{ department.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
                         <p class="input_block">
                             <select class="selectdb" data-filter="church" id="church_filter">
                                 <option value="">ВСЕ</option>
