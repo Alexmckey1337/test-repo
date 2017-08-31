@@ -14,8 +14,9 @@
     let configData = {
         from_date: thisMonday.split('.').reverse().join('-'),
         to_date: thisSunday.split('.').reverse().join('-')
-    };
-    let init = false;
+    },
+        init = false,
+        path = window.location.href.split('?')[1];
 
     function filterInit(liderID=null) {
         if (!init) {
@@ -70,7 +71,7 @@
     //         }
     //     }
     // })();
-    HomeReportsTable(configData);
+    (path == undefined) && HomeReportsTable(configData);
     // Events
     let $statusTabs = $('#statusTabs');
     $statusTabs.find('button').on('click', function () {
@@ -213,11 +214,13 @@
     });
 
     //Parsing URL
-    let path = window.location.href.split('?')[1];
     if (path != undefined) {
         let filterParam = parseUrlQuery();
-        $('.week_all').trigger('click');
-        $('#statusTabs').find(`button[data-status='${filterParam.type}']`).trigger('click');
+        $('.week').removeClass('active');
+        $('.week_all').addClass('active');
+        $('#date_range').val('');
+        $('#statusTabs').find('li').removeClass('current');
+        $('#statusTabs').find(`button[data-status='${filterParam.type}']`).parent().addClass('current');
         filterInit(filterParam.nameId);
     }
 

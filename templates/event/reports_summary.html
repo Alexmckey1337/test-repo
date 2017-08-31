@@ -1,7 +1,7 @@
 {% extends "layout_main.html" %}
 {% load static %}
 
-{% block header.top.h1 %}<h1>Отчеты / Домашние группы</h1>{% endblock %}
+{% block header.top.h1 %}<h1>Отчеты / Церкви</h1>{% endblock %}
 
 {% block header.buttons.top %}
     <div class="top-buttons-wrap">
@@ -14,8 +14,8 @@
     {% block header.tabs %}
         <div class="tabs">
             <ul class="nav tabs_link">
-{#                <li><a href="{% url 'events:church_report_list' %}">Отчёты церквей</a></li>#}
-{#                <li><a href="{% url 'events:church_report_statistics' %}">Статистика церквей</a></li>#}
+                <li><a href="{% url 'events:church_report_list' %}">Отчёты церквей</a></li>
+                <li><a href="{% url 'events:church_report_statistics' %}">Статистика церквей</a></li>
                 <li><a href="{% url 'events:meeting_report_list' %}">Отчёты домашних групп</a></li>
                 <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних групп</a></li>
             </ul>
@@ -24,6 +24,17 @@
     <div class="top-buttons-wrap">
         <ul class="top-buttons">
             {% block header.buttons.add %}
+                <li>
+
+                </li>
+            {% endblock %}
+
+            {% block header.buttons.export %}
+
+            {% endblock %}
+            {% block header.buttons.extra %}
+            {% endblock %}
+            {% block header.buttons.change_table %}
                 <li>
                     <button id="filter_button"
                             class="header__button"
@@ -36,41 +47,16 @@
                     <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
                 </li>
             {% endblock %}
-
-            {% block header.buttons.export %}
-
-            {% endblock %}
-            {% block header.buttons.extra %}
-            {% endblock %}
-            {% block header.buttons.change_table %}
-                {#                <li>#}
-                {#                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>#}
-                {#                </li>#}
-            {% endblock %}
         </ul>
     </div>
 {% endblock %}
 
 {% block main.content %}
-{#    <div class="container-full">#}
+{#        <div class="container-full">#}
 {#        <div class="tab-status tab-home-stats">#}
-{#            <ul id="tabs">#}
-{#                <li class="active">#}
-{#                    <button class="type" data-id="0">Все</button>#}
-{#                </li>#}
-{#                <li>#}
-{#                    <button class="type" data-id="2">Домашняя</button>#}
-{#                </li>#}
-{#                <li>#}
-{#                    <button class="type" data-id="3">Ночная</button>#}
-{#                </li>#}
-{#                <li>#}
-{#                    <button class="type" data-id="1">Служение</button>#}
-{#                </li>#}
-{#            </ul>#}
-{#                <button class="week week_all active">Все</button>#}
-{#                <button class="week week_now">Текущая неделя</button>#}
-{#                <button class="week week_prev">Прошедшая неделя</button>#}
+{#            <button class="week week_all">Все</button>#}
+{#            <button class="week week_now active">Текущая неделя</button>#}
+{#            <button class="week week_prev">Прошедшая неделя</button>#}
 {#            <div class="set-date">#}
 {#                <input type="text" placeholder="Диапазон дат" id="date_range" class="select_date_filter">#}
 {#                <div class="cal-icon"></div>#}
@@ -85,8 +71,8 @@
     {% endblock %}
 
     {% block table %}
-        <div class="table-wrap clearfix" id="homeLiderReports"><!--Table -->
-            <div class="table scrollbar-inner" id="tableHomeLiderReports"></div>
+        <div class="table-wrap clearfix" id="churchPastorReports"><!--Table -->
+            <div class="table scrollbar-inner" id="tableChurchPastorReports"></div>
             <div class="query-none">
                 <p></p>
             </div>
@@ -115,13 +101,10 @@
                             <span class="label_block">Ветка</span>
                         </div>
                         <div class="label_block-wrapp">
+                            <span class="label_block">Пастор</span>
+                        </div>
+                        <div class="label_block-wrapp">
                             <span class="label_block">Церковь</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Лидер домашней группы</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Домашняя группа</span>
                         </div>
                     </div>
                     <div class="col-6">
@@ -134,22 +117,17 @@
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" data-filter="master_tree" id="master_tree_filter">
+                            <select class="selectdb" data-filter="master_tree" id="tree_filter">
+                                <option value="">ВСЕ</option>
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="pastor" id="pastor_filter">
                                 <option value="">ВСЕ</option>
                             </select>
                         </p>
                         <p class="input_block">
                             <select class="selectdb" data-filter="church" id="church_filter">
-                                <option value="">ВСЕ</option>
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="owner" id="masters_filter">
-                                <option value="">ВСЕ</option>
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="owner" id="masters_filter">
                                 <option value="">ВСЕ</option>
                             </select>
                         </p>
@@ -162,16 +140,16 @@
                     Очистить
                 </button>
                 <button class="close-popup">Отменить</button>
-                <button onclick="applyFilter(this, homeLiderReportsTable)" class="apply-filter">Применить</button>
+                <button onclick="applyFilter(this, churchPastorReportsTable)" class="apply-filter">Применить</button>
             </div>
         </div>
     </div>
 {% endblock %}
 {% block extra_scripts %}
-    <script src="{% static "js/meetings_summary.js" %}"></script>
+    <script src="{% static "js/reports_summary.js" %}"></script>
 {% endblock %}
 {% block template_tables %}
-    <script type="text/template" id="databaseHomeLiderReports">
+<script type="text/template" id="databaseChurchPastorReports">
         <table>
             <thead>
             <tr>
@@ -187,7 +165,7 @@
             <tr>
                 <% for( var key in table_columns) { %>
                 <% if(table_columns[key].active) { %>
-                <% if(key == 'owner') { %>
+                <% if(key == 'pastor') { %>
                 <% if (results[index][key] != null) { %>
                 <td>
                     <a href="<%= results[index].link %>" class="reports_id"><%= results[index][key] %></a>
@@ -203,13 +181,13 @@
                 <% } else { %>
                 <td></td>
                 <% } %>
-                <% } else if (key == 'meetings_expired' || key == 'meetings_in_progress' || key == 'meetings_submitted') { %>
+                <% } else if (key == 'reports_expired' || key == 'reports_in_progress' || key == 'reports_submitted') { %>
                 <% if (results[index][key] != null) { %>
                 <td class="url"
-                    data-url="{% url 'events:meeting_report_list' %}"
-                    <% if (key == 'meetings_expired') { %>
+                    data-url="{% url 'events:reports_summary' %}"
+                    <% if (key == 'reports_expired') { %>
                         data-type="3"
-                    <% } else if (key == 'meetings_in_progress') { %>
+                    <% } else if (key == 'reports_in_progress') { %>
                         data-type="1"
                     <% } else { %>
                         data-type="2"
@@ -240,5 +218,5 @@
             <% } %>
             </tbody>
         </table>
-    </script>
+</script>
 {% endblock %}

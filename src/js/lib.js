@@ -3201,6 +3201,15 @@ function churchReportsTable(config = {}) {
     })
 }
 
+function churchPastorReportsTable(config = {}) {
+    Object.assign(config, getSearch('search_title'));
+    Object.assign(config, getFilterParam());
+    Object.assign(config, getTabsFilterParam());
+    getChurchPastorReports(config).then(data => {
+        makeChurchPastorReportsTable(data, config);
+    })
+}
+
 function makeHomeReportsTable(data, config = {}) {
     let tmpl = $('#databaseHomeReports').html();
     let rendered = _.template(tmpl)(data);
@@ -3277,6 +3286,29 @@ function makeChurchReportsTable(data, config = {}) {
     $('.preloader').hide();
 }
 
+function makeChurchPastorReportsTable(data, config = {}) {
+    let tmpl = $('#databaseChurchPastorReports').html();
+    let rendered = _.template(tmpl)(data);
+    $('#churchPastorReports').html(rendered);
+    let count = data.count;
+    let pages = Math.ceil(count / CONFIG.pagination_count);
+    let page = config.page || 1;
+    let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
+    let text = `Показано ${showCount} из ${count}`;
+    let paginationConfig = {
+        container: ".reports__pagination",
+        currentPage: page,
+        pages: pages,
+        callback: churchPastorReportsTable
+    };
+    // $('.table__count').text(data.count);
+    makePagination(paginationConfig);
+    makeSortForm(data.table_columns);
+    $('.table__count').text(text);
+    new OrderTable().sort(churchPastorReportsTable, ".table-wrap th");
+    $('.preloader').hide();
+}
+
 function getHomeReports(config = {}) {
     if (!config.status) {
         let status = parseInt($('#statusTabs').find('.current').find('button').data('status'));
@@ -3333,6 +3365,27 @@ function getChurchReports(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
             url: URLS.event.church_report.list(),
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: config
+        };
+        let status = {
+            200: function (req) {
+                resolve(req);
+            },
+            403: function () {
+                reject('Вы должны авторизоватся');
+            }
+        };
+        newAjaxRequest(data, status);
+    })
+}
+function getChurchPastorReports(config = {}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: URLS.event.church_report.summary(),
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
