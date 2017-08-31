@@ -3180,8 +3180,6 @@ function homeReportsTable(config = {}) {
 }
 
 function homeLiderReportsTable(config = {}) {
-    let status = $('#statusTabs').find('.current').find('button').data('status');
-    config.status = status;
     Object.assign(config, getSearch('search_title'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getTabsFilterParam());

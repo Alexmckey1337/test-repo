@@ -1,7 +1,9 @@
 (function () {
     let $departmentsFilter = $('#departments_filter'),
         $treeFilter = $('#master_tree_filter'),
-        $churchFilter = $('#church_filter');
+        $churchFilter = $('#church_filter'),
+        $responsibleFilter = $('#responsible_filter'),
+        initResponsible = false;
     const USER_ID = $('body').data('user');
     let filterInit = (function () {
         let init = false;
@@ -38,6 +40,13 @@
     function HomeLiderReportsTable() {
         getHomeLiderReports().then(data => {
             makeHomeLiderReportsTable(data);
+            if (!initResponsible) {
+                let responsibles = data.results.map(res => res.master),
+                    uniqResponsibles = _.uniqWith(responsibles, _.isEqual);
+                const options = uniqResponsibles.map(option => `<option value="${option.id}">${option.fullname}</option>`);
+                $responsibleFilter.html('<option>ВСЕ</option>').append(options);
+                initResponsible = true;
+            }
         });
     }
 
