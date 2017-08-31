@@ -84,7 +84,7 @@ services:
       - VIRTUAL_HOST=vocrm.net
       - VIRTUAL_PORT=80
       - VIRTUAL_PROTO=http
-      - HTTPS_METHOD=noredirect
+      - HTTPS_METHOD=redirect
       - LETSENCRYPT_HOST=vocrm.net
       - LETSENCRYPT_EMAIL=pluton@freeday.com.ua
       - DEBUG=true
