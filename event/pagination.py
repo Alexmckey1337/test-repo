@@ -1,7 +1,7 @@
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
-from navigation.table_fields import meeting_table, meetings_summary_table
+from navigation.table_fields import meeting_table, meetings_summary_table, reports_summary_table
 
 
 class MeetingPagination(PageNumberPagination):
@@ -41,7 +41,7 @@ class MeetingSummaryPagination(MeetingPagination):
 
 
 class ReportsSummaryPagination(MeetingPagination):
-    category = None
+    category = 'reports_summary'
 
     def get_columns(self):
-        return None
+        return reports_summary_table(self.request.user, self.category)

@@ -103,10 +103,9 @@ def meeting_report_statistics(request):
 def meetings_summary(request):
     if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
         return redirect('/')
-
     ctx = {}
 
-    return render(request, 'event/meetings_summary', context=ctx)
+    return render(request, 'event/meetings_summary.html', context=ctx)
 
 
 @login_required(login_url='entry')
@@ -145,6 +144,14 @@ def church_statistics(request):
 
     return render(request, 'event/church_statistics.html', context=ctx)
 
+
+@login_required(login_url='entry')
+def reports_summary(request):
+    if not request.user.hierarchy or request.user.hierarchy.level < 2:
+        return redirect('/')
+    ctx = {}
+
+    return render(request, 'event/reports_summary.html', context=ctx)
 
 # partner
 
