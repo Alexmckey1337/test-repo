@@ -3,6 +3,7 @@ from rest_framework import filters
 from account.models import CustomUser
 from event.models import ChurchReport, Meeting
 from common.filters import BaseFilterMasterTree
+from django.db.models import Q
 
 
 class CommonMeetingFilter(django_filters.FilterSet):
@@ -62,3 +63,25 @@ class MeetingFilterByMaster(BaseFilterMasterTree):
 class ChurchReportFilterByMaster(BaseFilterMasterTree):
     include_self_master = True
     user_field_prefix = 'pastor__'
+
+
+class EventSummaryMasterFilter(MeetingFilterByMaster):
+    include_self_master = True
+    user_field_prefix = None
+
+
+class EventSummaryFilter(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        responsible_id = request.query_params.get('responsible_id')
+        if responsible_id:
+            queryset = queryset.filter(master__id=responsible_id)
+
+        department_id = request.query_params.get('department_id')
+        if department_id:
+            queryset = queryset.filter(departments__id__in=department_id)
+
+        church_id = request.query_params.get('church_id')
+        if church_id:
+            queryset = queryset.filter(Q(cchurch__id=church_id) | Q(hhome_group__church__id=church_id))
+
+        return queryset
