@@ -101,15 +101,15 @@
                             <span class="label_block">Ветка</span>
                         </div>
                         <div class="label_block-wrapp">
-                            <span class="label_block">Пастор</span>
+                            <span class="label_block">Церковь</span>
                         </div>
                         <div class="label_block-wrapp">
-                            <span class="label_block">Церковь</span>
+                            <span class="label_block">Ответственный</span>
                         </div>
                     </div>
                     <div class="col-6">
                         <p class="input_block">
-                            <select class="selectdb" data-filter="department" id="departments_filter">
+                            <select class="selectdb" data-filter="department_id" id="departments_filter">
                                 <option value="">ВСЕ</option>
                                 {% for department in departments %}
                                     <option value="{{ department.id }}">{{ department.title }}</option>
@@ -117,17 +117,17 @@
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" data-filter="master_tree" id="tree_filter">
+                            <select class="selectdb" data-filter="master_id" id="tree_filter">
                                 <option value="">ВСЕ</option>
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" data-filter="pastor" id="pastor_filter">
+                            <select class="selectdb" data-filter="church_id" id="church_filter">
                                 <option value="">ВСЕ</option>
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" data-filter="church" id="church_filter">
+                            <select class="selectdb" data-filter="responsible_id" id="responsible_filter">
                                 <option value="">ВСЕ</option>
                             </select>
                         </p>
@@ -184,7 +184,7 @@
                 <% } else if (key == 'reports_expired' || key == 'reports_in_progress' || key == 'reports_submitted') { %>
                 <% if (results[index][key] != null) { %>
                 <td class="url"
-                    data-url="{% url 'events:reports_summary' %}"
+                    data-url="{% url 'events:church_report_list' %}"
                     <% if (key == 'reports_expired') { %>
                         data-type="3"
                     <% } else if (key == 'reports_in_progress') { %>

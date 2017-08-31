@@ -44,7 +44,7 @@
                 let responsibles = data.results.map(res => res.master),
                     uniqResponsibles = _.uniqWith(responsibles, _.isEqual);
                 const options = uniqResponsibles.map(option => `<option value="${option.id}">${option.fullname}</option>`);
-                $responsibleFilter.html('<option>ВСЕ</option>').append(options);
+                $responsibleFilter.append(options);
                 initResponsible = true;
             }
         });

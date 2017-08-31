@@ -547,6 +547,8 @@ function getChurchesListINDepartament(department_ids) {
                     url += '&';
                 }
             })
+        } else {
+            url = `${URLS.church.for_select()}?department=${department_ids}`;
         }
         let data = {
             url: url,
@@ -3180,7 +3182,7 @@ function homeReportsTable(config = {}) {
 }
 
 function homeLiderReportsTable(config = {}) {
-    Object.assign(config, getSearch('search_title'));
+    Object.assign(config, getSearch('search_fio'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getTabsFilterParam());
     getHomeLiderReports(config).then(data => {
@@ -3200,7 +3202,7 @@ function churchReportsTable(config = {}) {
 }
 
 function churchPastorReportsTable(config = {}) {
-    Object.assign(config, getSearch('search_title'));
+    Object.assign(config, getSearch('search_fio'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getTabsFilterParam());
     getChurchPastorReports(config).then(data => {
@@ -3302,6 +3304,13 @@ function makeChurchPastorReportsTable(data, config = {}) {
     // $('.table__count').text(data.count);
     makePagination(paginationConfig);
     makeSortForm(data.table_columns);
+    $('#churchPastorReports').find('table').on('click', (e) => {
+        if (e.target.className != 'url') return;
+        let url = e.target.getAttribute('data-url'),
+            type = e.target.getAttribute('data-type'),
+            nameId = e.target.getAttribute('data-id');
+        window.location = `${url}?type=${type}&nameId=${nameId}`;
+    });
     $('.table__count').text(text);
     new OrderTable().sort(churchPastorReportsTable, ".table-wrap th");
     $('.preloader').hide();

@@ -159,6 +159,7 @@
                     $churchFilter.html('<option>ВСЕ</option>').append(churches);
                 });
         getHomeGroups(config).then(res => {
+            console.log('sadasdas');
                    let groups = res.results.map(group=> `<option value="${group.id}">${group.get_title}</option>`);
                     $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
                 });
