@@ -52,31 +52,6 @@
 {% endblock %}
 
 {% block main.content %}
-{#    <div class="container-full">#}
-{#        <div class="tab-status tab-home-stats">#}
-{#            <ul id="tabs">#}
-{#                <li class="active">#}
-{#                    <button class="type" data-id="0">Все</button>#}
-{#                </li>#}
-{#                <li>#}
-{#                    <button class="type" data-id="2">Домашняя</button>#}
-{#                </li>#}
-{#                <li>#}
-{#                    <button class="type" data-id="3">Ночная</button>#}
-{#                </li>#}
-{#                <li>#}
-{#                    <button class="type" data-id="1">Служение</button>#}
-{#                </li>#}
-{#            </ul>#}
-{#                <button class="week week_all active">Все</button>#}
-{#                <button class="week week_now">Текущая неделя</button>#}
-{#                <button class="week week_prev">Прошедшая неделя</button>#}
-{#            <div class="set-date">#}
-{#                <input type="text" placeholder="Диапазон дат" id="date_range" class="select_date_filter">#}
-{#                <div class="cal-icon"></div>#}
-{#            </div>#}
-{#        </div>#}
-{#    </div>#}
     {% block pagination_top %}
         <div class="top-pag"></div>
         <div class="table__count"></div>
@@ -118,15 +93,12 @@
                             <span class="label_block">Церковь</span>
                         </div>
                         <div class="label_block-wrapp">
-                            <span class="label_block">Лидер домашней группы</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Домашняя группа</span>
+                            <span class="label_block">Ответственный</span>
                         </div>
                     </div>
                     <div class="col-6">
                         <p class="input_block">
-                            <select class="selectdb" data-filter="department" id="departments_filter">
+                            <select class="selectdb" data-filter="department_id" id="departments_filter">
                                 <option value="">ВСЕ</option>
                                 {% for department in departments %}
                                     <option value="{{ department.id }}">{{ department.title }}</option>
@@ -134,22 +106,17 @@
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" data-filter="master_tree" id="master_tree_filter">
+                            <select class="selectdb" data-filter="master_id" id="master_tree_filter">
                                 <option value="">ВСЕ</option>
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" data-filter="church" id="church_filter">
+                            <select class="selectdb" data-filter="church_id" id="church_filter">
                                 <option value="">ВСЕ</option>
                             </select>
                         </p>
                         <p class="input_block">
-                            <select class="selectdb" data-filter="owner" id="masters_filter">
-                                <option value="">ВСЕ</option>
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="owner" id="masters_filter">
+                            <select class="selectdb" data-filter="responsible_id" id="responsible_filter">
                                 <option value="">ВСЕ</option>
                             </select>
                         </p>
