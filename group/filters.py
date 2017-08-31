@@ -37,7 +37,7 @@ class HomeGroupsDepartmentFilter(BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         department_id = request.query_params.get('department_id')
         if department_id:
-            queryset = queryset.filter(church__department__id=department_id)
+            queryset = queryset.filter(church__department_id=department_id)
 
         return queryset
 
