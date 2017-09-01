@@ -103,7 +103,9 @@ def meeting_report_statistics(request):
 def meetings_summary(request):
     if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
         return redirect('/')
-    ctx = {}
+    ctx = {
+        'departments': Department.objects.all()
+    }
 
     return render(request, 'event/meetings_summary.html', context=ctx)
 
@@ -149,7 +151,9 @@ def church_statistics(request):
 def reports_summary(request):
     if not request.user.hierarchy or request.user.hierarchy.level < 2:
         return redirect('/')
-    ctx = {}
+    ctx = {
+        'departments': Department.objects.all()
+    }
 
     return render(request, 'event/reports_summary.html', context=ctx)
 
@@ -643,7 +647,7 @@ class HomeGroupListView(LoginRequiredMixin, TabsMixin, CanSeeHomeGroupsMixin, Te
 
     def get_context_data(self, **kwargs):
         ctx = super(HomeGroupListView, self).get_context_data(**kwargs)
-
+        ctx['departments'] = Department.objects.all()
         ctx['churches'] = Church.objects.all()
 
         return ctx
