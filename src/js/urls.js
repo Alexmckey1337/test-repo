@@ -80,6 +80,7 @@ const PARTNER = {
     stats_deal: () => `/api/v1.1/partnerships/stat_deals/`,
     stat_payment: () => `/api/v1.1/partnerships/stat_payments/`,
     update_need: (partnerId) => `/api/v1.1/partnerships/${partnerId}/update_need/`,
+    managers_summary: () => `/api/v1.1/partnerships/managers_summary/`,
 };
 
 const DEAL = {

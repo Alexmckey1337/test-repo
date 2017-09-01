@@ -3190,6 +3190,24 @@ function churchReportsTable(config = {}) {
     })
 }
 
+function partnershipSummaryTable(config = {}) {
+    let month = $('#date_field_stats').val().split('/')[0],
+        year = $('#date_field_stats').val().split('/')[1];
+    config.year = year;
+    config.month = month;
+    // Object.assign(config, getSearch('search_title'));
+    // Object.assign(config, getFilterParam());
+    // Object.assign(config, getTabsFilterParam());
+    getPartnershipSummary(config).then(data => {
+        let columns = _.last(data),
+                results = _.dropRight(data),
+                config = {};
+            config.results = results;
+            Object.assign(columns,config);
+        makePartnershipSummaryTable(columns, config);
+    })
+}
+
 function makeHomeReportsTable(data, config = {}) {
     let tmpl = $('#databaseHomeReports').html();
     let rendered = _.template(tmpl)(data);
@@ -3210,6 +3228,29 @@ function makeHomeReportsTable(data, config = {}) {
     makeSortForm(data.table_columns);
     $('.table__count').text(text);
     new OrderTable().sort(homeReportsTable, ".table-wrap th");
+    $('.preloader').hide();
+}
+
+function makePartnershipSummaryTable(data, config = {}) {
+    let tmpl = $('#databasePartnershipSummary').html();
+    let rendered = _.template(tmpl)(data);
+    $('#managersPlan').html(rendered);
+    // let count = data.count;
+    // let pages = Math.ceil(count / CONFIG.pagination_count);
+    // let page = config.page || 1;
+    // let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
+    // let text = `Показано ${showCount} из ${count}`;
+    // let paginationConfig = {
+    //     container: ".reports__pagination",
+    //     currentPage: page,
+    //     pages: pages,
+    //     callback: homeReportsTable
+    // };
+    // $('.table__count').text(data.count);
+    // makePagination(paginationConfig);
+    // makeSortForm(data.table_columns);
+    // $('.table__count').text(text);
+    // new OrderTable().sort(homeReportsTable, ".table-wrap th");
     $('.preloader').hide();
 }
 
@@ -3244,6 +3285,28 @@ function getHomeReports(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
             url: URLS.event.home_meeting.list(),
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: config
+        };
+        let status = {
+            200: function (req) {
+                resolve(req);
+            },
+            403: function () {
+                reject('Вы должны авторизоватся');
+            }
+
+        };
+        newAjaxRequest(data, status);
+    })
+}
+function getPartnershipSummary(config = {}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: URLS.partner.managers_summary(),
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

@@ -119,8 +119,8 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
 
     @list_route(methods=['GET'])
     def managers_summary(self, request):
-        year = request.query_params.get('year', datetime.now().year)
-        month = request.query_params.get('month', datetime.now().month)
+        year = int(request.query_params.get('year', datetime.now().year))
+        month = int(request.query_params.get('month', datetime.now().month))
         ordering = request.query_params.get('ordering', '-sum_pay')
         reverse = False
 
