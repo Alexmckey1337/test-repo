@@ -10,19 +10,23 @@ from .models import Partnership, Deal
 
 
 class PartnershipSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Partnership
+        fields = ('responsible', 'value', 'date', 'need_text', 'currency', 'is_active')
+
+
+class PartnershipTableSerializer(serializers.ModelSerializer):
+    user = UserTableSerializer()
     date = serializers.DateField(format=None, input_formats=None)
     responsible = serializers.StringRelatedField()
-    user = UserTableSerializer()
+    value = DecimalWithCurrencyField(max_digits=12, decimal_places=0, read_only=True, currency_field='currency')
 
     class Meta:
         model = Partnership
-        fields = ('id', 'user', 'responsible', 'value', 'is_responsible', 'date',
-                  'fullname', 'need_text', 'level', 'currency', 'is_active',
-                  )
-
-
-class PartnershipTableSerializer(PartnershipSerializer):
-    value = DecimalWithCurrencyField(max_digits=12, decimal_places=0, read_only=True, currency_field='currency')
+        fields = (
+            'id', 'user', 'responsible', 'value', 'is_responsible', 'date',
+            'fullname', 'need_text', 'level', 'currency', 'is_active',
+        )
 
 
 class DealCreateSerializer(serializers.ModelSerializer):
