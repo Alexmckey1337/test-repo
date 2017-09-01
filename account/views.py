@@ -434,7 +434,8 @@ class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
 
 
 class DashboardMasterTreeFilterViewSet(ModelWithoutDeleteViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.exclude(hierarchy__level=0).select_related(
+        'hierarchy').order_by()
     serializer_class = UserShortSerializer
     pagination_class = None
     permission_classes = (IsAuthenticated,)

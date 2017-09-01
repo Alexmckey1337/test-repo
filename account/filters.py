@@ -27,7 +27,7 @@ class FilterMasterTreeWithSelf(BaseFilterMasterTree):
 class FilterDashboardMasterTreeWithSelf(FilterMasterTreeWithSelf):
     def filter_queryset(self, request, queryset, view):
         if request.user.is_staff:
-            return CustomUser.objects.filter(hierarchy__level__gt=1)
+            return queryset
         return super(FilterDashboardMasterTreeWithSelf, self).filter_queryset(request, queryset, view)
 
 
