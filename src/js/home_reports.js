@@ -222,7 +222,7 @@
         $('#date_range').val('');
         $('#statusTabs').find('li').removeClass('current');
         $('#statusTabs').find(`button[data-status='${filterParam.type}']`).parent().addClass('current');
-        filterInit(filterParam.nameId);
+        filterInit(filterParam.owner);
     }
 
 })();

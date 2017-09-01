@@ -3084,6 +3084,20 @@ function getFilterParam() {
         delete data.master_tree;
     }
 
+    let url = '',
+        filterKeys = Object.keys(data);
+    if (filterKeys && filterKeys.length) {
+        let items = filterKeys.length,
+            count = 0;
+        filterKeys.forEach(function (key) {
+            count++;
+            url += key + '=' + data[key];
+            if (count != items) {
+                url += '&';
+            }
+        });
+        history.replaceState(null, null, `?${url}`);
+    }
     return data;
 }
 
@@ -3184,7 +3198,6 @@ function homeReportsTable(config = {}) {
 function homeLiderReportsTable(config = {}) {
     Object.assign(config, getSearch('search_fio'));
     Object.assign(config, getFilterParam());
-    Object.assign(config, getTabsFilterParam());
     getHomeLiderReports(config).then(data => {
         makeHomeLiderReportsTable(data, config);
     })
@@ -3204,7 +3217,6 @@ function churchReportsTable(config = {}) {
 function churchPastorReportsTable(config = {}) {
     Object.assign(config, getSearch('search_fio'));
     Object.assign(config, getFilterParam());
-    Object.assign(config, getTabsFilterParam());
     getChurchPastorReports(config).then(data => {
         makeChurchPastorReportsTable(data, config);
     })
@@ -3254,7 +3266,7 @@ function makeHomeLiderReportsTable(data, config = {}) {
         let url = e.target.getAttribute('data-url'),
             type = e.target.getAttribute('data-type'),
             nameId = e.target.getAttribute('data-id');
-        window.location = `${url}?type=${type}&nameId=${nameId}`;
+        window.location = `${url}?type=${type}&owner=${nameId}`;
     });
     makePagination(paginationConfig);
     makeSortForm(data.table_columns);
