@@ -46,6 +46,7 @@ from .serializers import (
     UserShortSerializer, UserTableSerializer, UserSingleSerializer, PartnershipSerializer, ExistUserSerializer,
     UserCreateSerializer, DashboardSerializer, DuplicatesAvoidedSerializer,
 )
+from .pagination import DashboardPagination
 
 logger = logging.getLogger(__name__)
 
@@ -434,9 +435,10 @@ class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
 
 
 class DashboardMasterTreeFilterViewSet(ModelWithoutDeleteViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.select_related(
+        'hierarchy').order_by()
     serializer_class = UserShortSerializer
-    pagination_class = None
+    pagination_class = DashboardPagination
     permission_classes = (IsAuthenticated,)
     filter_backends = (FilterDashboardMasterTreeWithSelf,)
 

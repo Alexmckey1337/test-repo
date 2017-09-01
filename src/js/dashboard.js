@@ -196,7 +196,8 @@
             master_tree: userId,
             level_gte: 1
         };
-        getShortUsers(config).then(data => {
+
+        getShortUsersForDashboard(config).then(data => {
             const options = data.map(option =>
                 `<option value="${option.id}" ${(userId == option.id) ? 'selected' : ''}>${option.fullname}</option>`);
             $('#master-filter').append(options);
