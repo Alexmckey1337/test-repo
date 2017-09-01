@@ -3084,20 +3084,6 @@ function getFilterParam() {
         delete data.master_tree;
     }
 
-    let url = '',
-        filterKeys = Object.keys(data);
-    if (filterKeys && filterKeys.length) {
-        let items = filterKeys.length,
-            count = 0;
-        filterKeys.forEach(function (key) {
-            count++;
-            url += key + '=' + data[key];
-            if (count != items) {
-                url += '&';
-            }
-        });
-        history.replaceState(null, null, `?${url}`);
-    }
     return data;
 }
 
@@ -3198,6 +3184,7 @@ function homeReportsTable(config = {}) {
 function homeLiderReportsTable(config = {}) {
     Object.assign(config, getSearch('search_fio'));
     Object.assign(config, getFilterParam());
+    updateHistoryUrl(config);
     getHomeLiderReports(config).then(data => {
         makeHomeLiderReportsTable(data, config);
     })
@@ -4067,4 +4054,54 @@ function parseUrlQuery() {
         }
     }
     return data;
+}
+
+function updateHistoryUrl(data) {
+    let url,
+        filterKeys = Object.keys(data);
+    if (filterKeys && filterKeys.length) {
+        let items = filterKeys.length,
+            count = 0;
+        url = '?';
+        filterKeys.forEach(function (key) {
+            count++;
+            url += key + '=' + data[key];
+            if (count != items) {
+                url += '&';
+            }
+        });
+        history.replaceState(null, null, `${url}`);
+    } else {
+        history.replaceState(null, null, window.location.pathname);
+    }
+}
+
+function makeSelect(selector, url, parseFunc) {
+    selector.select2({
+        ajax: {
+            url: url,
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    search: params.term,
+                    page: params.page
+                };
+            },
+            processResults: parseFunc,
+            cache: true
+        },
+        escapeMarkup: function (markup) {
+            return markup;
+        },
+        templateResult: formatRepo,
+        templateSelection: formatRepo
+    });
+}
+
+function formatRepo(data) {
+    if (data.id === '') {
+        return '-------';
+    }
+    return `<option value="${data.id}">${data.text}</option>`;
 }

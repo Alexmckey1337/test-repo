@@ -8,25 +8,43 @@
     const USER_ID = $('body').data('user'),
         PATH = window.location.href.split('?')[1];
 
-    function filterInit(config = null) {
+    function filterInit(set = null) {
         if (!init) {
-            if (config != null) {
-                $('#departments_filter').find(`option[value='${config.department_id}']`).prop('selected', true);
-            let departamentID = $('#departments_filter').val(),
-                config = {},
-                config2 = {};
-            if (departamentID) {
-                config.department = departamentID;
-                config2.department_id = departamentID;
-            }
-            getPastorsByDepartment(config2).then(function (data) {
-                const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
-                $treeFilter.html('<option>ВСЕ</option>').append(pastors);
-            });
-            getChurches(config).then(res => {
-                let churches = res.results.map(church => `<option value="${church.id}">${church.get_title}</option>`);
-                $churchFilter.html('<option>ВСЕ</option>').append(churches);
-            });
+            console.log(set);
+            if (set != null) {
+                $('#departments_filter').find(`option[value='${set.department_id}']`).prop('selected', true).trigger('change');
+                let departamentID = $('#departments_filter').val(),
+                    config = {},
+                    config2 = {};
+                if (departamentID) {
+                    config.department = departamentID;
+                    config2.department_id = departamentID;
+                }
+                getPastorsByDepartment(config2).then(data => {
+                    const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
+                    $treeFilter.html('<option>ВСЕ</option>').append(pastors);
+                }).then(() => {
+                    getChurches(config).then(res => {
+                        let churches = res.results.map(church => `<option value="${church.id}">${church.get_title}</option>`);
+                        $churchFilter.html('<option>ВСЕ</option>').append(churches);
+                    });
+                }).then(() => {
+                    if (set.master_id) {
+                        getChurches({master_tree: set.master_id}).then(res => {
+                            let churches = res.results.map(church => `<option value="${church.id}">${church.get_title}</option>`);
+                            $churchFilter.html('<option>ВСЕ</option>').append(churches);
+                        });
+                    }
+                }).then(() => {
+                    getHomeLiderReports().then(data => {
+                        let responsibles = data.results.map(res => res.master),
+                            uniqResponsibles = _.uniqWith(responsibles, _.isEqual);
+                        const options = uniqResponsibles.map(option =>
+                            `<option value="${option.id}" ${(set.responsible_id == option.id) ? 'selected' : ''}>${option.fullname}</option>`);
+                        $responsibleFilter.append(options);
+                        $('.apply-filter').trigger('click');
+                    });
+                });
             } else {
                 getPastorsByDepartment({master_tree: USER_ID}).then(res => {
                     let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
@@ -37,10 +55,6 @@
                     $churchFilter.html('<option>ВСЕ</option>').append(churches);
                 });
             }
-
-
-
-
             // getPastorsByDepartment({
             //     master_tree: USER_ID
             // }).then(res => {
@@ -84,6 +98,7 @@
         $('.preloader').css('display', 'block');
         updateSettings(HomeLiderReportsTable);
     });
+
     function HomeLiderReportsTable() {
         getHomeLiderReports().then(data => {
             makeHomeLiderReportsTable(data);
@@ -135,12 +150,12 @@
             });
         });
 
-        $churchFilter.on('change', function () {
-            let config = {};
-            if ($(this).val() != "ВСЕ") {
-                config.church = $(this).val();
-            }
-        });
+        // $churchFilter.on('change', function () {
+        //     let config = {};
+        //     if ($(this).val() != "ВСЕ") {
+        //         config.church = $(this).val();
+        //     }
+        // });
     }
 
     //Parsing URL

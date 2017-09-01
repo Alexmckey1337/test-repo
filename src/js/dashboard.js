@@ -204,36 +204,6 @@
         //     $('#master-filter').append(options);
         // });
 
-        function makeSelect(selector, url, parseFunc) {
-            selector.select2({
-                ajax: {
-                    url: url,
-                    dataType: 'json',
-                    delay: 250,
-                    data: function (params) {
-                        return {
-                            search: params.term,
-                            page: params.page
-                        };
-                    },
-                    processResults: parseFunc,
-                    cache: true
-                },
-                escapeMarkup: function (markup) {
-                    return markup;
-                },
-                templateResult: formatRepo,
-                templateSelection: formatRepo
-            });
-        }
-
-        function formatRepo(data) {
-            if (data.id === '') {
-                return '-------';
-            }
-            return `<option value="${data.id}">${data.text}</option>`;
-        }
-
         function parse(data, params) {
             params.page = params.page || 1;
             const results = [];
