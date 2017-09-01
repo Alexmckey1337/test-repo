@@ -12,6 +12,7 @@ const USER = {
     dashboard_count: () => `/api/v1.1/users/dashboard_counts/`,
     list_user: () => `/api/v1.1/users/for_select/`,
     find_duplicates: () => `/api/v1.1/users/duplicates_avoided/`,
+    short_for_dashboard: () => `/api/v1.0/dashboard_users/`,
 };
 
 const SUMMIT = {

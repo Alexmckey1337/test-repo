@@ -46,6 +46,7 @@ from .serializers import (
     UserShortSerializer, UserTableSerializer, UserSingleSerializer, PartnershipSerializer, ExistUserSerializer,
     UserCreateSerializer, DashboardSerializer, DuplicatesAvoidedSerializer,
 )
+from .pagination import DashboardPagination
 
 logger = logging.getLogger(__name__)
 
@@ -437,7 +438,7 @@ class DashboardMasterTreeFilterViewSet(ModelWithoutDeleteViewSet):
     queryset = User.objects.exclude(hierarchy__level=0).select_related(
         'hierarchy').order_by()
     serializer_class = UserShortSerializer
-    pagination_class = None
+    pagination_class = DashboardPagination
     permission_classes = (IsAuthenticated,)
     filter_backends = (FilterDashboardMasterTreeWithSelf,
                        filters.SearchFilter,)

@@ -706,6 +706,7 @@ def index(request):
         'departments': Department.objects.all(),
         'summits': SummitType.objects.all(),
         'hierarchies': Hierarchy.objects.order_by('level'),
+        'current_user': CustomUser.objects.get(id=user.id)
     }
 
     if user.is_staff:
