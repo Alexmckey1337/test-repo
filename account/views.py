@@ -439,7 +439,11 @@ class DashboardMasterTreeFilterViewSet(ModelWithoutDeleteViewSet):
     serializer_class = UserShortSerializer
     pagination_class = None
     permission_classes = (IsAuthenticated,)
-    filter_backends = (FilterDashboardMasterTreeWithSelf,)
+    filter_backends = (FilterDashboardMasterTreeWithSelf,
+                       filters.SearchFilter,)
+
+    filter_class = ShortUserFilter
+    search_fields = ('first_name', 'last_name', 'middle_name')
 
 
 class ExistUserListViewSet(mixins.ListModelMixin, GenericViewSet):
