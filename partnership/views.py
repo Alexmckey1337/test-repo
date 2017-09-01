@@ -179,11 +179,10 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
                      zip(partners, sum_deals, total_partners, active_partners, potential_sum, sum_pay))
 
         ordering_fields = ['manager', 'sum_deals', 'total_partners', 'active_partners', 'potential_sum', 'sum_pay']
-        reversed_ordering_fields = ['-' + field for field in ordering_fields]
         managers = list(result)
-        if ordering not in ordering_fields + reversed_ordering_fields:
+        if ordering not in ordering_fields:
             return Response(managers)
-        print(reverse)
+
         managers.sort(key=lambda obj: obj['%s' % ordering], reverse=reverse)
         managers.append({'table_columns': partnership_summary_table(self.request.user)})
         return Response(managers)
