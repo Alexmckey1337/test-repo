@@ -211,6 +211,16 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, TemplateView):
         return ctx
 
 
+@login_required(login_url='entry')
+def partnership_summary(request):
+    if not request.user.hierarchy or request.user.hierarchy.level < 1:
+        return redirect('/')
+
+    ctx = {}
+
+    return render(request, 'partner/partnership_summary.html', context=ctx)
+
+
 class DealListView(LoginRequiredMixin, CanSeeDealsMixin, TemplateView):
     template_name = 'partner/deals.html'
     login_url = 'entry'
