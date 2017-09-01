@@ -6,7 +6,7 @@ from pytest_factoryboy import register
 from account.factories import UserFactory
 from account.models import CustomUser
 from hierarchy.factories import HierarchyFactory, DepartmentFactory
-from partnership.factories import PartnerFactory
+from partnership.factories import PartnerFactory, DealFactory
 from payment.factories import CurrencyFactory
 from status.factories import DivisionFactory
 from summit.factories import SummitFactory, SummitTypeFactory, SummitAnketFactory
@@ -17,6 +17,7 @@ register(HierarchyFactory)
 register(DepartmentFactory)
 register(DivisionFactory)
 register(PartnerFactory)
+register(DealFactory)
 register(SummitFactory)
 register(SummitTypeFactory)
 register(SummitAnketFactory)
