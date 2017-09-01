@@ -240,7 +240,6 @@ class ChurchReportSerializer(ChurchReportListSerializer):
 
     class Meta(ChurchReportListSerializer.Meta):
         fields = ChurchReportListSerializer.Meta.fields + (
-            'currency_donations',
             'comment',
             'transfer_payments',
         )

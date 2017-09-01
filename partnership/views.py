@@ -8,7 +8,7 @@ from rest_framework import exceptions, filters, mixins, status, viewsets
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.db.models import Sum, When, Case, F, IntegerField, Q
+from django.db.models import Sum, When, Case, F, IntegerField, Q, DecimalField, OuterRef, Subquery, Count
 
 from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
@@ -20,7 +20,7 @@ from partnership.mixins import (PartnerStatMixin, DealCreatePaymentMixin, DealLi
 from partnership.pagination import PartnershipPagination, DealPagination
 from partnership.permissions import CanSeeDeals, CanSeePartners, CanCreateDeals, CanUpdateDeals, CanUpdatePartner
 from partnership.resources import PartnerResource
-from .models import Partnership, Deal
+from .models import Partnership, Deal, Payment
 from .serializers import (
     DealSerializer, PartnershipSerializer, DealCreateSerializer, PartnershipTableSerializer, DealUpdateSerializer)
 
@@ -113,6 +113,51 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         partnership.save()
 
         return Response({'need_text': text})
+
+    @list_route(methods=['GET'])
+    def partners_summary(self, request):
+        year = 2017
+        month = 8
+
+        queryset = self.queryset.filter(level__lte=Partnership.MANAGER, is_active=True)
+
+        subqs_deals = Deal.objects.filter(date_created__year=year, date_created__month=month, responsible=OuterRef(
+            'pk')).order_by().values('responsible').annotate(deals_sum=Sum('value')).values('deals_sum')
+
+        sum_deals = queryset.annotate(sum_deals=Subquery(subqs_deals, output_field=DecimalField())).values(
+            'sum_deals').order_by('id')
+
+        subqs_partners = Partnership.objects.filter(responsible=OuterRef('pk')).order_by().values(
+            'responsible').annotate(count=Count('id')).values('count')
+
+        total_partners = queryset.annotate(total_partners=Subquery(subqs_partners)).values(
+            'total_partners').order_by('id')
+
+        subqs_active_partners = Partnership.objects.filter(
+            responsible=OuterRef('pk'), is_active=True).order_by().values('responsible').annotate(
+            count=Count('id')).values('count')
+
+        active_partners = queryset.annotate(active_partners=Subquery(subqs_active_partners, output_field=IntegerField())
+                                            ).values('active_partners').order_by('id')
+
+        subqs_potential_sum = Partnership.objects.filter(responsible=OuterRef('pk')).order_by().values(
+            'responsible').annotate(potential_sum=Sum('value')).values('potential_sum')
+
+        potential_sum = queryset.annotate(potential_sum=Subquery(subqs_potential_sum)).values(
+            'potential_sum').order_by('id')
+
+        raw = """
+          select p.id,
+          (select sum(pay.sum) from payment_payment pay WHERE pay.content_type_id = 40 and
+          pay.object_id in (select d.id from partnership_deal d where d.responsible_id = p.id and
+          (d.date_created BETWEEN '{0}-01-01' and '{0}-12-31') and
+          extract('month' from d.date_created) = {1} )) sum
+          from partnership_partnership p WHERE p.is_active=TRUE AND p.level <= {2} ORDER BY p.id;
+          """.format(year, month, Partnership.MANAGER)
+
+        sum_pay = queryset.raw(raw)
+
+        result = zip(sum_deals, total_partners, active_partners, potential_sum)
 
 
 class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, DealCreatePaymentMixin,

@@ -10,6 +10,7 @@ from django.db import models
 from django.db.models import Q, Sum, Value
 from django.db.models.functions import Coalesce
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
@@ -55,6 +56,14 @@ class Partnership(AbstractPaymentPurpose):
 
     def __str__(self):
         return self.fullname
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        now = timezone.now()
+        current_deals = Deal.objects.filter(
+            date_created__year=now.year, date_created__month=now.month,
+            partnership=self, done=False)
+        current_deals.update(responsible=self.responsible)
 
     @property
     def deal_payments(self):

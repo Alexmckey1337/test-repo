@@ -6,6 +6,7 @@ from decimal import Decimal
 import pytest
 from django.conf import settings
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import status
 
 from account.models import CustomUser
@@ -737,6 +738,31 @@ class TestUserViewSet:
 
         assert user.disciples.exists()
         assert not other_user.disciples.exists()
+
+    @pytest.mark.hh
+    def test_move_old_unclosed_deal_after_update_partner_responsible(
+            self, api_login_client, partner_factory, deal_factory, user_factory):
+        responsible = partner_factory()
+        partner = partner_factory(responsible=responsible)  # autocreate deal
+        deal_factory.create_batch(2, date_created=timezone.now() + datetime.timedelta(days=-32), partnership=partner)
+
+        assert partner.responsible == responsible
+        assert responsible.disciples_deals.count() == 3
+
+        url = reverse('users_v1_1-detail', kwargs={'pk': partner.user_id})
+        api_login_client.force_login(user=user_factory(is_staff=True))
+        api_login_client.patch(url, data={
+            'partner': {
+                'value': 100,
+                'responsible': partner_factory().id,
+                'date': '2002-04-04',
+            },
+        }, format='json')
+
+        partner.refresh_from_db()
+
+        assert partner.responsible != responsible
+        assert responsible.disciples_deals.count() == 2
 
 
 @pytest.mark.django_db
