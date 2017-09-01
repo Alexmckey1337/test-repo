@@ -83,7 +83,8 @@ def partnership_summary_table(user, category_title=None):
 
 
 def _filter_partnership_summary_columns(table_columns):
-    return table_columns.filter(columnType__category__title='partnership_summary')
+    return table_columns.filter(columnType__category__title='partnership_summary'
+                                ).exclude(columnType__title='plan')
 
 
 @check_user_table_exist
