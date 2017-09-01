@@ -146,7 +146,7 @@
                                 <label for="currency_donations">Пожертвования в другой валюте</label>
                             </div>
                             <div class="input">
-                                <textarea name="currency_donations" data-validation="required" id="currency_donations">${data.currency_donations}</textarea>
+                                <textarea name="currency_donations" id="currency_donations">${data.currency_donations}</textarea>
                             </div>
                         </li>
                         <li>

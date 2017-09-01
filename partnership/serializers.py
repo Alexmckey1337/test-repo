@@ -60,3 +60,19 @@ class DealSerializer(DealCreateSerializer):
                   'full_name', 'responsible_name', 'partner_link',
                   'total_sum', 'currency', 'payment_status',
                   )
+
+
+class PartnershipManagerSummarySerializers(serializers.ModelSerializer):
+    manager = serializers.CharField()
+    sum_deals = serializers.DecimalField(max_digits=12, decimal_places=0)
+    sum_pay = serializers.DecimalField(max_digits=12, decimal_places=0)
+    plan = serializers.DecimalField(max_digits=12, decimal_places=0)
+    percent_of_plan = serializers.DecimalField(max_digits=12, decimal_places=1)
+    potential_sum = serializers.DecimalField(max_digits=12, decimal_places=0)
+    total_partners = serializers.IntegerField(read_only=True)
+    active_partners = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Partnership
+        fields = ('manager', 'sum_deals', 'sum_pay', 'plan', 'percent_of_plan', 'potential_sum',
+                  'total_partners', 'active_partners')

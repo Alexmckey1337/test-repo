@@ -11,25 +11,6 @@ from partnership.models import Partnership, Deal
 logger = logging.getLogger(__name__)
 
 
-# def partnerships_deactivate():
-#     from django.db.models import Count
-#
-#     valid_partners = Partnership.objects.annotate(count=Count('deals')).filter(count__gte=3)
-#
-#     def generate_partner_list(queryset):
-#         for partner in queryset:
-#             value = False
-#             for deal in partner.deals.order_by('-date_created')[:3]:
-#                 if not deal.expired:
-#                     pass
-#                 else:
-#                     value = True
-#             if not value:
-#                 yield (partner.id)
-#
-#     return Partnership.objects.filter(id__in=generate_partner_list(valid_partners)).update(is_active=False)
-
-
 class DealKeyError(Exception):
     pass
 
