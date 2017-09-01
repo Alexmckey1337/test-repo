@@ -448,7 +448,7 @@ class DashboardMasterTreeFilterViewSet(ModelWithoutDeleteViewSet):
 
 class ExistUserListViewSet(mixins.ListModelMixin, GenericViewSet):
     queryset = User.objects.exclude(hierarchy__level=0).select_related(
-        'hierarchy').order_by()
+        'hierarchy').order_by('last_name')
     serializer_class = ExistUserSerializer
     pagination_class = None
     permission_classes = (IsAuthenticated,)
