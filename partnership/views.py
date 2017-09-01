@@ -8,7 +8,7 @@ from rest_framework import exceptions, filters, mixins, status, viewsets
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.db.models import Sum, When, Case, F, IntegerField, Q, DecimalField, OuterRef, Subquery, Count
+from django.db.models import Sum, When, Case, F, IntegerField, Q, DecimalField, OuterRef, Subquery, Count, Value as V
 
 from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
@@ -20,9 +20,12 @@ from partnership.mixins import (PartnerStatMixin, DealCreatePaymentMixin, DealLi
 from partnership.pagination import PartnershipPagination, DealPagination
 from partnership.permissions import CanSeeDeals, CanSeePartners, CanCreateDeals, CanUpdateDeals, CanUpdatePartner
 from partnership.resources import PartnerResource
-from .models import Partnership, Deal, Payment
-from .serializers import (
-    DealSerializer, PartnershipSerializer, DealCreateSerializer, PartnershipTableSerializer, DealUpdateSerializer)
+from .models import Partnership, Deal
+from .serializers import (DealSerializer, PartnershipSerializer, DealCreateSerializer, PartnershipTableSerializer,
+                          DealUpdateSerializer)
+from django.db.models.functions import Concat
+from datetime import datetime
+from navigation.table_fields import partnership_summary_table
 
 
 class PartnershipViewSet(mixins.RetrieveModelMixin,
@@ -115,36 +118,47 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         return Response({'need_text': text})
 
     @list_route(methods=['GET'])
-    def partners_summary(self, request):
-        year = 2017
-        month = 8
+    def managers_summary(self, request):
+        year = request.query_params.get('year', datetime.now().year)
+        month = request.query_params.get('month', datetime.now().month)
+        ordering = request.query_params.get('ordering', '-sum_pay')
+        reverse = False
 
-        queryset = self.queryset.filter(level__lte=Partnership.MANAGER, is_active=True)
+        if ordering[0] == '-':
+            reverse = True
+            ordering = ordering[1:]
+
+        queryset = self.queryset.filter(level__lte=Partnership.MANAGER, is_active=True).select_related(
+            'deals, payments')
+
+        partners = queryset.annotate(manager=Concat(
+            'user__last_name', V(' '), 'user__first_name', V(' '), 'user__middle_name')).values_list(
+            'manager', flat=True).order_by('id')
 
         subqs_deals = Deal.objects.filter(date_created__year=year, date_created__month=month, responsible=OuterRef(
             'pk')).order_by().values('responsible').annotate(deals_sum=Sum('value')).values('deals_sum')
 
-        sum_deals = queryset.annotate(sum_deals=Subquery(subqs_deals, output_field=DecimalField())).values(
-            'sum_deals').order_by('id')
+        sum_deals = queryset.annotate(sum_deals=Subquery(subqs_deals, output_field=DecimalField())).values_list(
+            'sum_deals', flat=True).order_by('id')
 
         subqs_partners = Partnership.objects.filter(responsible=OuterRef('pk')).order_by().values(
             'responsible').annotate(count=Count('id')).values('count')
 
-        total_partners = queryset.annotate(total_partners=Subquery(subqs_partners)).values(
-            'total_partners').order_by('id')
+        total_partners = queryset.annotate(total_partners=Subquery(subqs_partners)).values_list(
+            'total_partners', flat=True).order_by('id')
 
         subqs_active_partners = Partnership.objects.filter(
             responsible=OuterRef('pk'), is_active=True).order_by().values('responsible').annotate(
             count=Count('id')).values('count')
 
         active_partners = queryset.annotate(active_partners=Subquery(subqs_active_partners, output_field=IntegerField())
-                                            ).values('active_partners').order_by('id')
+                                            ).values_list('active_partners', flat=True).order_by('id')
 
         subqs_potential_sum = Partnership.objects.filter(responsible=OuterRef('pk')).order_by().values(
             'responsible').annotate(potential_sum=Sum('value')).values('potential_sum')
 
-        potential_sum = queryset.annotate(potential_sum=Subquery(subqs_potential_sum)).values(
-            'potential_sum').order_by('id')
+        potential_sum = queryset.annotate(potential_sum=Subquery(subqs_potential_sum)).values_list(
+            'potential_sum', flat=True).order_by('id')
 
         raw = """
           select p.id,
@@ -155,9 +169,24 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
           from partnership_partnership p WHERE p.is_active=TRUE AND p.level <= {2} ORDER BY p.id;
           """.format(year, month, Partnership.MANAGER)
 
-        sum_pay = queryset.raw(raw)
+        qs = queryset.raw(raw)
+        sum_pay = []
+        for partner in list(qs):
+            sum_pay.append(partner.sum)
 
-        result = zip(sum_deals, total_partners, active_partners, potential_sum)
+        result = map(lambda x: {'manager': x[0], 'sum_deals': x[1] or 0, 'total_partners': x[2] or 0,
+                                'active_partners': x[3] or 0, 'potential_sum': x[4] or 0, 'sum_pay': x[5] or 0},
+                     zip(partners, sum_deals, total_partners, active_partners, potential_sum, sum_pay))
+
+        ordering_fields = ['manager', 'sum_deals', 'total_partners', 'active_partners', 'potential_sum', 'sum_pay']
+        reversed_ordering_fields = ['-' + field for field in ordering_fields]
+        managers = list(result)
+        if ordering not in ordering_fields + reversed_ordering_fields:
+            return Response(managers)
+        print(reverse)
+        managers.sort(key=lambda obj: obj['%s' % ordering], reverse=reverse)
+        managers.append({'table_columns': partnership_summary_table(self.request.user)})
+        return Response(managers)
 
 
 class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, DealCreatePaymentMixin,
