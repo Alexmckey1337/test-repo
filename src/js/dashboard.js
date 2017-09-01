@@ -2,6 +2,7 @@
     $(document).ready(function () {
         "use strict";
         let userId = $('body').attr('data-user'),
+            userName = $('#master-filter').attr('data-userName'),
             sortable;
         $('.preloader').css('display', 'block');
 
@@ -197,12 +198,62 @@
             level_gte: 1
         };
 
-        getShortUsersForDashboard(config).then(data => {
-            const options = data.map(option =>
-                `<option value="${option.id}" ${(userId == option.id) ? 'selected' : ''}>${option.fullname}</option>`);
-            $('#master-filter').append(options);
-        })
+        // getShortUsersForDashboard(config).then(data => {
+        //     const options = data.map(option =>
+        //         `<option value="${option.id}" ${(userId == option.id) ? 'selected' : ''}>${option.fullname}</option>`);
+        //     $('#master-filter').append(options);
+        // });
 
+        function makeSelect(selector, url, parseFunc) {
+            selector.select2({
+                ajax: {
+                    url: url,
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            search: params.term,
+                            page: params.page
+                        };
+                    },
+                    processResults: parseFunc,
+                    cache: true
+                },
+                escapeMarkup: function (markup) {
+                    return markup;
+                },
+                templateResult: formatRepo,
+                templateSelection: formatRepo
+            });
+        }
+
+        function formatRepo(data) {
+            if (data.id === '') {
+                return '-------';
+            }
+            return `<option value="${data.id}">${data.text}</option>`;
+        }
+
+        function parse(data, params) {
+            params.page = params.page || 1;
+            const results = [];
+            data.results.forEach(function makeResults(element, index) {
+                results.push({
+                    id: element.id,
+                    text: element.fullname,
+                });
+            });
+            return {
+                results: results,
+                pagination: {
+                    more: (params.page * 50) < data.count
+                }
+            };
+        }
+
+        makeSelect($('#master-filter'), URLS.user.short_for_dashboard(), parse);
+        const option = `<option value="${userId}">${userName}</option>`;
+        $('#master-filter').append(option);
 
     });
 })(jQuery);
