@@ -418,7 +418,7 @@ class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
     permission_classes = (IsAuthenticated,)
     filter_backends = (filters.DjangoFilterBackend,
                        filters.SearchFilter,
-                       FilterDashboardMasterTreeWithSelf,
+                       FilterMasterTreeWithSelf,
                        filters.OrderingFilter,)
     # filter_fields = ('first_name', 'last_name', 'hierarchy')
     filter_class = ShortUserFilter
@@ -431,6 +431,14 @@ class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
             descendants = user.get_descendants()
             return self.queryset.exclude(pk__in=descendants.values_list('pk', flat=True))
         return self.queryset
+
+
+class DashboardMasterTreeFilterViewSet(ModelWithoutDeleteViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserShortSerializer
+    pagination_class = None
+    permission_classes = (IsAuthenticated,)
+    filter_backends = (FilterDashboardMasterTreeWithSelf,)
 
 
 class ExistUserListViewSet(mixins.ListModelMixin, GenericViewSet):
