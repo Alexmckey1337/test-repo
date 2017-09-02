@@ -2,5 +2,6 @@
 !.coveragerc
 !.env
 !.pylintrc
+!.bowerrc
 public/media/
 node_modules/

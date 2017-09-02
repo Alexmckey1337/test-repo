@@ -17,6 +17,13 @@ services:
       - postgres_backup:/backups
     env_file: .env
 
+  gulp:
+    build:
+      context: .
+      dockerfile: ./compose/gulp/Dockerfile
+    volumes:
+      - nginx_data:/app/public
+
   nginx:
     restart: always
     image: nginx
