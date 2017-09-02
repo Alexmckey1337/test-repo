@@ -167,6 +167,13 @@ class CanSeePartnersMixin(View):
         return super(CanSeePartnersMixin, self).dispatch(request, *args, **kwargs)
 
 
+class CanSeePartnerSummaryMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_partner_summary():
+            raise PermissionDenied
+        return super(CanSeePartnerSummaryMixin, self).dispatch(request, *args, **kwargs)
+
+
 class CanSeeDealsMixin(View):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.can_see_deals():
@@ -215,14 +222,9 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, TemplateView):
         return ctx
 
 
-@login_required(login_url='entry')
-def partnership_summary(request):
-    if not request.user.hierarchy or request.user.hierarchy.level < 1:
-        return redirect('/')
-
-    ctx = {}
-
-    return render(request, 'partner/partnership_summary.html', context=ctx)
+class PartnerSummaryView(LoginRequiredMixin, CanSeePartnerSummaryMixin, TemplateView):
+    template_name = 'partner/partnership_summary.html'
+    login_url = 'entry'
 
 
 class DealListView(LoginRequiredMixin, CanSeeDealsMixin, TemplateView):
@@ -720,7 +722,7 @@ def index(request):
         'departments': Department.objects.all(),
         'summits': SummitType.objects.all(),
         'hierarchies': Hierarchy.objects.order_by('level'),
-        'current_user': CustomUser.objects.get(id=user.id)
+        'current_user': user
     }
 
     if user.is_staff:

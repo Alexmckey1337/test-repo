@@ -12,10 +12,8 @@
     });
     function PartnershipSummaryTable(config) {
         getPartnershipSummary(config).then(data => {
-            let columns = _.last(data),
-                results = _.dropRight(data),
-                config = {};
-            config.results = results;
+            let columns = {table_columns: data.table_columns},
+                config = {results: data.results};
             Object.assign(columns,config);
             makePartnershipSummaryTable(columns);
         });
