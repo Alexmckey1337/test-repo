@@ -77,17 +77,9 @@ $(document).ready(function () {
     $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
         $('.preloader').css('display', 'block');
         createIncompleteDealsTable();
+        // createExpiredDealsTable();
         createDoneDealsTable();
     }, 500));
-    // $('input[name="fullsearch"]').keyup(function () {
-    //     let search = $(this).val();
-    //     $('.preloader').css('display', 'block');
-    //     delay(function () {
-    //         createIncompleteDealsTable();
-    //         // createExpiredDealsTable();
-    //         createDoneDealsTable();
-    //     }, 1000);
-    // });
 
     function updateDeals(id, description) {
         let data = {

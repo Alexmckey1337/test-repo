@@ -48,6 +48,46 @@ class OrderTable {
     }
 }
 
+class OrderTableByClient extends OrderTable {
+    constructor() {
+        super();
+    }
+        get sortByClient() {
+        return this._addListenerByClient;
+    }
+
+    _addListenerByClient(callback, selector, data) {
+        $(selector).on('click', function () {
+            let dataOrder = this.getAttribute('data-orderfront'),
+                revers = sessionStorage.getItem('revers') ? sessionStorage.getItem('revers') : "+",
+                order = sessionStorage.getItem('order') ? sessionStorage.getItem('order') : '';
+
+            // if (order != '') {
+            //     dataOrder = order == data_order && revers == "+" ? '-' + data_order : data_order;
+            // } else {
+            //     dataOrder = '-' + data_order;
+            // }
+            // const data = {
+            //     'ordering': dataOrder,
+            //     'page': page
+            // };
+            // if (order == data_order) {
+            //     revers = revers == '+' ? '-' : '+';
+            // } else {
+            //     revers = "+";
+            // }
+            // sessionStorage.setItem('revers', revers);
+            // sessionStorage.setItem('order', data_order);
+
+
+            console.log('Clear data -->', data);
+
+            $('.preloader').css('display', 'block');
+            callback(data);
+        });
+    }
+}
+
 class DeleteUser {
     constructor(id, userName, title) {
         this.user = id;
@@ -3208,12 +3248,18 @@ function partnershipSummaryTable(config = {}) {
     config.month = month;
     // Object.assign(config, getSearch('search_title'));
     // Object.assign(config, getFilterParam());
-    // Object.assign(config, getTabsFilterParam());
     getPartnershipSummary(config).then(data => {
-        let columns = {table_columns: data.table_columns},
-            config = {results: data.results};
-        Object.assign(columns,config);
-        makePartnershipSummaryTable(columns, config);
+        let results = data.results.map(elem => {
+            elem.not_active_partners = elem.total_partners - elem.active_partners;
+            let percent = (100 / (elem.potential_sum / elem.sum_pay)).toFixed(1);
+            elem.percent_of_plan = isFinite(percent) ? percent : 0;
+            return elem;
+        });
+        let newData = {
+            table_columns: data.table_columns,
+            results: results
+        };
+        makePartnershipSummaryTable(newData);
     })
 }
 
@@ -3265,9 +3311,11 @@ function makePartnershipSummaryTable(data, config = {}) {
     // };
     // $('.table__count').text(data.count);
     // makePagination(paginationConfig);
-    // makeSortForm(data.table_columns);
+    makeSortForm(data.table_columns);
     // $('.table__count').text(text);
-    // new OrderTable().sort(homeReportsTable, ".table-wrap th");
+    new OrderTable().sort(partnershipSummaryTable, ".table-wrap th");
+    // new OrderTableByClient().sort(partnershipSummaryTable, ".table-wrap th");
+    // new OrderTableByClient().sortByClient(makePartnershipSummaryTable, ".table-wrap th", data);
     $('.preloader').hide();
 }
 
