@@ -131,23 +131,25 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             'total_partners': x[2] or 0,
             'active_partners': x[3] or 0,
             'potential_sum': x[4] or 0,
-            'sum_pay': x[5] or 0
+            'sum_pay': x[5] or 0,
+            'partner_link': x[6],
         } for x in zip(
             self._get_partners(queryset),
             self._get_sum_deals(queryset, year, month),
             self._get_total_partners(queryset),
             self._get_active_partners(queryset),
             self._get_potential_sum(queryset),
-            self._get_sum_pay(queryset, year, month))
+            self._get_sum_pay(queryset, year, month),
+            self._get_partner_links(queryset))
         ]
         managers = self._order_managers(managers)
 
         return Response({'results': managers, 'table_columns': partnership_summary_table(self.request.user)})
 
     def _get_partners(self, queryset):
-        return queryset.annotate(manager=Concat(
+        return queryset.annotate(managers=Concat(
             'user__last_name', V(' '), 'user__first_name', V(' '), 'user__middle_name')).values_list(
-            'manager', flat=True).order_by('id')
+            'managers', flat=True).order_by('id')
 
     def _get_sum_deals(self, queryset, year, month):
         subqs_deals = Deal.objects.filter(date_created__year=year, date_created__month=month, responsible=OuterRef(
@@ -190,9 +192,13 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
 
         return [p.sum for p in queryset.raw(raw)]
 
+    def _get_partner_links(self, queryset):
+        return queryset.values_list('id', flat=True).order_by('id')
+
     def _order_managers(self, managers):
         ordering = self.request.query_params.get('ordering', '-sum_pay')
-        ordering_fields = ['manager', 'sum_deals', 'total_partners', 'active_partners', 'potential_sum', 'sum_pay']
+        ordering_fields = ['managers', 'sum_deals', 'total_partners', 'active_partners', 'potential_sum', 'sum_pay',
+                           'partner_link']
 
         if ordering.strip('-') in ordering_fields:
             managers.sort(key=lambda obj: obj[ordering.strip('-')], reverse=ordering.startswith('-'))
