@@ -38,7 +38,7 @@ MEETINGS_SUMMARY_ORDERING_FIELDS = ('last_name', 'master__last_name', 'meetings_
 REPORTS_SUMMARY_ORDERING_FIELDS = ('last_name', 'master__last_name', 'reports_submitted',
                                    'reports_expired', 'reports_in_progress')
 
-EVENTS_SUMMARY_SEARCH_FIELDS = {'search_fio': ('last_name', 'first_name', 'middle_name')}
+EVENTS_SUMMARY_SEARCH_FIELDS = {'search_fio': ('last_name', 'first_name', 'middle_name')},
 
 
 class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeSummaryMixin):
