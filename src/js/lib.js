@@ -547,6 +547,8 @@ function getChurchesListINDepartament(department_ids) {
                     url += '&';
                 }
             })
+        } else {
+            url = `${URLS.church.for_select()}?department=${department_ids}`;
         }
         let data = {
             url: url,
@@ -3179,6 +3181,15 @@ function homeReportsTable(config = {}) {
     })
 }
 
+function homeLiderReportsTable(config = {}) {
+    Object.assign(config, getSearch('search_fio'));
+    Object.assign(config, getFilterParam());
+    updateHistoryUrl(config);
+    getHomeLiderReports(config).then(data => {
+        makeHomeLiderReportsTable(data, config);
+    })
+}
+
 function churchReportsTable(config = {}) {
     let status = $('#statusTabs').find('.current').find('button').data('status');
     config.status = status;
@@ -3187,6 +3198,30 @@ function churchReportsTable(config = {}) {
     Object.assign(config, getTabsFilterParam());
     getChurchReports(config).then(data => {
         makeChurchReportsTable(data, config);
+    })
+}
+
+function partnershipSummaryTable(config = {}) {
+    let month = $('#date_field_stats').val().split('/')[0],
+        year = $('#date_field_stats').val().split('/')[1];
+    config.year = year;
+    config.month = month;
+    // Object.assign(config, getSearch('search_title'));
+    // Object.assign(config, getFilterParam());
+    // Object.assign(config, getTabsFilterParam());
+    getPartnershipSummary(config).then(data => {
+        let columns = {table_columns: data.table_columns},
+            config = {results: data.results};
+        Object.assign(columns,config);
+        makePartnershipSummaryTable(columns, config);
+    })
+}
+
+function churchPastorReportsTable(config = {}) {
+    Object.assign(config, getSearch('search_fio'));
+    Object.assign(config, getFilterParam());
+    getChurchPastorReports(config).then(data => {
+        makeChurchPastorReportsTable(data, config);
     })
 }
 
@@ -3213,6 +3248,59 @@ function makeHomeReportsTable(data, config = {}) {
     $('.preloader').hide();
 }
 
+function makePartnershipSummaryTable(data, config = {}) {
+    let tmpl = $('#databasePartnershipSummary').html();
+    let rendered = _.template(tmpl)(data);
+    $('#managersPlan').html(rendered);
+    // let count = data.count;
+    // let pages = Math.ceil(count / CONFIG.pagination_count);
+    // let page = config.page || 1;
+    // let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
+    // let text = `Показано ${showCount} из ${count}`;
+    // let paginationConfig = {
+    //     container: ".reports__pagination",
+    //     currentPage: page,
+    //     pages: pages,
+    //     callback: homeReportsTable
+    // };
+    // $('.table__count').text(data.count);
+    // makePagination(paginationConfig);
+    // makeSortForm(data.table_columns);
+    // $('.table__count').text(text);
+    // new OrderTable().sort(homeReportsTable, ".table-wrap th");
+    $('.preloader').hide();
+}
+
+function makeHomeLiderReportsTable(data, config = {}) {
+    let tmpl = $('#databaseHomeLiderReports').html();
+    let rendered = _.template(tmpl)(data);
+    $('#homeLiderReports').html(rendered);
+    let count = data.count;
+    let pages = Math.ceil(count / CONFIG.pagination_count);
+    let page = config.page || 1;
+    let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
+    let text = `Показано ${showCount} из ${count}`;
+    let paginationConfig = {
+        container: ".reports__pagination",
+        currentPage: page,
+        pages: pages,
+        callback: homeLiderReportsTable
+    };
+    $('.table__count').text(data.count);
+    $('#homeLiderReports').find('table').on('click', (e) => {
+        if (e.target.className != 'url') return;
+        let url = e.target.getAttribute('data-url'),
+            type = e.target.getAttribute('data-type'),
+            nameId = e.target.getAttribute('data-id');
+        window.location = `${url}?type=${type}&owner=${nameId}`;
+    });
+    makePagination(paginationConfig);
+    makeSortForm(data.table_columns);
+    $('.table__count').text(text);
+    new OrderTable().sort(homeLiderReportsTable, ".table-wrap th");
+    $('.preloader').hide();
+}
+
 function makeChurchReportsTable(data, config = {}) {
     let tmpl = $('#databaseChurchReports').html();
     let rendered = _.template(tmpl)(data);
@@ -3233,6 +3321,36 @@ function makeChurchReportsTable(data, config = {}) {
     makeSortForm(data.table_columns);
     $('.table__count').text(text);
     new OrderTable().sort(churchReportsTable, ".table-wrap th");
+    $('.preloader').hide();
+}
+
+function makeChurchPastorReportsTable(data, config = {}) {
+    let tmpl = $('#databaseChurchPastorReports').html();
+    let rendered = _.template(tmpl)(data);
+    $('#churchPastorReports').html(rendered);
+    let count = data.count;
+    let pages = Math.ceil(count / CONFIG.pagination_count);
+    let page = config.page || 1;
+    let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
+    let text = `Показано ${showCount} из ${count}`;
+    let paginationConfig = {
+        container: ".reports__pagination",
+        currentPage: page,
+        pages: pages,
+        callback: churchPastorReportsTable
+    };
+    // $('.table__count').text(data.count);
+    makePagination(paginationConfig);
+    makeSortForm(data.table_columns);
+    $('#churchPastorReports').find('table').on('click', (e) => {
+        if (e.target.className != 'url') return;
+        let url = e.target.getAttribute('data-url'),
+            type = e.target.getAttribute('data-type'),
+            nameId = e.target.getAttribute('data-id');
+        window.location = `${url}?type=${type}&nameId=${nameId}`;
+    });
+    $('.table__count').text(text);
+    new OrderTable().sort(churchPastorReportsTable, ".table-wrap th");
     $('.preloader').hide();
 }
 
@@ -3262,6 +3380,50 @@ function getHomeReports(config = {}) {
         newAjaxRequest(data, status);
     })
 }
+function getPartnershipSummary(config = {}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: URLS.partner.managers_summary(),
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: config
+        };
+        let status = {
+            200: function (req) {
+                resolve(req);
+            },
+            403: function () {
+                reject('Вы должны авторизоватся');
+            }
+
+        };
+        newAjaxRequest(data, status);
+    })
+}
+function getHomeLiderReports(config = {}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: URLS.event.home_meeting.summary(),
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: config
+        };
+        let status = {
+            200: function (req) {
+                resolve(req);
+            },
+            403: function () {
+                reject('Вы должны авторизоватся');
+            }
+
+        };
+        newAjaxRequest(data, status);
+    })
+}
 function getChurchReports(config = {}) {
     if (!config.status) {
         let status = parseInt($('#statusTabs').find('.current').find('button').data('status'));
@@ -3270,6 +3432,27 @@ function getChurchReports(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
             url: URLS.event.church_report.list(),
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: config
+        };
+        let status = {
+            200: function (req) {
+                resolve(req);
+            },
+            403: function () {
+                reject('Вы должны авторизоватся');
+            }
+        };
+        newAjaxRequest(data, status);
+    })
+}
+function getChurchPastorReports(config = {}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: URLS.event.church_report.summary(),
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -3920,4 +4103,66 @@ function getDuplicates(options = {}) {
     if (typeof url === "string") {
         return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
     }
+}
+
+function parseUrlQuery() {
+    let data = {};
+    if(location.search) {
+        let pair = (location.search.substr(1)).split('&');
+        for(let i = 0; i < pair.length; i ++) {
+            let param = pair[i].split('=');
+            data[param[0]] = param[1];
+        }
+    }
+    return data;
+}
+
+function updateHistoryUrl(data) {
+    let url,
+        filterKeys = Object.keys(data);
+    if (filterKeys && filterKeys.length) {
+        let items = filterKeys.length,
+            count = 0;
+        url = '?';
+        filterKeys.forEach(function (key) {
+            count++;
+            url += key + '=' + data[key];
+            if (count != items) {
+                url += '&';
+            }
+        });
+        history.replaceState(null, null, `${url}`);
+    } else {
+        history.replaceState(null, null, window.location.pathname);
+    }
+}
+
+function makeSelect(selector, url, parseFunc) {
+    selector.select2({
+        ajax: {
+            url: url,
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    search: params.term,
+                    page: params.page
+                };
+            },
+            processResults: parseFunc,
+            cache: true
+        },
+        escapeMarkup: function (markup) {
+            return markup;
+        },
+        templateResult: formatRepo,
+        templateSelection: formatRepo
+    });
+}
+
+function formatRepo(data) {
+    if (data.id === '') {
+        return '-------';
+    }
+    return `<option value="${data.id}">${data.text}</option>`;
 }

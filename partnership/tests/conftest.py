@@ -44,7 +44,6 @@ FIELD_VALUE = list(six.iteritems({
     'value': (Decimal(10), 40, Decimal(40)),
     'need_text': ('old_text', 'new text'),
     'is_active': (True, 'false', False),
-    'level': (Partnership.PARTNER, Partnership.MANAGER),
 }))
 
 

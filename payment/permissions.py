@@ -48,6 +48,6 @@ class PaymentManagerOrSupervisor(BasePermission):
             return request.user.is_summit_supervisor_or_high(payment.purpose.summit)
         if content_type and content_type.app_label == 'partnership' and content_type.model in ('partnership', 'deal'):
             return request.user.is_partner_supervisor_or_high
-        if content_type.model in ('churchreport',):
+        if content_type and content_type.model in ('churchreport',):
             return request.user.is_partner_supervisor_or_high
         return False

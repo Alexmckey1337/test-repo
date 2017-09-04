@@ -57,6 +57,15 @@
             <div class="popup_body">
                 <div class="container">
                     <label>
+                        <span class="label_block">Отдел</span>
+                        <select class="selectdb" data-filter="department_id" id="departments_filter">
+                                <option value="">ВСЕ</option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">{{ department.title }}</option>
+                                {% endfor %}
+                            </select>
+                    </label>
+                    <label>
                         <span class="label_block">Церковь</span>
                         <select class="selectdb" data-filter="church" id="church_filter">
                             <option value="">ВСЕ</option>

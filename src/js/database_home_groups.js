@@ -35,8 +35,9 @@
     let $departmentSelect = $('#department_select');
     const $churchSelect = $('#added_home_group_church_select');
     createHomeGroupsTable();
-    let $churchFilter = $('#church_filter');
-    let $treeFilter = $('#tree_filter');
+    let $departmentsFilter = $('#departments_filter'),
+        $churchFilter = $('#church_filter'),
+        $treeFilter = $('#tree_filter');
     $departmentSelect.select2();
     $('#pastor_select').select2();
     $('.selectdb').select2();
@@ -85,9 +86,7 @@
         $('.preloader').css('display', 'block');
         createHomeGroupsTable();
     }, 500));
-    // $('input[name="fullsearch"]').on('keyup', function () {
-    //     createHomeGroupsTable();
-    // });
+
     $('#export_table').on('click', function () {
         $('.preloader').css('display', 'block');
         exportTableData(this)
@@ -98,6 +97,15 @@
                 showPopup('Ошибка при загрузке файла');
                 $('.preloader').css('display', 'none');
             });
+    });
+    $departmentsFilter.on('change', function () {
+        let departamentID = $(this).val();
+        if (departamentID != '') {
+            getChurchesListINDepartament(departamentID).then(data => {
+                const churches = data.map(option => `<option value="${option.id}">${option.get_title}</option>`);
+                $churchFilter.html('<option value="">ВСЕ</option>').append(churches);
+            });
+        }
     });
     $churchFilter.on('change', function () {
         let churchID = $(this).val();

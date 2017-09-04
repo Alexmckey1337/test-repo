@@ -28,7 +28,7 @@ from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingD
                           ChurchReportDetailSerializer, ChurchReportsDashboardSerializer, MeetingSummarySerializer,
                           ChurchReportSummarySerializer)
 from payment.views_mixins import CreatePaymentMixin
-from .mixins import EventUserTreeSummaryMixin
+from .mixins import EventUserTreeMixin
 
 logger = logging.getLogger(__name__)
 
@@ -38,10 +38,10 @@ MEETINGS_SUMMARY_ORDERING_FIELDS = ('last_name', 'master__last_name', 'meetings_
 REPORTS_SUMMARY_ORDERING_FIELDS = ('last_name', 'master__last_name', 'reports_submitted',
                                    'reports_expired', 'reports_in_progress')
 
-EVENTS_SUMMARY_SEARCH_FIELDS = {'search_fio': ('last_name', 'first_name', 'middle_name')},
+EVENTS_SUMMARY_SEARCH_FIELDS = {'search_fio': ('last_name', 'first_name', 'middle_name')}
 
 
-class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeSummaryMixin):
+class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeMixin):
     queryset = Meeting.objects.select_related('owner', 'type', 'home_group__leader')
 
     serializer_class = MeetingSerializer
@@ -256,7 +256,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeSummaryMixin):
 
     @list_route(methods=['GET'], serializer_class=MeetingDashboardSerializer)
     def dashboard_counts(self, request):
-        user = self.user_for_tree(request)
+        user = self.user_for_dashboard(request)
         queryset = self.queryset.for_user(user)
 
         dashboards_counts = queryset.aggregate(
@@ -281,7 +281,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeSummaryMixin):
                 field_search_fields=EVENTS_SUMMARY_SEARCH_FIELDS,
                 pagination_class=MeetingSummaryPagination)
     def meetings_summary(self, request):
-        user = self.user_for_tree(request)
+        user = self.master_for_summary(request)
 
         queryset = self.filter_queryset(CustomUser.objects.for_user(user).filter(
             home_group__leader__isnull=False).annotate(
@@ -307,7 +307,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeSummaryMixin):
 #     serializer_class = ChurchReportPastorSerializer
 
 
-class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin, EventUserTreeSummaryMixin):
+class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin, EventUserTreeMixin):
     queryset = ChurchReport.objects.base_queryset().annotate_total_sum().annotate_value()
 
     serializer_class = ChurchReportSerializer
@@ -424,7 +424,7 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin, EventUs
 
     @list_route(methods=['GET'], serializer_class=ChurchReportsDashboardSerializer)
     def dashboard_counts(self, request):
-        user = self.user_for_tree(request)
+        user = self.user_for_dashboard(request)
         queryset = self.queryset.for_user(user)
 
         dashboards_counts = queryset.aggregate(
@@ -449,7 +449,7 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin, EventUs
                 field_search_fields=EVENTS_SUMMARY_SEARCH_FIELDS,
                 pagination_class=ReportsSummaryPagination)
     def reports_summary(self, request):
-        user = self.user_for_tree(request)
+        user = self.master_for_summary(request)
 
         queryset = self.filter_queryset(CustomUser.objects.for_user(user).filter(
             church__pastor__isnull=False).annotate(

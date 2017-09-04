@@ -1,18 +1,22 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from datetime import datetime
+
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Sum, When, Case, F, IntegerField, Q, DecimalField, OuterRef, Subquery, Count, Value as V
+from django.db.models.functions import Concat
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
 from rest_framework import exceptions, filters, mixins, status, viewsets
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.db.models import Sum, When, Case, F, IntegerField, Q
 
 from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
+from navigation.table_fields import partnership_summary_table
 from partnership.filters import (FilterByPartnerBirthday, DateAndValueFilter, FilterPartnerMasterTreeWithSelf,
                                  PartnerUserFilter, DealFilterByPaymentStatus)
 from partnership.mixins import (PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin,
@@ -21,8 +25,8 @@ from partnership.pagination import PartnershipPagination, DealPagination
 from partnership.permissions import CanSeeDeals, CanSeePartners, CanCreateDeals, CanUpdateDeals, CanUpdatePartner
 from partnership.resources import PartnerResource
 from .models import Partnership, Deal
-from .serializers import (
-    DealSerializer, PartnershipSerializer, DealCreateSerializer, PartnershipTableSerializer, DealUpdateSerializer)
+from .serializers import (DealSerializer, PartnershipSerializer, DealCreateSerializer, PartnershipTableSerializer,
+                          DealUpdateSerializer)
 
 
 class PartnershipViewSet(mixins.RetrieveModelMixin,
@@ -113,6 +117,92 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         partnership.save()
 
         return Response({'need_text': text})
+
+    @list_route(methods=['GET'])
+    def managers_summary(self, request):
+        year = int(request.query_params.get('year', datetime.now().year))
+        month = int(request.query_params.get('month', datetime.now().month))
+
+        queryset = self.queryset.filter(level__lte=Partnership.MANAGER, is_active=True).prefetch_related('deals')
+
+        managers = [{
+            'manager': x[0],
+            'sum_deals': x[1] or 0,
+            'total_partners': x[2] or 0,
+            'active_partners': x[3] or 0,
+            'potential_sum': x[4] or 0,
+            'sum_pay': x[5] or 0,
+            'partner_link': x[6],
+        } for x in zip(
+            self._get_partners(queryset),
+            self._get_sum_deals(queryset, year, month),
+            self._get_total_partners(queryset),
+            self._get_active_partners(queryset),
+            self._get_potential_sum(queryset),
+            self._get_sum_pay(queryset, year, month),
+            self._get_partner_links(queryset))
+        ]
+        managers = self._order_managers(managers)
+
+        return Response({'results': managers, 'table_columns': partnership_summary_table(self.request.user)})
+
+    def _get_partners(self, queryset):
+        return queryset.annotate(managers=Concat(
+            'user__last_name', V(' '), 'user__first_name', V(' '), 'user__middle_name')).values_list(
+            'managers', flat=True).order_by('id')
+
+    def _get_sum_deals(self, queryset, year, month):
+        subqs_deals = Deal.objects.filter(date_created__year=year, date_created__month=month, responsible=OuterRef(
+            'pk')).order_by().values('responsible').annotate(deals_sum=Sum('value')).values('deals_sum')
+
+        return queryset.annotate(sum_deals=Subquery(subqs_deals, output_field=DecimalField())).values_list(
+            'sum_deals', flat=True).order_by('id')
+
+    def _get_total_partners(self, queryset):
+        subqs_partners = Partnership.objects.filter(responsible=OuterRef('pk')).order_by().values(
+            'responsible').annotate(count=Count('id')).values('count')
+
+        return queryset.annotate(total_partners=Subquery(subqs_partners)).values_list(
+            'total_partners', flat=True).order_by('id')
+
+    def _get_active_partners(self, queryset):
+        subqs_active_partners = Partnership.objects.filter(
+            responsible=OuterRef('pk'), is_active=True).order_by().values('responsible').annotate(
+            count=Count('id')).values('count')
+
+        return queryset.annotate(active_partners=Subquery(subqs_active_partners, output_field=IntegerField())
+                                 ).values_list('active_partners', flat=True).order_by('id')
+
+    def _get_potential_sum(self, queryset):
+        subqs_potential_sum = Partnership.objects.filter(responsible=OuterRef('pk')).order_by().values(
+            'responsible').annotate(potential_sum=Sum('value')).values('potential_sum')
+
+        return queryset.annotate(potential_sum=Subquery(subqs_potential_sum)).values_list(
+            'potential_sum', flat=True).order_by('id')
+
+    def _get_sum_pay(self, queryset, year, month):
+        raw = """
+          select p.id,
+          (select sum(pay.sum) from payment_payment pay WHERE pay.content_type_id = 40 and
+          pay.object_id in (select d.id from partnership_deal d where d.responsible_id = p.id and
+          (d.date_created BETWEEN '{0}-01-01' and '{0}-12-31') and
+          extract('month' from d.date_created) = {1} )) sum
+          from partnership_partnership p WHERE p.is_active=TRUE AND p.level <= {2} ORDER BY p.id;
+          """.format(year, month, Partnership.MANAGER)
+
+        return [p.sum for p in queryset.raw(raw)]
+
+    def _get_partner_links(self, queryset):
+        return queryset.values_list('id', flat=True).order_by('id')
+
+    def _order_managers(self, managers):
+        ordering = self.request.query_params.get('ordering', '-sum_pay')
+        ordering_fields = ['managers', 'sum_deals', 'total_partners', 'active_partners', 'potential_sum', 'sum_pay',
+                           'partner_link']
+
+        if ordering.strip('-') in ordering_fields:
+            managers.sort(key=lambda obj: obj[ordering.strip('-')], reverse=ordering.startswith('-'))
+        return managers
 
 
 class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, DealCreatePaymentMixin,

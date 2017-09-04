@@ -103,7 +103,9 @@ def meeting_report_statistics(request):
 def meetings_summary(request):
     if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
         return redirect('/')
-    ctx = {}
+    ctx = {
+        'departments': Department.objects.all()
+    }
 
     return render(request, 'event/meetings_summary.html', context=ctx)
 
@@ -149,7 +151,9 @@ def church_statistics(request):
 def reports_summary(request):
     if not request.user.hierarchy or request.user.hierarchy.level < 2:
         return redirect('/')
-    ctx = {}
+    ctx = {
+        'departments': Department.objects.all()
+    }
 
     return render(request, 'event/reports_summary.html', context=ctx)
 
@@ -161,6 +165,13 @@ class CanSeePartnersMixin(View):
         if not request.user.can_see_partners():
             raise PermissionDenied
         return super(CanSeePartnersMixin, self).dispatch(request, *args, **kwargs)
+
+
+class CanSeePartnerSummaryMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_partner_summary():
+            raise PermissionDenied
+        return super(CanSeePartnerSummaryMixin, self).dispatch(request, *args, **kwargs)
 
 
 class CanSeeDealsMixin(View):
@@ -209,6 +220,11 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, TemplateView):
 
         ctx.update(extra_context)
         return ctx
+
+
+class PartnerSummaryView(LoginRequiredMixin, CanSeePartnerSummaryMixin, TemplateView):
+    template_name = 'partner/partnership_summary.html'
+    login_url = 'entry'
 
 
 class DealListView(LoginRequiredMixin, CanSeeDealsMixin, TemplateView):
@@ -633,7 +649,7 @@ class HomeGroupListView(LoginRequiredMixin, TabsMixin, CanSeeHomeGroupsMixin, Te
 
     def get_context_data(self, **kwargs):
         ctx = super(HomeGroupListView, self).get_context_data(**kwargs)
-
+        ctx['departments'] = Department.objects.all()
         ctx['churches'] = Church.objects.all()
 
         return ctx
@@ -706,6 +722,7 @@ def index(request):
         'departments': Department.objects.all(),
         'summits': SummitType.objects.all(),
         'hierarchies': Hierarchy.objects.order_by('level'),
+        'current_user': user
     }
 
     if user.is_staff:

@@ -52,7 +52,9 @@ partner_patterns = [
     url(r'^deals/$', views.DealListView.as_view(), name='deals'),
     url(r'^stats/$', views.PartnerStatisticsListView.as_view(), name='stats'),
     url(r'^payments/$', views.PartnerPaymentsListView.as_view(), name='payments'),
+    url(r'^summary/$', views.PartnerSummaryView.as_view(), name='partnership_summary'),
 ]
+
 account_patterns = [
     url(r'^(\d+)/$', views.account, name='detail'),
     url(r'^(?P<user_id>\d+)/logs/$', views.UserLogsListView.as_view(), name='logs'),
