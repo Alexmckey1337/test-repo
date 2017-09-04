@@ -22,6 +22,10 @@ from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 class PartnerStatMixin:
     @list_route(methods=['get'], permission_classes=(IsAuthenticated, CanSeePartnerStatistics))
     def stats_payments(self, request):
+        """
+        TODO docs
+        """
+        # TODO docs
         current_partner = get_object_or_404(Partnership, user=request.user)
 
         self.check_stats_permissions(current_partner)
