@@ -46,6 +46,13 @@
       }
     .select2-selection {
       width: 450px;
+      height: auto !important;
+      .select2-selection__arrow{
+        height: 36px !important;
+        &::before{
+          display: none;
+        }
+      }
     }
   }
   h1 {
