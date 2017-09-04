@@ -3740,16 +3740,36 @@ function btnDeals() {
     });
 
     $("button.complete").on('click', function () {
-        let client_name = $(this).attr('data-name'),
-            deal_date = $(this).attr('data-date'),
-            responsible_name = $(this).attr('data-responsible');
-        $('#complete').attr('data-id', $(this).data('id'));
-        $('#client-name').val(client_name);
-        $('#deal-date').val(deal_date);
-        $('#responsible-name').val(responsible_name);
-        $('#popup').css('display', 'block');
+        // let client_name = $(this).attr('data-name'),
+        //     deal_date = $(this).attr('data-date'),
+        //     responsible_name = $(this).attr('data-responsible');
+        // $('#complete').attr('data-id', $(this).data('id'));
+        // $('#client-name').val(client_name);
+        // $('#deal-date').val(deal_date);
+        // $('#responsible-name').val(responsible_name);
+        // $('#popup').css('display', 'block');
+        let id = $(this).attr('data-id');
+        updateDeals(id);
     });
 }
+
+    function updateDeals(id) {
+        let data = {
+            "done": true,
+        };
+        let config = JSON.stringify(data);
+        ajaxRequest(URLS.deal.detail(id), config, function () {
+            updateDealsTable();
+            document.getElementById('popup').style.display = '';
+        }, 'PATCH', true, {
+            'Content-Type': 'application/json'
+        }, {
+            403: function (data) {
+                data = data.responseJSON;
+                showPopup(data.detail);
+            }
+        });
+    }
 
 function createIncompleteDealsTable(config={}) {
     Object.assign(config, {done: 3});

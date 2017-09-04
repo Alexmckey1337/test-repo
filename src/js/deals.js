@@ -64,11 +64,11 @@ $(document).ready(function () {
         $('#popup-create_payment').css('display', 'none');
     });
 
-    $('#complete').on('click', function () {
-        let id = $(this).attr('data-id'),
-            description = $('#deal-description').val();
-        updateDeals(id, description);
-    });
+    // $('#complete').on('click', function () {
+    //     let id = $(this).attr('data-id'),
+    //         description = $('#deal-description').val();
+    //     updateDeals(id, description);
+    // });
     $('#popup-payments .detail').on('click', function () {
         let url = $(this).attr('data-detail-url');
         window.location.href = url;
@@ -81,24 +81,24 @@ $(document).ready(function () {
         createDoneDealsTable();
     }, 500));
 
-    function updateDeals(id, description) {
-        let data = {
-            "done": true,
-            "description": description
-        };
-        let config = JSON.stringify(data);
-        ajaxRequest(URLS.deal.detail(id), config, function () {
-            updateDealsTable();
-            document.getElementById('popup').style.display = '';
-        }, 'PATCH', true, {
-            'Content-Type': 'application/json'
-        }, {
-            403: function (data) {
-                data = data.responseJSON;
-                showPopup(data.detail);
-            }
-        });
-    }
+    // function updateDeals(id, description) {
+    //     let data = {
+    //         "done": true,
+    //         "description": description
+    //     };
+    //     let config = JSON.stringify(data);
+    //     ajaxRequest(URLS.deal.detail(id), config, function () {
+    //         updateDealsTable();
+    //         document.getElementById('popup').style.display = '';
+    //     }, 'PATCH', true, {
+    //         'Content-Type': 'application/json'
+    //     }, {
+    //         403: function (data) {
+    //             data = data.responseJSON;
+    //             showPopup(data.detail);
+    //         }
+    //     });
+    // }
 
     $('#sent_date').datepicker({
         dateFormat: "yyyy-mm-dd",
