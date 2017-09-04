@@ -266,3 +266,8 @@ class Deal(LogModel, AbstractPaymentPurpose):
     @property
     def user(self):
         return self.partnership.user
+
+
+class ManagerPlan(models.Manager):
+    period = models.DateField()
+    plan = models.DecimalField(decimal_places=0, max_digits=12)

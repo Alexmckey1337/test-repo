@@ -132,7 +132,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             'active_partners': x[3] or 0,
             'potential_sum': x[4] or 0,
             'sum_pay': x[5] or 0,
-            'partner_link': x[6],
+            'manager_id': x[6],
         } for x in zip(
             self._get_partners(queryset),
             self._get_sum_deals(queryset, year, month),
@@ -140,7 +140,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             self._get_active_partners(queryset),
             self._get_potential_sum(queryset),
             self._get_sum_pay(queryset, year, month),
-            self._get_partner_links(queryset))
+            self._get_managers_ids(queryset))
         ]
         managers = self._order_managers(managers)
 
@@ -192,8 +192,8 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
 
         return [p.sum for p in queryset.raw(raw)]
 
-    def _get_partner_links(self, queryset):
-        return queryset.values_list('id', flat=True).order_by('id')
+    def _get_managers_ids(self, queryset):
+        return queryset.values_list('user__id', flat=True).order_by('id')
 
     def _order_managers(self, managers):
         ordering = self.request.query_params.get('ordering', '-sum_pay')
