@@ -47,6 +47,7 @@
                                     {% if user.can_see_deal_payments %}
                                         <li><a href="{% url 'partner:payments' %}">{% trans "Платежи" %}</a></li>
                                     {% endif %}
+                                    <li><a href="{% url 'partner:partnership_summary' %}">План по менеджерам</a></li>
                                     {% if user.can_see_partner_stats %}
                                         <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
                                     {% endif %}

@@ -1,0 +1,157 @@
+{% extends "layout_main.html" %}
+{% load static %}
+{% load partner_tags %}
+{% block header.top.h1 %}<h1>Партнёрство</h1>{% endblock %}
+
+{% block header.buttons %}
+    <div class="top-panel">
+        <div class="tabs">
+            <ul class="nav tabs_link">
+                <li><a href="{% url 'partner:deals' %}">Сделки</a></li>
+                <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
+                <li><a href="{% url 'partner:payments' %}">Таблица платежей</a></li>
+                <li><a class="active" href="{% url 'partner:partnership_summary' %}">План по менеджерам</a></li>
+                <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
+            </ul>
+        </div>
+        <div class="top-buttons-wrap">
+            <ul class="top-buttons">
+{#                <li>#}
+{#                    <button id="filter_button"#}
+{#                            class="header__button"#}
+{#                            data-count="0"#}
+{#                    >#}
+{#                        Фильтр#}
+{#                    </button>#}
+{#                </li>#}
+{#                <li>#}
+{#                    <button type="submit" id="export_table" data-export-url="{% url "partner-export" %}"#}
+{#                            class="download header__button">Export#}
+{#                    </button>#}
+{#                </li>#}
+{#                <li>#}
+{#                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>#}
+{#                </li>#}
+            </ul>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block main.content %}
+
+    <div class="content">
+        <div class="prefilter-group">
+            <div class='input-group date'>
+                <button class="month month_now">Текущий месяц</button>
+                <button class="month month_prev">Предыдущий месяц</button>
+                <input type='text' class="datepicker-here" id="date_field_stats"
+                       data-min-view="months"
+                       data-view="months"
+                       data-date-format="mm/yyyy" placeholder="Выберите дату"/>
+                <i class="fa fa-calendar-check-o" id="check-date" aria-hidden="true"></i>
+            </div>
+        </div>
+            <div class="top-pag">
+{#                <div class="table__count"></div>#}
+{#                <div class="pagination partners__pagination"></div>#}
+            </div>
+
+            <div class="table-wrap clearfix"><!--Table -->
+                <div class="query-none" style="display:none">
+                    <p></p>
+                </div>
+                <div class="table scrollbar-inner" id="managersPlan"></div>
+            </div><!--End Table-wrap -->
+{#            <div class="table__count"></div>#}
+{#            <div class="pagination partners__pagination"></div>#}
+    </div><!-- End tab-content-->
+{% endblock %}
+
+{% block add_user_modal.buttons.create %}
+{% endblock %}
+
+{% block choose_user_modal.search_field %}
+    <input id="searchUsers" type="text" placeholder="Поиск (введите не менее трех символов)">
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
+    <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
+    <script src='{% static "js/partnership_summary.js" %}'></script>
+    <script type="text/template" id="databasePartnershipSummary">
+        <table>
+            <thead>
+            <tr>
+                <% for( var key in table_columns) { %>
+                <% if(table_columns[key].active) { %>
+                <th data-order="<%=table_columns[key].ordering_title%>"><%=table_columns[key].title %></th>
+                <% } %>
+                <% } %>
+            </tr>
+            </thead>
+            <tbody>
+            <% for( var index in results) { %>
+            <tr>
+                <% for( var key in table_columns) { %>
+                <% if(table_columns[key].active) { %>
+                <% if (key == 'manager') { %>
+                <% if (results[index][key] != null) { %>
+                <td><a href="javascript:void(0)">
+                    <%= results[index][key] %>
+                </a>
+                </td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else if(key == 'percent_of_plan') { %>
+                <td>
+                    <%= (100/(results[index].potential_sum/results[index].sum_pay)).toFixed(1)%>
+                </td>
+                <% } else if (key == 'not_active_partners') { %>
+                <td>
+                    <%= (results[index].total_partners - results[index].active_partners) %>
+                </td>
+                <% } else if (key == 'hierarchy') { %>
+                <% if (results[index][key] != null ) { %>
+                <td><%= results[index][key].title %></td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else if (key == 'department') { %>
+                <% if (results[index][key] != null ) { %>
+                <td><%= results[index][key].title %></td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% }else if (key == 'departments' || key == 'divisions') { %>
+                <% if ( Array.isArray(results[index][key]) && results[index][key].length != 0) { %>
+                <% if (results[index][key].length == 1) { %>
+                <td><%= results[index][key][0].title %></td>
+                <% } else { %>
+                <td><%= results[index][key].reduce(function(sum, item, i) {
+                    return i < results[index][key].length - 1 ? sum + item.title + ', ' : sum + item.title
+                    }, "") %>
+                </td>
+                <% } %>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else { %>
+                <td><% if (results[index][key] === true ) { %>
+                    <p class="text__center">✔</p>
+                    <% } else if (results[index][key] === false){ %>
+
+                    <% } else { %>
+                    <%= results[index][key] %>
+                    <% } %>
+                </td>
+                <% } %>
+                <% } %>
+                <% } %>
+            </tr>
+            <% } %>
+            </tbody>
+        </table>
+    </script>
+{% endblock %}

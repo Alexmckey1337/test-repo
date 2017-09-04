@@ -54,6 +54,7 @@ const CHURCH_REPORT = {
     submit: (reportId) => `/api/v1.0/events/church_reports/${reportId}/submit/`,
     stats: () => `/api/v1.0/events/church_reports/statistics/`,
     dashboard_count: () => `/api/v1.0/events/church_reports/dashboard_counts/`,
+    summary: () => `/api/v1.0/events/church_reports/reports_summary/`,
 };
 
 const HOME_MEETING = {
@@ -64,6 +65,7 @@ const HOME_MEETING = {
     submit: (reportId) => `/api/v1.0/events/home_meetings/${reportId}/submit/`,
     stats: () => `/api/v1.0/events/home_meetings/statistics/`,
     dashboard_count: () => `/api/v1.0/events/home_meetings/dashboard_counts/`,
+    summary: () => `/api/v1.0/events/home_meetings/meetings_summary/`,
 };
 
 const EVENT = {
@@ -80,6 +82,7 @@ const PARTNER = {
     stats_deal: () => `/api/v1.1/partnerships/stat_deals/`,
     stat_payment: () => `/api/v1.1/partnerships/stat_payments/`,
     update_need: (partnerId) => `/api/v1.1/partnerships/${partnerId}/update_need/`,
+    managers_summary: () => `/api/v1.1/partnerships/managers_summary/`,
 };
 
 const DEAL = {
