@@ -100,7 +100,7 @@
                 <% if(table_columns[key].active) { %>
                 <% if (key == 'manager') { %>
                 <% if (results[index][key] != null) { %>
-                <td><a href="/account/<%=results[index].partner_link %>">
+                <td><a href="/account/<%=results[index].manager_id %>">
                     <%= results[index][key] %>
                 </a>
                 </td>
