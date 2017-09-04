@@ -61,29 +61,19 @@ class OrderTableByClient extends OrderTable {
             let dataOrder = this.getAttribute('data-orderfront'),
                 revers = sessionStorage.getItem('revers') ? sessionStorage.getItem('revers') : "+",
                 order = sessionStorage.getItem('order') ? sessionStorage.getItem('order') : '';
-
-            // if (order != '') {
-            //     dataOrder = order == data_order && revers == "+" ? '-' + data_order : data_order;
-            // } else {
-            //     dataOrder = '-' + data_order;
-            // }
-            // const data = {
-            //     'ordering': dataOrder,
-            //     'page': page
-            // };
-            // if (order == data_order) {
-            //     revers = revers == '+' ? '-' : '+';
-            // } else {
-            //     revers = "+";
-            // }
-            // sessionStorage.setItem('revers', revers);
-            // sessionStorage.setItem('order', data_order);
-
-
-            console.log('Clear data -->', data);
-
-            $('.preloader').css('display', 'block');
-            callback(data);
+            if (dataOrder != null) {
+                revers = (revers == '+') ? '-' : '+';
+                sessionStorage.setItem('revers', revers);
+                sessionStorage.setItem('order', dataOrder);
+                let newArr = _.sortBy(data.results, (e) => parseFloat(e[`${dataOrder}`]));
+                (revers == "+") && newArr.reverse();
+                $('.preloader').css('display', 'block');
+                let sortedData = {
+                    table_columns: data.table_columns,
+                    results: newArr,
+                };
+                callback(sortedData);
+            }
         });
     }
 }
@@ -3313,9 +3303,8 @@ function makePartnershipSummaryTable(data, config = {}) {
     // makePagination(paginationConfig);
     makeSortForm(data.table_columns);
     // $('.table__count').text(text);
-    new OrderTable().sort(partnershipSummaryTable, ".table-wrap th");
-    // new OrderTableByClient().sort(partnershipSummaryTable, ".table-wrap th");
-    // new OrderTableByClient().sortByClient(makePartnershipSummaryTable, ".table-wrap th", data);
+    new OrderTableByClient().sort(partnershipSummaryTable, ".table-wrap th");
+    new OrderTableByClient().sortByClient(makePartnershipSummaryTable, ".table-wrap th", data);
     $('.preloader').hide();
 }
 
