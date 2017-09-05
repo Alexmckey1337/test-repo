@@ -47,6 +47,55 @@ function updateUser(id, data, success = null) {
         return false;
     });
 }
+function updateOrCreatePartner(id, data, success = null) {
+    let url = (!id) ? URLS.partner.list() : URLS.partner.detail(id);
+    let config = {
+        url: url,
+        data: data,
+        method: (!id) ? 'POST' : 'PATCH'
+    };
+    return ajaxSendFormData(config).then(function (data) {
+        if (success) {
+            $(success).text('Сохранено');
+            setTimeout(function () {
+                $(success).text('');
+            }, 3000);
+        }
+        return data;
+    }).catch(function (data) {
+        let msg = "";
+        if (typeof data == "string") {
+            msg += data;
+        } else {
+            let errObj = null;
+            if (typeof data != 'object') {
+                errObj = JSON.parse(data);
+            } else {
+                errObj = data;
+            }
+            for (let key in errObj) {
+                msg += key;
+                msg += ': ';
+                if (errObj[key] instanceof Array) {
+                    errObj[key].forEach(function (item) {
+                        msg += item;
+                        msg += ' ';
+                    });
+                } else if (typeof errObj[key] == 'object') {
+                    let errKeys = Object.keys(errObj[key]),
+                        html = errKeys.map(errkey => `${errObj[key][errkey]}`).join('');
+                    msg += html;
+                } else {
+                    msg += errObj[key];
+                }
+                msg += '; ';
+            }
+        }
+        showPopup(msg);
+
+        return false;
+    });
+}
 
 function makeResponsibleList(department, status, flag = false) {
     let $selectResponsible = $('#selectResponsible'),
@@ -545,27 +594,37 @@ $('document').ready(function () {
         let success = $(this).closest('.right-info__block').find('.success__block');
         let formName = thisForm.attr('name');
         let action = thisForm.data('action');
+        let partner = thisForm.data('partner');
         let form = document.forms[formName];
         let formData = new FormData(form);
         let hidden = $(this).hasClass('after__hidden');
-        if (action == 'update-user') {
-            if ($input.is(':checkbox')) {
-                let partnerData = {};
-                if ($input.is(':checked')) {
-                    partnerData.is_active = true;
-                } else {
-                    partnerData.is_active = false;
-                }
+        if (action === 'update-user') {
+            if ($input.is(':checkbox')) {  // it is partner form
+                let partnershipData = new FormData();
+                partnershipData.append('is_active', !!$input.is(':checked'));
                 let $newInput = $input.filter(":not(':checkbox')");
                 $newInput.each(function () {
                     let id = $(this).data('id');
                     if ($(this).hasClass('sel__date')) {
-                        partnerData[id] = $(this).val().trim().split('.').reverse().join('-');
+                        partnershipData.append(id, $(this).val().trim().split('.').reverse().join('-'));
                     } else {
-                        partnerData[id] = $(this).val();
+                        partnershipData.append(id, $(this).val());
                     }
                 });
-                formData.append('partner', JSON.stringify(partnerData));
+                updateOrCreatePartner(partner, partnershipData, success)
+                    .then(function (data) {
+                        let partnerId = data.id;
+                        let partnerForm = $('form#partnership');
+                        partnerForm.data('partner', partnerId);
+                    })
+                    .then(function (data) {
+                        if (hidden) {
+                            let editBtn = $(_self).closest('.hidden').data('edit');
+                            setTimeout(function () {
+                                $('#' + editBtn).trigger('click');
+                            }, 1500)
+                        }
+                    });
             } else {
                 $input.each(function () {
                     if (!$(this).attr('name')) {
@@ -610,21 +669,21 @@ $('document').ready(function () {
                         }
                     }
                 });
+                updateUser(ID, formData, success).then(function (data) {
+                    if (formName === 'editHierarchy') {
+                        $('.is-hidden__after-edit').html('');
+                    }
+                    if (hidden) {
+                        let editBtn = $(_self).closest('.hidden').data('edit');
+                        setTimeout(function () {
+                            $('#' + editBtn).trigger('click');
+                        }, 1500)
+                    }
+                    $('#fullName').text(data.fullname);
+                    $('#searchName').text(data.search_name);
+                });
             }
-            updateUser(ID, formData, success).then(function (data) {
-                if (formName === 'editHierarchy') {
-                    $('.is-hidden__after-edit').html('');
-                }
-                if (hidden) {
-                    let editBtn = $(_self).closest('.hidden').data('edit');
-                    setTimeout(function () {
-                        $('#' + editBtn).trigger('click');
-                    }, 1500)
-                }
-                $('#fullName').text(data.fullname);
-                $('#searchName').text(data.search_name);
-            });
-        } else if (action == 'update-church') {
+        } else if (action === 'update-church') {
             let $existBlock = $('#editChurches').find('ul');
             let noExist = $existBlock.hasClass('exists');
             let church_id = $('#church_list').val();
