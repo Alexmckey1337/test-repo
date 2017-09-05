@@ -459,35 +459,6 @@
                             <span class="label_block">Адрес</span>
                             <input name="address" id="address" type="text" tabindex="23">
                         </label>
-                        {% if request.user.is_partner_manager_or_high %}
-                        <h2>Партнерство</h2>
-                        <label>
-                            <span class="label_block">Партнёр</span>
-                            <input type="checkbox" id="partner">
-                            <div></div>
-                        </label>
-                        <label>
-                            <span class="label_block">Партнёр с</span>
-                            <input type="text" id="partnerFrom" readonly="readonly" data-validation="required">
-                        </label>
-                        <label class = money>
-                            <span class="label_block">Сумма сделки</span>
-                            <div class="input">
-                                <input type="number" id="val_partnerships" data-validation="required">
-                                <select id="payment_currency" required>
-                                        {% for currency in currencies %}
-                                            <option value="{{ currency.id }}" {% if currency.code == 'uah' %}selected{% endif %}>
-                                                {{ currency.short_name }}
-                                            </option>
-                                        {% endfor %}
-                                </select>
-                            </div>
-                        </label>
-                        <label>
-                            <span class="label_block">Менеджер</span>
-                            <select id="chooseManager" data-validation="required"></select>
-                        </label>
-                        {% endif %}
                         <h2>Информация о служениях</h2>
                         <label>
                             <span class="label_block">Департамент</span>
