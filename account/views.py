@@ -296,13 +296,11 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
     @log_perform_update
     def perform_update(self, serializer, **kwargs):
         new_obj = kwargs.get('new_obj')
-        self._update_partnership(new_obj)
-        self._update_divisions(new_obj)
+        # self._update_divisions(new_obj)
 
     @log_perform_create
     def perform_create(self, serializer, **kwargs):
         user = kwargs.get('new_obj')
-        self._create_partnership(user)
 
         return user
 
@@ -323,31 +321,10 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    def _create_partnership(self, user):
-        partner = self.request.data.get('partner', None)
-        if partner is not None and isinstance(partner, dict):
-            partner['user'] = user
-            serializer = PartnershipSerializer(data=partner)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-
     def _update_divisions(self, user):
         divisions = self.request.data.get('divisions', None)
         if divisions is not None and isinstance(divisions, (list, tuple)):
             user.divisions.set(divisions)
-
-    def _update_partnership(self, user):
-        if not hasattr(user, 'partnership'):
-            self._create_partnership(user)
-            return
-
-        partner = self.request.data.get('partner', None)
-        if partner is not None and isinstance(partner, dict):
-            partner['user'] = user
-            partner_obj = user.partnership
-            serializer = PartnershipSerializer(partner_obj, data=partner)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
 
     @list_route(methods=['GET'], serializer_class=DashboardSerializer)
     def dashboard_counts(self, request):

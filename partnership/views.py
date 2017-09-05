@@ -25,12 +25,13 @@ from partnership.pagination import PartnershipPagination, DealPagination
 from partnership.permissions import CanSeeDeals, CanSeePartners, CanCreateDeals, CanUpdateDeals, CanUpdatePartner
 from partnership.resources import PartnerResource
 from .models import Partnership, Deal
-from .serializers import (DealSerializer, PartnershipSerializer, DealCreateSerializer, PartnershipTableSerializer,
-                          DealUpdateSerializer)
+from .serializers import (DealSerializer, PartnershipUpdateSerializer, DealCreateSerializer, PartnershipTableSerializer,
+                          DealUpdateSerializer, PartnershipCreateSerializer, PartnershipSerializer)
 
 
 class PartnershipViewSet(mixins.RetrieveModelMixin,
                          mixins.UpdateModelMixin,
+                         mixins.CreateModelMixin,
                          mixins.ListModelMixin,
                          viewsets.GenericViewSet,
                          PartnerExportViewSetMixin,
@@ -38,6 +39,8 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
     queryset = Partnership.objects.base_queryset().order_by(
         'user__last_name', 'user__first_name', 'user__middle_name')
     serializer_class = PartnershipSerializer
+    serializer_update_class = PartnershipUpdateSerializer
+    serializer_create_class = PartnershipCreateSerializer
     serializer_read_class = PartnershipTableSerializer
     pagination_class = PartnershipPagination
     filter_backends = (filters.DjangoFilterBackend,
@@ -71,6 +74,10 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return self.serializer_read_class
+        if self.action in ('update', 'partial_update'):
+            return self.serializer_update_class
+        if self.action in ('create',):
+            return self.serializer_create_class
         return self.serializer_class
 
     def get_queryset(self):
@@ -79,7 +86,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
     def get_permissions(self):
         if self.action in ('list', 'retrieve'):
             return [permission() for permission in self.permission_list_classes]
-        if self.action == ('update', 'partial_update'):
+        if self.action in ('update', 'partial_update'):
             return [permission() for permission in self.permission_update_classes]
         return super(PartnershipViewSet, self).get_permissions()
 
