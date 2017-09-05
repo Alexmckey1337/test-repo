@@ -290,7 +290,7 @@
                 <% if (results[index].total_sum != null || results[index].value != null) { %>
                 <td>
                     <button class="show_payments inline__button" data-id="<%=results[index].id%>">
-                        <span><%= results[index].total_sum %>/<%= results[index].value %></span>
+                        <span><%= results[index].total_sum %> / <%= results[index].value %> <%= results[index].currency.short_name %></span>
                     </button>
                 </td>
                 <% } else { %>
@@ -298,7 +298,8 @@
                 <% } %>
                 <% } else if (key == 'action' ) { %>
                 <td>
-                    <% if (results[index].payment_status == 2) { %>
+                    <% if (results.length) { %>
+                    <% if (!results[index].done && (results[index].status == 2) && ((parseInt(results[index].total_sum.match(/\d+/))-parseInt(results[index].value.match(/\d+/)))>=0) ) { %>
                     <button class="complete inline__button"
                             data-id="<%= results[index].id%>"
                             data-name="<%=results[index].church.title%>"
@@ -308,9 +309,9 @@
                             data-value="<%=results[index].value%>"
                             data-currency-name="<%=results[index].currency.short_name %>"
                             data-currency-id="<%=results[index].currency.id %>"
-                    >Закрыть сделку
+                    >Закрыть отчет
                     </button>
-                    <% } else if ( (results[index].payment_status == 1) || (results[index].payment_status == 0) ) { %>
+                    <% } else if (!results[index].done && (results[index].status == 2) && ((parseInt(results[index].total_sum.match(/\d+/))-parseInt(results[index].value.match(/\d+/)))<0) ) { %>
                     <button class="pay inline__button"
                             data-id="<%= results[index].id%>"
                             data-name="<%=results[index].church.title%>"
@@ -322,6 +323,9 @@
                             data-currency-id="<%=results[index].currency.id %>"
                     >Добавить платеж
                     </button>
+                    <% } else if (results[index].done) { %>
+                    <p class="text__center">✔</p>
+                    <% } %>
                     <% } %>
                 </td>
                 <% } else if(key == 'pastor') { %>
