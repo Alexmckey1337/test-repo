@@ -533,7 +533,7 @@ $('document').ready(function () {
     });
     $('.save__info').on('click', function (e) {
         e.preventDefault();
-        if ($('#selectResponsible').val() == null) {
+        if (($(this).closest('form').attr('name') == 'editHierarchy') && ($('#selectResponsible').val() == null)) {
             showPopup('Выберите ответственного');
             return
         }
