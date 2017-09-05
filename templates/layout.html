@@ -11,8 +11,8 @@
                         <a href="/">vo <span>crm</span></a>
                     </div>
                     <ul id="nav-sidebar" class="summits">
-                        <li><a data-title="База данных" href="#" id="databases__item"
-                               class="menu__item">База данных</a>
+                        <li>
+                            <a data-title="База данных" href="#" id="databases__item" class="menu__item"><span>База данных</span></a>
                             <ul class="sidebar-submenu">
                                 {% if user.can_see_churches %}
                                     <li><a href="{% url 'db:main' %}">Церкви</a></li>
@@ -25,8 +25,9 @@
                                 {% endif %}
                             </ul>
                         </li>
-                    <li><a data-title="Отчеты" href="{% url 'events:main' %}" id="events__reports"
-                               class="menu__item">Отчеты</a>
+                        <li>
+                            <a data-title="Отчеты" href="{% url 'events:main' %}" id="events__reports"
+                               class="menu__item"><span>Отчеты</span></a>
                             <ul class="sidebar-submenu">
 {#                                <li><a href="{% url 'events:church_report_list' %}">Отчёты церквей</a></li>#}
 {#                                <li><a href="{% url 'events:church_report_statistics' %}">Статистика церквей</a></li>#}
@@ -36,7 +37,7 @@
                         </li>
                         {% if user.can_see_any_partner_block %}
                             <li><a data-title="Партнёрство" href="#" id="partners__item"
-                                   class="menu__item">Партнёрство</a>
+                                   class="menu__item"><span>Партнёрство</span></a>
                                 <ul class="sidebar-submenu">
                                     {% if user.can_see_deals %}
                                         <li><a href="{% url 'partner:deals' %}">Сделки</a></li>
@@ -54,16 +55,16 @@
                                 </ul>
                             </li>
                         {% endif %}
-                        <li><a data-title="Саммиты" href="#" id="summits__item" class="menu__item">Саммиты</a>
+                        <li><a data-title="Саммиты" href="#" id="summits__item" class="menu__item"><span>Саммиты</span></a>
                             <ul class="sidebar-submenu">
                                 <li><a href="{% url "summit:open" %}">{% trans "Open" %}</a></li>
                                 <li><a href="{% url "summit:closed" %}">{% trans "Closed" %}</a></li>
                             </ul>
                         </li>
-                        <li id="move-sidebar">
-                            <button data-title="Развернуть" id="turn_aside" class="menu__item">Свернуть</button>
-                        </li>
                     </ul>
+                    <div id="move-sidebar">
+                        <button data-title="Развернуть" id="turn_aside" class="menu__item">Свернуть</button>
+                    </div>
                 </div>
             </div>
         {% endblock sidebar %}

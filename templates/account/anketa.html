@@ -515,13 +515,13 @@
                             </form>
                         </div>
                     </li>
-{#                    {% if not account.partnership %}#}
-{#                    <li id="editPartnership">#}
-{#                        <div class="right-info__block">#}
-{#                            <div class="success__block"></div>#}
-{#                            <form action="/" name="editPartnership" data-action="update-user" id="partnership">#}
-{#                                <button class="edit" data-edit-block="editPartnership"></button>#}
-{#                                <button class="save__info" type="submit"></button>#}
+                    {% if not account.partnership %}
+                    <li id="editPartnership">
+                        <div class="right-info__block">
+                            <div class="success__block"></div>
+                            <form action="/" name="editPartnership" data-action="update-user" id="partnership">
+                                <button class="edit" data-edit-block="editPartnership"></button>
+                                <button class="save__info" type="submit"></button>
 {#                                <ul>#}
 {#                                    <li>#}
 {#                                        <div class="label-wrapp">#}
@@ -577,60 +577,62 @@
 {#                                        </select>#}
 {#                                    </li>#}
 {#                                </ul>#}
-{#                                <div class="popup_body">#}
-{#                                    <div class="container">#}
-{#                                        <label>#}
-{#                                            <span class="label_block">#}
-{#                                                {% if account.partnership %}#}
-{#                                                    Активный#}
-{#                                                {% else %}#}
-{#                                                    Партнер#}
-{#                                                {% endif %}#}
-{#                                            </span>#}
-{#                                            {% if account.partnership.is_active %}#}
-{#                                                <input type="checkbox" id="partnershipCheck" data-block="partner" checked disabled>#}
-{#                                            {% else %}#}
-{#                                                <input type="checkbox" id="partnershipCheck" readonly disabled>#}
-{#                                            {% endif %}#}
-{#                                            <div></div>#}
-{#                                        </label>#}
-{#                                    </div>#}
-{#                                </div>#}
-{#                                <div class="popup_body" id="partnershipBlock" {% if not account.partnership %}#}
-{#                                    class="hidden" {% endif %}>#}
-{#                                    <div class="container">#}
-{#                                        <label>#}
-{#                                            <span class="label_block">Партнёр с:</span>#}
-{#                                            <input type="text" class="sel__date" data-id="date" value="{{ account.partnership.date|date:"d.m.Y" }}" readonly disabled>#}
-{#                                        </label>#}
-{#                                        <label>#}
-{#                                            <span class="label_block">Сумма сделки:</span>#}
-{#                                            <input type="text" data-id="value" value="{{ account.partnership.value }}" id="payment_value" readonly disabled>#}
-{#                                            <select id="payment_currency" class="no_select" data-id="currency" required readonly disabled>#}
-{#                                                {% for currency in currencies %}#}
-{#                                                    <option value="{{ currency.id }}" {% if currency == account.partnership.currency %}selected{% endif %}>#}
-{#                                                        {{ currency.short_name }}#}
-{#                                                    </option>#}
-{#                                                {% endfor %}#}
-{#                                            </select>#}
-{#                                        </label>#}
-{#                                        <label>#}
-{#                                            <span class="label_block">Менеджер:</span>#}
-{#                                            <select id="responsible" data-id="responsible" readonly disabled>#}
-{#                                                <option value="">Выберите менеджера</option>#}
-{#                                                {% for partner in partners %}#}
-{#                                                    <option value="{{ partner.id }}" {% if account.partnership.responsible.id == partner.id %}selected{% endif %}>#}
-{#                                                        {{ partner.user.fullname }}#}
-{#                                                    </option>#}
-{#                                                {% endfor %}#}
-{#                                            </select>#}
-{#                                        </label>#}
-{#                                    </div>#}
-{#                                </div>#}
-{#                            </form>#}
-{#                        </div>#}
-{#                    </li>#}
-{#                    {% endif %}#}
+                                <div class="popup_body">
+                                    <div class="container">
+                                        <label>
+                                            <span class="label_block">
+                                                {% if account.partnership %}
+                                                    Активный
+                                                {% else %}
+                                                    Партнер
+                                                {% endif %}
+                                            </span>
+                                            {% if account.partnership.is_active %}
+                                                <input type="checkbox" id="partnershipCheck" data-block="partner" checked disabled>
+                                            {% else %}
+                                                <input type="checkbox" id="partnershipCheck" readonly disabled>
+                                            {% endif %}
+                                            <div></div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="popup_body" id="partnershipBlock" {% if not account.partnership %}
+                                    class="hidden" {% endif %}>
+                                    <div class="container">
+                                        <label>
+                                            <span class="label_block">Партнёр с:</span>
+                                            <input type="text" class="sel__date" data-id="date" value="{{ account.partnership.date|date:"d.m.Y" }}" readonly disabled>
+                                        </label>
+                                        <label>
+                                            <span class="label_block">Сумма сделки:</span>
+                                            <div class="birthday">
+                                                <select id="payment_currency" class="no_select" data-id="currency" required readonly disabled>
+                                                    {% for currency in currencies %}
+                                                        <option value="{{ currency.id }}" {% if currency == account.partnership.currency %}selected{% endif %}>
+                                                            {{ currency.short_name }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                                <input type="text" data-id="value" value="{{ account.partnership.value }}" id="payment_value" readonly disabled>
+                                            </div>
+                                        </label>
+                                        <label>
+                                            <span class="label_block">Менеджер:</span>
+                                            <select id="responsible" data-id="responsible" readonly disabled>
+                                                <option value="">Выберите менеджера</option>
+                                                {% for partner in partners %}
+                                                    <option value="{{ partner.id }}" {% if account.partnership.responsible.id == partner.id %}selected{% endif %}>
+                                                        {{ partner.user.fullname }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </label>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </li>
+                    {% endif %}
                     <li id="editVisit">
                         <div class="right-info__block">
                             <h4>Духовный уровень</h4>
@@ -808,8 +810,8 @@
                                             </label>
                                         {% else %}
                                             <label>
-                                                <span class="label_block">Пользователь не состоит ни в церкви ни в
-                                                домашней группе</span>
+                                                <p class="label_block_important">Пользователь не состоит ни в церкви ни в
+                                                домашней группе</p>
                                             </label>
                                             <label>
                                                 <span class="label_block">Церковь</span>
@@ -1259,20 +1261,23 @@
                 </div>
                 <div class="padding-wrap">
                     <div class="summa-wrap">
-                    <div class="summa">
-                        <label>Сумма:</label>
-                        <input maxlength="6"
+                        <label>
+                            <span>Сумма:</span>
+                            <input maxlength="6"
                                onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
                                type="text" id="new_deal_sum">
-                    </div>
-                    <div class="date">
-                        <label>Дата:</label>
-                        <input type="text" id="new_deal_date" class="sel__date" required></div>
-                </div>
-                    <textarea maxlength="40" placeholder="Добавить коментарий"></textarea>
-                    <div class="splash-bauttons">
-                        <button id="close-deal">Отменить</button>
-                        <button id="send_new_deal" data-partner="{{ account.partnership.id }}">Создать</button>
+                        </label>
+                        <label>
+                            <span>Дата:</span>
+                            <input type="text" id="new_deal_date" class="sel__date" required>
+                        </label>
+                        <label>
+                            <textarea maxlength="40" placeholder="Добавить коментарий"></textarea>
+                        </label>
+                        <div class="splash-bauttons">
+                            <button id="close-deal">Отменить</button>
+                            <button id="send_new_deal" data-partner="{{ account.partnership.id }}">Создать</button>
+                        </div>
                     </div>
                 </div>
             </div>

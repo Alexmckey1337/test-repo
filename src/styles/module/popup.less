@@ -139,7 +139,7 @@
           left: 0px;
           top: 15px;
           display: block;
-          width: 100%;
+          width: 44%;
           z-index: -1;
           height: 2px;
           background-image: radial-gradient(circle,#656d78 .6px,transparent 1px);
@@ -232,6 +232,7 @@
           background: #fff;
           &.count{
             padding-top:5px;
+            width: 250px;
           }
           &#added_home_group_church{
             width: 250px;
@@ -257,6 +258,18 @@
           background: #fff;
           font-size: 1.1em;
           padding: 0 1em 0 0;
+          &_important{
+            background-color: #f2f5fa;
+            padding-right:0;
+            padding-left:20px;
+            position: relative;
+            &::before{
+              content: '\f05a';
+              font-family: FontAwesome;
+              position: absolute;
+              left: 0;
+            }
+          }
         }
         .phone{
           position: relative;
@@ -285,6 +298,10 @@
           a{
             position: absolute;
             right: -15px;
+            top:8px;
+            i{
+              color: #3caeda;
+            }
           }
           #payment_value{
             width: 190px!important;
@@ -297,8 +314,10 @@
           }
         }
         .birthday{
-          input{
-            width: 50% !important;
+          display: flex;
+          justify-content: space-between;
+          input,select{
+            width: 48% !important;
           }
         }
         #chooseResponsible{
@@ -508,16 +527,23 @@
     margin-left: 15px;
     border: none;
     background-color: #fff;
+    &:hover{
+      background-color: transparent;
+      border: none !important;
+    }
     .col{
+      &:hover{
+        a{
+          color: #3caeda;
+          border-bottom: 1px dotted #3caeda;
+        }
+      }
       &:last-child{
         span{
           font-family: "UbuntuLight", sans-serif;
           font-size: 1.2em;
         }
       }
-    }
-    &:hover{
-      background-color: #ececec;
     }
   }
   .col{
@@ -548,7 +574,7 @@
   transition: height .5s ease;
     .splash-buttons {
       display: flex;
-      justify-content: flex-end;
+      justify-content: center;
     }
 }
 }
@@ -653,7 +679,7 @@
   }
 }
 
-.user-info {
+.user-info,.summa-wrap{
   display: flex;
   margin-top: 15px;
   overflow: hidden;
@@ -745,12 +771,18 @@
 }
 
 .summa-wrap {
-  overflow: hidden;
+  //overflow: hidden;
   margin: 1em 0em;
-  display: flex;
-  align-items: flex-start;
-  & > div:last-child {
-    margin-left: 1em;
+  //display: flex;
+  //align-items: flex-start;
+  //flex-direction: column;
+  label{
+    width: 100%;
+    input,textarea{
+     border: 1px solid #cdd0d4;
+     padding: 6px 5px;
+      border-radius: 3px;
+    }
   }
 }
 

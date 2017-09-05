@@ -182,13 +182,14 @@ class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
     comment = models.TextField(_('Comment'), blank=True)
 
     transfer_payments = models.DecimalField(_('Transfer Payments'), max_digits=12,
-                                            decimal_places=1, default=0)
+                                            decimal_places=1, default=0, blank=True)
     pastor_tithe = models.DecimalField(_('Pastor Tithe'), max_digits=12,
                                        decimal_places=0, default=0)
 
     payments = GenericRelation('payment.Payment', related_query_name='church_reports')
     currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
                                  default=get_default_currency(), null=True)
+    done = models.BooleanField(default=False)
 
     objects = ChurchReportManager()
 
