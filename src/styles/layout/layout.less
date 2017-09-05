@@ -34,7 +34,41 @@
       }
     }
   }
+  #move-sidebar {
+    width: 100%;
+    height:90px;
+    background-color: #444b56;
+    border-top: 1px solid #555b65;
+    transition: width .3s, color .3s;
+    position: relative;
+    &.active {
+          & button {
+            color: transparent;
+            &:before {
+              content: '\f101 ';
+            }
+          }
+        }
+    button {
+      text-align: left;
+      display: block;
+      font-size: 1.2em;
+      color: #fff;
+      padding: 35px 30px 40px 90px;
+      background-color: transparent;
+      transition: color .1s ease;
+      &:before {
+        content: '\f100';
+        color: #CECECE;
+        font: 2em FontAwesome;
+        position: absolute;
+        top: 25px;
+        left: 30px;
+      }
+    }
+  }
   ul{
+    flex:1;
     li{
       box-sizing: border-box;
       position: relative;
@@ -61,39 +95,7 @@
       padding: 35px 30px 40px 90px;
       background: transparent;
     }
-      &#move-sidebar {
-        position: absolute;
-        width: 100%;
-        left: 0;
-        bottom: 0;
-        background-color: #444b56;
-        transition: width .3s, color .3s;
-        &.active {
-          & button {
-            color: transparent;
-            &:before {
-              content: '\f101 ';
-            }
-          }
-        }
-        & button {
-          text-align: left;
-          display: block;
-          font-size: 1.2em;
-          color: #fff;
-          padding: 35px 30px 40px 90px;
-          background-color: transparent;
-          transition: color .1s ease;
-          &:before {
-            content: '\f100';
-            color: #CECECE;
-            font: 2em FontAwesome;
-            position: absolute;
-            top: 25px;
-            left: 30px;
-          }
-        }
-      }
+
       & a, #sidebar & button {
         &:before {
           content: '';
@@ -173,6 +175,9 @@
     ul{
       a{
         color: #434a55;
+        span{
+          display: none;
+        }
       }
     }
     .logo{
@@ -212,6 +217,8 @@
 
 #sidebar .scrollbar-macosx {
   height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 #sidebar .scrollbar-macosx > .scroll-element.scroll-x {

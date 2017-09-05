@@ -390,8 +390,12 @@
   }
   .info {
     display: none;
-
     padding: .5em 2em;
+    label{
+      &::before{
+        width: 49%;
+      }
+    }
     h2 {
       margin-bottom: 0.5em;
       font-size: 1.5em;
