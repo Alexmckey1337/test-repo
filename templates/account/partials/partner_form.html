@@ -1,0 +1,58 @@
+<form action="/" name="editPartnership" data-action="update-user" data-partner="{{ account.partnership.id }}" id="partnership">
+    <input type="hidden" data-id="user" value="{{ account.id }}">
+    {% if request.user.is_partner_supervisor_or_high %}
+        <button class="edit" data-edit-block="editPartnership"></button>
+        <button class="save__info" type="submit"></button>
+    {% endif %}
+    <div class="popup_body">
+        <div class="container">
+            <label>
+                <span class="label_block">
+                    {% if account.partnership %}Активный{% else %}Партнер{% endif %}
+                </span>
+                {% if account.partnership.is_active %}
+                    <input type="checkbox" id="partnershipCheck" data-block="partner" checked disabled>
+                {% else %}
+                    <input type="checkbox" id="partnershipCheck" readonly disabled>
+                {% endif %}
+                <div></div>
+            </label>
+        </div>
+    </div>
+    <div class="popup_body {% if not account.partnership %} hidden {% endif %} " id="partnershipBlock">
+        <div class="container">
+            <label>
+                <span class="label_block">Партнёр с:</span>
+                <input type="text" class="sel__date" data-id="date" value="{{ account.partnership.date|date:"d.m.Y" }}"
+                       readonly disabled>
+            </label>
+            <label>
+                <span class="label_block">Сумма сделки:</span>
+                <div class="input">
+                    <input type="text" data-id="value" value="{{ account.partnership.value }}"
+                           id="payment_value"
+                           readonly disabled>
+                    <select id="payment_currency" class="no_select" data-id="currency" required
+                            readonly disabled>
+                        {% for currency in currencies %}
+                            <option value="{{ currency.id }}"
+                                    {% if currency == account.partnership.currency %}selected{% endif %}>
+                                {{ currency.short_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </label>
+            <label>
+                <span class="label_block">Менеджер:</span>
+                <select id="responsible" data-id="responsible" readonly disabled>
+                    <option value="">Выберите менеджера</option>
+                    {% for partner in partners %}
+                        <option value="{{ partner.id }}"
+                                {% if account.partnership.responsible.id == partner.id %}selected{% endif %}>{{ partner.user.fullname }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+    </div>
+</form>

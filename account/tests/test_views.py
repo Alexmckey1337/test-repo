@@ -32,7 +32,6 @@ FIELD_CODES = (
     ('district', 201),
     ('address', 201),
     ('divisions', 201),
-    ('partner', 201),
     ('spiritual_level', 201),
 
     # required fields
@@ -63,7 +62,6 @@ CHANGE_FIELD = (
     ('district', 400),
     ('address', 400),
     ('divisions', 400),
-    ('partner', 400),
     ('spiritual_level', 400),
     ('departments', 400),
     ('master', 400),
@@ -570,13 +568,11 @@ class TestUserViewSet:
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_update_user_with_all_fields(self, request, api_client, staff_user, user_data, user_factory,
-                                         partner_factory):
+    def test_update_user_with_all_fields(self, request, api_client, staff_user, user_data, user_factory):
         user_data = get_values(user_data, request)
         create_user_data = copy.deepcopy(user_data)
         divisions = create_user_data.pop('divisions')
         departments = create_user_data.pop('departments')
-        partner = create_user_data.pop('partner')
 
         strptime = lambda d: datetime.datetime.strptime(d, '%Y-%m-%d')
         create_user_data['hierarchy_id'] = create_user_data.pop('hierarchy')
@@ -586,11 +582,6 @@ class TestUserViewSet:
         create_user_data['repentance_date'] = strptime(create_user_data['repentance_date'])
 
         user = user_factory(**create_user_data)
-        partner_factory(
-            user=user,
-            value=Decimal(partner['value']),
-            date=strptime(partner['date']),
-            responsible_id=partner['responsible'])
         user.divisions.set(divisions)
         user.departments.set(departments)
 
@@ -738,31 +729,6 @@ class TestUserViewSet:
 
         assert user.disciples.exists()
         assert not other_user.disciples.exists()
-
-    @pytest.mark.hh
-    def test_move_old_unclosed_deal_after_update_partner_responsible(
-            self, api_login_client, partner_factory, deal_factory, user_factory):
-        responsible = partner_factory()
-        partner = partner_factory(responsible=responsible)  # autocreate deal
-        deal_factory.create_batch(2, date_created=timezone.now() + datetime.timedelta(days=-32), partnership=partner)
-
-        assert partner.responsible == responsible
-        assert responsible.disciples_deals.count() == 3
-
-        url = reverse('users_v1_1-detail', kwargs={'pk': partner.user_id})
-        api_login_client.force_login(user=user_factory(is_staff=True))
-        api_login_client.patch(url, data={
-            'partner': {
-                'value': 100,
-                'responsible': partner_factory().id,
-                'date': '2002-04-04',
-            },
-        }, format='json')
-
-        partner.refresh_from_db()
-
-        assert partner.responsible != responsible
-        assert responsible.disciples_deals.count() == 2
 
 
 @pytest.mark.django_db

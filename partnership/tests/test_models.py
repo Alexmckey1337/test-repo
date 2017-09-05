@@ -22,7 +22,6 @@ class TestPartnership:
     def test__str__(self, partner):
         assert partner.__str__() == partner.fullname
 
-    @pytest.mark.hh
     def test_move_old_unclosed_deal_after_change_responsible(self, partner_factory, deal_factory):
         responsible = partner_factory()
         partner = partner_factory(responsible=responsible)  # autocreate deal
