@@ -206,7 +206,7 @@ class ChurchReportListSerializer(serializers.HyperlinkedModelSerializer, Validat
                                                   decimal_places=0, required=False)
     total_tithe = serializers.DecimalField(source='tithe', max_digits=13,
                                            decimal_places=0, required=False)
-    currency_donations = serializers.CharField(required=False)
+    currency_donations = serializers.CharField(required=False, allow_blank=True)
     transfer_payments = serializers.DecimalField(max_digits=12, decimal_places=1, read_only=True)
     total_new_peoples = serializers.IntegerField(source='new_people', required=False)
     total_repentance = serializers.IntegerField(source='count_repentance', required=False)
@@ -225,7 +225,7 @@ class ChurchReportListSerializer(serializers.HyperlinkedModelSerializer, Validat
                   'total_peoples', 'total_new_peoples', 'total_repentance', 'transfer_payments',
                   'total_tithe', 'total_donations', 'total_pastor_tithe', 'currency_donations',
                   'can_submit', 'cant_submit_cause',
-                  'value', 'total_sum', 'payment_status', 'currency')
+                  'value', 'total_sum', 'payment_status', 'currency', 'done')
         read_only_fields = ['__all__']
 
 
@@ -233,7 +233,7 @@ class ChurchReportSerializer(ChurchReportListSerializer):
     church = serializers.PrimaryKeyRelatedField(queryset=Church.objects.all(), required=False)
     pastor = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
         church__pastor__id__isnull=False).distinct(), required=False)
-    status = serializers.IntegerField(default=1)
+    status = serializers.IntegerField(default=ChurchReport.IN_PROGRESS)
     transfer_payments = serializers.DecimalField(max_digits=13, decimal_places=1)
 
     not_editable_fields = ['church', 'pastor', 'status', 'payment_status', 'value', 'total_sum']
@@ -241,7 +241,6 @@ class ChurchReportSerializer(ChurchReportListSerializer):
     class Meta(ChurchReportListSerializer.Meta):
         fields = ChurchReportListSerializer.Meta.fields + (
             'comment',
-            'transfer_payments',
         )
 
         read_only_fields = None
