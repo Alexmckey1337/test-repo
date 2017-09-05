@@ -262,6 +262,9 @@
     li {
       width: 100%;
       margin-left: 0;
+      &:last-child{
+        padding-right:0;
+      }
       & button {
         width: 100%;
         padding: 12px 5px;
@@ -429,6 +432,7 @@
   justify-content: flex-start;
   align-items: center;
   border: 0;
+
   #tabs {
     position: relative;
     margin-right: 20px;
@@ -441,12 +445,14 @@
       border-left: 1px solid #cdd0d4;
     }
   }
-  .week {
+  .week,
+  .month {
     padding: 15px 20px;
     border: 1px solid #cdd0d4;
     border-right: 0;
     border-radius: 0;
-    &.week_prev {
+    &.week_prev,
+    &.month_prev {
       margin-right: 20px;
       border-right: 1px solid #cdd0d4;
     }
@@ -460,9 +466,10 @@
     display: flex;
     border: 1px solid #cdd0d4;
     overflow: hidden;
+    height: 100%;
+    padding-right:40px;
     input {
-      width: 180px;
-      height: 3.2em;
+      height: auto;
       padding: .5em;
       z-index: 2;
       background-color: transparent;
@@ -608,7 +615,7 @@
   padding-left: 1.2em;
   button {
     float: right;
-    width: 130px;
+    width: 130px ;
     background-color: #3caeda;
     position: relative;
     margin-right: 30px;
@@ -735,9 +742,10 @@
   transition: all .3s ease;
   text-align: left;
   margin-right: 174px;
+  border-bottom: 1px solid transparent !important;
   &:hover{
     background-color: #fbfcfd;
-    border-bottom: 1px solid #999fa7;
+    border-bottom-color: #999fa7 !important;
   }
   .col{
     &:first-child{

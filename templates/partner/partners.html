@@ -60,124 +60,213 @@
     {% get_simple_managers as managers %}
     <div class="popap" id='filterPopup'>
         <div class="pop_cont">
-            <h2 class='popup_text'>
-                Фильтр
-            </h2>
+            <div class='popup_text'>
+                <h2>Фильтр</h2>
+            </div>
             <div class="popup_body">
                 <div class="container">
-                    <div class="col-6">
+                    <label>
                         {% if request.user.is_partner_supervisor_or_high %}
-                            <div class="label_block-wrapp">
                             <span class="label_block">Менеджер</span>
-                        </div>
                         {% endif %}
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Отдел</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Ветка</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Иерархия</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Ответственный</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Фильтр по email</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Фильтр по номеру телефона</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Фильтр по стране</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Фильтр по городу</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Фильтр по дню рождения</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Статус партнера</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Фильтр по дате покаяния</span>
-                        </div>
-                    </div>
-                    <div class="col-6">
                         {% if request.user.is_partner_supervisor_or_high %}
-                            <p class="input_block">
-                                <select class="selectdb" data-filter="responsible" id="masters_filter">
-                                    <option value="">ВСЕ</option>
-                                    {% for manager in managers %}
-                                        <option value="{{ manager.id }}">{{ manager.fullname }}</option>
-                                    {% endfor %}
-                                </select>
-                            </p>
+                            <select class="selectdb" data-filter="responsible" id="masters_filter">
+                                <option value="">ВСЕ</option>
+                                {% for manager in managers %}
+                                    <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                                {% endfor %}
+                            </select>
                         {% endif %}
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="department" id="departments_filter">
-                                <option value="">ВСЕ</option>
-                                {% for department in departments %}
-                                    <option value="{{ department.id }}">{{ department.title }}</option>
-                                {% endfor %}
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="master_tree" id="tree_filter">
-                                <option value="">ВСЕ</option>
-                                {% for master in masters %}
-                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
-                                {% endfor %}
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="hierarchy" id="hierarchies_filter">
-                                <option value="">ВСЕ</option>
-                                {% for hierarchy in hierarchies %}
-                                    <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
-                                {% endfor %}
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="master" id="masters_filter">
-                                <option value="">ВСЕ</option>
-                                {% for master in masters %}
-                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
-                                {% endfor %}
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <input type="email" data-filter="search_email" placeholder="email или часть" id="search_email">
-                        </p>
-                        <p class="input_block">
-                            <input type="tel" data-filter="search_phone_number" placeholder="номер телефона или часть" id="search_phone_number">
-                        </p>
-                        <p class="input_block">
-                            <input type="text" data-filter="search_country" placeholder="страна или часть названия" id="search_country">
-                        </p>
-                        <p class="input_block">
-                            <input type="text" data-filter="search_city" placeholder="город или часть названия" id="search_city">
-                        </p>
-                        <p class="input_block">
+                    </label>
+                    <label>
+                        <span class="label_block">Отдел</span>
+                        <select class="selectdb" data-filter="department" id="departments_filter">
+                            <option value="">ВСЕ</option>
+                            {% for department in departments %}
+                                <option value="{{ department.id }}">{{ department.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Ветка</span>
+                        <select class="selectdb" data-filter="master_tree" id="tree_filter">
+                            <option value="">ВСЕ</option>
+                            {% for master in masters %}
+                                <option value="{{ master.id }}">{{ master.fullname }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Иерархия</span>
+                        <select class="selectdb" data-filter="hierarchy" id="hierarchies_filter">
+                            <option value="">ВСЕ</option>
+                            {% for hierarchy in hierarchies %}
+                                <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Ответственный</span>
+                        <select class="selectdb" data-filter="master" id="masters_filter">
+                            <option value="">ВСЕ</option>
+                            {% for master in masters %}
+                                <option value="{{ master.id }}">{{ master.fullname }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Фильтр по email</span>
+                        <input type="email" data-filter="search_email" placeholder="email или часть" id="search_email">
+                    </label>
+                    <label>
+                        <span class="label_block">Фильтр по номеру телефона</span>
+                        <input type="tel" data-filter="search_phone_number" placeholder="номер телефона или часть" id="search_phone_number">
+                    </label>
+                    <label>
+                        <span class="label_block">Фильтр по стране</span>
+                        <input type="text" data-filter="search_country" placeholder="страна или часть названия" id="search_country">
+                    </label>
+                    <label>
+                        <span class="label_block">Фильтр по городу</span>
+                        <input type="text" data-filter="search_city" placeholder="город или часть названия" id="search_city">
+                    </label>
+                    <label>
+                        <span class="label_block">Фильтр по дню рождения</span>
+                        <p class="birthday">
                             <input type="text" placeholder="от" data-filter="from_date" id="date_from" class="select_date_filter">
                             <input type="text" placeholder="до" data-filter="to_date" id="date_to" class="select_date_filter">
                         </p>
-                        <p class="input_block">
-                            <select class="selectdb" data-filter="is_active" id="active_filter">
-                                <option value="">ВСЕ</option>
-                                <option value="2">Активный</option>
-                                <option value="3">Не активный</option>
-                            </select>
-                        </p>
-                        <p class="input_block">
+                    </label>
+                    <label>
+                        <span class="label_block">Статус партнера</span>
+                        <select class="selectdb" data-filter="is_active" id="active_filter">
+                            <option value="">ВСЕ</option>
+                            <option value="2">Активный</option>
+                            <option value="3">Не активный</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Фильтр по дате покаяния</span>
+                        <p class="birthday">
                             <input type="text" placeholder="от" data-filter="repentance_date_from"
                                    id="repentance_date_from" class="select_rep_date_filter">
                             <input type="text" placeholder="до" data-filter="repentance_date_to"
                                    id="repentance_date_to" class="select_rep_date_filter">
                         </p>
-                    </div>
+                    </label>
+{#                    <div class="col-6">#}
+{#                        {% if request.user.is_partner_supervisor_or_high %}#}
+{#                            <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Менеджер</span>#}
+{#                        </div>#}
+{#                        {% endif %}#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Отдел</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Ветка</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Иерархия</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Ответственный</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Фильтр по email</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Фильтр по номеру телефона</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Фильтр по стране</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Фильтр по городу</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Фильтр по дню рождения</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Статус партнера</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Фильтр по дате покаяния</span>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <div class="col-6">#}
+{#                        {% if request.user.is_partner_supervisor_or_high %}#}
+{#                            <p class="input_block">#}
+{#                                <select class="selectdb" data-filter="responsible" id="masters_filter">#}
+{#                                    <option value="">ВСЕ</option>#}
+{#                                    {% for manager in managers %}#}
+{#                                        <option value="{{ manager.id }}">{{ manager.fullname }}</option>#}
+{#                                    {% endfor %}#}
+{#                                </select>#}
+{#                            </p>#}
+{#                        {% endif %}#}
+{#                        <p class="input_block">#}
+{#                            <select class="selectdb" data-filter="department" id="departments_filter">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                                {% for department in departments %}#}
+{#                                    <option value="{{ department.id }}">{{ department.title }}</option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <select class="selectdb" data-filter="master_tree" id="tree_filter">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                                {% for master in masters %}#}
+{#                                    <option value="{{ master.id }}">{{ master.fullname }}</option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <select class="selectdb" data-filter="hierarchy" id="hierarchies_filter">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                                {% for hierarchy in hierarchies %}#}
+{#                                    <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <select class="selectdb" data-filter="master" id="masters_filter">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                                {% for master in masters %}#}
+{#                                    <option value="{{ master.id }}">{{ master.fullname }}</option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <input type="email" data-filter="search_email" placeholder="email или часть" id="search_email">#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <input type="tel" data-filter="search_phone_number" placeholder="номер телефона или часть" id="search_phone_number">#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <input type="text" data-filter="search_country" placeholder="страна или часть названия" id="search_country">#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <input type="text" data-filter="search_city" placeholder="город или часть названия" id="search_city">#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <input type="text" placeholder="от" data-filter="from_date" id="date_from" class="select_date_filter">#}
+{#                            <input type="text" placeholder="до" data-filter="to_date" id="date_to" class="select_date_filter">#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <select class="selectdb" data-filter="is_active" id="active_filter">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                                <option value="2">Активный</option>#}
+{#                                <option value="3">Не активный</option>#}
+{#                            </select>#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <input type="text" placeholder="от" data-filter="repentance_date_from"#}
+{#                                   id="repentance_date_from" class="select_rep_date_filter">#}
+{#                            <input type="text" placeholder="до" data-filter="repentance_date_to"#}
+{#                                   id="repentance_date_to" class="select_rep_date_filter">#}
+{#                        </p>#}
+{#                    </div>#}
                 </div>
             </div>
             <div class="container">

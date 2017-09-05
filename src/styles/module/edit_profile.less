@@ -138,44 +138,45 @@
 
 #addChurch, #addHomeGroup {
   .container {
-    & .column {
+    .column {
       width: 200px;
     }
-    & .label_block-wrapp::after {
-      bottom: 12px;
+    .label_block-wrapp{
+      &::after{
+        bottom: 12px;
+      }
     }
     & > div:first-of-type {
-      & p,
-      & span {
+      p, span {
         line-height: 35px;
       }
     }
     & > div {
-      & span, & p {
+      span, p {
         height: 35px;
         text-align: left;
         font-size: 1em;
         line-height: 35px;
         //margin-bottom: .5em;
       }
-      & .end__block {
+      .end__block {
         margin-bottom: 2em;
       }
 
     }
-    & input {
+    input {
       min-width: 17em;
-      height: auto;
+      height: 25px;
       padding: 5px 6px;
     }
   }
-  & .container_block {
+  .container_block {
     justify-content: flex-start;
-    & .select2 {
-      width: 100% !important;
+    .select2 {
+      width: 250px;
     }
   }
-  & .add-church {
+  .add-church {
     position: relative;
     &:before {
       font: 1.2em FontAwesome;
@@ -186,8 +187,10 @@
   }
 }
 
+
+
 #filterPopup {
-  & .label_block-wrapp {
+  .label_block-wrapp {
     height: 35px;
     font-size: 1em;
     padding: 0 1em 0 0;
@@ -196,8 +199,10 @@
       bottom: 20px;
     }
   }
-  & .label_block-wrapp:first-child {
-    margin-top: .5em;
+  .label_block-wrapp{
+    &:first-child{
+      margin-top: .5em;
+    }
   }
 }
 
@@ -387,35 +392,37 @@
     display: none;
 
     padding: .5em 2em;
-    & h2 {
+    h2 {
       margin-bottom: 0.5em;
       font-size: 1.5em;
     }
-    & .info-block {
+    .info-block {
       display: flex;
       flex-wrap: wrap;
     }
-    & form {
+    form {
       position: relative;
+      text-align: right;
       &:hover {
         button {
           opacity: 1;
         }
       }
       & button {
-        position: absolute;
+        //position: absolute;
         padding: 0;
         background: 0 0;
         border: 0;
         top: 0;
         right: 0;
         width: 1em;
+        margin-bottom:10px;
         height: 1em;
         font-size: 1.5em;
         opacity: .3;
         &::before {
           color: #656d78;
-          position: absolute;
+          //position: absolute;
           left: 0;
           top: 0;
           font: 400 1em FontAwesome;
@@ -436,11 +443,12 @@
           }
           & + .save__info {
             display: block;
+            float: right;
           }
         }
       }
     }
-    & .title-wrapper {
+    .title-wrapper {
       position: relative;
       width: 40%;
       margin: 0.6em 0;
@@ -463,104 +471,100 @@
         z-index: 1;
       }
     }
-    & input {
-      width: 47%;
-      height: 25px;
-      margin-bottom: .1em;
-      padding: 0 5px;
-      z-index: 2;
-    }
-    & .input {
-      width: 50%;
-      & .select2 {
-        width: 100%!important;
-        height: 25px;
-        z-index: 2;
-      }
-      & .link-hide {
-        visibility: hidden;
-        opacity: 0;
-      }
-    }
-    & select {
-      width: 100%;
-      min-width: auto;
-      height: 30px;
-    }
-    & .input {
-      position: relative;
-      display: flex;
-      align-items: center;
-      & input[type='text'] {
-        width: 50%;
-      }
-      & input:read-only + a {
-        z-index: 5;
-      }
-      & #web_site,
-      & #church {
-        width: 100%;
-      }
-      & input[type='checkbox'] {
-        width: 10%;
-        margin-left: 5px;
-      }
-      & a {
-        position: absolute;
-        top: 10px;
-        right: 0;
-        font-size: 1.2em;
-        & .fa {
-          color: #3caeda;
-        }
-      }
-    }
-    & p {
-      width: 40%;
-      margin: 0.5em 0;
-      padding-left: 10px;
-    }
-    & a {
-      color: #3caeda;
-    }
-    & a:hover {
-      text-decoration: underline;
-    }
-    .select2-container .select2-selection--single {
-      height: 25px!important;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-      line-height: 25px;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-      background: #e6e9ee;
-      height: calc(100% - 2px)!important;
-      width: 2em!important;
-      border-top-right-radius: 4px;
-      border-bottom-right-radius: 4px;
-      &::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        right: .6em;
-        margin: auto;
-        display: block;
-        width: 0;
-        height: 0;
-        border-left: .4em solid transparent;
-        border-right: .4em solid transparent;
-        border-top: .6em solid #656d78;
-        border-bottom: 0 solid transparent;
-      }
-    }
-    & select,
-    & input:not([type=checkbox]) {
-      &:read-only {
-        border: 2px solid transparent;
-        background: transparent;
-      }
-    }
+    //input {
+    //  width: 47%;
+    //  height: 25px;
+    //  margin-bottom: .1em;
+    //  padding: 0 5px;
+    //  z-index: 2;
+    //}
+    //.input {
+    //  width: 50%;
+    //  & .select2 {
+    //    width: 100%!important;
+    //    height: 25px;
+    //    z-index: 2;
+    //  }
+    //  & .link-hide {
+    //    visibility: hidden;
+    //    opacity: 0;
+    //  }
+    //}
+
+    //.input {
+    //  position: relative;
+    //  display: flex;
+    //  align-items: center;
+    //  & input[type='text'] {
+    //    width: 50%;
+    //  }
+    //  & input:read-only + a {
+    //    z-index: 5;
+    //  }
+    //  & #web_site,
+    //  & #church {
+    //    width: 100%;
+    //  }
+    //  & input[type='checkbox'] {
+    //    width: 10%;
+    //    margin-left: 5px;
+    //  }
+    //  & a {
+    //    position: absolute;
+    //    top: 10px;
+    //    right: 0;
+    //    font-size: 1.2em;
+    //    & .fa {
+    //      color: #3caeda;
+    //    }
+    //  }
+    //}
+    //p {
+    //  width: 40%;
+    //  margin: 0.5em 0;
+    //  padding-left: 10px;
+    //}
+    //& a {
+    //  color: #3caeda;
+    //}
+    //& a:hover {
+    //  text-decoration: underline;
+    //}
+    //.select2-container .select2-selection--single {
+    //  height: 25px!important;
+    //}
+    //.select2-container--default .select2-selection--single .select2-selection__rendered {
+    //  line-height: 25px;
+    //}
+    //.select2-container--default .select2-selection--single .select2-selection__arrow {
+    //  background: #e6e9ee;
+    //  height: calc(100% - 2px)!important;
+    //  width: 2em!important;
+    //  border-top-right-radius: 4px;
+    //  border-bottom-right-radius: 4px;
+    //  &::before {
+    //    content: "";
+    //    position: absolute;
+    //    top: 0;
+    //    bottom: 0;
+    //    right: .6em;
+    //    margin: auto;
+    //    display: block;
+    //    width: 0;
+    //    height: 0;
+    //    border-left: .4em solid transparent;
+    //    border-right: .4em solid transparent;
+    //    border-top: .6em solid #656d78;
+    //    border-bottom: 0 solid transparent;
+    //  }
+    //}
+    //& select,
+    //& input:not([type=checkbox]) {
+    //  &:read-only {
+    //    border: 2px solid transparent;
+    //    background: transparent;
+    //  }
+    //}
   }
 }
 
@@ -667,17 +671,49 @@
       color: #656d78 !important;
     }
     .select2-selection__arrow{
-      height: 33px !important;
+      background: #e6e9ee;
+      height: 23px!important;
+      width: 2em!important;
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+      &::before{
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: .6em;
+        margin: auto;
+        display: block;
+        width: 0;
+        height: 0;
+        border-left: .4em solid transparent;
+        border-right: .4em solid transparent;
+        border-top: .6em solid #656d78;
+        border-bottom: 0 solid transparent;
+      }
     }
   }
+  .select2-search--dropdown{
+    .select2-search__field{
+      border: 1px solid #cdd0d4;
+    }
+  }
+  .select2-dropdown{
+    border: 1px solid #cdd0d4;
+    z-index: 10000;
+  }
 }
-
 .select2-container{
   .select2-selection--single {
-    height: 35px !important;
+    height: 25px !important;
+    border: 1px solid #cdd0d4;
     .select2-selection__rendered{
-      padding-right: 0 !important;
+      padding-left:5px;
+      line-height: 23px;
     }
+  }
+  .select2-selection--multiple{
+    min-height: 25px !important;
   }
 }
 

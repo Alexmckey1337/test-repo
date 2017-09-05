@@ -29,9 +29,9 @@
 {#                            class="download header__button">Export#}
 {#                    </button>#}
 {#                </li>#}
-{#                <li>#}
-{#                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>#}
-{#                </li>#}
+                <li>
+                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
+                </li>
             </ul>
 
         </div>
@@ -41,15 +41,14 @@
 {% block main.content %}
 
     <div class="content">
-        <div class="prefilter-group">
-            <div class='input-group date'>
-                <button class="month month_now">Текущий месяц</button>
+        <div class="container-full">
+            <div class="prefilter-group tab-status tab-home-stats">
+                <button class="month month_now active">Текущий месяц</button>
                 <button class="month month_prev">Предыдущий месяц</button>
-                <input type='text' class="datepicker-here" id="date_field_stats"
-                       data-min-view="months"
-                       data-view="months"
-                       data-date-format="mm/yyyy" placeholder="Выберите дату"/>
-                <i class="fa fa-calendar-check-o" id="check-date" aria-hidden="true"></i>
+                <div class="set-date">
+                    <input type='text' id="date_field_stats" placeholder="Выберите дату"/>
+                    <div class="cal-icon"></div>
+                </div>
             </div>
         </div>
             <div class="top-pag">
@@ -85,7 +84,11 @@
             <tr>
                 <% for( var key in table_columns) { %>
                 <% if(table_columns[key].active) { %>
+                <% if( (key == 'manager') ) { %>
+                <th data-order="<%=table_columns[key].ordering_title%>" data-order_type="letter"><%=table_columns[key].title %></th>
+                <% } else { %>
                 <th data-order="<%=table_columns[key].ordering_title%>"><%=table_columns[key].title %></th>
+                <% } %>
                 <% } %>
                 <% } %>
             </tr>
@@ -97,53 +100,16 @@
                 <% if(table_columns[key].active) { %>
                 <% if (key == 'manager') { %>
                 <% if (results[index][key] != null) { %>
-                <td><a href="javascript:void(0)">
+                <td><a href="/account/<%=results[index].manager_id %>">
                     <%= results[index][key] %>
                 </a>
                 </td>
                 <% } else { %>
                 <td></td>
                 <% } %>
-                <% } else if(key == 'percent_of_plan') { %>
-                <td>
-                    <%= (100/(results[index].potential_sum/results[index].sum_pay)).toFixed(1)%>
-                </td>
-                <% } else if (key == 'not_active_partners') { %>
-                <td>
-                    <%= (results[index].total_partners - results[index].active_partners) %>
-                </td>
-                <% } else if (key == 'hierarchy') { %>
-                <% if (results[index][key] != null ) { %>
-                <td><%= results[index][key].title %></td>
                 <% } else { %>
-                <td></td>
-                <% } %>
-                <% } else if (key == 'department') { %>
-                <% if (results[index][key] != null ) { %>
-                <td><%= results[index][key].title %></td>
-                <% } else { %>
-                <td></td>
-                <% } %>
-                <% }else if (key == 'departments' || key == 'divisions') { %>
-                <% if ( Array.isArray(results[index][key]) && results[index][key].length != 0) { %>
-                <% if (results[index][key].length == 1) { %>
-                <td><%= results[index][key][0].title %></td>
-                <% } else { %>
-                <td><%= results[index][key].reduce(function(sum, item, i) {
-                    return i < results[index][key].length - 1 ? sum + item.title + ', ' : sum + item.title
-                    }, "") %>
-                </td>
-                <% } %>
-                <% } else { %>
-                <td></td>
-                <% } %>
-                <% } else { %>
-                <td><% if (results[index][key] === true ) { %>
-                    <p class="text__center">✔</p>
-                    <% } else if (results[index][key] === false){ %>
-
-                    <% } else { %>
-                    <%= results[index][key] %>
+                <td><% if (results[index][key] != null ) { %>
+                    <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
                     <% } %>
                 </td>
                 <% } %>
