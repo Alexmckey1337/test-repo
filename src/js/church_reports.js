@@ -13,33 +13,56 @@
     let configData = {
         from_date: thisMonday.split('.').reverse().join('-'),
         to_date: thisSunday.split('.').reverse().join('-')
-    };
-    let filterInit = (function () {
-        let init = false;
-        return function () {
-            if (!init) {
-                getPastorsByDepartment({
-                    master_tree: USER_ID
-                }).then(res => {
-                    let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
-                    $treeFilter.html('<option>ВСЕ</option>').append(leaders);
-                    $pastorFilter.html('<option>ВСЕ</option>').append(leaders);
-                });
-                getChurches().then(res => {
-                    let churches = res.results.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
-                    $churchFilter.html('<option>ВСЕ</option>').append(churches);
-                });
-                init = true;
-            }
+    },
+        init = false,
+        path = window.location.href.split('?')[1];
+
+    function filterInit(pastorID=null) {
+        if (!init) {
+            getPastorsByDepartment({
+                master_tree: USER_ID
+            }).then(res => {
+                let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
+                $treeFilter.html('<option>ВСЕ</option>').append(leaders);
+                $pastorFilter.html('<option>ВСЕ</option>').append(leaders);
+                if (pastorID != null) {
+                    $pastorFilter.find(`option[value='${pastorID}']`).prop('selected', true).trigger('change');
+                    $('.apply-filter').trigger('click');
+                }
+            });
+            getChurches().then(res => {
+                let churches = res.results.map(church => `<option value="${church.id}">${church.get_title}</option>`);
+                $churchFilter.html('<option>ВСЕ</option>').append(churches);
+            });
+            init = true;
         }
-    })();
+    }
+    // let filterInit = (function () {
+    //     let init = false;
+    //     return function () {
+    //         if (!init) {
+    //             getPastorsByDepartment({
+    //                 master_tree: USER_ID
+    //             }).then(res => {
+    //                 let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
+    //                 $treeFilter.html('<option>ВСЕ</option>').append(leaders);
+    //                 $pastorFilter.html('<option>ВСЕ</option>').append(leaders);
+    //             });
+    //             getChurches().then(res => {
+    //                 let churches = res.results.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
+    //                 $churchFilter.html('<option>ВСЕ</option>').append(churches);
+    //             });
+    //             init = true;
+    //         }
+    //     }
+    // })();
     function ChurchReportsTable(config) {
         Object.assign(config, getTabsFilterParam());
         getChurchReports(config).then(data => {
             makeChurchReportsTable(data);
         });
     }
-    ChurchReportsTable(configData);
+    (path == undefined) && ChurchReportsTable(configData);
     // Events
     let $statusTabs = $('#statusTabs');
     $statusTabs.find('button').on('click', function () {
@@ -70,13 +93,15 @@
         }
     });
 
-     $('.tab-home-stats').find('.week').on('click', function () {
+    $('.tab-home-stats').find('.week').on('click', function () {
         $(this).closest('.tab-home-stats').find('.week').removeClass('active');
         $(this).addClass('active');
-        if (!$(this).hasClass('week_prev')) {
+        if ($(this).hasClass('week_now')) {
             $('.set-date').find('input').val(`${thisMonday}-${thisSunday}`);
-        } else {
+        } else if ($(this).hasClass('week_prev')) {
             $('.set-date').find('input').val(`${lastMonday}-${lastSunday}`);
+        } else {
+            $('.set-date').find('input').val('');
         }
         churchReportsTable();
     });
@@ -85,10 +110,6 @@
         $('.preloader').css('display', 'block');
         churchReportsTable();
     }, 500));
-    //  $('input[name=fullsearch]').on('keyup', function () {
-    //     $('.preloader').show();
-    //     churchReportsTable();
-    // });
     $('.selectdb').select2();
 
     // Sort table
@@ -151,6 +172,17 @@
             $churchFilter.html('<option>ВСЕ</option>').append(churches);
         });
     });
+
+        //Parsing URL
+    if (path != undefined) {
+        let filterParam = parseUrlQuery();
+        $('.week').removeClass('active');
+        $('.week_all').addClass('active');
+        $('#date_range').val('');
+        $('#statusTabs').find('li').removeClass('current');
+        $('#statusTabs').find(`button[data-status='${filterParam.type}']`).parent().addClass('current');
+        filterInit(filterParam.nameId);
+    }
 
     $("#popup-create_payment .top-text span").on('click', () => {
         $('#new_payment_sum').val('');

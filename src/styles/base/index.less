@@ -19,7 +19,9 @@
     font-family: "UbuntuMedium";
     src: url("../../fonts/Ubuntu/Ubuntu-M.ttf");
 }
-
+*{
+  box-sizing: border-box;
+}
 body {
   //min-width: 1200px;
   //font-family: 'Open Sans', sans-serif;
@@ -80,7 +82,9 @@ h3 {
 input, select, textarea, button, button:active, button:focus {
   outline: none;
 }
-
+textarea{
+   border: 1px solid #cdd0d4;
+}
 input, select, textarea {
   color: #656d78;
   //font-family: 'Open Sans', sans-serif;
@@ -121,13 +125,13 @@ button {
 }
 
 select {
-  min-width: 60%;
   height: 25px;
   padding: 5px;
-  background: url(../img/select.png) right center no-repeat #fff;
+  //background: url(../img/select.png) right center no-repeat #fff;
   border-radius: 3px;
   border: 1px solid #cdd0d4;
   appearance: none;
+  position: relative;
   &[disabled]{
     background-color: #eee;
   }

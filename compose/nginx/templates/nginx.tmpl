@@ -199,7 +199,7 @@ server {
 	{{ end }}
 
 	{{ if (ne $https_method "noredirect") }}
-	add_header Strict-Transport-Security "max-age=60";
+	add_header Strict-Transport-Security "max-age=31536000";
 	{{ end }}
 
 	{{ if (exists (printf "/etc/nginx/vhost.d/%s" $host)) }}
@@ -211,6 +211,9 @@ server {
 	location /static/ {
 		alias /app/public/static/;
 	}
+    location /fonts/ {
+        alias /app/public/static/fonts/;
+    }
 	location /media/ {
 		alias /app/public/media/;
 	}
@@ -256,6 +259,9 @@ server {
 	location /static/ {
 		alias /app/public/static/;
 	}
+    location /fonts/ {
+        alias /app/public/static/fonts/;
+    }
 	location /media/ {
 		alias /app/public/media/;
 	}

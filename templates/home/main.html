@@ -22,12 +22,7 @@
     <div id="dashboard" class="main__container dashboard">
         <div class="dashboard-head">
             <h1><span>Ветка: </span></h1>
-            <select id="master-filter">
-{#                {% for master in masters %}#}
-{#                    <option value="{{ master.id }}"{% if master.id == user.id  %}selected{% endif %}>#}
-{#                        {{ master.fullname }}#}
-{#                    </option>#}
-{#                {% endfor %}#}
+            <select id="master-filter" data-userName="{{ current_user }}">
             </select>
             <button class="edit-desk"></button>
             <button class="save"></button>

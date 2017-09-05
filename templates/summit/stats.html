@@ -217,80 +217,133 @@
             </h2>
             <div class="popup_body">
                 <div class="container">
-                    <div class="col-6">
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Отдел</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Ветка</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Иерархия</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Ответственный</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Фильтр по email</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Фильтр по номеру телефона</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Фильтр по стране</span>
-                        </div>
-                        <div class="label_block-wrapp">
-                            <span class="label_block">Фильтр по городу</span>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <p class="input_block">
-                            <select class="select__db" data-filter="department" id="departments_filter">
-                                <option value="">ВСЕ</option>
-                                {% for department in departments %}
-                                    <option value="{{ department.id }}">{{ department.title }}</option>
-                                {% endfor %}
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="select__db" data-filter="master_tree" id="master_tree">
-                                <option value="">ВСЕ</option>
-                                {% for master in masters %}
-                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
-                                {% endfor %}
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="select__db" data-filter="hierarchy" id="hierarchy">
-                                <option value="">ВСЕ</option>
-                                {% for hierarchy in hierarchies %}
-                                    <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
-                                {% endfor %}
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <select class="select__db" data-filter="master" id="master">
-                                <option value="">ВСЕ</option>
-                                {% for master in masters %}
-                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
-                                {% endfor %}
-                            </select>
-                        </p>
-                        <p class="input_block">
-                            <input type="email" data-filter="search_email" placeholder="email" id="search_email">
-                        </p>
-                        <p class="input_block">
-                            <input type="tel" data-filter="search_phone_number" placeholder="номер телефона"
+                    <label>
+                        <span class="label_block">Отдел</span>
+                        <select class="select__db" data-filter="department" id="departments_filter">
+                            <option value="">ВСЕ</option>
+                            {% for department in departments %}
+                                <option value="{{ department.id }}">{{ department.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Ветка</span>
+                        <select class="select__db" data-filter="master_tree" id="master_tree">
+                            <option value="">ВСЕ</option>
+                            {% for master in masters %}
+                                <option value="{{ master.id }}">{{ master.fullname }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Иерархия</span>
+                        <select class="select__db" data-filter="hierarchy" id="hierarchy">
+                            <option value="">ВСЕ</option>
+                            {% for hierarchy in hierarchies %}
+                                <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Ответственный</span>
+                        <select class="select__db" data-filter="master" id="master">
+                            <option value="">ВСЕ</option>
+                            {% for master in masters %}
+                                <option value="{{ master.id }}">{{ master.fullname }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Фильтр по email</span>
+                        <input type="email" data-filter="search_email" placeholder="email" id="search_email">
+                    </label>
+                    <label>
+                        <span class="label_block">Фильтр по номеру телефона</span>
+                        <input type="tel" data-filter="search_phone_number" placeholder="номер телефона"
                                    id="search_phone_number">
-                        </p>
-                        <p class="input_block">
-                            <input type="text" data-filter="search_country" placeholder="страна" id="search_country">
-                        </p>
-                        <p class="input_block">
-                            <input type="text" data-filter="search_city" placeholder="город" id="search_city">
-                        </p>
-
-                    </div>
+                    </label>
+                    <label>
+                        <span class="label_block">Фильтр по стране</span>
+                        <input type="text" data-filter="search_country" placeholder="страна" id="search_country">
+                    </label>
+                    <label>
+                         <span class="label_block">Фильтр по городу</span>
+                        <input type="text" data-filter="search_city" placeholder="город" id="search_city">
+                    </label>
+{#                    <div class="col-6">#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Отдел</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Ветка</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Иерархия</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Ответственный</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Фильтр по email</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Фильтр по номеру телефона</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Фильтр по стране</span>#}
+{#                        </div>#}
+{#                        <div class="label_block-wrapp">#}
+{#                            <span class="label_block">Фильтр по городу</span>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <div class="col-6">#}
+{#                        <p class="input_block">#}
+{#                            <select class="select__db" data-filter="department" id="departments_filter">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                                {% for department in departments %}#}
+{#                                    <option value="{{ department.id }}">{{ department.title }}</option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <select class="select__db" data-filter="master_tree" id="master_tree">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                                {% for master in masters %}#}
+{#                                    <option value="{{ master.id }}">{{ master.fullname }}</option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <select class="select__db" data-filter="hierarchy" id="hierarchy">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                                {% for hierarchy in hierarchies %}#}
+{#                                    <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <select class="select__db" data-filter="master" id="master">#}
+{#                                <option value="">ВСЕ</option>#}
+{#                                {% for master in masters %}#}
+{#                                    <option value="{{ master.id }}">{{ master.fullname }}</option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <input type="email" data-filter="search_email" placeholder="email" id="search_email">#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <input type="tel" data-filter="search_phone_number" placeholder="номер телефона"#}
+{#                                   id="search_phone_number">#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <input type="text" data-filter="search_country" placeholder="страна" id="search_country">#}
+{#                        </p>#}
+{#                        <p class="input_block">#}
+{#                            <input type="text" data-filter="search_city" placeholder="город" id="search_city">#}
+{#                        </p>#}
+{##}
+{#                    </div>#}
                 </div>
             </div>
             <div class="container">

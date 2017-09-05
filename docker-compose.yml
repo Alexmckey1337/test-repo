@@ -17,6 +17,13 @@ services:
       - postgres_backup:/backups
     env_file: .env
 
+  gulp:
+    build:
+      context: .
+      dockerfile: ./compose/gulp/Dockerfile
+    volumes:
+      - nginx_data:/app/public
+
   nginx:
     restart: always
     image: nginx
@@ -81,11 +88,11 @@ services:
     command: /gunicorn.sh
     env_file: .env
     environment:
-      - VIRTUAL_HOST=crm.sobsam.com
+      - VIRTUAL_HOST=vocrm.net
       - VIRTUAL_PORT=80
       - VIRTUAL_PROTO=http
-      - HTTPS_METHOD=noredirect
-      - LETSENCRYPT_HOST=crm.sobsam.com
+      - HTTPS_METHOD=redirect
+      - LETSENCRYPT_HOST=vocrm.net
       - LETSENCRYPT_EMAIL=pluton@freeday.com.ua
       - DEBUG=true
 

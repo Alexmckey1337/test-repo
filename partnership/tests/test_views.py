@@ -1,11 +1,12 @@
 # -*- coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 import pytest
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import status, permissions
 
 from partnership.models import Partnership, Deal
@@ -55,6 +56,24 @@ class TestPartnershipViewSet:
 
         assert response.status_code == status.HTTP_200_OK
         assert getattr(Partnership.objects.get(pk=partner.id), field) == values[-1]
+
+    @pytest.mark.hh
+    def test_move_old_unclosed_deal_after_update_responsible(
+            self, api_login_supervisor_client, partner_factory, deal_factory):
+        responsible = partner_factory()
+        partner = partner_factory(responsible=responsible)  # autocreate deal
+        deal_factory.create_batch(2, date_created=timezone.now()+timedelta(days=-32), partnership=partner)
+
+        assert partner.responsible == responsible
+        assert responsible.disciples_deals.count() == 3
+
+        url = reverse('partner-detail', kwargs={'pk': partner.id})
+        api_login_supervisor_client.patch(url, data={'responsible': partner_factory().id})
+
+        partner.refresh_from_db()
+
+        assert partner.responsible != responsible
+        assert responsible.disciples_deals.count() == 2
 
     def test_list_of_partners_less_30(self, partner_factory, api_login_supervisor_client):
         partner_factory.create_batch(11)

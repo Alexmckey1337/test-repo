@@ -54,6 +54,40 @@ def meeting_table(user, category_title=None):
 
 
 @check_user_table_exist
+def meetings_summary_table(user, category_title=None):
+    table_columns = _filter_meetings_summary_columns(user.table.columns.select_related('columnType'))
+
+    return _get_result_table(table_columns)
+
+
+def _filter_meetings_summary_columns(table_columns):
+    return table_columns.filter(columnType__category__title='meetings_summary')
+
+
+@check_user_table_exist
+def reports_summary_table(user, category_title=None):
+    table_columns = _filter_reports_summary_columns(user.table.columns.select_related('columnType'))
+
+    return _get_result_table(table_columns)
+
+
+def _filter_reports_summary_columns(table_columns):
+    return table_columns.filter(columnType__category__title='reports_summary')
+
+
+@check_user_table_exist
+def partnership_summary_table(user, category_title=None):
+    table_columns = _filter_partnership_summary_columns(user.table.columns.select_related('columnType'))
+
+    return _get_result_table(table_columns)
+
+
+def _filter_partnership_summary_columns(table_columns):
+    return table_columns.filter(columnType__category__title='partnership_summary'
+                                ).exclude(columnType__title='plan')
+
+
+@check_user_table_exist
 def user_table(user, prefix_ordering_title=''):
     table_columns = _filter_user_columns(user.table.columns.select_related('columnType'))
 

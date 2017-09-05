@@ -9,6 +9,7 @@ from account import views, old_views
 router_v1_0 = routers.DefaultRouter()
 router_v1_0.register(r'short_users', views.UserShortViewSet, base_name='short_users')
 router_v1_0.register(r'exist_users', views.ExistUserListViewSet, base_name='exist_users')
+router_v1_0.register(r'dashboard_users', views.DashboardMasterTreeFilterViewSet, base_name='dashboard_users')
 
 router_v1_1 = routers.DefaultRouter()
 router_v1_1.register(r'users', views.UserViewSet, base_name='users_v1_1')

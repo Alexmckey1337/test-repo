@@ -23,7 +23,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from account.filters import FilterByUserBirthday, UserFilter, ShortUserFilter, FilterMasterTreeWithSelf
+from account.filters import (FilterByUserBirthday, UserFilter, ShortUserFilter, FilterMasterTreeWithSelf,
+                             FilterDashboardMasterTreeWithSelf)
 from account.models import CustomUser as User
 from account.permissions import CanSeeUserList, CanCreateUser, CanExportUserList, SeeUserListPermission, \
     EditUserPermission, ExportUserListPermission
@@ -45,6 +46,7 @@ from .serializers import (
     UserShortSerializer, UserTableSerializer, UserSingleSerializer, PartnershipSerializer, ExistUserSerializer,
     UserCreateSerializer, DashboardSerializer, DuplicatesAvoidedSerializer,
 )
+from .pagination import DashboardPagination
 
 logger = logging.getLogger(__name__)
 
@@ -430,6 +432,19 @@ class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
             descendants = user.get_descendants()
             return self.queryset.exclude(pk__in=descendants.values_list('pk', flat=True))
         return self.queryset
+
+
+class DashboardMasterTreeFilterViewSet(ModelWithoutDeleteViewSet):
+    queryset = User.objects.exclude(hierarchy__level=0).exclude(is_active=False).select_related(
+        'hierarchy').order_by('last_name')
+    serializer_class = UserShortSerializer
+    pagination_class = DashboardPagination
+    permission_classes = (IsAuthenticated,)
+    filter_backends = (FilterDashboardMasterTreeWithSelf,
+                       filters.SearchFilter,)
+
+    filter_class = ShortUserFilter
+    search_fields = ('first_name', 'last_name', 'middle_name')
 
 
 class ExistUserListViewSet(mixins.ListModelMixin, GenericViewSet):

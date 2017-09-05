@@ -2,10 +2,11 @@
 from __future__ import absolute_import, unicode_literals
 
 from collections import namedtuple
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytest
 from django.conf import settings
+from django.utils import timezone
 
 Level = namedtuple('Level', ['title', 'level'])
 PARTNER_LEVELS = [Level(p[0], p[1]) for p in settings.PARTNER_LEVELS.items()]
@@ -20,6 +21,19 @@ class TestPartnership:
 
     def test__str__(self, partner):
         assert partner.__str__() == partner.fullname
+
+    @pytest.mark.hh
+    def test_move_old_unclosed_deal_after_change_responsible(self, partner_factory, deal_factory):
+        responsible = partner_factory()
+        partner = partner_factory(responsible=responsible)  # autocreate deal
+        deal_factory.create_batch(2, date_created=timezone.now()+timedelta(days=-32), partnership=partner)
+
+        assert responsible.disciples_deals.count() == 3
+
+        partner.responsible = partner_factory()
+        partner.save()
+
+        assert responsible.disciples_deals.count() == 2
 
     def test_partner_payments_without_deal_payments(self, partner, payment_factory):
         payment_factory.create_batch(11, purpose=partner)

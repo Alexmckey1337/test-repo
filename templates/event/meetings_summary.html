@@ -1,0 +1,211 @@
+{% extends "layout_main.html" %}
+{% load static %}
+
+{% block header.top.h1 %}<h1>Отчеты / Домашние группы</h1>{% endblock %}
+
+{% block header.buttons.top %}
+    <div class="top-buttons-wrap">
+        <ul class="top-buttons">
+            <li></li>
+        </ul>
+    </div>
+{% endblock %}
+{% block header.buttons %}
+    {% block header.tabs %}
+        <div class="tabs">
+            <ul class="nav tabs_link">
+{#                <li><a href="{% url 'events:church_report_list' %}">Отчёты церквей</a></li>#}
+{#                <li><a href="{% url 'events:church_report_statistics' %}">Статистика церквей</a></li>#}
+                <li><a href="{% url 'events:meeting_report_list' %}">Отчёты домашних групп</a></li>
+                <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних групп</a></li>
+            </ul>
+        </div>
+    {% endblock %}
+    <div class="top-buttons-wrap">
+        <ul class="top-buttons">
+            {% block header.buttons.add %}
+                <li>
+                    <button id="filter_button"
+                            class="header__button"
+                            data-count="0"
+                    >
+                        Фильтр
+                    </button>
+                </li>
+                <li>
+                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
+                </li>
+            {% endblock %}
+
+            {% block header.buttons.export %}
+
+            {% endblock %}
+            {% block header.buttons.extra %}
+            {% endblock %}
+            {% block header.buttons.change_table %}
+                {#                <li>#}
+                {#                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>#}
+                {#                </li>#}
+            {% endblock %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% block main.content %}
+    {% block pagination_top %}
+        <div class="top-pag"></div>
+        <div class="table__count"></div>
+        <div class="pagination reports__pagination"><!--pagination -->
+        </div><!--End pagination -->
+    {% endblock %}
+
+    {% block table %}
+        <div class="table-wrap clearfix" id="homeLiderReports"><!--Table -->
+            <div class="table scrollbar-inner" id="tableHomeLiderReports"></div>
+            <div class="query-none">
+                <p></p>
+            </div>
+        </div><!--End Table -->
+    {% endblock %}
+
+    {% block pagination_bottom %}
+        <div class="table__count"></div>
+        <div class="pagination reports__pagination"></div>
+    {% endblock %}
+{% endblock %}
+
+{% block popup %}
+    <div class="popap" id='filterPopup'>
+        <div class="pop_cont">
+            <h2 class='popup_text'>
+                Фильтр
+            </h2>
+            <div class="popup_body">
+                <div class="container">
+                    <div class="col-6">
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Отдел</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Ветка</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Церковь</span>
+                        </div>
+                        <div class="label_block-wrapp">
+                            <span class="label_block">Ответственный</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="department_id" id="departments_filter">
+                                <option value="">ВСЕ</option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">{{ department.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="master_id" id="master_tree_filter">
+                                <option value="">ВСЕ</option>
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="church_id" id="church_filter">
+                                <option value="">ВСЕ</option>
+                            </select>
+                        </p>
+                        <p class="input_block">
+                            <select class="selectdb" data-filter="responsible_id" id="responsible_filter">
+                                <option value="">ВСЕ</option>
+                            </select>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
+                                                                              aria-hidden="true"></i>
+                    Очистить
+                </button>
+                <button class="close-popup">Отменить</button>
+                <button onclick="applyFilter(this, homeLiderReportsTable)" class="apply-filter">Применить</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block extra_scripts %}
+    <script src="{% static "js/meetings_summary.js" %}"></script>
+{% endblock %}
+{% block template_tables %}
+    <script type="text/template" id="databaseHomeLiderReports">
+        <table>
+            <thead>
+            <tr>
+                <% for( var key in table_columns) { %>
+                <% if(table_columns[key].active) { %>
+                <th data-order="<%=table_columns[key].ordering_title%>"><%=table_columns[key].title %></th>
+                <% } %>
+                <% } %>
+            </tr>
+            </thead>
+            <tbody>
+            <% for( var index in results) { %>
+            <tr>
+                <% for( var key in table_columns) { %>
+                <% if(table_columns[key].active) { %>
+                <% if(key == 'owner') { %>
+                <% if (results[index][key] != null) { %>
+                <td>
+                    <a href="<%= results[index].link %>" class="reports_id"><%= results[index][key] %></a>
+                </td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else if (key == 'master') { %>
+                <% if (results[index][key] != null) { %>
+                <td>
+                    <a href="<%= results[index][key].link %>"><%= results[index][key].fullname %></a>
+                </td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else if (key == 'meetings_expired' || key == 'meetings_in_progress' || key == 'meetings_submitted') { %>
+                <% if (results[index][key] != null) { %>
+                <td class="url"
+                    data-url="{% url 'events:meeting_report_list' %}"
+                    <% if (key == 'meetings_expired') { %>
+                        data-type="3"
+                    <% } else if (key == 'meetings_in_progress') { %>
+                        data-type="1"
+                    <% } else { %>
+                        data-type="2"
+                    <% } %>
+                    <% if (results[index].id != null) { %>
+                        data-id="<%=results[index].id%>">
+                    <% } else { %>
+                        data-id="">
+                    <% } %>
+                    <%= results[index][key] %>
+                </td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else { %>
+                <td><% if (results[index][key] === true ) { %>
+                    <p class="text__center">✔</p>
+                    <% } else if (results[index][key] === false){ %>
+
+                    <% } else { %>
+                    <%= results[index][key] %>
+                    <% } %>
+                </td>
+                <% } %>
+                <% } %>
+                <% } %>
+            </tr>
+            <% } %>
+            </tbody>
+        </table>
+    </script>
+{% endblock %}

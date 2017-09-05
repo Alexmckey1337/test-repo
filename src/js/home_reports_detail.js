@@ -187,7 +187,7 @@
         })
     }
     function makeCaption(data) {
-        let container = document.createElement('div');
+        let container = document.createElement('div').className('hello');
         let title = document.createElement('h2');
         if(data.status === 1 ) {
             $(title).text(`Подача отчета ${dist[data.type.code]}`);

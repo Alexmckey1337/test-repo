@@ -33,8 +33,8 @@ class PartnerStatMixin:
 
         deals_with_sum = deals.annotate_total_sum()
 
-        stats['active_partners'] = Partnership.objects.for_user(request.user).filter(
-            is_active=True).count()
+        partner_id = request.query_params.get('partner_id')
+
         stats['deals'] = self.stats_by_deals(deals, deals_with_sum)
         stats['partners'] = self.stats_by_partners(deals, deals_with_sum)
         stats['sum'] = self.stats_by_sum(deals, deals_with_sum)
