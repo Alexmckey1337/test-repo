@@ -310,7 +310,7 @@
                             data-currency-id="<%=results[index].currency.id %>"
                     >Закрыть сделку
                     </button>
-                    <% } else if (results[index].payment_status == 1) { %>
+                    <% } else if ( (results[index].payment_status == 1) || (results[index].payment_status == 0) ) { %>
                     <button class="pay inline__button"
                             data-id="<%= results[index].id%>"
                             data-name="<%=results[index].church.title%>"

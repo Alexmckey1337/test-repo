@@ -184,7 +184,8 @@
         filterInit(filterParam.nameId);
     }
 
-    $("#popup-create_payment .top-text span").on('click', () => {
+    $("#popup-create_payment .top-text span, #close-payments").on('click', (e) => {
+        e.preventDefault();
         $('#new_payment_sum').val('');
         $('#popup-create_payment textarea').val('');
         $('#popup-create_payment').css('display', 'none');
