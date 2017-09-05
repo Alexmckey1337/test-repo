@@ -84,8 +84,8 @@
             <tr>
                 <% for( var key in table_columns) { %>
                 <% if(table_columns[key].active) { %>
-                <% if( (key == 'percent_of_plan') || (key == 'not_active_partners') ) { %>
-                <th data-order="no_ordering" data-orderfront="<%=table_columns[key].ordering_title%>"><%=table_columns[key].title %></th>
+                <% if( (key == 'manager') ) { %>
+                <th data-order="<%=table_columns[key].ordering_title%>" data-order_type="letter"><%=table_columns[key].title %></th>
                 <% } else { %>
                 <th data-order="<%=table_columns[key].ordering_title%>"><%=table_columns[key].title %></th>
                 <% } %>
@@ -108,11 +108,7 @@
                 <td></td>
                 <% } %>
                 <% } else { %>
-                <td><% if (results[index][key] === true ) { %>
-                    <p class="text__center">✔</p>
-                    <% } else if (results[index][key] === false){ %>
-
-                    <% } else { %>
+                <td><% if (results[index][key] != null ) { %>
                     <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
                     <% } %>
                 </td>

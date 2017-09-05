@@ -58,14 +58,20 @@ class OrderTableByClient extends OrderTable {
 
     _addListenerByClient(callback, selector, data) {
         $(selector).on('click', function () {
-            let dataOrder = this.getAttribute('data-orderfront'),
+            let dataOrder = this.getAttribute('data-order'),
+                type = this.getAttribute('data-order_type') || null,
                 revers = sessionStorage.getItem('revers') ? sessionStorage.getItem('revers') : "+",
-                order = sessionStorage.getItem('order') ? sessionStorage.getItem('order') : '';
+                order = sessionStorage.getItem('order') ? sessionStorage.getItem('order') : '',
+                newArr;
             if (dataOrder != null) {
                 revers = (revers == '+') ? '-' : '+';
                 sessionStorage.setItem('revers', revers);
                 sessionStorage.setItem('order', dataOrder);
-                let newArr = _.sortBy(data.results, (e) => parseFloat(e[`${dataOrder}`]));
+                if (type == 'letter') {
+                    newArr = _.sortBy(data.results, (e) => e[`${dataOrder}`]);
+                } else {
+                    newArr = _.sortBy(data.results, (e) => parseFloat(e[`${dataOrder}`]));
+                }
                 (revers == "+") && newArr.reverse();
                 $('.preloader').css('display', 'block');
                 let sortedData = {
@@ -3303,7 +3309,7 @@ function makePartnershipSummaryTable(data, config = {}) {
     // makePagination(paginationConfig);
     makeSortForm(data.table_columns);
     // $('.table__count').text(text);
-    new OrderTableByClient().sort(partnershipSummaryTable, ".table-wrap th");
+    // new OrderTableByClient().sort(partnershipSummaryTable, ".table-wrap th");
     new OrderTableByClient().sortByClient(makePartnershipSummaryTable, ".table-wrap th", data);
     $('.preloader').hide();
 }
