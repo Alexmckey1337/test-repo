@@ -21,8 +21,7 @@ from analytics.decorators import log_change_payment
 
 
 @python_2_unicode_compatible
-class Partnership(AbstractPaymentPurpose):
-    user = models.OneToOneField('account.CustomUser', related_name='partnership')
+class PartnershipAbstractModel(models.Model):
     value = models.DecimalField(max_digits=12, decimal_places=0,
                                 default=Decimal('0'))
     #: Currency of value
@@ -49,6 +48,37 @@ class Partnership(AbstractPaymentPurpose):
     responsible = models.ForeignKey('self', related_name='disciples', limit_choices_to={'level__lte': MANAGER},
                                     null=True, blank=True, on_delete=models.SET_NULL)
 
+    plan = models.DecimalField(max_digits=12, decimal_places=0, blank=True,
+                               verbose_name='Manager plan', null=True)
+
+    class Meta:
+        abstract = True
+
+    @property
+    def value_str(self):
+        """
+        Partner value with currency.
+
+        For example:
+        partnership.value = 120
+        partnership.currency.short_name = cur.
+        partnership.currency.output_format = '{value} {short_name}'
+
+        Then:
+        partnership.value_str == '120 cur.'
+        :return: str
+        """
+        format_data = self.currency.output_dict()
+        format_data['value'] = self.value
+        return self.currency.output_format.format(**format_data)
+
+    @property
+    def is_responsible(self):
+        return self.level <= Partnership.MANAGER
+
+
+class Partnership(PartnershipAbstractModel, AbstractPaymentPurpose):
+    user = models.OneToOneField('account.CustomUser', related_name='partnership')
     #: Payments of the current partner that do not relate to deals of partner
     extra_payments = GenericRelation('payment.Payment', related_query_name='partners')
 
@@ -88,24 +118,6 @@ class Partnership(AbstractPaymentPurpose):
                                       (Q(content_type__model='partnership') &
                                        Q(object_id=self.id)))
 
-    @property
-    def value_str(self):
-        """
-        Partner value with currency.
-
-        For example:
-        partnership.value = 120
-        partnership.currency.short_name = cur.
-        partnership.currency.output_format = '{value} {short_name}'
-
-        Then:
-        partnership.value_str == '120 cur.'
-        :return: str
-        """
-        format_data = self.currency.output_dict()
-        format_data['value'] = self.value
-        return self.currency.output_format.format(**format_data)
-
     def can_user_edit_payment(self, user):
         """
         Checking that the ``user`` can edit payment of current partner
@@ -118,10 +130,6 @@ class Partnership(AbstractPaymentPurpose):
 
     def payment_page_url(self):
         return reverse('payment-partner', kwargs={'pk': self.pk})
-
-    @property
-    def is_responsible(self):
-        return self.level <= Partnership.MANAGER
 
     @property
     def fullname(self):
@@ -268,6 +276,34 @@ class Deal(LogModel, AbstractPaymentPurpose):
         return self.partnership.user
 
 
-class ManagerPlan(models.Manager):
-    period = models.DateField()
-    plan = models.DecimalField(decimal_places=0, max_digits=12)
+# @python_2_unicode_compatible
+# class ManagerPlan(models.Manager):
+#     manager = models.ForeignKey('Partnership', related_name='manager', on_delete=models.PROTECT,
+#                                 verbose_name=_('Manager'))
+#     period = models.DateField(_('Date'), auto_now_add=True, editable=False)
+#     plan = models.DecimalField(_('Plan'), max_digits=12, decimal_places=0, blank=True, null=True)
+#     potential_sum = models.DecimalField(_('Potential'), max_digits=12, decimal_places=0)
+#
+#     class Meta:
+#         verbose_name = _('Manager plan')
+#         verbose_name_plural = _('Manager plans')
+#         unique_together = ['manager', 'period']
+#         ordering = ('-period',)
+#
+#     def __str__(self):
+#         return 'Managers plan of %s. Period: %s' % (self.manager, self.period.strftime('%Y %b'))
+
+
+class PartnershipLogs(PartnershipAbstractModel):
+    partner = models.ForeignKey('Partnership', related_name='partner', on_delete=models.PROTECT,
+                                verbose_name=_('Partner'))
+    log_date = models.DateTimeField(_('Log date'), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('Partnership Log')
+        verbose_name_plural = _('Partnership Logs')
+        ordering = ('-log_date',)
+
+    def __str__(self):
+        return 'Partnership log. Partner: %s. Field: %s Log date: %s' % (
+            self.partner, self.field, self.log_date)

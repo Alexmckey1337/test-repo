@@ -9,6 +9,7 @@ from partnership.models import Partnership, Deal
 from payment.models import Payment, Currency
 from summit.models import SummitAnket
 from event.models import ChurchReport
+from decimal import Decimal
 
 
 class CurrencySerializer(serializers.ModelSerializer):
@@ -28,6 +29,13 @@ class PaymentCreateSerializer(serializers.ModelSerializer):
         model = Payment
         fields = ('sum', 'currency_sum', 'sent_date', 'rate', 'operation',
                   'description', 'manager', 'content_type', 'object_id')
+
+    def validate(self, data):
+        object_currency = data['content_type'].get_object_for_this_type(id=data['object_id']).currency
+        if data['currency_sum'] != object_currency and data['rate'] == Decimal(1):
+            raise serializers.ValidationError('Проверьте курс или измените валюту')
+
+        return data
 
 
 class PaymentUpdateSerializer(serializers.ModelSerializer):
