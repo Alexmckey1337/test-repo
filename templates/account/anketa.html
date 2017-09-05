@@ -863,7 +863,7 @@
                                 <h4>Партнерские данные</h4>
                                 <div class="success__block"></div>
                                 <form action="/" name="editPartnership" data-action="update-user" id="partnership">
-                                    {% if account.partnership.level <= 1 or request.hard_user.partnership.level <= 1 %}
+                                    {% if request.user.is_partner_supervisor_or_high %}
                                         <button class="edit" data-edit-block="editPartnership"></button>
                                         <button class="save__info" type="submit"></button>
                                     {% endif %}
