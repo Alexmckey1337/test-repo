@@ -739,7 +739,6 @@ class TestUserViewSet:
         assert user.disciples.exists()
         assert not other_user.disciples.exists()
 
-    @pytest.mark.hh
     def test_move_old_unclosed_deal_after_update_partner_responsible(
             self, api_login_client, partner_factory, deal_factory, user_factory):
         responsible = partner_factory()

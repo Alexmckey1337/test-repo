@@ -1,7 +1,7 @@
 # -*- coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from decimal import Decimal
 
 import pytest
@@ -13,6 +13,19 @@ from partnership.models import Partnership, Deal
 from partnership.serializers import DealSerializer, DealCreateSerializer, DealUpdateSerializer
 from partnership.views import PartnershipViewSet
 from payment.serializers import PaymentShowSerializer
+
+FIELD_CODES = (
+    # optional fields
+    ('value', 201),
+    ('currency', 201),
+    ('date', 201),
+    ('need_text', 201),
+    ('is_active', 201),
+    ('responsible', 201),
+
+    # required fields
+    ('user', 400),
+)
 
 
 @pytest.mark.django_db
@@ -29,6 +42,28 @@ class TestPartnershipViewSet:
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 6
+
+    @pytest.mark.hh
+    @pytest.mark.parametrize(
+        "field,code", FIELD_CODES, ids=[f[0] for f in FIELD_CODES])
+    def test_create_user_without_one_field(
+            self, monkeypatch, api_login_client, user_factory, currency_factory, partner_factory, field, code):
+        monkeypatch.setattr(PartnershipViewSet, 'get_permissions', lambda self: [permissions.AllowAny()])
+        url = reverse('partner-list')
+
+        data = {
+            'user': user_factory().id,
+            'value': 20000,
+            'currency': currency_factory().id,
+            'date': date(2020, 2, 4),
+            'need_text': 'Python is cool',
+            'is_active': False,
+            'responsible': partner_factory().id,
+        }
+        data.pop(field)
+        response = api_login_client.post(url, data=data, format='json')
+
+        assert response.status_code == code
 
     def test_update_need_with_need_text(self, api_login_supervisor_client, partner):
         url = reverse('partner-update-need', kwargs={'pk': partner.id})

@@ -1,6 +1,7 @@
 import pytest
 from decimal import Decimal
 
+from datetime import date
 from django.utils import six
 from pytest_factoryboy import register
 from rest_framework import status
@@ -40,9 +41,17 @@ VIEWER_PARTNERS = [
 ]
 
 
+class Factory:
+    def __init__(self, factory_name):
+        self.name = factory_name
+
+
 FIELD_VALUE = list(six.iteritems({
+    'responsible': (Factory('partner_factory'),),
     'value': (Decimal(10), 40, Decimal(40)),
+    'date': (date(2000, 2, 2), '2002-04-04', date(2002, 4, 4)),
     'need_text': ('old_text', 'new text'),
+    'currency': (Factory('currency_factory'),),
     'is_active': (True, 'false', False),
 }))
 
@@ -120,6 +129,10 @@ def values(currency_factory, partner_factory):
 @pytest.fixture(params=FIELD_VALUE, ids=[f[0] for f in FIELD_VALUE])
 def field_value(request):
     r = request.param
+    if isinstance(r[1][0], Factory):
+        old = request.getfuncargvalue(r[1][0].name)()
+        new = request.getfuncargvalue(r[1][0].name)()
+        return r[0], (old, new.id, new)
     return r[0], r[1]
 
 
