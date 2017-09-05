@@ -146,26 +146,30 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
 
         return Response({'results': managers, 'table_columns': partnership_summary_table(self.request.user)})
 
-    def _get_partners(self, queryset):
+    @staticmethod
+    def _get_partners(queryset):
         return queryset.annotate(managers=Concat(
             'user__last_name', V(' '), 'user__first_name', V(' '), 'user__middle_name')).values_list(
             'managers', flat=True).order_by('id')
 
-    def _get_sum_deals(self, queryset, year, month):
+    @staticmethod
+    def _get_sum_deals(queryset, year, month):
         subqs_deals = Deal.objects.filter(date_created__year=year, date_created__month=month, responsible=OuterRef(
             'pk')).order_by().values('responsible').annotate(deals_sum=Sum('value')).values('deals_sum')
 
         return queryset.annotate(sum_deals=Subquery(subqs_deals, output_field=DecimalField())).values_list(
             'sum_deals', flat=True).order_by('id')
 
-    def _get_total_partners(self, queryset):
+    @staticmethod
+    def _get_total_partners(queryset):
         subqs_partners = Partnership.objects.filter(responsible=OuterRef('pk')).order_by().values(
             'responsible').annotate(count=Count('id')).values('count')
 
         return queryset.annotate(total_partners=Subquery(subqs_partners)).values_list(
             'total_partners', flat=True).order_by('id')
 
-    def _get_active_partners(self, queryset):
+    @staticmethod
+    def _get_active_partners(queryset):
         subqs_active_partners = Partnership.objects.filter(
             responsible=OuterRef('pk'), is_active=True).order_by().values('responsible').annotate(
             count=Count('id')).values('count')
@@ -173,14 +177,16 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         return queryset.annotate(active_partners=Subquery(subqs_active_partners, output_field=IntegerField())
                                  ).values_list('active_partners', flat=True).order_by('id')
 
-    def _get_potential_sum(self, queryset):
+    @staticmethod
+    def _get_potential_sum(queryset):
         subqs_potential_sum = Partnership.objects.filter(responsible=OuterRef('pk')).order_by().values(
             'responsible').annotate(potential_sum=Sum('value')).values('potential_sum')
 
         return queryset.annotate(potential_sum=Subquery(subqs_potential_sum)).values_list(
             'potential_sum', flat=True).order_by('id')
 
-    def _get_sum_pay(self, queryset, year, month):
+    @staticmethod
+    def _get_sum_pay(queryset, year, month):
         raw = """
           select p.id,
           (select sum(pay.sum) from payment_payment pay WHERE pay.content_type_id = 40 and
@@ -192,7 +198,8 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
 
         return [p.sum for p in queryset.raw(raw)]
 
-    def _get_managers_ids(self, queryset):
+    @staticmethod
+    def _get_managers_ids(queryset):
         return queryset.values_list('user__id', flat=True).order_by('id')
 
     def _order_managers(self, managers):
