@@ -45,6 +45,7 @@ class TestPartnershipViewSet:
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
+    @pytest.mark.hh
     def test_update_field(self, api_login_supervisor_client, partner, field_value):
         field, values = field_value
         url = reverse('partner-detail', kwargs={'pk': partner.id})
