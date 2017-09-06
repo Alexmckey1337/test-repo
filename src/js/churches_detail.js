@@ -259,6 +259,7 @@
                     makePastorList(id, '#editPastorSelect');
                 })
             });
+            $('#report_currency').prop('disabled', false).select2();
             $input.each(function () {
                 if (!$(this).hasClass('no__edit')) {
                     if ($(this).attr('disabled')) {
