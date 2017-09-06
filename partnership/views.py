@@ -137,25 +137,25 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         queryset = self.queryset.filter(level__lte=Partnership.MANAGER, is_active=True).prefetch_related('deals')
 
         managers = [{
-            'manager': x[0],
-            'sum_deals': x[1] or 0,
-            'total_partners': x[2] or 0,
-            'active_partners': x[3] or 0,
-            'potential_sum': x[4] or 0,
-            'sum_pay': x[5] or 0,
-            'user_id': x[6],
-            'plan': x[7] or 0,
-            'partner_id': x[8],
+            'user_id': x[0],
+            'partner_id': x[1],
+            'manager': x[2],
+            'sum_deals': x[3] or 0,
+            'total_partners': x[4] or 0,
+            'active_partners': x[5] or 0,
+            'potential_sum': x[6] or 0,
+            'sum_pay': x[7] or 0,
+            'plan': x[8] or 0,
         } for x in zip(
+            self._get_users_ids(queryset),
+            self._get_partnerships_ids(queryset),
             self._get_partners(queryset),
             self._get_sum_deals(queryset, year, month),
             self._get_total_partners(queryset),
             self._get_active_partners(queryset),
             self._get_potential_sum(queryset),
             self._get_sum_pay(queryset, year, month),
-            self._get_users_ids(queryset),
             self._get_managers_plan(queryset),
-            self._get_partnerships_ids(queryset),
         )]
         managers = self._order_managers(managers)
 
@@ -248,7 +248,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         manager.plan = plan_sum
         manager.save()
 
-        return Response({'message': 'План менеджера упешно установлен в %s' % manager.plan})
+        return Response({'message': 'План менеджера успешно установлен в %s' % manager.plan})
 
 
 class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, DealCreatePaymentMixin,
