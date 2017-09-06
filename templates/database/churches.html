@@ -58,78 +58,12 @@
     </div>
     <div class="popap" id='filterPopup'>
         <div class="pop_cont">
-{#            <h2 class='popup_text'>#}
-{#                Фильтр#}
-{#            </h2>#}
             <div class="popup_text">
                 <h2>Фильтр</h2>
                 <span class="close close-popup"><i class="fa fa-times" aria-hidden="true"></i></span>
             </div>
             <div class="popup_body">
                 <div class="container">
-{#                    <div class="col-6">#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Отдел</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Ветка</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Пастор</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Открыта</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Дата открытия</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Фильтр по стране</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Фильтр по городу</span>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                    <div class="col-6">#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="department" id="departments_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                                {% for department in departments %}#}
-{#                                    <option value="{{ department.id }}">{{ department.title }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="master_tree" id="tree_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{##}
-{#                            <select class="selectdb" data-filter="pastor" id="pastor_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select name="search_is_open" data-filter="is_open" id="search_is_open">#}
-{#                                <option value="1">ВСЕ</option>#}
-{#                                <option value="2">ДА</option>#}
-{#                                <option value="3">НЕТ</option>#}
-{#                            </select>#}
-{#                            <input type="checkbox" data-filter="is_open" id="search_is_open">#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <input type="text" data-filter="opening_date" id="search_date_open">#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <input type="text" data-filter="country" placeholder="страна или часть названия"#}
-{#                                   id="search_country">#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <input type="text" data-filter="city" placeholder="город или часть названия"#}
-{#                                   id="search_city">#}
-{#                        </p>#}
-{#                    </div>#}
                     <label>
                         <span class="label_block">Отдел</span>
                         <select class="selectdb" data-filter="department" id="departments_filter">
@@ -240,14 +174,14 @@
                             <span class="label_block">Сайт</span>
                             <input type="url" id="added_churches_site">
                         </label>
-{#                        <label>#}
-{#                            <span class="label_block">Выберите валюту</span>#}
-{#                            <select name="report_currency" id="report_currency" class="selectdb">#}
-{#                                {% for currency in currencies %}#}
-{#                                    <option value="{{ currency.id }}" {% if currency.id == '2' %}selected{% endif %}>{{ currency.short_name }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </label>#}
+                        <label>
+                            <span class="label_block">Выберите валюту</span>
+                            <select name="report_currency" id="report_currency" class="selectdb">
+                                {% for currency in currencies %}
+                                    <option value="{{ currency.id }}" {% if currency.id == 2 %}selected{% endif %}>{{ currency.short_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
                     </div>
                 </div>
                 <div class="container">
@@ -318,14 +252,20 @@
                 <span class="label_block">Сайт:</span>
                 <input type="text" id="web_site" value="<%=website %>">
             </label>
-{#            <label>#}
-{#                <span class="label_block">Выберите валюту</span>#}
-{#                <select name="" id="EditReport_currency" required>#}
-{#                    {% for currency in currencies %}#}
-{#                        <option value="{{ currency.id }}">{{ currency.short_name }}</option>#}
-{#                    {% endfor %}#}
-{#                </select>#}
-{#            </label>#}
+            <label>
+                <span class="label_block">Выберите валюту</span>
+                <select name="" id="EditReport_currency" required>
+                    {% for currency in currencies %}
+                        <option value="{{ currency.id }}"
+                            <% if (report_currency == {{ currency.id }}) { %>
+                                selected
+                            <% } %>
+                        >
+                            {{ currency.short_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </label>
 
 {#            <div class="column">#}
 {#                <div class="label_block-wrapp">#}

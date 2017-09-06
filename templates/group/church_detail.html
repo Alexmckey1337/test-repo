@@ -95,6 +95,17 @@
                                     </a>
                                 </div>
                             </label>
+                            <label>
+                                <span class="label_block">Валюта:</span>
+                                <div class="input">
+                                    <select id="report_currency" readonly="readonly" disabled="disabled">
+                                        {% for currency in currencies %}
+                                            <option value="{{ currency.id }}"
+                                                    {% if currency.id == church.report_currency %}selected{% endif %}>{{ currency.short_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </label>
                         </div>
                     </div>
 

@@ -101,7 +101,7 @@
                 <% if (key == 'manager') { %>
                 <% if (results[index][key] != null) { %>
                 <td>
-                    <a href="/account/<%=results[index].manager_id %>"><%= results[index][key] %></a>
+                    <a href="/account/<%=results[index].user_id %>"><%= results[index][key] %></a>
                 </td>
                 <% } else { %>
                 <td></td>
@@ -109,7 +109,12 @@
                 <% } else if (key == 'plan') { %>
                 <% if (results[index][key] != null) { %>
                 <td>
-                    <input type="text" value="<%= results[index][key] %>" disabled>
+                    {% if user.is_partner_director %}
+                        <input class="edit" type="text" data-id="<%=results[index].partner_id %>"
+                               value="<%= results[index][key] %>" readonly disabled>
+                    {% else %}
+                        <%= results[index][key] %>
+                    {% endif %}
                 </td>
                 <% } else { %>
                 <td></td>

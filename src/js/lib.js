@@ -2705,7 +2705,8 @@ function saveChurches(el) {
         country: $($(el).closest('.pop_cont').find('#country')).val(),
         region: $($(el).closest('.pop_cont').find('#region')).val(),
         city: $($(el).closest('.pop_cont').find('#city')).val(),
-        address: $($(el).closest('.pop_cont').find('#address')).val()
+        address: $($(el).closest('.pop_cont').find('#address')).val(),
+        report_currency: $($(el).closest('.pop_cont').find('#EditReport_currency')).val(),
     };
     saveChurchData(data, id).then(function () {
         $(el).text("Сохранено");
@@ -2743,7 +2744,8 @@ function editChurches(el, id) {
         is_open: $('#is_open_church').is(':checked'),
         country: $($(el).closest('form').find('#country')).val(),
         city: $($(el).closest('form').find('#city')).val(),
-        address: $($(el).closest('form').find('#address')).val()
+        address: $($(el).closest('form').find('#address')).val(),
+        report_currency: $($(el).closest('form').find('#report_currency')).val()
     };
     saveChurchData(data, id).then(function (data) {
         $(el).closest('form').find('.edit').removeClass('active');
@@ -3308,6 +3310,22 @@ function makePartnershipSummaryTable(data, config = {}) {
     // $('.table__count').text(data.count);
     // makePagination(paginationConfig);
     makeSortForm(data.table_columns);
+    $('#managersPlan').find('table').on('dblclick', '.edit', function (e) {
+        $(this).prop('disabled', false).prop('readonly', false);
+    });
+    $('#managersPlan').find('table .edit').keyup(function (e) {
+        if (e.keyCode == 13) {
+            let id = e.target.getAttribute('data-id');
+            data.plan_sum = e.target.value;
+            updateManagersPlan(id, data).then(() => {
+                showPopup('План успешно изменен');
+                $(this).prop('disabled', true).prop('readonly', true);
+            });
+        } else if (e.keyCode == 27) {
+            $(this).prop('disabled', true).prop('readonly', true);
+        }
+    });
+
     // $('.table__count').text(text);
     // new OrderTableByClient().sort(partnershipSummaryTable, ".table-wrap th");
     new OrderTableByClient().sortByClient(makePartnershipSummaryTable, ".table-wrap th", data);
@@ -4304,4 +4322,18 @@ function formatRepo(data) {
         return '-------';
     }
     return `<option value="${data.id}">${data.text}</option>`;
+}
+
+function updateManagersPlan(id, data) {
+    let url = URLS.partner.set_managers_plan(id);
+    let config = {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        }),
+        body: JSON.stringify(data),
+    };
+
+    return fetch(url, config).then(data => data.json()).catch(err => err);
 }
