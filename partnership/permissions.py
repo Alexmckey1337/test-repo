@@ -96,6 +96,14 @@ class CanCreatePartnerPayment(BasePermission):
         return can_create_payment_for_partner(request.user, partner)
 
 
+class CanUpdateManagersPlan(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to see partner's payments
+        """
+        return can_set_managers_plan(request.user)
+
+
 def can_see_partners(user):
     """
     Checking that the ``user`` has the right to see list of partners
@@ -231,3 +239,10 @@ def can_see_partner_payments(user):
     Checking that the ``user`` has the right to see partner's payments
     """
     return user.is_partner_manager_or_high
+
+
+def can_set_managers_plan(user):
+    """
+    Checking that the ``user`` has the right to update manager's plan
+    """
+    return user.is_partner_director

@@ -23,10 +23,12 @@ from partnership.filters import (FilterByPartnerBirthday, DateAndValueFilter, Fi
 from partnership.mixins import (PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin,
                                 PartnerExportViewSetMixin, PartnerStatusReviewMixin)
 from partnership.pagination import PartnershipPagination, DealPagination
-from partnership.permissions import CanSeeDeals, CanSeePartners, CanCreateDeals, CanUpdateDeals, CanUpdatePartner
+from partnership.permissions import (CanSeeDeals, CanSeePartners, CanCreateDeals,
+                                     CanUpdateDeals, CanUpdatePartner, CanUpdateManagersPlan)
 from partnership.resources import PartnerResource
 from .models import Partnership, Deal
-from .serializers import (DealSerializer, PartnershipUpdateSerializer, DealCreateSerializer, PartnershipTableSerializer,
+from .serializers import (DealSerializer, PartnershipUpdateSerializer, DealCreateSerializer,
+                          PartnershipTableSerializer,
                           DealUpdateSerializer, PartnershipCreateSerializer, PartnershipSerializer)
 from decimal import Decimal
 
@@ -232,7 +234,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             managers.sort(key=lambda obj: obj[ordering.strip('-')], reverse=ordering.startswith('-'))
         return managers
 
-    @detail_route(methods=['POST'])
+    @detail_route(methods=['POST'], permission_classes=(CanUpdateManagersPlan,))
     def set_plan(self, request, pk):
         manager = get_object_or_404(Partnership, pk=pk)
         plan_sum = request.data.get('plan_sum')
