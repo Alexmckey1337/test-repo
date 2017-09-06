@@ -24,7 +24,7 @@ class EventUserTreeMixin(object):
         return user
 
 
-class EventListPaymentMixin(ListPaymentMixin):
+class ChurchReportListPaymentMixin(ListPaymentMixin):
     def _payments(self, request, pk=None):
         purpose_model = self.get_queryset().model
         purpose = get_object_or_404(purpose_model, pk=pk)
