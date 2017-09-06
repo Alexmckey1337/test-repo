@@ -142,7 +142,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             'potential_sum': x[4] or 0,
             'sum_pay': x[5] or 0,
             'user_id': x[6],
-            'manager_plan': x[7],
+            'plan': x[7],
             'partner_id': x[8],
         } for x in zip(
             self._get_partners(queryset),
