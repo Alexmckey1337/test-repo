@@ -102,7 +102,7 @@ class ChurchSerializer(serializers.ModelSerializer):
         model = Church
         fields = ('id', 'opening_date', 'is_open', 'link', 'title', 'get_title',
                   'department', 'pastor', 'country', 'city', 'address', 'website',
-                  'phone_number', 'count_groups', 'count_users')
+                  'phone_number', 'count_groups', 'count_users', 'report_currency')
 
 
 class ChurchListSerializer(ChurchSerializer):
