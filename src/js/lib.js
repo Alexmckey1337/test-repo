@@ -4033,7 +4033,7 @@ function sumCurrency(sum, operation, rate, currencyEl, currencyName) {
 
 function createDealsPayment(id, sum, description) {
     return new Promise(function (resolve, reject) {
-        let data = {
+        let config = {
             "sum": sum,
             "description": description,
             "rate": $('#new_payment_rate').val(),
@@ -4041,28 +4041,37 @@ function createDealsPayment(id, sum, description) {
             "sent_date": $('#sent_date').val(),
             "operation": $('#operation').val()
         };
-        let json = JSON.stringify(data);
-        ajaxRequest(URLS.deal.create_payment(id), json, function (JSONobj) {
-            updateDealsTable();
-            showPopup('Оплата прошла успешно.');
-            setTimeout(function () {
-                resolve()
-            }, 1500);
-        }, 'POST', true, {
-            'Content-Type': 'application/json'
-        }, {
-            403: function (data) {
-                data = data.responseJSON;
-                showPopup(data.detail);
-                reject();
+        let json = JSON.stringify(config);
+        let data = {
+            url: URLS.deal.create_payment(id),
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: json
+        };
+        let status = {
+            200: function (req) {
+                resolve(req);
+            },
+            201: function (req) {
+                resolve(req);
+            },
+            403: function () {
+                reject('Вы должны авторизоватся');
+            },
+            400: function (err) {
+                reject(err);
             }
-        });
+
+        };
+        newAjaxRequest(data, status);
     })
 }
 
 function createChurchPayment(id, sum, description) {
     return new Promise(function (resolve, reject) {
-        let data = {
+        let config = {
             "sum": sum,
             "description": description,
             "rate": $('#new_payment_rate').val(),
@@ -4070,21 +4079,31 @@ function createChurchPayment(id, sum, description) {
             "sent_date": $('#sent_date').val(),
             "operation": $('#operation').val()
         };
-        let json = JSON.stringify(data);
-        ajaxRequest(URLS.event.church_report.create_payment(id), json, function (JSONobj) {
-            showPopup('Оплата прошла успешно.');
-            setTimeout(function () {
-                resolve()
-            }, 1500);
-        }, 'POST', true, {
-            'Content-Type': 'application/json'
-        }, {
-            403: function (data) {
-                data = data.responseJSON;
-                showPopup(data.detail);
-                reject();
+        let json = JSON.stringify(config);
+        let data = {
+            url: URLS.event.church_report.create_payment(id),
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: json
+        };
+        let status = {
+            200: function (req) {
+                resolve(req);
+            },
+            201: function (req) {
+                resolve(req);
+            },
+            403: function () {
+                reject('Вы должны авторизоватся');
+            },
+            400: function (err) {
+                reject(err);
             }
-        });
+
+        };
+        newAjaxRequest(data, status);
     })
 }
 

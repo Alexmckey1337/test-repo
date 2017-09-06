@@ -205,10 +205,16 @@
         let data = $(this).serializeArray();
         createChurchPayment(id, sum, description).then(() => {
             churchReportsTable();
+            $('#new_payment_sum').val('');
+            $('#popup-create_payment textarea').val('');
+            $('#popup-create_payment').css('display', 'none');
+            showPopup('Оплата прошла успешно.');
+        }).catch((res) => {
+            let error = JSON.parse(res.responseText),
+                errKey = Object.keys(error),
+                html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
+            showPopup(html);
         });
-        $('#new_payment_sum').val('');
-        $('#popup-create_payment textarea').val('');
-        $('#popup-create_payment').css('display', 'none');
     });
 
     $('#sent_date').datepicker({
