@@ -37,10 +37,23 @@
         getPartnershipSummary(config).then(data => {
             let results = data.results.map(elem=> {
                  elem.not_active_partners = elem.total_partners - elem.active_partners;
-                 let percent = (100/(elem.potential_sum/elem.sum_pay)).toFixed(1);
+                 let percent = (100/(elem.plan/elem.sum_pay)).toFixed(1);
                  elem.percent_of_plan = isFinite(percent) ? percent : 0;
                  return elem;
-            });
+            }),
+                newRow = {
+                    manager: null,
+                    plan: data.results.reduce((sum,current) => sum + current.plan, 0),
+                    potential_sum: data.results.reduce((sum,current) => sum + current.potential_sum, 0),
+                    sum_deals: data.results.reduce((sum,current) => sum + current.sum_deals, 0),
+                    sum_pay: data.results.reduce((sum,current) => sum + current.sum_pay, 0),
+                    percent_of_plan: null,
+                    total_partners: data.results.reduce((sum,current) => sum + current.total_partners, 0),
+                    active_partners: data.results.reduce((sum,current) => sum + current.active_partners, 0),
+                    not_active_partners: data.results.reduce((sum,current) => sum + current.not_active_partners, 0),
+                };
+
+            results.push(newRow);
             let newData = {
                 table_columns: data.table_columns,
                 results: results

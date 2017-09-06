@@ -108,12 +108,13 @@
                 <% } %>
                 <% } else if (key == 'plan') { %>
                 <% if (results[index][key] != null) { %>
-                <td>
+                <td class="edit">
                     {% if user.is_partner_director %}
-                        <input class="edit" type="text" data-id="<%=results[index].partner_id %>"
+                        <input class="edit_plan" type="text" data-id="<%=results[index].partner_id %>"
                                value="<%= results[index][key] %>" readonly disabled>
+                        <span>Нажмите Enter</span>
                     {% else %}
-                        <%= results[index][key] %>
+                        <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
                     {% endif %}
                 </td>
                 <% } else { %>

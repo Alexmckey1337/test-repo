@@ -254,3 +254,19 @@ table .url {
     color: #3caeda;
   }
 }
+
+#managersPlan table {
+  .edit {
+    position: relative;
+    span {
+      position: absolute;
+      color: red;
+      right: 13px;
+      top: 13px;
+      font-size: .9em;
+    }
+  }
+  .edit_plan:disabled + span {
+    display: none;
+  }
+}
