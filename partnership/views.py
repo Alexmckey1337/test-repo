@@ -235,7 +235,15 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
     @detail_route(methods=['POST'])
     def set_plan(self, request, pk):
         manager = get_object_or_404(Partnership, pk=pk)
-        manager.plan = Decimal(request.data.get('plan_sum'))
+        plan_sum = request.data.get('plan_sum')
+        if not plan_sum:
+            raise exceptions.ValidationError({'message': _('Parameter {plan_sum} not passed')})
+        try:
+            plan_sum = Decimal(plan_sum)
+        except Exception:
+            raise exceptions.ValidationError({'message': _('Parameter {plan_sum} must be integer')})
+
+        manager.plan = plan_sum
         manager.save()
 
         return Response({'message': 'План менеджера упешно установлен в %s' % manager.plan})
