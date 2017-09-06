@@ -638,6 +638,7 @@ class ChurchListView(LoginRequiredMixin, TabsMixin, CanSeeChurchesMixin, Templat
         ctx = super(ChurchListView, self).get_context_data(**kwargs)
 
         ctx['departments'] = Department.objects.all()
+        ctx['currencies'] = Currency.objects.all()
 
         return ctx
 
