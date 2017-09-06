@@ -1,5 +1,7 @@
 {% extends "layout_main.html" %}
 {% load static %}
+{% load payment_tags %}
+
 
 {% block header.top.h1 %}<h1>Отчеты / Церкви</h1>{% endblock %}
 
@@ -115,6 +117,54 @@
 {% endblock %}
 
 {% block popup %}
+    {% create_payment_form %}
+    <div id="popup-payments" class="pop-up-splash">
+        <div class="flex-wrap">
+            <div class="splash-screen">
+                <div class="top-text">
+                    <h3>Платежи</h3>
+                    <span>&times;</span>
+                </div>
+                <table></table>
+                <div class="splash-bauttons">
+                    {#                    <button class="detail" data-detail-url="{% url "payment-deal" pk=0 %}">{% trans "Detail" %}</button>#}
+                    <button class="close">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="popup" class="pop-up-splash">
+        <div class="flex-wrap">
+            <div class="splash-screen">
+                <div class="top-text">
+                    <h3>Завершить сделку</h3>
+                </div>
+                <div class="padding-wrap">
+                    <div class="user-info">
+                        <label>
+                            <span class="label-wrapp">Клиент:</span>
+                            <input id="client-name" value="" disabled>
+                        </label>
+                        <label>
+                            <span class="label-wrapp">Последняя сделка:</span>
+                            <input id="deal-date" value="" disabled>
+                        </label>
+                        <label>
+                            <span class="label-wrapp">Ответственный:</span>
+                            <input id="responsible-name" value="" disabled>
+                        </label>
+                        <label class="textarea">
+                            <textarea placeholder="Добавить коментарий" id="deal-description"></textarea>
+                        </label>
+                    </div>
+                    <div class="splash-bauttons">
+                        <button class="close">Отменить</button>
+                        <button id="complete">Завершить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="popap" id='filterPopup'>
         <div class="pop_cont">
             <h2 class='popup_text'>
@@ -202,6 +252,9 @@
     </div>
 {% endblock %}
 {% block extra_scripts %}
+    <script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
+    <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
+    <script src='{% static "libs/numeral/min/numeral.min.js" %}'></script>
     <script src="{% static "js/church_reports.js" %}"></script>
 {% endblock %}
 {% block template_tables %}
@@ -233,6 +286,48 @@
                 <% } else { %>
                 <td></td>
                 <% } %>
+                <% } else if(key == 'value') { %>
+                <% if (results[index].total_sum != null || results[index].value != null) { %>
+                <td>
+                    <button class="show_payments inline__button" data-id="<%=results[index].id%>">
+                        <span><%= results[index].total_sum %> / <%= results[index].value %> <%= results[index].currency.short_name %></span>
+                    </button>
+                </td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else if (key == 'action' ) { %>
+                <td>
+                    <% if (results.length) { %>
+                    <% if (!results[index].done && (results[index].status == 2) && ((parseInt(results[index].total_sum.match(/\d+/))-parseInt(results[index].value.match(/\d+/)))>=0) ) { %>
+                    <button class="complete inline__button"
+                            data-id="<%= results[index].id%>"
+                            data-name="<%=results[index].church.title%>"
+                            data-date="<%=results[index].date%>"
+                            data-pastor="<%=results[index].pastor.fullname%>"
+                            data-total_sum="<%=results[index].total_sum %>"
+                            data-value="<%=results[index].value%>"
+                            data-currency-name="<%=results[index].currency.short_name %>"
+                            data-currency-id="<%=results[index].currency.id %>"
+                    >Закрыть отчет
+                    </button>
+                    <% } else if (!results[index].done && (results[index].status == 2) && ((parseInt(results[index].total_sum.match(/\d+/))-parseInt(results[index].value.match(/\d+/)))<0) ) { %>
+                    <button class="pay inline__button"
+                            data-id="<%= results[index].id%>"
+                            data-name="<%=results[index].church.title%>"
+                            data-date="<%=results[index].date%>"
+                            data-pastor="<%=results[index].pastor.fullname%>"
+                            data-total_sum="<%=results[index].total_sum %>"
+                            data-value="<%=results[index].value%>"
+                            data-currency-name="<%=results[index].currency.short_name %>"
+                            data-currency-id="<%=results[index].currency.id %>"
+                    >Добавить платеж
+                    </button>
+                    <% } else if (results[index].done) { %>
+                    <p class="text__center">✔</p>
+                    <% } %>
+                    <% } %>
+                </td>
                 <% } else if(key == 'pastor') { %>
                 <% if (results[index][key] != null) { %>
                 <td>

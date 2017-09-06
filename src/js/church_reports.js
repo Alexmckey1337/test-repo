@@ -184,4 +184,44 @@
         filterInit(filterParam.nameId);
     }
 
+    $("#popup-create_payment .top-text span").on('click', () => {
+        $('#new_payment_sum').val('');
+        $('#popup-create_payment textarea').val('');
+        $('#popup-create_payment').css('display', 'none');
+    });
+
+    $("#close-payment").on('click', function (e) {
+        e.preventDefault();
+        $('#new_payment_rate').val(1);
+        $('#in_user_currency').text('');
+        $('#popup-create_payment').css('display', 'none');
+    });
+
+    $('#payment-form').on('submit', function (e) {
+        e.preventDefault();
+        let id = $(this).find('button[type="submit"]').attr('data-id'),
+            sum = $('#new_payment_sum').val(),
+            description = $('#popup-create_payment textarea').val();
+        let data = $(this).serializeArray();
+        createChurchPayment(id, sum, description).then(() => {
+            churchReportsTable();
+            $('#new_payment_sum').val('');
+            $('#popup-create_payment textarea').val('');
+            $('#popup-create_payment').css('display', 'none');
+            showPopup('Оплата прошла успешно.');
+        }).catch((res) => {
+            let error = JSON.parse(res.responseText),
+                errKey = Object.keys(error),
+                html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
+            showPopup(html);
+        });
+    });
+
+    $('#sent_date').datepicker({
+        dateFormat: "yyyy-mm-dd",
+        startDate: new Date(),
+        maxDate: new Date(),
+        autoClose: true
+    });
+
 })();

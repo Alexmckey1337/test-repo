@@ -54,14 +54,16 @@ $(document).ready(function () {
             description = $('#popup-create_payment textarea').val();
         let data = $(this).serializeArray();
         createDealsPayment(id, sum, description).then(function () {
-            $('#' + id + ' > .rows').css({
-                'background-color': '#dfedd6',
-                'border-color': '#aedd94',
-            });
+            updateDealsTable();
+            $('#new_payment_sum').val('');
+            $('#popup-create_payment textarea').val('');
+            $('#popup-create_payment').css('display', 'none');
+        }).catch((res) => {
+            let error = JSON.parse(res.responseText),
+                errKey = Object.keys(error),
+                html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
+            showPopup(html);
         });
-        $('#new_payment_sum').val('');
-        $('#popup-create_payment textarea').val('');
-        $('#popup-create_payment').css('display', 'none');
     });
 
     // $('#complete').on('click', function () {
