@@ -195,7 +195,8 @@ class MeetingSummarySerializer(serializers.ModelSerializer):
 #         fields = ('id', 'fullname', 'total_pastor_sum')
 
 
-class ChurchReportListSerializer(serializers.HyperlinkedModelSerializer, ValidateDataBeforeUpdateMixin):
+class ChurchReportListSerializer(serializers.HyperlinkedModelSerializer,
+                                 ValidateDataBeforeUpdateMixin):
     pastor = UserNameSerializer()
     church = ChurchNameSerializer()
     date = serializers.DateField(default=datetime.now().date())

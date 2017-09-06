@@ -3365,6 +3365,11 @@ function makeChurchReportsTable(data, config = {}) {
     $('.table__count').text(text);
     new OrderTable().sort(churchReportsTable, ".table-wrap th");
     $('.preloader').hide();
+    btnDeals();
+    $("button.complete").on('click', function () {
+        let id = $(this).attr('data-id');
+        completeChurchPayment(id);
+    });
 }
 
 function makeChurchPastorReportsTable(data, config = {}) {
@@ -3745,27 +3750,46 @@ function btnDeals() {
         sumChangeListener(currencyName, currencyID);
     });
 
-    $("button.complete").on('click', function () {
-        // let client_name = $(this).attr('data-name'),
-        //     deal_date = $(this).attr('data-date'),
-        //     responsible_name = $(this).attr('data-responsible');
-        // $('#complete').attr('data-id', $(this).data('id'));
-        // $('#client-name').val(client_name);
-        // $('#deal-date').val(deal_date);
-        // $('#responsible-name').val(responsible_name);
-        // $('#popup').css('display', 'block');
-        let id = $(this).attr('data-id');
-        updateDeals(id);
+    // $("button.complete").on('click', function () {
+    //     // let client_name = $(this).attr('data-name'),
+    //     //     deal_date = $(this).attr('data-date'),
+    //     //     responsible_name = $(this).attr('data-responsible');
+    //     // $('#complete').attr('data-id', $(this).data('id'));
+    //     // $('#client-name').val(client_name);
+    //     // $('#deal-date').val(deal_date);
+    //     // $('#responsible-name').val(responsible_name);
+    //     // $('#popup').css('display', 'block');
+    //     let id = $(this).attr('data-id');
+    //     updateDeals(id);
+    // });
+}
+
+function updateDeals(id) {
+    let data = {
+        "done": true,
+    };
+    let config = JSON.stringify(data);
+    ajaxRequest(URLS.deal.detail(id), config, function () {
+        updateDealsTable();
+        document.getElementById('popup').style.display = '';
+    }, 'PATCH', true, {
+        'Content-Type': 'application/json'
+    }, {
+        403: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail);
+        }
     });
 }
 
-    function updateDeals(id) {
+function completeChurchPayment(id) {
+    return new Promise(function () {
         let data = {
             "done": true,
         };
         let config = JSON.stringify(data);
-        ajaxRequest(URLS.deal.detail(id), config, function () {
-            updateDealsTable();
+        ajaxRequest(URLS.event.church_report.detail(id), config, function () {
+            churchReportsTable();
             document.getElementById('popup').style.display = '';
         }, 'PATCH', true, {
             'Content-Type': 'application/json'
@@ -3775,7 +3799,8 @@ function btnDeals() {
                 showPopup(data.detail);
             }
         });
-    }
+    })
+}
 
 function createIncompleteDealsTable(config={}) {
     Object.assign(config, {done: 3});
@@ -3802,6 +3827,10 @@ function createIncompleteDealsTable(config={}) {
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createIncompleteDealsTable, ".table-wrap th");
         btnDeals();
+        $("button.complete").on('click', function () {
+            let id = $(this).attr('data-id');
+            updateDeals(id);
+        });
     });
 }
 
@@ -4004,7 +4033,7 @@ function sumCurrency(sum, operation, rate, currencyEl, currencyName) {
 
 function createDealsPayment(id, sum, description) {
     return new Promise(function (resolve, reject) {
-        let data = {
+        let config = {
             "sum": sum,
             "description": description,
             "rate": $('#new_payment_rate').val(),
@@ -4012,22 +4041,69 @@ function createDealsPayment(id, sum, description) {
             "sent_date": $('#sent_date').val(),
             "operation": $('#operation').val()
         };
-        let json = JSON.stringify(data);
-        ajaxRequest(URLS.deal.create_payment(id), json, function (JSONobj) {
-            updateDealsTable();
-            showPopup('Оплата прошла успешно.');
-            setTimeout(function () {
-                resolve()
-            }, 1500);
-        }, 'POST', true, {
-            'Content-Type': 'application/json'
-        }, {
-            403: function (data) {
-                data = data.responseJSON;
-                showPopup(data.detail);
-                reject();
+        let json = JSON.stringify(config);
+        let data = {
+            url: URLS.deal.create_payment(id),
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: json
+        };
+        let status = {
+            200: function (req) {
+                resolve(req);
+            },
+            201: function (req) {
+                resolve(req);
+            },
+            403: function () {
+                reject('Вы должны авторизоватся');
+            },
+            400: function (err) {
+                reject(err);
             }
-        });
+
+        };
+        newAjaxRequest(data, status);
+    })
+}
+
+function createChurchPayment(id, sum, description) {
+    return new Promise(function (resolve, reject) {
+        let config = {
+            "sum": sum,
+            "description": description,
+            "rate": $('#new_payment_rate').val(),
+            "currency": $('#new_payment_currency').val(),
+            "sent_date": $('#sent_date').val(),
+            "operation": $('#operation').val()
+        };
+        let json = JSON.stringify(config);
+        let data = {
+            url: URLS.event.church_report.create_payment(id),
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: json
+        };
+        let status = {
+            200: function (req) {
+                resolve(req);
+            },
+            201: function (req) {
+                resolve(req);
+            },
+            403: function () {
+                reject('Вы должны авторизоватся');
+            },
+            400: function (err) {
+                reject(err);
+            }
+
+        };
+        newAjaxRequest(data, status);
     })
 }
 

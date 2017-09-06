@@ -113,7 +113,7 @@ def anket(summit_anket_factory, user, summit):
 
 
 @pytest.fixture
-def user_data(partner):
+def user_data():
     return {
         'email': 'test@email.com',
         'first_name': 'test_first',
@@ -140,11 +140,6 @@ def user_data(partner):
         'master': Factory('user_factory'),
         'hierarchy': Factory('hierarchy_factory'),
         'divisions': FactoryList('division_factory', 4),
-        'partner': {
-            'value': 100,
-            'responsible': partner.id,
-            'date': '2020-04-04',
-        },
     }
 
 
