@@ -100,9 +100,16 @@
                 <% if(table_columns[key].active) { %>
                 <% if (key == 'manager') { %>
                 <% if (results[index][key] != null) { %>
-                <td><a href="/account/<%=results[index].manager_id %>">
-                    <%= results[index][key] %>
-                </a>
+                <td>
+                    <a href="/account/<%=results[index].manager_id %>"><%= results[index][key] %></a>
+                </td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else if (key == 'plan') { %>
+                <% if (results[index][key] != null) { %>
+                <td>
+                    <input type="text" value="<%= results[index][key] %>" disabled>
                 </td>
                 <% } else { %>
                 <td></td>
