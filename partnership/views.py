@@ -134,7 +134,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         year = int(request.query_params.get('year', datetime.now().year))
         month = int(request.query_params.get('month', datetime.now().month))
 
-        queryset = self.queryset.filter(level__lte=Partnership.MANAGER, is_active=True).prefetch_related('deals')
+        queryset = self.queryset.filter(level__lte=Partnership.MANAGER).prefetch_related('deals')
 
         managers = [{
             'user_id': x[0],
