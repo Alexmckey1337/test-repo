@@ -28,7 +28,7 @@ from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingD
                           ChurchReportDetailSerializer, ChurchReportsDashboardSerializer, MeetingSummarySerializer,
                           ChurchReportSummarySerializer)
 from payment.views_mixins import CreatePaymentMixin
-from .mixins import EventUserTreeMixin
+from .mixins import EventUserTreeMixin, ChurchReportListPaymentMixin
 
 
 logger = logging.getLogger(__name__)
@@ -309,7 +309,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeMixin):
 
 
 class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin,
-                          EventUserTreeMixin):
+                          EventUserTreeMixin, ChurchReportListPaymentMixin):
     queryset = ChurchReport.objects.base_queryset().annotate_total_sum().annotate_value()
 
     serializer_class = ChurchReportSerializer

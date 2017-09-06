@@ -33,7 +33,8 @@ class PartnershipTableSerializer(serializers.ModelSerializer):
     user = UserTableSerializer()
     date = serializers.DateField(format=None, input_formats=None)
     responsible = serializers.StringRelatedField()
-    value = DecimalWithCurrencyField(max_digits=12, decimal_places=0, read_only=True, currency_field='currency')
+    value = DecimalWithCurrencyField(max_digits=12, decimal_places=0,
+                                     read_only=True, currency_field='currency')
 
     class Meta:
         model = Partnership
@@ -61,7 +62,8 @@ class DealSerializer(DealCreateSerializer):
     full_name = serializers.CharField(read_only=True)
     value = serializers.CharField(read_only=True, source='value_str')
     responsible_name = serializers.CharField(read_only=True)
-    total_sum = DecimalWithCurrencyField(max_digits=12, decimal_places=0, read_only=True, currency_field='currency')
+    total_sum = DecimalWithCurrencyField(max_digits=12, decimal_places=0,
+                                         read_only=True, currency_field='currency')
     currency = CurrencySerializer()
     payment_status = serializers.IntegerField()
 

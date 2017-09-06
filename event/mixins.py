@@ -1,5 +1,7 @@
 from rest_framework.generics import get_object_or_404
 from account.models import CustomUser
+from payment.views_mixins import ListPaymentMixin
+from rest_framework.response import Response
 
 
 class EventUserTreeMixin(object):
@@ -20,3 +22,16 @@ class EventUserTreeMixin(object):
         else:
             user = request.user
         return user
+
+
+class ChurchReportListPaymentMixin(ListPaymentMixin):
+    def _payments(self, request, pk=None):
+        purpose_model = self.get_queryset().model
+        purpose = get_object_or_404(purpose_model, pk=pk)
+
+        queryset = getattr(purpose, self.payment_list_field).select_related(
+            'currency_sum', 'currency_rate', 'manager')
+
+        serializer = self.list_payment_serializer(queryset, many=True)
+
+        return Response(serializer.data)
