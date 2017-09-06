@@ -3249,10 +3249,22 @@ function partnershipSummaryTable(config = {}) {
     getPartnershipSummary(config).then(data => {
         let results = data.results.map(elem => {
             elem.not_active_partners = elem.total_partners - elem.active_partners;
-            let percent = (100 / (elem.potential_sum / elem.sum_pay)).toFixed(1);
+            let percent = (100 / (elem.plan / elem.sum_pay)).toFixed(1);
             elem.percent_of_plan = isFinite(percent) ? percent : 0;
             return elem;
-        });
+        }),
+            newRow = {
+                    manager: null,
+                    plan: data.results.reduce((sum,current) => sum + current.plan, 0),
+                    potential_sum: data.results.reduce((sum,current) => sum + current.potential_sum, 0),
+                    sum_deals: data.results.reduce((sum,current) => sum + current.sum_deals, 0),
+                    sum_pay: data.results.reduce((sum,current) => sum + current.sum_pay, 0),
+                    percent_of_plan: null,
+                    total_partners: data.results.reduce((sum,current) => sum + current.total_partners, 0),
+                    active_partners: data.results.reduce((sum,current) => sum + current.active_partners, 0),
+                    not_active_partners: data.results.reduce((sum,current) => sum + current.not_active_partners, 0),
+                };
+            results.push(newRow);
         let newData = {
             table_columns: data.table_columns,
             results: results
@@ -3310,19 +3322,21 @@ function makePartnershipSummaryTable(data, config = {}) {
     // $('.table__count').text(data.count);
     // makePagination(paginationConfig);
     makeSortForm(data.table_columns);
-    $('#managersPlan').find('table').on('dblclick', '.edit', function (e) {
-        $(this).prop('disabled', false).prop('readonly', false);
+    $('#managersPlan').find('table').on('dblclick', '.edit_plan', function (e) {
+        $(this).prop('disabled', false).prop('readonly', false).focus();
     });
-    $('#managersPlan').find('table .edit').keyup(function (e) {
+    $('#managersPlan').find('table .edit_plan').keyup(function (e) {
         if (e.keyCode == 13) {
             let id = e.target.getAttribute('data-id');
             data.plan_sum = e.target.value;
             updateManagersPlan(id, data).then(() => {
                 showPopup('План успешно изменен');
-                $(this).prop('disabled', true).prop('readonly', true);
+                partnershipSummaryTable();
+                // $(this).prop('disabled', true).prop('readonly', true);
             });
         } else if (e.keyCode == 27) {
-            $(this).prop('disabled', true).prop('readonly', true);
+            // $(this).prop('disabled', true).prop('readonly', true);
+            partnershipSummaryTable();
         }
     });
 
