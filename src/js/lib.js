@@ -67,12 +67,15 @@ class OrderTableByClient extends OrderTable {
                 revers = (revers == '+') ? '-' : '+';
                 sessionStorage.setItem('revers', revers);
                 sessionStorage.setItem('order', dataOrder);
+                let pureArr = _.slice(data.results, 0, data.results.length-1);
+                let summary = _.last(data.results);
                 if (type == 'letter') {
-                    newArr = _.sortBy(data.results, (e) => e[`${dataOrder}`]);
+                    newArr = _.sortBy(pureArr, (e) => e[`${dataOrder}`]);
                 } else {
-                    newArr = _.sortBy(data.results, (e) => parseFloat(e[`${dataOrder}`]));
+                    newArr = _.sortBy(pureArr, (e) => parseFloat(e[`${dataOrder}`]));
                 }
                 (revers == "+") && newArr.reverse();
+                newArr.push(summary);
                 $('.preloader').css('display', 'block');
                 let sortedData = {
                     table_columns: data.table_columns,
@@ -3254,7 +3257,7 @@ function partnershipSummaryTable(config = {}) {
             return elem;
         }),
             newRow = {
-                    manager: null,
+                    manager: 'СУММАРНО:',
                     plan: data.results.reduce((sum,current) => sum + current.plan, 0),
                     potential_sum: data.results.reduce((sum,current) => sum + current.potential_sum, 0),
                     sum_deals: data.results.reduce((sum,current) => sum + current.sum_deals, 0),

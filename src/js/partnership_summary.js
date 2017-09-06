@@ -42,7 +42,7 @@
                  return elem;
             }),
                 newRow = {
-                    manager: null,
+                    manager: 'СУММАРНО:',
                     plan: data.results.reduce((sum,current) => sum + current.plan, 0),
                     potential_sum: data.results.reduce((sum,current) => sum + current.potential_sum, 0),
                     sum_deals: data.results.reduce((sum,current) => sum + current.sum_deals, 0),
