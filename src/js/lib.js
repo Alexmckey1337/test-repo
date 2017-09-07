@@ -3344,6 +3344,8 @@ function makePartnershipSummaryTable(data, config = {}) {
     // makePagination(paginationConfig);
     makeSortForm(data.table_columns);
     $('#managersPlan').find('table').on('dblclick', '.edit_plan', function (e) {
+        let actualVal = $(this).val();
+        $(this).attr('data-value', actualVal);
         $(this).prop('disabled', false).prop('readonly', false).focus();
     });
     $('#managersPlan').find('table .edit_plan').keyup(function (e) {
@@ -3352,12 +3354,13 @@ function makePartnershipSummaryTable(data, config = {}) {
             data.plan_sum = e.target.value;
             updateManagersPlan(id, data).then(() => {
                 showPopup('План успешно изменен');
-                partnershipSummaryTable();
-                // $(this).prop('disabled', true).prop('readonly', true);
+                // partnershipSummaryTable();
+                $(this).prop('disabled', true).prop('readonly', true);
             });
         } else if (e.keyCode == 27) {
-            // $(this).prop('disabled', true).prop('readonly', true);
-            partnershipSummaryTable();
+            let value = $(this).attr('data-value');
+            $(this).val(value).prop('disabled', true).prop('readonly', true);
+            // partnershipSummaryTable();
         }
     });
 
