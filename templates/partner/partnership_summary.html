@@ -87,7 +87,11 @@
                 <% if( (key == 'manager') ) { %>
                 <th data-order="<%=table_columns[key].ordering_title%>" data-order_type="letter"><%=table_columns[key].title %></th>
                 <% } else { %>
-                <th data-order="<%=table_columns[key].ordering_title%>"><%=table_columns[key].title %></th>
+                <th data-order="<%=table_columns[key].ordering_title%>"
+                <% if (key == 'sum_pay') { %>
+                class="cell__red"
+                <% } %>
+                ><%=table_columns[key].title %></th>
                 <% } %>
                 <% } %>
                 <% } %>
@@ -124,6 +128,14 @@
                     {% else %}
                         <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
                     {% endif %}
+                </td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else if (key == 'sum_pay') { %>
+                <% if (results[index][key] != null) { %>
+                <td class="cell__red">
+                    <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
                 </td>
                 <% } else { %>
                 <td></td>
