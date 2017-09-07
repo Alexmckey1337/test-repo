@@ -134,33 +134,33 @@ class FilterByDealDate(BaseFilterBackend):
         return queryset.filter(content_type__model='deal', object_id__in=deal_ids)
 
 
-# class FilterByDealManagerFIO(BaseFilterBackend):
-#     include_self_master = False
-#
-#     def get_deals(self, request):
-#         return Deal.objects.for_user(request.user)
-#
-#     def filter_queryset(self, request, queryset, view):
-#         manager_fio = request.query_params.get('search_purpose_manager_fio', None)
-#         if not manager_fio:
-#             return queryset
-#
-#         orm_lookups = [
-#             'responsible__user__first_name__icontains',
-#             'responsible__user__last_name__icontains',
-#             'responsible__user__middle_name__icontains',
-#             'responsible__user__search_name__icontains']
-#
-#         deals = self.get_deals(request)
-#         for search_term in manager_fio.replace(',', ' ').split():
-#             queries = [
-#                 models.Q(**{orm_lookup: search_term})
-#                 for orm_lookup in orm_lookups]
-#             deals = deals.filter(reduce(operator.or_, queries))
-#
-#         deal_ids = deals.values_list('id', flat=True)
-#
-#         return queryset.filter(content_type__model='deal', object_id__in=deal_ids)
+class FilterByDealManagerFIO(BaseFilterBackend):
+    include_self_master = False
+
+    def get_deals(self, request):
+        return Deal.objects.for_user(request.user)
+
+    def filter_queryset(self, request, queryset, view):
+        manager_fio = request.query_params.get('search_purpose_manager_fio', None)
+        if not manager_fio:
+            return queryset
+
+        orm_lookups = [
+            'responsible__user__first_name__icontains',
+            'responsible__user__last_name__icontains',
+            'responsible__user__middle_name__icontains',
+            'responsible__user__search_name__icontains']
+
+        deals = self.get_deals(request)
+        for search_term in manager_fio.replace(',', ' ').split():
+            queries = [
+                models.Q(**{orm_lookup: search_term})
+                for orm_lookup in orm_lookups]
+            deals = deals.filter(reduce(operator.or_, queries))
+
+        deal_ids = deals.values_list('id', flat=True)
+
+        return queryset.filter(content_type__model='deal', object_id__in=deal_ids)
 
 
 class FilterByDealManager(BaseFilterBackend):
