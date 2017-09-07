@@ -130,45 +130,6 @@
                             <option value="">ВСЕ</option>
                         </select>
                     </label>
-{#                    <div class="col-6">#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Отдел</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Ветка</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Пастор</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Церковь</span>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                    <div class="col-6">#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="department" id="departments_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                                {% for department in departments %}#}
-{#                                    <option value="{{ department.id }}">{{ department.title }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="master_tree" id="tree_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="pastor" id="pastor_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="church" id="church_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                            </select>#}
-{#                        </p>#}
-{#                    </div>#}
                 </div>
             </div>
             <div class="container">
@@ -249,46 +210,46 @@
                             </div>
                         </div>
                     </div>
-                    <div class="grid_block">
-                        <div class="col-sm-4">
-                            <div class="well info"><span>Десятины</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="closed_planned_sum_deals" class="label label-primary">
-                                        <%= (total_tithe) ? total_tithe : 0 %>
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="well info"><span>Десятина пастора</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="closed_paid_sum_deals" class="label label-primary">
-                                        <%= (total_pastor_tithe) ? total_pastor_tithe : 0 %>
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="well info"><span>15% к перечислению</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="closed_percent_paid_sum_deals" class="label label-primary">
-                                        <%= (total_transfer_payments) ? total_transfer_payments : 0 %>
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="grid_block">
-                        <div class="col-12">
-                            <div class="well success"><span>Всего пожертвований</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="closed_percent_paid_sum_deals" class="label label-primary">
-                                        <%= (total_donations) ? total_donations : 0 %>
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+{#                    <div class="grid_block">#}
+{#                        <div class="col-sm-4">#}
+{#                            <div class="well info"><span>Десятины</span>#}
+{#                                <p style="font-size:4em;text-align: center">#}
+{#                                    <span id="closed_planned_sum_deals" class="label label-primary">#}
+{#                                        <%= (total_tithe) ? total_tithe : 0 %>#}
+{#                                    </span>#}
+{#                                </p>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="col-sm-4">#}
+{#                            <div class="well info"><span>Десятина пастора</span>#}
+{#                                <p style="font-size:4em;text-align: center">#}
+{#                                    <span id="closed_paid_sum_deals" class="label label-primary">#}
+{#                                        <%= (total_pastor_tithe) ? total_pastor_tithe : 0 %>#}
+{#                                    </span>#}
+{#                                </p>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="col-sm-4">#}
+{#                            <div class="well info"><span>15% к перечислению</span>#}
+{#                                <p style="font-size:4em;text-align: center">#}
+{#                                    <span id="closed_percent_paid_sum_deals" class="label label-primary">#}
+{#                                        <%= (total_transfer_payments) ? total_transfer_payments : 0 %>#}
+{#                                    </span>#}
+{#                                </p>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <div class="grid_block">#}
+{#                        <div class="col-12">#}
+{#                            <div class="well success"><span>Всего пожертвований</span>#}
+{#                                <p style="font-size:4em;text-align: center">#}
+{#                                    <span id="closed_percent_paid_sum_deals" class="label label-primary">#}
+{#                                        <%= (total_donations) ? total_donations : 0 %>#}
+{#                                    </span>#}
+{#                                </p>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
                 </div>
             </div>
         </div>
