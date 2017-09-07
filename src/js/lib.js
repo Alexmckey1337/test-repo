@@ -1671,6 +1671,22 @@ function getPayment(id) {
     })
 }
 
+function getChurchPayment(id) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(URLS.event.church_report.payments(id), null, function (data) {
+            resolve(data);
+        }, 'GET', true, {
+            'Content-Type': 'application/json'
+        }, {
+            403: function (data) {
+                data = data.responseJSON;
+                reject();
+                showPopup(data.detail)
+            }
+        })
+    })
+}
+
 function getPaymentsDeals(config) {
     return new Promise(function (resolve, reject) {
         let data = {
@@ -3407,6 +3423,25 @@ function makeChurchReportsTable(data, config = {}) {
         let id = $(this).attr('data-id');
         completeChurchPayment(id);
     });
+    $('.show_payments').on('click', function () {
+        let id = $(this).data('id');
+        showChurchPayments(id);
+    });
+}
+
+function showChurchPayments(id) {
+    getChurchPayment(id).then(function (data) {
+        let payments_table = '';
+        let sum, date_time, manager;
+        data.forEach(function (payment) {
+            sum = payment.effective_sum_str.replace('.000', '');
+            date_time = payment.sent_date;
+            manager = `${payment.manager.last_name} ${payment.manager.first_name} ${payment.manager.middle_name}`;
+            payments_table += `<tr><td>${sum}</td><td>${date_time}</td><td>${manager}</td></tr>`
+        });
+        $('#popup-payments table').html(payments_table);
+        $('#popup-payments').css('display', 'block');
+    })
 }
 
 function makeChurchPastorReportsTable(data, config = {}) {
