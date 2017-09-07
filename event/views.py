@@ -17,7 +17,7 @@ from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
 from .filters import (ChurchReportFilter, MeetingFilter, MeetingCustomFilter, MeetingFilterByMaster,
                       ChurchReportDepartmentFilter, ChurchReportFilterByMaster, EventSummaryFilter,
-                      EventSummaryMasterFilter,)
+                      EventSummaryMasterFilter, ChurchReportPaymentStatusFilter,)
 from .models import Meeting, ChurchReport, MeetingAttend
 from .pagination import (MeetingPagination, MeetingVisitorsPagination, ChurchReportPagination,
                          MeetingSummaryPagination, ReportsSummaryPagination)
@@ -323,7 +323,8 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin,
                        ChurchReportFilterByMaster,
                        ChurchReportDepartmentFilter,
                        FieldSearchFilter,
-                       filters.OrderingFilter,)
+                       filters.OrderingFilter,
+                       ChurchReportPaymentStatusFilter,)
 
     filter_class = ChurchReportFilter
 

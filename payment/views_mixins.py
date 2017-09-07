@@ -127,7 +127,8 @@ class ListPaymentMixin(PaymentCheckPermissionMixin):
         purpose = get_object_or_404(purpose_model, pk=pk)
         self.check_payment_permissions(request, purpose)
 
-        queryset = getattr(purpose, self.payment_list_field).select_related('currency_sum', 'currency_rate', 'manager')
+        queryset = getattr(purpose, self.payment_list_field).select_related(
+            'currency_sum', 'currency_rate', 'manager')
 
         serializer = self.list_payment_serializer(queryset, many=True)
 
