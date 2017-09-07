@@ -249,7 +249,8 @@ class PartnerPaymentsListView(LoginRequiredMixin, CanSeeDealPaymentsMixin, Templ
         ctx = super(PartnerPaymentsListView, self).get_context_data(**kwargs)
 
         ctx['currencies'] = Currency.objects.all()
-        ctx['managers'] = CustomUser.objects.filter(checks__isnull=False).distinct()
+        ctx['supervisors'] = CustomUser.objects.filter(checks__isnull=False).distinct()
+        ctx['managers'] = Partnership.objects.filter(level__lte=Partnership.MANAGER)
 
         return ctx
 

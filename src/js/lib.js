@@ -3469,8 +3469,8 @@ function makeChurchPastorReportsTable(data, config = {}) {
         if (e.target.className != 'url') return;
         let url = e.target.getAttribute('data-url'),
             type = e.target.getAttribute('data-type'),
-            nameId = e.target.getAttribute('data-id');
-        window.location = `${url}?type=${type}&nameId=${nameId}`;
+            id = e.target.getAttribute('data-id');
+        window.location = `${url}?type=${type}&pastor=${id}`;
     });
     $('.table__count').text(text);
     new OrderTable().sort(churchPastorReportsTable, ".table-wrap th");
