@@ -158,7 +158,6 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             self._get_managers_plan(queryset),
         )]
         managers = self._order_managers(managers)
-        print(managers)
         return Response({'results': managers, 'table_columns': partnership_summary_table(self.request.user)})
 
     @staticmethod

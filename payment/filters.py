@@ -161,3 +161,16 @@ class FilterByDealManagerFIO(BaseFilterBackend):
         deal_ids = deals.values_list('id', flat=True)
 
         return queryset.filter(content_type__model='deal', object_id__in=deal_ids)
+
+
+class FilterByDealManager(BaseFilterBackend):
+    @staticmethod
+    def get_deals(request):
+        responsible_id = request.query_params.get('responsible_id')
+        return Deal.objects.for_user(request.user).filter(responsible_id=responsible_id)
+
+    def filter_queryset(self, request, queryset, view):
+        deals = self.get_deals(request)
+        deal_ids = deals.values_list('id', flat=True)
+
+        return queryset.filter(content_type__model='deal', object_id__in=deal_ids)

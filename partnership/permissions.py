@@ -99,7 +99,7 @@ class CanCreatePartnerPayment(BasePermission):
 class CanUpdateManagersPlan(BasePermission):
     def has_permission(self, request, view):
         """
-        Checking that the ``request.user`` has the right to see partner's payments
+        Checking that the ``request.user`` has the right to update manager's plan
         """
         return can_set_managers_plan(request.user)
 
