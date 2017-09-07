@@ -1715,12 +1715,17 @@ function createPaymentsTable(config) {
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
     getPaymentsDeals(config).then(function (data) {
-        let count = data.count;
-        let page = config['page'] || 1;
-        let pages = Math.ceil(count / CONFIG.pagination_count);
-        let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
-        let id = "paymentsList";
-        let text = `Показано ${showCount} из ${count}`;
+        let count = data.count,
+            page = config['page'] || 1,
+            pages = Math.ceil(count / CONFIG.pagination_count),
+            showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
+            id = "paymentsList",
+            currency = data.summa,
+            uah = String(currency.uah).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 '),
+            usd = String(currency.usd).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 '),
+            eur = String(currency.eur).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 '),
+            rub = String(currency.rub).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 '),
+            text = `Показано ${showCount} из ${count} на сумму: ${uah} грн, ${usd} дол, ${eur} евро, ${rub} руб`;
         let paginationConfig = {
             container: ".payments__pagination",
             currentPage: page,
