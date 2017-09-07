@@ -269,6 +269,17 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         """
         return super().partial_update(request, *args, **kwargs)
 
+    @log_perform_update
+    def perform_update(self, serializer, **kwargs):
+        new_obj = kwargs.get('new_obj')
+        # self._update_divisions(new_obj)
+
+    @log_perform_create
+    def perform_create(self, serializer, **kwargs):
+        user = kwargs.get('new_obj')
+
+        return user
+
     def update(self, request, *args, **kwargs):
         """
         Update of the user
@@ -293,17 +304,6 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response(serializer.data)
 
-    @log_perform_update
-    def perform_update(self, serializer, **kwargs):
-        new_obj = kwargs.get('new_obj')
-        # self._update_divisions(new_obj)
-
-    @log_perform_create
-    def perform_create(self, serializer, **kwargs):
-        user = kwargs.get('new_obj')
-
-        return user
-
     def create(self, request, *args, **kwargs):
         """
         Create new user
@@ -320,11 +320,6 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         serializer = self.serializer_single_class(user)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-    def _update_divisions(self, user):
-        divisions = self.request.data.get('divisions', None)
-        if divisions is not None and isinstance(divisions, (list, tuple)):
-            user.divisions.set(divisions)
 
     @list_route(methods=['GET'], serializer_class=DashboardSerializer)
     def dashboard_counts(self, request):

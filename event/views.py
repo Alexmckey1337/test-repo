@@ -17,7 +17,7 @@ from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
 from .filters import (ChurchReportFilter, MeetingFilter, MeetingCustomFilter, MeetingFilterByMaster,
                       ChurchReportDepartmentFilter, ChurchReportFilterByMaster, EventSummaryFilter,
-                      EventSummaryMasterFilter, ChurchReportPaymentStatusFilter,)
+                      EventSummaryMasterFilter,ChurchReportPaymentStatusFilter,)
 from .models import Meeting, ChurchReport, MeetingAttend
 from .pagination import (MeetingPagination, MeetingVisitorsPagination, ChurchReportPagination,
                          MeetingSummaryPagination, ReportsSummaryPagination)
@@ -85,9 +85,10 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeMixin):
     def get_queryset(self):
         if self.action == 'list':
             subqs = Meeting.objects.filter(owner=OuterRef('owner'), status=Meeting.EXPIRED)
-            return self.queryset.prefetch_related('attends').annotate_owner_name().for_user(
-                self.request.user
-            ).annotate(
+            qs = self.queryset
+            if not self.request.user.is_staff:
+                qs = qs.for_user(self.request.user)
+            return qs.prefetch_related('attends').annotate_owner_name().annotate(
                 visitors_attended=Sum(Case(
                     When(attends__attended=True, then=1),
                     output_field=IntegerField(), default=0)),
@@ -107,6 +108,8 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeMixin):
             #             'Невозможно подать отчет. Данный лидер имеет просроченные отчеты.')),
             #         output_field=CharField(), default=V('')))
 
+        if self.request.user.is_staff:
+            return self.queryset
         return self.queryset.for_user(self.request.user)
 
     @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer)
@@ -295,7 +298,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeMixin):
             meetings_expired=Sum(Case(
                 When(home_group__meeting__status=3, then=1),
                 output_field=IntegerField(), default=0), distinct=True)).distinct()
-            )
+                                        )
 
         page = self.paginate_queryset(queryset)
         leaders = self.serializer_class(page, many=True)
@@ -343,7 +346,10 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin,
     }
 
     def get_queryset(self):
-        return self.queryset.for_user(self.request.user).annotate(
+        qs = self.queryset
+        if not self.request.user.is_staff:
+            qs = qs.for_user(self.request.user)
+        return qs.annotate(
             total_payments=Sum('payments__effective_sum')).annotate(
             payment_status=Case(
                 When(Q(total_payments__lt=F('value')) & Q(total_payments__gt=0), then=1),
@@ -465,7 +471,7 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin,
             reports_expired=Sum(Case(
                 When(church__churchreport__status=3, then=1),
                 output_field=IntegerField(), default=0), distinct=True)).distinct()
-            )
+                                        )
 
         page = self.paginate_queryset(queryset)
         pastors = self.serializer_class(page, many=True)

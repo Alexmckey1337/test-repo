@@ -67,12 +67,15 @@ class OrderTableByClient extends OrderTable {
                 revers = (revers == '+') ? '-' : '+';
                 sessionStorage.setItem('revers', revers);
                 sessionStorage.setItem('order', dataOrder);
+                let pureArr = _.slice(data.results, 0, data.results.length-1);
+                let summary = _.last(data.results);
                 if (type == 'letter') {
-                    newArr = _.sortBy(data.results, (e) => e[`${dataOrder}`]);
+                    newArr = _.sortBy(pureArr, (e) => e[`${dataOrder}`]);
                 } else {
-                    newArr = _.sortBy(data.results, (e) => parseFloat(e[`${dataOrder}`]));
+                    newArr = _.sortBy(pureArr, (e) => parseFloat(e[`${dataOrder}`]));
                 }
                 (revers == "+") && newArr.reverse();
+                newArr.push(summary);
                 $('.preloader').css('display', 'block');
                 let sortedData = {
                     table_columns: data.table_columns,
@@ -1655,6 +1658,22 @@ function getOverdueDeals(data) {
 function getPayment(id) {
     return new Promise(function (resolve, reject) {
         ajaxRequest(URLS.deal.payments(id), null, function (data) {
+            resolve(data);
+        }, 'GET', true, {
+            'Content-Type': 'application/json'
+        }, {
+            403: function (data) {
+                data = data.responseJSON;
+                reject();
+                showPopup(data.detail)
+            }
+        })
+    })
+}
+
+function getChurchPayment(id) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(URLS.event.church_report.payments(id), null, function (data) {
             resolve(data);
         }, 'GET', true, {
             'Content-Type': 'application/json'
@@ -3253,17 +3272,19 @@ function partnershipSummaryTable(config = {}) {
             elem.percent_of_plan = isFinite(percent) ? percent : 0;
             return elem;
         }),
+            allPlans = data.results.reduce((sum, current) => sum + current.plan, 0),
+            allPays = data.results.reduce((sum, current) => sum + current.sum_pay, 0),
             newRow = {
-                    manager: null,
-                    plan: data.results.reduce((sum,current) => sum + current.plan, 0),
-                    potential_sum: data.results.reduce((sum,current) => sum + current.potential_sum, 0),
-                    sum_deals: data.results.reduce((sum,current) => sum + current.sum_deals, 0),
-                    sum_pay: data.results.reduce((sum,current) => sum + current.sum_pay, 0),
-                    percent_of_plan: null,
-                    total_partners: data.results.reduce((sum,current) => sum + current.total_partners, 0),
-                    active_partners: data.results.reduce((sum,current) => sum + current.active_partners, 0),
-                    not_active_partners: data.results.reduce((sum,current) => sum + current.not_active_partners, 0),
-                };
+                manager: 'СУММАРНО:',
+                plan: allPlans,
+                potential_sum: data.results.reduce((sum, current) => sum + current.potential_sum, 0),
+                sum_deals: data.results.reduce((sum, current) => sum + current.sum_deals, 0),
+                sum_pay: allPays,
+                percent_of_plan: (100 / (allPlans / allPays)).toFixed(1),
+                total_partners: data.results.reduce((sum, current) => sum + current.total_partners, 0),
+                active_partners: data.results.reduce((sum, current) => sum + current.active_partners, 0),
+                not_active_partners: data.results.reduce((sum, current) => sum + current.not_active_partners, 0),
+            };
             results.push(newRow);
         let newData = {
             table_columns: data.table_columns,
@@ -3402,6 +3423,25 @@ function makeChurchReportsTable(data, config = {}) {
         let id = $(this).attr('data-id');
         completeChurchPayment(id);
     });
+    $('.show_payments').on('click', function () {
+        let id = $(this).data('id');
+        showChurchPayments(id);
+    });
+}
+
+function showChurchPayments(id) {
+    getChurchPayment(id).then(function (data) {
+        let payments_table = '';
+        let sum, date_time, manager;
+        data.forEach(function (payment) {
+            sum = payment.effective_sum_str.replace('.000', '');
+            date_time = payment.sent_date;
+            manager = `${payment.manager.last_name} ${payment.manager.first_name} ${payment.manager.middle_name}`;
+            payments_table += `<tr><td>${sum}</td><td>${date_time}</td><td>${manager}</td></tr>`
+        });
+        $('#popup-payments table').html(payments_table);
+        $('#popup-payments').css('display', 'block');
+    })
 }
 
 function makeChurchPastorReportsTable(data, config = {}) {
