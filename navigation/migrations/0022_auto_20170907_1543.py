@@ -10,11 +10,11 @@ def update_payment_columns_ordering_title(apps, schema_editor):
 
     payment_columns = Payment_columns.objects.filter(category__title='payment').filter(
         title='purpose_manager_fio')
-    payment_columns.update(verbose_title='Супервайзер')
+    payment_columns.update(verbose_title='Менеджер')
 
     payment_columns = Payment_columns.objects.filter(category__title='payment').filter(
         title='manager')
-    payment_columns.update(verbose_title='Менеджер')
+    payment_columns.update(verbose_title='Супервайзер')
 
 
 class Migration(migrations.Migration):
@@ -26,4 +26,3 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(update_payment_columns_ordering_title)
     ]
-   

@@ -28,6 +28,20 @@ class MeetingPagination(PageNumberPagination):
 class ChurchReportPagination(MeetingPagination):
     category = 'church_report'
 
+    def get_paginated_response(self, data):
+
+        return Response({
+            'links': {
+                'next': self.get_next_link(),
+                'previous': self.get_previous_link()
+            },
+            'check_payment_permissions': self.request.user.can_create_partner_payments(),
+            'can_close_deal': self.request.user.can_close_partner_deals(),
+            'count': self.page.paginator.count,
+            'table_columns': self.get_columns(),
+            'results': data,
+        })
+
 
 class MeetingVisitorsPagination(MeetingPagination):
     category = 'attends'
