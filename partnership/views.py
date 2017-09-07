@@ -158,7 +158,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             self._get_managers_plan(queryset),
         )]
         managers = self._order_managers(managers)
-
+        print(managers)
         return Response({'results': managers, 'table_columns': partnership_summary_table(self.request.user)})
 
     @staticmethod
@@ -208,7 +208,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
           pay.object_id in (select d.id from partnership_deal d where d.responsible_id = p.id and
           (d.date_created BETWEEN '{0}-01-01' and '{0}-12-31') and
           extract('month' from d.date_created) = {1} )) sum
-          from partnership_partnership p WHERE p.is_active=TRUE AND p.level <= {2} ORDER BY p.id;
+          from partnership_partnership p WHERE p.level <= {2} ORDER BY p.id;
           """.format(year, month, Partnership.MANAGER)
 
         return [p.sum for p in queryset.raw(raw)]
@@ -226,7 +226,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         return queryset.values_list('id', flat=True).order_by('id')
 
     def _order_managers(self, managers):
-        ordering = self.request.query_params.get('ordering', '-sum_pay')
+        ordering = self.request.query_params.get('ordering', 'manager')
         ordering_fields = ['managers', 'sum_deals', 'total_partners', 'active_partners', 'potential_sum', 'sum_pay',
                            'manager_plan']
 
@@ -243,7 +243,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         try:
             plan_sum = Decimal(plan_sum)
         except Exception:
-            raise exceptions.ValidationError({'message': _('Parameter {plan_sum} must be integer')})
+            raise exceptions.ValidationError({'message': _('Parameter {plan_sum} must be Integer')})
 
         manager.plan = plan_sum
         manager.save()
