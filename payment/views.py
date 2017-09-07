@@ -10,8 +10,8 @@ from analytics.decorators import log_perform_update, log_perform_destroy
 from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
 from common.test_helpers.utils import get_real_user
-from payment.filters import PaymentFilterByPurpose, PaymentFilter, FilterByDealFIO, FilterByDealDate, \
-    FilterByDealManagerFIO
+from payment.filters import (PaymentFilterByPurpose, PaymentFilter, FilterByDealFIO, FilterByDealDate,
+                             FilterByDealManagerFIO, FilterByDealManager)
 from payment.serializers import PaymentUpdateSerializer, PaymentShowSerializer, PaymentDealShowSerializer
 from .models import Payment
 from .permissions import PaymentManagerOrSupervisor
