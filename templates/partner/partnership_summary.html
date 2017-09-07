@@ -115,7 +115,7 @@
                 <td class="edit">
                     {% if user.is_partner_director %}
                         <% if (results[index].manager == 'СУММАРНО:') { %>
-                        <%= results[index][key] %>
+                        <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
                         <% } else { %>
                         <input class="edit_plan" type="text" data-id="<%=results[index].partner_id %>"
                                value="<%= results[index][key] %>" readonly disabled>

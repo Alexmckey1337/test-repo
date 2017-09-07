@@ -3256,17 +3256,19 @@ function partnershipSummaryTable(config = {}) {
             elem.percent_of_plan = isFinite(percent) ? percent : 0;
             return elem;
         }),
+            allPlans = data.results.reduce((sum, current) => sum + current.plan, 0),
+            allPays = data.results.reduce((sum, current) => sum + current.sum_pay, 0),
             newRow = {
-                    manager: 'СУММАРНО:',
-                    plan: data.results.reduce((sum,current) => sum + current.plan, 0),
-                    potential_sum: data.results.reduce((sum,current) => sum + current.potential_sum, 0),
-                    sum_deals: data.results.reduce((sum,current) => sum + current.sum_deals, 0),
-                    sum_pay: data.results.reduce((sum,current) => sum + current.sum_pay, 0),
-                    percent_of_plan: null,
-                    total_partners: data.results.reduce((sum,current) => sum + current.total_partners, 0),
-                    active_partners: data.results.reduce((sum,current) => sum + current.active_partners, 0),
-                    not_active_partners: data.results.reduce((sum,current) => sum + current.not_active_partners, 0),
-                };
+                manager: 'СУММАРНО:',
+                plan: allPlans,
+                potential_sum: data.results.reduce((sum, current) => sum + current.potential_sum, 0),
+                sum_deals: data.results.reduce((sum, current) => sum + current.sum_deals, 0),
+                sum_pay: allPays,
+                percent_of_plan: (100 / (allPlans / allPays)).toFixed(1),
+                total_partners: data.results.reduce((sum, current) => sum + current.total_partners, 0),
+                active_partners: data.results.reduce((sum, current) => sum + current.active_partners, 0),
+                not_active_partners: data.results.reduce((sum, current) => sum + current.not_active_partners, 0),
+            };
             results.push(newRow);
         let newData = {
             table_columns: data.table_columns,
