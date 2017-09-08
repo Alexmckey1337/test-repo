@@ -1721,10 +1721,10 @@ function createPaymentsTable(config) {
             showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
             id = "paymentsList",
             currency = data.payments_sum,
-            uah = beautifyNumber(currency.uah.sum),
-            usd = beautifyNumber(currency.usd.sum),
-            eur = beautifyNumber(currency.eur.sum),
-            rub = beautifyNumber(currency.rur.sum),
+            uah = (currency.uah.sum != null) ? beautifyNumber(currency.uah.sum) : 0,
+            usd = (currency.usd.sum != null) ? beautifyNumber(currency.usd.sum) : 0,
+            eur = (currency.eur.sum != null) ? beautifyNumber(currency.eur.sum) : 0,
+            rub = (currency.rur.sum != null) ? beautifyNumber(currency.rur.sum) : 0,
             text = `Показано ${showCount} из ${count} на сумму: ${uah} грн, ${usd} дол, ${eur} евро, ${rub} руб`;
         let paginationConfig = {
             container: ".payments__pagination",
