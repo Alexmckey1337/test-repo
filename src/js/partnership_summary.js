@@ -78,7 +78,7 @@
 
     // $('input[name="fullsearch"]').on('keyup', _.debounce(function (e) {
     //     $('.preloader').css('display', 'block');
-    //     homeReportsTable();
+    //     partnershipSummaryTable();
     // }, 500));
 
      $(window).on('resize', function() {

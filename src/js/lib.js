@@ -52,8 +52,12 @@ class OrderTableByClient extends OrderTable {
     constructor() {
         super();
     }
-        get sortByClient() {
+    get sortByClient() {
         return this._addListenerByClient;
+    }
+
+    get searchByClient() {
+        return this._addSearchListenerByClient;
     }
 
     _addListenerByClient(callback, selector, data) {
@@ -84,6 +88,48 @@ class OrderTableByClient extends OrderTable {
                 callback(sortedData);
             }
         });
+    }
+
+    _addSearchListenerByClient(callback, data, oldData) {
+        $('input[name="fullsearch"]').unbind('keyup');
+        let actualData;
+        if ($.isEmptyObject(oldData)) {
+            actualData = data;
+        } else {
+            actualData = oldData;
+        }
+        $('input[name="fullsearch"]').on('keyup', _.debounce(function (e) {
+            $('.preloader').css('display', 'block');
+            let search = $(this).val();
+            if (search !== '') {
+                let pureArr = _.slice(actualData.results, 0, actualData.results.length - 1),
+                    newArr = _.filter(pureArr, (e) => {
+                        return e.manager.toUpperCase().indexOf(search.toUpperCase()) !== -1;
+                    });
+                let allPlans = newArr.reduce((sum, current) => sum + current.plan, 0),
+                    allPays = newArr.reduce((sum, current) => sum + current.sum_pay, 0),
+                    newRow = {
+                        manager: 'СУММАРНО:',
+                        plan: allPlans,
+                        potential_sum: newArr.reduce((sum, current) => sum + current.potential_sum, 0),
+                        sum_deals: newArr.reduce((sum, current) => sum + current.sum_deals, 0),
+                        sum_pay: allPays,
+                        percent_of_plan: (100 / (allPlans / allPays)).toFixed(1),
+                        total_partners: newArr.reduce((sum, current) => sum + current.total_partners, 0),
+                        active_partners: newArr.reduce((sum, current) => sum + current.active_partners, 0),
+                        not_active_partners: newArr.reduce((sum, current) => sum + current.not_active_partners, 0),
+                    };
+
+                newArr.push(newRow);
+                let sortedData = {
+                    table_columns: actualData.table_columns,
+                    results: newArr,
+                };
+                callback(sortedData, actualData);
+            } else {
+                callback(actualData, actualData);
+            }
+        }, 500));
     }
 }
 
@@ -3268,8 +3314,6 @@ function partnershipSummaryTable(config = {}) {
         year = $('#date_field_stats').val().split('/')[1];
     config.year = year;
     config.month = month;
-    // Object.assign(config, getSearch('search_title'));
-    // Object.assign(config, getFilterParam());
     getPartnershipSummary(config).then(data => {
         let results = data.results.map(elem => {
             elem.not_active_partners = elem.total_partners - elem.active_partners;
@@ -3330,7 +3374,7 @@ function makeHomeReportsTable(data, config = {}) {
     $('.preloader').hide();
 }
 
-function makePartnershipSummaryTable(data, config = {}) {
+function makePartnershipSummaryTable(data, oldData = {}) {
     let tmpl = $('#databasePartnershipSummary').html();
     let rendered = _.template(tmpl)(data);
     $('#managersPlan').html(rendered);
@@ -3371,6 +3415,7 @@ function makePartnershipSummaryTable(data, config = {}) {
     // $('.table__count').text(text);
     // new OrderTableByClient().sort(partnershipSummaryTable, ".table-wrap th");
     new OrderTableByClient().sortByClient(makePartnershipSummaryTable, ".table-wrap th", data);
+    new OrderTableByClient().searchByClient(makePartnershipSummaryTable, data, oldData);
     $('.preloader').hide();
 }
 
@@ -4438,3 +4483,4 @@ function fixedTableHead() {
         }
     });
 }
+
