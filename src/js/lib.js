@@ -3367,6 +3367,7 @@ function makePartnershipSummaryTable(data, config = {}) {
         }
     });
     fixedTableHead();
+    // getPositionScroll();
     // $('.table__count').text(text);
     // new OrderTableByClient().sort(partnershipSummaryTable, ".table-wrap th");
     new OrderTableByClient().sortByClient(makePartnershipSummaryTable, ".table-wrap th", data);
@@ -4422,9 +4423,11 @@ function fixedTableHead() {
         })
     });
 
-    // $('#container').bind("resize", function () {
-    //     $fixedHeader.width($("table").width());
-    // });
+    $("#managersPlan").scroll(function(){
+         let offset = $(this).scrollLeft(),
+             sidebar = $('#sidebar').outerWidth();
+         $('#header-fixed').css('left', (sidebar-offset));
+    });
 
     $('#container').bind("scroll", function () {
         let offset = $(this).scrollTop();
