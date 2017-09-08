@@ -1720,11 +1720,11 @@ function createPaymentsTable(config) {
             pages = Math.ceil(count / CONFIG.pagination_count),
             showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
             id = "paymentsList",
-            currency = data.summa,
-            uah = beautifyNumber(currency.uah),
-            usd = beautifyNumber(currency.usd),
-            eur = beautifyNumber(currency.eur),
-            rub = beautifyNumber(currency.rub),
+            currency = data.payments_sum,
+            uah = beautifyNumber(currency.uah.sum),
+            usd = beautifyNumber(currency.usd.sum),
+            eur = beautifyNumber(currency.eur.sum),
+            rub = beautifyNumber(currency.rur.sum),
             text = `Показано ${showCount} из ${count} на сумму: ${uah} грн, ${usd} дол, ${eur} евро, ${rub} руб`;
         let paginationConfig = {
             container: ".payments__pagination",
