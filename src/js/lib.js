@@ -3366,7 +3366,7 @@ function makePartnershipSummaryTable(data, config = {}) {
             $(this).val(value).prop('disabled', true).prop('readonly', true);
         }
     });
-    fixedTableHead();
+    // fixedTableHead();
     // $('.table__count').text(text);
     // new OrderTableByClient().sort(partnershipSummaryTable, ".table-wrap th");
     new OrderTableByClient().sortByClient(makePartnershipSummaryTable, ".table-wrap th", data);
@@ -4407,23 +4407,30 @@ function fixedTableHead() {
         $header = $("#table-1 > thead").clone(),
         $fixedHeader = $("#header-fixed").append($header),
         arrCellWidth = [];
+        if ($tableOffset > 0) {
+            $('#managersPlan').attr('data-offset', $tableOffset);
+        } else {
+            $tableOffset = $('#managersPlan').attr('data-offset');
+        }
     $('#table-1 > thead').find('th').each(function () {
         let width = $(this).outerWidth();
         arrCellWidth.push(width);
     });
-    console.log(arrCellWidth);
     $('#header-fixed > thead').find('th').each(function (index) {
         $(this).css({
             'width': arrCellWidth[index],
         })
     });
 
+    // $('#container').bind("resize", function () {
+    //     $fixedHeader.width($("table").width());
+    // });
+
     $('#container').bind("scroll", function () {
         let offset = $(this).scrollTop();
         if (offset >= $tableOffset && $fixedHeader.is(":hidden")) {
             $fixedHeader.show();
-        }
-        else if (offset < $tableOffset) {
+        } else if (offset < $tableOffset) {
             $fixedHeader.hide();
         }
     });
