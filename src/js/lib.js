@@ -4116,13 +4116,13 @@ function createDealsPayment(id, sum, description) {
             "sum": sum,
             "description": description,
             "rate": $('#new_payment_rate').val(),
-            "currency": $('#new_payment_currency').val(),
+            // "currency": $('#new_payment_currency').val(),
             "sent_date": $('#sent_date').val(),
             "operation": $('#operation').val()
         };
         let json = JSON.stringify(config);
         let data = {
-            url: URLS.deal.create_payment(id),
+            url: URLS.deal.create_uah_payment(id),
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -4154,7 +4154,7 @@ function createChurchPayment(id, sum, description) {
             "sum": sum,
             "description": description,
             "rate": $('#new_payment_rate').val(),
-            "currency": $('#new_payment_currency').val(),
+            // "currency": $('#new_payment_currency').val(),
             "sent_date": $('#sent_date').val(),
             "operation": $('#operation').val()
         };
