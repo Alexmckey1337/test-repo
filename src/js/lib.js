@@ -4079,7 +4079,7 @@ let sumChangeListener = (function () {
     //     sumCurrency(new_payment_sum, operation, new_payment_rate, $inUserCurrencyEl, currencyName);
     // });
     return function (currency_name, currency_id) {
-        $('#new_payment_rate').prop('readonly', true);
+        // $('#new_payment_rate').prop('readonly', true);
         currencyID = currency_id;
         currencyName = currency_name;
         $newPaymentRateEl.val('1.000');
@@ -4088,12 +4088,12 @@ let sumChangeListener = (function () {
         $operation.val('*');
         operation = '*';
 
-        $currencyOptions.each(function () {
-            $(this).prop('selected', false);
-            if ($(this).val() == currencyID) {
-                $(this).prop('selected', true);
-            }
-        });
+        // $currencyOptions.each(function () {
+        //     $(this).prop('selected', false);
+        //     if ($(this).val() == currencyID) {
+        //         $(this).prop('selected', true);
+        //     }
+        // });
 
         sumCurrency(new_payment_sum, operation, new_payment_rate, $inUserCurrencyEl, currencyName);
     }
