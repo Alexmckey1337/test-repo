@@ -163,7 +163,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             self._get_managers_plan(queryset),
         )]
         managers = self._order_managers(managers)
-        res = [manager for manager in managers if manager['potential_sum'] != 0 and manager['sum_pay'] != 0]
+        res = [manager for manager in managers if manager['potential_sum'] != 0 or manager['sum_pay'] != 0]
 
         return Response({'results': res, 'table_columns': partnership_summary_table(self.request.user)})
 
