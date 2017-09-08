@@ -279,9 +279,16 @@ table .url {
   background-color: rgba(254, 95, 83, 0.58);
 }
 
-#header-fixed{
-    position: fixed;
-    top: 0;
-    display:none;
-
+#header-fixed {
+  position: fixed;
+  top: 0;
+  display: none;
+  thead tr {
+    display: flex;
+    justify-content: flex-start;
+    th {
+      display: flex;
+      align-items: center;
+    }
+  }
 }

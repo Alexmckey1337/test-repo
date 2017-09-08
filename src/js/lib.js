@@ -4411,6 +4411,7 @@ function fixedTableHead() {
         let width = $(this).outerWidth();
         arrCellWidth.push(width);
     });
+    console.log(arrCellWidth);
     $('#header-fixed > thead').find('th').each(function (index) {
         $(this).css({
             'width': arrCellWidth[index],
