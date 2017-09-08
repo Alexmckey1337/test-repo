@@ -302,20 +302,20 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
         result = self.serializer_class(result)
         return Response(result.data)
 
-    @detail_route(methods=['POST'])
-    def change_report_currency(self, request, pk):
-        church = get_object_or_404(Church, pk=pk)
-        valid_currency = [currency.id for currency in Currency.objects.all()]
-        currency_id = int(request.data.get('currency_id'))
-
-        if currency_id not in valid_currency:
-            raise exceptions.ValidationError(
-                {'message': _('Currency with {id=%s} does not exists' % currency_id)})
-
-        church.report_currency = request.data.get('currency_id', 2)
-        church.save()
-
-        return Response({'message': 'Валюта Церкви успешно установленно в %s' % church.report_currency})
+    # @detail_route(methods=['POST'])
+    # def change_report_currency(self, request, pk):
+    #     church = get_object_or_404(Church, pk=pk)
+    #     valid_currency = [currency.id for currency in Currency.objects.all()]
+    #     currency_id = int(request.data.get('currency_id'))
+    #
+    #     if currency_id not in valid_currency:
+    #         raise exceptions.ValidationError(
+    #             {'message': _('Currency with {id=%s} does not exists' % currency_id)})
+    #
+    #     church.report_currency = request.data.get('currency_id', 2)
+    #     church.save()
+    #
+    #     return Response({'message': 'Валюта Церкви успешно установленно в %s' % church.report_currency})
 
 
 class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportViewSetMixin):

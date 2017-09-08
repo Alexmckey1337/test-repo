@@ -199,45 +199,15 @@
                             <option value="">ВСЕ</option>
                         </select>
                     </label>
-{#                    <div class="col-6">#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Отдел</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Ветка</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Пастор</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Церковь</span>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                    <div class="col-6">#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="department" id="departments_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                                {% for department in departments %}#}
-{#                                    <option value="{{ department.id }}">{{ department.title }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="master_tree" id="tree_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="pastor" id="pastor_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="church" id="church_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                            </select>#}
-{#                        </p>#}
-{#                    </div>#}
+                    <label>
+                        <span class="label_block">Статус сделки</span>
+                        <select id="﻿payment_status" class="selectdb" data-filter="payment_status">
+                            <option value="">ВСЕ</option>
+                            <option value="0">﻿Hе оплачена</option>
+                            <option value="1">Оплачена частично</option>
+                            <option value="2">﻿Оплачена полностью</option>
+                        </select>
+                    </label>
                 </div>
             </div>
             <div class="container">
@@ -289,9 +259,13 @@
                 <% } else if(key == 'value') { %>
                 <% if (results[index].total_sum != null || results[index].value != null) { %>
                 <td>
+                    <% if (results[index].status == '2') { %>
                     <button class="show_payments inline__button" data-id="<%=results[index].id%>">
                         <span><%= results[index].total_sum %> / <%= results[index].value %> <%= results[index].currency.short_name %></span>
                     </button>
+                    <% } else { %>
+                    <%= results[index].total_sum %> / <%= results[index].value %> <%= results[index].currency.short_name %>
+                    <% } %>
                 </td>
                 <% } else { %>
                 <td></td>
@@ -299,7 +273,7 @@
                 <% } else if (key == 'action' ) { %>
                 <td>
                     <% if (results.length) { %>
-                    <% if (!results[index].done && (results[index].status == 2) && ((parseInt(results[index].total_sum.match(/\d+/))-parseInt(results[index].value.match(/\d+/)))>=0) ) { %>
+                    <% if (!results[index].done && check_report_permissions && (results[index].status == 2) && ((parseInt(results[index].total_sum.match(/\d+/))-parseInt(results[index].value.match(/\d+/)))>=0) ) { %>
                     <button class="complete inline__button"
                             data-id="<%= results[index].id%>"
                             data-name="<%=results[index].church.title%>"
@@ -311,7 +285,7 @@
                             data-currency-id="<%=results[index].currency.id %>"
                     >Закрыть отчет
                     </button>
-                    <% } else if (!results[index].done && (results[index].status == 2) && ((parseInt(results[index].total_sum.match(/\d+/))-parseInt(results[index].value.match(/\d+/)))<0) ) { %>
+                    <% } else if (!results[index].done && check_report_permissions && (results[index].status == 2) && ((parseInt(results[index].total_sum.match(/\d+/))-parseInt(results[index].value.match(/\d+/)))<0) ) { %>
                     <button class="pay inline__button"
                             data-id="<%= results[index].id%>"
                             data-name="<%=results[index].church.title%>"

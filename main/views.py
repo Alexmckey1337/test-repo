@@ -1,10 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from datetime import datetime
-
 import redis
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -26,7 +23,6 @@ from partnership.models import Partnership, Deal
 from payment.models import Currency
 from status.models import Division
 from summit.models import SummitType, SummitTicket, SummitAnket, Summit
-from summit.utils import get_report_by_bishop_or_high
 
 
 def entry(request):
@@ -149,7 +145,7 @@ def church_statistics(request):
 
 @login_required(login_url='entry')
 def reports_summary(request):
-    if not request.user.hierarchy or request.user.hierarchy.level < 2:
+    if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 2):
         return redirect('/')
     ctx = {
         'departments': Department.objects.all()
@@ -253,7 +249,8 @@ class PartnerPaymentsListView(LoginRequiredMixin, CanSeeDealPaymentsMixin, Templ
         ctx = super(PartnerPaymentsListView, self).get_context_data(**kwargs)
 
         ctx['currencies'] = Currency.objects.all()
-        ctx['managers'] = CustomUser.objects.filter(checks__isnull=False).distinct()
+        ctx['supervisors'] = CustomUser.objects.filter(checks__isnull=False).distinct()
+        ctx['managers'] = Partnership.objects.filter(level__lte=Partnership.MANAGER)
 
         return ctx
 

@@ -85,3 +85,12 @@ class EventSummaryFilter(filters.BaseFilterBackend):
             queryset = queryset.filter(Q(cchurch__id=church_id) | Q(hhome_group__church__id=church_id))
 
         return queryset
+
+
+class ChurchReportPaymentStatusFilter(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        payment_status = request.query_params.get('payment_status')
+        if payment_status:
+            return queryset.filter(payment_status=payment_status)
+
+        return queryset

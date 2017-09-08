@@ -114,18 +114,24 @@
                         </p>
                     </label>
                     <label>
-                        <span class="label_block">Поиск по менеджеру</span>
+                        <span class="label_block">Поиск по супервайзеру</span>
                         <select class="custom_select" data-filter="manager" id="manager">
+                            <option value="">ВСЕ</option>
+                            {% for supervisor in supervisors %}
+                                <option value="{{ supervisor.id }}">{{ supervisor.fullname }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Поиск по менеджеру</span>
+                        <select class="custom_select" data-filter="responsible_id" id="search_purpose_manager_fio">
                             <option value="">ВСЕ</option>
                             {% for manager in managers %}
                                 <option value="{{ manager.id }}">{{ manager.fullname }}</option>
                             {% endfor %}
                         </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Поиск по ответственному</span>
-                        <input type="text" data-filter="search_purpose_manager_fio" placeholder="Ответсвенный"
-                                   id="search_purpose_manager_fio">
+{#                        <input type="text" data-filter="search_purpose_manager_fio" placeholder="Ответсвенный"#}
+{#                                   id="search_purpose_manager_fio">#}
                     </label>
                     <label>
                         <span class="label_block">Поиск по описанию</span>

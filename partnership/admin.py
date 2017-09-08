@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
+from partnership.admin_filters import PaidStatusFilter
 from .models import Partnership, Deal
 
 
@@ -20,11 +21,11 @@ admin.site.register(Partnership, PartnershipAdmin)
 
 
 class DealAdmin(admin.ModelAdmin):
-    list_display = ('partnership', 'date_created', 'date', 'value', 'done',)
+    list_display = ('id', 'partnership', 'date_created', 'date', 'value', 'done',)
     search_fields = ('partnership__user__first_name', 'partnership__user__last_name', 'partnership__user__middle_name')
     readonly_fields = ('date_created', 'partnership')
     list_editable = ('done', 'value')
-    list_filter = ('done', 'expired', 'date_created', 'partnership__responsible')
+    list_filter = ('done', 'expired', 'date_created', 'partnership__responsible', PaidStatusFilter)
 
     class Meta:
         model = Deal

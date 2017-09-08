@@ -1671,6 +1671,22 @@ function getPayment(id) {
     })
 }
 
+function getChurchPayment(id) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(URLS.event.church_report.payments(id), null, function (data) {
+            resolve(data);
+        }, 'GET', true, {
+            'Content-Type': 'application/json'
+        }, {
+            403: function (data) {
+                data = data.responseJSON;
+                reject();
+                showPopup(data.detail)
+            }
+        })
+    })
+}
+
 function getPaymentsDeals(config) {
     return new Promise(function (resolve, reject) {
         let data = {
@@ -1699,12 +1715,17 @@ function createPaymentsTable(config) {
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
     getPaymentsDeals(config).then(function (data) {
-        let count = data.count;
-        let page = config['page'] || 1;
-        let pages = Math.ceil(count / CONFIG.pagination_count);
-        let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
-        let id = "paymentsList";
-        let text = `Показано ${showCount} из ${count}`;
+        let count = data.count,
+            page = config['page'] || 1,
+            pages = Math.ceil(count / CONFIG.pagination_count),
+            showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
+            id = "paymentsList",
+            currency = data.summa,
+            uah = beautifyNumber(currency.uah),
+            usd = beautifyNumber(currency.usd),
+            eur = beautifyNumber(currency.eur),
+            rub = beautifyNumber(currency.rub),
+            text = `Показано ${showCount} из ${count} на сумму: ${uah} грн, ${usd} дол, ${eur} евро, ${rub} руб`;
         let paginationConfig = {
             container: ".payments__pagination",
             currentPage: page,
@@ -3256,17 +3277,19 @@ function partnershipSummaryTable(config = {}) {
             elem.percent_of_plan = isFinite(percent) ? percent : 0;
             return elem;
         }),
+            allPlans = data.results.reduce((sum, current) => sum + current.plan, 0),
+            allPays = data.results.reduce((sum, current) => sum + current.sum_pay, 0),
             newRow = {
-                    manager: 'СУММАРНО:',
-                    plan: data.results.reduce((sum,current) => sum + current.plan, 0),
-                    potential_sum: data.results.reduce((sum,current) => sum + current.potential_sum, 0),
-                    sum_deals: data.results.reduce((sum,current) => sum + current.sum_deals, 0),
-                    sum_pay: data.results.reduce((sum,current) => sum + current.sum_pay, 0),
-                    percent_of_plan: null,
-                    total_partners: data.results.reduce((sum,current) => sum + current.total_partners, 0),
-                    active_partners: data.results.reduce((sum,current) => sum + current.active_partners, 0),
-                    not_active_partners: data.results.reduce((sum,current) => sum + current.not_active_partners, 0),
-                };
+                manager: 'СУММАРНО:',
+                plan: allPlans,
+                potential_sum: data.results.reduce((sum, current) => sum + current.potential_sum, 0),
+                sum_deals: data.results.reduce((sum, current) => sum + current.sum_deals, 0),
+                sum_pay: allPays,
+                percent_of_plan: (100 / (allPlans / allPays)).toFixed(1),
+                total_partners: data.results.reduce((sum, current) => sum + current.total_partners, 0),
+                active_partners: data.results.reduce((sum, current) => sum + current.active_partners, 0),
+                not_active_partners: data.results.reduce((sum, current) => sum + current.not_active_partners, 0),
+            };
             results.push(newRow);
         let newData = {
             table_columns: data.table_columns,
@@ -3326,6 +3349,8 @@ function makePartnershipSummaryTable(data, config = {}) {
     // makePagination(paginationConfig);
     makeSortForm(data.table_columns);
     $('#managersPlan').find('table').on('dblclick', '.edit_plan', function (e) {
+        let actualVal = $(this).val();
+        $(this).attr('data-value', actualVal);
         $(this).prop('disabled', false).prop('readonly', false).focus();
     });
     $('#managersPlan').find('table .edit_plan').keyup(function (e) {
@@ -3334,15 +3359,14 @@ function makePartnershipSummaryTable(data, config = {}) {
             data.plan_sum = e.target.value;
             updateManagersPlan(id, data).then(() => {
                 showPopup('План успешно изменен');
-                partnershipSummaryTable();
-                // $(this).prop('disabled', true).prop('readonly', true);
+                $(this).prop('disabled', true).prop('readonly', true);
             });
         } else if (e.keyCode == 27) {
-            // $(this).prop('disabled', true).prop('readonly', true);
-            partnershipSummaryTable();
+            let value = $(this).attr('data-value');
+            $(this).val(value).prop('disabled', true).prop('readonly', true);
         }
     });
-
+    fixedTableHead();
     // $('.table__count').text(text);
     // new OrderTableByClient().sort(partnershipSummaryTable, ".table-wrap th");
     new OrderTableByClient().sortByClient(makePartnershipSummaryTable, ".table-wrap th", data);
@@ -3405,6 +3429,25 @@ function makeChurchReportsTable(data, config = {}) {
         let id = $(this).attr('data-id');
         completeChurchPayment(id);
     });
+    $('.show_payments').on('click', function () {
+        let id = $(this).data('id');
+        showChurchPayments(id);
+    });
+}
+
+function showChurchPayments(id) {
+    getChurchPayment(id).then(function (data) {
+        let payments_table = '';
+        let sum, date_time, manager;
+        data.forEach(function (payment) {
+            sum = payment.effective_sum_str.replace('.000', '');
+            date_time = payment.sent_date;
+            manager = `${payment.manager.last_name} ${payment.manager.first_name} ${payment.manager.middle_name}`;
+            payments_table += `<tr><td>${sum}</td><td>${date_time}</td><td>${manager}</td></tr>`
+        });
+        $('#popup-payments table').html(payments_table);
+        $('#popup-payments').css('display', 'block');
+    })
 }
 
 function makeChurchPastorReportsTable(data, config = {}) {
@@ -3429,8 +3472,8 @@ function makeChurchPastorReportsTable(data, config = {}) {
         if (e.target.className != 'url') return;
         let url = e.target.getAttribute('data-url'),
             type = e.target.getAttribute('data-type'),
-            nameId = e.target.getAttribute('data-id');
-        window.location = `${url}?type=${type}&nameId=${nameId}`;
+            id = e.target.getAttribute('data-id');
+        window.location = `${url}?type=${type}&pastor=${id}`;
     });
     $('.table__count').text(text);
     new OrderTable().sort(churchPastorReportsTable, ".table-wrap th");
@@ -4353,4 +4396,34 @@ function updateManagersPlan(id, data) {
     };
 
     return fetch(url, config).then(data => data.json()).catch(err => err);
+}
+
+function beautifyNumber(number) {
+    return String(number).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ')
+}
+
+function fixedTableHead() {
+    let $tableOffset = $("#table-1").offset().top,
+        $header = $("#table-1 > thead").clone(),
+        $fixedHeader = $("#header-fixed").append($header),
+        arrCellWidth = [];
+    $('#table-1 > thead').find('th').each(function () {
+        let width = $(this).outerWidth();
+        arrCellWidth.push(width);
+    });
+    $('#header-fixed > thead').find('th').each(function (index) {
+        $(this).css({
+            'width': arrCellWidth[index],
+        })
+    });
+
+    $('#container').bind("scroll", function () {
+        let offset = $(this).scrollTop();
+        if (offset >= $tableOffset && $fixedHeader.is(":hidden")) {
+            $fixedHeader.show();
+        }
+        else if (offset < $tableOffset) {
+            $fixedHeader.hide();
+        }
+    });
 }
