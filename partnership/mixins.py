@@ -31,9 +31,7 @@ class PartnerStatMixin:
         # deals = Deal.objects.all()  # for test, del this
         stats = dict()
 
-        deals_with_sum = deals.annotate_total_sum()
-
-        partner_id = request.query_params.get('partner_id')
+        deals_with_sum = deals.annotate(total_sum=Coalesce(Sum('payments__sum'), Value(0)))
 
         stats['deals'] = self.stats_by_deals(deals, deals_with_sum)
         stats['partners'] = self.stats_by_partners(deals, deals_with_sum)
