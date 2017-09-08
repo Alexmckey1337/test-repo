@@ -134,7 +134,9 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         year = int(request.query_params.get('year', datetime.now().year))
         month = int(request.query_params.get('month', datetime.now().month))
 
-        queryset = self.queryset.filter(level__lte=Partnership.MANAGER).prefetch_related('deals')
+        partner_ids = self.queryset.filter(Q(
+            level__lte=Partnership.MANAGER) | Q(
+            disciples_deals__isnull=False)).distinct().prefetch_related('deals').values_list('id', flat=True)
 
         managers = [{
             'user_id': x[0],
@@ -146,16 +148,17 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             'potential_sum': x[6] or 0,
             'sum_pay': x[7] or 0,
             'plan': x[8] or 0,
+
         } for x in zip(
-            self._get_users_ids(queryset),
-            self._get_partnerships_ids(queryset),
-            self._get_partners(queryset),
-            self._get_sum_deals(queryset, year, month),
-            self._get_total_partners(queryset),
-            self._get_active_partners(queryset),
-            self._get_potential_sum(queryset),
-            self._get_sum_pay(queryset, year, month),
-            self._get_managers_plan(queryset),
+            self._get_users_ids(partner_ids),
+            self._get_partnerships_ids(partner_ids),
+            self._get_partners(partner_ids),
+            self._get_sum_deals(partner_ids, year, month),
+            self._get_total_partners(partner_ids),
+            self._get_active_partners(partner_ids),
+            self._get_potential_sum(partner_ids),
+            self._get_sum_pay(partner_ids, year, month),
+            self._get_managers_plan(partner_ids),
         )]
         managers = self._order_managers(managers)
         return Response({'results': managers, 'table_columns': partnership_summary_table(self.request.user)})
@@ -171,7 +174,8 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         subqs_deals = Deal.objects.filter(date_created__year=year, date_created__month=month, responsible=OuterRef(
             'pk')).order_by().values('responsible').annotate(deals_sum=Sum('value')).values('deals_sum')
 
-        return queryset.annotate(sum_deals=Subquery(subqs_deals, output_field=DecimalField())).values_list(
+        return Partnership.objects.filter(id__in=queryset).annotate(
+            sum_deals=Subquery(subqs_deals, output_field=DecimalField())).values_list(
             'sum_deals', flat=True).order_by('id')
 
     @staticmethod
@@ -179,7 +183,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         subqs_partners = Partnership.objects.filter(responsible=OuterRef('pk')).order_by().values(
             'responsible').annotate(count=Count('id')).values('count')
 
-        return queryset.annotate(total_partners=Subquery(subqs_partners)).values_list(
+        return Partnership.objects.filter(id__in=queryset).annotate(total_partners=Subquery(subqs_partners)).values_list(
             'total_partners', flat=True).order_by('id')
 
     @staticmethod
@@ -188,7 +192,8 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             responsible=OuterRef('pk'), is_active=True).order_by().values('responsible').annotate(
             count=Count('id')).values('count')
 
-        return queryset.annotate(active_partners=Subquery(subqs_active_partners, output_field=IntegerField())
+        return Partnership.objects.filter(id__in=queryset).annotate(active_partners=Subquery(
+            subqs_active_partners, output_field=IntegerField())
                                  ).values_list('active_partners', flat=True).order_by('id')
 
     @staticmethod
@@ -196,7 +201,8 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         subqs_potential_sum = Partnership.objects.filter(responsible=OuterRef('pk')).order_by().values(
             'responsible').annotate(potential_sum=Sum('value')).values('potential_sum')
 
-        return queryset.annotate(potential_sum=Subquery(subqs_potential_sum)).values_list(
+        return Partnership.objects.filter(id__in=queryset).annotate(
+            potential_sum=Subquery(subqs_potential_sum)).values_list(
             'potential_sum', flat=True).order_by('id')
 
     @staticmethod
@@ -207,22 +213,27 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
           pay.object_id in (select d.id from partnership_deal d where d.responsible_id = p.id and
           (d.date_created BETWEEN '{0}-01-01' and '{0}-12-31') and
           extract('month' from d.date_created) = {1} )) sum
-          from partnership_partnership p WHERE p.level <= {2} ORDER BY p.id;
+          from partnership_partnership p
+          WHERE p.id in (
+              SELECT pp.id from partnership_partnership pp
+              LEFT OUTER JOIN partnership_deal d ON (pp.id = d.responsible_id)
+              WHERE pp.level <= {2} OR d.id IS NOT NULL)
+          ORDER BY p.id;
           """.format(year, month, Partnership.MANAGER)
 
         return [p.sum for p in queryset.raw(raw)]
 
     @staticmethod
     def _get_users_ids(queryset):
-        return queryset.values_list('user__id', flat=True).order_by('id')
+        return Partnership.objects.filter(id__in=queryset).values_list('user__id', flat=True).order_by('id')
 
     @staticmethod
     def _get_managers_plan(queryset):
-        return queryset.values_list('plan', flat=True).order_by('id')
+        return Partnership.objects.filter(id__in=queryset).values_list('plan', flat=True).order_by('id')
 
     @staticmethod
     def _get_partnerships_ids(queryset):
-        return queryset.values_list('id', flat=True).order_by('id')
+        return Partnership.objects.filter(id__in=queryset).values_list('id', flat=True).order_by('id')
 
     def _order_managers(self, managers):
         ordering = self.request.query_params.get('ordering', 'manager')

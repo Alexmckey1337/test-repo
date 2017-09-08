@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied, MultipleObjectsReturned, ObjectDoesNotExist
-from django.db.models import Count, Case, When, BooleanField
+from django.db.models import Count, Case, When, BooleanField, Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
@@ -250,7 +250,8 @@ class PartnerPaymentsListView(LoginRequiredMixin, CanSeeDealPaymentsMixin, Templ
 
         ctx['currencies'] = Currency.objects.all()
         ctx['supervisors'] = CustomUser.objects.filter(checks__isnull=False).distinct()
-        ctx['managers'] = Partnership.objects.filter(level__lte=Partnership.MANAGER)
+        ctx['managers'] = Partnership.objects.filter(Q(
+            level__lte=Partnership.MANAGER) | Q(disciples_deals__isnull=False)).distinct()
 
         return ctx
 
