@@ -5,12 +5,7 @@
         $('.preloader').css('display', 'block');
         createPaymentsTable({});
     }, 500));
-    // $('input[name="fullsearch"]').keyup(function () {
-    //     $('.preloader').css('display', 'block');
-    //     delay(function () {
-    //         createPaymentsTable({});
-    //     }, 1000);
-    // });
+
     $('#filter_button').on('click', ()=> {
         $('#filterPopup').show();
     });
