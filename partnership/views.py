@@ -138,6 +138,8 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             level__lte=Partnership.MANAGER) | Q(
             disciples_deals__isnull=False)).distinct().prefetch_related('deals').values_list('id', flat=True)
 
+        queryset = Partnership.objects.filter(id__in=partner_ids).prefetch_related('deals')
+
         managers = [{
             'user_id': x[0],
             'partner_id': x[1],
@@ -150,15 +152,15 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             'plan': x[8] or 0,
 
         } for x in zip(
-            self._get_users_ids(partner_ids),
-            self._get_partnerships_ids(partner_ids),
-            self._get_partners(partner_ids),
-            self._get_sum_deals(partner_ids, year, month),
-            self._get_total_partners(partner_ids),
-            self._get_active_partners(partner_ids),
-            self._get_potential_sum(partner_ids),
-            self._get_sum_pay(partner_ids, year, month),
-            self._get_managers_plan(partner_ids),
+            self._get_users_ids(queryset),
+            self._get_partnerships_ids(queryset),
+            self._get_partners(queryset),
+            self._get_sum_deals(queryset, year, month),
+            self._get_total_partners(queryset),
+            self._get_active_partners(queryset),
+            self._get_potential_sum(queryset),
+            self._get_sum_pay(queryset, year, month),
+            self._get_managers_plan(queryset),
         )]
         managers = self._order_managers(managers)
         return Response({'results': managers, 'table_columns': partnership_summary_table(self.request.user)})
@@ -237,7 +239,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
 
     def _order_managers(self, managers):
         ordering = self.request.query_params.get('ordering', 'manager')
-        ordering_fields = ['managers', 'sum_deals', 'total_partners', 'active_partners', 'potential_sum', 'sum_pay',
+        ordering_fields = ['manager', 'sum_deals', 'total_partners', 'active_partners', 'potential_sum', 'sum_pay',
                            'manager_plan']
 
         if ordering.strip('-') in ordering_fields:
