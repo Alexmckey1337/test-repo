@@ -196,7 +196,7 @@
                             </tr>
                         </thead>
                         <tbody>${data.results.map(item => {
-                            let master = item.﻿master;
+                            let master = item.master;
                             if (master == null) {
                                 master = '';
                             } else {
@@ -282,5 +282,4 @@
 	        event.stopPropagation();
         });
     });
-
 })(jQuery);

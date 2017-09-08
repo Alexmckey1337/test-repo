@@ -80,5 +80,21 @@
     //     $('.preloader').css('display', 'block');
     //     homeReportsTable();
     // }, 500));
+    function getPositionScroll() {
+        let positionLeft = $('.scroll-bar').css('left').replace('px','');
+        console.log(positionLeft);
+        let positionLeftIndex = parseInt(positionLeft,10);
+        let widthSidebar = $('#sidebar').width();
+        $('#header-fixed').css('left',(positionLeftIndex+widthSidebar));
+        console.log(positionLeftIndex+widthSidebar);
+    }
+    // setTimeout(function () {
+    //   getPositionScroll();
+    // },2000);
+    let x = 0;
+     $("#managersPlan").scroll(function(){
+         getPositionScroll();
+         console.log(x += 1);
+    });
 
 })();

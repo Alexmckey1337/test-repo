@@ -223,5 +223,4 @@
         maxDate: new Date(),
         autoClose: true
     });
-
 })();
