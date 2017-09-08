@@ -93,6 +93,7 @@ const DEAL = {
     list: () => `/api/v1.0/deals/`,
     payments: (dealId) => `/api/v1.0/deals/${dealId}/payments/`,
     create_payment: (dealId) => `/api/v1.0/deals/${dealId}/create_payment/`,
+    create_uah_payment: (dealId) => `/api/v1.0/deals/${dealId}/create_uah_payment/`,
 };
 
 const CHURCH = {
