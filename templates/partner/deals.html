@@ -214,61 +214,6 @@
                             <option value="2">﻿Оплачена полностью</option>
                         </select>
                     </label>
-{#                    <div class="col-6">#}
-{#                        {% if request.user.is_partner_supervisor_or_high %}#}
-{#                            <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Менеджер</span>#}
-{#                        </div>#}
-{#                        {% endif %}#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Фильтр по дате сделки</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Фильтр по валюте</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Фильтр по сумме сделки</span>#}
-{#                        </div>#}
-{#                         <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Статус сделки</span>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                    <div class="col-6">#}
-{#                        {% if request.user.is_partner_supervisor_or_high %}#}
-{#                            <p class="input_block">#}
-{#                                <select class="selectdb" data-filter="partnership__responsible__user" id="masters_filter">#}
-{#                                    <option value="">ВСЕ</option>#}
-{#                                    {% for manager in managers %}#}
-{#                                        <option value="{{ manager.id }}">{{ manager.fullname }}</option>#}
-{#                                    {% endfor %}#}
-{#                                </select>#}
-{#                            </p>#}
-{#                        {% endif %}#}
-{#                        <p class="input_block">#}
-{#                            <input type="text" placeholder="от" data-filter="from_date" id="date_from" class="select_date_filter">#}
-{#                            <input type="text" placeholder="до" data-filter="to_date" id="date_to" class="select_date_filter">#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select id="payment_currency" class="selectdb" data-filter="currency_id">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                                {% for currency in currencies %}#}
-{#                                    <option value="{{ currency.id }}">{{ currency.short_name }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <input type="text" placeholder="от" data-filter="from_value" id="value_from">#}
-{#                            <input type="text" placeholder="до" data-filter="to_value" id="value_to">#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select id="﻿payment_status" class="selectdb" data-filter="payment_status">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                                <option value="0">﻿Hе оплачена</option>#}
-{#                                <option value="1">Оплачена частично</option>#}
-{#                                <option value="2">﻿Оплачена полностью</option>#}
-{#                            </select>#}
-{#                        </p>#}
-{#                    </div>#}
                 </div>
             </div>
             <div class="container">

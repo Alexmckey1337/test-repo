@@ -224,5 +224,4 @@
         $('#statusTabs').find(`button[data-status='${filterParam.type}']`).parent().addClass('current');
         filterInit(filterParam.owner);
     }
-
 })();

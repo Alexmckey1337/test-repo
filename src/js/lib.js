@@ -3366,7 +3366,8 @@ function makePartnershipSummaryTable(data, config = {}) {
             $(this).val(value).prop('disabled', true).prop('readonly', true);
         }
     });
-    // fixedTableHead();
+    fixedTableHead();
+    // getPositionScroll();
     // $('.table__count').text(text);
     // new OrderTableByClient().sort(partnershipSummaryTable, ".table-wrap th");
     new OrderTableByClient().sortByClient(makePartnershipSummaryTable, ".table-wrap th", data);
@@ -4115,13 +4116,13 @@ function createDealsPayment(id, sum, description) {
             "sum": sum,
             "description": description,
             "rate": $('#new_payment_rate').val(),
-            "currency": $('#new_payment_currency').val(),
+            // "currency": $('#new_payment_currency').val(),
             "sent_date": $('#sent_date').val(),
             "operation": $('#operation').val()
         };
         let json = JSON.stringify(config);
         let data = {
-            url: URLS.deal.create_payment(id),
+            url: URLS.deal.create_uah_payment(id),
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -4153,7 +4154,7 @@ function createChurchPayment(id, sum, description) {
             "sum": sum,
             "description": description,
             "rate": $('#new_payment_rate').val(),
-            "currency": $('#new_payment_currency').val(),
+            // "currency": $('#new_payment_currency').val(),
             "sent_date": $('#sent_date').val(),
             "operation": $('#operation').val()
         };
@@ -4422,9 +4423,11 @@ function fixedTableHead() {
         })
     });
 
-    // $('#container').bind("resize", function () {
-    //     $fixedHeader.width($("table").width());
-    // });
+    $("#managersPlan").scroll(function(){
+         let offset = $(this).scrollLeft(),
+             sidebar = $('#sidebar').outerWidth();
+         $('#header-fixed').css('left', (sidebar-offset));
+    });
 
     $('#container').bind("scroll", function () {
         let offset = $(this).scrollTop();

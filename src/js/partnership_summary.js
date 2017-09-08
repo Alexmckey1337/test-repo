@@ -81,4 +81,9 @@
     //     homeReportsTable();
     // }, 500));
 
+     $(window).on('resize', function() {
+         $("#header-fixed").empty();
+         fixedTableHead();
+    });
+
 })();

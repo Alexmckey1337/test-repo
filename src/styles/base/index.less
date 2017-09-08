@@ -287,6 +287,15 @@ td {
     color: #3caeda;
     border-bottom: 1px dotted #3caeda;
   }
+  &[data-value="attended"]{
+    label{
+      &::before{
+        left: 50%;
+        transform: translateX(-50%);
+        right: auto;
+      }
+    }
+  }
 }
 
 input{

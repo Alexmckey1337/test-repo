@@ -18,14 +18,17 @@
                                step="1"
                                required>
 
-                        <select name="currency" id="new_payment_currency" required>
-                            {% for currency in currencies %}
-                                <option value="{{ currency.id }}"
-                                        {% if currency == purpose.currency %}selected{% endif %}>
-                                    {{ currency.short_name }}
-                                </option>
-                            {% endfor %}
-                        </select>
+{#                        <select name="currency" id="new_payment_currency" required>#}
+{#                            {% for currency in currencies %}#}
+{#                                <option value="{{ currency.id }}"#}
+{#                                        {% if currency == purpose.currency %}selected{% endif %}>#}
+{#                                    {{ currency.short_name }}#}
+{#                                </option>#}
+{#                            {% endfor %}#}
+{#                        </select>#}
+                        <div>
+                            <span>грн</span>
+                        </div>
                     </div>
                     <div class="rate">
                         <label for="new_payment_rate">Курс:</label>

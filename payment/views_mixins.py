@@ -8,12 +8,14 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions
 from rest_framework import status
 from rest_framework.decorators import detail_route
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
 from partnership.models import Partnership, Deal
+from payment.models import Currency
 from payment.permissions import PaymentPermission
 from payment.serializers import PaymentCreateSerializer, PaymentShowSerializer
 from summit.models import SummitAnket
@@ -64,7 +66,13 @@ class CreatePaymentMixin(PaymentCheckPermissionMixin):
     def get_object(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def _create_payment(self, request, pk=None):
+    @staticmethod
+    def get_currency(request, purpose, force_currency=None):
+        if force_currency:
+            return force_currency.id
+        return request.data.get('currency', purpose.currency.id)
+
+    def _create_payment(self, request, pk=None, currency=None):
         purpose_model = self.get_queryset().model
         purpose = get_object_or_404(purpose_model, pk=pk)
         self.check_payment_permissions(request, purpose)
@@ -73,10 +81,12 @@ class CreatePaymentMixin(PaymentCheckPermissionMixin):
         description = request.data.get('description', '')
         rate = request.data.get('rate', Decimal(1))
         operation = request.data.get('operation', '*')
-        currency = request.data.get('currency', purpose.currency.id)
+        currency = self.get_currency(request, purpose, currency)
         sent_date = request.data.get('sent_date')
         if not sent_date:
             sent_date = timezone.now().strftime('%Y-%m-%d')
+        if rate == 1 and currency != purpose.currency:
+            raise ValidationError({'detail': _('Rate must be not 1.00')})
         data = {
             'sum': sum,
             'rate': rate,
@@ -110,6 +120,14 @@ class CreatePaymentMixin(PaymentCheckPermissionMixin):
     @detail_route(methods=['post'])
     def create_payment(self, request, pk=None):
         return self._create_payment(request, pk)
+
+    @detail_route(methods=['post'])
+    def create_uah_payment(self, request, pk=None):
+        try:
+            uah = Currency.objects.get(code='uah')
+        except Currency.DoesNotExist:
+            return Response({'detail': _('UAH does not exist')}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return self._create_payment(request, pk, uah)
 
 
 class ListPaymentMixin(PaymentCheckPermissionMixin):

@@ -9,6 +9,7 @@ from payment.models import Currency
 class PaymentPagination(PageNumberPagination):
     page_size = 30
     page_size_query_param = 'page_size'
+    payments_sum = {}
 
     def get_paginated_response(self, data):
         return Response({
@@ -23,7 +24,6 @@ class PaymentPagination(PageNumberPagination):
         })
 
     def paginate_queryset(self, queryset, request, view=None):
-        self.payments_sum = {}
         for currency in Currency.objects.all():
             self.payments_sum[str(currency.code)] = queryset.filter(
                 currency_sum__code=currency.code).aggregate(sum=Sum('sum'))

@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.contrib import admin
+from django.utils.translation import ugettext_lazy as _
 
 from partnership.admin_filters import PaidStatusFilter
 from .models import Partnership, Deal
@@ -27,8 +28,20 @@ class DealAdmin(admin.ModelAdmin):
     list_editable = ('done', 'value')
     list_filter = ('done', 'expired', 'date_created', 'partnership__responsible', PaidStatusFilter)
 
+    actions = ['close', 'open']
+
     class Meta:
         model = Deal
+
+    def close(self, request, queryset):
+        queryset.update(done=True)
+
+    close.short_description = _("Close selected deals")
+
+    def open(self, request, queryset):
+        queryset.update(done=False)
+
+    open.short_description = _("Open selected deals")
 
 
 admin.site.register(Deal, DealAdmin)
