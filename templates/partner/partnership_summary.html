@@ -79,7 +79,7 @@
     <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
     <script src='{% static "js/partnership_summary.js" %}'></script>
     <script type="text/template" id="databasePartnershipSummary">
-        <table>
+        <table id="table-1">
             <thead>
             <tr>
                 <% for( var key in table_columns) { %>
@@ -152,5 +152,6 @@
             <% } %>
             </tbody>
         </table>
+        <table id="header-fixed"></table>
     </script>
 {% endblock %}

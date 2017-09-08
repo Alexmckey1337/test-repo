@@ -1721,10 +1721,10 @@ function createPaymentsTable(config) {
             showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
             id = "paymentsList",
             currency = data.summa,
-            uah = String(currency.uah).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 '),
-            usd = String(currency.usd).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 '),
-            eur = String(currency.eur).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 '),
-            rub = String(currency.rub).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 '),
+            uah = beautifyNumber(currency.uah),
+            usd = beautifyNumber(currency.usd),
+            eur = beautifyNumber(currency.eur),
+            rub = beautifyNumber(currency.rub),
             text = `Показано ${showCount} из ${count} на сумму: ${uah} грн, ${usd} дол, ${eur} евро, ${rub} руб`;
         let paginationConfig = {
             container: ".payments__pagination",
@@ -3359,16 +3359,14 @@ function makePartnershipSummaryTable(data, config = {}) {
             data.plan_sum = e.target.value;
             updateManagersPlan(id, data).then(() => {
                 showPopup('План успешно изменен');
-                // partnershipSummaryTable();
                 $(this).prop('disabled', true).prop('readonly', true);
             });
         } else if (e.keyCode == 27) {
             let value = $(this).attr('data-value');
             $(this).val(value).prop('disabled', true).prop('readonly', true);
-            // partnershipSummaryTable();
         }
     });
-
+    fixedTableHead();
     // $('.table__count').text(text);
     // new OrderTableByClient().sort(partnershipSummaryTable, ".table-wrap th");
     new OrderTableByClient().sortByClient(makePartnershipSummaryTable, ".table-wrap th", data);
@@ -4398,4 +4396,34 @@ function updateManagersPlan(id, data) {
     };
 
     return fetch(url, config).then(data => data.json()).catch(err => err);
+}
+
+function beautifyNumber(number) {
+    return String(number).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ')
+}
+
+function fixedTableHead() {
+    let $tableOffset = $("#table-1").offset().top,
+        $header = $("#table-1 > thead").clone(),
+        $fixedHeader = $("#header-fixed").append($header),
+        arrCellWidth = [];
+    $('#table-1 > thead').find('th').each(function () {
+        let width = $(this).outerWidth();
+        arrCellWidth.push(width);
+    });
+    $('#header-fixed > thead').find('th').each(function (index) {
+        $(this).css({
+            'width': arrCellWidth[index],
+        })
+    });
+
+    $('#container').bind("scroll", function () {
+        let offset = $(this).scrollTop();
+        if (offset >= $tableOffset && $fixedHeader.is(":hidden")) {
+            $fixedHeader.show();
+        }
+        else if (offset < $tableOffset) {
+            $fixedHeader.hide();
+        }
+    });
 }
