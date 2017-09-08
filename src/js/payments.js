@@ -11,31 +11,37 @@
     });
     $('#date_from').datepicker({
         dateFormat: 'yyyy-mm-dd',
-        autoClose: true
+        autoClose: true,
+        position: "left top",
     });
     $('#date_to').datepicker({
         dateFormat: 'yyyy-mm-dd',
-        autoClose: true
+        autoClose: true,
+        position: "left top",
     });
     $('#sent_date_from').datepicker({
         dateFormat: 'yyyy-mm-dd',
-        autoClose: true
+        autoClose: true,
+        position: "left top",
     });
     $('#sent_date_to').datepicker({
         dateFormat: 'yyyy-mm-dd',
-        autoClose: true
+        autoClose: true,
+        position: "left top",
     });
     $('#purpose_date_from').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true,
         view: 'months',
-        minView: 'months'
+        minView: 'months',
+        position: "left top",
     });
     $('#purpose_date_to').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true,
         view: 'months',
-        minView: 'months'
+        minView: 'months',
+        position: "left top",
     });
     $('.custom_select').select2();
 

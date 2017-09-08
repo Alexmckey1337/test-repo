@@ -177,7 +177,8 @@ class Deal(LogModel, AbstractPaymentPurpose):
     value = models.DecimalField(max_digits=12, decimal_places=0,
                                 default=Decimal('0'))
     #: Currency of value
-    currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
+    currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT,
+                                 verbose_name=_('Currency'),
                                  null=True,
                                  default=get_default_currency)
 

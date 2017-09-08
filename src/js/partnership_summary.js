@@ -94,9 +94,9 @@
     //     getPositionScroll(scrollPos);
     // });
 
-    //  $("#managersPlan").scroll(function(){
-    //      getPositionScroll();
-    //      console.log(x += 1);
-    // });
+     $(window).on('resize', function() {
+         $("#header-fixed").empty();
+         fixedTableHead();
+    });
 
 })();

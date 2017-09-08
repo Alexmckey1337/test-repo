@@ -1721,10 +1721,10 @@ function createPaymentsTable(config) {
             showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
             id = "paymentsList",
             currency = data.payments_sum,
-            uah = beautifyNumber(currency.uah.sum),
-            usd = beautifyNumber(currency.usd.sum),
-            eur = beautifyNumber(currency.eur.sum),
-            rub = beautifyNumber(currency.rur.sum),
+            uah = (currency.uah.sum != null) ? beautifyNumber(currency.uah.sum) : 0,
+            usd = (currency.usd.sum != null) ? beautifyNumber(currency.usd.sum) : 0,
+            eur = (currency.eur.sum != null) ? beautifyNumber(currency.eur.sum) : 0,
+            rub = (currency.rur.sum != null) ? beautifyNumber(currency.rur.sum) : 0,
             text = `Показано ${showCount} из ${count} на сумму: ${uah} грн, ${usd} дол, ${eur} евро, ${rub} руб`;
         let paginationConfig = {
             container: ".payments__pagination",
@@ -4079,7 +4079,7 @@ let sumChangeListener = (function () {
     //     sumCurrency(new_payment_sum, operation, new_payment_rate, $inUserCurrencyEl, currencyName);
     // });
     return function (currency_name, currency_id) {
-        $('#new_payment_rate').prop('readonly', true);
+        // $('#new_payment_rate').prop('readonly', true);
         currencyID = currency_id;
         currencyName = currency_name;
         $newPaymentRateEl.val('1.000');
@@ -4088,12 +4088,12 @@ let sumChangeListener = (function () {
         $operation.val('*');
         operation = '*';
 
-        $currencyOptions.each(function () {
-            $(this).prop('selected', false);
-            if ($(this).val() == currencyID) {
-                $(this).prop('selected', true);
-            }
-        });
+        // $currencyOptions.each(function () {
+        //     $(this).prop('selected', false);
+        //     if ($(this).val() == currencyID) {
+        //         $(this).prop('selected', true);
+        //     }
+        // });
 
         sumCurrency(new_payment_sum, operation, new_payment_rate, $inUserCurrencyEl, currencyName);
     }
@@ -4116,13 +4116,13 @@ function createDealsPayment(id, sum, description) {
             "sum": sum,
             "description": description,
             "rate": $('#new_payment_rate').val(),
-            "currency": $('#new_payment_currency').val(),
+            // "currency": $('#new_payment_currency').val(),
             "sent_date": $('#sent_date').val(),
             "operation": $('#operation').val()
         };
         let json = JSON.stringify(config);
         let data = {
-            url: URLS.deal.create_payment(id),
+            url: URLS.deal.create_uah_payment(id),
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -4154,7 +4154,7 @@ function createChurchPayment(id, sum, description) {
             "sum": sum,
             "description": description,
             "rate": $('#new_payment_rate').val(),
-            "currency": $('#new_payment_currency').val(),
+            // "currency": $('#new_payment_currency').val(),
             "sent_date": $('#sent_date').val(),
             "operation": $('#operation').val()
         };
