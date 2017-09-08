@@ -35,7 +35,7 @@ class PartnerStatMixin:
 
         stats['deals'] = self.stats_by_deals(deals, deals_with_sum)
         stats['partners'] = self.stats_by_partners(deals, deals_with_sum)
-        stats['sum'] = self.stats_by_sum(deals, deals_with_sum)
+        # stats['sum'] = self.stats_by_sum(deals, deals_with_sum)
 
         return Response(stats)
 
