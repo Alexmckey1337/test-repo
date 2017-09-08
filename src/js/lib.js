@@ -3366,7 +3366,7 @@ function makePartnershipSummaryTable(data, config = {}) {
             $(this).val(value).prop('disabled', true).prop('readonly', true);
         }
     });
-    fixedTableHead();
+    // fixedTableHead();
     // $('.table__count').text(text);
     // new OrderTableByClient().sort(partnershipSummaryTable, ".table-wrap th");
     new OrderTableByClient().sortByClient(makePartnershipSummaryTable, ".table-wrap th", data);
