@@ -80,6 +80,19 @@
     //     $('.preloader').css('display', 'block');
     //     homeReportsTable();
     // }, 500));
+    // function getPositionScroll(pos) {
+    //     let widthSidebar = $('#sidebar').width();
+    //     $('#header-fixed').css('left',(widthSidebar - pos));
+    // }
+    // let scrollPos = 0;
+    // $("#managersPlan").scroll(function(){
+    //     let st = $(this).scrollLeft();
+    //     if (st > scrollPos){
+    //       scrollPos += 1;
+    //     }
+    //     scrollPos = st;
+    //     getPositionScroll(scrollPos);
+    // });
 
     //  $("#managersPlan").scroll(function(){
     //      getPositionScroll();
