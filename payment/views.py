@@ -12,10 +12,11 @@ from common.filters import FieldSearchFilter
 from common.test_helpers.utils import get_real_user
 from payment.filters import (PaymentFilterByPurpose, PaymentFilter, FilterByDealFIO, FilterByDealDate,
                              FilterByDealManager)
-from payment.serializers import PaymentUpdateSerializer, PaymentShowSerializer, PaymentDealShowSerializer
+from payment.serializers import (PaymentUpdateSerializer, PaymentShowSerializer, PaymentDealShowSerializer,
+                                 PaymentChurchReportShowSerializer)
 from .models import Payment
 from .permissions import PaymentManagerOrSupervisor
-from .pagination import PaymentPagination
+from .pagination import PaymentPagination, ChurchReportPaymentPagination
 
 
 class PaymentUpdateDestroyView(LogAndCreateUpdateDestroyMixin,
@@ -129,3 +130,27 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
         user = self.request.user
 
         return self.queryset.for_user_by_deal(user).add_deal_fio()
+
+
+class PaymentChurchReportListView(mixins.ListModelMixin, GenericAPIView):
+    queryset = Payment.objects.base_queryset()
+    serializer_class = PaymentChurchReportShowSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = ChurchReportPaymentPagination
+
+    filter_backends = (filters.DjangoFilterBackend,
+                       FieldSearchFilter,
+                       FilterByDealManager,
+                       filters.OrderingFilter,)
+
+    ordering_fields = ('sum', 'effective_sum', 'currency_sum__name', 'currency_rate__name', 'created_at',
+                       'sent_date', 'manager__last_name', 'description', 'church_reports__church__pastor__last_name',
+                       'church_reports__date', 'church_reports__church__title')
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def get_queryset(self):
+        user = self.request.user
+
+        return self.queryset.for_user_by_church_report(user).add_church_report_info()

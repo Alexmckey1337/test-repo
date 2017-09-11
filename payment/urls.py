@@ -10,6 +10,7 @@ payment_urlpatterns = [
     url(r'^payments/(?P<pk>\d+)/detail/$', views.PaymentDetailView.as_view(), name='payment-detail'),
     url(r'^payments/$', views.PaymentListView.as_view(), name='payment-list'),
     url(r'^payments/deal/$', views.PaymentDealListView.as_view(), name='payment-deal-list'),
+    url(r'^payments/church_report/$', views.PaymentChurchReportListView.as_view(), name='payment-church_report-list'),
 ]
 
 urlpatterns = [

@@ -33,7 +33,7 @@ class PaymentCreateSerializer(serializers.ModelSerializer):
     def validate(self, data):
         object_currency = data['content_type'].get_object_for_this_type(id=data['object_id']).currency
         if data['currency_sum'] != object_currency and data['rate'] == Decimal(1):
-            raise serializers.ValidationError('Проверьте курс или измените валюту')
+            raise serializers.ValidationError('Проверьте корректность введенного курса')
 
         return data
 
@@ -108,3 +108,21 @@ class PaymentDealShowSerializer(PaymentShowSerializer):
                   'currency_sum', 'currency_rate', 'rate', 'description',
                   'created_at', 'sent_date',
                   'manager', 'purpose', 'purpose_fio', 'purpose_date', 'purpose_manager_fio')
+
+
+class PaymentChurchReportShowSerializer(PaymentShowSerializer):
+    church_title = serializers.CharField()
+    church_id = serializers.IntegerField()
+    pastor_fio = serializers.CharField()
+    pastor_id = serializers.IntegerField()
+    report_date = serializers.DateField(format="%d.%m.%Y")
+
+    class Meta:
+        model = Payment
+        fields = ('id', 'sum', 'effective_sum',
+                  'sum_str', 'effective_sum_str', 'operation',
+                  'currency_sum', 'currency_rate', 'rate', 'description',
+                  'created_at', 'sent_date', 'manager',
+                  'church_title', 'church_id', 'pastor_fio', 'pastor_id', 'report_date')
+
+        read_only_fields = ['__all__']
