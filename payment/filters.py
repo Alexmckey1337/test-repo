@@ -198,14 +198,18 @@ class FilterByChurchReportManager(BaseFilterBackend):
         return queryset.filter(content_type__model='deal', object_id__in=deal_ids)
 
 
-# class FilterByChurchReportDate(BaseFilterBackend):
-#     @staticmethod
-#     def get_reports(request):
-#         return ChurchReport.objects.for_user(request.user)
-#
-#     def filter_queryset(self, request, queryset, view):
-#         date_from = request.query_params.get('purpose_date_from', None)
-#         date_to = request.query_params.get('purpose_date_to', None)
-#         if not (date_from or date_to):
-#             return queryset
+class FilterByChurchReportDate(BaseFilterBackend):
+    @staticmethod
+    def get_reports(request):
+        return ChurchReport.objects.for_user(request.user)
 
+    def filter_queryset(self, request, queryset, view):
+        date_from = request.query_params.get('report_date_from', None)
+        date_to = request.query_params.get('report_date_to', None)
+        if not (date_from or date_to):
+            return queryset
+
+        reports = self.get_reports(request).filter(date__range=[date_from, date_to])
+        report_ids = reports.values_list('id', flat=True)
+
+        return queryset.filter(content_type__model='churchreport', object_id__in=report_ids)

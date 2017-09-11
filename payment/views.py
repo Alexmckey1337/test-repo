@@ -11,7 +11,7 @@ from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
 from common.test_helpers.utils import get_real_user
 from payment.filters import (PaymentFilterByPurpose, PaymentFilter, FilterByDealFIO, FilterByDealDate,
-                             FilterByDealManager, FilterByChurchReportManager)
+                             FilterByDealManager, FilterByChurchReportManager, FilterByChurchReportDate)
 from payment.serializers import (PaymentUpdateSerializer, PaymentShowSerializer, PaymentDealShowSerializer,
                                  PaymentChurchReportShowSerializer)
 from .models import Payment
@@ -118,6 +118,7 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
                        'manager__last_name', 'description',
                        'deals__partnership__user__last_name', 'deals__date_created',
                        'deals__partnership__responsible__user__last_name')
+
     field_search_fields = {
         'search_description': ('description',),
     }
@@ -141,7 +142,8 @@ class PaymentChurchReportListView(mixins.ListModelMixin, GenericAPIView):
     filter_backends = (filters.DjangoFilterBackend,
                        FieldSearchFilter,
                        FilterByChurchReportManager,
-                       filters.OrderingFilter,)
+                       filters.OrderingFilter,
+                       FilterByChurchReportDate,)
 
     ordering_fields = ('sum', 'effective_sum', 'currency_sum__name', 'currency_rate__name', 'created_at',
                        'sent_date', 'manager__last_name', 'description', 'church_reports__church__pastor__last_name',
