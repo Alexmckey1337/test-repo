@@ -11,7 +11,8 @@ from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
 from common.test_helpers.utils import get_real_user
 from payment.filters import (PaymentFilterByPurpose, PaymentFilter, FilterByDealFIO, FilterByDealDate,
-                             FilterByDealManager, FilterByChurchReportManager, FilterByChurchReportDate)
+                             FilterByDealManager, FilterByChurchReportPastor, FilterByChurchReportDate,
+                             FilterByChurchReportPastor, FilterByChurchReportChurchTitle)
 from payment.serializers import (PaymentUpdateSerializer, PaymentShowSerializer, PaymentDealShowSerializer,
                                  PaymentChurchReportShowSerializer)
 from .models import Payment
@@ -141,9 +142,11 @@ class PaymentChurchReportListView(mixins.ListModelMixin, GenericAPIView):
 
     filter_backends = (filters.DjangoFilterBackend,
                        FieldSearchFilter,
-                       FilterByChurchReportManager,
+                       FilterByChurchReportPastor,
                        filters.OrderingFilter,
-                       FilterByChurchReportDate,)
+                       FilterByChurchReportDate,
+                       FilterByChurchReportPastor,
+                       FilterByChurchReportChurchTitle,)
 
     ordering_fields = ('sum', 'effective_sum', 'currency_sum__name', 'currency_rate__name', 'created_at',
                        'sent_date', 'manager__last_name', 'description', 'church_reports__church__pastor__last_name',
