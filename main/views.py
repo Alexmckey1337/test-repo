@@ -153,6 +153,15 @@ def reports_summary(request):
 
     return render(request, 'event/reports_summary.html', context=ctx)
 
+
+@login_required(login_url='entry')
+def report_payments(request):
+    if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 2):
+        return redirect('/')
+    ctx = {}
+
+    return render(request, 'event/report_payments.html', context=ctx)
+
 # partner
 
 
@@ -469,7 +478,8 @@ class SummitTicketListView(LoginRequiredMixin, CanSeeSummitTicketMixin, ListView
         response = super(SummitTicketListView, self).dispatch(request, *args, **kwargs)
         try:
             r = redis.StrictRedis(host='redis', port=6379, db=0)
-            r.srem('summit:ticket:{}'.format(request.user.id), *list(self.get_queryset().values_list('id', flat=True)))
+            r.srem('summit:ticket:{}'.format(request.user.id), *list(
+                self.get_queryset().values_list('id', flat=True)))
         except Exception as err:
             print(err)
 

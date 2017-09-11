@@ -72,11 +72,11 @@ events_patterns = [
     url(r'^church/reports/(?P<pk>\d+)/$', views.church_report_detail, name='church_report_detail'),
     url(r'^church/statistics/$', views.church_statistics, name='church_report_statistics'),
     url(r'^church/summary/$', views.reports_summary, name='reports_summary'),
+    url(r'^church/payments/$', views.report_payments, name='report_payments'),
 ]
 
 summit_patterns = [
     url(r'^$', login_required(redirect_to_summits, login_url='entry'), name='main'),
-
     url(r'^(?P<pk>\d+)/$', views.SummitDetailView.as_view(), name='detail'),
     url(r'^open/$', views.OpenSummitListView.as_view(), name='open'),
     url(r'^closed/$', views.ClosedSummitListView.as_view(), name='closed'),
