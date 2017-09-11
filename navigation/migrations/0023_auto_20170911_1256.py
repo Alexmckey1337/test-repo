@@ -26,7 +26,7 @@ def create_report_payments_columns(apps, schema_editor):
         Report_payments_columns(title='report_date', verbose_title='Дата подачи отчета',
                                 ordering_title='church_reports__date',
                                 number=6, active=True, editable=True, category_id=report_payments.id),
-        Report_payments_columns(title='pastor_fio', verbose_title='Ответственный',
+        Report_payments_columns(title='pastor_fio', verbose_title='Пастор',
                                 ordering_title='church_reports__church__pastor__last_name',
                                 number=7, active=True, editable=True, category_id=report_payments.id),
         Report_payments_columns(title='created_at', verbose_title='Дата создания', ordering_title='created_at',
