@@ -46,6 +46,7 @@ database_patterns = [
     url(r'^churches/$', views.ChurchListView.as_view(), name='churches'),
     url(r'^home_groups/$', views.HomeGroupListView.as_view(), name='home_groups'),
 ]
+
 partner_patterns = [
     url(r'^$', login_required(redirect_to_deals, login_url='entry'), name='main'),
     url(r'^list/$', views.PartnerListView.as_view(), name='list'),
