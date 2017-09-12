@@ -92,7 +92,7 @@
 {% endblock %}
 {% block template_tables %}
 <script type="text/template" id="databaseUsers">
-     <table>
+     <table id="table-1">
         <thead>
         <tr>
             <% for( var key in user_table) { %>
@@ -110,6 +110,7 @@
                         <% if (key == 'fullname') { %>
                             <% if (results[index][key] != null) { %>
                                 <td class="edit"><a href="<%= results[index].link %>"
+                                                    title="<%= results[index][key] %>"
                                                     data-link="<%= results[index].link %>"
                                                     data-id="<%=results[index].id %>"
                                                     <% if(results[index].ankets_id) { %>
@@ -171,6 +172,7 @@
             <% } %>
         </tbody>
     </table>
+    <table id="header-fixed"></table>
 </script>
 {% endblock %}
 <script type="text/template" id="sortForm">

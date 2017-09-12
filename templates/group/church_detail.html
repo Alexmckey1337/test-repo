@@ -108,64 +108,6 @@
                             </label>
                         </div>
                     </div>
-
-{#                <div class="info-block info-block_edit">#}
-{#                    <div class="title-wrapper">#}
-{#                        <span>Дата открытия:</span>#}
-{#                    </div>#}
-{#                    <div class="input">#}
-{#                        <input type="text" class="date" id="opening_date" value="{{ church.opening_date }}"#}
-{#                               disabled="disabled" readonly>#}
-{#                        <input type="checkbox" id="is_open_church" {% if church.is_open %}checked{% endif %} readonly#}
-{#                               disabled="disabled">#}
-{#                    </div>#}
-{#                    <div class="title-wrapper">#}
-{#                        <span>Отдел:</span>#}
-{#                    </div>#}
-{#                    <div class="input">#}
-{#                        <select name="" id="editDepartmentSelect" readonly="readonly" disabled="disabled">#}
-{#                            <option value="{{ church.department.id }}">{{ church.department }}</option>#}
-{#                        </select>#}
-{#                    </div>#}
-{#                    <div class="title-wrapper">#}
-{#                        <span>Пастор:</span>#}
-{#                    </div>#}
-{#                    <div class="input">#}
-{#                        <select name="" id="editPastorSelect" readonly="readonly" disabled="disabled">#}
-{#                            <option value="{{ church.pastor.id }}">{{ church.pastor }}</option>#}
-{#                        </select>#}
-{#                        <a href="{{ church.pastor.get_absolute_url }}" target="_blank">#}
-{#                            <i class="fa fa-external-link" aria-hidden="true"></i>#}
-{#                        </a>#}
-{#                    </div>#}
-{#                    <div class="title-wrapper">#}
-{#                        <span>Страна:</span>#}
-{#                    </div>#}
-{#                    <input type="text" id="country" value="{{ church.country }}" readonly>#}
-{#                    <div class="title-wrapper">#}
-{#                        <span>Город:</span>#}
-{#                    </div>#}
-{#                    <input type="text" id="city" value="{{ church.city }}" readonly>#}
-{#                    <div class="title-wrapper">#}
-{#                        <span>Адрес:</span>#}
-{#                    </div>#}
-{#                    <input type="text" id="address" value="{{ church.address }}" readonly>#}
-{#                    <div class="title-wrapper">#}
-{#                        <span>Телефон:</span>#}
-{#                    </div>#}
-{#                    <input type="text" id="phone_number" value="{{ church.phone_number }}" readonly>#}
-{#                    <div class="title-wrapper">#}
-{#                        <span>Сайт:</span>#}
-{#                    </div>#}
-{#                    <div class="input">#}
-{#                        <input type="text" id="web_site" value="{{ church.website }}" readonly>#}
-{#                        <a href="{{ church.website }}" target="_blank" id="site-link"#}
-{#                           {% if not church.website %}class="link-hide"{% endif %}#}
-{#                        >#}
-{#                            <i class="fa fa-external-link" aria-hidden="true"></i>#}
-{#                        </a>#}
-{#                    </div>#}
-{#                </div>#}
         </div>
         </form>
         <h2 class="info-title">Сводная информация:</h2>
@@ -198,32 +140,6 @@
                             </label>
                         </div>
                     </div>
-{#            <div class="info-block">#}
-{#                <div class="title-wrapper">#}
-{#                    <span>Количество прихожан:</span>#}
-{#                </div>#}
-{#                <p><span id="parishioners_count">{{ parishioners_count }}</span></p>#}
-{#                <div class="title-wrapper">#}
-{#                    <span>Количество Лидеров:</span>#}
-{#                </div>#}
-{#                <p><span id="leaders_count">{{ leaders_count }}</span></p>#}
-{#                <div class="title-wrapper">#}
-{#                    <span>Количество Отцов:</span>#}
-{#                </div>#}
-{#                <p><span id="fathers_count">{{ fathers_count }}</span></p>#}
-{#                <div class="title-wrapper">#}
-{#                    <span>Количество Юношей:</span>#}
-{#                </div>#}
-{#                <p><span id="juniors_count">{{ juniors_count }}</span></p>#}
-{#                <div class="title-wrapper">#}
-{#                    <span>Количество Младенцев:</span>#}
-{#                </div>#}
-{#                <p><span id="babies_count">{{ babies_count }}</span></p>#}
-{#                <div class="title-wrapper">#}
-{#                    <span>Количество Партнеров:</span>#}
-{#                </div>#}
-{#                <p><span id="partners_count">{{ partners_count }}</span></p>#}
-{#            </div>#}
         </div>
     </div>
     <div class="container">
@@ -328,45 +244,6 @@
                             <span class="label_block">Сайт</span>
                             <input type="url" id="added_home_group_site">
                         </label>
-{#                        <div class="column">#}
-{#                            <div class="label_block-wrapp">#}
-{#                                <span class="label_block">Дата открытия</span>#}
-{#                            </div>#}
-{#                            <div class="label_block-wrapp end__block">#}
-{#                                <span class="label_block">Название</span>#}
-{#                            </div>#}
-{#                            <div class="label_block-wrapp">#}
-{#                                <span class="label_block">Церковь</span>#}
-{#                            </div>#}
-{#                            <div class="label_block-wrapp">#}
-{#                                <span class="label_block">Лидер</span>#}
-{#                            </div>#}
-{#                            <div class="label_block-wrapp">#}
-{#                                <span class="label_block">Город</span>#}
-{#                            </div>#}
-{#                            <div class="label_block-wrapp">#}
-{#                                <span class="label_block">Адрес служения</span>#}
-{#                            </div>#}
-{#                            <div class="label_block-wrapp">#}
-{#                                <span class="label_block">Телефон</span>#}
-{#                            </div>#}
-{#                            <div class="label_block-wrapp">#}
-{#                                <span class="label_block">Сайт</span>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                        <div>#}
-{#                            <p><input id="added_home_group_date" required></p>#}
-{#                            <p class="end__block"><input type="text" id="added_home_group_title"></p>#}
-{#                            <p id="added_home_group_church" data-id="{{ church.id }}"#}
-{#                               data-department="{{ church.department.id }}">{{ church.get_title }}</p>#}
-{#                            <p><select id="added_home_group_pastor" required>#}
-{#                                <option>Выберите пастора</option>#}
-{#                            </select></p>#}
-{#                            <p><input type="text" id="added_home_group_city" required></p>#}
-{#                            <p><input type="text" id="added_home_group_address"></p>#}
-{#                            <p><input type="tel" id="added_home_group_phone"></p>#}
-{#                            <p><input type="url" id="added_home_group_site"></p>#}
-{#                        </div>#}
                     </div>
                 </div>
                 <div class="container">
@@ -386,7 +263,7 @@
 
 {% block template_tables %}
 <script type="text/template" id="databaseUsers">
-     <table>
+     <table id="table-1">
         <thead>
         <tr>
             <% for( var key in user_table) { %>
@@ -467,5 +344,6 @@
             <% } %>
         </tbody>
     </table>
+    <table id="header-fixed"></table>
 </script>
 {% endblock %}

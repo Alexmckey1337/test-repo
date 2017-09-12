@@ -108,7 +108,9 @@
                     <% if (results[index][key] == 'СУММАРНО:') { %>
                     <%= results[index][key] %>
                     <% } else { %>
-                        <a href="/account/<%=results[index].user_id %>"><%= results[index][key] %></a>
+                        <a href="/account/<%=results[index].user_id %>"
+                            title="<%= results[index][key] %>">
+                            <%= results[index][key] %></a>
                     <% } %>
                 </td>
                 <% } else { %>

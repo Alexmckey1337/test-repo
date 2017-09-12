@@ -463,4 +463,13 @@ $(document).ready(function () {
     });
     }
 
+    $(window).on('resize', function () {
+        if ($("#header-fixed").length) {
+            $("#header-fixed").empty();
+            fixedTableHead();
+        } else {
+            return false;
+        }
+    });
+
 });

@@ -56,7 +56,7 @@
     {% endblock %}
 
     {% block table %}
-        <div class="table-wrap clearfix" id="homeReports"><!--Table -->
+        <div class="table table-wrap clearfix" id="homeReports"><!--Table -->
             <div class="table scrollbar-inner" id="tableHomeReports"></div>
             <div class="query-none">
                 <p></p>
@@ -78,7 +78,7 @@
 {% block template_tables %}
 <script type="text/template" id="databaseHomeReports">
     <form name="databaseHomeReportsForm" id="databaseHomeReportsForm">
-     <table>
+     <table id="table-1">
         <thead>
         <tr>
             <% for( var key in table_columns) { %>
@@ -137,6 +137,7 @@
             <% }) %>
         </tbody>
     </table>
+    <table id="header-fixed"></table>
         <input type="submit" hidden class="submitBtn">
     </form>
 </script>

@@ -14,11 +14,6 @@
         $('.preloader').css('display', 'block');
         getPartners({page: 1});
     }, 500));
-    // $('input[name=fullsearch]').on('keyup', function () {
-    //     getPartners({
-    //         page: 1
-    //     });
-    // });
 
     getPartners({});
 

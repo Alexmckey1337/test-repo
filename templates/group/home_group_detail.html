@@ -87,56 +87,6 @@
                     </div>
                 </div>
             </form>
-{#                <div class="info-block info-block_edit">#}
-{#                    <div class="title-wrapper">#}
-{#                        <span>Дата открытия:</span>#}
-{#                    </div>#}
-{#                    <input type="text" class="date" id="opening_date" value="{{ home_group.opening_date }}"#}
-{#                               disabled="disabled" readonly>#}
-{#                    <div class="title-wrapper">#}
-{#                        <span>Церковь:</span>#}
-{#                    </div>#}
-{#                    <div class="input">#}
-{#                        <input type="text" id="church" value="{{ home_group.church }}" readonly>#}
-{#                        <a href="/churches/{{ home_group.church.id }}" target="_blank">#}
-{#                            <i class="fa fa-external-link" aria-hidden="true"></i>#}
-{#                        </a>#}
-{#                    </div>#}
-{#                    <div class="title-wrapper">#}
-{#                        <span>Лидер домашней группы:</span>#}
-{#                    </div>#}
-{#                    <div class="input">#}
-{#                        <select name="" id="homeGroupLeader" readonly="readonly" disabled="disabled">#}
-{#                            <option value="{{ home_group.leader.id }}">{{ home_group.leader }}</option>#}
-{#                        </select>#}
-{#                        <a href="{{ home_group.leader.get_absolute_url }}" target="_blank">#}
-{#                            <i class="fa fa-external-link" aria-hidden="true"></i>#}
-{#                        </a>#}
-{#                    </div>#}
-{#                    <div class="title-wrapper">#}
-{#                        <span>Город:</span>#}
-{#                    </div>#}
-{#                    <input type="text" id="city" value="{{ home_group.city }}" readonly>#}
-{#                    <div class="title-wrapper">#}
-{#                        <span>Адрес:</span>#}
-{#                    </div>#}
-{#                    <input type="text" id="address" value="{{ home_group.address }}" readonly>#}
-{#                    <div class="title-wrapper">#}
-{#                        <span>Телефонный номер:</span>#}
-{#                    </div>#}
-{#                    <input type="text" id="phone_number" value="{{ home_group.phone_number }}" readonly>#}
-{#                    <div class="title-wrapper">#}
-{#                        <span>Сайт:</span>#}
-{#                    </div>#}
-{#                    <div class="input">#}
-{#                        <input type="text" id="web_site" value="{{ home_group.website }}" readonly>#}
-{#                        <a href="{{ home_group.website }}" target="_blank" id="site-link"#}
-{#                           {% if not home_group.website %}class="link-hide"{% endif %}>#}
-{#                            <i class="fa fa-external-link" aria-hidden="true"></i>#}
-{#                        </a>#}
-{#                    </div>#}
-{#                </div>#}
-            </form>
         </div>
             <h2 class="info-title">Сводная информация:</h2>
             <div class="info info-calc">
@@ -164,28 +114,6 @@
                         </label>
                     </div>
                 </div>
-{#                <div class="info-block">#}
-{#                    <div class="title-wrapper">#}
-{#                        <span>Количество людей:</span>#}
-{#                    </div>#}
-{#                    <p><span id="users_count">{{ users_count }}</span></p>#}
-{#                    <div class="title-wrapper">#}
-{#                        <span>Количество Отцов:</span>#}
-{#                    </div>#}
-{#                    <p><span id="fathers_count">{{ fathers_count }}</span></p>#}
-{#                    <div class="title-wrapper">#}
-{#                        <span>Количество Юношей:</span>#}
-{#                    </div>#}
-{#                    <p><span id="juniors_count">{{ juniors_count }}</span></p>#}
-{#                    <div class="title-wrapper">#}
-{#                        <span>Количество Младенцев:</span>#}
-{#                    </div>#}
-{#                    <p><span id="babies_count">{{ babies_count }}</span></p>#}
-{#                    <div class="title-wrapper">#}
-{#                        <span>Количество Партнеров:</span>#}
-{#                    </div>#}
-{#                    <p><span id="partners_count">{{ partners_count }}</span></p>#}
-{#                </div>#}
             </div>
     </div>
     {% block pagination_top %}
@@ -353,7 +281,7 @@
 {% endblock %}
 {% block template_tables %}
 <script type="text/template" id="databaseUsers">
-     <table>
+     <table id="table-1">
         <thead>
         <tr>
             <% for( var key in user_table) { %>
@@ -434,5 +362,6 @@
             <% } %>
         </tbody>
     </table>
+    <table id="header-fixed"></table>
 </script>
 {% endblock %}

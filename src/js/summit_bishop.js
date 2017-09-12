@@ -40,6 +40,7 @@ class BishopReport {
         this.getReport().then(data => {
             this.data.results = data;
             $('#bishopsReports').html(this.renderTable());
+            fixedTableHead();
             $('.table__count').html(`Показано ${this.data.results.length}`);
             $('.preloader').css('display', 'none');
         });
@@ -202,7 +203,4 @@ class PrintMasterStat {
         $('.preloader').css('display', 'block');
         report.makeTable();
     }, 500));
-     // $('input[name="fullsearch"]').on('keyup', function () {
-     //     report.makeTable();
-     // });
 })(jQuery);

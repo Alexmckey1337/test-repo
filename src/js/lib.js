@@ -494,6 +494,7 @@ function createHomeGroupsTable(config = {}) {
             callback: createHomeGroupsTable
         };
         makePagination(paginationConfig);
+        fixedTableHead();
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createHomeGroupsTable, ".table-wrap th");
@@ -1107,6 +1108,7 @@ function createChurchesUsersTable(id, config = {}) {
             callback: createChurchesUsersTable
         };
         makePagination(paginationConfig);
+        fixedTableHead();
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
     })
@@ -1149,6 +1151,7 @@ function createChurchesDetailsTable(config = {}, id, link) {
             callback: createChurchesDetailsTable
         };
         makePagination(paginationConfig);
+        fixedTableHead();
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createChurchesDetailsTable, ".table-wrap th");
@@ -1194,6 +1197,7 @@ function createHomeGroupUsersTable(config = {}, id) {
             callback: createHomeGroupUsersTable
         };
         makePagination(paginationConfig);
+        fixedTableHead();
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createHomeGroupUsersTable, ".table-wrap th");
@@ -1343,6 +1347,7 @@ function createChurchesTable(config = {}) {
             callback: createChurchesTable
         };
         makePagination(paginationConfig);
+        fixedTableHead();
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createChurchesTable, ".table-wrap th");
@@ -1756,6 +1761,29 @@ function getPaymentsDeals(config) {
     });
 }
 
+function getChurchPaymentsDeals(config) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: URLS.event.church_report.deals(),
+            method: 'GET',
+            data: config,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}
+
 function createPaymentsTable(config) {
     Object.assign(config, getSearch('search_purpose_fio'));
     Object.assign(config, getFilterParam());
@@ -1784,6 +1812,39 @@ function createPaymentsTable(config) {
         makeSortForm(data.table_columns);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createPaymentsTable, ".table-wrap th");
+    }).catch(function (err) {
+        console.log(err);
+    });
+}
+
+function createChurchPaymentsTable(config) {
+    Object.assign(config, getSearch('search_title'));
+    Object.assign(config, getFilterParam());
+    Object.assign(config, getOrderingData());
+    getChurchPaymentsDeals(config).then(function (data) {
+        let count = data.count,
+            page = config['page'] || 1,
+            pages = Math.ceil(count / CONFIG.pagination_count),
+            showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
+            id = "tableChurchReportsPayments",
+            currency = data.payments_sum,
+            uah = (currency.uah.sum != null) ? beautifyNumber(currency.uah.sum) : 0,
+            usd = (currency.usd.sum != null) ? beautifyNumber(currency.usd.sum) : 0,
+            eur = (currency.eur.sum != null) ? beautifyNumber(currency.eur.sum) : 0,
+            rub = (currency.rur.sum != null) ? beautifyNumber(currency.rur.sum) : 0,
+            text = `Показано ${showCount} из ${count} на сумму: ${uah} грн, ${usd} дол, ${eur} евро, ${rub} руб`;
+        let paginationConfig = {
+            container: ".payments__pagination",
+            currentPage: page,
+            pages: pages,
+            callback: createChurchPaymentsTable
+        };
+        makePaymentsTable(data, id);
+        makePagination(paginationConfig);
+        $('.table__count').text(text);
+        makeSortForm(data.table_columns);
+        $('.preloader').css('display', 'none');
+        new OrderTable().sort(createChurchPaymentsTable, ".table-wrap th");
     }).catch(function (err) {
         console.log(err);
     });
@@ -2419,7 +2480,8 @@ function makeDataTable(data, id) {
     document.getElementById(id).innerHTML = rendered;
     $('.quick-edit').on('click', function () {
         makeQuickEditCart(this);
-    })
+    });
+    fixedTableHead();
 }
 
 function makePaymentsTable(data, id) {
@@ -2428,7 +2490,8 @@ function makePaymentsTable(data, id) {
     document.getElementById(id).innerHTML = rendered;
     $('.quick-edit').on('click', function () {
         // makeQuickEditPayments(this);
-    })
+    });
+    fixedTableHead();
 }
 
 function makeSammitsDataTable(data, id) {
@@ -2437,7 +2500,8 @@ function makeSammitsDataTable(data, id) {
     document.getElementById(id).innerHTML = rendered;
     $('.quick-edit').on('click', function () {
         makeQuickEditSammitCart(this);
-    })
+    });
+    fixedTableHead();
 }
 
 function makeSortForm(data) {
@@ -3369,6 +3433,7 @@ function makeHomeReportsTable(data, config = {}) {
     // $('.table__count').text(data.count);
     makePagination(paginationConfig);
     makeSortForm(data.table_columns);
+    fixedTableHead();
     $('.table__count').text(text);
     new OrderTable().sort(homeReportsTable, ".table-wrap th");
     $('.preloader').hide();
@@ -3378,19 +3443,6 @@ function makePartnershipSummaryTable(data, oldData = {}) {
     let tmpl = $('#databasePartnershipSummary').html();
     let rendered = _.template(tmpl)(data);
     $('#managersPlan').html(rendered);
-    // let count = data.count;
-    // let pages = Math.ceil(count / CONFIG.pagination_count);
-    // let page = config.page || 1;
-    // let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
-    // let text = `Показано ${showCount} из ${count}`;
-    // let paginationConfig = {
-    //     container: ".reports__pagination",
-    //     currentPage: page,
-    //     pages: pages,
-    //     callback: homeReportsTable
-    // };
-    // $('.table__count').text(data.count);
-    // makePagination(paginationConfig);
     makeSortForm(data.table_columns);
     $('#managersPlan').find('table').on('dblclick', '.edit_plan', function (e) {
         let actualVal = $(this).val();
@@ -3411,9 +3463,6 @@ function makePartnershipSummaryTable(data, oldData = {}) {
         }
     });
     fixedTableHead();
-    // getPositionScroll();
-    // $('.table__count').text(text);
-    // new OrderTableByClient().sort(partnershipSummaryTable, ".table-wrap th");
     new OrderTableByClient().sortByClient(makePartnershipSummaryTable, ".table-wrap th", data);
     new OrderTableByClient().searchByClient(makePartnershipSummaryTable, data, oldData);
     $('.preloader').hide();
@@ -3445,6 +3494,7 @@ function makeHomeLiderReportsTable(data, config = {}) {
     makePagination(paginationConfig);
     makeSortForm(data.table_columns);
     $('.table__count').text(text);
+    fixedTableHead();
     new OrderTable().sort(homeLiderReportsTable, ".table-wrap th");
     $('.preloader').hide();
 }
@@ -3468,6 +3518,7 @@ function makeChurchReportsTable(data, config = {}) {
     makePagination(paginationConfig);
     makeSortForm(data.table_columns);
     $('.table__count').text(text);
+    fixedTableHead();
     new OrderTable().sort(churchReportsTable, ".table-wrap th");
     $('.preloader').hide();
     btnDeals();
@@ -3522,6 +3573,7 @@ function makeChurchPastorReportsTable(data, config = {}) {
         window.location = `${url}?type=${type}&pastor=${id}`;
     });
     $('.table__count').text(text);
+    fixedTableHead();
     new OrderTable().sort(churchPastorReportsTable, ".table-wrap th");
     $('.preloader').hide();
 }
@@ -4454,9 +4506,9 @@ function fixedTableHead() {
         $fixedHeader = $("#header-fixed").append($header),
         arrCellWidth = [];
         if ($tableOffset > 0) {
-            $('#managersPlan').attr('data-offset', $tableOffset);
+            $('.table').attr('data-offset', $tableOffset);
         } else {
-            $tableOffset = $('#managersPlan').attr('data-offset');
+            $tableOffset = $('.table').attr('data-offset');
         }
     $('#table-1 > thead').find('th').each(function () {
         let width = $(this).outerWidth();
@@ -4468,7 +4520,7 @@ function fixedTableHead() {
         })
     });
 
-    $("#managersPlan").scroll(function(){
+    $(".table").scroll(function(){
          let offset = $(this).scrollLeft(),
              sidebar = $('#sidebar').outerWidth();
          $('#header-fixed').css('left', (sidebar-offset));
