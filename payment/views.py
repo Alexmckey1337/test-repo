@@ -11,7 +11,7 @@ from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
 from common.test_helpers.utils import get_real_user
 from payment.filters import (PaymentFilterByPurpose, PaymentFilter, FilterByDealFIO, FilterByDealDate,
-                             FilterByDealManager, FilterByChurchReportPastor, FilterByChurchReportDate,
+                             FilterByDealManager, FilterByChurchReportDate,
                              FilterByChurchReportPastor, FilterByChurchReportChurchTitle)
 from payment.serializers import (PaymentUpdateSerializer, PaymentShowSerializer, PaymentDealShowSerializer,
                                  PaymentChurchReportShowSerializer)

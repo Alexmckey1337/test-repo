@@ -12,6 +12,7 @@ from rest_framework_swagger import renderers
 from rest_framework.permissions import AllowAny
 from rest_framework.renderers import CoreJSONRenderer
 from rest_framework.views import APIView
+from main.views import privacy_policy
 
 
 class SchemaGenerator(BaseSchemaGenerator):
@@ -53,7 +54,7 @@ urlpatterns = [
 
     url(r'^api/$', SwaggerSchemaView.as_view()),
     url(r'^api/', include('edem.api_urls')),
-
+    url(r'^privacy_policy', privacy_policy, name='privacy_policy'),
     url(r'^', include('main.urls')),
     url(r'^', include('django.contrib.auth.urls')),
 ]

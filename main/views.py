@@ -38,20 +38,6 @@ def edit_pass(request, activation_key=None):
 
 
 @login_required(login_url='entry')
-def events(request):
-    if not request.user.hierarchy or request.user.hierarchy.level < 1:
-        return redirect('/')
-
-    ctx = {
-        'reports_in_progress': Meeting.objects.filter(status=1).count(),
-        'reports_submitted': Meeting.objects.filter(status=2).count(),
-        'reports_expired': Meeting.objects.filter(status=3).count(),
-    }
-
-    return render(request, 'event/EVENT_LIST.html', context=ctx)
-
-
-@login_required(login_url='entry')
 def meeting_report_list(request):
     if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
         return redirect('/')
@@ -161,6 +147,12 @@ def report_payments(request):
     ctx = {}
 
     return render(request, 'event/report_payments.html', context=ctx)
+
+
+def privacy_policy(request):
+    """For mobile clients"""
+    ctx = {}
+    return render(request, 'privacy_policy.html', context=ctx)
 
 # partner
 
