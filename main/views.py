@@ -160,7 +160,8 @@ def report_payments(request):
         return redirect('/')
     ctx = {
         'currencies': Currency.objects.all(),
-        'managers': CustomUser.objects.filter(partnership__level__lte=2).distinct()
+        'managers': CustomUser.objects.filter(partnership__level__lte=2).distinct(),
+        'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
     }
 
     return render(request, 'event/report_payments.html', context=ctx)

@@ -123,21 +123,21 @@
                                    class="date_filter select_to_filter">
                         </p>
                     </label>
-{#                    <label>#}
-{#                        <span class="label_block">Поиск по менеджеру</span>#}
-{#                        <select class="selectdb" data-filter="responsible_id" id="manager">#}
-{#                            <option value="">ВСЕ</option>#}
-{#                            {% for manager in managers %}#}
-{#                                <option value="{{ manager.id }}">{{ manager.fullname }}</option>#}
-{#                            {% endfor %}#}
-{#                        </select>#}
-{#                    </label>#}
+                    <label>
+                        <span class="label_block">Поиск по менеджеру</span>
+                        <select class="selectdb" data-filter="manager" id="manager">
+                            <option value="">ВСЕ</option>
+                            {% for manager in managers %}
+                                <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
                     <label>
                         <span class="label_block">Поиск по пастору</span>
                         <select class="selectdb" data-filter="pastor_id" id="search_purpose_manager_fio">
                             <option value="">ВСЕ</option>
-                            {% for manager in managers %}
-                                <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                            {% for pastor in pastors %}
+                                <option value="{{ pastor.id }}">{{ pastor.fullname }}</option>
                             {% endfor %}
                         </select>
                     </label>
