@@ -18,6 +18,7 @@
             <ul class="nav tabs_link">
                 <li><a class="active" href="{% url 'events:church_report_list' %}">Отчёты церквей</a></li>
                 <li><a href="{% url 'events:church_report_statistics' %}">Статистика церквей</a></li>
+                <li><a href="{% url 'events:report_payments' %}">Таблица платежей</a></li>
                 <li><a href="{% url 'events:meeting_report_list' %}">Отчёты домашних групп</a></li>
                 <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних групп</a></li>
             </ul>
@@ -102,7 +103,7 @@
     {% endblock %}
 
     {% block table %}
-        <div class="table-wrap clearfix" id="churchReports"><!--Table -->
+        <div class="table table-wrap clearfix" id="churchReports"><!--Table -->
             <div class="table scrollbar-inner" id="tableChurchReports"></div>
             <div class="query-none">
                 <p></p>
@@ -229,7 +230,7 @@
 {% endblock %}
 {% block template_tables %}
 <script type="text/template" id="databaseChurchReports">
-     <table>
+     <table id="table-1">
             <thead>
             <tr>
                 <% for( var key in table_columns) { %>
@@ -326,5 +327,6 @@
             <% } %>
             </tbody>
         </table>
+        <table id="header-fixed"></table>
 </script>
 {% endblock %}

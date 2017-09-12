@@ -76,14 +76,4 @@
         partnershipSummaryTable();
     });
 
-    // $('input[name="fullsearch"]').on('keyup', _.debounce(function (e) {
-    //     $('.preloader').css('display', 'block');
-    //     partnershipSummaryTable();
-    // }, 500));
-
-     $(window).on('resize', function() {
-         $("#header-fixed").empty();
-         fixedTableHead();
-    });
-
 })();

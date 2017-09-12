@@ -144,7 +144,11 @@ def reports_summary(request):
 def report_payments(request):
     if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 2):
         return redirect('/')
-    ctx = {}
+    ctx = {
+        'currencies': Currency.objects.all(),
+        'managers': CustomUser.objects.filter(partnership__level__lte=2).distinct(),
+        'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
+    }
 
     return render(request, 'event/report_payments.html', context=ctx)
 

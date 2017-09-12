@@ -15,6 +15,7 @@
         let tmpl = $('#databaseHomeReports').html();
         let rendered = _.template(tmpl)(data);
         $homeReports.html(rendered);
+        fixedTableHead();
     }
 
     function getHomeReportDetailData(config = {}) {
