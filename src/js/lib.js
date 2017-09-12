@@ -3912,19 +3912,41 @@ function getCountFilter() {
 
 function btnDeals() {
     $("button.pay").on('click', function () {
-        let id = $(this).data('id');
-        let value = $(this).data('value');
-        let total_sum = $(this).data('total_sum');
-        let diff = numeral(value).value() - numeral(total_sum).value();
-        let currencyName = $(this).data('currency-name');
-        let currencyID = $(this).data('currency-id');
+        let id = $(this).attr('data-id'),
+            value = $(this).attr('data-value'),
+            total = $(this).attr('data-total_sum'),
+            total_sum = numeral(total).value(),
+            diff = numeral(value).value() - numeral(total_sum).value(),
+            currencyName = $(this).attr('data-currency-name'),
+            currencyID = $(this).attr('data-currency-id'),
+            payer = $(this).attr('data-name'),
+            responsible = $(this).attr('data-responsible'),
+            date = $(this).attr('data-date');
         diff = diff > 0 ? diff : 0;
-        $('#new_payment_sum').val(diff);
-        $('#complete-payment').attr('data-id', id);
-        $('#purpose-id').val(id);
+        $('#payment_name').text(payer);
+        $('#payment_responsible').text(responsible);
+        $('#payment_date').text(date);
+        $('#payment_sum, #all_payments').text(`${value} ${currencyName}`);
+        clearSumChange();
+        sumChange(diff, currencyName, currencyID, total_sum);
         $('#popup-create_payment').css('display', 'block');
-        sumChangeListener(currencyName, currencyID);
+        $('#new_payment_rate').focus();
     });
+
+    // $("button.pay").on('click', function () {
+    //     let id = $(this).data('id');
+    //     let value = $(this).data('value');
+    //     let total_sum = $(this).data('total_sum');
+    //     let diff = numeral(value).value() - numeral(total_sum).value();
+    //     let currencyName = $(this).data('currency-name');
+    //     let currencyID = $(this).data('currency-id');
+    //     diff = diff > 0 ? diff : 0;
+    //     $('#new_payment_sum').val(diff);
+    //     $('#complete-payment').attr('data-id', id);
+    //     $('#purpose-id').val(id);
+    //     $('#popup-create_payment').css('display', 'block');
+    //     sumChangeListener(currencyName, currencyID);
+    // });
 
     // $("button.complete").on('click', function () {
     //     // let client_name = $(this).attr('data-name'),
@@ -3938,6 +3960,42 @@ function btnDeals() {
     //     let id = $(this).attr('data-id');
     //     updateDeals(id);
     // });
+}
+
+function clearSumChange() {
+    $('#new_payment_rate, #new_payment_sum, #sent_date').val('');
+    $('#payment-form').find('textarea').val('');
+    $('#user_payment').text('0');
+}
+
+function sumChange(diff, currencyName, currencyID, total) {
+    let currencies = $('#new_payment_rate'),
+        payment = $('#new_payment_sum'),
+        curr;
+    currencies.on('change', function () {
+        if (currencyID != 2) {
+            curr = $(this).val();
+            let uah = Math.round(diff * curr * 10) / 10;
+            payment.val(uah);
+            $('#user_payment').text(`${+diff + +total} ${currencyName}`);
+        }
+    });
+    payment.on('change', function () {
+        if (currencyID != 2) {
+            let pay = $(this).val();
+            curr = currencies.val();
+            let result = Math.round((pay / curr) * 10) / 10;
+            $('#user_payment').text(`${result + +total} ${currencyName}`);
+        } else {
+            let pay = $(this).val();
+            $('#user_payment').text(`${+pay + +total} ${currencyName}`);
+        }
+    });
+    if (currencyID == 2) {
+        currencies.val('1.0').prop('readonly', true);
+        payment.val(diff);
+        $('#user_payment').text(`${diff + total} ${currencyName}`);
+    }
 }
 
 function updateDeals(id) {
