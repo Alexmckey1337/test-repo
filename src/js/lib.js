@@ -3537,7 +3537,7 @@ function showChurchPayments(id) {
         let payments_table = '';
         let sum, date_time, manager;
         data.forEach(function (payment) {
-            sum = payment.effective_sum_str.replace('.000', '');
+            sum = payment.sum_str;
             date_time = payment.sent_date;
             manager = `${payment.manager.last_name} ${payment.manager.first_name} ${payment.manager.middle_name}`;
             payments_table += `<tr><td>${sum}</td><td>${date_time}</td><td>${manager}</td></tr>`
@@ -4080,7 +4080,7 @@ function showPayments(id) {
         let payments_table = '';
         let sum, date_time, manager;
         data.forEach(function (payment) {
-            sum = payment.effective_sum_str.replace('.000', '');
+            sum = payment.sum_str;
             date_time = payment.sent_date;
             manager = `${payment.manager.last_name} ${payment.manager.first_name} ${payment.manager.middle_name}`;
             payments_table += `<tr><td>${sum}</td><td>${date_time}</td><td>${manager}</td></tr>`
@@ -4257,7 +4257,7 @@ function createChurchPayment(id, sum, description) {
         };
         let json = JSON.stringify(config);
         let data = {
-            url: URLS.event.church_report.create_payment(id),
+            url: URLS.event.church_report.create_uah_payment(id),
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
