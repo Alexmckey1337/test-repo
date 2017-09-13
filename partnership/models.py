@@ -193,6 +193,14 @@ class Deal(LogModel, AbstractPaymentPurpose):
     date_created = models.DateField(null=True, blank=True, default=date.today)
     date = models.DateField(null=True, blank=True)
 
+    DONATION, TITHE = 1, 2
+    DEAL_TYPE_CHOICES = (
+        (DONATION, _('Donation')),
+        (TITHE, _('Tithe'))
+    )
+
+    type = models.PositiveSmallIntegerField(_('Deal type'), choices=DEAL_TYPE_CHOICES, default=1)
+
     payments = GenericRelation('payment.Payment', related_query_name='deals')
 
     objects = DealManager()
@@ -289,7 +297,7 @@ class PartnershipLogs(PartnershipAbstractModel):
     class Meta:
         verbose_name = _('Partnership Log')
         verbose_name_plural = _('Partnership Logs')
-        ordering = ('log_date',)
+        ordering = ('-log_date',)
 
     def __str__(self):
         return 'Partner: %s. Log date: %s' % (self.partner, self.log_date)

@@ -91,17 +91,17 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         from functools import reduce
 
         serializer.save()
-        data = serializer.data
-        date = reduce(lambda x, y: y + '-' + x, data['date'].split('.'))
-
-        PartnershipLogs.objects.create(currency_id=data['currency'],
-                                       date=date,
-                                       is_active=data['is_active'],
-                                       need_text=data['need_text'],
-                                       responsible_id=data['responsible'],
-                                       value=data['value'],
-                                       partner_id=data['id'],
-                                       )
+        # data = serializer.data
+        # date = reduce(lambda x, y: y + '-' + x, data['date'].split('.'))
+        #
+        # PartnershipLogs.objects.create(currency_id=data['currency'],
+        #                                date=date,
+        #                                is_active=data['is_active'],
+        #                                need_text=data['need_text'],
+        #                                responsible_id=data['responsible'],
+        #                                value=data['value'],
+        #                                partner_id=data['id'],
+        #                                )
 
     def get_permissions(self):
         if self.action in ('list', 'retrieve'):
