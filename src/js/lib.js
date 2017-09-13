@@ -3922,12 +3922,13 @@ function btnDeals() {
             payer = $(this).attr('data-name'),
             responsible = $(this).attr('data-responsible'),
             date = $(this).attr('data-date');
+        $('#complete-payment').attr('data-id', id);
         diff = diff > 0 ? diff : 0;
         $('#payment_name').text(payer);
         $('#payment_responsible').text(responsible);
         $('#payment_date').text(date);
         $('#payment_sum, #all_payments').text(`${value} ${currencyName}`);
-        clearSumChange();
+        clearSumChange(total_sum);
         sumChange(diff, currencyName, currencyID, total_sum);
         $('#popup-create_payment').css('display', 'block');
         $('#new_payment_rate').focus();
@@ -3962,16 +3963,17 @@ function btnDeals() {
     // });
 }
 
-function clearSumChange() {
+function clearSumChange(total) {
     $('#new_payment_rate, #new_payment_sum, #sent_date').val('');
     $('#payment-form').find('textarea').val('');
-    $('#user_payment').text('0');
+    $('#user_payment').text(total);
 }
 
 function sumChange(diff, currencyName, currencyID, total) {
     let currencies = $('#new_payment_rate'),
         payment = $('#new_payment_sum'),
         curr;
+    console.log('currencyID-->',currencyID);
     currencies.on('change', function () {
         if (currencyID != 2) {
             curr = $(this).val();
