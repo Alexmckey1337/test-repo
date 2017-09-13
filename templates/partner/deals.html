@@ -216,6 +216,14 @@
                             <option value="2">﻿Оплачена полностью</option>
                         </select>
                     </label>
+                    <label>
+                        <span class="label_block">Тип сделки</span>
+                        <select id="﻿payment_status" class="selectdb" data-filter="type">
+                            <option value="">ВСЕ</option>
+                            <option value="1">Партнерские</option>
+                            <option value="2">﻿Десятины</option>
+                        </select>
+                    </label>
                 </div>
             </div>
             <div class="container">
@@ -283,6 +291,18 @@
                                         <button class="show_payments inline__button" data-id="<%=results[index].id%>">
                                             <span><%= results[index].total_sum %>/<%= results[index].value %></span>
                                         </button>
+                                    </td>
+                                <% } else { %>
+                                    <td></td>
+                                <% } %>
+                            <% } else if (key == 'type' ) { %>
+                                <% if (results[index][key] != null ) { %>
+                                    <td>
+                                        <% if (results[index][key] == '1' ) { %>
+                                        партнерские
+                                        <% } else { %>
+                                        десятины
+                                        <% } %>
                                     </td>
                                 <% } else { %>
                                     <td></td>

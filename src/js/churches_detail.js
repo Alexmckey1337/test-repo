@@ -288,4 +288,10 @@
         }
     });
 
+    $('#no_partners-link').on('click', function (e) {
+        e.preventDefault();
+        let url = $(this).attr('href');
+        window.location = `${url}?church=${CHURCH_ID}&is_partner=false`;
+    })
+
 })(jQuery);

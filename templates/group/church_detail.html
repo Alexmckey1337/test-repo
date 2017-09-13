@@ -115,32 +115,35 @@
             <div class="popup_body">
                         <div class="container container_block">
                             <label>
-                                <span class="label_block">Количество прихожан:</span>
+                                <span class="label_block">Прихожан:</span>
                                 <p class="count"><span id="parishioners_count">{{ parishioners_count }}</span></p>
                             </label>
                             <label>
-                                <span class="label_block">Количество Лидеров:</span>
+                                <span class="label_block">Лидеров:</span>
                                 <p class="count"><span id="leaders_count">{{ leaders_count }}</span></p>
                             </label>
                             <label>
-                                <span class="label_block">Количество Отцов:</span>
+                                <span class="label_block">Отцов:</span>
                                 <p class="count"><span id="fathers_count">{{ fathers_count }}</span></p>
                             </label>
                             <label>
-                                <span class="label_block">Количество Юношей:</span>
+                                <span class="label_block">Юношей:</span>
                                 <p class="count"><span id="juniors_count">{{ juniors_count }}</span></p>
                             </label>
                             <label>
-                                <span class="label_block">Количество Младенцев:</span>
+                                <span class="label_block">Младенцев:</span>
                                 <p class="count"><span id="babies_count">{{ babies_count }}</span></p>
                             </label>
                             <label>
-                                <span class="label_block">Количество партнеров:</span>
+                                <span class="label_block">Партнеров:</span>
                                 <p class="count"><span id="partners_count">{{ partners_count }}</span></p>
                             </label>
                             <label>
-                                <span class="label_block">Количество не партнеров:</span>
+                                <span class="label_block">Не партнеров:</span>
                                 <p class="count"><span id="no_partners_count">{{ no_partners_count }}</span></p>
+                                <a href="{% url 'db:people' %}" target="_blank" id="no_partners-link">
+                                    <i class="fa fa-external-link" aria-hidden="true"></i>
+                                </a>
                             </label>
                         </div>
                     </div>

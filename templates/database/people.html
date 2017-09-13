@@ -55,7 +55,16 @@
                                     <option value="{{ department.id }}">{{ department.title }}</option>
                                 {% endfor %}
                         </select>
-                     </label>
+                    </label>
+{#                    <label>#}
+{#                        <span class="label_block">Церковь</span>#}
+{#                        <select class="selectdb" data-filter="church" id="church_filter">#}
+{#                            <option value="">ВСЕ</option>#}
+{#                            {% for church in churches %}#}
+{#                                <option value="{{ church.id }}">{{ church.get_title }}</option>#}
+{#                            {% endfor %}#}
+{#                        </select>#}
+{#                    </label>#}
                     <label>
                         <span class="label_block">Ветка</span>
                         <select class="selectdb" data-filter="master_tree" id="tree_filter">
