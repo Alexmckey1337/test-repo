@@ -148,6 +148,7 @@
           content: '';
         }
         &:last-child{
+          position: relative;
           margin-bottom:0;
         }
         input,.select2,select,.phone,.input,.birthday{
@@ -329,6 +330,11 @@
             background: red;
           }
         }
+      }
+      .note {
+        width: 100%;
+        height: 80px;
+        resize: none;
       }
       .upload-photo{
         box-sizing: border-box;
@@ -814,9 +820,11 @@
   }
 }
 
-#payment-form{
-  padding: 0 20px;
-}
+//#payment-form{
+//  padding: 0 20px;
+//}
+
+
 
 .input__wrap {
   padding: 17px 0;
@@ -1447,4 +1455,33 @@ button{
 #create_duplicate_pop.pop-up__table .pop_cont,
 #create_special_pop.pop-up__table .pop_cont{
   width: 900px;
+}
+
+#payment-form {
+  .container_block {
+    margin-bottom: 2em;
+    padding-bottom: 2em;
+    border-bottom: 1px solid #eee;
+  }
+  .block_line {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    color: #a0a0a0;
+  }
+  .result {
+    display: flex;
+    justify-content: space-between;
+    p {
+      font-size: 1.3em;
+      font-weight: 900;
+    }
+  }
+}
+#no_partners-link {
+  position: absolute;
+  right: 0;
+  top: 5px;
 }

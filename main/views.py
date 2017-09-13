@@ -616,7 +616,8 @@ class PeopleListView(LoginRequiredMixin, TabsMixin, CanSeeUserListMixin, Templat
         extra_ctx = {
             'departments': Department.objects.all(),
             'hierarchies': Hierarchy.objects.order_by('level'),
-            'currencies': Currency.objects.all()
+            'currencies': Currency.objects.all(),
+            'churches': Church.objects.all(),
         }
         user = self.request.user
         if user.is_staff:

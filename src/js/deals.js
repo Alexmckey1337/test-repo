@@ -103,7 +103,7 @@ $(document).ready(function () {
     // }
 
     $('#sent_date').datepicker({
-        dateFormat: "yyyy-mm-dd",
+        dateFormat: "dd.mm.yyyy",
         startDate: new Date(),
         maxDate: new Date(),
         autoClose: true
