@@ -140,6 +140,14 @@
                         <input type="text" data-filter="search_description" placeholder="Описание или часть"
                                    id="search_description">
                     </label>
+                    <label>
+                        <span class="label_block">Тип сделки</span>
+                        <select id="﻿payment_status" class="selectdb" data-filter="deal_type">
+                            <option value="">ВСЕ</option>
+                            <option value="1">Партнерские</option>
+                            <option value="2">﻿Десятины</option>
+                        </select>
+                    </label>
                 </div>
             </div>
             <div class="container">
@@ -197,6 +205,18 @@
                 <td class="edit"><a href="<%= results[index].link %>" data-link="<%= results[index].link %>"
                                     data-id="<%=results[index].id %>"><%= results[index][key] %></a><span
                         class="quick-edit"></span></td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else if (key == 'purpose_type' ) { %>
+                <% if (results[index][key] != null ) { %>
+                <td>
+                    <% if (results[index][key] == '1' ) { %>
+                    партнерские
+                    <% } else { %>
+                    десятины
+                    <% } %>
+                </td>
                 <% } else { %>
                 <td></td>
                 <% } %>

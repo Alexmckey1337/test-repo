@@ -106,10 +106,10 @@ $('document').ready(function () {
         } else {
             config.department = departamentID;
         }
-        getChurchesListINDepartament(departamentID).then(data => {
-            const churches = data.map(option => `<option value="${option.id}">${option.get_title}</option>`);
-            $churchFilter.html('<option value="">ВСЕ</option>').append(churches);
-        });
+        // getChurchesListINDepartament(departamentID).then(data => {
+        //     const churches = data.map(option => `<option value="${option.id}">${option.get_title}</option>`);
+        //     $churchFilter.html('<option value="">ВСЕ</option>').append(churches);
+        // });
         getShortUsers(config).then(function (data) {
             let options = [];
             let option = document.createElement('option');
