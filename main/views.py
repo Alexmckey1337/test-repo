@@ -690,9 +690,10 @@ class ChurchDetailView(LoginRequiredMixin, CanSeeChurchMixin, DetailView):
             'babies_count': church.uusers.filter(
                 spiritual_level=CustomUser.BABY).count() + HomeGroup.objects.filter(
                 church__id=church.id, uusers__spiritual_level=1).count(),
-            'partners_count': church.uusers.filter(partnership__is_active=True).count() + CustomUser.objects.filter(
-                hhome_group__church_id=church.id, partnership__is_active=True).count(),
-
+            'partners_count': church.uusers.filter(partnership__isnull=False).count() + CustomUser.objects.filter(
+                hhome_group__church_id=church.id, partnership__isnull=False).count(),
+            'no_partners_count': church.uusers.filter(partnership__isnull=True).count() + CustomUser.objects.filter(
+                hhome_group__church_id=church.id, partnership__isnull=True).count(),
         }
         ctx.update(extra_context)
 

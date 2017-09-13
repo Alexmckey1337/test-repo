@@ -115,8 +115,8 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
                        # FilterByDealManagerFIO,
                        FilterByDealManager,
                        filters.OrderingFilter,)
-    ordering_fields = ('sum', 'effective_sum', 'currency_sum__name', 'currency_rate__name', 'created_at', 'sent_date',
-                       'manager__last_name', 'description',
+    ordering_fields = ('sum', 'effective_sum', 'currency_sum__name', 'currency_rate__name',
+                       'created_at', 'sent_date', 'manager__last_name', 'description',
                        'deals__partnership__user__last_name', 'deals__date_created',
                        'deals__partnership__responsible__user__last_name')
 
@@ -149,12 +149,15 @@ class PaymentChurchReportListView(mixins.ListModelMixin, GenericAPIView):
                        FilterByChurchReportChurchTitle,)
 
     ordering_fields = ('sum', 'effective_sum', 'currency_sum__name', 'currency_rate__name', 'created_at',
-                       'sent_date', 'manager__last_name', 'description', 'church_reports__church__pastor__last_name',
+                       'sent_date', 'manager__last_name', 'description',
+                       'church_reports__church__pastor__last_name',
                        'church_reports__date', 'church_reports__church__title')
 
     field_search_fields = {
-        'search_title': ('church_reports__church__pastor__last_name', 'church_reports__church__pastor__first_name',
-                         'church_reports__church__pastor__middle_name', 'church_reports__church__title')
+        'search_title': ('church_reports__church__pastor__last_name',
+                         'church_reports__church__pastor__first_name',
+                         'church_reports__church__pastor__middle_name',
+                         'church_reports__church__title')
     }
 
     filter_class = PaymentFilter

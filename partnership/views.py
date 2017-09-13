@@ -26,10 +26,10 @@ from partnership.pagination import PartnershipPagination, DealPagination
 from partnership.permissions import (CanSeeDeals, CanSeePartners, CanCreateDeals,
                                      CanUpdateDeals, CanUpdatePartner, CanUpdateManagersPlan)
 from partnership.resources import PartnerResource
-from .models import Partnership, Deal
+from .models import Partnership, Deal, PartnershipLogs
 from .serializers import (DealSerializer, PartnershipUpdateSerializer, DealCreateSerializer,
-                          PartnershipTableSerializer,
-                          DealUpdateSerializer, PartnershipCreateSerializer, PartnershipSerializer)
+                          PartnershipTableSerializer, DealUpdateSerializer,
+                          PartnershipCreateSerializer, PartnershipSerializer)
 from decimal import Decimal
 
 
@@ -86,6 +86,22 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
 
     def get_queryset(self):
         return self.queryset.for_user(user=self.request.user)
+
+    def perform_update(self, serializer):
+        from functools import reduce
+
+        serializer.save()
+        data = serializer.data
+        date = reduce(lambda x, y: y + '-' + x, data['date'].split('.'))
+
+        PartnershipLogs.objects.create(currency_id=data['currency'],
+                                       date=date,
+                                       is_active=data['is_active'],
+                                       need_text=data['need_text'],
+                                       responsible_id=data['responsible'],
+                                       value=data['value'],
+                                       partner_id=data['id'],
+                                       )
 
     def get_permissions(self):
         if self.action in ('list', 'retrieve'):
@@ -163,9 +179,9 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             self._get_managers_plan(queryset),
         )]
         managers = self._order_managers(managers)
-        res = [manager for manager in managers if manager['potential_sum'] != 0 or manager['sum_pay'] != 0]
+        managers = [manager for manager in managers if manager['potential_sum'] != 0 or manager['sum_pay'] != 0]
 
-        return Response({'results': res, 'table_columns': partnership_summary_table(self.request.user)})
+        return Response({'results': managers, 'table_columns': partnership_summary_table(self.request.user)})
 
     @staticmethod
     def _get_partners(queryset):
@@ -187,8 +203,8 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         subqs_partners = Partnership.objects.filter(responsible=OuterRef('pk')).order_by().values(
             'responsible').annotate(count=Count('id')).values('count')
 
-        return Partnership.objects.filter(id__in=queryset).annotate(total_partners=Subquery(subqs_partners)).values_list(
-            'total_partners', flat=True).order_by('id')
+        return Partnership.objects.filter(id__in=queryset).annotate(total_partners=Subquery(
+            subqs_partners)).values_list('total_partners', flat=True).order_by('id')
 
     @staticmethod
     def _get_active_partners(queryset):
