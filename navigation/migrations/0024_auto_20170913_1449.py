@@ -18,6 +18,14 @@ def create_deal_type_column(apps, schema_editor):
     ])
 
 
+def change_deal_column_number(apps, schema_editor):
+    Deal_columns = apps.get_model('navigation', 'ColumnType')
+
+    deal_column = Deal_columns.objects.filter(category__title='deal').filter(
+        title='action')
+    deal_column.update(number=7)
+
+
 def create_payment_type_of_deal_column(apps, schema_editor):
     Payment_columns = apps.get_model('navigation', 'ColumnType')
     Category = apps.get_model('navigation', 'Category')
@@ -49,6 +57,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(change_deal_column_number),
         migrations.RunPython(create_deal_type_column, delete_deal_type_column),
         migrations.RunPython(create_payment_type_of_deal_column, delete_payment_type_of_deal_column)
     ]
