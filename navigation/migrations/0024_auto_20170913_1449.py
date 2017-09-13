@@ -49,6 +49,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(create_deal_type_column, delete_deal_type_column,
-                             create_payment_type_of_deal_column, delete_payment_type_of_deal_column)
+        migrations.RunPython(create_deal_type_column, delete_deal_type_column),
+        migrations.RunPython(create_payment_type_of_deal_column, delete_payment_type_of_deal_column)
     ]
