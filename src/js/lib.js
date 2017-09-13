@@ -634,7 +634,7 @@ function getChurchesListINDepartament(department_ids) {
                 }
             })
         } else {
-            url = `${URLS.church.for_select()}?department=${department_ids}`;
+            url = (department_ids != null) ? `${URLS.church.for_select()}?department=${department_ids}` : `${URLS.church.for_select()}`;
         }
         let data = {
             url: url,
