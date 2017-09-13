@@ -54,7 +54,7 @@ urlpatterns = [
 
     url(r'^api/$', SwaggerSchemaView.as_view()),
     url(r'^api/', include('edem.api_urls')),
-    url(r'^privacy_policy', privacy_policy, name='privacy_policy'),
+    url(r'^privacy_policy', privacy_policy, name='privacy_policy'),  # for mobile app
     url(r'^', include('main.urls')),
     url(r'^', include('django.contrib.auth.urls')),
 ]

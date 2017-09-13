@@ -45,7 +45,7 @@ class DealCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Deal
         fields = ('partnership', 'date', 'date_created',
-                  'value', 'description',
+                  'value', 'description', 'type'
                   )
 
 
