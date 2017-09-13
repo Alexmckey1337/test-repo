@@ -255,6 +255,7 @@ $('#send_new_deal').on('click', function () {
     let description = $('#popup-create_deal textarea').val();
     let value = $('#new_deal_sum').val();
     let date = $('#new_deal_date').val();
+    let type = $('#new_deal_type').val();
 
     if (description && value && date) {
         let url = URLS.deal.list();
@@ -263,7 +264,8 @@ $('#send_new_deal').on('click', function () {
             'date_created': date.trim().split('.').reverse().join('-'),
             'value': value,
             'description': description,
-            'partnership': $(this).data('partner')
+            'partnership': $(this).data('partner'),
+            'type': type,
         });
         ajaxRequest(url, deal, function (data) {
             showPopup('Сделка создана.');
@@ -856,6 +858,7 @@ $('document').ready(function () {
 
     $('#divisions').select2();
     $('#departments').select2();
+    $('.selectdb').select2();
     $('#sent_date').datepicker({
         autoClose: true,
         dateFormat: 'dd.mm.yyyy'

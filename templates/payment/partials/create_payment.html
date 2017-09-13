@@ -40,14 +40,14 @@
                         <input maxlength="6" min="0"
                                onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
                                name="sum" type="number" id="new_payment_sum" step="1" required>
-                        {#                        <select name="currency" id="new_payment_currency" required>#}
-                        {#                            {% for currency in currencies %}#}
-                        {#                                <option value="{{ currency.id }}"#}
-                        {#                                        {% if currency == purpose.currency %}selected{% endif %}>#}
-                        {#                                    {{ currency.short_name }}#}
-                        {#                                </option>#}
-                        {#                            {% endfor %}#}
-                        {#                        </select>#}
+                            {#                        <select name="currency" id="new_payment_currency" required>#}
+                            {#                            {% for currency in currencies %}#}
+                            {#                                <option value="{{ currency.id }}"#}
+                            {#                                        {% if currency == purpose.currency %}selected{% endif %}>#}
+                            {#                                    {{ currency.short_name }}#}
+                            {#                                </option>#}
+                            {#                            {% endfor %}#}
+                            {#                        </select>#}
                     </label>
                     <label>
                         <span class="label_block">Дата поступления платежа:</span>
