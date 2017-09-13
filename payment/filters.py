@@ -189,7 +189,7 @@ class FilterByDealType(BaseFilterBackend):
 
     def filter_queryset(self, request, queryset, view):
         deal_type = request.query_params.get('deal_type')
-        if int(deal_type) not in [1, 2]:
+        if deal_type not in ['1', '2']:
             return queryset
 
         deals = self.get_deals(request).filter(type=deal_type)
