@@ -3913,7 +3913,8 @@ function getCountFilter() {
 function btnDeals() {
     $("button.pay").on('click', function () {
         let id = $(this).attr('data-id'),
-            value = $(this).attr('data-value'),
+            val = $(this).attr('data-value'),
+            value = numeral(val).value(),
             total = $(this).attr('data-total_sum'),
             total_sum = numeral(total).value(),
             diff = numeral(value).value() - numeral(total_sum).value(),
@@ -3964,7 +3965,9 @@ function btnDeals() {
 }
 
 function clearSumChange(total) {
-    $('#new_payment_rate, #new_payment_sum, #sent_date').val('');
+    $('#new_payment_sum').val('');
+    $('#new_payment_rate').val('').prop('readonly', false);
+    $('#sent_date').val(moment(new Date()).format('DD.MM.YYYY'));
     $('#payment-form').find('textarea').val('');
     $('#user_payment').text(total);
 }
@@ -3973,26 +3976,26 @@ function sumChange(diff, currencyName, currencyID, total) {
     let currencies = $('#new_payment_rate'),
         payment = $('#new_payment_sum'),
         curr;
-    console.log('currencyID-->',currencyID);
-    currencies.on('change', function () {
+    $('#close_sum').text(`${diff} ${currencyName}`);
+    currencies.on('keyup', _.debounce(function () {
         if (currencyID != 2) {
             curr = $(this).val();
-            let uah = Math.round(diff * curr * 10) / 10;
+            let uah = Math.round(diff * curr);
             payment.val(uah);
             $('#user_payment').text(`${+diff + +total} ${currencyName}`);
         }
-    });
-    payment.on('change', function () {
+    }, 500));
+    payment.on('keyup', _.debounce(function () {
         if (currencyID != 2) {
             let pay = $(this).val();
             curr = currencies.val();
-            let result = Math.round((pay / curr) * 10) / 10;
+            let result = Math.round(pay / curr);
             $('#user_payment').text(`${result + +total} ${currencyName}`);
         } else {
             let pay = $(this).val();
             $('#user_payment').text(`${+pay + +total} ${currencyName}`);
         }
-    });
+    }, 500));
     if (currencyID == 2) {
         currencies.val('1.0').prop('readonly', true);
         payment.val(diff);
@@ -4274,7 +4277,7 @@ function createDealsPayment(id, sum, description) {
             "description": description,
             "rate": $('#new_payment_rate').val(),
             // "currency": $('#new_payment_currency').val(),
-            "sent_date": $('#sent_date').val(),
+            "sent_date": $('#sent_date').val().split('.').reverse().join('-'),
             "operation": $('#operation').val()
         };
         let json = JSON.stringify(config);
@@ -4312,7 +4315,7 @@ function createChurchPayment(id, sum, description) {
             "description": description,
             "rate": $('#new_payment_rate').val(),
             // "currency": $('#new_payment_currency').val(),
-            "sent_date": $('#sent_date').val(),
+            "sent_date": $('#sent_date').val().split('.').reverse().join('-'),
             "operation": $('#operation').val()
         };
         let json = JSON.stringify(config);
