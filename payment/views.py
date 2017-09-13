@@ -11,13 +11,14 @@ from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
 from common.test_helpers.utils import get_real_user
 from payment.filters import (PaymentFilterByPurpose, PaymentFilter, FilterByDealFIO, FilterByDealDate,
-                             FilterByDealManager, FilterByChurchReportDate,
-                             FilterByChurchReportPastor, FilterByChurchReportChurchTitle)
+                             FilterByDealManager, FilterByChurchReportDate, FilterByChurchReportPastor,
+                             FilterByChurchReportChurchTitle, FilterByDealType)
 from payment.serializers import (PaymentUpdateSerializer, PaymentShowSerializer, PaymentDealShowSerializer,
                                  PaymentChurchReportShowSerializer)
 from .models import Payment
 from .permissions import PaymentManagerOrSupervisor
 from .pagination import PaymentPagination, ChurchReportPaymentPagination
+from django.db.models import F
 
 
 class PaymentUpdateDestroyView(LogAndCreateUpdateDestroyMixin,
@@ -114,11 +115,13 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
                        FilterByDealDate,
                        # FilterByDealManagerFIO,
                        FilterByDealManager,
+                       FilterByDealType,
                        filters.OrderingFilter,)
     ordering_fields = ('sum', 'effective_sum', 'currency_sum__name', 'currency_rate__name',
                        'created_at', 'sent_date', 'manager__last_name', 'description',
                        'deals__partnership__user__last_name', 'deals__date_created',
-                       'deals__partnership__responsible__user__last_name')
+                       'deals__partnership__responsible__user__last_name',
+                       'deals__type')
 
     field_search_fields = {
         'search_description': ('description',),
@@ -131,7 +134,8 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
     def get_queryset(self):
         user = self.request.user
 
-        return self.queryset.for_user_by_deal(user).add_deal_fio()
+        return self.queryset.for_user_by_deal(user).add_deal_fio().annotate(
+            purpose_type=F('deals__type'))
 
 
 class PaymentChurchReportListView(mixins.ListModelMixin, GenericAPIView):

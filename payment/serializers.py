@@ -100,6 +100,7 @@ class PaymentDealShowSerializer(PaymentShowSerializer):
     purpose_fio = serializers.CharField()
     purpose_date = serializers.DateField(format="%m.%Y")
     purpose_manager_fio = serializers.CharField()
+    purpose_type = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Payment
@@ -107,7 +108,8 @@ class PaymentDealShowSerializer(PaymentShowSerializer):
                   'sum_str', 'effective_sum_str', 'operation',
                   'currency_sum', 'currency_rate', 'rate', 'description',
                   'created_at', 'sent_date',
-                  'manager', 'purpose', 'purpose_fio', 'purpose_date', 'purpose_manager_fio')
+                  'manager', 'purpose', 'purpose_fio', 'purpose_date', 'purpose_manager_fio',
+                  'purpose_type')
 
 
 class PaymentChurchReportShowSerializer(PaymentShowSerializer):

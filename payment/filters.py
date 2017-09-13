@@ -182,6 +182,22 @@ class FilterByDealManager(BaseFilterBackend):
         return queryset.filter(content_type__model='deal', object_id__in=deal_ids)
 
 
+class FilterByDealType(BaseFilterBackend):
+    @staticmethod
+    def get_deals(request):
+        return Deal.objects.for_user(request.user)
+
+    def filter_queryset(self, request, queryset, view):
+        deal_type = request.query_params.get('deal_type')
+        if int(deal_type) not in [1, 2]:
+            return queryset
+
+        deals = self.get_deals(request).filter(type=deal_type)
+        deals_ids = deals.values_list('id', flat=True)
+
+        return queryset.filter(content_type__model='deal', object_id__in=deals_ids)
+
+
 class FilterByChurchReportPastor(BaseFilterBackend):
     @staticmethod
     def get_reports(request):

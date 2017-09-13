@@ -23,9 +23,13 @@ class DateAndValueFilter(django_filters.FilterSet):
 class DealFilterByPaymentStatus(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         payment_status = request.query_params.get('payment_status')
+        type = request.query_params.get('type')
 
         if payment_status:
             return queryset.filter(payment_status=payment_status)
+
+        if type:
+            return queryset.filter(type=type)
 
         return queryset
 

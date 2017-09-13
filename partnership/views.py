@@ -300,7 +300,7 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
                        'responsible__user__last_name',
                        'partnership__user__last_name',
                        'date_created',
-                       'done')
+                       'done', 'type')
     filter_class = DateAndValueFilter
     search_fields = ('partnership__user__first_name',
                      'partnership__user__last_name',
