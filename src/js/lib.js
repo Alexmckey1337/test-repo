@@ -4041,101 +4041,46 @@ function completeChurchPayment(id) {
     })
 }
 
-function createIncompleteDealsTable(config={}) {
-    Object.assign(config, {done: 3});
-    Object.assign(config, getSearch('search'));
-    Object.assign(config, getFilterParam());
-    Object.assign(config, getOrderingData());
-    getDeals(config).then(function (data) {
-        let count = data.count,
-            page = config['page'] || 1,
-            pages = Math.ceil(count / CONFIG.pagination_count),
-            showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
-            id = 'incompleteList',
-            text = `Показано ${showCount} из ${count}`,
-            paginationConfig = {
-            container: '.undone__pagination',
-            currentPage: page,
-            pages: pages,
-            callback: createIncompleteDealsTable
-        };
-        makeDealsDataTable(data, id);
-        makePagination(paginationConfig);
-        $('#incomplete').find('.table__count').text(text);
-        makeSortForm(data.table_columns);
-        $('.preloader').css('display', 'none');
-        new OrderTable().sort(createIncompleteDealsTable, ".table-wrap th");
-        btnDeals();
-        $("button.complete").on('click', function () {
-            let id = $(this).attr('data-id');
-            updateDeals(id);
-        });
+function makeDealsTable(data, config = {}) {
+    let tmpl = $('#databaseDeals').html();
+    let rendered = _.template(tmpl)(data);
+    $('#dealsList').html(rendered);
+    let count = data.count;
+    let pages = Math.ceil(count / CONFIG.pagination_count);
+    let page = config.page || 1;
+    let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
+    let text = `Показано ${showCount} из ${count}`;
+    let paginationConfig = {
+        container: ".deals__pagination",
+        currentPage: page,
+        pages: pages,
+        callback: dealsTable
+    };
+    makePagination(paginationConfig);
+    $('.table__count').text(text);
+    fixedTableHead();
+    makeSortForm(data.table_columns);
+    $('.preloader').css('display', 'none');
+    new OrderTable().sort(dealsTable, ".table-wrap th");
+    btnDeals();
+    $("button.complete").on('click', function () {
+        let id = $(this).attr('data-id');
+        updateDeals(id);
     });
-}
-
-function createExpiredDealsTable(config={}) {
-    Object.assign(config, {expired: 2});
-    Object.assign(config, getSearch('search'));
-    Object.assign(config, getFilterParam());
-    Object.assign(config, getOrderingData());
-    getDeals(config).then(function (data) {
-        let count = data.count,
-            page = config['page'] || 1,
-            pages = Math.ceil(count / CONFIG.pagination_count),
-            showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
-            id = 'overdueList',
-            text = `Показано ${showCount} из ${count}`,
-            paginationConfig = {
-            container: '.expired__pagination',
-            currentPage: page,
-            pages: pages,
-            callback: createExpiredDealsTable
-        };
-        makeDealsDataTable(data, id);
-        makePagination(paginationConfig);
-        $('#overdue').find('.table__count').text(text);
-        makeSortForm(data.table_columns);
-        $('.preloader').css('display', 'none');
-        new OrderTable().sort(createExpiredDealsTable, ".table-wrap th");
-        btnDeals();
-    });
-}
-
-function createDoneDealsTable(config={}) {
-    Object.assign(config, {done: 2});
-    Object.assign(config, getSearch('search'));
-    Object.assign(config, getFilterParam());
-    Object.assign(config, getOrderingData());
-    getDeals(config).then(function (data) {
-        let count = data.count,
-            page = config['page'] || 1,
-            pages = Math.ceil(count / CONFIG.pagination_count),
-            showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
-            id = 'completedList',
-            text = `Показано ${showCount} из ${count}`,
-            paginationConfig = {
-            container: '.done__pagination',
-            currentPage: page,
-            pages: pages,
-            callback: createDoneDealsTable
-        };
-        makeDealsDataTable(data, id);
-        makePagination(paginationConfig);
-        $('#completed').find('.table__count').text(text);
-        makeSortForm(data.table_columns);
-        $('.preloader').css('display', 'none');
-        new OrderTable().sort(createDoneDealsTable, ".table-wrap th");
-    });
-}
-
-function makeDealsDataTable(data, id) {
-    let tmpl = document.getElementById('databaseDeals').innerHTML,
-        rendered = _.template(tmpl)(data);
-    document.getElementById(id).innerHTML = rendered;
     $('.show_payments').on('click', function () {
         let id = $(this).data('id');
         showPayments(id);
     });
+}
+
+function dealsTable(config = {}) {
+    let status = $('#tabs').find('.current').find('a').attr('data-status');
+    config.done = status;
+    Object.assign(config, getSearch('search'));
+    Object.assign(config, getFilterParam());
+    getDeals(config).then(data => {
+        makeDealsTable(data, config);
+    })
 }
 
 function showPayments(id) {
@@ -4348,12 +4293,8 @@ function createChurchPayment(id, sum, description) {
 
 function updateDealsTable() {
     $('.preloader').css('display', 'block');
-    let pageIncompleteDeals = $('#incomplete').find('.pagination__input').val(),
-        pageExpiredDeals = $('#overdue').find('.pagination__input').val(),
-        pageDoneDeals = $('#completed').find('.pagination__input').val();
-    createIncompleteDealsTable({page: pageIncompleteDeals});
-    // createExpiredDealsTable({page: pageExpiredDeals});
-    createDoneDealsTable({page: pageDoneDeals});
+    let page = $('#sdelki').find('.pagination__input').val();
+    dealsTable({page: page});
 }
 
 function getPreSummitFilterParam() {
