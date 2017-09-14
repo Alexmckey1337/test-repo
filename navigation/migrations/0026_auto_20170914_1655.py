@@ -13,7 +13,7 @@ def create_sum_pay_column(apps, schema_editor):
 
     Partnership_summary_columns.objects.bulk_create([
         Partnership_summary_columns(title='sum_pay_tithe', verbose_title='Сумма дестин',
-                                    ordering_title='sum_tithe_tithe',
+                                    ordering_title='sum_pay_tithe',
                                     number=10, active=True, editable=True, category_id=partnership_summary.id)
     ])
 

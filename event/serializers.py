@@ -229,6 +229,8 @@ class ChurchReportListSerializer(serializers.HyperlinkedModelSerializer,
                   'value', 'total_sum', 'payment_status', 'currency', 'done')
         read_only_fields = ['__all__']
 
+from django.db.models import Sum
+
 
 class ChurchReportSerializer(ChurchReportListSerializer):
     church = serializers.PrimaryKeyRelatedField(queryset=Church.objects.all(), required=False)
@@ -257,6 +259,14 @@ class ChurchReportSerializer(ChurchReportListSerializer):
             instance, validated_data, self.not_editable_fields)
 
         return super(ChurchReportSerializer, self).update(instance, validated_data)
+
+    def validate_value(self, value):
+        print(value)
+        if ChurchReport.objects.filter(id=self.id).annotate(
+                payment_sum=Sum('payments_sum')).get().payment_sum < value:
+            print('11111111111111111')
+
+        return value
 
 
 class ChurchReportDetailSerializer(ChurchReportSerializer):
