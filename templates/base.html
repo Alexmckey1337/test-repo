@@ -138,6 +138,12 @@
                             <% } else { %>
                                 <td></td>
                             <% } %>
+                        <% }  else if (key == 'get_church' ) { %>
+                            <% if (results[index][key] != null ) { %>
+                                <td><%= results[index][key].title %></td>
+                            <% } else { %>
+                                <td></td>
+                            <% } %>
                         <% }  else if (key == 'department') { %>
                                 <% if (results[index][key] != null ) { %>
                                 <td><%= results[index][key].title %></td>

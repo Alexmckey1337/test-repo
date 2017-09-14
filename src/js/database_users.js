@@ -1,8 +1,10 @@
 $('document').ready(function () {
     let $departmentsFilter = $('#departments_filter'),
         $churchFilter = $('#church_filter'),
-        $treeFilter = $("#tree_filter");
-    createUsersTable({});
+        $treeFilter = $("#tree_filter"),
+        path = window.location.href.split('?')[1];
+
+    (path == undefined) && createUsersTable({});
     $('.selectdb').select2();
     $('.select_date_filter').datepicker({
         dateFormat: 'yyyy-mm-dd',
@@ -33,13 +35,7 @@ $('document').ready(function () {
         $('.preloader').css('display', 'block');
         createUsersTable({});
     }, 500));
-    // $('input[name="fullsearch"]').keyup(function () {
-    //     let search = $(this).val();
-    //     $('.preloader').css('display', 'block');
-    //     delay(function () {
-    //         createUsersTable({})
-    //     }, 1000);
-    // });
+
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
         updateSettings(createUsersTable);
@@ -106,10 +102,10 @@ $('document').ready(function () {
         } else {
             config.department = departamentID;
         }
-        // getChurchesListINDepartament(departamentID).then(data => {
-        //     const churches = data.map(option => `<option value="${option.id}">${option.get_title}</option>`);
-        //     $churchFilter.html('<option value="">ВСЕ</option>').append(churches);
-        // });
+        getChurchesListINDepartament(departamentID).then(data => {
+            const churches = data.map(option => `<option value="${option.id}">${option.get_title}</option>`);
+            $churchFilter.html('<option value="">ВСЕ</option>').append(churches);
+        });
         getShortUsers(config).then(function (data) {
             let options = [];
             let option = document.createElement('option');
@@ -171,5 +167,13 @@ $('document').ready(function () {
             $('#masters_filter').html(options);
         });
     });
+
+    //Parsing URL
+    if (path != undefined) {
+        let filterParam = parseUrlQuery();
+        $('#church_filter').find(`option[value='${filterParam.church_id}']`).prop('selected', true).trigger('change');
+        $('#partner_filter').find(`option[value='${filterParam.is_partner}']`).prop('selected', true).trigger('change');
+        $('.apply-filter').trigger('click');
+    }
 
 });
