@@ -165,7 +165,8 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             'active_partners': x[5] or 0,
             'potential_sum': x[6] or 0,
             'sum_pay': x[7] or 0,
-            'plan': x[8] or 0,
+            'sum_pay_tithe': x[8] or 0,
+            'plan': x[7] or 0,
 
         } for x in zip(
             self._get_users_ids(queryset),
@@ -175,11 +176,13 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             self._get_total_partners(queryset),
             self._get_active_partners(queryset),
             self._get_potential_sum(queryset),
-            self._get_sum_pay(queryset, year, month),
+            self._get_sum_pay(queryset, year, month, deal_type=1),
+            self._get_sum_pay_tithe(queryset, year, month, deal_type=2),
             self._get_managers_plan(queryset),
         )]
         managers = self._order_managers(managers)
-        managers = [manager for manager in managers if manager['potential_sum'] != 0 or manager['sum_pay'] != 0]
+        managers = [manager for manager in managers if manager['potential_sum'] != 0 or
+                    manager['sum_pay'] != 0 or manager['sum_pay_tithe'] != 0]
 
         return Response({'results': managers, 'table_columns': partnership_summary_table(self.request.user)})
 
@@ -226,20 +229,30 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             'potential_sum', flat=True).order_by('id')
 
     @staticmethod
-    def _get_sum_pay(queryset, year, month):
+    def _get_pay_raw(deal_type, year, month):
         raw = """
           select p.id,
           (select sum(pay.sum) from payment_payment pay WHERE pay.content_type_id = 40 and
-          pay.object_id in (select d.id from partnership_deal d where d.responsible_id = p.id and
-          (d.date_created BETWEEN '{0}-01-01' and '{0}-12-31') and
-          extract('month' from d.date_created) = {1} )) sum
+          pay.object_id in (select d.id from partnership_deal d where d.responsible_id = p.id and d.type = {0} and
+          (d.date_created BETWEEN '{1}-01-01' and '{1}-12-31') and
+          extract('month' from d.date_created) = {2} )) sum
           from partnership_partnership p
           WHERE p.id in (
               SELECT pp.id from partnership_partnership pp
               LEFT OUTER JOIN partnership_deal d ON (pp.id = d.responsible_id)
-              WHERE pp.level <= {2} OR d.id IS NOT NULL)
+              WHERE pp.level <= {3} OR d.id IS NOT NULL)
           ORDER BY p.id;
-          """.format(year, month, Partnership.MANAGER)
+          """.format(deal_type, year, month, Partnership.MANAGER)
+
+        return raw
+
+    def _get_sum_pay(self, queryset, year, month, deal_type):
+        raw = self._get_pay_raw(deal_type, year, month)
+
+        return [p.sum for p in queryset.raw(raw)]
+
+    def _get_sum_pay_tithe(self, queryset, year, month, deal_type):
+        raw = self._get_pay_raw(deal_type, year, month)
 
         return [p.sum for p in queryset.raw(raw)]
 
@@ -258,7 +271,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
     def _order_managers(self, managers):
         ordering = self.request.query_params.get('ordering', 'manager')
         ordering_fields = ['manager', 'sum_deals', 'total_partners', 'active_partners', 'potential_sum', 'sum_pay',
-                           'manager_plan']
+                           'manager_plan', 'sum_pay_tithe']
 
         if ordering.strip('-') in ordering_fields:
             managers.sort(key=lambda obj: obj[ordering.strip('-')], reverse=ordering.startswith('-'))
