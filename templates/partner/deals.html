@@ -51,64 +51,28 @@
                 <div class="tab-status">
                     <ul id="tabs">
                         <li class="current">
-                            <a href="#incomplete">Незавершённые</a>
+                            <a href="#incomplete" data-status="3">Незавершённые</a>
                         </li>
 {#                        <li>#}
 {#                            <a href="#overdue">Просроченные(<span id="overdue-count"></span>)</a>#}
 {#                        </li>#}
                         <li>
-                            <a href="#completed">Завершённые</a>
+                            <a href="#completed" data-status="2">Завершённые</a>
                         </li>
                     </ul>
                 </div>
-{#                <div id="period_expired" class="period">#}
-{#                    <p>Период с <input type="text" id="expired_datepicker_from" readonly="readonly"> по <input#}
-{#                            type="text" id="expired_datepicker_to" readonly="readonly"><a id="show-all-expired"#}
-{#                                                                                          href="javascript:void(0);">Показать#}
-{#                        все</a></p>#}
-{#                </div>#}
-{#                <div id="period_done" class="period">#}
-{#                    <p>Период с <input type="text" id="done_datepicker_from" readonly="readonly"> по <input#}
-{#                            type="text" id="done_datepicker_to" readonly="readonly"><a id="show-all-done"#}
-{#                                                                                       href="javascript:void(0);">Показать#}
-{#                        все</a></p>#}
-{#                </div>#}
             </div>
-            <div id="incomplete"  class="tabs-cont">
+            <div class="tabs-cont">
                 <div class="table__count"></div>
-                <div class="pagination undone__pagination"></div>
+                <div class="pagination deals__pagination"></div>
                 <div class="table-wrap clearfix"><!--Table -->
                     <div class="query-none" style="display:none">
                         <p></p>
                     </div>
-                    <div class="table scrollbar-inner" id="incompleteList"></div>
+                    <div class="table scrollbar-inner" id="dealsList"></div>
                 </div><!--End Table-wrap -->
                 <div class="table__count"></div>
-                <div class="pagination undone__pagination"></div>
-            </div>
-            <div id="overdue" class="tabs-cont">
-                <div class="table__count"></div>
-                <div class="pagination expired__pagination"></div>
-                <div class="table-wrap clearfix"><!--Table -->
-                    <div class="query-none" style="display:none">
-                        <p></p>
-                    </div>
-                    <div class="table scrollbar-inner" id="overdueList"></div>
-                </div><!--End Table-wrap -->
-                <div class="table__count"></div>
-                <div class="pagination expired__pagination"></div>
-            </div>
-            <div id="completed" class="tabs-cont">
-                <div class="table__count"></div>
-                <div class="pagination done__pagination"></div>
-                <div class="table-wrap clearfix"><!--Table -->
-                    <div class="query-none" style="display:none">
-                        <p></p>
-                    </div>
-                    <div class="table scrollbar-inner" id="completedList"></div>
-                </div><!--End Table-wrap -->
-                <div class="table__count"></div>
-                <div class="pagination done__pagination"></div>
+                <div class="pagination deals__pagination"></div>
             </div>
         </div><!--End sdelki -->
     </div><!-- End tab-content-->
@@ -252,7 +216,7 @@
     <script src='{% static "js/deals.js" %}'></script>
     {% block template_tables %}
         <script type="text/template" id="databaseDeals">
-         <table>
+         <table id="table-1">
             <thead>
             <tr>
                 <% for( var key in table_columns) { %>
@@ -348,6 +312,7 @@
                 <% }).join('') %>
             </tbody>
         </table>
+        <table id="header-fixed"></table>
     </script>
     {% endblock %}
 {% endblock %}

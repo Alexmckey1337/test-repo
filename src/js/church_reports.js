@@ -37,25 +37,6 @@
             init = true;
         }
     }
-    // let filterInit = (function () {
-    //     let init = false;
-    //     return function () {
-    //         if (!init) {
-    //             getPastorsByDepartment({
-    //                 master_tree: USER_ID
-    //             }).then(res => {
-    //                 let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
-    //                 $treeFilter.html('<option>ВСЕ</option>').append(leaders);
-    //                 $pastorFilter.html('<option>ВСЕ</option>').append(leaders);
-    //             });
-    //             getChurches().then(res => {
-    //                 let churches = res.results.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
-    //                 $churchFilter.html('<option>ВСЕ</option>').append(churches);
-    //             });
-    //             init = true;
-    //         }
-    //     }
-    // })();
     function ChurchReportsTable(config) {
         Object.assign(config, getTabsFilterParam());
         getChurchReports(config).then(data => {
