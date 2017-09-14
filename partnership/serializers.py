@@ -7,6 +7,7 @@ from account.serializers import UserTableSerializer
 from common.fields import DecimalWithCurrencyField
 from payment.serializers import CurrencySerializer
 from .models import Partnership, Deal
+from common.fields import ReadOnlyChoiceField
 
 BASE_PARTNER_FIELDS = ('id', 'responsible', 'value', 'date', 'need_text', 'currency', 'is_active')
 
@@ -66,6 +67,7 @@ class DealSerializer(DealCreateSerializer):
                                          read_only=True, currency_field='currency')
     currency = CurrencySerializer()
     payment_status = serializers.IntegerField()
+    type = ReadOnlyChoiceField(choices=Deal.DEAL_TYPE_CHOICES, read_only=True)
 
     class Meta(DealCreateSerializer.Meta):
         fields = ('id', 'partnership', 'date', 'date_created',

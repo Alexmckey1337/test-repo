@@ -101,7 +101,7 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
 
         master = self._get_master(request.user, master_tree_id)
 
-        if request.user.is_staff and not master_tree_id:
+        if (request.user.is_staff and not master_tree_id) or request.user.is_staff:
             pastors = CustomUser.objects.filter(hierarchy__level__gte=2)
         else:
             pastors = master.__class__.get_tree(master).filter(hierarchy__level__gte=2)

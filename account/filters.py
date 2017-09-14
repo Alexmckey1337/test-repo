@@ -70,3 +70,14 @@ class UserIsPartnershipFilter(filters.DjangoFilterBackend):
             return queryset.filter(partnership__isnull=True)
 
         return queryset
+
+
+from django.db.models import Q
+
+
+class UserChurchFilter(filters.DjangoFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        church_id = request.query_params.get('church_id')
+        if not church_id:
+            return queryset
+        return queryset.filter(Q(cchurch_id=church_id) | Q(hhome_group__church_id=church_id))

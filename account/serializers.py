@@ -23,6 +23,7 @@ from navigation.models import Table
 from partnership.models import Partnership
 from status.models import Division
 
+
 BASE_USER_FIELDS = (
     'id',
     # 'username',
@@ -33,7 +34,7 @@ BASE_USER_FIELDS = (
     'phone_number', 'extra_phone_numbers',
     'born_date', 'coming_date', 'repentance_date',
 
-    'country', 'region', 'city', 'district', 'address',
+    'country', 'region', 'city', 'district', 'address', 'get_church',
     # #################################################
     'image', 'image_source',
 
@@ -302,6 +303,14 @@ class UserCreateSerializer(BaseUserSerializer):
         return instance
 
 
+class ChurchNameSerializer(serializers.ModelSerializer):
+    # title = serializers.CharField(source='get_title', read_only=True)
+
+    class Meta:
+        model = Church
+        fields = ('id', 'title',)
+
+
 class UserSingleSerializer(BaseUserSerializer):
     departments = DepartmentTitleSerializer(many=True, read_only=True)
     master = MasterWithHierarchySerializer(required=False, allow_null=True)
@@ -312,9 +321,10 @@ class UserSingleSerializer(BaseUserSerializer):
 
 class UserTableSerializer(UserSingleSerializer):
     master = MasterNameSerializer(required=False, allow_null=True)
+    get_church = ChurchNameSerializer(read_only=True)
 
     class Meta(UserSingleSerializer.Meta):
-        required_fields = ('id', 'link', 'extra_phone_numbers', 'description')
+        required_fields = ('id', 'link', 'extra_phone_numbers', 'description', 'get_church')
 
     def get_field_names(self, declared_fields, info):
         # fields = getattr(self.Meta, 'fields', None)

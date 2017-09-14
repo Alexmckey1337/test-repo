@@ -130,6 +130,11 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
         return self.get_absolute_url()
 
     @property
+    def get_church(self):
+        church = self.cchurch or self.hhome_group.church
+        return church
+
+    @property
     def column_table(self):
         l = OrderedDict()
         if hasattr(self, 'table') and isinstance(self.table, Table):
