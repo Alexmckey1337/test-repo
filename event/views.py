@@ -25,8 +25,8 @@ from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingD
                           MeetingListSerializer, ChurchReportStatisticSerializer,
                           MeetingStatisticSerializer, ChurchReportSerializer,
                           ChurchReportListSerializer, MeetingDashboardSerializer,
-                          ChurchReportDetailSerializer, ChurchReportsDashboardSerializer, MeetingSummarySerializer,
-                          ChurchReportSummarySerializer)
+                          ChurchReportDetailSerializer, ChurchReportsDashboardSerializer,
+                          MeetingSummarySerializer, ChurchReportSummarySerializer)
 from payment.views_mixins import CreatePaymentMixin
 from .mixins import EventUserTreeMixin, ChurchReportListPaymentMixin
 
@@ -471,7 +471,7 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin,
             reports_expired=Sum(Case(
                 When(church__churchreport__status=3, then=1),
                 output_field=IntegerField(), default=0), distinct=True)).distinct()
-                                        )
+            )
 
         page = self.paginate_queryset(queryset)
         pastors = self.serializer_class(page, many=True)

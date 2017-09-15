@@ -15,6 +15,7 @@ from event.managers import MeetingManager, ChurchReportManager
 from navigation.table_fields import meeting_table
 from django.utils.functional import cached_property
 from payment.models import AbstractPaymentPurpose, get_default_currency
+from analytics.decorators import log_change_payment
 
 
 @python_2_unicode_compatible
@@ -206,6 +207,13 @@ class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
 
     def get_absolute_url(self):
         return reverse('events:church_report_detail', args=(self.id,))
+
+    @log_change_payment(['done'])
+    def update_after_cancel_payment(self, editor, payment):
+        self.done = False
+        self.save()
+
+    update_after_cancel_payment.alters_data = True
 
     @property
     def link(self):
