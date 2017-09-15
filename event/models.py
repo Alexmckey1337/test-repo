@@ -237,6 +237,43 @@ class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
         return ''
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class DayOfTheWeekField(models.CharField):
     def __init__(self, *args, **kwargs):
         kwargs['choices'] = tuple(sorted(DAY_OF_THE_WEEK.items()))

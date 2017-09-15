@@ -135,7 +135,7 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
         user = self.request.user
 
         return self.queryset.for_user_by_deal(user).add_deal_fio().annotate(
-            purpose_type=F('deals__type'))
+            purpose_type=F('deals__type')).annotate(purpose_id=F('deals__partnership__user_id'))
 
 
 class PaymentChurchReportListView(mixins.ListModelMixin, GenericAPIView):

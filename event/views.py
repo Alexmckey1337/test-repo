@@ -102,11 +102,6 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeMixin):
                 can_submit=Case(
                     When(Q(status=True) & Q(can_s=True), then=False),
                     output_field=BooleanField(), default=True))
-            # ).annotate(
-            #     cant_submit_cause=Case(
-            #         When(Q(status=True) & Q(can_s=True), then=V(
-            #             'Невозможно подать отчет. Данный лидер имеет просроченные отчеты.')),
-            #         output_field=CharField(), default=V('')))
 
         if self.request.user.is_staff:
             return self.queryset
