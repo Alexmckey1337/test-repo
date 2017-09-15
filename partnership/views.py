@@ -166,7 +166,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             'potential_sum': x[6] or 0,
             'sum_pay': x[7] or 0,
             'sum_pay_tithe': x[8] or 0,
-            'plan': x[7] or 0,
+            'plan': x[9] or 0,
 
         } for x in zip(
             self._get_users_ids(queryset),
@@ -176,8 +176,8 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             self._get_total_partners(queryset),
             self._get_active_partners(queryset),
             self._get_potential_sum(queryset),
-            self._get_sum_pay(queryset, year, month, deal_type=1),
-            self._get_sum_pay_tithe(queryset, year, month, deal_type=2),
+            self._get_sum_pay(queryset, year, month, deal_type=Deal.DONATION),
+            self._get_sum_pay(queryset, year, month, deal_type=Deal.TITHE),
             self._get_managers_plan(queryset),
         )]
         managers = self._order_managers(managers)
@@ -229,7 +229,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             'potential_sum', flat=True).order_by('id')
 
     @staticmethod
-    def _get_pay_raw(deal_type, year, month):
+    def _get_sum_pay(queryset, year, month, deal_type):
         raw = """
           select p.id,
           (select sum(pay.sum) from payment_payment pay WHERE pay.content_type_id = 40 and
@@ -243,16 +243,6 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
               WHERE pp.level <= {3} OR d.id IS NOT NULL)
           ORDER BY p.id;
           """.format(deal_type, year, month, Partnership.MANAGER)
-
-        return raw
-
-    def _get_sum_pay(self, queryset, year, month, deal_type):
-        raw = self._get_pay_raw(deal_type, year, month)
-
-        return [p.sum for p in queryset.raw(raw)]
-
-    def _get_sum_pay_tithe(self, queryset, year, month, deal_type):
-        raw = self._get_pay_raw(deal_type, year, month)
 
         return [p.sum for p in queryset.raw(raw)]
 
