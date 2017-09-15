@@ -88,7 +88,7 @@
                 <th data-order="<%=table_columns[key].ordering_title%>" data-order_type="letter"><%=table_columns[key].title %></th>
                 <% } else { %>
                 <th data-order="<%=table_columns[key].ordering_title%>"
-                <% if (key == 'sum_pay') { %>
+                <% if (key == 'sum_pay' || key == 'sum_pay_tithe') { %>
                 class="cell__red"
                 <% } %>
                 ><%=table_columns[key].title %></th>
@@ -134,7 +134,7 @@
                 <% } else { %>
                 <td></td>
                 <% } %>
-                <% } else if (key == 'sum_pay') { %>
+                <% } else if (key == 'sum_pay' || key == 'sum_pay_tithe') { %>
                 <% if (results[index][key] != null) { %>
                 <td class="cell__red">
                     <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
