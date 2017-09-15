@@ -19,6 +19,7 @@ from .models import Payment
 from .permissions import PaymentManagerOrSupervisor
 from .pagination import PaymentPagination, ChurchReportPaymentPagination
 from django.db.models import F
+from rest_framework.generics import get_object_or_404
 
 
 class PaymentUpdateDestroyView(LogAndCreateUpdateDestroyMixin,
@@ -101,6 +102,11 @@ class PaymentDetailView(mixins.RetrieveModelMixin, GenericAPIView):
         user = self.request.user
 
         return self.queryset.for_user_by_all(user)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = get_object_or_404(Payment, pk=kwargs['pk'])
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
 
 class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):

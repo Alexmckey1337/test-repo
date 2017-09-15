@@ -17,7 +17,7 @@ from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
 from .filters import (ChurchReportFilter, MeetingFilter, MeetingCustomFilter, MeetingFilterByMaster,
                       ChurchReportDepartmentFilter, ChurchReportFilterByMaster, EventSummaryFilter,
-                      EventSummaryMasterFilter,ChurchReportPaymentStatusFilter,)
+                      EventSummaryMasterFilter, ChurchReportPaymentStatusFilter, )
 from .models import Meeting, ChurchReport, MeetingAttend
 from .pagination import (MeetingPagination, MeetingVisitorsPagination, ChurchReportPagination,
                          MeetingSummaryPagination, ReportsSummaryPagination)
@@ -30,7 +30,6 @@ from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingD
 from payment.views_mixins import CreatePaymentMixin
 from .mixins import EventUserTreeMixin, ChurchReportListPaymentMixin
 
-
 logger = logging.getLogger(__name__)
 
 MEETINGS_SUMMARY_ORDERING_FIELDS = ('last_name', 'master__last_name', 'meetings_submitted',
@@ -39,7 +38,7 @@ MEETINGS_SUMMARY_ORDERING_FIELDS = ('last_name', 'master__last_name', 'meetings_
 REPORTS_SUMMARY_ORDERING_FIELDS = ('last_name', 'master__last_name', 'reports_submitted',
                                    'reports_expired', 'reports_in_progress')
 
-EVENTS_SUMMARY_SEARCH_FIELDS = {'search_fio': ('last_name', 'first_name', 'middle_name')}
+EVENT_SUMMARY_SEARCH_FIELDS = {'search_fio': ('last_name', 'first_name', 'middle_name')}
 
 
 class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeMixin):
@@ -96,9 +95,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeMixin):
                 visitors_absent=Sum(Case(When(
                     attends__attended=False, then=1),
                     output_field=IntegerField(), default=0))
-            ).annotate(
-                can_s=Exists(subqs)
-            ).annotate(
+            ).annotate(can_s=Exists(subqs)).annotate(
                 can_submit=Case(
                     When(Q(status=True) & Q(can_s=True), then=False),
                     output_field=BooleanField(), default=True))
@@ -131,10 +128,8 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeMixin):
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         headers = self.get_success_headers(meeting.data)
-        return Response(
-            {'message': _('Отчет Домашней Группы успешно подан.')},
-            status=status.HTTP_200_OK, headers=headers,
-        )
+        return Response({'message': _('Отчет Домашней Группы успешно подан.')},
+                        status=status.HTTP_200_OK, headers=headers)
 
     @staticmethod
     def validate_to_submit(meeting, data):
@@ -192,17 +187,14 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeMixin):
                         attended=attend.get('attended', False),
                         note=attend.get('note', '')
                     )
-
         except IntegrityError as err:
             data = {'detail': _('При обновлении возникла ошибка. Попробуйте еще раз.')}
             logger.error(err)
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         headers = self.get_success_headers(meeting.data)
-        return Response(
-            {'message': _('Отчет Домашней Группы успешно изменен.')},
-            status=status.HTTP_200_OK, headers=headers,
-        )
+        return Response({'message': _('Отчет Домашней Группы успешно изменен.')},
+                        status=status.HTTP_200_OK, headers=headers)
 
     @detail_route(methods=['GET'], serializer_class=MeetingVisitorsSerializer,
                   pagination_class=MeetingVisitorsPagination)
@@ -216,7 +208,6 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeMixin):
             return self.get_paginated_response(visitors.data)
 
         visitors = self.serializer_class(visitors, many=True)
-
         return Response(visitors.data, status=status.HTTP_200_OK)
 
     @list_route(methods=['GET'], serializer_class=MeetingStatisticSerializer)
@@ -277,7 +268,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeMixin):
                 filter_backends=(filters.OrderingFilter, EventSummaryFilter,
                                  EventSummaryMasterFilter, FieldSearchFilter),
                 ordering_fields=MEETINGS_SUMMARY_ORDERING_FIELDS,
-                field_search_fields=EVENTS_SUMMARY_SEARCH_FIELDS,
+                field_search_fields=EVENT_SUMMARY_SEARCH_FIELDS,
                 pagination_class=MeetingSummaryPagination)
     def meetings_summary(self, request):
         user = self.master_for_summary(request)
@@ -292,8 +283,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeMixin):
                 output_field=IntegerField(), default=0), distinct=True),
             meetings_expired=Sum(Case(
                 When(home_group__meeting__status=3, then=1),
-                output_field=IntegerField(), default=0), distinct=True)).distinct()
-                                        )
+                output_field=IntegerField(), default=0), distinct=True)).distinct())
 
         page = self.paginate_queryset(queryset)
         leaders = self.serializer_class(page, many=True)
@@ -450,7 +440,7 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin,
                 filter_backends=(filters.OrderingFilter, EventSummaryMasterFilter,
                                  EventSummaryFilter, FieldSearchFilter),
                 ordering_fields=REPORTS_SUMMARY_ORDERING_FIELDS,
-                field_search_fields=EVENTS_SUMMARY_SEARCH_FIELDS,
+                field_search_fields=EVENT_SUMMARY_SEARCH_FIELDS,
                 pagination_class=ReportsSummaryPagination)
     def reports_summary(self, request):
         user = self.master_for_summary(request)
@@ -466,7 +456,7 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin,
             reports_expired=Sum(Case(
                 When(church__churchreport__status=3, then=1),
                 output_field=IntegerField(), default=0), distinct=True)).distinct()
-            )
+                                        )
 
         page = self.paginate_queryset(queryset)
         pastors = self.serializer_class(page, many=True)
