@@ -255,9 +255,11 @@ class ChurchReportSerializer(ChurchReportListSerializer):
             instance, validated_data, self.not_editable_fields)
 
         if validated_data.get('transfer_payments'):
-            if instance.transfer_payments < validated_data['transfer_payments']:
-                instance.done = False
-
+            try:
+                if instance.transfer_payments < validated_data['transfer_payments']:
+                    instance.done = False
+            except Exception:
+                raise serializers.ValidationError({'message': '{transfer_payments} must be Integer or Decimal'})
         return super(ChurchReportSerializer, self).update(instance, validated_data)
 
 
