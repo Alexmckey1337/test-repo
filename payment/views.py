@@ -90,7 +90,7 @@ class PaymentListView(mixins.ListModelMixin, GenericAPIView):
         return self.queryset.for_user_by_all(user)
 
 
-class PaymentDetailView(mixins.RetrieveModelMixin, GenericAPIView):
+class PaymentDetailView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentShowSerializer
     permission_classes = (IsAuthenticated,)
