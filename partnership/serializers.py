@@ -24,9 +24,8 @@ class PartnershipUpdateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         responsible = validated_data.get('responsible')
-
         if responsible:
-            Deal.objects.filter(partnership=self, done=False).update(responsible_id=responsible)
+            Deal.objects.filter(partnership=instance, done=False).update(responsible=responsible)
 
         return super(PartnershipUpdateSerializer, self).update(instance, validated_data)
 
