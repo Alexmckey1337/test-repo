@@ -12,6 +12,7 @@ $(document).ready(function () {
         let config = {
             done: status
         };
+        Object.assign(config, getSearch('search'));
         Object.assign(config, getFilterParam());
         DealsTable(config);
         $(this).closest('#tabs').find('li').removeClass('current');
@@ -102,7 +103,60 @@ $(document).ready(function () {
     
     $('.apply-filter').on('click', function () {
         applyFilter(this, dealsTable);
-    })
+    });
+
+    //Update deal
+    $("#close-deal").on('click', function (e) {
+        e.preventDefault();
+        clearDealForm();
+        $('#popup-create_deal').css('display', 'none');
+    });
+
+    function clearDealForm() {
+        let popup = $('#popup-create_deal'),
+            $input = popup.find('input, textarea');
+        $input.each(function () {
+            $(this).val('');
+        });
+        popup.find('select').val('1').trigger("change");
+    }
+
+    $('#new_deal_date').datepicker({
+        dateFormat: "dd.mm.yyyy",
+        startDate: new Date(),
+        maxDate: new Date(),
+        autoClose: true
+    });
+
+    $('#send_new_deal').on('click', function () {
+    let id = $(this).attr('data-id'),
+        description = $('#popup-create_deal textarea').val(),
+        value = $('#new_deal_sum').val(),
+        date = $('#new_deal_date').val().trim().split('.').reverse().join('-'),
+        type = $('#new_deal_type').val(),
+        data = {
+            'date_created': date,
+            'value': value,
+            'description': description,
+            'type': type,
+        };
+
+    if (value && date) {
+        updateDeal(id, data).then(() => {
+            let page = $('#sdelki').find('.pagination__input').val();
+            $('.preloader').css('display', 'block');
+            dealsTable({page:page});
+            showAlert('Редактирование сделки прошло успешно');
+            clearDealForm();
+            $('#popup-create_deal').css('display', 'none');
+
+        }).catch((err) => {
+            showAlert(err);
+        });
+    } else {
+        showAlert('Заполните поле суммы и дату.');
+    }
+});
 
 });
 

@@ -16,6 +16,16 @@ def create_payment_form(purpose=None):
     }
     return ctx
 
+@register.inclusion_tag('payment/partials/update_payment.html')
+def update_payment_form(purpose=None):
+    currencies = Currency.objects.all()
+
+    ctx = {
+        'currencies': currencies,
+        'purpose': purpose,
+    }
+    return ctx
+
 
 @register.inclusion_tag('payment/partials/payment_table.html')
 def payment_table(payments, can_edit=False):

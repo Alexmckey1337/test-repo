@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load static %}
 {% load summit_tags %}
+{% load partner_tags %}
 {% load payment_tags %}
 {% load mptt_tags %}
 
@@ -1015,38 +1016,7 @@
     {% if account.partnership %}
         {% create_payment_form account.partnership %}
     {% endif %}
-    <div id="popup-create_deal" class="popap">
-        <div class="pop_cont">
-            <div class="popup_text">
-                <h2>Создание сделки</h2>
-            </div>
-            <div class="popup_body">
-                <div class="container container_block">
-                    <label>
-                        <span class="label_block">Тип сделки:</span>
-                        <select id="new_deal_type" class="selectdb" required>
-                            <option value="1">Партнерские</option>
-                            <option value="2">Десятина</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Сумма:</span>
-                        <input maxlength="6" type="text" id="new_deal_sum"
-                               onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0">
-                    </label>
-                    <label>
-                        <span class="label_block">Дата:</span>
-                        <input type="text" id="new_deal_date" class="sel__date" required>
-                    </label>
-                    <textarea class="note" maxlength="40" placeholder="Добавить коментарий"></textarea>
-                </div>
-            </div>
-            <div class="container">
-                <button id="close-deal">Отменить</button>
-                <button id="send_new_deal" data-partner="{{ account.partnership.id }}">Создать</button>
-            </div>
-        </div>
-    </div>
+    {% include "partner/partials/create_deal.html" with partnership=account.partnership.id currency=account.partnership.currency%}
     {% if user == account %}
         <div id="popup-change_password" class="pop-up-splash">
             <div class="flex-wrap">

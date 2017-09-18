@@ -21,8 +21,8 @@
                     $treeFilter.html('<option>ВСЕ</option>').append(leaders);
                     $pastorFilter.html('<option>ВСЕ</option>').append(leaders);
                 });
-                getChurches().then(res => {
-                    let churches = res.results.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
+                getChurchesListINDepartament().then(res => {
+                    let churches = res.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
                     $churchFilter.html('<option>ВСЕ</option>').append(churches);
                 });
                 init = true;
@@ -84,8 +84,8 @@
                 $pastorFilter.html('<option>ВСЕ</option>').append(pastors);
             });
 
-        getChurches(config).then(res => {
-                    let churches = res.results.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
+        getChurchesListINDepartament(departamentID).then(res => {
+                    let churches = res.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
                     $churchFilter.html('<option>ВСЕ</option>').append(churches);
                 });
     });

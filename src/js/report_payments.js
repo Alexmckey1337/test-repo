@@ -32,4 +32,55 @@
 
     $('.selectdb').select2();
 
+    //Update payment
+    $("#close-payment").on('click', function (e) {
+        e.preventDefault();
+        $('#popup-update_payment').css('display', 'none');
+    });
+
+    $('#payment_sent_date').datepicker({
+        dateFormat: "dd.mm.yyyy",
+        startDate: new Date(),
+        maxDate: new Date(),
+        autoClose: true
+    });
+
+    $('#delete-payment').on('click', function (e) {
+        e.preventDefault();
+        let id = $(this).attr('data-id');
+        alertify.confirm('Удаление', 'Вы действительно хотите удалить данный платеж?', function () {
+            deleteDealsPayment(id).then(() => {
+                showAlert('Платеж успешно удален!');
+                $('#popup-update_payment').css('display', 'none');
+                $('.preloader').css('display', 'block');
+                let page = $('.pagination__input').val();
+                createChurchPaymentsTable({page: page});
+            }).catch((res) => {
+                showAlert(res, 'Ошибка');
+            });
+        }, () => {
+        });
+    });
+
+    $('#payment-form').on('submit', function (e) {
+        e.preventDefault();
+        let id = $(this).find('button[type="submit"]').attr('data-id'),
+            data = {
+                "sum": $('#new_payment_sum').val(),
+                "description": $('#popup-update_payment textarea').val(),
+                "rate": $('#new_payment_rate').val(),
+                "sent_date": $('#payment_sent_date').val().split('.').reverse().join('-'),
+            };
+        updateDealsPayment(id, data).then(function () {
+            let page = $('.pagination__input').val();
+            $('#popup-update_payment').css('display', 'none');
+            cleanUpdateDealsPayment();
+            $('.preloader').css('display', 'block');
+            createChurchPaymentsTable({page: page});
+            showAlert('Платеж успешно изменен!');
+        }).catch((res) => {
+            showAlert(res, 'Ошибка');
+        });
+    });
+
 })(jQuery);

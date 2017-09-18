@@ -80,6 +80,7 @@
 
 {% block popup %}
     {% create_payment_form %}
+    {% include "partner/partials/create_deal.html" %}
     <div id="popup-payments" class="pop-up-splash">
         <div class="flex-wrap">
             <div class="splash-screen">
@@ -233,12 +234,15 @@
                         <% if(table_columns.hasOwnProperty(key) && table_columns[key].active) { %>
                             <% if (key == 'full_name') { %>
                                 <% if (results[index][key] != null) { %>
-                                    <td><a href="<%= results[index].﻿partner_link %>"
+                                    <td class="edit"><a href="<%= results[index].﻿partner_link %>"
                                            data-link="<%= results[index].﻿partner_link %>"
                                            data-id="<%=results[index].id %>"
                                         <% if(results[index].ankets_id) { %>
                                             data-ankets="<%= results[index].ankets_id %>"
                                         <% } %>><%= results[index][key] %></a>
+                                        {% if user.is_partner_supervisor_or_high %}
+                                            <span class="quick-edit" data-id="<%= results[index].id %>"></span>
+                                        {% endif %}
                                     </td>
                                 <% } else { %>
                                     <td></td>

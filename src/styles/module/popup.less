@@ -1457,7 +1457,8 @@ button{
   width: 900px;
 }
 
-#payment-form {
+#payment-form,
+#popup-create_deal {
   .container_block {
     margin-bottom: 2em;
     padding-bottom: 2em;
@@ -1484,4 +1485,17 @@ button{
   position: absolute;
   right: 0;
   top: 5px;
+}
+
+#delete-payment {
+  position: relative;
+  padding: 0;
+  &::after {
+    position: absolute;
+    top: 6px;
+    display: block;
+    content: '\f014';
+    font: 1.8em FontAwesome;
+    color: #ff0000;
+  }
 }
