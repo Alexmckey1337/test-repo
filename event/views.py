@@ -84,10 +84,9 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeMixin):
     def get_queryset(self):
         if self.action == 'list':
             subqs = Meeting.objects.filter(owner=OuterRef('owner'), status=Meeting.EXPIRED)
-            qs = self.queryset
-            if not self.request.user.is_staff:
-                qs = qs.for_user(self.request.user)
-            return qs.prefetch_related('attends').annotate_owner_name().annotate(
+            quseyset = self.queryset.for_user(self.request.user)
+
+            return quseyset.prefetch_related('attends').annotate_owner_name().annotate(
                 visitors_attended=Sum(Case(
                     When(attends__attended=True, then=1),
                     output_field=IntegerField(), default=0)),
@@ -100,8 +99,6 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeMixin):
                     When(Q(status=True) & Q(can_s=True), then=False),
                     output_field=BooleanField(), default=True))
 
-        if self.request.user.is_staff:
-            return self.queryset
         return self.queryset.for_user(self.request.user)
 
     @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer)
@@ -290,12 +287,6 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeMixin):
         return self.get_paginated_response(leaders.data)
 
 
-# class ChurchReportPastorViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin):
-#     queryset = ChurchReportPastor.objects.base_queryset().annotate_total_pastor_sum()
-#     permission_classes = (IsAuthenticated,)
-#     serializer_class = ChurchReportPastorSerializer
-
-
 class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin,
                           EventUserTreeMixin, ChurchReportListPaymentMixin):
     queryset = ChurchReport.objects.base_queryset().annotate_total_sum().annotate_value()
@@ -331,10 +322,7 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin,
     }
 
     def get_queryset(self):
-        qs = self.queryset
-        if not self.request.user.is_staff:
-            qs = qs.for_user(self.request.user)
-        return qs.annotate(
+        return self.queryset.for_user(self.request.user).annotate(
             total_payments=Sum('payments__effective_sum')).annotate(
             payment_status=Case(
                 When(Q(total_payments__lt=F('value')) & Q(total_payments__gt=0), then=1),

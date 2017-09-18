@@ -177,5 +177,4 @@ class PaymentChurchReportListView(mixins.ListModelMixin, GenericAPIView):
 
     def get_queryset(self):
         user = self.request.user
-
         return self.queryset.for_user_by_church_report(user).add_church_report_info()
