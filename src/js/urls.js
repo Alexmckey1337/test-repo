@@ -127,6 +127,7 @@ const HOME_GROUP = {
 const PAYMENT = {
     deals: () => `/api/v1.0/payments/deal/`,
     edit_payment: (id) => `/api/v1.0/payments/${id}/`,
+    payment_detail: (id) => `/api/v1.0/payments/${id}/detail/`,
 };
 
 const URLS = {

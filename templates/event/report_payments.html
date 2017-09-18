@@ -2,7 +2,6 @@
 {% load static %}
 {% load payment_tags %}
 
-
 {% block header.top.h1 %}<h1>Отчеты / Таблица платежей</h1>{% endblock %}
 
 {% block header.buttons.top %}
@@ -73,6 +72,7 @@
 {% endblock %}
 
 {% block popup %}
+    {% update_payment_form %}
     <div class="popap" id='filterPopup'>
         <div class="pop_cont">
             <h2 class='popup_text'>Фильтр</h2>
@@ -88,7 +88,7 @@
                         </select>
                     </label>
                     <label>
-                        <span class="label_block">Фильтр по сумме</span>
+                        <span class="label_block">Сумма платежа</span>
                         <p class="birthday">
                             <input type="number" placeholder="от" data-filter="sum_from" id="sum_from"
                                    class="select_from_filter">
@@ -97,7 +97,7 @@
                         </p>
                     </label>
                     <label>
-                        <span class="label_block">Фильтр по дате отправки платежа</span>
+                        <span class="label_block">Дата поступления платежа</span>
                         <p class="birthday">
                             <input type="text" placeholder="от" data-filter="sent_from" id="sent_date_from"
                                    class="date_filter select_from_filter">
@@ -106,7 +106,7 @@
                         </p>
                     </label>
                     <label>
-                        <span class="label_block">Фильтр по дате создания платежа</span>
+                        <span class="label_block">Дата создания платежа</span>
                         <p class="birthday">
                             <input type="text" placeholder="от" data-filter="create_from" id="date_from"
                                    class="date_filter select_from_filter">
@@ -115,7 +115,7 @@
                         </p>
                     </label>
                     <label>
-                        <span class="label_block">Фильтр по дате создания отчета</span>
+                        <span class="label_block">Дата создания отчета</span>
                         <p class="birthday">
                             <input type="text" placeholder="от" data-filter="report_date_from" id="purpose_date_from"
                                    class="date_filter select_from_filter">
@@ -124,7 +124,7 @@
                         </p>
                     </label>
                     <label>
-                        <span class="label_block">Поиск по менеджеру</span>
+                        <span class="label_block">Менеджер</span>
                         <select class="selectdb" data-filter="manager" id="manager">
                             <option value="">ВСЕ</option>
                             {% for manager in managers %}
@@ -133,7 +133,7 @@
                         </select>
                     </label>
                     <label>
-                        <span class="label_block">Поиск по пастору</span>
+                        <span class="label_block">Пастор</span>
                         <select class="selectdb" data-filter="pastor_id" id="search_purpose_manager_fio">
                             <option value="">ВСЕ</option>
                             {% for pastor in pastors %}
@@ -183,8 +183,12 @@
             <% if(table_columns[key].active) { %>
             <% if (key == 'church') { %>
             <% if (results[index].church_title != null) { %>
-            <td><a href="<%= '/churches/' + results[index].church_id  %>">
+            <td class="edit"><a href="<%= '/churches/' + results[index].church_id  %>">
                 <%= results[index].church_title %></a>
+                {% if user.is_partner_supervisor_or_high %}
+                    <span class="quick-edit" data-id="<%= results[index].id %>" data-name="<%= results[index].church_title %>">
+                    </span>
+                {% endif %}
             </td>
             <% } else { %>
             <td></td>

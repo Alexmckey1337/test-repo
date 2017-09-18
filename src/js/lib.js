@@ -2489,14 +2489,52 @@ function makePaymentsTable(data, id) {
     let rendered = _.template(tmpl)(data);
     document.getElementById(id).innerHTML = rendered;
     $('.quick-edit').on('click', function () {
-        // makeQuickEditPayments(this);
+        makeQuickEditPayments(this);
     });
     fixedTableHead();
 }
 
+function makeQuickEditPayments(el) {
+    let id = $(el).attr('data-id'),
+        payer = $(el).attr('data-name');
+    getPaymentDetail(id).then(data => {
+        console.log(data);
+        createUpdatePayment(data, payer, id);
+        $('#popup-update_payment').css('display', 'block');
+    });
+}
+
+function createUpdatePayment(data, name, id) {
+    let rate = data.rate,
+        rateField = $('#new_payment_rate');
+    $('#payment_name').text(name);
+    $('#payment_date').text(data.created_at);
+    rateField.val(rate).prop('readonly', false);
+    (data.currency_rate.id == '2') && rateField.prop('readonly', true);
+    $('#new_payment_sum').val(data.sum);
+    $('#payment_sent_date').val(data.sent_date);
+    $('.note').val(data.description);
+    $('#complete-payment').attr('data-id', id);
+    $('#delete-payment').attr('data-id', id);
+}
+
+function getPaymentDetail(id) {
+    let url = URLS.payment.payment_detail(id),
+        defaultOption = {
+            method: 'GET',
+            credentials: 'same-origin',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            })
+    };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
+}
+
 function makeSammitsDataTable(data, id) {
-    var tmpl = document.getElementById('databaseUsers').innerHTML;
-    var rendered = _.template(tmpl)(data);
+    let tmpl = document.getElementById('databaseUsers').innerHTML,
+        rendered = _.template(tmpl)(data);
     document.getElementById(id).innerHTML = rendered;
     $('.quick-edit').on('click', function () {
         makeQuickEditSammitCart(this);
@@ -3412,6 +3450,7 @@ function partnershipSummaryTable(config = {}) {
 function churchPastorReportsTable(config = {}) {
     Object.assign(config, getSearch('search_fio'));
     Object.assign(config, getFilterParam());
+    // updateHistoryUrl(config);
     getChurchPastorReports(config).then(data => {
         makeChurchPastorReportsTable(data, config);
     })
@@ -4073,6 +4112,34 @@ function makeDealsTable(data, config = {}) {
         let id = $(this).data('id');
         showPayments(id);
     });
+    $('.quick-edit').on('click', function () {
+        makeQuickEditDeal(this);
+    });
+}
+
+function makeQuickEditDeal(el) {
+    let id = $(el).attr('data-id'),
+        popup = $('#popup-create_deal');
+    getDealDetail(id).then(data => {
+        let sum = numeral(data.value).value(),
+            txt = `<div class="block_line">
+                        <p>Плательщик:</p>
+                        <p>${data.full_name}</p>
+                    </div>
+                    <div class="block_line">
+                        <p>Менеджер:</p>
+                        <p>${data.responsible_name}</p>
+                    </div>`;
+        popup.find('h2').text('Редактирование сделки');
+        $('#append-info').empty().append(txt);
+        $('#new_deal_type').find(`option[value="${data.type}"]`).prop('selected', true).trigger('change');
+        $('#new_deal_sum').val(sum);
+        $('#new_deal_date').val(data.date_created);
+        popup.find('.note').val(data.description);
+        popup.find('.currency').val(data.currency.short_name);
+        $('#send_new_deal').attr('data-id', id);
+        popup.css('display', 'block');
+    });
 }
 
 function dealsTable(config = {}) {
@@ -4118,6 +4185,37 @@ function getDeals(options = {}) {
         headers: new Headers({
             'Content-Type': 'application/json',
         })
+    };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
+}
+
+function getDealDetail(id) {
+    let url = URLS.deal.detail(id);
+
+    let defaultOption = {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        })
+    };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
+}
+
+function updateDeal(id, data) {
+    let url = URLS.deal.detail(id);
+
+    let defaultOption = {
+        method: 'PATCH',
+        credentials: 'same-origin',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        }),
+        body: JSON.stringify(data),
     };
     if (typeof url === "string") {
         return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
@@ -4540,5 +4638,48 @@ function fixedTableHead() {
             $fixedHeader.hide();
         }
     });
+}
+
+function updateDealsPayment(id, data = {}) {
+    let url = URLS.payment.edit_payment(id),
+        defaultOption = {
+            method: 'PATCH',
+            credentials: 'same-origin',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            }),
+            body: JSON.stringify(data),
+        };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
+}
+
+function deleteDealsPayment(id) {
+    let url = URLS.payment.edit_payment(id),
+        defaultOption = {
+            method: 'DELETE',
+            credentials: 'same-origin',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            })
+        };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
+}
+
+function showAlert(message, title = 'Уведомление') {
+    alertify.alert(title, message);
+}
+
+function cleanUpdateDealsPayment() {
+    let $inputs = $('#payment-form').find('input:visible');
+    $inputs.each(function() {
+        $(this).val('');
+    });
+    $('#payment-form').find('.note').val('');
+    $('#payment_name').text('');
+    $('#payment_date').text('');
 }
 

@@ -257,7 +257,7 @@ $('#send_new_deal').on('click', function () {
     let date = $('#new_deal_date').val();
     let type = $('#new_deal_type').val();
 
-    if (description && value && date) {
+    if (value && date) {
         let url = URLS.deal.list();
 
         let deal = JSON.stringify({

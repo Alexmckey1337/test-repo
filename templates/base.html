@@ -25,6 +25,8 @@
         <link rel="stylesheet" href='{% static "libs/jquery-ui/themes/base/jquery-ui.min.css" %}'>
         <link rel="stylesheet" href='{% static "css/fonts.css" %}'>
         <link rel="stylesheet" href='{% static "libs/select2/dist/css/select2.min.css" %}'>
+        <link rel="stylesheet" href='{% static "libs/alertify-js/build/css/alertify.min.css" %}'>
+        <link rel="stylesheet" href='{% static "libs/alertify-js/build/css/themes/default.min.css" %}'>
         <link rel="stylesheet" href='{% static "css/main.css" %}'>
         <link rel="stylesheet" href='{% static "css/media.css" %}'>
     {% endblock %}
@@ -66,6 +68,7 @@
     <script src='{% static "libs/lodash/dist/lodash.min.js" %}'></script>
     <script src='{% static "libs/es6-promise/es6-promise.min.js" %}'></script>
     <script src='{% static "libs/fetch/fetch.js" %}'></script>
+    <script src='{% static "libs/alertify-js/build/alertify.min.js" %}'></script>
     <script src='{% static "js/urls.js" %}'></script>
     <script src='{% static "js/lib.js" %}'></script>
     <script src='{% static "js/main.js" %}'></script>
@@ -210,7 +213,6 @@
 <script src="https://cdn.ravenjs.com/3.8.1/raven.min.js"></script>
 <script>Raven.config('{% sentry_public_dsn %}').install()</script>
 {% block ws %}
-    <script src="https://cdn.rawgit.com/alertifyjs/alertify.js/v1.0.10/dist/js/alertify.js"></script>
     <script>
         socket = new WebSocket("ws://" + window.location.host + "/ws/user/{{ request.user.id }}/");
         socket.onmessage = function (e) {

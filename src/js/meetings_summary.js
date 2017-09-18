@@ -6,7 +6,7 @@
         initResponsible = false,
         init = false;
     const USER_ID = $('body').data('user'),
-        PATH = window.location.href.split('?')[1];
+          PATH = window.location.href.split('?')[1];
 
     function filterInit(set = null) {
         if (!init) {

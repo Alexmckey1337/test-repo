@@ -45,32 +45,7 @@
             init = true;
         }
     }
-    // let filterInit = (function () {
-    //     let init = false;
-    //     return function () {
-    //         if (!init) {
-    //             getPastorsByDepartment({
-    //                 master_tree: USER_ID
-    //             }).then(res => {
-    //                 let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
-    //                 $treeFilter.html('<option>ВСЕ</option>').append(leaders);
-    //             });
-    //             getChurches().then(res => {
-    //                 let churches = res.results.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
-    //                 $churchFilter.html('<option>ВСЕ</option>').append(churches);
-    //             });
-    //             getHomeGroups().then(res => {
-    //                let groups = res.results.map(group=> `<option value="${group.id}">${group.get_title}</option>`);
-    //                 $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
-    //             });
-    //             getHGLeaders().then(res => {
-    //                let liders = res.map(lider=> `<option value="${lider.id}">${lider.fullname}</option>`);
-    //                 $liderFilter.html('<option>ВСЕ</option>').append(liders);
-    //             });
-    //             init = true;
-    //         }
-    //     }
-    // })();
+
     (path == undefined) && HomeReportsTable(configData);
     // Events
     let $statusTabs = $('#statusTabs');
@@ -81,6 +56,7 @@
             status: status
         };
         Object.assign(config, getFilterParam());
+        Object.assign(config, getSearch('search_title'));
         Object.assign(config, getTabsFilterParam());
         HomeReportsTable(config);
         $statusTabs.find('li').removeClass('current');

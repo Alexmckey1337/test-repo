@@ -30,8 +30,8 @@
                     $('.apply-filter').trigger('click');
                 }
             });
-            getChurches().then(res => {
-                let churches = res.results.map(church => `<option value="${church.id}">${church.get_title}</option>`);
+            getChurchesListINDepartament().then(res => {
+                let churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`);
                 $churchFilter.html('<option>ВСЕ</option>').append(churches);
             });
             init = true;
@@ -53,6 +53,7 @@
             status: status
         };
         Object.assign(config, getFilterParam());
+        Object.assign(config, getSearch('search_title'));
         ChurchReportsTable(config);
         $statusTabs.find('li').removeClass('current');
         $(this).closest('li').addClass('current');
@@ -121,8 +122,8 @@
                 $pastorFilter.html('<option>ВСЕ</option>').append(pastors);
             });
 
-        getChurches(config).then(res => {
-                    let churches = res.results.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
+        getChurchesListINDepartament(departamentID).then(res => {
+                    let churches = res.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
                     $churchFilter.html('<option>ВСЕ</option>').append(churches);
                 });
     });

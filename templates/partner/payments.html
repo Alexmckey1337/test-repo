@@ -1,6 +1,7 @@
 {% extends "layout_main.html" %}
 {% load i18n %}
 {% load static %}
+{% load payment_tags %}
 {% block header.top.h1 %}<h1>Партнёрство</h1>{% endblock %}
 
 {% block extra_styles %}
@@ -71,6 +72,7 @@
 {% endblock %}
 
 {% block popup %}
+    {% update_payment_form %}
     <div class="popap" id='filterPopup'>
         <div class="pop_cont">
             <h2 class='popup_text'>
@@ -88,35 +90,35 @@
                         </select>
                     </label>
                     <label>
-                        <span class="label_block">Фильтр по сумме</span>
+                        <span class="label_block">Сумма платежа</span>
                         <p class="birthday">
                             <input type="number" placeholder="от" data-filter="sum_from" id="sum_from" class="select_from_filter">
                             <input type="number" placeholder="до" data-filter="sum_to" id="sum_to" class="select_to_filter">
                         </p>
                     </label>
                     <label>
-                        <span class="label_block">Фильтр по дате отправки платежа</span>
+                        <span class="label_block">Дата поступления платежа</span>
                         <p class="birthday">
                             <input type="text" placeholder="от" data-filter="sent_from" id="sent_date_from" class="select_from_filter">
                             <input type="text" placeholder="до" data-filter="sent_to" id="sent_date_to" class="select_to_filter">
                         </p>
                     </label>
                     <label>
-                        <span class="label_block">Фильтр по дате создания платежа</span>
+                        <span class="label_block">Дата создания платежа</span>
                         <p class="birthday">
                             <input type="text" placeholder="от" data-filter="create_from" id="date_from" class="select_from_filter">
                             <input type="text" placeholder="до" data-filter="create_to" id="date_to" class="select_to_filter">
                         </p>
                     </label>
                     <label>
-                        <span class="label_block">Фильтр по дате создания сделки</span>
+                        <span class="label_block">Дата сделки</span>
                         <p class="birthday">
                             <input type="text" placeholder="от" data-filter="purpose_date_from" id="purpose_date_from" class="select_from_filter">
                             <input type="text" placeholder="до" data-filter="purpose_date_to" id="purpose_date_to" class="select_to_filter">
                         </p>
                     </label>
                     <label>
-                        <span class="label_block">Поиск по супервайзеру</span>
+                        <span class="label_block">Супервайзер</span>
                         <select class="custom_select" data-filter="manager" id="manager">
                             <option value="">ВСЕ</option>
                             {% for supervisor in supervisors %}
@@ -125,7 +127,7 @@
                         </select>
                     </label>
                     <label>
-                        <span class="label_block">Поиск по менеджеру</span>
+                        <span class="label_block">Менеджер</span>
                         <select class="custom_select" data-filter="responsible_id" id="search_purpose_manager_fio">
                             <option value="">ВСЕ</option>
                             {% for manager in managers %}
@@ -171,6 +173,7 @@
 {% block extra_scripts %}
     <script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
     <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
+    <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
     <script src='{% static "js/payments.js" %}'></script>
 {% endblock %}
 {% block template_tables %}
@@ -192,7 +195,7 @@
                 <% if(table_columns[key].active) { %>
                 <% if (key == 'manager') { %>
                 <% if (results[index][key] != null) { %>
-                <td class="edit"><a href="<%= '/account/' + results[index][key].id  %>">
+                <td><a href="<%= '/account/' + results[index][key].id  %>">
                     <%= results[index][key].first_name + ' ' + results[index][key].middle_name + ' ' +
                     results[index][key].last_name %>
                 </a>
@@ -200,11 +203,16 @@
                 <% } else { %>
                 <td></td>
                 <% } %>
-                <% } else if(key == 'get_title') { %>
+                <% } else if(key == 'purpose_fio') { %>
                 <% if (results[index][key] != null) { %>
-                <td class="edit"><a href="<%= results[index].link %>" data-link="<%= results[index].link %>"
-                                    data-id="<%=results[index].id %>"><%= results[index][key] %></a><span
-                        class="quick-edit"></span></td>
+                <td class="edit">
+                    <a href="<%= '/account/' + results[index].purpose_id  %>" title="<%= results[index][key] %>">
+                        <%= results[index][key] %></a>
+                    {% if user.is_partner_supervisor_or_high %}
+                    <span class="quick-edit" data-id="<%= results[index].id %>" data-name="<%= results[index].purpose_fio %>">
+                    </span>
+                    {% endif %}
+                </td>
                 <% } else { %>
                 <td></td>
                 <% } %>
@@ -217,37 +225,6 @@
                     десятины
                     <% } %>
                 </td>
-                <% } else { %>
-                <td></td>
-                <% } %>
-                <% } else if (key == 'master' || key == 'pastor' || key == 'leader') { %>
-                <% if (results[index][key] != null) { %>
-                <td><%= results[index][key].fullname %></td>
-                <% } else { %>
-                <td></td>
-                <% } %>
-                <% } else if (key == 'hierarchy' || key == 'church' ) { %>
-                <% if (results[index][key] != null ) { %>
-                <td><%= results[index][key].title %></td>
-                <% } else { %>
-                <td></td>
-                <% } %>
-                <% } else if (key == 'department') { %>
-                <% if (results[index][key] != null ) { %>
-                <td><%= results[index][key].title %></td>
-                <% } else { %>
-                <td></td>
-                <% } %>
-                <% }else if (key == 'departments' || key == 'divisions') { %>
-                <% if ( Array.isArray(results[index][key]) && results[index][key].length != 0) { %>
-                <% if (results[index][key].length == 1) { %>
-                <td><%= results[index][key][0].title %></td>
-                <% } else { %>
-                <td><%= results[index][key].reduce(function(sum, item, i) {
-                    return i < results[index][key].length - 1 ? sum + item.title + ', ' : sum + item.title
-                    }, "") %>
-                </td>
-                <% } %>
                 <% } else { %>
                 <td></td>
                 <% } %>
