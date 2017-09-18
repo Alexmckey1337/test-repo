@@ -29,13 +29,6 @@ def delete_sum_pay_tithe_column(apps, schema_editor):
         title='sum_pay_tithe').delete()
 
 
-def refactoring_deals_fio_editable(apps, schema_editor):
-    Deal_summary_columns = apps.get_model('navigation', 'ColumnType')
-
-    full_name_column = Deal_summary_columns.objects.filter(category__title='deal').filter(title='full_name')
-    full_name_column.update(editable=False)
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
