@@ -9,7 +9,7 @@ from payment.models import Payment
 
 class PaymentResource(CustomFieldsModelResource):
     """For excel import/export"""
-    sum = fields.Field(attribute='sum')
+    sum_str = fields.Field(attribute='sum')
     rate = fields.Field(attribute='rate')
 
     user_field_name = 'user'
