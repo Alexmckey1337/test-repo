@@ -1,65 +1,18 @@
-const CONFIG = {
-    // 'DOCUMENT_ROOT': 'http://vocrm.org/',
-    'DOCUMENT_ROOT': '/',
-    'pagination_count': 30, //Количество записей при пагинации
-    'pagination_duplicates_count': 10, //Количество записей при пагинации for duplicate users
-    'pagination_patrnership_count': 30, //Количество записей при пагинации for patrnership
-    'column_table': null
-};
-
-const VOCRM = {};
-
-// counterNotifications();
+import 'jquery.scrollbar';
+import 'jquery.scrollbar/jquery.scrollbar.css';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import URLS from './modules/Urls/urls';
+import {deleteCookie} from './modules/Cookie/cookie';
+import ajaxRequest from './modules/Ajax/ajaxRequest';
+import {hidePopup} from './modules/Popup/popup';
+import {counterNotifications, birhtdayNotifications,
+        repentanceNotifications, makeBirthdayUsers, makeRepentanceUsers} from './modules/Notifications/notify';
+import fixedTableHead from './modules/FixedHeadTable/index';
 
 $(window).on('hashchange', function () {
     location.reload();
 });
-
-// Sorting
-
-// let orderTable = (function () {
-//     let savePath = sessionStorage.getItem('path');
-//     let path = window.location.pathname;
-//     if(savePath != path) {
-//         sessionStorage.setItem('path', path);
-//         sessionStorage.setItem('revers', '');
-//         sessionStorage.setItem('order', '');
-//     }
-//     function addListener(callback) {
-//         $(".table-wrap th").on('click', function () {
-//             let dataOrder;
-//             let data_order = this.getAttribute('data-order');
-//             if(data_order == "no_ordering") {
-//                 return
-//             }
-//             let page = $('.pagination__input').val();
-//             let revers = (sessionStorage.getItem('revers')) ? sessionStorage.getItem('revers') : "+";
-//             let order = (sessionStorage.getItem('order')) ? sessionStorage.getItem('order') : '';
-//             if (order != '') {
-//                 dataOrder = (order == data_order && revers == "+") ? '-' + data_order : data_order;
-//             } else {
-//                 dataOrder = '-' + data_order;
-//             }
-//             let data = {
-//                 'ordering': dataOrder,
-//                 'page': page
-//             };
-//             if (order == data_order) {
-//                 revers = (revers == '+') ? '-' : '+';
-//             } else {
-//                 revers = "+"
-//             }
-//             sessionStorage.setItem('revers', revers);
-//             sessionStorage.setItem('order', data_order);
-//             $('.preloader').css('display', 'block');
-//             callback(data);
-//         });
-//     }
-//
-//     return {
-//         sort: addListener
-//     }
-// })();
 
 $('.close').on('click', function () {
     if ($(this).closest('.pop-up-splash')) {
@@ -87,7 +40,7 @@ $('.reset_hard_user').on('click', function (e) {
 
 $('.close_popup').on('click', function () {
     let $body = $('body');
-    if($body.hasClass('no_scroll')) {
+    if ($body.hasClass('no_scroll')) {
         $body.removeClass('no_scroll');
     }
     $(this).closest('.popap').css('display', 'none');
@@ -97,12 +50,6 @@ $('.close_popup').on('click', function () {
 $('.top input').click(function () {
     $('.top .search').animate({width: "80%"});
 });
-
-function hideFilter() {
-    if ($('.top input').length && !$('.top input').val().length) {
-        $('.top .search').animate({width: "50%"});
-    }
-}
 
 if (document.getElementById('filter')) {
     $('#filter').select2();
@@ -127,7 +74,6 @@ $('body').on('click', '#pag li', function (e) {
 });
 
 /*DND columns*/
-
 $("#sort-on").click(function () {
     $(".table-sorting").toggleClass('active');
     let sortBG = document.createElement('div');
@@ -159,7 +105,7 @@ $('#popup').click(function (el) {
 //Переписати на нові таби
 $('.tabs-nav li').click(function (e) {
     e.preventDefault();
-    //console.log(  $(this).index()   )
+    console.log($(this).index());
     $('.tabs-nav li').removeClass('current');
     $(this).addClass('current');
     $('.tab-toggle').hide();
@@ -179,7 +125,6 @@ $(document).ready(function () {
         $('#hint').css('top', position).fadeIn();
     });
 
-
     $('.editprofile input').keypress(function (el) {
         if (el.charCode == '32' && el.currentTarget.id != 'extra_phone_numbers' && el.currentTarget.id != 'address' && el.currentTarget.id != 'search_name') {
             return false
@@ -189,6 +134,7 @@ $(document).ready(function () {
     $('body').on('mouseout', '.toggle-sidebar .menu__item', function (el) {
         $('#hint').detach();
     });
+
     if ($('.scrollbar-inner').length || $('.scrollbar-macosx').length) {
         $('.scrollbar-inner').scrollbar();
         $('.scrollbar-macosx').scrollbar();
@@ -214,34 +160,20 @@ $(document).ready(function () {
 
     $('#nav-sidebar').find('.menu__item').on('click', function (e) {
         e.preventDefault();
-
-            $('#hint').fadeOut();
-
-            let $sidebar = $("#sidebar");
-            let $moveSidebar = $('#move-sidebar');
-            if ($sidebar.hasClass('toggle-sidebar')) {
-                setTimeout(function () {
-                    $sidebar.removeClass('toggle-sidebar');
-                    document.documentElement.style.setProperty('--lsb_width', '240px');
-                    $moveSidebar.removeClass('active');
-                    // deleteCookie('state');
+        $('#hint').fadeOut();
+        let $sidebar = $("#sidebar");
+        let $moveSidebar = $('#move-sidebar');
+        if ($sidebar.hasClass('toggle-sidebar')) {
+            setTimeout(function () {
+                $sidebar.removeClass('toggle-sidebar');
+                document.documentElement.style.setProperty('--lsb_width', '240px');
+                $moveSidebar.removeClass('active');
+                // deleteCookie('state');
             }, 100)
-    }
+        }
         $(this).parent().siblings('li').removeClass('sb-menu_link__active').find('.sidebar-submenu:visible').slideUp(300);
         $(this).next('ul').slideToggle(400).parent().toggleClass('sb-menu_link__active');
     });
-
-    // $('#container').on('click', function () {
-    //     let $sidebar = $("#sidebar");
-    //     let $moveSidebar = $('#move-sidebar');
-    //     setTimeout(function () {
-    //         $sidebar.addClass('toggle-sidebar');
-    //         document.documentElement.style.setProperty('--lsb_width', '90px');
-    //         $moveSidebar.addClass('active');
-    //         document.cookie = 'state=active;path=/';
-    //     }, 100);
-    //     $sidebar.find('li').removeClass('sb-menu_link__active').find('.sidebar-submenu:visible').slideUp(300);
-    // })
 
 });
 
@@ -263,10 +195,6 @@ function opened(name) {
         "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
     ));
     return matches ? true : false;
-}
-
-function deleteCookie(name) {
-    document.cookie = name + '=active;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }
 
 $('.close-popup').on('click', function (e) {
@@ -294,14 +222,26 @@ function setSidebarPosition() {
     }
 }
 
-function accordionInfo() {
-    $('.info-title').on('click', function () {
-        $(this).next('.info').slideToggle().siblings('.info:visible').slideUp();
-        $(this).toggleClass('info-title_active').siblings('.info-title').removeClass('info-title_active');
-    });
-}
-
 $(document).ready(function () {
+    // //Hide element after click in another area display
+    document.body.addEventListener('click', function (el) {
+        let photoHover = document.querySelector(".photo-hover"),
+            messageHover = document.querySelector('.massage-hover');
+        if (el.target == document.querySelector(".userImgWrap") || el.target == document.querySelector(".userImgWrap img")) {
+            photoHover.style.display == 'block' ? photoHover.style.display = 'none' : photoHover.style.display = 'block';
+            messageHover.style.display = 'none';
+        } else if (el.target == document.querySelector('.sms') || el.target == document.querySelector('.sms span:last-child')) {
+            messageHover.style.display == 'block' ? messageHover.style.display = 'none' : messageHover.style.display = 'block';
+            photoHover.style.display = 'none';
+        } else if (el.target == document.querySelector('.top input') || el.target == document.querySelector('#select2-filter-container')) {
+            return
+        } else {
+            messageHover.style.display = 'none';
+            photoHover.style.display = 'none';
+            hideFilter();
+        }
+    });
+
     let $createUser = $('#createUser');
     $createUser.on('submit', function (e) {
         e.preventDefault();
@@ -325,108 +265,12 @@ $(document).ready(function () {
         }
     });
 
-    function makeBirthdayUsers(config={}) {
-        $('.preloader').css('display', 'block');
-        birhtdayNotifications(config).then(data => {
-            let table = `<table>
-                        <thead>
-                            <tr>
-                                <th>ФИО</th>
-                                <th>Дата рождения</th>
-                                <th>Ответственный</th>
-                                <th>Номер телефонна</th>
-                            </tr>
-                        </thead>
-                        <tbody>${data.results.map(item => {
-                            let master = item.﻿master;
-                            if (master == null) {
-                                master = '';
-                            } else {
-                                master = master.fullname;
-                            }
-
-                            return `<tr>
-                                       <td><a target="_blank" href="${item.link}">${item.fullname}</a></td>
-                                       <td>${item.born_date}</td>
-                                       <td>${master}</td>
-                                       <td>${item.phone_number}</td>
-                                     </tr>`;
-                            }).join('')}</tbody>
-                        </table>`;
-           let count = data.count,
-                page = config.page || 1,
-                pages = Math.ceil(count / CONFIG.pagination_duplicates_count),
-                showCount = (count < CONFIG.pagination_duplicates_count) ? count : data.results.length,
-                text = `Показано ${showCount} из ${count}`,
-                paginationConfig = {
-                    container: ".special_users__pagination",
-                    currentPage: page,
-                    pages: pages,
-                    callback: makeBirthdayUsers
-                };
-            makePagination(paginationConfig);
-            $('.pop-up_special__table').find('.table__count').text(text);
-            $('#table_special-users').html('').append(table);
-            $('.pop-up_special__table').find('.top-text h3').text('Дни рождения');
-            $('.preloader').css('display', 'none');
-            $('.pop-up_special__table').css('display', 'block');
-        });
-    }
-
-    function makeRepentanceUsers(config={}) {
-        $('.preloader').css('display', 'block');
-        repentanceNotifications(config).then(data => {
-            let table = `<table>
-                        <thead>
-                            <tr>
-                                <th>ФИО</th>
-                                <th>Дата покаяния</th>
-                                <th>Ответственный</th>
-                                <th>Номер телефонна</th>
-                            </tr>
-                        </thead>
-                        <tbody>${data.results.map(item => {
-                            let master = item.﻿master;
-                            if (master == null) {
-                                master = '';
-                            } else {
-                                master = master.fullname;
-                            }
-
-                            return `<tr>
-                                       <td><a target="_blank" href="${item.link}">${item.fullname}</a></td>
-                                       <td>${item.repentance_date}</td>
-                                       <td>${master}</td>
-                                       <td>${item.phone_number}</td>
-                                     </tr>`;
-                            }).join('')}</tbody>
-                        </table>`;
-           let count = data.count,
-                page = config.page || 1,
-                pages = Math.ceil(count / CONFIG.pagination_duplicates_count),
-                showCount = (count < CONFIG.pagination_duplicates_count) ? count : data.results.length,
-                text = `Показано ${showCount} из ${count}`,
-                paginationConfig = {
-                    container: ".special_users__pagination",
-                    currentPage: page,
-                    pages: pages,
-                    callback: makeRepentanceUsers
-                };
-            makePagination(paginationConfig);
-            $('.pop-up_special__table').find('.table__count').text(text);
-            $('#table_special-users').html('').append(table);
-            $('.pop-up_special__table').find('.top-text h3').text('Дни покаяний');
-            $('.preloader').css('display', 'none');
-            $('.pop-up_special__table').css('display', 'block');
-        });
-    }
-
     $('.pop-up_special__table').find('.close_pop').on('click', function () {
-       $('.pop-up_special__table').css('display', 'none');
+        $('.pop-up_special__table').css('display', 'none');
     });
 
     $('.pop-up__table').on('click', function () {
-       $(this).css('display', 'none');
+        $(this).css('display', 'none');
     });
 
     $('.pop-up__table').find('.pop_cont').on('click', function (e) {
@@ -436,31 +280,31 @@ $(document).ready(function () {
     let count = true,
         config = {};
     if ($('#sms_notification').length > 0) {
-            Promise.all([counterNotifications(), birhtdayNotifications(config, count), repentanceNotifications(config, count)]).then(values => {
-        let data = {},
-            box = $('.massage-hover').find('.hover-wrapper');
-        for (let i = 0; i < values.length; i++) {
-            Object.assign(data, values[i]);
-        }
-        let count = Object.values(data).reduce((prev, current) => prev + current);
-        $('.sms').attr('data-count', count);
-        if (count > 0) {
-            $("#without_notifications").remove();
-            if (data.birthdays_count > 0) {
-                let birthdayNote = `<div class="notification_row notification_row__birth" data-type="birthdays"><p>Дни рождения: <span>${data.birthdays_count}</span></p></div>`;
-                box.append(birthdayNote);
+        Promise.all([counterNotifications(), birhtdayNotifications(config, count), repentanceNotifications(config, count)]).then(values => {
+            let data = {},
+                box = $('.massage-hover').find('.hover-wrapper');
+            for (let i = 0; i < values.length; i++) {
+                Object.assign(data, values[i]);
             }
-            if (data.repentance_count > 0) {
-                let repentanceNote = `<div class="notification_row notification_row__rep" data-type="repentance"><p>Дата покаяния: <span>${data.repentance_count}</span></p></div>`;
-                box.append(repentanceNote);
+            let count = Object.values(data).reduce((prev, current) => prev + current);
+            $('.sms').attr('data-count', count);
+            if (count > 0) {
+                $("#without_notifications").remove();
+                if (data.birthdays_count > 0) {
+                    let birthdayNote = `<div class="notification_row notification_row__birth" data-type="birthdays"><p>Дни рождения: <span>${data.birthdays_count}</span></p></div>`;
+                    box.append(birthdayNote);
+                }
+                if (data.repentance_count > 0) {
+                    let repentanceNote = `<div class="notification_row notification_row__rep" data-type="repentance"><p>Дата покаяния: <span>${data.repentance_count}</span></p></div>`;
+                    box.append(repentanceNote);
+                }
+                box.on('click', '.notification_row', function () {
+                    let type = $(this).attr('data-type');
+                    (type == 'birthdays') && makeBirthdayUsers();
+                    (type == 'repentance') && makeRepentanceUsers();
+                })
             }
-            box.on('click', '.notification_row', function () {
-                let type = $(this).attr('data-type');
-                (type == 'birthdays') && makeBirthdayUsers();
-                (type == 'repentance') && makeRepentanceUsers();
-            })
-        }
-    });
+        });
     }
 
     $(window).on('resize', function () {
