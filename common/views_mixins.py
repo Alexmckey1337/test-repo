@@ -52,6 +52,7 @@ class BaseExportViewSetMixin(object):
         return self.resource_class
 
     def get_response(self, queryset, fields, resource_class=None):
+        print(queryset, fields)
         resource_class = resource_class or self.get_resource_class()
         data = resource_class().export(queryset, custom_export_fields=fields)
         export_data = self.file_format.export_data(data, delimiter=';')
