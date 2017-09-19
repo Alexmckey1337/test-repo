@@ -21,6 +21,7 @@ from .pagination import PaymentPagination, ChurchReportPaymentPagination
 from django.db.models import F
 from rest_framework.generics import get_object_or_404
 from common.views_mixins import ExportViewSetMixin
+from .resources import PaymentResource
 
 
 class PaymentUpdateDestroyView(LogAndCreateUpdateDestroyMixin,
@@ -75,11 +76,7 @@ class PaymentUpdateDestroyView(LogAndCreateUpdateDestroyMixin,
                 editor=get_real_user(self.request), payment=payment)
 
 
-from .resources import PaymentResource
-
-
-class PaymentListView(mixins.ListModelMixin, mixins.CreateModelMixin, GenericAPIView,
-                      ExportViewSetMixin):
+class PaymentListView(mixins.ListModelMixin, mixins.CreateModelMixin, GenericAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentShowSerializer
     permission_classes = (IsAuthenticated,)
@@ -93,6 +90,8 @@ class PaymentListView(mixins.ListModelMixin, mixins.CreateModelMixin, GenericAPI
         user = self.request.user
         return self.queryset.for_user_by_all(user)
 
+
+class PaymentExportView(PaymentListView, ExportViewSetMixin):
     def post(self, request, *args, **kwargs):
         return self.export(request, *args, **kwargs)
 
