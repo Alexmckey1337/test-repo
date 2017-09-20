@@ -775,12 +775,12 @@ function exportNewTableData(el) {
     });
 }
 
-function exportTableData(el, additionalFilter = {}) {
+function exportTableData(el, additionalFilter = {}, search = 'search_fio') {
     let _self = el;
     return new Promise(function (resolve, reject) {
         let url, filter, filterKeys, items, count;
         url = $(_self).attr('data-export-url');
-        filter = Object.assign(getFilterParam(), getSearch('search_fio'), additionalFilter);
+        filter = Object.assign(getFilterParam(), getSearch(search), additionalFilter);
         filterKeys = Object.keys(filter);
         if (filterKeys && filterKeys.length) {
             url += '?';
