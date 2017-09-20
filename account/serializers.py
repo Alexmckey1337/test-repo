@@ -34,7 +34,7 @@ BASE_USER_FIELDS = (
     'phone_number', 'extra_phone_numbers',
     'born_date', 'coming_date', 'repentance_date',
 
-    'country', 'region', 'city', 'district', 'address', 'get_church',
+    'country', 'region', 'city', 'district', 'address',
     # #################################################
     'image', 'image_source',
 
@@ -303,20 +303,18 @@ class UserCreateSerializer(BaseUserSerializer):
         return instance
 
 
-class ChurchNameSerializer(serializers.ModelSerializer):
-    # title = serializers.CharField(source='get_title', read_only=True)
-
-    class Meta:
-        model = Church
-        fields = ('id', 'title',)
-
-
 class UserSingleSerializer(BaseUserSerializer):
     departments = DepartmentTitleSerializer(many=True, read_only=True)
     master = MasterWithHierarchySerializer(required=False, allow_null=True)
     hierarchy = HierarchyTitleSerializer()
     divisions = DivisionSerializer(many=True, read_only=True)
     spiritual_level = ReadOnlyChoiceField(choices=User.SPIRITUAL_LEVEL_CHOICES, read_only=True)
+
+
+class ChurchNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Church
+        fields = ('id', 'title',)
 
 
 class UserTableSerializer(UserSingleSerializer):
