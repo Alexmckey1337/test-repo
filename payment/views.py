@@ -76,7 +76,7 @@ class PaymentUpdateDestroyView(LogAndCreateUpdateDestroyMixin,
                 editor=get_real_user(self.request), payment=payment)
 
 
-class PaymentListView(mixins.ListModelMixin, mixins.CreateModelMixin, GenericAPIView):
+class PaymentListView(mixins.ListModelMixin, GenericAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentShowSerializer
     permission_classes = (IsAuthenticated,)
@@ -89,13 +89,6 @@ class PaymentListView(mixins.ListModelMixin, mixins.CreateModelMixin, GenericAPI
     def get_queryset(self):
         user = self.request.user
         return self.queryset.for_user_by_all(user)
-
-
-class PaymentExportView(PaymentListView, ExportViewSetMixin):
-    def post(self, request, *args, **kwargs):
-        return self.export(request, *args, **kwargs)
-
-    resource_class = PaymentResource
 
 
 class PaymentDetailView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericAPIView):
@@ -116,7 +109,7 @@ class PaymentDetailView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, Gene
         return Response(serializer.data)
 
 
-class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
+class PaymentDealListView(mixins.ListModelMixin, GenericAPIView, ExportViewSetMixin):
     queryset = Payment.objects.base_queryset()
     serializer_class = PaymentDealShowSerializer
     permission_classes = (IsAuthenticated,)
@@ -141,14 +134,19 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
     }
     filter_class = PaymentFilter
 
+    resource_class = PaymentResource
+
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
     def get_queryset(self):
         user = self.request.user
-
         return self.queryset.for_user_by_deal(user).add_deal_fio().annotate(
             purpose_type=F('deals__type')).annotate(purpose_id=F('deals__partnership__user_id'))
+
+    def post(self, request, *args, **kwargs):
+        """For export/import to excel"""
+        return self._export(request, *args, **kwargs)
 
 
 class PaymentChurchReportListView(mixins.ListModelMixin, GenericAPIView):
