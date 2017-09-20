@@ -19,7 +19,7 @@ import {createPayment} from './modules/Payment/index';
 import {sendNote, changeLessonStatus, initLocationSelect} from './modules/Account/index';
 import {makeChurches} from './modules/MakeList/index';
 import {addUserToHomeGroup, addUserToChurch} from './modules/User/addUser';
-import {handleFileSelect} from './modules/Avatar/index';
+import {handleFileSelect, dataURLtoBlob} from './modules/Avatar/index';
 
 $('document').ready(function () {
     const ID = getLastId();
@@ -436,6 +436,8 @@ $('document').ready(function () {
                     });
             } else {
                 $input.each(function () {
+                    let id = $(this).data('id');
+                    console.log('ID-->',id);
                     if (!$(this).attr('name')) {
                         if ($(this).is('[type=file]')) {
                             let send_image = $(this).prop("files").length || false;
