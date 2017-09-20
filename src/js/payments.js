@@ -8,8 +8,9 @@
 
     $('#export_table').on('click', function () {
         $('.preloader').css('display', 'block');
-        let config = getSearch('search_purpose_fio');
-        exportTableData(this, config).then(function () {
+        let search = 'search_purpose_fio',
+            config = {};
+        exportTableData(this, config, search).then(function () {
             $('.preloader').css('display', 'none');
         });
     });
