@@ -1,6 +1,7 @@
 'use strict';
 import URLS from '../Urls/index';
 import ajaxRequest from '../Ajax/ajaxRequest';
+import newAjaxRequest from '../Ajax/newAjaxRequest';
 
 export function getResponsible(ids, level, search = "") {
     let responsibleLevel;
@@ -26,4 +27,58 @@ export function getResponsible(ids, level, search = "") {
             }
         });
     })
+}
+
+export function getChurchesListINDepartament(department_ids) {
+    return new Promise(function (resolve, reject) {
+        let url;
+        if (department_ids instanceof Array) {
+            url = `${URLS.church.for_select()}?`;
+            let i = 0;
+            department_ids.forEach(function (department_id) {
+                i++;
+                url += `department=${department_id}`;
+                if (department_ids.length != i) {
+                    url += '&';
+                }
+            })
+        } else {
+            url = (department_ids != null) ? `${URLS.church.for_select()}?department=${department_ids}` : `${URLS.church.for_select()}`;
+        }
+        let data = {
+            url: url,
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    })
+}
+
+export function getHomeGroupsINChurches(id) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: `${URLS.home_group.for_select()}?church_id=${id}`,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    });
 }

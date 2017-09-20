@@ -15,6 +15,11 @@ import ajaxRequest from './modules/Ajax/ajaxRequest';
 import URLS from './modules/Urls/index';
 import {CONFIG} from './modules/config';
 import {showAlert} from './modules/ShowNotifications/index';
+import {createPayment} from './modules/Payment/index';
+import {sendNote, changeLessonStatus} from './modules/Account/index';
+import {makeChurches} from './modules/MakeList/index';
+import {addUserToHomeGroup, addUserToChurch} from './modules/User/addUser';
+import {handleFileSelect} from './modules/Avatar/index';
 
 $('document').ready(function () {
     const ID = getLastId();
@@ -290,66 +295,10 @@ $('document').ready(function () {
         });
     }
 
-    function sendNote(profileId, text, box) {
-        let data = {
-            "text": text
-        };
-        let json = JSON.stringify(data);
-        ajaxRequest(URLS.summit_profile.create_note(profileId), json, function (note) {
-            box.before(function () {
-                return '<div class="rows"><div><p>' + note.text + ' — ' + moment(note.date_created).format("DD.MM.YYYY HH:mm:ss")
-                    + ' — Author: ' + note.owner_name
-                    + '</p></div></div>'
-            });
-            showAlert('Примечание добавлено');
-        }, 'POST', true, {
-            'Content-Type': 'application/json'
-        });
-    }
-
-    function changeLessonStatus(lessonId, profileId, checked) {
-        let data = {
-            "anket_id": profileId
-        };
-        let url;
-        if (checked) {
-            url = URLS.summit_lesson.add_viewer(lessonId);
-        } else {
-            url = URLS.summit_lesson.del_viewer(lessonId);
-        }
-        let json = JSON.stringify(data);
-        ajaxRequest(url, json, function (data) {
-            if (data.checked) {
-                showAlert('Урок ' + data.lesson + ' просмотрен.');
-            } else {
-                showAlert('Урок ' + data.lesson + ' не просмотрен.');
-            }
-            $('#lesson' + data.lesson_id).prop('checked', data.checked);
-        }, 'POST', true, {
-            'Content-Type': 'application/json'
-        }, {
-            400: function (data) {
-                data = data.responseJSON;
-                showAlert(data.detail);
-                $('#lesson' + data.lesson_id).prop('checked', data.checked);
-            }
-        });
-    }
-
     let $img = $(".crArea img");
     let flagCroppImg = false;
 
     let $selectDepartment = $('#departments');
-
-    function makeHomeGroupsList(ID) {
-        let churchID = ID || $('#church_list').val();
-        if (churchID && typeof parseInt(churchID) == "number") {
-            return getHomeGroupsINChurches(churchID)
-        }
-        return new Promise(function (reject) {
-            reject(null);
-        })
-    }
 
     // makeHomeGroupsList().then((results) => {
     //     if (!results) {
@@ -375,50 +324,6 @@ $('document').ready(function () {
     //     console.log(options);
     //     $homeGroupsList.html(options);
     // });
-
-    function makeChurches() {
-        let departmentID = $selectDepartment.val();
-        if (departmentID && typeof parseInt(departmentID) == "number") {
-            getChurchesListINDepartament(departmentID).then(function (data) {
-                console.log(departmentID);
-                let selectedChurchID = $('#church_list').val();
-                let options = [];
-                let option = document.createElement('option');
-                $(option).val('').text('Выберите церковь').attr('selected', true).attr('disabled', true);
-                options.push(option);
-                data.forEach(function (item) {
-                    let option = document.createElement('option');
-                    $(option).val(item.id).text(item.get_title);
-                    if (selectedChurchID == item.id) {
-                        $(option).attr('selected', true);
-                    }
-                    options.push(option);
-                });
-                $('#church_list').html(options).on('change', function () {
-                    let churchID = $(this).val();
-                    if (churchID && typeof parseInt(churchID) == "number") {
-                        makeHomeGroupsList(churchID).then(function (data) {
-                            let $homeGroupsList = $('#home_groups_list');
-                            let homeGroupsID = $homeGroupsList.val();
-                            let options = [];
-                            let option = document.createElement('option');
-                            $(option).val('').text('Выберите домашнюю группу').attr('selected', true);
-                            options.push(option);
-                            data.forEach(function (item) {
-                                let option = document.createElement('option');
-                                $(option).val(item.id).text(item.get_title);
-                                if (homeGroupsID == item.id) {
-                                    $(option).attr('selected', true);
-                                }
-                                options.push(option);
-                            });
-                            $homeGroupsList.html(options);
-                        });
-                    }
-                }).trigger('change');
-            });
-        }
-    }
 
     $selectDepartment.on('change', function () {
         let option = document.createElement('option');
@@ -713,49 +618,6 @@ $('document').ready(function () {
             $img.cropper("destroy");
         });
     });
-
-    function handleFileSelect(e) {
-        let files = e.target.files; // FileList object
-        // Loop through the FileList and render image files as thumbnails.
-        for (let i = 0, file; file = files[i]; i++) {
-            // Only process image files.
-            if (!file.type.match('image.*')) {
-                continue;
-            }
-            let reader = new FileReader();
-
-            // Closure to capture the file information.
-            reader.onload = (function () {
-                return function (e) {
-                    $img.attr('src', e.target.result);
-                    $("#impPopup").css('display', 'block');
-                    $img.cropper({
-                        aspectRatio: 1 / 1,
-                        built: function () {
-                            $img.cropper("setCropBoxData", {width: "100", height: "100"});
-                        }
-                    });
-                };
-            })();
-            // Read in the image file as a data URL.
-            reader.readAsDataURL(file);
-        }
-        croppUploadImg();
-    }
-
-    function croppUploadImg() {
-        $('.anketa-photo').on('click', function () {
-
-            $("#impPopup").css('display', 'block');
-            $img.cropper({
-                aspectRatio: 1 / 1,
-                built: function () {
-                    $img.cropper("setCropBoxData", {width: "100", height: "100"});
-                }
-            });
-            return flagCroppImg = true;
-        });
-    }
 
     $('#divisions').select2();
     $('#departments').select2();
