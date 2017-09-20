@@ -35,16 +35,20 @@ class PaymentResource(CustomFieldsModelResource):
                              payment.purpose.partnership.user.middle_name)
 
     def dehydrate_purpose_manager_fio(self, payment):
-        return '%s %s %s' % (payment.purpose.responsible.user.last_name,
-                             payment.purpose.responsible.user.first_name,
-                             payment.purpose.responsible.user.middle_name
-                             )
+        if payment.purpose.responsible:
+            return '%s %s %s' % (payment.purpose.responsible.user.last_name,
+                                 payment.purpose.responsible.user.first_name,
+                                 payment.purpose.responsible.user.middle_name)
+        else:
+            return ''
 
     def dehydrate_purpose_date(self, payment):
         return payment.purpose.date_created
 
     def dehydrate_manager(self, payment):
-        return '%s %s %s' % (payment.manager.last_name,
-                             payment.manager.first_name,
-                             payment.manager.middle_name
-                             )
+        if payment.manager:
+            return '%s %s %s' % (payment.manager.last_name,
+                                 payment.manager.first_name,
+                                 payment.manager.middle_name)
+        else:
+            return ''

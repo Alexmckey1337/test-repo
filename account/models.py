@@ -129,10 +129,10 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
     def link(self):
         return self.get_absolute_url()
 
-    # @property
-    # def get_church(self):
-    #     church = self.cchurch or self.hhome_group.church
-    #     return church
+    @property
+    def get_church(self):
+        church = self.cchurch or self.hhome_group.church
+        return church
 
     @property
     def column_table(self):
