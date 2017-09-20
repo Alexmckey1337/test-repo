@@ -82,3 +82,39 @@ export function getHomeGroupsINChurches(id) {
         newAjaxRequest(data, status, reject)
     });
 }
+
+export function getCountries() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(URLS.country(), null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    });
+}
+
+export function getRegions(config = {}) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(URLS.region(), config, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка")
+            }
+        })
+    })
+}
+
+export function getCities(config = {}) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(URLS.city(), config, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка")
+            }
+        })
+    })
+}

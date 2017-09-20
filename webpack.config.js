@@ -13,7 +13,7 @@ module.exports = {
         // editpass: ['babel-polyfill', './editpass.js'],
         main: ['babel-polyfill', './main.js'],
         account: ['babel-polyfill', './account.js'],
-        // tickets: ['babel-polyfill', './tickets.js'],
+        tickets: ['babel-polyfill', './tickets.js'],
         // add_user: './add_user.js',
         websocket: './websocket.js',
         dashboard: ['babel-polyfill', './dashboard.js'],

@@ -16,7 +16,7 @@ import URLS from './modules/Urls/index';
 import {CONFIG} from './modules/config';
 import {showAlert} from './modules/ShowNotifications/index';
 import {createPayment} from './modules/Payment/index';
-import {sendNote, changeLessonStatus} from './modules/Account/index';
+import {sendNote, changeLessonStatus, initLocationSelect} from './modules/Account/index';
 import {makeChurches} from './modules/MakeList/index';
 import {addUserToHomeGroup, addUserToChurch} from './modules/User/addUser';
 import {handleFileSelect} from './modules/Avatar/index';
@@ -110,7 +110,8 @@ $('document').ready(function () {
     $("#change-password").on('click', function () {
         $('#popup-change_password').css('display', 'block');
     });
-    $("#close-password").on('click', function () {
+    $("#close-password").on('click', function (e) {
+        e.preventDefault();
         $('#popup-change_password').css('display', 'none');
     });
     $('#change-password-form').on('submit', function (event) {

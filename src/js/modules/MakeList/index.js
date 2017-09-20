@@ -77,3 +77,51 @@ function makeHomeGroupsList(ID) {
         reject(null);
     })
 }
+
+export function makeCountriesList(data, selectCountry) {
+    let rendered = [];
+    let option = document.createElement('option');
+    $(option).val('').text('Выберите страну').attr('disabled', true).attr('selected', true);
+    rendered.push(option);
+    data.forEach(function (item) {
+        let option = document.createElement('option');
+        $(option).val(item.title).text(item.title).attr('data-id', item.id);
+        if (item.title == selectCountry) {
+            $(option).attr('selected', true);
+        }
+        rendered.push(option);
+    });
+    return rendered
+}
+
+export function makeRegionsList(data, selectRegion) {
+    let rendered = [];
+    let option = document.createElement('option');
+    $(option).val('').text('Выберите регион').attr('disabled', true).attr('selected', true);
+    rendered.push(option);
+    data.forEach(function (item) {
+        let option = document.createElement('option');
+        $(option).val(item.title).text(item.title).attr('data-id', item.id);
+        if (item.title == selectRegion) {
+            $(option).attr('selected', true);
+        }
+        rendered.push(option);
+    });
+    return rendered
+}
+
+export function makeCityList(data, selectCity) {
+    let rendered = [];
+    let option = document.createElement('option');
+    $(option).val('').text('Выберите город').attr('disabled', true).attr('selected', true);
+    rendered.push(option);
+    data.forEach(function (item) {
+        let option = document.createElement('option');
+        $(option).val(item.title).text(item.title).attr('data-id', item.id);
+        if (item.title == selectCity) {
+            $(option).attr('selected', true);
+        }
+        rendered.push(option);
+    });
+    return rendered
+}
