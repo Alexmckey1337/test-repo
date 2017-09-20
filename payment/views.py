@@ -20,6 +20,8 @@ from .permissions import PaymentManagerOrSupervisor
 from .pagination import PaymentPagination, ChurchReportPaymentPagination
 from django.db.models import F
 from rest_framework.generics import get_object_or_404
+from common.views_mixins import ExportViewSetMixin
+from .resources import PaymentResource
 
 
 class PaymentUpdateDestroyView(LogAndCreateUpdateDestroyMixin,
@@ -86,7 +88,6 @@ class PaymentListView(mixins.ListModelMixin, GenericAPIView):
 
     def get_queryset(self):
         user = self.request.user
-
         return self.queryset.for_user_by_all(user)
 
 
@@ -100,7 +101,6 @@ class PaymentDetailView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, Gene
 
     def get_queryset(self):
         user = self.request.user
-
         return self.queryset.for_user_by_all(user)
 
     def retrieve(self, request, *args, **kwargs):
@@ -109,7 +109,7 @@ class PaymentDetailView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, Gene
         return Response(serializer.data)
 
 
-class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
+class PaymentDealListView(mixins.ListModelMixin, GenericAPIView, ExportViewSetMixin):
     queryset = Payment.objects.base_queryset()
     serializer_class = PaymentDealShowSerializer
     permission_classes = (IsAuthenticated,)
@@ -134,14 +134,19 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
     }
     filter_class = PaymentFilter
 
+    resource_class = PaymentResource
+
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
     def get_queryset(self):
         user = self.request.user
-
         return self.queryset.for_user_by_deal(user).add_deal_fio().annotate(
             purpose_type=F('deals__type')).annotate(purpose_id=F('deals__partnership__user_id'))
+
+    def post(self, request, *args, **kwargs):
+        """For export/import to excel"""
+        return self._export(request, *args, **kwargs)
 
 
 class PaymentChurchReportListView(mixins.ListModelMixin, GenericAPIView):

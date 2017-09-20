@@ -44,12 +44,18 @@
                     <div class="popup_body">
                         <div class="container container_block">
                             <label>
+                                <span class="label_block">Открыта</span>
+                                <div class="input">
+                                    <input type="checkbox" id="is_open_church" {% if church.is_open %}checked{% endif %}
+                                           readonly disabled="disabled">
+                                    <div></div>
+                                </div>
+                            </label>
+                            <label>
                                 <span class="label_block">Дата открытия</span>
                                 <div class="input">
                                     <input type="text" class="date" id="opening_date" value="{{ church.opening_date }}"
                                            disabled="disabled" readonly>
-                                    <input type="checkbox" id="is_open_church" {% if church.is_open %}checked{% endif %} readonly
-                                           disabled="disabled">
                                 </div>
                             </label>
                             <label>

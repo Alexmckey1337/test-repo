@@ -6,6 +6,15 @@
         createPaymentsTable({});
     }, 500));
 
+    $('#export_table').on('click', function () {
+        $('.preloader').css('display', 'block');
+        let search = 'search_purpose_fio',
+            config = {};
+        exportTableData(this, config, search).then(function () {
+            $('.preloader').css('display', 'none');
+        });
+    });
+
     $('#filter_button').on('click', ()=> {
         $('#filterPopup').show();
     });
