@@ -1,3 +1,5 @@
+'use strict';
+
 export default function makePagination(config) {
     let container = document.createElement('div'),
         input = document.createElement('input'),

@@ -1,3 +1,4 @@
+'use strict';
 import sendPassToEmail from './modules/sendPassToEmail';
 
 $("document").ready(function () {

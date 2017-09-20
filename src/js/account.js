@@ -1,440 +1,341 @@
-function updateUser(id, data, success = null) {
-    let url = URLS.user.detail(id);
-    let config = {
-        url: url,
-        data: data,
-        method: 'PATCH'
-    };
-    return ajaxSendFormData(config).then(function (data) {
-        if (success) {
-            $(success).text('Сохранено');
-            setTimeout(function () {
-                $(success).text('');
-            }, 3000);
-        }
-        return data;
-    }).catch(function (data) {
-        let msg = "";
-        if (typeof data == "string") {
-            msg += data;
-        } else {
-            let errObj = null;
-            if (typeof data != 'object') {
-                errObj = JSON.parse(data);
-            } else {
-                errObj = data;
-            }
-            for (let key in errObj) {
-                msg += key;
-                msg += ': ';
-                if (errObj[key] instanceof Array) {
-                    errObj[key].forEach(function (item) {
-                        msg += item;
-                        msg += ' ';
-                    });
-                } else if (typeof errObj[key] == 'object') {
-                    let errKeys = Object.keys(errObj[key]),
-                        html = errKeys.map(errkey => `${errObj[key][errkey]}`).join('');
-                    msg += html;
-                } else {
-                    msg += errObj[key];
-                }
-                msg += '; ';
-            }
-        }
-        showPopup(msg);
+'use strict';
+import 'air-datepicker';
+import 'air-datepicker/dist/css/datepicker.css';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import 'cropper';
+import 'cropper/dist/cropper.css';
+import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
+import 'jquery-form-validator/form-validator/lang/ru.js';
+import {updateUser, updateOrCreatePartner} from './modules/User/updateUser';
+import {makeResponsibleList} from './modules/MakeList/index';
+import getLastId from './modules/GetLastId/index';
+import {setCookie} from './modules/Cookie/cookie';
+import ajaxRequest from './modules/Ajax/ajaxRequest';
+import URLS from './modules/Urls/index';
+import {CONFIG} from './modules/config';
+import {showAlert} from './modules/ShowNotifications/index';
 
-        return false;
+$('document').ready(function () {
+    const ID = getLastId();
+
+    $('.hard-login').on('click', function () {
+        let user = $(this).data('user-id');
+        setCookie('hard_user_id', user, {path: '/'});
+        window.location.reload();
     });
-}
-function updateOrCreatePartner(id, data, success = null) {
-    let url = (!id) ? URLS.partner.list() : URLS.partner.detail(id);
-    let config = {
-        url: url,
-        data: data,
-        method: (!id) ? 'POST' : 'PATCH'
-    };
-    return ajaxSendFormData(config).then(function (data) {
-        if (success) {
-            $(success).text('Сохранено');
-            setTimeout(function () {
-                $(success).text('');
-            }, 3000);
-        }
-        return data;
-    }).catch(function (data) {
-        let msg = "";
-        if (typeof data == "string") {
-            msg += data;
-        } else {
-            let errObj = null;
-            if (typeof data != 'object') {
-                errObj = JSON.parse(data);
-            } else {
-                errObj = data;
-            }
-            for (let key in errObj) {
-                msg += key;
-                msg += ': ';
-                if (errObj[key] instanceof Array) {
-                    errObj[key].forEach(function (item) {
-                        msg += item;
-                        msg += ' ';
-                    });
-                } else if (typeof errObj[key] == 'object') {
-                    let errKeys = Object.keys(errObj[key]),
-                        html = errKeys.map(errkey => `${errObj[key][errkey]}`).join('');
-                    msg += html;
-                } else {
-                    msg += errObj[key];
-                }
-                msg += '; ';
-            }
-        }
-        showPopup(msg);
 
-        return false;
+    $("#tabs1 li").on('click', function () {
+        let id_tab = $(this).attr('data-tab');
+        $('[data-tab-content]').hide();
+        $('[data-tab-content="' + id_tab + '"]').show();
+        $(this).closest('.tab-status').find('li').removeClass('active');
+        $(this).addClass('active');
     });
-}
 
-function makeResponsibleList(department, status, flag = false) {
-    let $selectResponsible = $('#selectResponsible'),
-        activeMaster = $selectResponsible.find('option:selected').val();
-    getResponsible(department, status).then(function (data) {
-        let defaultOption = `<option value="none" disabled="disabled" selected="selected">Выберите ответственного</option>`
-        let options = data.map(option =>
-                `<option value="${option.id}" ${(activeMaster == option.id) ? 'selected' : ''}>${option.fullname}</option>`);
-        if (flag) {
-            if (status > 60) {
-                $selectResponsible.empty()
-                    .html(defaultOption)
-                    .append(`<option value="">Нет ответственного</option>`)
-                    .append(options);
-            } else {
-                $selectResponsible.empty().html(defaultOption).append(options);
+    $('#send_need').on('click', function () {
+        let need_text = $('#id_need_text').val();
+        let url = URLS.partner.update_need($(this).data('partner'));
+        let need = JSON.stringify({'need_text': need_text});
+        ajaxRequest(url, need, function () {
+            showAlert('Нужда сохранена.');
+        }, 'PUT', true, {
+            'Content-Type': 'application/json'
+        }, {
+            400: function (data) {
+                data = data.responseJSON;
+                showAlert(data.detail);
             }
-        } else {
-            $selectResponsible.empty().html(defaultOption).append(options);
-        }
-    })
-}
-
-const ID = getLastId();
-
-$('.hard-login').on('click', function () {
-    let user = $(this).data('user-id');
-    setCookie('hard_user_id', user, {path: '/'});
-    window.location.reload();
-});
-$("#tabs1 li").on('click', function () {
-    let id_tab = $(this).attr('data-tab');
-    $('[data-tab-content]').hide();
-    $('[data-tab-content="' + id_tab + '"]').show();
-    $(this).closest('.tab-status').find('li').removeClass('active');
-    $(this).addClass('active');
-});
-
-$('#send_need').on('click', function () {
-    let need_text = $('#id_need_text').val();
-    let url = URLS.partner.update_need($(this).data('partner'));
-    let need = JSON.stringify({'need_text': need_text});
-    ajaxRequest(url, need, function () {
-        showPopup('Нужда сохранена.');
-    }, 'PUT', true, {
-        'Content-Type': 'application/json'
-    }, {
-        400: function (data) {
-            data = data.responseJSON;
-            showPopup(data.detail);
-        }
+        });
+        $(this).siblings('.editText').removeClass('active');
+        $(this).parent().siblings('textarea').attr('readonly', true);
     });
-    $(this).siblings('.editText').removeClass('active');
-    $(this).parent().siblings('textarea').attr('readonly', true);
-});
-$('#sendNote').on('click', function () {
-    let _self = this;
-    let id = $(_self).data('id');
-    let resData = new FormData();
-    resData.append('description', $('#id_note_text').val());
-    updateUser(id, resData).then(() => showPopup('Ваше примечание добавлено.'));
-    $(this).siblings('.editText').removeClass('active');
-    $(this).parent().siblings('textarea').attr('readonly', true);
 
-});
-$("#close-payment").on('click', function () {
-    $('#popup-create_payment').css('display', 'none');
-});
-$("#popup-create_payment .top-text span").on('click', function () {
-    $('#new_payment_sum').val('');
-    $('#popup-create_payment textarea').val('');
-    $('#popup-create_payment').css('display', '');
-});
-$('#payment-form').on("submit", function (event) {
-    event.preventDefault();
-    let data = $('#payment-form').serializeArray();
-    let userID;
-    let new_data = {};
-    data.forEach(function (field) {
-        if (field.name == 'sent_date') {
-            new_data[field.name] = field.value.trim().split('.').reverse().join('-');
-        } else if (field.name != 'id') {
+    $('#sendNote').on('click', function () {
+        let _self = this;
+        let id = $(_self).data('id');
+        let resData = new FormData();
+        resData.append('description', $('#id_note_text').val());
+        updateUser(id, resData).then(() => showAlert('Ваше примечание добавлено.'));
+        $(this).siblings('.editText').removeClass('active');
+        $(this).parent().siblings('textarea').attr('readonly', true);
+    });
+
+    $("#close-payment").on('click', function () {
+        $('#popup-create_payment').css('display', 'none');
+    });
+
+    $("#popup-create_payment .top-text span").on('click', function () {
+        $('#new_payment_sum').val('');
+        $('#popup-create_payment textarea').val('');
+        $('#popup-create_payment').css('display', '');
+    });
+
+    $('#payment-form').on("submit", function (event) {
+        event.preventDefault();
+        let data = $('#payment-form').serializeArray();
+        let userID;
+        let new_data = {};
+        data.forEach(function (field) {
+            if (field.name == 'sent_date') {
+                new_data[field.name] = field.value.trim().split('.').reverse().join('-');
+            } else if (field.name != 'id') {
+                new_data[field.name] = field.value
+            } else {
+                userID = field.value;
+            }
+        });
+        if (userID) {
+            createPayment({
+                data: new_data
+            }, userID).then(function (data) {
+
+            });
+        }
+        // create_payment(id, sum, description, rate, currency);
+
+        $('#new_payment_sum').val('');
+        $('#popup-create_payment textarea').val('');
+        $('#popup-create_payment').css('display', 'none');
+    });
+
+    $("#create_new_payment").on('click', function () {
+        $('#popup-create_payment').css('display', 'block');
+    });
+    $("#change-password").on('click', function () {
+        $('#popup-change_password').css('display', 'block');
+    });
+    $("#close-password").on('click', function () {
+        $('#popup-change_password').css('display', 'none');
+    });
+    $('#change-password-form').on('submit', function (event) {
+        event.preventDefault();
+        let data = $('#change-password-form').serializeArray();
+        let new_data = {};
+        data.forEach(function (field) {
             new_data[field.name] = field.value
+        });
+        $('.password-error').html('');
+        ajaxRequest(`${CONFIG.DOCUMENT_ROOT}rest-auth/password/change/`, JSON.stringify(new_data), function (JSONobj) {
+            window.location.href = `/entry/?next=${window.location.pathname}`;
+        }, 'POST', true, {
+            'Content-Type': 'application/json'
+        }, {
+            400: function (data) {
+                data = data.responseJSON;
+                for (let field in data) {
+                    if (!data.hasOwnProperty(field)) continue;
+                    $(`#error-${field}`).html(data[field]);
+                }
+            },
+            403: function (data) {
+                data = data.responseJSON;
+                for (let field in data) {
+                    if (!data.hasOwnProperty(field)) continue;
+                    $(`#error-${field}`).html(data[field]);
+                }
+            }
+        });
+    });
+    $("#popup-change_password .top-text span").on('click', function (el) {
+        $('#popup-change_password').css('display', 'none');
+    });
+
+    $("#close-deal").on('click', function () {
+        $('#popup-create_deal').css('display', 'none');
+    });
+    $("#popup-create_deal .top-text span").on('click', function (el) {
+        $('#new_deal_sum').val('');
+        $('#popup-create_deal textarea').val('');
+        $('#popup-create_deal').css('display', '');
+    });
+    $("#create_new_deal").on('click', function () {
+        $('#popup-create_deal').css('display', 'block');
+    });
+
+    $('#send_new_deal').on('click', function () {
+        let description = $('#popup-create_deal textarea').val();
+        let value = $('#new_deal_sum').val();
+        let date = $('#new_deal_date').val();
+        let type = $('#new_deal_type').val();
+
+        if (value && date) {
+            let url = URLS.deal.list();
+
+            let deal = JSON.stringify({
+                'date_created': date.trim().split('.').reverse().join('-'),
+                'value': value,
+                'description': description,
+                'partnership': $(this).data('partner'),
+                'type': type,
+            });
+            ajaxRequest(url, deal, function (data) {
+                showAlert('Сделка создана.');
+                $('#popup-create_deal textarea').val('');
+                $('#new_deal_sum').val('');
+                $('#new_deal_date').val('');
+                $('#popup-create_deal').css('display', 'none');
+
+            }, 'POST', true, {
+                'Content-Type': 'application/json'
+            }, {
+                403: function (data) {
+                    data = data.responseJSON;
+                    showAlert(data.detail)
+                }
+            });
         } else {
-            userID = field.value;
+            showAlert('Заполните все поля.');
         }
     });
-    if (userID) {
-        createPayment({
-            data: new_data
-        }, userID).then(function (data) {
 
-        });
+    $("#tabs1 li").click();
+
+    $("#id_deal_date").datepicker({
+        dateFormat: "yy-mm-dd",
+        maxDate: new Date(),
+        yearRange: '2010:+0',
+        autoClose: true,
+        onSelect: function (date) {
+        }
+    }).mousedown(function () {
+        $('#ui-datepicker-div').toggle();
+    });
+    $('#partnershipCheck').on('click', function () {
+        let $input = $(this).closest('form').find('input:not([checkbox])');
+        if ($(this).is(':checked')) {
+            $input.each(function () {
+                $(this).attr('readonly', false)
+            });
+        } else {
+            $input.each(function () {
+                $(this).attr('readonly', true)
+            });
+        }
+    });
+    $(".send_note").on('click', function (e) {
+        e.preventDefault();
+        let form = $(this).closest('form');
+        let text_field = form.find('.js-add_note');
+        let box = $(this).closest(".note-box");
+        let text = text_field.val();
+        let anket_id = form.data('anket-id');
+        sendNote(anket_id, text, box);
+        text_field.val('');
+    });
+
+    $(".js-lesson").on('click', function (e) {
+        let lesson_id = $(this).data("lesson-id");
+        let anket_id = $(this).data('anket-id');
+        let checked = $(this).is(':checked');
+        changeLessonStatus(lesson_id, anket_id, checked);
+    });
+
+    $("#tabs2 li").on('click', function (e) {
+        e.preventDefault();
+        let id_tab = this.getAttribute('data-tab');
+        $('[data-summit-id]').hide();
+        $('[data-summit-id="' + id_tab + '"]').show();
+        $('.summits-block').hide();
+        $(this).closest('.tab-status').find('li').removeClass('active');
+        $(this).addClass('active');
+    });
+
+    if ($("#tabs2 li")) {
+        $('#Sammits').css('display', 'block');
+    } else {
+        $('#Sammits').css('display', 'block');
     }
-    // create_payment(id, sum, description, rate, currency);
 
-    $('#new_payment_sum').val('');
-    $('#popup-create_payment textarea').val('');
-    $('#popup-create_payment').css('display', 'none');
-});
-
-$("#create_new_payment").on('click', function () {
-    $('#popup-create_payment').css('display', 'block');
-});
-$("#change-password").on('click', function () {
-    $('#popup-change_password').css('display', 'block');
-});
-$("#close-password").on('click', function () {
-    $('#popup-change_password').css('display', 'none');
-});
-$('#change-password-form').on('submit', function (event) {
-    event.preventDefault();
-    let data = $('#change-password-form').serializeArray();
-    let new_data = {};
-    data.forEach(function (field) {
-        new_data[field.name] = field.value
+    $('#deleteUser').click(function () {
+        let id = $(this).attr('data-id');
+        $('#yes').attr('data-id', ID);
+        $('.add-user-wrap').show();
     });
-    $('.password-error').html('');
-    ajaxRequest(`${CONFIG.DOCUMENT_ROOT}rest-auth/password/change/`, JSON.stringify(new_data), function (JSONobj) {
-        window.location.href = `/entry/?next=${window.location.pathname}`;
-    }, 'POST', true, {
-        'Content-Type': 'application/json'
-    }, {
-        400: function (data) {
-            data = data.responseJSON;
-            for (let field in data) {
-                if (!data.hasOwnProperty(field)) continue;
-                $(`#error-${field}`).html(data[field]);
-            }
-        },
-        403: function (data) {
-            data = data.responseJSON;
-            for (let field in data) {
-                if (!data.hasOwnProperty(field)) continue;
-                $(`#error-${field}`).html(data[field]);
-            }
+
+    $('#deletePopup').click(function (el) {
+        if (el.target != this) {
+            return;
         }
+        $(this).hide();
     });
-});
-$("#popup-change_password .top-text span").on('click', function (el) {
-    $('#popup-change_password').css('display', 'none');
-});
 
-$("#close-deal").on('click', function () {
-    $('#popup-create_deal').css('display', 'none');
-});
-$("#popup-create_deal .top-text span").on('click', function (el) {
-    $('#new_deal_sum').val('');
-    $('#popup-create_deal textarea').val('');
-    $('#popup-create_deal').css('display', '');
-});
-$("#create_new_deal").on('click', function () {
-    $('#popup-create_deal').css('display', 'block');
-});
+    $('#no').click(function () {
+        $('#deletePopup').hide();
+    });
 
-$('#send_new_deal').on('click', function () {
-    let description = $('#popup-create_deal textarea').val();
-    let value = $('#new_deal_sum').val();
-    let date = $('#new_deal_date').val();
-    let type = $('#new_deal_type').val();
+    $('#deletePopup span').click(function () {
+        $('#deletePopup').hide();
+    });
 
-    if (value && date) {
-        let url = URLS.deal.list();
+    function create_payment(partnerId, sum, description, rate, currency) {
+        let data = {
+            "sum": sum,
+            "description": description,
+            "rate": rate,
+            "currency": currency
+        };
 
-        let deal = JSON.stringify({
-            'date_created': date.trim().split('.').reverse().join('-'),
-            'value': value,
-            'description': description,
-            'partnership': $(this).data('partner'),
-            'type': type,
-        });
-        ajaxRequest(url, deal, function (data) {
-            showPopup('Сделка создана.');
-            $('#popup-create_deal textarea').val('');
-            $('#new_deal_sum').val('');
-            $('#new_deal_date').val('');
-            $('#popup-create_deal').css('display', 'none');
+        let json = JSON.stringify(data);
 
+        ajaxRequest(URLS.partner.create_payment(partnerId), json, function (JSONobj) {
+            showAlert('Оплата прошла успешно.');
         }, 'POST', true, {
             'Content-Type': 'application/json'
         }, {
             403: function (data) {
                 data = data.responseJSON;
-                showPopup(data.detail)
+                showAlert(data.detail)
             }
         });
-    } else {
-        showPopup('Заполните все поля.');
     }
-});
 
-$("#tabs1 li").click();
-
-$("#id_deal_date").datepicker({
-    dateFormat: "yy-mm-dd",
-    maxDate: new Date(),
-    yearRange: '2010:+0',
-    autoClose: true,
-    onSelect: function (date) {
-    }
-}).mousedown(function () {
-    $('#ui-datepicker-div').toggle();
-});
-$('#partnershipCheck').on('click', function () {
-    let $input = $(this).closest('form').find('input:not([checkbox])');
-    if ($(this).is(':checked')) {
-        $input.each(function () {
-            $(this).attr('readonly', false)
-        });
-    } else {
-        $input.each(function () {
-            $(this).attr('readonly', true)
+    function sendNote(profileId, text, box) {
+        let data = {
+            "text": text
+        };
+        let json = JSON.stringify(data);
+        ajaxRequest(URLS.summit_profile.create_note(profileId), json, function (note) {
+            box.before(function () {
+                return '<div class="rows"><div><p>' + note.text + ' — ' + moment(note.date_created).format("DD.MM.YYYY HH:mm:ss")
+                    + ' — Author: ' + note.owner_name
+                    + '</p></div></div>'
+            });
+            showAlert('Примечание добавлено');
+        }, 'POST', true, {
+            'Content-Type': 'application/json'
         });
     }
-});
-$(".send_note").on('click', function (e) {
-    e.preventDefault();
-    let form = $(this).closest('form');
-    let text_field = form.find('.js-add_note');
-    let box = $(this).closest(".note-box");
-    let text = text_field.val();
-    let anket_id = form.data('anket-id');
-    sendNote(anket_id, text, box);
-    text_field.val('');
-});
 
-$(".js-lesson").on('click', function (e) {
-    let lesson_id = $(this).data("lesson-id");
-    let anket_id = $(this).data('anket-id');
-    let checked = $(this).is(':checked');
-    changeLessonStatus(lesson_id, anket_id, checked);
-});
-
-$("#tabs2 li").on('click', function (e) {
-    e.preventDefault();
-    let id_tab = this.getAttribute('data-tab');
-    $('[data-summit-id]').hide();
-    $('[data-summit-id="' + id_tab + '"]').show();
-    $('.summits-block').hide();
-    $(this).closest('.tab-status').find('li').removeClass('active');
-    $(this).addClass('active');
-});
-
-if ($("#tabs2 li")) {
-    $('#Sammits').css('display', 'block');
-} else {
-    $('#Sammits').css('display', 'block');
-}
-
-$('#deleteUser').click(function () {
-    let id = $(this).attr('data-id');
-    $('#yes').attr('data-id', ID);
-    $('.add-user-wrap').show();
-});
-
-$('#deletePopup').click(function (el) {
-    if (el.target != this) {
-        return;
-    }
-    $(this).hide();
-});
-
-$('#no').click(function () {
-    $('#deletePopup').hide();
-});
-
-$('#deletePopup span').click(function () {
-    $('#deletePopup').hide();
-});
-
-function create_payment(partnerId, sum, description, rate, currency) {
-    let data = {
-        "sum": sum,
-        "description": description,
-        "rate": rate,
-        "currency": currency
-    };
-
-    let json = JSON.stringify(data);
-
-    ajaxRequest(URLS.partner.create_payment(partnerId), json, function (JSONobj) {
-        showPopup('Оплата прошла успешно.');
-    }, 'POST', true, {
-        'Content-Type': 'application/json'
-    }, {
-        403: function (data) {
-            data = data.responseJSON;
-            showPopup(data.detail)
-        }
-    });
-}
-
-function sendNote(profileId, text, box) {
-    let data = {
-        "text": text
-    };
-    let json = JSON.stringify(data);
-    ajaxRequest(URLS.summit_profile.create_note(profileId), json, function (note) {
-        box.before(function () {
-            return '<div class="rows"><div><p>' + note.text + ' — ' + moment(note.date_created).format("DD.MM.YYYY HH:mm:ss")
-                + ' — Author: ' + note.owner_name
-                + '</p></div></div>'
-        });
-        showPopup('Примечание добавлено');
-    }, 'POST', true, {
-        'Content-Type': 'application/json'
-    });
-}
-
-function changeLessonStatus(lessonId, profileId, checked) {
-    let data = {
-        "anket_id": profileId
-    };
-    let url;
-    if (checked) {
-        url = URLS.summit_lesson.add_viewer(lessonId);
-    } else {
-        url = URLS.summit_lesson.del_viewer(lessonId);
-    }
-    let json = JSON.stringify(data);
-    ajaxRequest(url, json, function (data) {
-        if (data.checked) {
-            showPopup('Урок ' + data.lesson + ' просмотрен.');
+    function changeLessonStatus(lessonId, profileId, checked) {
+        let data = {
+            "anket_id": profileId
+        };
+        let url;
+        if (checked) {
+            url = URLS.summit_lesson.add_viewer(lessonId);
         } else {
-            showPopup('Урок ' + data.lesson + ' не просмотрен.');
+            url = URLS.summit_lesson.del_viewer(lessonId);
         }
-        $('#lesson' + data.lesson_id).prop('checked', data.checked);
-    }, 'POST', true, {
-        'Content-Type': 'application/json'
-    }, {
-        400: function (data) {
-            data = data.responseJSON;
-            showPopup(data.detail);
+        let json = JSON.stringify(data);
+        ajaxRequest(url, json, function (data) {
+            if (data.checked) {
+                showAlert('Урок ' + data.lesson + ' просмотрен.');
+            } else {
+                showAlert('Урок ' + data.lesson + ' не просмотрен.');
+            }
             $('#lesson' + data.lesson_id).prop('checked', data.checked);
-        }
-    });
-}
+        }, 'POST', true, {
+            'Content-Type': 'application/json'
+        }, {
+            400: function (data) {
+                data = data.responseJSON;
+                showAlert(data.detail);
+                $('#lesson' + data.lesson_id).prop('checked', data.checked);
+            }
+        });
+    }
 
-$('document').ready(function () {
     let $img = $(".crArea img");
     let flagCroppImg = false;
 
@@ -565,7 +466,7 @@ $('document').ready(function () {
             $(this).removeClass('active');
         } else {
             if (noEdit) {
-                showPopup("Сначала сохраните или отмените изменения в другом блоке")
+                showAlert("Сначала сохраните или отмените изменения в другом блоке")
             } else {
                 $input.each(function () {
                     if (!$(this).hasClass('no__edit')) {
@@ -585,7 +486,7 @@ $('document').ready(function () {
     $('.save__info').on('click', function (e) {
         e.preventDefault();
         if (($(this).closest('form').attr('name') == 'editHierarchy') && ($('#selectResponsible').val() == null)) {
-            showPopup('Выберите ответственного');
+            showAlert('Выберите ответственного');
             return
         }
         $(this).closest('form').find('.edit').removeClass('active');
@@ -700,7 +601,7 @@ $('document').ready(function () {
                     }, 3000);
                     $existBlock.addClass('exists');
                 }).catch(function (data) {
-                    showPopup(JSON.parse(data.responseText));
+                    showAlert(JSON.parse(data.responseText));
                 });
             } else if (!!church_id) {
                 addUserToChurch(ID, church_id, noExist).then(function (data) {
@@ -712,7 +613,7 @@ $('document').ready(function () {
                     }, 3000);
                     $existBlock.addClass('exists');
                 }).catch(function (data) {
-                    showPopup(JSON.parse(data.responseText));
+                    showAlert(JSON.parse(data.responseText));
                 });
             }
 

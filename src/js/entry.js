@@ -1,4 +1,4 @@
-import URLS from './modules/Urls/urls';
+import URLS from './modules/Urls/index';
 import {setCookie} from './modules/Cookie/cookie';
 import ajaxRequest from './modules/Ajax/newAjaxRequest';
 import {hidePopup} from './modules/Popup/popup';

@@ -104,42 +104,6 @@
                             <div class="success__block"></div>
                             <form action="/" name="editName" data-action="update-user">
                                 <button class="save__info after__hidden" type="submit"></button>
-{#                                <ul>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="first_name">Имя</label>#}
-{#                                        </div>#}
-{#                                        <input type="text" name="first_name" value="{{ account.first_name }}" readonly>#}
-{#                                    </li>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="last_name">Фамилия</label>#}
-{#                                        </div>#}
-{#                                        <input type="text" name="last_name" value="{{ account.last_name }}" readonly>#}
-{#                                    </li>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="middle_name">Отчество</label>#}
-{#                                        </div>#}
-{#                                        <input type="email" name="middle_name" value="{{ account.middle_name }}" readonly>#}
-{#                                    </li>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="search_name">Имя на родном языке</label>#}
-{#                                        </div>#}
-{#                                        <input type="text" name="search_name" value="{{ account.search_name }}" readonly>#}
-{#                                    </li>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="search_name">Фото</label>#}
-{#                                        </div>#}
-{#                                        <input type="file" id="file">#}
-{#                                    </li>#}
-{#                                    <li class="clearfix">#}
-{#                                        <p>Размер файла не должен превышать 10 МБ.</p>#}
-{#                                        <p>Типы файлов, которые поддерживаются: jpg, jpeg, png.</p>#}
-{#                                    </li>#}
-{#                                </ul>#}
                                 <div class="popup_body">
                                     <div class="container">
                                         <label>
@@ -201,40 +165,6 @@
                                         </label>
                                     </div>
                                 </div>
-{#                                <ul>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="block-wrapp">#}
-{#                                            <span><i class="fa fa-mobile" aria-hidden="true"></i></span>#}
-{#                                            <input type="text" name="phone_number" value="{{ account.phone_number }}"#}
-{#                                               data-validation="custom"#}
-{#                                               data-validation-regexp="^((\+|[0-9]{1})([0-9]*))?$"#}
-{#                                               data-validation-optional="true" readonly>#}
-{#                                        </div>#}
-{#                                    </li>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="block-wrapp">#}
-{#                                            <span>#}
-{#                                                <i class="fa fa-phone" aria-hidden="true"></i>#}
-{#                                            </span>#}
-{#                                        </div>#}
-{#                                        <input type="text" id="extra_phone_numbers"#}
-{#                                               value="{% if account.extra_phone_numbers %}{{ account.extra_phone_numbers|default:""|join:", " }}{% endif %}"#}
-{#                                               readonly>#}
-{#                                    </li>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="email"><i class="fa fa-envelope"></i></label>#}
-{#                                        </div>#}
-{#                                        <input type="email" name="email" value="{{ account.email }}"#}
-{#                                               data-validation="email" data-validation-optional="true" readonly>#}
-{#                                    </li>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="skype"><i class="fa fa-skype"></i></label>#}
-{#                                        </div>#}
-{#                                        <input type="text" name="skype" value="{{ account.skype }}" readonly>#}
-{#                                    </li>#}
-{#                                </ul>#}
                             </form>
                         </div>
                     </li>
@@ -245,29 +175,6 @@
                             <form action="/" name="editSocial" data-action="update-user">
                                 <button class="edit" data-edit-block="editSocial"></button>
                                 <button class="save__info" type="submit"></button>
-{#                                <ul>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="facebook">Facebook</label>#}
-{#                                        </div>#}
-{#                                        <input type="text" id="facebook" name="facebook" value="{{ account.facebook }}"#}
-{#                                               readonly>#}
-{#                                    </li>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="vkontakte">Vkontakte</label>#}
-{#                                        </div>#}
-{#                                        <input type="text" name="vkontakte" value="{{ account.vkontakte }}"#}
-{#                                               readonly>#}
-{#                                    </li>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="odnoklassniki">Одноклассники</label>#}
-{#                                        </div>#}
-{#                                        <input type="email" name="odnoklassniki" value="{{ account.odnoklassniki }}"#}
-{#                                               readonly>#}
-{#                                    </li>#}
-{#                                </ul>#}
                                 <div class="popup_body">
                                     <div class="container">
                                         <label>
@@ -297,48 +204,6 @@
                             <form action="/" name="editLocation" data-action="update-user">
                                 <button class="edit" data-edit-block="editLocation"></button>
                                 <button class="save__info" type="submit"></button>
-{#                                <ul>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="born_date">Дата рождения:</label>#}
-{#                                        </div>#}
-{#                                        <input type="text" id="born_date"#}
-{#                                               class="sel__date"#}
-{#                                               value="{{ account.born_date|date:"d.m.Y" }}" readonly disabled>#}
-{#                                    </li>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="country">Страна:</label>#}
-{#                                        </div>#}
-{#                                        <select type="text" name="country" id="selectCountry" readonly disabled>#}
-{#                                            <option value="{{ account.country }}"#}
-{#                                                    selected>{{ account.country }}</option>#}
-{#                                        </select>#}
-{#                                    </li>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="region">Область:</label>#}
-{#                                        </div>#}
-{#                                        <select type="text" name="region" id="selectRegion" readonly disabled>#}
-{#                                            <option value="{{ account.region }}">{{ account.region }}</option>#}
-{#                                        </select>#}
-{#                                    </li>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="city">Город:</label>#}
-{#                                        </div>#}
-{#                                        <select type="text" name="city" id="selectCity" readonly disabled>#}
-{#                                            <option value="{{ account.city }}">{{ account.city }}</option>#}
-{#                                        </select>#}
-{#                                    </li>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="address">Адрес:</label>#}
-{#                                        </div>#}
-{#                                        <input type="text" name="address" value="{{ account.address }}" readonly#}
-{#                                               disabled>#}
-{#                                    </li>#}
-{#                                </ul>#}
                                 <div class="popup_body">
                                     <div class="container">
                                         <label>
@@ -383,55 +248,6 @@
                             <form action="/" name="editHierarchy" data-action="update-user">
                                 <button class="edit" data-edit-block="editHierarchy"></button>
                                 <button class="save__info" type="submit"></button>
-{#                                <ul>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="department">Отдел:</label>#}
-{#                                        </div>#}
-{#                                        <select type="text" id="departments" multiple readonly disabled>#}
-{#                                            {% for department in departments %}#}
-{#                                                <option value="{{ department.id }}" {% if department in account.departments.all %}selected{% endif %}>{{ department.title }}</option>#}
-{#                                            {% endfor %}#}
-{#                                        </select>#}
-{#                                    </li>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="hierarchy">Статус:</label>#}
-{#                                        </div>#}
-{#                                        <select type="text" name="hierarchy" id="selectHierarchy" readonly disabled>#}
-{#                                            {% for hierarchy in hierarchies %}#}
-{#                                                <option value="{{ hierarchy.id }}"#}
-{#                                                        {% if account.hierarchy_id == hierarchy.id %}selected{% endif %}#}
-{#                                                        data-level="{{ hierarchy.level }}">#}
-{#                                                    {{ hierarchy.title }}#}
-{#                                                </option>#}
-{#                                            {% endfor %}#}
-{#                                        </select>#}
-{#                                    </li>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="master">Ответственный:</label>#}
-{#                                        </div>#}
-{#                                        <select type="text" name="master" id="selectResponsible" readonly disabled>#}
-{#                                            <option value="{{ account.master.id }}"#}
-{#                                                    data-level="{{ account.master.level }}" selected#}
-{#                                                    disabled>{{ account.master|default_if_none:"Нет ответственного"|default:"Нет ответственного" }}</option>#}
-{#                                        </select>#}
-{#                                    </li>#}
-{#                                    <li>#}
-{#                                        <ul class="clearfix is-hidden__after-edit">#}
-{#                                            {% for ancestor in account.master.get_ancestors reversed %}#}
-{#                                                {% with level=account.master.level %}#}
-{#                                                    <li>#}
-{#                                                        <span style="font-size:1.4em;margin-right:5px;">&#10551;</span>#}
-{#                                                        <a href="{% url 'account:detail' ancestor.id %}">{{ ancestor }}</a>#}
-{#                                                    </li>#}
-{#                                                {% endwith %}#}
-{#                                            {% endfor %}#}
-{#                                        </ul>#}
-{#                                    </li>#}
-{##}
-{#                                </ul>#}
                                 <div class="popup_body">
                                     <div class="container">
                                         <label>
@@ -485,20 +301,6 @@
                             <form action="/" name="editDepartament" data-action="update-user">
                                 <button class="edit" data-edit-block="editDepartament"></button>
                                 <button class="save__info" type="submit"></button>
-{#                                <ul>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="division">Департамент:</label>#}
-{#                                        </div>#}
-{#                                        <select type="text" id="divisions" readonly disabled multiple>#}
-{#                                            {% for division in divisions %}#}
-{#                                                <option value="{{ division.id }}" {% if division in account.divisions.all %}selected{% endif %}>#}
-{#                                                    {{ division.title }}#}
-{#                                                </option>#}
-{#                                            {% endfor %}#}
-{#                                        </select>#}
-{#                                    </li>#}
-{#                                </ul>#}
                                 <div class="popup_body">
                                     <div class="container">
                                         <label>
@@ -531,30 +333,6 @@
                             <form action="/" name="editVisit" data-action="update-user">
                                 <button class="edit" data-edit-block="editVisit"></button>
                                 <button class="save__info" type="submit"></button>
-{#                                <ul>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="repentance">Покаяние:</label>#}
-{#                                        </div>#}
-{#                                        <input type="text" id="repentance_date" data-id="repentance"#}
-{#                                               class="sel__date"#}
-{#                                               value="{% if account.repentance_date %}{{ account.repentance_date|date:"d.m.Y" }}{% else %}Не покаялся{% endif %}"#}
-{#                                               readonly disabled>#}
-{#                                    </li>#}
-{#                                    <li class="clearfix">#}
-{#                                        <div class="label-wrapp">#}
-{#                                            <label for="spiritual_level">Духовный уровень:</label>#}
-{#                                        </div>#}
-{#                                        <select type="text" id="spiritual_level" name="spiritual_level" readonly#}
-{#                                                disabled>#}
-{#                                            <option>Выберите духовный уровень</option>#}
-{#                                            {% for spiritual_level in spiritual_levels %}#}
-{#                                                <option value="{{ spiritual_level.id }}"#}
-{#                                                        {% if spiritual_level.id == account.spiritual_level %}selected{% endif %}>{{ spiritual_level.title }}</option>#}
-{#                                            {% endfor %}#}
-{#                                        </select>#}
-{#                                    </li>#}
-{#                                </ul>#}
                                 <div class="popup_body">
                                     <div class="container">
                                         <label>
@@ -587,80 +365,6 @@
                             <form action="/" name="editChurches" id="editChurches" data-action="update-church">
                                 <button class="edit" data-edit-block="editChurches"></button>
                                 <button class="save__info" type="submit"></button>
-{#                                <ul {% if account.hhome_group or account.cchurch %}class="exists"{% endif %}>#}
-{#                                    {% if account.hhome_group %}#}
-{#                                        <li class="clearfix">#}
-{#                                            <div class="label-wrapp">#}
-{#                                                <label for="church_title">Церковь</label>#}
-{#                                            </div>#}
-{#                                            <select type="text" id="church_list" name="church_title" readonly disabled>#}
-{#                                                <option value="{{ account.hhome_group.church.id }}">{{ account.hhome_group.church.get_title }}</option>#}
-{#                                            </select>#}
-{#                                        </li>#}
-{#                                        <li class="clearfix">#}
-{#                                            <div class="label-wrapp">#}
-{#                                                <label for="home_groups">Домашняя группа</label>#}
-{#                                            </div>#}
-{#                                            <select type="text" id="home_groups_list" name="home_groups" readonly#}
-{#                                                    disabled>#}
-{#                                                <option value="{{ account.hhome_group_id }}">{{ account.hhome_group }}</option>#}
-{#                                            </select>#}
-{#                                        </li>#}
-{#                                        <li class="clearfix">#}
-{#                                            <p class="label__block">Лидер</p>#}
-{#                                            <p class="output__block">{{ account.hhome_group.leader.fullname }}</p>#}
-{#                                        </li>#}
-{#                                    {% elif account.cchurch %}#}
-{#                                        <li class="clearfix">#}
-{#                                            <div class="label-wrapp">#}
-{#                                                <label for="church_title">Церковь</label>#}
-{#                                            </div>#}
-{#                                            <select type="text" id="church_list" name="church_title" readonly disabled>#}
-{#                                                <option value="{{ account.cchurch_id }}">{{ account.cchurch }}</option>#}
-{#                                            </select>#}
-{#                                        </li>#}
-{#                                        <li class="clearfix hidden">#}
-{#                                            <div class="label-wrapp">#}
-{#                                                <label for="home_groups">Домашняя группа</label>#}
-{#                                            </div>#}
-{#                                            <select type="text" id="home_groups_list" name="home_groups" readonly#}
-{#                                                    disabled>#}
-{#                                                <option value="">Выберите домашнюю группу</option>#}
-{#                                            </select>#}
-{#                                        </li>#}
-{#                                        <li class="clearfix">#}
-{#                                            <div class="label-wrapp">#}
-{#                                                <p class="label__block">Пастор</p>#}
-{#                                            </div>#}
-{#                                            <p class="output__block">{{ account.cchurch.pastor.fullname }}</p>#}
-{#                                        </li>#}
-{#                                    {% else %}#}
-{#                                        <li class="clearfix no_church_in">Пользователь не состоит ни в церкви ни в#}
-{#                                            домашней группе#}
-{#                                        </li>#}
-{#                                        <li class="clearfix hidden">#}
-{#                                            <div class="label-wrapp">#}
-{#                                                <label for="church_title">Церковь</label>#}
-{#                                            </div>#}
-{#                                            <select type="text" id="church_list" name="churches_title" value="" readonly#}
-{#                                                    disabled>#}
-{#                                                <option value="">Выберите церковь</option>#}
-                                                {#                                                    {% for church in churches %}#}
-                                                {#                                                        <option value="{{ church.id }}">{{ church.get_title }}</option>#}
-                                                {#                                                    {% endfor %}#}
-{#                                            </select>#}
-{#                                        </li>#}
-{#                                        <li class="clearfix hidden">#}
-{#                                            <div class="label-wrapp">#}
-{#                                                <label for="home_groups">Домашняя группа</label>#}
-{#                                            </div>#}
-{#                                            <select type="text" id="home_groups_list" name="home_groups" readonly#}
-{#                                                    disabled>#}
-{#                                                <option value="">Выберите домашнюю группу</option>#}
-{#                                            </select>#}
-{#                                        </li>#}
-{#                                    {% endif %}#}
-{#                                </ul>#}
                                 <div class="popup_body{% if account.hhome_group or account.cchurch %} exists{% endif %}" >
                                     <div class="container">
                                         {% if account.hhome_group %}
@@ -1061,39 +765,6 @@
                                 {% trans "Change password" %}
                             </button>
                         </div>
-{#                        <p>Ваш новый пароль должен быть длиной от 8 до 16 знаков и может содержать буквы верхнего и#}
-{#                            нижнего регистров, а также цифры.#}
-{#                        </p>#}
-{#                        <p>Ваш новый пароль не должен совпадать со старым паролем, а также быть похожим на Ваш электронный адрес</p>#}
-{#                        <div class="summa-wrap">#}
-{#                            <div class="summa">#}
-{#                                <div class="label-wrapp">#}
-{#                                    <label for="old_password">{% trans "Old password" %}:</label>#}
-{#                                </div>#}
-{#                                <div class="input-wrapp">#}
-{#                                    <input type="password" name="old_password" id="old_password" required>#}
-{#                                    <span id="error-old_password" class="password-error"></span>#}
-{#                                </div>#}
-{#                            </div>#}
-{#                            <div class="summa">#}
-{#                                <div class="label-wrapp">#}
-{#                                    <label for="new_password1">{% trans "New password" %}:</label>#}
-{#                                </div>#}
-{#                                <div class="input-wrapp">#}
-{#                                    <input type="password" name="new_password1" id="new_password1" required>#}
-{#                                    <span id="error-new_password1" class="password-error"></span>#}
-{#                                </div>#}
-{#                            </div>#}
-{#                            <div class="summa">#}
-{#                                <div class="label-wrapp">#}
-{#                                    <label for="new_password2">{% trans "New password confirmation" %}:</label>#}
-{#                                </div>#}
-{#                                <div class="input-wrapp">#}
-{#                                    <input type="password" name="new_password2" id="new_password2" required>#}
-{#                                    <span id="error-new_password2" class="password-error"></span>#}
-{#                                </div>#}
-{#                            </div>#}
-{#                        </div>#}
                     </form>
                 </div>
             </div>
@@ -1120,8 +791,5 @@
 {% endblock %}
 
 {% block extra_scripts %}
-    <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.16.0/moment.min.js"></script>
-    <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
-    <script src="{% static "js/account.js" %}"></script>
+    <script src="{% static "js/account.bundle.js" %}"></script>
 {% endblock %}

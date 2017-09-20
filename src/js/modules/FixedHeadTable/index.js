@@ -1,3 +1,5 @@
+'use strict';
+
 export default function fixedTableHead() {
     let $tableOffset = $("#table-1").offset().top,
         $header = $("#table-1 > thead").clone(),

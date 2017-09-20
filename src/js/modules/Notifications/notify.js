@@ -1,7 +1,8 @@
-import URLS from '../Urls/urls';
+'use strict';
+import URLS from '../Urls/index';
 import {CONFIG} from '../config'
 import makePagination from '../Pagination/index';
-import 'moment';
+import moment from 'moment/moment.js';
 
 export function counterNotifications() {
     let url = URLS.notification_tickets();

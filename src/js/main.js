@@ -2,13 +2,14 @@ import 'jquery.scrollbar';
 import 'jquery.scrollbar/jquery.scrollbar.css';
 import 'select2';
 import 'select2/dist/css/select2.css';
-import URLS from './modules/Urls/urls';
+import URLS from './modules/Urls/index';
 import {deleteCookie} from './modules/Cookie/cookie';
 import ajaxRequest from './modules/Ajax/ajaxRequest';
 import {hidePopup} from './modules/Popup/popup';
 import {counterNotifications, birhtdayNotifications,
         repentanceNotifications, makeBirthdayUsers, makeRepentanceUsers} from './modules/Notifications/notify';
 import fixedTableHead from './modules/FixedHeadTable/index';
+import {hideFilter} from './modules/Filter/filter';
 
 $(window).on('hashchange', function () {
     location.reload();
