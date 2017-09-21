@@ -3,7 +3,7 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
-import {createChurchesTable, clearAddChurchData} from './modules/Church/index';
+import {createChurchesTable, clearAddChurchData, saveChurches, addChurch,} from './modules/Church/index';
 import {makePastorList} from './modules/MakeList/index';
 import {getPastorsByDepartment} from './modules/GetList/index';
 import updateSettings from './modules/UpdateSettings/index';
@@ -101,7 +101,7 @@ $('document').ready(function () {
     });
 
     $('.apply-filter').on('click', function () {
-        applyFilter(this, createUsersTable)
+        applyFilter(this, createChurchesTable)
     });
 
     $departmentsFilter.on('change', function () {
@@ -136,4 +136,14 @@ $('document').ready(function () {
                 $('#pastor_filter').html('<option>ВСЕ</option>').append(pastors);
         });
     });
+
+    //Save churches
+    $('#save_church').on('click', function () {
+        saveChurches(this);
+    });
+
+    $('#addChurch').find('form').on('submit', function (event) {
+        addChurch(event, this, createChurchesTable)
+    })
+
 });
