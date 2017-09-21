@@ -110,11 +110,11 @@
                 </div>
             </div>
             <div class="container">
-                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
+                <button class="clear-filter"><i class="fa fa-refresh"
                                                                                   aria-hidden="true"></i>
                     Очистить</button>
                 <button class="close-popup">Отменить</button>
-                <button onclick="applyFilter(this, createChurchesTable)" class="apply-filter">Применить</button>
+                <button class="apply-filter">Применить</button>
             </div>
         </div>
     </div>
@@ -193,8 +193,7 @@
     </div>
 {% endblock %}
 {% block extra_scripts %}
-    <script src="{% static "js/database_churches.js" %}"></script>
-    <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
+    <script src="{% static "js/database_churches.bundle.js" %}"></script>
     <script type="text/template" id="quickEditCart">
         <div class="container bb-1">
             <div class="header">
@@ -266,43 +265,6 @@
                     {% endfor %}
                 </select>
             </label>
-
-{#            <div class="column">#}
-{#                <div class="label_block-wrapp">#}
-{#                    <span class="label_block">Отдел:</span>#}
-{#                </div>#}
-{#                <div class="label_block-wrapp">#}
-{#                    <span class="label_block">Пастор:</span>#}
-{#                </div>#}
-{#                <div class="label_block-wrapp">#}
-{#                    <span class="label_block">Страна</span>#}
-{#                </div>#}
-{#                <div class="label_block-wrapp">#}
-{#                    <span class="label_block">Нас.пункт:</span>#}
-{#                </div>#}
-{#                <div class="label_block-wrapp">#}
-{#                    <span class="label_block">Адрес:</span>#}
-{#                </div>#}
-{#                <div class="label_block-wrapp">#}
-{#                    <span class="label_block">Телефон:</span>#}
-{#                </div>#}
-{#                <div class="label_block-wrapp">#}
-{#                    <span class="label_block">Сайт:</span>#}
-{#                </div>#}
-{#            </div>#}
-{#            <div>#}
-{#                <div><select name="" id="editDepartmentSelect">#}
-{#                    <option value="<%= department %>"><%= department %></option>#}
-{#                </select></div>#}
-{#                <div><select name="" id="editPastorSelect">#}
-{#                    <option value="<%= pastor %>"><%= pastor %></option>#}
-{#                </select></div>#}
-{#                <p><input type="text" id="country" value="<%=country %>"></p>#}
-{#                <p><input type="text" id="city" value="<%=city %>"></p>#}
-{#                <p><input type="text" id="address" value="<%=address %>"></p>#}
-{#                <p><input type="text" id="phone_number" value="<%=phone_number %>"></p>#}
-{#                <p><input type="text" id="web_site" value="<%=website %>"></p>#}
-{#            </div>#}
         </div>
     </script>
 {% endblock %}

@@ -1,3 +1,4 @@
+'use strict';
 import 'jquery.scrollbar';
 import 'jquery.scrollbar/jquery.scrollbar.css';
 import 'select2';
@@ -9,7 +10,7 @@ import {hidePopup} from './modules/Popup/popup';
 import {counterNotifications, birhtdayNotifications,
         repentanceNotifications, makeBirthdayUsers, makeRepentanceUsers} from './modules/Notifications/notify';
 import fixedTableHead from './modules/FixedHeadTable/index';
-import {hideFilter} from './modules/Filter/filter';
+import {hideFilter} from './modules/Filter/index';
 
 $(window).on('hashchange', function () {
     location.reload();

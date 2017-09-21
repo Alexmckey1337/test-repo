@@ -1,4 +1,17 @@
-(function ($) {
+'use strict';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import 'air-datepicker';
+import 'air-datepicker/dist/css/datepicker.css';
+import {createChurchesTable, clearAddChurchData} from './modules/Church/index';
+import {makePastorList} from './modules/MakeList/index';
+import {getPastorsByDepartment} from './modules/GetList/index';
+import updateSettings from './modules/UpdateSettings/index';
+import exportTableData from './modules/Export/index';
+import {showAlert} from "./modules/ShowNotifications/index";
+import {applyFilter, refreshFilter} from "./modules/Filter/index";
+
+$('document').ready(function () {
     let $departmentsFilter = $('#departments_filter'),
         $treeFilter = $('#tree_filter'),
         $pastorFilter = $('#pastor_filter');
@@ -77,9 +90,18 @@
                 $('.preloader').css('display', 'none');
             })
             .catch(function () {
-                showPopup('Ошибка при загрузке файла');
+                showAlert('Ошибка при загрузке файла');
                 $('.preloader').css('display', 'none');
             });
+    });
+
+    //Filter
+    $('.clear-filter').on('click', function () {
+        refreshFilter(this);
+    });
+
+    $('.apply-filter').on('click', function () {
+        applyFilter(this, createUsersTable)
     });
 
     $departmentsFilter.on('change', function () {
@@ -114,4 +136,4 @@
                 $('#pastor_filter').html('<option>ВСЕ</option>').append(pastors);
         });
     });
-})(jQuery);
+});

@@ -18,7 +18,7 @@ module.exports = {
         websocket: './websocket.js',
         dashboard: ['babel-polyfill', './dashboard.js'],
         // database_users: ['babel-polyfill', './database_users.js'],
-        // database_churches: ['babel-polyfill', './database_churches'],
+        database_churches: ['babel-polyfill', './database_churches'],
         // churches_detail: ['babel-polyfill', './churches_detail'],
         // church_reports: ['babel-polyfill', './church_reports'],
         // church_report_detail: ['babel-polyfill', './church_report_detail'],

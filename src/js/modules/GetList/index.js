@@ -118,3 +118,56 @@ export function getCities(config = {}) {
         })
     })
 }
+
+export function getChurches(config = {}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: URLS.church.list(),
+            data: config,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        };
+        let status = {
+            200: function (req) {
+                resolve(req);
+            },
+            403: function () {
+                reject('Вы должны авторизоватся');
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}
+
+export function getDepartmentsOfUser(userId) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(URLS.user.departments(userId), null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject('Ошибка');
+            }
+        });
+    });
+}
+
+export function getPastorsByDepartment(config) {
+    let data = {
+        url: URLS.church.available_pastors(),
+        data: config
+    };
+    return new Promise(function (resolve, reject) {
+        let codes = {
+            200: function (data) {
+                resolve(data);
+            },
+            400: function (data) {
+                reject(data);
+            }
+        };
+        newAjaxRequest(data, codes, reject);
+    });
+}

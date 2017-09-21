@@ -1,5 +1,6 @@
 'use strict';
-import {getResponsible, getChurchesListINDepartament, getHomeGroupsINChurches} from '../GetList/index';
+import {getResponsible, getChurchesListINDepartament, getHomeGroupsINChurches,
+        getDepartmentsOfUser} from '../GetList/index';
 
 export function makeResponsibleList(department, status, flag = false) {
     let $selectResponsible = $('#selectResponsible'),
@@ -124,4 +125,35 @@ export function makeCityList(data, selectCity) {
         rendered.push(option);
     });
     return rendered
+}
+
+export function makePastorList(departmentId, selector, active = null) {
+    getResponsible(departmentId, 2).then(function (data) {
+        let options = [];
+        data.forEach(function (item) {
+            let option = document.createElement('option');
+            $(option).val(item.id).text(item.fullname);
+            if (active == item.id) {
+                $(option).attr('selected', true);
+            }
+            options.push(option);
+        });
+        $(selector).html(options).prop('disabled', false).select2();
+    });
+}
+
+export function makeDepartmentList(selector, active = null) {
+    return getDepartmentsOfUser($("body").attr("data-user")).then(function (data) {
+        let options = [];
+        let department = data;
+        department.forEach(function (item) {
+            let option = document.createElement('option');
+            $(option).val(item.id).text(item.title);
+            if (active == item.id) {
+                $(option).attr('selected', true);
+            }
+            options.push(option);
+        });
+        $(selector).html(options).prop('disabled', false).select2();
+    });
 }
