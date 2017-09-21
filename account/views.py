@@ -171,13 +171,6 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
 
     resource_class = UserResource
 
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        print(instance)
-        serializer = self.get_serializer(instance)
-        print(serializer, serializer.data)
-        return Response(serializer.data)
-
     def list(self, request, *args, **kwargs):
         """
         Getting list of users for table
