@@ -5,7 +5,7 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
 import 'jquery-form-validator/form-validator/lang/ru.js';
-import {createChurchesDetailsTable, clearAddHomeGroupData, setOptionsToPotentialLeadersSelect,
+import {createChurchesDetailsTable, setOptionsToPotentialLeadersSelect,
         makeUsersFromDatabaseList, reRenderTable, editChurches} from "./modules/Church/index";
 import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
@@ -14,6 +14,7 @@ import {initAddNewUser, createNewUser} from "./modules/User/addUser";
 import accordionInfo from './modules/accordionInfo';
 import {makePastorList, makeDepartmentList} from "./modules/MakeList/index";
 import pasteLink from './modules/pasteLink';
+import {addHomeGroup, clearAddHomeGroupData} from "./modules/HomeGroup/index";
 
 $('document').ready(function () {
     const CHURCH_ID = $('#church').data('id');
@@ -218,6 +219,10 @@ $('document').ready(function () {
         e.preventDefault();
         let url = $(this).attr('href');
         window.location = `${url}?church_id=${CHURCH_ID}&is_partner=false`;
-    })
+    });
+
+    $('#addHomeGroupForm').on('submit', function () {
+        addHomeGroup(event, this, createChurchesDetailsTable);
+    });
 
 });
