@@ -372,3 +372,26 @@ function getConfigSuperMega() {
     }
     return config
 }
+
+export function getShortUsers(config = {}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: URLS.user.short(),
+            data: config,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}

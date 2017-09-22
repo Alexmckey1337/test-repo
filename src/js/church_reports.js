@@ -1,4 +1,20 @@
-(function () {
+'use strict';
+import 'air-datepicker';
+import 'air-datepicker/dist/css/datepicker.css';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import moment from 'moment/min/moment.min.js';
+import parseUrlQuery from './modules/ParseUrl/index';
+import getSearch from './modules/Search/index';
+import {getFilterParam} from "./modules/Filter/index"
+import {getPastorsByDepartment, getChurchesListINDepartament, getChurches} from "./modules/GetList/index";
+import updateSettings from './modules/UpdateSettings/index';
+import {showAlert} from "./modules/ShowNotifications/index";
+import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import {ChurchReportsTable, churchReportsTable} from "./modules/Reports/church";
+import {createChurchPayment} from "./modules/Reports/church";
+
+$('document').ready(function () {
     let dateReports = new Date(),
         thisMonday = (moment(dateReports).day() === 1) ? moment(dateReports).format('DD.MM.YYYY') : (moment(dateReports).day() === 0) ? moment(dateReports).subtract(6, 'days').format('DD.MM.YYYY') : moment(dateReports).day(1).format('DD.MM.YYYY'),
         thisSunday = (moment(dateReports).day() === 0) ? moment(dateReports).format('DD.MM.YYYY') : moment(dateReports).day(7).format('DD.MM.YYYY'),
@@ -37,13 +53,9 @@
             init = true;
         }
     }
-    function ChurchReportsTable(config) {
-        Object.assign(config, getTabsFilterParam());
-        getChurchReports(config).then(data => {
-            makeChurchReportsTable(data);
-        });
-    }
+
     (path == undefined) && ChurchReportsTable(configData);
+
     // Events
     let $statusTabs = $('#statusTabs');
     $statusTabs.find('button').on('click', function () {
@@ -101,6 +113,14 @@
     });
 
     //Filter
+    $('.clear-filter').on('click', function () {
+        refreshFilter(this);
+    });
+
+    $('.apply-filter').on('click', function () {
+        applyFilter(this, churchReportsTable)
+    });
+
     // $('#departments_filter').on('change', function () {
     //     let department_id = parseInt($('#departments_filter').val());
     //     makePastorList(department_id, '#pastor_filter');
@@ -190,12 +210,12 @@
             $('#new_payment_sum').val('');
             $('#popup-create_payment textarea').val('');
             $('#popup-create_payment').css('display', 'none');
-            showPopup('Оплата прошла успешно.');
+            showAlert('Оплата прошла успешно.');
         }).catch((res) => {
             let error = JSON.parse(res.responseText),
                 errKey = Object.keys(error),
                 html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
-            showPopup(html);
+            showAlert(html);
         });
     });
 
@@ -205,4 +225,4 @@
         maxDate: new Date(),
         autoClose: true
     });
-})();
+});

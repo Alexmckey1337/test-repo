@@ -1,5 +1,6 @@
 'use strict';
 import URLS from '../Urls/index';
+import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
 import ajaxSendFormData from '../Ajax/ajaxSendFormData';
 import {dataURLtoBlob} from "../Avatar/index";
@@ -427,4 +428,87 @@ export function addUserToHomeGroupHG(data) {
         };
         newAjaxRequest(data, status, reject);
     });
+}
+
+export function saveUser(el) {
+    let $input, $select, fullName, first_name, last_name, middle_name, departments, hierarchy, phone_number, data, id;
+    let send = true;
+    let $department = $($(el).closest('.pop_cont').find('#departmentSelect'));
+    departments = $department.val();
+    let $hierarchy = $($(el).closest('.pop_cont').find('#hierarchySelect'));
+    hierarchy = $hierarchy.val();
+    let $master = $('#master_hierarchy');
+    let master_id = $master.val() || "";
+    let $fullname = $($(el).closest('.pop_cont').find('input.fullname'));
+    fullName = $fullname.val().split(' ');
+    let $phone_number = $($(el).closest('.pop_cont').find('#phone_number'));
+    phone_number = $phone_number.val();
+    if (!$fullname.val()) {
+        $fullname.css('border-color', 'red');
+        send = false;
+    } else {
+        $fullname.removeAttr('style');
+    }
+    if (!master_id) {
+        $('label[for="master_hierarchy"]').css('color', 'red');
+        send = false;
+    } else {
+        $('label[for="master_hierarchy"]').removeAttr('style');
+    }
+    if (!phone_number) {
+        $phone_number.css('border-color', 'red');
+        send = false;
+    } else {
+        $phone_number.removeAttr('style');
+    }
+    if (!send) {
+        return
+    }
+    first_name = fullName[1];
+    last_name = fullName[0];
+    middle_name = fullName[2] || "";
+    data = {
+        email: $($(el).closest('.pop_cont').find('#email')).val(),
+        first_name: first_name,
+        last_name: last_name,
+        middle_name: middle_name,
+        hierarchy: hierarchy,
+        departments: departments,
+        master: master_id,
+        skype: $($(el).closest('.pop_cont').find('#skype')).val(),
+        phone_number: phone_number,
+        extra_phone_numbers: _.filter(_.map($($(el).closest('.pop_cont').find('#extra_phone_numbers')).val().split(","), x => x.trim()), x => !!x),
+        repentance_date: $($(el).closest('.pop_cont').find('#repentance_date')).val() || null,
+        country: $($(el).closest('.pop_cont').find('#country')).val(),
+        region: $($(el).closest('.pop_cont').find('#region')).val(),
+        city: $($(el).closest('.pop_cont').find('#city')).val(),
+        address: $($(el).closest('.pop_cont').find('#address')).val()
+    };
+    id = $(el).closest('.pop_cont').find('img').attr('alt');
+    saveUserData(data, id);
+    $(el).text("Сохранено");
+    $(el).closest('.popap').find('.close-popup.change__text').text('Закрыть');
+    $(el).attr('disabled', true);
+    $input = $(el).closest('.popap').find('input');
+    $select = $(el).closest('.popap').find('select');
+    $select.on('change', function () {
+        $(el).text("Сохранить");
+        $(el).closest('.popap').find('.close-popup').text('Отменить');
+        $(el).attr('disabled', false);
+    });
+    $input.on('change', function () {
+        $(el).text("Сохранить");
+        $(el).closest('.popap').find('.close-popup').text('Отменить');
+        $(el).attr('disabled', false);
+    })
+}
+
+function saveUserData(data, id) {
+    if (id) {
+        let json = JSON.stringify(data);
+        ajaxRequest(URLS.user.detail(id), json, function (data) {
+        }, 'PATCH', false, {
+            'Content-Type': 'application/json'
+        });
+    }
 }

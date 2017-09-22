@@ -1,3 +1,19 @@
+'use strict';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import 'air-datepicker';
+import 'air-datepicker/dist/css/datepicker.css';
+import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
+import 'jquery-form-validator/form-validator/lang/ru.js';
+import parseUrlQuery from './modules/ParseUrl/index';
+import updateSettings from './modules/UpdateSettings/index';
+import exportTableData from './modules/Export/index';
+import {showAlert} from "./modules/ShowNotifications/index";
+import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import {createUsersTable} from "./modules/Users/index";
+import {createNewUser, saveUser, initAddNewUser} from "./modules/User/addUser";
+import {getChurchesListINDepartament, getShortUsers, getResponsible, getPastorsByDepartment} from "./modules/GetList/index";
+
 $('document').ready(function () {
     let $departmentsFilter = $('#departments_filter'),
         $churchFilter = $('#church_filter'),
@@ -5,6 +21,7 @@ $('document').ready(function () {
         path = window.location.href.split('?')[1];
 
     (path == undefined) && createUsersTable({});
+
     $('.selectdb').select2();
     $('.select_date_filter').datepicker({
         dateFormat: 'yyyy-mm-dd',
@@ -16,21 +33,26 @@ $('document').ready(function () {
         position: "left top",
         autoClose: true
     });
+
     $('.select_rep_date_filter').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true,
         position: "left top",
     });
+
     //Events
     $('#filter_button').on('click', function () {
         $('#filterPopup').css('display', 'block');
     });
+
     $('.pop_cont').on('click', function (e) {
         e.stopPropagation();
     });
+
     $('.editprofile').on('click', function (e) {
         e.stopPropagation();
     });
+
     $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
         $('.preloader').css('display', 'block');
         createUsersTable({});
@@ -78,7 +100,7 @@ $('document').ready(function () {
         lang: 'ru',
         form: '#createUser',
         onError: function (form) {
-            showPopup(`Введены некорректные данные`);
+            showAlert(`Введены некорректные данные`);
             let top = $(form).find('div.has-error').first().offset().top;
             $(form).find('.body').animate({scrollTop: top}, 500);
         },
@@ -92,6 +114,16 @@ $('document').ready(function () {
             return false; // Will stop the submission of the form
         },
     });
+
+    //Filter
+    $('.clear-filter').on('click', function () {
+        refreshFilter(this);
+    });
+
+    $('.apply-filter').on('click', function () {
+        applyFilter(this, createUsersTable)
+    });
+
     $departmentsFilter.on('change', function () {
         let departamentID = $(this).val();
         let config = {
@@ -147,6 +179,7 @@ $('document').ready(function () {
                 }
         });
     });
+
     $treeFilter.on('change', function () {
         let config = {};
         if ($(this).val() != "ВСЕ") {
@@ -166,6 +199,10 @@ $('document').ready(function () {
             });
             $('#masters_filter').html(options);
         });
+    });
+
+    $('.save-user').on('click', function () {
+        saveUser(this);
     });
 
     //Parsing URL
