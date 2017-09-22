@@ -5,8 +5,10 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
 import 'jquery-form-validator/form-validator/lang/ru.js';
-import {createChurchesDetailsTable, setOptionsToPotentialLeadersSelect,
-        makeUsersFromDatabaseList, reRenderTable, editChurches} from "./modules/Church/index";
+import {
+    createChurchesDetailsTable, setOptionsToPotentialLeadersSelect,
+    makeUsersFromDatabaseList, reRenderTable, editChurches
+} from "./modules/Church/index";
 import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
 import {showAlert} from "./modules/ShowNotifications/index";
@@ -29,6 +31,7 @@ $('document').ready(function () {
         dateFormat: 'yyyy-mm-dd',
         autoClose: true
     });
+
 //    Events
     $('#addHomeGroupToChurch').on('click', function () {
         clearAddHomeGroupData();
@@ -40,6 +43,7 @@ $('document').ready(function () {
             $('#addHomeGroup').css('display', 'block');
         }, 100)
     });
+
     $('#addUserToChurch').on('click', function () {
         // $('#addUser').css('display', 'block');
         initAddNewUser({
@@ -51,6 +55,7 @@ $('document').ready(function () {
         document.querySelector('#searchUserFromDatabase').focus();
         $('#chooseUserINBases').css('display', 'block');
     });
+
     // $('#choose').on('click', function () {
     //     $(this).closest('.popup').css('display', 'none');
     //     $('#searchedUsers').html('');
@@ -58,6 +63,7 @@ $('document').ready(function () {
     //     $('.choose-user-wrap .splash-screen').removeClass('active');
     //     $('#chooseUserINBases').css('display', 'block');
     // });
+
     $('#addNewUser').on('click', function () {
         let department_id = $('#church').data('department_id');
         let department_title = $('#church').data('department_title');
@@ -68,13 +74,13 @@ $('document').ready(function () {
         $('#chooseDepartment').html(option).attr('disabled', false);
         $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
     });
+
     $('#searchUserFromDatabase').on('keyup', _.debounce(function () {
         let search = $(this).val();
         if (search.length < 3) return;
         let config = {};
         config.search = search;
         config.department = D_ID;
-        console.log('Search');
         makeUsersFromDatabaseList(config);
     }, 500));
 
@@ -91,10 +97,12 @@ $('document').ready(function () {
         $(this).addClass('active');
         $('#export_table').attr('data-export-url', exportUrl);
     });
+
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
         updateSettings(createChurchesDetailsTable);
     });
+
     $('#export_table').on('click', function () {
         $('.preloader').css('display', 'block');
         exportTableData(this)
@@ -130,9 +138,9 @@ $('document').ready(function () {
         lang: 'ru',
         form: '#createUser',
         onError: function (form) {
-          showAlert(`Введены некорректные данные`);
-          let top = $(form).find('div.has-error').first().offset().top;
-          $(form).find('.body').animate({scrollTop: top}, 500);
+            showAlert(`Введены некорректные данные`);
+            let top = $(form).find('div.has-error').first().offset().top;
+            $(form).find('.body').animate({scrollTop: top}, 500);
         },
         onSuccess: function (form) {
             if ($(form).attr('name') == 'createUser') {
@@ -207,7 +215,7 @@ $('document').ready(function () {
         pasteLink($('#editPastorSelect'), pastorLink);
         let webLink = $(this).closest('form').find('#web_site').val();
         let linkIcon = $('#site-link');
-        if (webLink == '' ) {
+        if (webLink == '') {
             !linkIcon.hasClass('link-hide') && linkIcon.addClass('link-hide');
         } else {
             pasteLink($('#web_site'), webLink);

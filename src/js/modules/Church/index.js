@@ -14,6 +14,7 @@ import fixedTableHead from '../FixedHeadTable/index';
 import {showAlert} from "../ShowNotifications/index";
 import {hidePopup} from "../Popup/popup";
 import DeleteChurchUser from '../User/deleteChurchUser';
+import {addUser2Church} from "../User/addUser";
 
 export function createChurchesTable(config = {}) {
     Object.assign(config, getSearch('search_title'));
@@ -257,19 +258,10 @@ function getChurchDetails(id, link, config) {
             if (data) {
                 resolve(data);
             } else {
-                reject("Ошибка")
+                reject("Ошибка");
             }
         })
     });
-}
-
-export function clearAddHomeGroupData() {
-    $('#added_home_group_date').val('');
-    $('#added_home_group_title').val('');
-    $('#added_home_group_city').val('');
-    $('#added_home_group_address').val('');
-    $('#added_home_group_phone').val('');
-    $('#added_home_group_site').val('');
 }
 
 export function setOptionsToPotentialLeadersSelect(churchId) {
@@ -299,8 +291,8 @@ function getPotentialLeadersForHG(config) {
 }
 
 export function makeUsersFromDatabaseList(config = {}) {
-    const CHURCH_ID = $('#church').data('id');
     getUsersTOChurch(config).then(function (data) {
+        const CHURCH_ID = $('#church').data('id');
         let users = data;
         let html = [];
         if (users.length) {
@@ -325,7 +317,7 @@ export function makeUsersFromDatabaseList(config = {}) {
                     let _self = this;
                     let config = {};
                     config.id = id;
-                    addUserToChurch(config).then(function (data) {
+                    addUser2Church(config).then(function (data) {
                         $(_self).text('Добавлен').attr('disabled', true);
                         getChurchStats(CHURCH_ID).then(function (data) {
                             let keys = Object.keys(data);
@@ -448,7 +440,7 @@ function getChurchUsers(id) {
 
 export function reRenderTable(config) {
     const CHURCH_ID = $('#church').data('id');
-    addUserToChurch(config).then(() => createChurchesUsersTable(CHURCH_ID));
+    addUser2Church(config).then(() => createChurchesUsersTable(CHURCH_ID));
 }
 
 export function editChurches(el, id) {
@@ -491,3 +483,4 @@ export function editChurches(el, id) {
         showAlert(html);
     });
 }
+

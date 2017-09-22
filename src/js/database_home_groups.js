@@ -1,4 +1,19 @@
-(function ($) {
+'use strict';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import 'air-datepicker';
+import 'air-datepicker/dist/css/datepicker.css';
+import {getHGLeaders} from "./modules/GetList/index";
+import {createHomeGroupsTable, updateLeaderSelect} from "./modules/GetList/index";
+import {addHomeGroup, saveHomeGroups, clearAddHomeGroupData} from "./modules/HomeGroup/index"
+import {makePastorList} from "./modules/MakeList/index";
+import updateSettings from './modules/UpdateSettings/index';
+import {showAlert} from "./modules/ShowNotifications/index";
+import exportTableData from './modules/Export/index';
+import {getChurchesListINDepartament} from './modules/GetList/index';
+import {applyFilter, refreshFilter} from "./modules/Filter/index";
+
+$('document').ready(function () {
     let filterInit = (function () {
         let init = false;
         return function () {
@@ -13,24 +28,7 @@
         }
     })();
 
-    function getConfigSuperMega() {
-        const churchId = $('#added_home_group_church_select').val() || null;
-        const masterId = $('#available_master_tree_id').val() || null;
-        let config = {
-            church: churchId,
-        };
-        if (masterId) {
-            config.master_tree = masterId;
-        }
-        return config
-    }
-    function updateLeaderSelect() {
-        const config = getConfigSuperMega();
-        getPotentialLeadersForHG(config).then(function (data) {
-            const pastors = data.map((pastor) => `<option value="${pastor.id}">${pastor.fullname}</option>`);
-            $('#added_home_group_pastor').html(pastors).prop('disabled', false).select2();
-        });
-    }
+
 
     let $departmentSelect = $('#department_select');
     const $churchSelect = $('#added_home_group_church_select');
@@ -78,10 +76,7 @@
         $('.preloader').css('display', 'block');
         updateSettings(createHomeGroupsTable);
     });
-    $('#filter_button').on('click', function () {
-        filterInit();
-        $('#filterPopup').css('display', 'block');
-    });
+
     $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
         $('.preloader').css('display', 'block');
         createHomeGroupsTable();
@@ -94,10 +89,25 @@
                 $('.preloader').css('display', 'none');
             })
             .catch(function () {
-                showPopup('Ошибка при загрузке файла');
+                showAlert('Ошибка при загрузке файла');
                 $('.preloader').css('display', 'none');
             });
     });
+
+    //Filter
+    $('#filter_button').on('click', function () {
+        filterInit();
+        $('#filterPopup').css('display', 'block');
+    });
+
+    $('.clear-filter').on('click', function () {
+        refreshFilter(this);
+    });
+
+    $('.apply-filter').on('click', function () {
+        applyFilter(this, createHomeGroupsTable);
+    });
+
     $departmentsFilter.on('change', function () {
         let departamentID = $(this).val();
         if (departamentID != '') {
@@ -133,4 +143,13 @@
         });
     });
     $('#added_home_group_church_select').select2();
-})(jQuery);
+
+    $('.save-group').on('click', function () {
+        saveHomeGroups(this, createHomeGroupsTable);
+    });
+
+    $('#addHomeGroup').find('form').on('submit', function (event) {
+        addHomeGroup(event, this, createHomeGroupsTable);
+    })
+
+});

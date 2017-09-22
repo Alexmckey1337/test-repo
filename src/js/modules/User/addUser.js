@@ -404,3 +404,27 @@ export function addUser2Church(data) {
         newAjaxRequest(data, status, reject);
     });
 }
+
+export function addUserToHomeGroupHG(data) {
+    let $homeGroup = $('#home_group');
+    const ID = $homeGroup.data('id');
+    let id = data.id;
+    let config = {};
+    config.user_id = id;
+    return new Promise(function (resolve, reject) {
+        let data = {
+            method: 'POST',
+            url: URLS.home_group.add_user(ID),
+            data: config
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+        };
+        newAjaxRequest(data, status, reject);
+    });
+}
