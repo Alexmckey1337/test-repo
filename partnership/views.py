@@ -24,7 +24,7 @@ from partnership.mixins import (PartnerStatMixin, DealCreatePaymentMixin, DealLi
                                 PartnerExportViewSetMixin, PartnerStatusReviewMixin)
 from partnership.pagination import PartnershipPagination, DealPagination
 from partnership.permissions import (CanSeeDeals, CanSeePartners, CanCreateDeals,
-                                     CanUpdateDeals, CanUpdatePartner, CanUpdateManagersPlan)
+                                     CanUpdateDeals, CanUpdatePartner, CanUpdateManagersPlan, CanSeeManagerSummary)
 from partnership.resources import PartnerResource
 from .models import Partnership, Deal, PartnershipLogs
 from .serializers import (DealSerializer, PartnershipUpdateSerializer, DealCreateSerializer,
@@ -145,7 +145,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
 
         return Response({'need_text': text})
 
-    @list_route(methods=['GET'])
+    @list_route(methods=['GET'], permission_classes=(CanSeeManagerSummary,))
     def managers_summary(self, request):
         year = int(request.query_params.get('year', datetime.now().year))
         month = int(request.query_params.get('month', datetime.now().month))
