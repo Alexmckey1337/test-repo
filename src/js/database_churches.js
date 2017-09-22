@@ -33,26 +33,14 @@ $('document').ready(function () {
     })();
 
     createChurchesTable();
-    $departmentsFilter.select2();
-    $('#department_select').select2();
-    $('#pastor_select').select2();
-    $('#tree_filter').select2();
-    $('#hierarchies_filter').select2();
-    $('#pastor_filter').select2();
-    $('#search_is_open').select2();
-    $('#report_currency').select2();
-    $('#added_churches_date').datepicker({
+
+    $('.selectdb').select2();
+
+    $('#added_churches_date, #search_date_open, #opening_date').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true
     });
-    $('#search_date_open').datepicker({
-        dateFormat: 'yyyy-mm-dd',
-        autoClose: true
-    });
-    $('#opening_date').datepicker({
-        dateFormat: 'yyyy-mm-dd',
-        autoClose: true
-    });
+
 //    Events
     $('#add').on('click', function () {
         let department_id = parseInt($('#department_select').val());
@@ -67,21 +55,21 @@ $('document').ready(function () {
         let department_id = parseInt($('#department_select').val());
         makePastorList(department_id, '#pastor_select');
     });
+
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
         updateSettings(createChurchesTable);
     });
+
     $('#filter_button').on('click', function () {
         filterInit();
         $('#filterPopup').css('display', 'block');
     });
+
     $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
         $('.preloader').css('display', 'block');
         createChurchesTable();
     }, 500));
-    // $('input[name="fullsearch"]').on('keyup', function () {
-    //     createChurchesTable();
-    // });
 
     $('#export_table').on('click', function () {
         $('.preloader').css('display', 'block');

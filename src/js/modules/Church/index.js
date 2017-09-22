@@ -13,6 +13,7 @@ import makePagination from '../Pagination/index';
 import fixedTableHead from '../FixedHeadTable/index';
 import {showAlert} from "../ShowNotifications/index";
 import {hidePopup} from "../Popup/popup";
+import DeleteChurchUser from '../User/deleteChurchUser';
 
 export function createChurchesTable(config = {}) {
     Object.assign(config, getSearch('search_title'));
@@ -203,5 +204,290 @@ function addChurchTODataBase(config) {
 
         };
         newAjaxRequest(data, status, reject)
+    });
+}
+
+export function createChurchesDetailsTable(config = {}, id, link) {
+    if (config.id === undefined) {
+        id = $('#church').attr('data-id');
+    } else {
+        id = config.id;
+    }
+    if (link === undefined) {
+        link = $('.get_info .active').data('link');
+    }
+    Object.assign(config, getOrderingData());
+    getChurchDetails(id, link, config).then(function (data) {
+        let count = data.count;
+        let page = config['page'] || 1;
+        let pages = Math.ceil(count / CONFIG.pagination_count);
+        let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
+        let text = `Показано ${showCount} из ${count}`;
+        let tmpl = $('#databaseUsers').html();
+        let filterData = {};
+        filterData.user_table = data.table_columns;
+        filterData.results = data.results;
+        let rendered = _.template(tmpl)(filterData);
+        $('#tableUserINChurches').html(rendered).on('click', '.delete_btn', function () {
+            let ID = $(this).closest('td').find('a').data('id'),
+                userName = $(this).closest('td').find('a').text(),
+                DelUser = new DeleteChurchUser(ID, $('#church').data('id'), createChurchesDetailsTable, userName, 'церкви');
+            DelUser.popup();
+
+        });
+        makeSortForm(filterData.user_table);
+        let paginationConfig = {
+            container: ".users__pagination",
+            currentPage: page,
+            pages: pages,
+            id: id,
+            callback: createChurchesDetailsTable
+        };
+        makePagination(paginationConfig);
+        fixedTableHead();
+        $('.table__count').text(text);
+        $('.preloader').css('display', 'none');
+        new OrderTable().sort(createChurchesDetailsTable, ".table-wrap th");
+    })
+}
+
+function getChurchDetails(id, link, config) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(`${URLS.church.detail(id)}${link}/`, config, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка")
+            }
+        })
+    });
+}
+
+export function clearAddHomeGroupData() {
+    $('#added_home_group_date').val('');
+    $('#added_home_group_title').val('');
+    $('#added_home_group_city').val('');
+    $('#added_home_group_address').val('');
+    $('#added_home_group_phone').val('');
+    $('#added_home_group_site').val('');
+}
+
+export function setOptionsToPotentialLeadersSelect(churchId) {
+    let config = {
+        church: churchId,
+    };
+    getPotentialLeadersForHG(config).then(function (data) {
+        let options = data.map((item) => {
+            let option = document.createElement('option');
+            return $(option).val(item.id).text(item.fullname);
+        });
+        $('#added_home_group_pastor').html(options).prop('disabled', false).select2();
+    });
+}
+
+function getPotentialLeadersForHG(config) {
+    return new Promise(function (resolve, reject) {
+        let url = URLS.home_group.potential_leaders();
+        ajaxRequest(url, config, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    })
+}
+
+export function makeUsersFromDatabaseList(config = {}) {
+    const CHURCH_ID = $('#church').data('id');
+    getUsersTOChurch(config).then(function (data) {
+        let users = data;
+        let html = [];
+        if (users.length) {
+            users.forEach(function (item) {
+                let rows_wrap = document.createElement('div');
+                let rows = document.createElement('div');
+                let col_1 = document.createElement('div');
+                let col_2 = document.createElement('div');
+                let place = document.createElement('p');
+                let link = document.createElement('a');
+                let button = document.createElement('button');
+                $(link).attr('href', '/account/' + item.id).text(item.full_name);
+                $(place).text();
+                $(col_1).addClass('col').append(link);
+                $(col_2).addClass('col').append(item.country + ', ' + item.city);
+                $(rows).addClass('rows').append(col_1).append(col_2);
+                $(button).attr({
+                    'data-id': item.id,
+                    'disabled': !item.can_add
+                }).text('Выбрать').on('click', function () {
+                    let id = $(this).data('id');
+                    let _self = this;
+                    let config = {};
+                    config.id = id;
+                    addUserToChurch(config).then(function (data) {
+                        $(_self).text('Добавлен').attr('disabled', true);
+                        getChurchStats(CHURCH_ID).then(function (data) {
+                            let keys = Object.keys(data);
+                            keys.forEach(function (item) {
+                                $('#' + item).text(data[item]);
+                            })
+                        });
+                        createChurchesUsersTable(CHURCH_ID);
+                    });
+                });
+                $(rows_wrap).addClass('rows-wrap').append(button).append(rows);
+                html.push(rows_wrap);
+            });
+        } else {
+            let rows_wrap = document.createElement('div');
+            let rows = document.createElement('div');
+            let col_1 = document.createElement('div');
+            $(col_1).text('Пользователь не найден');
+            $(rows).addClass('rows').append(col_1);
+            $(rows_wrap).addClass('rows-wrap').append(rows);
+            html.push(rows_wrap);
+        }
+        $('#searchedUsers').html(html);
+        $('.choose-user-wrap .splash-screen').addClass('active');
+    })
+}
+
+function getUsersTOChurch(config) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(URLS.church.potential_users_church(), config, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    });
+}
+
+function addUserToChurch(user_id, id, exist = false) {
+    let url = URLS.user.set_church(user_id);
+    let config = {
+        url: url,
+        method: "POST",
+        data: {
+            church_id: id
+        }
+    };
+    return new Promise(function (resolve, reject) {
+        let codes = {
+            200: function (data) {
+                resolve(data);
+            },
+            400: function (data) {
+                reject(data)
+            }
+        };
+        newAjaxRequest(config, codes, reject)
+    });
+}
+
+function getChurchStats(id) {
+    let resData = {
+        url: URLS.church.stats(id)
+    };
+
+    return new Promise(function (resolve, reject) {
+        let codes = {
+            200: function (data) {
+                resolve(data);
+            },
+            400: function (data) {
+                reject(data);
+            }
+        };
+        newAjaxRequest(resData, codes, reject);
+    });
+}
+
+function createChurchesUsersTable(id, config = {}) {
+    Object.assign(config, getFilterParam());
+    getChurchUsers(id).then(function (data) {
+        let count = data.count;
+        let page = config['page'] || 1;
+        let pages = Math.ceil(count / CONFIG.pagination_count);
+        let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
+        let text = `Показано ${showCount} из ${count}`;
+        let tmpl = $('#databaseUsers').html();
+        let filterData = {};
+        filterData.user_table = data.table_columns;
+        filterData.results = data.results;
+        let rendered = _.template(tmpl)(filterData);
+        $('#tableUserINChurches').html(rendered);
+        makeSortForm(filterData.user_table);
+        let paginationConfig = {
+            container: ".users__pagination",
+            currentPage: page,
+            pages: pages,
+            id: id,
+            callback: createChurchesUsersTable
+        };
+        makePagination(paginationConfig);
+        fixedTableHead();
+        $('.table__count').text(text);
+        $('.preloader').css('display', 'none');
+    })
+}
+
+function getChurchUsers(id) {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(URLS.church.users(id), null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка")
+            }
+        })
+    });
+}
+
+export function reRenderTable(config) {
+    const CHURCH_ID = $('#church').data('id');
+    addUserToChurch(config).then(() => createChurchesUsersTable(CHURCH_ID));
+}
+
+export function editChurches(el, id) {
+    let data = {
+        pastor: $($(el).closest('form').find('#editPastorSelect')).val(),
+        department: $($(el).closest('form').find('#editDepartmentSelect')).val(),
+        phone_number: $($(el).closest('form').find('#phone_number')).val(),
+        website: ($(el).closest('form').find('#web_site')).val(),
+        opening_date: $($(el).closest('form').find('#opening_date')).val().split('.').reverse().join('-') || null,
+        is_open: $('#is_open_church').is(':checked'),
+        country: $($(el).closest('form').find('#country')).val(),
+        city: $($(el).closest('form').find('#city')).val(),
+        address: $($(el).closest('form').find('#address')).val(),
+        report_currency: $($(el).closest('form').find('#report_currency')).val()
+    };
+    saveChurchData(data, id).then(function (data) {
+        $(el).closest('form').find('.edit').removeClass('active');
+        let $input = $(el).closest('form').find('input:not(.select2-search__field), select');
+        $input.each(function (i, elem) {
+            $(this).attr('disabled', true);
+            $(this).attr('readonly', true);
+            if ($(elem).is('select')) {
+                if ($(this).is(':not([multiple])')) {
+                    if (!$(this).is('.no_select')) {
+                        $(this).select2('destroy');
+                    }
+                }
+            }
+        });
+        $(el).removeClass('active');
+        let success = $($(el).closest('form').find('.success__block'));
+        $(success).text('Сохранено');
+        setTimeout(function () {
+            $(success).text('');
+        }, 3000);
+    }).catch(function (res) {
+        let error = JSON.parse(res.responseText);
+        let errKey = Object.keys(error);
+        let html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
+        showAlert(html);
     });
 }

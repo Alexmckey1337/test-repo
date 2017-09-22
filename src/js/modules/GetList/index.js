@@ -154,6 +154,18 @@ export function getDepartmentsOfUser(userId) {
     });
 }
 
+export function getDepartments() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(URLS.department(), null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject('Ошибка');
+            }
+        });
+    });
+}
+
 export function getPastorsByDepartment(config) {
     let data = {
         url: URLS.church.available_pastors(),
@@ -169,5 +181,53 @@ export function getPastorsByDepartment(config) {
             }
         };
         newAjaxRequest(data, codes, reject);
+    });
+}
+
+export function getStatuses() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(URLS.hierarchy(), null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    })
+}
+
+export function getDivisions() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(URLS.division(), null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    })
+}
+
+export function getCountryCodes() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(URLS.country(), null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка")
+            }
+        })
+    })
+}
+
+export function getManagers() {
+    return new Promise(function (resolve, reject) {
+        ajaxRequest(URLS.partner.simple(), null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject();
+            }
+        });
     });
 }
