@@ -1,7 +1,6 @@
 # -*- coding: utf-8
-from __future__ import unicode_literals
-
 from import_export import fields
+from django.utils.translation import ugettext_lazy as _
 
 from common.resources import CustomFieldsModelResource
 from payment.models import Payment
@@ -27,7 +26,17 @@ class PaymentResource(CustomFieldsModelResource):
         )
 
     def dehydrate_purpose_type(self, payment):
-        return 'партнерские' if payment.purpose.type == 1 else 'десятина'
+        return _('партнерские') if payment.purpose.get_type_display() == 1 else _('десятина')
+
+    def dehydrate_purpose_date(self, payment):
+        return payment.purpose.date_created
+
+    def dehydrate_manager(self, payment):
+        if payment.manager:
+            return '%s %s %s' % (payment.manager.last_name,
+                                 payment.manager.first_name,
+                                 payment.manager.middle_name)
+        return ''
 
     def dehydrate_purpose_fio(self, payment):
         return '%s %s %s' % (payment.purpose.partnership.user.last_name,
@@ -39,16 +48,4 @@ class PaymentResource(CustomFieldsModelResource):
             return '%s %s %s' % (payment.purpose.responsible.user.last_name,
                                  payment.purpose.responsible.user.first_name,
                                  payment.purpose.responsible.user.middle_name)
-        else:
-            return ''
-
-    def dehydrate_purpose_date(self, payment):
-        return payment.purpose.date_created
-
-    def dehydrate_manager(self, payment):
-        if payment.manager:
-            return '%s %s %s' % (payment.manager.last_name,
-                                 payment.manager.first_name,
-                                 payment.manager.middle_name)
-        else:
-            return ''
+        return ''

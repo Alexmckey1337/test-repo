@@ -108,7 +108,8 @@ class ChurchSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         report_currency = validated_data.get('report_currency')
         pastor = validated_data.get('pastor')
-        reports = ChurchReport.objects.filter(church_id=instance.id, status=ChurchReport.IN_PROGRESS)
+        reports = ChurchReport.objects.filter(church_id=instance.id, status__in=[ChurchReport.IN_PROGRESS,
+                                              ChurchReport.EXPIRED])
 
         if report_currency:
             reports.update(currency=report_currency)
