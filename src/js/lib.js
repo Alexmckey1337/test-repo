@@ -2206,7 +2206,7 @@ function showPopupAddUser(data) {
     $('#addPopup').find('.close, .rewrite').on('click', function (e) {
         e.preventDefault();
         $('#addPopup').css('display', 'none').remove();
-        $('#addNewUserPopup').find('form').css("transform", "translate3d(0px, 0px, 0px)");
+        $('#addNewUserPopup').find('form').removeClass('active');
         clearAddNewUser();
         $('#addNewUserPopup').find('.body').scrollTop(0);
         if ($(this).is('a')) {
@@ -3811,7 +3811,7 @@ function createNewUser(callback) {
         $preloader.css('display', 'none');
         if (data.phone_number) {
             showPopup(data.phone_number.message);
-            $('#createUser').css("transform","translate3d(0px, 0px, 0px)");
+            $('#createUser').removeClass('active');
         }
         if (data.detail) {
             showPopup(data.detail[0]);
