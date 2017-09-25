@@ -246,7 +246,8 @@
                 <% for( var key in table_columns) { %>
                 <% if(table_columns[key].active) { %>
                 <% if(key == 'id') { %>
-                <td>
+                <td class="edit">
+                    <button class="delete_btn" data-id="<%= results[index][key] %>"></button>
                     <a href="./<%= results[index][key] %>" class="reports_id"><%= results[index][key] %></a>
                 </td>
                 <% } else if (key == 'church') { %>
