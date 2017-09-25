@@ -3,7 +3,11 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
-import {createChurchesTable, clearAddChurchData, saveChurches, addChurch,} from './modules/Church/index';
+import alertify from 'alertifyjs/build/alertify.min.js';
+import 'alertifyjs/build/css/alertify.min.css';
+import 'alertifyjs/build/css/themes/default.min.css';
+import {createChurchesTable, clearAddChurchData, saveChurches, addChurch,
+        deleteСhurch} from './modules/Church/index';
 import {makePastorList} from './modules/MakeList/index';
 import {getPastorsByDepartment} from './modules/GetList/index';
 import updateSettings from './modules/UpdateSettings/index';
@@ -132,16 +136,13 @@ $('document').ready(function () {
 
     $('#addChurch').find('form').on('submit', function (event) {
         addChurch(event, this, createChurchesTable)
-    })
+    });
 
-});
-
-        $('#delete-church').on('click', function (e) {
+    $('#delete-church').on('click', function (e) {
         e.preventDefault();
         let id = parseInt($('#churchID').val());
         alertify.confirm('Удаление', 'Вы действительно хотите удалить данную церковь?', function () {
             deleteСhurch(id).then(() => {
-                console.log('HERE');
                 showAlert('Церковь успешно удалена!');
                 $('#quickEditCartPopup').css('display', 'none');
                 $('.preloader').css('display', 'block');
@@ -152,7 +153,8 @@ $('document').ready(function () {
                     html = errKey.map(errkey => `${error[errkey]}`);
                 showAlert(html[0], 'Ошибка');
             });
-        }, () => {});
+        }, () => {
+        });
     });
 
 });

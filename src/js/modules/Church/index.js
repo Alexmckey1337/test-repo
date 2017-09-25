@@ -484,3 +484,26 @@ export function editChurches(el, id) {
     });
 }
 
+export function deleteСhurch(id) {
+    let url = URLS.church.detail(id),
+        defaultOption = {
+            method: 'DELETE',
+            credentials: 'same-origin',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            })
+        };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(resp => {
+            let json = resp.json();
+            if (resp.status >= 200 && resp.status < 300) {
+                return resp;
+            } else {
+                return json.then(err => {
+                    throw err;
+                });
+            }
+        });
+    }
+}
+

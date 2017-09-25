@@ -79,6 +79,22 @@ function makeChurchReportsTable(data, config = {}) {
         let id = $(this).data('id');
         showChurchPayments(id);
     });
+    $("button.delete_btn").on('click', function () {
+        let id = $(this).attr('data-id');
+        alertify.confirm('Удаление', 'Вы действительно хотите удалить данный отчет?', function () {
+            deleteChurchPayment(id).then(() => {
+                showAlert('Отчет успешно удален!');
+                $('.preloader').css('display', 'block');
+                let page = $('.pagination__input').val();
+                churchReportsTable({page: page});
+            }).catch((error) => {
+                let errKey = Object.keys(error),
+                    html = errKey.map(errkey => `${error[errkey]}`);
+                showAlert(html[0], 'Ошибка');
+            });
+        }, () => {
+        });
+    });
 }
 
 export function churchReportsTable(config = {}) {

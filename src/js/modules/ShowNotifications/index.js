@@ -6,3 +6,7 @@ import 'alertifyjs/build/css/themes/default.min.css';
 export function showAlert(message, title = 'Уведомление') {
     alertify.alert(title, message);
 }
+
+export function showConfirm() {
+    
+}
