@@ -3571,6 +3571,21 @@ function makeChurchReportsTable(data, config = {}) {
         let id = $(this).data('id');
         showChurchPayments(id);
     });
+    $("button.delete_btn").on('click', function () {
+        let id = $(this).attr('data-id');
+        alertify.confirm('Удаление', 'Вы действительно хотите удалить данный отчет?', function () {
+            deleteChurchPayment(id).then(() => {
+                showAlert('Отчет успешно удален!');
+                $('.preloader').css('display', 'block');
+                let page = $('.pagination__input').val();
+                churchReportsTable({page: page});
+            }).catch((error) => {
+                let errKey = Object.keys(error),
+                    html = errKey.map(errkey => `${error[errkey]}`);
+                showAlert(html[0], 'Ошибка');
+            });
+        }, () => {});
+    });
 }
 
 function showChurchPayments(id) {
@@ -4666,6 +4681,48 @@ function deleteDealsPayment(id) {
         };
     if (typeof url === "string") {
         return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
+}
+
+function deleteChurchPayment(id) {
+    let url = URLS.event.church_report.detail(id),
+        defaultOption = {
+            method: 'DELETE',
+            credentials: 'same-origin',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            })
+        };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(resp => {
+            let json = resp.json();
+            if (resp.status >= 200 && resp.status < 300) {
+                return resp;
+            } else {
+                return json.then(err => {throw err;});
+            }
+        });
+    }
+}
+
+function deleteСhurch(id) {
+    let url = URLS.church.detail(id),
+        defaultOption = {
+            method: 'DELETE',
+            credentials: 'same-origin',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            })
+        };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(resp => {
+            let json = resp.json();
+            if (resp.status >= 200 && resp.status < 300) {
+                return resp;
+            } else {
+                return json.then(err => {throw err;});
+            }
+        });
     }
 }
 
