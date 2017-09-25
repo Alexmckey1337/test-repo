@@ -4695,10 +4695,10 @@ function deleteChurchPayment(id) {
         };
     if (typeof url === "string") {
         return fetch(url, defaultOption).then(resp => {
-            let json = resp.json();
             if (resp.status >= 200 && resp.status < 300) {
                 return resp;
             } else {
+                let json = resp.json();
                 return json.then(err => {throw err;});
             }
         });
@@ -4716,10 +4716,10 @@ function deleteСhurch(id) {
         };
     if (typeof url === "string") {
         return fetch(url, defaultOption).then(resp => {
-            let json = resp.json();
             if (resp.status >= 200 && resp.status < 300) {
                 return resp;
             } else {
+                let json = resp.json();
                 return json.then(err => {throw err;});
             }
         });
