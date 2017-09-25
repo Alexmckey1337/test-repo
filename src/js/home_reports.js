@@ -1,4 +1,18 @@
-(function () {
+'use strict';
+import 'air-datepicker';
+import 'air-datepicker/dist/css/datepicker.css';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import moment from 'moment/min/moment.min.js';
+import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import {getPastorsByDepartment, getChurches, getHomeGroups, getHGLeaders} from "./modules/GetList/index";
+import getSearch from './modules/Search/index';
+import {getFilterParam, getTabsFilterParam} from "./modules/Filter/index";
+import parseUrlQuery from './modules/ParseUrl/index';
+import {HomeReportsTable, homeReportsTable} from "./modules/Reports/home_group";
+import updateSettings from './modules/UpdateSettings/index';
+
+$('document').ready(function () {
     let dateReports = new Date(),
         thisMonday = (moment(dateReports).day() === 1) ? moment(dateReports).format('DD.MM.YYYY') : (moment(dateReports).day() === 0) ? moment(dateReports).subtract(6, 'days').format('DD.MM.YYYY') : moment(dateReports).day(1).format('DD.MM.YYYY'),
         thisSunday = (moment(dateReports).day() === 0) ? moment(dateReports).format('DD.MM.YYYY') : moment(dateReports).day(7).format('DD.MM.YYYY'),
@@ -47,11 +61,12 @@
     }
 
     (path == undefined) && HomeReportsTable(configData);
+
     // Events
     let $statusTabs = $('#statusTabs');
     $statusTabs.find('button').on('click', function () {
-        $('.preloader').show();
-        let status = $(this).data('status');
+        $('.preloader').css('display', 'block');
+        let status = $(this).attr('data-status');
         let config = {
             status: status
         };
@@ -62,10 +77,12 @@
         $statusTabs.find('li').removeClass('current');
         $(this).closest('li').addClass('current');
     });
+
     $('#filter_button').on('click', function () {
         filterInit();
         $('#filterPopup').css('display', 'block');
     });
+
     $('#date_range').datepicker({
         dateFormat: 'dd.mm.yyyy',
         range: true,
@@ -73,11 +90,13 @@
         multipleDatesSeparator: '-',
         onSelect: function (date) {
             if (date.length > 10) {
+                $('#filterPopup').css('display', 'block');
                 homeReportsTable();
                 $('.tab-home-stats').find('.week').removeClass('active');
             }
         }
     });
+
     $('.selectdb').select2();
 
     // Sort table
@@ -85,11 +104,6 @@
         $('.preloader').css('display', 'block');
         updateSettings(HomeReportsTable);
     });
-    function HomeReportsTable(config) {
-        getHomeReports(config).then(data => {
-            makeHomeReportsTable(data);
-        });
-    }
 
     $('input[name="fullsearch"]').on('keyup', _.debounce(function (e) {
         $('.preloader').css('display', 'block');
@@ -116,6 +130,14 @@
     });
 
     //Filter
+    $('.clear-filter').on('click', function () {
+        refreshFilter(this);
+    });
+
+    $('.apply-filter').on('click', function () {
+        applyFilter(this, homeReportsTable);
+    });
+
     $departmentsFilter.on('change', function () {
         let departamentID = $(this).val();
         let config = {},
@@ -135,7 +157,6 @@
                     $churchFilter.html('<option>ВСЕ</option>').append(churches);
                 });
         getHomeGroups(config).then(res => {
-            console.log('sadasdas');
                    let groups = res.results.map(group=> `<option value="${group.id}">${group.get_title}</option>`);
                     $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
                 });
@@ -200,4 +221,4 @@
         $('#statusTabs').find(`button[data-status='${filterParam.type}']`).parent().addClass('current');
         filterInit(filterParam.owner);
     }
-})();
+});

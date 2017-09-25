@@ -59,7 +59,7 @@ $('document').ready(function () {
     // Events
     let $statusTabs = $('#statusTabs');
     $statusTabs.find('button').on('click', function () {
-        $('.preloader').show();
+        $('.preloader').css('display', 'block');
         let status = $(this).data('status');
         let config = {
             status: status
@@ -81,6 +81,7 @@ $('document').ready(function () {
         multipleDatesSeparator: '-',
         onSelect: function (date) {
             if (date.length > 10) {
+                $('.preloader').css('display', 'block');
                 churchReportsTable();
                 $('.tab-home-stats').find('.week').removeClass('active');
             }
@@ -88,6 +89,7 @@ $('document').ready(function () {
     });
 
     $('.tab-home-stats').find('.week').on('click', function () {
+        $('.preloader').css('display', 'block');
         $(this).closest('.tab-home-stats').find('.week').removeClass('active');
         $(this).addClass('active');
         if ($(this).hasClass('week_now')) {

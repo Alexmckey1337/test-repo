@@ -1,4 +1,13 @@
-(function () {
+'use strict';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import updateSettings from './modules/UpdateSettings/index';
+import {getPastorsByDepartment, getChurches} from "./modules/GetList/index";
+import parseUrlQuery from './modules/ParseUrl/index';
+import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import {churchPastorReportsTable, makeChurchPastorReportsTable, getChurchPastorReports} from "./modules/Reports/reports_summary";
+
+$('document').ready(function () {
     let $departmentsFilter = $('#departments_filter'),
         $treeFilter = $('#tree_filter'),
         $churchFilter = $('#church_filter'),
@@ -67,6 +76,13 @@
     });
 
     //Filter
+    $('.clear-filter').on('click', function () {
+        refreshFilter(this);
+    });
+
+    $('.apply-filter').on('click', function () {
+        applyFilter(this, churchPastorReportsTable);
+    });
 
     $departmentsFilter.on('change', function () {
         let departamentID = $(this).val();
@@ -106,4 +122,4 @@
         filterInit(filterParam);
     }
 
-})();
+});

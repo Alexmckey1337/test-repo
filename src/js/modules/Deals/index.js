@@ -1,4 +1,5 @@
 'use strict';
+import moment from 'moment/min/moment.min.js';
 import numeral from 'numeral/min/numeral.min.js';
 
 export function btnDeals() {

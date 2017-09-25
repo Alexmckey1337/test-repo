@@ -1,15 +1,7 @@
 'use strict';
 import URLS from '../Urls/index';
-import {CONFIG} from "../config";
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
-import getSearch from '../Search/index';
-import {getFilterParam} from "../Filter/index";
-import {getOrderingData} from "../Ordering/index";
-import makeSortForm from '../Sort/index';
-import makePagination from '../Pagination/index';
-import fixedTableHead from '../FixedHeadTable/index';
-import OrderTable from '../Ordering/index';
 
 export function getResponsible(ids, level, search = "") {
     let responsibleLevel;
@@ -258,88 +250,6 @@ export function getHGLeaders(config = {}) {
     });
 }
 
-export function createHomeGroupsTable(config = {}) {
-    Object.assign(config, getSearch('search_title'));
-    Object.assign(config, getFilterParam());
-    Object.assign(config, getOrderingData());
-    getHomeGroups(config).then(function (data) {
-        let count = data.count;
-        let page = config['page'] || 1;
-        let pages = Math.ceil(count / CONFIG.pagination_count);
-        let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
-        let text = `Показано ${showCount} из ${count}`;
-        let tmpl = $('#databaseUsers').html();
-        let filterData = {};
-        filterData.user_table = data.table_columns;
-        filterData.results = data.results;
-        let rendered = _.template(tmpl)(filterData);
-        $('#tableHomeGroup').html(rendered);
-        $('.quick-edit').on('click', function () {
-            let id = $(this).closest('.edit').find('a').attr('data-id');
-            ajaxRequest(URLS.home_group.detail(id), null, function (data) {
-                let quickEditCartTmpl, rendered;
-                quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
-                rendered = _.template(quickEditCartTmpl)(data);
-                $('#quickEditCartPopup').find('.popup_body').html(rendered);
-                getPotentialLeadersForHG({church: data.church.id}).then(function (res) {
-                    return res.map(leader => `<option value="${leader.id}" ${(data.leader.id == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
-                }).then(data => {
-                    $('#homeGroupLeader').html(data).select2();
-                });
-                // getResponsibleBYHomeGroupSupeMegaNew({departmentId: data.department})
-                //     .then(res => {
-                //         return res.map(leader => `<option value="${leader.id}" ${(data.leader.id == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`);
-                //     })
-                //     .then(data => {
-                //         $('#homeGroupLeader').html(data).select2();
-                //     });
-                setTimeout(function () {
-                    $('.date').datepicker({
-                        dateFormat: 'yyyy-mm-dd',
-                        autoClose: true
-                    });
-                    $('#quickEditCartPopup').css('display', 'block');
-                }, 100)
-            })
-        });
-        makeSortForm(filterData.user_table);
-        let paginationConfig = {
-            container: ".users__pagination",
-            currentPage: page,
-            pages: pages,
-            callback: createHomeGroupsTable
-        };
-        makePagination(paginationConfig);
-        fixedTableHead();
-        $('.table__count').text(text);
-        $('.preloader').css('display', 'none');
-        new OrderTable().sort(createHomeGroupsTable, ".table-wrap th");
-    });
-}
-
-function getHomeGroups(config = {}) {
-    return new Promise(function (resolve, reject) {
-        let data = {
-            url: URLS.home_group.list(),
-            data: config,
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        };
-        let status = {
-            200: function (req) {
-                resolve(req)
-            },
-            403: function () {
-                reject('Вы должны авторизоватся')
-            }
-
-        };
-        newAjaxRequest(data, status, reject)
-    });
-}
-
 export function getPotentialLeadersForHG(config) {
     return new Promise(function (resolve, reject) {
         let url = URLS.home_group.potential_leaders();
@@ -382,6 +292,52 @@ export function getShortUsers(config = {}) {
             headers: {
                 'Content-Type': 'application/json'
             }
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}
+
+export function getHomeLiderReports(config = {}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: URLS.event.home_meeting.summary(),
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: config
+        };
+        let status = {
+            200: function (req) {
+                resolve(req);
+            },
+            403: function () {
+                reject('Вы должны авторизоватся');
+            }
+
+        };
+        newAjaxRequest(data, status);
+    })
+}
+
+export function getHomeGroups(config = {}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: URLS.home_group.list(),
+            data: config,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
         };
         let status = {
             200: function (req) {

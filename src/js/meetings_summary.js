@@ -1,4 +1,13 @@
-(function () {
+'use strict';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import updateSettings from './modules/UpdateSettings/index';
+import {getPastorsByDepartment, getChurches, getHomeLiderReports} from "./modules/GetList/index";
+import parseUrlQuery from './modules/ParseUrl/index';
+import {makeHomeLiderReportsTable, homeLiderReportsTable} from "./modules/Reports/meetings_summary";
+import {applyFilter, refreshFilter} from "./modules/Filter/index";
+
+$('document').ready(function () {
     let $departmentsFilter = $('#departments_filter'),
         $treeFilter = $('#master_tree_filter'),
         $churchFilter = $('#church_filter'),
@@ -75,7 +84,11 @@
             if (!initResponsible) {
                 let responsibles = data.results.map(res => res.master),
                     uniqResponsibles = _.uniqWith(responsibles, _.isEqual);
-                const options = uniqResponsibles.map(option => `<option value="${option.id}">${option.fullname}</option>`);
+                const options = uniqResponsibles.map(option => {
+                    if (option != null) {
+                        return `<option value="${option.id}">${option.fullname}</option>`
+                    }
+                });
                 $responsibleFilter.append(options);
                 initResponsible = true;
             }
@@ -87,7 +100,15 @@
         homeLiderReportsTable();
     }, 500));
 
-    //Filter
+        //Filter
+    $('.clear-filter').on('click', function () {
+        refreshFilter(this);
+    });
+
+    $('.apply-filter').on('click', function () {
+        applyFilter(this, homeLiderReportsTable);
+    });
+
     $departmentsFilter.on('change', function () {
         let departamentID = $(this).val();
         let config = {},
@@ -125,4 +146,4 @@
         filterInit(filterParam);
     }
 
-})();
+});

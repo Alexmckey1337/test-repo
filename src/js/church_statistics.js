@@ -1,4 +1,14 @@
-(function ($) {
+'use strict';
+import 'air-datepicker';
+import 'air-datepicker/dist/css/datepicker.css';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import moment from 'moment/min/moment.min.js';
+import {getPastorsByDepartment, getChurchesListINDepartament, getChurches} from "./modules/GetList/index";
+import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import {churchStatistics} from "./modules/Statistics/church";
+
+$('document').ready(function () {
     let dateReports = new Date(),
         thisMonday = (moment(dateReports).day() === 1) ? moment(dateReports).format('DD.MM.YYYY') : (moment(dateReports).day() === 0) ? moment(dateReports).subtract(6, 'days').format('DD.MM.YYYY') : moment(dateReports).day(1).format('DD.MM.YYYY'),
         thisSunday = (moment(dateReports).day() === 0) ? moment(dateReports).format('DD.MM.YYYY') : moment(dateReports).day(7).format('DD.MM.YYYY'),
@@ -42,6 +52,7 @@
         multipleDatesSeparator: '-',
         onSelect: function (date) {
             if (date.length > 10) {
+
                 churchStatistics();
                 $('.tab-home-stats').find('.week').removeClass('active');
             }
@@ -62,7 +73,16 @@
     });
 
     //Filter
+    $('.clear-filter').on('click', function () {
+        refreshFilter(this);
+    });
+
+    $('.apply-filter').on('click', function () {
+        applyFilter(this, churchStatistics)
+    });
+
     $('.selectdb').select2();
+
     $('#filter_button').on('click', function () {
         filterInit();
         $('#filterPopup').css('display', 'block');
@@ -117,4 +137,4 @@
         });
     });
 
-})(jQuery);
+});

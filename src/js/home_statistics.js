@@ -1,4 +1,14 @@
-(function ($) {
+'use strict';
+import 'air-datepicker';
+import 'air-datepicker/dist/css/datepicker.css';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import moment from 'moment/min/moment.min.js';
+import {getPastorsByDepartment, getChurches, getHomeGroups, getHGLeaders} from "./modules/GetList/index";
+import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import {homeStatistics} from "./modules/Statistics/home_group";
+
+$('document').ready(function () {
     let dateReports = new Date(),
         thisMonday = (moment(dateReports).day() === 1) ? moment(dateReports).format('DD.MM.YYYY') : (moment(dateReports).day() === 0) ? moment(dateReports).subtract(6, 'days').format('DD.MM.YYYY') : moment(dateReports).day(1).format('DD.MM.YYYY'),
         thisSunday = (moment(dateReports).day() === 0) ? moment(dateReports).format('DD.MM.YYYY') : moment(dateReports).day(7).format('DD.MM.YYYY'),
@@ -51,17 +61,21 @@
         multipleDatesSeparator: '-',
         onSelect: function (date) {
             if (date.length > 10) {
+                $('.preloader').css('display', 'block');
                 homeStatistics();
                 $('.tab-home-stats').find('.week').removeClass('active');
             }
         }
     });
+
     $('.selectdb').select2();
+
     $('.tab-home-stats').find('.type').on('click', function () {
         $(this).closest('#tabs').find('li').removeClass('active');
         $(this).parent().addClass('active');
         homeStatistics();
     });
+
     $('.tab-home-stats').find('.week').on('click', function () {
         $(this).closest('.tab-home-stats').find('.week').removeClass('active');
         $(this).addClass('active');
@@ -79,6 +93,14 @@
     $('#filter_button').on('click', function () {
         filterInit();
         $('#filterPopup').css('display', 'block');
+    });
+
+        $('.clear-filter').on('click', function () {
+        refreshFilter(this);
+    });
+
+    $('.apply-filter').on('click', function () {
+        applyFilter(this, homeStatistics);
     });
 
     $departmentsFilter.on('change', function () {
@@ -154,4 +176,4 @@
         });
     });
 
-})(jQuery);
+});

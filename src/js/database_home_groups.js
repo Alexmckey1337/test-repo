@@ -4,8 +4,8 @@ import 'select2/dist/css/select2.css';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
 import {getHGLeaders} from "./modules/GetList/index";
-import {createHomeGroupsTable, updateLeaderSelect} from "./modules/GetList/index";
-import {addHomeGroup, saveHomeGroups, clearAddHomeGroupData} from "./modules/HomeGroup/index"
+import {updateLeaderSelect} from "./modules/GetList/index";
+import {addHomeGroup, saveHomeGroups, clearAddHomeGroupData, createHomeGroupsTable} from "./modules/HomeGroup/index";
 import {makePastorList} from "./modules/MakeList/index";
 import updateSettings from './modules/UpdateSettings/index';
 import {showAlert} from "./modules/ShowNotifications/index";
