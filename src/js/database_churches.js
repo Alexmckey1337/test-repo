@@ -135,3 +135,24 @@ $('document').ready(function () {
     })
 
 });
+
+        $('#delete-church').on('click', function (e) {
+        e.preventDefault();
+        let id = parseInt($('#churchID').val());
+        alertify.confirm('Удаление', 'Вы действительно хотите удалить данную церковь?', function () {
+            deleteСhurch(id).then(() => {
+                console.log('HERE');
+                showAlert('Церковь успешно удалена!');
+                $('#quickEditCartPopup').css('display', 'none');
+                $('.preloader').css('display', 'block');
+                let page = $('.pagination__input').val();
+                createChurchesTable({page: page});
+            }).catch((error) => {
+                let errKey = Object.keys(error),
+                    html = errKey.map(errkey => `${error[errkey]}`);
+                showAlert(html[0], 'Ошибка');
+            });
+        }, () => {});
+    });
+
+});

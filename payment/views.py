@@ -23,6 +23,9 @@ from rest_framework.generics import get_object_or_404
 from common.views_mixins import ExportViewSetMixin
 from .resources import PaymentResource
 
+COMMON_PAYMENTS_ORDERING_FIELDS = ('sum', 'effective_sum', 'currency_sum__name', 'currency_rate__name', 'created_at',
+                                   'sent_date', 'manager__last_name', 'description',)
+
 
 class PaymentUpdateDestroyView(LogAndCreateUpdateDestroyMixin,
                                mixins.UpdateModelMixin, mixins.DestroyModelMixin, GenericAPIView):
@@ -123,11 +126,10 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView, ExportViewSetMi
                        FilterByDealManager,
                        FilterByDealType,
                        filters.OrderingFilter,)
-    ordering_fields = ('sum', 'effective_sum', 'currency_sum__name', 'currency_rate__name',
-                       'created_at', 'sent_date', 'manager__last_name', 'description',
-                       'deals__partnership__user__last_name', 'deals__date_created',
-                       'deals__partnership__responsible__user__last_name',
-                       'deals__type')
+    ordering_fields = COMMON_PAYMENTS_ORDERING_FIELDS + ('deals__partnership__user__last_name',
+                                                         'deals__date_created',
+                                                         'deals__partnership__responsible__user__last_name',
+                                                         'deals__type')
 
     field_search_fields = {
         'search_description': ('description',),
@@ -163,10 +165,8 @@ class PaymentChurchReportListView(mixins.ListModelMixin, GenericAPIView):
                        FilterByChurchReportPastor,
                        FilterByChurchReportChurchTitle,)
 
-    ordering_fields = ('sum', 'effective_sum', 'currency_sum__name', 'currency_rate__name', 'created_at',
-                       'sent_date', 'manager__last_name', 'description',
-                       'church_reports__church__pastor__last_name',
-                       'church_reports__date', 'church_reports__church__title')
+    ordering_fields = COMMON_PAYMENTS_ORDERING_FIELDS + ('church_reports__church__pastor__last_name',
+                                                         'church_reports__date', 'church_reports__church__title')
 
     field_search_fields = {
         'search_title': ('church_reports__church__pastor__last_name',

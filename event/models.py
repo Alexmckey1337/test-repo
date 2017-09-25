@@ -142,29 +142,6 @@ class Meeting(AbstractStatusModel):
         return ''
 
 
-# class ChurchReportPastor(AbstractPaymentPurpose):
-#     user = models.OneToOneField('account.CustomUser', related_name='church_report_pastor',
-#                                 verbose_name=_('Church Report Pastor'))
-#
-#     payments = GenericRelation('payment.Payment', related_query_name='church_report_pastors')
-#
-#     currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
-#                                  default=get_default_currency, null=True)
-#
-#     # objects = ChurchReportPastorManager()
-#
-#     class Meta:
-#         verbose_name = _('Church Report Pastor')
-#         verbose_name_plural = _('Church Report Pastors')
-#
-#     @property
-#     def fullname(self):
-#         return self.user.fullname
-#
-#     def __str__(self):
-#         return '%s' % self.user.fullname
-
-
 @python_2_unicode_compatible
 class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
     pastor = models.ForeignKey('account.CustomUser',
@@ -187,7 +164,7 @@ class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
     pastor_tithe = models.DecimalField(_('Pastor Tithe'), max_digits=12,
                                        decimal_places=0, default=0)
 
-    payments = GenericRelation('payment.Payment', related_query_name='church_reports')
+    payments = GenericRelation('payment.Payment', related_query_name='church_reports', on_delete=models.PROTECT)
     currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
                                  default=get_default_currency(), null=True)
     done = models.BooleanField(default=False)
