@@ -93,11 +93,11 @@ class ChurchViewSet(ModelViewSet, ChurchUsersMixin,
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         if instance.churchreport_set.exists():
-            raise exceptions.ValidationError(_('Невозможно удалить церковь. '
-                                               'На данную церковь есть созданные отчеты.'))
+            raise exceptions.ValidationError({'message': _('Невозможно удалить церковь. '
+                                                           'На данную церковь есть созданные отчеты.')})
         if instance.home_group.exists():
-            raise exceptions.ValidationError(_('Невозможно удалить церковь. '
-                                               'В составе данной церкви есть Домашняя Группа.'))
+            raise exceptions.ValidationError({'message': _('Невозможно удалить церковь. '
+                                                           'В составе данной церкви есть Домашняя Группа.')})
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -257,7 +257,7 @@ class ChurchViewSet(ModelViewSet, ChurchUsersMixin,
             return qs.annotate(can_add=Case(When(
                 Q(hhome_group__isnull=True) & Q(cchurch__isnull=True),
                 then=True), default=False, output_field=BooleanField()))
-                # & Q(path__startswith=user.path) & Q(depth__gte=user.depth),
+            # & Q(path__startswith=user.path) & Q(depth__gte=user.depth),
 
         return qs.annotate(can_add=Case(When(
             Q(hhome_group__isnull=True) & Q(cchurch__isnull=True)

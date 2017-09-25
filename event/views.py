@@ -369,8 +369,8 @@ class ChurchReportViewSet(ModelViewSet, CreatePaymentMixin,
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         if instance.payments.exists():
-            raise exceptions.ValidationError(_('Невозможно удалить отчет. '
-                                               'По данному отчету есть поданные платежи'))
+            raise exceptions.ValidationError({'message': _('Невозможно удалить отчет. '
+                                                           'По данному отчету есть поданные платежи')})
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
