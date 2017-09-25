@@ -31,6 +31,7 @@
                             <ul class="sidebar-submenu">
                                 <li><a href="{% url 'events:church_report_list' %}">Отчёты церквей</a></li>
                                 <li><a href="{% url 'events:church_report_statistics' %}">Статистика церквей</a></li>
+                                <li><a href="{% url 'events:report_payments' %}">Таблица платежей</a></li>
                                 <li><a href="{% url 'events:meeting_report_list' %}">Отчёты домашних групп</a></li>
                                 <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних групп</a></li>
                             </ul>
@@ -48,7 +49,9 @@
                                     {% if user.can_see_deal_payments %}
                                         <li><a href="{% url 'partner:payments' %}">{% trans "Платежи" %}</a></li>
                                     {% endif %}
-                                    <li><a href="{% url 'partner:partnership_summary' %}">План по менеджерам</a></li>
+                                    {% if user.is_partner_director %}
+                                        <li><a href="{% url 'partner:partnership_summary' %}">План по менеджерам</a></li>
+                                    {% endif %}
                                     {% if user.can_see_partner_stats %}
                                         <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
                                     {% endif %}

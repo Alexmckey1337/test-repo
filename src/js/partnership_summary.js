@@ -37,19 +37,21 @@
         getPartnershipSummary(config).then(data => {
             let results = data.results.map(elem=> {
                  elem.not_active_partners = elem.total_partners - elem.active_partners;
-                 let percent = (100/(elem.plan/elem.sum_pay)).toFixed(1);
+                 let percent = (100/(elem.plan/(+elem.sum_pay + +elem.sum_pay_tithe))).toFixed(1);
                  elem.percent_of_plan = isFinite(percent) ? percent : 0;
                  return elem;
             }),
                 allPlans = data.results.reduce((sum,current) => sum + current.plan, 0),
                 allPays = data.results.reduce((sum,current) => sum + current.sum_pay, 0),
+                allTithe = data.results.reduce((sum,current) => sum + current.sum_pay_tithe, 0),
                 newRow = {
                     manager: 'СУММАРНО:',
                     plan: allPlans,
                     potential_sum: data.results.reduce((sum,current) => sum + current.potential_sum, 0),
                     sum_deals: data.results.reduce((sum,current) => sum + current.sum_deals, 0),
                     sum_pay: allPays,
-                    percent_of_plan: (100/(allPlans/allPays)).toFixed(1),
+                    sum_pay_tithe: allTithe,
+                    percent_of_plan: (100/(allPlans/(+allPays + +allTithe))).toFixed(1),
                     total_partners: data.results.reduce((sum,current) => sum + current.total_partners, 0),
                     active_partners: data.results.reduce((sum,current) => sum + current.active_partners, 0),
                     not_active_partners: data.results.reduce((sum,current) => sum + current.not_active_partners, 0),

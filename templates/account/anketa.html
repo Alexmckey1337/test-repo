@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load static %}
 {% load summit_tags %}
+{% load partner_tags %}
 {% load payment_tags %}
 {% load mptt_tags %}
 
@@ -1015,37 +1016,7 @@
     {% if account.partnership %}
         {% create_payment_form account.partnership %}
     {% endif %}
-    <div id="popup-create_deal" class="pop-up-splash">
-        <div class="flex-wrap">
-            <div class="splash-screen">
-                <div class="top-text">
-                    <h3>Создать сделку</h3>
-                    <span>&times;</span>
-                </div>
-                <div class="padding-wrap">
-                    <div class="summa-wrap">
-                        <label>
-                            <span>Сумма:</span>
-                            <input maxlength="6"
-                               onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0"
-                               type="text" id="new_deal_sum">
-                        </label>
-                        <label>
-                            <span>Дата:</span>
-                            <input type="text" id="new_deal_date" class="sel__date" required>
-                        </label>
-                        <label>
-                            <textarea maxlength="40" placeholder="Добавить коментарий"></textarea>
-                        </label>
-                        <div class="splash-bauttons">
-                            <button id="close-deal">Отменить</button>
-                            <button id="send_new_deal" data-partner="{{ account.partnership.id }}">Создать</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    {% include "partner/partials/create_deal.html" with partnership=account.partnership.id currency=account.partnership.currency%}
     {% if user == account %}
         <div id="popup-change_password" class="pop-up-splash">
             <div class="flex-wrap">

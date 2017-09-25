@@ -12,6 +12,8 @@ class MeetingQuerySet(models.query.QuerySet):
     def for_user(self, user):
         if not is_authenticated(user):
             return self.none()
+        if user.is_staff:
+            return self.base_queryset()
         return self.filter(owner__in=user.__class__.get_tree(user))
 
     def annotate_owner_name(self):
@@ -43,6 +45,8 @@ class ChurchReportQuerySet(models.query.QuerySet):
     def for_user(self, user):
         if not is_authenticated(user):
             return self.none()
+        if user.is_staff:
+            return self.base_queryset()
         return self.filter(pastor__in=user.__class__.get_tree(user))
 
     def annotate_total_sum(self):

@@ -193,6 +193,14 @@ class Deal(LogModel, AbstractPaymentPurpose):
     date_created = models.DateField(null=True, blank=True, default=date.today)
     date = models.DateField(null=True, blank=True)
 
+    DONATION, TITHE = 1, 2
+    DEAL_TYPE_CHOICES = (
+        (DONATION, _('Donation')),
+        (TITHE, _('Tithe'))
+    )
+
+    type = models.PositiveSmallIntegerField(_('Deal type'), choices=DEAL_TYPE_CHOICES, default=1)
+
     payments = GenericRelation('payment.Payment', related_query_name='deals')
 
     objects = DealManager()
@@ -277,27 +285,13 @@ class Deal(LogModel, AbstractPaymentPurpose):
         return self.partnership.user
 
 
-# @python_2_unicode_compatible
-# class ManagerPlan(models.Manager):
-#     manager = models.ForeignKey('Partnership', related_name='manager', on_delete=models.PROTECT,
-#                                 verbose_name=_('Manager'))
-#     period = models.DateField(_('Date'), auto_now_add=True, editable=False)
-#     plan = models.DecimalField(_('Plan'), max_digits=12, decimal_places=0, blank=True, null=True)
-#     potential_sum = models.DecimalField(_('Potential'), max_digits=12, decimal_places=0)
-#
-#     class Meta:
-#         verbose_name = _('Manager plan')
-#         verbose_name_plural = _('Manager plans')
-#         unique_together = ['manager', 'period']
-#         ordering = ('-period',)
-#
-#     def __str__(self):
-#         return 'Managers plan of %s. Period: %s' % (self.manager, self.period.strftime('%Y %b'))
-
-
 class PartnershipLogs(PartnershipAbstractModel):
     partner = models.ForeignKey('Partnership', related_name='partner', on_delete=models.PROTECT,
                                 verbose_name=_('Partner'))
+    responsible = models.ForeignKey('Partnership', related_name='logs_disciples',
+                                    limit_choices_to={'level__lte': 2},
+                                    null=True, blank=True, on_delete=models.SET_NULL)
+
     log_date = models.DateTimeField(_('Log date'), auto_now_add=True)
 
     class Meta:
@@ -306,5 +300,4 @@ class PartnershipLogs(PartnershipAbstractModel):
         ordering = ('-log_date',)
 
     def __str__(self):
-        return 'Partnership log. Partner: %s. Field: %s Log date: %s' % (
-            self.partner, self.field, self.log_date)
+        return 'Partner: %s. Log date: %s' % (self.partner, self.log_date)

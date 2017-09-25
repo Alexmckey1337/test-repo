@@ -123,7 +123,7 @@
                     <ul class="info">
                         <li>
                             <div class="label-wrapp">
-                                <label for="total_tithe">Десятины</label>
+                                <label for="total_tithe">Десятины (${data.currency.short_name})</label>
                             </div>
                             <div class="input">
                                 <input id="total_tithe" type="text" name="total_tithe"
@@ -133,7 +133,7 @@
                         </li>
                         <li>
                             <div class="label-wrapp">
-                                <label for="total_donations">Пожертвования</label>
+                                <label for="total_donations">Пожертвования (${data.currency.short_name})</label>
                             </div>
                             <div class="input">
                                 <input id="total_donations" type="text" name="total_donations"
@@ -151,7 +151,7 @@
                         </li>
                         <li>
                             <div class="label-wrapp">
-                                <label for="transfer_payments">15% к перечислению</label>
+                                <label for="transfer_payments">15% к перечислению (${data.currency.short_name})</label>
                             </div>
                             <div class="input">
                                 <input name="transfer_payments" id="transfer_payments"
@@ -160,7 +160,7 @@
                         </li>
                         <li>
                             <div class="label-wrapp">
-                                <label for="total_pastor_tithe">Десятина пастора</label>
+                                <label for="total_pastor_tithe">Десятина пастора (${data.currency.short_name})</label>
                             </div>
                             <div class="input">
                                 <input name="total_pastor_tithe" id="total_pastor_tithe"

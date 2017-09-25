@@ -1,6 +1,7 @@
 {% extends "layout_main.html" %}
 {% load i18n %}
 {% load static %}
+{% load payment_tags %}
 {% block header.top.h1 %}<h1>Партнёрство</h1>{% endblock %}
 
 {% block extra_styles %}
@@ -24,7 +25,9 @@
                 <li><a href="{% url 'partner:deals' %}">Сделки</a></li>
                 <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
                 <li><a class="active" href="{% url 'partner:payments' %}">Таблица платежей</a></li>
-                <li><a href="{% url 'partner:partnership_summary' %}">План по менеджерам</a></li>
+                {% if user.is_partner_director %}
+                    <li><a href="{% url 'partner:partnership_summary' %}">План по менеджерам</a></li>
+                {% endif %}
                 <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
             </ul>
         </div>
@@ -39,9 +42,11 @@
                         Фильтр
                     </button>
                 </li>
-                {#            <li>#}
-                {#                <button id="export_table" data-export-url="{% url "users_v1_1-export" %}" class="download header__button">Export</button>#}
-                {#            </li>#}
+                <li>
+                    <button id="export_table" data-export-url="{% url "payment-export" %}"
+                            class="download header__button">Export
+                    </button>
+                </li>
                 <li>
                     <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
                 </li>
@@ -69,6 +74,7 @@
 {% endblock %}
 
 {% block popup %}
+    {% update_payment_form %}
     <div class="popap" id='filterPopup'>
         <div class="pop_cont">
             <h2 class='popup_text'>
@@ -86,35 +92,35 @@
                         </select>
                     </label>
                     <label>
-                        <span class="label_block">Фильтр сумме</span>
+                        <span class="label_block">Сумма платежа</span>
                         <p class="birthday">
                             <input type="number" placeholder="от" data-filter="sum_from" id="sum_from" class="select_from_filter">
                             <input type="number" placeholder="до" data-filter="sum_to" id="sum_to" class="select_to_filter">
                         </p>
                     </label>
                     <label>
-                        <span class="label_block">Фильтр по дате отправки платежа</span>
+                        <span class="label_block">Дата поступления платежа</span>
                         <p class="birthday">
                             <input type="text" placeholder="от" data-filter="sent_from" id="sent_date_from" class="select_from_filter">
                             <input type="text" placeholder="до" data-filter="sent_to" id="sent_date_to" class="select_to_filter">
                         </p>
                     </label>
                     <label>
-                        <span class="label_block">Фильтр по дате создания платежа</span>
+                        <span class="label_block">Дата создания платежа</span>
                         <p class="birthday">
                             <input type="text" placeholder="от" data-filter="create_from" id="date_from" class="select_from_filter">
                             <input type="text" placeholder="до" data-filter="create_to" id="date_to" class="select_to_filter">
                         </p>
                     </label>
                     <label>
-                        <span class="label_block">Фильтр по дате создания сделки</span>
+                        <span class="label_block">Дата сделки</span>
                         <p class="birthday">
                             <input type="text" placeholder="от" data-filter="purpose_date_from" id="purpose_date_from" class="select_from_filter">
                             <input type="text" placeholder="до" data-filter="purpose_date_to" id="purpose_date_to" class="select_to_filter">
                         </p>
                     </label>
                     <label>
-                        <span class="label_block">Поиск по супервайзеру</span>
+                        <span class="label_block">Супервайзер</span>
                         <select class="custom_select" data-filter="manager" id="manager">
                             <option value="">ВСЕ</option>
                             {% for supervisor in supervisors %}
@@ -123,7 +129,7 @@
                         </select>
                     </label>
                     <label>
-                        <span class="label_block">Поиск по менеджеру</span>
+                        <span class="label_block">Менеджер</span>
                         <select class="custom_select" data-filter="responsible_id" id="search_purpose_manager_fio">
                             <option value="">ВСЕ</option>
                             {% for manager in managers %}
@@ -138,80 +144,14 @@
                         <input type="text" data-filter="search_description" placeholder="Описание или часть"
                                    id="search_description">
                     </label>
-{#                    <div class="col-6">#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Валюта</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Фильтр сумме</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Фильтр по дате отправки платежа</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Фильтр по дате создания платежа</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Фильтр по дате создания сделки</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Поиск по менеджеру</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Поиск по ответственному</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Поиск по описанию</span>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                    <div class="col-6">#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="currency_sum" id="currency_sum">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                                {% for currency in currencies %}#}
-{#                                    <option value="{{ currency.id }}">{{ currency.name }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <input type="number" placeholder="от" data-filter="sum_from" id="sum_from"#}
-{#                                   class="select_from_filter"><input type="number" placeholder="до" data-filter="sum_to"#}
-{#                                                                     id="sum_to" class="select_to_filter">#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <input type="text" placeholder="от" data-filter="sent_from" id="sent_date_from"#}
-{#                                   class="select_from_filter"><input type="text" placeholder="до" data-filter="sent_to"#}
-{#                                                                     id="sent_date_to" class="select_to_filter">#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <input type="text" placeholder="от" data-filter="create_from" id="date_from"#}
-{#                                   class="select_from_filter"><input type="text" placeholder="до"#}
-{#                                                                     data-filter="create_to"#}
-{#                                                                     id="date_to" class="select_to_filter">#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <input type="text" placeholder="от" data-filter="purpose_date_from" id="purpose_date_from"#}
-{#                                   class="select_from_filter"><input type="text" placeholder="до"#}
-{#                                                                     data-filter="purpose_date_to"#}
-{#                                                                     id="purpose_date_to" class="select_to_filter">#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select class="custom_select" data-filter="manager" id="manager">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                                {% for manager in managers %}#}
-{#                                    <option value="{{ manager.id }}">{{ manager.fullname }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <input type="text" data-filter="search_purpose_manager_fio" placeholder="Ответсвенный"#}
-{#                                   id="search_purpose_manager_fio">#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <input type="text" data-filter="search_description" placeholder="Описание или часть"#}
-{#                                   id="search_description">#}
-{#                        </p>#}
-{#                    </div>#}
+                    <label>
+                        <span class="label_block">Тип сделки</span>
+                        <select id="﻿payment_status" class="selectdb" data-filter="deal_type">
+                            <option value="">ВСЕ</option>
+                            <option value="1">Партнерские</option>
+                            <option value="2">﻿Десятины</option>
+                        </select>
+                    </label>
                 </div>
             </div>
             <div class="container">
@@ -235,11 +175,12 @@
 {% block extra_scripts %}
     <script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
     <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
+    <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
     <script src='{% static "js/payments.js" %}'></script>
 {% endblock %}
 {% block template_tables %}
     <script type="text/template" id="databasePayments">
-        <table>
+        <table id="table-1">
             <thead>
             <tr>
                 <% for( var key in table_columns) { %>
@@ -256,7 +197,7 @@
                 <% if(table_columns[key].active) { %>
                 <% if (key == 'manager') { %>
                 <% if (results[index][key] != null) { %>
-                <td class="edit"><a href="<%= '/account/' + results[index][key].id  %>">
+                <td><a href="<%= '/account/' + results[index][key].id  %>">
                     <%= results[index][key].first_name + ' ' + results[index][key].middle_name + ' ' +
                     results[index][key].last_name %>
                 </a>
@@ -264,42 +205,28 @@
                 <% } else { %>
                 <td></td>
                 <% } %>
-                <% } else if(key == 'get_title') { %>
+                <% } else if(key == 'purpose_fio') { %>
                 <% if (results[index][key] != null) { %>
-                <td class="edit"><a href="<%= results[index].link %>" data-link="<%= results[index].link %>"
-                                    data-id="<%=results[index].id %>"><%= results[index][key] %></a><span
-                        class="quick-edit"></span></td>
-                <% } else { %>
-                <td></td>
-                <% } %>
-                <% } else if (key == 'master' || key == 'pastor' || key == 'leader') { %>
-                <% if (results[index][key] != null) { %>
-                <td><%= results[index][key].fullname %></td>
-                <% } else { %>
-                <td></td>
-                <% } %>
-                <% } else if (key == 'hierarchy' || key == 'church' ) { %>
-                <% if (results[index][key] != null ) { %>
-                <td><%= results[index][key].title %></td>
-                <% } else { %>
-                <td></td>
-                <% } %>
-                <% } else if (key == 'department') { %>
-                <% if (results[index][key] != null ) { %>
-                <td><%= results[index][key].title %></td>
-                <% } else { %>
-                <td></td>
-                <% } %>
-                <% }else if (key == 'departments' || key == 'divisions') { %>
-                <% if ( Array.isArray(results[index][key]) && results[index][key].length != 0) { %>
-                <% if (results[index][key].length == 1) { %>
-                <td><%= results[index][key][0].title %></td>
-                <% } else { %>
-                <td><%= results[index][key].reduce(function(sum, item, i) {
-                    return i < results[index][key].length - 1 ? sum + item.title + ', ' : sum + item.title
-                    }, "") %>
+                <td class="edit">
+                    <a href="<%= '/account/' + results[index].purpose_id  %>" title="<%= results[index][key] %>">
+                        <%= results[index][key] %></a>
+                    {% if user.is_partner_supervisor_or_high %}
+                    <span class="quick-edit" data-id="<%= results[index].id %>" data-name="<%= results[index].purpose_fio %>">
+                    </span>
+                    {% endif %}
                 </td>
+                <% } else { %>
+                <td></td>
                 <% } %>
+                <% } else if (key == 'purpose_type' ) { %>
+                <% if (results[index][key] != null ) { %>
+                <td>
+                    <% if (results[index][key] == '1' ) { %>
+                    партнерские
+                    <% } else { %>
+                    десятины
+                    <% } %>
+                </td>
                 <% } else { %>
                 <td></td>
                 <% } %>
@@ -319,5 +246,6 @@
             <% } %>
             </tbody>
         </table>
+        <table id="header-fixed"></table>
     </script>
 {% endblock %}

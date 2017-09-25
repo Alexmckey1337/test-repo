@@ -11,11 +11,17 @@ from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
 from common.test_helpers.utils import get_real_user
 from payment.filters import (PaymentFilterByPurpose, PaymentFilter, FilterByDealFIO, FilterByDealDate,
-                             FilterByDealManager)
-from payment.serializers import PaymentUpdateSerializer, PaymentShowSerializer, PaymentDealShowSerializer
+                             FilterByDealManager, FilterByChurchReportDate, FilterByChurchReportPastor,
+                             FilterByChurchReportChurchTitle, FilterByDealType)
+from payment.serializers import (PaymentUpdateSerializer, PaymentShowSerializer, PaymentDealShowSerializer,
+                                 PaymentChurchReportShowSerializer)
 from .models import Payment
 from .permissions import PaymentManagerOrSupervisor
-from .pagination import PaymentPagination
+from .pagination import PaymentPagination, ChurchReportPaymentPagination
+from django.db.models import F
+from rest_framework.generics import get_object_or_404
+from common.views_mixins import ExportViewSetMixin
+from .resources import PaymentResource
 
 
 class PaymentUpdateDestroyView(LogAndCreateUpdateDestroyMixin,
@@ -82,11 +88,10 @@ class PaymentListView(mixins.ListModelMixin, GenericAPIView):
 
     def get_queryset(self):
         user = self.request.user
-
         return self.queryset.for_user_by_all(user)
 
 
-class PaymentDetailView(mixins.RetrieveModelMixin, GenericAPIView):
+class PaymentDetailView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentShowSerializer
     permission_classes = (IsAuthenticated,)
@@ -96,11 +101,15 @@ class PaymentDetailView(mixins.RetrieveModelMixin, GenericAPIView):
 
     def get_queryset(self):
         user = self.request.user
-
         return self.queryset.for_user_by_all(user)
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = get_object_or_404(Payment, pk=kwargs['pk'])
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
-class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
+
+class PaymentDealListView(mixins.ListModelMixin, GenericAPIView, ExportViewSetMixin):
     queryset = Payment.objects.base_queryset()
     serializer_class = PaymentDealShowSerializer
     permission_classes = (IsAuthenticated,)
@@ -112,14 +121,60 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
                        FilterByDealDate,
                        # FilterByDealManagerFIO,
                        FilterByDealManager,
+                       FilterByDealType,
                        filters.OrderingFilter,)
-    ordering_fields = ('sum', 'effective_sum', 'currency_sum__name', 'currency_rate__name', 'created_at', 'sent_date',
-                       'manager__last_name', 'description',
+    ordering_fields = ('sum', 'effective_sum', 'currency_sum__name', 'currency_rate__name',
+                       'created_at', 'sent_date', 'manager__last_name', 'description',
                        'deals__partnership__user__last_name', 'deals__date_created',
-                       'deals__partnership__responsible__user__last_name')
+                       'deals__partnership__responsible__user__last_name',
+                       'deals__type')
+
     field_search_fields = {
         'search_description': ('description',),
     }
+    filter_class = PaymentFilter
+
+    resource_class = PaymentResource
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def get_queryset(self):
+        user = self.request.user
+        return self.queryset.for_user_by_deal(user).add_deal_fio().annotate(
+            purpose_type=F('deals__type')).annotate(purpose_id=F('deals__partnership__user_id'))
+
+    def post(self, request, *args, **kwargs):
+        """For export/import to excel"""
+        return self._export(request, *args, **kwargs)
+
+
+class PaymentChurchReportListView(mixins.ListModelMixin, GenericAPIView):
+    queryset = Payment.objects.base_queryset()
+    serializer_class = PaymentChurchReportShowSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = ChurchReportPaymentPagination
+
+    filter_backends = (filters.DjangoFilterBackend,
+                       FieldSearchFilter,
+                       FilterByChurchReportPastor,
+                       filters.OrderingFilter,
+                       FilterByChurchReportDate,
+                       FilterByChurchReportPastor,
+                       FilterByChurchReportChurchTitle,)
+
+    ordering_fields = ('sum', 'effective_sum', 'currency_sum__name', 'currency_rate__name', 'created_at',
+                       'sent_date', 'manager__last_name', 'description',
+                       'church_reports__church__pastor__last_name',
+                       'church_reports__date', 'church_reports__church__title')
+
+    field_search_fields = {
+        'search_title': ('church_reports__church__pastor__last_name',
+                         'church_reports__church__pastor__first_name',
+                         'church_reports__church__pastor__middle_name',
+                         'church_reports__church__title')
+    }
+
     filter_class = PaymentFilter
 
     def get(self, request, *args, **kwargs):
@@ -127,5 +182,4 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView):
 
     def get_queryset(self):
         user = self.request.user
-
-        return self.queryset.for_user_by_deal(user).add_deal_fio()
+        return self.queryset.for_user_by_church_report(user).add_church_report_info()

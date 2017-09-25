@@ -23,6 +23,7 @@ from navigation.models import Table
 from partnership.models import Partnership
 from status.models import Division
 
+
 BASE_USER_FIELDS = (
     'id',
     # 'username',
@@ -310,8 +311,15 @@ class UserSingleSerializer(BaseUserSerializer):
     spiritual_level = ReadOnlyChoiceField(choices=User.SPIRITUAL_LEVEL_CHOICES, read_only=True)
 
 
+class ChurchNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Church
+        fields = ('id', 'title',)
+
+
 class UserTableSerializer(UserSingleSerializer):
     master = MasterNameSerializer(required=False, allow_null=True)
+    get_church = ChurchNameSerializer(read_only=True)
 
     class Meta(UserSingleSerializer.Meta):
         required_fields = ('id', 'link', 'extra_phone_numbers', 'description')

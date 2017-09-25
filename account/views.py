@@ -24,7 +24,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from account.filters import (FilterByUserBirthday, UserFilter, ShortUserFilter, FilterMasterTreeWithSelf,
-                             FilterDashboardMasterTreeWithSelf)
+                             FilterDashboardMasterTreeWithSelf, UserIsPartnershipFilter, UserChurchFilter)
 from account.models import CustomUser as User
 from account.permissions import CanSeeUserList, CanCreateUser, CanExportUserList, SeeUserListPermission, \
     EditUserPermission, ExportUserListPermission
@@ -43,7 +43,7 @@ from hierarchy.serializers import DepartmentSerializer
 from navigation.table_fields import user_table
 from .resources import UserResource
 from .serializers import (
-    UserShortSerializer, UserTableSerializer, UserSingleSerializer, PartnershipSerializer, ExistUserSerializer,
+    UserShortSerializer, UserTableSerializer, UserSingleSerializer, ExistUserSerializer,
     UserCreateSerializer, DashboardSerializer, DuplicatesAvoidedSerializer,
 )
 from .pagination import DashboardPagination
@@ -144,6 +144,8 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         OrderingFilter,
         FilterByUserBirthday,
         FilterMasterTreeWithSelf,
+        UserIsPartnershipFilter,
+        UserChurchFilter,
     )
     permission_classes = (IsAuthenticated,)
     permission_list_classes = (IsAuthenticated, CanSeeUserList)

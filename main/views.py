@@ -38,20 +38,6 @@ def edit_pass(request, activation_key=None):
 
 
 @login_required(login_url='entry')
-def events(request):
-    if not request.user.hierarchy or request.user.hierarchy.level < 1:
-        return redirect('/')
-
-    ctx = {
-        'reports_in_progress': Meeting.objects.filter(status=1).count(),
-        'reports_submitted': Meeting.objects.filter(status=2).count(),
-        'reports_expired': Meeting.objects.filter(status=3).count(),
-    }
-
-    return render(request, 'event/EVENT_LIST.html', context=ctx)
-
-
-@login_required(login_url='entry')
 def meeting_report_list(request):
     if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
         return redirect('/')
@@ -152,6 +138,25 @@ def reports_summary(request):
     }
 
     return render(request, 'event/reports_summary.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def report_payments(request):
+    if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 2):
+        return redirect('/')
+    ctx = {
+        'currencies': Currency.objects.all(),
+        'managers': CustomUser.objects.filter(partnership__level__lte=2).distinct(),
+        'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
+    }
+
+    return render(request, 'event/report_payments.html', context=ctx)
+
+
+def privacy_policy(request):
+    """For mobile clients"""
+    ctx = {}
+    return render(request, 'privacy_policy.html', context=ctx)
 
 # partner
 
@@ -469,7 +474,8 @@ class SummitTicketListView(LoginRequiredMixin, CanSeeSummitTicketMixin, ListView
         response = super(SummitTicketListView, self).dispatch(request, *args, **kwargs)
         try:
             r = redis.StrictRedis(host='redis', port=6379, db=0)
-            r.srem('summit:ticket:{}'.format(request.user.id), *list(self.get_queryset().values_list('id', flat=True)))
+            r.srem('summit:ticket:{}'.format(request.user.id), *list(
+                self.get_queryset().values_list('id', flat=True)))
         except Exception as err:
             print(err)
 
@@ -610,7 +616,8 @@ class PeopleListView(LoginRequiredMixin, TabsMixin, CanSeeUserListMixin, Templat
         extra_ctx = {
             'departments': Department.objects.all(),
             'hierarchies': Hierarchy.objects.order_by('level'),
-            'currencies': Currency.objects.all()
+            'currencies': Currency.objects.all(),
+            'churches': Church.objects.all(),
         }
         user = self.request.user
         if user.is_staff:
@@ -684,9 +691,10 @@ class ChurchDetailView(LoginRequiredMixin, CanSeeChurchMixin, DetailView):
             'babies_count': church.uusers.filter(
                 spiritual_level=CustomUser.BABY).count() + HomeGroup.objects.filter(
                 church__id=church.id, uusers__spiritual_level=1).count(),
-            'partners_count': church.uusers.filter(partnership__is_active=True).count() + CustomUser.objects.filter(
-                hhome_group__church_id=church.id, partnership__is_active=True).count(),
-
+            'partners_count': church.uusers.filter(partnership__isnull=False).count() + CustomUser.objects.filter(
+                hhome_group__church_id=church.id, partnership__isnull=False).count(),
+            'no_partners_count': church.uusers.filter(partnership__isnull=True).count() + CustomUser.objects.filter(
+                hhome_group__church_id=church.id, partnership__isnull=True).count(),
         }
         ctx.update(extra_context)
 

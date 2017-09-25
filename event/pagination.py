@@ -8,6 +8,7 @@ class MeetingPagination(PageNumberPagination):
     category = 'meetings'
     page_size = 30
     page_size_query_param = 'page_size'
+    statistics = {}
 
     def get_columns(self):
         return meeting_table(self.request.user, self.category)

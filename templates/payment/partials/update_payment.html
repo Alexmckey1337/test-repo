@@ -1,7 +1,7 @@
-<div id="popup-create_payment" class="popap">
+<div id="popup-update_payment" class="popap">
     <div class="pop_cont">
         <div class="popup_text">
-            <h2>Создание платежа</h2>
+            <h2>Редактирование платежа</h2>
         </div>
         <form action="" id="payment-form" method="post">
             <div class="popup_body">
@@ -11,20 +11,8 @@
                         <p id="payment_name"></p>
                     </div>
                     <div class="block_line">
-                        <p>Ответственный:</p>
-                        <p id="payment_responsible"></p>
-                    </div>
-                    <div class="block_line">
-                        <p>Дата подачи отчета:</p>
+                        <p>Дата платежа:</p>
                         <p id="payment_date"></p>
-                    </div>
-                    <div class="block_line">
-                        <p>Суммa:</p>
-                        <p id="payment_sum"></p>
-                    </div>
-                    <div class="block_line">
-                        <p>Остаток до закрытия:</p>
-                        <p id="close_sum"></p>
                     </div>
                 </div>
                 <div class="container container_block">
@@ -51,7 +39,7 @@
                     </label>
                     <label>
                         <span class="label_block">Дата поступления платежа:</span>
-                        <input type="text" name="sent_date" id="sent_date" required>
+                        <input type="text" name="sent_date" id="payment_sent_date" required>
                     </label>
                     <textarea class="note" name="description" maxlength="40" placeholder="Добавить коментарий"></textarea>
                 </div>
@@ -64,12 +52,9 @@
                 {#                        </label>#}
                 {#                        <input id="operation" name="operation" value="*" readonly>#}
                 {#                    </div>#}
-                <div class="result">
-                    <p>Итог:</p>
-                    <p><span id="user_payment">0</span> / <span id="all_payments">0</span></p>
-                </div>
             </div>
             <div class="container">
+                <button id="delete-payment"></button>
                 <button id="close-payment">Отменить</button>
                 <button type="submit" id="complete-payment">Сохранить</button>
             </div>

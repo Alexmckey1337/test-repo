@@ -2,26 +2,32 @@ $(document).ready(function () {
     "use strict";
 
     $('.preloader').show();
-    createIncompleteDealsTable();
-    // createExpiredDealsTable();
-    createDoneDealsTable();
+    DealsTable({done: 3});
 
-    $('#overdue, #completed').hide();
-
+    //Tabs
     $('#tabs').find('li').on('click', 'a', function (e) {
+        $('.preloader').show();
         e.preventDefault();
-        let tableSelector = $(this).attr('href');
+        let status = $(this).attr('data-status');
+        let config = {
+            done: status
+        };
+        Object.assign(config, getSearch('search'));
+        Object.assign(config, getFilterParam());
+        DealsTable(config);
         $(this).closest('#tabs').find('li').removeClass('current');
         $(this).parent().addClass('current');
-        $('.tabs-cont').hide();
-        $(tableSelector).show();
     });
+
+    function DealsTable(config) {
+        getDeals(config).then(data => {
+            makeDealsTable(data);
+        });
+    }
 
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(createIncompleteDealsTable);
-        // updateSettings(createExpiredDealsTable);
-        updateSettings(createDoneDealsTable);
+        updateSettings(dealsTable);
     });
 
     $("#close-payment").on('click', function (e) {
@@ -66,11 +72,6 @@ $(document).ready(function () {
         });
     });
 
-    // $('#complete').on('click', function () {
-    //     let id = $(this).attr('data-id'),
-    //         description = $('#deal-description').val();
-    //     updateDeals(id, description);
-    // });
     $('#popup-payments .detail').on('click', function () {
         let url = $(this).attr('data-detail-url');
         window.location.href = url;
@@ -78,32 +79,11 @@ $(document).ready(function () {
 
     $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
         $('.preloader').css('display', 'block');
-        createIncompleteDealsTable();
-        // createExpiredDealsTable();
-        createDoneDealsTable();
+        dealsTable();
     }, 500));
 
-    // function updateDeals(id, description) {
-    //     let data = {
-    //         "done": true,
-    //         "description": description
-    //     };
-    //     let config = JSON.stringify(data);
-    //     ajaxRequest(URLS.deal.detail(id), config, function () {
-    //         updateDealsTable();
-    //         document.getElementById('popup').style.display = '';
-    //     }, 'PATCH', true, {
-    //         'Content-Type': 'application/json'
-    //     }, {
-    //         403: function (data) {
-    //             data = data.responseJSON;
-    //             showPopup(data.detail);
-    //         }
-    //     });
-    // }
-
     $('#sent_date').datepicker({
-        dateFormat: "yyyy-mm-dd",
+        dateFormat: "dd.mm.yyyy",
         startDate: new Date(),
         maxDate: new Date(),
         autoClose: true
@@ -122,10 +102,61 @@ $(document).ready(function () {
     });
     
     $('.apply-filter').on('click', function () {
-        applyFilter(this, createIncompleteDealsTable);
-        // applyFilter(this, createExpiredDealsTable);
-        applyFilter(this, createDoneDealsTable);
-    })
+        applyFilter(this, dealsTable);
+    });
+
+    //Update deal
+    $("#close-deal").on('click', function (e) {
+        e.preventDefault();
+        clearDealForm();
+        $('#popup-create_deal').css('display', 'none');
+    });
+
+    function clearDealForm() {
+        let popup = $('#popup-create_deal'),
+            $input = popup.find('input, textarea');
+        $input.each(function () {
+            $(this).val('');
+        });
+        popup.find('select').val('1').trigger("change");
+    }
+
+    $('#new_deal_date').datepicker({
+        dateFormat: "dd.mm.yyyy",
+        startDate: new Date(),
+        maxDate: new Date(),
+        autoClose: true
+    });
+
+    $('#send_new_deal').on('click', function () {
+    let id = $(this).attr('data-id'),
+        description = $('#popup-create_deal textarea').val(),
+        value = $('#new_deal_sum').val(),
+        date = $('#new_deal_date').val().trim().split('.').reverse().join('-'),
+        type = $('#new_deal_type').val(),
+        data = {
+            'date_created': date,
+            'value': value,
+            'description': description,
+            'type': type,
+        };
+
+    if (value && date) {
+        updateDeal(id, data).then(() => {
+            let page = $('#sdelki').find('.pagination__input').val();
+            $('.preloader').css('display', 'block');
+            dealsTable({page:page});
+            showAlert('Редактирование сделки прошло успешно');
+            clearDealForm();
+            $('#popup-create_deal').css('display', 'none');
+
+        }).catch((err) => {
+            showAlert(err);
+        });
+    } else {
+        showAlert('Заполните поле суммы и дату.');
+    }
+});
 
 });
 

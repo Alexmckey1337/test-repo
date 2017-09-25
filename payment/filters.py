@@ -10,6 +10,7 @@ from rest_framework.filters import BaseFilterBackend
 
 from partnership.models import Deal
 from payment.models import Payment
+from event.models import ChurchReport
 
 if six.PY3:
     from functools import reduce
@@ -72,6 +73,12 @@ class PaymentFilter(rest_framework.FilterSet):
 class FilterByDealFIO(BaseFilterBackend):
     include_self_master = False
 
+    orm_lookups = ['partnership__user__first_name__icontains',
+                   'partnership__user__last_name__icontains',
+                   'partnership__user__middle_name__icontains',
+                   'partnership__user__search_name__icontains'
+                   ]
+
     def get_deals(self, request):
         return Deal.objects.for_user(request.user)
 
@@ -80,11 +87,7 @@ class FilterByDealFIO(BaseFilterBackend):
         if not purpose_fio:
             return queryset
 
-        orm_lookups = [
-            'partnership__user__first_name__icontains',
-            'partnership__user__last_name__icontains',
-            'partnership__user__middle_name__icontains',
-            'partnership__user__search_name__icontains']
+        orm_lookups = self.orm_lookups
 
         deals = self.get_deals(request)
         for search_term in purpose_fio.replace(',', ' ').split():
@@ -177,3 +180,68 @@ class FilterByDealManager(BaseFilterBackend):
         deal_ids = deals.values_list('id', flat=True)
 
         return queryset.filter(content_type__model='deal', object_id__in=deal_ids)
+
+
+class FilterByDealType(BaseFilterBackend):
+    @staticmethod
+    def get_deals(request):
+        return Deal.objects.for_user(request.user)
+
+    def filter_queryset(self, request, queryset, view):
+        deal_type = request.query_params.get('deal_type')
+        if deal_type not in ['1', '2']:
+            return queryset
+
+        deals = self.get_deals(request).filter(type=deal_type)
+        deals_ids = deals.values_list('id', flat=True)
+
+        return queryset.filter(content_type__model='deal', object_id__in=deals_ids)
+
+
+class FilterByChurchReportPastor(BaseFilterBackend):
+    @staticmethod
+    def get_reports(request):
+        return ChurchReport.objects.for_user(request.user)
+
+    def filter_queryset(self, request, queryset, view):
+        pastor_id = request.query_params.get('pastor_id')
+        if not pastor_id:
+            return queryset
+
+        reports = self.get_reports(request).filter(pastor_id=pastor_id)
+        reports_ids = reports.values_list('id', flat=True)
+
+        return queryset.filter(content_type__model='churchreport', object_id__in=reports_ids)
+
+
+class FilterByChurchReportDate(BaseFilterBackend):
+    @staticmethod
+    def get_reports(request):
+        return ChurchReport.objects.for_user(request.user)
+
+    def filter_queryset(self, request, queryset, view):
+        date_from = request.query_params.get('report_date_from', None)
+        date_to = request.query_params.get('report_date_to', None)
+        if not (date_from or date_to):
+            return queryset
+
+        reports = self.get_reports(request).filter(date__range=[date_from, date_to])
+        report_ids = reports.values_list('id', flat=True)
+
+        return queryset.filter(content_type__model='churchreport', object_id__in=report_ids)
+
+
+class FilterByChurchReportChurchTitle(BaseFilterBackend):
+    @staticmethod
+    def get_reports(request):
+        return ChurchReport.objects.for_user(request.user)
+
+    def filter_queryset(self, request, queryset, view):
+        church_id = request.query_params.get('church_id')
+        if not church_id:
+            return queryset
+
+        reports = self.get_reports(request).filter(pastor_id=church_id)
+        reports_ids = reports.values_list('id', flat=True)
+
+        return queryset.filter(content_type__model='churchreport', object_id__in=reports_ids)

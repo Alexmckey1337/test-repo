@@ -6,6 +6,7 @@ from account.models import CustomUser
 from account.serializers import DepartmentTitleSerializer
 from common.fields import ReadOnlyChoiceField
 from .models import Church, HomeGroup
+from event.models import ChurchReport
 
 BASE_GROUP_USER_FIELDS = ('fullname', 'phone_number', 'repentance_date', 'spiritual_level',
                           'born_date')
@@ -103,6 +104,19 @@ class ChurchSerializer(serializers.ModelSerializer):
         fields = ('id', 'opening_date', 'is_open', 'link', 'title', 'get_title',
                   'department', 'pastor', 'country', 'city', 'address', 'website',
                   'phone_number', 'count_groups', 'count_users', 'report_currency')
+
+    def update(self, instance, validated_data):
+        report_currency = validated_data.get('report_currency')
+        pastor = validated_data.get('pastor')
+        reports = ChurchReport.objects.filter(church_id=instance.id, status__in=[ChurchReport.IN_PROGRESS,
+                                              ChurchReport.EXPIRED])
+
+        if report_currency:
+            reports.update(currency=report_currency)
+        if pastor:
+            reports.update(pastor=pastor)
+
+        return super(ChurchSerializer, self).update(instance, validated_data)
 
 
 class ChurchListSerializer(ChurchSerializer):

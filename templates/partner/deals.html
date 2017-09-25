@@ -12,7 +12,9 @@
             <ul class="nav tabs_link">
                 <li><a class="active" href="{% url 'partner:deals' %}">Сделки</a></li>
                 <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
-                <li><a href="{% url 'partner:payments' %}">Таблица платежей</a></li>
+                {% if user.is_partner_director %}
+                    <li><a href="{% url 'partner:payments' %}">Таблица платежей</a></li>
+                {% endif %}
                 <li><a href="{% url 'partner:partnership_summary' %}">План по менеджерам</a></li>
                 <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
             </ul>
@@ -49,64 +51,28 @@
                 <div class="tab-status">
                     <ul id="tabs">
                         <li class="current">
-                            <a href="#incomplete">Незавершённые</a>
+                            <a href="#incomplete" data-status="3">Незавершённые</a>
                         </li>
 {#                        <li>#}
 {#                            <a href="#overdue">Просроченные(<span id="overdue-count"></span>)</a>#}
 {#                        </li>#}
                         <li>
-                            <a href="#completed">Завершённые</a>
+                            <a href="#completed" data-status="2">Завершённые</a>
                         </li>
                     </ul>
                 </div>
-{#                <div id="period_expired" class="period">#}
-{#                    <p>Период с <input type="text" id="expired_datepicker_from" readonly="readonly"> по <input#}
-{#                            type="text" id="expired_datepicker_to" readonly="readonly"><a id="show-all-expired"#}
-{#                                                                                          href="javascript:void(0);">Показать#}
-{#                        все</a></p>#}
-{#                </div>#}
-{#                <div id="period_done" class="period">#}
-{#                    <p>Период с <input type="text" id="done_datepicker_from" readonly="readonly"> по <input#}
-{#                            type="text" id="done_datepicker_to" readonly="readonly"><a id="show-all-done"#}
-{#                                                                                       href="javascript:void(0);">Показать#}
-{#                        все</a></p>#}
-{#                </div>#}
             </div>
-            <div id="incomplete"  class="tabs-cont">
+            <div class="tabs-cont">
                 <div class="table__count"></div>
-                <div class="pagination undone__pagination"></div>
+                <div class="pagination deals__pagination"></div>
                 <div class="table-wrap clearfix"><!--Table -->
                     <div class="query-none" style="display:none">
                         <p></p>
                     </div>
-                    <div class="table scrollbar-inner" id="incompleteList"></div>
+                    <div class="table scrollbar-inner" id="dealsList"></div>
                 </div><!--End Table-wrap -->
                 <div class="table__count"></div>
-                <div class="pagination undone__pagination"></div>
-            </div>
-            <div id="overdue" class="tabs-cont">
-                <div class="table__count"></div>
-                <div class="pagination expired__pagination"></div>
-                <div class="table-wrap clearfix"><!--Table -->
-                    <div class="query-none" style="display:none">
-                        <p></p>
-                    </div>
-                    <div class="table scrollbar-inner" id="overdueList"></div>
-                </div><!--End Table-wrap -->
-                <div class="table__count"></div>
-                <div class="pagination expired__pagination"></div>
-            </div>
-            <div id="completed" class="tabs-cont">
-                <div class="table__count"></div>
-                <div class="pagination done__pagination"></div>
-                <div class="table-wrap clearfix"><!--Table -->
-                    <div class="query-none" style="display:none">
-                        <p></p>
-                    </div>
-                    <div class="table scrollbar-inner" id="completedList"></div>
-                </div><!--End Table-wrap -->
-                <div class="table__count"></div>
-                <div class="pagination done__pagination"></div>
+                <div class="pagination deals__pagination"></div>
             </div>
         </div><!--End sdelki -->
     </div><!-- End tab-content-->
@@ -114,6 +80,7 @@
 
 {% block popup %}
     {% create_payment_form %}
+    {% include "partner/partials/create_deal.html" %}
     <div id="popup-payments" class="pop-up-splash">
         <div class="flex-wrap">
             <div class="splash-screen">
@@ -214,6 +181,14 @@
                             <option value="2">﻿Оплачена полностью</option>
                         </select>
                     </label>
+                    <label>
+                        <span class="label_block">Тип сделки</span>
+                        <select id="﻿payment_status" class="selectdb" data-filter="type">
+                            <option value="">ВСЕ</option>
+                            <option value="1">Партнерские</option>
+                            <option value="2">﻿Десятины</option>
+                        </select>
+                    </label>
                 </div>
             </div>
             <div class="container">
@@ -242,7 +217,7 @@
     <script src='{% static "js/deals.js" %}'></script>
     {% block template_tables %}
         <script type="text/template" id="databaseDeals">
-         <table>
+         <table id="table-1">
             <thead>
             <tr>
                 <% for( var key in table_columns) { %>
@@ -259,12 +234,15 @@
                         <% if(table_columns.hasOwnProperty(key) && table_columns[key].active) { %>
                             <% if (key == 'full_name') { %>
                                 <% if (results[index][key] != null) { %>
-                                    <td><a href="<%= results[index].﻿partner_link %>"
+                                    <td class="edit"><a href="<%= results[index].﻿partner_link %>"
                                            data-link="<%= results[index].﻿partner_link %>"
                                            data-id="<%=results[index].id %>"
                                         <% if(results[index].ankets_id) { %>
                                             data-ankets="<%= results[index].ankets_id %>"
                                         <% } %>><%= results[index][key] %></a>
+                                        {% if user.is_partner_supervisor_or_high %}
+                                            <span class="quick-edit" data-id="<%= results[index].id %>"></span>
+                                        {% endif %}
                                     </td>
                                 <% } else { %>
                                     <td></td>
@@ -281,6 +259,18 @@
                                         <button class="show_payments inline__button" data-id="<%=results[index].id%>">
                                             <span><%= results[index].total_sum %>/<%= results[index].value %></span>
                                         </button>
+                                    </td>
+                                <% } else { %>
+                                    <td></td>
+                                <% } %>
+                            <% } else if (key == 'type' ) { %>
+                                <% if (results[index][key] != null ) { %>
+                                    <td>
+                                        <% if (results[index][key] == '1' ) { %>
+                                        партнерские
+                                        <% } else { %>
+                                        десятины
+                                        <% } %>
                                     </td>
                                 <% } else { %>
                                     <td></td>
@@ -326,6 +316,7 @@
                 <% }).join('') %>
             </tbody>
         </table>
+        <table id="header-fixed"></table>
     </script>
     {% endblock %}
 {% endblock %}

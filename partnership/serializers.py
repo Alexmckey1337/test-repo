@@ -22,6 +22,13 @@ class PartnershipUpdateSerializer(serializers.ModelSerializer):
         model = Partnership
         fields = BASE_PARTNER_FIELDS
 
+    def update(self, instance, validated_data):
+        responsible = validated_data.get('responsible')
+        if responsible:
+            Deal.objects.filter(partnership=instance, done=False).update(responsible=responsible)
+
+        return super(PartnershipUpdateSerializer, self).update(instance, validated_data)
+
 
 class PartnershipCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -45,14 +52,24 @@ class DealCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Deal
         fields = ('partnership', 'date', 'date_created',
-                  'value', 'description',
+                  'value', 'description', 'type',
                   )
 
 
 class DealUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Deal
-        fields = ('done', 'description')
+        fields = ('done', 'description', 'type', 'value', 'date_created')
+
+    def update(self, instance, validated_data):
+        value = validated_data.get('value')
+        if value:
+            try:
+                if instance.value < validated_data.get('value'):
+                    instance.done = False
+            except Exception:
+                raise serializers.ValidationError({'message': '{value} must be Integer or Decimal'})
+        return super(DealUpdateSerializer, self).update(instance, validated_data)
 
 
 class DealSerializer(DealCreateSerializer):
@@ -71,5 +88,5 @@ class DealSerializer(DealCreateSerializer):
         fields = ('id', 'partnership', 'date', 'date_created',
                   'value', 'done', 'expired', 'description',
                   'full_name', 'responsible_name', 'partner_link',
-                  'total_sum', 'currency', 'payment_status',
+                  'total_sum', 'currency', 'payment_status', 'type',
                   )

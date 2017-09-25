@@ -240,9 +240,7 @@ class ChurchReportSerializer(ChurchReportListSerializer):
     not_editable_fields = ['church', 'pastor', 'status', 'payment_status', 'value', 'total_sum']
 
     class Meta(ChurchReportListSerializer.Meta):
-        fields = ChurchReportListSerializer.Meta.fields + (
-            'comment',
-        )
+        fields = ChurchReportListSerializer.Meta.fields + ('comment',)
 
         read_only_fields = None
 
@@ -256,6 +254,12 @@ class ChurchReportSerializer(ChurchReportListSerializer):
         instance, validated_data = self.validate_before_serializer_update(
             instance, validated_data, self.not_editable_fields)
 
+        if validated_data.get('transfer_payments'):
+            try:
+                if instance.transfer_payments < validated_data['transfer_payments']:
+                    instance.done = False
+            except Exception:
+                raise serializers.ValidationError({'message': '{transfer_payments} must be Integer or Decimal'})
         return super(ChurchReportSerializer, self).update(instance, validated_data)
 
 
@@ -298,9 +302,9 @@ class ChurchReportsDashboardSerializer(serializers.ModelSerializer):
 
 
 class ChurchReportSummarySerializer(serializers.ModelSerializer):
-    pastor = serializers.CharField(source='fullname', read_only=True)
+    pastor = serializers.CharField(source='fullname',)
     master = UserNameWithLinkSerializer()
-    reports_submitted = serializers.IntegerField(read_only=True)
+    reports_submitted = serializers.IntegerField()
     reports_in_progress = serializers.IntegerField(read_only=True)
     reports_expired = serializers.IntegerField(read_only=True)
 
@@ -308,3 +312,5 @@ class ChurchReportSummarySerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ('id', 'pastor', 'link', 'master',
                   'reports_submitted', 'reports_in_progress', 'reports_expired', )
+
+        read_only_fields = ['__all__']

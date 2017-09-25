@@ -16,6 +16,7 @@
             <ul class="nav tabs_link">
                 <li><a href="{% url 'events:church_report_list' %}">Отчёты церквей</a></li>
                 <li><a href="{% url 'events:church_report_statistics' %}">Статистика церквей</a></li>
+                <li><a href="{% url 'events:report_payments' %}">Таблица платежей</a></li>
                 <li><a class="active" href="{% url 'events:meeting_report_list' %}">Отчёты домашних групп</a></li>
                 <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних групп</a></li>
             </ul>
@@ -114,7 +115,7 @@
     {% endblock %}
 
     {% block table %}
-        <div class="table-wrap clearfix" id="homeReports"><!--Table -->
+        <div class="table table-wrap clearfix" id="homeReports"><!--Table -->
             <div class="table scrollbar-inner" id="tableHomeReports"></div>
             <div class="query-none">
                 <p></p>
@@ -181,84 +182,6 @@
                             {% endfor %}
                         </select>
                     </label>
-{#                    <div class="col-6">#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Отдел</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Ветка</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Церковь</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Домашняя группа</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Лидер домашней группы</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Тип</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Фильтр по дате</span>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                    <div class="col-6">#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="department" id="departments_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                                {% for department in departments %}#}
-{#                                    <option value="{{ department.id }}">{{ department.title }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="master_tree" id="master_tree_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                                {% for owner in owners %}#}
-{#                                    <option value="{{ owner.id }}">{{ owner.fullname }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="church" id="church_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                                {% for church in churches %}#}
-{#                                    <option value="{{ church.id }}">{{ church.title }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="home_group" id="home_group_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                                {% for home_group in home_groups %}#}
-{#                                    <option value="{{ home_group.id }}">{{ home_group.get_title }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="owner" id="masters_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                                {% for owner in owners %}#}
-{#                                    <option value="{{ owner.id }}">{{ owner.fullname }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="type" id="type_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                                {% for type in types %}#}
-{#                                    <option value="{{ type.id }}">{{ type.name }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <input type="text" placeholder="от" data-filter="from_date" id="date_from"#}
-{#                                   class="select_date_filter"><input type="text" placeholder="до" data-filter="to_date"#}
-{#                                                                     id="date_to" class="select_date_filter">#}
-{#                        </p>#}
-{#                    </div>#}
                 </div>
             </div>
             <div class="container">
@@ -277,7 +200,7 @@
 {% endblock %}
 {% block template_tables %}
     <script type="text/template" id="databaseHomeReports">
-        <table>
+        <table id="table-1">
             <thead>
             <tr>
                 <% for( var key in table_columns) { %>
@@ -334,5 +257,6 @@
             <% } %>
             </tbody>
         </table>
+        <table id="header-fixed"></table>
     </script>
 {% endblock %}

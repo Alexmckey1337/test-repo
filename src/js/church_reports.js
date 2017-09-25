@@ -1,6 +1,6 @@
 (function () {
     let dateReports = new Date(),
-        thisMonday = (moment(dateReports).day() === 1) ? moment(dateReports).format('DD.MM.YYYY') : moment(dateReports).day(1).format('DD.MM.YYYY'),
+        thisMonday = (moment(dateReports).day() === 1) ? moment(dateReports).format('DD.MM.YYYY') : (moment(dateReports).day() === 0) ? moment(dateReports).subtract(6, 'days').format('DD.MM.YYYY') : moment(dateReports).day(1).format('DD.MM.YYYY'),
         thisSunday = (moment(dateReports).day() === 0) ? moment(dateReports).format('DD.MM.YYYY') : moment(dateReports).day(7).format('DD.MM.YYYY'),
         lastMonday = (moment(dateReports).day() === 1) ? moment(dateReports).subtract(7, 'days').format('DD.MM.YYYY') : moment(dateReports).day(1).subtract(7, 'days').format('DD.MM.YYYY'),
         lastSunday = (moment(dateReports).day() === 0) ? moment(dateReports).subtract(7, 'days').format('DD.MM.YYYY') : moment(dateReports).day(7).subtract(7, 'days').format('DD.MM.YYYY'),
@@ -30,32 +30,13 @@
                     $('.apply-filter').trigger('click');
                 }
             });
-            getChurches().then(res => {
-                let churches = res.results.map(church => `<option value="${church.id}">${church.get_title}</option>`);
+            getChurchesListINDepartament().then(res => {
+                let churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`);
                 $churchFilter.html('<option>ВСЕ</option>').append(churches);
             });
             init = true;
         }
     }
-    // let filterInit = (function () {
-    //     let init = false;
-    //     return function () {
-    //         if (!init) {
-    //             getPastorsByDepartment({
-    //                 master_tree: USER_ID
-    //             }).then(res => {
-    //                 let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
-    //                 $treeFilter.html('<option>ВСЕ</option>').append(leaders);
-    //                 $pastorFilter.html('<option>ВСЕ</option>').append(leaders);
-    //             });
-    //             getChurches().then(res => {
-    //                 let churches = res.results.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
-    //                 $churchFilter.html('<option>ВСЕ</option>').append(churches);
-    //             });
-    //             init = true;
-    //         }
-    //     }
-    // })();
     function ChurchReportsTable(config) {
         Object.assign(config, getTabsFilterParam());
         getChurchReports(config).then(data => {
@@ -72,6 +53,7 @@
             status: status
         };
         Object.assign(config, getFilterParam());
+        Object.assign(config, getSearch('search_title'));
         ChurchReportsTable(config);
         $statusTabs.find('li').removeClass('current');
         $(this).closest('li').addClass('current');
@@ -140,8 +122,8 @@
                 $pastorFilter.html('<option>ВСЕ</option>').append(pastors);
             });
 
-        getChurches(config).then(res => {
-                    let churches = res.results.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
+        getChurchesListINDepartament(departamentID).then(res => {
+                    let churches = res.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
                     $churchFilter.html('<option>ВСЕ</option>').append(churches);
                 });
     });
@@ -218,7 +200,7 @@
     });
 
     $('#sent_date').datepicker({
-        dateFormat: "yyyy-mm-dd",
+        dateFormat: "dd.mm.yyyy",
         startDate: new Date(),
         maxDate: new Date(),
         autoClose: true

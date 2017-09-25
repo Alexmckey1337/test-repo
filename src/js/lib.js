@@ -52,8 +52,12 @@ class OrderTableByClient extends OrderTable {
     constructor() {
         super();
     }
-        get sortByClient() {
+    get sortByClient() {
         return this._addListenerByClient;
+    }
+
+    get searchByClient() {
+        return this._addSearchListenerByClient;
     }
 
     _addListenerByClient(callback, selector, data) {
@@ -84,6 +88,48 @@ class OrderTableByClient extends OrderTable {
                 callback(sortedData);
             }
         });
+    }
+
+    _addSearchListenerByClient(callback, data, oldData) {
+        $('input[name="fullsearch"]').unbind('keyup');
+        let actualData;
+        if ($.isEmptyObject(oldData)) {
+            actualData = data;
+        } else {
+            actualData = oldData;
+        }
+        $('input[name="fullsearch"]').on('keyup', _.debounce(function (e) {
+            $('.preloader').css('display', 'block');
+            let search = $(this).val();
+            if (search !== '') {
+                let pureArr = _.slice(actualData.results, 0, actualData.results.length - 1),
+                    newArr = _.filter(pureArr, (e) => {
+                        return e.manager.toUpperCase().indexOf(search.toUpperCase()) !== -1;
+                    });
+                let allPlans = newArr.reduce((sum, current) => sum + current.plan, 0),
+                    allPays = newArr.reduce((sum, current) => sum + current.sum_pay, 0),
+                    newRow = {
+                        manager: 'СУММАРНО:',
+                        plan: allPlans,
+                        potential_sum: newArr.reduce((sum, current) => sum + current.potential_sum, 0),
+                        sum_deals: newArr.reduce((sum, current) => sum + current.sum_deals, 0),
+                        sum_pay: allPays,
+                        percent_of_plan: (100 / (allPlans / allPays)).toFixed(1),
+                        total_partners: newArr.reduce((sum, current) => sum + current.total_partners, 0),
+                        active_partners: newArr.reduce((sum, current) => sum + current.active_partners, 0),
+                        not_active_partners: newArr.reduce((sum, current) => sum + current.not_active_partners, 0),
+                    };
+
+                newArr.push(newRow);
+                let sortedData = {
+                    table_columns: actualData.table_columns,
+                    results: newArr,
+                };
+                callback(sortedData, actualData);
+            } else {
+                callback(actualData, actualData);
+            }
+        }, 500));
     }
 }
 
@@ -448,6 +494,7 @@ function createHomeGroupsTable(config = {}) {
             callback: createHomeGroupsTable
         };
         makePagination(paginationConfig);
+        fixedTableHead();
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createHomeGroupsTable, ".table-wrap th");
@@ -587,7 +634,7 @@ function getChurchesListINDepartament(department_ids) {
                 }
             })
         } else {
-            url = `${URLS.church.for_select()}?department=${department_ids}`;
+            url = (department_ids != null) ? `${URLS.church.for_select()}?department=${department_ids}` : `${URLS.church.for_select()}`;
         }
         let data = {
             url: url,
@@ -728,12 +775,12 @@ function exportNewTableData(el) {
     });
 }
 
-function exportTableData(el, additionalFilter = {}) {
+function exportTableData(el, additionalFilter = {}, search = 'search_fio') {
     let _self = el;
     return new Promise(function (resolve, reject) {
         let url, filter, filterKeys, items, count;
         url = $(_self).attr('data-export-url');
-        filter = Object.assign(getFilterParam(), getSearch('search_fio'), additionalFilter);
+        filter = Object.assign(getFilterParam(), getSearch(search), additionalFilter);
         filterKeys = Object.keys(filter);
         if (filterKeys && filterKeys.length) {
             url += '?';
@@ -1061,6 +1108,7 @@ function createChurchesUsersTable(id, config = {}) {
             callback: createChurchesUsersTable
         };
         makePagination(paginationConfig);
+        fixedTableHead();
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
     })
@@ -1103,6 +1151,7 @@ function createChurchesDetailsTable(config = {}, id, link) {
             callback: createChurchesDetailsTable
         };
         makePagination(paginationConfig);
+        fixedTableHead();
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createChurchesDetailsTable, ".table-wrap th");
@@ -1148,6 +1197,7 @@ function createHomeGroupUsersTable(config = {}, id) {
             callback: createHomeGroupUsersTable
         };
         makePagination(paginationConfig);
+        fixedTableHead();
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createHomeGroupUsersTable, ".table-wrap th");
@@ -1297,6 +1347,7 @@ function createChurchesTable(config = {}) {
             callback: createChurchesTable
         };
         makePagination(paginationConfig);
+        fixedTableHead();
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createChurchesTable, ".table-wrap th");
@@ -1710,6 +1761,29 @@ function getPaymentsDeals(config) {
     });
 }
 
+function getChurchPaymentsDeals(config) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: URLS.event.church_report.deals(),
+            method: 'GET',
+            data: config,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}
+
 function createPaymentsTable(config) {
     Object.assign(config, getSearch('search_purpose_fio'));
     Object.assign(config, getFilterParam());
@@ -1738,6 +1812,39 @@ function createPaymentsTable(config) {
         makeSortForm(data.table_columns);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createPaymentsTable, ".table-wrap th");
+    }).catch(function (err) {
+        console.log(err);
+    });
+}
+
+function createChurchPaymentsTable(config) {
+    Object.assign(config, getSearch('search_title'));
+    Object.assign(config, getFilterParam());
+    Object.assign(config, getOrderingData());
+    getChurchPaymentsDeals(config).then(function (data) {
+        let count = data.count,
+            page = config['page'] || 1,
+            pages = Math.ceil(count / CONFIG.pagination_count),
+            showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
+            id = "tableChurchReportsPayments",
+            currency = data.payments_sum,
+            uah = (currency.uah.sum != null) ? beautifyNumber(currency.uah.sum) : 0,
+            usd = (currency.usd.sum != null) ? beautifyNumber(currency.usd.sum) : 0,
+            eur = (currency.eur.sum != null) ? beautifyNumber(currency.eur.sum) : 0,
+            rub = (currency.rur.sum != null) ? beautifyNumber(currency.rur.sum) : 0,
+            text = `Показано ${showCount} из ${count} на сумму: ${uah} грн, ${usd} дол, ${eur} евро, ${rub} руб`;
+        let paginationConfig = {
+            container: ".payments__pagination",
+            currentPage: page,
+            pages: pages,
+            callback: createChurchPaymentsTable
+        };
+        makePaymentsTable(data, id);
+        makePagination(paginationConfig);
+        $('.table__count').text(text);
+        makeSortForm(data.table_columns);
+        $('.preloader').css('display', 'none');
+        new OrderTable().sort(createChurchPaymentsTable, ".table-wrap th");
     }).catch(function (err) {
         console.log(err);
     });
@@ -2099,7 +2206,7 @@ function showPopupAddUser(data) {
     $('#addPopup').find('.close, .rewrite').on('click', function (e) {
         e.preventDefault();
         $('#addPopup').css('display', 'none').remove();
-        $('#addNewUserPopup').find('form').css("transform", "translate3d(0px, 0px, 0px)");
+        $('#addNewUserPopup').find('form').removeClass('active');
         clearAddNewUser();
         $('#addNewUserPopup').find('.body').scrollTop(0);
         if ($(this).is('a')) {
@@ -2112,7 +2219,7 @@ function showPopupAddUser(data) {
     $('#addPopup').find('.addMore').on('click', function () {
         $('#addPopup').css('display', 'none').remove();
         $('body').addClass('no_scroll');
-        $('#addNewUserPopup').find('form').css("transform", "translate3d(0px, 0px, 0px)");
+        $('#addNewUserPopup').find('form').removeClass('active');
         $('#addNewUserPopup').css('display', 'block');
         clearAddNewUser();
         $('#addNewUserPopup').find('.body').scrollTop(0);
@@ -2373,7 +2480,8 @@ function makeDataTable(data, id) {
     document.getElementById(id).innerHTML = rendered;
     $('.quick-edit').on('click', function () {
         makeQuickEditCart(this);
-    })
+    });
+    fixedTableHead();
 }
 
 function makePaymentsTable(data, id) {
@@ -2381,17 +2489,57 @@ function makePaymentsTable(data, id) {
     let rendered = _.template(tmpl)(data);
     document.getElementById(id).innerHTML = rendered;
     $('.quick-edit').on('click', function () {
-        // makeQuickEditPayments(this);
-    })
+        makeQuickEditPayments(this);
+    });
+    fixedTableHead();
+}
+
+function makeQuickEditPayments(el) {
+    let id = $(el).attr('data-id'),
+        payer = $(el).attr('data-name');
+    getPaymentDetail(id).then(data => {
+        console.log(data);
+        createUpdatePayment(data, payer, id);
+        $('#popup-update_payment').css('display', 'block');
+    });
+}
+
+function createUpdatePayment(data, name, id) {
+    let rate = data.rate,
+        rateField = $('#new_payment_rate');
+    $('#payment_name').text(name);
+    $('#payment_date').text(data.created_at);
+    rateField.val(rate).prop('readonly', false);
+    (data.currency_rate.id == '2') && rateField.prop('readonly', true);
+    $('#new_payment_sum').val(data.sum);
+    $('#payment_sent_date').val(data.sent_date);
+    $('.note').val(data.description);
+    $('#complete-payment').attr('data-id', id);
+    $('#delete-payment').attr('data-id', id);
+}
+
+function getPaymentDetail(id) {
+    let url = URLS.payment.payment_detail(id),
+        defaultOption = {
+            method: 'GET',
+            credentials: 'same-origin',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            })
+    };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
 }
 
 function makeSammitsDataTable(data, id) {
-    var tmpl = document.getElementById('databaseUsers').innerHTML;
-    var rendered = _.template(tmpl)(data);
+    let tmpl = document.getElementById('databaseUsers').innerHTML,
+        rendered = _.template(tmpl)(data);
     document.getElementById(id).innerHTML = rendered;
     $('.quick-edit').on('click', function () {
         makeQuickEditSammitCart(this);
-    })
+    });
+    fixedTableHead();
 }
 
 function makeSortForm(data) {
@@ -3268,28 +3416,28 @@ function partnershipSummaryTable(config = {}) {
         year = $('#date_field_stats').val().split('/')[1];
     config.year = year;
     config.month = month;
-    // Object.assign(config, getSearch('search_title'));
-    // Object.assign(config, getFilterParam());
     getPartnershipSummary(config).then(data => {
         let results = data.results.map(elem => {
             elem.not_active_partners = elem.total_partners - elem.active_partners;
-            let percent = (100 / (elem.plan / elem.sum_pay)).toFixed(1);
+            let percent = (100/(elem.plan/(+elem.sum_pay + +elem.sum_pay_tithe))).toFixed(1);
             elem.percent_of_plan = isFinite(percent) ? percent : 0;
             return elem;
         }),
             allPlans = data.results.reduce((sum, current) => sum + current.plan, 0),
             allPays = data.results.reduce((sum, current) => sum + current.sum_pay, 0),
+            allTithe = data.results.reduce((sum,current) => sum + current.sum_pay_tithe, 0),
             newRow = {
-                manager: 'СУММАРНО:',
-                plan: allPlans,
-                potential_sum: data.results.reduce((sum, current) => sum + current.potential_sum, 0),
-                sum_deals: data.results.reduce((sum, current) => sum + current.sum_deals, 0),
-                sum_pay: allPays,
-                percent_of_plan: (100 / (allPlans / allPays)).toFixed(1),
-                total_partners: data.results.reduce((sum, current) => sum + current.total_partners, 0),
-                active_partners: data.results.reduce((sum, current) => sum + current.active_partners, 0),
-                not_active_partners: data.results.reduce((sum, current) => sum + current.not_active_partners, 0),
-            };
+                    manager: 'СУММАРНО:',
+                    plan: allPlans,
+                    potential_sum: data.results.reduce((sum,current) => sum + current.potential_sum, 0),
+                    sum_deals: data.results.reduce((sum,current) => sum + current.sum_deals, 0),
+                    sum_pay: allPays,
+                    sum_pay_tithe: allTithe,
+                    percent_of_plan: (100/(allPlans/(+allPays + +allTithe))).toFixed(1),
+                    total_partners: data.results.reduce((sum,current) => sum + current.total_partners, 0),
+                    active_partners: data.results.reduce((sum,current) => sum + current.active_partners, 0),
+                    not_active_partners: data.results.reduce((sum,current) => sum + current.not_active_partners, 0),
+                };
             results.push(newRow);
         let newData = {
             table_columns: data.table_columns,
@@ -3302,6 +3450,7 @@ function partnershipSummaryTable(config = {}) {
 function churchPastorReportsTable(config = {}) {
     Object.assign(config, getSearch('search_fio'));
     Object.assign(config, getFilterParam());
+    // updateHistoryUrl(config);
     getChurchPastorReports(config).then(data => {
         makeChurchPastorReportsTable(data, config);
     })
@@ -3325,28 +3474,16 @@ function makeHomeReportsTable(data, config = {}) {
     // $('.table__count').text(data.count);
     makePagination(paginationConfig);
     makeSortForm(data.table_columns);
+    fixedTableHead();
     $('.table__count').text(text);
     new OrderTable().sort(homeReportsTable, ".table-wrap th");
     $('.preloader').hide();
 }
 
-function makePartnershipSummaryTable(data, config = {}) {
+function makePartnershipSummaryTable(data, oldData = {}) {
     let tmpl = $('#databasePartnershipSummary').html();
     let rendered = _.template(tmpl)(data);
     $('#managersPlan').html(rendered);
-    // let count = data.count;
-    // let pages = Math.ceil(count / CONFIG.pagination_count);
-    // let page = config.page || 1;
-    // let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
-    // let text = `Показано ${showCount} из ${count}`;
-    // let paginationConfig = {
-    //     container: ".reports__pagination",
-    //     currentPage: page,
-    //     pages: pages,
-    //     callback: homeReportsTable
-    // };
-    // $('.table__count').text(data.count);
-    // makePagination(paginationConfig);
     makeSortForm(data.table_columns);
     $('#managersPlan').find('table').on('dblclick', '.edit_plan', function (e) {
         let actualVal = $(this).val();
@@ -3367,10 +3504,8 @@ function makePartnershipSummaryTable(data, config = {}) {
         }
     });
     fixedTableHead();
-    // getPositionScroll();
-    // $('.table__count').text(text);
-    // new OrderTableByClient().sort(partnershipSummaryTable, ".table-wrap th");
     new OrderTableByClient().sortByClient(makePartnershipSummaryTable, ".table-wrap th", data);
+    new OrderTableByClient().searchByClient(makePartnershipSummaryTable, data, oldData);
     $('.preloader').hide();
 }
 
@@ -3400,6 +3535,7 @@ function makeHomeLiderReportsTable(data, config = {}) {
     makePagination(paginationConfig);
     makeSortForm(data.table_columns);
     $('.table__count').text(text);
+    fixedTableHead();
     new OrderTable().sort(homeLiderReportsTable, ".table-wrap th");
     $('.preloader').hide();
 }
@@ -3423,6 +3559,7 @@ function makeChurchReportsTable(data, config = {}) {
     makePagination(paginationConfig);
     makeSortForm(data.table_columns);
     $('.table__count').text(text);
+    fixedTableHead();
     new OrderTable().sort(churchReportsTable, ".table-wrap th");
     $('.preloader').hide();
     btnDeals();
@@ -3441,7 +3578,7 @@ function showChurchPayments(id) {
         let payments_table = '';
         let sum, date_time, manager;
         data.forEach(function (payment) {
-            sum = payment.effective_sum_str.replace('.000', '');
+            sum = payment.sum_str;
             date_time = payment.sent_date;
             manager = `${payment.manager.last_name} ${payment.manager.first_name} ${payment.manager.middle_name}`;
             payments_table += `<tr><td>${sum}</td><td>${date_time}</td><td>${manager}</td></tr>`
@@ -3477,6 +3614,7 @@ function makeChurchPastorReportsTable(data, config = {}) {
         window.location = `${url}?type=${type}&pastor=${id}`;
     });
     $('.table__count').text(text);
+    fixedTableHead();
     new OrderTable().sort(churchPastorReportsTable, ".table-wrap th");
     $('.preloader').hide();
 }
@@ -3673,7 +3811,7 @@ function createNewUser(callback) {
         $preloader.css('display', 'none');
         if (data.phone_number) {
             showPopup(data.phone_number.message);
-            $('#createUser').css("transform","translate3d(0px, 0px, 0px)");
+            $('#createUser').removeClass('active');
         }
         if (data.detail) {
             showPopup(data.detail[0]);
@@ -3815,19 +3953,43 @@ function getCountFilter() {
 
 function btnDeals() {
     $("button.pay").on('click', function () {
-        let id = $(this).data('id');
-        let value = $(this).data('value');
-        let total_sum = $(this).data('total_sum');
-        let diff = numeral(value).value() - numeral(total_sum).value();
-        let currencyName = $(this).data('currency-name');
-        let currencyID = $(this).data('currency-id');
-        diff = diff > 0 ? diff : 0;
-        $('#new_payment_sum').val(diff);
+        let id = $(this).attr('data-id'),
+            val = $(this).attr('data-value'),
+            value = numeral(val).value(),
+            total = $(this).attr('data-total_sum'),
+            total_sum = numeral(total).value(),
+            diff = numeral(value).value() - numeral(total_sum).value(),
+            currencyName = $(this).attr('data-currency-name'),
+            currencyID = $(this).attr('data-currency-id'),
+            payer = $(this).attr('data-name'),
+            responsible = $(this).attr('data-responsible'),
+            date = $(this).attr('data-date');
         $('#complete-payment').attr('data-id', id);
-        $('#purpose-id').val(id);
+        diff = diff > 0 ? diff : 0;
+        $('#payment_name').text(payer);
+        $('#payment_responsible').text(responsible);
+        $('#payment_date').text(date);
+        $('#payment_sum, #all_payments').text(`${value} ${currencyName}`);
+        clearSumChange(total_sum);
+        sumChange(diff, currencyName, currencyID, total_sum);
         $('#popup-create_payment').css('display', 'block');
-        sumChangeListener(currencyName, currencyID);
+        $('#new_payment_rate').focus();
     });
+
+    // $("button.pay").on('click', function () {
+    //     let id = $(this).data('id');
+    //     let value = $(this).data('value');
+    //     let total_sum = $(this).data('total_sum');
+    //     let diff = numeral(value).value() - numeral(total_sum).value();
+    //     let currencyName = $(this).data('currency-name');
+    //     let currencyID = $(this).data('currency-id');
+    //     diff = diff > 0 ? diff : 0;
+    //     $('#new_payment_sum').val(diff);
+    //     $('#complete-payment').attr('data-id', id);
+    //     $('#purpose-id').val(id);
+    //     $('#popup-create_payment').css('display', 'block');
+    //     sumChangeListener(currencyName, currencyID);
+    // });
 
     // $("button.complete").on('click', function () {
     //     // let client_name = $(this).attr('data-name'),
@@ -3841,6 +4003,45 @@ function btnDeals() {
     //     let id = $(this).attr('data-id');
     //     updateDeals(id);
     // });
+}
+
+function clearSumChange(total) {
+    $('#new_payment_sum').val('');
+    $('#new_payment_rate').val('').prop('readonly', false);
+    $('#sent_date').val(moment(new Date()).format('DD.MM.YYYY'));
+    $('#payment-form').find('textarea').val('');
+    $('#user_payment').text(total);
+}
+
+function sumChange(diff, currencyName, currencyID, total) {
+    let currencies = $('#new_payment_rate'),
+        payment = $('#new_payment_sum'),
+        curr;
+    $('#close_sum').text(`${diff} ${currencyName}`);
+    currencies.on('keyup', _.debounce(function () {
+        if (currencyID != 2) {
+            curr = $(this).val();
+            let uah = Math.round(diff * curr);
+            payment.val(uah);
+            $('#user_payment').text(`${+diff + +total} ${currencyName}`);
+        }
+    }, 500));
+    payment.on('keyup', _.debounce(function () {
+        if (currencyID != 2) {
+            let pay = $(this).val();
+            curr = currencies.val();
+            let result = Math.round(pay / curr);
+            $('#user_payment').text(`${result + +total} ${currencyName}`);
+        } else {
+            let pay = $(this).val();
+            $('#user_payment').text(`${+pay + +total} ${currencyName}`);
+        }
+    }, 500));
+    if (currencyID == 2) {
+        currencies.val('1.0').prop('readonly', true);
+        payment.val(diff);
+        $('#user_payment').text(`${diff + total} ${currencyName}`);
+    }
 }
 
 function updateDeals(id) {
@@ -3881,101 +4082,74 @@ function completeChurchPayment(id) {
     })
 }
 
-function createIncompleteDealsTable(config={}) {
-    Object.assign(config, {done: 3});
-    Object.assign(config, getSearch('search'));
-    Object.assign(config, getFilterParam());
-    Object.assign(config, getOrderingData());
-    getDeals(config).then(function (data) {
-        let count = data.count,
-            page = config['page'] || 1,
-            pages = Math.ceil(count / CONFIG.pagination_count),
-            showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
-            id = 'incompleteList',
-            text = `Показано ${showCount} из ${count}`,
-            paginationConfig = {
-            container: '.undone__pagination',
-            currentPage: page,
-            pages: pages,
-            callback: createIncompleteDealsTable
-        };
-        makeDealsDataTable(data, id);
-        makePagination(paginationConfig);
-        $('#incomplete').find('.table__count').text(text);
-        makeSortForm(data.table_columns);
-        $('.preloader').css('display', 'none');
-        new OrderTable().sort(createIncompleteDealsTable, ".table-wrap th");
-        btnDeals();
-        $("button.complete").on('click', function () {
-            let id = $(this).attr('data-id');
-            updateDeals(id);
-        });
+function makeDealsTable(data, config = {}) {
+    let tmpl = $('#databaseDeals').html();
+    let rendered = _.template(tmpl)(data);
+    $('#dealsList').html(rendered);
+    let count = data.count;
+    let pages = Math.ceil(count / CONFIG.pagination_count);
+    let page = config.page || 1;
+    let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
+    let text = `Показано ${showCount} из ${count}`;
+    let paginationConfig = {
+        container: ".deals__pagination",
+        currentPage: page,
+        pages: pages,
+        callback: dealsTable
+    };
+    makePagination(paginationConfig);
+    $('.table__count').text(text);
+    fixedTableHead();
+    makeSortForm(data.table_columns);
+    $('.preloader').css('display', 'none');
+    new OrderTable().sort(dealsTable, ".table-wrap th");
+    btnDeals();
+    $("button.complete").on('click', function () {
+        let id = $(this).attr('data-id');
+        updateDeals(id);
     });
-}
-
-function createExpiredDealsTable(config={}) {
-    Object.assign(config, {expired: 2});
-    Object.assign(config, getSearch('search'));
-    Object.assign(config, getFilterParam());
-    Object.assign(config, getOrderingData());
-    getDeals(config).then(function (data) {
-        let count = data.count,
-            page = config['page'] || 1,
-            pages = Math.ceil(count / CONFIG.pagination_count),
-            showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
-            id = 'overdueList',
-            text = `Показано ${showCount} из ${count}`,
-            paginationConfig = {
-            container: '.expired__pagination',
-            currentPage: page,
-            pages: pages,
-            callback: createExpiredDealsTable
-        };
-        makeDealsDataTable(data, id);
-        makePagination(paginationConfig);
-        $('#overdue').find('.table__count').text(text);
-        makeSortForm(data.table_columns);
-        $('.preloader').css('display', 'none');
-        new OrderTable().sort(createExpiredDealsTable, ".table-wrap th");
-        btnDeals();
-    });
-}
-
-function createDoneDealsTable(config={}) {
-    Object.assign(config, {done: 2});
-    Object.assign(config, getSearch('search'));
-    Object.assign(config, getFilterParam());
-    Object.assign(config, getOrderingData());
-    getDeals(config).then(function (data) {
-        let count = data.count,
-            page = config['page'] || 1,
-            pages = Math.ceil(count / CONFIG.pagination_count),
-            showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
-            id = 'completedList',
-            text = `Показано ${showCount} из ${count}`,
-            paginationConfig = {
-            container: '.done__pagination',
-            currentPage: page,
-            pages: pages,
-            callback: createDoneDealsTable
-        };
-        makeDealsDataTable(data, id);
-        makePagination(paginationConfig);
-        $('#completed').find('.table__count').text(text);
-        makeSortForm(data.table_columns);
-        $('.preloader').css('display', 'none');
-        new OrderTable().sort(createDoneDealsTable, ".table-wrap th");
-    });
-}
-
-function makeDealsDataTable(data, id) {
-    let tmpl = document.getElementById('databaseDeals').innerHTML,
-        rendered = _.template(tmpl)(data);
-    document.getElementById(id).innerHTML = rendered;
     $('.show_payments').on('click', function () {
         let id = $(this).data('id');
         showPayments(id);
     });
+    $('.quick-edit').on('click', function () {
+        makeQuickEditDeal(this);
+    });
+}
+
+function makeQuickEditDeal(el) {
+    let id = $(el).attr('data-id'),
+        popup = $('#popup-create_deal');
+    getDealDetail(id).then(data => {
+        let sum = numeral(data.value).value(),
+            txt = `<div class="block_line">
+                        <p>Плательщик:</p>
+                        <p>${data.full_name}</p>
+                    </div>
+                    <div class="block_line">
+                        <p>Менеджер:</p>
+                        <p>${data.responsible_name}</p>
+                    </div>`;
+        popup.find('h2').text('Редактирование сделки');
+        $('#append-info').empty().append(txt);
+        $('#new_deal_type').find(`option[value="${data.type}"]`).prop('selected', true).trigger('change');
+        $('#new_deal_sum').val(sum);
+        $('#new_deal_date').val(data.date_created);
+        popup.find('.note').val(data.description);
+        popup.find('.currency').val(data.currency.short_name);
+        $('#send_new_deal').attr('data-id', id);
+        popup.css('display', 'block');
+    });
+}
+
+function dealsTable(config = {}) {
+    let status = $('#tabs').find('.current').find('a').attr('data-status');
+    config.done = status;
+    Object.assign(config, getSearch('search'));
+    Object.assign(config, getFilterParam());
+    getDeals(config).then(data => {
+        makeDealsTable(data, config);
+    })
 }
 
 function showPayments(id) {
@@ -3983,7 +4157,7 @@ function showPayments(id) {
         let payments_table = '';
         let sum, date_time, manager;
         data.forEach(function (payment) {
-            sum = payment.effective_sum_str.replace('.000', '');
+            sum = payment.sum_str;
             date_time = payment.sent_date;
             manager = `${payment.manager.last_name} ${payment.manager.first_name} ${payment.manager.middle_name}`;
             payments_table += `<tr><td>${sum}</td><td>${date_time}</td><td>${manager}</td></tr>`
@@ -4011,6 +4185,37 @@ function getDeals(options = {}) {
         headers: new Headers({
             'Content-Type': 'application/json',
         })
+    };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
+}
+
+function getDealDetail(id) {
+    let url = URLS.deal.detail(id);
+
+    let defaultOption = {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        })
+    };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
+}
+
+function updateDeal(id, data) {
+    let url = URLS.deal.detail(id);
+
+    let defaultOption = {
+        method: 'PATCH',
+        credentials: 'same-origin',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        }),
+        body: JSON.stringify(data),
     };
     if (typeof url === "string") {
         return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
@@ -4117,7 +4322,7 @@ function createDealsPayment(id, sum, description) {
             "description": description,
             "rate": $('#new_payment_rate').val(),
             // "currency": $('#new_payment_currency').val(),
-            "sent_date": $('#sent_date').val(),
+            "sent_date": $('#sent_date').val().split('.').reverse().join('-'),
             "operation": $('#operation').val()
         };
         let json = JSON.stringify(config);
@@ -4155,12 +4360,12 @@ function createChurchPayment(id, sum, description) {
             "description": description,
             "rate": $('#new_payment_rate').val(),
             // "currency": $('#new_payment_currency').val(),
-            "sent_date": $('#sent_date').val(),
+            "sent_date": $('#sent_date').val().split('.').reverse().join('-'),
             "operation": $('#operation').val()
         };
         let json = JSON.stringify(config);
         let data = {
-            url: URLS.event.church_report.create_payment(id),
+            url: URLS.event.church_report.create_uah_payment(id),
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -4188,12 +4393,8 @@ function createChurchPayment(id, sum, description) {
 
 function updateDealsTable() {
     $('.preloader').css('display', 'block');
-    let pageIncompleteDeals = $('#incomplete').find('.pagination__input').val(),
-        pageExpiredDeals = $('#overdue').find('.pagination__input').val(),
-        pageDoneDeals = $('#completed').find('.pagination__input').val();
-    createIncompleteDealsTable({page: pageIncompleteDeals});
-    // createExpiredDealsTable({page: pageExpiredDeals});
-    createDoneDealsTable({page: pageDoneDeals});
+    let page = $('#sdelki').find('.pagination__input').val();
+    dealsTable({page: page});
 }
 
 function getPreSummitFilterParam() {
@@ -4409,9 +4610,9 @@ function fixedTableHead() {
         $fixedHeader = $("#header-fixed").append($header),
         arrCellWidth = [];
         if ($tableOffset > 0) {
-            $('#managersPlan').attr('data-offset', $tableOffset);
+            $('.table').attr('data-offset', $tableOffset);
         } else {
-            $tableOffset = $('#managersPlan').attr('data-offset');
+            $tableOffset = $('.table').attr('data-offset');
         }
     $('#table-1 > thead').find('th').each(function () {
         let width = $(this).outerWidth();
@@ -4423,7 +4624,7 @@ function fixedTableHead() {
         })
     });
 
-    $("#managersPlan").scroll(function(){
+    $(".table").scroll(function(){
          let offset = $(this).scrollLeft(),
              sidebar = $('#sidebar').outerWidth();
          $('#header-fixed').css('left', (sidebar-offset));
@@ -4438,3 +4639,47 @@ function fixedTableHead() {
         }
     });
 }
+
+function updateDealsPayment(id, data = {}) {
+    let url = URLS.payment.edit_payment(id),
+        defaultOption = {
+            method: 'PATCH',
+            credentials: 'same-origin',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            }),
+            body: JSON.stringify(data),
+        };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
+}
+
+function deleteDealsPayment(id) {
+    let url = URLS.payment.edit_payment(id),
+        defaultOption = {
+            method: 'DELETE',
+            credentials: 'same-origin',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            })
+        };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
+}
+
+function showAlert(message, title = 'Уведомление') {
+    alertify.alert(title, message);
+}
+
+function cleanUpdateDealsPayment() {
+    let $inputs = $('#payment-form').find('input:visible');
+    $inputs.each(function() {
+        $(this).val('');
+    });
+    $('#payment-form').find('.note').val('');
+    $('#payment_name').text('');
+    $('#payment_date').text('');
+}
+

@@ -104,6 +104,14 @@ class CanUpdateManagersPlan(BasePermission):
         return can_set_managers_plan(request.user)
 
 
+class CanSeeManagerSummary(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to see manager's summary
+        """
+        return can_see_managers_summary(request.user)
+
+
 def can_see_partners(user):
     """
     Checking that the ``user`` has the right to see list of partners
@@ -244,5 +252,12 @@ def can_see_partner_payments(user):
 def can_set_managers_plan(user):
     """
     Checking that the ``user`` has the right to update manager's plan
+    """
+    return user.is_partner_director
+
+
+def can_see_managers_summary(user):
+    """
+    Checking that the ``user`` has the right to see manager's summary
     """
     return user.is_partner_director

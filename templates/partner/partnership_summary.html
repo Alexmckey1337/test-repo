@@ -88,7 +88,7 @@
                 <th data-order="<%=table_columns[key].ordering_title%>" data-order_type="letter"><%=table_columns[key].title %></th>
                 <% } else { %>
                 <th data-order="<%=table_columns[key].ordering_title%>"
-                <% if (key == 'sum_pay') { %>
+                <% if (key == 'sum_pay' || key == 'sum_pay_tithe') { %>
                 class="cell__red"
                 <% } %>
                 ><%=table_columns[key].title %></th>
@@ -108,7 +108,9 @@
                     <% if (results[index][key] == 'СУММАРНО:') { %>
                     <%= results[index][key] %>
                     <% } else { %>
-                        <a href="/account/<%=results[index].user_id %>"><%= results[index][key] %></a>
+                        <a href="/account/<%=results[index].user_id %>"
+                            title="<%= results[index][key] %>">
+                            <%= results[index][key] %></a>
                     <% } %>
                 </td>
                 <% } else { %>
@@ -132,10 +134,18 @@
                 <% } else { %>
                 <td></td>
                 <% } %>
-                <% } else if (key == 'sum_pay') { %>
+                <% } else if (key == 'sum_pay' || key == 'sum_pay_tithe') { %>
                 <% if (results[index][key] != null) { %>
                 <td class="cell__red">
                     <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                </td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else if (key == 'percent_of_plan') { %>
+                <% if (results[index][key] != null) { %>
+                <td>
+                    <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %> %
                 </td>
                 <% } else { %>
                 <td></td>

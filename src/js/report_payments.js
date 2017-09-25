@@ -1,74 +1,29 @@
 (function ($) {
-    createPaymentsTable({});
+    createChurchPaymentsTable({});
 
     $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
         $('.preloader').css('display', 'block');
-        createPaymentsTable({});
+        createChurchPaymentsTable({});
     }, 500));
 
-    $('#export_table').on('click', function () {
-        $('.preloader').css('display', 'block');
-        let search = 'search_purpose_fio',
-            config = {};
-        exportTableData(this, config, search).then(function () {
-            $('.preloader').css('display', 'none');
-        });
-    });
-
+    //Filter
     $('#filter_button').on('click', ()=> {
         $('#filterPopup').show();
     });
-    $('#date_from').datepicker({
-        dateFormat: 'yyyy-mm-dd',
-        autoClose: true,
-        position: "left top",
-    });
-    $('#date_to').datepicker({
-        dateFormat: 'yyyy-mm-dd',
-        autoClose: true,
-        position: "left top",
-    });
-    $('#sent_date_from').datepicker({
-        dateFormat: 'yyyy-mm-dd',
-        autoClose: true,
-        position: "left top",
-    });
-    $('#sent_date_to').datepicker({
-        dateFormat: 'yyyy-mm-dd',
-        autoClose: true,
-        position: "left top",
-    });
-    $('#purpose_date_from').datepicker({
-        dateFormat: 'yyyy-mm-dd',
-        autoClose: true,
-        view: 'months',
-        minView: 'months',
-        position: "left top",
-    });
-    $('#purpose_date_to').datepicker({
-        dateFormat: 'yyyy-mm-dd',
-        autoClose: true,
-        view: 'months',
-        minView: 'months',
-        position: "left top",
-    });
 
-    $('#payment_sent_date').datepicker({
-        dateFormat: "dd.mm.yyyy",
-        startDate: new Date(),
-        maxDate: new Date(),
-        autoClose: true
+    $('.date_filter').datepicker({
+        dateFormat: 'yyyy-mm-dd',
+        autoClose: true,
+        position: "left top",
     });
-
-    $('.custom_select').select2();
 
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(createPaymentsTable);
+        updateSettings(createChurchPaymentsTable);
     });
 
     $('.apply-filter').on('click', function () {
-        applyFilter(this, createPaymentsTable);
+        applyFilter(this, createChurchPaymentsTable);
     });
 
     $('.clear-filter').on('click', function () {
@@ -83,6 +38,13 @@
         $('#popup-update_payment').css('display', 'none');
     });
 
+    $('#payment_sent_date').datepicker({
+        dateFormat: "dd.mm.yyyy",
+        startDate: new Date(),
+        maxDate: new Date(),
+        autoClose: true
+    });
+
     $('#delete-payment').on('click', function (e) {
         e.preventDefault();
         let id = $(this).attr('data-id');
@@ -92,11 +54,12 @@
                 $('#popup-update_payment').css('display', 'none');
                 $('.preloader').css('display', 'block');
                 let page = $('.pagination__input').val();
-                createPaymentsTable({page: page});
+                createChurchPaymentsTable({page: page});
             }).catch((res) => {
                 showAlert(res, 'Ошибка');
             });
-        }, () => {});
+        }, () => {
+        });
     });
 
     $('#payment-form').on('submit', function (e) {
@@ -113,7 +76,7 @@
             $('#popup-update_payment').css('display', 'none');
             cleanUpdateDealsPayment();
             $('.preloader').css('display', 'block');
-            createPaymentsTable({page: page});
+            createChurchPaymentsTable({page: page});
             showAlert('Платеж успешно изменен!');
         }).catch((res) => {
             showAlert(res, 'Ошибка');

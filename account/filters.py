@@ -5,7 +5,7 @@ from account.models import CustomUser as User
 from common.filters import BaseFilterByBirthday, BaseFilterMasterTree
 from hierarchy.models import Hierarchy, Department
 from summit.models import Summit
-from account.models import CustomUser
+from rest_framework import filters
 
 
 class FilterByUserBirthday(BaseFilterByBirthday):
@@ -57,3 +57,27 @@ class ShortUserFilter(django_filters.FilterSet):
     class Meta:
         model = User
         fields = ['level_gt', 'level_gte', 'level_lt', 'level_lte', 'department', 'master', 'summit']
+
+
+class UserIsPartnershipFilter(filters.DjangoFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        is_partner = request.query_params.get('is_partner')
+        if is_partner not in ['true', 'false']:
+            return queryset
+        if is_partner == 'true':
+            return queryset.filter(partnership__isnull=False)
+        if is_partner == 'false':
+            return queryset.filter(partnership__isnull=True)
+
+        return queryset
+
+
+from django.db.models import Q
+
+
+class UserChurchFilter(filters.DjangoFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        church_id = request.query_params.get('church_id')
+        if not church_id:
+            return queryset
+        return queryset.filter(Q(cchurch_id=church_id) | Q(hhome_group__church_id=church_id))
