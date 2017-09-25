@@ -68,7 +68,7 @@ class HomeGroup(CommonGroup):
     leader = models.ForeignKey('account.CustomUser', related_name='home_group',
                                on_delete=models.PROTECT, verbose_name=_('Leader'))
     church = models.ForeignKey('Church', related_name='home_group',
-                               on_delete=models.CASCADE, verbose_name=_('Church'))
+                               on_delete=models.PROTECT, verbose_name=_('Church'))
     active = models.BooleanField(default=True)
 
     objects = HomeGroupManager()

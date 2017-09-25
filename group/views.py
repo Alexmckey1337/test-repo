@@ -20,6 +20,7 @@ from account.serializers import AddExistUserSerializer
 from common.filters import FieldSearchFilter
 from common.test_helpers.utils import get_real_user
 from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet
+from rest_framework.viewsets import ModelViewSet
 from group.filters import (HomeGroupFilter, ChurchFilter, FilterChurchMasterTree, FilterHomeGroupMasterTree,
                            HomeGroupsDepartmentFilter, FilterHGLeadersByMasterTree, FilterHGLeadersByChurch,
                            FilterHGLeadersByDepartment, FilterPotentialHGLeadersByMasterTree,
@@ -34,12 +35,11 @@ from .serializers import (ChurchSerializer, ChurchListSerializer, HomeGroupSeria
                           HomeGroupListSerializer, ChurchStatsSerializer, UserNameSerializer,
                           AllHomeGroupsListSerializer, HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer,
                           ChurchDashboardSerializer)
-from payment.models import Currency
 
 logger = logging.getLogger(__name__)
 
 
-class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
+class ChurchViewSet(ModelViewSet, ChurchUsersMixin,
                     ChurchHomeGroupMixin, ExportViewSetMixin):
     queryset = Church.objects.all()
 
@@ -89,6 +89,17 @@ class ChurchViewSet(ModelWithoutDeleteViewSet, ChurchUsersMixin,
                 count_users=Count('uusers', distinct=True) + Count(
                     'home_group__uusers', distinct=True))
         return self.queryset.for_user(self.request.user)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.churchreport_set.exists():
+            raise exceptions.ValidationError(_('Невозможно удалить церковь. '
+                                               'На данную церковь есть созданные отчеты.'))
+        if instance.home_group.exists():
+            raise exceptions.ValidationError(_('Невозможно удалить церковь. '
+                                               'В составе данной церкви есть Домашняя Группа.'))
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @list_route(methods=['post'], permission_classes=(CanExportChurch,))
     def export(self, request, *args, **kwargs):

@@ -77,7 +77,7 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
 
     can_login = models.BooleanField(_('Can login to site'), default=False)
 
-    cchurch = models.ForeignKey('group.Church', on_delete=models.PROTECT,
+    cchurch = models.ForeignKey('group.Church', on_delete=models.SET_NULL,
                                 related_name='uusers', verbose_name=_('Church'),
                                 null=True, blank=True, db_index=True)
 

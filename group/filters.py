@@ -105,7 +105,8 @@ class FilterHGLeadersByMasterTree(BaseFilterBackend):
         except ValueError:
             raise exceptions.ValidationError({'detail': _("master_tree_id is incorrect.")})
         except ObjectDoesNotExist:
-            raise exceptions.ValidationError({'detail': _("You are don't have permissions for filter by this master.")})
+            raise exceptions.ValidationError(
+                {'detail': _("You are don't have permissions for filter by this master.")})
 
     def get_schema_fields(self, view):
         return [

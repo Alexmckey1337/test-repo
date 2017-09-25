@@ -187,14 +187,6 @@ class MeetingSummarySerializer(serializers.ModelSerializer):
                   'meetings_expired')
 
 
-# class ChurchReportPastorSerializer(serializers.ModelSerializer):
-#     total_pastor_sum = serializers.DecimalField(max_digits=12, decimal_places=0, read_only=True)
-#
-#     class Meta:
-#         model = ChurchReportPastor
-#         fields = ('id', 'fullname', 'total_pastor_sum')
-
-
 class ChurchReportListSerializer(serializers.HyperlinkedModelSerializer,
                                  ValidateDataBeforeUpdateMixin):
     pastor = UserNameSerializer()

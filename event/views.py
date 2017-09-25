@@ -30,6 +30,7 @@ from .serializers import (MeetingVisitorsSerializer, MeetingSerializer, MeetingD
 from payment.views_mixins import CreatePaymentMixin
 from .mixins import EventUserTreeMixin
 from payment.views_mixins import ListPaymentMixin
+from rest_framework.viewsets import ModelViewSet
 
 logger = logging.getLogger(__name__)
 
@@ -288,7 +289,7 @@ class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeMixin):
         return self.get_paginated_response(leaders.data)
 
 
-class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin,
+class ChurchReportViewSet(ModelViewSet, CreatePaymentMixin,
                           EventUserTreeMixin, ListPaymentMixin):
     queryset = ChurchReport.objects.base_queryset().annotate_total_sum().annotate_value()
 
@@ -365,6 +366,14 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin,
             status=status.HTTP_200_OK, headers=headers,
         )
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.payments.exists():
+            raise exceptions.ValidationError(_('Невозможно удалить отчет. '
+                                               'По данному отчету есть поданные платежи'))
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -383,6 +392,7 @@ class ChurchReportViewSet(ModelWithoutDeleteViewSet, CreatePaymentMixin,
     @list_route(methods=['GET'], serializer_class=ChurchReportStatisticSerializer)
     def statistics(self, request):
         queryset = self.filter_queryset(self.queryset)
+
         statistics = queryset.aggregate(
             total_peoples=Sum('count_people'),
             total_new_peoples=Sum('new_people'),
