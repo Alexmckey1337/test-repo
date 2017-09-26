@@ -35,7 +35,7 @@ VISITORS_LOCATION_TOKEN = '4ewfeciss6qdbmgfj9eg6jb3fdcxefrs4dxtcdrt10rduds2sn'
 
 DEBUG = env.bool('DJANGO_DEBUG', False)
 
-ALLOWED_HOSTS = ['vocrm.org']
+ALLOWED_HOSTS = ['vocrm.net']
 
 # Application definition
 DJANGO_APPS = (
@@ -306,7 +306,7 @@ REST_AUTH_SERIALIZERS = {
 OLD_PASSWORD_FIELD_ENABLED = True
 
 # SESSION_COOKIE_AGE = 1
-SITE_DOMAIN_URL = 'http://vocrm.org/'
+SITE_DOMAIN_URL = 'http://vocrm.net/'
 
 # ADMINS = (('Iskander', 'zumichke@gmail.com'), )
 ARCHONS = [1, ]
