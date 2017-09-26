@@ -129,6 +129,24 @@ export function getCountFilter() {
     return count;
 }
 
+export function getPreSummitFilterParam() {
+    let $filterFields,
+        data = {};
+    $filterFields = $('.charts_head select');
+    $filterFields.each(function () {
+        if ($(this).val() == "ВСЕ") {
+            return
+        }
+        let prop = $(this).data('filter');
+        if (prop) {
+            if ($(this).val()) {
+                data[prop] = $(this).val();
+            }
+        }
+    });
+
+    return data;
+}
 
 
 

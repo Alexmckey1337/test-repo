@@ -159,11 +159,9 @@
                 </div>
             </div>
             <div class="container">
-                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
-                                                                                  aria-hidden="true"></i>
-                    Очистить</button>
+                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
                 <button class="close-popup">Отменить</button>
-                <button onclick="applyFilter(this, getPartners)" class="apply-filter">Применить</button>
+                <button class="apply-filter">Применить</button>
             </div>
         </div>
     </div>
@@ -226,9 +224,7 @@
 {% endblock %}
 
 {% block extra_scripts %}
-    <script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
-    <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
-    <script src='{% static "js/partner_list.js" %}'></script>
+    <script src='{% static "js/partner_list.bundle.js" %}'></script>
     <script type="text/template" id="quickEditCart">
         <div class="container bb-1">
             <div>
@@ -263,9 +259,6 @@
                     <option value="" selected></option>
                     <% } %>
                 </select></p>
-                {#            <p><label for="departmentSelect">Отдел церкви: </label><input type="text" id="departmentSelect" value="<%=fields.department.value %>" readonly></p> #}
-                {#            <p><label for="master_hierarchy">Ответсвенный: </label><input type="text" id="master_hierarchy" value="<%=fields.master_hierarchy.value %>" readonly></p>#}
-                {#            <p><label for="hierarchy">Статус: </label><input type="text" id="hierarchy" value="<%=fields.hierarchy.value %>" readonly></p>#}
             </div>
         </div>
         <div class="container">

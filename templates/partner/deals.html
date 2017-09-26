@@ -192,9 +192,7 @@
                 </div>
             </div>
             <div class="container">
-                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
-                                                                                  aria-hidden="true"></i>
-                    Очистить</button>
+                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
                 <button class="close-popup">Отменить</button>
                 <button class="apply-filter">Применить</button>
             </div>
@@ -211,10 +209,7 @@
 {% endblock %}
 
 {% block extra_scripts %}
-    <script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
-    <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
-    <script src='{% static "libs/numeral/min/numeral.min.js" %}'></script>
-    <script src='{% static "js/deals.js" %}'></script>
+    <script src='{% static "js/deals.bundle.js" %}'></script>
     {% block template_tables %}
         <script type="text/template" id="databaseDeals">
          <table id="table-1">

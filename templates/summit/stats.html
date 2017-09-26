@@ -6,7 +6,6 @@
 
 {% block extra_styles %}
     {{ block.super }}
-    <link rel="stylesheet" href='{% static "libs/jquery-timepicker-wvega/jquery.timepicker.css" %}'>
 {% endblock %}
 
 {% block header.top.h1 %}
@@ -273,10 +272,7 @@
                 </div>
             </div>
             <div class="container">
-                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
-                                                                              aria-hidden="true"></i>
-                    Очистить
-                </button>
+                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
                 <button class="close-popup">Отменить</button>
                 <button id="applyFilter" class="apply-filter">Применить</button>
             </div>
@@ -392,9 +388,5 @@
             <table id="header-fixed"></table>
         </script>
     {% endblock %}
-    <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
-    <script src="{% static "libs/jquery-file-download/src/Scripts/jquery.fileDownload.js" %}"></script>
-    <script src="{% static "libs/jquery-timepicker-wvega/jquery.timepicker.js" %}"></script>
-    <script src="{% static "js/add_user.js" %}"></script>
-    <script src="{% static "js/summit_stats.js" %}"></script>
+    <script src="{% static "js/summit_stats.bundle.js" %}"></script>
 {% endblock %}

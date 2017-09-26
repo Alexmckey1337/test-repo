@@ -1,12 +1,22 @@
-$(document).ready(function () {
-    "use strict";
+'use strict';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import 'air-datepicker';
+import 'air-datepicker/dist/css/datepicker.css';
+import {showAlert} from "./modules/ShowNotifications/index";
+import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import {DealsTable, updateDealsTable, createDealsPayment, dealsTable, updateDeal} from './modules/Deals/index';
+import getSearch from './modules/Search/index';
+import {getFilterParam} from "./modules/Filter/index";
+import updateSettings from './modules/UpdateSettings/index';
 
-    $('.preloader').show();
+$(document).ready(function () {
+    $('.preloader').css('display', 'block');
     DealsTable({done: 3});
 
     //Tabs
     $('#tabs').find('li').on('click', 'a', function (e) {
-        $('.preloader').show();
+        $('.preloader').css('display', 'block');
         e.preventDefault();
         let status = $(this).attr('data-status');
         let config = {
@@ -19,11 +29,7 @@ $(document).ready(function () {
         $(this).parent().addClass('current');
     });
 
-    function DealsTable(config) {
-        getDeals(config).then(data => {
-            makeDealsTable(data);
-        });
-    }
+
 
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
@@ -45,11 +51,11 @@ $(document).ready(function () {
     $("#popup-create_payment .top-text span").on('click', function (el) {
         $('#new_payment_sum').val('');
         $('#popup-create_payment textarea').val('');
-        $('#popup-create_payment').css('display', '');
+        $('#popup-create_payment').css('display', 'none');
     });
 
     $("#popup-payments .top-text span").on('click', function (el) {
-        $('#popup-payments').css('display', '');
+        $('#popup-payments').css('display', 'none');
         $('#popup-payments table').html('');
     });
 
@@ -68,7 +74,7 @@ $(document).ready(function () {
             let error = JSON.parse(res.responseText),
                 errKey = Object.keys(error),
                 html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
-            showPopup(html);
+            showAlert(html);
         });
     });
 
@@ -103,6 +109,10 @@ $(document).ready(function () {
     
     $('.apply-filter').on('click', function () {
         applyFilter(this, dealsTable);
+    });
+
+    $('.clear-filter').on('click', function () {
+        refreshFilter(this);
     });
 
     //Update deal

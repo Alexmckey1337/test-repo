@@ -1,4 +1,16 @@
-(function ($) {
+'use strict';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import 'air-datepicker';
+import 'air-datepicker/dist/css/datepicker.css';
+import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import updateSettings from './modules/UpdateSettings/index';
+import exportTableData from './modules/Export/index';
+import {showAlert, showConfirm} from "./modules/ShowNotifications/index"
+import {createPaymentsTable} from "./modules/Payment/index";
+import {deleteDealsPayment, updateDealsPayment, cleanUpdateDealsPayment} from "./modules/Payment/index";
+
+$(document).ready(function () {
     createPaymentsTable({});
 
     $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
@@ -67,6 +79,7 @@
         updateSettings(createPaymentsTable);
     });
 
+    //Filter
     $('.apply-filter').on('click', function () {
         applyFilter(this, createPaymentsTable);
     });
@@ -86,7 +99,7 @@
     $('#delete-payment').on('click', function (e) {
         e.preventDefault();
         let id = $(this).attr('data-id');
-        alertify.confirm('Удаление', 'Вы действительно хотите удалить данный платеж?', function () {
+        showConfirm('Удаление', 'Вы действительно хотите удалить данный платеж?', function () {
             deleteDealsPayment(id).then(() => {
                 showAlert('Платеж успешно удален!');
                 $('#popup-update_payment').css('display', 'none');
@@ -120,4 +133,4 @@
         });
     });
 
-})(jQuery);
+});

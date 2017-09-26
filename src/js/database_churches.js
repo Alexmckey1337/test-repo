@@ -3,16 +3,13 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
-import alertify from 'alertifyjs/build/alertify.min.js';
-import 'alertifyjs/build/css/alertify.min.css';
-import 'alertifyjs/build/css/themes/default.min.css';
 import {createChurchesTable, clearAddChurchData, saveChurches, addChurch,
         deleteСhurch} from './modules/Church/index';
 import {makePastorList} from './modules/MakeList/index';
 import {getPastorsByDepartment} from './modules/GetList/index';
 import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
-import {showAlert} from "./modules/ShowNotifications/index";
+import {showAlert, showConfirm} from "./modules/ShowNotifications/index";
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
 
 $('document').ready(function () {
@@ -141,7 +138,7 @@ $('document').ready(function () {
     $('#delete-church').on('click', function (e) {
         e.preventDefault();
         let id = parseInt($('#churchID').val());
-        alertify.confirm('Удаление', 'Вы действительно хотите удалить данную церковь?', function () {
+        showConfirm('Удаление', 'Вы действительно хотите удалить данную церковь?', function () {
             deleteСhurch(id).then(() => {
                 showAlert('Церковь успешно удалена!');
                 $('#quickEditCartPopup').css('display', 'none');

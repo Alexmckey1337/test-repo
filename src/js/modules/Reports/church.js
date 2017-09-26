@@ -13,7 +13,7 @@ import fixedTableHead from '../FixedHeadTable/index';
 import OrderTable from '../Ordering/index';
 import {btnDeals} from "../Deals/index";
 import {completeChurchPayment, showChurchPayments} from '../Payment/index';
-import {showAlert} from "../ShowNotifications/index";
+import {showAlert, showConfirm} from "../ShowNotifications/index";
 
 export function ChurchReportsTable(config) {
     Object.assign(config, getTabsFilterParam());
@@ -81,7 +81,7 @@ function makeChurchReportsTable(data, config = {}) {
     });
     $("button.delete_btn").on('click', function () {
         let id = $(this).attr('data-id');
-        alertify.confirm('Удаление', 'Вы действительно хотите удалить данный отчет?', function () {
+        showConfirm('Удаление', 'Вы действительно хотите удалить данный отчет?', function () {
             deleteChurchPayment(id).then(() => {
                 showAlert('Отчет успешно удален!');
                 $('.preloader').css('display', 'block');
@@ -404,4 +404,27 @@ function submitReports(config) {
         };
         newAjaxRequest(data, status, reject)
     })
+}
+
+function deleteChurchPayment(id) {
+    let url = URLS.event.church_report.detail(id),
+        defaultOption = {
+            method: 'DELETE',
+            credentials: 'same-origin',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            })
+        };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(resp => {
+            if (resp.status >= 200 && resp.status < 300) {
+                return resp;
+            } else {
+                let json = resp.json();
+                return json.then(err => {
+                    throw err;
+                });
+            }
+        });
+    }
 }

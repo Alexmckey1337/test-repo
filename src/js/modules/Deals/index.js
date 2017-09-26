@@ -1,6 +1,18 @@
 'use strict';
+import URLS from '../Urls/index';
+import {CONFIG} from "../config";
+import ajaxRequest from '../Ajax/ajaxRequest';
+import newAjaxRequest from '../Ajax/newAjaxRequest';
 import moment from 'moment/min/moment.min.js';
 import numeral from 'numeral/min/numeral.min.js';
+import getSearch from '../Search/index';
+import {getFilterParam} from "../Filter/index";
+import makeSortForm from '../Sort/index';
+import makePagination from '../Pagination/index';
+import fixedTableHead from '../FixedHeadTable/index';
+import OrderTable from '../Ordering/index';
+import {showAlert} from "../ShowNotifications/index";
+import {showPayments} from "../Payment/index";
 
 export function btnDeals() {
     $("button.pay").on('click', function () {
@@ -64,5 +76,195 @@ function sumChange(diff, currencyName, currencyID, total) {
         currencies.val('1.0').prop('readonly', true);
         payment.val(diff);
         $('#user_payment').text(`${diff + total} ${currencyName}`);
+    }
+}
+
+export function DealsTable(config) {
+    getDeals(config).then(data => {
+        makeDealsTable(data);
+    });
+}
+
+function getDeals(options = {}) {
+    let keys = Object.keys(options),
+        url = URLS.deal.list();
+    if (keys.length) {
+        url += '?';
+        keys.forEach(item => {
+            url += item + '=' + options[item] + "&"
+        });
+    }
+    let defaultOption = {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        })
+    };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
+}
+
+function makeDealsTable(data, config = {}) {
+    let tmpl = $('#databaseDeals').html();
+    let rendered = _.template(tmpl)(data);
+    $('#dealsList').html(rendered);
+    let count = data.count;
+    let pages = Math.ceil(count / CONFIG.pagination_count);
+    let page = config.page || 1;
+    let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
+    let text = `Показано ${showCount} из ${count}`;
+    let paginationConfig = {
+        container: ".deals__pagination",
+        currentPage: page,
+        pages: pages,
+        callback: dealsTable
+    };
+    makePagination(paginationConfig);
+    $('.table__count').text(text);
+    fixedTableHead();
+    makeSortForm(data.table_columns);
+    $('.preloader').css('display', 'none');
+    new OrderTable().sort(dealsTable, ".table-wrap th");
+    btnDeals();
+    $("button.complete").on('click', function () {
+        let id = $(this).attr('data-id');
+        updateDeals(id);
+    });
+    $('.show_payments').on('click', function () {
+        let id = $(this).data('id');
+        showPayments(id);
+    });
+    $('.quick-edit').on('click', function () {
+        makeQuickEditDeal(this);
+    });
+}
+
+export function dealsTable(config = {}) {
+    let status = $('#tabs').find('.current').find('a').attr('data-status');
+    config.done = status;
+    Object.assign(config, getSearch('search'));
+    Object.assign(config, getFilterParam());
+    getDeals(config).then(data => {
+        makeDealsTable(data, config);
+    })
+}
+
+function updateDeals(id) {
+    let data = {
+        "done": true,
+    };
+    let config = JSON.stringify(data);
+    ajaxRequest(URLS.deal.detail(id), config, function () {
+        updateDealsTable();
+        document.getElementById('popup').style.display = '';
+    }, 'PATCH', true, {
+        'Content-Type': 'application/json'
+    }, {
+        403: function (data) {
+            data = data.responseJSON;
+            showAlert(data.detail);
+        }
+    });
+}
+
+export function updateDealsTable() {
+    $('.preloader').css('display', 'block');
+    let page = $('#sdelki').find('.pagination__input').val();
+    dealsTable({page: page});
+}
+
+function makeQuickEditDeal(el) {
+    let id = $(el).attr('data-id'),
+        popup = $('#popup-create_deal');
+    getDealDetail(id).then(data => {
+        let sum = numeral(data.value).value(),
+            txt = `<div class="block_line">
+                        <p>Плательщик:</p>
+                        <p>${data.full_name}</p>
+                    </div>
+                    <div class="block_line">
+                        <p>Менеджер:</p>
+                        <p>${data.responsible_name}</p>
+                    </div>`;
+        popup.find('h2').text('Редактирование сделки');
+        $('#append-info').empty().append(txt);
+        $('#new_deal_type').find(`option[value="${data.type}"]`).prop('selected', true).trigger('change');
+        $('#new_deal_sum').val(sum);
+        $('#new_deal_date').val(data.date_created);
+        popup.find('.note').val(data.description);
+        popup.find('.currency').val(data.currency.short_name);
+        $('#send_new_deal').attr('data-id', id);
+        popup.css('display', 'block');
+    });
+}
+
+function getDealDetail(id) {
+    let url = URLS.deal.detail(id);
+
+    let defaultOption = {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        })
+    };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
+}
+
+export function createDealsPayment(id, sum, description) {
+    return new Promise(function (resolve, reject) {
+        let config = {
+            "sum": sum,
+            "description": description,
+            "rate": $('#new_payment_rate').val(),
+            // "currency": $('#new_payment_currency').val(),
+            "sent_date": $('#sent_date').val().split('.').reverse().join('-'),
+            "operation": $('#operation').val()
+        };
+        let json = JSON.stringify(config);
+        let data = {
+            url: URLS.deal.create_uah_payment(id),
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: json
+        };
+        let status = {
+            200: function (req) {
+                resolve(req);
+            },
+            201: function (req) {
+                resolve(req);
+            },
+            403: function () {
+                reject('Вы должны авторизоватся');
+            },
+            400: function (err) {
+                reject(err);
+            }
+
+        };
+        newAjaxRequest(data, status);
+    })
+}
+
+export function updateDeal(id, data) {
+    let url = URLS.deal.detail(id);
+
+    let defaultOption = {
+        method: 'PATCH',
+        credentials: 'same-origin',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        }),
+        body: JSON.stringify(data),
+    };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
     }
 }

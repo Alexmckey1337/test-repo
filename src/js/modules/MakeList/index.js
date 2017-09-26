@@ -1,6 +1,6 @@
 'use strict';
 import {getResponsible, getChurchesListINDepartament, getHomeGroupsINChurches,
-        getDepartmentsOfUser} from '../GetList/index';
+        getDepartmentsOfUser, getShortUsers} from '../GetList/index';
 
 export function makeResponsibleList(department, status, flag = false) {
     let $selectResponsible = $('#selectResponsible'),
@@ -156,4 +156,36 @@ export function makeDepartmentList(selector, active = null) {
         });
         $(selector).html(options).prop('disabled', false).select2();
     });
+}
+
+export function makePastorListNew(id, selector = [], active = null) {
+    getResponsible(id, 2).then(function (data) {
+        let options = '<option selected>ВСЕ</option>';
+        data.forEach(function (item) {
+            options += `<option value="${item.id}"`;
+            if (active == item.id) {
+                options += 'selected';
+            }
+            options += `>${item.fullname}</option>`;
+        });
+        selector.forEach(item => {
+            $(item).html(options).prop('disabled', false).select2();
+        })
+    });
+}
+
+export function makePastorListWithMasterTree(config, selector, active = null) {
+    getShortUsers(config).then(data => {
+        let options = '<option selected>ВСЕ</option>';
+        data.forEach(function (item) {
+            options += `<option value="${item.id}"`;
+            if (active == item.id) {
+                options += 'selected';
+            }
+            options += `>${item.fullname}</option>`;
+        });
+        selector.forEach(item => {
+            $(item).html(options).prop('disabled', false).select2();
+        })
+    })
 }
