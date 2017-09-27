@@ -3,5 +3,6 @@
 !.env
 !.pylintrc
 !.bowerrc
+!.babelrc
 public/media/
 node_modules/
