@@ -51,6 +51,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "gulp build && NODE_ENV=production webpack",
     "gulp": "gulp default",
     "production": "NODE_ENV=production webpack",
     "development": "NODE_ENV=development webpack"

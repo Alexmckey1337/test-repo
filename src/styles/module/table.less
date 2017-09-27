@@ -274,7 +274,7 @@ table .url {
   .edit_plan:disabled + span {
     display: none;
   }
-  tr:nth-last-child(2) {
+  tr:last-child {
     font-weight: 900;
     font-size: 1.1em;
   }
@@ -299,5 +299,11 @@ table .url {
         border-right: none;
       }
     }
+  }
+}
+
+table tr:last-child {
+  td {
+    padding-bottom: 20px;
   }
 }

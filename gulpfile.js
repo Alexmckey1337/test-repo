@@ -56,3 +56,8 @@ gulp.task('watch', function () {
 });
 
 gulp.task('default', ['less', 'watch']);
+
+gulp.task('build', function() {
+    gulp.start('less', 'images', 'font');
+});
+
