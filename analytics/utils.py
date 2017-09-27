@@ -10,6 +10,10 @@ from django.db.models.fields.files import ImageFieldFile
 from django.http import QueryDict
 
 
+class NoImage:
+    pass
+
+
 def foreign_key_to_dict(instance=None, verbose: str = ''):
     return {
         'value': {
@@ -25,12 +29,13 @@ def query_dict_to_dict(query_dict):
         data = dict(query_dict.lists())
     else:
         data = query_dict
-    data = deepcopy(data)
     for field, value in data.items():
         if isinstance(value, InMemoryUploadedFile):
             data[field] = value.name
         elif isinstance(value, (list, tuple)) and any([isinstance(v, InMemoryUploadedFile) for v in value]):
             data[field] = [i.name for i in value]
+        else:
+            data[field] = deepcopy(value)
     return data
 
 

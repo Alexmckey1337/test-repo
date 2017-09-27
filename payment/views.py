@@ -159,7 +159,6 @@ class PaymentChurchReportListView(mixins.ListModelMixin, GenericAPIView):
 
     filter_backends = (filters.DjangoFilterBackend,
                        FieldSearchFilter,
-                       FilterByChurchReportPastor,
                        filters.OrderingFilter,
                        FilterByChurchReportDate,
                        FilterByChurchReportPastor,

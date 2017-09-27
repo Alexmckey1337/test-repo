@@ -60,7 +60,7 @@ if os.environ.get('USE_DOCKER') == 'yes':
 # CSRF_COOKIE_HTTPONLY = True
 # X_FRAME_OPTIONS = 'DENY'
 
-ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['vocrm.org', '127.0.2.1', 'crm.local'])
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['vocrm.net', '127.0.2.1', 'crm.local'])
 
 INSTALLED_APPS += ('gunicorn', )
 

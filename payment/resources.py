@@ -26,7 +26,7 @@ class PaymentResource(CustomFieldsModelResource):
         )
 
     def dehydrate_purpose_type(self, payment):
-        return _('партнерские') if payment.purpose.get_type_display() == 1 else _('десятина')
+        return _('партнерские') if payment.purpose.type == 1 else _('десятина')
 
     def dehydrate_purpose_date(self, payment):
         return payment.purpose.date_created

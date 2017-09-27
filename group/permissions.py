@@ -129,7 +129,7 @@ def can_export_churches(user):
     """
     Checking that the ``user`` has the right to export list of churches
     """
-    return user.__class__.get_tree(user).exclude(church__isnull=True).exists()
+    return user.__class__.get_tree(user).exclude(church__isnull=True).exists() or user.is_staff
 
 
 def can_export_groups_of_church(user, church):
