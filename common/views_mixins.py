@@ -4,6 +4,8 @@ from django.http import HttpResponse
 from import_export.formats import base_formats
 from rest_framework import viewsets, mixins
 from rest_framework.decorators import list_route
+from payment.tasks import generate_export
+from rest_framework.response import Response
 
 
 class ModelWithoutDeleteViewSet(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin,
@@ -53,22 +55,25 @@ class BaseExportViewSetMixin(object):
 
     def get_response(self, queryset, fields, resource_class=None):
         resource_class = resource_class or self.get_resource_class()
-        data = resource_class().export(queryset, custom_export_fields=fields)
-        export_data = self.file_format.export_data(data, delimiter=';')
-        content_type = self.file_format.get_content_type()
-        response = HttpResponse(export_data, content_type=content_type)
+        generate_export.apply_async(args=[
+            self.request.user, queryset, fields, resource_class, self.file_format])
 
-        response['Content-Disposition'] = 'attachment; filename=%s' % (
-            self.get_export_filename(self.file_format),
-        )
-        response['Content-Encoding'] = 'UTF-8'
-        return response
+        # data = resource_class().export(queryset, custom_export_fields=fields)
+        # export_data = self.file_format.export_data(data, delimiter=';')
+        # content_type = self.file_format.get_content_type()
+        # response = HttpResponse(export_data, content_type=content_type)
+        #
+        # response['Content-Disposition'] = 'attachment; filename=%s' % (
+        #     self.get_export_filename(self.file_format),
+        # )
+        # response['Content-Encoding'] = 'UTF-8'
+        # return response
+        return Response({'message': 'export done'})
 
 
 class ExportViewSetMixin(BaseExportViewSetMixin):
     def _export(self, request, *args, **kwargs):
         fields = self.get_export_fields(request.data)
-
         queryset = self.get_export_queryset(request)
 
         return self.get_response(queryset, fields)
