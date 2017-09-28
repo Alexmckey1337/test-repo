@@ -1,65 +1,21 @@
 'use strict';
-import URLS from '../Urls/index';
-import {CONFIG} from '../config'
-import makePagination from '../Pagination/index';
 import moment from 'moment/min/moment.min.js';
+import URLS from '../Urls/index';
+import {CONFIG} from '../config';
+import getData from '../Ajax/index';
+import makePagination from '../Pagination/index';
 
-export function counterNotifications() {
-    let url = URLS.notification_tickets();
-    let defaultOption = {
-        method: 'GET',
-        credentials: 'same-origin',
-        headers: new Headers({
-            'Content-Type': 'application/json',
-        })
-    };
-
-    return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
-}
-
-export function birhtdayNotifications(options = {}, count = false) {
-    let keys = Object.keys(options),
-        today = moment().format('YYYY-MM-DD'),
-        url = (count) ? `${URLS.users_birthdays(today)}&only_count=true&` : `${URLS.users_birthdays(today)}&`,
-        defaultOption = {
-            method: 'GET',
-            credentials: 'same-origin',
-            headers: new Headers({
-                'Content-Type': 'application/json',
-            })
-        };
-    if (keys.length) {
-        keys.forEach(item => {
-            url += item + '=' + options[item] + "&"
-        });
-    }
-
-    return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
-}
-
-export function repentanceNotifications(options = {}, count = false) {
-    let keys = Object.keys(options),
-        today = moment().format('YYYY-MM-DD'),
-        url = (count) ? `${URLS.users_repentance_days(today)}&only_count=true&` : `${URLS.users_repentance_days(today)}`,
-        defaultOption = {
-            method: 'GET',
-            credentials: 'same-origin',
-            headers: new Headers({
-                'Content-Type': 'application/json',
-            })
-        };
-    if (keys.length) {
-        keys.forEach(item => {
-            url += item + '=' + options[item] + "&"
-        });
-    }
-
-    return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
-}
+let today = moment().format('YYYY-MM-DD');
 
 export function makeBirthdayUsers(config = {}) {
     $('.preloader').css('display', 'block');
-    birhtdayNotifications(config).then(data => {
+    let urlBirth = URLS.users_birthdays(),
+        configDefault = {
+            from_date: today,
+            to_date: today,
+        };
+    Object.assign(configDefault, config);
+    getData(urlBirth, configDefault).then(data => {
         let table = `<table>
                         <thead>
                             <tr>
@@ -106,7 +62,13 @@ export function makeBirthdayUsers(config = {}) {
 
 export function makeRepentanceUsers(config = {}) {
     $('.preloader').css('display', 'block');
-    repentanceNotifications(config).then(data => {
+    let urlRepen = URLS.users_repentance_days(),
+        configDefault = {
+            from_date: today,
+            to_date: today,
+        };
+    Object.assign(configDefault, config);
+    getData(urlRepen, configDefault).then(data => {
         let table = `<table>
                         <thead>
                             <tr>

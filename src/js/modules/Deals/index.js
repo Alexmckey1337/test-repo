@@ -1,6 +1,7 @@
 'use strict';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
+import getData from "../Ajax/index";
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
 import moment from 'moment/min/moment.min.js';
@@ -80,30 +81,10 @@ function sumChange(diff, currencyName, currencyID, total) {
 }
 
 export function DealsTable(config) {
-    getDeals(config).then(data => {
+    getData(URLS.deal.list(), config).then(data => {
+        $('.preloader').css('display', 'none');
         makeDealsTable(data);
     });
-}
-
-function getDeals(options = {}) {
-    let keys = Object.keys(options),
-        url = URLS.deal.list();
-    if (keys.length) {
-        url += '?';
-        keys.forEach(item => {
-            url += item + '=' + options[item] + "&"
-        });
-    }
-    let defaultOption = {
-        method: 'GET',
-        credentials: 'same-origin',
-        headers: new Headers({
-            'Content-Type': 'application/json',
-        })
-    };
-    if (typeof url === "string") {
-        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
-    }
 }
 
 function makeDealsTable(data, config = {}) {
@@ -146,7 +127,8 @@ export function dealsTable(config = {}) {
     config.done = status;
     Object.assign(config, getSearch('search'));
     Object.assign(config, getFilterParam());
-    getDeals(config).then(data => {
+    getData(URLS.deal.list(), config).then(data => {
+        $('.preloader').css('display', 'none');
         makeDealsTable(data, config);
     })
 }

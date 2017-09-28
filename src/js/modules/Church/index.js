@@ -1,12 +1,12 @@
 'use strict';
 import {CONFIG} from '../config';
 import URLS from '../Urls/index';
+import getData from '../Ajax/index';
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
 import getSearch from '../Search/index';
 import {getFilterParam} from '../Filter/index';
 import OrderTable, {getOrderingData} from '../Ordering/index';
-import {getChurches} from '../GetList/index';
 import {makePastorList, makeDepartmentList} from '../MakeList/index';
 import makeSortForm from '../Sort/index';
 import makePagination from '../Pagination/index';
@@ -20,7 +20,7 @@ export function createChurchesTable(config = {}) {
     Object.assign(config, getSearch('search_title'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
-    getChurches(config).then(function (data) {
+    getData(URLS.church.list(), config).then(function (data) {
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
@@ -34,7 +34,7 @@ export function createChurchesTable(config = {}) {
         $('#tableChurches').html(rendered);
         $('.quick-edit').on('click', function () {
             let id = $(this).closest('.edit').find('a').attr('data-id');
-            ajaxRequest(URLS.church.detail(id), null, function (data) {
+            getData(URLS.church.detail(id)).then((data) => {
                 let quickEditCartTmpl, rendered;
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;
                 rendered = _.template(quickEditCartTmpl)(data);
@@ -483,27 +483,3 @@ export function editChurches(el, id) {
         showAlert(html);
     });
 }
-
-export function deleteСhurch(id) {
-    let url = URLS.church.detail(id),
-        defaultOption = {
-            method: 'DELETE',
-            credentials: 'same-origin',
-            headers: new Headers({
-                'Content-Type': 'application/json',
-            })
-        };
-    if (typeof url === "string") {
-        return fetch(url, defaultOption).then(resp => {
-            if (resp.status >= 200 && resp.status < 300) {
-                return resp;
-            } else {
-                let json = resp.json();
-                return json.then(err => {
-                    throw err;
-                });
-            }
-        });
-    }
-}
-

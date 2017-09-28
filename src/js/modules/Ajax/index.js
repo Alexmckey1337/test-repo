@@ -1,6 +1,15 @@
 'use strict';
+import 'whatwg-fetch';
 
-export default function getData(url, options = {}) {
+let defaultOption = {
+    method: 'GET',
+    credentials: 'same-origin',
+    headers: new Headers({
+        'Content-Type': 'application/json',
+    })
+};
+
+export default function getData(url, options = {}, config = {}) {
     let keys = Object.keys(options);
     if (keys.length) {
         url += '?';
@@ -8,15 +17,33 @@ export default function getData(url, options = {}) {
             url += item + '=' + options[item] + "&"
         });
     }
-    let defaultOption = {
-        method: 'GET',
-        credentials: 'same-origin',
-        headers: new Headers({
-            'Content-Type': 'application/json',
-        })
-    };
+    let initConfig = Object.assign({}, defaultOption, config);
     if (typeof url === "string") {
-        $('.preloader').css('display', 'none');
-        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+
+        return fetch(url, initConfig).then(resp => {
+            if (resp.status >= 200 && resp.status < 300) {
+                return resp.json();
+            } else {
+                return resp.json().then(err => {
+                    throw err;
+                });
+            }
+        });
+    }
+}
+
+export function deleteData(url) {
+    let initConfig = Object.assign({}, defaultOption, {method: 'DELETE'});
+    if (typeof url === "string") {
+
+        return fetch(url, initConfig).then(resp => {
+            if (resp.status >= 200 && resp.status < 300) {
+                return resp;
+            } else {
+                return resp.json().then(err => {
+                    throw err;
+                });
+            }
+        });
     }
 }

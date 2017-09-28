@@ -3,8 +3,9 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
-import {createChurchesTable, clearAddChurchData, saveChurches, addChurch,
-        deleteСhurch} from './modules/Church/index';
+import URLS from './modules/Urls/index';
+import {deleteData} from "./modules/Ajax/index";
+import {createChurchesTable, clearAddChurchData, saveChurches, addChurch} from './modules/Church/index';
 import {makePastorList} from './modules/MakeList/index';
 import {getPastorsByDepartment} from './modules/GetList/index';
 import updateSettings from './modules/UpdateSettings/index';
@@ -139,7 +140,7 @@ $('document').ready(function () {
         e.preventDefault();
         let id = parseInt($('#churchID').val());
         showConfirm('Удаление', 'Вы действительно хотите удалить данную церковь?', function () {
-            deleteСhurch(id).then(() => {
+            deleteData(URLS.church.detail(id)).then(() => {
                 showAlert('Церковь успешно удалена!');
                 $('#quickEditCartPopup').css('display', 'none');
                 $('.preloader').css('display', 'block');

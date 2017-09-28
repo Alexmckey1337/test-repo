@@ -1,9 +1,8 @@
 "use strict";
-import {getChurchStats, getHomeGroupStats,
-        getChurchData, getUsersData} from './modules/DashboardStats/index';
 import Sortable from 'sortablejs/Sortable.min.js';
 import URLS from './modules/Urls/index';
 import makeSelect from './modules/MakeAjaxSelect/index';
+import getData from './modules/Ajax/index';
 
 $(document).ready(function () {
     let userId = $('body').attr('data-user'),
@@ -12,7 +11,13 @@ $(document).ready(function () {
     $('.preloader').css('display', 'block');
 
     function init(id) {
-        Promise.all([getHomeGroupStats(id), getChurchData(id), getUsersData(id)]).then(values => {
+        let config = {
+                user_id: id
+            },
+            urlHG = URLS.event.home_meeting.dashboard_count(),
+            urlChurch = URLS.church.dashboard_count(),
+            urlUser = URLS.user.dashboard_count();
+        Promise.all([getData(urlHG, config), getData(urlChurch, config), getData(urlUser, config)]).then(values => {
             let data = {};
             for (let i = 0; i < values.length; i++) {
                 Object.assign(data, values[i]);

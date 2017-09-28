@@ -3,12 +3,13 @@ import 'jquery.scrollbar';
 import 'jquery.scrollbar/jquery.scrollbar.css';
 import 'select2';
 import 'select2/dist/css/select2.css';
+import moment from 'moment/min/moment.min.js';
 import URLS from './modules/Urls/index';
+import getData from './modules/Ajax/index';
 import {deleteCookie} from './modules/Cookie/cookie';
 import ajaxRequest from './modules/Ajax/ajaxRequest';
 import {hidePopup} from './modules/Popup/popup';
-import {counterNotifications, birhtdayNotifications,
-        repentanceNotifications, makeBirthdayUsers, makeRepentanceUsers} from './modules/Notifications/notify';
+import {makeBirthdayUsers, makeRepentanceUsers} from './modules/Notifications/notify';
 import fixedTableHead from './modules/FixedHeadTable/index';
 import {hideFilter} from './modules/Filter/index';
 
@@ -279,10 +280,17 @@ $(document).ready(function () {
         e.stopPropagation();
     });
 
-    let count = true,
-        config = {};
     if ($('#sms_notification').length > 0) {
-        Promise.all([counterNotifications(), birhtdayNotifications(config, count), repentanceNotifications(config, count)]).then(values => {
+        let today = moment().format('YYYY-MM-DD'),
+            urlCount = URLS.notification_tickets(),
+            urlBirth= URLS.users_birthdays(today),
+            urlRepen = URLS.users_repentance_days(today),
+            config = {
+                from_date: today,
+                to_date: today,
+                only_count: true,
+            };
+        Promise.all([getData(urlCount), getData(urlBirth, config), getData(urlRepen, config)]).then(values => {
             let data = {},
                 box = $('.massage-hover').find('.hover-wrapper');
             for (let i = 0; i < values.length; i++) {
