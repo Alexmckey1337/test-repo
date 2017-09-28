@@ -18,9 +18,6 @@ class ChurchResource(CustomFieldsModelResource):
         model = Church
         fields = COMMON_GROUP_RESOURCE_FIELDS + ('department', 'pastor', 'country', 'is_open')
 
-    # def dehydrate_get_title(self, church):
-    #     return str(church.title)
-
     def dehydrate_department(self, church):
         return str(church.department)
 
