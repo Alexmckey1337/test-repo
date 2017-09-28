@@ -1,7 +1,7 @@
 'use strict';
 import URLS from '../Urls/index';
 import {VOCRM} from "../config"
-import ajaxRequest from '../Ajax/ajaxRequest';
+import {postData} from "../Ajax/index";
 import {getFilterParam} from "../Filter/index";
 
 export default function updateSettings(callback, path) {
@@ -16,22 +16,19 @@ export default function updateSettings(callback, path) {
             data.push(item);
         }
     });
-    let json = JSON.stringify(data);
-    ajaxRequest(URLS.update_columns(), json, function (JSONobj) {
+    postData(URLS.update_columns(), data).then((JSONobj) => {
         $(".bgsort").remove();
-        VOCRM['column_table'] = JSONobj['column_table'];
+            VOCRM['column_table'] = JSONobj['column_table'];
 
-        if (callback) {
-            let param = {};
-            if (path !== undefined) {
-                let extendParam = $.extend({}, param, getFilterParam());
-                callback(extendParam);
-            } else {
-                let param = getFilterParam();
-                callback(param);
+            if (callback) {
+                let param = {};
+                if (path !== undefined) {
+                    let extendParam = $.extend({}, param, getFilterParam());
+                    callback(extendParam);
+                } else {
+                    let param = getFilterParam();
+                    callback(param);
+                }
             }
-        }
-    }, 'POST', true, {
-        'Content-Type': 'application/json'
-    });
+    })
 }

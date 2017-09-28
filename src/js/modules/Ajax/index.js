@@ -47,3 +47,23 @@ export function deleteData(url) {
         });
     }
 }
+
+export function postData(url, data = {}) {
+    let postConfig = {
+            method: 'POST',
+            body: JSON.stringify(data),
+        },
+        initConfig = Object.assign({}, defaultOption, postConfig);
+    if (typeof url === "string") {
+
+        return fetch(url, initConfig).then(resp => {
+            if (resp.status >= 200 && resp.status < 300) {
+                return resp.json();
+            } else {
+                return resp.json().then(err => {
+                    throw err;
+                });
+            }
+        });
+    }
+}

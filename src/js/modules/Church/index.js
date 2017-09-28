@@ -1,7 +1,7 @@
 'use strict';
 import {CONFIG} from '../config';
 import URLS from '../Urls/index';
-import getData from '../Ajax/index';
+import getData, {postData} from '../Ajax/index';
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
 import getSearch from '../Search/index';
@@ -158,15 +158,14 @@ function saveChurchData(data, id) {
 export function addChurch(e, el, callback) {
     e.preventDefault();
     let data = getAddChurchData();
-    let json = JSON.stringify(data);
-    addChurchTODataBase(json).then(function (data) {
+    postData(URLS.church.list(), data).then(function (data) {
         hidePopup(el);
         clearAddChurchData();
         callback();
         showAlert(`Церковь ${data.get_title} добавлена в базу`);
     }).catch(function (data) {
         hidePopup(el);
-        showAlert('Ошибка при создании домашней группы');
+        showAlert('Ошибка при создании церкви');
     });
 }
 
