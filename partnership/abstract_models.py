@@ -4,7 +4,7 @@ from django.db import models
 from partnership.permissions import can_see_partners, can_see_deals, can_see_partner_stats, can_see_deal_payments, \
     can_close_partner_deals, can_create_partner_payments, can_export_partner_list, can_create_deal_for_partner, \
     can_update_partner_need, can_update_deal, can_create_payment_for_partner, can_update_partner, \
-    can_see_partner_summary
+    can_see_partner_summary, can_see_managers_summary
 
 
 class PartnerUserPermission(models.Model):
@@ -98,6 +98,12 @@ class PartnerUserPermission(models.Model):
         Checking that the ``self`` user has the right to update need field of certain ``partner``
         """
         return can_update_partner_need(self, partner)
+
+    def can_see_managers_summary(self):
+        """
+        Checking that the ``self`` has the right to see manager's summary
+        """
+        return can_see_managers_summary(self)
 
     @property
     def is_partner(self):

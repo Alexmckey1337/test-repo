@@ -1,11 +1,12 @@
 import django_filters
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
+from rest_framework import filters
 
 from account.models import CustomUser as User
 from common.filters import BaseFilterByBirthday, BaseFilterMasterTree
 from hierarchy.models import Hierarchy, Department
 from summit.models import Summit
-from rest_framework import filters
 
 
 class FilterByUserBirthday(BaseFilterByBirthday):
@@ -70,9 +71,6 @@ class UserIsPartnershipFilter(filters.DjangoFilterBackend):
             return queryset.filter(partnership__isnull=True)
 
         return queryset
-
-
-from django.db.models import Q
 
 
 class UserChurchFilter(filters.DjangoFilterBackend):
