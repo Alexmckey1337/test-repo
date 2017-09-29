@@ -9,7 +9,7 @@ from payment.models import Payment
 class PaymentResource(CustomFieldsModelResource):
     """For excel import/export"""
     purpose_type = fields.Field(attribute='deals__type')
-    purpose_fio = fields.Field(attribute='deals_partnership__user__last_name')
+    purpose_fio = fields.Field(attribute='deals__partnership__user__last_name')
     purpose_manager_fio = fields.Field(attribute='deals__partnership__responsible__user__last_name')
     purpose_date = fields.Field(attribute='deals__date_created')
     sent_date = fields.Field(attribute='sent_date')
