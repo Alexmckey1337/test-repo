@@ -63,7 +63,6 @@ $('document').ready(function () {
     });
 
     $('#export_table').on('click', function () {
-        $('.preloader').css('display', 'block');
         exportTableData(this);
     });
 
