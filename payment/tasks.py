@@ -13,8 +13,7 @@ import os
 def generate_export(user, queryset, fields, resource_class, file_format):
     data = resource_class().export(queryset, custom_export_fields=fields)
     export_data = file_format.export_data(data, delimiter=';')
-    file_name = str(resource_class._meta.model.__name__) + '_export_at_' + datetime.now().strftime(
-        '%H:%M:%S')
+    file_name = str(resource_class._meta.model.__name__) + '_export_at_' + datetime.now().strftime('%H:%M:%S')
     file_name_with_format = file_name + '.' + file_format.get_extension()
 
     path_to_file = settings.MEDIA_ROOT + '/exports/' + file_name_with_format
@@ -36,5 +35,5 @@ def generate_export(user, queryset, fields, resource_class, file_format):
         print(err)
 
     Group('export_{}'.format(user.id)).send({
-        'text': dumps({"link": url, "type": "EXPORT", "name": file_name})
+        'text': dumps({'link': url, 'type': 'EXPORT', 'name': file_name})
     })

@@ -33,6 +33,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     permission_classes = (IsAuthenticated,)
     pagination_class = NotificationPagination
+    serializer_class = BirthdayNotificationSerializer
 
     @list_route()
     def tickets(self, request):
@@ -82,3 +83,10 @@ class NotificationViewSet(viewsets.ModelViewSet):
         repentance = self.serializer_class(repentance, many=True)
 
         return Response(repentance.data, status=status.HTTP_200_OK)
+
+    @list_route(methods=['GET'])
+    def exports(self, request):
+        user_id = request.query_params.get('user_id')
+        r = redis.StrictRedis(host='redis', port=6379, db=0)
+        export_urls = r.smembers('export:%s' % user_id)
+        return Response({'export_urls': export_urls})

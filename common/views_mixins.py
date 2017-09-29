@@ -68,7 +68,7 @@ class BaseExportViewSetMixin(object):
         # )
         # response['Content-Encoding'] = 'UTF-8'
         # return response
-        return Response({'message': 'export done'})
+        return Response({'message': 'Successful task creating for generate export'})
 
 
 class ExportViewSetMixin(BaseExportViewSetMixin):
