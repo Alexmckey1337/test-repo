@@ -90,6 +90,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
             result = []
             for url in export_urls:
                 result.append({'url': url, 'name': url.decode('utf8').split('/')[-1].split('.')[0]})
+            result.sort(key=lambda x: x['name'].split('_')[-1].replace(':', ''), reverse=True)
         except Exception as err:
             print(err)
             result = []
