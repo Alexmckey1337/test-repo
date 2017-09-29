@@ -294,6 +294,10 @@ CELERYBEAT_SCHEDULE = {
         'task': 'church_reports_to_expired',
         'schedule': crontab(hour=20, minute=0, day_of_week='mon')
     },
+    'delete_expired_export': {
+        'task': 'delete_expired_export',
+        'schedule': crontab(hour=5, minute=0)
+    },
 }
 
 import djcelery

@@ -40,12 +40,13 @@ def generate_export(user, queryset, fields, resource_class, file_format):
     })
 
 
-@app.task(name='delete_expired_export', ignore_result=True, max_retries=5, default_retry_delay=10)
+@app.task(name='delete_expired_export', ignore_result=True, max_retries=5, default_retry_delay=10 * 60)
 def delete_expired_export():
     try:
         r = redis.StrictRedis(host='redis', port=6379, db=0)
         for user_exports in r.scan_iter('export:*'):
             r.delete(user_exports)
+
         shutil.rmtree(settings.MEDIA_ROOT + '/export/')
 
     except Exception as err:

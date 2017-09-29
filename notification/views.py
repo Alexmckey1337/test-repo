@@ -62,7 +62,6 @@ class NotificationViewSet(viewsets.ModelViewSet):
             return self.get_paginated_response(birthdays.data)
 
         birthdays = self.serializer_class(birthdays, many=True)
-
         return Response(birthdays.data, status=status.HTTP_200_OK)
 
     @list_route(methods=['GET'],
@@ -81,7 +80,6 @@ class NotificationViewSet(viewsets.ModelViewSet):
             return self.get_paginated_response(repentance.data)
 
         repentance = self.serializer_class(repentance, many=True)
-
         return Response(repentance.data, status=status.HTTP_200_OK)
 
     @list_route(methods=['GET'])
@@ -89,8 +87,11 @@ class NotificationViewSet(viewsets.ModelViewSet):
         try:
             r = redis.StrictRedis(host='redis', port=6379, db=0)
             export_urls = r.smembers('export:%s' % request.user.id)
+            result = []
+            for url in export_urls:
+                result.append({'url': url, 'name': url.decode('utf8').split('/')[-1].split('.')[0]})
         except Exception as err:
-            export_urls = []
             print(err)
+            result = []
 
-        return Response({'export_urls': export_urls})
+        return Response({'export_urls': result})

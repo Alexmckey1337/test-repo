@@ -27,5 +27,5 @@ def notifications(request):
         'exports_count': exports_count,
         'count': birthdays.count() + tickets.count() + exports_count
     }
-    print(n)
+
     return {'notifications': n}
