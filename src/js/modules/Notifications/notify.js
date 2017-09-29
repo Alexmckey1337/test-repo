@@ -115,8 +115,8 @@ export function makeRepentanceUsers(config = {}) {
 
 export function makeExports() {
     $('.preloader').css('display', 'block');
-    getData('/api/v1.0/notifications/exports/').then(data => {
-        console.log(data);
+    let url = URLS.exports();
+    getData(url).then(data => {
         let table = `<table>
                         <thead>
                             <tr>
@@ -126,8 +126,8 @@ export function makeExports() {
                         </thead>
                         <tbody>${data.export_urls.map(item => {
             return `<tr>
-                        <td>${item}</td>
-                        <td><a href="${item}">Скачать</a></td>
+                        <td>${item.name}</td>
+                        <td><a href="${item.url}">Скачать</a></td>
                     </tr>`;
         }).join('')}</tbody></table>`;
         $('#table_special-users').html('').append(table);
