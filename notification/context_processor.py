@@ -19,6 +19,8 @@ def notifications(request):
         tickets = SummitTicket.objects.none()
         export_urls = []
 
+    export_urls = [x.decode('utf8') for x in list(export_urls)]
+
     n = {
         'birthdays': birthdays,
         'summit_tickets': tickets,
