@@ -48,10 +48,7 @@ $(document).ready(function () {
     }
 
     $('#export_table').on('click', function () {
-        $('.preloader').css('display', 'block');
-        exportTableData(this).then(function () {
-            $('.preloader').css('display', 'none');
-        });
+        exportTableData(this);
     });
 
     createSummitUsersTable({summit: SUMMIT_ID});

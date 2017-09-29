@@ -59,15 +59,12 @@ $('document').ready(function () {
     }, 500));
 
     $('#sort_save').on('click', function () {
-        $('.preloader').css('display', 'block');
         updateSettings(createUsersTable);
     });
 
     $('#export_table').on('click', function () {
         $('.preloader').css('display', 'block');
-        exportTableData(this).then(function () {
-            $('.preloader').css('display', 'none');
-        });
+        exportTableData(this);
     });
 
     $('#quickEditCartPopup').find('.close').on('click', function () {
