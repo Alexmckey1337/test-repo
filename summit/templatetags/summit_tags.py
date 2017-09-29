@@ -1,11 +1,6 @@
 from django import template
 
-from hierarchy.models import Department
-from hierarchy.models import Hierarchy
-from location.models import Country
-from partnership.models import Partnership
 from payment.models import Currency
-from status.models import Division
 from summit.models import SummitAnket, SummitUserConsultant, Summit
 from account.models import CustomUser
 

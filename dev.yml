@@ -34,6 +34,7 @@ services:
       - POSTGRES_DB=crm_db
       - POSTGRES_PASSWORD=crm_pass
       - USE_DOCKER=yes
+      - CELERY_BROKER_URL=redis://redis:6379/0
     volumes:
       - .:/app
     ports:
@@ -41,6 +42,26 @@ services:
     links:
       - postgres
       - redis
+
+  celeryworker:
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile-dev
+    environment:
+      - POSTGRES_USER=crm_user
+      - POSTGRES_DB=crm_db
+      - POSTGRES_PASSWORD=crm_pass
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - USE_DOCKER=yes
+      - SECRET_KEY=khkjhdjdjksvgsdklsnakjfhjkzhcjks
+      - DJANGO_SETTINGS_MODULE=edem.settings.dev
+      - C_FORCE_ROOT=1
+    depends_on:
+     - postgres
+     - redis
+    volumes:
+      - .:/app
+    command: celery -A edem worker -l INFO
 
   pycharm:
     build:

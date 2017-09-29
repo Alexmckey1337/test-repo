@@ -9,7 +9,7 @@ import getData from './modules/Ajax/index';
 import {deleteCookie} from './modules/Cookie/cookie';
 import ajaxRequest from './modules/Ajax/ajaxRequest';
 import {hidePopup} from './modules/Popup/popup';
-import {makeBirthdayUsers, makeRepentanceUsers} from './modules/Notifications/notify';
+import {makeBirthdayUsers, makeRepentanceUsers, makeExports} from './modules/Notifications/notify';
 import fixedTableHead from './modules/FixedHeadTable/index';
 import {hideFilter} from './modules/Filter/index';
 
@@ -285,6 +285,7 @@ $(document).ready(function () {
             urlCount = URLS.notification_tickets(),
             urlBirth= URLS.users_birthdays(today),
             urlRepen = URLS.users_repentance_days(today),
+            defCount = $('.sms').attr('data-count'),
             config = {
                 from_date: today,
                 to_date: today,
@@ -296,8 +297,9 @@ $(document).ready(function () {
             for (let i = 0; i < values.length; i++) {
                 Object.assign(data, values[i]);
             }
-            let count = Object.values(data).reduce((prev, current) => prev + current);
-            $('.sms').attr('data-count', count);
+            let count = Object.values(data).reduce((prev, current) => prev + current),
+                sumCount = +defCount + +count;
+            $('.sms').attr('data-count', sumCount);
             if (count > 0) {
                 $("#without_notifications").remove();
                 if (data.birthdays_count > 0) {
@@ -316,6 +318,10 @@ $(document).ready(function () {
             }
         });
     }
+
+    $('#export_notifications').on('click', function () {
+          makeExports();
+    });
 
     $(window).on('resize', function () {
         if ($("#header-fixed").length) {

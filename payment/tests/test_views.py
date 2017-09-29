@@ -9,7 +9,7 @@ import pytest
 from rest_framework import status, permissions
 
 from partnership.models import Deal
-from payment.filters import FilterByDealFIO, FilterByDealDate, FilterByDealManagerFIO
+from payment.filters import FilterByDealFIO, FilterByDealDate
 from payment.models import Payment
 from payment.views import PaymentDealListView
 
@@ -379,28 +379,28 @@ class TestPaymentDealListView:
             '/payments/deal/?purpose_date_from=2000-02-21&purpose_date_to=2000-03-22', format='json')
 
         assert len(response.data['results']) == 2
-
-    def test_search_by_purpose_manager_fio(
-            self, monkeypatch, api_client, payment_factory, deal_factory, partner_factory):
-        monkeypatch.setattr(PaymentDealListView, 'permission_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(
-            PaymentDealListView, 'get_queryset',
-            lambda self: self.queryset.filter(content_type__model='deal').add_deal_fio())
-        monkeypatch.setattr(FilterByDealManagerFIO, 'get_deals', lambda self, req: Deal.objects.all())
-
-        responsible1 = partner_factory(user__first_name='Lee', user__last_name='Bruce')
-        responsible2 = partner_factory(user__first_name='Bruce', user__last_name='Willis')
-        responsible3 = partner_factory(user__first_name='First', user__last_name='Last')
-        responsible4 = partner_factory(user__first_name='Name', user__last_name='Main')
-        deal1 = deal_factory(partnership=partner_factory(responsible=responsible1))
-        deal2 = deal_factory(partnership=partner_factory(responsible=responsible2))
-        deal3 = deal_factory(partnership=partner_factory(responsible=responsible3))
-        deal4 = deal_factory(partnership=partner_factory(responsible=responsible4))
-        payment_factory(purpose=deal1)
-        payment_factory(purpose=deal2)
-        payment_factory(purpose=deal3)
-        payment_factory(purpose=deal4)
-
-        response = api_client.get('/payments/deal/?search_purpose_manager_fio=bruce', format='json')
-
-        assert len(response.data['results']) == 2
+    #
+    # def test_search_by_purpose_manager_fio(
+    #         self, monkeypatch, api_client, payment_factory, deal_factory, partner_factory):
+    #     monkeypatch.setattr(PaymentDealListView, 'permission_classes', (permissions.AllowAny,))
+    #     monkeypatch.setattr(
+    #         PaymentDealListView, 'get_queryset',
+    #         lambda self: self.queryset.filter(content_type__model='deal').add_deal_fio())
+    #     monkeypatch.setattr(FilterByDealManagerFIO, 'get_deals', lambda self, req: Deal.objects.all())
+    #
+    #     responsible1 = partner_factory(user__first_name='Lee', user__last_name='Bruce')
+    #     responsible2 = partner_factory(user__first_name='Bruce', user__last_name='Willis')
+    #     responsible3 = partner_factory(user__first_name='First', user__last_name='Last')
+    #     responsible4 = partner_factory(user__first_name='Name', user__last_name='Main')
+    #     deal1 = deal_factory(partnership=partner_factory(responsible=responsible1))
+    #     deal2 = deal_factory(partnership=partner_factory(responsible=responsible2))
+    #     deal3 = deal_factory(partnership=partner_factory(responsible=responsible3))
+    #     deal4 = deal_factory(partnership=partner_factory(responsible=responsible4))
+    #     payment_factory(purpose=deal1)
+    #     payment_factory(purpose=deal2)
+    #     payment_factory(purpose=deal3)
+    #     payment_factory(purpose=deal4)
+    #
+    #     response = api_client.get('/payments/deal/?search_purpose_manager_fio=bruce', format='json')
+    #
+    #     assert len(response.data['results']) == 2

@@ -19,12 +19,9 @@ $(document).ready(function () {
     }, 500));
 
     $('#export_table').on('click', function () {
-        $('.preloader').css('display', 'block');
         let search = 'search_purpose_fio',
             config = {};
-        exportTableData(this, config, search).then(function () {
-            $('.preloader').css('display', 'none');
-        });
+        exportTableData(this, config, search);
     });
 
     $('#filter_button').on('click', ()=> {

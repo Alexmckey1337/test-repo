@@ -90,10 +90,7 @@ $('document').ready(function () {
     });
 
     $('#export_table').on('click', function () {
-        $('.preloader').css('display', 'block');
-        exportTableData(this, getTabsFilter()).then(function () {
-            $('.preloader').css('display', 'none');
-        });
+        exportTableData(this, getTabsFilter());
     });
 
     $('#time_from').timepicker({

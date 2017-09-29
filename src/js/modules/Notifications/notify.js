@@ -56,7 +56,7 @@ export function makeBirthdayUsers(config = {}) {
         $('#table_special-users').html('').append(table);
         $('.pop-up_special__table').find('.top-text h3').text('Дни рождения');
         $('.preloader').css('display', 'none');
-        $('.pop-up_special__table').css('display', 'block');
+        $('.pop-up_special__table').removeClass('table-wrap__export').css('display', 'block');
     });
 }
 
@@ -109,6 +109,30 @@ export function makeRepentanceUsers(config = {}) {
         $('#table_special-users').html('').append(table);
         $('.pop-up_special__table').find('.top-text h3').text('Дни покаяний');
         $('.preloader').css('display', 'none');
-        $('.pop-up_special__table').css('display', 'block');
+        $('.pop-up_special__table').removeClass('table-wrap__export').css('display', 'block');
+    });
+}
+
+export function makeExports() {
+    $('.preloader').css('display', 'block');
+    getData('/api/v1.0/notifications/exports/').then(data => {
+        console.log(data);
+        let table = `<table>
+                        <thead>
+                            <tr>
+                                <th>Заглавие</th>
+                                <th>Вложение</th>
+                            </tr>
+                        </thead>
+                        <tbody>${data.export_urls.map(item => {
+            return `<tr>
+                        <td>${item}</td>
+                        <td><a href="${item}">Скачать</a></td>
+                    </tr>`;
+        }).join('')}</tbody></table>`;
+        $('#table_special-users').html('').append(table);
+        $('.pop-up_special__table').find('.top-text h3').text('Доступный экспорт');
+        $('.preloader').css('display', 'none');
+        $('.pop-up_special__table').addClass('table-wrap__export').css('display', 'block');
     });
 }

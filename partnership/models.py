@@ -289,7 +289,7 @@ class PartnershipLogs(PartnershipAbstractModel):
     partner = models.ForeignKey('Partnership', related_name='partner', on_delete=models.PROTECT,
                                 verbose_name=_('Partner'))
     responsible = models.ForeignKey('Partnership', related_name='logs_disciples',
-                                    limit_choices_to={'level__lte': 2},
+                                    limit_choices_to={'level__lte': settings.PARTNER_LEVELS['manager']},
                                     null=True, blank=True, on_delete=models.SET_NULL)
 
     log_date = models.DateTimeField(_('Log date'), auto_now_add=True)
@@ -301,3 +301,17 @@ class PartnershipLogs(PartnershipAbstractModel):
 
     def __str__(self):
         return 'Partner: %s. Log date: %s' % (self.partner, self.log_date)
+
+    @classmethod
+    def log_partner(cls, partner):
+        cls.objects.create(
+            value=partner.value,
+            currency=partner.currency,
+            date=partner.date,
+            need_text=partner.need_text,
+            is_active=partner.is_active,
+            level=partner.level,
+            responsible=partner.responsible,
+            plan=partner.plan,
+            partner=partner,
+        )

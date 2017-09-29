@@ -67,3 +67,15 @@ export function postData(url, data = {}) {
         });
     }
 }
+
+export function postExport(url, data = {}) {
+        let postConfig = {
+            method: 'POST',
+            body: JSON.stringify(data),
+        },
+        initConfig = Object.assign({}, defaultOption, postConfig);
+    if (typeof url === "string") {
+
+        return fetch(url, initConfig).then(resp => resp).catch(err => err);
+    }
+}

@@ -8,7 +8,7 @@ from common.fields import DecimalWithCurrencyField
 from payment.serializers import CurrencySerializer
 from .models import Partnership, Deal
 
-BASE_PARTNER_FIELDS = ('id', 'responsible', 'value', 'date', 'need_text', 'currency', 'is_active')
+BASE_PARTNER_FIELDS = ('id', 'responsible', 'value', 'date', 'need_text', 'currency', 'is_active', 'plan')
 
 
 class PartnershipSerializer(serializers.ModelSerializer):
