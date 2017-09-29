@@ -83,3 +83,14 @@ class NotificationViewSet(viewsets.ModelViewSet):
         repentance = self.serializer_class(repentance, many=True)
 
         return Response(repentance.data, status=status.HTTP_200_OK)
+
+    @list_route(methods=['GET'])
+    def exports(self, request):
+        try:
+            r = redis.StrictRedis(host='redis', port=6379, db=0)
+            export_urls = r.smembers('export:%s' % request.user.id)
+        except Exception as err:
+            export_urls = []
+            print(err)
+
+        return Response({'export_urls': export_urls})

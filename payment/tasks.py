@@ -7,9 +7,10 @@ import redis
 from channels import Group
 from json import dumps
 import os
+import shutil
 
 
-@app.task(ignore_result=True, max_retries=3, defailt_retry_delay=2 * 60)
+@app.task(ignore_result=True, max_retries=3, default_retra=2 * 60)
 def generate_export(user, queryset, fields, resource_class, file_format):
     data = resource_class().export(queryset, custom_export_fields=fields)
     export_data = file_format.export_data(data, delimiter=';')
@@ -37,3 +38,15 @@ def generate_export(user, queryset, fields, resource_class, file_format):
     Group('export_{}'.format(user.id)).send({
         'text': dumps({'link': url, 'type': 'EXPORT', 'name': file_name})
     })
+
+
+@app.task(name='delete_expired_export', ignore_result=True, max_retries=5, default_retry_delay=10)
+def delete_expired_export():
+    try:
+        r = redis.StrictRedis(host='redis', port=6379, db=0)
+        for user_exports in r.scan_iter('export:*'):
+            r.delete(user_exports)
+        shutil.rmtree(settings.MEDIA_ROOT + '/export/')
+
+    except Exception as err:
+        print(err)
