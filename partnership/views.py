@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from datetime import datetime
+from decimal import Decimal
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Sum, When, Case, F, IntegerField, Q, DecimalField, OuterRef, Subquery, Count, Value as V
@@ -30,7 +31,6 @@ from .models import Partnership, Deal, PartnershipLogs
 from .serializers import (DealSerializer, PartnershipUpdateSerializer, DealCreateSerializer,
                           PartnershipTableSerializer, DealUpdateSerializer,
                           PartnershipCreateSerializer, PartnershipSerializer)
-from decimal import Decimal
 
 
 class PartnershipViewSet(mixins.RetrieveModelMixin,
@@ -88,20 +88,12 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         return self.queryset.for_user(user=self.request.user)
 
     def perform_update(self, serializer):
-        from functools import reduce
+        partner = serializer.save()
+        PartnershipLogs.log_partner(partner)
 
-        serializer.save()
-        # data = serializer.data
-        # date = reduce(lambda x, y: y + '-' + x, data['date'].split('.'))
-        #
-        # PartnershipLogs.objects.create(currency_id=data['currency'],
-        #                                date=date,
-        #                                is_active=data['is_active'],
-        #                                need_text=data['need_text'],
-        #                                responsible_id=data['responsible'],
-        #                                value=data['value'],
-        #                                partner_id=data['id'],
-        #                                )
+    def perform_create(self, serializer):
+        partner = serializer.save()
+        PartnershipLogs.log_partner(partner)
 
     def get_permissions(self):
         if self.action in ('list', 'retrieve'):
@@ -217,7 +209,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
 
         return Partnership.objects.filter(id__in=queryset).annotate(active_partners=Subquery(
             subqs_active_partners, output_field=IntegerField())
-                                 ).values_list('active_partners', flat=True).order_by('id')
+        ).values_list('active_partners', flat=True).order_by('id')
 
     @staticmethod
     def _get_potential_sum(queryset):
