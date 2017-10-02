@@ -5,7 +5,7 @@ import 'alertifyjs/build/css/themes/default.min.css';
 import {makeExports} from "./modules/Notifications/notify";
 
 const USERID = $('body').attr('data-user');
-let url = `ws://${window.location.host}/ws/user/${USERID}/`;
+let url = `wss://${window.location.host}/ws/user/${USERID}/`;
 let socket = new WebSocket(url);
 socket.onmessage = function (e) {
     let data = JSON.parse(e.data),
