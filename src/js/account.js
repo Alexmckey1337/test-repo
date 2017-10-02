@@ -11,6 +11,7 @@ import {updateUser, updateOrCreatePartner} from './modules/User/updateUser';
 import {makeResponsibleList} from './modules/MakeList/index';
 import getLastId from './modules/GetLastId/index';
 import {setCookie} from './modules/Cookie/cookie';
+import {postData} from "./modules/Ajax/index";
 import ajaxRequest from './modules/Ajax/ajaxRequest';
 import URLS from './modules/Urls/index';
 import {CONFIG} from './modules/config';
@@ -156,40 +157,33 @@ $('document').ready(function () {
         $('#popup-create_deal').css('display', '');
     });
     $("#create_new_deal").on('click', function () {
+        $('#send_new_deal').prop('disabled', false);
         $('#popup-create_deal').css('display', 'block');
     });
 
     $('#send_new_deal').on('click', function () {
-        let description = $('#popup-create_deal textarea').val();
-        let value = $('#new_deal_sum').val();
-        let date = $('#new_deal_date').val();
-        let type = $('#new_deal_type').val();
+        let description = $('#popup-create_deal textarea').val(),
+            value = $('#new_deal_sum').val(),
+            date = $('#new_deal_date').val(),
+            type = $('#new_deal_type').val();
 
         if (value && date) {
-            let url = URLS.deal.list();
-
-            let deal = JSON.stringify({
-                'date_created': date.trim().split('.').reverse().join('-'),
-                'value': value,
-                'description': description,
-                'partnership': $(this).data('partner'),
-                'type': type,
-            });
-            ajaxRequest(url, deal, function (data) {
+            let url = URLS.deal.list(),
+                deal = {
+                    'date_created': date.trim().split('.').reverse().join('-'),
+                    'value': value,
+                    'description': description,
+                    'partnership': $(this).data('partner'),
+                    'type': type,
+                };
+            $(this).prop('disabled', true);
+            postData(url, deal).then(() => {
                 showAlert('Сделка создана.');
                 $('#popup-create_deal textarea').val('');
                 $('#new_deal_sum').val('');
                 $('#new_deal_date').val('');
                 $('#popup-create_deal').css('display', 'none');
-
-            }, 'POST', true, {
-                'Content-Type': 'application/json'
-            }, {
-                403: function (data) {
-                    data = data.responseJSON;
-                    showAlert(data.detail)
-                }
-            });
+            }).catch((err) => showAlert(data.detail));
         } else {
             showAlert('Заполните все поля.');
         }
