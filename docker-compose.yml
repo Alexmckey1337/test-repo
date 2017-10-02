@@ -132,6 +132,8 @@ services:
     build:
       context: .
       dockerfile: ./compose/django/Dockerfile
+    volumes:
+      - nginx_data:/app/public
     user: django
     env_file: .env
     depends_on:
