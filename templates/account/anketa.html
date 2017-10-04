@@ -448,7 +448,7 @@
                         <textarea name="need_note" id="id_note_text" rows="5" cols="50" readonly>{{ account.description }}</textarea>
                     </div>
                 </div>
-                {% if account.partnership %}
+                {% if account.partnership and user.is_partner_manager_or_high %}
                     <div class="a-sdelki" id="Sdelki">
                         <div class="top-s">
                             <h3>Партнерство</h3>

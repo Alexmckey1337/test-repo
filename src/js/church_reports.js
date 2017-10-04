@@ -203,23 +203,29 @@ $('document').ready(function () {
 
     $('#payment-form').on('submit', function (e) {
         e.preventDefault();
-        let id = $(this).find('button[type="submit"]').attr('data-id'),
+    });
+
+    $('#complete-payment').on('click', _.debounce(function (e) {
+        e.preventDefault();
+        $(this).prop('disabled', true);
+        let id = $(this).attr('data-id'),
             sum = $('#new_payment_sum').val(),
             description = $('#popup-create_payment textarea').val();
-        let data = $(this).serializeArray();
         createChurchPayment(id, sum, description).then(() => {
             churchReportsTable();
             $('#new_payment_sum').val('');
             $('#popup-create_payment textarea').val('');
             $('#popup-create_payment').css('display', 'none');
             showAlert('Оплата прошла успешно.');
+            $('#complete-payment').prop('disabled', false);
         }).catch((res) => {
             let error = JSON.parse(res.responseText),
                 errKey = Object.keys(error),
                 html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
+            $('#complete-payment').prop('disabled', false);
             showAlert(html);
         });
-    });
+    }, 500));
 
     $('#sent_date').datepicker({
         dateFormat: "dd.mm.yyyy",

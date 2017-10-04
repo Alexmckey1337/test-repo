@@ -36,6 +36,7 @@ export function btnDeals() {
         $('#payment_sum, #all_payments').text(`${value} ${currencyName}`);
         clearSumChange(total_sum);
         sumChange(diff, currencyName, currencyID, total_sum);
+        $('#complete-payment').prop('disabled', false);
         $('#popup-create_payment').css('display', 'block');
         $('#new_payment_rate').focus();
     });
@@ -160,6 +161,7 @@ export function updateDealsTable() {
 function makeQuickEditDeal(el) {
     let id = $(el).attr('data-id'),
         popup = $('#popup-create_deal');
+    $('#send_new_deal').prop('disabled', false);
     getDealDetail(id).then(data => {
         let sum = numeral(data.value).value(),
             txt = `<div class="block_line">

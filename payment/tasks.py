@@ -19,7 +19,7 @@ def generate_export(user, queryset, fields, resource_class, file_format):
 
     path_to_file = settings.MEDIA_ROOT + '/exports/' + file_name_with_format
 
-    result = bytes(export_data, 'UTF-8')
+    result = export_data.encode('cp1251', errors='replace')
 
     os.makedirs(os.path.dirname(path_to_file), exist_ok=True)
 

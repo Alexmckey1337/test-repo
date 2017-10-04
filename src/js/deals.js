@@ -29,8 +29,6 @@ $(document).ready(function () {
         $(this).parent().addClass('current');
     });
 
-
-
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
         updateSettings(dealsTable);
@@ -61,22 +59,28 @@ $(document).ready(function () {
 
     $('#payment-form').on('submit', function (e) {
         e.preventDefault();
-        let id = $(this).find('button[type="submit"]').attr('data-id'),
+    });
+
+    $('#complete-payment').on('click', _.debounce(function (e) {
+        e.preventDefault();
+        $(this).prop('disabled', true);
+        let id = $(this).attr('data-id'),
             sum = $('#new_payment_sum').val(),
             description = $('#popup-create_payment textarea').val();
-        let data = $(this).serializeArray();
         createDealsPayment(id, sum, description).then(function () {
             updateDealsTable();
             $('#new_payment_sum').val('');
             $('#popup-create_payment textarea').val('');
+            $('#complete-payment').prop('disabled', false);
             $('#popup-create_payment').css('display', 'none');
         }).catch((res) => {
             let error = JSON.parse(res.responseText),
                 errKey = Object.keys(error),
                 html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
+            $('#complete-payment').prop('disabled', false);
             showAlert(html);
         });
-    });
+    }, 500));
 
     $('#popup-payments .detail').on('click', function () {
         let url = $(this).attr('data-detail-url');
@@ -138,7 +142,8 @@ $(document).ready(function () {
         autoClose: true
     });
 
-    $('#send_new_deal').on('click', function () {
+    $('#send_new_deal').on('click', _.debounce(function () {
+        $(this).prop('disabled', true);
     let id = $(this).attr('data-id'),
         description = $('#popup-create_deal textarea').val(),
         value = $('#new_deal_sum').val(),
@@ -158,15 +163,16 @@ $(document).ready(function () {
             dealsTable({page:page});
             showAlert('Редактирование сделки прошло успешно');
             clearDealForm();
+            $('#send_new_deal').prop('disabled', false);
             $('#popup-create_deal').css('display', 'none');
-
         }).catch((err) => {
+            $('#send_new_deal').prop('disabled', false);
             showAlert(err);
         });
     } else {
         showAlert('Заполните поле суммы и дату.');
     }
-});
+}, 500));
 
 });
 
