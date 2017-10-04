@@ -78,7 +78,12 @@ $('document').ready(function () {
 
     $('#payment-form').on('submit', function (e) {
         e.preventDefault();
-        let id = $(this).find('button[type="submit"]').attr('data-id'),
+    });
+
+    $('#complete-payment').on('click', _.debounce(function (e) {
+        e.preventDefault();
+        $(this).prop('disabled', true);
+        let id = $(this).attr('data-id'),
             data = {
                 "sum": $('#new_payment_sum').val(),
                 "description": $('#popup-update_payment textarea').val(),
@@ -92,9 +97,11 @@ $('document').ready(function () {
             $('.preloader').css('display', 'block');
             createChurchPaymentsTable({page: page});
             showAlert('Платеж успешно изменен!');
+            $('#complete-payment').prop('disabled', false);
         }).catch((res) => {
+            $('#complete-payment').prop('disabled', false);
             showAlert(res, 'Ошибка');
         });
-    });
+    }, 500))
 
 });
