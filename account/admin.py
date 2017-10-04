@@ -24,7 +24,7 @@ class CustomUserAdmin(UserAdmin, ImportExportModelAdmin):
             'email', 'first_name', 'last_name', 'middle_name', 'search_name', 'master', 'departments', 'hierarchy',
             'spiritual_level', 'phone_number', 'extra_phone_numbers', 'skype', 'facebook', 'vkontakte', 'image',
             'born_date', 'country', 'region', 'city', 'district', 'address',
-            'description', 'repentance_date', 'coming_date',
+            'description', 'repentance_date', 'coming_date', 'marker',
         )}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'can_login', 'is_superuser', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
