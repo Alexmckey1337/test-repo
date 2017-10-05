@@ -12,6 +12,7 @@ import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
 import {showAlert, showConfirm} from "./modules/ShowNotifications/index";
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import parseUrlQuery from './modules/ParseUrl/index';
 
 $('document').ready(function () {
     let $departmentsFilter = $('#departments_filter'),
@@ -24,8 +25,7 @@ $('document').ready(function () {
     // function filterInit(set = null) {
     //     if (!init) {
     //         if (set != null) {
-    //             $('#departments_filter').find(`option[value='${set.department_id}']`).prop('selected', true);
-    //             $('.apply-filter').trigger('click');
+    //             $('#departments_filter').find(`option[value='${set.department}']`).trigger('click');
     //         } else {
     //             getPastorsByDepartment({
     //                 master_tree: USER_ID
@@ -56,6 +56,7 @@ $('document').ready(function () {
         }
     })();
 
+    // (PATH == undefined) && createChurchesTable();
     createChurchesTable();
 
     $('.selectdb').select2();
@@ -110,14 +111,7 @@ $('document').ready(function () {
 
     $departmentsFilter.on('change', function () {
         let departamentID = $(this).val();
-        let config = {
-            level_gte: 2
-        };
-        if (!departamentID) {
-            departamentID = null;
-        } else {
-            config.department = departamentID;
-        }
+        (!departamentID) && (departamentID = null);
         getPastorsByDepartment({
             department_id: departamentID
         })
@@ -169,7 +163,7 @@ $('document').ready(function () {
         });
     });
 
-    //Parsing URL
+    // //Parsing URL
     // if (PATH != undefined) {
     //     let filterParam = parseUrlQuery();
     //     console.log(filterParam);

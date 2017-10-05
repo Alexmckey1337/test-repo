@@ -43,8 +43,11 @@ $('document').ready(function () {
                     return getHomeLiderReports().then(data => {
                         let responsibles = data.results.map(res => res.master),
                             uniqResponsibles = _.uniqWith(responsibles, _.isEqual);
-                        const options = uniqResponsibles.map(option =>
-                            `<option value="${option.id}" ${(set.responsible_id == option.id) ? 'selected' : ''}>${option.fullname}</option>`);
+                        const options = uniqResponsibles.map(option => {
+                            if (option) {
+                                return `<option value="${option.id}" ${(set.responsible_id == option.id) ? 'selected' : ''}>${option.fullname}</option>`
+                            }
+                        });
                         $responsibleFilter.append(options);
                         $('.apply-filter').trigger('click');
                     });
