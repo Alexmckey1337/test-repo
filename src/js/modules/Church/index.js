@@ -15,11 +15,13 @@ import {showAlert} from "../ShowNotifications/index";
 import {hidePopup} from "../Popup/popup";
 import DeleteChurchUser from '../User/deleteChurchUser';
 import {addUser2Church} from "../User/addUser";
+import updateHistoryUrl from '../History/index';
 
 export function createChurchesTable(config = {}) {
     Object.assign(config, getSearch('search_title'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
+    // updateHistoryUrl(config);
     getData(URLS.church.list(), config).then(function (data) {
         let count = data.count;
         let page = config['page'] || 1;

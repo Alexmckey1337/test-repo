@@ -439,6 +439,23 @@
                     <div class="top-s">
                         <h3>Примечания</h3>
                     </div>
+                    <div class="note_wrapper clearfix" id="markerWrapper">
+                        <label for="id_note_text">Маркер</label>
+                        <div class="btn-block">
+                            <button class="editText"></button>
+                            <button class="saveNote" id="sendMarker" data-id="{{ account.id }}"></button>
+                        </div>
+                        <div class="select-wrapper">
+                            <select class="selectdb" type="text" id="markers-select" multiple readonly disabled>
+                                {% for marker in markers %}
+                                    <option value="{{ marker.id }}" data-color="{{ marker.color }}"
+                                            data-hint="{{ marker.description }}"
+                                            data-search="{{ marker.title }}"
+                                            {% if marker in account.marker.all %}selected{% endif %}>{{ marker.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
                     <div class="note_wrapper clearfix" id="summitWrapper">
                         <label for="id_note_text">Общее примечание</label>
                         <div class="btn-block">

@@ -48,12 +48,12 @@ export function deleteData(url) {
     }
 }
 
-export function postData(url, data = {}) {
+export function postData(url, data = {}, config = {}) {
     let postConfig = {
             method: 'POST',
             body: JSON.stringify(data),
         },
-        initConfig = Object.assign({}, defaultOption, postConfig);
+        initConfig = Object.assign({}, defaultOption, postConfig, config);
     if (typeof url === "string") {
 
         return fetch(url, initConfig).then(resp => {
