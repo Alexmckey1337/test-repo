@@ -167,7 +167,7 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             'manager': x[3],
             'partner_id': x[4],
             'user_id': x[5],
-            # Making queries from PartnershipLoUntitled Diagram.xmlgs model if requested period not in this month
+            # Making queries from PartnershipLogs model if requested period not in this month
             'total_partners': x[6] or 0,
             'active_partners': x[7] or 0,
             'potential_sum': x[8] or 0,
