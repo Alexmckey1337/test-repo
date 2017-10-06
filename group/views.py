@@ -440,7 +440,7 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
 
         department_id = request.query_params.get('department_id')
         if department_id:
-            home_groups = home_groups.filter(department_id=department_id)
+            home_groups = home_groups.filter(church__department_id=department_id)
 
         master_tree = request.query_params.get('master_tree')
         if master_tree:
