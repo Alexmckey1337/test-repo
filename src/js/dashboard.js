@@ -15,9 +15,10 @@ $(document).ready(function () {
                 user_id: id
             },
             urlHG = URLS.event.home_meeting.dashboard_count(),
+            urlCH = URLS.event.church_report.dashboard_count(),
             urlChurch = URLS.church.dashboard_count(),
             urlUser = URLS.user.dashboard_count();
-        Promise.all([getData(urlHG, config), getData(urlChurch, config), getData(urlUser, config)]).then(values => {
+        Promise.all([getData(urlHG, config), getData(urlChurch, config), getData(urlUser, config), getData(urlCH, config)]).then(values => {
             let data = {};
             for (let i = 0; i < values.length; i++) {
                 Object.assign(data, values[i]);
@@ -139,12 +140,6 @@ $(document).ready(function () {
         master_tree: userId,
         level_gte: 1
     };
-
-    // getShortUsersForDashboard(config).then(data => {
-    //     const options = data.map(option =>
-    //         `<option value="${option.id}" ${(userId == option.id) ? 'selected' : ''}>${option.fullname}</option>`);
-    //     $('#master-filter').append(options);
-    // });
 
     function parse(data, params) {
         params.page = params.page || 1;

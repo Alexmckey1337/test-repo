@@ -12,11 +12,33 @@ import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
 import {showAlert, showConfirm} from "./modules/ShowNotifications/index";
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import parseUrlQuery from './modules/ParseUrl/index';
 
 $('document').ready(function () {
     let $departmentsFilter = $('#departments_filter'),
         $treeFilter = $('#tree_filter'),
-        $pastorFilter = $('#pastor_filter');
+        $pastorFilter = $('#pastor_filter'),
+        init = false;
+    const USER_ID = $('body').data('user'),
+          PATH = window.location.href.split('?')[1];
+
+    // function filterInit(set = null) {
+    //     if (!init) {
+    //         if (set != null) {
+    //             $('#departments_filter').find(`option[value='${set.department}']`).trigger('click');
+    //         } else {
+    //             getPastorsByDepartment({
+    //                 master_tree: USER_ID
+    //             }).then(res => {
+    //                 let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
+    //                 $treeFilter.html('<option>ВСЕ</option>').append(leaders);
+    //                 $pastorFilter.html('<option>ВСЕ</option>').append(leaders);
+    //             });
+    //         }
+    //         init = true;
+    //     }
+    // }
+
     let filterInit = (function () {
         let init = false;
         const USER_ID = $('body').data('user');
@@ -34,6 +56,7 @@ $('document').ready(function () {
         }
     })();
 
+    // (PATH == undefined) && createChurchesTable();
     createChurchesTable();
 
     $('.selectdb').select2();
@@ -88,14 +111,7 @@ $('document').ready(function () {
 
     $departmentsFilter.on('change', function () {
         let departamentID = $(this).val();
-        let config = {
-            level_gte: 2
-        };
-        if (!departamentID) {
-            departamentID = null;
-        } else {
-            config.department = departamentID;
-        }
+        (!departamentID) && (departamentID = null);
         getPastorsByDepartment({
             department_id: departamentID
         })
@@ -146,5 +162,12 @@ $('document').ready(function () {
         }, () => {
         });
     });
+
+    // //Parsing URL
+    // if (PATH != undefined) {
+    //     let filterParam = parseUrlQuery();
+    //     console.log(filterParam);
+    //     filterInit(filterParam);
+    // }
 
 });

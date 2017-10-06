@@ -7,6 +7,7 @@ import 'cropper';
 import 'cropper/dist/cropper.css';
 import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
 import 'jquery-form-validator/form-validator/lang/ru.js';
+import 'hint.css/hint.min.css';
 import {updateUser, updateOrCreatePartner} from './modules/User/updateUser';
 import {makeResponsibleList} from './modules/MakeList/index';
 import getLastId from './modules/GetLastId/index';
@@ -24,6 +25,27 @@ import {handleFileSelect, dataURLtoBlob} from './modules/Avatar/index';
 
 $('document').ready(function () {
     const ID = getLastId();
+
+    function AddColorMarkers() {
+        let options = $('#markers-select').find('option:selected'),
+            markers = [];
+        options.each(function () {
+            const marker = {
+                'color': $(this).attr('data-color'),
+                'title': $(this).attr('data-search'),
+                'hint': $(this).attr('data-hint'),
+            };
+            markers.push(marker);
+        });
+        markers.forEach(function (item) {
+            $('.select-wrapper').find('.selection').find(`li[title='${item.title}']`)
+                .addClass('hint--top-left  hint--large')
+                .attr('aria-label', item.hint).css({
+                'background-color': item.color,
+                'padding': '5px 10px',
+            });
+        });
+    }
 
     $('.hard-login').on('click', function () {
         let user = $(this).data('user-id');
@@ -65,6 +87,21 @@ $('document').ready(function () {
         updateUser(id, resData).then(() => showAlert('Ваше примечание добавлено.'));
         $(this).siblings('.editText').removeClass('active');
         $(this).parent().siblings('textarea').attr('readonly', true);
+    });
+
+    $('#sendMarker').on('click', function () {
+        let id = $(this).data('id'),
+            data = {};
+        data.marker = $('#markers-select').val();
+        postData(URLS.user.detail(id), data, {method: 'PATCH'}).then(() => {
+            showAlert('Маркер изменен');
+            AddColorMarkers();
+        }).catch((err) => {
+            let txt = err.responseText;
+            showAlert(txt);
+        });
+        $(this).siblings('.editText').removeClass('active');
+        $(this).closest('.note_wrapper').find('select').attr('readonly', true).attr('disabled', true);
     });
 
     $("#close-payment").on('click', function () {
@@ -639,13 +676,20 @@ $('document').ready(function () {
 
     $('.a-note, .a-sdelki').find('.editText').on('click', function () {
         $(this).toggleClass('active');
-        let textArea = $(this).parent().siblings('textarea');
+        let textArea = $(this).parent().siblings('textarea'),
+            select = $(this).closest('.note_wrapper').find('select');
+        console.log(select);
         if ($(this).hasClass('active')) {
             textArea.attr('readonly', false);
+            select.attr('readonly', false).attr('disabled', false);
         } else {
             textArea.attr('readonly', true);
+            select.attr('readonly', true).attr('disabled', true);
         }
     });
+
+    AddColorMarkers();
+
     // $('label[for="master"]').on('click', function () {
     //     let id = $('#selectResponsible').find('option:selected').val();
     //     if(id) {

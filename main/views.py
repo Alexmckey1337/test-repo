@@ -13,7 +13,7 @@ from django.views import View
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import ContextMixin, TemplateView
 
-from account.models import CustomUser
+from account.models import CustomUser, UserMarker
 from analytics.models import LogRecord
 from event.models import Meeting, ChurchReport
 from event.models import MeetingType
@@ -326,7 +326,8 @@ def account(request, id):
         'log_messages_iam': LogRecord.objects.filter(
             user_id=id,
             content_type=ContentType.objects.get_for_model(user)
-        )
+        ),
+        'markers': UserMarker.objects.all()
     }
     return render(request, 'account/anketa.html', context=ctx)
 
