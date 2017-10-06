@@ -11,10 +11,10 @@ import shutil
 
 
 @app.task(ignore_result=True, max_retries=3, default_retra=2 * 60)
-def generate_export(user, queryset, fields, resource_class, file_format):
+def generate_export(user, queryset, fields, resource_class, file_format, file_name):
     data = resource_class().export(queryset, custom_export_fields=fields)
     export_data = file_format.export_data(data, delimiter=';')
-    file_name = str(resource_class._meta.model.__name__) + '_export_at_' + datetime.now().strftime('%H:%M:%S')
+    file_name = file_name.replace(' ', '_') + '_export_at_' + datetime.now().strftime('%H:%M:%S')
     file_name_with_format = file_name + '.' + file_format.get_extension()
 
     path_to_file = settings.MEDIA_ROOT + '/exports/' + file_name_with_format

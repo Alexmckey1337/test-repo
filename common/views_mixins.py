@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.http import HttpResponse
 from import_export.formats import base_formats
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, exceptions
 from rest_framework.decorators import list_route
 from payment.tasks import generate_export
 from rest_framework.response import Response
@@ -55,8 +55,11 @@ class BaseExportViewSetMixin(object):
 
     def get_response(self, queryset, fields, resource_class=None):
         resource_class = resource_class or self.get_resource_class()
+        file_name = self.request.query_params.get('file_name')
+        if not file_name:
+            raise exceptions.ValidationError({'message': 'Parameter {file_name} must be passed'})
         generate_export.apply_async(args=[
-            self.request.user, queryset, fields, resource_class, self.file_format])
+            self.request.user, queryset, fields, resource_class, self.file_format, file_name])
 
         # data = resource_class().export(queryset, custom_export_fields=fields)
         # export_data = self.file_format.export_data(data, delimiter=';')
