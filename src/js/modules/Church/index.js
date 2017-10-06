@@ -21,7 +21,7 @@ export function createChurchesTable(config = {}) {
     Object.assign(config, getSearch('search_title'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
-    // updateHistoryUrl(config);
+    updateHistoryUrl(config);
     getData(URLS.church.list(), config).then(function (data) {
         let count = data.count;
         let page = config['page'] || 1;
