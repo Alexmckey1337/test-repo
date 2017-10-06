@@ -20,7 +20,9 @@
                 </button>
             </li>
             <li>
-                <button id="export_table" data-export-url="{% url "homegroup-export" %}" class="download header__button">Export</button>
+                <button id="export_table" data-export-url="{% url "homegroup-export" %}"
+                        class="download header__button">Export
+                </button>
             </li>
             <li>
                 <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
@@ -37,11 +39,10 @@
 {% endblock %}
 
 {% block popup %}
-       <div class="popap" id="quickEditCartPopup">
+    <div class="popap" id="quickEditCartPopup">
         <div class="pop_cont">
             <div class="popup_text">
                 <h2>Карточка Домашней группы</h2>
-                <span class="close close-popup"><i class="fa fa-times" aria-hidden="true"></i></span>
             </div>
             <div class="popup_body">
             </div>
@@ -59,11 +60,11 @@
                     <label>
                         <span class="label_block">Отдел</span>
                         <select class="selectdb" data-filter="department_id" id="departments_filter">
-                                <option value="">ВСЕ</option>
-                                {% for department in departments %}
-                                    <option value="{{ department.id }}">{{ department.title }}</option>
-                                {% endfor %}
-                            </select>
+                            <option value="">ВСЕ</option>
+                            {% for department in departments %}
+                                <option value="{{ department.id }}">{{ department.title }}</option>
+                            {% endfor %}
+                        </select>
                     </label>
                     <label>
                         <span class="label_block">Церковь</span>
@@ -91,14 +92,15 @@
                         <input type="text" data-filter="opening_date" id="search_date_open">
                     </label>
                     <label>
-                        <span class="label_block">Фильтр по городу</span>
+                        <span class="label_block">Город</span>
                         <input type="text" data-filter="city" placeholder="город или часть названия" id="search_city">
                     </label>
                 </div>
             </div>
             <div class="container">
                 <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>
-                    Очистить</button>
+                    Очистить
+                </button>
                 <button class="close-popup change__text">Отменить</button>
                 <button class="apply-filter">Применить</button>
             </div>
@@ -109,50 +111,48 @@
             <div class="pop_cont">
                 <div class="popup_text">
                     <h2>Добавление домашней группы</h2>
-                    <span class="close close-popup"><i class="fa fa-times" aria-hidden="true"></i></span>
                 </div>
                 <form action="">
                     <div class="popup_body">
                         <div class="container container_block">
-
-                                <label>
-                                    <span class="label_block">Дата открытия</span>
-                                    <input id="added_home_group_date" required>
-                                </label>
-                                <label>
-                                    <span class="label_block">Название</span>
-                                    <input type="text" id="added_home_group_title">
-                                </label>
-                                <label>
-                                    <span class="label_block">Церковь</span>
-                                    <p id="added_home_group_church" data-id="{{ user.get_church.id }}"
-                                       data-department="{{ user.get_church.department.id }}"
-                                       data-user="{{ user.id }}">
-                                        {{ user.get_church.get_title }}
-                                    </p>
-                                </label>
-                                <label>
-                                    <span class="label_block">Лидер</span>
-                                    <select id="added_home_group_pastor" required>
-                                        <option>Выберите пастора</option>
-                                    </select>
-                                </label>
-                                <label>
-                                    <span class="label_block">Город</span>
-                                    <input type="text" id="added_home_group_city" required>
-                                </label>
-                                <label>
-                                    <span class="label_block">Адрес служения</span>
-                                    <input type="text" id="added_home_group_address">
-                                </label>
-                                <label>
-                                    <span class="label_block">Телефон</span>
-                                    <input type="tel" id="added_home_group_phone">
-                                </label>
-                                <label>
-                                    <span class="label_block">Сайт</span>
-                                    <input type="url" id="added_home_group_site">
-                                </label>
+                            <label>
+                                <span class="label_block">Дата открытия</span>
+                                <input id="added_home_group_date" required>
+                            </label>
+                            <label>
+                                <span class="label_block">Название</span>
+                                <input type="text" id="added_home_group_title">
+                            </label>
+                            <label>
+                                <span class="label_block">Церковь</span>
+                                <p id="added_home_group_church" data-id="{{ user.get_church.id }}"
+                                   data-department="{{ user.get_church.department.id }}"
+                                   data-user="{{ user.id }}">
+                                    {{ user.get_church.get_title }}
+                                </p>
+                            </label>
+                            <label>
+                                <span class="label_block">Лидер</span>
+                                <select id="added_home_group_pastor" required>
+                                    <option>Выберите пастора</option>
+                                </select>
+                            </label>
+                            <label>
+                                <span class="label_block">Город</span>
+                                <input type="text" id="added_home_group_city" required>
+                            </label>
+                            <label>
+                                <span class="label_block">Адрес служения</span>
+                                <input type="text" id="added_home_group_address">
+                            </label>
+                            <label>
+                                <span class="label_block">Телефон</span>
+                                <input type="tel" id="added_home_group_phone">
+                            </label>
+                            <label>
+                                <span class="label_block">Сайт</span>
+                                <input type="url" id="added_home_group_site">
+                            </label>
                         </div>
                     </div>
                     <div class="container">
@@ -167,50 +167,51 @@
 {% block extra_scripts %}
     <script src="{% static "js/database_home_groups.bundle.js" %}"></script>
     <script type="text/template" id="quickEditCart">
-   <div class="container bb-1">
-        <div class="header">
-            <div><input type="text" class="title" id="home_groups_title" value="<%=get_title %>"></div>
-            <% if(opening_date) { %>
-            <label>
-                <span class="label_block">Дата открытия</span>
-                <input type="text" class="date" id="opening_date" value="<%= opening_date.split('.').reverse().join('-') %>">
-            </label>
-            <% } else { %>
+        <div class="container bb-1">
+            <div class="header">
+                <div><input type="text" class="title" id="home_groups_title" value="<%=get_title %>"></div>
+                <% if(opening_date) { %>
+                <label>
+                    <span class="label_block">Дата открытия</span>
+                    <input type="text" class="date" id="opening_date"
+                           value="<%= opening_date.split('.').reverse().join('-') %>">
+                </label>
+                <% } else { %>
                 <label>
                     <span class="label_block">Дата открытия</span>
                     <input type="text" id="opening_date" class="date" value="">
                 </label>
-            <% } %>
-            <div class="hidden"><input type="text" id="homeGroupsID" value="<%= id %>"></div>
+                <% } %>
+                <div class="hidden"><input type="text" id="homeGroupsID" value="<%= id %>"></div>
+            </div>
         </div>
-   </div>
-    <div class="container start">
-        <label>
-            <span class="label_block">Церковь:</span>
-            <input type="text" data-id="<%= church.id %>" value="<%= church.title %>" readonly>
-        </label>
-        <label>
-            <span class="label_block">Лидер:</span>
-            <select name="" id="homeGroupLeader">
-                <option value="<%= leader %>"><%= leader %></option>
-            </select>
-        </label>
-        <label>
-            <span class="label_block">Город:</span>
-            <input type="text" id="city" value="<%=city %>">
-        </label>
-        <label>
-            <span class="label_block">Адрес:</span>
-            <input type="text" id="address" value="<%=address %>">
-        </label>
-        <label>
-            <span class="label_block">Телефон:</span>
-            <input type="text" id="phone_number" value="<%=phone_number %>">
-        </label>
-        <label>
-            <span class="label_block">Сайт:</span>
-            <input type="text" id="web_site" value="<%=website %>">
-        </label>
-    </div>
-</script>
+        <div class="container start">
+            <label>
+                <span class="label_block">Церковь:</span>
+                <input type="text" data-id="<%= church.id %>" value="<%= church.title %>" readonly>
+            </label>
+            <label>
+                <span class="label_block">Лидер:</span>
+                <select name="" id="homeGroupLeader">
+                    <option value="<%= leader %>"><%= leader %></option>
+                </select>
+            </label>
+            <label>
+                <span class="label_block">Город:</span>
+                <input type="text" id="city" value="<%=city %>">
+            </label>
+            <label>
+                <span class="label_block">Адрес:</span>
+                <input type="text" id="address" value="<%=address %>">
+            </label>
+            <label>
+                <span class="label_block">Телефон:</span>
+                <input type="text" id="phone_number" value="<%=phone_number %>">
+            </label>
+            <label>
+                <span class="label_block">Сайт:</span>
+                <input type="text" id="web_site" value="<%=website %>">
+            </label>
+        </div>
+    </script>
 {% endblock %}

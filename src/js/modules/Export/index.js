@@ -3,31 +3,40 @@ import getSearch from '../Search/index';
 import {postExport} from "../Ajax/index";
 // import newAjaxRequest from '../Ajax/newAjaxRequest';
 import {getFilterParam} from "../Filter/index";
-import {showAlert} from "../ShowNotifications/index";
+import {showAlert, showPromt} from "../ShowNotifications/index";
 
 export default function exportTableData(el, additionalFilter = {}, search = 'search_fio') {
     let url, filter, filterKeys, items, count;
-    showAlert('Запрос отправлен в обработку. После завершения формирования файла Вы будете оповещены');
-    url = $(el).attr('data-export-url');
-    filter = Object.assign(getFilterParam(), getSearch(search), additionalFilter);
-    filterKeys = Object.keys(filter);
-    if (filterKeys && filterKeys.length) {
-        url += '?';
-        items = filterKeys.length;
-        count = 0;
-        filterKeys.forEach(function (key) {
-            count++;
-            url += key + '=' + filter[key];
-            if (count != items) {
-                url += '&';
-            }
-        })
-    }
-    let data = {
-        fields: getDataTOExport().join(',')
-    };
-    postExport(url, data).catch(function () {
-        showAlert('Ошибка при загрузке файла');
+    showPromt('Экспорт', 'Введите имя файла', 'File_default', (evt, value) => {
+        let perVal = value.replace(/^\s+|\s+$/g, '');
+        if (!perVal) {
+            showAlert('Имя файла не введено. Повторите попытку');
+            return;
+        }
+        showAlert('Запрос отправлен в обработку. После завершения формирования файла Вы будете оповещены');
+        url = $(el).attr('data-export-url');
+        filter = Object.assign(getFilterParam(), getSearch(search), additionalFilter);
+        filterKeys = Object.keys(filter);
+        if (filterKeys && filterKeys.length) {
+            url += '?';
+            items = filterKeys.length;
+            count = 0;
+            filterKeys.forEach(function (key) {
+                count++;
+                url += key + '=' + filter[key];
+                if (count != items) {
+                    url += '&';
+                }
+            })
+        }
+        url += `&file_name=${value.trim()}`;
+        let data = {
+            fields: getDataTOExport().join(',')
+        };
+        postExport(url, data).catch(function () {
+            showAlert('Ошибка при загрузке файла');
+        });
+    }, () => {
     });
 }
 

@@ -8,5 +8,9 @@ export function showAlert(message, title = 'Уведомление') {
 }
 
 export function showConfirm(title, text, okFunc, cancelFunc) {
-    alertify.confirm(title, text, okFunc, cancelFunc).set('labels', {ok:'Подтвердить', cancel:'Отменить'}); ;
+    alertify.confirm(title, text, okFunc, cancelFunc).set('labels', {ok:'Подтвердить', cancel:'Отменить'});
+}
+
+export function showPromt(title, text, value, okFunc, cancelFunc) {
+    alertify.prompt(title, text, value, okFunc, cancelFunc).set('labels', {ok:'Подтвердить', cancel:'Отменить'});
 }
