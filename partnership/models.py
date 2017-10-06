@@ -300,7 +300,7 @@ class PartnershipLogs(PartnershipAbstractModel):
         ordering = ('-log_date',)
 
     def __str__(self):
-        return 'Partner: %s. Log date: %s' % (self.partner, self.log_date)
+        return 'Partner: %s. Log date: %s' % (self.partner, self.log_date.strftime('%Y.%m'))
 
     @classmethod
     def log_partner(cls, partner):

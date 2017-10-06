@@ -5,7 +5,9 @@ from datetime import datetime
 from decimal import Decimal
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Sum, When, Case, F, IntegerField, Q, DecimalField, OuterRef, Subquery, Count, Value as V
+from django.db import connection
+from django.db.models import (Sum, When, Case, F, IntegerField, Q, DecimalField, OuterRef,
+                              Subquery, Count, Value as V)
 from django.db.models.functions import Concat
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
@@ -24,8 +26,8 @@ from partnership.filters import (FilterByPartnerBirthday, DateAndValueFilter, Fi
 from partnership.mixins import (PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin,
                                 PartnerExportViewSetMixin, PartnerStatusReviewMixin)
 from partnership.pagination import PartnershipPagination, DealPagination
-from partnership.permissions import (CanSeeDeals, CanSeePartners, CanCreateDeals,
-                                     CanUpdateDeals, CanUpdatePartner, CanUpdateManagersPlan, CanSeeManagerSummary)
+from partnership.permissions import (CanSeeDeals, CanSeePartners, CanCreateDeals, CanUpdateDeals,
+                                     CanUpdatePartner, CanUpdateManagersPlan, CanSeeManagerSummary)
 from partnership.resources import PartnerResource
 from .models import Partnership, Deal, PartnershipLogs
 from .serializers import (DealSerializer, PartnershipUpdateSerializer, DealCreateSerializer,
@@ -127,10 +129,12 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         :return: dict with need_text, e.g. {'need_text': 'i am update text'}
         """
         if not request.user.can_update_partner_need:
-            raise exceptions.PermissionDenied(detail=_('You do not have permission to update need of this partner.'))
+            raise exceptions.PermissionDenied(detail=_(
+                'You do not have permission to update need of this partner.'))
         text = request.data.get('need_text', None)
         if text is None:
-            return Response({'detail': _("'need_text' is required field.")}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': _("'need_text' is required field.")},
+                            status=status.HTTP_400_BAD_REQUEST)
         partnership = self.get_object()
         partnership.need_text = text
         partnership.save()
@@ -142,35 +146,52 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         year = int(request.query_params.get('year', datetime.now().year))
         month = int(request.query_params.get('month', datetime.now().month))
 
-        partner_ids = self.queryset.filter(Q(
-            level__lte=Partnership.MANAGER) | Q(
+        partner_ids = self.queryset.filter(Q(level__lte=Partnership.MANAGER) | Q(
             disciples_deals__isnull=False)).distinct().prefetch_related('deals').values_list('id', flat=True)
 
-        queryset = Partnership.objects.filter(id__in=partner_ids).prefetch_related('deals')
+        managers_query = Partnership.objects.filter(id__in=partner_ids).prefetch_related('deals')
+
+        lookup_field = 'pk'
+        logged_queryset = logged_managers_query = None
+
+        if year != datetime.now().year or month != datetime.now().month:
+            logged_year, logged_month = self.get_logged_period(year, month)
+            logged_queryset, logged_managers_query = self.get_logged_queries(logged_year, logged_month)
+            lookup_field = 'partner_id'
 
         managers = [{
-            'user_id': x[0],
-            'partner_id': x[1],
-            'manager': x[2],
-            'sum_deals': x[3] or 0,
-            'total_partners': x[4] or 0,
-            'active_partners': x[5] or 0,
-            'potential_sum': x[6] or 0,
-            'sum_pay': x[7] or 0,
-            'sum_pay_tithe': x[8] or 0,
+            # Making queries from Partnership model
+            'sum_pay': x[0] or 0,
+            'sum_pay_tithe': x[1] or 0,
+            'sum_deals': x[2] or 0,
+            'manager': x[3],
+            'partner_id': x[4],
+            'user_id': x[5],
+            # Making queries from PartnershipLoUntitled Diagram.xmlgs model if requested period not in this month
+            'total_partners': x[6] or 0,
+            'active_partners': x[7] or 0,
+            'potential_sum': x[8] or 0,
             'plan': x[9] or 0,
 
-        } for x in zip(
-            self._get_users_ids(queryset),
-            self._get_partnerships_ids(queryset),
-            self._get_partners(queryset),
-            self._get_sum_deals(queryset, year, month),
-            self._get_total_partners(queryset),
-            self._get_active_partners(queryset),
-            self._get_potential_sum(queryset),
-            self._get_sum_pay(queryset, year, month, deal_type=Deal.DONATION),
-            self._get_sum_pay(queryset, year, month, deal_type=Deal.TITHE),
-            self._get_managers_plan(queryset),
+            } for x in zip(
+            self._get_sum_pay(managers_query, year, month, deal_type=Deal.DONATION),
+            self._get_sum_pay(managers_query, year, month, deal_type=Deal.TITHE),
+            self._get_sum_deals(managers_query, year, month),
+            self._get_partners(managers_query),
+            self._get_partnerships_ids(managers_query),
+            self._get_users_ids(managers_query),
+            self._get_total_partners(logged_queryset or Partnership.objects.all(),
+                                     logged_managers_query or managers_query,
+                                     lookup_field),
+            self._get_active_partners(logged_queryset or Partnership.objects.all(),
+                                      logged_managers_query or managers_query,
+                                      lookup_field),
+            self._get_potential_sum(logged_queryset or Partnership.objects.all(),
+                                    logged_managers_query or managers_query,
+                                    lookup_field),
+            self._get_managers_plan(logged_queryset or Partnership.objects.all(),
+                                    logged_managers_query or managers_query,
+                                    lookup_field),
         )]
         managers = self._order_managers(managers)
         managers = [manager for manager in managers if manager['potential_sum'] != 0 or
@@ -178,48 +199,18 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
 
         return Response({'results': managers, 'table_columns': partnership_summary_table(self.request.user)})
 
-    @staticmethod
-    def _get_partners(queryset):
-        return queryset.annotate(managers=Concat(
-            'user__last_name', V(' '), 'user__first_name', V(' '), 'user__middle_name')).values_list(
-            'managers', flat=True).order_by('id')
+    def _order_managers(self, managers):
+        ordering = self.request.query_params.get('ordering', 'manager')
+        ordering_fields = ['manager', 'sum_deals', 'total_partners', 'active_partners',
+                           'potential_sum', 'sum_pay', 'manager_plan', 'sum_pay_tithe']
 
-    @staticmethod
-    def _get_sum_deals(queryset, year, month):
-        subqs_deals = Deal.objects.filter(date_created__year=year, date_created__month=month, responsible=OuterRef(
-            'pk')).order_by().values('responsible').annotate(deals_sum=Sum('value')).values('deals_sum')
+        if ordering.strip('-') in ordering_fields:
+            managers.sort(key=lambda obj: obj[ordering.strip('-')], reverse=ordering.startswith('-'))
+        return managers
 
-        return Partnership.objects.filter(id__in=queryset).annotate(
-            sum_deals=Subquery(subqs_deals, output_field=DecimalField())).values_list(
-            'sum_deals', flat=True).order_by('id')
-
-    @staticmethod
-    def _get_total_partners(queryset):
-        subqs_partners = Partnership.objects.filter(responsible=OuterRef('pk')).order_by().values(
-            'responsible').annotate(count=Count('id')).values('count')
-
-        return Partnership.objects.filter(id__in=queryset).annotate(total_partners=Subquery(
-            subqs_partners)).values_list('total_partners', flat=True).order_by('id')
-
-    @staticmethod
-    def _get_active_partners(queryset):
-        subqs_active_partners = Partnership.objects.filter(
-            responsible=OuterRef('pk'), is_active=True).order_by().values('responsible').annotate(
-            count=Count('id')).values('count')
-
-        return Partnership.objects.filter(id__in=queryset).annotate(active_partners=Subquery(
-            subqs_active_partners, output_field=IntegerField())
-        ).values_list('active_partners', flat=True).order_by('id')
-
-    @staticmethod
-    def _get_potential_sum(queryset):
-        subqs_potential_sum = Partnership.objects.filter(responsible=OuterRef('pk')).order_by().values(
-            'responsible').annotate(potential_sum=Sum('value')).values('potential_sum')
-
-        return Partnership.objects.filter(id__in=queryset).annotate(
-            potential_sum=Subquery(subqs_potential_sum)).values_list(
-            'potential_sum', flat=True).order_by('id')
-
+    """
+    Making queries from Partnership model
+    """
     @staticmethod
     def _get_sum_pay(queryset, year, month, deal_type):
         raw = """
@@ -239,25 +230,98 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
         return [p.sum for p in queryset.raw(raw)]
 
     @staticmethod
-    def _get_users_ids(queryset):
-        return Partnership.objects.filter(id__in=queryset).values_list('user__id', flat=True).order_by('id')
+    def _get_sum_deals(queryset, year, month):
+        subqs_deals = Deal.objects.filter(date_created__year=year, date_created__month=month, responsible=OuterRef(
+            'pk')).order_by().values('responsible').annotate(deals_sum=Sum('value')).values('deals_sum')
+
+        return Partnership.objects.filter(id__in=queryset).annotate(
+            sum_deals=Subquery(subqs_deals, output_field=DecimalField())).values_list(
+            'sum_deals', flat=True).order_by('id')
 
     @staticmethod
-    def _get_managers_plan(queryset):
-        return Partnership.objects.filter(id__in=queryset).values_list('plan', flat=True).order_by('id')
+    def _get_partners(queryset):
+        return queryset.annotate(managers=Concat(
+            'user__last_name', V(' '), 'user__first_name', V(' '), 'user__middle_name')).values_list(
+            'managers', flat=True).order_by('id')
 
     @staticmethod
     def _get_partnerships_ids(queryset):
         return Partnership.objects.filter(id__in=queryset).values_list('id', flat=True).order_by('id')
 
-    def _order_managers(self, managers):
-        ordering = self.request.query_params.get('ordering', 'manager')
-        ordering_fields = ['manager', 'sum_deals', 'total_partners', 'active_partners', 'potential_sum', 'sum_pay',
-                           'manager_plan', 'sum_pay_tithe']
+    @staticmethod
+    def _get_users_ids(queryset):
+        return Partnership.objects.filter(id__in=queryset).values_list('user__id', flat=True).order_by('id')
 
-        if ordering.strip('-') in ordering_fields:
-            managers.sort(key=lambda obj: obj[ordering.strip('-')], reverse=ordering.startswith('-'))
-        return managers
+    """
+    Making queries from PartnershipLogs model if requested period not in this month
+    """
+    @staticmethod
+    def get_logged_queries(log_year, log_month):
+        raw = """
+              SELECT id FROM partnership_partnershiplogs WHERE id IN (
+              SELECT (SELECT pl.id FROM partnership_partnershiplogs pl WHERE p.id = pl.partner_id AND
+              pl.log_date < '%s-%s-01'
+              ORDER BY log_date DESC LIMIT 1
+              ) p_log_id
+              FROM partnership_partnership p ORDER BY p.id);
+              """ % (log_year, log_month)
+
+        with connection.cursor() as connect:
+            connect.execute(raw)
+            result = connect.fetchall()
+
+        logged_ids = [k[0] for k in result]  # from arrays with tuples of ids to array with integer ids
+
+        logged_queryset = PartnershipLogs.objects.filter(id__in=logged_ids)
+
+        logged_managers_query = logged_queryset.filter(Q(level__lte=PartnershipLogs.MANAGER) | Q(
+            partner__disciples_deals__isnull=False)).distinct().prefetch_related('partner', 'responsible')
+
+        return logged_queryset, logged_managers_query
+
+    @staticmethod
+    def get_logged_period(year, month):
+        """
+        Create year and month params for PartnershipLogs queries
+        """
+        if month == 12:
+            month = 1
+            year += 1
+            return year, month
+
+        return year, month + 1
+
+    @staticmethod
+    def _get_total_partners(queryset, managers, lookup_field):
+        subqs_partners = queryset.filter(responsible=OuterRef(lookup_field)).order_by().values(
+            'responsible').annotate(count=Count('id')).values('count')
+
+        return queryset.filter(id__in=managers).annotate(total_partners=Subquery(
+            subqs_partners, output_field=IntegerField())).values_list(
+            'total_partners', flat=True).order_by(lookup_field)
+
+    @staticmethod
+    def _get_active_partners(queryset, managers, lookup_field):
+        subqs_active_partners = queryset.filter(
+            responsible=OuterRef(lookup_field), is_active=True).order_by().values('responsible').annotate(
+            count=Count('id')).values('count')
+
+        return queryset.filter(id__in=managers).annotate(active_partners=Subquery(
+            subqs_active_partners, output_field=IntegerField())).values_list(
+            'active_partners', flat=True).order_by(lookup_field)
+
+    @staticmethod
+    def _get_potential_sum(queryset, managers, lookup_field):
+        subqs_potential_sum = queryset.filter(responsible=OuterRef(lookup_field)).order_by().values(
+            'responsible').annotate(potential_sum=Sum('value')).values('potential_sum')
+
+        return queryset.filter(id__in=managers).annotate(
+            potential_sum=Subquery(subqs_potential_sum, output_field=DecimalField())).values_list(
+            'potential_sum', flat=True).order_by(lookup_field)
+
+    @staticmethod
+    def _get_managers_plan(queryset, managers, lookup_field):
+        return queryset.filter(id__in=managers).values_list('plan', flat=True).order_by(lookup_field)
 
     @detail_route(methods=['POST'], permission_classes=(CanUpdateManagersPlan,))
     def set_plan(self, request, pk):
@@ -267,11 +331,13 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             raise exceptions.ValidationError({'message': _('Parameter {plan_sum} not passed')})
         try:
             plan_sum = Decimal(plan_sum)
-        except Exception:
+        except Exception as e:
+            print(e)
             raise exceptions.ValidationError({'message': _('Parameter {plan_sum} must be Integer')})
 
         manager.plan = plan_sum
         manager.save()
+        PartnershipLogs.log_partner(manager)
 
         return Response({'message': 'План менеджера успешно установлен в %s' % manager.plan})
 
@@ -342,7 +408,8 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
         except ObjectDoesNotExist:
             raise exceptions.ValidationError(detail=_('Partner does not exist.'))
         if not request.user.can_create_deal_for_partner(partner):
-            raise exceptions.PermissionDenied(detail=_('You do not have permission to create deal for this partner.'))
+            raise exceptions.PermissionDenied(detail=_(
+                'You do not have permission to create deal for this partner.'))
 
         return super(DealViewSet, self).create(request, *args, **kwargs)
 
