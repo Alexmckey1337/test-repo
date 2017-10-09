@@ -5,6 +5,8 @@ import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
 import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
 import 'jquery-form-validator/form-validator/lang/ru.js';
+import URLS from './modules/Urls/index';
+import getData from './modules/Ajax/index';
 import parseUrlQuery from './modules/ParseUrl/index';
 import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
@@ -12,12 +14,13 @@ import {showAlert} from "./modules/ShowNotifications/index";
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
 import {createUsersTable} from "./modules/Users/index";
 import {createNewUser, saveUser, initAddNewUser} from "./modules/User/addUser";
-import {getChurchesListINDepartament, getShortUsers, getResponsible, getPastorsByDepartment} from "./modules/GetList/index";
+import {getShortUsers, getResponsible, getPastorsByDepartment} from "./modules/GetList/index";
 
 $('document').ready(function () {
     let $departmentsFilter = $('#departments_filter'),
         $churchFilter = $('#church_filter'),
         $treeFilter = $("#tree_filter"),
+        urlChurch = URLS.church.for_select(),
         path = window.location.href.split('?')[1];
 
     (path == undefined) && createUsersTable({});
@@ -124,13 +127,15 @@ $('document').ready(function () {
         let departamentID = $(this).val();
         let config = {
             level_gte: 2
-        };
+        },
+            config2 = {};
         if (!departamentID) {
             departamentID = null;
         } else {
             config.department = departamentID;
+            config2.department_id = departamentID;
         }
-        getChurchesListINDepartament(departamentID).then(data => {
+        getData(urlChurch, config2).then(data => {
             const churches = data.map(option => `<option value="${option.id}">${option.get_title}</option>`);
             $churchFilter.html('<option value="">ВСЕ</option>').append(churches);
         });

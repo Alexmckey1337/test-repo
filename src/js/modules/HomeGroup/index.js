@@ -15,6 +15,7 @@ import makePagination from '../Pagination/index';
 import fixedTableHead from '../FixedHeadTable/index';
 import OrderTable from '../Ordering/index';
 import {getPotentialLeadersForHG} from "../GetList/index";
+import updateHistoryUrl from '../History/index';
 
 export function addHomeGroup(e, el, callback) {
     e.preventDefault();
@@ -330,6 +331,7 @@ export function createHomeGroupsTable(config = {}) {
     Object.assign(config, getSearch('search_title'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
+    updateHistoryUrl(config);
     getHomeGroups(config).then(function (data) {
         let count = data.count;
         let page = config['page'] || 1;

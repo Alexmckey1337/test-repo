@@ -11,7 +11,7 @@ import {makePastorList} from './modules/MakeList/index';
 import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
 import {showAlert, showConfirm} from "./modules/ShowNotifications/index";
-import {applyFilter, refreshFilter, getFilterParam, getCountFilter} from "./modules/Filter/index";
+import {applyFilter, refreshFilter} from "./modules/Filter/index";
 import parseUrlQuery from './modules/ParseUrl/index';
 
 $('document').ready(function () {
@@ -130,20 +130,22 @@ $('document').ready(function () {
 
     function filterChange() {
         $departmentsFilter.on('change', function () {
-            let departamentID = $(this).val();
-            (!departamentID) && (departamentID = null);
-            getData(pastorUrl, {
-                department_id: departamentID
-            }).then(function (data) {
-                    const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
-                    $('#pastor_filter').html('<option>ВСЕ</option>').append(pastors);
-                    $('#tree_filter').html('<option>ВСЕ</option>').append(pastors);
-                });
+            let config = {};
+            if (($(this).val() != "ВСЕ") && ($(this).val() != "")) {
+                config = {
+                    department_id: $(this).val()
+                };
+            }
+            getData(pastorUrl, config).then(function (data) {
+                const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
+                $('#pastor_filter').html('<option>ВСЕ</option>').append(pastors);
+                $('#tree_filter').html('<option>ВСЕ</option>').append(pastors);
+            });
         });
 
         $treeFilter.on('change', function () {
             let config = {};
-            if ($(this).val() != "ВСЕ") {
+            if (($(this).val() != "ВСЕ") && ($(this).val() != "") && ($(this).val() != null)) {
                 config = {
                     master_tree: $(this).val()
                 };
