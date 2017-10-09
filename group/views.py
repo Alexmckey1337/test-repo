@@ -204,16 +204,23 @@ class ChurchViewSet(ModelViewSet, ChurchUsersMixin,
         stats = serializer(stats)
         return Response(stats.data)
 
-    @list_route(methods=['GET'], serializer_class=ChurchWithoutPaginationSerializer, pagination_class=None)
+    @list_route(methods=['GET'], serializer_class=ChurchWithoutPaginationSerializer,
+                pagination_class=ForSelectPagination)
     def for_select(self, request):
-        if not request.query_params.get('department'):
-            churches = Church.objects.all()
-            churches = self.serializer_class(churches, many=True)
-            return Response(churches.data)
+        churches = Church.objects.all()
 
-        departments = request.query_params.getlist('department')
+        department_id = request.query_params.get('department_id')
+        if department_id:
+            churches = churches.filter(department_id=department_id)
 
-        churches = Church.objects.filter(department__in=departments)
+        pastor_id = request.query_params.get('pastor_id')
+        if pastor_id:
+            churches = churches.filter(pastor_id=pastor_id)
+
+        master_tree = request.query_params.get('master_tree')
+        if master_tree:
+            churches = churches.for_user(CustomUser.objects.get(id=master_tree))
+
         churches = self.serializer_class(churches, many=True)
         return Response(churches.data)
 
@@ -434,13 +441,17 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
     def for_select(self, request):
         home_groups = HomeGroup.objects.all()
 
+        department_id = request.query_params.get('department_id')
+        if department_id:
+            home_groups = home_groups.filter(church__department_id=department_id)
+
         church_id = request.query_params.get('church_id')
         if church_id:
             home_groups = home_groups.filter(church_id=church_id)
 
-        department_id = request.query_params.get('department_id')
-        if department_id:
-            home_groups = home_groups.filter(church__department_id=department_id)
+        leader_id = request.query_params.get('leader_id')
+        if leader_id:
+            home_groups = home_groups.filter(leader_id=leader_id)
 
         master_tree = request.query_params.get('master_tree')
         if master_tree:
