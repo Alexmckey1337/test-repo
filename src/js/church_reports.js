@@ -4,10 +4,12 @@ import 'air-datepicker/dist/css/datepicker.css';
 import 'select2';
 import 'select2/dist/css/select2.css';
 import moment from 'moment/min/moment.min.js';
+import URLS from './modules/Urls/index';
+import getData from './modules/Ajax/index';
 import parseUrlQuery from './modules/ParseUrl/index';
 import getSearch from './modules/Search/index';
 import {getFilterParam} from "./modules/Filter/index"
-import {getPastorsByDepartment, getChurchesListINDepartament, getChurches} from "./modules/GetList/index";
+import {getPastorsByDepartment} from "./modules/GetList/index";
 import updateSettings from './modules/UpdateSettings/index';
 import {showAlert} from "./modules/ShowNotifications/index";
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
@@ -23,7 +25,8 @@ $('document').ready(function () {
         $departmentsFilter = $('#departments_filter'),
         $treeFilter = $('#tree_filter'),
         $pastorFilter = $('#pastor_filter'),
-        $churchFilter = $('#church_filter');
+        $churchFilter = $('#church_filter'),
+        urlChurch = URLS.church.for_select();
     const USER_ID = $('body').data('user');
     $('.set-date').find('input').val(`${thisMonday}-${thisSunday}`);
     let configData = {
@@ -46,9 +49,9 @@ $('document').ready(function () {
                     $('.apply-filter').trigger('click');
                 }
             });
-            getChurchesListINDepartament().then(res => {
-                let churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`);
-                $churchFilter.html('<option>ВСЕ</option>').append(churches);
+            getData(urlChurch).then(data => {
+                const churches = data.map(option => `<option value="${option.id}">${option.get_title}</option>`);
+                $churchFilter.html('<option value="">ВСЕ</option>').append(churches);
             });
             init = true;
         }
@@ -132,6 +135,7 @@ $('document').ready(function () {
         let departamentID = $(this).val();
         let config = {},
             config2 = {};
+        console.log(departamentID);
         if (!departamentID) {
             departamentID = null;
         } else {
@@ -139,41 +143,40 @@ $('document').ready(function () {
             config2.department_id = departamentID;
         }
         getPastorsByDepartment(config2).then(function (data) {
-                const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
-                $treeFilter.html('<option>ВСЕ</option>').append(pastors);
-                $pastorFilter.html('<option>ВСЕ</option>').append(pastors);
-            });
-
-        getChurchesListINDepartament(departamentID).then(res => {
-                    let churches = res.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
-                    $churchFilter.html('<option>ВСЕ</option>').append(churches);
-                });
+            const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
+            $treeFilter.html('<option>ВСЕ</option>').append(pastors);
+            $pastorFilter.html('<option>ВСЕ</option>').append(pastors);
+        });
+        getData(urlChurch, config2).then(data => {
+            const churches = data.map(option => `<option value="${option.id}">${option.get_title}</option>`);
+            $churchFilter.html('<option value="">ВСЕ</option>').append(churches);
+        });
     });
 
     $treeFilter.on('change', function () {
         let config = {};
-        if ($(this).val() != "ВСЕ") {
+        if (($(this).val() != "ВСЕ") && ($(this).val() != "") && ($(this).val() != null)) {
             config.master_tree = $(this).val();
         }
 
         getPastorsByDepartment(config).then(function (data) {
-             const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
-                $pastorFilter.html('<option>ВСЕ</option>').append(pastors);
+            const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
+            $pastorFilter.html('<option>ВСЕ</option>').append(pastors);
         });
-        getChurches(config).then(res => {
-                    let churches = res.results.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
-                    $churchFilter.html('<option>ВСЕ</option>').append(churches);
-            });
+        getData(urlChurch, config).then(data => {
+            const churches = data.map(option => `<option value="${option.id}">${option.get_title}</option>`);
+            $churchFilter.html('<option value="">ВСЕ</option>').append(churches);
+        });
     });
 
     $pastorFilter.on('change', function () {
         let config = {};
-        if ($(this).val() != "ВСЕ") {
-            config.pastor = $(this).val();
+        if (($(this).val() != "ВСЕ") && ($(this).val() != "") && ($(this).val() != null)) {
+            config.pastor_id = $(this).val();
         }
-        getChurches(config).then(res => {
-            let churches = res.results.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
-            $churchFilter.html('<option>ВСЕ</option>').append(churches);
+        getData(urlChurch, config).then(data => {
+            const churches = data.map(option => `<option value="${option.id}">${option.get_title}</option>`);
+            $churchFilter.html('<option value="">ВСЕ</option>').append(churches);
         });
     });
 

@@ -130,7 +130,7 @@
                     <label>
                         <span class="label_block">Ветка</span>
                         <select class="selectdb" data-filter="master_tree" id="master_tree_filter">
-                            <option value="">ВСЕ</option>
+                            <option value="ВСЕ">ВСЕ</option>
                             {% for owner in owners %}
                                 <option value="{{ owner.id }}">{{ owner.fullname }}</option>
                             {% endfor %}
@@ -139,27 +139,27 @@
                     <label>
                         <span class="label_block">Церковь</span>
                         <select class="selectdb" data-filter="church" id="church_filter">
-                            <option value="">ВСЕ</option>
+                            <option value="ВСЕ">ВСЕ</option>
                             {% for church in churches %}
                                 <option value="{{ church.id }}">{{ church.get_title }}</option>
                             {% endfor %}
                         </select>
                     </label>
                     <label>
-                        <span class="label_block">Домашняя группа</span>
-                        <select class="selectdb" data-filter="home_group" id="home_group_filter">
-                            <option value="">ВСЕ</option>
-                            {% for home_group in home_groups %}
-                                <option value="{{ home_group.id }}">{{ home_group.get_title }}</option>
+                        <span class="label_block">Лидер домашней группы</span>
+                        <select class="selectdb" data-filter="owner" id="masters_filter">
+                            <option value="ВСЕ">ВСЕ</option>
+                            {% for owner in owners %}
+                                <option value="{{ owner.id }}">{{ owner.fullname }}</option>
                             {% endfor %}
                         </select>
                     </label>
                     <label>
-                        <span class="label_block">Лидер домашней группы</span>
-                        <select class="selectdb" data-filter="owner" id="masters_filter">
-                            <option value="">ВСЕ</option>
-                            {% for owner in owners %}
-                                <option value="{{ owner.id }}">{{ owner.fullname }}</option>
+                        <span class="label_block">Домашняя группа</span>
+                        <select class="selectdb" data-filter="home_group" id="home_group_filter">
+                            <option value="ВСЕ">ВСЕ</option>
+                            {% for home_group in home_groups %}
+                                <option value="{{ home_group.id }}">{{ home_group.get_title }}</option>
                             {% endfor %}
                         </select>
                     </label>
