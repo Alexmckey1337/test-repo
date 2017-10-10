@@ -35,4 +35,4 @@ class UserConsumer(JsonWebsocketConsumer):
 
     def connection_groups(self, **kwargs):
         user = kwargs.get('user')
-        return ['payments_%s' % user, 'disciples_%s' % user, 'summit_%s_ticket' % user]
+        return ['payments_%s' % user, 'disciples_%s' % user, 'summit_%s_ticket' % user, 'export_%s' % user]

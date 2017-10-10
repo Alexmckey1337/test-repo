@@ -101,6 +101,8 @@ services:
     build:
       context: .
       dockerfile: ./compose/django/Dockerfile
+    ports:
+      - "6000:6000"
     user: django
     depends_on:
       - postgres
@@ -108,6 +110,8 @@ services:
       - asgi_worker
     command: /daphne.sh
     env_file: .env
+    environment:
+      - ASGI_HOST=vocrm.net
 
   asgi_worker:
     restart: always
@@ -128,6 +132,8 @@ services:
     build:
       context: .
       dockerfile: ./compose/django/Dockerfile
+    volumes:
+      - nginx_data:/app/public
     user: django
     env_file: .env
     depends_on:

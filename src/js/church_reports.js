@@ -1,4 +1,22 @@
-(function () {
+'use strict';
+import 'air-datepicker';
+import 'air-datepicker/dist/css/datepicker.css';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import moment from 'moment/min/moment.min.js';
+import URLS from './modules/Urls/index';
+import getData from './modules/Ajax/index';
+import parseUrlQuery from './modules/ParseUrl/index';
+import getSearch from './modules/Search/index';
+import {getFilterParam} from "./modules/Filter/index"
+import {getPastorsByDepartment} from "./modules/GetList/index";
+import updateSettings from './modules/UpdateSettings/index';
+import {showAlert} from "./modules/ShowNotifications/index";
+import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import {ChurchReportsTable, churchReportsTable} from "./modules/Reports/church";
+import {createChurchPayment} from "./modules/Reports/church";
+
+$('document').ready(function () {
     let dateReports = new Date(),
         thisMonday = (moment(dateReports).day() === 1) ? moment(dateReports).format('DD.MM.YYYY') : (moment(dateReports).day() === 0) ? moment(dateReports).subtract(6, 'days').format('DD.MM.YYYY') : moment(dateReports).day(1).format('DD.MM.YYYY'),
         thisSunday = (moment(dateReports).day() === 0) ? moment(dateReports).format('DD.MM.YYYY') : moment(dateReports).day(7).format('DD.MM.YYYY'),
@@ -7,7 +25,8 @@
         $departmentsFilter = $('#departments_filter'),
         $treeFilter = $('#tree_filter'),
         $pastorFilter = $('#pastor_filter'),
-        $churchFilter = $('#church_filter');
+        $churchFilter = $('#church_filter'),
+        urlChurch = URLS.church.for_select();
     const USER_ID = $('body').data('user');
     $('.set-date').find('input').val(`${thisMonday}-${thisSunday}`);
     let configData = {
@@ -30,24 +49,20 @@
                     $('.apply-filter').trigger('click');
                 }
             });
-            getChurchesListINDepartament().then(res => {
-                let churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`);
-                $churchFilter.html('<option>ВСЕ</option>').append(churches);
+            getData(urlChurch).then(data => {
+                const churches = data.map(option => `<option value="${option.id}">${option.get_title}</option>`);
+                $churchFilter.html('<option value="">ВСЕ</option>').append(churches);
             });
             init = true;
         }
     }
-    function ChurchReportsTable(config) {
-        Object.assign(config, getTabsFilterParam());
-        getChurchReports(config).then(data => {
-            makeChurchReportsTable(data);
-        });
-    }
+
     (path == undefined) && ChurchReportsTable(configData);
+
     // Events
     let $statusTabs = $('#statusTabs');
     $statusTabs.find('button').on('click', function () {
-        $('.preloader').show();
+        $('.preloader').css('display', 'block');
         let status = $(this).data('status');
         let config = {
             status: status
@@ -69,6 +84,7 @@
         multipleDatesSeparator: '-',
         onSelect: function (date) {
             if (date.length > 10) {
+                $('.preloader').css('display', 'block');
                 churchReportsTable();
                 $('.tab-home-stats').find('.week').removeClass('active');
             }
@@ -76,6 +92,7 @@
     });
 
     $('.tab-home-stats').find('.week').on('click', function () {
+        $('.preloader').css('display', 'block');
         $(this).closest('.tab-home-stats').find('.week').removeClass('active');
         $(this).addClass('active');
         if ($(this).hasClass('week_now')) {
@@ -101,6 +118,14 @@
     });
 
     //Filter
+    $('.clear-filter').on('click', function () {
+        refreshFilter(this);
+    });
+
+    $('.apply-filter').on('click', function () {
+        applyFilter(this, churchReportsTable)
+    });
+
     // $('#departments_filter').on('change', function () {
     //     let department_id = parseInt($('#departments_filter').val());
     //     makePastorList(department_id, '#pastor_filter');
@@ -110,6 +135,7 @@
         let departamentID = $(this).val();
         let config = {},
             config2 = {};
+        console.log(departamentID);
         if (!departamentID) {
             departamentID = null;
         } else {
@@ -117,41 +143,40 @@
             config2.department_id = departamentID;
         }
         getPastorsByDepartment(config2).then(function (data) {
-                const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
-                $treeFilter.html('<option>ВСЕ</option>').append(pastors);
-                $pastorFilter.html('<option>ВСЕ</option>').append(pastors);
-            });
-
-        getChurchesListINDepartament(departamentID).then(res => {
-                    let churches = res.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
-                    $churchFilter.html('<option>ВСЕ</option>').append(churches);
-                });
+            const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
+            $treeFilter.html('<option>ВСЕ</option>').append(pastors);
+            $pastorFilter.html('<option>ВСЕ</option>').append(pastors);
+        });
+        getData(urlChurch, config2).then(data => {
+            const churches = data.map(option => `<option value="${option.id}">${option.get_title}</option>`);
+            $churchFilter.html('<option value="">ВСЕ</option>').append(churches);
+        });
     });
 
     $treeFilter.on('change', function () {
         let config = {};
-        if ($(this).val() != "ВСЕ") {
+        if (($(this).val() != "ВСЕ") && ($(this).val() != "") && ($(this).val() != null)) {
             config.master_tree = $(this).val();
         }
 
         getPastorsByDepartment(config).then(function (data) {
-             const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
-                $pastorFilter.html('<option>ВСЕ</option>').append(pastors);
+            const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
+            $pastorFilter.html('<option>ВСЕ</option>').append(pastors);
         });
-        getChurches(config).then(res => {
-                    let churches = res.results.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
-                    $churchFilter.html('<option>ВСЕ</option>').append(churches);
-            });
+        getData(urlChurch, config).then(data => {
+            const churches = data.map(option => `<option value="${option.id}">${option.get_title}</option>`);
+            $churchFilter.html('<option value="">ВСЕ</option>').append(churches);
+        });
     });
 
     $pastorFilter.on('change', function () {
         let config = {};
-        if ($(this).val() != "ВСЕ") {
-            config.pastor = $(this).val();
+        if (($(this).val() != "ВСЕ") && ($(this).val() != "") && ($(this).val() != null)) {
+            config.pastor_id = $(this).val();
         }
-        getChurches(config).then(res => {
-            let churches = res.results.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
-            $churchFilter.html('<option>ВСЕ</option>').append(churches);
+        getData(urlChurch, config).then(data => {
+            const churches = data.map(option => `<option value="${option.id}">${option.get_title}</option>`);
+            $churchFilter.html('<option value="">ВСЕ</option>').append(churches);
         });
     });
 
@@ -181,23 +206,29 @@
 
     $('#payment-form').on('submit', function (e) {
         e.preventDefault();
-        let id = $(this).find('button[type="submit"]').attr('data-id'),
+    });
+
+    $('#complete-payment').on('click', _.debounce(function (e) {
+        e.preventDefault();
+        $(this).prop('disabled', true);
+        let id = $(this).attr('data-id'),
             sum = $('#new_payment_sum').val(),
             description = $('#popup-create_payment textarea').val();
-        let data = $(this).serializeArray();
         createChurchPayment(id, sum, description).then(() => {
             churchReportsTable();
             $('#new_payment_sum').val('');
             $('#popup-create_payment textarea').val('');
             $('#popup-create_payment').css('display', 'none');
-            showPopup('Оплата прошла успешно.');
+            showAlert('Оплата прошла успешно.');
+            $('#complete-payment').prop('disabled', false);
         }).catch((res) => {
             let error = JSON.parse(res.responseText),
                 errKey = Object.keys(error),
                 html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
-            showPopup(html);
+            $('#complete-payment').prop('disabled', false);
+            showAlert(html);
         });
-    });
+    }, 500));
 
     $('#sent_date').datepicker({
         dateFormat: "dd.mm.yyyy",
@@ -205,4 +236,4 @@
         maxDate: new Date(),
         autoClose: true
     });
-})();
+});

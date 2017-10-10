@@ -71,7 +71,7 @@
                 <div class="container">
                     <label>
                         <span class="label_block">Отдел</span>
-                        <select class="select__db" data-filter="department" id="departments_filter">
+                        <select class="selectdb" data-filter="department" id="departments_filter">
                             <option value="">ВСЕ</option>
                             {% for department in departments %}
                                 <option value="{{ department.id }}">{{ department.title }}</option>
@@ -81,10 +81,7 @@
                 </div>
             </div>
             <div class="container">
-                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
-                                                                              aria-hidden="true"></i>
-                    Очистить
-                </button>
+                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
                 <button class="close-popup">Отменить</button>
                 <button id="applyFilter" class="apply-filter">Применить</button>
             </div>
@@ -131,8 +128,5 @@
             <table id="header-fixed"></table>
         </script>
     {% endblock %}
-    <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
-    <script src="{% static "libs/jquery-file-download/src/Scripts/jquery.fileDownload.js" %}"></script>
-    <script src="{% static "js/add_user.js" %}"></script>
-    <script src="{% static "js/summit_bishop.js" %}"></script>
+    <script src="{% static "js/summit_bishop.bundle.js" %}"></script>
 {% endblock %}

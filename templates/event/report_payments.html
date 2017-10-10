@@ -160,9 +160,7 @@
     </div>
 {% endblock %}
 {% block extra_scripts %}
-    <script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
-    <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
-    <script src="{% static "js/report_payments.js" %}"></script>
+    <script src="{% static "js/report_payments.bundle.js" %}"></script>
 {% endblock %}
 {% block template_tables %}
 <script type="text/template" id="databasePayments">

@@ -1,53 +1,18 @@
-(function ($) {
-    let flagCroppImg = false;
-    let $img = $(".crArea img");
+'use strict';
+import 'air-datepicker';
+import 'air-datepicker/dist/css/datepicker.css';
+import 'cropper';
+import 'cropper/dist/cropper.css';
+import 'jquery-file-download/index.js';
+import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
+import 'jquery-form-validator/form-validator/lang/ru.js';
+import {showAlert} from "./modules/ShowNotifications/index";
+import {handleFileSelect} from "./modules/Avatar/index";
+import {makeDuplicateCount, makeDuplicateUsers} from "./modules/User/findDuplicate";
 
-    function croppUploadImg() {
-        $('.anketa-photo').on('click', function () {
-
-            $("#impPopup").css('display', 'block');
-            $img.cropper({
-                aspectRatio: 1 / 1,
-                built: function () {
-                    $img.cropper("setCropBoxData", {width: "100", height: "50"});
-                }
-            });
-            return flagCroppImg = true;
-        });
-    }
-
-    function handleFileSelect(e) {
-        e.preventDefault();
-        let files = e.target.files; // FileList object
-
-        // Loop through the FileList and render image files as thumbnails.
-        for (let i = 0, file; file = files[i]; i++) {
-            // Only process image files.
-            if (!file.type.match('image.*')) {
-                continue;
-            }
-            let reader = new FileReader();
-            // Closure to capture the file information.
-            reader.onload = (function () {
-                return function (e) {
-                    document.querySelector("#impPopup img").src = e.target.result;
-                    document.querySelector("#impPopup").style.display = 'block';
-                    img.cropper({
-                        aspectRatio: 1 / 1,
-                        built: function () {
-                            img.cropper("setCropBoxData", {width: "100", height: "50"});
-                        }
-                    });
-                };
-            })(file);
-
-            // Read in the image file as a data URL.
-            reader.readAsDataURL(file);
-        }
-        croppUploadImg();
-    }
-
-    let img = $(".crArea img");
+$('document').ready(function () {
+    let flagCroppImg = false,
+        img = $(".crArea img");
 
     $('#file').on('change', handleFileSelect);
     $('#file_upload').on('click', function (e) {
@@ -104,9 +69,6 @@
         setDate: new Date(),
         position: 'top left',
         autoClose: true,
-        // onSelect: function () {
-        //     $('#spir_level').attr('disabled', false).select2();
-        // }
     });
     $('#partnerFrom').datepicker({
         dateFormat: 'yyyy-mm-dd',
@@ -144,7 +106,7 @@
            return flag;
         });
         if (!flag) {
-               showPopup(`Обязательные поля не заполнены либо введены некорректные данные`);
+               showAlert(`Обязательные поля не заполнены либо введены некорректные данные`);
            } else {
                $(this).closest('form').addClass('active');
                let user = `${$('#last_name').val()} ${$('#first_name').val()} ${$('#middle_name').val()}`;
@@ -175,77 +137,6 @@
     $('.editprofile-screen').on('click', function (e) {
        e.stopPropagation();
     });
-
-    function makeDuplicateUsers(config={}) {
-        let firstName = $('#first_name').val() || null,
-            middleName = $('#middle_name').val() || null,
-            lastName = $('#last_name').val() || null,
-            phoneNumber = $('#phoneNumber').val() || null;
-        (firstName != null) && (config.first_name = firstName);
-        (middleName != null) && (config.middle_name = middleName);
-        (lastName != null) && (config.last_name = lastName);
-        (phoneNumber != null) && (config.phone_number = phoneNumber);
-        getDuplicates(config).then(data => {
-            let table = `<table>
-                        <thead>
-                            <tr>
-                                <th>ФИО</th>
-                                <th>Город</th>
-                                <th>Ответственный</th>
-                                <th>Номер телефонна</th>
-                            </tr>
-                        </thead>
-                        <tbody>${data.results.map(item => {
-                            let master = item.master;
-                            if (master == null) {
-                                master = '';
-                            } else {
-                                master = master.fullname;
-                            }
-                            
-                            return `<tr>
-                                       <td><a target="_blank" href="${item.link}">${item.last_name} ${item.first_name} ${item.middle_name}</a></td>
-                                       <td>${item.city}</td>
-                                       <td>${master}</td>
-                                       <td>********${item.phone_number.slice(-4)}</td>
-                                     </tr>`;
-                            }).join('')}</tbody>
-                        </table>`;
-            let count = data.count,
-                page = config.page || 1,
-                pages = Math.ceil(count / CONFIG.pagination_duplicates_count),
-                showCount = (count < CONFIG.pagination_duplicates_count) ? count : data.results.length,
-                text = `Показано ${showCount} из ${count}`,
-                paginationConfig = {
-                    container: ".duplicate_users__pagination",
-                    currentPage: page,
-                    pages: pages,
-                    callback: makeDuplicateUsers
-                };
-            makePagination(paginationConfig);
-            $('.pop-up_duplicate__table').find('.table__count').text(text);
-            $('#table_duplicate').html('').append(table);
-            $('#createUser').find('._preloader').css('opacity', '0');
-            $('.preloader').css('display', 'none');
-            $('.pop-up_duplicate__table').css('display', 'block');
-        });
-    }
-
-        function makeDuplicateCount(config={}) {
-        let firstName = $('#first_name').val() || null,
-            middleName = $('#middle_name').val() || null,
-            lastName = $('#last_name').val() || null,
-            phoneNumber = $('#phoneNumber').val() || null;
-        (firstName != null) && (config.first_name = firstName);
-        (middleName != null) && (config.middle_name = middleName);
-        (lastName != null) && (config.last_name = lastName);
-        (phoneNumber != null) && (config.phone_number = phoneNumber);
-        config.only_count = true;
-        getDuplicates(config).then(data => {
-            $('#duplicate_count').html(data.count);
-            $('#createUser').find('._preloader').css('opacity', '0');
-        });
-    }
 
     let inputs = $('#first_name, #last_name, #middle_name, #phoneNumber');
     inputs.on('focusout', function () {
@@ -282,4 +173,4 @@
 	        event.stopPropagation();
         });
     });
-})(jQuery);
+});

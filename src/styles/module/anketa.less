@@ -746,6 +746,13 @@
         border: none;
       }
     }
+    .select-wrapper {
+      width: 100%;
+      select {
+        width: 500px;
+        height: 25px;
+      }
+    }
   }
   .payment_title,
   .sdelki_title {
@@ -767,6 +774,8 @@
 }
 
 .a-note {
+  position: relative;
+  overflow: visible;
   .note_wrapper {
     padding-top: 1.5em;
   }
@@ -944,5 +953,30 @@
     margin-right: 10px;
     padding-left: 45px;
     padding-right: 45px;
+  }
+}
+
+.a-note {
+  .select2-container--default.select2-container--disabled {
+    .select2-selection--multiple {
+      background-color: transparent;
+      cursor: default;
+      border: 0 !important;
+    }
+  }
+}
+
+#markerWrapper {
+  .select2-container .select2-selection--multiple .select2-selection__rendered {
+    overflow: visible;
+  }
+  [class*=hint--]::after {
+    color: #656d78;
+    background-color: #e6e9ee;
+    font-family: Ubuntu, sans-serif;
+    text-shadow: none;
+  }
+  .hint--top-left:before, .hint--top-right:before, .hint--top:before {
+    border-top-color: #e6e9ee;
   }
 }

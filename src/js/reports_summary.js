@@ -1,9 +1,21 @@
-(function () {
+'use strict';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import URLS from './modules/Urls/index';
+import getData from './modules/Ajax/index';
+import updateSettings from './modules/UpdateSettings/index';
+import {getPastorsByDepartment, getChurches} from "./modules/GetList/index";
+import parseUrlQuery from './modules/ParseUrl/index';
+import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import {churchPastorReportsTable, makeChurchPastorReportsTable, getChurchPastorReports} from "./modules/Reports/reports_summary";
+
+$('document').ready(function () {
     let $departmentsFilter = $('#departments_filter'),
         $treeFilter = $('#tree_filter'),
         $churchFilter = $('#church_filter'),
         $responsibleFilter = $('#responsible_filter'),
         initResponsible = false,
+        urlChurch = URLS.church.for_select(),
         init = false;
     const USER_ID = $('body').data('user'),
           PATH = window.location.href.split('?')[1];
@@ -20,8 +32,8 @@
                     let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
                     $treeFilter.html('<option>ВСЕ</option>').append(leaders);
                 });
-                getChurches().then(res => {
-                    let churches = res.results.map(church => `<option value="${church.id}">${church.get_title}</option>`);
+                getData(urlChurch).then(res => {
+                    let churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`);
                     $churchFilter.html('<option>ВСЕ</option>').append(churches);
                 });
             }
@@ -67,37 +79,42 @@
     });
 
     //Filter
+    $('.clear-filter').on('click', function () {
+        refreshFilter(this);
+    });
+
+    $('.apply-filter').on('click', function () {
+        applyFilter(this, churchPastorReportsTable);
+    });
 
     $departmentsFilter.on('change', function () {
         let departamentID = $(this).val();
-        let config = {},
-            config2 = {};
+        let config = {};
         if (!departamentID) {
             departamentID = null;
         } else {
-            config.department = departamentID;
-            config2.department_id = departamentID;
+            config.department_id = departamentID;
         }
-        getPastorsByDepartment(config2).then(function (data) {
-                const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
-                $treeFilter.html('<option>ВСЕ</option>').append(pastors);
-            });
+        getPastorsByDepartment(config).then(function (data) {
+            const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
+            $treeFilter.html('<option>ВСЕ</option>').append(pastors);
+        });
 
-        getChurches(config).then(res => {
-                    let churches = res.results.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
-                    $churchFilter.html('<option>ВСЕ</option>').append(churches);
-                });
+        getData(urlChurch, config).then(res => {
+            let churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`);
+            $churchFilter.html('<option>ВСЕ</option>').append(churches);
+        });
     });
 
     $treeFilter.on('change', function () {
         let config = {};
-        if ($(this).val() != "ВСЕ") {
+        if (($(this).val() != "ВСЕ") && ($(this).val() != "") && ($(this).val() != null)) {
             config.master_tree = $(this).val();
         }
-        getChurches(config).then(res => {
-                    let churches = res.results.map(church=> `<option value="${church.id}">${church.get_title}</option>`);
-                    $churchFilter.html('<option>ВСЕ</option>').append(churches);
-            });
+        getData(urlChurch, config).then(res => {
+            let churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`);
+            $churchFilter.html('<option>ВСЕ</option>').append(churches);
+        });
     });
 
     //Parsing URL
@@ -106,4 +123,4 @@
         filterInit(filterParam);
     }
 
-})();
+});

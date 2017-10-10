@@ -34,7 +34,7 @@ BASE_USER_FIELDS = (
     'phone_number', 'extra_phone_numbers',
     'born_date', 'coming_date', 'repentance_date',
 
-    'country', 'region', 'city', 'district', 'address',
+    'country', 'region', 'city', 'district', 'address', 'marker',
     # #################################################
     'image', 'image_source',
 

@@ -1,9 +1,21 @@
-(function () {
+'use strict';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import URLS from './modules/Urls/index';
+import getData from './modules/Ajax/index';
+import updateSettings from './modules/UpdateSettings/index';
+import {getPastorsByDepartment, getHomeLiderReports} from "./modules/GetList/index";
+import parseUrlQuery from './modules/ParseUrl/index';
+import {makeHomeLiderReportsTable, homeLiderReportsTable} from "./modules/Reports/meetings_summary";
+import {applyFilter, refreshFilter} from "./modules/Filter/index";
+
+$('document').ready(function () {
     let $departmentsFilter = $('#departments_filter'),
         $treeFilter = $('#master_tree_filter'),
         $churchFilter = $('#church_filter'),
         $responsibleFilter = $('#responsible_filter'),
         initResponsible = false,
+        urlChurch = URLS.church.for_select(),
         init = false;
     const USER_ID = $('body').data('user'),
           PATH = window.location.href.split('?')[1];
@@ -26,7 +38,7 @@
                     return false;
                 }).then(() => {
                     (set.master_id) && (config.master_tree = set.master_id);
-                    return getChurches(config).then(res => {
+                    return getData(urlChurch, config).then(res => {
                         let churches = res.results.map(church => `<option value="${church.id}" ${(set.church_id == church.id) ? 'selected' : ''}>${church.get_title}</option>`);
                         $churchFilter.html('<option>ВСЕ</option>').append(churches);
                     });
@@ -34,8 +46,11 @@
                     return getHomeLiderReports().then(data => {
                         let responsibles = data.results.map(res => res.master),
                             uniqResponsibles = _.uniqWith(responsibles, _.isEqual);
-                        const options = uniqResponsibles.map(option =>
-                            `<option value="${option.id}" ${(set.responsible_id == option.id) ? 'selected' : ''}>${option.fullname}</option>`);
+                        const options = uniqResponsibles.map(option => {
+                            if (option) {
+                                return `<option value="${option.id}" ${(set.responsible_id == option.id) ? 'selected' : ''}>${option.fullname}</option>`
+                            }
+                        });
                         $responsibleFilter.append(options);
                         $('.apply-filter').trigger('click');
                     });
@@ -45,8 +60,8 @@
                     let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
                     $treeFilter.html('<option>ВСЕ</option>').append(leaders);
                 });
-                getChurches().then(res => {
-                    let churches = res.results.map(church => `<option value="${church.id}">${church.get_title}</option>`);
+                getData(urlChurch).then(res => {
+                    let churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`);
                     $churchFilter.html('<option>ВСЕ</option>').append(churches);
                 });
             }
@@ -75,7 +90,11 @@
             if (!initResponsible) {
                 let responsibles = data.results.map(res => res.master),
                     uniqResponsibles = _.uniqWith(responsibles, _.isEqual);
-                const options = uniqResponsibles.map(option => `<option value="${option.id}">${option.fullname}</option>`);
+                const options = uniqResponsibles.map(option => {
+                    if (option != null) {
+                        return `<option value="${option.id}">${option.fullname}</option>`
+                    }
+                });
                 $responsibleFilter.append(options);
                 initResponsible = true;
             }
@@ -87,34 +106,40 @@
         homeLiderReportsTable();
     }, 500));
 
-    //Filter
+        //Filter
+    $('.clear-filter').on('click', function () {
+        refreshFilter(this);
+    });
+
+    $('.apply-filter').on('click', function () {
+        applyFilter(this, homeLiderReportsTable);
+    });
+
     $departmentsFilter.on('change', function () {
         let departamentID = $(this).val();
-        let config = {},
-            config2 = {};
+        let config = {};
         if (!departamentID) {
             departamentID = null;
         } else {
-            config.department = departamentID;
-            config2.department_id = departamentID;
+            config.department_id = departamentID;
         }
-        getPastorsByDepartment(config2).then(function (data) {
+        getPastorsByDepartment(config).then(function (data) {
             const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
             $treeFilter.html('<option>ВСЕ</option>').append(pastors);
         });
-        getChurches(config).then(res => {
-            let churches = res.results.map(church => `<option value="${church.id}">${church.get_title}</option>`);
+        getData(urlChurch, config).then(res => {
+            let churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`);
             $churchFilter.html('<option>ВСЕ</option>').append(churches);
         });
     });
 
     $treeFilter.on('change', function () {
         let config = {};
-        if ($(this).val() != "ВСЕ") {
+        if (($(this).val() != "ВСЕ") && ($(this).val() != "") && ($(this).val() != null)) {
             config.master_tree = $(this).val();
         }
-        getChurches(config).then(res => {
-            let churches = res.results.map(church => `<option value="${church.id}">${church.get_title}</option>`);
+        getData(urlChurch, config).then(res => {
+            let churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`);
             $churchFilter.html('<option>ВСЕ</option>').append(churches);
         });
     });
@@ -125,4 +150,4 @@
         filterInit(filterParam);
     }
 
-})();
+});

@@ -1,4 +1,11 @@
-(function () {
+'use strict';
+import 'air-datepicker';
+import 'air-datepicker/dist/css/datepicker.css';
+import moment from 'moment/min/moment.min.js';
+import updateSettings from './modules/UpdateSettings/index';
+import {PartnershipSummaryTable, partnershipSummaryTable} from "./modules/PartnerSummary/index";
+
+$(document).ready(function () {
     const USER_ID = $('body').data('user');
     let dateReports = new Date(),
         thisPeriod = moment(dateReports).format('MM/YYYY'),
@@ -32,39 +39,6 @@
         $('.preloader').css('display', 'block');
         updateSettings(PartnershipSummaryTable);
     });
-    function PartnershipSummaryTable(config) {
-        $('.preloader').css('display', 'block');
-        getPartnershipSummary(config).then(data => {
-            let results = data.results.map(elem=> {
-                 elem.not_active_partners = elem.total_partners - elem.active_partners;
-                 let percent = (100/(elem.plan/(+elem.sum_pay + +elem.sum_pay_tithe))).toFixed(1);
-                 elem.percent_of_plan = isFinite(percent) ? percent : 0;
-                 return elem;
-            }),
-                allPlans = data.results.reduce((sum,current) => sum + current.plan, 0),
-                allPays = data.results.reduce((sum,current) => sum + current.sum_pay, 0),
-                allTithe = data.results.reduce((sum,current) => sum + current.sum_pay_tithe, 0),
-                newRow = {
-                    manager: 'СУММАРНО:',
-                    plan: allPlans,
-                    potential_sum: data.results.reduce((sum,current) => sum + current.potential_sum, 0),
-                    sum_deals: data.results.reduce((sum,current) => sum + current.sum_deals, 0),
-                    sum_pay: allPays,
-                    sum_pay_tithe: allTithe,
-                    percent_of_plan: (100/(allPlans/(+allPays + +allTithe))).toFixed(1),
-                    total_partners: data.results.reduce((sum,current) => sum + current.total_partners, 0),
-                    active_partners: data.results.reduce((sum,current) => sum + current.active_partners, 0),
-                    not_active_partners: data.results.reduce((sum,current) => sum + current.not_active_partners, 0),
-                };
-
-            results.push(newRow);
-            let newData = {
-                table_columns: data.table_columns,
-                results: results
-            };
-            makePartnershipSummaryTable(newData);
-        });
-    }
 
     $('.prefilter-group').find('.month').on('click', function () {
         $('.preloader').css('display', 'block');
@@ -78,4 +52,4 @@
         partnershipSummaryTable();
     });
 
-})();
+});
