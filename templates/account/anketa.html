@@ -435,7 +435,7 @@
         <div class="right-contentwrap">
             <div class="right-content">
             {% for profile in account.active_summit_profiles %}
-                <h1>Code: {{ profile.reg_code }} <button class="send_code" data-url="{% url "send_email_with_code" profile_id=profile.id %}?method=email">Send to email</button></h1>
+                <h1>Code: {{ profile.reg_code }} <button class="send_email_with_code" data-url="{% url "send_code" profile_id=profile.id %}?method=email">Send to email</button></h1>
             {% endfor %}
 
                 <div class="a-note">
