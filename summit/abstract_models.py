@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 
-from summit.models import SummitType
+from summit.models import SummitType, Summit
 from summit.permissions import can_see_summit, can_see_summit_type, can_see_any_summit, can_see_any_summit_type, \
     can_edit_summit_block, can_see_summit_block, can_see_any_summit_ticket, can_see_summit_ticket, \
     can_see_summit_profiles, can_add_user_to_summit, can_download_summit_participant_report, \
@@ -150,3 +150,6 @@ class SummitUserPermission(models.Model):
         """
         return self.summit_profiles.filter(
             summit__type=summit_type, role__gte=settings.SUMMIT_ANKET_ROLES['visitor']).exists()
+
+    def active_summit_profiles(self):
+        return self.summit_profiles.filter(summit__status=Summit.OPEN)

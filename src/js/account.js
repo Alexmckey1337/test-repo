@@ -151,6 +151,21 @@ $('#send_need').on('click', function () {
     $(this).siblings('.editText').removeClass('active');
     $(this).parent().siblings('textarea').attr('readonly', true);
 });
+$('.send_email_with_code').on('click', function () {
+    let url = $(this).data('url');
+    ajaxRequest(url, null, function () {
+        showPopup('Код отправлен на почту');
+    }, 'GET', true, {
+        'Content-Type': 'application/json'
+    }, {
+        400: function (data) {
+            data = data.responseJSON;
+            showPopup(data.detail);
+        }
+    });
+    $(this).siblings('.editText').removeClass('active');
+    $(this).parent().siblings('textarea').attr('readonly', true);
+});
 $('#sendNote').on('click', function () {
     let _self = this;
     let id = $(_self).data('id');

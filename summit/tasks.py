@@ -48,6 +48,20 @@ def send_tickets(anket_ids):
             )
 
 
+@app.task(ignore_result=True, max_retries=0)
+def send_email_with_code(profile_id):
+    profile = SummitAnket.objects.get(pk=profile_id)
+    template = profile.summit.mail_template
+    email = profile.user.email
+    if template and email:
+        send_db_mail(
+            template.slug,
+            email,
+            {'profile': profile},
+            signals_kwargs={'anket': profile}
+        )
+
+
 @app.task(ignore_result=True, max_retries=10, default_retry_delay=10 * 60)
 def generate_tickets(summit_id, ankets, ticket_id):
     pdf = generate_ticket_by_summit(ankets)
