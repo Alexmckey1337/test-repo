@@ -980,3 +980,31 @@
     border-top-color: #e6e9ee;
   }
 }
+
+.right-content > h1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#main .right-content > h1 {
+  padding-right: 0;
+}
+
+.right-content h1 {
+  button {
+    position: relative;
+    font-size: .6em;
+    &::before {
+      position: absolute;
+      top: 9px;
+      left: 15px;
+      width: 19px;
+      height: 19px;
+      content: "\f0e0" !important;
+      font: 1.4em FontAwesome;
+      color: #fff;
+      background: 0 0;
+    }
+  }
+}
