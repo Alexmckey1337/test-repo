@@ -191,6 +191,17 @@
                                                     {% endfor %}
                                                 </ul>
                                             {% endif %}
+                                            {% if notifications.profiles %}
+                                                <p>Возникла ошибка при отправке кода на почту:
+                                                </p>
+                                                <ul id="profile_notifications">
+                                                    {% for profile, date in notifications.profiles %}
+                                                        <li>
+                                                            <a href="{{ profile.get_absolute_url }}">{{ profile.fullname }} ({{ date }})</a>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endif %}
                                             {% if notifications.count == 0 %}
                                                 <p id="without_notifications">На сегодня нет уведомлений</p>
                                             {% endif %}

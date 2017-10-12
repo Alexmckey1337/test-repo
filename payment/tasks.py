@@ -3,11 +3,12 @@ from __future__ import unicode_literals
 from edem.settings.celery import app
 from django.conf import settings
 from datetime import datetime
-import redis
 from channels import Group
 from json import dumps
 import os
 import shutil
+
+from notification.backend import RedisBackend
 
 
 @app.task(ignore_result=True, max_retries=3, default_retra=2 * 60)
@@ -29,7 +30,7 @@ def generate_export(user, queryset, fields, resource_class, file_format, file_na
     url = settings.MEDIA_URL + 'exports/%s' % file_name_with_format
 
     try:
-        r = redis.StrictRedis(host='redis', port=6379, db=0)
+        r = RedisBackend()
         r.sadd('export:{}'.format(user.id), url)
         r.expire('export:{}'.format(user.id), 24 * 60 * 60)
     except Exception as err:
@@ -43,7 +44,7 @@ def generate_export(user, queryset, fields, resource_class, file_format, file_na
 @app.task(name='delete_expired_export', ignore_result=True, max_retries=5, default_retry_delay=10 * 60)
 def delete_expired_export():
     try:
-        r = redis.StrictRedis(host='redis', port=6379, db=0)
+        r = RedisBackend()
         for user_exports in r.scan_iter('export:*'):
             r.delete(user_exports)
 

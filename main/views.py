@@ -19,10 +19,11 @@ from event.models import Meeting, ChurchReport
 from event.models import MeetingType
 from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
+from notification.backend import RedisBackend
 from partnership.models import Partnership, Deal
 from payment.models import Currency
 from status.models import Division
-from summit.models import SummitType, SummitTicket, SummitAnket, Summit
+from summit.models import SummitType, SummitTicket, SummitAnket, Summit, AnketEmail
 
 
 def entry(request):
@@ -474,7 +475,7 @@ class SummitTicketListView(LoginRequiredMixin, CanSeeSummitTicketMixin, ListView
     def dispatch(self, request, *args, **kwargs):
         response = super(SummitTicketListView, self).dispatch(request, *args, **kwargs)
         try:
-            r = redis.StrictRedis(host='redis', port=6379, db=0)
+            r = RedisBackend()
             r.srem('summit:ticket:{}'.format(request.user.id), *list(
                 self.get_queryset().values_list('id', flat=True)))
         except Exception as err:
@@ -486,7 +487,7 @@ class SummitTicketListView(LoginRequiredMixin, CanSeeSummitTicketMixin, ListView
         code = self.request.GET.get('code', '')
         qs = super(SummitTicketListView, self).get_queryset()
         try:
-            r = redis.StrictRedis(host='redis', port=6379, db=0)
+            r = RedisBackend()
             ticket_ids = r.smembers('summit:ticket:{}'.format(self.request.user.id))
         except Exception as err:
             ticket_ids = None
@@ -513,7 +514,7 @@ class SummitTicketDetailView(LoginRequiredMixin, CanSeeSummitTicketMixin, Detail
     def dispatch(self, request, *args, **kwargs):
         response = super(SummitTicketDetailView, self).dispatch(request, *args, **kwargs)
         try:
-            r = redis.StrictRedis(host='redis', port=6379, db=0)
+            r = RedisBackend()
             r.srem('summit:ticket:{}'.format(request.user.id), self.object.id)
         except Exception as err:
             print(err)
@@ -526,6 +527,42 @@ class SummitProfileDetailView(LoginRequiredMixin, CanSeeSummitProfileMixin, Deta
     context_object_name = 'profile'
     template_name = 'summit/profile.html'
     login_url = 'entry'
+
+
+class SummitProfileEmailDetailView(LoginRequiredMixin, CanSeeSummitProfileMixin, DetailView):
+    model = AnketEmail
+    context_object_name = 'email'
+    template_name = 'summit/emails/detail.html'
+    login_url = 'entry'
+
+
+class SummitProfileEmailTextView(LoginRequiredMixin, CanSeeSummitProfileMixin, DetailView):
+    model = AnketEmail
+    context_object_name = 'email'
+    template_name = 'summit/emails/text.html'
+    login_url = 'entry'
+
+
+class SummitProfileEmailListView(LoginRequiredMixin, CanSeeSummitProfileMixin, ListView):
+    model = AnketEmail
+    context_object_name = 'emails'
+    template_name = 'summit/emails/list.html'
+    login_url = 'entry'
+
+    profile = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.profile = get_object_or_404(SummitAnket, pk=kwargs.get('profile_id'))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return super().get_queryset().filter(anket=self.profile)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['profile'] = self.profile
+
+        return ctx
 
 
 class SummitBishopReportView(LoginRequiredMixin, CanSeeSummitReportByBishopsMixin, TemplateView):
