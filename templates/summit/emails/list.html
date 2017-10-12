@@ -1,0 +1,45 @@
+{% extends "layout_main.html" %}
+{% load i18n %}
+{% load static %}
+{% load summit_tags %}
+{% load payment_tags %}
+
+{% block header.top.h1 %}
+    <h1 id="summit-title">
+        {% trans "Emails" %} | <a href="{{ profile.get_absolute_url }}">{{ profile.user.fullname }} ({{ profile.code }})</a>
+    </h1>
+{% endblock %}
+
+{% block header.buttons.filter %}
+{% endblock %}
+
+{% block header.buttons %}
+{% endblock %}
+
+{% block main.content %}
+    {% if emails.all %}
+        <h1>Отправленные письма</h1>
+        <table>
+            <tr>
+                <th>{% trans "Date created" %}</th>
+                <th>{% trans "Recipient" %}</th>
+                <th>{% trans "Subject" %}</th>
+                <th>{% trans "Is success" %}</th>
+            </tr>
+            {% for email in profile.emails.all %}
+                <tr>
+                    <td><a href="{{ email.get_absolute_url }}">{{ email.created_at }}</a></td>
+                    <td>{{ email.recipient }}</td>
+                    <td>{{ email.subject }}</td>
+                    <td>{{ email.is_success }}</td>
+                </tr>
+            {% endfor %}
+            <tr></tr>
+        </table>
+    {% else %}
+        <h1>Нет писем</h1>
+    {% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+{% endblock %}

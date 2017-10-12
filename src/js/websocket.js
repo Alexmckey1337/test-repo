@@ -24,8 +24,7 @@ socket.onmessage = function (e) {
         let message_text = `Summit id: ${data.summit_id}, User id: ${data.user_id}, Url: ${data.file}`;
         alertify.set('notifier', 'position', 'bottom-right');
         alertify.notify(`${message_text}`, 'success', 10);
-    }
-    if (data.type == 'EXPORT') {
+    } else if (data.type == 'EXPORT') {
         $("#without_notifications").remove();
         $('.sms').attr('data-count', +count + 1);
         if ($('#export_notifications').length > 0) {
@@ -40,6 +39,20 @@ socket.onmessage = function (e) {
             });
         }
         let message_text = `Файл ${data.name} сформирован для выгрузки`;
+        alertify.set('notifier', 'position', 'bottom-right');
+        alertify.notify(`${message_text}`, 'success', 10);
+    } else if (data.type == 'SUMMIT_EMAIL_CODE_ERROR') {
+        $("#without_notifications").remove();
+        $('.sms').attr('data-count', + count + 1);
+        if ($('#profile_notifications').length > 0) {
+            let el = `<li><a href='${data.profile_url}'>${data.profile_title} (${data.time})</a></li>`;
+            $('#profile_notifications').append(el);
+        } else {
+            let el = `<p>Возникла ошибка при отправке кода на почту:</p>
+                       <ul id="profile_notifications"><li><a href='${data.profile_url}'>${data.profile_title} (${data.time})</a></li></ul>`;
+            $('.massage-hover .bottom-box:first').append(el);
+        }
+        let message_text = `Ошибка отправки кода пользователю ${data.profile_title} (${data.time})`;
         alertify.set('notifier', 'position', 'bottom-right');
         alertify.notify(`${message_text}`, 'success', 10);
     } else {

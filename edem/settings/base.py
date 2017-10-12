@@ -442,3 +442,7 @@ NEW_TICKET_STATUS = {
     'print': 'given',
     'given': 'print',
 }
+
+# Notifications
+
+NOTIFICATION_REDIS_HOST = 'redis'

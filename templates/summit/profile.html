@@ -19,7 +19,7 @@
 {% block main.content %}
     <div class="container">
         <div class="col-11">
-            <div class="info">
+            <div>
                 <h2>{% trans "Profile info" %}</h2>
                 <ul>
                     <li>{% trans "User" %}:
@@ -68,6 +68,26 @@
                             <a href="{{ payment.manager.get_absolute_url }}">{{ payment.manager }}</a>
                         {% endif %}
                     </td>
+                </tr>
+            {% endfor %}
+            <tr></tr>
+        </table>
+    {% endif %}
+    {% if profile.emails.all %}
+        <h1>Последние отправленные письма <a href="{% url "summit:profile-email-list" profile_id=profile.id %}"><span>все письма</span></a></h1>
+        <table>
+            <tr>
+                <th>{% trans "Date created" %}</th>
+                <th>{% trans "Recipient" %}</th>
+                <th>{% trans "Subject" %}</th>
+                <th>{% trans "Is success" %}</th>
+            </tr>
+            {% for email in profile.emails.all|slice:":2" %}
+                <tr>
+                    <td><a href="{{ email.get_absolute_url }}">{{ email.created_at }}</a></td>
+                    <td>{{ email.recipient }}</td>
+                    <td>{{ email.subject }}</td>
+                    <td>{{ email.is_success }}</td>
                 </tr>
             {% endfor %}
             <tr></tr>

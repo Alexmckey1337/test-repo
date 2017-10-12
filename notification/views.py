@@ -1,12 +1,12 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-import redis
 from rest_framework import viewsets, status
 from rest_framework.decorators import list_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from notification.backend import RedisBackend
 from summit.models import SummitTicket
 from .serializers import BirthdayNotificationSerializer, RepentanceNotificationSerializer
 from account.models import CustomUser
@@ -38,7 +38,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
     @list_route()
     def tickets(self, request):
         try:
-            r = redis.StrictRedis(host='redis', port=6379, db=0)
+            r = RedisBackend()
             ticket_ids = r.smembers('summit:ticket:{}'.format(request.user.id))
             tickets = SummitTicket.objects.filter(id__in=ticket_ids)
         except Exception as err:
@@ -85,7 +85,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
     @list_route(methods=['GET'])
     def exports(self, request):
         try:
-            r = redis.StrictRedis(host='redis', port=6379, db=0)
+            r = RedisBackend()
             export_urls = r.smembers('export:%s' % request.user.id)
             result = []
             for url in export_urls:

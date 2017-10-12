@@ -595,7 +595,7 @@ def send_code(request, profile_id):
 
     send_method = request.query_params.get('method', 'email')
     if send_method == 'email':
-        send_email_with_code.apply_async(args=[profile_id])
+        send_email_with_code.apply_async(args=[profile_id, request.user.id])
     return Response(data={'profile_id': profile_id})
 
 
