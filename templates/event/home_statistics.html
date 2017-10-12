@@ -130,7 +130,7 @@
                     <label>
                         <span class="label_block">Ветка</span>
                         <select class="selectdb" data-filter="master_tree" id="master_tree_filter">
-                            <option value="">ВСЕ</option>
+                            <option value="ВСЕ">ВСЕ</option>
                             {% for owner in owners %}
                                 <option value="{{ owner.id }}">{{ owner.fullname }}</option>
                             {% endfor %}
@@ -139,124 +139,45 @@
                     <label>
                         <span class="label_block">Церковь</span>
                         <select class="selectdb" data-filter="church" id="church_filter">
-                            <option value="">ВСЕ</option>
+                            <option value="ВСЕ">ВСЕ</option>
                             {% for church in churches %}
                                 <option value="{{ church.id }}">{{ church.get_title }}</option>
                             {% endfor %}
                         </select>
                     </label>
                     <label>
-                        <span class="label_block">Домашняя группа</span>
-                        <select class="selectdb" data-filter="home_group" id="home_group_filter">
-                            <option value="">ВСЕ</option>
-                            {% for home_group in home_groups %}
-                                <option value="{{ home_group.id }}">{{ home_group.get_title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
                         <span class="label_block">Лидер домашней группы</span>
                         <select class="selectdb" data-filter="owner" id="masters_filter">
-                            <option value="">ВСЕ</option>
+                            <option value="ВСЕ">ВСЕ</option>
                             {% for owner in owners %}
                                 <option value="{{ owner.id }}">{{ owner.fullname }}</option>
                             {% endfor %}
                         </select>
                     </label>
-{#                    <div class="col-6">#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Отдел</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Ветка</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Церковь</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Домашняя группа</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Лидер домашней группы</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Тип</span>#}
-{#                        </div>#}
-{#                        <div class="label_block-wrapp">#}
-{#                            <span class="label_block">Фильтр по дате</span>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                    <div class="col-6">#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="department" id="departments_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                                {% for department in departments %}#}
-{#                                    <option value="{{ department.id }}">{{ department.title }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="master_tree" id="master_tree_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                                {% for owner in owners %}#}
-{#                                    <option value="{{ owner.id }}">{{ owner.fullname }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="church" id="church_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                                {% for church in churches %}#}
-{#                                    <option value="{{ church.id }}">{{ church.get_title }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="home_group" id="home_group_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                                {% for home_group in home_groups %}#}
-{#                                    <option value="{{ home_group.id }}">{{ home_group.get_title }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="owner" id="masters_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                                {% for owner in owners %}#}
-{#                                    <option value="{{ owner.id }}">{{ owner.fullname }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <select class="selectdb" data-filter="type" id="type_filter">#}
-{#                                <option value="">ВСЕ</option>#}
-{#                                {% for type in types %}#}
-{#                                    <option value="{{ type.id }}">{{ type.name }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </p>#}
-{#                        <p class="input_block">#}
-{#                            <input type="text" placeholder="от" data-filter="from_date" id="date_from"#}
-{#                                   class="select_date_filter"><input type="text" placeholder="до" data-filter="to_date"#}
-{#                                                                     id="date_to" class="select_date_filter">#}
-{#                        </p>#}
-{#                    </div>#}
+                    <label>
+                        <span class="label_block">Домашняя группа</span>
+                        <select class="selectdb" data-filter="home_group" id="home_group_filter">
+                            <option value="ВСЕ">ВСЕ</option>
+                            {% for home_group in home_groups %}
+                                <option value="{{ home_group.id }}">{{ home_group.get_title }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
                 </div>
             </div>
             <div class="container">
-                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
-                                                                              aria-hidden="true"></i>
+                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>
                     Очистить
                 </button>
                 <button class="close-popup">Отменить</button>
-                <button onclick="applyFilter(this, homeStatistics)" class="apply-filter">Применить</button>
+                <button class="apply-filter">Применить</button>
             </div>
         </div>
     </div>
 {% endblock %}
 
 {% block extra_scripts %}
-    <script src="{% static "js/home_statistics.js" %}"></script>
+    <script src="{% static "js/home_statistics.bundle.js" %}"></script>
 {% endblock %}
 {% block template_tables %}
     <script type="text/template" id="statisticsTmp">

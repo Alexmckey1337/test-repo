@@ -82,20 +82,6 @@
                     </li>
                 </ul>
             </div>
-            <div id="period_expired" class="period">
-                <p>Период с <input type="text" id="expired_datepicker_from" readonly="readonly"> по <input type="text"
-                                                                                                           id="expired_datepicker_to"
-                                                                                                           readonly="readonly"><a
-                        id="show-all-expired" href="javascript:void(0);">Показать
-                    все</a></p>
-            </div>
-            <div id="period_done" class="period">
-                <p>Период с <input type="text" id="done_datepicker_from" readonly="readonly"> по <input type="text"
-                                                                                                        id="done_datepicker_to"
-                                                                                                        readonly="readonly"><a
-                        id="show-all-done" href="javascript:void(0);">Показать
-                    все</a></p>
-            </div>
         </div>
         <div class="table__count"></div>
         <div class="pagination reports__pagination"><!--pagination -->
@@ -185,19 +171,19 @@
                     <label>
                         <span class="label_block">Ветка</span>
                         <select class="selectdb" data-filter="master_tree" id="tree_filter">
-                            <option value="">ВСЕ</option>
+                            <option value="ВСЕ">ВСЕ</option>
                         </select>
                     </label>
                     <label>
                         <span class="label_block">Пастор</span>
                         <select class="selectdb" data-filter="pastor" id="pastor_filter">
-                            <option value="">ВСЕ</option>
+                            <option value="ВСЕ">ВСЕ</option>
                         </select>
                     </label>
                     <label>
                         <span class="label_block">Церковь</span>
                         <select class="selectdb" data-filter="church" id="church_filter">
-                            <option value="">ВСЕ</option>
+                            <option value="ВСЕ">ВСЕ</option>
                         </select>
                     </label>
                     <label>
@@ -212,21 +198,15 @@
                 </div>
             </div>
             <div class="container">
-                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
-                                                                              aria-hidden="true"></i>
-                    Очистить
-                </button>
+                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
                 <button class="close-popup">Отменить</button>
-                <button onclick="applyFilter(this, churchReportsTable)" class="apply-filter">Применить</button>
+                <button class="apply-filter">Применить</button>
             </div>
         </div>
     </div>
 {% endblock %}
 {% block extra_scripts %}
-    <script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
-    <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
-    <script src='{% static "libs/numeral/min/numeral.min.js" %}'></script>
-    <script src="{% static "js/church_reports.js" %}"></script>
+    <script src="{% static "js/church_reports.bundle.js" %}"></script>
 {% endblock %}
 {% block template_tables %}
 <script type="text/template" id="databaseChurchReports">

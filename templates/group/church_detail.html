@@ -219,7 +219,7 @@
                 <h2>Добавление домашней группы</h2>
                 <span class="close close-popup"><i class="fa fa-times" aria-hidden="true"></i></span>
             </div>
-            <form action="" id="addHomeGroupForm" onsubmit="addHomeGroup(event, this, createChurchesDetailsTable)">
+            <form action="" id="addHomeGroupForm">
                 <div class="popup_body">
                     <div class="container container_block">
                         <label>
@@ -268,10 +268,8 @@
     </div>
 {% endblock %}
 {% block extra_scripts %}
-    <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
-    <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
-    <script src="{% static "js/add_user.js" %}"></script>
-    <script src="{% static "js/churches_detail.js" %}"></script>
+    <script src="{% static "js/churches_detail.bundle.js" %}"></script>
+    <script src="{% static "js/add_user.bundle.js" %}"></script>
 {% endblock %}
 
 {% block template_tables %}

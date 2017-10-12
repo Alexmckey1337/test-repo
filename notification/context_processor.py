@@ -14,13 +14,18 @@ def notifications(request):
         r = redis.StrictRedis(host='redis', port=6379, db=0)
         ticket_ids = r.smembers('summit:ticket:{}'.format(request.user.id))
         tickets = SummitTicket.objects.filter(id__in=ticket_ids)
+        exports_count = len(r.smembers('export:%s' % request.user.id))
+
     except Exception as err:
-        tickets = SummitTicket.objects.none()
         print(err)
+        tickets = SummitTicket.objects.none()
+        exports_count = 0
 
     n = {
         'birthdays': birthdays,
         'summit_tickets': tickets,
-        'count': birthdays.count() + tickets.count()
+        'exports_count': exports_count,
+        'count': birthdays.count() + tickets.count() + exports_count
     }
+
     return {'notifications': n}

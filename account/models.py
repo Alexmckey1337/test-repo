@@ -85,6 +85,9 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
                                     related_name='uusers', verbose_name=_('Home group'),
                                     null=True, blank=True, db_index=True)
 
+    marker = models.ManyToManyField('UserMarker', related_name='users',
+                                    verbose_name=_('User Marker'), blank=True)
+
     objects = CustomUserManager()
 
     tracking_fields = (
@@ -379,3 +382,16 @@ post_save.connect(create_custom_user, User)
 def sync_user(sender, instance, **kwargs):
     if instance.can_login:
         Table.objects.get_or_create(user=instance)
+
+
+class UserMarker(models.Model):
+    title = models.CharField(_('Title'), max_length=255)
+    color = models.CharField(_('Color'), max_length=255)
+    description = models.TextField(_('Description'))
+
+    class Meta:
+        verbose_name = _('User Marker')
+        verbose_name_plural = _('User Markers')
+
+    def __str__(self):
+        return "User's marker - %s." % self.title

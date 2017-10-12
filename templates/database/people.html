@@ -117,8 +117,8 @@
                     </label>
                     <label>
                         <span class="label_block">Партнер</span>
-                        <select class="selectdb" data-filter="is_partner" id="partner_filter">
-                                <option value="">ВСЕ</option>
+                        <select class="selectdb select__custom" data-filter="is_partner" id="partner_filter">
+                                <option value="ВСЕ">ВСЕ</option>
                                 <option value="true">Да</option>
                                 <option value="false">Нет</option>
                         </select>
@@ -126,11 +126,10 @@
                 </div>
             </div>
             <div class="container">
-                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
-                                                                                  aria-hidden="true"></i>
+                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>
                     Очистить</button>
                 <button class="close-popup">Отменить</button>
-                <button onclick="applyFilter(this, createUsersTable)" class="apply-filter">Применить</button>
+                <button class="apply-filter">Применить</button>
             </div>
         </div>
     </div>
@@ -144,15 +143,14 @@
             </div>
             <div class="container">
                 <button class="close-popup change__text">Отменить</button>
-                <button onclick="saveUser(this)" class="save-user">Сохранить</button>
+                <button class="save-user">Сохранить</button>
             </div>
         </div>
     </div>
 {% endblock %}
 {% block extra_scripts %}
-    <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
-    <script src="{% static "js/add_user.js" %}"></script>
-    <script src="{% static "js/database_users.js" %}"></script>
+    <script src="{% static "js/add_user.bundle.js" %}"></script>
+    <script src="{% static "js/database_users.bundle.js" %}"></script>
     <script type="text/template" id="quickEditCart">
    <div class="container bb-1">
        <div>
@@ -183,9 +181,6 @@
                     <option value="" selected></option>
                 <% } %>
             </select></p>
-{#            <p><label for="departmentSelect">Отдел церкви: </label><input type="text" id="departmentSelect" value="<%=fields.department.value %>" readonly></p> #}
-{#            <p><label for="master_hierarchy">Ответсвенный: </label><input type="text" id="master_hierarchy" value="<%=fields.master_hierarchy.value %>" readonly></p>#}
-{#            <p><label for="hierarchy">Статус: </label><input type="text" id="hierarchy" value="<%=fields.hierarchy.value %>" readonly></p>#}
         </div>
    </div>
     <div class="container">

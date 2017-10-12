@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
 
-from .models import CustomUser
+from .models import CustomUser, UserMarker
 from .resources import UserResource
 
 
@@ -24,7 +24,7 @@ class CustomUserAdmin(UserAdmin, ImportExportModelAdmin):
             'email', 'first_name', 'last_name', 'middle_name', 'search_name', 'master', 'departments', 'hierarchy',
             'spiritual_level', 'phone_number', 'extra_phone_numbers', 'skype', 'facebook', 'vkontakte', 'image',
             'born_date', 'country', 'region', 'city', 'district', 'address',
-            'description', 'repentance_date', 'coming_date',
+            'description', 'repentance_date', 'coming_date', 'marker',
         )}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'can_login', 'is_superuser', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
@@ -37,3 +37,4 @@ class CustomUserAdmin(UserAdmin, ImportExportModelAdmin):
 
 admin.site.unregister(User)
 admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(UserMarker)

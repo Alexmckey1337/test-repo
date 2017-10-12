@@ -1,10 +1,30 @@
+'use strict';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import 'air-datepicker';
+import 'air-datepicker/dist/css/datepicker.css';
+import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
+import 'jquery-form-validator/form-validator/lang/ru.js';
+import URLS from './modules/Urls/index';
+import getData from './modules/Ajax/index';
+import parseUrlQuery from './modules/ParseUrl/index';
+import updateSettings from './modules/UpdateSettings/index';
+import exportTableData from './modules/Export/index';
+import {showAlert} from "./modules/ShowNotifications/index";
+import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import {createUsersTable} from "./modules/Users/index";
+import {createNewUser, saveUser, initAddNewUser} from "./modules/User/addUser";
+import {getShortUsers, getResponsible, getPastorsByDepartment} from "./modules/GetList/index";
+
 $('document').ready(function () {
     let $departmentsFilter = $('#departments_filter'),
         $churchFilter = $('#church_filter'),
         $treeFilter = $("#tree_filter"),
+        urlChurch = URLS.church.for_select(),
         path = window.location.href.split('?')[1];
 
     (path == undefined) && createUsersTable({});
+
     $('.selectdb').select2();
     $('.select_date_filter').datepicker({
         dateFormat: 'yyyy-mm-dd',
@@ -16,36 +36,37 @@ $('document').ready(function () {
         position: "left top",
         autoClose: true
     });
+
     $('.select_rep_date_filter').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true,
         position: "left top",
     });
+
     //Events
     $('#filter_button').on('click', function () {
         $('#filterPopup').css('display', 'block');
     });
+
     $('.pop_cont').on('click', function (e) {
         e.stopPropagation();
     });
+
     $('.editprofile').on('click', function (e) {
         e.stopPropagation();
     });
+
     $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
         $('.preloader').css('display', 'block');
         createUsersTable({});
     }, 500));
 
     $('#sort_save').on('click', function () {
-        $('.preloader').css('display', 'block');
         updateSettings(createUsersTable);
     });
 
     $('#export_table').on('click', function () {
-        $('.preloader').css('display', 'block');
-        exportTableData(this).then(function () {
-            $('.preloader').css('display', 'none');
-        });
+        exportTableData(this);
     });
 
     $('#quickEditCartPopup').find('.close').on('click', function () {
@@ -78,7 +99,7 @@ $('document').ready(function () {
         lang: 'ru',
         form: '#createUser',
         onError: function (form) {
-            showPopup(`Введены некорректные данные`);
+            showAlert(`Введены некорректные данные`);
             let top = $(form).find('div.has-error').first().offset().top;
             $(form).find('.body').animate({scrollTop: top}, 500);
         },
@@ -92,17 +113,29 @@ $('document').ready(function () {
             return false; // Will stop the submission of the form
         },
     });
+
+    //Filter
+    $('.clear-filter').on('click', function () {
+        refreshFilter(this);
+    });
+
+    $('.apply-filter').on('click', function () {
+        applyFilter(this, createUsersTable)
+    });
+
     $departmentsFilter.on('change', function () {
         let departamentID = $(this).val();
         let config = {
             level_gte: 2
-        };
+        },
+            config2 = {};
         if (!departamentID) {
             departamentID = null;
         } else {
             config.department = departamentID;
+            config2.department_id = departamentID;
         }
-        getChurchesListINDepartament(departamentID).then(data => {
+        getData(urlChurch, config2).then(data => {
             const churches = data.map(option => `<option value="${option.id}">${option.get_title}</option>`);
             $churchFilter.html('<option value="">ВСЕ</option>').append(churches);
         });
@@ -147,6 +180,7 @@ $('document').ready(function () {
                 }
         });
     });
+
     $treeFilter.on('change', function () {
         let config = {};
         if ($(this).val() != "ВСЕ") {
@@ -166,6 +200,10 @@ $('document').ready(function () {
             });
             $('#masters_filter').html(options);
         });
+    });
+
+    $('.save-user').on('click', function () {
+        saveUser(this);
     });
 
     //Parsing URL

@@ -124,18 +124,17 @@
                 </div>
             </div>
             <div class="container">
-                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
-                                                                              aria-hidden="true"></i>
+                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>
                     Очистить
                 </button>
                 <button class="close-popup">Отменить</button>
-                <button onclick="applyFilter(this, churchPastorReportsTable)" class="apply-filter">Применить</button>
+                <button class="apply-filter">Применить</button>
             </div>
         </div>
     </div>
 {% endblock %}
 {% block extra_scripts %}
-    <script src="{% static "js/reports_summary.js" %}"></script>
+    <script src="{% static "js/reports_summary.bundle.js" %}"></script>
 {% endblock %}
 {% block template_tables %}
 <script type="text/template" id="databaseChurchPastorReports">

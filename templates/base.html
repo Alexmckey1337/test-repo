@@ -2,14 +2,12 @@
 {% load raven %}
 <!DOCTYPE html>
 <!--[if IE]>
-<link rel="stylesheet" type="text/css" href="css/ie.css"/>
-<!--[if lt IE 7 ]><html class="ie ie6" lang="en"> <![endif]-->
-<!--[if IE 7 ]>
-<html class="ie ie7" lang="en"> <![endif]-->
-<!--[if IE 8 ]>
-<html class="ie ie8" lang="en"> <![endif]-->
+<html class="ie" lang="ru">
+<p>Ваш браузер устарел. <a href="https://www.google.ru/chrome/browser/desktop/index.html">Скачать</a></p>
+<![endif]-->
 <!--[if (gte IE 9)|!(IE)]><!-->
-<html lang="ru"> <!--<![endif]-->
+<!--<![endif]-->
+<html lang="ru">
 <meta http-equiv="Cache-control" content="no-cache">
 <head>
     <meta charset="UTF-8">
@@ -21,14 +19,8 @@
     {% block main_styles %}
         <link rel="stylesheet" href='{% static "libs/reset-css/reset.css" %}'>
         <link rel="stylesheet" href='{% static "libs/normalize-css/normalize.css" %}'>
-        <link rel="stylesheet" href='{% static "libs/jquery.scrollbar/jquery.scrollbar.css" %}'>
-        <link rel="stylesheet" href='{% static "libs/jquery-ui/themes/base/jquery-ui.min.css" %}'>
-        <link rel="stylesheet" href='{% static "css/fonts.css" %}'>
-        <link rel="stylesheet" href='{% static "libs/select2/dist/css/select2.min.css" %}'>
-        <link rel="stylesheet" href='{% static "libs/alertify-js/build/css/alertify.min.css" %}'>
-        <link rel="stylesheet" href='{% static "libs/alertify-js/build/css/themes/default.min.css" %}'>
+        <link href="{% static "libs/font-awesome/css/font-awesome.min.css" %}" rel="stylesheet">
         <link rel="stylesheet" href='{% static "css/main.css" %}'>
-        <link rel="stylesheet" href='{% static "css/media.css" %}'>
     {% endblock %}
 
     {% block extra_styles %}{% endblock %}
@@ -37,7 +29,6 @@
 <body{% block body_id %}{% endblock %}{% block datauser %} data-user="{{ request.user.id }}"{% endblock %}>
 
 {% block layout %}
-
 {% endblock %}
 {% block preloader %}
     <div class="preloader">
@@ -54,25 +45,13 @@
         </div>
 {% endblock %}
 {% block main_scripts %}
-    <link rel="stylesheet" href='{% static "libs/air-datepicker/dist/css/datepicker.min.css" %}'>
-    <link href="{% static "libs/font-awesome/css/font-awesome.min.css" %}" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:400,400i,700,700i" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,700" rel="stylesheet">
-    <script src='{% static "libs/jquery/dist/jquery.min.js" %}'></script>
-    <script src='{% static "libs/jquery-ui/jquery-ui.min.js" %}'></script>
-    <script src="{% static "libs/jquery-form-validator/form-validator/jquery.form-validator.js" %}"></script>
-    <script src="{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}"></script>
-    <script src="{% static "libs/moment/min/moment.min.js" %}"></script>
-    <script src='{% static "libs/jquery.scrollbar/jquery.scrollbar.min.js" %}'></script>
-    <script src='{% static "libs/select2/dist/js/select2.min.js" %}'></script>
-    <script src='{% static "libs/lodash/dist/lodash.min.js" %}'></script>
-    <script src='{% static "libs/es6-promise/es6-promise.min.js" %}'></script>
-    <script src='{% static "libs/fetch/fetch.js" %}'></script>
-    <script src='{% static "libs/alertify-js/build/alertify.min.js" %}'></script>
-    <script src='{% static "js/urls.js" %}'></script>
-    <script src='{% static "js/lib.js" %}'></script>
-    <script src='{% static "js/main.js" %}'></script>
-    <script src='{% static "js/header.js" %}'></script>
+    <script>
+        var MAINURLS = {
+            ticketsURL: '{% url 'summit:tickets' %}'
+        };
+    </script>
+    <script src="{% static "js/vendor.bundle.js" %}"></script>
+    <script src="{% static "js/main.bundle.js" %}"></script>
 {% endblock %}
 {% block extra_scripts %}
 
@@ -213,42 +192,7 @@
 <script src="https://cdn.ravenjs.com/3.8.1/raven.min.js"></script>
 <script>Raven.config('{% sentry_public_dsn %}').install()</script>
 {% block ws %}
-    <script>
-        socket = new WebSocket("ws://" + window.location.host + "/ws/user/{{ request.user.id }}/");
-        socket.onmessage = function (e) {
-            var data = JSON.parse(e.data);
-            if (data.type == 'SUMMIT_TICKET') {
-                var count = $('.sms').attr('data-count');
-                console.log(count);
-                console.log(data);
-                console.log(+count + 1);
-                if ($("#without_notifications").length > 0) {
-                    $("#without_notifications").remove();
-                }
-                if ($('#ticket_notifications').length > 0) {
-                    var el = "<li><a href='" + data.ticket_url + "'>" + data.ticket_title + "</a></li>";
-                    $('#ticket_notifications').append(el);
-                } else {
-                    var el = "<p><a href='{% url 'summit:tickets' %}'>Сгенерированы новые билеты:</a></p>" +
-                        "<ul id='ticket_notifications'><li><a href='" +
-                    data.ticket_url + "'>" + data.ticket_title + "</a></li></ul>";
-                    $('.massage-hover .bottom-box:first').append(el);
-                }
-                $('.sms').attr('data-count', +count + 1);
-                var message_text = 'Summit id: ' + data.summit_id + ', User id:  ' + data.user_id + ', Url: ' + data.file;
-                alertify.logPosition("bottom right");
-                alertify.delay(30000).maxLogItems(10).closeLogOnClick(true).log(message_text);
-            } else {
-                if (true || +data.user_id != {{ request.user.id }}) {
-                    var message_text = data.editor_name + ' создал платеж на ' + data.sum;
-                    alertify.logPosition("bottom right");
-                    alertify.delay(30000).maxLogItems(10).closeLogOnClick(true).log(message_text);
-                }
-            }
-        };
-        socket.onopen = function () {
-        };
-    </script>
+    <script src="{% static "js/websocket.bundle.js" %}"></script>
 {% endblock %}
 </body>
 </html>

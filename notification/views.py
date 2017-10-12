@@ -33,6 +33,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     permission_classes = (IsAuthenticated,)
     pagination_class = NotificationPagination
+    serializer_class = BirthdayNotificationSerializer
 
     @list_route()
     def tickets(self, request):
@@ -61,7 +62,6 @@ class NotificationViewSet(viewsets.ModelViewSet):
             return self.get_paginated_response(birthdays.data)
 
         birthdays = self.serializer_class(birthdays, many=True)
-
         return Response(birthdays.data, status=status.HTTP_200_OK)
 
     @list_route(methods=['GET'],
@@ -80,5 +80,19 @@ class NotificationViewSet(viewsets.ModelViewSet):
             return self.get_paginated_response(repentance.data)
 
         repentance = self.serializer_class(repentance, many=True)
-
         return Response(repentance.data, status=status.HTTP_200_OK)
+
+    @list_route(methods=['GET'])
+    def exports(self, request):
+        try:
+            r = redis.StrictRedis(host='redis', port=6379, db=0)
+            export_urls = r.smembers('export:%s' % request.user.id)
+            result = []
+            for url in export_urls:
+                result.append({'url': url, 'name': url.decode('utf8').split('/')[-1].split('.')[0]})
+            result.sort(key=lambda x: x['name'].split('_')[-1].replace(':', ''), reverse=True)
+        except Exception as err:
+            print(err)
+            result = []
+
+        return Response({'export_urls': result})

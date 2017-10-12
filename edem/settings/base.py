@@ -274,25 +274,19 @@ CELERYBEAT_SCHEDULE = {
         'task': 'deals_to_expired',
         'schedule': 3600
     },
-    # Executes every monday evening at 00:05 A.M
-    'create_meetings': {
-        'task': 'create_new_meetings',
+    # Executes every monday evening at 00:00 A.M
+    'processing_home_meetings': {
+        'task': 'processing_home_meetings',
         'schedule': crontab(hour=0, minute=5, day_of_week='mon')
     },
-    # Executes every monday evening at 00:00 A.M
-    'meetings_to_expired': {
-        'task': 'meetings_to_expired',
-        'schedule': crontab(hour=0, minute=0, day_of_week='mon')
-    },
-    # Executes every monday evening at 00:05 A.M
-    'create_new_church_reports': {
-        'task': 'create_new_church_reports',
-        'schedule': crontab(hour=20, minute=5, day_of_week='mon')
-    },
-    # Executes every monday evening at 00:00 A.M
-    'church_reports_to_expired': {
-        'task': 'church_reports_to_expired',
+    # Executes every monday evening at 20:00 A.M
+    'processing_church_reports': {
+        'task': 'processing_church_reports',
         'schedule': crontab(hour=20, minute=0, day_of_week='mon')
+    },
+    'delete_expired_export': {
+        'task': 'delete_expired_export',
+        'schedule': crontab(hour=5, minute=0)
     },
 }
 
@@ -370,6 +364,11 @@ LOGGING = {
             'propagate': False,
         },
         'partnership.tasks': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'file'],
+            'propagate': False,
+        },
+        'partner.sql': {
             'level': 'DEBUG',
             'handlers': ['console', 'file'],
             'propagate': False,
