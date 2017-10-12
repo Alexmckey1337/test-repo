@@ -29,10 +29,13 @@
                     </li>
                     <li>{% trans "Recipient" %}: {{ email.recipient }}</li>
                     <li>{% trans "Subject" %}: {{ email.subject }}</li>
-                    <li>{% trans "Text" %}: <a href="{% url "summit:profile-email-text" pk=email.pk %}">Посмотреть</a></li>
+                    <li>{% trans "Text" %}: <a href="{% url "summit:profile-email-text" pk=email.pk %}" target="_blank">Посмотреть</a></li>
+                    <li>{% trans "Text" %}:
+                        <iframe src="{% url "summit:profile-email-text" pk=email.pk %}" frameborder="0" width="100%" height="500px" style="border: 1px red solid;"></iframe>
+                    </li>
 
                     {% if not email.is_success %}
-                        <li>{% trans "Error" %}: {{ email.error_message }}</li>
+                        <li>{% trans "Error" %}: <pre style="background-color: #ccc; padding:15px;">{{ email.error_message }}</pre></li>
                     {% endif %}
                     <li>{% trans "Is success" %}: {{ email.is_success }}</li>
                     <li>{% trans "Attach" %}: {{ email.attach }}</li>
