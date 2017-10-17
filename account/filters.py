@@ -98,3 +98,5 @@ class HomeGroupFilter(filters.DjangoFilterBackend):
 
             else:
                 return queryset.filter(hhome_group__isnull=True)
+
+        return queryset
