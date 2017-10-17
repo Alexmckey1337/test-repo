@@ -9,7 +9,7 @@ from time import sleep, time
 import requests
 from celery.result import AsyncResult
 from channels import Group
-from dbmail import send_db_mail
+from dbmail import send_db_mail, send_db_sms
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
 
@@ -82,6 +82,23 @@ def send_email_with_code(profile_id, sender_id):
                 email,
                 {'profile': profile},
                 signals_kwargs={'anket': profile}
+            )
+            if isinstance(result, AsyncResult):
+                check_send_email_with_code_state.apply_async(args=[result.id, profile_id, sender_id])
+        except Exception:
+            send_error(profile_id, sender_id)
+
+
+@app.task(ignore_result=True, max_retries=0)
+def send_sms_with_code(profile_id, sender_id):
+    profile = SummitAnket.objects.get(pk=profile_id)
+    template = profile.summit.mail_template
+    recipient = profile.user.phone_number
+    if template and recipient:
+        try:
+            result = send_db_sms(
+                slug=template.slug,
+                recipient=recipient,
             )
             if isinstance(result, AsyncResult):
                 check_send_email_with_code_state.apply_async(args=[result.id, profile_id, sender_id])

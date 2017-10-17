@@ -50,7 +50,7 @@ from .serializers import (
     SummitAnketForTicketSerializer, SummitAnketCodeSerializer,
     SummitAnketStatisticsSerializer,
     MasterSerializer, SummitProfileUpdateSerializer, SummitProfileCreateSerializer)
-from .tasks import generate_tickets, send_email_with_code
+from .tasks import generate_tickets, send_email_with_code, send_sms_with_code
 
 logger = logging.getLogger(__name__)
 
@@ -588,14 +588,20 @@ def generate_summit_tickets(request, summit_id):
 @api_view(['GET'])
 def send_code(request, profile_id):
     profile = get_object_or_404(SummitAnket, pk=profile_id)
-    if not profile.summit.mail_template:
-        return Response(data={'detail': 'Template for summit does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
-    if not profile.user.email:
-        return Response(data={'detail': 'Empty email.'}, status=status.HTTP_400_BAD_REQUEST)
+    send_method = request.query_params.get('method')
+    if not send_method:
+        return exceptions.ValidationError({'message': 'Parameter {method} must be passed'})
 
-    send_method = request.query_params.get('method', 'email')
     if send_method == 'email':
+        if not profile.summit.mail_template:
+            return Response(data={'detail': 'Template for summit does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not profile.user.email:
+            return Response(data={'detail': 'Empty email.'}, status=status.HTTP_400_BAD_REQUEST)
         send_email_with_code.apply_async(args=[profile_id, request.user.id])
+
+    if send_method == 'sms':
+        send_sms_with_code.applay_async(args=[profile_id, request.user.id])
+
     return Response(data={'profile_id': profile_id})
 
 

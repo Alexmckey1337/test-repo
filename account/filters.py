@@ -69,13 +69,32 @@ class UserIsPartnershipFilter(filters.DjangoFilterBackend):
             return queryset.filter(partnership__isnull=False)
         if is_partner == 'false':
             return queryset.filter(partnership__isnull=True)
-
         return queryset
 
 
 class UserChurchFilter(filters.DjangoFilterBackend):
     def filter_queryset(self, request, queryset, view):
         church_id = request.query_params.get('church_id')
-        if not church_id:
-            return queryset
-        return queryset.filter(Q(cchurch_id=church_id) | Q(hhome_group__church_id=church_id))
+
+        if church_id in ['any', 'nothing']:
+            if church_id == 'any':
+                return queryset.filter(Q(cchurch__isnull=False) | Q(hhome_group__church__isnull=False))
+            else:
+                return queryset.filter(Q(cchurch__isnull=True) & Q(hhome_group__church__isnull=True))
+
+        if church_id:
+            return queryset.filter(Q(cchurch_id=church_id) | Q(hhome_group__church_id=church_id))
+
+        return queryset
+
+
+class HomeGroupFilter(filters.DjangoFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        home_group_id = request.query_params.get('home_group_id')
+
+        if home_group_id in ['any', 'nothing']:
+            if home_group_id == 'any':
+                return queryset.filter(hhome_group__isnull=False)
+
+            else:
+                return queryset.filter(hhome_group__isnull=True)
