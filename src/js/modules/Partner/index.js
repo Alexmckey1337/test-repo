@@ -20,7 +20,8 @@ export function getPartners(config) {
         let pages = Math.ceil(count / CONFIG.pagination_count);
         let data = {};
         let id = "partnersList";
-        let text = `Показано ${CONFIG.pagination_count} из ${count}`;
+        let showCount = (count < CONFIG.pagination_count) ? count : response.results.length;
+        let text = `Показано ${showCount} из ${count}`;
         let common_table = Object.keys(response.common_table);
         data.user_table = response.user_table;
         common_table.forEach(function (item) {

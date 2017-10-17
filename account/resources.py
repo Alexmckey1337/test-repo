@@ -38,12 +38,14 @@ class UserResource(CustomFieldsModelResource):
     """For excel import/export"""
     divisions = fields.Field()
     fullname = fields.Field()
+    get_church = fields.Field()
+    home_group = fields.Field()
 
     user_field_name = None
 
     class Meta:
         model = User
-        fields = USER_RESOURCE_FIELDS
+        fields = USER_RESOURCE_FIELDS + ('cchurch', 'hhome_group')
 
     def get_user_field(self, user):
         if self.user_field_name:
@@ -55,6 +57,20 @@ class UserResource(CustomFieldsModelResource):
         if not user_field.master:
             return ''
         return '%s %s %s' % (user_field.master.last_name, user_field.master.first_name, user_field.master.middle_name)
+
+    def dehydrate_get_church(self, user):
+        user_field = self.get_user_field(user)
+        if not user_field.cchurch:
+            if not user_field.hhome_group:
+                return ''
+            return user_field.hhome_group.church
+        return user_field.cchurch
+
+    def dehydrate_home_group(self, user):
+        user_field = self.get_user_field(user)
+        if not user_field.hhome_group:
+            return ''
+        return user_field.hhome_group
 
     def dehydrate_departments(self, user):
         user_field = self.get_user_field(user)

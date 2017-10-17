@@ -20,10 +20,19 @@ $('document').ready(function () {
     let $departmentsFilter = $('#departments_filter'),
         $churchFilter = $('#church_filter'),
         $treeFilter = $("#tree_filter"),
+        $partnerFilter = $('#partner_filter'),
+        $masterFilter = $('#masters_filter'),
+        $hierarchyFilter = $('#hierarchies_filter'),
         urlChurch = URLS.church.for_select(),
+        urlUserShort = URLS.user.short(),
         path = window.location.href.split('?')[1];
+    const USER_ID = $('body').data('user'),
+        PATH = window.location.href.split('?')[1];
 
-    (path == undefined) && createUsersTable({});
+    if (path == undefined) {
+        createUsersTable({});
+        filterChange();
+    }
 
     $('.selectdb').select2();
     $('.select_date_filter').datepicker({
@@ -123,95 +132,188 @@ $('document').ready(function () {
         applyFilter(this, createUsersTable)
     });
 
-    $departmentsFilter.on('change', function () {
-        let departamentID = $(this).val();
-        let config = {
-            level_gte: 2
-        },
-            config2 = {};
-        if (!departamentID) {
-            departamentID = null;
-        } else {
-            config.department = departamentID;
-            config2.department_id = departamentID;
-        }
-        getData(urlChurch, config2).then(data => {
-            const churches = data.map(option => `<option value="${option.id}">${option.get_title}</option>`);
-            $churchFilter.html('<option value="">ВСЕ</option>').append(churches);
-        });
-        getShortUsers(config).then(function (data) {
-            let options = [];
-            let option = document.createElement('option');
-            $(option).text('ВСЕ');
-            options.push(option);
-            data.forEach(function (item) {
-                let option = document.createElement('option');
-                $(option).val(item.id).text(item.fullname);
-                options.push(option);
+    function filterChange() {
+        $departmentsFilter.on('change', function () {
+            let departamentID = $(this).val();
+            let config = {
+                    level_gte: 2
+                },
+                config2 = {};
+            if (!departamentID) {
+                departamentID = null;
+            } else {
+                config.department = departamentID;
+                config2.department_id = departamentID;
+            }
+            getData(urlChurch, config2).then(data => {
+                const churches = data.map(option => `<option value="${option.id}">${option.get_title}</option>`);
+                $churchFilter.html('<option value="">ВСЕ</option>').append(churches);
             });
-            $('#tree_filter').html(options);
-        }).then(function () {
-                if ($('#tree_filter').val() == "ВСЕ") {
-                    getResponsible(departamentID, 2).then(function (data) {
-                        let options = [];
-                        let option = document.createElement('option');
-                        $(option).text('ВСЕ');
-                        options.push(option);
-                        data.forEach(function (item) {
-                            let option = document.createElement('option');
-                            $(option).val(item.id).text(item.fullname);
-                            options.push(option);
-                        });
-                        $('#masters_filter').html(options);
-                    });
-                } else {
-                    getPastorsByDepartment(departamentID).then(function (data) {
-                        let options = [];
-                        let option = document.createElement('option');
-                        $(option).text('ВСЕ');
-                        options.push(option);
-                        data.forEach(function (item) {
-                            let option = document.createElement('option');
-                            $(option).val(item.id).text(item.fullname);
-                            options.push(option);
-                        });
-                        $('#masters_filter').html(options);
-                    });
-                }
+            getData(urlUserShort, config).then(data => {
+                const users = data.map(option => `<option value="${option.id}">${option.fullname}</option>`);
+                $treeFilter.html('<option value="ВСЕ">ВСЕ</option>').append(users);
+            });
         });
-    });
+        // $churchFilter.on('change', function () {
+        //     let churchID = $(this).val();
+        //     let config = {};
+        //     if (churchID) {
+        //         config.church = churchID;
+        //     }
+        //     getData(urlHGliders, config).then(data => {
+        //         const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
+        //         $treeFilter.html('<option value="">ВСЕ</option>').append(pastors);
+        //     });
+        // });
+        $treeFilter.on('change', function () {
+            let config = {};
+            if ($(this).val() != "ВСЕ") {
+                config = {
+                    master_tree: $(this).val()
+                };
+            }
+            getData(urlUserShort, config).then(data => {
+                const users = data.map(option => `<option value="${option.id}">${option.fullname}</option>`);
+                $masterFilter.html('<option value="ВСЕ">ВСЕ</option>').append(users);
+            });
+        });
+    }
 
-    $treeFilter.on('change', function () {
-        let config = {};
-        if ($(this).val() != "ВСЕ") {
-            config = {
-                master_tree: $(this).val()
-            };
-        }
-        getShortUsers(config).then(function (data) {
-            let options = [];
-            let option = document.createElement('option');
-            $(option).text('ВСЕ');
-            options.push(option);
-            data.forEach(function (item) {
-                let option = document.createElement('option');
-                $(option).val(item.id).text(item.fullname);
-                options.push(option);
-            });
-            $('#masters_filter').html(options);
-        });
-    });
+    // function filterChange() {
+    //     $departmentsFilter.on('change', function () {
+    //         let departamentID = $(this).val();
+    //         let config = {
+    //                 level_gte: 2
+    //             },
+    //             config2 = {};
+    //         if (!departamentID) {
+    //             departamentID = null;
+    //         } else {
+    //             config.department = departamentID;
+    //             config2.department_id = departamentID;
+    //         }
+    //         getData(urlChurch, config2).then(data => {
+    //             const churches = data.map(option => `<option value="${option.id}">${option.get_title}</option>`);
+    //             $churchFilter.html('<option value="">ВСЕ</option>').append(churches);
+    //         });
+    //         getShortUsers(config).then(function (data) {
+    //             let options = [];
+    //             let option = document.createElement('option');
+    //             $(option).text('ВСЕ');
+    //             options.push(option);
+    //             data.forEach(function (item) {
+    //                 let option = document.createElement('option');
+    //                 $(option).val(item.id).text(item.fullname);
+    //                 options.push(option);
+    //             });
+    //             $('#tree_filter').html(options);
+    //         }).then(function () {
+    //             if ($('#tree_filter').val() == "ВСЕ") {
+    //                 console.log('First');
+    //                 getResponsible(departamentID, 2).then(function (data) {
+    //                     let options = [];
+    //                     let option = document.createElement('option');
+    //                     $(option).text('ВСЕ');
+    //                     options.push(option);
+    //                     data.forEach(function (item) {
+    //                         let option = document.createElement('option');
+    //                         $(option).val(item.id).text(item.fullname);
+    //                         options.push(option);
+    //                     });
+    //                     $('#masters_filter').html(options);
+    //                 });
+    //             } else {
+    //                 console.log('Second');
+    //                 getPastorsByDepartment(departamentID).then(function (data) {
+    //                     let options = [];
+    //                     let option = document.createElement('option');
+    //                     $(option).text('ВСЕ');
+    //                     options.push(option);
+    //                     data.forEach(function (item) {
+    //                         let option = document.createElement('option');
+    //                         $(option).val(item.id).text(item.fullname);
+    //                         options.push(option);
+    //                     });
+    //                     $('#masters_filter').html(options);
+    //                 });
+    //             }
+    //         });
+    //     });
+    //
+    //     $treeFilter.on('change', function () {
+    //         let config = {};
+    //         if ($(this).val() != "ВСЕ") {
+    //             config = {
+    //                 master_tree: $(this).val()
+    //             };
+    //         }
+    //         getShortUsers(config).then(function (data) {
+    //             let options = [];
+    //             let option = document.createElement('option');
+    //             $(option).text('ВСЕ');
+    //             options.push(option);
+    //             data.forEach(function (item) {
+    //                 let option = document.createElement('option');
+    //                 $(option).val(item.id).text(item.fullname);
+    //                 options.push(option);
+    //             });
+    //             $('#masters_filter').html(options);
+    //         });
+    //     });
+    // }
 
     $('.save-user').on('click', function () {
         saveUser(this);
     });
 
+    function filterInit(set) {
+        $departmentsFilter.val(set.department).trigger('change');
+        (async () => {
+            if (set.department) {
+                let config = {
+                        level_gte: 2
+                    },
+                    config2 = {};
+                config.department = set.department;
+                config2.department_id = set.department;
+                await getData(urlChurch, config2).then(data => {
+                    const churches = data.map(option => `<option value="${option.id}">${option.get_title}</option>`);
+                    $churchFilter.html('<option value="ВСЕ">ВСЕ</option>').append(churches);
+                    return data;
+                });
+                await getData(urlUserShort, config).then(data => {
+                    const users = data.map(option => `<option value="${option.id}">${option.fullname}</option>`);
+                    $treeFilter.html('<option value="ВСЕ">ВСЕ</option>').append(users);
+                    return data;
+                });
+            }
+            $churchFilter.val(set.church_id).trigger('change');
+            $treeFilter.val(set.master_tree).trigger('change');
+            if (set.master_tree) {
+                let config = {
+                    master_tree: set.master_tree
+                };
+                getData(urlUserShort, config).then(data => {
+                    const users = data.map(option => `<option value="${option.id}">${option.fullname}</option>`);
+                    $masterFilter.html('<option value="ВСЕ">ВСЕ</option>').append(users);
+                });
+            }
+            $masterFilter.val(set.master).trigger('change');
+            $hierarchyFilter.val(set.hierarchy).trigger('change');
+            for (let [key, value] of Object.entries(set)) {
+                $('#filterPopup').find(`input[data-filter="${key}"]`).val(value);
+            }
+            $partnerFilter.val(set.is_partner).trigger('change');
+            $('.apply-filter').trigger('click');
+            filterChange();
+        })();
+    }
+
     //Parsing URL
     if (path != undefined) {
         let filterParam = parseUrlQuery();
-        $('#church_filter').find(`option[value='${filterParam.church_id}']`).prop('selected', true).trigger('change');
-        $('#partner_filter').find(`option[value='${filterParam.is_partner}']`).prop('selected', true).trigger('change');
-        $('.apply-filter').trigger('click');
+        console.log(filterParam);
+        filterInit(filterParam);
     }
 
 });

@@ -33,7 +33,7 @@
     {% create_user_form %}
     <script type="text/template" id="mainStatisticsTmp">
             <div id="drop" class="grid_block drop">
-                <a href="{% url 'db:main' %}" target="_blank" class="col-sm-4 well" data-id="0">
+                <a href="{% url 'db:churches' %}" target="_blank" class="col-sm-4 well" data-id="0">
                     <span>Всего церквей</span>
                     <p class="success_hover">
                         <%= (churches_count) ? String(churches_count).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>

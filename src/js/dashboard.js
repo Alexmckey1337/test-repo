@@ -30,10 +30,20 @@ $(document).ready(function () {
             initSort();
             initSortable();
             hideCard();
+            addEventListenerToWell();
 
             $('.preloader').css('display', 'none');
         }).catch(function (err) {
             console.log(err);
+        });
+    }
+
+    function addEventListenerToWell() {
+        $('#drop').on('click', 'a', function (e) {
+            e.preventDefault();
+            let defaultUrl = $(this).attr('href'),
+                tree = $('#master-filter').val();
+            window.location.href = `${defaultUrl}?master_tree=${tree}`;
         });
     }
 

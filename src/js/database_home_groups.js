@@ -25,20 +25,6 @@ $('document').ready(function () {
         $treeFilter = $('#tree_filter'),
         $liderFilter = $('#leader_filter');
 
-    // let filterInit = (function () {
-    //     let init = false;
-    //     return function () {
-    //         if (!init) {
-    //             getHGLeaders().then(res => {
-    //                 const leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
-    //                 $('#tree_filter').html('<option value="">ВСЕ</option>').append(leaders);
-    //                 $('#leader_filter').html('<option value="">ВСЕ</option>').append(leaders);
-    //             });
-    //             init = true;
-    //         }
-    //     }
-    // })();
-
     function initFilterAfterParse(set) {
         $departmentsFilter.val(set.department_id).trigger('change');
         (async () => {

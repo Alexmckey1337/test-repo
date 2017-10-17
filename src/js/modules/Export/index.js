@@ -1,7 +1,6 @@
 'use strict';
 import getSearch from '../Search/index';
 import {postExport} from "../Ajax/index";
-// import newAjaxRequest from '../Ajax/newAjaxRequest';
 import {getFilterParam} from "../Filter/index";
 import {showAlert, showPromt} from "../ShowNotifications/index";
 
@@ -29,7 +28,7 @@ export default function exportTableData(el, additionalFilter = {}, search = 'sea
                 }
             })
         }
-        url += `&file_name=${value.trim()}`;
+        (Object.keys(filter).length == 0) ? url += `?file_name=${value.trim()}` : url += `&file_name=${value.trim()}`;
         let data = {
             fields: getDataTOExport().join(',')
         };
@@ -39,70 +38,6 @@ export default function exportTableData(el, additionalFilter = {}, search = 'sea
     }, () => {
     });
 }
-
-// export default function exportTableData(el, additionalFilter = {}, search = 'search_fio') {
-//     let _self = el;
-//     return new Promise(function (resolve, reject) {
-//         let url, filter, filterKeys, items, count;
-//         url = $(_self).attr('data-export-url');
-//         filter = Object.assign(getFilterParam(), getSearch(search), additionalFilter);
-//         filterKeys = Object.keys(filter);
-//         if (filterKeys && filterKeys.length) {
-//             url += '?';
-//             items = filterKeys.length;
-//             count = 0;
-//             filterKeys.forEach(function (key) {
-//                 count++;
-//                 url += key + '=' + filter[key];
-//                 if (count != items) {
-//                     url += '&';
-//                 }
-//             })
-//         }
-//         let data = {
-//             url: url,
-//             method: 'POST',
-//             data: {
-//                 fields: getDataTOExport().join(',')
-//             }
-//         };
-//         let status = {
-//             200: function (data, statusText, req) {
-//                 // check for a filename
-//                 let file = createCSV(req);
-//                 if (typeof window.navigator.msSaveBlob !== 'undefined') {
-//                     // IE workaround for "HTML7007"
-//                     window.navigator.msSaveBlob(file.file, file.filename);
-//                 } else {
-//                     let URL = window.URL || window.webkitURL;
-//                     let downloadUrl = URL.createObjectURL(file.file);
-//
-//                     if (file.filename) {
-//                         // use HTML5 a[download] attribute to specify filename
-//                         let a = document.createElement("a");
-//                         // safari doesn't support this yet
-//                         if (typeof a.download === 'undefined') {
-//                             window.location = downloadUrl;
-//                         } else {
-//                             a.href = downloadUrl;
-//                             a.download = file.filename;
-//                             document.body.appendChild(a);
-//                             a.click();
-//                         }
-//                     } else {
-//                         window.location = downloadUrl;
-//                     }
-//
-//                     setTimeout(function () {
-//                         URL.revokeObjectURL(downloadUrl);
-//                     }, 100); // cleanup
-//                     resolve(req);
-//                 }
-//             }
-//         };
-//         newAjaxRequest(data, status, reject);
-//     });
-// }
 
 function getDataTOExport() {
     let $fealds = $('#sort-form').find('input');

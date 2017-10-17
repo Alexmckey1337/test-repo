@@ -8,11 +8,13 @@ import OrderTable, {getOrderingData} from '../Ordering/index';
 import makeSortForm from '../Sort/index';
 import makePagination from '../Pagination/index';
 import {makeDataTable} from '../Table/index';
+import updateHistoryUrl from '../History/index';
 
 export function createUsersTable(config) {
     Object.assign(config, getSearch('search_fio'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
+    updateHistoryUrl(config);
     getUsers(config).then(function (data) {
         let count = data.count;
         let page = config['page'] || 1;
