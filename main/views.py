@@ -682,6 +682,7 @@ class ChurchListView(LoginRequiredMixin, TabsMixin, CanSeeChurchesMixin, Templat
 
         ctx['departments'] = Department.objects.all()
         ctx['currencies'] = Currency.objects.all()
+        ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
 
         return ctx
 
@@ -695,6 +696,7 @@ class HomeGroupListView(LoginRequiredMixin, TabsMixin, CanSeeHomeGroupsMixin, Te
         ctx = super(HomeGroupListView, self).get_context_data(**kwargs)
         ctx['departments'] = Department.objects.all()
         ctx['churches'] = Church.objects.all()
+        ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
 
         return ctx
 

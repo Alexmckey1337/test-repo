@@ -110,8 +110,8 @@ $('document').ready(function () {
                     return data;
                 });
             }
-            $churchFilter.val(set.church).trigger('change');
-            $('#payment_status').val(set.payment_status).trigger('change');
+            (set.church) && $churchFilter.val(set.church).trigger('change');
+            (set.payment_status) && $('#payment_status').val(set.payment_status).trigger('change');
             $('.apply-filter').trigger('click');
             filterChange();
         })();

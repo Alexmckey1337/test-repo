@@ -163,7 +163,7 @@ $('document').ready(function () {
                     return res;
                 });
             }
-            $homeGroupFilter.val(set.home_group).trigger('change');
+            (set.home_group) && $homeGroupFilter.val(set.home_group).trigger('change');
             $('.apply-filter').trigger('click');
             filterChange();
         })();

@@ -42,12 +42,6 @@ $('document').ready(function () {
                     $treeFilter.html('<option value="">ВСЕ</option>').append(pastors);
                     return data;
                 })
-            } else {
-                await getData(urlHGliders).then(res => {
-                    const leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
-                    $treeFilter.html('<option value="">ВСЕ</option>').append(leaders);
-                    return res;
-                });
             }
             if (set.master_tree) {
                 $treeFilter.val(set.master_tree).trigger('change');
@@ -79,7 +73,7 @@ $('document').ready(function () {
             } else {
                 getData(urlHGliders).then(res => {
                     const leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
-                    $('#tree_filter').html('<option value="">ВСЕ</option>').append(leaders);
+                    // $('#tree_filter').html('<option value="">ВСЕ</option>').append(leaders);
                     $('#leader_filter').html('<option value="">ВСЕ</option>').append(leaders);
                 });
             }
