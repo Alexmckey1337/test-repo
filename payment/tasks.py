@@ -12,8 +12,8 @@ from notification.backend import RedisBackend
 
 
 @app.task(ignore_result=True, max_retries=3, default_retra=2 * 60)
-def generate_export(user, queryset, fields, resource_class, file_format, file_name):
-    data = resource_class().export(queryset, custom_export_fields=fields)
+def generate_export(user, model, ids, fields, resource_class, file_format, file_name):
+    data = resource_class().export(model.objects.filter(id__in=ids), custom_export_fields=fields)
     export_data = file_format.export_data(data, delimiter=';')
     file_name = file_name.replace(' ', '_') + '_export_at_' + datetime.now().strftime('%H:%M:%S')
     file_name_with_format = file_name + '.' + file_format.get_extension()
@@ -31,12 +31,12 @@ def generate_export(user, queryset, fields, resource_class, file_format, file_na
 
     try:
         r = RedisBackend()
-        r.sadd('export:{}'.format(user.id), url)
-        r.expire('export:{}'.format(user.id), 24 * 60 * 60)
+        r.sadd('export:{}'.format(user), url)
+        r.expire('export:{}'.format(user), 24 * 60 * 60)
     except Exception as err:
         print(err)
 
-    Group('export_{}'.format(user.id)).send({
+    Group('export_{}'.format(user)).send({
         'text': dumps({'link': url, 'type': 'EXPORT', 'name': file_name})
     })
 

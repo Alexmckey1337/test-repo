@@ -59,7 +59,8 @@ class BaseExportViewSetMixin(object):
         if not file_name:
             raise exceptions.ValidationError({'message': 'Parameter {file_name} must be passed'})
         generate_export.apply_async(args=[
-            self.request.user, queryset, fields, resource_class, self.file_format, file_name])
+            self.request.user.id, queryset.model, list(queryset.values_list('id', flat=True)),
+            fields, resource_class, self.file_format, file_name])
 
         # data = resource_class().export(queryset, custom_export_fields=fields)
         # export_data = self.file_format.export_data(data, delimiter=';')
