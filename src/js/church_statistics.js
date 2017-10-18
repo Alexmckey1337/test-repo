@@ -102,7 +102,7 @@ $('document').ready(function () {
                     return data;
                 });
             }
-            $churchFilter.val(set.church).trigger('change');
+            (set.church) && $churchFilter.val(set.church).trigger('change');
             $('.apply-filter').trigger('click');
             filterChange();
         })();
@@ -134,7 +134,6 @@ $('document').ready(function () {
         churchStatistics(configData);
         filterChange();
     }
-
 
     $('#date_range').datepicker({
         dateFormat: 'dd.mm.yyyy',

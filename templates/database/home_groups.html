@@ -79,6 +79,9 @@
                         <span class="label_block">Ветка</span>
                         <select class="selectdb" data-filter="master_tree" id="tree_filter">
                             <option value="">ВСЕ</option>
+                            {% for master in masters %}
+                                <option value="{{ master.id }}">{{ master.fullname }}</option>
+                            {% endfor %}
                         </select>
                     </label>
                     <label>

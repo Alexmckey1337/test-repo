@@ -34,7 +34,7 @@ $('document').ready(function () {
         (async () => {
             await getData(pastorUrl, config).then(res => {
                 let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
-                $treeFilter.html('<option>ВСЕ</option>').append(leaders);
+                (set.department) && $treeFilter.html('<option>ВСЕ</option>').append(leaders);
                 $pastorFilter.html('<option>ВСЕ</option>').append(leaders);
                 return res;
             });
@@ -47,7 +47,7 @@ $('document').ready(function () {
                 });
             }
             (set.pastor) && $pastorFilter.val(set.pastor).trigger('change');
-            $('#search_is_open').val(set.is_open).trigger('change');
+            (set.is_open) && $('#search_is_open').val(set.is_open).trigger('change');
             for (let [key, value] of Object.entries(set)) {
                 $('#filterPopup').find(`input[data-filter="${key}"]`).val(value);
             }
@@ -65,7 +65,7 @@ $('document').ready(function () {
                     master_tree: USER_ID
                 }).then(res => {
                     let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
-                    $treeFilter.html('<option>ВСЕ</option>').append(leaders);
+                    // $treeFilter.html('<option>ВСЕ</option>').append(leaders);
                     $pastorFilter.html('<option>ВСЕ</option>').append(leaders);
                 });
             }

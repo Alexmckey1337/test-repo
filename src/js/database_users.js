@@ -207,8 +207,8 @@ $('document').ready(function () {
                     return data;
                 });
             }
-            $churchFilter.val(set.church_id).trigger('change');
-            $treeFilter.val(set.master_tree).trigger('change');
+            (set.church_id) && $churchFilter.val(set.church_id).trigger('change');
+            (set.master_tree) && $treeFilter.val(set.master_tree).trigger('change');
             if (set.master_tree) {
                 let config = {
                     master_tree: set.master_tree
@@ -218,12 +218,12 @@ $('document').ready(function () {
                     $masterFilter.html('<option value="ВСЕ">ВСЕ</option>').append(users);
                 });
             }
-            $masterFilter.val(set.master).trigger('change');
-            $hierarchyFilter.val(set.hierarchy).trigger('change');
+            (set.master) && $masterFilter.val(set.master).trigger('change');
+            (set.hierarchy) && $hierarchyFilter.val(set.hierarchy).trigger('change');
             for (let [key, value] of Object.entries(set)) {
                 $('#filterPopup').find(`input[data-filter="${key}"]`).val(value);
             }
-            $partnerFilter.val(set.is_partner).trigger('change');
+            (set.is_partner) && $partnerFilter.val(set.is_partner).trigger('change');
             $('.apply-filter').trigger('click');
             filterChange();
         })();
