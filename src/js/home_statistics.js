@@ -9,6 +9,8 @@ import getData from './modules/Ajax/index';
 import {getPastorsByDepartment, getHGLeaders} from "./modules/GetList/index";
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
 import {homeStatistics} from "./modules/Statistics/home_group";
+import reverseDate from './modules/Date/index';
+import parseUrlQuery from './modules/ParseUrl/index';
 
 $('document').ready(function () {
     let dateReports = new Date(),
@@ -22,20 +24,155 @@ $('document').ready(function () {
         $homeGroupFilter = $('#home_group_filter'),
         $liderFilter = $('#masters_filter');
     const USER_ID = $('body').data('user'),
+        urlPastors = URLS.church.available_pastors(),
         urlChurches = URLS.church.for_select(),
+        urlHGleaders = URLS.home_group.leaders(),
         urlHG = URLS.home_group.for_select();
     $('.set-date').find('input').val(`${thisMonday}-${thisSunday}`);
     let configData = {
-        from_date: thisMonday.split('.').reverse().join('-'),
-        to_date: thisSunday.split('.').reverse().join('-')
-    };
-    let filterInit = (function () {
-        let init = false;
-        return function () {
-            if (!init) {
-                getPastorsByDepartment({
+            from_date: reverseDate(thisMonday, '-'),
+            to_date: reverseDate(thisSunday, '-'),
+        },
+        init = false,
+        path = window.location.href.split('?')[1];
+
+    function initFilterAfterParse(set) {
+        if (set.from_date && set.to_date) {
+            $('.tab-home-stats').find('.week').removeClass('active');
+            $('.set-date').find('input').val(`${reverseDate(set.from_date, '.')}-${reverseDate(set.to_date, '.')}`);
+        } else {
+            $('.tab-home-stats').find('.week').removeClass('active');
+            $('.tab-home-stats').find('.week_all').addClass('active');
+            $('.set-date').find('input').val('');
+        }
+        if (set.type) {
+            $('#tabs').find('li').removeClass('active');
+            $('#tabs').find(`button[data-id='${set.type}']`).parent().addClass('active');
+        } else {
+            $('#tabs').find('li').removeClass('active');
+            $('#tabs').find(`button[data-id='0']`).parent().addClass('active');
+        }
+
+        $departmentsFilter.val(set.department).trigger('change');
+        (async () => {
+            if (set.department) {
+                let config = {
+                        department: set.department
+                    },
+                    config2 = {
+                        department_id: set.department
+                    };
+                await getData(urlPastors, config2).then(function (res) {
+                    const pastors = res.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
+                    $treeFilter.html('<option>ВСЕ</option>').append(pastors);
+                    return res;
+                });
+                await getData(urlChurches, config2).then(res => {
+                    let churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`);
+                    $churchFilter.html('<option>ВСЕ</option>').append(churches);
+                    return res;
+                });
+                await getData(urlHG, config2).then(res => {
+                    let groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`);
+                    $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
+                    return res;
+                });
+                await getData(urlHGleaders, config).then(res => {
+                    let liders = res.map(lider => `<option value="${lider.id}">${lider.fullname}</option>`);
+                    $liderFilter.html('<option>ВСЕ</option>').append(liders);
+                    return res;
+                });
+            } else {
+                let config = {
                     master_tree: USER_ID
-                }).then(res => {
+                };
+                await getData(urlPastors, config).then(res => {
+                    let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
+                    $treeFilter.html('<option>ВСЕ</option>').append(leaders);
+                    return res;
+                });
+                await getData(urlChurches).then(res => {
+                    let churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`);
+                    $churchFilter.html('<option>ВСЕ</option>').append(churches);
+                    return res;
+                });
+                await getData(urlHG).then(res => {
+                    let groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`);
+                    $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
+                    return res;
+                });
+                await getData(urlHGleaders).then(res => {
+                    let liders = res.map(lider => `<option value="${lider.id}">${lider.fullname}</option>`);
+                    $liderFilter.html('<option>ВСЕ</option>').append(liders);
+                    return res;
+                });
+            }
+            if (set.master_tree) {
+                $treeFilter.val(set.master_tree).trigger('change');
+                let config = {
+                    master_tree: set.master_tree
+                };
+                await getData(urlChurches, config).then(res => {
+                    let churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`);
+                    $churchFilter.html('<option>ВСЕ</option>').append(churches);
+                    return res;
+                });
+                await getData(urlHG, config).then(res => {
+                    let groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`);
+                    $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
+                    return res;
+                });
+                await getData(urlHGleaders, config).then(res => {
+                    let liders = res.map(lider => `<option value="${lider.id}">${lider.fullname}</option>`);
+                    $liderFilter.html('<option>ВСЕ</option>').append(liders);
+                    return res;
+                });
+            }
+            if (set.church) {
+                $churchFilter.val(set.church).trigger('change');
+                let config = {
+                        church: set.church
+                    },
+                    config2 = {
+                        church_id: set.church
+                    };
+                await getData(urlHG, config2).then(res => {
+                    let groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`);
+                    $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
+                    return res;
+                });
+                await getData(urlHGleaders, config).then(res => {
+                    let liders = res.map(lider => `<option value="${lider.id}">${lider.fullname}</option>`);
+                    $liderFilter.html('<option>ВСЕ</option>').append(liders);
+                    return res;
+                });
+            }
+            if (set.owner) {
+                $liderFilter.val(set.owner).trigger('change');
+                let config = {
+                    leader_id: set.owner
+                };
+                await getData(urlHG, config).then(res => {
+                    let groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`);
+                    $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
+                    return res;
+                });
+            }
+            $homeGroupFilter.val(set.home_group).trigger('change');
+            $('.apply-filter').trigger('click');
+            filterChange();
+        })();
+    }
+
+    function filterInit(set = null) {
+        if (!init) {
+            if (set != null) {
+                initFilterAfterParse(set);
+            } else {
+                let config = {
+                    master_tree: USER_ID
+                };
+                getData(urlPastors, config).then(res => {
                     let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
                     $treeFilter.html('<option>ВСЕ</option>').append(leaders);
                 });
@@ -47,16 +184,19 @@ $('document').ready(function () {
                     let groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`);
                     $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
                 });
-                getHGLeaders().then(res => {
-                   let liders = res.map(lider=> `<option value="${lider.id}">${lider.fullname}</option>`);
+                getData(urlHGleaders).then(res => {
+                    let liders = res.map(lider => `<option value="${lider.id}">${lider.fullname}</option>`);
                     $liderFilter.html('<option>ВСЕ</option>').append(liders);
                 });
-                init = true;
             }
+            init = true;
         }
-    })();
+    }
 
-    homeStatistics(configData);
+    if (path == undefined) {
+        homeStatistics(configData);
+        filterChange();
+    }
 
     $('#date_range').datepicker({
         dateFormat: 'dd.mm.yyyy',
@@ -99,7 +239,7 @@ $('document').ready(function () {
         $('#filterPopup').css('display', 'block');
     });
 
-        $('.clear-filter').on('click', function () {
+    $('.clear-filter').on('click', function () {
         refreshFilter(this);
     });
 
@@ -107,79 +247,88 @@ $('document').ready(function () {
         applyFilter(this, homeStatistics);
     });
 
-    $departmentsFilter.on('change', function () {
-        let departamentID = $(this).val();
-        let config = {},
-            config2 = {};
-        if (!departamentID) {
-            departamentID = null;
-        } else {
-            config.department = departamentID;
-            config2.department_id = departamentID;
-        }
-        getPastorsByDepartment(config2).then(function (data) {
+    function filterChange() {
+        $departmentsFilter.on('change', function () {
+            let departamentID = $(this).val();
+            let config = {},
+                config2 = {};
+            if (!departamentID) {
+                departamentID = null;
+            } else {
+                config.department = departamentID;
+                config2.department_id = departamentID;
+            }
+            getPastorsByDepartment(config2).then(function (data) {
                 const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
                 $treeFilter.html('<option>ВСЕ</option>').append(pastors);
             });
-        getData(urlChurches, config2).then(res => {
-            let churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`);
-            $churchFilter.html('<option>ВСЕ</option>').append(churches);
+            getData(urlChurches, config2).then(res => {
+                let churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`);
+                $churchFilter.html('<option>ВСЕ</option>').append(churches);
+            });
+            getData(urlHG, config2).then(res => {
+                let groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`);
+                $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
+            });
+            getHGLeaders(config).then(res => {
+                let leaders = res.map(lider => `<option value="${lider.id}">${lider.fullname}</option>`);
+                $liderFilter.html('<option>ВСЕ</option>').append(leaders);
+            });
         });
-        getData(urlHG, config2).then(res => {
-            let groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`);
-            $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
-        });
-        getHGLeaders(config).then(res => {
-            let leaders = res.map(lider => `<option value="${lider.id}">${lider.fullname}</option>`);
-            $liderFilter.html('<option>ВСЕ</option>').append(leaders);
-        });
-    });
 
-    $treeFilter.on('change', function () {
-        let config = {};
-        if (($(this).val() != "ВСЕ") && ($(this).val() != "") && ($(this).val() != null)) {
-            config.master_tree = $(this).val();
-        }
-        getData(urlChurches, config).then(res => {
-            let churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`);
-            $churchFilter.html('<option>ВСЕ</option>').append(churches);
+        $treeFilter.on('change', function () {
+            let config = {};
+            if (($(this).val() != "ВСЕ") && ($(this).val() != "") && ($(this).val() != null)) {
+                config.master_tree = $(this).val();
+            }
+            getData(urlChurches, config).then(res => {
+                let churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`);
+                $churchFilter.html('<option>ВСЕ</option>').append(churches);
+            });
+            getData(urlHG, config).then(res => {
+                let groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`);
+                $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
+            });
+            getHGLeaders(config).then(res => {
+                let liders = res.map(lider => `<option value="${lider.id}">${lider.fullname}</option>`);
+                $liderFilter.html('<option>ВСЕ</option>').append(liders);
+            });
         });
-        getData(urlHG, config).then(res => {
-            let groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`);
-            $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
-        });
-        getHGLeaders(config).then(res => {
-            let liders = res.map(lider => `<option value="${lider.id}">${lider.fullname}</option>`);
-            $liderFilter.html('<option>ВСЕ</option>').append(liders);
-        });
-    });
 
-    $churchFilter.on('change', function () {
-        let config = {},
-            config2 = {};
-        if (($(this).val() != "ВСЕ") && ($(this).val() != "") && ($(this).val() != null)) {
-            config.church = $(this).val();
-            config2.church_id = $(this).val();
-        }
-        getData(urlHG, config2).then(res => {
-            let groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`);
-            $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
+        $churchFilter.on('change', function () {
+            let config = {},
+                config2 = {};
+            if (($(this).val() != "ВСЕ") && ($(this).val() != "") && ($(this).val() != null)) {
+                config.church = $(this).val();
+                config2.church_id = $(this).val();
+            }
+            getData(urlHG, config2).then(res => {
+                let groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`);
+                $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
+            });
+            getHGLeaders(config).then(res => {
+                let liders = res.map(lider => `<option value="${lider.id}">${lider.fullname}</option>`);
+                $liderFilter.html('<option>ВСЕ</option>').append(liders);
+            });
         });
-        getHGLeaders(config).then(res => {
-            let liders = res.map(lider=> `<option value="${lider.id}">${lider.fullname}</option>`);
-            $liderFilter.html('<option>ВСЕ</option>').append(liders);
-        });
-    });
 
-    $liderFilter.on('change', function () {
-        let config = {};
-        if (($(this).val() != "ВСЕ") && ($(this).val() != "") && ($(this).val() != null)) {
-            config.leader_id = $(this).val();
-        }
-        getData(urlHG, config).then(res => {
-            let groups = res.map(group=> `<option value="${group.id}">${group.get_title}</option>`);
-            $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
+        $liderFilter.on('change', function () {
+            let config = {};
+            if (($(this).val() != "ВСЕ") && ($(this).val() != "") && ($(this).val() != null)) {
+                config.leader_id = $(this).val();
+            }
+            getData(urlHG, config).then(res => {
+                let groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`);
+                $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
+            });
         });
-    });
+    }
+
+    //Parsing URL
+    if (path != undefined) {
+        let filterParam = parseUrlQuery();
+        console.log(filterParam);
+        filterInit(filterParam);
+    }
 
 });

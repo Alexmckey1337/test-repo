@@ -55,7 +55,7 @@ export function makeChurchPastorReportsTable(data, config = {}) {
         let url = e.target.getAttribute('data-url'),
             type = e.target.getAttribute('data-type'),
             id = e.target.getAttribute('data-id');
-        window.location = `${url}?type=${type}&pastor=${id}`;
+        window.location = `${url}?status=${type}&pastor=${id}`;
     });
     $('.table__count').text(text);
     fixedTableHead();

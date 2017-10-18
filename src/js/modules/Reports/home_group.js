@@ -12,6 +12,7 @@ import makePagination from '../Pagination/index';
 import fixedTableHead from '../FixedHeadTable/index';
 import OrderTable from '../Ordering/index';
 import {showAlert} from "../ShowNotifications/index";
+import updateHistoryUrl from '../History/index';
 
 export function HomeReportsTable(config) {
     getHomeReports(config).then(data => {
@@ -25,6 +26,7 @@ export function homeReportsTable(config = {}) {
     Object.assign(config, getSearch('search_title'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getTabsFilterParam());
+    updateHistoryUrl(config);
     getHomeReports(config).then(data => {
         makeHomeReportsTable(data, config);
     })

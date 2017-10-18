@@ -54,20 +54,20 @@
                     </p>
                     <button class="vision"></button>
                 </a>
-                <div class="col-sm-4 well" data-id="3">
+                <a href="{% url 'db:people' %}?church_id=any" class="col-sm-4 well" data-id="3">
                     <span>Всего людей в церквях</span>
                     <p>
                         <%= (peoples_in_churches) ? String(peoples_in_churches).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
-                </div>
-                <div class="col-sm-4 well" data-id="4">
+                </a>
+                <a href="{% url 'db:people' %}?home_group_id=any" class="col-sm-4 well" data-id="4">
                     <span>Всего людей в домашних группах</span>
                     <p>
                         <%= (peoples_in_home_groups) ? String(peoples_in_home_groups).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
-                </div>
+                </a>
                 <div class="col-sm-4 well" data-id="5">
                     <span>Всего лидеров групп</span>
                     <p>
@@ -96,48 +96,48 @@
                     </p>
                     <button class="vision"></button>
                 </div>
-                <div class="col-sm-4 well success" data-id="9">
+                <a href="{% url 'events:church_report_list' %}?status=2" class="col-sm-4 well success" data-id="9">
                     <span>Заполнено отчетов (церкви)</span>
                     <p>
                         <%= (church_reports_submitted) ? String(church_reports_submitted).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
-                </div>
-                <div class="col-sm-4 well info" data-id="10">
+                </a>
+                <a href="{% url 'events:church_report_list' %}?status=1" class="col-sm-4 well info" data-id="10">
                     <span>Отчетов к заполнению (церкви)</span>
                     <p>
                         <%= (church_reports_in_progress) ? String(church_reports_in_progress).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
-                </div>
-                <div class="col-sm-4 well error" data-id="11">
+                </a>
+                <a href="{% url 'events:church_report_list' %}?status=3" class="col-sm-4 well error" data-id="11">
                     <span>Просрочено отчетов (церкви)</span>
                     <p>
                         <%= (church_reports_expired) ? String(church_reports_expired).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
-                </div>
-                <div class="col-sm-4 well success" data-id="12">
+                </a>
+                <a href="{% url 'events:meeting_report_list' %}?status=2" class="col-sm-4 well success" data-id="12">
                     <span>Заполнено отчетов (дом. группы)</span>
                     <p>
                         <%= (meetings_submitted) ? String(meetings_submitted).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
-                </div>
-                <div class="col-sm-4 well info" data-id="13">
+                </a>
+                <a href="{% url 'events:meeting_report_list' %}?status=1" class="col-sm-4 well info" data-id="13">
                     <span>Отчетов к заполнению (дом. группы)</span>
                     <p>
                         <%= (meetings_in_progress) ? String(meetings_in_progress).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
-                </div>
-                <div class="col-sm-4 well error" data-id="14">
+                </a>
+                <a href="{% url 'events:meeting_report_list' %}?status=3" class="col-sm-4 well error" data-id="14">
                     <span>Просрочено отчетов (дом. группы)</span>
                     <p>
                         <%= (meetings_expired) ? String(meetings_expired).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
-                </div>
+                </a>
             </div>
         </script>
 {% endblock %}

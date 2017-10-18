@@ -14,6 +14,7 @@ import OrderTable from '../Ordering/index';
 import {btnDeals} from "../Deals/index";
 import {completeChurchPayment, showChurchPayments} from '../Payment/index';
 import {showAlert, showConfirm} from "../ShowNotifications/index";
+import updateHistoryUrl from '../History/index';
 
 export function ChurchReportsTable(config) {
     Object.assign(config, getTabsFilterParam());
@@ -103,6 +104,7 @@ export function churchReportsTable(config = {}) {
     Object.assign(config, getSearch('search_title'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getTabsFilterParam());
+    updateHistoryUrl(config);
     getChurchReports(config).then(data => {
         makeChurchReportsTable(data, config);
     })

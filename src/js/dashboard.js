@@ -43,7 +43,11 @@ $(document).ready(function () {
             e.preventDefault();
             let defaultUrl = $(this).attr('href'),
                 tree = $('#master-filter').val();
-            window.location.href = `${defaultUrl}?master_tree=${tree}`;
+            if (defaultUrl.indexOf('?') != -1) {
+                window.location.href = `${defaultUrl}&master_tree=${tree}`;
+            } else {
+                window.location.href = `${defaultUrl}?master_tree=${tree}`;
+            }
         });
     }
 
