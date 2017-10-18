@@ -44,7 +44,8 @@ class UserFilter(django_filters.FilterSet):
 
     class Meta:
         model = User
-        fields = ['master', 'hierarchy', 'department', 'repentance_date_from', 'repentance_date_to']
+        fields = ['master', 'hierarchy', 'department', 'repentance_date_from', 'repentance_date_to',
+                  'spiritual_level']
 
 
 class ShortUserFilter(django_filters.FilterSet):
