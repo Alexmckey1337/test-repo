@@ -75,27 +75,27 @@
                     </p>
                     <button class="vision"></button>
                 </div>
-                <div class="col-sm-4 well" data-id="6">
+                <a href="{% url 'db:people' %}?spiritual_level=3" class="col-sm-4 well" data-id="6">
                     <span>Всего отцы</span>
                     <p>
                         <%= (fathers_count) ? String(fathers_count).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
-                </div>
-                <div class="col-sm-4 well" data-id="7">
+                </a>
+                <a href="{% url 'db:people' %}?spiritual_level=2" class="col-sm-4 well" data-id="7">
                     <span>Всего юноши</span>
                     <p>
                         <%= (juniors_count) ? String(juniors_count).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
-                </div>
-                <div class="col-sm-4 well" data-id="8">
+                </a>
+                <a href="{% url 'db:people' %}?spiritual_level=1" class="col-sm-4 well" data-id="8">
                     <span>Всего младенцы</span>
                     <p>
                         <%= (babies_count) ? String(babies_count).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
-                </div>
+                </a>
                 <a href="{% url 'events:church_report_list' %}?status=2" class="col-sm-4 well success" data-id="9">
                     <span>Заполнено отчетов (церкви)</span>
                     <p>
