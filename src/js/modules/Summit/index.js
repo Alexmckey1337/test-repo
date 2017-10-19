@@ -1,6 +1,7 @@
 'use strict';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
+import {postData} from "../Ajax/index";
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
 import getSearch from '../Search/index';
@@ -113,40 +114,40 @@ function makeQuickEditSammitCart(el) {
     });
 }
 
-export function predeliteAnket(id) {
-    let config = {
-        url: URLS.summit_profile.predelete(id),
-    };
-    return new Promise((resolve, reject) => {
-        let codes = {
-            200: function (data) {
-                resolve(data);
-            },
-            400: function (data) {
-                reject(data)
-            }
-        };
-        newAjaxRequest(config, codes, reject);
-    })
-}
+// export function predeliteAnket(id) {
+//     let config = {
+//         url: URLS.summit_profile.predelete(id),
+//     };
+//     return new Promise((resolve, reject) => {
+//         let codes = {
+//             200: function (data) {
+//                 resolve(data);
+//             },
+//             400: function (data) {
+//                 reject(data)
+//             }
+//         };
+//         newAjaxRequest(config, codes, reject);
+//     })
+// }
 
-export function deleteSummitProfile(id) {
-    let config = {
-        url: URLS.summit_profile.detail(id),
-        method: "DELETE"
-    };
-    return new Promise((resolve, reject) => {
-        let codes = {
-            204: function () {
-                resolve('Пользователь удален из саммита');
-            },
-            400: function (data) {
-                reject(data)
-            }
-        };
-        newAjaxRequest(config, codes, reject);
-    })
-}
+// export function deleteSummitProfile(id) {
+//     let config = {
+//         url: URLS.summit_profile.detail(id),
+//         method: "DELETE"
+//     };
+//     return new Promise((resolve, reject) => {
+//         let codes = {
+//             204: function () {
+//                 resolve('Пользователь удален из саммита');
+//             },
+//             400: function (data) {
+//                 reject(data)
+//             }
+//         };
+//         newAjaxRequest(config, codes, reject);
+//     })
+// }
 
 export function unsubscribeOfSummit(id) {
     ajaxRequest(URLS.summit_profile.detail(id), null, function () {
@@ -195,32 +196,39 @@ export function registerUser(id, summit_id, description) {
         "summit": summit_id,
         "description": description,
     };
-
-    let json = JSON.stringify(data);
-    registerUserToSummit(json);
-}
-
-function registerUserToSummit(config) {
-    ajaxRequest(URLS.summit_profile.list(), config, function (data) {
+    // let json = JSON.stringify(data);
+    postData(URLS.summit_profile.list(), data).then(() => {
         showAlert("Пользователь добавлен в саммит.");
         createSummitUsersTable();
-    }, 'POST', true, {
-        'Content-Type': 'application/json'
-    }, {
-        400: function (data) {
-            data = data.responseJSON;
-            showAlert(data.detail);
-        },
-        404: function (data) {
-            data = data.responseJSON;
-            showAlert(data.detail);
-        },
-        403: function (data) {
-            data = data.responseJSON;
-            showAlert(data.detail);
-        }
-    });
+        $('#searchedUsers').find(`button[data-id=${id}]`).prop('disabled', true);
+    }).catch((err) => {
+        showAlert('Ошибка добавления пользователя');
+        console.log(err);
+    })
+    // registerUserToSummit(json);
 }
+
+// function registerUserToSummit(config) {
+//     ajaxRequest(URLS.summit_profile.list(), config, function (data) {
+//         showAlert("Пользователь добавлен в саммит.");
+//         createSummitUsersTable();
+//     }, 'POST', true, {
+//         'Content-Type': 'application/json'
+//     }, {
+//         400: function (data) {
+//             data = data.responseJSON;
+//             showAlert(data.detail);
+//         },
+//         404: function (data) {
+//             data = data.responseJSON;
+//             showAlert(data.detail);
+//         },
+//         403: function (data) {
+//             data = data.responseJSON;
+//             showAlert(data.detail);
+//         }
+//     });
+// }
 
 export function makePotencialSammitUsersList() {
     let param = {'summit_id': 7};
