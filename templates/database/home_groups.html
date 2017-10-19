@@ -128,11 +128,17 @@
                             </label>
                             <label>
                                 <span class="label_block">Церковь</span>
-                                <p id="added_home_group_church" data-id="{{ user.get_church.id }}"
-                                   data-department="{{ user.get_church.department.id }}"
-                                   data-user="{{ user.id }}">
-                                    {{ user.get_church.get_title }}
-                                </p>
+{#                                <p id="added_home_group_church" data-id="{{ user.get_church.id }}"#}
+{#                                   data-department="{{ user.get_church.department.id }}"#}
+{#                                   data-user="{{ user.id }}">#}
+{#                                    {{ user.get_church.get_title }}#}
+{#                                </p>#}
+                                <select class="selectdb" id="added_home_group_church_select">
+                                    <option value="">Выберите церковь</option>
+                                    {% for church in churches %}
+                                        <option value="{{ church.id }}">{{ church.get_title }}</option>
+                                    {% endfor %}
+                                </select>
                             </label>
                             <label>
                                 <span class="label_block">Лидер</span>

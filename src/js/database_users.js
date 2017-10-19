@@ -187,6 +187,9 @@ $('document').ready(function () {
         if (set.home_group_id) {
             $('#home_group_filter').val(set.home_group_id).trigger('change');
         }
+        if (set.spiritual_level) {
+            $('#spir_level_filter').val(set.spiritual_level).trigger('change');
+        }
         (async () => {
             if (set.department) {
                 let config = {
