@@ -25,7 +25,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from account.filters import (FilterByUserBirthday, UserFilter, ShortUserFilter, FilterMasterTreeWithSelf,
                              FilterDashboardMasterTreeWithSelf, UserIsPartnershipFilter, UserChurchFilter,
-                             HomeGroupFilter)
+                             UserHomeGroupFilter, UserHGLeadersFilter)
 from account.models import CustomUser as User
 from account.permissions import CanSeeUserList, CanCreateUser, CanExportUserList, SeeUserListPermission, \
     EditUserPermission, ExportUserListPermission
@@ -147,7 +147,8 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         FilterMasterTreeWithSelf,
         UserIsPartnershipFilter,
         UserChurchFilter,
-        HomeGroupFilter,
+        UserHomeGroupFilter,
+        UserHGLeadersFilter,
     )
     permission_classes = (IsAuthenticated,)
     permission_list_classes = (IsAuthenticated, CanSeeUserList)

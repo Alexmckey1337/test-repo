@@ -89,15 +89,24 @@ class UserChurchFilter(filters.DjangoFilterBackend):
         return queryset
 
 
-class HomeGroupFilter(filters.DjangoFilterBackend):
+class UserHomeGroupFilter(filters.DjangoFilterBackend):
     def filter_queryset(self, request, queryset, view):
         home_group_id = request.query_params.get('home_group_id')
 
         if home_group_id in ['any', 'nothing']:
             if home_group_id == 'any':
                 return queryset.filter(hhome_group__isnull=False)
-
             else:
                 return queryset.filter(hhome_group__isnull=True)
+
+        return queryset
+
+
+class UserHGLeadersFilter(filters.DjangoFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        user_type = request.query_params.get('user_type')
+
+        if user_type == 'leaders':
+            return queryset.filter(home_group__leader__isnull=False).distinct()
 
         return queryset
