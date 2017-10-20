@@ -44,7 +44,6 @@
 
 {% block main.content %}
 
-    {% get_simple_managers as managers %}
     <div class="content">
         <div id="sdelki">
             <div class="top-pag">
@@ -141,8 +140,9 @@
                             <span class="label_block">Менеджер</span>
                         {% endif %}
                         {% if request.user.is_partner_supervisor_or_high %}
-                            <select class="selectdb" data-filter="partnership__responsible__user" id="masters_filter">
+                            <select class="selectdb" data-filter="responsible" id="masters_filter">
                                 <option value="">ВСЕ</option>
+                                {% get_simple_managers as managers %}
                                 {% for manager in managers %}
                                     <option value="{{ manager.id }}">{{ manager.fullname }}</option>
                                 {% endfor %}

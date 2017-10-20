@@ -149,10 +149,10 @@ class FilterByDealDate(BaseFilterBackend):
 #             return queryset
 #
 #         orm_lookups = [
-#             'responsible__user__first_name__icontains',
-#             'responsible__user__last_name__icontains',
-#             'responsible__user__middle_name__icontains',
-#             'responsible__user__search_name__icontains']
+#             'responsible__first_name__icontains',
+#             'responsible__last_name__icontains',
+#             'responsible__middle_name__icontains',
+#             'responsible__search_name__icontains']
 #
 #         deals = self.get_deals(request)
 #         for search_term in manager_fio.replace(',', ' ').split():

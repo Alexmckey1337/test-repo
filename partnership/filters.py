@@ -15,7 +15,7 @@ class DateAndValueFilter(django_filters.FilterSet):
 
     class Meta:
         model = Deal
-        fields = ['partnership__responsible__user', 'currency_id',
+        fields = ['partnership__responsible', 'currency_id', 'responsible',
                   'partnership__user', 'value', 'date_created', 'date',
                   'expired', 'done', 'to_date', 'from_date', 'from_value', 'to_value']
 
@@ -55,5 +55,5 @@ class PartnerUserFilter(django_filters.FilterSet):
 
     class Meta:
         model = Partnership
-        fields = ['master', 'hierarchy', 'department', 'user', 'responsible__user', 'responsible', 'is_active',
+        fields = ['master', 'hierarchy', 'department', 'user', 'responsible', 'is_active',
                   'repentance_date_from', 'repentance_date_to']

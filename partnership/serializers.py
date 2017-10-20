@@ -8,7 +8,7 @@ from common.fields import DecimalWithCurrencyField
 from payment.serializers import CurrencySerializer
 from .models import Partnership, Deal
 
-BASE_PARTNER_FIELDS = ('id', 'responsible', 'value', 'date', 'need_text', 'currency', 'is_active', 'plan')
+BASE_PARTNER_FIELDS = ('id', 'responsible', 'value', 'date', 'need_text', 'currency', 'is_active')
 
 
 class PartnershipSerializer(serializers.ModelSerializer):
@@ -45,7 +45,7 @@ class PartnershipTableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Partnership
-        fields = ('id', 'user', 'fullname', 'level', 'is_responsible') + BASE_PARTNER_FIELDS
+        fields = ('id', 'user', 'fullname') + BASE_PARTNER_FIELDS
 
 
 class DealCreateSerializer(serializers.ModelSerializer):

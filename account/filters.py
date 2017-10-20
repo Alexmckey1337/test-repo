@@ -67,9 +67,9 @@ class UserIsPartnershipFilter(filters.DjangoFilterBackend):
         if is_partner not in ['true', 'false']:
             return queryset
         if is_partner == 'true':
-            return queryset.filter(partnership__isnull=False)
+            return queryset.filter(partners__isnull=False)
         if is_partner == 'false':
-            return queryset.filter(partnership__isnull=True)
+            return queryset.filter(partners__isnull=True)
         return queryset
 
 

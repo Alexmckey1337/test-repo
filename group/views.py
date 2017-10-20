@@ -197,8 +197,8 @@ class ChurchViewSet(ModelViewSet, ChurchUsersMixin,
                                  HomeGroup.objects.filter(church__id=pk).filter(
                                      uusers__spiritual_level=1).count())
 
-        stats['partners_count'] = church.uusers.filter(partnership__is_active=True).count() + HomeGroup.objects.filter(
-            church__id=pk).filter(uusers__partnership__is_active=True).count()
+        stats['partners_count'] = church.uusers.filter(partners__is_active=True).count() + HomeGroup.objects.filter(
+            church__id=pk).filter(uusers__partners__is_active=True).count()
 
         serializer = ChurchStatsSerializer
         stats = serializer(stats)
@@ -430,7 +430,7 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
         stats['fathers_count'] = home_group.uusers.filter(spiritual_level=CustomUser.FATHER).count()
         stats['juniors_count'] = home_group.uusers.filter(spiritual_level=CustomUser.JUNIOR).count()
         stats['babies_count'] = home_group.uusers.filter(spiritual_level=CustomUser.BABY).count()
-        stats['partners_count'] = home_group.uusers.filter(partnership__is_active=True).count()
+        stats['partners_count'] = home_group.uusers.filter(partners__is_active=True).count()
 
         serializer = HomeGroupStatsSerializer
         stats = serializer(stats)

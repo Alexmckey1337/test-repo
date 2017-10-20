@@ -12,7 +12,7 @@ class PartnershipAdmin(admin.ModelAdmin):
     list_display = ('user', 'value', 'responsible',)
     search_fields = ('user__first_name', 'user__last_name', 'user__middle_name')
     readonly_fields = ('user',)
-    list_filter = ('level', 'responsible')
+    list_filter = ('responsible',)
 
     class Meta:
         model = Partnership

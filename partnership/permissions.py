@@ -181,7 +181,7 @@ def can_create_deal_for_partner(user, partner):
     """
     if user.is_partner_supervisor_or_high:
         return True
-    return user.is_partner_manager and user.partnership.disciples.filter(id=partner.id).exists()
+    return user.is_partner_manager and user.partner_disciples.filter(id=partner.id).exists()
 
 
 def can_update_partner_need(user, partner):
@@ -190,7 +190,7 @@ def can_update_partner_need(user, partner):
     """
     if user.is_partner_supervisor_or_high:
         return True
-    return user.is_partner_manager and user.partnership.disciples.filter(id=partner.id).exists()
+    return user.is_partner_manager and user.partner_disciples.filter(id=partner.id).exists()
 
 
 def can_update_partner(user, partner_user):
@@ -199,7 +199,7 @@ def can_update_partner(user, partner_user):
     """
     if user.is_partner_supervisor_or_high:
         return True
-    return user.is_partner_manager and user.partnership.disciples.filter(user=partner_user).exists()
+    return user.is_partner_manager and user.partner_disciples.filter(user=partner_user).exists()
 
 
 def can_edit_partner_block(current_user, user):
@@ -239,7 +239,7 @@ def can_update_deal(user, deal):
     if user.is_partner_supervisor_or_high:
         return True
     partner = deal.partnership
-    return user.is_partner_manager and user.partnership.disciples.filter(id=partner.id).exists()
+    return user.is_partner_manager and user.partner_disciples.filter(id=partner.id).exists()
 
 
 def can_see_partner_payments(user):
@@ -260,4 +260,4 @@ def can_see_managers_summary(user):
     """
     Checking that the ``user`` has the right to see manager's summary
     """
-    return user.is_partner_director
+    return user.is_partner_director or user.is_staff

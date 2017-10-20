@@ -14,10 +14,62 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
+from analytics.decorators import log_change_payment
 from analytics.models import LogModel
 from partnership.managers import DealManager, PartnerManager
 from payment.models import Payment, get_default_currency, AbstractPaymentPurpose
-from analytics.decorators import log_change_payment
+
+
+@python_2_unicode_compatible
+class PartnerRole(models.Model):
+    user = models.OneToOneField('account.CustomUser', related_name='partner_role')
+
+    DIRECTOR = settings.PARTNER_LEVELS['director']
+    SUPERVISOR = settings.PARTNER_LEVELS['supervisor']
+    MANAGER = settings.PARTNER_LEVELS['manager']
+
+    LEVELS = (
+        (DIRECTOR, _('Director')),
+        (SUPERVISOR, _('Supervisor')),
+        (MANAGER, _('Manager')),
+    )
+    level = models.PositiveSmallIntegerField(_('Level'), choices=LEVELS)
+    plan = models.DecimalField(max_digits=12, decimal_places=0, blank=True,
+                               verbose_name='Manager plan', null=True)
+
+    def __str__(self):
+        return '[{}] {}'.format(self.get_level_display(), self.fullname)
+
+
+class PartnerRoleLog(models.Model):
+    user = models.ForeignKey('account.CustomUser', related_name='partner_role_logs', editable=False)
+    level = models.PositiveSmallIntegerField(_('Level'), editable=False)
+    plan = models.DecimalField(max_digits=12, decimal_places=0, blank=True,
+                               verbose_name='Manager plan', null=True, editable=False)
+    deleted = models.BooleanField(_('Deleted?'), default=False)
+    log_date = models.DateTimeField(_('Log date'), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('Partner role Log')
+        verbose_name_plural = _('Partner role Logs')
+        ordering = ('-log_date',)
+
+    @classmethod
+    def log_partner_role(cls, partner_role):
+        cls.objects.create(
+            user=partner_role.user,
+            level=partner_role.level,
+            plan=partner_role.plan,
+        )
+
+    @classmethod
+    def delete_partner_role(cls, partner_role):
+        cls.objects.create(
+            user=partner_role.user,
+            level=partner_role.level,
+            plan=partner_role.plan,
+            deleted=True,
+        )
 
 
 @python_2_unicode_compatible
@@ -32,24 +84,8 @@ class PartnershipAbstractModel(models.Model):
 
     is_active = models.BooleanField(_('Is active?'), default=True)
 
-    DIRECTOR = settings.PARTNER_LEVELS['director']
-    SUPERVISOR = settings.PARTNER_LEVELS['supervisor']
-    MANAGER = settings.PARTNER_LEVELS['manager']
-    PARTNER = settings.PARTNER_LEVELS['partner']
-
-    LEVELS = (
-        (DIRECTOR, _('Director')),
-        (SUPERVISOR, _('Supervisor')),
-        (MANAGER, _('Manager')),
-        (PARTNER, _('Partner')),
-    )
-    level = models.PositiveSmallIntegerField(_('Level'), choices=LEVELS, default=PARTNER)
-
-    responsible = models.ForeignKey('self', related_name='disciples', limit_choices_to={'level__lte': MANAGER},
-                                    null=True, blank=True, on_delete=models.SET_NULL)
-
-    plan = models.DecimalField(max_digits=12, decimal_places=0, blank=True,
-                               verbose_name='Manager plan', null=True)
+    responsible = models.ForeignKey('account.CustomUser', related_name='partner_disciples', null=True, blank=True,
+                                    on_delete=models.PROTECT)
 
     class Meta:
         abstract = True
@@ -72,13 +108,9 @@ class PartnershipAbstractModel(models.Model):
         format_data['value'] = self.value
         return self.currency.output_format.format(**format_data)
 
-    @property
-    def is_responsible(self):
-        return self.level <= Partnership.MANAGER
-
 
 class Partnership(PartnershipAbstractModel, AbstractPaymentPurpose):
-    user = models.OneToOneField('account.CustomUser', related_name='partnership')
+    user = models.ForeignKey('account.CustomUser', related_name='partners')
     #: Payments of the current partner that do not relate to deals of partner
     extra_payments = GenericRelation('payment.Payment', related_query_name='partners')
 
@@ -126,7 +158,7 @@ class Partnership(PartnershipAbstractModel, AbstractPaymentPurpose):
         :return: True or False
         """
         return (user.is_partner_supervisor_or_high or
-                (user.is_partner_manager and self.responsible and self.responsible.user == user))
+                (user.is_partner_manager and self.responsible == user))
 
     def payment_page_url(self):
         return reverse('payment-partner', kwargs={'pk': self.pk})
@@ -183,7 +215,7 @@ class Deal(LogModel, AbstractPaymentPurpose):
                                  default=get_default_currency)
 
     partnership = models.ForeignKey('partnership.Partnership', related_name="deals")
-    responsible = models.ForeignKey('partnership.Partnership', on_delete=models.CASCADE,
+    responsible = models.ForeignKey('account.CustomUser', on_delete=models.CASCADE,
                                     related_name='disciples_deals', editable=False,
                                     verbose_name=_('Responsible of partner'), null=True, blank=True)
     description = models.TextField(blank=True)
@@ -256,7 +288,7 @@ class Deal(LogModel, AbstractPaymentPurpose):
         :return: True or False
         """
         return (user.is_partner_supervisor_or_high or
-                (user.is_partner_manager and self.responsible and self.responsible.user == user))
+                (user.is_partner_manager and self.responsible.user == user))
 
     def can_user_edit_payment(self, user):
         """
@@ -288,8 +320,7 @@ class Deal(LogModel, AbstractPaymentPurpose):
 class PartnershipLogs(PartnershipAbstractModel):
     partner = models.ForeignKey('Partnership', related_name='partner', on_delete=models.PROTECT,
                                 verbose_name=_('Partner'))
-    responsible = models.ForeignKey('Partnership', related_name='logs_disciples',
-                                    limit_choices_to={'level__lte': settings.PARTNER_LEVELS['manager']},
+    responsible = models.ForeignKey('account.CustomUser', related_name='partner_disciples_logs',
                                     null=True, blank=True, on_delete=models.SET_NULL)
 
     log_date = models.DateTimeField(_('Log date'), auto_now_add=True)
@@ -310,8 +341,6 @@ class PartnershipLogs(PartnershipAbstractModel):
             date=partner.date,
             need_text=partner.need_text,
             is_active=partner.is_active,
-            level=partner.level,
             responsible=partner.responsible,
-            plan=partner.plan,
             partner=partner,
         )
