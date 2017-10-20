@@ -83,7 +83,7 @@ class UserChurchFilter(filters.DjangoFilterBackend):
             else:
                 return queryset.filter(Q(cchurch__isnull=True) & Q(hhome_group__church__isnull=True))
 
-        if church_id:
+        if isinstance(church_id, int):
             return queryset.filter(Q(cchurch_id=church_id) | Q(hhome_group__church_id=church_id))
 
         return queryset

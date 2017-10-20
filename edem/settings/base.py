@@ -232,6 +232,10 @@ REST_FRAMEWORK = {
 SHORT_PAGINATION = 10
 DEFAULT_PAGINATION = 20
 
+SEND_PULSE_GRANT_TYPE = 'client_credentials'
+SEND_PULSE_CLIENT_ID = '2d90c1e2ae67901897d7536b2670bb8f'
+SEND_PULSE_CLIENT_SECRET = '47e1fc014543cde0c1fcb931f9148cc8'
+
 EMAIL_BACKEND = env('DJANGO_EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'testzormail@gmail.com'

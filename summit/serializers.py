@@ -135,7 +135,8 @@ class SummitShortSerializer(serializers.ModelSerializer):
 class SummitUnregisterUserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'city', 'fullname', 'country', 'master_short_fullname')
+        fields = ('id', 'city', 'fullname', 'country', 'master_short_fullname',
+                  'phone_number', 'email')
 
 
 class SummitLessonSerializer(serializers.ModelSerializer):
