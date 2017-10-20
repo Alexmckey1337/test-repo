@@ -1,63 +1,42 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-import logging
-from collections import Counter
-from datetime import datetime
 from decimal import Decimal
-from time import time
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import connection
-from django.db.models import (Sum, When, Case, F, IntegerField, Q, DecimalField, OuterRef,
-                              Subquery, Count, Value as V)
-from django.db.models.functions import Concat
+from django.db.models import Sum, When, Case, F, IntegerField, Q
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
-from rest_framework import exceptions, filters, mixins, status, viewsets
-from rest_framework.decorators import list_route, detail_route
+from rest_framework import exceptions, filters, status
+from rest_framework.decorators import detail_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from account.models import CustomUser
 from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
-from navigation.table_fields import partnership_summary_table
 from partnership.filters import (FilterByPartnerBirthday, DateAndValueFilter, FilterPartnerMasterTreeWithSelf,
                                  PartnerUserFilter, DealFilterByPaymentStatus)
 from partnership.mixins import (PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin,
-                                PartnerExportViewSetMixin, PartnerStatusReviewMixin)
+                                PartnerExportViewSetMixin, PartnerStatusReviewMixin, ManagerSummaryMixin)
 from partnership.pagination import PartnershipPagination, DealPagination
 from partnership.permissions import (CanSeeDeals, CanSeePartners, CanCreateDeals, CanUpdateDeals,
-                                     CanUpdatePartner, CanUpdateManagersPlan, CanSeeManagerSummary)
+                                     CanUpdatePartner, CanUpdateManagersPlan)
 from partnership.resources import PartnerResource
-from .models import Partnership, Deal, PartnershipLogs
+from .models import Partnership, Deal, PartnershipLogs, PartnerRoleLog
 from .serializers import (DealSerializer, PartnershipUpdateSerializer, DealCreateSerializer,
                           PartnershipTableSerializer, DealUpdateSerializer,
                           PartnershipCreateSerializer, PartnershipSerializer)
 
 
-sql_logger = logging.Logger('partner.sql')
-
-
-def func_time(func):
-    def wrap(*args, **kwargs):
-        t = time()
-        result = func(*args, **kwargs)
-        sql_logger.warning("[{1:.3f}] {0}".format(func.__name__, time() - t))
-        return result
-
-    return wrap
-
-
-class PartnershipViewSet(mixins.RetrieveModelMixin,
-                         mixins.UpdateModelMixin,
-                         mixins.CreateModelMixin,
-                         mixins.ListModelMixin,
-                         viewsets.GenericViewSet,
-                         PartnerExportViewSetMixin,
-                         PartnerStatMixin):
+class PartnershipViewSet(
+    ModelWithoutDeleteViewSet,
+    PartnerExportViewSetMixin,
+    PartnerStatMixin,
+    ManagerSummaryMixin
+):
     queryset = Partnership.objects.base_queryset().order_by(
         'user__last_name', 'user__first_name', 'user__middle_name')
     serializer_class = PartnershipSerializer
@@ -70,14 +49,14 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
                        FilterByPartnerBirthday,
                        FilterPartnerMasterTreeWithSelf,
                        filters.OrderingFilter,)
-    filter_fields = ('user', 'responsible__user', 'responsible')
+    filter_fields = ('user', 'responsible')
     ordering_fields = ('user__first_name', 'user__last_name', 'user__master__last_name',
                        'user__middle_name', 'user__born_date', 'user__country',
                        'user__region', 'user__city', 'user__disrict',
                        'user__address', 'user__skype', 'user__phone_number',
                        'user__email', 'user__hierarchy__level',
                        'user__facebook',
-                       'user__vkontakte', 'value', 'responsible__user__last_name')
+                       'user__vkontakte', 'value', 'responsible__last_name')
     field_search_fields = {
         'search_fio': ('user__last_name', 'user__first_name', 'user__middle_name', 'user__search_name'),
         'search_email': ('user__email',),
@@ -120,20 +99,6 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             return [permission() for permission in self.permission_update_classes]
         return super(PartnershipViewSet, self).get_permissions()
 
-    @list_route(permission_classes=(IsAuthenticated, CanSeePartners))
-    def simple(self, request):
-        """
-        Returns a list of partners with level >= ``manager`` (``manager``, ``supervisor``, ``director``).
-
-        :param request: rest_framework.Request
-        :return: list of dicts, e.g. [{'id': 124, 'fullname': Ivanov Ivan Ivanovich}, ...]
-        """
-        partnerships = Partnership.objects.select_related('user').filter(
-            level__lte=Partnership.MANAGER).values_list(
-            'id', 'user__last_name', 'user__first_name', 'user__middle_name')
-        partnerships = [{'id': p[0], 'fullname': '{} {} {}'.format(*p[1:])} for p in partnerships]
-        return Response(partnerships)
-
     # TODO deprecated
     @detail_route(methods=['put'], permission_classes=(IsAuthenticated, CanUpdatePartner))
     def update_need(self, request, pk=None):
@@ -157,224 +122,9 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
 
         return Response({'need_text': text})
 
-    @list_route(methods=['GET'], permission_classes=(CanSeeManagerSummary,))
-    def managers_summary(self, request):
-        year = int(request.query_params.get('year', datetime.now().year))
-        month = int(request.query_params.get('month', datetime.now().month))
-
-        partner_ids = Partnership.objects.filter(Q(level__lte=Partnership.MANAGER) | Q(
-            disciples_deals__isnull=False)).distinct().values_list('id', flat=True)
-
-        managers_query = Partnership.objects.filter(id__in=partner_ids).prefetch_related('deals')
-
-        lookup_field = 'pk'
-        logged_queryset = logged_managers_query = None
-
-        if year != datetime.now().year or month != datetime.now().month:
-            logged_year, logged_month = self.get_logged_period(year, month)
-            logged_queryset, logged_managers_query = self.get_logged_queries(logged_year, logged_month)
-            lookup_field = 'partner'
-
-        partners = self._get_partners(managers_query)
-        managers = [{
-            # Making queries from Partnership model
-            'sum_pay': x[0] or 0,
-            'sum_pay_tithe': x[1] or 0,
-            'sum_deals': x[2] or 0,
-            'manager': x[3],
-            'partner_id': x[4],
-            'user_id': x[5],
-            # Making queries from PartnershipLogs model if requested period not in this month
-            'total_partners': x[6] or 0,
-            'active_partners': x[7] or 0,
-            'potential_sum': x[8] or 0,
-            'plan': x[9] or 0,
-
-        } for x in zip(
-            self._get_sum_pay(year, month, deal_type=Deal.DONATION),
-            self._get_sum_pay(year, month, deal_type=Deal.TITHE),
-            self._get_sum_deals(managers_query, year, month),
-            [p['full_name'] for p in partners],
-            [p['id'] for p in partners],
-            [p['user_id'] for p in partners],
-            self._get_total_partnerz(logged_queryset or Partnership.objects.all(),
-                                     logged_managers_query or managers_query,
-                                     lookup_field),
-            self._get_active_partnerz(logged_queryset or Partnership.objects.all(),
-                                      logged_managers_query or managers_query,
-                                      lookup_field),
-            self._get_potential_sumz(logged_queryset or Partnership.objects.all(),
-                                     logged_managers_query or managers_query,
-                                     lookup_field),
-            self._get_managers_plan(logged_managers_query or managers_query,
-                                    lookup_field),
-        )]
-        managers = self._order_managers(managers)
-        managers = [manager for manager in managers if manager['potential_sum'] != 0 or
-                    manager['sum_pay'] != 0 or manager['sum_pay_tithe'] != 0]
-
-        return Response({'results': managers, 'table_columns': partnership_summary_table(self.request.user)})
-
-    def _order_managers(self, managers):
-        ordering = self.request.query_params.get('ordering', 'manager')
-        ordering_fields = ['manager', 'sum_deals', 'total_partners', 'active_partners',
-                           'potential_sum', 'sum_pay', 'manager_plan', 'sum_pay_tithe']
-
-        if ordering.strip('-') in ordering_fields:
-            managers.sort(key=lambda obj: obj[ordering.strip('-')], reverse=ordering.startswith('-'))
-        return managers
-
-    @staticmethod
-    @func_time
-    def _get_partners(queryset):
-        return queryset.annotate(full_name=Concat(
-            'user__last_name', V(' '), 'user__first_name', V(' '), 'user__middle_name')).values(
-            'full_name', 'id', 'user_id').order_by('id')
-
-    """
-    Making queries from Partnership model
-    """
-
-    @staticmethod
-    @func_time
-    def _get_sum_pay(year, month, deal_type):
-        raw = """
-          select p.id,
-          (select sum(pay.sum) from payment_payment pay WHERE pay.content_type_id = 40 and
-          pay.object_id in (select d.id from partnership_deal d where d.responsible_id = p.id and d.type = {0} and
-          (d.date_created BETWEEN '{1}-01-01' and '{1}-12-31') and
-          extract('month' from d.date_created) = {2} )) sum
-          from partnership_partnership p
-          WHERE p.id in (
-              SELECT pp.id from partnership_partnership pp
-              LEFT OUTER JOIN partnership_deal d ON (pp.id = d.responsible_id)
-              WHERE pp.level <= {3} OR d.id IS NOT NULL)
-          ORDER BY p.id;
-          """.format(deal_type, year, month, Partnership.MANAGER)
-
-        return [p.sum for p in Partnership.objects.raw(raw)]
-
-    @staticmethod
-    @func_time
-    def _get_sum_deals(queryset, year, month):
-        subqs_deals = Deal.objects.filter(date_created__year=year, date_created__month=month, responsible=OuterRef(
-            'pk')).order_by().values('responsible').annotate(deals_sum=Sum('value')).values('deals_sum')
-
-        return queryset.annotate(
-            sum_deals=Subquery(subqs_deals, output_field=DecimalField())).values_list(
-            'sum_deals', flat=True).order_by('id')
-
-    """
-    Making queries from PartnershipLogs model if requested period not in this month
-    """
-
-    @staticmethod
-    @func_time
-    def get_logged_queries(log_year, log_month):
-        raw = """
-              SELECT (SELECT pl.id FROM partnership_partnershiplogs pl WHERE p.id = pl.partner_id AND
-              pl.log_date < '%s-%s-01'
-              ORDER BY log_date DESC LIMIT 1
-              ) p_log_id
-              FROM partnership_partnership p ORDER BY p.id;
-              """ % (log_year, log_month)
-
-        with connection.cursor() as connect:
-            connect.execute(raw)
-            result = connect.fetchall()
-
-        logged_ids = [k[0] for k in result]  # from arrays with tuples of ids to array with integer ids
-
-        logged_queryset = PartnershipLogs.objects.filter(id__in=logged_ids)
-
-        logged_managers_query = list(logged_queryset.filter(Q(level__lte=PartnershipLogs.MANAGER) | Q(
-            partner__disciples_deals__isnull=False)).distinct().values_list('id', flat=True))
-        logged_managers_query = PartnershipLogs.objects.filter(id__in=logged_managers_query)
-
-        return logged_queryset, logged_managers_query
-
-    @staticmethod
-    def get_logged_period(year, month):
-        """
-        Create year and month params for PartnershipLogs queries
-        """
-        if month == 12:
-            return year + 1, 1
-
-        return year, month + 1
-
-    @staticmethod
-    @func_time
-    def _get_total_partners(queryset, managers, lookup_field):
-        subqs_partners = queryset.filter(responsible=OuterRef(lookup_field)).order_by().values(
-            'responsible').annotate(count=Count('id')).values('count')
-
-        return managers.annotate(total_partners=Subquery(
-            subqs_partners, output_field=IntegerField())).values_list(
-            'total_partners', flat=True).order_by(lookup_field)
-
-    @staticmethod
-    @func_time
-    def _get_total_partnerz(queryset, managers, lookup_field):
-        s = dict(Counter(list(queryset.order_by().values_list('responsible', flat=True))))
-        d = list()
-        for m in managers.order_by(lookup_field):
-            field = getattr(m, lookup_field)
-            d.append(s.get(field, 0))
-
-        return d
-
-    @staticmethod
-    @func_time
-    def _get_active_partners(queryset, managers, lookup_field):
-        subqs_active_partners = queryset.filter(
-            responsible=OuterRef(lookup_field), is_active=True).order_by().values('responsible').annotate(
-            count=Count('id')).values('count')
-
-        return managers.annotate(active_partners=Subquery(
-            subqs_active_partners, output_field=IntegerField())).values_list(
-            'active_partners', flat=True).order_by(lookup_field)
-
-    @staticmethod
-    @func_time
-    def _get_active_partnerz(queryset, managers, lookup_field):
-        s = dict(Counter(list(queryset.filter(is_active=True).order_by().values_list('responsible', flat=True))))
-        d = list()
-        for m in managers.order_by(lookup_field):
-            field = getattr(m, lookup_field)
-            d.append(s.get(field, 0))
-
-        return d
-
-    @staticmethod
-    @func_time
-    def _get_potential_sum(queryset, managers, lookup_field):
-        subqs_potential_sum = queryset.filter(responsible=OuterRef(lookup_field)).order_by().values(
-            'responsible').annotate(potential_sum=Sum('value')).values('potential_sum')
-
-        return managers.annotate(
-            potential_sum=Subquery(subqs_potential_sum, output_field=DecimalField())).values_list(
-            'potential_sum', flat=True).order_by(lookup_field)
-
-    @staticmethod
-    @func_time
-    def _get_potential_sumz(queryset, managers, lookup_field):
-        s = list(queryset.order_by().values('responsible', 'value'))
-        d = list()
-        for m in managers.order_by(lookup_field):
-            field = getattr(m, lookup_field)
-            d.append(sum([f['value'] for f in filter(lambda z: z['responsible'] == field, s)]))
-
-        return d
-
-    @staticmethod
-    @func_time
-    def _get_managers_plan(managers, lookup_field):
-        return managers.values_list('plan', flat=True).order_by(lookup_field)
-
     @detail_route(methods=['POST'], permission_classes=(CanUpdateManagersPlan,))
     def set_plan(self, request, pk):
-        manager = get_object_or_404(Partnership, pk=pk)
+        manager = get_object_or_404(CustomUser, pk=pk)
         plan_sum = request.data.get('plan_sum')
         if not plan_sum:
             raise exceptions.ValidationError({'message': _('Parameter {plan_sum} not passed')})
@@ -384,11 +134,13 @@ class PartnershipViewSet(mixins.RetrieveModelMixin,
             print(e)
             raise exceptions.ValidationError({'message': _('Parameter {plan_sum} must be Integer')})
 
-        manager.plan = plan_sum
-        manager.save()
-        PartnershipLogs.log_partner(manager)
+        if not getattr(manager, 'partner_role', None):
+            raise exceptions.ValidationError({'message': _('User is not a manager')})
+        manager.partner_role.plan = plan_sum
+        manager.partner_role.save()
+        PartnerRoleLog.log_partner_role(manager.partner_role)
 
-        return Response({'message': 'План менеджера успешно установлен в %s' % manager.plan})
+        return Response({'message': 'План менеджера успешно установлен в %s' % manager.partner_role.plan})
 
 
 class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, DealCreatePaymentMixin,
@@ -407,7 +159,7 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
                        filters.OrderingFilter,
                        DealFilterByPaymentStatus,)
     ordering_fields = ('value',
-                       'responsible__user__last_name',
+                       'responsible__last_name',
                        'partnership__user__last_name',
                        'date_created',
                        'done', 'type')

@@ -10,7 +10,7 @@ class PaymentResource(CustomFieldsModelResource):
     """For excel import/export"""
     purpose_type = fields.Field(attribute='deals__type')
     purpose_fio = fields.Field(attribute='deals__partnership__user__last_name')
-    purpose_manager_fio = fields.Field(attribute='deals__partnership__responsible__user__last_name')
+    purpose_manager_fio = fields.Field(attribute='deals__partnership__responsible__last_name')
     purpose_date = fields.Field(attribute='deals__date_created')
     sent_date = fields.Field(attribute='sent_date')
     manager = fields.Field(attribute='manager__user__last_name')
@@ -45,7 +45,7 @@ class PaymentResource(CustomFieldsModelResource):
 
     def dehydrate_purpose_manager_fio(self, payment):
         if payment.purpose.responsible:
-            return '%s %s %s' % (payment.purpose.responsible.user.last_name,
-                                 payment.purpose.responsible.user.first_name,
-                                 payment.purpose.responsible.user.middle_name)
+            return '%s %s %s' % (payment.purpose.responsible.last_name,
+                                 payment.purpose.responsible.first_name,
+                                 payment.purpose.responsible.middle_name)
         return ''

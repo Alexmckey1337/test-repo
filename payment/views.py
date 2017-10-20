@@ -128,7 +128,8 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView, ExportViewSetMi
                        filters.OrderingFilter,)
     ordering_fields = COMMON_PAYMENTS_ORDERING_FIELDS + ('deals__partnership__user__last_name',
                                                          'deals__date_created',
-                                                         'deals__partnership__responsible__user__last_name',
+                                                         'deals__partnership__responsible__last_name',
+                                                         'deals__responsible__last_name',
                                                          'deals__type')
 
     field_search_fields = {

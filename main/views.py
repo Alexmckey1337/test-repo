@@ -1,10 +1,10 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-import redis
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.conf import settings
 from django.core.exceptions import PermissionDenied, MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Count, Case, When, BooleanField, Q
 from django.http import HttpResponse, Http404
@@ -147,7 +147,7 @@ def report_payments(request):
         return redirect('/')
     ctx = {
         'currencies': Currency.objects.all(),
-        'managers': CustomUser.objects.filter(partnership__level__lte=2).distinct(),
+        'managers': CustomUser.objects.filter(partner_role__level__lte=2).distinct(),
         'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
     }
 
@@ -236,7 +236,6 @@ class DealListView(LoginRequiredMixin, CanSeeDealsMixin, TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super(DealListView, self).get_context_data(**kwargs)
 
-        ctx['managers'] = CustomUser.objects.filter(partnership__level__lte=2).distinct()
         ctx['currencies'] = Currency.objects.all()
 
         return ctx
@@ -256,8 +255,9 @@ class PartnerPaymentsListView(LoginRequiredMixin, CanSeeDealPaymentsMixin, Templ
 
         ctx['currencies'] = Currency.objects.all()
         ctx['supervisors'] = CustomUser.objects.filter(checks__isnull=False).distinct()
-        ctx['managers'] = Partnership.objects.filter(Q(
-            level__lte=Partnership.MANAGER) | Q(disciples_deals__isnull=False)).distinct()
+        ctx['managers'] = CustomUser.objects.filter(
+            Q(partner_role__level__lte=settings.PARTNER_LEVELS['manager']) |
+            Q(disciples_deals__isnull=False)).order_by('last_name').distinct()
 
         return ctx
 
@@ -318,7 +318,6 @@ def account(request, id):
         'hierarchies': Hierarchy.objects.order_by('level'),
         'divisions': Division.objects.all(),
         'currencies': currencies,
-        'partners': Partnership.objects.filter(level__lte=Partnership.MANAGER),
         'churches': Church.objects.all(),
         'log_messages': LogRecord.objects.filter(
             object_id=id,
@@ -731,10 +730,10 @@ class ChurchDetailView(LoginRequiredMixin, CanSeeChurchMixin, DetailView):
             'babies_count': church.uusers.filter(
                 spiritual_level=CustomUser.BABY).count() + HomeGroup.objects.filter(
                 church__id=church.id, uusers__spiritual_level=1).count(),
-            'partners_count': church.uusers.filter(partnership__isnull=False).count() + CustomUser.objects.filter(
-                hhome_group__church_id=church.id, partnership__isnull=False).count(),
-            'no_partners_count': church.uusers.filter(partnership__isnull=True).count() + CustomUser.objects.filter(
-                hhome_group__church_id=church.id, partnership__isnull=True).count(),
+            'partners_count': church.uusers.filter(partners__isnull=False).count() + CustomUser.objects.filter(
+                hhome_group__church_id=church.id, partners__isnull=False).count(),
+            'no_partners_count': church.uusers.filter(partners__isnull=True).count() + CustomUser.objects.filter(
+                hhome_group__church_id=church.id, partners__isnull=True).count(),
         }
         ctx.update(extra_context)
 
@@ -756,7 +755,7 @@ class HomeGroupDetailView(LoginRequiredMixin, CanSeeHomeGroupsMixin, DetailView)
             'fathers_count': home_group.uusers.filter(spiritual_level=CustomUser.FATHER).count(),
             'juniors_count': home_group.uusers.filter(spiritual_level=CustomUser.JUNIOR).count(),
             'babies_count': home_group.uusers.filter(spiritual_level=CustomUser.BABY).count(),
-            'partners_count': home_group.uusers.filter(partnership__is_active=True).count(),
+            'partners_count': home_group.uusers.filter(partners__is_active=True).count(),
         }
         ctx.update(extra_context)
 

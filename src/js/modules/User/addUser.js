@@ -5,7 +5,7 @@ import newAjaxRequest from '../Ajax/newAjaxRequest';
 import ajaxSendFormData from '../Ajax/ajaxSendFormData';
 import {dataURLtoBlob} from "../Avatar/index";
 import {getCountries, getRegions, getCities, getDepartments, getResponsible, getStatuses, getDivisions,
-        getCountryCodes, getManagers} from "../GetList/index";
+        getCountryCodes} from "../GetList/index";
 import {showAlert} from "../ShowNotifications/index";
 
 export function addUserToHomeGroup(user_id, hg_id, exist = false) {
@@ -197,7 +197,6 @@ export function initAddNewUser(config = {}) {
         getStatuses: true,
         getDivisions: true,
         getCountryCodes: true,
-        getManagers: true,
     };
     let $form = $('#createUser'),
         $input = $form.find('input');
@@ -343,20 +342,6 @@ export function initAddNewUser(config = {}) {
                 let code = $(this).val();
                 $('#phoneNumberCode').val(code);
             }).trigger('change');
-        });
-    }
-    if (configDefault.getManagers) {
-        getManagers().then(function (data) {
-            let rendered = [];
-            let option = document.createElement('option');
-            $(option).val('').text('Выберите менеджера').attr('disabled', true).attr('selected', true);
-            rendered.push(option);
-            data.forEach(function (item) {
-                let option = document.createElement('option');
-                $(option).val(item.id).text(item.fullname);
-                rendered.push(option);
-            });
-            $('#chooseManager').html(rendered).select2();
         });
     }
 

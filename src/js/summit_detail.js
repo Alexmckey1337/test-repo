@@ -6,15 +6,16 @@ import 'air-datepicker/dist/css/datepicker.css';
 import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
 import 'jquery-form-validator/form-validator/lang/ru.js';
 import URLS from './modules/Urls/index';
+import getData, {deleteData} from "./modules/Ajax/index";
 import ajaxRequest from './modules/Ajax/ajaxRequest';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
 import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
-import {showAlert} from "./modules/ShowNotifications/index";
+import {showAlert, showConfirm} from "./modules/ShowNotifications/index";
 import {createPayment} from "./modules/Payment/index";
-import {createSummitUsersTable, predeliteAnket, deleteSummitProfile, unsubscribeOfSummit,
+import {createSummitUsersTable, unsubscribeOfSummit,
         updateSummitParticipant, registerUser, makePotencialSammitUsersList} from "./modules/Summit/index";
-import {showPopupHTML, closePopup} from "./modules/Popup/popup";
+import {closePopup} from "./modules/Popup/popup";
 import {initAddNewUser, createNewUser} from "./modules/User/addUser";
 import {makePastorListNew, makePastorListWithMasterTree} from "./modules/MakeList/index";
 import {addUserToSummit} from "./modules/User/addUserToSummit";
@@ -59,10 +60,10 @@ $(document).ready(function () {
         $(this).parent().addClass('active')
     });
 
-    $("#popup h3 span").on('click', function () {
-        $('#popup').css('display', 'none');
-        $('.choose-user-wrap').css('display', 'block');
-    });
+    // $("#popup h3 span").on('click', function () {
+    //     $('#popup').css('display', 'none');
+    //     $('.choose-user-wrap').css('display', 'block');
+    // });
 
     $("#close").on('click', function () {
         $('#popup').css('display', 'none');
@@ -200,67 +201,25 @@ $(document).ready(function () {
     });
 
     $('#preDeleteAnket').on('click', function () {
-        let _self = this;
-        let anketID = $(this).attr('data-anket');
-        let fullName = $('#fullNameCard').text();
-        predeliteAnket(anketID).then(function (data) {
-            $(_self).closest('.pop-up-splash').hide();
-            let div = document.createElement('div');
-            let mainBlock = document.createElement('div');
-            let topText = document.createElement('div');
-            let title = document.createElement('h3');
-            let closePopup = document.createElement('span');
-            let body = document.createElement('div');
-            let user = document.createElement('h2');
-            $(closePopup).addClass('close').addClass('close-popup').text('×').on('click', function () {
-                $(this).closest('.pop-up-universal').hide().remove();
-            });
-            $(title).text('Подтверждение удаления');
-            $(topText).addClass('top-text').append(title).append(closePopup);
-
-            $(mainBlock).addClass('splash-screen').append(topText);
-
-            $(body).addClass('wrap');
-            $(user).text(fullName);
-            $(mainBlock).append(user);
-            let keys = Object.keys(data);
-            let list = document.createElement('dl');
-            $(list).addClass('list__item');
-            keys.forEach(function (item) {
-                let dt = document.createElement('dt');
-                let dd = document.createElement('dd');
-                $(dt).text(item);
-                console.log(data[item]);
-                // data[item].forEach(function (i) {
-                //     $(dd).text(i.length)
-                // });
-                $(dd).text(data[item].length);
-                $(list).append(dt).append(dd);
-            });
-            $(body).append(list);
-            $(mainBlock).append(body);
-            let splashButtons = document.createElement('div');
-            let deleteBtn = document.createElement('button');
-            $(deleteBtn)
-                .addClass('delete_btn')
-                .attr('id', 'deleteAnket')
-                .text('Подтвердить удаление')
-                .on('click', function () {
-                    deleteSummitProfile(anketID).then(function (msg) {
-                        $(div).hide().remove();
-                        $('.pop-up-universal').hide();
-                        setTimeout(() => showAlert(msg), 100);
-                        createSummitUsersTable({summit: SUMMIT_ID});
-                    });
+        let anketID = $(this).attr('data-anket'),
+            fullName = $('#fullNameCard').text();
+        getData(URLS.summit_profile.predelete(anketID)).then(function (data) {
+            let keys = Object.keys(data),
+                msg = `<h3>${fullName}</h3>
+                            <ul class="info">
+                                ${keys.map(item => `<li><strong>${item}:</strong> ${data[item].length}</li>`).join('')}
+                            </ul>`;
+            showConfirm('Подтверждение удаления', msg, function () {
+                deleteData(URLS.summit_profile.detail(anketID)).then(() => {
+                    showAlert('Пользователь удален из саммита');
+                    createSummitUsersTable({summit: SUMMIT_ID});
+                }, () => {
                 });
-            $(splashButtons).addClass('splash-buttons wrap').append(deleteBtn);
-            $(mainBlock).append(splashButtons);
-            $(div).append(mainBlock);
-            showPopupHTML(div);
+            });
         }).catch(function (err) {
-            console.log(err);
+            showAlert(err);
         });
-        // closePopup(this);
+        closePopup(this);
     });
 
     $('yes').on('click', function () {
@@ -302,7 +261,6 @@ $(document).ready(function () {
             description = $('#popup textarea').val(),
             summitID = $('#summitUsersList').data('summit');
         registerUser(userID, summitID, description);
-
         document.querySelector('#popup').style.display = 'none';
     });
 

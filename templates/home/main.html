@@ -68,13 +68,13 @@
                     </p>
                     <button class="vision"></button>
                 </a>
-                <div class="col-sm-4 well" data-id="5">
+                <a href="{% url 'db:people' %}?user_type=leaders" class="col-sm-4 well" data-id="5">
                     <span>Всего лидеров групп</span>
                     <p>
                         <%= (leaders_count) ? String(leaders_count).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
-                </div>
+                </a>
                 <a href="{% url 'db:people' %}?spiritual_level=3" class="col-sm-4 well" data-id="6">
                     <span>Всего отцы</span>
                     <p>

@@ -39,7 +39,7 @@ BASE_USER_FIELDS = (
     'image', 'image_source',
 
     'master', 'hierarchy',
-    'partnership',
+    'partners',
     'departments', 'divisions',
     # read_only
     'fullname',
@@ -114,7 +114,7 @@ def exist_users_with_level_not_in_levels(users, levels):
 
 
 class BaseUserSerializer(serializers.ModelSerializer):
-    partnership = PartnershipSerializer(required=False)
+    partners = PartnershipSerializer(many=True)
     move_to_master = serializers.IntegerField(write_only=True, required=False)
 
     class Meta:

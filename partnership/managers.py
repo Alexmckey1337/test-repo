@@ -8,7 +8,7 @@ from rest_framework.compat import is_authenticated
 class DealQuerySet(models.query.QuerySet):
     def base_queryset(self):
         return self.select_related(
-            'partnership', 'responsible', 'responsible__user',
+            'partnership', 'responsible',
             'partnership__user', 'currency')
 
     def annotate_full_name(self):
@@ -21,19 +21,19 @@ class DealQuerySet(models.query.QuerySet):
     def annotate_responsible_name(self):
         return self.annotate(
             responsible_name=Concat(
-                'responsible__user__last_name', V(' '),
-                'responsible__user__first_name'
+                'responsible__last_name', V(' '),
+                'responsible__first_name'
             ))
 
     def annotate_total_sum(self):
         return self.annotate(total_sum=Coalesce(Sum('payments__effective_sum'), V(0)))
 
     def for_user(self, user):
-        if not is_authenticated(user) or not hasattr(user, 'partnership'):
+        if not is_authenticated(user) or not user.is_partner:
             return self.none()
         if user.is_partner_supervisor_or_high:
             return self
-        return self.filter(partnership__responsible__user=user)
+        return self.filter(partnership__responsible=user)
 
 
 class DealManager(models.Manager):
@@ -59,7 +59,7 @@ class DealManager(models.Manager):
 class PartnerQuerySet(models.query.QuerySet):
     def base_queryset(self):
         return self.select_related(
-            'user', 'user__hierarchy', 'user__master', 'responsible__user',
+            'user', 'user__hierarchy', 'user__master', 'responsible',
             'currency') \
             .prefetch_related('user__divisions', 'user__departments')
 
@@ -71,11 +71,11 @@ class PartnerQuerySet(models.query.QuerySet):
                 'user__middle_name'))
 
     def for_user(self, user):
-        if not is_authenticated(user) or not hasattr(user, 'partnership'):
+        if not is_authenticated(user) or not user.is_partner:
             return self.none()
         if user.is_partner_supervisor_or_high:
             return self
-        return self.filter(responsible__user=user)
+        return self.filter(responsible=user)
 
 
 class PartnerManager(models.Manager):

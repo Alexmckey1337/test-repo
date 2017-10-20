@@ -220,18 +220,6 @@ export function getCountryCodes() {
     })
 }
 
-export function getManagers() {
-    return new Promise(function (resolve, reject) {
-        ajaxRequest(URLS.partner.simple(), null, function (data) {
-            if (data) {
-                resolve(data);
-            } else {
-                reject();
-            }
-        });
-    });
-}
-
 export function getHGLeaders(config = {}) {
     let data = {
         url: URLS.home_group.leaders(),

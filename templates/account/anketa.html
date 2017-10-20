@@ -38,11 +38,6 @@
             <button id="change-password">{% trans "Change password" %}</button>
         </li>
     {% endif %}
-    {% if user.is_staff or user.partnership.level < 2 or account in user.get_descendants.all %}
-        {#        <li>#}
-        {#            <button class="b-red">Редактировать</button>#}
-        {#        </li>#}
-    {% endif %}
     {% if request.real_user or request.user.is_superuser %}
         {% if request.hard_user.id == account.id %}
             <li>
@@ -318,7 +313,7 @@
                             </form>
                         </div>
                     </li>
-                    {% if not account.partnership %}
+                    {% if not account.is_partner %}
                     <li id="editPartnership">
                         <div class="right-info__block">
                             <div class="success__block"></div>
@@ -468,7 +463,8 @@
                         <textarea name="need_note" id="id_note_text" rows="5" cols="50" readonly>{{ account.description }}</textarea>
                     </div>
                 </div>
-                {% if account.partnership and user.is_partner_manager_or_high %}
+                {% if user.is_partner_manager_or_high and account.is_partner %}
+                    {% for partner in account.partners.all %}
                     <div class="a-sdelki" id="Sdelki">
                         <div class="top-s">
                             <h3>Партнерство</h3>
@@ -479,7 +475,7 @@
                             <div class="right-info__block">
                                 <h4>Партнерские данные</h4>
                                 <div class="success__block"></div>
-                                {% include "account/partials/partner_form.html" %}
+                                {% include "account/partials/partner_form.html" with partner=partner %}
                             </div>
                         </li>
                     </ul>
@@ -487,16 +483,16 @@
                             <label for="id_need_text">Молитвенная нужда</label>
                             <div class="btn-block">
                                 <button class="editText"></button>
-                                <button class="saveNote" id="send_need" data-partner="{{ account.partnership.id }}"></button>
+                                <button class="saveNote" id="send_need" data-partner="{{ partner.id }}"></button>
                             </div>
-                            <textarea name="need_text" id="id_need_text" rows="5" cols="50" readonly>{{ account.partnership.need_text }}</textarea>
+                            <textarea name="need_text" id="id_need_text" rows="5" cols="50" readonly>{{ partner.need_text }}</textarea>
                         </div>
                     </div>
                         <div class="tab-status" id="tabStatus">
                             <ul id="tabs1">
                                 <li data-tab="1">
                                     <button>Незавершённые (<span id="incomplete-count">
-                                        {% with count=account.partnership.undone_deals_count %}
+                                        {% with count=partner.undone_deals_count %}
                                             {% if count > 20 %}20 из {% endif %}{{ count }}
                                         {% endwith %}
                                     </span>)
@@ -504,7 +500,7 @@
                                 </li>
                                 <li data-tab="2">
                                     <button href="#overdue">Просроченные(<span id="overdue-count">
-                                        {% with count=account.partnership.expired_deals_count %}
+                                        {% with count=partner.expired_deals_count %}
                                             {% if count > 20 %}20 из {% endif %}{{ count }}
                                         {% endwith %}
                                     </span>)
@@ -512,19 +508,19 @@
                                 </li>
                                 <li data-tab="3">
                                     <button href="#completed">Завершённые(<span id="completed-count">
-                                        {% with count=account.partnership.done_deals_count %}
+                                        {% with count=partner.done_deals_count %}
                                             {% if count > 20 %}20 из {% endif %}{{ count }}
                                         {% endwith %}
                                     </span>)
                                     </button>
                                 </li>
                             </ul>
-                            <button data-currency-id="{{ account.partnership.currency.id }}" id="create_new_deal">
+                            <button data-currency-id="{{ partner.currency.id }}" id="create_new_deal">
                                 Добавить сделку
                             </button>
                         </div>
                         <div class="sdelki-content clearfix" data-tab-content="1">
-                            {% for deal in account.partnership.undone_deals|slice:":20" %}
+                            {% for deal in partner.undone_deals|slice:":20" %}
                                 <div class="rows">
                                     <p>{{ account.fullname }}</p>
                                     <p>Дата создания: <span>{{ deal.date_created }}</span></p>
@@ -532,7 +528,7 @@
                             {% endfor %}
                         </div>
                         <div class="sdelki-content clearfix" data-tab-content="2">
-                            {% for deal in account.partnership.expired_deals|slice:":20" %}
+                            {% for deal in partner.expired_deals|slice:":20" %}
                                 <div class="rows">
                                     <p>{{ account.fullname }}</p>
                                     <p>Дата создания: <span>{{ deal.date_created }}</span></p>
@@ -540,7 +536,7 @@
                             {% endfor %}
                         </div>
                         <div class="sdelki-content clearfix" data-tab-content="3">
-                            {% for deal in account.partnership.done_deals|slice:":20" %}
+                            {% for deal in partner.done_deals|slice:":20" %}
                                 <div class="rows">
                                     <p>{{ account.fullname }}</p>
                                     <p>Дата создания: <span>{{ deal.date_created }}</span></p>
@@ -550,7 +546,7 @@
                         <div class="rows" data-summit-id="{{ anket_group.grouper.id }}">
                                 <p class="payment_title">Платежи за сделки</p>
                         </div>
-                        {% for payment in account.partnership.deal_payments.all %}
+                        {% for payment in partner.deal_payments.all %}
                             <div class="rows">
                                     <p>{{ payment.effective_sum_str|cut:".000" }} —
                                         {{ payment.created_at|date:"d.m.Y H:i:s" }}
@@ -559,6 +555,8 @@
                             </div>
                         {% endfor %}
                     </div>
+                        {% include "partner/partials/create_deal.html" with partnership=partner.id currency=partner.currency%}
+                    {% endfor %}
                 {% endif %}
                 {% if account.summit_profiles.exists %}
                     {% regroup account.summit_profiles.all by summit.type as ankets %}
@@ -737,10 +735,6 @@
 {% endblock %}
 
 {% block popup %}
-    {% if account.partnership %}
-        {% create_payment_form account.partnership %}
-    {% endif %}
-    {% include "partner/partials/create_deal.html" with partnership=account.partnership.id currency=account.partnership.currency%}
     {% if user == account %}
         <div id="popup-change_password" class="pop-up-splash">
             <div class="flex-wrap">
@@ -781,7 +775,7 @@
                         </div>
                         <div class="container">
                             <button id="close-password">{% trans "Cancel" %}</button>
-                            <button type="submit" id="submit_password" data-partner="{{ account.partnership.id }}">
+                            <button type="submit" id="submit_password">
                                 {% trans "Change password" %}
                             </button>
                         </div>

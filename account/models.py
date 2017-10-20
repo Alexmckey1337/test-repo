@@ -14,8 +14,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
-from mptt.fields import TreeForeignKey
-from mptt.models import MPTTModel
 from treebeard.mp_tree import MP_Node
 
 from account.abstract_models import CustomUserAbstract

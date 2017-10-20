@@ -315,7 +315,7 @@ List of deal payments
     :query string purpose_date_to: filter by ``date_created`` of deal
     :query string search_description: search by ``description``
     :query string search_purpose_fio: search by ``fio`` of deal.user
-    :query string search_purpose_manager_fio: search by ``fio`` of deal.responsible.user
+    :query string search_purpose_manager_fio: search by ``fio`` of deal.responsible
     :query string ordering: order by one of ``sum``, ``effective_sum``, ``currency_sum__name``,
                         ``currency_rate__name``, ``created_at``, ``sent_date``,
                         ``manager__last_name``
