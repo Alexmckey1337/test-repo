@@ -59,6 +59,16 @@ class BaseUserListMixin:
 
     user_field = 'uusers'
 
+    @staticmethod
+    def detail_view_users_search(queryset, search):
+        search_queries = map(lambda s: s.strip(), search.split(' '))
+        for s in search_queries:
+            queryset = queryset.filter(
+                Q(first_name__istartswith=s) | Q(last_name__istartswith=s) |
+                Q(middle_name__istartswith=s) | Q(search_name__icontains=s))
+
+        return queryset
+
     def get_object(self):  # pragma: no cover
         raise NotImplementedError()
 
@@ -84,11 +94,7 @@ class UserListMixin(BaseUserListMixin):
 
         search = request.query_params.get('search', '').strip()
         if search and len(search) >= 3:
-            search_queries = map(lambda s: s.strip(), search.split(' '))
-            for s in search_queries:
-                queryset = queryset.filter(
-                    Q(first_name__istartswith=s) | Q(last_name__istartswith=s) |
-                    Q(middle_name__istartswith=s) | Q(search_name__icontains=s))
+            queryset = self.detail_view_users_search(queryset, search)
 
         page = self.paginate_queryset(queryset)
         users = self.user_serializer_class(page, many=True)
@@ -105,11 +111,7 @@ class AllUserListMixin(BaseUserListMixin):
 
         search = request.query_params.get('search', '').strip()
         if search and len(search) >= 3:
-            search_queries = map(lambda s: s.strip(), search.split(' '))
-            for s in search_queries:
-                queryset = queryset.filter(
-                    Q(first_name__istartswith=s) | Q(last_name__istartswith=s) |
-                    Q(middle_name__istartswith=s) | Q(search_name__icontains=s))
+            queryset = self.detail_view_users_search(queryset, search)
 
         page = self.paginate_queryset(queryset)
         users = self.user_serializer_class(page, many=True)
@@ -145,14 +147,6 @@ class ChurchAllUserExportViewSetMixin(BaseExportViewSetMixin):
 
         queryset = CustomUser.objects.all()
         queryset = self.filter_queryset(queryset)
-
-        search = request.query_params.get('search', '').strip()
-        if search and len(search) >= 3:
-            search_queries = map(lambda s: s.strip(), search.split(' '))
-            for s in search_queries:
-                queryset = queryset.filter(
-                    Q(first_name__istartswith=s) | Q(last_name__istartswith=s) |
-                    Q(middle_name__istartswith=s) | Q(search_name__icontains=s))
 
         return self.get_response(queryset, fields, GroupUserResource)
 
