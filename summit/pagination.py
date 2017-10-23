@@ -54,4 +54,4 @@ class SummitTicketPagination(PageNumberPagination):
 
 
 class SummitSearchPagination(PageNumberPagination):
-    page_size = 6
+    page_size = 5

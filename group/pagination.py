@@ -41,4 +41,4 @@ class ForSelectPagination(PageNumberPagination):
 
 
 class PotentialUsersPagination(PageNumberPagination):
-    page_size = 6
+    page_size = 5
