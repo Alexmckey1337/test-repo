@@ -20,7 +20,7 @@ from event.models import MeetingType
 from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
 from notification.backend import RedisBackend
-from partnership.models import Partnership, Deal
+from partnership.models import Partnership, Deal, PartnerGroup
 from payment.models import Currency
 from status.models import Division
 from summit.models import SummitType, SummitTicket, SummitAnket, Summit, AnketEmail
@@ -206,6 +206,7 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, TemplateView):
 
         extra_context = {
             'departments': Department.objects.all(),
+            'partner_groups': PartnerGroup.objects.all(),
             'hierarchies': Hierarchy.objects.order_by('level'),
             'currencies': Currency.objects.all()
         }

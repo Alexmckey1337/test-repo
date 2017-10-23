@@ -6,9 +6,15 @@ from rest_framework import serializers
 from account.serializers import UserTableSerializer
 from common.fields import DecimalWithCurrencyField
 from payment.serializers import CurrencySerializer
-from .models import Partnership, Deal
+from .models import Partnership, Deal, PartnerGroup, PartnerRole
 
-BASE_PARTNER_FIELDS = ('id', 'responsible', 'value', 'date', 'need_text', 'currency', 'is_active')
+BASE_PARTNER_FIELDS = ('id', 'responsible', 'value', 'date', 'need_text', 'currency', 'is_active', 'group', 'title')
+
+
+class PartnerGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PartnerGroup
+        fields = ('id', 'title')
 
 
 class PartnershipSerializer(serializers.ModelSerializer):
@@ -40,6 +46,7 @@ class PartnershipTableSerializer(serializers.ModelSerializer):
     user = UserTableSerializer()
     date = serializers.DateField(format=None, input_formats=None)
     responsible = serializers.StringRelatedField()
+    group = serializers.StringRelatedField()
     value = DecimalWithCurrencyField(max_digits=12, decimal_places=0,
                                      read_only=True, currency_field='currency')
 
@@ -90,3 +97,15 @@ class DealSerializer(DealCreateSerializer):
                   'full_name', 'responsible_name', 'partner_link',
                   'total_sum', 'currency', 'payment_status', 'type',
                   )
+
+
+class PartnerRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PartnerRole
+        fields = ('level', 'plan')
+
+
+class CreatePartnerRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PartnerRole
+        fields = ('user', 'level', 'plan')

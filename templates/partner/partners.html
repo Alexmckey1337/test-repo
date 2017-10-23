@@ -70,8 +70,6 @@
                     <label>
                         {% if request.user.is_partner_supervisor_or_high %}
                             <span class="label_block">Менеджер</span>
-                        {% endif %}
-                        {% if request.user.is_partner_supervisor_or_high %}
                             <select class="selectdb" data-filter="responsible" id="masters_filter">
                                 <option value="">ВСЕ</option>
                                 {% for manager in managers %}
@@ -108,12 +106,31 @@
                         </select>
                     </label>
                     <label>
+                        <span class="label_block">Тег</span>
+                        <select class="selectdb" data-filter="group" id="group_filter">
+                            <option value="">ВСЕ</option>
+                            {% for group in partner_groups %}
+                                <option value="{{ group.id }}">{{ group.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
                         <span class="label_block">Ответственный</span>
                         <select class="selectdb" data-filter="master" id="masters_filter">
                             <option value="">ВСЕ</option>
                             {% for master in masters %}
                                 <option value="{{ master.id }}">{{ master.fullname }}</option>
                             {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Партнер уже</span>
+                        <select class="selectdb" data-filter="age" id="age_filter">
+                            <option value="">ВСЕ</option>
+                            <option data-lt="6month">До полугода</option> {# /api/v1.0/partnerships/?age_lt=6month #}
+                            <option data-gt="6month" data-lt="1year">От полугода до года</option> {# /api/v1.0/partnerships/?age_gt=6month&age_lt=1year #}
+                            <option data-gt="1year" data-lt="2year">От года до двух лет</option> {# /api/v1.0/partnerships/?age_gt=1year&age_lt=2year #}
+                            <option data-gt="2year">Более двух лет</option> {# /api/v1.0/partnerships/?age_gt=2year #}
                         </select>
                     </label>
                     <label>

@@ -35,6 +35,6 @@ pytz==2016.10
 raven
 redis>=2.10.5
 reportlab
-six==1.10.0
+six==1.11.0
 tablib
 wheel==0.26.0
