@@ -14,6 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from account.models import CustomUser
+from analytics.decorators import log_perform_create, log_perform_update
 from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
@@ -32,6 +33,7 @@ from .serializers import (DealSerializer, PartnershipUpdateSerializer, DealCreat
 
 
 class PartnershipViewSet(
+    LogAndCreateUpdateDestroyMixin,
     ModelWithoutDeleteViewSet,
     PartnerExportViewSetMixin,
     PartnerStatMixin,
@@ -84,13 +86,16 @@ class PartnershipViewSet(
     def get_queryset(self):
         return self.queryset.for_user(user=self.request.user)
 
-    def perform_update(self, serializer):
+    @log_perform_update
+    def perform_update(self, serializer, **kwargs):
         partner = serializer.save()
         PartnershipLogs.log_partner(partner)
 
-    def perform_create(self, serializer):
+    @log_perform_create
+    def perform_create(self, serializer, **kwargs):
         partner = serializer.save()
         PartnershipLogs.log_partner(partner)
+        return partner
 
     def get_permissions(self):
         if self.action in ('list', 'retrieve'):

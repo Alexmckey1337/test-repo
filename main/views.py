@@ -327,6 +327,14 @@ def account(request, id):
             user_id=id,
             content_type=ContentType.objects.get_for_model(user)
         ),
+        'partner_log_messages': LogRecord.objects.filter(
+            object_id__in=list(user.partners.values_list('id', flat=True)),
+            content_type=ContentType.objects.get_for_model(Partnership)
+        ),
+        'partner_log_messages_iam': LogRecord.objects.filter(
+            user_id=id,
+            content_type=ContentType.objects.get_for_model(Partnership)
+        ),
         'markers': UserMarker.objects.all()
     }
     return render(request, 'account/anketa.html', context=ctx)

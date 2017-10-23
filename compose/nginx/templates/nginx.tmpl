@@ -187,6 +187,8 @@ upstream asgi_server{{ $upstream_name }} {
 {{/* Use the cert specified on the container or fallback to the best vhost match */}}
 {{ $cert := (coalesce $certName $vhostCert) }}
 
+{{ $close_site := or (first (groupByKeys $containers "Env.CLOSE_SITE")) "no" }}
+
 {{ $is_https := (and (ne $https_method "nohttps") (ne $cert "") (exists (printf "/etc/nginx/certs/%s.crt" $cert)) (exists (printf "/etc/nginx/certs/%s.key" $cert))) }}
 
 {{ if $is_https }}
@@ -254,6 +256,9 @@ server {
     }
 
 	location / {
+        {{ if eq $close_site "yes" }}
+        try_files $uri /500.html;
+        {{ else }}
 		{{ if eq $proto "uwsgi" }}
 		include uwsgi_params;
 		uwsgi_pass {{ trim $proto }}://{{ trim $upstream_name }};
@@ -270,7 +275,11 @@ server {
 		{{ else if (exists "/etc/nginx/vhost.d/default_location") }}
 		include /etc/nginx/vhost.d/default_location;
 		{{ end }}
+        {{ end }}
 	}
+    location /500.html {
+        alias /etc/nginx/templates/500.html;
+    }
 }
 
 {{ end }}

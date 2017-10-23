@@ -109,12 +109,16 @@ class PartnershipAbstractModel(models.Model):
         return self.currency.output_format.format(**format_data)
 
 
-class Partnership(PartnershipAbstractModel, AbstractPaymentPurpose):
+class Partnership(PartnershipAbstractModel, AbstractPaymentPurpose, LogModel):
     user = models.ForeignKey('account.CustomUser', related_name='partners')
     #: Payments of the current partner that do not relate to deals of partner
     extra_payments = GenericRelation('payment.Payment', related_query_name='partners')
 
     objects = PartnerManager()
+
+    tracking_fields = (
+        'value', 'currency', 'date', 'need_text', 'is_active', 'responsible'
+    )
 
     def __str__(self):
         return self.fullname
