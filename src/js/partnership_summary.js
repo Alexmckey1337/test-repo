@@ -27,7 +27,8 @@ $(document).ready(function () {
         onSelect: (formattedDate) => {
             if (formattedDate != '') {
                 $('.preloader').css('display', 'block');
-                partnershipSummaryTable();
+                $('#main').find('.prefilter-group').find('.month').removeClass('active');
+                (formattedDate == thisPeriod) ? partnershipSummaryTable() : partnershipSummaryTable({}, false);
             }
         }
     });
@@ -46,10 +47,11 @@ $(document).ready(function () {
         $(this).addClass('active');
         if (!$(this).hasClass('month_prev')) {
             $('#date_field_stats').val(`${thisPeriod}`);
+            partnershipSummaryTable();
         } else {
             $('#date_field_stats').val(`${lastPeriod}`);
+            partnershipSummaryTable({}, false);
         }
-        partnershipSummaryTable();
     });
 
 });

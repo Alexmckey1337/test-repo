@@ -102,6 +102,7 @@ export class OrderTableByClient extends OrderTable {
                     table_columns: data.table_columns,
                     results: newArr,
                 };
+                (data.flag) ? sortedData.flag = true : sortedData.flag = false;
                 callback(sortedData);
             }
         });
@@ -142,6 +143,7 @@ export class OrderTableByClient extends OrderTable {
                     table_columns: actualData.table_columns,
                     results: newArr,
                 };
+                (actualData.flag) ? sortedData.flag = true : sortedData.flag = false;
                 callback(sortedData, actualData);
             } else {
                 callback(actualData, actualData);

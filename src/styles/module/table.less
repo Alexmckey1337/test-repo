@@ -318,3 +318,55 @@ table tr:last-child {
     overflow-y: scroll;
   }
 }
+
+#chooseUserINBases {
+  .top-pag {
+    padding-top: 0;
+  }
+}
+
+#potentialUsersList {
+  table {
+    thead th {
+      cursor: auto;
+    }
+    tr td:first-child {
+      overflow: visible;
+      text-overflow: inherit;
+      max-width: 200px;
+    }
+  }
+
+  //tbody td {
+  //  overflow: visible;
+  //}
+}
+
+#managersPlan {
+  .edit_btn:before {
+    content: '\f040';
+    font: 1em FontAwesome;
+    color: #656d78;
+    padding-right: .5em;
+  }
+  .edit {
+    button {
+      top: 0.7em;
+      left: 0.5em;
+    }
+    .edit_btn:hover:before {
+      color: #3caeda;
+    }
+    .edit_plan {
+      margin-left: 1em;
+    }
+    &:hover button {
+      opacity: 1;
+      display: none;
+    }
+    &:hover input:disabled ~ .edit_btn {
+      display: block;
+    }
+  }
+}
+

@@ -1,7 +1,8 @@
 'use strict';
+import 'hint.css/hint.min.css';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
-import {postData} from "../Ajax/index";
+import getData, {postData} from "../Ajax/index";
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
 import getSearch from '../Search/index';
@@ -12,6 +13,7 @@ import fixedTableHead from '../FixedHeadTable/index';
 import OrderTable from '../Ordering/index';
 import {getFilterParam} from "../Filter/index";
 import {showAlert} from "../ShowNotifications/index";
+import shortenText from '../shortenText';
 
 export function createSummitUsersTable(data = {}) {
     let page = data.page || $('.pagination__input').val();
@@ -230,28 +232,78 @@ export function registerUser(id, summit_id, description) {
 //     });
 // }
 
-export function makePotencialSammitUsersList() {
-    let param = {'summit_id': 7};
-    let search = $('#searchUsers').val();
+export function makePotencialSammitUsersList(config = {}) {
+    let param = {'summit_id': 7},
+        search = $('#searchUsers').val();
     if (search) {
         param['search'] = search;
     }
-    console.log(param);
+    Object.assign(param, config);
     param.summit_id = $('#summitUsersList').data('summit');
-    getPotencialSammitUsers(param).then(function (data) {
-        let html = '';
-        data = data.results;
-        for (let i = 0; i < data.length; i++) {
-            html += '<div class="rows-wrap"><button data-master="' + data[i].master_short_fullname + '" data-name="' + data[i].fullname + '" data-id="' + data[i].id + '">Выбрать</button><div class="rows"><div class="col"><p><span><a href="/account/' + data[i].id + '">' + data[i].fullname + '</a></span></p></div><div class="col"><p><span>' + data[i].country + '</span>,<span> ' + data[i].city + '</span></p></div></div></div>';
-        }
-        if (data.length > 0) {
-            $('#searchedUsers').html(html);
+    getData(URLS.summit_search(), param).then(data => {
+        let pagination = `<div class="top-pag">
+                              <div class="table__count"></div>
+                              <div class="pagination search_users_pagination"></div>
+                          </div>
+                          <div class="table-wrap clearfix">
+                              <div id="potentialUsersList" class="table scrollbar-inner"></div>
+                          </div>`;
+        let table = `<table>
+                        <thead>
+                            <tr>
+                                <th>ФИО</th>
+                                <th>Страна/город</th>
+                                <th>Ответственный</th>
+                                <th>Email</th>
+                                <th>Номер телефона</th>
+                                <th>Действие</th>
+                            </tr>
+                        </thead>
+                        <tbody>${data.results.map(item => {
+            return `<tr>
+                        <td><a target="_blank" href="/account/${item.id}" 
+                                class="hint--top-right hint--info shorten" aria-label="${item.fullname}">
+                                ${item.fullname}</a>
+                        </td>
+                        <td>${item.country}/${item.city}</td>
+                        <td>${item.master_short_fullname}</td>
+                        <td>${item.email}</td>
+                        <td>${item.phone_number}</td>
+                        <td>
+                            <button data-master="${item.master_short_fullname}" 
+                                    data-name="${item.fullname}" 
+                                    data-id="${item.id}">
+                                    Выбрать
+                            </button>
+                        </td>
+                    </tr>`;
+        }).join('')}</tbody></table>`;
+        if (data.results.length > 0) {
+            let count = data.count,
+                page = config.page || 1,
+                pages = Math.ceil(count / CONFIG.pagination_count_small),
+                showCount = (count < CONFIG.pagination_count_small) ? count : data.results.length,
+                text = `Показано ${showCount} из ${count}`,
+                paginationConfig = {
+                    container: ".search_users_pagination",
+                    currentPage: page,
+                    pages: pages,
+                    callback: makePotencialSammitUsersList
+                };
+            $('#searchedUsers').html(pagination).find('.table__count').text(text);
+            makePagination(paginationConfig);
+            $('#potentialUsersList').html(table);
+            $('.preloader').css('display', 'none');
+            $('.shorten').each(function (i, el) {
+                let cutTxt = shortenText(el.text.trim());
+                $(this).text(cutTxt);
+            });
         } else {
-            $('#searchedUsers').html('<div class="rows-wrap"><div class="rows"><p>По запросу не найдено учасников</p></div></div>');
+            $('#searchedUsers').html('<div class="rows-wrap"><div class="rows"><p>По запросу учасников не найдено</p></div></div>');
         }
         $('.choose-user-wrap .splash-screen').addClass('active');
-        let but = $('.rows-wrap button');
-        but.on('click', function () {
+        let btn = $('#searchedUsers').find('table').find('button');
+        btn.on('click', function () {
             let id = $(this).attr('data-id'),
                 name = $(this).attr('data-name'),
                 master = $(this).attr('data-master');
@@ -264,14 +316,14 @@ export function makePotencialSammitUsersList() {
     });
 }
 
-function getPotencialSammitUsers(config) {
-    console.log(config);
-    return new Promise(function (resolve, reject) {
-        ajaxRequest(URLS.summit_search(), config, function (data) {
-            resolve(data);
-        });
-    });
-}
+// function getPotencialSammitUsers(config) {
+//     console.log(config);
+//     return new Promise(function (resolve, reject) {
+//         ajaxRequest(URLS.summit_search(), config, function (data) {
+//             resolve(data);
+//         });
+//     });
+// }
 
 export function setDataForPopup(id, name, master) {
     $('#complete').attr('data-id', id);

@@ -219,6 +219,7 @@ export function createChurchesDetailsTable(config = {}, id, link) {
         link = $('.get_info .active').data('link');
     }
     Object.assign(config, getOrderingData());
+    Object.assign(config, getSearch('search'));
     getChurchDetails(id, link, config).then(function (data) {
         let count = data.count;
         let page = config['page'] || 1;
@@ -292,71 +293,95 @@ function getPotentialLeadersForHG(config) {
 }
 
 export function makeUsersFromDatabaseList(config = {}) {
-    getUsersTOChurch(config).then(function (data) {
+    let param = {
+        search: $('#searchUserFromDatabase').val(),
+        department: $('#added_home_group_church').attr('data-department'),
+    };
+    Object.assign(config, param);
+    getData(URLS.church.potential_users_church(), config).then(data => {
         const CHURCH_ID = $('#church').data('id');
-        let users = data;
-        let html = [];
-        if (users.length) {
-            users.forEach(function (item) {
-                let rows_wrap = document.createElement('div');
-                let rows = document.createElement('div');
-                let col_1 = document.createElement('div');
-                let col_2 = document.createElement('div');
-                let place = document.createElement('p');
-                let link = document.createElement('a');
-                let button = document.createElement('button');
-                $(link).attr('href', '/account/' + item.id).text(item.full_name);
-                $(place).text();
-                $(col_1).addClass('col').append(link);
-                $(col_2).addClass('col').append(item.country + ', ' + item.city);
-                $(rows).addClass('rows').append(col_1).append(col_2);
-                $(button).attr({
-                    'data-id': item.id,
-                    'disabled': !item.can_add
-                }).text('Выбрать').on('click', function () {
-                    let id = $(this).data('id');
-                    let _self = this;
-                    let config = {};
-                    config.id = id;
-                    addUser2Church(config).then(function (data) {
-                        $(_self).text('Добавлен').attr('disabled', true);
-                        getChurchStats(CHURCH_ID).then(function (data) {
-                            let keys = Object.keys(data);
-                            keys.forEach(function (item) {
-                                $('#' + item).text(data[item]);
-                            })
-                        });
-                        createChurchesUsersTable(CHURCH_ID);
-                    });
-                });
-                $(rows_wrap).addClass('rows-wrap').append(button).append(rows);
-                html.push(rows_wrap);
-            });
+        let pagination = `<div class="top-pag">
+                              <div class="table__count"></div>
+                              <div class="pagination search_users_pagination"></div>
+                          </div>
+                          <div class="table-wrap clearfix">
+                              <div id="potentialUsersList" class="table scrollbar-inner"></div>
+                          </div>`;
+        let table = `<table>
+                        <thead>
+                            <tr>
+                                <th>ФИО</th>
+                                <th>Страна/город</th>
+                                <th>Действие</th>
+                            </tr>
+                        </thead>
+                        <tbody>${data.results.map(item => {
+            return `<tr>
+                        <td><a target="_blank" href="/account/${item.id}">
+                            ${item.full_name}
+                            </a>
+                        </td>
+                        <td>${item.country}/${item.city}</td>
+                        <td>
+                            <button data-id="${item.id}"
+                                    ${(!item.can_add) && 'disabled'}>
+                                    Выбрать
+                            </button>
+                        </td>
+                    </tr>`;
+        }).join('')}</tbody></table>`;
+        if (data.results.length > 0) {
+            let count = data.count,
+                page = config.page || 1,
+                pages = Math.ceil(count / CONFIG.pagination_count_small),
+                showCount = (count < CONFIG.pagination_count_small) ? count : data.results.length,
+                text = `Показано ${showCount} из ${count}`,
+                paginationConfig = {
+                    container: ".search_users_pagination",
+                    currentPage: page,
+                    pages: pages,
+                    callback: makeUsersFromDatabaseList
+                };
+            $('#searchedUsers').html(pagination).find('.table__count').text(text);
+            makePagination(paginationConfig);
+            $('#potentialUsersList').html(table);
+            $('.preloader').css('display', 'none');
         } else {
-            let rows_wrap = document.createElement('div');
-            let rows = document.createElement('div');
-            let col_1 = document.createElement('div');
-            $(col_1).text('Пользователь не найден');
-            $(rows).addClass('rows').append(col_1);
-            $(rows_wrap).addClass('rows-wrap').append(rows);
-            html.push(rows_wrap);
+            $('#searchedUsers').html('<div class="rows-wrap"><div class="rows"><p>По запросу учасников не найдено</p></div></div>');
         }
-        $('#searchedUsers').html(html);
         $('.choose-user-wrap .splash-screen').addClass('active');
+        let btn = $('#searchedUsers').find('table').find('button');
+        btn.on('click', function () {
+            let id = $(this).data('id'),
+                _self = this,
+                config = {
+                    user_id: id
+                };
+            postData(URLS.church.add_user(CHURCH_ID), config).then(data => {
+                $(_self).attr('disabled', true);
+                getData(URLS.church.stats(CHURCH_ID)).then(data => {
+                    let keys = Object.keys(data);
+                    keys.forEach(function (item) {
+                        $('#' + item).text(data[item]);
+                    })
+                });
+                createChurchesUsersTable(CHURCH_ID);
+            });
+        });
     })
 }
 
-function getUsersTOChurch(config) {
-    return new Promise(function (resolve, reject) {
-        ajaxRequest(URLS.church.potential_users_church(), config, function (data) {
-            if (data) {
-                resolve(data);
-            } else {
-                reject("Ошибка");
-            }
-        });
-    });
-}
+// function getUsersTOChurch(config) {
+//     return new Promise(function (resolve, reject) {
+//         ajaxRequest(URLS.church.potential_users_church(), config, function (data) {
+//             if (data) {
+//                 resolve(data);
+//             } else {
+//                 reject("Ошибка");
+//             }
+//         });
+//     });
+// }
 
 function addUserToChurch(user_id, id, exist = false) {
     let url = URLS.user.set_church(user_id);
@@ -380,23 +405,23 @@ function addUserToChurch(user_id, id, exist = false) {
     });
 }
 
-function getChurchStats(id) {
-    let resData = {
-        url: URLS.church.stats(id)
-    };
-
-    return new Promise(function (resolve, reject) {
-        let codes = {
-            200: function (data) {
-                resolve(data);
-            },
-            400: function (data) {
-                reject(data);
-            }
-        };
-        newAjaxRequest(resData, codes, reject);
-    });
-}
+// function getChurchStats(id) {
+//     let resData = {
+//         url: URLS.church.stats(id)
+//     };
+//
+//     return new Promise(function (resolve, reject) {
+//         let codes = {
+//             200: function (data) {
+//                 resolve(data);
+//             },
+//             400: function (data) {
+//                 reject(data);
+//             }
+//         };
+//         newAjaxRequest(resData, codes, reject);
+//     });
+// }
 
 function createChurchesUsersTable(id, config = {}) {
     Object.assign(config, getFilterParam());

@@ -1,26 +1,29 @@
 'use strict';
 import URLS from '../Urls/index';
+import getData, {postData} from "../Ajax/index";
 import newAjaxRequest from '../Ajax/newAjaxRequest';
 import makeSortForm from '../Sort/index';
 import {showAlert} from "../ShowNotifications/index";
 import fixedTableHead from '../FixedHeadTable/index';
 import {OrderTableByClient} from "../Ordering/index";
 
-export function PartnershipSummaryTable(config) {
+export function PartnershipSummaryTable(config, flag = true) {
     $('.preloader').css('display', 'block');
-    getPartnershipSummary(config).then(data => {
+    getData(URLS.partner.managers_summary(), config).then(data => {
         let newData = makeData(data);
+        (flag) ? newData.flag = true : newData.flag = false;
         makePartnershipSummaryTable(newData);
     });
 }
 
-export function partnershipSummaryTable(config = {}) {
+export function partnershipSummaryTable(config = {}, flag = true) {
     let month = $('#date_field_stats').val().split('/')[0],
         year = $('#date_field_stats').val().split('/')[1];
     config.year = year;
     config.month = month;
-    getPartnershipSummary(config).then(data => {
+    getData(URLS.partner.managers_summary(), config).then(data => {
         let newData = makeData(data);
+        (flag) ? newData.flag = true : newData.flag = false;
         makePartnershipSummaryTable(newData);
     })
 }
@@ -54,47 +57,27 @@ function makeData(data) {
     };
 }
 
-function getPartnershipSummary(config = {}) {
-    return new Promise(function (resolve, reject) {
-        let data = {
-            url: URLS.partner.managers_summary(),
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            data: config
-        };
-        let status = {
-            200: function (req) {
-                resolve(req);
-            },
-            403: function () {
-                reject('Вы должны авторизоватся');
-            }
-
-        };
-        newAjaxRequest(data, status);
-    })
-}
-
 function makePartnershipSummaryTable(data, oldData = {}) {
     let tmpl = $('#databasePartnershipSummary').html();
+    console.log(data);
     let rendered = _.template(tmpl)(data);
     $('#managersPlan').html(rendered);
     makeSortForm(data.table_columns);
-    $('#managersPlan').find('table').on('dblclick', '.edit_plan', function (e) {
-        let actualVal = $(this).val();
-        $(this).attr('data-value', actualVal);
-        $(this).prop('disabled', false).prop('readonly', false).focus();
+    $('#managersPlan').find('table').on('click', '.edit_btn', function (e) {
+        let input = $(this).closest('.edit').find('.edit_plan'),
+            actualVal = input.val();
+        input.attr('data-value', actualVal).prop('disabled', false).prop('readonly', false).focus();
     });
     $('#managersPlan').find('table .edit_plan').keyup(function (e) {
         if (e.keyCode == 13) {
             let id = e.target.getAttribute('data-id');
             data.plan_sum = e.target.value;
-            updateManagersPlan(id, data).then(() => {
-                showAlert('План успешно изменен');
+            postData(URLS.partner.set_managers_plan(id), data).then(res => {
+                showAlert(res.message);
                 $(this).prop('disabled', true).prop('readonly', true);
-            });
+            }).catch(err => {
+                showAlert(err.message, 'Ошибка');
+            })
         } else if (e.keyCode == 27) {
             let value = $(this).attr('data-value');
             $(this).val(value).prop('disabled', true).prop('readonly', true);

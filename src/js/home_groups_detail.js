@@ -33,6 +33,7 @@ $('document').ready(function () {
         $('#searchUserFromDatabase').val('');
         $('.choose-user-wrap .splash-screen').removeClass('active');
         document.querySelector('#searchUserFromDatabase').focus();
+        $('#searchedUsers').css('height', 'auto');
         $('#chooseUserINBases').css('display', 'block');
     });
 
@@ -56,11 +57,12 @@ $('document').ready(function () {
     });
     $('#searchUserFromDatabase').on('keyup', _.debounce(function () {
         let search = $(this).val();
-        if (search.length < 3) return;
-        let config = {};
-        config.search = search;
-        config.department = HG_ID;
-        makeUsersFromDatabaseList(config, ID);
+        if (search.length > 2) makeUsersFromDatabaseList();
+    }, 500));
+
+    $('input[name="fullsearch"]').on('keyup', _.debounce(function (e) {
+        $('.preloader').css('display', 'block');
+        createHomeGroupUsersTable();
     }, 500));
 
     $('#sort_save').on('click', function () {

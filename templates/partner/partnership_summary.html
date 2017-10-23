@@ -120,10 +120,13 @@
                     {% if user.is_partner_director %}
                         <% if (results[index].manager == 'СУММАРНО:') { %>
                         <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                        <% } else if (!flag) { %>
+                            <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
                         <% } else { %>
-                        <input class="edit_plan" type="text" data-id="<%=results[index].user_id %>"
-                               value="<%= results[index][key] %>" readonly disabled>
-                        <span>Нажмите Enter</span>
+                            <input class="edit_plan" type="text" data-id="<%=results[index].user_id %>"
+                                   value="<%= results[index][key] %>" readonly disabled>
+                            <span>Нажмите Enter</span>
+                            <button class="edit_btn"></button>
                         <% } %>
                     {% else %}
                         <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
