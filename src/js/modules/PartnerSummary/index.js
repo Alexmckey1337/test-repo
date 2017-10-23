@@ -1,7 +1,6 @@
 'use strict';
 import URLS from '../Urls/index';
 import getData, {postData} from "../Ajax/index";
-import newAjaxRequest from '../Ajax/newAjaxRequest';
 import makeSortForm from '../Sort/index';
 import {showAlert} from "../ShowNotifications/index";
 import fixedTableHead from '../FixedHeadTable/index';
@@ -66,39 +65,37 @@ function makePartnershipSummaryTable(data, oldData = {}) {
     $('#managersPlan').find('table').on('click', '.edit_btn', function (e) {
         let input = $(this).closest('.edit').find('.edit_plan'),
             actualVal = input.val();
-        input.attr('data-value', actualVal).prop('disabled', false).prop('readonly', false).focus();
+        input.attr('data-value', actualVal);
+        $(this).closest('.edit').addClass('active').find('input').prop('disabled', false).prop('readonly', false).select();
     });
-    $('#managersPlan').find('table .edit_plan').keyup(function (e) {
-        if (e.keyCode == 13) {
-            let id = e.target.getAttribute('data-id');
-            data.plan_sum = e.target.value;
-            postData(URLS.partner.set_managers_plan(id), data).then(res => {
-                showAlert(res.message);
-                $(this).prop('disabled', true).prop('readonly', true);
-            }).catch(err => {
-                showAlert(err.message, 'Ошибка');
-            })
-        } else if (e.keyCode == 27) {
-            let value = $(this).attr('data-value');
-            $(this).val(value).prop('disabled', true).prop('readonly', true);
-        }
+    $('#managersPlan').find('table').on('click', '.cancel_plan', function (e) {
+        e.preventDefault();
+        let input = $(this).closest('.edit').find('input'),
+            value = input.attr('data-value');
+        $(this).closest('.edit').removeClass('active')
+               .find('input').val(value).prop('disabled', true).prop('readonly', true);
+    });
+    $('#managersPlan').find('table form').on('submit', function (e) {
+        e.preventDefault();
+        let id = $(this).closest('.edit').removeClass('active').find('input').attr('data-id'),
+            value = $(this).closest('.edit').find('input').val(),
+            sum_pay = $(this).closest('tr').find('.sum_pay').text(),
+            sum_pay_tithe = $(this).closest('tr').find('.sum_pay_tithe').text(),
+            data = {
+                plan_sum: value,
+            },
+            percent = (100 / (value / (+sum_pay + +sum_pay_tithe))).toFixed(1),
+            perVal = isFinite(+percent) ? percent : 0;
+        postData(URLS.partner.set_managers_plan(id), data).then(res => {
+            showAlert(res.message);
+            $(this).closest('.edit').removeClass('active').find('input').prop('disabled', true).prop('readonly', true);
+            $(this).closest('tr').find('.percent_of_plan').text(`${perVal} %`);
+        }).catch(err => {
+            showAlert(err.message, 'Ошибка');
+        })
     });
     fixedTableHead();
     new OrderTableByClient().sortByClient(makePartnershipSummaryTable, ".table-wrap th", data);
     new OrderTableByClient().searchByClient(makePartnershipSummaryTable, data, oldData);
     $('.preloader').css('display', 'none');
-}
-
-function updateManagersPlan(id, data) {
-    let url = URLS.partner.set_managers_plan(id);
-    let config = {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: new Headers({
-            'Content-Type': 'application/json',
-        }),
-        body: JSON.stringify(data),
-    };
-
-    return fetch(url, config).then(data => data.json()).catch(err => err);
 }

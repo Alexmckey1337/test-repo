@@ -116,16 +116,21 @@
                 <% } %>
                 <% } else if (key == 'plan') { %>
                 <% if (results[index][key] != null) { %>
-                <td class="edit">
+                <td class="edit edit-plan">
                     {% if user.is_partner_director %}
                         <% if (results[index].manager == 'СУММАРНО:') { %>
                         <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
                         <% } else if (!flag) { %>
                             <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
                         <% } else { %>
-                            <input class="edit_plan" type="text" data-id="<%=results[index].user_id %>"
+                        <form name="plan_form" class="editPlanForm">
+                            <input name="plan_sum" class="edit_plan" type="text" data-id="<%=results[index].user_id %>"
                                    value="<%= results[index][key] %>" readonly disabled>
-                            <span>Нажмите Enter</span>
+                            <div class="btn-block">
+                                <button class="send_plan">ОК</button>
+                                <button class="cancel_plan">Отмена</button>
+                            </div>
+                        </form>
                             <button class="edit_btn"></button>
                         <% } %>
                     {% else %}
@@ -137,7 +142,7 @@
                 <% } %>
                 <% } else if (key == 'sum_pay' || key == 'sum_pay_tithe') { %>
                 <% if (results[index][key] != null) { %>
-                <td class="cell__red">
+                <td class="cell__red <%= key %>">
                     <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
                 </td>
                 <% } else { %>
@@ -145,7 +150,7 @@
                 <% } %>
                 <% } else if (key == 'percent_of_plan') { %>
                 <% if (results[index][key] != null) { %>
-                <td>
+                <td class="<%= key %>">
                     <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %> %
                 </td>
                 <% } else { %>
