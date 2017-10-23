@@ -202,3 +202,21 @@ class FilterHGLeadersByDepartment(BaseFilterBackend):
 
 class FilterPotentialHGLeadersByDepartment(FilterHGLeadersByDepartment):
     pass
+
+
+# class GroupDetailSearchFilter():
+#     def _get_potential_users(self, request, filter, *args):
+#         params = request.query_params
+#         search = params.get('search', '').strip()
+#         if len(search) < 3:
+#             return Response({'search': _('Length of search query must be > 2')},
+#                             status=status.HTTP_400_BAD_REQUEST)
+#
+#         users = filter(*args).annotate(full_name=Concat(
+#             'last_name', V(' '), 'first_name', V(' '), 'middle_name'))
+#
+#         search_queries = map(lambda s: s.strip(), search.split(' '))
+#         for s in search_queries:
+#             users = users.filter(
+#                 Q(first_name__istartswith=s) | Q(last_name__istartswith=s) |
+#                 Q(middle_name__istartswith=s) | Q(search_name__icontains=s))

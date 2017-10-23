@@ -1,4 +1,4 @@
-from django.db.models import Count
+from django.db.models import Count, Q
 from rest_framework import filters
 from rest_framework.decorators import detail_route
 
@@ -41,6 +41,14 @@ class HomeGroupListMixin:
         queryset = instance.home_group.annotate(count_users=Count('uusers'))
         queryset = self.filter_queryset(queryset)
 
+        search = request.query_params.get('search', '').strip()
+        if search and len(search) >= 3:
+            search_queries = map(lambda s: s.strip(), search.split(' '))
+            for s in search_queries:
+                queryset = queryset.filter(
+                    Q(title__istartswith=s) | Q(leader__first_name__istartswith=s) |
+                    Q(leader__last_name__istartswith=s))
+
         page = self.paginate_queryset(queryset)
         users = self.home_group_serializer_class(page, many=True)
         return self.get_paginated_response(users.data)
@@ -70,10 +78,17 @@ class UserListMixin(BaseUserListMixin):
                   ordering_fields=GROUP_USER_ORDERING_FIELDS,
                   filter_backends=(filters.OrderingFilter,))
     def users(self, request, pk):
-
         instance = self.get_object()
         queryset = getattr(instance, self.user_field).all()
         queryset = self.filter_queryset(queryset)
+
+        search = request.query_params.get('search', '').strip()
+        if search and len(search) >= 3:
+            search_queries = map(lambda s: s.strip(), search.split(' '))
+            for s in search_queries:
+                queryset = queryset.filter(
+                    Q(first_name__istartswith=s) | Q(last_name__istartswith=s) |
+                    Q(middle_name__istartswith=s) | Q(search_name__icontains=s))
 
         page = self.paginate_queryset(queryset)
         users = self.user_serializer_class(page, many=True)
@@ -87,6 +102,14 @@ class AllUserListMixin(BaseUserListMixin):
     def all_users(self, request, pk):
         queryset = CustomUser.objects.all()
         queryset = self.filter_queryset(queryset)
+
+        search = request.query_params.get('search', '').strip()
+        if search and len(search) >= 3:
+            search_queries = map(lambda s: s.strip(), search.split(' '))
+            for s in search_queries:
+                queryset = queryset.filter(
+                    Q(first_name__istartswith=s) | Q(last_name__istartswith=s) |
+                    Q(middle_name__istartswith=s) | Q(search_name__icontains=s))
 
         page = self.paginate_queryset(queryset)
         users = self.user_serializer_class(page, many=True)
@@ -122,6 +145,14 @@ class ChurchAllUserExportViewSetMixin(BaseExportViewSetMixin):
 
         queryset = CustomUser.objects.all()
         queryset = self.filter_queryset(queryset)
+
+        search = request.query_params.get('search', '').strip()
+        if search and len(search) >= 3:
+            search_queries = map(lambda s: s.strip(), search.split(' '))
+            for s in search_queries:
+                queryset = queryset.filter(
+                    Q(first_name__istartswith=s) | Q(last_name__istartswith=s) |
+                    Q(middle_name__istartswith=s) | Q(search_name__icontains=s))
 
         return self.get_response(queryset, fields, GroupUserResource)
 
