@@ -24,7 +24,7 @@ from group.filters import (HomeGroupFilter, ChurchFilter, FilterChurchMasterTree
                            HomeGroupsDepartmentFilter, FilterHGLeadersByMasterTree, FilterHGLeadersByChurch,
                            FilterHGLeadersByDepartment, FilterPotentialHGLeadersByMasterTree,
                            FilterPotentialHGLeadersByChurch, FilterPotentialHGLeadersByDepartment)
-from group.pagination import ChurchPagination, HomeGroupPagination, ForSelectPagination
+from group.pagination import ChurchPagination, HomeGroupPagination, ForSelectPagination, PotentialUsersPagination
 from group.permissions import CanSeeChurch, CanCreateChurch, CanEditChurch, CanExportChurch, \
     CanSeeHomeGroup, CanCreateHomeGroup, CanEditHomeGroup, CanExportHomeGroup
 from group.resources import ChurchResource, HomeGroupResource
@@ -121,12 +121,12 @@ class ChurchViewSet(ModelViewSet, ChurchUsersMixin,
         pastors = self.serializer_class(pastors, many=True)
         return Response(pastors.data)
 
-    @list_route(methods=['get'])
+    @list_route(methods=['get'], pagination_class=PotentialUsersPagination)
     def potential_users_church(self, request):
         users = CustomUser.objects.all()
         return self._get_potential_users(request, self.filter_potential_users_for_church, users)
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], pagination_class=PotentialUsersPagination)
     def potential_users_group(self, request, pk):
         users = CustomUser.objects.all()
         return self._get_potential_users(request, self.filter_potential_users_for_group, users, pk)
@@ -290,8 +290,13 @@ class ChurchViewSet(ModelViewSet, ChurchUsersMixin,
         if department_id is not None:
             users = users.filter(departments__id=department_id)
 
-        serializers = AddExistUserSerializer(users[:30], many=True)
-        return Response(serializers.data)
+        page = self.paginate_queryset(users)
+        if page is not None:
+            users = AddExistUserSerializer(page, many=True)
+            return self.get_paginated_response(users.data)
+
+        users = AddExistUserSerializer(users, many=True)
+        return Response(users.data)
 
     @staticmethod
     def _validate_user_for_add_user(user):

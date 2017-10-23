@@ -51,3 +51,7 @@ class SummitTicketPagination(PageNumberPagination):
             'ticket_count': self.page.paginator.count,
             'ticket_codes': data
         })
+
+
+class SummitSearchPagination(PageNumberPagination):
+    page_size = 6

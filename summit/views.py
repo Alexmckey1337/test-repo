@@ -35,7 +35,8 @@ from summit.filters import (FilterByClub, SummitUnregisterFilter, ProfileFilter,
                             FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend,
                             FilterBySummitAttendByDate, FilterByElecTicketStatus, FilterByTime, FilterByDepartment,
                             FilterByMasterTree)
-from summit.pagination import SummitPagination, SummitTicketPagination, SummitStatisticsPagination
+from summit.pagination import (SummitPagination, SummitTicketPagination, SummitStatisticsPagination,
+                               SummitSearchPagination)
 from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report, \
     can_see_report_by_bishop_or_high
 from summit.resources import SummitAnketResource, SummitStatisticsResource
@@ -386,6 +387,7 @@ class SummitUnregisterUserViewSet(ModelWithoutDeleteViewSet):
     permission_classes = (IsAuthenticated,)
     filter_class = SummitUnregisterFilter
     search_fields = ('first_name', 'last_name', 'middle_name',)
+    pagination_class = SummitSearchPagination
 
 
 class SummitTicketMakePrintedView(GenericAPIView):
