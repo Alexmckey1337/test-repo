@@ -327,7 +327,7 @@ class ChurchViewSet(ModelViewSet, ChurchUsersMixin,
         return Response(result.data)
 
 
-class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportViewSetMixin):
+class HomeGroupViewSet(ModelViewSet, HomeGroupUsersMixin, ExportViewSetMixin):
     queryset = HomeGroup.objects.all()
 
     serializer_class = HomeGroupSerializer
@@ -377,6 +377,17 @@ class HomeGroupViewSet(ModelWithoutDeleteViewSet, HomeGroupUsersMixin, ExportVie
     @list_route(methods=['post'], permission_classes=(CanExportHomeGroup,))
     def export(self, request, *args, **kwargs):
         return self._export(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.meeting_set.exists():
+            raise exceptions.ValidationError({'message': _('Невозможно удалить Домашнюю Группу. '
+                                                           'На данную Домашнюю Группу есть созданные отчеты.')})
+        if CustomUser.objects.filter(hhome_group__id=instance.id).exists():
+            raise exceptions.ValidationError({'message': _('Невозможно удалить Домашнюю Группу. '
+                                                           'В составе данной Домашней Группы есть люди.')})
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @detail_route(methods=['post'])
     def add_user(self, request, pk):
