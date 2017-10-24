@@ -116,37 +116,36 @@
                     <label>
                         <span class="label_block">Ветка</span>
                         <select class="selectdb" data-filter="master_tree" id="tree_filter">
-                            <option value="">ВСЕ</option>
+                            <option value="ВСЕ">ВСЕ</option>
                         </select>
                     </label>
                     <label>
                         <span class="label_block">Пастор</span>
                         <select class="selectdb" data-filter="pastor" id="pastor_filter">
-                            <option value="">ВСЕ</option>
+                            <option value="ВСЕ">ВСЕ</option>
                         </select>
                     </label>
                     <label>
                         <span class="label_block">Церковь</span>
                         <select class="selectdb" data-filter="church" id="church_filter">
-                            <option value="">ВСЕ</option>
+                            <option value="ВСЕ">ВСЕ</option>
                         </select>
                     </label>
                 </div>
             </div>
             <div class="container">
-                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
-                                                                              aria-hidden="true"></i>
+                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>
                     Очистить
                 </button>
                 <button class="close-popup">Отменить</button>
-                <button onclick="applyFilter(this, churchStatistics)" class="apply-filter">Применить</button>
+                <button class="apply-filter">Применить</button>
             </div>
         </div>
     </div>
 {% endblock %}
 
 {% block extra_scripts %}
-    <script src="{% static "js/church_statistics.js" %}"></script>
+    <script src="{% static "js/church_statistics.bundle.js" %}"></script>
 {% endblock %}
 {% block template_tables %}
     <script type="text/template" id="statisticsTmp">

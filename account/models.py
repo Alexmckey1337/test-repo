@@ -14,8 +14,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
-from mptt.fields import TreeForeignKey
-from mptt.models import MPTTModel
 from treebeard.mp_tree import MP_Node
 
 from account.abstract_models import CustomUserAbstract
@@ -77,13 +75,16 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
 
     can_login = models.BooleanField(_('Can login to site'), default=False)
 
-    cchurch = models.ForeignKey('group.Church', on_delete=models.PROTECT,
+    cchurch = models.ForeignKey('group.Church', on_delete=models.SET_NULL,
                                 related_name='uusers', verbose_name=_('Church'),
                                 null=True, blank=True, db_index=True)
 
     hhome_group = models.ForeignKey('group.HomeGroup', on_delete=models.PROTECT,
                                     related_name='uusers', verbose_name=_('Home group'),
                                     null=True, blank=True, db_index=True)
+
+    marker = models.ManyToManyField('UserMarker', related_name='users',
+                                    verbose_name=_('User Marker'), blank=True)
 
     objects = CustomUserManager()
 
@@ -379,3 +380,16 @@ post_save.connect(create_custom_user, User)
 def sync_user(sender, instance, **kwargs):
     if instance.can_login:
         Table.objects.get_or_create(user=instance)
+
+
+class UserMarker(models.Model):
+    title = models.CharField(_('Title'), max_length=255)
+    color = models.CharField(_('Color'), max_length=255)
+    description = models.TextField(_('Description'))
+
+    class Meta:
+        verbose_name = _('User Marker')
+        verbose_name_plural = _('User Markers')
+
+    def __str__(self):
+        return "User's marker - %s." % self.title

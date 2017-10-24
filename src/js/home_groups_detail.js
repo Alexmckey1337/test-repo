@@ -1,91 +1,27 @@
-(function ($) {
+'use strict';
+import 'air-datepicker';
+import 'air-datepicker/dist/css/datepicker.css';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
+import 'jquery-form-validator/form-validator/lang/ru.js';
+import {createHomeGroupUsersTable, makeUsersFromDatabaseList, editHomeGroups,
+        reRenderTable} from "./modules/HomeGroup/index";
+import updateSettings from './modules/UpdateSettings/index';
+import exportTableData from './modules/Export/index';
+import {showAlert} from "./modules/ShowNotifications/index";
+import {initAddNewUser, createNewUser} from "./modules/User/addUser";
+import accordionInfo from './modules/accordionInfo';
+import {getPotentialLeadersForHG} from "./modules/GetList/index";
+import pasteLink from './modules/pasteLink';
+
+$('document').ready(function () {
     let $createUserForm = $('#createUser'),
         $homeGroup = $('#home_group');
-
     const ID = $homeGroup.data('id');
     const HG_ID = $homeGroup.data('departament_id');
     const CH_ID = $homeGroup.data('church-id');
     const HG_TITLE = $homeGroup.data('departament_title');
-
-    function reRenderTable(config) {
-        addUserToHomeGroup(config).then(() => createHomeGroupUsersTable());
-    }
-
-    function addUserToHomeGroup(data) {
-        let id = data.id;
-        let config = {};
-        config.user_id = id;
-        return new Promise(function (resolve, reject) {
-            let data = {
-                method: 'POST',
-                url: URLS.home_group.add_user(ID),
-                data: config
-            };
-            let status = {
-                200: function (req) {
-                    resolve(req)
-                },
-                403: function () {
-                    reject('Вы должны авторизоватся')
-                }
-            };
-            newAjaxRequest(data, status, reject);
-        });
-    }
-
-    function makeUsersFromDatabaseList(config = {}, id) {
-        getUsersTOHomeGroup(config, CH_ID).then(function (data) {
-            let users = data;
-            let html = [];
-            if (users.length) {
-                users.forEach(function (item) {
-                    let rows_wrap = document.createElement('div');
-                    let rows = document.createElement('div');
-                    let col_1 = document.createElement('div');
-                    let col_2 = document.createElement('div');
-                    let place = document.createElement('p');
-                    let link = document.createElement('a');
-                    let button = document.createElement('button');
-                    $(link).attr('href', '/account/' + item.id).text(item.full_name);
-                    $(place).text();
-                    $(col_1).addClass('col').append(link);
-                    $(col_2).addClass('col').append(item.country + ', ' + item.city);
-                    $(rows).addClass('rows').append(col_1).append(col_2);
-                    $(button).attr({
-                        'data-id': item.id,
-                        'disabled': !item.can_add
-                    }).text('Выбрать').on('click', function () {
-                        let id = $(this).data('id');
-                        let config = {};
-                        config.id = id;
-                        let _self = this;
-                        addUserToHomeGroup(config).then(function (data) {
-                            $(_self).text('Добавлен').attr('disabled', true);
-                            getHomeGroupStats(ID).then(function (data) {
-                                let keys = Object.keys(data);
-                                keys.forEach(function (item) {
-                                    $('#' + item).text(data[item]);
-                                })
-                            });
-                            createHomeGroupUsersTable();
-                        });
-                    });
-                    $(rows_wrap).addClass('rows-wrap').append(button).append(rows);
-                    html.push(rows_wrap);
-                });
-            } else {
-                let rows_wrap = document.createElement('div');
-                let rows = document.createElement('div');
-                let col_1 = document.createElement('div');
-                $(col_1).text('Пользователь не найден');
-                $(rows).addClass('rows').append(col_1);
-                $(rows_wrap).addClass('rows-wrap').append(rows);
-                html.push(rows_wrap);
-            }
-            $('#searchedUsers').html(html);
-            $('.choose-user-wrap .splash-screen').addClass('active');
-        })
-    }
 
     createHomeGroupUsersTable({}, ID);
 
@@ -97,6 +33,7 @@
         $('#searchUserFromDatabase').val('');
         $('.choose-user-wrap .splash-screen').removeClass('active');
         document.querySelector('#searchUserFromDatabase').focus();
+        $('#searchedUsers').css('height', 'auto');
         $('#chooseUserINBases').css('display', 'block');
     });
 
@@ -120,11 +57,12 @@
     });
     $('#searchUserFromDatabase').on('keyup', _.debounce(function () {
         let search = $(this).val();
-        if (search.length < 3) return;
-        let config = {};
-        config.search = search;
-        config.department = HG_ID;
-        makeUsersFromDatabaseList(config, ID);
+        if (search.length > 2) makeUsersFromDatabaseList();
+    }, 500));
+
+    $('input[name="fullsearch"]').on('keyup', _.debounce(function (e) {
+        $('.preloader').css('display', 'block');
+        createHomeGroupUsersTable();
     }, 500));
 
     $('#sort_save').on('click', function () {
@@ -139,7 +77,7 @@
                 $('.preloader').css('display', 'none');
             })
             .catch(function () {
-                showPopup('Ошибка при загрузке файла');
+                showAlert('Ошибка при загрузке файла');
                 $('.preloader').css('display', 'none');
             });
     });
@@ -148,7 +86,7 @@
         lang: 'ru',
         form: '#createUser',
         onError: function (form) {
-          showPopup(`Введены некорректные данные`);
+          showAlert(`Введены некорректные данные`);
           let top = $(form).find('div.has-error').first().offset().top;
           $(form).find('.body').animate({scrollTop: top}, 500);
         },
@@ -228,4 +166,4 @@
         }
     });
 
-})(jQuery);
+});

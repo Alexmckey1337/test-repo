@@ -6,19 +6,17 @@ from common.resources import CustomFieldsModelResource
 from group.models import Church, HomeGroup
 from group.serializers import BASE_GROUP_USER_FIELDS
 
-COMMON_GROUP_RESOURCE_FIELDS = ('title', 'opening_date', 'city', 'address', 'phone_number',
+COMMON_GROUP_RESOURCE_FIELDS = ('get_title', 'opening_date', 'city', 'address', 'phone_number',
                                 'website')
 
 
 class ChurchResource(CustomFieldsModelResource):
     """For excel import/export"""
+    get_title = fields.Field(attribute='title')
 
     class Meta:
         model = Church
         fields = COMMON_GROUP_RESOURCE_FIELDS + ('department', 'pastor', 'country', 'is_open')
-
-    def dehydrate_title(self, church):
-        return church.get_title
 
     def dehydrate_department(self, church):
         return str(church.department)
@@ -32,13 +30,11 @@ class ChurchResource(CustomFieldsModelResource):
 
 class HomeGroupResource(CustomFieldsModelResource):
     """For excel import/export"""
+    get_title = fields.Field(attribute='title')
 
     class Meta:
         model = HomeGroup
         fields = COMMON_GROUP_RESOURCE_FIELDS + ('church', 'leader')
-
-    def dehydrate_title(self, home_group):
-        return home_group.get_title
 
     def dehydrate_church(self, home_group):
         return str(home_group.church)

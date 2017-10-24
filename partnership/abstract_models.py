@@ -4,7 +4,7 @@ from django.db import models
 from partnership.permissions import can_see_partners, can_see_deals, can_see_partner_stats, can_see_deal_payments, \
     can_close_partner_deals, can_create_partner_payments, can_export_partner_list, can_create_deal_for_partner, \
     can_update_partner_need, can_update_deal, can_create_payment_for_partner, can_update_partner, \
-    can_see_partner_summary
+    can_see_partner_summary, can_see_managers_summary
 
 
 class PartnerUserPermission(models.Model):
@@ -99,63 +99,76 @@ class PartnerUserPermission(models.Model):
         """
         return can_update_partner_need(self, partner)
 
+    def can_see_managers_summary(self):
+        """
+        Checking that the ``self`` has the right to see manager's summary
+        """
+        return can_see_managers_summary(self)
+
     @property
     def is_partner(self):
         """
         Checking that the ``self`` user is partner
         """
-        return self._partner() is not None
+        return self.partners.exists()
+
+    @property
+    def has_partner_role(self):
+        """
+        Checking that the ``self`` user is partner
+        """
+        return self._partner_role() is not None
 
     @property
     def is_partner_manager(self):
         """
         Checking that the ``self`` user is manager by partnership
         """
-        partner = self._partner()
-        return self.is_partner and partner.level == settings.PARTNER_LEVELS['manager']
+        partner_role = self._partner_role()
+        return self.has_partner_role and partner_role.level == settings.PARTNER_LEVELS['manager']
 
     @property
     def is_partner_manager_or_high(self):
         """
         Checking that the ``self`` user is one of [manager, supervisor or director] by partnership
         """
-        partner = self._partner()
-        return self.is_partner and partner.level <= settings.PARTNER_LEVELS['manager']
+        partner_role = self._partner_role()
+        return self.has_partner_role and partner_role.level <= settings.PARTNER_LEVELS['manager']
 
     @property
     def is_partner_supervisor(self):
         """
         Checking that the ``self`` user is supervisor by partnership
         """
-        partner = self._partner()
-        return self.is_partner and partner.level == settings.PARTNER_LEVELS['supervisor']
+        partner_role = self._partner_role()
+        return self.has_partner_role and partner_role.level == settings.PARTNER_LEVELS['supervisor']
 
     @property
     def is_partner_supervisor_or_high(self):
         """
         Checking that the ``self`` user is one of [supervisor or director] by partnership
         """
-        partner = self._partner()
-        return self.is_partner and partner.level <= settings.PARTNER_LEVELS['supervisor']
+        partner_role = self._partner_role()
+        return self.has_partner_role and partner_role.level <= settings.PARTNER_LEVELS['supervisor']
 
     @property
     def is_partner_director(self):
         """
         Checking that the ``self`` user is director by partnership
         """
-        partner = self._partner()
-        return self.is_partner and partner.level == settings.PARTNER_LEVELS['director']
+        partner_role = self._partner_role()
+        return self.has_partner_role and partner_role.level == settings.PARTNER_LEVELS['director']
 
-    def is_partner_responsible_of(self, user):
+    def is_partner_responsible_of(self, user_id):
         """
         Checking that the `` self`` user is responsible of ``user``
         """
-        if not isinstance(user, (int, str)):
-            user = user.id
-        partner = self._partner()
-        return self.is_partner and partner.disciples.filter(user_id=user).exists()
+        from partnership.models import Partnership
+        if not isinstance(user_id, (int, str)):
+            user_id = user_id.id
+        return self.is_partner and Partnership.objects.filter(responsible=self, user_id=user_id)
 
     # Helpers
 
-    def _partner(self):
-        return getattr(self, 'partnership', None)
+    def _partner_role(self):
+        return getattr(self, 'partner_role', None)

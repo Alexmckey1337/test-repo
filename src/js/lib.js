@@ -1658,18 +1658,6 @@ function getDivisions() {
     })
 }
 
-function getManagers() {
-    return new Promise(function (resolve, reject) {
-        ajaxRequest(URLS.partner.simple(), null, function (data) {
-            if (data) {
-                resolve(data);
-            } else {
-                reject();
-            }
-        });
-    });
-}
-
 function getIncompleteDeals(data) {
     return new Promise(function (resolve, reject) {
         ajaxRequest(`${URLS.deal.list()}?done=False`, data, function (response) {
@@ -2599,7 +2587,6 @@ function initAddNewUser(config = {}) {
         getStatuses: true,
         getDivisions: true,
         getCountryCodes: true,
-        getManagers: true,
     };
     let $form = $('#createUser'),
         $input = $form.find('input');
@@ -2745,20 +2732,6 @@ function initAddNewUser(config = {}) {
                 let code = $(this).val();
                 $('#phoneNumberCode').val(code);
             }).trigger('change');
-        });
-    }
-    if (configDefault.getManagers) {
-        getManagers().then(function (data) {
-            let rendered = [];
-            let option = document.createElement('option');
-            $(option).val('').text('Выберите менеджера').attr('disabled', true).attr('selected', true);
-            rendered.push(option);
-            data.forEach(function (item) {
-                let option = document.createElement('option');
-                $(option).val(item.id).text(item.fullname);
-                rendered.push(option);
-            });
-            $('#chooseManager').html(rendered).select2();
         });
     }
 
@@ -3570,6 +3543,21 @@ function makeChurchReportsTable(data, config = {}) {
     $('.show_payments').on('click', function () {
         let id = $(this).data('id');
         showChurchPayments(id);
+    });
+    $("button.delete_btn").on('click', function () {
+        let id = $(this).attr('data-id');
+        alertify.confirm('Удаление', 'Вы действительно хотите удалить данный отчет?', function () {
+            deleteChurchPayment(id).then(() => {
+                showAlert('Отчет успешно удален!');
+                $('.preloader').css('display', 'block');
+                let page = $('.pagination__input').val();
+                churchReportsTable({page: page});
+            }).catch((error) => {
+                let errKey = Object.keys(error),
+                    html = errKey.map(errkey => `${error[errkey]}`);
+                showAlert(html[0], 'Ошибка');
+            });
+        }, () => {});
     });
 }
 
@@ -4666,6 +4654,48 @@ function deleteDealsPayment(id) {
         };
     if (typeof url === "string") {
         return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+    }
+}
+
+function deleteChurchPayment(id) {
+    let url = URLS.event.church_report.detail(id),
+        defaultOption = {
+            method: 'DELETE',
+            credentials: 'same-origin',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            })
+        };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(resp => {
+            if (resp.status >= 200 && resp.status < 300) {
+                return resp;
+            } else {
+                let json = resp.json();
+                return json.then(err => {throw err;});
+            }
+        });
+    }
+}
+
+function deleteСhurch(id) {
+    let url = URLS.church.detail(id),
+        defaultOption = {
+            method: 'DELETE',
+            credentials: 'same-origin',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            })
+        };
+    if (typeof url === "string") {
+        return fetch(url, defaultOption).then(resp => {
+            if (resp.status >= 200 && resp.status < 300) {
+                return resp;
+            } else {
+                let json = resp.json();
+                return json.then(err => {throw err;});
+            }
+        });
     }
 }
 

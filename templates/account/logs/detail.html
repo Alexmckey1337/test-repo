@@ -39,8 +39,8 @@
         <script>
             var change_data = {{ log_message.change_data|js|safe }},
                 raw_data = {{ log_message.raw_data|js|safe }};
-            $('#change_data_json').html(JSON.stringify(change_data, null, 4));
-            $('#raw_data_json').html(JSON.stringify(raw_data, null, 4));
+            document.getElementById('change_data_json').innerHTML = JSON.stringify(change_data, null, 4);
+            document.getElementById('raw_data_json').innerHTML = JSON.stringify(raw_data, null, 4);
         </script>
     {% endif %}
 {% endblock %}

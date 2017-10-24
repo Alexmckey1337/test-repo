@@ -77,12 +77,12 @@
         <div class="flex-wrap">
             <div class="splash-screen">
                 <div class="top-text">
-                    <h3><span>←</span> Информация об участнике</h3>
+                    <h3 class="pop_title">Информация об участнике</h3>
                 </div>
                 <div class="padding-wrap">
                     <div class="user-info">
                         <label>
-                            <span class="label-wrapp">Клиент:</span>
+                            <span class="label-wrapp">Участник:</span>
                             <p id="client-name"></p>
                         </label>
                         <label>
@@ -92,14 +92,6 @@
                         <label class="textarea">
                             <textarea placeholder="Добавить коментарий"></textarea>
                         </label>
-{#                        <div class="left-side">#}
-{#                            <p>Клиент:</p>#}
-{#                            <p>Ответственный:</p>#}
-{#                        </div>#}
-{#                        <div class="right-side">#}
-{#                            <p id="client-name"></p>#}
-{#                            <p id="responsible-name"></p>#}
-{#                        </div>#}
                     </div>
                     <div class="splash-bauttons">
                         <button id="close">Отменить</button>
@@ -284,12 +276,9 @@
                 </div>
             </div>
             <div class="container">
-                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
-                                                                              aria-hidden="true"></i>
-                    Очистить
-                </button>
+                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
                 <button class="close-popup">Отменить</button>
-                <button onclick="applyFilter(this, createSummitUsersTable)" class="apply-filter">Применить</button>
+                <button class="apply-filter">Применить</button>
             </div>
         </div>
     </div>
@@ -416,8 +405,6 @@
             <table id="header-fixed"></table>
         </script>
     {% endblock %}
-    <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
-    <script src="{% static "libs/jquery-file-download/src/Scripts/jquery.fileDownload.js" %}"></script>
-    <script src="{% static "js/add_user.js" %}"></script>
-    <script src="{% static "js/summit-detail.js" %}"></script>
+    <script src="{% static "js/add_user.bundle.js" %}"></script>
+    <script src="{% static "js/summit_detail.bundle.js" %}"></script>
 {% endblock %}

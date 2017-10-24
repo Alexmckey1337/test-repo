@@ -45,7 +45,7 @@ class PartnershipTableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Partnership
-        fields = ('id', 'user', 'fullname', 'level', 'is_responsible') + BASE_PARTNER_FIELDS
+        fields = ('id', 'user', 'fullname') + BASE_PARTNER_FIELDS
 
 
 class DealCreateSerializer(serializers.ModelSerializer):

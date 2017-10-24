@@ -12,7 +12,7 @@
             <ul class="nav tabs_link">
                 <li><a class="active" href="{% url 'partner:deals' %}">Сделки</a></li>
                 <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
-                {% if user.is_partner_director %}
+                {% if user.can_see_managers_summary %}
                     <li><a href="{% url 'partner:payments' %}">Таблица платежей</a></li>
                 {% endif %}
                 <li><a href="{% url 'partner:partnership_summary' %}">План по менеджерам</a></li>
@@ -44,7 +44,6 @@
 
 {% block main.content %}
 
-    {% get_simple_managers as managers %}
     <div class="content">
         <div id="sdelki">
             <div class="top-pag">
@@ -141,8 +140,9 @@
                             <span class="label_block">Менеджер</span>
                         {% endif %}
                         {% if request.user.is_partner_supervisor_or_high %}
-                            <select class="selectdb" data-filter="partnership__responsible__user" id="masters_filter">
+                            <select class="selectdb" data-filter="responsible" id="masters_filter">
                                 <option value="">ВСЕ</option>
+                                {% get_simple_managers as managers %}
                                 {% for manager in managers %}
                                     <option value="{{ manager.id }}">{{ manager.fullname }}</option>
                                 {% endfor %}
@@ -192,9 +192,7 @@
                 </div>
             </div>
             <div class="container">
-                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
-                                                                                  aria-hidden="true"></i>
-                    Очистить</button>
+                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
                 <button class="close-popup">Отменить</button>
                 <button class="apply-filter">Применить</button>
             </div>
@@ -211,10 +209,7 @@
 {% endblock %}
 
 {% block extra_scripts %}
-    <script src='{% static "libs/moment/min/moment-with-locales.min.js" %}'></script>
-    <script src='{% static "libs/air-datepicker/dist/js/datepicker.min.js" %}'></script>
-    <script src='{% static "libs/numeral/min/numeral.min.js" %}'></script>
-    <script src='{% static "js/deals.js" %}'></script>
+    <script src='{% static "js/deals.bundle.js" %}'></script>
     {% block template_tables %}
         <script type="text/template" id="databaseDeals">
          <table id="table-1">

@@ -1,4 +1,26 @@
-(function ($) {
+'use strict';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import 'air-datepicker';
+import 'air-datepicker/dist/css/datepicker.css';
+import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
+import 'jquery-form-validator/form-validator/lang/ru.js';
+import URLS from './modules/Urls/index';
+import getData, {deleteData} from "./modules/Ajax/index";
+import ajaxRequest from './modules/Ajax/ajaxRequest';
+import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import updateSettings from './modules/UpdateSettings/index';
+import exportTableData from './modules/Export/index';
+import {showAlert, showConfirm} from "./modules/ShowNotifications/index";
+import {createPayment} from "./modules/Payment/index";
+import {createSummitUsersTable, unsubscribeOfSummit,
+        updateSummitParticipant, registerUser, makePotencialSammitUsersList} from "./modules/Summit/index";
+import {closePopup} from "./modules/Popup/popup";
+import {initAddNewUser, createNewUser} from "./modules/User/addUser";
+import {makePastorListNew, makePastorListWithMasterTree} from "./modules/MakeList/index";
+import {addUserToSummit} from "./modules/User/addUserToSummit";
+
+$(document).ready(function () {
     const $summitUsersList = $('#summitUsersList');
     const SUMMIT_ID = $summitUsersList.data('summit');
 
@@ -27,24 +49,8 @@
     }
 
     $('#export_table').on('click', function () {
-        $('.preloader').css('display', 'block');
-        exportTableData(this).then(function () {
-            $('.preloader').css('display', 'none');
-        });
+        exportTableData(this);
     });
-
-    function addUserToSummit(data) {
-        let id = data.id,
-            fullName = data.fullname,
-            masterFullName = data.master.fullname;
-        let $summitVal = $('#summit-value');
-        let $popup = $('#popup');
-        $summitVal.val("0");
-        $summitVal.attr('readonly', true);
-        $popup.find('textarea').val('');
-        setDataForPopup(id, fullName, masterFullName);
-        $popup.show();
-    }
 
     createSummitUsersTable({summit: SUMMIT_ID});
 
@@ -54,11 +60,10 @@
         $(this).parent().addClass('active')
     });
 
-
-    $("#popup h3 span").on('click', function () {
-        $('#popup').css('display', 'none');
-        $('.choose-user-wrap').css('display', 'block');
-    });
+    // $("#popup h3 span").on('click', function () {
+    //     $('#popup').css('display', 'none');
+    //     $('.choose-user-wrap').css('display', 'block');
+    // });
 
     $("#close").on('click', function () {
         $('#popup').css('display', 'none');
@@ -68,9 +73,11 @@
     $("#closeDelete").on('click', function () {
         $('#popupDelete').css('display', 'none');
     });
+
     $("#close-payment").on('click', function () {
         $('#popup-create_payment').css('display', 'none');
     });
+
     $("#close-payments").on('click', function () {
         $('#popup-payments').css('display', 'none');
         $('#popup-payments table').html('');
@@ -81,6 +88,7 @@
         $('#popup-create_payment textarea').val('');
         $('#popup-create_payment').css('display', '');
     });
+
     $("#popup-payments .top-text span").on('click', function (el) {
         $('#popup-payments').css('display', '');
         $('#popup-payments table').html('');
@@ -117,6 +125,7 @@
     $(".add-user-wrap .top-text span").on('click', function () {
         $('.add-user-wrap').css('display', '');
     });
+
     $("#load-tickets").on('click', function () {
         let summit_id = $('#summitUsersList').data('summit');
         ajaxRequest(URLS.generate_summit_tickets(summit_id), null, function (data) {
@@ -180,6 +189,7 @@
     //     $('.add-user-wrap').css('display', 'none');
     //     document.querySelector('#searchUsers').focus();
     // });
+
     $('#changeSum').on('click', function () {
         $('#summit-value').removeAttr('readonly');
         $('#summit-value').focus();
@@ -191,66 +201,28 @@
     });
 
     $('#preDeleteAnket').on('click', function () {
-        let _self = this;
-        let anketID = $(this).attr('data-anket');
-        let fullName = $('#fullNameCard').text();
-        predeliteAnket(anketID).then(function (data) {
-            $(_self).closest('.pop-up-splash').hide();
-            let div = document.createElement('div');
-            let mainBlock = document.createElement('div');
-            let topText = document.createElement('div');
-            let title = document.createElement('h3');
-            let closePopup = document.createElement('span');
-            let body = document.createElement('div');
-            let user = document.createElement('h2');
-            $(closePopup).addClass('close').addClass('close-popup').text('×').on('click', function () {
-                $(this).closest('.pop-up-universal').hide().remove();
-            });
-            $(title).text('Подтверждение удаления');
-            $(topText).addClass('top-text').append(title).append(closePopup);
-
-            $(mainBlock).addClass('splash-screen').append(topText);
-
-            $(body).addClass('wrap');
-            $(user).text(fullName);
-            $(mainBlock).append(user);
-            let keys = Object.keys(data);
-            let list = document.createElement('dl');
-            $(list).addClass('list__item');
-            keys.forEach(function (item) {
-                let dt = document.createElement('dt');
-                let dd = document.createElement('dd');
-                $(dt).text(item);
-                console.log(data[item]);
-                // data[item].forEach(function (i) {
-                //     $(dd).text(i.length)
-                // });
-                $(dd).text(data[item].length);
-                $(list).append(dt).append(dd);
-            });
-            $(body).append(list);
-            $(mainBlock).append(body);
-            let splashButtons = document.createElement('div');
-            let deleteBtn = document.createElement('button');
-            $(deleteBtn)
-                .addClass('delete_btn')
-                .attr('id', 'deleteAnket')
-                .text('Подтвердить удаление')
-                .on('click', function () {
-                    deleteSummitProfile(anketID).then(function (msg) {
-                        $(div).hide().remove();
-                        setTimeout(() => showPopup(msg), 100);
-                        createSummitUsersTable({summit: SUMMIT_ID});
-                    });
+        let anketID = $(this).attr('data-anket'),
+            fullName = $('#fullNameCard').text();
+        getData(URLS.summit_profile.predelete(anketID)).then(function (data) {
+            let keys = Object.keys(data),
+                msg = `<h3>${fullName}</h3>
+                            <ul class="info">
+                                ${keys.map(item => `<li><strong>${item}:</strong> ${data[item].length}</li>`).join('')}
+                            </ul>`;
+            showConfirm('Подтверждение удаления', msg, function () {
+                deleteData(URLS.summit_profile.detail(anketID)).then(() => {
+                    showAlert('Пользователь удален из саммита');
+                    $('.preloader').css('display', 'block');
+                    createSummitUsersTable({summit: SUMMIT_ID});
+                }).catch(err => {
+                    showAlert('При удалении пользователя произошла ошибка');
+                    console.log(err);
                 });
-            $(splashButtons).addClass('splash-buttons wrap').append(deleteBtn);
-            $(mainBlock).append(splashButtons);
-            $(div).append(mainBlock);
-            showPopupHTML(div);
+            }, () => {});
         }).catch(function (err) {
-            console.log(err);
+            showAlert(err);
         });
-        // closePopup(this);
+        closePopup(this);
     });
 
     $('yes').on('click', function () {
@@ -292,122 +264,55 @@
             description = $('#popup textarea').val(),
             summitID = $('#summitUsersList').data('summit');
         registerUser(userID, summitID, description);
-
         document.querySelector('#popup').style.display = 'none';
     });
 
-    function unsubscribeOfSummit(id) {
-        ajaxRequest(URLS.summit_profile.detail(id), null, function () {
-            let data = {};
-            data['summit'] = summit_id;
-            getUsersList(path, data);
-            document.querySelector('#popupDelete').style.display = 'none';
-        }, 'DELETE', true, {
-            'Content-Type': 'application/json'
-        });
-    }
+    // function create_payment(id, sum, description, rate, currency) {
+    //     let data = {
+    //         "sum": sum,
+    //         "description": description,
+    //         "rate": rate,
+    //         "currency": currency
+    //     };
+    //
+    //     let json = JSON.stringify(data);
+    //
+    //     ajaxRequest(URLS.summit_profile.create_payment(id), json, function (JSONobj) {
+    //         showAlert('Оплата прошла успешно.');
+    //     }, 'POST', true, {
+    //         'Content-Type': 'application/json'
+    //     }, {
+    //         403: function (data) {
+    //             data = data.responseJSON;
+    //             showAlert(data.detail)
+    //         }
+    //     });
+    // }
 
-    function updateSummitParticipant(profileID, data) {
-        updateSummitProfile(profileID, JSON.stringify(data));
-    }
-
-    function registerUser(id, summit_id, description) {
-        let data = {
-            "user": id,
-            "summit": summit_id,
-            "description": description,
-        };
-
-        let json = JSON.stringify(data);
-        registerUserToSummit(json);
-    }
-
-    function create_payment(id, sum, description, rate, currency) {
-        let data = {
-            "sum": sum,
-            "description": description,
-            "rate": rate,
-            "currency": currency
-        };
-
-        let json = JSON.stringify(data);
-
-        ajaxRequest(URLS.summit_profile.create_payment(id), json, function (JSONobj) {
-            showPopup('Оплата прошла успешно.');
-        }, 'POST', true, {
-            'Content-Type': 'application/json'
-        }, {
-            403: function (data) {
-                data = data.responseJSON;
-                showPopup(data.detail)
-            }
-        });
-    }
-
-    function show_payments(id) {
-        ajaxRequest(URLS.summit_profile.list_payments(id), null, function (data) {
-            let payments_table = '';
-            let sum, date_time;
-            data.forEach(function (payment) {
-                sum = payment.effective_sum_str;
-                date_time = payment.created_at;
-                payments_table += `<tr><td>${sum}</td><td>${date_time}</td></tr>`
-            });
-            $('#popup-payments table').html(payments_table);
-            $('#popup-payments').css('display', 'block');
-        }, 'GET', true, {
-            'Content-Type': 'application/json'
-        }, {
-            403: function (data) {
-                data = data.responseJSON;
-                showPopup(data.detail)
-            }
-        });
-    }
-
-    function makePotencialSammitUsersList() {
-        let param = {'summit_id': 7};
-        let search = $('#searchUsers').val();
-        if (search) {
-            param['search'] = search;
-        }
-        console.log(param);
-        param.summit_id = $('#summitUsersList').data('summit');
-        getPotencialSammitUsers(param).then(function (data) {
-            let html = '';
-            data = data.results;
-            for (let i = 0; i < data.length; i++) {
-                html += '<div class="rows-wrap"><button data-master="' + data[i].master_short_fullname + '" data-name="' + data[i].fullname + '" data-id="' + data[i].id + '">Выбрать</button><div class="rows"><div class="col"><p><span><a href="/account/' + data[i].id + '">' + data[i].fullname + '</a></span></p></div><div class="col"><p><span>' + data[i].country + '</span>,<span> ' + data[i].city + '</span></p></div></div></div>';
-            }
-            if (data.length > 0) {
-                $('#searchedUsers').html(html);
-            } else {
-                $('#searchedUsers').html('<div class="rows-wrap"><div class="rows"><p>По запросу не найдено учасников</p></div></div>');
-            }
-            $('.choose-user-wrap .splash-screen').addClass('active');
-            let but = $('.rows-wrap button');
-            but.on('click', function () {
-                let id = $(this).attr('data-id'),
-                    name = $(this).attr('data-name'),
-                    master = $(this).attr('data-master');
-                $('#summit-value').val("0");
-                $('#summit-value').attr('readonly', true);
-                $('#popup textarea').val("");
-                setDataForPopup(id, name, master);
-                $('#popup').css('display', 'block');
-            });
-        });
-    }
-
-
-    function setDataForPopup(id, name, master) {
-        $('#complete').attr('data-id', id);
-        $('#client-name').html(name);
-        $('#responsible-name').html(master);
-    }
+    // function show_payments(id) {
+    //     ajaxRequest(URLS.summit_profile.list_payments(id), null, function (data) {
+    //         let payments_table = '';
+    //         let sum, date_time;
+    //         data.forEach(function (payment) {
+    //             sum = payment.effective_sum_str;
+    //             date_time = payment.created_at;
+    //             payments_table += `<tr><td>${sum}</td><td>${date_time}</td></tr>`
+    //         });
+    //         $('#popup-payments table').html(payments_table);
+    //         $('#popup-payments').css('display', 'block');
+    //     }, 'GET', true, {
+    //         'Content-Type': 'application/json'
+    //     }, {
+    //         403: function (data) {
+    //             data = data.responseJSON;
+    //             showAlert(data.detail)
+    //         }
+    //     });
+    // }
 
     $('#departments_filter').select2();
     $('.select__db').select2();
+
     //    Events
     $("#add").on('click', function () {
         // $('#addUser').css('display', 'block');
@@ -416,8 +321,18 @@
         $('#searchedUsers').html('');
         $('#searchUsers').val('');
         $('.choose-user-wrap .splash-screen').removeClass('active');
+        $('#searchedUsers').css('height', 'auto');
         $('#chooseUserINBases').css('display', 'block');
         document.querySelector('#searchUsers').focus();
+    });
+
+    //Filter
+    $('.apply-filter').on('click', function () {
+        applyFilter(this, createSummitUsersTable);
+    });
+
+    $('.clear-filter').on('click', function () {
+        refreshFilter(this);
     });
 
     $('#departments_filter').on('change', function () {
@@ -425,6 +340,7 @@
         let department_id = parseInt($(this).val()) || null;
         makePastorListNew(department_id, ['#master_tree', '#master']);
     });
+
     $('#master_tree').on('change', function () {
         $('#master').prop('disabled', true);
         let config = {};
@@ -439,15 +355,11 @@
         $('.preloader').css('display', 'block');
         createSummitUsersTable({summit: SUMMIT_ID, page: 1});
     }, 500));
-    // $('input[name="fullsearch"]').keyup(function () {
-    //     let val = $(this).val();
-    //     delay(function () {
-    //         createSummitUsersTable({summit: SUMMIT_ID, page: 1});
-    //     }, 100);
-    // });
+
     $('#searchUsers').on('keyup', _.debounce(function () {
         makePotencialSammitUsersList();
     }, 500));
+
     $('#summitsTypes').find('li').on('click', function () {
         $('.preloader').css('display', 'block');
         let config = {};
@@ -455,10 +367,12 @@
         config.page = 1;
         createSummitUsersTable(config);
     });
+
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
         updateSettings(createSummitUsersTable);
     });
+
     $('#filter_button').on('click', function () {
         $('#filterPopup').css('display', 'block');
     });
@@ -509,4 +423,5 @@
             })
 
     },300));
-})(jQuery);
+
+});

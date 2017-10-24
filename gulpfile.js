@@ -39,18 +39,6 @@ gulp.task('less', function () {
         .pipe(gulp.dest('public/static/css/'));
 });
 
-gulp.task('scripts', function () {
-    return gulp.src(paths.scripts)
-        // .pipe(changed('public/static/js/'))
-        // .pipe(sourcemaps.init())
-        .pipe(babel({
-            presets: ['es2015']
-        }))
-        // .pipe(uglify())
-        // .pipe(sourcemaps.write())
-        .pipe(gulp.dest('public/static/js/'));
-});
-
 gulp.task('images', ['clean'], function () {
     return gulp.src(paths.images)
         .pipe(imagemin({optimizationLevel: 9}))
@@ -64,8 +52,12 @@ gulp.task('font', ['clean'], function () {
 
 gulp.task('watch', function () {
     gulp.watch(paths.styles, ['less']);
-    gulp.watch(paths.scripts, ['scripts']);
     gulp.watch(paths.html, ['html']);
 });
 
-gulp.task('default', ['less', 'scripts', 'watch']);
+gulp.task('default', ['less', 'watch']);
+
+gulp.task('build', function() {
+    gulp.start('less', 'images', 'font');
+});
+

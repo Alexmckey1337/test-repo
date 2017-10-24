@@ -1,13 +1,22 @@
-(function () {
-    "use strict";
+'use strict';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import 'air-datepicker';
+import 'air-datepicker/dist/css/datepicker.css';
+import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import updateSettings from './modules/UpdateSettings/index';
+import exportTableData from './modules/Export/index';
+import {getResponsible, getShortUsers, getPastorsByDepartment} from "./modules/GetList/index";
+import {getPartners} from "./modules/Partner/index";
+
+$(document).ready(function () {
     let $departmentsFilter = $('#departments_filter');
     let $treeFilter = $("#tree_filter");
+
     $('#export_table').on('click', function () {
-        $('.preloader').css('display', 'block');
-        exportTableData(this).then(function () {
-            $('.preloader').css('display', 'none');
-        });
+        exportTableData(this);
     });
+
     $('#accountable').select2();
 
     $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
@@ -21,9 +30,20 @@
         $('.preloader').css('display', 'block');
         updateSettings(getPartners);
     });
+
     $('#filter_button').on('click', function () {
         $('#filterPopup').css('display', 'block');
     });
+
+    //Filter
+    $('.apply-filter').on('click', function () {
+        applyFilter(this, getPartners);
+    });
+
+    $('.clear-filter').on('click', function () {
+        refreshFilter(this);
+    });
+
     $departmentsFilter.on('change', function () {
         let departamentID = $(this).val();
         let config = {
@@ -75,6 +95,7 @@
             }
         });
     });
+
     $treeFilter.on('change', function () {
         let config = {};
         if ($(this).val() != "ВСЕ") {
@@ -95,7 +116,9 @@
             $('#masters_filter').html(options);
         });
     });
+
     $('.selectdb').select2();
+
     $('.select_date_filter').datepicker({
         dateFormat: 'yyyy-mm-dd',
         selectOtherYears: false,
@@ -106,9 +129,11 @@
         autoClose: true,
         position: "left top",
     });
+
     $('.select_rep_date_filter').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true,
         position: "left top",
     });
-}());
+
+});

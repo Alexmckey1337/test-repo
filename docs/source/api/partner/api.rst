@@ -69,7 +69,7 @@ List of partners
             "responsible": {
               "id": 256711,
               "title": "Менеджер",
-              "ordering_title": "responsible__user__last_name",
+              "ordering_title": "responsible__last_name",
               "number": 17,
               "active": true,
               "editable": false
@@ -244,7 +244,6 @@ List of partners
               },
               "responsible": "Bruce Lee",
               "value": "100 €",
-              "is_responsible": false,
               "date": "2017-01-14",
               "fullname": "User Other ",
               "need_text": "",
@@ -274,7 +273,6 @@ List of partners
               },
               "responsible": "Аккаунт Технический №1",
               "value": "114 грн.",
-              "is_responsible": false,
               "date": "2020-04-13",
               "fullname": "User Super ",
               "need_text": "",
@@ -301,7 +299,7 @@ List of partners
                        ``user__region``, ``user__city``, ``user__disrict``,
                        ``user__address``, ``user__skype``, ``user__phone_number``,
                        ``user__email``, ``user__hierarchy__level``,
-                       ``user__facebook``, ``user__vkontakte``, ``value``, ``responsible__user__last_name``
+                       ``user__facebook``, ``user__vkontakte``, ``value``, ``responsible__last_name``
 
     :statuscode 200: no error
 

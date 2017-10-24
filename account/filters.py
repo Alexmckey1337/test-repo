@@ -1,11 +1,12 @@
 import django_filters
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
+from rest_framework import filters
 
 from account.models import CustomUser as User
 from common.filters import BaseFilterByBirthday, BaseFilterMasterTree
 from hierarchy.models import Hierarchy, Department
 from summit.models import Summit
-from rest_framework import filters
 
 
 class FilterByUserBirthday(BaseFilterByBirthday):
@@ -43,7 +44,8 @@ class UserFilter(django_filters.FilterSet):
 
     class Meta:
         model = User
-        fields = ['master', 'hierarchy', 'department', 'repentance_date_from', 'repentance_date_to']
+        fields = ['master', 'hierarchy', 'department', 'repentance_date_from', 'repentance_date_to',
+                  'spiritual_level']
 
 
 class ShortUserFilter(django_filters.FilterSet):
@@ -65,19 +67,46 @@ class UserIsPartnershipFilter(filters.DjangoFilterBackend):
         if is_partner not in ['true', 'false']:
             return queryset
         if is_partner == 'true':
-            return queryset.filter(partnership__isnull=False)
+            return queryset.filter(partners__isnull=False)
         if is_partner == 'false':
-            return queryset.filter(partnership__isnull=True)
-
+            return queryset.filter(partners__isnull=True)
         return queryset
-
-
-from django.db.models import Q
 
 
 class UserChurchFilter(filters.DjangoFilterBackend):
     def filter_queryset(self, request, queryset, view):
         church_id = request.query_params.get('church_id')
-        if not church_id:
-            return queryset
-        return queryset.filter(Q(cchurch_id=church_id) | Q(hhome_group__church_id=church_id))
+
+        if church_id in ['any', 'nothing']:
+            if church_id == 'any':
+                return queryset.filter(Q(cchurch__isnull=False) | Q(hhome_group__church__isnull=False))
+            else:
+                return queryset.filter(Q(cchurch__isnull=True) & Q(hhome_group__church__isnull=True))
+
+        if isinstance(church_id, int):
+            return queryset.filter(Q(cchurch_id=church_id) | Q(hhome_group__church_id=church_id))
+
+        return queryset
+
+
+class UserHomeGroupFilter(filters.DjangoFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        home_group_id = request.query_params.get('home_group_id')
+
+        if home_group_id in ['any', 'nothing']:
+            if home_group_id == 'any':
+                return queryset.filter(hhome_group__isnull=False)
+            else:
+                return queryset.filter(hhome_group__isnull=True)
+
+        return queryset
+
+
+class UserHGLeadersFilter(filters.DjangoFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        user_type = request.query_params.get('user_type')
+
+        if user_type == 'leaders':
+            return queryset.filter(home_group__leader__isnull=False).distinct()
+
+        return queryset

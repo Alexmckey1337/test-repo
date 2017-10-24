@@ -1,3 +1,9 @@
+'use strict';
+import URLS from './modules/Urls/index';
+import {setCookie} from './modules/Cookie/cookie';
+import ajaxRequest from './modules/Ajax/newAjaxRequest';
+import {hidePopup} from './modules/Popup/popup';
+
 let getUrlParameter = function getUrlParameter(sParam) {
     let sPageURL = decodeURIComponent(window.location.search.substring(1)),
         sURLVariables = sPageURL.split('&'),
@@ -11,14 +17,11 @@ let getUrlParameter = function getUrlParameter(sParam) {
         }
     }
 };
+
 function authUser() {
     let username = document.getElementById('login').value;
     let password = document.getElementById('psw').value;
     let remember_me = document.getElementById('save-profile').checked;
-    //let remember = false
-    //	if (remember_me.className == 'checkbox active'){
-    //		remember = true
-    //	}
 
     let data = {
         "username": username,
@@ -47,6 +50,7 @@ function authUser() {
                 document.querySelector(".account .invalid").style.display = 'block'
             }
         }).catch(function (res) {
+            console.log(res);
             let error = JSON.parse(res.responseText);
             let errKey = Object.keys(error);
             let html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`)
@@ -81,51 +85,27 @@ function authUserFunc(config = {}) {
             }
         };
 
-        newAjaxRequest(data, status, reject)
+        ajaxRequest(data, status, reject)
     });
 }
 
 function clearFields() {
-    // document.getElementById('login').value = '';
     document.getElementById('psw').value = '';
 }
-/*
- function loginError(text) {
- document.getElementById('error_alert').innerHTML = '* ' + text;
- document.getElementById('error_alert').style.display = 'block';
- document.getElementById('login').style.border = '1px solid #DC3030'
- document.getElementById('psw').style.border = '1px solid #DC3030'
- }
 
- function clearStyle() {
- document.getElementById('error_alert').style.display = 'none'
- document.getElementById('login_alert').style.display = 'none'
- document.getElementById('pass_alert').style.display = 'none'
- document.getElementById('login').style.border = '1px solid #fff'
- document.getElementById('psw').style.border = '1px solid #fff'
- }
-
- function addErrorStyle(errorId, fieldId) {
- document.getElementById(errorId).style.display = 'block'
- document.getElementById(fieldId).style.border = '1px solid #DC3030'
- }
- */
 function checkEmptyFields(username, password) {
     let empty = false;
     if (username.length == 0) {
-        //  addErrorStyle('login_alert', 'login');
         empty = true;
     }
 
     if (password.length == 0) {
-        //  addErrorStyle('pass_alert', 'psw');
         empty = true;
     }
     return empty;
 }
 
 function logIn() {
-    // clearStyle()
     authUser();
 }
 
@@ -144,5 +124,9 @@ $(document).ready(function () {
         if (e.which == 13) {
             logIn();
         }
+    });
+
+    $('.close').on('click', function () {
+        hidePopup();
     });
 });

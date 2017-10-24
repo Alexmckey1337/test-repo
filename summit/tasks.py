@@ -1,20 +1,23 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from datetime import datetime, timedelta
 from io import BytesIO
 from json import dumps
+from time import sleep, time
 
-import redis
+import requests
+from celery.result import AsyncResult
 from channels import Group
-from dbmail import send_db_mail
+from dbmail import send_db_mail, send_db_sms
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
 
 from edem.settings.celery import app
-from summit.models import SummitAnket, SummitTicket, SummitAttend, AnketStatus
+from notification.backend import RedisBackend
+from summit.models import SummitAnket, SummitTicket, SummitAttend
 from summit.utils import generate_ticket, generate_ticket_by_summit
-import requests
-from datetime import datetime, timedelta
-from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
 
 
 @app.task(ignore_result=True, max_retries=10, default_retry_delay=10 * 60)
@@ -48,6 +51,107 @@ def send_tickets(anket_ids):
             )
 
 
+def send_error(profile_id, sender_id):
+    error_time = int(time())
+    try:
+        r = RedisBackend()
+        r.sadd('summit:email:code:error:{}'.format(sender_id), '{}:{}'.format(profile_id, error_time))
+        r.expire('summit:email:code:error:{}'.format(sender_id), 3 * 24 * 60 * 60)
+    except Exception as err:
+        print(err)
+    profile = SummitAnket.objects.get(pk=profile_id)
+    data = {
+        'type': 'SUMMIT_EMAIL_CODE_ERROR',
+        'profile_id': profile_id,
+        'profile_url': profile.get_absolute_url(),
+        'profile_title': profile.fullname,
+        'time': datetime.fromtimestamp(error_time).strftime('%d.%m.%Y %H:%M'),
+        'user_id': sender_id,
+    }
+    Group("summit_email_code_error_{}".format(sender_id)).send({'text': dumps(data)})
+
+
+@app.task(max_retries=0)
+def send_email_with_code(profile_id, sender_id):
+    profile = SummitAnket.objects.get(pk=profile_id)
+    template = profile.summit.mail_template
+    email = profile.user.email
+    if template and email:
+        try:
+            result = send_db_mail(
+                template.slug,
+                email,
+                {'profile': profile},
+                signals_kwargs={'anket': profile}
+            )
+            if isinstance(result, AsyncResult):
+                check_send_email_with_code_state.apply_async(args=[result.id, profile_id, sender_id])
+        except Exception:
+            send_error(profile_id, sender_id)
+
+
+def get_send_pulse_access_key():
+    url = 'https://api.sendpulse.com/oauth/access_token'
+    keys = {'client_id': settings.SEND_PULSE_CLIENT_ID,
+            'client_secret': settings.SEND_PULSE_CLIENT_SECRET,
+            'grant_type': settings.SEND_PULSE_GRANT_TYPE}
+
+    data = requests.post(url, keys)
+    data = data.json()
+    access_key = {
+        "Authorization": "%s %s" % (data.get('token_type'), data.get('access_token'))
+    }
+
+    return access_key
+
+
+@app.task(ignore_result=True, max_retries=0)
+def send_sms_with_code(profile_id, sender_id):
+    profile = SummitAnket.objects.get(pk=profile_id)
+    template = profile.summit.sms_template
+    # recipient = profile.user.phone_number
+    recipient = "380932875260"
+
+    r = {
+        "recipients": [
+            recipient
+        ],
+        "message": "Текст Viber сообщения",
+        "message_live_time": 60,
+        "sender_id": 1,
+        "send_date": "now",
+        "additional": {
+            "resend_sms": {
+                "status": True,
+                "sms_text": "Текст SMS сообщения",
+                "sms_sender_name": "VOTV"
+            }
+        }
+    }
+
+    if template and recipient:
+        try:
+            result = send_db_sms(
+                slug=template.slug,
+                recipient=recipient,
+            )
+            if isinstance(result, AsyncResult):
+                check_send_email_with_code_state.apply_async(args=[result.id, profile_id, sender_id])
+        except Exception:
+            send_error(profile_id, sender_id)
+
+
+@app.task(ignore_result=True, max_retries=0)
+def check_send_email_with_code_state(task_id, profile_id, sender_id):
+    result = AsyncResult(task_id)
+
+    while not result.ready():
+        sleep(1)
+
+    if result.failed():
+        send_error(profile_id, sender_id)
+
+
 @app.task(ignore_result=True, max_retries=10, default_retry_delay=10 * 60)
 def generate_tickets(summit_id, ankets, ticket_id):
     pdf = generate_ticket_by_summit(ankets)
@@ -70,7 +174,7 @@ def generate_tickets(summit_id, ankets, ticket_id):
         'file': ticket.attachment.url
     }
     try:
-        r = redis.StrictRedis(host='redis', port=6379, db=0)
+        r = RedisBackend()
         r.sadd('summit:ticket:{}'.format(ticket.owner.id), ticket_id)
         r.expire('summit:ticket:{}'.format(ticket.owner.id), 7 * 24 * 60 * 60)
     except Exception as err:

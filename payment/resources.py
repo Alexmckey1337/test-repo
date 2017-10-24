@@ -9,8 +9,8 @@ from payment.models import Payment
 class PaymentResource(CustomFieldsModelResource):
     """For excel import/export"""
     purpose_type = fields.Field(attribute='deals__type')
-    purpose_fio = fields.Field(attribute='deals_partnership__user__last_name')
-    purpose_manager_fio = fields.Field(attribute='deals__partnership__responsible__user__last_name')
+    purpose_fio = fields.Field(attribute='deals__partnership__user__last_name')
+    purpose_manager_fio = fields.Field(attribute='deals__partnership__responsible__last_name')
     purpose_date = fields.Field(attribute='deals__date_created')
     sent_date = fields.Field(attribute='sent_date')
     manager = fields.Field(attribute='manager__user__last_name')
@@ -26,7 +26,7 @@ class PaymentResource(CustomFieldsModelResource):
         )
 
     def dehydrate_purpose_type(self, payment):
-        return _('партнерские') if payment.purpose.get_type_display() == 1 else _('десятина')
+        return _('партнерские') if payment.purpose.type == 1 else _('десятина')
 
     def dehydrate_purpose_date(self, payment):
         return payment.purpose.date_created
@@ -45,7 +45,7 @@ class PaymentResource(CustomFieldsModelResource):
 
     def dehydrate_purpose_manager_fio(self, payment):
         if payment.purpose.responsible:
-            return '%s %s %s' % (payment.purpose.responsible.user.last_name,
-                                 payment.purpose.responsible.user.first_name,
-                                 payment.purpose.responsible.user.middle_name)
+            return '%s %s %s' % (payment.purpose.responsible.last_name,
+                                 payment.purpose.responsible.first_name,
+                                 payment.purpose.responsible.middle_name)
         return ''

@@ -35,7 +35,8 @@ from summit.filters import (FilterByClub, SummitUnregisterFilter, ProfileFilter,
                             FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend,
                             FilterBySummitAttendByDate, FilterByElecTicketStatus, FilterByTime, FilterByDepartment,
                             FilterByMasterTree)
-from summit.pagination import SummitPagination, SummitTicketPagination, SummitStatisticsPagination
+from summit.pagination import (SummitPagination, SummitTicketPagination, SummitStatisticsPagination,
+                               SummitSearchPagination)
 from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report, \
     can_see_report_by_bishop_or_high
 from summit.resources import SummitAnketResource, SummitStatisticsResource
@@ -50,7 +51,7 @@ from .serializers import (
     SummitAnketForTicketSerializer, SummitAnketCodeSerializer,
     SummitAnketStatisticsSerializer,
     MasterSerializer, SummitProfileUpdateSerializer, SummitProfileCreateSerializer)
-from .tasks import generate_tickets
+from .tasks import generate_tickets, send_email_with_code, send_sms_with_code
 
 logger = logging.getLogger(__name__)
 
@@ -386,6 +387,7 @@ class SummitUnregisterUserViewSet(ModelWithoutDeleteViewSet):
     permission_classes = (IsAuthenticated,)
     filter_class = SummitUnregisterFilter
     search_fields = ('first_name', 'last_name', 'middle_name',)
+    pagination_class = SummitSearchPagination
 
 
 class SummitTicketMakePrintedView(GenericAPIView):
@@ -583,6 +585,26 @@ def generate_summit_tickets(request, summit_id):
     logger.info('Update profiles ticket_status: {}'.format(result))
 
     return Response(data={'ticket_id': ticket.id})
+
+
+@api_view(['GET'])
+def send_code(request, profile_id):
+    profile = get_object_or_404(SummitAnket, pk=profile_id)
+    send_method = request.query_params.get('method')
+    if not send_method:
+        return exceptions.ValidationError({'message': 'Parameter {method} must be passed'})
+
+    if send_method == 'email':
+        if not profile.summit.mail_template:
+            return Response(data={'detail': 'Template for summit does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not profile.user.email:
+            return Response(data={'detail': 'Empty email.'}, status=status.HTTP_400_BAD_REQUEST)
+        send_email_with_code.apply_async(args=[profile_id, request.user.id])
+
+    if send_method == 'sms':
+        send_sms_with_code.applay_async(args=[profile_id, request.user.id])
+
+    return Response(data={'profile_id': profile_id})
 
 
 class HistorySummitStatsMixin(GenericAPIView):

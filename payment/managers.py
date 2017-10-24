@@ -92,8 +92,7 @@ class PaymentQuerySet(models.query.QuerySet):
                     CONCAT(au2.last_name, ' ', au2.first_name, ' ', a2.middle_name) as purpose_manager_fio
                     FROM partnership_deal
 
-                    JOIN partnership_partnership p2 on partnership_deal.responsible_id = p2.id
-                    JOIN account_customuser a2 ON p2.user_id = a2.user_ptr_id
+                    JOIN account_customuser a2 on partnership_deal.responsible_id = a2.user_ptr_id
                     JOIN auth_user au2 ON a2.user_ptr_id = au2.id
 
                     WHERE partnership_deal.id = payment_payment.object_id'''

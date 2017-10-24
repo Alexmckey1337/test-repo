@@ -1,10 +1,10 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-import redis
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.conf import settings
 from django.core.exceptions import PermissionDenied, MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Count, Case, When, BooleanField, Q
 from django.http import HttpResponse, Http404
@@ -13,16 +13,17 @@ from django.views import View
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import ContextMixin, TemplateView
 
-from account.models import CustomUser
+from account.models import CustomUser, UserMarker
 from analytics.models import LogRecord
 from event.models import Meeting, ChurchReport
 from event.models import MeetingType
 from group.models import Church, HomeGroup
 from hierarchy.models import Department, Hierarchy
+from notification.backend import RedisBackend
 from partnership.models import Partnership, Deal
 from payment.models import Currency
 from status.models import Division
-from summit.models import SummitType, SummitTicket, SummitAnket, Summit
+from summit.models import SummitType, SummitTicket, SummitAnket, Summit, AnketEmail
 
 
 def entry(request):
@@ -146,7 +147,7 @@ def report_payments(request):
         return redirect('/')
     ctx = {
         'currencies': Currency.objects.all(),
-        'managers': CustomUser.objects.filter(partnership__level__lte=2).distinct(),
+        'managers': CustomUser.objects.filter(partner_role__level__lte=2).distinct(),
         'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
     }
 
@@ -235,7 +236,6 @@ class DealListView(LoginRequiredMixin, CanSeeDealsMixin, TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super(DealListView, self).get_context_data(**kwargs)
 
-        ctx['managers'] = CustomUser.objects.filter(partnership__level__lte=2).distinct()
         ctx['currencies'] = Currency.objects.all()
 
         return ctx
@@ -255,8 +255,9 @@ class PartnerPaymentsListView(LoginRequiredMixin, CanSeeDealPaymentsMixin, Templ
 
         ctx['currencies'] = Currency.objects.all()
         ctx['supervisors'] = CustomUser.objects.filter(checks__isnull=False).distinct()
-        ctx['managers'] = Partnership.objects.filter(Q(
-            level__lte=Partnership.MANAGER) | Q(disciples_deals__isnull=False)).distinct()
+        ctx['managers'] = CustomUser.objects.filter(
+            Q(partner_role__level__lte=settings.PARTNER_LEVELS['manager']) |
+            Q(disciples_deals__isnull=False)).order_by('last_name').distinct()
 
         return ctx
 
@@ -317,7 +318,6 @@ def account(request, id):
         'hierarchies': Hierarchy.objects.order_by('level'),
         'divisions': Division.objects.all(),
         'currencies': currencies,
-        'partners': Partnership.objects.filter(level__lte=Partnership.MANAGER),
         'churches': Church.objects.all(),
         'log_messages': LogRecord.objects.filter(
             object_id=id,
@@ -326,7 +326,16 @@ def account(request, id):
         'log_messages_iam': LogRecord.objects.filter(
             user_id=id,
             content_type=ContentType.objects.get_for_model(user)
-        )
+        ),
+        'partner_log_messages': LogRecord.objects.filter(
+            object_id__in=list(user.partners.values_list('id', flat=True)),
+            content_type=ContentType.objects.get_for_model(Partnership)
+        ),
+        'partner_log_messages_iam': LogRecord.objects.filter(
+            user_id=id,
+            content_type=ContentType.objects.get_for_model(Partnership)
+        ),
+        'markers': UserMarker.objects.all()
     }
     return render(request, 'account/anketa.html', context=ctx)
 
@@ -473,7 +482,7 @@ class SummitTicketListView(LoginRequiredMixin, CanSeeSummitTicketMixin, ListView
     def dispatch(self, request, *args, **kwargs):
         response = super(SummitTicketListView, self).dispatch(request, *args, **kwargs)
         try:
-            r = redis.StrictRedis(host='redis', port=6379, db=0)
+            r = RedisBackend()
             r.srem('summit:ticket:{}'.format(request.user.id), *list(
                 self.get_queryset().values_list('id', flat=True)))
         except Exception as err:
@@ -485,7 +494,7 @@ class SummitTicketListView(LoginRequiredMixin, CanSeeSummitTicketMixin, ListView
         code = self.request.GET.get('code', '')
         qs = super(SummitTicketListView, self).get_queryset()
         try:
-            r = redis.StrictRedis(host='redis', port=6379, db=0)
+            r = RedisBackend()
             ticket_ids = r.smembers('summit:ticket:{}'.format(self.request.user.id))
         except Exception as err:
             ticket_ids = None
@@ -512,7 +521,7 @@ class SummitTicketDetailView(LoginRequiredMixin, CanSeeSummitTicketMixin, Detail
     def dispatch(self, request, *args, **kwargs):
         response = super(SummitTicketDetailView, self).dispatch(request, *args, **kwargs)
         try:
-            r = redis.StrictRedis(host='redis', port=6379, db=0)
+            r = RedisBackend()
             r.srem('summit:ticket:{}'.format(request.user.id), self.object.id)
         except Exception as err:
             print(err)
@@ -525,6 +534,42 @@ class SummitProfileDetailView(LoginRequiredMixin, CanSeeSummitProfileMixin, Deta
     context_object_name = 'profile'
     template_name = 'summit/profile.html'
     login_url = 'entry'
+
+
+class SummitProfileEmailDetailView(LoginRequiredMixin, CanSeeSummitProfileMixin, DetailView):
+    model = AnketEmail
+    context_object_name = 'email'
+    template_name = 'summit/emails/detail.html'
+    login_url = 'entry'
+
+
+class SummitProfileEmailTextView(LoginRequiredMixin, CanSeeSummitProfileMixin, DetailView):
+    model = AnketEmail
+    context_object_name = 'email'
+    template_name = 'summit/emails/text.html'
+    login_url = 'entry'
+
+
+class SummitProfileEmailListView(LoginRequiredMixin, CanSeeSummitProfileMixin, ListView):
+    model = AnketEmail
+    context_object_name = 'emails'
+    template_name = 'summit/emails/list.html'
+    login_url = 'entry'
+
+    profile = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.profile = get_object_or_404(SummitAnket, pk=kwargs.get('profile_id'))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return super().get_queryset().filter(anket=self.profile)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['profile'] = self.profile
+
+        return ctx
 
 
 class SummitBishopReportView(LoginRequiredMixin, CanSeeSummitReportByBishopsMixin, TemplateView):
@@ -644,6 +689,7 @@ class ChurchListView(LoginRequiredMixin, TabsMixin, CanSeeChurchesMixin, Templat
 
         ctx['departments'] = Department.objects.all()
         ctx['currencies'] = Currency.objects.all()
+        ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
 
         return ctx
 
@@ -657,6 +703,7 @@ class HomeGroupListView(LoginRequiredMixin, TabsMixin, CanSeeHomeGroupsMixin, Te
         ctx = super(HomeGroupListView, self).get_context_data(**kwargs)
         ctx['departments'] = Department.objects.all()
         ctx['churches'] = Church.objects.all()
+        ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
 
         return ctx
 
@@ -691,10 +738,10 @@ class ChurchDetailView(LoginRequiredMixin, CanSeeChurchMixin, DetailView):
             'babies_count': church.uusers.filter(
                 spiritual_level=CustomUser.BABY).count() + HomeGroup.objects.filter(
                 church__id=church.id, uusers__spiritual_level=1).count(),
-            'partners_count': church.uusers.filter(partnership__isnull=False).count() + CustomUser.objects.filter(
-                hhome_group__church_id=church.id, partnership__isnull=False).count(),
-            'no_partners_count': church.uusers.filter(partnership__isnull=True).count() + CustomUser.objects.filter(
-                hhome_group__church_id=church.id, partnership__isnull=True).count(),
+            'partners_count': church.uusers.filter(partners__isnull=False).count() + CustomUser.objects.filter(
+                hhome_group__church_id=church.id, partners__isnull=False).count(),
+            'no_partners_count': church.uusers.filter(partners__isnull=True).count() + CustomUser.objects.filter(
+                hhome_group__church_id=church.id, partners__isnull=True).count(),
         }
         ctx.update(extra_context)
 
@@ -716,7 +763,7 @@ class HomeGroupDetailView(LoginRequiredMixin, CanSeeHomeGroupsMixin, DetailView)
             'fathers_count': home_group.uusers.filter(spiritual_level=CustomUser.FATHER).count(),
             'juniors_count': home_group.uusers.filter(spiritual_level=CustomUser.JUNIOR).count(),
             'babies_count': home_group.uusers.filter(spiritual_level=CustomUser.BABY).count(),
-            'partners_count': home_group.uusers.filter(partnership__is_active=True).count(),
+            'partners_count': home_group.uusers.filter(partners__is_active=True).count(),
         }
         ctx.update(extra_context)
 

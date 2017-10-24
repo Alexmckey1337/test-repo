@@ -28,7 +28,7 @@ class PaymentPermission(BasePermission):
             # Temporary solution. Permissions like a partnerships.
             return (
                 (request.user.is_partner_manager_or_high and request.method in SAFE_METHODS and
-                 request.user.is_partner_responsible_of(purpose.partnership.user)) or
+                 request.user.is_partner_responsible_of(purpose.pastor)) or
                 request.user.is_partner_supervisor_or_high)
         return False
 

@@ -8,7 +8,7 @@ from summit.models import AnketEmail
 
 def log_send_ticket_email(*args, **kwargs):
     anket = kwargs.get('anket')
-    instance = kwargs.get('instace')
+    instance = kwargs.get('instance')
     if anket and instance:
         AnketEmail.objects.create(
             anket_id=anket.id,

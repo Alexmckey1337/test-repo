@@ -274,7 +274,7 @@ table .url {
   .edit_plan:disabled + span {
     display: none;
   }
-  tr:nth-last-child(2) {
+  tr:last-child {
     font-weight: 900;
     font-size: 1.1em;
   }
@@ -301,3 +301,115 @@ table .url {
     }
   }
 }
+
+table tr:last-child {
+  td {
+    padding-bottom: 20px;
+  }
+}
+
+.table-wrap__export {
+  .table__count,
+  .pagination {
+    display: none;
+  }
+  .table-wrap {
+    max-height: 400px;
+    overflow-y: scroll;
+  }
+}
+
+#chooseUserINBases {
+  .top-pag {
+    padding-top: 0;
+  }
+}
+
+#potentialUsersList {
+  table {
+    thead th {
+      cursor: auto;
+    }
+    tr td:first-child {
+      overflow: visible;
+      text-overflow: inherit;
+      max-width: 200px;
+    }
+  }
+
+  //tbody td {
+  //  overflow: visible;
+  //}
+}
+
+#managersPlan {
+  .edit_btn:before {
+    content: '\f040';
+    font: 1em FontAwesome;
+    color: #656d78;
+    padding-right: .5em;
+  }
+  .edit {
+    button {
+      top: 0.7em;
+      left: 0.5em;
+    }
+    .edit_btn:hover:before {
+      color: #3caeda;
+    }
+    .edit_plan {
+      margin-left: 1em;
+      background-color: transparent;
+    }
+    &:hover button {
+      opacity: 1;
+      display: none;
+    }
+    &:not(.active):hover .editPlanForm ~ .edit_btn {
+      display: block;
+    }
+    &.active {
+      overflow: visible;
+      .editPlanForm {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 10;
+        background-color: #fbfdff;
+        box-shadow: 0 0 5px 0 rgba(0, 0 ,0 , .75);
+        overflow: hidden;
+        input {
+          border: none;
+          padding: 8px 0;
+          border-bottom: 1px solid #3caeda;
+          color: #2196f3;
+          font-weight: 900;
+        }
+        .btn-block {
+          width: 100%;
+          display: flex;
+          justify-content: space-around;
+          align-items: center;
+          padding: 6px 0;
+          button {
+            position: relative;
+            top: auto;
+            left: auto;
+            display: block;
+            color: #000;
+            font-size: 1em;
+            opacity: 1;
+            transition: .4s color ease;
+            border: 1px solid #000;
+            padding: 5px 10px;
+            &:hover {
+              color: #2196f3;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

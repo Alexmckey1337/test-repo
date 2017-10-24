@@ -80,7 +80,6 @@ const EVENT = {
 const PARTNER = {
     detail: (partnerId) => `/api/v1.1/partnerships/${partnerId}/`,
     list: () => `/api/v1.1/partnerships/`,
-    simple: () => `/api/v1.1/partnerships/simple/`,
     create_payment: (partnerId) => `/api/v1.1/partnerships/${partnerId}/create_payment/`,
     stats_payment: () => `/api/v1.1/partnerships/stats_payments/`,
     stats_deal: () => `/api/v1.1/partnerships/stat_deals/`,
@@ -148,6 +147,7 @@ const URLS = {
     update_columns: () => `/api/v1.0/update_columns/`,
     generate_summit_tickets: (summitId) => `/api/v1.0/generate_summit_tickets/${summitId}/`,
     profile_status: () => `/api/v1.0/summit_attends/anket_active_status/`,
+    exports: () => `﻿/api/v1.0/notifications/exports/`,
     summit: SUMMIT,
     user: USER,
     partner: PARTNER,

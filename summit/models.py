@@ -422,6 +422,9 @@ class AnketEmail(models.Model):
     def __str__(self):
         return '{}: {}'.format(self.created_at, self.anket)
 
+    def get_absolute_url(self):
+        return reverse('summit:profile-email-detail', kwargs={'pk': self.pk})
+
     class Meta:
         ordering = ('-created_at', 'anket')
         verbose_name = _('Anket email')

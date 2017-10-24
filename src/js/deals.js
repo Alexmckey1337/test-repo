@@ -1,12 +1,22 @@
-$(document).ready(function () {
-    "use strict";
+'use strict';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import 'air-datepicker';
+import 'air-datepicker/dist/css/datepicker.css';
+import {showAlert} from "./modules/ShowNotifications/index";
+import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import {DealsTable, updateDealsTable, createDealsPayment, dealsTable, updateDeal} from './modules/Deals/index';
+import getSearch from './modules/Search/index';
+import {getFilterParam} from "./modules/Filter/index";
+import updateSettings from './modules/UpdateSettings/index';
 
-    $('.preloader').show();
+$(document).ready(function () {
+    $('.preloader').css('display', 'block');
     DealsTable({done: 3});
 
     //Tabs
     $('#tabs').find('li').on('click', 'a', function (e) {
-        $('.preloader').show();
+        $('.preloader').css('display', 'block');
         e.preventDefault();
         let status = $(this).attr('data-status');
         let config = {
@@ -18,12 +28,6 @@ $(document).ready(function () {
         $(this).closest('#tabs').find('li').removeClass('current');
         $(this).parent().addClass('current');
     });
-
-    function DealsTable(config) {
-        getDeals(config).then(data => {
-            makeDealsTable(data);
-        });
-    }
 
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
@@ -45,32 +49,38 @@ $(document).ready(function () {
     $("#popup-create_payment .top-text span").on('click', function (el) {
         $('#new_payment_sum').val('');
         $('#popup-create_payment textarea').val('');
-        $('#popup-create_payment').css('display', '');
+        $('#popup-create_payment').css('display', 'none');
     });
 
     $("#popup-payments .top-text span").on('click', function (el) {
-        $('#popup-payments').css('display', '');
+        $('#popup-payments').css('display', 'none');
         $('#popup-payments table').html('');
     });
 
     $('#payment-form').on('submit', function (e) {
         e.preventDefault();
-        let id = $(this).find('button[type="submit"]').attr('data-id'),
+    });
+
+    $('#complete-payment').on('click', _.debounce(function (e) {
+        e.preventDefault();
+        $(this).prop('disabled', true);
+        let id = $(this).attr('data-id'),
             sum = $('#new_payment_sum').val(),
             description = $('#popup-create_payment textarea').val();
-        let data = $(this).serializeArray();
         createDealsPayment(id, sum, description).then(function () {
             updateDealsTable();
             $('#new_payment_sum').val('');
             $('#popup-create_payment textarea').val('');
+            $('#complete-payment').prop('disabled', false);
             $('#popup-create_payment').css('display', 'none');
         }).catch((res) => {
             let error = JSON.parse(res.responseText),
                 errKey = Object.keys(error),
                 html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
-            showPopup(html);
+            $('#complete-payment').prop('disabled', false);
+            showAlert(html);
         });
-    });
+    }, 500));
 
     $('#popup-payments .detail').on('click', function () {
         let url = $(this).attr('data-detail-url');
@@ -105,6 +115,10 @@ $(document).ready(function () {
         applyFilter(this, dealsTable);
     });
 
+    $('.clear-filter').on('click', function () {
+        refreshFilter(this);
+    });
+
     //Update deal
     $("#close-deal").on('click', function (e) {
         e.preventDefault();
@@ -128,7 +142,8 @@ $(document).ready(function () {
         autoClose: true
     });
 
-    $('#send_new_deal').on('click', function () {
+    $('#send_new_deal').on('click', _.debounce(function () {
+        $(this).prop('disabled', true);
     let id = $(this).attr('data-id'),
         description = $('#popup-create_deal textarea').val(),
         value = $('#new_deal_sum').val(),
@@ -148,15 +163,16 @@ $(document).ready(function () {
             dealsTable({page:page});
             showAlert('Редактирование сделки прошло успешно');
             clearDealForm();
+            $('#send_new_deal').prop('disabled', false);
             $('#popup-create_deal').css('display', 'none');
-
         }).catch((err) => {
+            $('#send_new_deal').prop('disabled', false);
             showAlert(err);
         });
     } else {
         showAlert('Заполните поле суммы и дату.');
     }
-});
+}, 500));
 
 });
 

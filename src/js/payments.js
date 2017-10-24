@@ -1,4 +1,16 @@
-(function ($) {
+'use strict';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import 'air-datepicker';
+import 'air-datepicker/dist/css/datepicker.css';
+import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import updateSettings from './modules/UpdateSettings/index';
+import exportTableData from './modules/Export/index';
+import {showAlert, showConfirm} from "./modules/ShowNotifications/index"
+import {createPaymentsTable} from "./modules/Payment/index";
+import {deleteDealsPayment, updateDealsPayment, cleanUpdateDealsPayment} from "./modules/Payment/index";
+
+$(document).ready(function () {
     createPaymentsTable({});
 
     $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
@@ -7,12 +19,9 @@
     }, 500));
 
     $('#export_table').on('click', function () {
-        $('.preloader').css('display', 'block');
         let search = 'search_purpose_fio',
             config = {};
-        exportTableData(this, config, search).then(function () {
-            $('.preloader').css('display', 'none');
-        });
+        exportTableData(this, config, search);
     });
 
     $('#filter_button').on('click', ()=> {
@@ -67,6 +76,7 @@
         updateSettings(createPaymentsTable);
     });
 
+    //Filter
     $('.apply-filter').on('click', function () {
         applyFilter(this, createPaymentsTable);
     });
@@ -86,7 +96,7 @@
     $('#delete-payment').on('click', function (e) {
         e.preventDefault();
         let id = $(this).attr('data-id');
-        alertify.confirm('Удаление', 'Вы действительно хотите удалить данный платеж?', function () {
+        showConfirm('Удаление', 'Вы действительно хотите удалить данный платеж?', function () {
             deleteDealsPayment(id).then(() => {
                 showAlert('Платеж успешно удален!');
                 $('#popup-update_payment').css('display', 'none');
@@ -101,7 +111,12 @@
 
     $('#payment-form').on('submit', function (e) {
         e.preventDefault();
-        let id = $(this).find('button[type="submit"]').attr('data-id'),
+    });
+
+    $('#complete-payment').on('click', _.debounce(function (e) {
+        e.preventDefault();
+        $(this).prop('disabled', true);
+        let id = $(this).attr('data-id'),
             data = {
                 "sum": $('#new_payment_sum').val(),
                 "description": $('#popup-update_payment textarea').val(),
@@ -115,9 +130,11 @@
             $('.preloader').css('display', 'block');
             createPaymentsTable({page: page});
             showAlert('Платеж успешно изменен!');
+            $('#complete-payment').prop('disabled', false);
         }).catch((res) => {
+            $('#complete-payment').prop('disabled', false);
             showAlert(res, 'Ошибка');
         });
-    });
+    }, 500))
 
-})(jQuery);
+});

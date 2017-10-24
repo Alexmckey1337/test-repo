@@ -60,6 +60,8 @@
                         <span class="label_block">Церковь</span>
                         <select class="selectdb" data-filter="church_id" id="church_filter">
                             <option value="">ВСЕ</option>
+                            <option value="any">ЛЮБАЯ</option>
+                            <option value="nothing">НЕТ</option>
                             {% for church in churches %}
                                 <option value="{{ church.id }}">{{ church.get_title }}</option>
                             {% endfor %}
@@ -93,23 +95,23 @@
                         </select>
                      </label>
                     <label>
-                        <span class="label_block">Фильтр по email</span>
+                        <span class="label_block">Email</span>
                         <input type="email" data-filter="search_email" placeholder="email или часть" id="search_email">
                      </label>
                     <label>
-                        <span class="label_block">Фильтр по номеру телефона</span>
+                        <span class="label_block">Номер телефона</span>
                         <input type="tel" data-filter="search_phone_number" placeholder="номер телефона или часть" id="search_phone_number">
                      </label>
                     <label>
-                        <span class="label_block">Фильтр по стране</span>
+                        <span class="label_block">Страна</span>
                         <input type="text" data-filter="search_country" placeholder="страна или часть названия" id="search_country">
                      </label>
                     <label>
-                        <span class="label_block">Фильтр по городу</span>
+                        <span class="label_block">Город</span>
                         <input type="text" data-filter="search_city" placeholder="город или часть названия" id="search_city">
                      </label>
                     <label>
-                        <span class="label_block">Фильтр по дню рождению</span>
+                        <span class="label_block">День рождения</span>
                         <div class="birthday">
                             <input type="text" placeholder="от" data-filter="from_date" id="date_from" class="select_date_filter">
                             <input type="text" placeholder="до" data-filter="to_date" id="date_to" class="select_date_filter">
@@ -117,20 +119,36 @@
                     </label>
                     <label>
                         <span class="label_block">Партнер</span>
-                        <select class="selectdb" data-filter="is_partner" id="partner_filter">
-                                <option value="">ВСЕ</option>
+                        <select class="selectdb select__custom" data-filter="is_partner" id="partner_filter">
+                                <option value="ВСЕ">ВСЕ</option>
                                 <option value="true">Да</option>
                                 <option value="false">Нет</option>
                         </select>
                     </label>
+                    <label>
+                        <span class="label_block">Духовный уровень</span>
+                        <select class="selectdb" id="spir_level_filter" data-filter="spiritual_level">
+                            <option value="">ВСЕ</option>
+                            {% for spiritual_level in spiritual_levels %}
+                                <option value="{{ spiritual_level.id }}">
+                                    {{ spiritual_level.title }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <select data-filter="home_group_id" id="home_group_filter" hidden>
+                        <option value="ВСЕ">ВСЕ</option>
+                        <option value="any">ЛЮБАЯ</option>
+                        <option value="nothing">НЕТ</option>
+                    </select>
+                    <input type="text" data-filter="user_type" placeholder="лидер?" id="user_type_filter" hidden>
                 </div>
             </div>
             <div class="container">
-                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"
-                                                                                  aria-hidden="true"></i>
+                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>
                     Очистить</button>
                 <button class="close-popup">Отменить</button>
-                <button onclick="applyFilter(this, createUsersTable)" class="apply-filter">Применить</button>
+                <button class="apply-filter">Применить</button>
             </div>
         </div>
     </div>
@@ -144,15 +162,14 @@
             </div>
             <div class="container">
                 <button class="close-popup change__text">Отменить</button>
-                <button onclick="saveUser(this)" class="save-user">Сохранить</button>
+                <button class="save-user">Сохранить</button>
             </div>
         </div>
     </div>
 {% endblock %}
 {% block extra_scripts %}
-    <script src="{% static "libs/cropper/dist/cropper.min.js" %}"></script>
-    <script src="{% static "js/add_user.js" %}"></script>
-    <script src="{% static "js/database_users.js" %}"></script>
+    <script src="{% static "js/add_user.bundle.js" %}"></script>
+    <script src="{% static "js/database_users.bundle.js" %}"></script>
     <script type="text/template" id="quickEditCart">
    <div class="container bb-1">
        <div>
@@ -183,9 +200,6 @@
                     <option value="" selected></option>
                 <% } %>
             </select></p>
-{#            <p><label for="departmentSelect">Отдел церкви: </label><input type="text" id="departmentSelect" value="<%=fields.department.value %>" readonly></p> #}
-{#            <p><label for="master_hierarchy">Ответсвенный: </label><input type="text" id="master_hierarchy" value="<%=fields.master_hierarchy.value %>" readonly></p>#}
-{#            <p><label for="hierarchy">Статус: </label><input type="text" id="hierarchy" value="<%=fields.hierarchy.value %>" readonly></p>#}
         </div>
    </div>
     <div class="container">

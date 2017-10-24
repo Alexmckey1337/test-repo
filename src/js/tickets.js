@@ -1,7 +1,8 @@
-/**
- * Created by pluton on 25.04.17.
- */
-(function ($) {
+'use strict';
+import URLS from './modules/Urls/index';
+import {showAlert} from './modules/ShowNotifications/index';
+
+$(document).ready(function () {
     function getParameterByName(name, url) {
         if (!url) url = window.location.href;
         name = name.replace(/[\[\]]/g, "\\$&");
@@ -43,7 +44,7 @@
             .then(function (data) {
                 self.html('Printed');
                 self.removeClass('mark_printed').addClass('is_printed');
-                showPopup(data.detail);
+                showAlert(data.detail);
             })
     });
 
@@ -54,4 +55,4 @@
         }
     });
 
-})(jQuery);
+});

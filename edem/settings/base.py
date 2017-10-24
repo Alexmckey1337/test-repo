@@ -35,7 +35,7 @@ VISITORS_LOCATION_TOKEN = '4ewfeciss6qdbmgfj9eg6jb3fdcxefrs4dxtcdrt10rduds2sn'
 
 DEBUG = env.bool('DJANGO_DEBUG', False)
 
-ALLOWED_HOSTS = ['vocrm.org']
+ALLOWED_HOSTS = ['vocrm.net']
 
 # Application definition
 DJANGO_APPS = (
@@ -232,6 +232,10 @@ REST_FRAMEWORK = {
 SHORT_PAGINATION = 10
 DEFAULT_PAGINATION = 20
 
+SEND_PULSE_GRANT_TYPE = 'client_credentials'
+SEND_PULSE_CLIENT_ID = '2d90c1e2ae67901897d7536b2670bb8f'
+SEND_PULSE_CLIENT_SECRET = '47e1fc014543cde0c1fcb931f9148cc8'
+
 EMAIL_BACKEND = env('DJANGO_EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'testzormail@gmail.com'
@@ -274,25 +278,19 @@ CELERYBEAT_SCHEDULE = {
         'task': 'deals_to_expired',
         'schedule': 3600
     },
-    # Executes every monday evening at 00:05 A.M
-    'create_meetings': {
-        'task': 'create_new_meetings',
+    # Executes every monday evening at 00:00 A.M
+    'processing_home_meetings': {
+        'task': 'processing_home_meetings',
         'schedule': crontab(hour=0, minute=5, day_of_week='mon')
     },
-    # Executes every monday evening at 00:00 A.M
-    'meetings_to_expired': {
-        'task': 'meetings_to_expired',
-        'schedule': crontab(hour=0, minute=0, day_of_week='mon')
-    },
-    # Executes every monday evening at 00:05 A.M
-    'create_new_church_reports': {
-        'task': 'create_new_church_reports',
-        'schedule': crontab(hour=20, minute=5, day_of_week='mon')
-    },
-    # Executes every monday evening at 00:00 A.M
-    'church_reports_to_expired': {
-        'task': 'church_reports_to_expired',
+    # Executes every monday evening at 20:00 A.M
+    'processing_church_reports': {
+        'task': 'processing_church_reports',
         'schedule': crontab(hour=20, minute=0, day_of_week='mon')
+    },
+    'delete_expired_export': {
+        'task': 'delete_expired_export',
+        'schedule': crontab(hour=5, minute=0)
     },
 }
 
@@ -306,7 +304,7 @@ REST_AUTH_SERIALIZERS = {
 OLD_PASSWORD_FIELD_ENABLED = True
 
 # SESSION_COOKIE_AGE = 1
-SITE_DOMAIN_URL = 'http://vocrm.org/'
+SITE_DOMAIN_URL = 'http://vocrm.net/'
 
 # ADMINS = (('Iskander', 'zumichke@gmail.com'), )
 ARCHONS = [1, ]
@@ -370,6 +368,11 @@ LOGGING = {
             'propagate': False,
         },
         'partnership.tasks': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'file'],
+            'propagate': False,
+        },
+        'partner.sql': {
             'level': 'DEBUG',
             'handlers': ['console', 'file'],
             'propagate': False,
@@ -443,3 +446,7 @@ NEW_TICKET_STATUS = {
     'print': 'given',
     'given': 'print',
 }
+
+# Notifications
+
+NOTIFICATION_REDIS_HOST = 'redis'

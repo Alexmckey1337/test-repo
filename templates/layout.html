@@ -49,7 +49,7 @@
                                     {% if user.can_see_deal_payments %}
                                         <li><a href="{% url 'partner:payments' %}">{% trans "Платежи" %}</a></li>
                                     {% endif %}
-                                    {% if user.is_partner_director %}
+                                    {% if user.can_see_managers_summary %}
                                         <li><a href="{% url 'partner:partnership_summary' %}">План по менеджерам</a></li>
                                     {% endif %}
                                     {% if user.can_see_partner_stats %}
@@ -170,16 +170,16 @@
                                             <p>У Вас <span></span> незавершённых сделок</p>
                                         </div>
                                         <div class="bottom-box">
-                                            {% if notifications.birthdays.exists %}
-                                                <p>Сегодня день рождения у:</p>
-                                                <ul id="birthday_notifications">
-                                                    {% for birthday in notifications.birthdays %}
-                                                        <li>
-                                                            <a href="{% url "account:detail" birthday.uid %}">{{ birthday.fullname }}</a>
-                                                        </li>
-                                                    {% endfor %}
-                                                </ul>
-                                            {% endif %}
+{#                                            {% if notifications.birthdays.exists %}#}
+{#                                                <p>Сегодня день рождения у:</p>#}
+{#                                                <ul id="birthday_notifications">#}
+{#                                                    {% for birthday in notifications.birthdays %}#}
+{#                                                        <li>#}
+{#                                                            <a href="{% url "account:detail" birthday.uid %}">{{ birthday.fullname }}</a>#}
+{#                                                        </li>#}
+{#                                                    {% endfor %}#}
+{#                                                </ul>#}
+{#                                            {% endif %}#}
                                             {% if notifications.summit_tickets.exists %}
                                                 <p><a href="{% url "summit:tickets" %}">Сгенерированы новые билеты:</a>
                                                 </p>
@@ -191,10 +191,29 @@
                                                     {% endfor %}
                                                 </ul>
                                             {% endif %}
+                                            {% if notifications.profiles %}
+                                                <p>Возникла ошибка при отправке кода на почту:
+                                                </p>
+                                                <ul id="profile_notifications">
+                                                    {% for profile, date in notifications.profiles %}
+                                                        <li>
+                                                            <a href="{{ profile.get_absolute_url }}">{{ profile.fullname }} ({{ date }})</a>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endif %}
                                             {% if notifications.count == 0 %}
                                                 <p id="without_notifications">На сегодня нет уведомлений</p>
                                             {% endif %}
                                         </div>
+                                    {% if notifications.exports_count %}
+                                        <div id="export_notifications"
+                                             class="notification_row notification_row__export"
+                                             data-type="export">
+                                            <p>Доступный экспорт: <span>{{ notifications.exports_count }}</span>
+                                            </p>
+                                        </div>
+                                    {% endif %}
                                     </div>
                                 </div>
                             {% endblock %}
