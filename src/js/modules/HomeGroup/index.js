@@ -3,6 +3,7 @@ import URLS from '../Urls/index';
 import {CONFIG} from "../config";
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
+import getData, {postData} from "../Ajax/index";
 import {showAlert} from "../ShowNotifications/index";
 import {hidePopup} from "../Popup/popup";
 import {getOrderingData} from "../Ordering/index";
@@ -148,6 +149,7 @@ function saveHomeGroupsData(data, id) {
 
 export function createHomeGroupUsersTable(config = {}, id) {
     Object.assign(config, getOrderingData());
+    Object.assign(config, getSearch('search'));
     if (id === undefined) {
         id = $('#home_group').data('id');
     }
@@ -204,90 +206,114 @@ function getHomeGroupUsers(config, id) {
 }
 
 export function makeUsersFromDatabaseList(config = {}, id) {
-    let $homeGroup = $('#home_group');
-    const CH_ID = $homeGroup.data('church-id');
-    const ID = $homeGroup.data('id');
-    getUsersTOHomeGroup(config, CH_ID).then(function (data) {
-        let users = data;
-        let html = [];
-        if (users.length) {
-            users.forEach(function (item) {
-                let rows_wrap = document.createElement('div');
-                let rows = document.createElement('div');
-                let col_1 = document.createElement('div');
-                let col_2 = document.createElement('div');
-                let place = document.createElement('p');
-                let link = document.createElement('a');
-                let button = document.createElement('button');
-                $(link).attr('href', '/account/' + item.id).text(item.full_name);
-                $(place).text();
-                $(col_1).addClass('col').append(link);
-                $(col_2).addClass('col').append(item.country + ', ' + item.city);
-                $(rows).addClass('rows').append(col_1).append(col_2);
-                $(button).attr({
-                    'data-id': item.id,
-                    'disabled': !item.can_add
-                }).text('Выбрать').on('click', function () {
-                    let id = $(this).data('id');
-                    let config = {};
-                    config.id = id;
-                    let _self = this;
-                    addUserToHomeGroupHG(config).then(function (data) {
-                        $(_self).text('Добавлен').attr('disabled', true);
-                        getHomeGroupStats(ID).then(function (data) {
-                            let keys = Object.keys(data);
-                            keys.forEach(function (item) {
-                                $('#' + item).text(data[item]);
-                            })
-                        });
-                        createHomeGroupUsersTable();
-                    });
-                });
-                $(rows_wrap).addClass('rows-wrap').append(button).append(rows);
-                html.push(rows_wrap);
-            });
+    console.log(config);
+    let $homeGroup = $('#home_group'),
+        param = {
+            search: $('#searchUserFromDatabase').val(),
+            department: $('#home_group').attr('data-departament_id'),
+        };
+        const CH_ID = $homeGroup.attr('data-church-id'),
+          ID = $homeGroup.attr('data-id');
+    Object.assign(config, param);
+    getData(URLS.church.potential_users_group(CH_ID), config).then(data => {
+        let pagination = `<div class="top-pag">
+                              <div class="table__count"></div>
+                              <div class="pagination search_users_pagination"></div>
+                          </div>
+                          <div class="table-wrap clearfix">
+                              <div id="potentialUsersList" class="table scrollbar-inner"></div>
+                          </div>`;
+        let table = `<table>
+                        <thead>
+                            <tr>
+                                <th>ФИО</th>
+                                <th>Страна/город</th>
+                                <th>Действие</th>
+                            </tr>
+                        </thead>
+                        <tbody>${data.results.map(item => {
+            return `<tr>
+                        <td><a target="_blank" href="/account/${item.id}">
+                            ${item.full_name}
+                        </a></td>
+                        <td>${item.country}/${item.city}</td>
+                        <td>
+                            <button data-id="${item.id}"
+                                    ${(!item.can_add) && 'disabled'}>
+                                    Выбрать
+                            </button>
+                        </td>
+                    </tr>`;
+        }).join('')}</tbody></table>`;
+        if (data.results.length > 0) {
+            let count = data.count,
+                page = config.page || 1,
+                pages = Math.ceil(count / CONFIG.pagination_count_small),
+                showCount = (count < CONFIG.pagination_count_small) ? count : data.results.length,
+                text = `Показано ${showCount} из ${count}`,
+                paginationConfig = {
+                    container: ".search_users_pagination",
+                    currentPage: page,
+                    pages: pages,
+                    callback: makeUsersFromDatabaseList
+                };
+            $('#searchedUsers').html(pagination).find('.table__count').text(text);
+            makePagination(paginationConfig);
+            $('#potentialUsersList').html(table);
+            $('.preloader').css('display', 'none');
         } else {
-            let rows_wrap = document.createElement('div');
-            let rows = document.createElement('div');
-            let col_1 = document.createElement('div');
-            $(col_1).text('Пользователь не найден');
-            $(rows).addClass('rows').append(col_1);
-            $(rows_wrap).addClass('rows-wrap').append(rows);
-            html.push(rows_wrap);
+            $('#searchedUsers').html('<div class="rows-wrap"><div class="rows"><p>По запросу учасников не найдено</p></div></div>');
         }
-        $('#searchedUsers').html(html);
         $('.choose-user-wrap .splash-screen').addClass('active');
+        let btn = $('#searchedUsers').find('table').find('button');
+        btn.on('click', function () {
+            let id = $(this).data('id'),
+                config = {
+                user_id: id
+            },
+                _self = this;
+            postData(URLS.home_group.add_user(ID), config).then(() => {
+                $(_self).attr('disabled', true);
+                getData(URLS.home_group.stats(ID)).then(data => {
+                    let keys = Object.keys(data);
+                    keys.forEach(function (item) {
+                        $('#' + item).text(data[item]);
+                    })
+                });
+                createHomeGroupUsersTable();
+            });
+        });
     })
 }
 
-function getUsersTOHomeGroup(config, id) {
-    return new Promise(function (resolve, reject) {
-        ajaxRequest(URLS.church.potential_users_group(id), config, function (data) {
-            if (data) {
-                resolve(data);
-            } else {
-                reject("Ошибка");
-            }
-        });
-    });
-}
-
-function getHomeGroupStats(id) {
-    let resData = {
-        url: URLS.home_group.stats(id)
-    };
-    return new Promise(function (resolve, reject) {
-        let codes = {
-            200: function (data) {
-                resolve(data);
-            },
-            400: function (data) {
-                reject(data);
-            }
-        };
-        newAjaxRequest(resData, codes, reject);
-    });
-}
+// function getUsersTOHomeGroup(config, id) {
+//     return new Promise(function (resolve, reject) {
+//         ajaxRequest(URLS.church.potential_users_group(id), config, function (data) {
+//             if (data) {
+//                 resolve(data);
+//             } else {
+//                 reject("Ошибка");
+//             }
+//         });
+//     });
+// }
+//
+// function getHomeGroupStats(id) {
+//     let resData = {
+//         url: URLS.home_group.stats(id)
+//     };
+//     return new Promise(function (resolve, reject) {
+//         let codes = {
+//             200: function (data) {
+//                 resolve(data);
+//             },
+//             400: function (data) {
+//                 reject(data);
+//             }
+//         };
+//         newAjaxRequest(resData, codes, reject);
+//     });
+// }
 
 export function editHomeGroups(el, id) {
     let data = {

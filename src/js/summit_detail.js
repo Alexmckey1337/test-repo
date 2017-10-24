@@ -212,10 +212,13 @@ $(document).ready(function () {
             showConfirm('Подтверждение удаления', msg, function () {
                 deleteData(URLS.summit_profile.detail(anketID)).then(() => {
                     showAlert('Пользователь удален из саммита');
+                    $('.preloader').css('display', 'block');
                     createSummitUsersTable({summit: SUMMIT_ID});
-                }, () => {
+                }).catch(err => {
+                    showAlert('При удалении пользователя произошла ошибка');
+                    console.log(err);
                 });
-            });
+            }, () => {});
         }).catch(function (err) {
             showAlert(err);
         });
@@ -318,6 +321,7 @@ $(document).ready(function () {
         $('#searchedUsers').html('');
         $('#searchUsers').val('');
         $('.choose-user-wrap .splash-screen').removeClass('active');
+        $('#searchedUsers').css('height', 'auto');
         $('#chooseUserINBases').css('display', 'block');
         document.querySelector('#searchUsers').focus();
     });
