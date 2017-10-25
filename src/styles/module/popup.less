@@ -1084,7 +1084,7 @@ button{
           box-shadow: 0 4px 14px -2px grey;
           height: auto;
           padding:25px 2em;
-          h3{
+          h3 {
             margin-left:15px;
             color: rgba(160, 160, 160, 0.67);
             font-size: 1.5em;
@@ -1092,9 +1092,16 @@ button{
             text-transform: lowercase;
           }
         }
-        .popup_body{
+        .popup_body {
           padding: 0 2em;
-          padding-bottom:50px;
+          padding-bottom: 50px;
+          label input[readonly],
+          label select[disabled=disabled] {
+            border: 1px solid #cdd0d4;
+          }
+          label select[disabled=disabled] {
+            background-color: #eee;
+          }
         }
       }
       .duplicate_users {
@@ -1170,6 +1177,23 @@ button{
         &:hover {
           background-color: #3caeda;
           text-decoration: none;
+        }
+      }
+    }
+    .first_step {
+      .phone {
+        display: flex;
+        #phone {
+          float: left;
+          width: 55% !important;
+        }
+        .comment {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 45%;
+          height: 100%;
+          background-color: #fff;
         }
       }
     }

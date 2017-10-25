@@ -1,11 +1,10 @@
 'use strict';
 import URLS from '../Urls/index';
+import {postData} from "../Ajax/index";
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
-import ajaxSendFormData from '../Ajax/ajaxSendFormData';
 import {dataURLtoBlob} from "../Avatar/index";
-import {getCountries, getRegions, getCities, getDepartments, getResponsible, getStatuses, getDivisions,
-        getCountryCodes} from "../GetList/index";
+import {getCountries, getRegions, getCities, getDepartments, getResponsible, getStatuses, getDivisions} from "../GetList/index";
 import {showAlert} from "../ShowNotifications/index";
 
 export function addUserToHomeGroup(user_id, hg_id, exist = false) {
@@ -54,7 +53,7 @@ export function addUserToChurch(user_id, id, exist = false) {
 
 export function createNewUser(callback) {
     let $createUser = $('#createUser'),
-        $phoneNumber = $('#phoneNumber'),
+        $phoneNumber = $('#phone'),
         $extraPhoneNumbers = $('#extra_phone_numbers'),
         $preloader = $('.preloader');
 
@@ -75,7 +74,7 @@ export function createNewUser(callback) {
 
     formData.append('departments', JSON.stringify($('#chooseDepartment').val()));
     if ($phoneNumber.val()) {
-        let phoneNumber = $('#phoneNumberCode').val() + $phoneNumber.val();
+        let phoneNumber = $phoneNumber.inputmask('unmaskedvalue');
         formData.append('phone_number', phoneNumber)
     }
     if ($extraPhoneNumbers.val()) {
@@ -83,14 +82,14 @@ export function createNewUser(callback) {
     } else {
         formData.append('extra_phone_numbers', JSON.stringify([]));
     }
-    if ($('#partner').is(':checked')) {
-        let partner = {};
-        partner.value = parseInt($('#val_partnerships').val()) || 0;
-        partner.currency = parseInt($('#payment_currency').val());
-        partner.date = $('#partnerFrom').val() || null;
-        partner.responsible = parseInt($("#chooseManager").val());
-        formData.append('partner', JSON.stringify(partner));
-    }
+    // if ($('#partner').is(':checked')) {
+    //     let partner = {};
+    //     partner.value = parseInt($('#val_partnerships').val()) || 0;
+    //     partner.currency = parseInt($('#payment_currency').val());
+    //     partner.date = $('#partnerFrom').val() || null;
+    //     partner.responsible = parseInt($("#chooseManager").val());
+    //     formData.append('partner', JSON.stringify(partner));
+    // }
     let send_image = $('#file').prop("files").length || false;
     if (send_image) {
         try {
@@ -102,38 +101,28 @@ export function createNewUser(callback) {
             console.log(err);
         }
     }
-    let url = URLS.user.list();
-    let config = {
-        url: url,
-        data: formData,
-        method: 'POST'
-    };
 
     $preloader.css('display', 'block');
-    return ajaxSendFormData(config).then(function (data) {
+    console.log('FormData -->',formData);
+    console.log('Departments -->',formData.get('departments'));
+    postData(URLS.user.list(), formData).then(function (data) {
         $preloader.css('display', 'none');
-        // showPopup(`${data.fullname} добален(а) в базу данных`);
         showPopupAddUser(data);
-        $createUser.find('input').each(function () {
-            $(this).val('').attr('disabled', false);
-        });
+        // $createUser.find('input').each(function () {
+        //     $(this).val('').attr('disabled', false);
+        // });
         //Пересмотреть ф-цию очистки
-        $createUser.find('.cleared').each(function () {
-            $(this).find('option').eq(0).prop('selected', true).select2()
-        });
+        // $createUser.find('.cleared').each(function () {
+        //     $(this).find('option').eq(0).prop('selected', true).select2()
+        // });
         $('#addNewUserPopup').css('display', 'none');
         if (callback != null) {
             callback(data);
         }
-    }).catch(function (data) {
+        $('#saveNew').attr('disabled', false);
+    }).catch(function (err) {
         $preloader.css('display', 'none');
-        if (data.phone_number) {
-            showAlert(data.phone_number.message);
-            $('#createUser').css("transform", "translate3d(0px, 0px, 0px)");
-        }
-        if (data.detail) {
-            showAlert(data.detail[0]);
-        }
+        showAlert('Проверьте введенные данные', 'Ошибка');
     });
 }
 
@@ -156,38 +145,43 @@ function showPopupAddUser(data) {
         }
     });
     $('#addPopup').find('.addMore').on('click', function () {
+        let flag = $('#addNewUserPopup').attr('data-flagdepart');
         $('#addPopup').css('display', 'none').remove();
         $('body').addClass('no_scroll');
         $('#addNewUserPopup').find('form').removeClass('active');
-        $('#addNewUserPopup').css('display', 'block');
         clearAddNewUser();
+        if (flag) {
+            initAddNewUser({
+                getDepartments: false,
+            });
+        } else {
+            $('#createUser').find('select#chooseDepartment').select2('destroy').find('option').remove();
+            initAddNewUser();
+        }
+        $('#addNewUserPopup').css('display', 'block');
         $('#addNewUserPopup').find('.body').scrollTop(0);
     });
 }
 
 function clearAddNewUser() {
-    let form = $('#createUser');
-    let flag = $('#addNewUserPopup').attr('data-flagdepart');
-    form.find('#partner').attr('checked', false);
-    form.find('.hidden-partner').hide();
+    let form = $('#createUser'),
+        $select = form.find('#spir_level #church_list');
+    // form.find('#partner').attr('checked', false);
+    // form.find('.hidden-partner').hide();
     form.find('#edit-photo').attr('data-source', '').find('img').attr('src', '/static/img/no-usr.jpg');
     form.find('.anketa-photo').unbind('click');
-    form.find('select:not(#payment_currency, #spir_level, #chooseDepartment).select2-hidden-accessible')
+    form.find('select:not(#payment_currency, #spir_level, #chooseDepartment, #church_list).select2-hidden-accessible')
         .select2('destroy').find('option').remove();
-    if (flag) {
-        initAddNewUser({
-            getDepartments: false,
-        });
-    } else {
-        form.find('select#chooseDepartment').select2('destroy').find('option').remove();
-        initAddNewUser();
-    }
     form.find('#chooseResponsible, #chooseRegion, #chooseCity').attr('disabled', true);
     form.find('input').each(function () {
         $(this).val('');
     });
-    form.find('#spir_level').select2('destroy').find('option').attr('selected', false)
-        .find('option:first-child').attr('selected', true);
+    form.find('.phone .comment').text('');
+    $('#bornDate').val('');
+    $('#repentanceDate').val('');
+    $select.each(function () {
+        $(this).val(null).trigger("change");
+    });
 }
 
 export function initAddNewUser(config = {}) {
@@ -196,13 +190,14 @@ export function initAddNewUser(config = {}) {
         getDepartments: true,
         getStatuses: true,
         getDivisions: true,
-        getCountryCodes: true,
+        // getCountryCodes: true,
     };
     let $form = $('#createUser'),
         $input = $form.find('input');
-    $input.each(function () {
-        $(this).val('');
-    });
+    // $input.each(function () {
+    //     $(this).val('');
+    // });
+    // $form.find('.phone .comment').text('');
     Object.assign(configDefault, config);
     if (configDefault.getCountries) {
         getCountries().then(function (data) {
@@ -326,26 +321,27 @@ export function initAddNewUser(config = {}) {
             $('#chooseDivision').html(rendered).select2();
         });
     }
-    if (configDefault.getCountryCodes) {
-        getCountryCodes().then(function (data) {
-            let codes = data;
-            let rendered = [];
-            codes.forEach(function (item) {
-                let option = document.createElement('option');
-                $(option).val(item.phone_code).text(item.title + ' ' + item.phone_code);
-                if (item.phone_code == '+38') {
-                    $(option).attr('selected', true);
-                }
-                rendered.push(option);
-            });
-            $('#chooseCountryCode').html(rendered).on('change', function () {
-                let code = $(this).val();
-                $('#phoneNumberCode').val(code);
-            }).trigger('change');
-        });
-    }
+    // if (configDefault.getCountryCodes) {
+    //     getCountryCodes().then(function (data) {
+    //         let codes = data;
+    //         let rendered = [];
+    //         codes.forEach(function (item) {
+    //             let option = document.createElement('option');
+    //             $(option).val(item.phone_code).text(item.title + ' ' + item.phone_code);
+    //             if (item.phone_code == '+38') {
+    //                 $(option).attr('selected', true);
+    //             }
+    //             rendered.push(option);
+    //         });
+    //         $('#chooseCountryCode').html(rendered).on('change', function () {
+    //             let code = $(this).val();
+    //             $('#phoneNumberCode').val(code);
+    //         }).trigger('change');
+    //     });
+    // }
 
     $('#spir_level').select2();
+    $('#church_list').select2();
 
     $('#repentance_date').datepicker({
         dateFormat: 'yyyy-mm-dd'
@@ -356,16 +352,16 @@ export function initAddNewUser(config = {}) {
     $('#bornDate').datepicker({
         dateFormat: 'yyyy-mm-dd'
     });
-    $('#chooseCountryCode').select2();
+    // $('#chooseCountryCode').select2();
 
-    $('#partner').on('change', function () {
-        let partner = $(this).is(':checked');
-        if (partner) {
-            $('.hidden-partner').css('display', 'block');
-        } else {
-            $('.hidden-partner').css('display', 'none');
-        }
-    });
+    // $('#partner').on('change', function () {
+    //     let partner = $(this).is(':checked');
+    //     if (partner) {
+    //         $('.hidden-partner').css('display', 'block');
+    //     } else {
+    //         $('.hidden-partner').css('display', 'none');
+    //     }
+    // });
 }
 
 export function addUser2Church(data) {
