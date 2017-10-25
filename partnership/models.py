@@ -131,9 +131,6 @@ class Partnership(PartnershipAbstractModel, AbstractPaymentPurpose, LogModel):
         'value', 'currency', 'date', 'need_text', 'is_active', 'responsible', 'group', 'title'
     )
 
-    class Meta:
-        unique_together = ('user', 'title')
-
     def __str__(self):
         return '{} ({})'.format(self.fullname, self.title) if self.title else self.fullname
 
