@@ -47,6 +47,9 @@
             <div class="popup_body">
             </div>
             <div class="container">
+                {% if user.is_staff %}
+                <button id="delete-hg"></button>
+                {% endif %}
                 <button class="close-popup change__text">Отменить</button>
                 <button class="save-group">Сохранить</button>
             </div>

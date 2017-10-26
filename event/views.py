@@ -43,7 +43,7 @@ REPORTS_SUMMARY_ORDERING_FIELDS = ('last_name', 'master__last_name', 'reports_su
 EVENT_SUMMARY_SEARCH_FIELDS = {'search_fio': ('last_name', 'first_name', 'middle_name')}
 
 
-class MeetingViewSet(ModelWithoutDeleteViewSet, EventUserTreeMixin):
+class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
     queryset = Meeting.objects.select_related('owner', 'type', 'home_group__leader')
 
     serializer_class = MeetingSerializer

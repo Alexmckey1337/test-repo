@@ -10,10 +10,10 @@ import getData from './modules/Ajax/index';
 import parseUrlQuery from './modules/ParseUrl/index';
 import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
-import {showAlert} from "./modules/ShowNotifications/index";
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
 import {createUsersTable} from "./modules/Users/index";
-import {createNewUser, saveUser, initAddNewUser} from "./modules/User/addUser";
+import {saveUser, initAddNewUser} from "./modules/User/addUser";
+import {createNewUser} from "./modules/User/addUser";
 
 $('document').ready(function () {
     let $departmentsFilter = $('#departments_filter'),
@@ -100,25 +100,6 @@ $('document').ready(function () {
         $('#addNewUserPopup').css('display', 'block');
         $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
         initAddNewUser();
-    });
-
-    $.validate({
-        lang: 'ru',
-        form: '#createUser',
-        onError: function (form) {
-            showAlert(`Введены некорректные данные`);
-            let top = $(form).find('div.has-error').first().offset().top;
-            $(form).find('.body').animate({scrollTop: top}, 500);
-        },
-        onSuccess: function (form) {
-            if ($(form).attr('name') == 'createUser') {
-                $(form).find('#saveNew').attr('disabled', true);
-                createNewUser(null).then(function () {
-                    $(form).find('#saveNew').attr('disabled', false);
-                });
-            }
-            return false; // Will stop the submission of the form
-        },
     });
 
     //Filter
@@ -238,5 +219,22 @@ $('document').ready(function () {
         console.log(filterParam);
         filterInit(filterParam);
     }
+
+    $.validate({
+        lang: 'ru',
+        form: '#createUser',
+        onError: function (form) {
+            showAlert(`Введены некорректные данные`);
+            let top = $(form).find('div.has-error').first().offset().top;
+            $(form).find('.body').animate({scrollTop: top}, 500);
+        },
+        onSuccess: function (form) {
+            if ($(form).attr('name') == 'createUser') {
+                $(form).find('#saveNew').attr('disabled', true);
+                createNewUser(null);
+            }
+            return false; // Will stop the submission of the form
+        },
+    });
 
 });

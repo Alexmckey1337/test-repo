@@ -23,6 +23,7 @@ BASE_DIR = environ.Path(__file__) - 3
 env = environ.Env()
 env.read_env(env_file=str(BASE_DIR.path('.env')))
 
+FILEBROWSER_DIRECTORY = 'uploads'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
@@ -109,8 +110,12 @@ CACHES = {
 TINYMCE_DEFAULT_CONFIG = {
     'plugins': "table,spellchecker,paste,searchreplace,fullpage",
     'theme': "advanced",
+    'relative_urls': False,
+    'convert_urls': False,
     'cleanup_on_startup': True,
     'custom_undo_redo_levels': 10,
+    'width': '100%',
+    'height': '1000',
 }
 
 ROOT_URLCONF = 'edem.urls'
@@ -141,6 +146,7 @@ TEMPLATES = [
         },
     },
 ]
+TEMPLATE_DEBUG = DEBUG
 
 WSGI_APPLICATION = 'edem.wsgi.application'
 

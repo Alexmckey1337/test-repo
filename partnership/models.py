@@ -38,16 +38,17 @@ class PartnerRole(models.Model):
                                verbose_name='Manager plan', null=True)
 
     def __str__(self):
-        return '[{}] {}'.format(self.get_level_display(), self.fullname)
+        return '[{}] {}'.format(self.get_level_display(), self.user.fullname)
 
 
+@python_2_unicode_compatible
 class PartnerRoleLog(models.Model):
     user = models.ForeignKey('account.CustomUser', related_name='partner_role_logs', editable=False)
     level = models.PositiveSmallIntegerField(_('Level'), editable=False)
     plan = models.DecimalField(max_digits=12, decimal_places=0, blank=True,
                                verbose_name='Manager plan', null=True, editable=False)
     deleted = models.BooleanField(_('Deleted?'), default=False)
-    log_date = models.DateTimeField(_('Log date'), auto_now_add=True)
+    log_date = models.DateTimeField(_('Log date'), auto_now_add=True, db_index=True)
 
     class Meta:
         verbose_name = _('Partner role Log')
@@ -73,9 +74,15 @@ class PartnerRoleLog(models.Model):
 
 
 @python_2_unicode_compatible
+class PartnerGroup(models.Model):
+    title = models.CharField(_('Partner group'), max_length=255)
+
+    def __str__(self):
+        return self.title
+
+
 class PartnershipAbstractModel(models.Model):
-    value = models.DecimalField(max_digits=12, decimal_places=0,
-                                default=Decimal('0'))
+    value = models.DecimalField(max_digits=12, decimal_places=0, default=Decimal('0'))
     #: Currency of value
     currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
                                  default=get_default_currency, null=True)
@@ -84,8 +91,11 @@ class PartnershipAbstractModel(models.Model):
 
     is_active = models.BooleanField(_('Is active?'), default=True)
 
-    responsible = models.ForeignKey('account.CustomUser', related_name='partner_disciples', null=True, blank=True,
-                                    on_delete=models.PROTECT)
+    responsible = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT, verbose_name=_('Responsible'),
+                                    related_name='partner_disciples', null=True, blank=True)
+    group = models.ForeignKey('partnership.PartnerGroup', on_delete=models.PROTECT, verbose_name=_('Group'),
+                              related_name='partners', null=True, blank=True)
+    title = models.CharField(_('Partner title'), max_length=255, blank=True)
 
     class Meta:
         abstract = True
@@ -109,6 +119,7 @@ class PartnershipAbstractModel(models.Model):
         return self.currency.output_format.format(**format_data)
 
 
+@python_2_unicode_compatible
 class Partnership(PartnershipAbstractModel, AbstractPaymentPurpose, LogModel):
     user = models.ForeignKey('account.CustomUser', related_name='partners')
     #: Payments of the current partner that do not relate to deals of partner
@@ -117,11 +128,11 @@ class Partnership(PartnershipAbstractModel, AbstractPaymentPurpose, LogModel):
     objects = PartnerManager()
 
     tracking_fields = (
-        'value', 'currency', 'date', 'need_text', 'is_active', 'responsible'
+        'value', 'currency', 'date', 'need_text', 'is_active', 'responsible', 'group', 'title'
     )
 
     def __str__(self):
-        return self.fullname
+        return '{} ({})'.format(self.fullname, self.title) if self.title else self.fullname
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -326,8 +337,10 @@ class PartnershipLogs(PartnershipAbstractModel):
                                 verbose_name=_('Partner'))
     responsible = models.ForeignKey('account.CustomUser', related_name='partner_disciples_logs',
                                     null=True, blank=True, on_delete=models.SET_NULL)
+    group = models.ForeignKey('partnership.PartnerGroup', on_delete=models.PROTECT,
+                              related_name='partners_logs', null=True, blank=True)
 
-    log_date = models.DateTimeField(_('Log date'), auto_now_add=True)
+    log_date = models.DateTimeField(_('Log date'), auto_now_add=True, db_index=True)
 
     class Meta:
         verbose_name = _('Partnership Log')
@@ -346,5 +359,7 @@ class PartnershipLogs(PartnershipAbstractModel):
             need_text=partner.need_text,
             is_active=partner.is_active,
             responsible=partner.responsible,
+            group=partner.group,
+            title=partner.title,
             partner=partner,
         )

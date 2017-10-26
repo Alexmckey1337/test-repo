@@ -9,9 +9,11 @@ from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
 from rest_framework import exceptions, filters, status
 from rest_framework.decorators import detail_route
-from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import get_object_or_404, DestroyAPIView, UpdateAPIView, GenericAPIView
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
+from rest_framework.settings import api_settings
+from rest_framework.exceptions import ValidationError
 
 from account.models import CustomUser
 from analytics.decorators import log_perform_create, log_perform_update
@@ -19,17 +21,20 @@ from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
 from partnership.filters import (FilterByPartnerBirthday, DateAndValueFilter, FilterPartnerMasterTreeWithSelf,
-                                 PartnerUserFilter, DealFilterByPaymentStatus)
+                                 PartnerUserFilter, DealFilterByPaymentStatus, PartnerFilterByDateAge)
 from partnership.mixins import (PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin,
                                 PartnerExportViewSetMixin, PartnerStatusReviewMixin, ManagerSummaryMixin)
 from partnership.pagination import PartnershipPagination, DealPagination
 from partnership.permissions import (CanSeeDeals, CanSeePartners, CanCreateDeals, CanUpdateDeals,
-                                     CanUpdatePartner, CanUpdateManagersPlan)
+                                     CanUpdatePartner, CanUpdateManagersPlan, CanCreateUpdatePartnerGroup,
+                                     CanSeePartnerGroups, CanCreatePartnerRole, CanDeletePartnerRole,
+                                     CanUpdatePartnerRole)
 from partnership.resources import PartnerResource
-from .models import Partnership, Deal, PartnershipLogs, PartnerRoleLog
+from .models import Partnership, Deal, PartnershipLogs, PartnerRoleLog, PartnerGroup, PartnerRole
 from .serializers import (DealSerializer, PartnershipUpdateSerializer, DealCreateSerializer,
                           PartnershipTableSerializer, DealUpdateSerializer,
-                          PartnershipCreateSerializer, PartnershipSerializer)
+                          PartnershipCreateSerializer, PartnershipSerializer, PartnerGroupSerializer,
+                          PartnerRoleSerializer, CreatePartnerRoleSerializer)
 
 
 class PartnershipViewSet(
@@ -50,6 +55,7 @@ class PartnershipViewSet(
                        FieldSearchFilter,
                        FilterByPartnerBirthday,
                        FilterPartnerMasterTreeWithSelf,
+                       PartnerFilterByDateAge,
                        filters.OrderingFilter,)
     filter_fields = ('user', 'responsible')
     ordering_fields = ('user__first_name', 'user__last_name', 'user__master__last_name',
@@ -58,7 +64,7 @@ class PartnershipViewSet(
                        'user__address', 'user__skype', 'user__phone_number',
                        'user__email', 'user__hierarchy__level',
                        'user__facebook',
-                       'user__vkontakte', 'value', 'responsible__last_name')
+                       'user__vkontakte', 'value', 'responsible__last_name', 'group', 'group__title')
     field_search_fields = {
         'search_fio': ('user__last_name', 'user__first_name', 'user__middle_name', 'user__search_name'),
         'search_email': ('user__email',),
@@ -148,6 +154,23 @@ class PartnershipViewSet(
         return Response({'message': 'План менеджера успешно установлен в %s' % manager.partner_role.plan})
 
 
+class PartnerGroupViewSet(ModelWithoutDeleteViewSet):
+    queryset = PartnerGroup.objects.order_by('title')
+    serializer_class = PartnerGroupSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('title',)
+    permission_classes = (IsAdminUser,)
+    permission_create_update_classes = (IsAuthenticated, CanCreateUpdatePartnerGroup)
+    permission_list_classes = (IsAuthenticated, CanSeePartnerGroups)
+
+    def get_permissions(self):
+        if self.action in ('list', 'retrieve'):
+            return [permission() for permission in self.permission_list_classes]
+        if self.action in ('update', 'partial_update', 'create'):
+            return [permission() for permission in self.permission_create_update_classes]
+        return super().get_permissions()
+
+
 class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, DealCreatePaymentMixin,
                   DealListPaymentMixin, PartnerStatusReviewMixin):
     queryset = Deal.objects.base_queryset(). \
@@ -224,3 +247,68 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
         self.partnership_status_review(self.get_object().partnership)
 
         return response
+
+
+class CheckPartnerLevelMixin:
+    def check_partner_level(self, serializer):
+        if (not self.request.user.has_partner_role or
+                    serializer.initial_data.get('level') < self.request.user.partner_role.level):
+            raise ValidationError({'detail': _('Вы не можете назначать пользователям уровень выше вашего.')})
+
+
+class SetPartnerRoleView(CheckPartnerLevelMixin, GenericAPIView):
+    queryset = PartnerRole.objects.all()
+    serializer_class = CreatePartnerRoleSerializer
+    permission_classes = (IsAuthenticated, CanCreatePartnerRole)
+    user = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.user = kwargs.get('user_id')
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        data = request.data.copy()
+        data['user'] = self.user
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_create(self, serializer):
+        self.check_partner_level(serializer)
+        partner_role = serializer.save()
+        PartnerRoleLog.log_partner_role(partner_role)
+
+    def get_success_headers(self, data):
+        try:
+            return {'Location': data[api_settings.URL_FIELD_NAME]}
+        except (TypeError, KeyError):
+            return {}
+
+
+class DeletePartnerRoleView(DestroyAPIView):
+    queryset = PartnerRole.objects.all()
+    serializer_class = PartnerRoleSerializer
+    permission_classes = (IsAuthenticated, CanDeletePartnerRole)
+
+    lookup_field = 'user_id'
+
+    def perform_destroy(self, instance):
+        if instance.user.partners.exists():
+            raise ValidationError({'detail': _('Пользователь является ответственным по партнерам')})
+        PartnerRoleLog.delete_partner_role(instance)
+        instance.delete()
+
+
+class UpdatePartnerRoleView(CheckPartnerLevelMixin, UpdateAPIView):
+    queryset = PartnerRole.objects.all()
+    serializer_class = PartnerRoleSerializer
+    permission_classes = (IsAuthenticated, CanUpdatePartnerRole)
+
+    lookup_field = 'user_id'
+
+    def perform_update(self, serializer):
+        self.check_partner_level(serializer)
+        partner_role = serializer.save()
+        PartnerRoleLog.log_partner_role(partner_role)

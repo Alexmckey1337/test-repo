@@ -8,6 +8,11 @@ import 'cropper/dist/cropper.css';
 import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
 import 'jquery-form-validator/form-validator/lang/ru.js';
 import 'hint.css/hint.min.css';
+import 'inputmask/dist/inputmask/dependencyLibs/inputmask.dependencyLib.jquery.js';
+import 'inputmask/dist/inputmask/inputmask.js';
+import 'inputmask/dist/inputmask/jquery.inputmask.js';
+import 'inputmask/dist/inputmask/inputmask.phone.extensions.js';
+import 'inputmask/dist/inputmask/phone-codes/phone.js';
 import {updateUser, updateOrCreatePartner} from './modules/User/updateUser';
 import {makeResponsibleList} from './modules/MakeList/index';
 import getLastId from './modules/GetLastId/index';
@@ -437,8 +442,17 @@ $('#sendNote').on('click', function () {
         e.preventDefault();
         if (($(this).closest('form').attr('name') == 'editHierarchy') && ($('#selectResponsible').val() == null)) {
             showAlert('Выберите ответственного');
-            return
+
+            return;
         }
+        console.log( 'Valid-->',$('#phone_number').inputmask("isComplete") );
+
+        if (($(this).closest('form').attr('name') == 'editContact') && (!$('#phone_number').inputmask("isComplete")) ) {
+            showAlert('Введите коректный номер телефона');
+
+            return;
+        }
+
         $(this).closest('form').find('.edit').removeClass('active');
         let _self = this;
         let $block = $(this).closest('.right-info__block');
@@ -702,6 +716,12 @@ $('#sendNote').on('click', function () {
     });
 
     AddColorMarkers();
+
+    $('#phone_number').inputmask('phone', {
+        onKeyValidation: function () {
+            $(this).next().text($(this).inputmask("getmetadata")["name_ru"]);
+        }
+    });
 
     // $('label[for="master"]').on('click', function () {
     //     let id = $('#selectResponsible').find('option:selected').val();

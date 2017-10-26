@@ -4,7 +4,8 @@ import 'select2/dist/css/select2.css';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
 import URLS from './modules/Urls/index';
-import getData from './modules/Ajax/index';
+import getData, {deleteData} from './modules/Ajax/index';
+import {showAlert, showConfirm} from "./modules/ShowNotifications/index";
 import {updateLeaderSelect} from "./modules/GetList/index";
 import {addHomeGroup, saveHomeGroups, clearAddHomeGroupData, createHomeGroupsTable} from "./modules/HomeGroup/index";
 import {makePastorList} from "./modules/MakeList/index";
@@ -199,6 +200,25 @@ $('document').ready(function () {
 
     $('#addHomeGroup').find('form').on('submit', function (event) {
         addHomeGroup(event, this, createHomeGroupsTable);
+    });
+
+    $('#delete-hg').on('click', function (e) {
+        e.preventDefault();
+        let id = parseInt($('#homeGroupsID').val());
+        showConfirm('Удаление', 'Вы действительно хотите удалить данную дом. группу?', function () {
+            deleteData(URLS.home_group.detail(id)).then(() => {
+                showAlert('Домашняя группа успешно удалена!');
+                $('#quickEditCartPopup').css('display', 'none');
+                $('.preloader').css('display', 'block');
+                let page = $('.pagination__input').val();
+                createHomeGroupsTable({page: page});
+            }).catch((error) => {
+                let errKey = Object.keys(error),
+                    html = errKey.map(errkey => `${error[errkey]}`);
+                showAlert(html[0], 'Ошибка');
+            });
+        }, () => {
+        });
     });
 
     //Parsing URL
