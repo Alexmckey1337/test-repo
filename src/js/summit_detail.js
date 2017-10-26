@@ -383,9 +383,7 @@ $(document).ready(function () {
         onSuccess: function (form) {
             if ($(form).attr('name') == 'createUser') {
                 $(form).find('#saveNew').attr('disabled', true);
-                createNewUser(addUserToSummit).then(function () {
-                    $(form).find('#saveNew').attr('disabled', false);
-                });
+                createNewUser(addUserToSummit);
             }
             return false; // Will stop the submission of the form
         }

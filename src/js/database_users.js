@@ -3,6 +3,8 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
+import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
+import 'jquery-form-validator/form-validator/lang/ru.js';
 import URLS from './modules/Urls/index';
 import getData from './modules/Ajax/index';
 import parseUrlQuery from './modules/ParseUrl/index';
@@ -11,6 +13,7 @@ import exportTableData from './modules/Export/index';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
 import {createUsersTable} from "./modules/Users/index";
 import {saveUser, initAddNewUser} from "./modules/User/addUser";
+import {createNewUser} from "./modules/User/addUser";
 
 $('document').ready(function () {
     let $departmentsFilter = $('#departments_filter'),
@@ -216,5 +219,22 @@ $('document').ready(function () {
         console.log(filterParam);
         filterInit(filterParam);
     }
+
+    $.validate({
+        lang: 'ru',
+        form: '#createUser',
+        onError: function (form) {
+            showAlert(`Введены некорректные данные`);
+            let top = $(form).find('div.has-error').first().offset().top;
+            $(form).find('.body').animate({scrollTop: top}, 500);
+        },
+        onSuccess: function (form) {
+            if ($(form).attr('name') == 'createUser') {
+                $(form).find('#saveNew').attr('disabled', true);
+                createNewUser(null);
+            }
+            return false; // Will stop the submission of the form
+        },
+    });
 
 });

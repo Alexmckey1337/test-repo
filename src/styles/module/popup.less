@@ -1213,6 +1213,43 @@ button{
         position: relative;
         z-index: 1;
       }
+      #phones {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        .phone {
+          display: flex;
+          margin-bottom: 3px;
+          .extra_phone_numbers {
+            float: left;
+            width: 55% !important;
+          }
+          .comment {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 45%;
+            height: 100%;
+            background-color: #fff;
+          }
+        }
+      }
+      #addExtraPhone {
+        position: absolute;
+        left: -21px;
+        top: 5px;
+        display: block;
+        width: 5px;
+        height: 5px;
+        cursor: pointer;
+        background-color: #fff;
+        &::before {
+          font: 1.5em FontAwesome;
+          content: '\f055';
+          z-index: 10;
+          color: #3caeda;
+        }
+      }
     }
     .select2-search__field{
       height: 15px;

@@ -14,7 +14,6 @@ import 'inputmask/dist/inputmask/phone-codes/phone.js';
 import {showAlert} from "./modules/ShowNotifications/index";
 import {handleFileSelect} from "./modules/Avatar/index";
 import {makeDuplicateCount, makeDuplicateUsers} from "./modules/User/findDuplicate";
-import {createNewUser} from "./modules/User/addUser";
 
 $('document').ready(function () {
     let flagCroppImg = false,
@@ -55,17 +54,17 @@ $('document').ready(function () {
 
     });
 
+    // $("#firsVisit").datepicker().datepicker({
+    //     dateFormat: 'yyyy-mm-dd',
+    //     maxDate: new Date(),
+    //     setDate: new Date(),
+    //     autoClose: true,
+    // });
+
     $("#bornDate").datepicker({
         minDate: new Date(new Date().setFullYear(new Date().getFullYear() - 120)),
         maxDate: new Date(),
         dateFormat: 'yyyy-mm-dd',
-        autoClose: true,
-    });
-
-    $("#firsVisit").datepicker().datepicker({
-        dateFormat: 'yyyy-mm-dd',
-        maxDate: new Date(),
-        setDate: new Date(),
         autoClose: true,
     });
 
@@ -75,20 +74,71 @@ $('document').ready(function () {
         setDate: new Date(),
         position: 'top left',
         autoClose: true,
+        onSelect: function (formattedDate) {
+            (formattedDate) && $('#spir_level').prop('disabled', false);
+        }
     });
 
-    $('#partnerFrom').datepicker({
-        dateFormat: 'yyyy-mm-dd',
-        maxDate: new Date(),
-        setDate: new Date(),
-        autoClose: true,
-    });
+        // $('#repentanceDate').datepicker({
+    //     dateFormat: 'yyyy-mm-dd',
+    //     onSelect: function (formattedDate) {
+    //         (formattedDate) && $('#spir_level').prop('disabled', false);
+    //     }
+    // });
+    //
+    // $('#bornDate').datepicker({
+    //     dateFormat: 'yyyy-mm-dd'
+    // });
 
+    // $('#partnerFrom').datepicker({
+    //     dateFormat: 'yyyy-mm-dd',
+    //     maxDate: new Date(),
+    //     setDate: new Date(),
+    //     autoClose: true,
+    // });
     $('#phone').inputmask('phone', {
         onKeyValidation: function () {
             $(this).next().text($(this).inputmask("getmetadata")["name_ru"]);
         }
     });
+
+    $('#extra_phone').find('.extra_phone_numbers').inputmask('phone', {
+        onKeyValidation: function () {
+            $(this).next().text($(this).inputmask("getmetadata")["name_ru"]);
+        },
+        "clearIncomplete": true,
+        // "onincomplete": function () {
+        //     console.log('INCOMPLETE');
+        //     return flagCorrectPhone = true;
+        // },
+        // "oncomplete": function () {
+        //     console.log('COMPLETE');
+        //     return flagCorrectPhone = false;
+        // },
+        // "oncleared": function () {
+        //     console.log('CLEAR');
+        //     return flagCorrectPhone = false;
+        // }
+    });
+
+    $('#addExtraPhone').on('click', function () {
+        let el = `<div class="phone phone_duplicate">
+                    <input type="text" class="extra_phone_numbers">
+                    <span class="comment"></span>
+                 </div>`;
+        $('#phones').append(el);
+        addMaskToInput();
+    });
+
+    function addMaskToInput() {
+        let input = $('#phones .phone:last-child').find('input');
+        input.inputmask('phone', {
+            onKeyValidation: function () {
+                $(this).next().text($(this).inputmask("getmetadata")["name_ru"]);
+            },
+            "clearIncomplete": true,
+        });
+    }
 
     $('#partner').on('change', function () {
         $('.hidden-partner').toggle();
@@ -191,20 +241,4 @@ $('document').ready(function () {
         });
     });
 
-    $.validate({
-        lang: 'ru',
-        form: '#createUser',
-        onError: function (form) {
-            showAlert(`Введены некорректные данные`);
-            let top = $(form).find('div.has-error').first().offset().top;
-            $(form).find('.body').animate({scrollTop: top}, 500);
-        },
-        onSuccess: function (form) {
-            if ($(form).attr('name') == 'createUser') {
-                $(form).find('#saveNew').attr('disabled', true);
-                createNewUser(null);
-            }
-            return false; // Will stop the submission of the form
-        },
-    });
 });

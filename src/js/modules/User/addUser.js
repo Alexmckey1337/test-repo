@@ -1,8 +1,9 @@
 'use strict';
 import URLS from '../Urls/index';
-import {postData} from "../Ajax/index";
+import getData from '../Ajax/index';
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
+import ajaxSendFormData from '../Ajax/ajaxSendFormData';
 import {dataURLtoBlob} from "../Avatar/index";
 import {getCountries, getRegions, getCities, getDepartments, getResponsible, getStatuses, getDivisions} from "../GetList/index";
 import {showAlert} from "../ShowNotifications/index";
@@ -52,36 +53,47 @@ export function addUserToChurch(user_id, id, exist = false) {
 }
 
 export function createNewUser(callback) {
-    let $createUser = $('#createUser'),
-        $phoneNumber = $('#phone'),
-        $extraPhoneNumbers = $('#extra_phone_numbers'),
-        $preloader = $('.preloader');
+    let $phoneNumber = $('#phone'),
+        $extraPhoneNumbers = $('.extra_phone_numbers'),
+        $preloader = $('.preloader'),
+        oldForm = document.forms.createUser,
+        formData = new FormData(oldForm),
+        divisions = $('#chooseDivision').val() || [],
+        spirLevel = $('#spir_level').val() || null,
+        church = $('#church_list').val() || null,
+        hG = $('#home_groups_list').val() || null,
+        send_image = $('#file').prop("files").length || false,
+        url = URLS.user.list(),
+        arrPhones = [],
+        config = {
+            url: url,
+            data: formData,
+            method: 'POST'
+        };
 
-    let oldForm = document.forms.createUser;
-    let formData = new FormData(oldForm);
-    // if ($('#division_drop').val()) {
-    //     formData.append('divisions', JSON.stringify($('#chooseDivision').val()));
-    // } else {
-    //     formData.append('divisions', JSON.stringify([]));
-    // }
-    let divisions = $('#chooseDivision').val() || [];
     formData.append('divisions', JSON.stringify(divisions));
 
-    let spirLevel = $('#spir_level').val() || null;
-    if (spirLevel !== 'Выберите духовный уровень') {
+    if (spirLevel !== null) {
         formData.append('spiritual_level', spirLevel);
     }
 
     formData.append('departments', JSON.stringify($('#chooseDepartment').val()));
+
     if ($phoneNumber.val()) {
         let phoneNumber = $phoneNumber.inputmask('unmaskedvalue');
         formData.append('phone_number', phoneNumber)
     }
-    if ($extraPhoneNumbers.val()) {
-        formData.append('extra_phone_numbers', JSON.stringify($extraPhoneNumbers.val().split(',').map((item) => item.trim())));
-    } else {
-        formData.append('extra_phone_numbers', JSON.stringify([]));
-    }
+
+    // (church) && formData.append('churches_title', JSON.stringify(church));
+    // (hG) && formData.append('home_groups', JSON.stringify(hG));
+
+    $extraPhoneNumbers.each(function () {
+        if ($(this).inputmask("isComplete")) {
+            let val = $(this).inputmask('unmaskedvalue');
+            arrPhones.push(val);
+        }
+    });
+    formData.append('extra_phone_numbers', JSON.stringify(arrPhones));
     // if ($('#partner').is(':checked')) {
     //     let partner = {};
     //     partner.value = parseInt($('#val_partnerships').val()) || 0;
@@ -90,7 +102,6 @@ export function createNewUser(callback) {
     //     partner.responsible = parseInt($("#chooseManager").val());
     //     formData.append('partner', JSON.stringify(partner));
     // }
-    let send_image = $('#file').prop("files").length || false;
     if (send_image) {
         try {
             let blob;
@@ -103,18 +114,9 @@ export function createNewUser(callback) {
     }
 
     $preloader.css('display', 'block');
-    console.log('FormData -->',formData);
-    console.log('Departments -->',formData.get('departments'));
-    postData(URLS.user.list(), formData).then(function (data) {
+    ajaxSendFormData(config).then(function (data) {
         $preloader.css('display', 'none');
         showPopupAddUser(data);
-        // $createUser.find('input').each(function () {
-        //     $(this).val('').attr('disabled', false);
-        // });
-        //Пересмотреть ф-цию очистки
-        // $createUser.find('.cleared').each(function () {
-        //     $(this).find('option').eq(0).prop('selected', true).select2()
-        // });
         $('#addNewUserPopup').css('display', 'none');
         if (callback != null) {
             callback(data);
@@ -122,7 +124,8 @@ export function createNewUser(callback) {
         $('#saveNew').attr('disabled', false);
     }).catch(function (err) {
         $preloader.css('display', 'none');
-        showAlert('Проверьте введенные данные', 'Ошибка');
+        showAlert(`Проверьте коректность введенных данных: ${err.detail[0]}`, 'Ошибка');
+        $('#saveNew').attr('disabled', false);
     });
 }
 
@@ -135,8 +138,6 @@ function showPopupAddUser(data) {
         e.preventDefault();
         $('#addPopup').css('display', 'none').remove();
         $('#addNewUserPopup').find('form').removeClass('active');
-        clearAddNewUser();
-        $('#addNewUserPopup').find('.body').scrollTop(0);
         if ($(this).is('a')) {
             let url = $(this).attr('href');
             setTimeout(function () {
@@ -149,7 +150,7 @@ function showPopupAddUser(data) {
         $('#addPopup').css('display', 'none').remove();
         $('body').addClass('no_scroll');
         $('#addNewUserPopup').find('form').removeClass('active');
-        clearAddNewUser();
+        // clearAddNewUser();
         if (flag) {
             initAddNewUser({
                 getDepartments: false,
@@ -165,23 +166,30 @@ function showPopupAddUser(data) {
 
 function clearAddNewUser() {
     let form = $('#createUser'),
-        $select = form.find('#spir_level #church_list');
+        $select = form.find('#spir_level, #church_list');
     // form.find('#partner').attr('checked', false);
     // form.find('.hidden-partner').hide();
+    $('#addNewUserPopup').find('.body').scrollTop(0);
+    // $( "#church_list").unbind('change');
+    form.get(0).reset();
     form.find('#edit-photo').attr('data-source', '').find('img').attr('src', '/static/img/no-usr.jpg');
     form.find('.anketa-photo').unbind('click');
     form.find('select:not(#payment_currency, #spir_level, #chooseDepartment, #church_list).select2-hidden-accessible')
         .select2('destroy').find('option').remove();
-    form.find('#chooseResponsible, #chooseRegion, #chooseCity').attr('disabled', true);
+    form.find('#chooseResponsible, #chooseRegion, #chooseCity, #home_groups_list, #spir_level').prop('disabled', true);
     form.find('input').each(function () {
         $(this).val('');
     });
     form.find('.phone .comment').text('');
-    $('#bornDate').val('');
-    $('#repentanceDate').val('');
+    $('#duplicate_count').text('0');
+
     $select.each(function () {
         $(this).val(null).trigger("change");
     });
+    $('.phone_duplicate').each(function () {
+        $(this).remove();
+    });
+    // form.find('#home_groups_list').html('<option value="">Выберите домашнюю группу</option>').prop('disabled', true);
 }
 
 export function initAddNewUser(config = {}) {
@@ -199,6 +207,7 @@ export function initAddNewUser(config = {}) {
     // });
     // $form.find('.phone .comment').text('');
     Object.assign(configDefault, config);
+    clearAddNewUser();
     if (configDefault.getCountries) {
         getCountries().then(function (data) {
             let rendered = [];
@@ -343,15 +352,27 @@ export function initAddNewUser(config = {}) {
     $('#spir_level').select2();
     $('#church_list').select2();
 
-    $('#repentance_date').datepicker({
-        dateFormat: 'yyyy-mm-dd'
-    });
-    $('#partnerFrom').datepicker({
-        dateFormat: 'yyyy-mm-dd'
-    });
-    $('#bornDate').datepicker({
-        dateFormat: 'yyyy-mm-dd'
-    });
+    // $('#repentanceDate').datepicker({
+    //     dateFormat: 'yyyy-mm-dd',
+    //     onSelect: function (formattedDate) {
+    //         (formattedDate) && $('#spir_level').prop('disabled', false);
+    //     }
+    // });
+    //
+    // $('#bornDate').datepicker({
+    //     dateFormat: 'yyyy-mm-dd'
+    // });
+
+    // $('#church_list').on('change', function () {
+    //     let config = {};
+    //     if (($(this).val() != "ВСЕ") && ($(this).val() != "") && ($(this).val() != null)) {
+    //         config.church_id = $(this).val();
+    //     }
+    //     getData(URLS.home_group.for_select(), config).then(res => {
+    //         let groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`);
+    //         $('#home_groups_list').html('<option value="">Выберите домашнюю группу</option>').append(groups).attr('disabled', false).select2();
+    //     });
+    // });
     // $('#chooseCountryCode').select2();
 
     // $('#partner').on('change', function () {
