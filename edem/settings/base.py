@@ -23,6 +23,7 @@ BASE_DIR = environ.Path(__file__) - 3
 env = environ.Env()
 env.read_env(env_file=str(BASE_DIR.path('.env')))
 
+FILEBROWSER_DIRECTORY = 'uploads'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
@@ -141,6 +142,7 @@ TEMPLATES = [
         },
     },
 ]
+TEMPLATE_DEBUG = DEBUG
 
 WSGI_APPLICATION = 'edem.wsgi.application'
 

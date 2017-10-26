@@ -3,7 +3,8 @@ import {hidePopup} from '../Popup/popup';
 
 export function getFilterParam() {
     let $filterFields,
-        data = {};
+        data = {},
+        $ageFilter = $('#age_filter');
     $filterFields = $('#filterPopup select, #filterPopup input');
     $filterFields.each(function () {
         if ($(this).val() == "ВСЕ") {
@@ -21,10 +22,18 @@ export function getFilterParam() {
         }
     });
 
+    if ($ageFilter.length > 0) {
+        let value = $ageFilter.val(),
+            option = $ageFilter.find(`option[value="${value}"]`),
+            gt = option.attr('data-gt'),
+            lt = option.attr('data-lt');
+        (gt) && (data.age_gt = gt);
+        (lt) && (data.age_lt = lt);
+    }
+
     if ('master_tree' in data && ('pastor' in data || 'master' in data || 'leader' in data)) {
         delete data.master_tree;
     }
-
     return data;
 }
 

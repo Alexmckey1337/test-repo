@@ -112,6 +112,52 @@ class CanSeeManagerSummary(BasePermission):
         return can_see_managers_summary(request.user)
 
 
+class CanCreateUpdatePartnerGroup(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to create partner group
+        """
+        return can_create_partner_group(request.user)
+
+    def has_object_permission(self, request, view, partner_group):
+        """
+        Checking that the ``request.user`` has the right to update ``partner_group``
+        """
+        return can_update_partner_group(request.user, partner_group)
+
+
+class CanCreatePartnerRole(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to create partner role
+        """
+        return can_create_partner_role(request.user)
+
+
+class CanUpdatePartnerRole(BasePermission):
+    def has_object_permission(self, request, view, partner_role):
+        """
+        Checking that the ``request.user`` has the right to update ``partner_role``
+        """
+        return can_update_partner_role(request.user, partner_role)
+
+
+class CanDeletePartnerRole(BasePermission):
+    def has_object_permission(self, request, view, partner_role):
+        """
+        Checking that the ``request.user`` has the right to delete ``partner_role``
+        """
+        return can_delete_partner_role(request.user, partner_role)
+
+
+class CanSeePartnerGroups(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to see partner groups
+        """
+        return can_see_partner_groups(request.user)
+
+
 def can_see_partners(user):
     """
     Checking that the ``user`` has the right to see list of partners
@@ -261,3 +307,45 @@ def can_see_managers_summary(user):
     Checking that the ``user`` has the right to see manager's summary
     """
     return user.is_partner_director or user.is_staff
+
+
+def can_see_partner_groups(user):
+    """
+    Checking that the ``user`` has the right to see partner groups
+    """
+    return user.is_partner_manager_or_high or user.is_staff
+
+
+def can_create_partner_group(user):
+    """
+    Checking that the ``user`` has the right to create partner group
+    """
+    return user.is_partner_supervisor_or_high or user.is_staff
+
+
+def can_update_partner_group(user, partner_group):
+    """
+    Checking that the ``user`` has the right to update ``partner_group``
+    """
+    return user.is_partner_supervisor_or_high or user.is_staff
+
+
+def can_create_partner_role(user):
+    """
+    Checking that the ``user`` has the right to create partner role
+    """
+    return user.is_partner_supervisor_or_high
+
+
+def can_update_partner_role(user, partner_role):
+    """
+    Checking that the ``user`` has the right to update ``partner_role``
+    """
+    return user.is_partner_supervisor_or_high
+
+
+def can_delete_partner_role(user, partner_role):
+    """
+    Checking that the ``user`` has the right to delete ``partner_role``
+    """
+    return user.is_partner_supervisor_or_high
