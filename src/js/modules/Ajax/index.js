@@ -54,6 +54,7 @@ export function postData(url, data = {}, config = {}) {
             body: JSON.stringify(data),
         },
         initConfig = Object.assign({}, defaultOption, postConfig, config);
+    console.log(initConfig);
     if (typeof url === "string") {
 
         return fetch(url, initConfig).then(resp => {

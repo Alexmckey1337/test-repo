@@ -6,6 +6,11 @@ import 'cropper/dist/cropper.css';
 import 'jquery-file-download/index.js';
 import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
 import 'jquery-form-validator/form-validator/lang/ru.js';
+import 'inputmask/dist/inputmask/dependencyLibs/inputmask.dependencyLib.jquery.js';
+import 'inputmask/dist/inputmask/inputmask.js';
+import 'inputmask/dist/inputmask/jquery.inputmask.js';
+import 'inputmask/dist/inputmask/inputmask.phone.extensions.js';
+import 'inputmask/dist/inputmask/phone-codes/phone.js';
 import {showAlert} from "./modules/ShowNotifications/index";
 import {handleFileSelect} from "./modules/Avatar/index";
 import {makeDuplicateCount, makeDuplicateUsers} from "./modules/User/findDuplicate";
@@ -49,17 +54,17 @@ $('document').ready(function () {
 
     });
 
+    // $("#firsVisit").datepicker().datepicker({
+    //     dateFormat: 'yyyy-mm-dd',
+    //     maxDate: new Date(),
+    //     setDate: new Date(),
+    //     autoClose: true,
+    // });
+
     $("#bornDate").datepicker({
         minDate: new Date(new Date().setFullYear(new Date().getFullYear() - 120)),
         maxDate: new Date(),
         dateFormat: 'yyyy-mm-dd',
-        autoClose: true,
-    });
-
-    $("#firsVisit").datepicker().datepicker({
-        dateFormat: 'yyyy-mm-dd',
-        maxDate: new Date(),
-        setDate: new Date(),
         autoClose: true,
     });
 
@@ -69,13 +74,72 @@ $('document').ready(function () {
         setDate: new Date(),
         position: 'top left',
         autoClose: true,
+        onSelect: function (formattedDate) {
+            (formattedDate) && $('#spir_level').prop('disabled', false);
+        }
     });
-    $('#partnerFrom').datepicker({
-        dateFormat: 'yyyy-mm-dd',
-        maxDate: new Date(),
-        setDate: new Date(),
-        autoClose: true,
+
+        // $('#repentanceDate').datepicker({
+    //     dateFormat: 'yyyy-mm-dd',
+    //     onSelect: function (formattedDate) {
+    //         (formattedDate) && $('#spir_level').prop('disabled', false);
+    //     }
+    // });
+    //
+    // $('#bornDate').datepicker({
+    //     dateFormat: 'yyyy-mm-dd'
+    // });
+
+    // $('#partnerFrom').datepicker({
+    //     dateFormat: 'yyyy-mm-dd',
+    //     maxDate: new Date(),
+    //     setDate: new Date(),
+    //     autoClose: true,
+    // });
+    $('#phone').inputmask('phone', {
+        onKeyValidation: function () {
+            $(this).next().text($(this).inputmask("getmetadata")["name_ru"]);
+        }
     });
+
+    $('#extra_phone').find('.extra_phone_numbers').inputmask('phone', {
+        onKeyValidation: function () {
+            $(this).next().text($(this).inputmask("getmetadata")["name_ru"]);
+        },
+        "clearIncomplete": true,
+        // "onincomplete": function () {
+        //     console.log('INCOMPLETE');
+        //     return flagCorrectPhone = true;
+        // },
+        // "oncomplete": function () {
+        //     console.log('COMPLETE');
+        //     return flagCorrectPhone = false;
+        // },
+        // "oncleared": function () {
+        //     console.log('CLEAR');
+        //     return flagCorrectPhone = false;
+        // }
+    });
+
+    $('#addExtraPhone').on('click', function () {
+        let el = `<div class="phone phone_duplicate">
+                    <input type="text" class="extra_phone_numbers">
+                    <span class="comment"></span>
+                 </div>`;
+        $('#phones').append(el);
+        addMaskToInput();
+    });
+
+    function addMaskToInput() {
+        let input = $('#phones .phone:last-child').find('input');
+        input.inputmask('phone', {
+            onKeyValidation: function () {
+                $(this).next().text($(this).inputmask("getmetadata")["name_ru"]);
+            },
+            "clearIncomplete": true,
+        });
+    }
+
     $('#partner').on('change', function () {
         $('.hidden-partner').toggle();
     });
@@ -100,17 +164,20 @@ $('document').ready(function () {
         e.preventDefault();
         let flag = false;
         $('.must').each(function () {
-           $(this).validate(function (valid) {
-               return flag = valid;
-           });
-           return flag;
+            $(this).validate(function (valid) {
+                return flag = valid;
+            });
+            return flag;
         });
+
+        (!$('#phone').inputmask("isComplete")) && (flag = false);
+
         if (!flag) {
-               showAlert(`Обязательные поля не заполнены либо введены некорректные данные`);
-           } else {
-               $(this).closest('form').addClass('active');
-               let user = `${$('#last_name').val()} ${$('#first_name').val()} ${$('#middle_name').val()}`;
-               $('.second_step').find('.user').html(user);
+            showAlert(`Обязательные поля не заполнены либо введены некорректные данные`);
+        } else {
+            $(this).closest('form').addClass('active');
+            let user = `${$('#last_name').val()} ${$('#first_name').val()} ${$('#middle_name').val()}`;
+            $('.second_step').find('.user').html(user);
         }
     });
 
@@ -121,12 +188,12 @@ $('document').ready(function () {
 
     $("#createUser").find('input').each(function () {
 
-        $(this).keypress(function(event) {
-	        let keycode = (event.keyCode ? event.keyCode : event.which);
-	        if (keycode == '13') {
-	            event.preventDefault();
+        $(this).keypress(function (event) {
+            let keycode = (event.keyCode ? event.keyCode : event.which);
+            if (keycode == '13') {
+                event.preventDefault();
             }
-	        event.stopPropagation();
+            event.stopPropagation();
         });
     });
 
@@ -135,7 +202,7 @@ $('document').ready(function () {
     });
 
     $('.editprofile-screen').on('click', function (e) {
-       e.stopPropagation();
+        e.stopPropagation();
     });
 
     let inputs = $('#first_name, #last_name, #middle_name, #phoneNumber');
@@ -144,10 +211,10 @@ $('document').ready(function () {
         makeDuplicateCount();
     });
 
-     $('#duplicate_link').on('click', function () {
-         $('.preloader').css('display', 'block');
-         makeDuplicateUsers();
-     });
+    $('#duplicate_link').on('click', function () {
+        $('.preloader').css('display', 'block');
+        makeDuplicateUsers();
+    });
 
     $('.pop-up__table').find('.close_pop').on('click', function () {
         $('.pop-up__table').hide();
@@ -155,22 +222,23 @@ $('document').ready(function () {
 
     $('#last_name, #first_name, #middle_name, #phoneNumber').keypress(function (event) {
         let keycode = (event.keyCode ? event.keyCode : event.which);
-	        if (keycode == '13') {
-	            event.preventDefault();
-	            $('#createUser').find('._preloader').css('opacity', '1');
-	            makeDuplicateCount();
-            }
-	        event.stopPropagation();
+        if (keycode == '13') {
+            event.preventDefault();
+            $('#createUser').find('._preloader').css('opacity', '1');
+            makeDuplicateCount();
+        }
+        event.stopPropagation();
     });
 
-        $("#createUser").find('input').each(function () {
+    $("#createUser").find('input').each(function () {
 
-        $(this).keypress(function(event) {
-	        let keycode = (event.keyCode ? event.keyCode : event.which);
-	        if (keycode == '13') {
-	            event.preventDefault();
+        $(this).keypress(function (event) {
+            let keycode = (event.keyCode ? event.keyCode : event.which);
+            if (keycode == '13') {
+                event.preventDefault();
             }
-	        event.stopPropagation();
+            event.stopPropagation();
         });
     });
+
 });

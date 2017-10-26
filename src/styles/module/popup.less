@@ -1084,7 +1084,7 @@ button{
           box-shadow: 0 4px 14px -2px grey;
           height: auto;
           padding:25px 2em;
-          h3{
+          h3 {
             margin-left:15px;
             color: rgba(160, 160, 160, 0.67);
             font-size: 1.5em;
@@ -1092,9 +1092,16 @@ button{
             text-transform: lowercase;
           }
         }
-        .popup_body{
+        .popup_body {
           padding: 0 2em;
-          padding-bottom:50px;
+          padding-bottom: 50px;
+          label input[readonly],
+          label select[disabled=disabled] {
+            border: 1px solid #cdd0d4;
+          }
+          label select[disabled=disabled] {
+            background-color: #eee;
+          }
         }
       }
       .duplicate_users {
@@ -1173,6 +1180,23 @@ button{
         }
       }
     }
+    .first_step {
+      .phone {
+        display: flex;
+        #phone {
+          float: left;
+          width: 55% !important;
+        }
+        .comment {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 45%;
+          height: 100%;
+          background-color: #fff;
+        }
+      }
+    }
     .second_step {
       .user {
         color: #aab2bd;
@@ -1188,6 +1212,43 @@ button{
         overflow-y: scroll;
         position: relative;
         z-index: 1;
+      }
+      #phones {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        .phone {
+          display: flex;
+          margin-bottom: 3px;
+          .extra_phone_numbers {
+            float: left;
+            width: 55% !important;
+          }
+          .comment {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 45%;
+            height: 100%;
+            background-color: #fff;
+          }
+        }
+      }
+      #addExtraPhone {
+        position: absolute;
+        left: -21px;
+        top: 5px;
+        display: block;
+        width: 5px;
+        height: 5px;
+        cursor: pointer;
+        background-color: #fff;
+        &::before {
+          font: 1.5em FontAwesome;
+          content: '\f055';
+          z-index: 10;
+          color: #3caeda;
+        }
       }
     }
     .select2-search__field{

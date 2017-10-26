@@ -147,9 +147,7 @@ $('document').ready(function () {
         onSuccess: function (form) {
             if ($(form).attr('name') == 'createUser') {
                 $(form).find('#saveNew').attr('disabled', true);
-                createNewUser(reRenderTable).then(function () {
-                    $(form).find('#saveNew').attr('disabled', false);
-                });
+                createNewUser(reRenderTable);
             }
             return false; // Will stop the submission of the form
         }
