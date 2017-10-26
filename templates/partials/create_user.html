@@ -32,11 +32,15 @@
                         <label>
                             <span class="label_block">Телефон*</span>
                             <div class="phone">
-                                    <select name="" id="chooseCountryCode"></select>
-                                    <input id="phoneNumberCode" type="text" readonly data-validation="required">
-                                    <input class="must" id="phoneNumber" type="text"  tabindex="5"
-                                           required data-validation="required number">
-                                </div>
+                                <input id="phone" type="text" tabindex="5">
+                                <span class="comment"></span>
+                            </div>
+{#                            <div class="phone">#}
+{#                                    <select name="" id="chooseCountryCode"></select>#}
+{#                                    <input id="phoneNumberCode" type="text" readonly data-validation="required">#}
+{#                                    <input class="must" id="phoneNumber" type="text"  tabindex="5"#}
+{#                                           required data-validation="required number">#}
+{#                                </div>#}
                         </label>
                         <label>
                             <span class="label_block">Отдел церкви*</span>
@@ -95,72 +99,78 @@
                         <h2>Контактная информация</h2>
                         <label>
                             <span class="label_block">Доп.телефон</span>
-                            <input type="text" id="extra_phone_numbers" tabindex="12">
+                            <div id="phones">
+                                <div class="phone" id="extra_phone">
+                                    <input type="text" class="extra_phone_numbers" tabindex="12">
+                                    <span class="comment"></span>
+                                    <span id="addExtraPhone"></span>
+                                </div>
+                            </div>
                         </label>
                         <label>
                             <span class="label_block">E-mail</span>
-                            <input name="email" id="email" type="text" tabindex="13"
+                            <input name="email" id="email" type="text" tabindex="15"
                            data-validation="email" data-validation-optional="true">
                         </label>
                         <label>
                             <span class="label_block">Skype</span>
-                            <input name="skype" id="skype" tabindex="14" type="text">
+                            <input name="skype" id="skype" tabindex="16" type="text">
                         </label>
                         <h2>Социальные сети</h2>
                         <label>
                             <span class="label_block">Facebook</span>
-                            <input name="facebook" id="facebook" type="text" tabindex="15"
+                            <input name="facebook" id="facebook" type="text" tabindex="17"
                                data-validation="url" data-validation-optional="true">
                         </label>
                         <label>
                             <span class="label_block">Vkontakte</span>
-                            <input name="vkontakte" id="vkontakte" type="text" tabindex="16"
+                            <input name="vkontakte" id="vkontakte" type="text" tabindex="18"
                            data-validation="url" data-validation-optional="true">
                         </label>
                         <label>
                             <span class="label_block">Odnaklasniki</span>
-                            <input name="odnoklassniki" id="odnoklassniki" type="text" tabindex="17"
+                            <input name="odnoklassniki" id="odnoklassniki" type="text" tabindex="19"
                            data-validation="url" data-validation-optional="true">
                         </label>
                         <h2>День рождения и адрес</h2>
                         <label>
                             <span class="label_block">Дата рождения</span>
-                            <input name="born_date" type="text" id="bornDate" tabindex="18" readonly="readonly">
+                            <input name="born_date" type="text" id="bornDate" tabindex="20">
                         </label>
                         <label>
                             <span class="label_block">Страна</span>
-                            <select name="country" id="chooseCountry" tabindex="19"></select>
+                            <select name="country" id="chooseCountry" tabindex="21"></select>
                         </label>
                         <label>
                             <span class="label_block">Область</span>
-                            <select disabled name="region" id="chooseRegion" tabindex="20"></select>
+                            <select disabled name="region" id="chooseRegion" tabindex="22"></select>
                         </label>
                         <label>
                             <span class="label_block">Город</span>
-                            <select disabled name="city" id="chooseCity" tabindex="21"></select>
+                            <select disabled name="city" id="chooseCity" tabindex="23"></select>
                         </label>
                         <label>
                             <span class="label_block">Район</span>
-                            <input name="district" id="district" type="text" tabindex="22">
+                            <input name="district" id="district" type="text" tabindex="24">
                         </label>
                         <label>
                             <span class="label_block">Адрес</span>
-                            <input name="address" id="address" type="text" tabindex="23">
+                            <input name="address" id="address" type="text" tabindex="25">
                         </label>
                         <h2>Информация о служениях</h2>
                         <label>
                             <span class="label_block">Департамент</span>
-                            <select id="chooseDivision" multiple="multiple" tabindex="24"></select>
+                            <select id="chooseDivision" multiple="multiple" tabindex="26"></select>
                         </label>
                         <h2>Духовный уровень</h2>
                         <label>
                             <span class="label_block">Дата покаяния</span>
-                            <input name="repentance_date" type="text" readonly="readonly" tabindex="25" id="repentanceDate">
+                            <input name="repentance_date" type="text" tabindex="27" id="repentanceDate">
                         </label>
                         <label>
                             <span class="label_block">Духовный уровень</span>
                             <select type="text" id="spir_level" name="" >
-                                <option>Выберите духовный уровень</option>
+                                <option value="">Выберите духовный уровень</option>
                                 {% for spiritual_level in spiritual_levels %}
                                     <option value="{{ spiritual_level.id }}">
                                           {{ spiritual_level.title }}
@@ -168,29 +178,29 @@
                                 {% endfor %}
                             </select>
                         </label>
-                        <h2>Информация о церкви</h2>
-                        <label>
-                            <span class="label_block">Церковь</span>
-                            <select type="text" id="church_list" name="churches_title" value="">
-                                <option value="">Выберите церковь</option>
-                                {% for church in churches %}
-                                    <option value="{{ church.id }}">{{ church.get_title }}</option>
-                                {% endfor %}
-                            </select>
-                        </label>
-                        <label>
-                            <span class="label_block">Домашняя группа</span>
-                            <select type="text" id="home_groups_list" name="home_groups" readonly disabled>#}
-                                <option value="">Выберите домашнюю группу</option>#}
-                            </select>
-                        </label>
+{#                        <h2>Информация о церкви</h2>#}
+{#                        <label>#}
+{#                            <span class="label_block">Церковь</span>#}
+{#                            <select type="text" id="church_list" value="">#}
+{#                                <option value="">Выберите церковь</option>#}
+{#                                {% for church in churches %}#}
+{#                                    <option value="{{ church.id }}">{{ church.get_title }}</option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </label>#}
+{#                        <label>#}
+{#                            <span class="label_block">Домашняя группа</span>#}
+{#                            <select type="text" id="home_groups_list" disabled>#}
+{#                                <option value="">Выберите домашнюю группу</option>#}
+{#                            </select>#}
+{#                        </label>#}
                     </div>
                 </div>
                 <div class="container">
                     <div class="btn-block">
-                        <a href="#" class="btn prevForm" tabindex="27">Вернуться к первому шагу</a>
-                        <a href="#" class="btn closeForm" tabindex="28">Отменить</a>
-                        <button id="saveNew" class="btn" type="submit" tabindex="26">Сохранить</button>
+                        <a href="#" class="btn prevForm" tabindex="29">Вернуться к первому шагу</a>
+                        <a href="#" class="btn closeForm" tabindex="30">Отменить</a>
+                        <button id="saveNew" class="btn" type="submit" tabindex="28">Сохранить</button>
                     </div>
                 </div>
             </div>
