@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
-from filebrowser.sites import site
+from django.core.files.storage import FileSystemStorage
+from filebrowser.sites import FileBrowserSite
 from rest_framework import exceptions
 from rest_framework.response import Response
 from rest_framework.schemas import SchemaGenerator as BaseSchemaGenerator
@@ -43,6 +44,13 @@ class SwaggerSchemaView(APIView):
             )
 
         return Response(schema)
+
+
+class FileBrowserStorage(FileSystemStorage):
+    pass
+
+
+site = FileBrowserSite(name='filebrowser', storage=FileBrowserStorage(base_url='https://vocrm.net/media/'))
 
 urlpatterns = [
     url(r'^admin/filebrowser/', include(site.urls)),

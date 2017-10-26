@@ -110,6 +110,8 @@ CACHES = {
 TINYMCE_DEFAULT_CONFIG = {
     'plugins': "table,spellchecker,paste,searchreplace,fullpage",
     'theme': "advanced",
+    'relative_urls': False,
+    'convert_urls': False,
     'cleanup_on_startup': True,
     'custom_undo_redo_levels': 10,
 }
