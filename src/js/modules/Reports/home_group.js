@@ -4,6 +4,7 @@ import 'air-datepicker/dist/css/datepicker.css';
 import moment from 'moment/min/moment.min.js';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
+import {deleteData} from "../Ajax/index";
 import newAjaxRequest from  '../Ajax/newAjaxRequest';
 import getSearch from '../Search/index';
 import {getFilterParam, getTabsFilterParam} from "../Filter/index";
@@ -11,7 +12,7 @@ import makeSortForm from '../Sort/index';
 import makePagination from '../Pagination/index';
 import fixedTableHead from '../FixedHeadTable/index';
 import OrderTable from '../Ordering/index';
-import {showAlert} from "../ShowNotifications/index";
+import {showAlert, showConfirm} from "../ShowNotifications/index";
 import updateHistoryUrl from '../History/index';
 
 export function HomeReportsTable(config) {
@@ -81,6 +82,22 @@ function makeHomeReportsTable(data, config = {}) {
     $('.table__count').text(text);
     new OrderTable().sort(homeReportsTable, ".table-wrap th");
     $('.preloader').css('display', 'none');
+        $("button.delete_btn").on('click', function () {
+        let id = $(this).attr('data-id');
+        showConfirm('Удаление', 'Вы действительно хотите удалить данный отчет?', function () {
+            deleteData(URLS.event.home_meeting.detail(id)).then(() => {
+                showAlert('Отчет успешно удален!');
+                $('.preloader').css('display', 'block');
+                let page = $('.pagination__input').val();
+                homeReportsTable({page: page});
+            }).catch((error) => {
+                let errKey = Object.keys(error),
+                    html = errKey.map(errkey => `${error[errkey]}`);
+                showAlert(html[0], 'Ошибка');
+            });
+        }, () => {
+        });
+    });
 }
 
 export function makeHomeReportDetailTable(data) {
