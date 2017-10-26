@@ -26,10 +26,10 @@ class DealFilterByPaymentStatus(filters.BaseFilterBackend):
         type = request.query_params.get('type')
 
         if payment_status:
-            return queryset.filter(payment_status=payment_status)
+            queryset = queryset.filter(payment_status=payment_status)
 
         if type:
-            return queryset.filter(type=type)
+            queryset = queryset.filter(type=type)
 
         return queryset
 
