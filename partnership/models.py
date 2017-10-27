@@ -95,7 +95,12 @@ class PartnershipAbstractModel(models.Model):
                                     related_name='partner_disciples', null=True, blank=True)
     group = models.ForeignKey('partnership.PartnerGroup', on_delete=models.PROTECT, verbose_name=_('Group'),
                               related_name='partners', null=True, blank=True)
-    title = models.CharField(_('Partner title'), max_length=255, blank=True)
+    UA, EU = 'UA', 'EU'
+    TITLES = (
+        (UA, 'UA'),
+        (EU, 'EU'),
+    )
+    title = models.CharField(_('Partner title'), choices=TITLES, max_length=255, default=UA)
 
     class Meta:
         abstract = True
