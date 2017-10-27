@@ -147,16 +147,15 @@
                                                 <i class="fa fa-phone" aria-hidden="true"></i>
                                             </span>
                                             <div class="label_phone_block">
-                                                <input type="text" id="phone_number" name="phone_number"
-                                                       value="{{ account.phone_number }}" readonly>
+                                                <input type="text" id="phone_number" name="phone_number" value="{{ account.phone_number }}" readonly>
                                                 <span class="comment"></span>
                                             </div>
                                         </label>
                                         <label>
                                             <span class="label_block"><i class="fa fa-mobile"
                                                                          aria-hidden="true"></i></span>
-                                            <input type="text" id="extra_phone_numbers" value="
-                                                    {% if account.extra_phone_numbers %}{{ account.extra_phone_numbers|default:""|join:", " }}{% endif %}"
+                                            <input type="text" id="extra_phone_numbers"
+                                                   value="{% if account.extra_phone_numbers %}{{ account.extra_phone_numbers|default:""|join:", " }}{% endif %}"
                                                    readonly>
                                         </label>
                                         <label>
@@ -348,8 +347,7 @@
                                             <span class="label_block">Покаяние:</span>
                                             <input type="text" id="repentance_date" data-id="repentance"
                                                    class="sel__date"
-                                                   value="
-                                                           {% if account.repentance_date %}{{ account.repentance_date|date:"d.m.Y" }}{% else %}Не покаялся{% endif %}"
+                                                   value="{% if account.repentance_date %}{{ account.repentance_date|date:"d.m.Y" }}{% else %}Не покаялся{% endif %}"
                                                    readonly disabled>
                                         </label>
                                         <label>
@@ -505,9 +503,6 @@
                                     {% endif %}
                                 </div>
                                 <div class="access_select_wrapper">
-                                    {% if user.is_partner_supervisor_or_high %}
-                                        <button id="delete_access" data-id="{{ account.id }}" disabled></button>
-                                    {% endif %}
                                     <select id="access_select" readonly disabled>
                                         <option value=""
                                                 {% if account.has_partner_role == False %}selected{% endif %} disabled>
@@ -520,6 +515,9 @@
                                             </option>
                                         {% endfor %}
                                     </select>
+                                    {% if user.is_partner_supervisor_or_high %}
+                                        <button id="delete_access" data-id="{{ account.id }}" disabled></button>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="partner_wrapper">

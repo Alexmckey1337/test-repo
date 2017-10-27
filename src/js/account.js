@@ -21,7 +21,7 @@ import {postData, deleteData} from "./modules/Ajax/index";
 import ajaxRequest from './modules/Ajax/ajaxRequest';
 import URLS from './modules/Urls/index';
 import {CONFIG} from './modules/config';
-import {showAlert} from './modules/ShowNotifications/index';
+import {showAlert, showConfirm} from './modules/ShowNotifications/index';
 import {createPayment} from './modules/Payment/index';
 import {sendNote, changeLessonStatus, initLocationSelect} from './modules/Account/index';
 import {makeChurches} from './modules/MakeList/index';
@@ -474,6 +474,10 @@ $('document').ready(function () {
                     let id = $(this).data('id');
                     if ($(this).hasClass('sel__date')) {
                         partnershipData.append(id, $(this).val().trim().split('.').reverse().join('-'));
+                    } else if ($(this).hasClass('par__group')) {
+                        if ($(this).val() != null) {
+                            partnershipData.append(id, $(this).val());
+                        }
                     } else {
                         partnershipData.append(id, $(this).val());
                     }
@@ -740,11 +744,11 @@ $('document').ready(function () {
             if (hasAccess == 'True') {
                 postData(URLS.user.update_partner_role(id), config, {method: 'PATCH'}).then(() => {
                     showAlert(`Права изменены на: ${accessTitle}`);
-                }).catch(() => showAlert('При изменении прав произошла ошибка. Попробуйте позже', 'Ошибка'));
+                }).catch((err) => showAlert(err.detail));
             } else {
                 postData(URLS.user.set_partner_role(id), config).then(() => {
                     showAlert(`Права (${accessTitle}) успешно установлены`);
-                }).catch(() => showAlert('При изменении прав произошла ошибка. Попробуйте позже', 'Ошибка'));
+                }).catch((err) => showAlert(err.detail));
             }
         }
         $(this).siblings('.editText').removeClass('active');
@@ -754,10 +758,13 @@ $('document').ready(function () {
 
     $('#delete_access').on('click', function () {
         let id = $(this).attr('data-id');
-        deleteData(URLS.user.delete_partner_role(id)).then( () => {
-            showAlert(`Права успешно удалены`);
-            $('#access_select').val(null).trigger("change");
-        }).catch( (err) => showAlert(`Невозможно удалить. ${err.detail}`, 'Ошибка'));
+        showConfirm('Удаление', 'Вы действительно хотите удалить права пользователя?', function () {
+            deleteData(URLS.user.delete_partner_role(id)).then(() => {
+                showAlert(`Права успешно удалены`);
+                $('#access_select').val(null).trigger("change");
+            }).catch((err) => showAlert(`Невозможно удалить. ${err.detail}`, 'Ошибка'));
+        }, () => {
+        });
         $(this).closest('.access_wrapper').find('.editText').removeClass('active');
         $('#access_select').attr('readonly', true).attr('disabled', true);
         $('#delete_access').attr('disabled', true);

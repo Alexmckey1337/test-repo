@@ -15,7 +15,7 @@
   }
 }
 
-.left-content,.right-content {
+.left-content, .right-content {
   padding-left: 30px;
 }
 
@@ -23,7 +23,7 @@
   padding-right: 30px;
 }
 
-.left-info,.right-info {
+.left-info, .right-info {
   width: 50%;
   float: left;
 }
@@ -32,9 +32,9 @@
   text-align: right;
 }
 
-.left-content{
-  ul{
-    li{
+.left-content {
+  ul {
+    li {
       overflow: hidden;
       border-bottom: 1px solid #cdd0d4;
       padding: 15px 0;
@@ -43,69 +43,69 @@
       font-size: 1em;
       line-height: 1.4;
       position: relative;
-      z-index:0;
-      &#editHierarchy,&#editDepartament{
-        .select2{
+      z-index: 0;
+      &#editHierarchy, &#editDepartament {
+        .select2 {
           height: auto;
         }
       }
-      &#editChurches{
-        li{
-          padding-left:8px;
+      &#editChurches {
+        li {
+          padding-left: 8px;
         }
       }
-      ul{
+      ul {
         width: 60%;
         float: right;
       }
-      &:last-child{
+      &:last-child {
         border-bottom: none;
       }
-      span{
+      span {
         font-weight: bold;
       }
     }
   }
-  .right-info{
-    li{
-      ul{
+  .right-info {
+    li {
+      ul {
         float: none;
         width: auto;
-        li{
+        li {
           border-bottom: none;
         }
       }
     }
   }
-  .popup_body{
+  .popup_body {
     margin: 0;
     padding: 0;
     border: none;
-    .container{
-      .label_block{
+    .container {
+      .label_block {
         background: #f2f5fa;
       }
-      select,input{
-        &[readonly],&[disabled="disabled"]{
+      select, input {
+        &[readonly], &[disabled="disabled"] {
           background: #f2f5fa;
         }
       }
-      input{
-        &[type='checkbox']{
-          &+div{
+      input {
+        &[type='checkbox'] {
+          & + div {
             background: #f2f5fa;
             background-color: transparent;
           }
         }
       }
-      label{
-        &::before{
+      label {
+        &::before {
           width: 50%;
         }
       }
     }
   }
- }
+}
 
 .user-fio {
   .right-info-r {
@@ -162,7 +162,7 @@
   }
 }
 
-.left-content,.partner_wrapper {
+.left-content, .partner_wrapper {
   & .right-info-r {
     & button {
       position: absolute;
@@ -215,7 +215,7 @@
           //top: 0;
           //left: 6px;
           //font-family: 'Roboto Condensed', sans-serif;
-          margin-bottom:15px;
+          margin-bottom: 15px;
           font-family: "UbuntuLight", sans-serif;
           font-size: 1.5em;
         }
@@ -227,7 +227,7 @@
         }
         form .select2-selection__rendered {
           font-weight: 400;
-          .select2-search--inline{
+          .select2-search--inline {
             display: none;
           }
           .select2-selection__choice {
@@ -467,53 +467,53 @@
       margin-top: 0.3em;
     }
   }
-  .top-s{
+  .top-s {
     padding: 10px 20px;
     background-color: #f2f5fa;
     border-bottom: 1px solid #cdd0d4;
   }
-  .rows{
+  .rows {
     float: none;
     width: 100%;
     border: none;
     background-color: #fff;
     padding: 0;
-    &:nth-child(even){
+    &:nth-child(even) {
       background-color: #fafbfc;
     }
-    &:nth-child(1){
+    &:nth-child(1) {
       border-top: 1px solid #cdd0d4;
     }
-    .col{
+    .col {
       display: inline-block;
       float: right;
-      &:nth-child(1){
+      &:nth-child(1) {
         float: none;
-        p{
-          span{
+        p {
+          span {
             font-family: "UbuntuLight", sans-serif;
           }
         }
       }
     }
   }
-  .col{
-    p{
+  .col {
+    p {
       text-align: center;
       padding: 10px;
     }
-    &:last-child{
-      p{
-        &:first-child{
+    &:last-child {
+      p {
+        &:first-child {
           width: 200px;
         }
-        &:nth-child(2){
+        &:nth-child(2) {
           min-width: 120px;
         }
       }
     }
   }
-  .tab-status{
+  .tab-status {
     float: left;
     margin: 24px 10px;
   }
@@ -616,12 +616,12 @@
     & .summits-title__title {
       font-size: 1.2em;
     }
-    &:last-child{
-      p{
-        &:nth-child(2){
+    &:last-child {
+      p {
+        &:nth-child(2) {
           border-left: 0;
         }
-        &:first-child{
+        &:first-child {
           width: 310px;
           text-align: left;
           border-right: 1px solid #cdd0d4;
@@ -631,11 +631,11 @@
       }
     }
   }
-  .summit_wrapper{
-    .rows{
-      border:none;
+  .summit_wrapper {
+    .rows {
+      border: none;
       border-bottom: 1px solid #cdd0d4;
-      &:last-child{
+      &:last-child {
         border-bottom: none;
       }
     }
@@ -655,20 +655,20 @@
   border-radius: 50%;
   background-color: #6a727d;
   text-align: center;
-  i{
+  i {
     color: #fff;
     height: 2px;
     vertical-align: middle;
   }
-  &:nth-child(2){
+  &:nth-child(2) {
     left: 58%;
   }
 }
 
-#account_view{
+#account_view {
   .a-socials {
     display: none;
-    &[data-href]{
+    &[data-href] {
       cursor: pointer;
       display: block;
     }
@@ -689,7 +689,7 @@
   }
 }
 
-.a-sdelki,.a-sammits,.a-note {
+.a-sdelki, .a-sammits, .a-note {
   overflow: hidden;
   border: 1px solid #cdd0d4;
   margin-top: 30px;
@@ -759,13 +759,13 @@
     //font-family: 'Roboto Condensed', sans-serif;
     font-size: 1.5em;
   }
-  &#Sdelki{
-    #tabStatus{
+  &#Sdelki {
+    #tabStatus {
       border-bottom: 1px solid #cdd0d4;
     }
-    .sdelki-content{
-      .rows{
-        &:first-child{
+    .sdelki-content {
+      .rows {
+        &:first-child {
           border-top: none;
         }
       }
@@ -792,21 +792,22 @@
       }
     }
     & .note_wrapper {
-      margin-top: .7em;
-      padding-top: 12px;
+      padding-top: 20px;
+      border-top: 1px solid #cdd0d4;
+      border-bottom: 1px solid #cdd0d4;
       & label {
         margin-bottom: 0;
       }
       & textarea {
         border-radius: 3px;
         padding: 6px 5px;
-        margin-top:-15px;
+        margin-top: -15px;
       }
     }
     & .right-info {
       margin-bottom: 0;
       background-color: transparent;
-      border: none;
+      border-left: none;
       & #partnership {
         & .label-wrapp {
           margin-bottom: .2em;
@@ -848,7 +849,7 @@
   .payment_title {
     padding: 15px 10px;
     //border-bottom: 1px solid #cdd0d4;
-    margin-top:15px;
+    margin-top: 15px;
   }
   .sdelki_title {
     padding: 0 10px;
@@ -882,7 +883,7 @@
   }
 }
 
-.note_wrapper,.user-fio {
+.note_wrapper, .user-fio {
   & button {
     opacity: .3;
   }
@@ -899,8 +900,8 @@
   }
 }
 
-.summit_wrapper,.sdelki-content{
-  .rows{
+.summit_wrapper, .sdelki-content {
+  .rows {
     background-color: #fff;
     border-radius: 0 !important;
     margin-right: 0;
@@ -909,8 +910,8 @@
   }
 }
 
-.sdelki-content{
-  .rows{
+.sdelki-content {
+  .rows {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -924,17 +925,17 @@
   display: none;
 }
 
-.summit_wrapper{
+.summit_wrapper {
   .summits-title {
     background-color: #f2f5fa;
   }
-  .rows{
-    &.note-box{
-      button{
+  .rows {
+    &.note-box {
+      button {
         padding: 12px 20px 12px 20px;
       }
     }
-    textarea{
+    textarea {
       padding: 5px 15px;
       font-size: 16px;
       margin: 10px 0;
@@ -942,14 +943,14 @@
   }
 }
 
-#deletePopup{
-  .splash-buttons{
+#deletePopup {
+  .splash-buttons {
     margin: 15px auto;
   }
-  .splash-screen{
+  .splash-screen {
     height: 150px;
   }
-  button{
+  button {
     margin-right: 10px;
     padding-left: 45px;
     padding-right: 45px;
@@ -1015,7 +1016,7 @@
     width: 250px;
     float: right;
     #phone_number {
-      width: 160px!important;
+      width: 160px !important;
       float: left;
     }
   }
@@ -1031,14 +1032,17 @@
   }
 }
 
-.access_wrapper {
+.a-sdelki .access_wrapper {
   padding-top: 15px;
+  padding-bottom: 5px;
+}
+
+.access_wrapper {
   .access_select_wrapper {
     width: 100%;
   }
   #access_select {
     width: 250px !important;
-    margin-left: 2px;
   }
   .select2-container--default.select2-container--disabled .select2-selection--single {
     background-color: transparent;
@@ -1049,6 +1053,7 @@
     }
   }
   #delete_access {
+    margin-left: 15px;
     opacity: 1;
     &::before {
       top: 3px;
@@ -1058,6 +1063,7 @@
     }
   }
   #delete_access[disabled] {
+    display: none;
     &::before {
       color: #97a2b0;
     }

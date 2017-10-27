@@ -97,6 +97,14 @@
                             </a>
                         </h1>
                     {% endif %}
+                    {% if request.real_user.skins.exists %}
+                        <select name="skin_id" id="skin_id">
+                            {% for skin in request.real_user.skins.all %}
+                                <option value="{{ skin.id }}">{{ skin.fullname }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="button" id="entry_as" value="OK">
+                    {% endif %}
                     {% block header %}
                         <div class="header">
 

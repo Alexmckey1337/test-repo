@@ -336,7 +336,8 @@ def account(request, id):
             user_id=id,
             content_type=ContentType.objects.get_for_model(Partnership)
         ),
-        'markers': UserMarker.objects.all()
+        'markers': UserMarker.objects.all(),
+        'partner_groups': PartnerGroup.objects.all()
     }
     return render(request, 'account/anketa.html', context=ctx)
 
