@@ -11,7 +11,7 @@ import {getFilterParam} from "../Filter/index";
 import makeSortForm from '../Sort/index';
 import makePagination from '../Pagination/index';
 import fixedTableHead from '../FixedHeadTable/index';
-import OrderTable from '../Ordering/index';
+import OrderTable, {getOrderingData} from '../Ordering/index';
 import {showAlert} from "../ShowNotifications/index";
 import {showPayments} from "../Payment/index";
 
@@ -128,6 +128,7 @@ export function dealsTable(config = {}) {
     config.done = status;
     Object.assign(config, getSearch('search'));
     Object.assign(config, getFilterParam());
+    Object.assign(config, getOrderingData());
     getData(URLS.deal.list(), config).then(data => {
         $('.preloader').css('display', 'none');
         makeDealsTable(data, config);

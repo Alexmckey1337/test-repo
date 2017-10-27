@@ -295,7 +295,7 @@ class DeletePartnerRoleView(DestroyAPIView):
     lookup_field = 'user_id'
 
     def perform_destroy(self, instance):
-        if instance.user.partners.exists():
+        if Partnership.objects.filter(responsible=instance.user).exists():
             raise ValidationError({'detail': _('Пользователь является ответственным по партнерам')})
         PartnerRoleLog.delete_partner_role(instance)
         instance.delete()

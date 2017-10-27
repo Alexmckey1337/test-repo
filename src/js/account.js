@@ -17,7 +17,7 @@ import {updateUser, updateOrCreatePartner} from './modules/User/updateUser';
 import {makeResponsibleList} from './modules/MakeList/index';
 import getLastId from './modules/GetLastId/index';
 import {setCookie} from './modules/Cookie/cookie';
-import {postData} from "./modules/Ajax/index";
+import {postData, deleteData} from "./modules/Ajax/index";
 import ajaxRequest from './modules/Ajax/ajaxRequest';
 import URLS from './modules/Urls/index';
 import {CONFIG} from './modules/config';
@@ -85,19 +85,19 @@ $('document').ready(function () {
     });
 
     $('.send_email_with_code').on('click', function () {
-    let url = $(this).data('url');
-    ajaxRequest(url, null, function () {
-        showAlert('Код отправлен на почту');
-    }, 'GET', true, {
-        'Content-Type': 'application/json'
-    }, {
-        400: function (data) {
-            data = data.responseJSON;
-            showAlert(data.detail);
-        }
+        let url = $(this).data('url');
+        ajaxRequest(url, null, function () {
+            showAlert('Код отправлен на почту');
+        }, 'GET', true, {
+            'Content-Type': 'application/json'
+        }, {
+            400: function (data) {
+                data = data.responseJSON;
+                showAlert(data.detail);
+            }
+        });
     });
-});
-$('#sendNote').on('click', function () {
+    $('#sendNote').on('click', function () {
         let _self = this;
         let id = $(_self).data('id');
         let resData = new FormData();
@@ -445,9 +445,9 @@ $('#sendNote').on('click', function () {
 
             return;
         }
-        console.log( 'Valid-->',$('#phone_number').inputmask("isComplete") );
+        console.log('Valid-->', $('#phone_number').inputmask("isComplete"));
 
-        if (($(this).closest('form').attr('name') == 'editContact') && (!$('#phone_number').inputmask("isComplete")) ) {
+        if (($(this).closest('form').attr('name') == 'editContact') && (!$('#phone_number').inputmask("isComplete"))) {
             showAlert('Введите коректный номер телефона');
 
             return;
@@ -495,7 +495,7 @@ $('#sendNote').on('click', function () {
             } else {
                 $input.each(function () {
                     let id = $(this).data('id');
-                    console.log('ID-->',id);
+                    console.log('ID-->', id);
                     if (!$(this).attr('name')) {
                         if ($(this).is('[type=file]')) {
                             let send_image = $(this).prop("files").length || false;
@@ -704,14 +704,16 @@ $('#sendNote').on('click', function () {
     $('.a-note, .a-sdelki').find('.editText').on('click', function () {
         $(this).toggleClass('active');
         let textArea = $(this).parent().siblings('textarea'),
-            select = $(this).closest('.note_wrapper').find('select');
-        console.log(select);
+            select = $(this).closest('.note_wrapper').find('select'),
+            btn = $(this).closest('.access_wrapper').find('#delete_access');
         if ($(this).hasClass('active')) {
             textArea.attr('readonly', false);
             select.attr('readonly', false).attr('disabled', false);
+            btn.attr('disabled', false);
         } else {
             textArea.attr('readonly', true);
             select.attr('readonly', true).attr('disabled', true);
+            btn.attr('disabled', true);
         }
     });
 
@@ -722,6 +724,45 @@ $('#sendNote').on('click', function () {
             $(this).next().text($(this).inputmask("getmetadata")["name_ru"]);
         }
     });
+
+    $('#access_select').select2();
+
+    $('#sendAccess').on('click', function () {
+        let hasAccess = $(this).attr('data-access'),
+            id = $(this).attr('data-id'),
+            level = $('#access_select').val(),
+            accessTitle = $('#access_select').find("option:selected").text(),
+            config = {
+                level: +level,
+            };
+
+        if (level != null) {
+            if (hasAccess == 'True') {
+                postData(URLS.user.update_partner_role(id), config, {method: 'PATCH'}).then(() => {
+                    showAlert(`Права изменены на: ${accessTitle}`);
+                }).catch(() => showAlert('При изменении прав произошла ошибка. Попробуйте позже', 'Ошибка'));
+            } else {
+                postData(URLS.user.set_partner_role(id), config).then(() => {
+                    showAlert(`Права (${accessTitle}) успешно установлены`);
+                }).catch(() => showAlert('При изменении прав произошла ошибка. Попробуйте позже', 'Ошибка'));
+            }
+        }
+        $(this).siblings('.editText').removeClass('active');
+        $('#access_select').attr('readonly', true).attr('disabled', true);
+        $('#delete_access').attr('disabled', true);
+    });
+
+    $('#delete_access').on('click', function () {
+        let id = $(this).attr('data-id');
+        deleteData(URLS.user.delete_partner_role(id)).then( () => {
+            showAlert(`Права успешно удалены`);
+            $('#access_select').val(null).trigger("change");
+        }).catch( (err) => showAlert(`Невозможно удалить. ${err.detail}`, 'Ошибка'));
+        $(this).closest('.access_wrapper').find('.editText').removeClass('active');
+        $('#access_select').attr('readonly', true).attr('disabled', true);
+        $('#delete_access').attr('disabled', true);
+    });
+
 
     // $('label[for="master"]').on('click', function () {
     //     let id = $('#selectResponsible').find('option:selected').val();
