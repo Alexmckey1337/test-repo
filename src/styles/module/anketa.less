@@ -1030,3 +1030,36 @@
     height: 100%;
   }
 }
+
+.access_wrapper {
+  padding-top: 15px;
+  .access_select_wrapper {
+    width: 100%;
+  }
+  #access_select {
+    width: 250px !important;
+    margin-left: 2px;
+  }
+  .select2-container--default.select2-container--disabled .select2-selection--single {
+    background-color: transparent;
+    cursor: default;
+    border: 0 !important;
+    .select2-selection__arrow {
+      display: none;
+    }
+  }
+  #delete_access {
+    opacity: 1;
+    &::before {
+      top: 3px;
+      content: '\f014';
+      font: 1.2em FontAwesome;
+      color: #f44336;
+    }
+  }
+  #delete_access[disabled] {
+    &::before {
+      color: #97a2b0;
+    }
+  }
+}

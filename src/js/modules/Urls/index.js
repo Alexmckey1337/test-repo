@@ -11,6 +11,9 @@ const USER = {
     list_user: () => `/api/v1.1/users/for_select/`,
     find_duplicates: () => `/api/v1.1/users/duplicates_avoided/`,
     short_for_dashboard: () => `/api/v1.0/dashboard_users/`,
+    set_partner_role: (id) => `/api/v1.0/users/${id}/set_partner_role/`,
+    update_partner_role: (id) => `/api/v1.0/users/${id}/update_partner_role/`,
+    delete_partner_role: (id) => `/api/v1.0/users/${id}/delete_partner_role/`,
 };
 
 const SUMMIT = {

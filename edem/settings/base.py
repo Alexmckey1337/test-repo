@@ -141,7 +141,8 @@ TEMPLATES = [
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
                 'notification.context_processor.notifications',
-                'account.context_processor.spiritual_levels'
+                'account.context_processor.spiritual_levels',
+                'partnership.context_processor.partner_levels'
             ],
         },
     },
@@ -404,7 +405,6 @@ PARTNER_LEVELS = {
     'director': 0,
     'supervisor': 1,
     'manager': 2,
-    'partner': 3,
 }
 
 SUMMIT_ANKET_ROLES = {
