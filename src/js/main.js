@@ -6,7 +6,7 @@ import 'select2/dist/css/select2.css';
 import moment from 'moment/min/moment.min.js';
 import URLS from './modules/Urls/index';
 import getData from './modules/Ajax/index';
-import {deleteCookie} from './modules/Cookie/cookie';
+import {deleteCookie, setCookie} from './modules/Cookie/cookie';
 import ajaxRequest from './modules/Ajax/ajaxRequest';
 import {hidePopup} from './modules/Popup/popup';
 import {makeBirthdayUsers, makeRepentanceUsers, makeExports} from './modules/Notifications/notify';
@@ -38,6 +38,11 @@ $('#logout_button').on('click', function (e) {
 
 $('.reset_hard_user').on('click', function (e) {
     deleteCookie('hard_user_id');
+    window.location.reload();
+});
+$('#entry_as').on('click', function () {
+    let user = $('#skin_id').val();
+    setCookie('skin_id', user, {path: '/'});
     window.location.reload();
 });
 

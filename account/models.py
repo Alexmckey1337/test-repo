@@ -66,6 +66,8 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
                                   on_delete=models.SET_NULL, verbose_name=_('Hierarchy'), db_index=True)
     master = models.ForeignKey('self', related_name='disciples', null=True, blank=True, verbose_name=_('Master'),
                                on_delete=models.PROTECT, db_index=True)
+    manager = models.ForeignKey('self', related_name='skins', null=True, blank=True, verbose_name=_('Manager'),
+                                on_delete=models.PROTECT, db_index=True)
 
     extra_phone_numbers = ArrayField(
         models.CharField(_('Number'), max_length=255),
