@@ -91,8 +91,8 @@ $('document').ready(function () {
         clearAddChurchData();
         makePastorList(department_id, '#pastor_select');
         setTimeout(function () {
-            //$('#addChurch').css('display', 'block');
-            $('#addChurch').addClass('active')
+            $('#addChurch').css('display', 'block');
+            //$('#addChurch').addClass('active')
         }, 100);
     });
     $('#department_select').on('change', function () {
@@ -108,8 +108,8 @@ $('document').ready(function () {
 
     $('#filter_button').on('click', function () {
         filterInit();
-        //$('#filterPopup').css('display', 'block');
-        $('#filterPopup').addClass('active');
+        $('#filterPopup').css('display', 'block');
+        //$('#filterPopup').addClass('active');
     });
 
     $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {

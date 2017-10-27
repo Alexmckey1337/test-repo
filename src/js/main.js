@@ -22,7 +22,7 @@ $('.close').on('click', function () {
         $(this).closest('.pop-up-splash').css('display', 'none');
     }
     if ($(this).closest('.popup')) {
-        $(this).closest('.popup').removeClass('active');
+        $(this).closest('.popup').css('display', 'none');
     }
 });
 
