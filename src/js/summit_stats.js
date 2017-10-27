@@ -47,7 +47,7 @@ $('document').ready(function () {
     getTabsFilter();
 
     $('#filter_button').on('click', function () {
-        $('#filterPopup').css('display', 'block').find('.pop_cont').on('click', function (e) {
+        $('#filterPopup').classList.add('active').find('.pop_cont').on('click', function (e) {
             e.preventDefault();
             return false
         });
