@@ -38,6 +38,7 @@ $('#logout_button').on('click', function (e) {
 
 $('.reset_hard_user').on('click', function (e) {
     deleteCookie('hard_user_id');
+    deleteCookie('skin_id');
     window.location.reload();
 });
 $('#entry_as').on('click', function () {
