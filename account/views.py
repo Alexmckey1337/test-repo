@@ -19,7 +19,7 @@ from rest_framework.decorators import list_route, detail_route
 from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser, FormParser
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
@@ -28,9 +28,9 @@ from account.filters import (FilterByUserBirthday, UserFilter, ShortUserFilter, 
                              UserHomeGroupFilter, UserHGLeadersFilter)
 from account.models import CustomUser as User
 from account.permissions import CanSeeUserList, CanCreateUser, CanExportUserList, SeeUserListPermission, \
-    EditUserPermission, ExportUserListPermission
+    EditUserPermission, ExportUserListPermission, IsSuperUser
 from account.serializers import HierarchyError, UserForMoveSerializer, UserUpdateSerializer, ChurchIdSerializer, \
-    HomeGroupIdSerializer
+    HomeGroupIdSerializer, ManagerIdSerializer
 from account.serializers import UserForSelectSerializer
 from analytics.decorators import log_perform_update, log_perform_create
 from analytics.mixins import LogAndCreateUpdateDestroyMixin
@@ -206,6 +206,19 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         user.set_church_and_log(church, get_real_user(request))
 
         return Response({'detail': _('Церковь установлена.')},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'], serializer_class=ManagerIdSerializer, permission_classes=(IsSuperUser,))
+    def set_manager(self, request, pk):
+        """
+        Set manager for user
+        """
+        user = self.get_object()
+        manager = self._get_object_or_error(User, 'manager_id')
+        user.manager = manager
+        user.save()
+
+        return Response({'detail': _('Менеджер назначен.')},
                         status=status.HTTP_200_OK)
 
     # TODO tmp
