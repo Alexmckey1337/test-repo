@@ -383,6 +383,14 @@ class ChurchIdSerializer(serializers.ModelSerializer):
         fields = ('church_id',)
 
 
+class ManagerIdSerializer(serializers.ModelSerializer):
+    manager_id = serializers.ModelField(model_field='pk')
+
+    class Meta:
+        model = CustomUser
+        fields = ('manager_id',)
+
+
 class HomeGroupIdSerializer(serializers.ModelSerializer):
     home_group_id = serializers.ModelField(model_field='pk')
 

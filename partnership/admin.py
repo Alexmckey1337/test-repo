@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
 from partnership.admin_filters import PaidStatusFilter
-from .models import Partnership, Deal
+from .models import Partnership, Deal, PartnerGroup
 
 
 class PartnershipAdmin(admin.ModelAdmin):
@@ -45,3 +45,4 @@ class DealAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Deal, DealAdmin)
+admin.site.register(PartnerGroup)

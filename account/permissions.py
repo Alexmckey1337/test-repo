@@ -4,6 +4,11 @@ from rest_framework.permissions import BasePermission
 from common.permissions import BaseUserPermission
 
 
+class IsSuperUser(BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_superuser
+
+
 class CanSeeAccountPage(BasePermission):
     def has_object_permission(self, request, view, user):
         return can_see_account_page(request.user, user)
