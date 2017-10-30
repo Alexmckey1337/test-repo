@@ -107,7 +107,9 @@ $('document').ready(function () {
         clearAddHomeGroupData();
         updateLeaderSelect();
         setTimeout(function () {
-            $('#addHomeGroup').css('display', 'block');
+            //$('#addHomeGroup').css('display', 'block');
+            $('#addHomeGroup').addClass('active');
+            $('.bg').addClass('active');
         }, 100);
     });
 
@@ -140,7 +142,9 @@ $('document').ready(function () {
     //Filter
     $('#filter_button').on('click', function () {
         filterInit();
-        $('#filterPopup').css('display', 'block');
+        //$('#filterPopup').css('display', 'block');
+        $('#filterPopup').addClass('active');
+        $('.bg').addClass('active');
     });
 
     $('.clear-filter').on('click', function () {

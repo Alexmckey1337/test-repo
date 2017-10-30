@@ -52,7 +52,9 @@ $('document').ready(function () {
 
     //Events
     $('#filter_button').on('click', function () {
-        $('#filterPopup').css('display', 'block');
+        //$('#filterPopup').css('display', 'block');
+        $('#filterPopup').addClass('active');
+        $('.bg').addClass('active');
     });
 
     $('.pop_cont').on('click', function (e) {
@@ -97,7 +99,9 @@ $('document').ready(function () {
 
     $('#add').on('click', function () {
         $('body').addClass('no_scroll');
-        $('#addNewUserPopup').css('display', 'block');
+        //$('#addNewUserPopup').css('display', 'block');
+        $('#addNewUserPopup').addClass('active');
+        $('.bg').addClass('active');
         $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
         initAddNewUser();
     });

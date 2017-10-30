@@ -11,6 +11,8 @@ $('document').ready(function () {
 
     //Filter
     $('#filter_button').on('click', function () {
+        $('#filterPopup').addClass('active');
+        $('.bg').addClass('active');
         $('#filterPopup').css('display', 'block').find('.pop_cont').on('click', function (e) {
             e.preventDefault();
             return false

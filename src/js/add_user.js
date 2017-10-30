@@ -154,7 +154,9 @@ $('document').ready(function () {
 
     $('.btn-block').find('.closeForm').on('click', function (e) {
         e.preventDefault();
-        $('#addNewUserPopup').css('display', 'none');
+        //$('#addNewUserPopup').css('display', 'none');
+        $('#addNewUserPopup').removeClass('active');
+        $('.bg').removeClass('active');
         $(this).closest('form').get(0).reset();
         $(this).closest('form').find('input[type=file]').val('');
         $(this).closest('form').find('#edit-photo img').attr('src', '/static/img/no-usr.jpg');

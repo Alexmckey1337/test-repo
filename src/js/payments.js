@@ -25,7 +25,10 @@ $(document).ready(function () {
     });
 
     $('#filter_button').on('click', ()=> {
-        $('#filterPopup').show();
+        //$('#filterPopup').show();
+        $('#filterPopup').addClass('active');
+        $('.bg').addClass('active');
+
     });
     $('#date_from').datepicker({
         dateFormat: 'yyyy-mm-dd',

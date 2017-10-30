@@ -22,7 +22,9 @@ $('document').ready(function () {
 
     //Filter
     $('#filter_button').on('click', ()=> {
-        $('#filterPopup').show();
+        //$('#filterPopup').show();
+        $('#filterPopup').addClass('active');
+        $('.bg').addClass('active');
     });
 
     $('.date_filter').datepicker({

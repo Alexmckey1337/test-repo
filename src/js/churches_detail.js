@@ -40,7 +40,9 @@ $('document').ready(function () {
             setOptionsToPotentialLeadersSelect(CHURCH_ID);
         }
         setTimeout(function () {
-            $('#addHomeGroup').css('display', 'block');
+            //$('#addHomeGroup').css('display', 'block');
+            $('#addHomeGroup').addClass('active');
+            $('.bg').addClass('active');
         }, 100)
     });
 
@@ -55,6 +57,8 @@ $('document').ready(function () {
         document.querySelector('#searchUserFromDatabase').focus();
         $('#searchedUsers').css('height', 'auto');
         $('#chooseUserINBases').css('display', 'block');
+        //$('#chooseUserINBases').addClass('active');
+        //$('.bg').addClass('active');
     });
 
     // $('#choose').on('click', function () {
@@ -71,7 +75,9 @@ $('document').ready(function () {
         let option = document.createElement('option');
         $(option).val(department_id).text(department_title).attr('selected', true).attr('required', false);
         $(this).closest('.popup').css('display', 'none');
-        $('#addNewUserPopup').css('display', 'block');
+        //$('#addNewUserPopup').css('display', 'block');
+        $('#addNewUserPopup').addClass('active');
+        $('.bg').addClass('active');
         $('#chooseDepartment').html(option).attr('disabled', false);
         $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
     });

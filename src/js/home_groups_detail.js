@@ -51,7 +51,9 @@ $('document').ready(function () {
         let option = document.createElement('option');
         $(option).val(departament_id).text(departament_title).attr('selected', true);
         $(this).closest('.popup').css('display', 'none');
-        $('#addNewUserPopup').css('display', 'block');
+        //$('#addNewUserPopup').css('display', 'block');
+        $('#addNewUserPopup').addClass('active');
+        $('.bg').addClass('active');
         $('#chooseDepartment').html(option).attr('required', false).attr('disabled', false);
         $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
     });

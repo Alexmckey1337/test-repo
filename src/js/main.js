@@ -23,6 +23,8 @@ $('.close').on('click', function () {
     }
     if ($(this).closest('.popup')) {
         $(this).closest('.popup').css('display', 'none');
+        $(this).closest('.popup_slide').removeClass('active');
+        $(this).closest('.popup_slide').css('display', 'block');
     }
 });
 
@@ -209,8 +211,9 @@ function opened(name) {
 $('.close-popup').on('click', function (e) {
     e.preventDefault();
     hidePopup(this);
-});
+    $(this).closest('.popup_slide').removeClass('active');
 
+});
 function setSidebarPosition() {
     let $sidebar = $("#sidebar");
     let $moveSidebar = $('#move-sidebar');
