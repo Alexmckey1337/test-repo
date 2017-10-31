@@ -14,7 +14,6 @@ from rest_framework.response import Response
 
 from account.models import CustomUser
 from common.filters import FieldSearchFilter
-from common.views_mixins import ModelWithoutDeleteViewSet
 from .filters import (ChurchReportFilter, MeetingFilter, MeetingCustomFilter, MeetingFilterByMaster,
                       ChurchReportDepartmentFilter, ChurchReportFilterByMaster, EventSummaryFilter,
                       EventSummaryMasterFilter, ChurchReportPaymentStatusFilter, )

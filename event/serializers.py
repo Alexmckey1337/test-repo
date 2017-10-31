@@ -251,7 +251,8 @@ class ChurchReportSerializer(ChurchReportListSerializer):
                 if instance.transfer_payments < validated_data['transfer_payments']:
                     instance.done = False
             except Exception:
-                raise serializers.ValidationError({'message': '{transfer_payments} must be Integer or Decimal'})
+                raise serializers.ValidationError(
+                    {'message': '{transfer_payments} must be Integer or Decimal'})
         return super(ChurchReportSerializer, self).update(instance, validated_data)
 
 

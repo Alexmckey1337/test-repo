@@ -24,6 +24,7 @@ from partnership.models import Partnership, Deal, PartnerGroup
 from payment.models import Currency
 from status.models import Division
 from summit.models import SummitType, SummitTicket, SummitAnket, Summit, AnketEmail
+from task.models import Task, TaskType
 
 
 def entry(request):
@@ -152,6 +153,20 @@ def report_payments(request):
     }
 
     return render(request, 'event/report_payments.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def task_list(request):
+    if not request.user.is_staff and not request.user.hierarchy:
+        return redirect('/')
+
+    ctx = {
+        'divisions': Division.objects.all(),
+        'users': CustomUser.objects.all(),
+        'types': Task.objects.all()
+    }
+
+    return render(request, 'tasks/task_list.html', context=ctx)
 
 
 def privacy_policy(request):
