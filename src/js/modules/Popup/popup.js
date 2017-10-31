@@ -87,8 +87,12 @@ export function hidePopup(el) {
         $(el).closest('.popap').find('.save-user').text('Сохранить');
     }
     $(el).closest('.popap').css('display', 'none');
+    $(el).closest('.popap_slide').removeClass('active');
+    $(el).closest('.popap_slide').css('display', 'block');
+    $('.bg').removeClass('active');
 }
 
 export function closePopup(el) {
     $(el).closest('.pop-up-splash').hide();
 }
+

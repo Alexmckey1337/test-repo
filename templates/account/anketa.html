@@ -147,7 +147,8 @@
                                                 <i class="fa fa-phone" aria-hidden="true"></i>
                                             </span>
                                             <div class="label_phone_block">
-                                                <input type="text" id="phone_number" name="phone_number" value="{{ account.phone_number }}" readonly>
+                                                <input type="text" id="phone_number" name="phone_number"
+                                                       value="{{ account.phone_number }}" readonly>
                                                 <span class="comment"></span>
                                             </div>
                                         </label>
@@ -155,8 +156,7 @@
                                             <span class="label_block"><i class="fa fa-mobile"
                                                                          aria-hidden="true"></i></span>
                                             <input type="text" id="extra_phone_numbers"
-                                                   value="{% if account.extra_phone_numbers %}{{ account.extra_phone_numbers|default:""|join:", " }}{% endif %}"
-                                                   readonly>
+                                                   value="{% if account.extra_phone_numbers %}{{ account.extra_phone_numbers|default:""|join:", " }}{% endif %}" readonly>
                                         </label>
                                         <label>
                                             <span class="label_block"><i class="fa fa-envelope"></i></span>
@@ -184,8 +184,7 @@
                                         <label>
                                             <span class="label_block">Facebook</span>
                                             <input type="text" id="facebook" name="facebook"
-                                                   value="{{ account.facebook }}"
-                                                   readonly>
+                                                   value="{{ account.facebook }}" readonly>
                                         </label>
                                         <label>
                                             <span class="label_block">Vkontakte</span>
@@ -415,22 +414,17 @@
                                             </label>
                                         {% else %}
                                             <label>
-                                                <p class="label_block_important">Пользователь не состоит ни в церкви ни
-                                                    в
-                                                    домашней группе</p>
+                                                <p class="label_block_important">Пользователь не состоит ни в церкви ни в домашней группе</p>
                                             </label>
                                             <label>
                                                 <span class="label_block">Церковь</span>
-                                                <select type="text" id="church_list" name="churches_title" value=""
-                                                        readonly
-                                                        disabled>
+                                                <select type="text" id="church_list" name="churches_title" value="" readonly disabled>
                                                     <option value="">Выберите церковь</option>
                                                 </select>
                                             </label>
                                             <label>
                                                 <span class="label_block">Домашняя группа</span>
-                                                <select type="text" id="home_groups_list" name="home_groups" readonly
-                                                        disabled>
+                                                <select type="text" id="home_groups_list" name="home_groups" readonly disabled>
                                                     <option value="">Выберите домашнюю группу</option>
                                                 </select>
                                             </label>
@@ -446,6 +440,20 @@
 
         <div class="right-contentwrap">
             <div class="right-content">
+                {% if request.user.is_superuser %}
+                    <div style="padding: 10px;">
+                        <label for="manager_select">Менеджер:</label>
+                        <select name="manager" id="manager_select" class="select2" style="width:75%;"></select>
+                        <button id="set_manager" data-user="{{ account.id }}">Set</button>
+                        {% if account.manager %}
+                            <p>Текущий менеджер: <a href="{{ account.manager.get_absolute_url }}" target="_blank">
+                                {{ account.manager }}
+                            </a></p>
+                        {% else %}
+                            <p>Текущий менеджер: Нет менеджера</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
                 {% for profile in account.active_summit_profiles %}
                     <h1>{{ profile.summit }}: {{ profile.reg_code }}
                         <button class="send_email_with_code"
@@ -481,8 +489,7 @@
                             <button class="editText"></button>
                             <button class="saveNote" id="sendNote" data-id="{{ account.id }}"></button>
                         </div>
-                        <textarea name="need_note" id="id_note_text" rows="5" cols="50"
-                                  readonly>{{ account.description }}</textarea>
+                        <textarea name="need_note" id="id_note_text" rows="5" cols="50" readonly>{{ account.description }}</textarea>
                     </div>
                 </div>
                 {% if user.is_partner_manager_or_high and account.is_partner %}
@@ -495,22 +502,21 @@
                                 <label for="access_select">Права доступа</label>
                                 <div class="btn-block">
                                     {% if user.is_partner_supervisor_or_high %}
-                                    <button class="editText"></button>
-                                    <button class="saveNote" id="sendAccess"
-                                            data-access="{{ account.has_partner_role }}"
-                                            data-id="{{ account.id }}">
-                                    </button>
+                                        <button class="editText"></button>
+                                        <button class="saveNote" id="sendAccess"
+                                                data-access="{{ account.has_partner_role }}"
+                                                data-id="{{ account.id }}">
+                                        </button>
                                     {% endif %}
                                 </div>
                                 <div class="access_select_wrapper">
                                     <select id="access_select" readonly disabled>
-                                        <option value=""
-                                                {% if account.has_partner_role == False %}selected{% endif %} disabled>
+                                        <option value="" {% if account.has_partner_role == False %}selected{% endif %} disabled>
                                             Права отсутствуют
                                         </option>
                                         {% for level in partner_levels %}
                                             <option value="{{ level.id }}"
-                                                    {% if level.id == account.partner_role.level%}selected{% endif %}>
+                                                    {% if level.id == account.partner_role.level %}selected{% endif %}>
                                                 {{ level.title }}
                                             </option>
                                         {% endfor %}
@@ -593,7 +599,7 @@
                                     <div class="rows">
                                         <p>{{ account.fullname }}</p>
                                         <p>Дата создания: <span>{{ deal.date_created }}</span></p>
-                                        <p>Сумма: <span>{{ deal.total_sum|cut:".000"}}/{{ deal.value }}₴</span></p>
+                                        <p>Сумма: <span>{{ deal.total_sum|cut:".000" }}/{{ deal.value }}₴</span></p>
                                     </div>
                                 {% endfor %}
                             </div>
@@ -634,8 +640,9 @@
                                          style="display:none;">
                                         <p class="summits-title__title">{{ anket.summit }}</p>
                                         <p>{{ anket.summit.description|default:"Комментарий не указан" }}
-                                            (Code: <a
-                                                    href="/api/v1.0/generate_code/{{ anket.user.fullname }} ({{ anket.code }}).pdf?code={{ anket.code }}">{{ anket.code }}</a>)
+                                            (Code: <a href="/api/v1.0/generate_code/{{ anket.user.fullname }} ({{ anket.code }}).pdf?code={{ anket.code }}">
+                                                {{ anket.code }}
+                                            </a>)
                                         </p>
                                         <p>Сумма<span> {{ anket.total_payed }} ₴</span></p>
                                     </div>

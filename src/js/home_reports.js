@@ -221,7 +221,9 @@ $('document').ready(function () {
 
     $('#filter_button').on('click', function () {
         filterInit();
-        $('#filterPopup').css('display', 'block');
+        //$('#filterPopup').css('display', 'block');
+        $('#filterPopup').addClass('active');
+        $('.bg').addClass('active');
     });
 
     $('#date_range').datepicker({

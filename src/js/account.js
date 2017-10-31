@@ -13,22 +13,97 @@ import 'inputmask/dist/inputmask/inputmask.js';
 import 'inputmask/dist/inputmask/jquery.inputmask.js';
 import 'inputmask/dist/inputmask/inputmask.phone.extensions.js';
 import 'inputmask/dist/inputmask/phone-codes/phone.js';
-import {updateUser, updateOrCreatePartner} from './modules/User/updateUser';
-import {makeResponsibleList} from './modules/MakeList/index';
+import {updateOrCreatePartner, updateUser} from './modules/User/updateUser';
+import {makeChurches, makeResponsibleList} from './modules/MakeList/index';
 import getLastId from './modules/GetLastId/index';
 import {setCookie} from './modules/Cookie/cookie';
-import {postData, deleteData} from "./modules/Ajax/index";
+import {deleteData, postData} from "./modules/Ajax/index";
 import ajaxRequest from './modules/Ajax/ajaxRequest';
 import URLS from './modules/Urls/index';
 import {CONFIG} from './modules/config';
 import {showAlert, showConfirm} from './modules/ShowNotifications/index';
 import {createPayment} from './modules/Payment/index';
-import {sendNote, changeLessonStatus, initLocationSelect} from './modules/Account/index';
-import {makeChurches} from './modules/MakeList/index';
-import {addUserToHomeGroup, addUserToChurch} from './modules/User/addUser';
-import {handleFileSelect, dataURLtoBlob} from './modules/Avatar/index';
+import {changeLessonStatus, initLocationSelect, sendNote} from './modules/Account/index';
+import {addUserToChurch, addUserToHomeGroup} from './modules/User/addUser';
+import {dataURLtoBlob, handleFileSelect} from './modules/Avatar/index';
 
 $('document').ready(function () {
+    //////////////////////////////////////////////
+    // sorry for my code  -- start
+    //////////////////////////////////////////////
+    function formatRepo(data) {
+        if (data.id === '') {
+            return '-------';
+        }
+        return `<option value="${data.id}">${data.text}</option>`;
+    }
+
+    function parseFunc(data, params) {
+        params.page = params.page || 1;
+        const results = [];
+        data.results.forEach(function makeResults(element) {
+            results.push({
+                id: element.id,
+                text: element.title,
+            });
+        });
+        return {
+            results: results,
+            pagination: {
+                more: (params.page * 100) < data.count
+            }
+        };
+    }
+
+    $('#manager_select').select2({
+        ajax: {
+            url: '/api/v1.1/users/for_select/',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    search: params.term,
+                    page: params.page
+                };
+            },
+            processResults: parseFunc,
+            cache: true
+        },
+        escapeMarkup: function (markup) {
+            return markup;
+        },
+        templateResult: formatRepo,
+        templateSelection: formatRepo
+    });
+    $('#set_manager').on('click', function () {
+        const userId = $(this).data('user');
+        let manager = $('#manager_select').val();
+        let options = {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            }),
+            body: JSON.stringify({'manager_id': manager})
+        };
+        fetch(`${URLS.user.detail(userId)}set_manager/`, options)
+            .then(res => {
+                if (res.status === 200) {
+                    window.location.reload()
+                } else {
+                    return res.json();
+                }
+            })
+            .then(data => {
+                showAlert(data.detail)
+            })
+            .catch(err => {
+                showAlert(JSON.parse(err));
+            });
+    });
+    //////////////////////////////////////////////
+    // sorry for my code  -- finish
+    //////////////////////////////////////////////
     const ID = getLastId();
 
     function AddColorMarkers() {
