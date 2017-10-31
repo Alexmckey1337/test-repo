@@ -78,12 +78,33 @@
                 <div id="header">
                 <div{% block main.attr %} {% endblock %}>
                     {% if request.hard_user %}
-                        <h1 style="padding-left: 1em;"><strong>Real User:</strong>
-                            <a href="{{ request.real_user.get_absolute_url }}">
-                                {{ request.real_user }}
-                            </a>
-                        </h1>
-                        <h1 style="padding-left: 1em;"><strong>Hard User:</strong>
+                        <div class="user-wrap">
+                            <h1 style="padding-left: 1em;"><strong>Real User:</strong>
+                                <a href="{{ request.real_user.get_absolute_url }}">
+                                    {{ request.real_user }}
+                                </a>
+                            </h1>
+                            {% if request.real_user %}
+                                {% if request.real_user.skins.exists %}
+                                    <select name="skin_id" id="skin_id">
+                                        {% for skin in request.real_user.skins.all %}
+                                            <option value="{{ skin.id }}">{{ skin.fullname }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <input type="button" id="entry_as" value="OK">
+                                {% endif %}
+                            {% else %}
+                                {% if request.user.skins.exists %}
+                                    <select name="skin_id" id="skin_id">
+                                        {% for skin in request.user.skins.all %}
+                                            <option value="{{ skin.id }}">{{ skin.fullname }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <input type="button" id="entry_as" value="OK">
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        <h1 style="padding-left: 1em; margin-top: 0"><strong>Hard User:</strong>
                             <a href="{{ request.hard_user.get_absolute_url }}">
                                 {{ request.hard_user }}
                             </a>
@@ -96,26 +117,6 @@
                                 {{ request.user }}
                             </a>
                         </h1>
-                    {% endif %}
-
-                    {% if request.real_user %}
-                        {% if request.real_user.skins.exists %}
-                            <select name="skin_id" id="skin_id">
-                                {% for skin in request.real_user.skins.all %}
-                                    <option value="{{ skin.id }}">{{ skin.fullname }}</option>
-                                {% endfor %}
-                            </select>
-                            <input type="button" id="entry_as" value="OK">
-                        {% endif %}
-                    {% else %}
-                        {% if request.user.skins.exists %}
-                            <select name="skin_id" id="skin_id">
-                                {% for skin in request.user.skins.all %}
-                                    <option value="{{ skin.id }}">{{ skin.fullname }}</option>
-                                {% endfor %}
-                            </select>
-                            <input type="button" id="entry_as" value="OK">
-                        {% endif %}
                     {% endif %}
                     {% block header %}
                         <div class="header">
