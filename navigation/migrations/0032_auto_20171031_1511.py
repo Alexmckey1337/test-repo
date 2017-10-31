@@ -5,11 +5,50 @@ from __future__ import unicode_literals
 from django.db import migrations
 
 
-class Migration(migrations.Migration):
+def create_tasks_columns(apps, schema_editor):
+    Task_columns = apps.get_model('navigation', 'ColumnType')
+    Category = apps.get_model('navigation', 'Category')
 
+    tasks = Category.objects.create(title='tasks', common=True)
+
+    Task_columns.objects.bulk_create([
+        Task_columns(title='date_published', verbose_title='Дата',
+                     ordering_title='date_published',
+                     number=1, active=True, editable=True, category_id=tasks.id),
+        Task_columns(title='type', verbose_title='Тип', ordering_title='type', number=2,
+                     active=True, editable=True, category_id=tasks.id),
+        Task_columns(title='creator', verbose_title='Автор', ordering_title='creator__last_name',
+                     number=3, active=True, editable=True, category_id=tasks.id),
+        Task_columns(title='executor', verbose_title='Исполнитель', ordering_title='executor__last_name',
+                     number=4, active=True, editable=True, category_id=tasks.id),
+        Task_columns(title='division', verbose_title='Департамент', ordering_title='division__title',
+                     number=5, active=True, editable=True, category_id=tasks.id),
+        Task_columns(title='target', verbose_title='Объект', ordering_title='target__last_name',
+                     number=6, active=True, editable=True, category_id=tasks.id),
+        Task_columns(title='description', verbose_title='Описание', ordering_title='description',
+                     number=7, active=True, editable=True, category_id=tasks.id),
+        Task_columns(title='status', verbose_title='Статус', ordering_title='status',
+                     number=8, active=True, editable=True, category_id=tasks.id),
+        Task_columns(title='final_report', verbose_title='Комментарий', ordering_title='final_report',
+                     number=9, active=True, editable=True, category_id=tasks.id),
+        Task_columns(title='date_finish', verbose_title='Дата закрытия', ordering_title='date_finish',
+                     number=10, active=True, editable=True, category_id=tasks.id),
+    ])
+
+
+def delete_tasks_columns(apps, schema_editor):
+    Task_columns = apps.get_model("navigation", "ColumnType")
+    Category = apps.get_model("navigation", "Category")
+
+    Task_columns.objects.filter(category__title='tasks').delete()
+    Category.objects.filter(title="tasks").delete()
+
+
+class Migration(migrations.Migration):
     dependencies = [
         ('navigation', '0031_create_partner_group_column'),
     ]
 
     operations = [
+        migrations.RunPython(create_tasks_columns, delete_tasks_columns)
     ]

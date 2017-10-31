@@ -42,6 +42,8 @@ class TaskCreateUpdateSerializer(serializers.ModelSerializer):
         if validate_data.get('status') == Task.DONE and not validate_data.get('finish_report'):
             raise serializers.ValidationError('Невозможно завершить задачу. Отчет о завершение не передан.')
 
+        return super(TaskCreateUpdateSerializer, self).update(instance, validate_data)
+
 
 class TaskDisplaySerializer(TaskCreateUpdateSerializer):
     type = TaskTypeSerializer(read_only=True)
