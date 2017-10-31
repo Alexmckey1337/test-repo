@@ -84,8 +84,7 @@ events_patterns = [
 
 task_patterns = [
     url(r'^$', login_required(redirect_to_tasks, login_url='entry'), name='main'),
-    url(r'^list/$', views.task_list, name='task_list'),
-    url(r'^detail/(?P<pk>\d+)/$', views.task_detail, name='task_detail'),
+    url(r'^all/$', views.task_list, name='task_list'),
 ]
 
 summit_patterns = [

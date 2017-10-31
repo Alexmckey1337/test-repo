@@ -169,18 +169,6 @@ def task_list(request):
     return render(request, 'tasks/task_list.html', context=ctx)
 
 
-@login_required(login_url='entry')
-def task_detail(request, pk):
-    if not request.user.is_staff and not request.user.hierarchy:
-        return redirect('/')
-
-    ctx = {
-        'task': Task.objects.get(pk=pk)
-    }
-
-    return render(request, 'tasks/task_detail.html', context=ctx)
-
-
 def privacy_policy(request):
     """For mobile clients"""
     ctx = {}
