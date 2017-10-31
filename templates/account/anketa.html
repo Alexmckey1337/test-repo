@@ -441,27 +441,30 @@
         <div class="right-contentwrap">
             <div class="right-content">
                 {% if request.user.is_superuser %}
-                    <div style="padding: 10px;">
-                        <label for="manager_select">Менеджер:</label>
-                        <select name="manager" id="manager_select" class="select2" style="width:75%;"></select>
-                        <button id="set_manager" data-user="{{ account.id }}">Set</button>
-                        {% if account.manager %}
-                            <p>Текущий менеджер: <a href="{{ account.manager.get_absolute_url }}" target="_blank">
-                                {{ account.manager }}
-                            </a></p>
-                        {% else %}
-                            <p>Текущий менеджер: Нет менеджера</p>
-                        {% endif %}
+                    <div class="a-manager">
+                        <div class="manager-wrap">
+                            <label for="manager_select">Менеджер:</label>
+                            <select name="manager" id="manager_select" class="select2"></select>
+                            <button id="set_manager" data-user="{{ account.id }}">Set</button>
+                            {% if account.manager %}
+                                <p>Текущий менеджер: <a href="{{ account.manager.get_absolute_url }}" target="_blank">
+                                    {{ account.manager }}
+                                </a></p>
+                            {% else %}
+                                <p>Текущий менеджер: Нет менеджера</p>
+                            {% endif %}
+                        </div>
                     </div>
                 {% endif %}
-                {% for profile in account.active_summit_profiles %}
-                    <h1>{{ profile.summit }}: {{ profile.reg_code }}
-                        <button class="send_email_with_code"
-                                data-url="{% url "send_code" profile_id=profile.id %}?method=email">Send to email
-                        </button>
-                    </h1>
-                {% endfor %}
-
+                <div class="a-mail">
+                    {% for profile in account.active_summit_profiles %}
+                        <h1>{{ profile.summit }}: {{ profile.reg_code }}
+                            <button class="send_email_with_code"
+                                    data-url="{% url "send_code" profile_id=profile.id %}?method=email">Send to email
+                            </button>
+                        </h1>
+                    {% endfor %}
+                </div>
                 <div class="a-note">
                     <div class="top-s">
                         <h3>Примечания</h3>
