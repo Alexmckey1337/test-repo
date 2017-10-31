@@ -50,12 +50,14 @@ export function createChurchesTable(config = {}) {
                     $('#editDepartmentSelect').on('change', function () {
                         let id = parseInt($(this).val());
                         makePastorList(id, '#editPastorSelect');
-                    })
+                    });
                 });
                 setTimeout(function () {
-                    $('#quickEditCartPopup').css('display', 'block');
-                }, 100)
-            })
+                    //$('#quickEditCartPopup').css('display', 'block');
+                    $('#quickEditCartPopup').addClass('active');
+                    $('.bg').addClass('active');
+                }, 100);
+            });
         });
 
         makeSortForm(filterData.user_table);

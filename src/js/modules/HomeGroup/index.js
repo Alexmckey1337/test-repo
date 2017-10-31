@@ -394,7 +394,9 @@ export function createHomeGroupsTable(config = {}) {
                         dateFormat: 'yyyy-mm-dd',
                         autoClose: true
                     });
-                    $('#quickEditCartPopup').css('display', 'block');
+                    //$('#quickEditCartPopup').css('display', 'block');
+                    $('#quickEditCartPopup').addClass('active');
+                    $('.bg').addClass('active');
                 }, 100)
             })
         });
