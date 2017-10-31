@@ -4,6 +4,7 @@ from django.conf.urls import url, include
 urlpatterns = [
     url(r'^', include('account.urls')),
     url(r'^', include('event.urls')),
+    url(r'^', include('task.urls')),
     url(r'^', include('hierarchy.urls')),
     url(r'^', include('location.urls')),
     url(r'^', include('navigation.urls')),

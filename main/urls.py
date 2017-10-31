@@ -30,6 +30,12 @@ def redirect_to_churches(request):
     return redirect(reverse('db:churches'))
 
 
+def redirect_to_tasks(request):
+    if not request.user.hierarchy.level <= 1:
+        return redirect(reverse('db:people'))
+    return redirect(reverse('tasks:task_list'))
+
+
 def redirect_to_summits(request):
     return redirect(reverse('summit:open'))
 
@@ -76,6 +82,12 @@ events_patterns = [
     url(r'^church/payments/$', views.report_payments, name='report_payments'),
 ]
 
+task_patterns = [
+    url(r'^$', login_required(redirect_to_tasks, login_url='entry'), name='main'),
+    url(r'^list/$', views.task_list, name='task_list'),
+    url(r'^detail/(?P<pk>\d+)/$', views.task_detail, name='task_detail'),
+]
+
 summit_patterns = [
     url(r'^$', login_required(redirect_to_summits, login_url='entry'), name='main'),
     url(r'^(?P<pk>\d+)/$', views.SummitDetailView.as_view(), name='detail'),
@@ -109,6 +121,7 @@ urlpatterns = [
 
     url(r'^churches/(?P<pk>\d+)/$', views.ChurchDetailView.as_view(), name='church_detail'),
     url(r'^home_groups/(?P<pk>\d+)/$', views.HomeGroupDetailView.as_view(), name='home_group_detail'),
+    url(r'^tasks/', include(task_patterns, namespace='tasks')),
 
     url(r'^password_view/(?P<activation_key>\w+)/$', views.edit_pass, name='password_view'),
 ]
