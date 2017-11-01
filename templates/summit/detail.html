@@ -305,7 +305,7 @@
                     <% if(user_table[key].active) { %>
                     <% if (key == 'full_name') { %>
                     <% if (results[index][key] != null) { %>
-                    <td{% if is_supervisor %} class="edit"{% endif %}><a href="<%= results[index].link %>"
+                    <td{% if is_supervisor %} class="edit"{% endif %} class="edit"><a href="<%= results[index].link %>"
                                         data-link="<%= results[index].link %>"
                                         data-id="<%=results[index].user_id %>"
                         <% if(results[index].id) { %>

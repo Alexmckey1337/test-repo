@@ -1,3 +1,140 @@
+{% extends "layout_main.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block header.top.h1 %}<h1>Задачи</h1>{% endblock %}
+
+{% block header.buttons %}
+    <div class="top-buttons-wrap">
+        <ul class="top-buttons">
+            {% block header.buttons.add %}
+                <li>
+                    <button id="add" class="header__button" data-count="0">Добавить задачу</button>
+                </li>
+                <li>
+                    <button id="filter_button" class="header__button" data-count="0">Фильтр</button>
+                </li>
+                <li>
+                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
+                </li>
+            {% endblock %}
+        </ul>
+    </div>
+{% endblock %}
+{% block popup %}
+    <div class="popap popap_slide" id='filterPopup'>
+        <div class="pop_cont">
+            <h2 class='popup_text'>
+                Фильтр
+            </h2>
+            <div class="popup_body">
+                <div class="container">
+                    <label>
+                        <span class="label_block">Отдел</span>
+                        <select class="selectdb" data-filter="department" id="departments_filter">
+                            <option value="">ВСЕ</option>
+                            {% for department in departments %}
+                                <option value="{{ department.id }}">{{ department.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Ветка</span>
+                        <select class="selectdb" data-filter="master_tree" id="tree_filter">
+                            <option value="ВСЕ">ВСЕ</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Пастор</span>
+                        <select class="selectdb" data-filter="pastor" id="pastor_filter">
+                            <option value="ВСЕ">ВСЕ</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Церковь</span>
+                        <select class="selectdb" data-filter="church" id="church_filter">
+                            <option value="ВСЕ">ВСЕ</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Статус сделки</span>
+                        <select id="payment_status" class="selectdb" data-filter="payment_status">
+                            <option value="">ВСЕ</option>
+                            <option value="0">Hе оплачена</option>
+                            <option value="1">Оплачена частично</option>
+                            <option value="2">Оплачена полностью</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+            <div class="container">
+                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
+                <button class="close-popup">Отменить</button>
+                <button class="apply-filter">Применить</button>
+            </div>
+        </div>
+    </div>
+    <div class="popap popap_slide" id='addTasks'>
+        <div class="pop_cont">
+            <h2 class='popup_text popup_text_create'>Создание задачи</h2>
+            <h2 class='popup_text popup_text_change'>Изменение задачи</h2>
+            <div class="popup_body">
+                <div class="container">
+                    <label>
+                        <span class="label_block">Дата:</span>
+                        <input id="tasksDate" required>
+                    </label>
+                    <label>
+                        <span class="label_block">Отдел:</span>
+                        <select class="selectdb" data-filter="department" id="department_filter">
+                            {% for division in  divisions %}
+                                <option value="{{ division.id }}">{{ division.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Исполнитель:</span>
+                        <select class="selectdb" data-filter="executor" id="executor_filter">
+                            {% for executor in  users %}
+                                <option value="{{ executor.id }}">{{ executor.fullname }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Тип задачи:</span>
+                        <select class="selectdb" data-filter="type" id="type_filter">
+                            {% for type in  types %}
+                                <option value="{{ type.id }}">{{ type.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <div class="tasks__user">
+                        <label>
+                            <span class="label_block">Объект задачи:</span>
+                            <select class="selectdb" data-filter="user" id="user_filter">
+                                {% for executor in  users %}
+                                    <option value="{{ executor.id }}">{{ executor.fullname }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label>
+                            <span class="label_block">Описание:</span>
+                            <textarea name="message" id="tasksDesc"></textarea>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <button class="complete-task"><i class="fa fa-check" aria-hidden="true"></i> Завершить</button>
+                <button class="close-popup">Отменить</button>
+                <button class="save-popup"><i class="fa fa-floppy-o" aria-hidden="true"></i> Сохранить</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block extra_scripts %}
+    <script src="{% static "js/tasks.bundle.js" %}"></script>
+{% endblock %}
 List
 
         'divisions': Division.objects.all(),
