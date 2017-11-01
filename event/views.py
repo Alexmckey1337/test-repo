@@ -245,7 +245,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
     @list_route(methods=['GET'], serializer_class=MeetingDashboardSerializer)
     def dashboard_counts(self, request):
         user = self.user_for_dashboard(request)
-        queryset = self.queryset.for_user(user)
+        queryset = self.queryset.for_user(user, extra_perms=False)
 
         dashboards_counts = queryset.aggregate(
             meetings_in_progress=Sum(Case(
@@ -417,7 +417,7 @@ class ChurchReportViewSet(ModelViewSet, CreatePaymentMixin,
     @list_route(methods=['GET'], serializer_class=ChurchReportsDashboardSerializer)
     def dashboard_counts(self, request):
         user = self.user_for_dashboard(request)
-        queryset = self.queryset.for_user(user)
+        queryset = self.queryset.for_user(user, extra_perms=False)
 
         dashboards_counts = queryset.aggregate(
             church_reports_in_progress=Sum(Case(

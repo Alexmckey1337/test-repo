@@ -6,10 +6,10 @@ class ChurchQuerySet(models.query.QuerySet):
     def base_queryset(self):
         return self
 
-    def for_user(self, user):
+    def for_user(self, user, extra_perms=True):
         if not is_authenticated(user):
             return self.none()
-        if user.is_staff:
+        if extra_perms and user.is_staff:
             return self
         return self.filter(pastor__in=user.__class__.get_tree(user))
 
@@ -21,18 +21,18 @@ class ChurchManager(models.Manager):
     def base_queryset(self):
         return self.get_queryset().base_queryset()
 
-    def for_user(self, user):
-        return self.get_queryset().for_user(user=user)
+    def for_user(self, user, extra_perms=True):
+        return self.get_queryset().for_user(user=user, extra_perms=extra_perms)
 
 
 class HomeGroupQuerySet(models.query.QuerySet):
     def base_queryset(self):
         return self
 
-    def for_user(self, user):
+    def for_user(self, user, extra_perms=True):
         if not is_authenticated(user):
             return self.none()
-        if user.is_staff:
+        if extra_perms and user.is_staff:
             return self
         return self.filter(leader__in=user.__class__.get_tree(user))
 
@@ -44,5 +44,5 @@ class HomeGroupManager(models.Manager):
     def base_queryset(self):
         return self.get_queryset().base_queryset()
 
-    def for_user(self, user):
-        return self.get_queryset().for_user(user=user)
+    def for_user(self, user, extra_perms=True):
+        return self.get_queryset().for_user(user=user, extra_perms=extra_perms)

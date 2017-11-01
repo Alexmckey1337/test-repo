@@ -347,7 +347,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         else:
             user = self.request.user
 
-        current_user_descendants = User.objects.get(user_ptr=user).get_descendants()
+        current_user_descendants = user.get_descendants()
 
         # TODO refactoring
         result = {
