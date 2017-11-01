@@ -78,10 +78,23 @@
                 <div id="header">
                 <div{% block main.attr %} {% endblock %}>
                     {% if request.hard_user %}
+                        <h1 style="padding-left: 1em;"><strong>Real User:</strong>
+                            <a href="{{ request.real_user.get_absolute_url }}">
+                                {{ request.real_user }}
+                            </a>
+                        </h1>
+                        <h1 style="padding-left: 1em; margin-top: 0"><strong>Hard User:</strong>
+                            <a href="{{ request.hard_user.get_absolute_url }}">
+                                {{ request.hard_user }}
+                            </a>
+                            -
+                            <a class="reset_hard_user" href="" style="color:darkred;">Сбросить</a>
+                        </h1>
+                    {% elif request.user.is_superuser %}
                         <div class="user-wrap">
-                            <h1 style="padding-left: 1em;"><strong>Real User:</strong>
-                                <a href="{{ request.real_user.get_absolute_url }}">
-                                    {{ request.real_user }}
+                            <h1 style="padding-left: 1em;"><strong>User:</strong>
+                                <a href="{{ request.user.get_absolute_url }}">
+                                    {{ request.user }}
                                 </a>
                             </h1>
                             {% if request.real_user %}
@@ -104,19 +117,6 @@
                                 {% endif %}
                             {% endif %}
                         </div>
-                        <h1 style="padding-left: 1em; margin-top: 0"><strong>Hard User:</strong>
-                            <a href="{{ request.hard_user.get_absolute_url }}">
-                                {{ request.hard_user }}
-                            </a>
-                            -
-                            <a class="reset_hard_user" href="" style="color:darkred;">Сбросить</a>
-                        </h1>
-                    {% elif request.user.is_superuser %}
-                        <h1 style="padding-left: 1em;"><strong>User:</strong>
-                            <a href="{{ request.user.get_absolute_url }}">
-                                {{ request.user }}
-                            </a>
-                        </h1>
                     {% endif %}
                     {% block header %}
                         <div class="header">
