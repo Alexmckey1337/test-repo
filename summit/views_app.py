@@ -1,19 +1,23 @@
 import logging
 from datetime import datetime, timedelta
 
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import ExpressionWrapper, F, IntegerField, Count
+from django.db.models import Count
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import mixins, viewsets, exceptions, status, filters
-from rest_framework.decorators import list_route, api_view
+from rest_framework.decorators import list_route, api_view, detail_route
 from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
+from account.models import CustomUser
+from account.permissions import IsSuperUser
 from common.exception import InvalidRegCode
 from common.filters import FieldSearchFilter
 from common.test_helpers.utils import get_real_user
 from common.views_mixins import ModelWithoutDeleteViewSet
+from notification.backend import RedisBackend
 from summit.regcode import decode_reg_code
 from .models import (
     SummitType, SummitAnket, AnketStatus, Summit, SummitVisitorLocation, SummitAttend, SummitEventTable,
@@ -24,7 +28,6 @@ from .serializers import (
     SummitVisitorLocationSerializer, SummitAnketCodeSerializer, SummitAttendSerializer,
     SummitAcceptMobileCodeSerializer, AnketActiveStatusSerializer, SummitEventTableSerializer,
     SummitAnketDrawForAppSerializer, SummitNameAnketCodeSerializer)
-from account.models import CustomUser
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +75,16 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
         except ObjectDoesNotExist:
             raise exceptions.ValidationError(code_error_message)
 
+        device_id = request.META.get(settings.APP_DEVICE_ID_FIELD)
+        r = RedisBackend()
+        exist_device_id = r.get(reg_code)
+
+        if not exist_device_id:
+            r.set(reg_code, device_id)
+            r.expire(reg_code, settings.APP_DEVICE_ID_EXPIRE)
+        elif device_id != exist_device_id.decode('utf8'):
+            raise exceptions.ValidationError(_('Вход был выполнен нa другом устройстве.'))
+
         if visitor.reg_code != reg_code:
             raise exceptions.ValidationError(code_error_message)
 
@@ -83,6 +96,13 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
 
         visitor = self.get_serializer(visitor)
         return Response(visitor.data, status=status.HTTP_200_OK)
+
+    @detail_route(methods=['POST'], permission_classes=(IsSuperUser,))
+    def reset_device_id(self, request, pk):
+        profile = self.get_object()
+        r = RedisBackend()
+        r.delete(profile.reg_code)
+        return Response(data={'detail': profile.reg_code})
 
     @list_route(methods=['GET'])
     def by_reg_date(self, request):

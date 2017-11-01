@@ -463,7 +463,10 @@
                                     data-url="{% url "send_code" profile_id=profile.id %}?method=email">Send to email
                             </button>
                         </h1>
-                    {% endfor %}
+                    {% if request.user.is_superuser and profile.device_id %}
+                        <h1>DEVICE ID: {{ profile.device_id }} <button data-id="{{ profile.id }}" class="reset_device_id">Reset</button></h1>
+                    {% endif %}
+                {% endfor %}
                 </div>
                 <div class="a-note">
                     <div class="top-s">

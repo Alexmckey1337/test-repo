@@ -101,6 +101,31 @@ $('document').ready(function () {
                 showAlert(JSON.parse(err));
             });
     });
+    $('.reset_device_id').on('click', function () {
+        const profileId = $(this).data('id');
+        let options = {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            }),
+            body: null
+        };
+        fetch(`/api/app/users/${profileId}/reset_device_id/`, options)
+            .then(res => {
+                if (res.status === 200) {
+                    window.location.reload()
+                } else {
+                    return res.json();
+                }
+            })
+            .then(data => {
+                showAlert(data.detail)
+            })
+            .catch(err => {
+                showAlert(JSON.parse(err));
+            });
+    });
     //////////////////////////////////////////////
     // sorry for my code  -- finish
     //////////////////////////////////////////////

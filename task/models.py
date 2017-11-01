@@ -2,7 +2,6 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.utils.encoding import python_2_unicode_compatible
-from django.core.urlresolvers import reverse
 
 
 @python_2_unicode_compatible
@@ -43,10 +42,3 @@ class Task(models.Model):
     def __str__(self):
         return 'Задача: тип - %s, статус - [%s]. Исполнитель: %s. Автор: %s' % (
             self.type, 'Выполнено' if self.status else 'В работе', self.executor, self.creator)
-
-    def get_absolute_url(self):
-        return reverse('tasks:detail', args=(self.id,))
-
-    @property
-    def link(self):
-        return self.get_absolute_url()

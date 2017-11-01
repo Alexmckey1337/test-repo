@@ -40,6 +40,9 @@ class RedisBackend(object):
     def srem(self, key, values):
         return self.client.srem(key, values)
 
+    def set(self, key, value, ex=None, px=None, nx=False, xx=False):
+        return self.client.set(key, value, ex, px, nx, xx)
+
     def expire(self, key, time):
         return self.client.expire(key, time)
 
