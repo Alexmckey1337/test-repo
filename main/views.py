@@ -162,8 +162,9 @@ def task_list(request):
 
     ctx = {
         'divisions': Division.objects.all(),
-        'users': CustomUser.objects.all(),
-        'types': Task.objects.all()
+        'executors': CustomUser.objects.for_user(request.user),
+        'targets': CustomUser.objects.all(),
+        'types': TaskType.objects.all()
     }
 
     return render(request, 'tasks/task_list.html', context=ctx)

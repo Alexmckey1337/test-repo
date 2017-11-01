@@ -87,6 +87,17 @@ def _filter_report_payments_columns(table_columns):
 
 
 @check_user_table_exist
+def tasks_table(user):
+    table_columns = _filter_tasks_columns(user.table.columns.select_related('columnType'))
+
+    return _get_result_table(table_columns)
+
+
+def _filter_tasks_columns(table_columns):
+    return table_columns.filter(columnType__category__title='tasks')
+
+
+@check_user_table_exist
 def partnership_summary_table(user, category_title=None):
     table_columns = _filter_partnership_summary_columns(user.table.columns.select_related('columnType'))
 
