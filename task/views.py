@@ -3,6 +3,7 @@ from rest_framework.viewsets import ModelViewSet
 from .serializers import TaskCreateUpdateSerializer, TaskDisplaySerializer
 from django.db.models import Q
 from .pagintation import TaskPagination
+from rest_framework.permissions import IsAuthenticated
 
 
 class TaskViewSet(ModelViewSet):
@@ -10,6 +11,7 @@ class TaskViewSet(ModelViewSet):
     serializer_display_class = TaskDisplaySerializer
     serializer_create_update_class = TaskCreateUpdateSerializer
     pagination_class = TaskPagination
+    permission_classes = (IsAuthenticated,)
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
