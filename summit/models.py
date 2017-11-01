@@ -13,11 +13,13 @@ from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from analytics.decorators import log_change_payment
 from account.abstract_models import CustomUserAbstract
+from notification.backend import RedisBackend
 from payment.models import get_default_currency, AbstractPaymentPurpose
 from summit.managers import ProfileManager, SummitManager
 from summit.regcode import encode_reg_code
@@ -363,6 +365,11 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
     @property
     def reg_code(self):
         return encode_reg_code(self.id)
+
+    @cached_property
+    def device_id(self):
+        r = RedisBackend()
+        return r.get(self.reg_code)
 
     @property
     def get_passes_count(self):
