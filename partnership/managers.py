@@ -28,10 +28,10 @@ class DealQuerySet(models.query.QuerySet):
     def annotate_total_sum(self):
         return self.annotate(total_sum=Coalesce(Sum('payments__effective_sum'), V(0)))
 
-    def for_user(self, user):
+    def for_user(self, user, extra_perms=True):
         if not is_authenticated(user) or not user.is_partner:
             return self.none()
-        if user.is_partner_supervisor_or_high:
+        if extra_perms and user.is_partner_supervisor_or_high:
             return self
         return self.filter(partnership__responsible=user)
 
@@ -52,8 +52,8 @@ class DealManager(models.Manager):
     def annotate_total_sum(self):
         return self.get_queryset().annotate_total_sum()
 
-    def for_user(self, user):
-        return self.get_queryset().for_user(user=user)
+    def for_user(self, user, extra_perms=True):
+        return self.get_queryset().for_user(user=user, extra_perms=extra_perms)
 
 
 class PartnerQuerySet(models.query.QuerySet):
@@ -70,10 +70,10 @@ class PartnerQuerySet(models.query.QuerySet):
                 'user__first_name', V(' '),
                 'user__middle_name'))
 
-    def for_user(self, user):
+    def for_user(self, user, extra_perms=True):
         if not is_authenticated(user) or not user.is_partner:
             return self.none()
-        if user.is_partner_supervisor_or_high:
+        if extra_perms and user.is_partner_supervisor_or_high:
             return self
         return self.filter(responsible=user)
 
@@ -88,5 +88,5 @@ class PartnerManager(models.Manager):
     def annotate_full_name(self):
         return self.get_queryset().annotate_full_name()
 
-    def for_user(self, user):
-        return self.get_queryset().for_user(user=user)
+    def for_user(self, user, extra_perms=True):
+        return self.get_queryset().for_user(user=user, extra_perms=extra_perms)

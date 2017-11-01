@@ -9,10 +9,10 @@ class MeetingQuerySet(models.query.QuerySet):
     def base_queryset(self):
         return self
 
-    def for_user(self, user):
+    def for_user(self, user, extra_perms=True):
         if not is_authenticated(user):
             return self.none()
-        if user.is_staff:
+        if extra_perms and user.is_staff:
             return self.base_queryset()
         return self.filter(owner__in=user.__class__.get_tree(user))
 
@@ -31,8 +31,8 @@ class MeetingManager(models.Manager):
     def base_queryset(self):
         return self.get_queryset().base_queryset()
 
-    def for_user(self, user):
-        return self.get_queryset().for_user(user=user)
+    def for_user(self, user, extra_perms=True):
+        return self.get_queryset().for_user(user=user, extra_perms=extra_perms)
 
     def annotate_owner_name(self):
         return self.get_queryset().annotate_owner_name()
@@ -42,10 +42,10 @@ class ChurchReportQuerySet(models.query.QuerySet):
     def base_queryset(self):
         return self
 
-    def for_user(self, user):
+    def for_user(self, user, extra_perms=True):
         if not is_authenticated(user):
             return self.none()
-        if user.is_staff:
+        if extra_perms and user.is_staff:
             return self.base_queryset()
         return self.filter(pastor__in=user.__class__.get_tree(user))
 
@@ -63,5 +63,5 @@ class ChurchReportManager(models.Manager):
     def base_queryset(self):
         return self.get_queryset().base_queryset()
 
-    def for_user(self, user):
-        return self.get_queryset().for_user(user=user)
+    def for_user(self, user, extra_perms=True):
+        return self.get_queryset().for_user(user=user, extra_perms=extra_perms)
