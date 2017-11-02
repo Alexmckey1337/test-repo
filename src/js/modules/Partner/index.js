@@ -27,6 +27,17 @@ export function getPartners(config) {
         common_table.forEach(function (item) {
             data.user_table[item] = response.common_table[item];
         });
+        let keys = [];
+        for (let k in data.user_table) {
+            if (!data.user_table.hasOwnProperty(k)) continue;
+            keys.push([k, data.user_table[k].number])
+        }
+        keys.sort((a, b) => a[1] - b[1]);
+        let user_table = {};
+        keys.forEach((item) => {
+            user_table[item[0]] = data.user_table[item[0]]
+        });
+        data.user_table = user_table;
         data.results = response.results.map(function (item) {
             let result = item.user;
             common_table.forEach(function (key) {
@@ -47,7 +58,7 @@ export function getPartners(config) {
         };
         makePagination(paginationConfig);
         $('.table__count').text(text);
-        makeSortForm(response.user_table);
+        makeSortForm(data.user_table);
         new OrderTable().sort(getPartners, ".table-wrap th");
     });
 }
