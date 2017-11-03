@@ -10,7 +10,7 @@ from django.conf import settings
 from django.db import transaction, IntegrityError
 from django.db.models import (
     Case, When, BooleanField, F, Subquery, OuterRef, CharField,
-    Func, Q)
+    Func, Q, Exists)
 from django.db.models import Value as V
 from django.db.models.functions import Concat, Coalesce
 from django.http import HttpResponse
@@ -42,7 +42,7 @@ from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_
 from summit.resources import SummitAnketResource, SummitStatisticsResource
 from summit.utils import generate_ticket, SummitParticipantReport, get_report_by_bishop_or_high
 from .models import (Summit, SummitAnket, SummitLesson, SummitUserConsultant,
-                     SummitTicket, SummitAttend)
+                     SummitTicket, SummitAttend, AnketEmail)
 from .serializers import (
     SummitSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
     SummitAnketNoteSerializer, SummitLessonSerializer,
@@ -117,7 +117,8 @@ class SummitProfileListView(SummitProfileListMixin, mixins.RetrieveModelMixin):
     }
 
     def get_queryset(self):
-        qs = self.summit.ankets.select_related('status') \
+        emails = AnketEmail.objects.filter(anket=OuterRef('pk'))
+        qs = self.summit.ankets.annotate(has_email=Exists(emails)).select_related('status') \
             .base_queryset().annotate_total_sum().annotate_full_name().order_by(
             'user__last_name', 'user__first_name', 'user__middle_name')
         return qs.for_user(self.request.user)
