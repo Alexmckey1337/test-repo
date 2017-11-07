@@ -6,6 +6,7 @@ from common.filters import BaseFilterByBirthday, BaseFilterMasterTree
 from hierarchy.models import Hierarchy, Department
 from partnership.models import Deal, Partnership, PartnerGroup
 from rest_framework import filters
+from django.db import connection
 
 
 class DateAndValueFilter(django_filters.FilterSet):
@@ -82,5 +83,34 @@ class PartnerFilterByDateAge(filters.BaseFilterBackend):
             return queryset.extra(where=["age(date) >= INTERVAL %s"], params=[age_gt])
         elif age_lt:
             return queryset.extra(where=["age(date) <= INTERVAL %s"], params=[age_lt])
+
+        return queryset
+
+
+class DealsDuplicatesFilter(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        if request.query_params.get('check_duplicates'):
+            query = """
+                SELECT
+                array_agg(d.id) c,
+                p.id,
+                d.value,
+                to_char(d.date_created, 'YYYY.MM')
+                FROM partnership_deal d
+                JOIN partnership_partnership p on d.partnership_id = p.id
+                GROUP BY p.id, d.value, to_char(d.date_created, 'YYYY.MM')
+                HAVING count(*) > 1
+                ORDER BY count(*) DESC;
+            """
+
+            with connection.cursor() as cursor:
+                cursor.execute(query)
+                data = cursor.fetchall()
+
+            deal_ids = []
+            for value in data:
+                for _id in value[0]:
+                    deal_ids.append(_id)
+            return queryset.filter(id__in=deal_ids).order_by('partnership_id')
 
         return queryset

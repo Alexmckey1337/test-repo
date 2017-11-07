@@ -21,7 +21,8 @@ from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
 from partnership.filters import (FilterByPartnerBirthday, DateAndValueFilter, FilterPartnerMasterTreeWithSelf,
-                                 PartnerUserFilter, DealFilterByPaymentStatus, PartnerFilterByDateAge)
+                                 PartnerUserFilter, DealFilterByPaymentStatus, PartnerFilterByDateAge,
+                                 DealsDuplicatesFilter)
 from partnership.mixins import (PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin,
                                 PartnerExportViewSetMixin, PartnerStatusReviewMixin, ManagerSummaryMixin)
 from partnership.pagination import PartnershipPagination, DealPagination
@@ -185,7 +186,8 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
     filter_backends = (rest_framework.DjangoFilterBackend,
                        filters.SearchFilter,
                        filters.OrderingFilter,
-                       DealFilterByPaymentStatus,)
+                       DealFilterByPaymentStatus,
+                       DealsDuplicatesFilter)
     ordering_fields = ('value',
                        'responsible__last_name',
                        'partnership__user__last_name',
