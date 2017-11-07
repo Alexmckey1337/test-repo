@@ -81,7 +81,7 @@ function sumChange(diff, currencyName, currencyID, total) {
     }
 }
 
-export function DealsTable(config) {
+export function DealsTable(config = {}) {
     getData(URLS.deal.list(), config).then(data => {
         $('.preloader').css('display', 'none');
         makeDealsTable(data);
@@ -124,8 +124,6 @@ function makeDealsTable(data, config = {}) {
 }
 
 export function dealsTable(config = {}) {
-    let status = $('#tabs').find('.current').find('a').attr('data-status');
-    config.done = status;
     Object.assign(config, getSearch('search'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
