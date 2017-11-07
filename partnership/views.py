@@ -25,7 +25,7 @@ from partnership.filters import (FilterByPartnerBirthday, DateAndValueFilter, Fi
                                  DealsDuplicatesFilter)
 from partnership.mixins import (PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin,
                                 PartnerExportViewSetMixin, PartnerStatusReviewMixin, ManagerSummaryMixin)
-from partnership.pagination import PartnershipPagination, DealPagination, CheckDealsDuplicatePagination
+from partnership.pagination import PartnershipPagination, DealPagination, DealDuplicatePagination
 from partnership.permissions import (CanSeeDeals, CanSeePartners, CanCreateDeals, CanUpdateDeals,
                                      CanUpdatePartner, CanUpdateManagersPlan, CanCreateUpdatePartnerGroup,
                                      CanSeePartnerGroups, CanCreatePartnerRole, CanDeletePartnerRole,
@@ -35,8 +35,8 @@ from .models import Partnership, Deal, PartnershipLogs, PartnerRoleLog, PartnerG
 from .serializers import (DealSerializer, PartnershipUpdateSerializer, DealCreateSerializer,
                           PartnershipTableSerializer, DealUpdateSerializer,
                           PartnershipCreateSerializer, PartnershipSerializer, PartnerGroupSerializer,
-                          PartnerRoleSerializer, CreatePartnerRoleSerializer, CheckDealsDuplicateSerializer)
-from rest_framework.response import Response
+                          PartnerRoleSerializer, CreatePartnerRoleSerializer, DealDuplicateSerializer)
+from django.db import connection
 
 
 class PartnershipViewSet(
@@ -252,8 +252,8 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
         return response
 
     @list_route(methods=['GET'],
-                serializer_class=CheckDealsDuplicateSerializer,
-                pagination_class=CheckDealsDuplicatePagination)
+                serializer_class=DealDuplicateSerializer,
+                pagination_class=DealDuplicatePagination)
     def check_duplicates(self, request):
         data = request.query_params
         if data.get('date_created') and data.get('value') and data.get('partnership_id'):
@@ -278,8 +278,44 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
             deals = self.get_serializer(page, many=True)
             return self.get_paginated_response(deals.data)
 
-        users = self.serializer_class(deals, many=True)
-        return Response(users.data, status=status.HTTP_200_OK)
+        deals = self.serializer_class(deals, many=True)
+        return Response(deals.data, status=status.HTTP_200_OK)
+
+    @list_route(methods=['GET'],
+                serializer_class=DealDuplicateSerializer,
+                pagination_class=DealDuplicatePagination,)
+    def get_duplicates(self, request):
+        query = """
+                SELECT
+                array_agg(d.id) c,
+                p.id,
+                d.value,
+                to_char(d.date_created, 'YYYY.MM')
+                FROM partnership_deal d
+                JOIN partnership_partnership p on d.partnership_id = p.id
+                GROUP BY p.id, d.value, to_char(d.date_created, 'YYYY.MM')
+                HAVING count(*) > 1
+                ORDER BY count(*) DESC;
+            """
+
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            data = cursor.fetchall()
+
+        deal_ids = []
+        for value in data:
+            for _id in value[0]:
+                deal_ids.append(_id)
+
+        deals = self.queryset.filter(id__in=deal_ids).order_by('partnership_id')
+
+        page = self.paginate_queryset(deals)
+        if page is not None:
+            deals = self.get_serializer(page, many=True)
+            return self.get_paginated_response(deals.data)
+
+        deals = self.serializer_class(deals, many=True)
+        return Response(deals.data, status=status.HTTP_200_OK)
 
 
 class CheckPartnerLevelMixin:

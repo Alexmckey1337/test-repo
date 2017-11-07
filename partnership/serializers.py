@@ -111,7 +111,7 @@ class CreatePartnerRoleSerializer(serializers.ModelSerializer):
         fields = ('user', 'level', 'plan')
 
 
-class CheckDealsDuplicateSerializer(serializers.ModelSerializer):
+class DealDuplicateSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(read_only=True)
 
     class Meta:
