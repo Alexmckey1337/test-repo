@@ -307,3 +307,5 @@ class ChurchReportSummarySerializer(serializers.ModelSerializer):
                   'reports_submitted', 'reports_in_progress', 'reports_expired', )
 
         read_only_fields = ['__all__']
+
+

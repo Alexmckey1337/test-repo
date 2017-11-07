@@ -109,3 +109,11 @@ class CreatePartnerRoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = PartnerRole
         fields = ('user', 'level', 'plan')
+
+
+class CheckDealsDuplicateSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Deal
+        fields = ('id', 'full_name', 'value', 'date_created')

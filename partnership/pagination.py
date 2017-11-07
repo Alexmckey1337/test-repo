@@ -39,3 +39,9 @@ class DealPagination(PageNumberPagination):
             ('table_columns', deal_table(self.request.user)),
             ('results', data)
         ]))
+
+
+class CheckDealsDuplicatePagination(PageNumberPagination):
+    page_size = 5
+    page_size_query_param = 'page_size'
+    max_page_size = 5

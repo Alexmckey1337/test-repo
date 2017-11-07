@@ -8,7 +8,7 @@ from django.db.models import Sum, When, Case, F, IntegerField, Q
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
 from rest_framework import exceptions, filters, status
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.generics import get_object_or_404, DestroyAPIView, UpdateAPIView, GenericAPIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
@@ -25,7 +25,7 @@ from partnership.filters import (FilterByPartnerBirthday, DateAndValueFilter, Fi
                                  DealsDuplicatesFilter)
 from partnership.mixins import (PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin,
                                 PartnerExportViewSetMixin, PartnerStatusReviewMixin, ManagerSummaryMixin)
-from partnership.pagination import PartnershipPagination, DealPagination
+from partnership.pagination import PartnershipPagination, DealPagination, CheckDealsDuplicatePagination
 from partnership.permissions import (CanSeeDeals, CanSeePartners, CanCreateDeals, CanUpdateDeals,
                                      CanUpdatePartner, CanUpdateManagersPlan, CanCreateUpdatePartnerGroup,
                                      CanSeePartnerGroups, CanCreatePartnerRole, CanDeletePartnerRole,
@@ -35,7 +35,8 @@ from .models import Partnership, Deal, PartnershipLogs, PartnerRoleLog, PartnerG
 from .serializers import (DealSerializer, PartnershipUpdateSerializer, DealCreateSerializer,
                           PartnershipTableSerializer, DealUpdateSerializer,
                           PartnershipCreateSerializer, PartnershipSerializer, PartnerGroupSerializer,
-                          PartnerRoleSerializer, CreatePartnerRoleSerializer)
+                          PartnerRoleSerializer, CreatePartnerRoleSerializer, CheckDealsDuplicateSerializer)
+from rest_framework.response import Response
 
 
 class PartnershipViewSet(
@@ -249,6 +250,36 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
         self.partnership_status_review(self.get_object().partnership)
 
         return response
+
+    @list_route(methods=['GET'],
+                serializer_class=CheckDealsDuplicateSerializer,
+                pagination_class=CheckDealsDuplicatePagination)
+    def check_duplicates(self, request):
+        data = request.query_params
+        if data.get('date_created') and data.get('value') and data.get('partnership_id'):
+            date_created = data.get('date_created')
+            value = data.get('value')
+            partnership_id = data.get('partnership_id')
+            year = date_created.split('-')[0]
+            month = date_created.split('-')[1]
+        else:
+            return Response({'message': 'Not all parameters have been transferred.'
+                                        'Params {date_created}, {value}, {partnership} must be passed'})
+
+        deals = self.queryset.filter(partnership_id=partnership_id,
+                                     date_created__month=month,
+                                     date_created__year=year,
+                                     value=value)
+        if not deals:
+            return Response({'message': 'Duplicates are not detected'})
+
+        page = self.paginate_queryset(deals)
+        if page is not None:
+            deals = self.get_serializer(page, many=True)
+            return self.get_paginated_response(deals.data)
+
+        users = self.serializer_class(deals, many=True)
+        return Response(users.data, status=status.HTTP_200_OK)
 
 
 class CheckPartnerLevelMixin:
