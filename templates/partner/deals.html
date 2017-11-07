@@ -47,19 +47,6 @@
     <div class="content">
         <div id="sdelki">
             <div class="top-pag">
-                <div class="tab-status">
-                    <ul id="tabs">
-                        <li class="current">
-                            <a href="#incomplete" data-status="3">Незавершённые</a>
-                        </li>
-{#                        <li>#}
-{#                            <a href="#overdue">Просроченные(<span id="overdue-count"></span>)</a>#}
-{#                        </li>#}
-                        <li>
-                            <a href="#completed" data-status="2">Завершённые</a>
-                        </li>
-                    </ul>
-                </div>
             </div>
             <div class="tabs-cont">
                 <div class="table__count"></div>
@@ -189,6 +176,14 @@
                             <option value="2">﻿Десятины</option>
                         </select>
                     </label>
+                    <label>
+                        <span class="label_block">Закрыта</span>
+                        <select id="﻿payment_done" class="selectdb" data-filter="done">
+                            <option value="">ВСЕ</option>
+                            <option value="2">Да</option>
+                            <option value="3">Нет</option>
+                        </select>
+                    </label>
                 </div>
             </div>
             <div class="container">
@@ -265,6 +260,16 @@
                                         партнерские
                                         <% } else { %>
                                         десятины
+                                        <% } %>
+                                    </td>
+                                <% } else { %>
+                                    <td></td>
+                                <% } %>
+                            <% } else if (key == 'done' ) { %>
+                                <% if (results[index][key] != null ) { %>
+                                    <td>
+                                        <% if (results[index][key]) { %>
+                                        <p class="text__center">✔</p>
                                         <% } %>
                                     </td>
                                 <% } else { %>

@@ -12,22 +12,7 @@ import updateSettings from './modules/UpdateSettings/index';
 
 $(document).ready(function () {
     $('.preloader').css('display', 'block');
-    DealsTable({done: 3});
-
-    //Tabs
-    $('#tabs').find('li').on('click', 'a', function (e) {
-        $('.preloader').css('display', 'block');
-        e.preventDefault();
-        let status = $(this).attr('data-status');
-        let config = {
-            done: status
-        };
-        Object.assign(config, getSearch('search'));
-        Object.assign(config, getFilterParam());
-        DealsTable(config);
-        $(this).closest('#tabs').find('li').removeClass('current');
-        $(this).parent().addClass('current');
-    });
+    DealsTable();
 
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
