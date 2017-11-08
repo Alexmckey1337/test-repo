@@ -100,8 +100,28 @@ button {
   cursor: pointer;
   font-size: 1.1em;
   transition: all .3s ease;
-  &.close-popup {
-    padding: 12px 20px 12px 20px;
+  &.close-popup,&.apply-filter {
+    //padding: 12px 20px 12px 20px;
+    position: relative;
+    &::before{
+      font-family: FontAwesome;
+      font-size: 18px;
+      position: absolute;
+      left: 15px;
+      top:50%;
+      transform: translateY(-50%);
+
+    }
+  }
+  &.close-popup{
+    &::before{
+      content: '\f00d';
+    }
+  }
+  &.apply-filter{
+    &::before{
+      content: '\f00c';
+    }
   }
   &.add {
     &:before {
@@ -256,10 +276,16 @@ td {
       display: none;
       opacity: 0;
       &:disabled + label:before{
-        background: url(../img/scheck-box.png) no-repeat 0 -40px;
+        background: none;
+        content: '\f00c';
+        font-family: FontAwesome;
+        color: #656d78;
       }
       &:checked:disabled + label:before{
-        background: url(../img/scheck-box.png) no-repeat 0 -60px !important;
+        background: none;
+        content: '\f00c';
+        font-family: FontAwesome;
+        color: #656d78;
       }
     }
   }
