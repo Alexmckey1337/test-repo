@@ -161,6 +161,18 @@ class ProfileFilter(django_filters.FilterSet):
         fields = ['master', 'hierarchy', 'department', 'ticket_status']
 
 
+class FilterByHasEmail(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        has_email = request.query_params.get('has_email', '')
+
+        if has_email.upper() in ('TRUE', 'T', 'YES', 'Y', 'ON', '1'):
+            return queryset.filter(has_email=True)
+        elif has_email.upper() in ('FALSE', 'F', 'NO', 'N', 'OFF', '0'):
+            return queryset.filter(has_email=False)
+
+        return queryset
+
+
 class FilterProfileMasterTreeWithSelf(FilterMasterTreeWithSelf):
     user_field_prefix = 'user__'
 
