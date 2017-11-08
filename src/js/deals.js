@@ -5,7 +5,8 @@ import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
 import {showAlert} from "./modules/ShowNotifications/index";
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
-import {DealsTable, updateDealsTable, createDealsPayment, dealsTable, updateDeal} from './modules/Deals/index';
+import {DealsTable, updateDealsTable, createDealsPayment,
+    dealsTable, updateDeal, makeDuplicateDeals} from './modules/Deals/index';
 import getSearch from './modules/Search/index';
 import {getFilterParam} from "./modules/Filter/index";
 import updateSettings from './modules/UpdateSettings/index';
@@ -160,6 +161,16 @@ $(document).ready(function () {
         showAlert('Заполните поле суммы и дату.');
     }
 }, 500));
+
+    //Find duplicates
+    $('#duplicates').on('click', function () {
+       $('.preloader').css('display', 'block');
+        makeDuplicateDeals();
+    });
+
+    $('.pop-up__table').find('.close_pop').on('click', function () {
+        $('.pop-up_duplicate__table').css('display', 'none');
+    });
 
 });
 

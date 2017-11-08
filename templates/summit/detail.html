@@ -216,20 +216,28 @@
                         </select>
                     </label>
                     <label>
-                        <span class="label_block">Фильтр по email</span>
+                        <span class="label_block">Email</span>
                         <input type="email" data-filter="search_email" placeholder="email" id="search_email">
                     </label>
                     <label>
-                        <span class="label_block">Фильтр по номеру телефона</span>
+                        <span class="label_block">Еmail отправлен</span>
+                        <select class="select__db select__custom" data-filter="has_email" name="has_email" id="has_email">
+                            <option>ВСЕ</option>
+                            <option value="true">Да</option>
+                            <option value="false">Нет</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Номер телефона</span>
                         <input type="tel" data-filter="search_phone_number" placeholder="номер телефона"
                                    id="search_phone_number">
                     </label>
                     <label>
-                        <span class="label_block">Фильтр по стране</span>
+                        <span class="label_block">Страна</span>
                         <input type="text" data-filter="search_country" placeholder="страна" id="search_country">
                     </label>
                     <label>
-                        <span class="label_block">Фильтр по городу</span>
+                        <span class="label_block">Город</span>
                         <input type="text" data-filter="search_city" placeholder="город" id="search_city">
                     </label>
                     <label>
