@@ -251,3 +251,43 @@ export function updateDeal(id, data) {
         return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
     }
 }
+
+export function makeDuplicateDeals(config = {}, url = URLS.deal.find_duplicates(), flag = false) {
+    (!flag) && Object.assign(config, getFilterParam());
+    getData(url, config).then(data => {
+        let table = `<table>
+                        <thead>
+                            <tr>
+                                <th>ФИО</th>
+                                <th>Сумма</th>
+                                <th>Дата сделки</th>
+                            </tr>
+                        </thead>
+                        <tbody>${data.results.map(item => {
+                            return `<tr>
+                                        <td>${item.full_name}</td>
+                                        <td>${item.value}</td>
+                                        <td>${item.date_created}</td>
+                                    </tr>`;
+                        }).join('')}</tbody>
+                        </table>`;
+        let count = data.count,
+            page = config.page || 1,
+            pages = Math.ceil(count / CONFIG.pagination_duplicates_count),
+            showCount = (count < CONFIG.pagination_duplicates_count) ? count : data.results.length,
+            text = `Показано ${showCount} из ${count}`,
+            paginationConfig = {
+                container: ".duplicate_users__pagination",
+                currentPage: page,
+                pages: pages,
+                callback: makeDuplicateDeals
+            };
+        makePagination(paginationConfig);
+        $('.pop-up_duplicate__table').find('.table__count').text(text);
+        $('#table_duplicate').html('').append(table);
+        $('.preloader').css('display', 'none');
+        $('.pop-up_duplicate__table').css('display', 'block');
+    });
+}
+
+

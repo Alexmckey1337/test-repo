@@ -222,20 +222,9 @@
         </div>
     </div>
 </div>
-<div id="create_duplicate_pop" class="pop-up__table pop-up_duplicate__table" style="display: none;">
-    <div class="pop_cont">
-        <div class="top-text">
-            <h3>Результаты поиска совпадений</h3><span class="close_pop">×</span>
-        </div>
-        <div class="main-text">
-            <div class="top-pag">
-                <div class="table__count"></div>
-                <div class="pagination duplicate_users__pagination"></div>
-            </div>
-            <div id="table_duplicate" class="table-wrap clearfix"></div>
-        </div>
-    </div>
-</div>
+
+{% include 'partials/find_duplicate.html' %}
+
 <script type="text/template" id="addUserSuccessPopup">
 <div id="addPopup">
     <div class="splash-screen wrapper is-center">

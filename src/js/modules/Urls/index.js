@@ -96,6 +96,8 @@ const DEAL = {
     payments: (dealId) => `/api/v1.0/deals/${dealId}/payments/`,
     create_payment: (dealId) => `/api/v1.0/deals/${dealId}/create_payment/`,
     create_uah_payment: (dealId) => `/api/v1.0/deals/${dealId}/create_uah_payment/`,
+    find_duplicates: () => `/api/v1.0/deals/get_duplicates/`,
+    check_duplicates: () => `/api/v1.0/deals/check_duplicates/`,
 };
 
 const CHURCH = {
