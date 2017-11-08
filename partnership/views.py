@@ -251,17 +251,20 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
 
     @list_route(methods=['GET'],
                 serializer_class=DealDuplicateSerializer,
-                pagination_class=DealDuplicatePagination)
+                pagination_class=DealDuplicatePagination,)
     def check_duplicates(self, request):
         data = request.query_params
         if data.get('date_created') and data.get('value') and data.get('partnership_id'):
             date_created = data.get('date_created')
             value = data.get('value')
             partnership_id = data.get('partnership_id')
-            year = date_created.split('-')[0]
-            month = date_created.split('-')[1]
+            try:
+                year = date_created.split('-')[0]
+                month = date_created.split('-')[1]
+            except IndexError:
+                return Response({'message': 'Param {date_created} must be in "YYYY-MM-DD" format'})
         else:
-            return Response({'message': 'Not all parameters have been transferred.'
+            return Response({'message': 'Not all parameters have been transferred. '
                                         'Params {date_created}, {value}, {partnership} must be passed'})
 
         deals = self.queryset.filter(partnership_id=partnership_id,
