@@ -34,7 +34,7 @@ from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import (FilterByClub, SummitUnregisterFilter, ProfileFilter,
                             FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend,
                             FilterBySummitAttendByDate, FilterByElecTicketStatus, FilterByTime, FilterByDepartment,
-                            FilterByMasterTree)
+                            FilterByMasterTree, FilterByHasEmail)
 from summit.pagination import (SummitPagination, SummitTicketPagination, SummitStatisticsPagination,
                                SummitSearchPagination)
 from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report, \
@@ -95,7 +95,7 @@ class SummitProfileListView(SummitProfileListMixin, mixins.RetrieveModelMixin):
         'middle_name', 'user__born_date', 'country',
         'user__region', 'city', 'user__district',
         'user__address', 'user__phone_number',
-        'user__email', 'hierarchy__level', 'ticket_status', 'status__reg_code_requested'
+        'user__email', 'hierarchy__level', 'ticket_status', 'status__reg_code_requested', 'has_email'
     )
     filter_backends = (
         filters.DjangoFilterBackend,
@@ -104,6 +104,7 @@ class SummitProfileListView(SummitProfileListMixin, mixins.RetrieveModelMixin):
         FilterProfileMasterTreeWithSelf,
         FilterByClub,
         HasPhoto,
+        FilterByHasEmail,
         FilterBySummitAttend,
         FilterByElecTicketStatus,
     )
