@@ -36,6 +36,7 @@ from .serializers import (DealSerializer, PartnershipUpdateSerializer, DealCreat
                           PartnershipCreateSerializer, PartnershipSerializer, PartnerGroupSerializer,
                           PartnerRoleSerializer, CreatePartnerRoleSerializer, DealDuplicateSerializer)
 from django.db import connection
+from datetime import datetime
 
 
 class PartnershipViewSet(
@@ -286,6 +287,8 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
                 serializer_class=DealDuplicateSerializer,
                 pagination_class=DealDuplicatePagination,)
     def get_duplicates(self, request):
+        date_created_month = request.query_params.get('date_created', datetime.now().date().strftime('%Y-%m'))
+
         query = """
                 SELECT
                 array_agg(d.id) c,
@@ -294,10 +297,11 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
                 to_char(d.date_created, 'YYYY.MM')
                 FROM partnership_deal d
                 JOIN partnership_partnership p on d.partnership_id = p.id
+                WHERE to_char(d.date_created, 'YYYY-MM') = '{0}'
                 GROUP BY p.id, d.value, to_char(d.date_created, 'YYYY.MM')
                 HAVING count(*) > 1
                 ORDER BY count(*) DESC;
-            """
+            """.format(date_created_month)
 
         with connection.cursor() as cursor:
             cursor.execute(query)

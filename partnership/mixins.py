@@ -276,8 +276,8 @@ class ManagerSummaryMixin:
         raw = """
           select u.user_ptr_id,
           (select sum(pay.sum) from payment_payment pay WHERE pay.content_type_id = 40 and
-          pay.object_id in (select d.id from partnership_deal d where d.responsible_id = u.user_ptr_id and d.type = {0} and
-          (d.date_created BETWEEN '{1}-01-01' and '{1}-12-31') and
+          pay.object_id in (select d.id from partnership_deal d where d.responsible_id = u.user_ptr_id and
+          d.type = {0} and (d.date_created BETWEEN '{1}-01-01' and '{1}-12-31') and
           extract('month' from d.date_created) = {2} )) sum
           from account_customuser u
           WHERE u.user_ptr_id in (
