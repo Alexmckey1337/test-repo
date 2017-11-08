@@ -223,6 +223,15 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mix
     serializer_create_class = SummitProfileCreateSerializer
     permission_classes = (IsAuthenticated,)
 
+    def get_queryset(self):
+        if self.action != 'retrieve':
+            return self.queryset
+        emails = AnketEmail.objects.filter(anket=OuterRef('pk'))
+        qs = self.queryset.annotate(has_email=Exists(emails)).select_related('status') \
+            .order_by(
+            'user__last_name', 'user__first_name', 'user__middle_name')
+        return qs.for_user(self.request.user)
+
     def get_serializer_class(self):
         if self.action == 'create':
             return self.serializer_create_class
