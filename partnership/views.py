@@ -329,7 +329,7 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
                 'count': len(deals_data)
             }
 
-        index = int(request.query_params.get('index', 0))
+        index = int(request.query_params.get('index', 0) or 0)
 
         return Response(deals_data[index], status=status.HTTP_200_OK)
 
