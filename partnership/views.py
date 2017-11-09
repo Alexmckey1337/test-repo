@@ -37,6 +37,7 @@ from .serializers import (DealSerializer, PartnershipUpdateSerializer, DealCreat
                           PartnerRoleSerializer, CreatePartnerRoleSerializer, DealDuplicateSerializer)
 from django.db import connection
 from datetime import datetime
+import time
 
 
 class PartnershipViewSet(
@@ -252,7 +253,7 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
 
     @list_route(methods=['GET'],
                 serializer_class=DealDuplicateSerializer,
-                pagination_class=DealDuplicatePagination,)
+                pagination_class=DealDuplicatePagination, )
     def check_duplicates(self, request):
         data = request.query_params
         if data.get('date_created') and data.get('value') and data.get('partnership_id'):
@@ -283,44 +284,42 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
         deals = self.serializer_class(deals, many=True)
         return Response(deals.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'],
-                serializer_class=DealDuplicateSerializer,
-                pagination_class=DealDuplicatePagination,)
+    @list_route(methods=['GET'])
     def get_duplicates(self, request):
-        date_created_month = request.query_params.get('date_created', datetime.now().date().strftime('%Y-%m'))
+        deals = self.filter_queryset(self.queryset).values_list('id', flat=True)
 
         query = """
                 SELECT
                 array_agg(d.id) c,
                 p.id,
+                CONCAT(auth_user.last_name, ' ', auth_user.first_name, ' ', account_customuser.middle_name),
                 d.value,
                 to_char(d.date_created, 'YYYY.MM')
                 FROM partnership_deal d
                 JOIN partnership_partnership p on d.partnership_id = p.id
-                WHERE to_char(d.date_created, 'YYYY-MM') = '{0}'
-                GROUP BY p.id, d.value, to_char(d.date_created, 'YYYY.MM')
+                JOIN account_customuser ON p.user_id = account_customuser.user_ptr_id
+                JOIN auth_user ON account_customuser.user_ptr_id = auth_user.id
+                WHERE d.id in ('{0}')
+                GROUP BY p.id, d.value, to_char(d.date_created, 'YYYY.MM'),
+                CONCAT(auth_user.last_name, ' ', auth_user.first_name, ' ', account_customuser.middle_name)
                 HAVING count(*) > 1
                 ORDER BY count(*) DESC;
-            """.format(date_created_month)
+            """.format("','".join(str(x) for x in deals))
 
         with connection.cursor() as cursor:
             cursor.execute(query)
             data = cursor.fetchall()
 
-        deal_ids = []
-        for value in data:
-            for _id in value[0]:
-                deal_ids.append(_id)
+        for x in enumerate(data):
+            data[x[0]] = {
+                'deal_ids': x[1][0],
+                'partnership_id': x[1][1],
+                'partnership_fio': x[1][2],
+                'value': x[1][3],
+                'date_created': x[1][4]
+            }
 
-        deals = self.queryset.filter(id__in=deal_ids).order_by('partnership_id')
-
-        page = self.paginate_queryset(deals)
-        if page is not None:
-            deals = self.get_serializer(page, many=True)
-            return self.get_paginated_response(deals.data)
-
-        deals = self.serializer_class(deals, many=True)
-        return Response(deals.data, status=status.HTTP_200_OK)
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class CheckPartnerLevelMixin:
