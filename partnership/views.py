@@ -325,10 +325,13 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
                 'partnership_id': x[1][1],
                 'partnership_fio': x[1][2],
                 'value': x[1][3],
-                'date_created': x[1][4]
+                'date_created': x[1][4],
+                'count': len(deals_data)
             }
 
-        return Response(deals_data, status=status.HTTP_200_OK)
+        index = int(request.query_params.get('index', 0))
+
+        return Response(deals_data[index], status=status.HTTP_200_OK)
 
 
 class CheckPartnerLevelMixin:
