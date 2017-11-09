@@ -258,7 +258,7 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
                               'Удаление сделки повлечет за собой удаление всех связанных с ней платежей.')})
 
         self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({'message': 'Сделка успещно удалена.'}, status=status.HTTP_204_NO_CONTENT)
 
     @list_route(methods=['GET'],
                 serializer_class=DealDuplicateSerializer,
