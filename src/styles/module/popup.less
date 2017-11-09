@@ -413,15 +413,21 @@
 
 
 .apply-filter, .clear-filter {
-  padding: 12px 20px;
+  //padding: 12px 20px;
+  position: relative;
   &.refresh {
     i {
       transform: rotate(180deg);
       transition: transform 0.7s;
     }
   }
-  & i {
+  i {
     color: #FFF;
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    font-size: 18px;
+    transform: translateY(-50%);
   }
 }
 

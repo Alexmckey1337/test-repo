@@ -425,3 +425,17 @@ table tr:last-child {
   }
 }
 
+.deals__done{
+  position: relative;
+    &::before{
+      content: '\f00c';
+      font-family: FontAwesome;
+      font-size: 18px;
+      position: absolute;
+      left: 50%;
+      top:50%;
+      transform: translate(-50%,-50%);
+
+    }
+}
+
