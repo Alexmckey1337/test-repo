@@ -20,6 +20,7 @@ from analytics.decorators import log_perform_create, log_perform_update
 from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
+from rest_framework.viewsets import ModelViewSet
 from partnership.filters import (FilterByPartnerBirthday, DateAndValueFilter, FilterPartnerMasterTreeWithSelf,
                                  PartnerUserFilter, DealFilterByPaymentStatus, PartnerFilterByDateAge)
 from partnership.mixins import (PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin,
@@ -36,8 +37,6 @@ from .serializers import (DealSerializer, PartnershipUpdateSerializer, DealCreat
                           PartnershipCreateSerializer, PartnershipSerializer, PartnerGroupSerializer,
                           PartnerRoleSerializer, CreatePartnerRoleSerializer, DealDuplicateSerializer)
 from django.db import connection
-from datetime import datetime
-import time
 
 
 class PartnershipViewSet(
@@ -174,7 +173,7 @@ class PartnerGroupViewSet(ModelWithoutDeleteViewSet):
         return super().get_permissions()
 
 
-class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, DealCreatePaymentMixin,
+class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymentMixin,
                   DealListPaymentMixin, PartnerStatusReviewMixin):
     queryset = Deal.objects.base_queryset(). \
         annotate_full_name(). \
@@ -250,6 +249,16 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
         self.partnership_status_review(self.get_object().partnership)
 
         return response
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.payments.all().exists() and not request.data.get('force'):
+            raise exceptions.ValidationError(
+                {'message': _('Данная сделка содержит платежи. '
+                              'Удаление сделки повлечет за собой удаление всех связанных с ней платежей.')})
+
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @list_route(methods=['GET'],
                 serializer_class=DealDuplicateSerializer,
