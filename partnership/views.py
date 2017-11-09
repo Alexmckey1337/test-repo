@@ -308,10 +308,10 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
 
         with connection.cursor() as cursor:
             cursor.execute(query)
-            data = cursor.fetchall()
+            deals_data = cursor.fetchall()
 
-        for x in enumerate(data):
-            data[x[0]] = {
+        for x in enumerate(deals_data):
+            deals_data[x[0]] = {
                 'deal_ids': x[1][0],
                 'partnership_id': x[1][1],
                 'partnership_fio': x[1][2],
@@ -319,7 +319,7 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Dea
                 'date_created': x[1][4]
             }
 
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(deals_data, status=status.HTTP_200_OK)
 
 
 class CheckPartnerLevelMixin:
