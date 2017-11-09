@@ -283,17 +283,17 @@
                                 <td>
                                 <% if( (!results[index].done && can_close_deal) && ((parseInt(results[index].total_sum.match(/\d+/)) - parseInt(results[index].value.match(/\d+/))) >= 0 )) { %>
 
-                                            <button class="complete inline__button"
-                                                    data-id="<%= results[index].id%>"
-                                                    data-name="<%=results[index].full_name%>"
-                                                    data-date="<%=results[index].date_created%>"
-                                                    data-responsible="<%=results[index].responsible_name%>"
-                                                    data-total_sum="<%=results[index].total_sum %>"
-                                                    data-value="<%=results[index].value%>"
-                                                    data-currency-name="<%=results[index].currency.short_name %>"
-                                                    data-currency-id="<%=results[index].currency.id %>"
-                                            >Закрыть сделку
-                                            </button>
+                                    <button class="complete inline__button"
+                                            data-id="<%= results[index].id%>"
+                                            data-name="<%=results[index].full_name%>"
+                                            data-date="<%=results[index].date_created%>"
+                                            data-responsible="<%=results[index].responsible_name%>"
+                                            data-total_sum="<%=results[index].total_sum %>"
+                                            data-value="<%=results[index].value%>"
+                                            data-currency-name="<%=results[index].currency.short_name %>"
+                                            data-currency-id="<%=results[index].currency.id %>"
+                                    >Закрыть сделку
+                                    </button>
                                 <% } else if ((!results[index].done && check_payment_permissions) && ((parseInt(results[index].total_sum.match(/\d+/)) - parseInt(results[index].value.match(/\d+/))) < 0 )) {  %>
 
                                             <button class="pay inline__button"
