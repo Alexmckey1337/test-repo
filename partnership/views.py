@@ -293,7 +293,10 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
         deals = self.serializer_class(deals, many=True)
         return Response(deals.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'])
+    @list_route(methods=['GET'],
+                serializer_class=DealDuplicateSerializer,
+                pagination_class=DealDuplicatePagination,
+                )
     def get_duplicates(self, request):
         deals = self.filter_queryset(self.queryset).values_list('id', flat=True)
 
@@ -329,9 +332,9 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
                 'count': len(deals_data)
             }
 
-        index = int(request.query_params.get('index', 0) or 0)
+        page = int(request.query_params.get('page', 0) or 0)
 
-        return Response(deals_data[index], status=status.HTTP_200_OK)
+        return Response(deals_data[page], status=status.HTTP_200_OK)
 
 
 class CheckPartnerLevelMixin:
