@@ -271,16 +271,6 @@
                                 <% } else { %>
                                     <td></td>
                                 <% } %>
-                            <% } else if (key == 'done' ) { %>
-                                <% if (results[index][key] != null ) { %>
-                                    <td>
-                                        <% if (results[index][key]) { %>
-                                        <p class="deals__done"></p>
-                                        <% } %>
-                                    </td>
-                                <% } else { %>
-                                    <td></td>
-                                <% } %>
                             <% } else if (key == 'action' ) { %>
                                 <td>
                                 <% if( (!results[index].done && can_close_deal) && ((parseInt(results[index].total_sum.match(/\d+/)) - parseInt(results[index].value.match(/\d+/))) >= 0 )) { %>
@@ -309,7 +299,9 @@
                                                     data-currency-id="<%=results[index].currency.id %>"
                                             >Добавить платеж
                                             </button>
-                                <% } %>
+                                <% } else { %>
+                                    <p class="deals__done"></p>
+                                    <% } %>
                                 </td>
                             <% }  else if (results[index][key] != null ) { %>
                                 <td><%= results[index][key] %></td>
