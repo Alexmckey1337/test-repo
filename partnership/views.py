@@ -297,6 +297,8 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
     @list_route(methods=['GET'])
     def get_duplicates(self, request):
         deals = self.filter_queryset(self.queryset).values_list('id', flat=True)
+        if not deals:
+            return list()
 
         query = """
                 SELECT
