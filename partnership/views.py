@@ -315,7 +315,7 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
                 GROUP BY p.id, d.value, to_char(d.date_created, 'YYYY.MM'),
                 CONCAT(auth_user.last_name, ' ', auth_user.first_name, ' ', account_customuser.middle_name)
                 HAVING count(*) > 1
-                ORDER BY count(*) DESC;
+                ORDER BY p.id;
             """.format("','".join(str(x) for x in deals))
 
         with connection.cursor() as cursor:
@@ -344,10 +344,10 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
                 {'message': _('Parameter {page} out of array range')}
             )
 
-        deal_payments = Deal.objects.filter(id__in=result.get('deal_ids')).annotate(
-            total_payments=Sum('payments__effective_sum')).values('id', 'total_payments')
+        deals_with_payment = Deal.objects.filter(id__in=result.get('deal_ids')).annotate(
+            payment_sum=Sum('payments__effective_sum')).values('id', 'payment_sum')
 
-        result['deal_ids'] = deal_payments
+        result['deal_ids'] = deals_with_payment
 
         return Response(result, status=status.HTTP_200_OK)
 
