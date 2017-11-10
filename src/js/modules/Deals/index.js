@@ -1,7 +1,7 @@
 'use strict';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
-import getData from "../Ajax/index";
+import getData, {deleteData} from "../Ajax/index";
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
 import moment from 'moment/min/moment.min.js';
@@ -12,7 +12,7 @@ import makeSortForm from '../Sort/index';
 import makePagination from '../Pagination/index';
 import fixedTableHead from '../FixedHeadTable/index';
 import OrderTable, {getOrderingData} from '../Ordering/index';
-import {showAlert} from "../ShowNotifications/index";
+import {showAlert, showConfirm} from "../ShowNotifications/index";
 import {showPayments} from "../Payment/index";
 
 export function btnDeals() {
@@ -171,7 +171,6 @@ function makeQuickEditDeal(el) {
                         <p>Менеджер:</p>
                         <p>${data.responsible_name}</p>
                     </div>`;
-        popup.find('h2').text('Редактирование сделки');
         $('#append-info').empty().append(txt);
         $('#new_deal_type').find(`option[value="${data.type}"]`).prop('selected', true).trigger('change');
         $('#new_deal_sum').val(sum);
@@ -179,6 +178,7 @@ function makeQuickEditDeal(el) {
         popup.find('.note').val(data.description);
         popup.find('.currency').val(data.currency.short_name);
         $('#send_new_deal').attr('data-id', id);
+        $('#delete_deal').attr('data-id', id);
         popup.css('display', 'block');
     });
 }
@@ -251,10 +251,8 @@ export function updateDeal(id, data) {
         return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
     }
 }
-
-export function makeDuplicateDeals(config = {}, url = URLS.deal.find_duplicates(), flag = false) {
-    (!flag) && Object.assign(config, getFilterParam());
-    getData(url, config).then(data => {
+export function makeDuplicateDeals(config = {}) {
+    getData(URLS.deal.check_duplicates(), config).then(data => {
         let table = `<table>
                         <thead>
                             <tr>
@@ -287,6 +285,79 @@ export function makeDuplicateDeals(config = {}, url = URLS.deal.find_duplicates(
         $('#table_duplicate').html('').append(table);
         $('.preloader').css('display', 'none');
         $('.pop-up_duplicate__table').css('display', 'block');
+    });
+}
+
+export function makeDuplicateDealsWithCustomPagin(config = {}) {
+    Object.assign(config, getFilterParam());
+    getData(URLS.deal.find_duplicates(), config).then(data => {
+        if (!Object.keys(data).length == 0) {
+            let table = `<table>
+                        <thead>
+                            <tr>
+                                <th>ФИО</th>
+                                <th>Сумма</th>
+                                <th>Дата сделки</th>
+                            </tr>
+                        </thead>
+                        <tbody>${data.deal_ids.map(item => {
+                return `<tr>
+                            <td class="edit">
+                                <button class="delete_btn" data-id="${item}"></button>
+                                ${data.partnership_fio}
+                            </td>
+                            <td>${data.value}</td>
+                            <td>${data.date_created}</td>
+                        </tr>`;
+                        }).join('')}</tbody>
+                        </table>`;
+            let count = data.count,
+            page = config.page || 1,
+            pages = count,
+            text = `Показана ${page}-я страница из ${count}`,
+            paginationConfig = {
+                container: ".duplicate_users__pagination",
+                currentPage: page,
+                pages: pages,
+                callback: makeDuplicateDealsWithCustomPagin
+            };
+            $("#table_duplicate").on('click', '.delete_btn', function () {
+                let id = $(this).attr('data-id'),
+                    pageCount = $('#create_duplicate_pop').find('.pagination__input').val();
+                deleteDeal(id, pageCount, makeDuplicateDealsWithCustomPagin);
+            });
+        makePagination(paginationConfig);
+        $('.pop-up_duplicate__table').find('.table__count').text(text);
+        $('#table_duplicate').html('').append(table);
+            $('.pop-up_duplicate__table').css('display', 'block');
+        } else {
+            showAlert('Дубликаты не найдены');
+        }
+        $('.preloader').css('display', 'none');
+    });
+}
+
+export function deleteDeal(id, pageCount, callback) {
+    let msg = 'Вы действительно хотите удалить данную сделку';
+    showConfirm('Удаление', msg, function () {
+        deleteData(URLS.deal.detail(id)).then(() => {
+            showAlert('Сделка удалена');
+            callback({page: pageCount});
+        }).catch(err => {
+            console.log('ERROR-->',err);
+            showConfirm('Подтверждение удаления', err.message, function () {
+                let force = JSON.stringify({"force": true});
+                deleteData(URLS.deal.detail(id), {body: force}).then(() => {
+                    showAlert('Сделка удалена');
+                    callback({page: pageCount});
+                }).catch(err => {
+                    showAlert('При удалении сделки произошла ошибка');
+                    console.log(err);
+                });
+            }, () => {
+            });
+        });
+    }, () => {
     });
 }
 

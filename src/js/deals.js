@@ -5,8 +5,16 @@ import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
 import {showAlert} from "./modules/ShowNotifications/index";
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
-import {DealsTable, updateDealsTable, createDealsPayment,
-    dealsTable, updateDeal, makeDuplicateDeals} from './modules/Deals/index';
+import {
+    DealsTable,
+    updateDealsTable,
+    createDealsPayment,
+    dealsTable,
+    updateDeal,
+    makeDuplicateDealsWithCustomPagin,
+    deleteDeal,
+    makeDealsTable
+} from './modules/Deals/index';
 import getSearch from './modules/Search/index';
 import {getFilterParam} from "./modules/Filter/index";
 import updateSettings from './modules/UpdateSettings/index';
@@ -165,11 +173,17 @@ $(document).ready(function () {
     //Find duplicates
     $('#duplicates').on('click', function () {
        $('.preloader').css('display', 'block');
-        makeDuplicateDeals();
+        makeDuplicateDealsWithCustomPagin();
     });
 
     $('.pop-up__table').find('.close_pop').on('click', function () {
         $('.pop-up_duplicate__table').css('display', 'none');
+    });
+
+    $('#delete_deal').on('click', function () {
+       let id = $(this).attr('data-id'),
+           pageCount = $('#sdelki').find('.pagination__input').first().val();
+        deleteDeal(id, pageCount, DealsTable);
     });
 
 });

@@ -32,8 +32,8 @@ export default function getData(url, options = {}, config = {}) {
     }
 }
 
-export function deleteData(url) {
-    let initConfig = Object.assign({}, defaultOption, {method: 'DELETE'});
+export function deleteData(url, config = {}) {
+    let initConfig = Object.assign({}, defaultOption, {method: 'DELETE'}, config);
     if (typeof url === "string") {
 
         return fetch(url, initConfig).then(resp => {

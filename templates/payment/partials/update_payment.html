@@ -54,7 +54,9 @@
                 {#                    </div>#}
             </div>
             <div class="container">
-                <button id="delete-payment"></button>
+                {% if user.is_partner_supervisor_or_high %}
+                    <button id="delete-payment"></button>
+                {% endif %}
                 <button id="close-payment">Отменить</button>
                 <button type="submit" id="complete-payment">Сохранить</button>
             </div>

@@ -357,7 +357,7 @@ $('document').ready(function () {
                 if (data.results) {
                     $('.preloader').css('display', 'block');
                     $('#send_new_deal').prop('disabled', false);
-                    makeDuplicateDeals(checkDeal, URLS.deal.check_duplicates(), true);
+                    makeDuplicateDeals(checkDeal);
                     $('#hard_create').attr('data-date_created', dateFormat)
                                      .attr('data-value', value)
                                      .attr('data-description', description)
