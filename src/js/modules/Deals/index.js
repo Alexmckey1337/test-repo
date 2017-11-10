@@ -303,10 +303,10 @@ export function makeDuplicateDealsWithCustomPagin(config = {}) {
                         <tbody>${data.deal_ids.map(item => {
                 return `<tr>
                             <td class="edit">
-                                <button class="delete_btn" data-id="${item}"></button>
+                                <button class="delete_btn" data-id="${item.id}"></button>
                                 ${data.partnership_fio}
                             </td>
-                            <td>${data.value}</td>
+                            <td>${ (item.total_payments) ? item.total_payments : 0 } / ${data.value}</td>
                             <td>${data.date_created}</td>
                         </tr>`;
                         }).join('')}</tbody>
