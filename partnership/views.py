@@ -296,8 +296,8 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
 
     @list_route(methods=['GET'])
     def get_duplicates(self, request):
-        deals = self.filter_queryset(self.queryset).values_list('id', flat=True)
-        if not deals:
+        deal_ids = self.filter_queryset(self.queryset).values_list('id', flat=True)
+        if not deal_ids:
             return Response(list(), status.HTTP_200_OK)
 
         query = """
@@ -316,13 +316,14 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
                 CONCAT(auth_user.last_name, ' ', auth_user.first_name, ' ', account_customuser.middle_name)
                 HAVING count(*) > 1
                 ORDER BY p.id;
-            """.format("','".join(str(x) for x in deals))
+            """.format("','".join(str(_id) for _id in deal_ids))
 
         with connection.cursor() as cursor:
             cursor.execute(query)
             data = cursor.fetchall()
 
         deals_data = deque()
+        count = len(data)
 
         for value in data:
             deals_data.append({
@@ -331,7 +332,7 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
                 'partnership_fio': value[2],
                 'value': value[3],
                 'date_created': value[4],
-                'count': len(data)
+                'count': count
             })
 
         deals_data.appendleft(None)
