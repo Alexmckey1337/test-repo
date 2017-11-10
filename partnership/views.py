@@ -37,6 +37,7 @@ from .serializers import (DealSerializer, PartnershipUpdateSerializer, DealCreat
                           PartnershipCreateSerializer, PartnershipSerializer, PartnerGroupSerializer,
                           PartnerRoleSerializer, CreatePartnerRoleSerializer, DealDuplicateSerializer)
 from django.db import connection
+from collections import deque
 
 
 class PartnershipViewSet(
@@ -293,10 +294,7 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
         deals = self.serializer_class(deals, many=True)
         return Response(deals.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'],
-                serializer_class=DealDuplicateSerializer,
-                pagination_class=DealDuplicatePagination,
-                )
+    @list_route(methods=['GET'])
     def get_duplicates(self, request):
         deals = self.filter_queryset(self.queryset).values_list('id', flat=True)
 
@@ -320,21 +318,25 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
 
         with connection.cursor() as cursor:
             cursor.execute(query)
-            deals_data = cursor.fetchall()
+            data = cursor.fetchall()
 
-        for x in enumerate(deals_data):
-            deals_data[x[0]] = {
+        deals_date = deque()
+
+        for x in enumerate(data):
+            deals_date.append({
                 'deal_ids': x[1][0],
                 'partnership_id': x[1][1],
                 'partnership_fio': x[1][2],
                 'value': x[1][3],
                 'date_created': x[1][4],
-                'count': len(deals_data)
-            }
+                'count': len(data)
+            })
 
-        page = int(request.query_params.get('page', 0) or 0)
+        deals_date.appendleft(None)
 
-        return Response(deals_data[page], status=status.HTTP_200_OK)
+        page = int(request.query_params.get('page', 1) or 1)
+
+        return Response(deals_date[page], status=status.HTTP_200_OK)
 
 
 class CheckPartnerLevelMixin:
