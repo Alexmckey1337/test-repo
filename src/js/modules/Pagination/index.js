@@ -20,9 +20,9 @@ export default function makePagination(config) {
     $(left).addClass('left').append('<i class="fa fa-angle-left" aria-hidden="true"></i>');
     $(left).on('click', function () {
         let val = parseInt($(this).closest('.pagination').find('.pagination__input').val());
-        if (!!(val - 1)) {
-            $(this).closest('.pagination').find('.pagination__input').val(val - 1).trigger('change');
-        }
+            if (!!(val - 1)) {
+                $(this).closest('.pagination').find('.pagination__input').val(val - 1).trigger('change');
+            }
     });
     $(doubleRight).addClass('double__right').append('<i class="fa fa-angle-double-right" aria-hidden="true"></i>');
     $(doubleRight).on('click', function () {
@@ -42,10 +42,11 @@ export default function makePagination(config) {
 
     $(container).find('.pagination__input').change(function () {
         let val = parseInt($(this).val());
-        if (val <= 0) {
-            $(container).find('.pagination__input').val(1).trigger('change');
-            return
-        }
+            if (val <= 0) {
+                $(container).find('.pagination__input').val(1).trigger('change');
+                return
+            }
+
         if (val > config.pages) {
             $(container).find('.pagination__input').val(config.pages).trigger('change');
             return

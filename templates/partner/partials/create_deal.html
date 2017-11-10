@@ -1,7 +1,13 @@
 <div id="popup-create_deal" class="popap">
     <div class="pop_cont">
         <div class="popup_text">
-            <h2>Создание сделки</h2>
+            <h2>
+                {% if title == "update" %}
+                    Редактирование сделки
+                {% else %}
+                    Создание сделки
+                {% endif %}
+            </h2>
         </div>
         <div class="popup_body">
             <div id="append-info" class="container container_block"></div>
@@ -29,6 +35,11 @@
             </div>
         </div>
         <div class="container">
+            {% if btn == "delete" %}
+                {% if user.is_partner_supervisor_or_high %}
+                    <button id="delete_deal"></button>
+                {% endif %}
+            {% endif %}
             <button id="close-deal">Отменить</button>
             <button id="send_new_deal" data-partner="{{ partnership }}">Сохранить</button>
         </div>

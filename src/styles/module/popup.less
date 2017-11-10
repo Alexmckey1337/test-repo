@@ -439,7 +439,7 @@
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, .8);
-  z-index: 9999;
+  z-index: 500;
 }
 
 .pop-up-universal {
@@ -1599,6 +1599,7 @@ button{
 }
 
 #delete-payment,
+#delete_deal,
 #delete-church,
 #delete-hg {
   position: relative;
@@ -1641,4 +1642,14 @@ button{
   #hard_create {
     margin-left: 20px;
   }
+  #table_duplicate .edit {
+    position: relative;
+    top: auto;
+    right: auto;
+    .delete_btn {
+      right: .5em;
+      left: auto;
+    }
+  }
 }
+

@@ -21,9 +21,11 @@
         </div>
         <div class="top-buttons-wrap">
             <ul class="top-buttons">
+                {% if user.is_partner_supervisor_or_high %}
                 <li>
                     <button id="duplicates"><i class="fa fa-files-o" aria-hidden="true"></i></button>
                 </li>
+                {% endif %}
                 <li>
                     <button id="filter_button"
                             class="header__button"
@@ -69,7 +71,7 @@
 
 {% block popup %}
     {% create_payment_form %}
-    {% include "partner/partials/create_deal.html" %}
+    {% include "partner/partials/create_deal.html" with btn="delete" title="update" %}
     <div id="popup-payments" class="pop-up-splash">
         <div class="flex-wrap">
             <div class="splash-screen">
