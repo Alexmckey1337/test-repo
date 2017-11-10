@@ -298,7 +298,7 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
     def get_duplicates(self, request):
         deals = self.filter_queryset(self.queryset).values_list('id', flat=True)
         if not deals:
-            return list()
+            return Response(list(), status.HTTP_200_OK)
 
         query = """
                 SELECT
