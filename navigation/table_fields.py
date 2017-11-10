@@ -32,7 +32,8 @@ def deal_table(user, prefix_ordering_title=''):
 
 
 def _filter_deals_columns(table_columns):
-    return table_columns.filter(columnType__category__title="deal")
+    return table_columns.filter(
+        columnType__category__title="deal").exclude(columnType__title='done')
 
 
 @check_user_table_exist

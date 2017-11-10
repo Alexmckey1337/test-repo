@@ -322,23 +322,34 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
             cursor.execute(query)
             data = cursor.fetchall()
 
-        deals_date = deque()
+        deals_data = deque()
 
-        for x in enumerate(data):
-            deals_date.append({
-                'deal_ids': x[1][0],
-                'partnership_id': x[1][1],
-                'partnership_fio': x[1][2],
-                'value': x[1][3],
-                'date_created': x[1][4],
+        for value in data:
+            deals_data.append({
+                'deal_ids': value[0],
+                'partnership_id': value[1],
+                'partnership_fio': value[2],
+                'value': value[3],
+                'date_created': value[4],
                 'count': len(data)
             })
 
-        deals_date.appendleft(None)
-
+        deals_data.appendleft(None)
         page = int(request.query_params.get('page', 1) or 1)
 
-        return Response(deals_date[page], status=status.HTTP_200_OK)
+        try:
+            result = deals_data[page]
+        except IndexError:
+            raise exceptions.ValidationError(
+                {'message': _('Parameter {page} out of array range')}
+            )
+
+        deal_payments = Deal.objects.filter(id__in=result.get('deal_ids')).annotate(
+            total_payments=Sum('payments__effective_sum')).values('id', 'total_payments')
+
+        result['deal_ids'] = deal_payments
+
+        return Response(result, status=status.HTTP_200_OK)
 
 
 class CheckPartnerLevelMixin:
