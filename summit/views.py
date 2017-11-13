@@ -623,6 +623,8 @@ def send_unsent_codes(request, summit_id):
     limit = 500
     summit = get_object_or_404(Summit, pk=summit_id)
     current_user = request.user
+    if not current_user.is_summit_supervisor_or_high(summit):
+        raise exceptions.PermissionDenied()
 
     sent_count = 0
     unsent_count = 0
