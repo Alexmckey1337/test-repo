@@ -61,7 +61,29 @@ services:
      - redis
     volumes:
       - .:/app
-    command: celery -A edem worker -l INFO
+    command: celery -A edem worker -l INFO -c 4
+
+  flower:
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile-dev
+    environment:
+      - POSTGRES_USER=crm_user
+      - POSTGRES_DB=crm_db
+      - POSTGRES_PASSWORD=crm_pass
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - USE_DOCKER=yes
+      - SECRET_KEY=khkjhdjdjksvgsdklsnakjfhjkzhcjks
+      - DJANGO_SETTINGS_MODULE=edem.settings.dev
+      - C_FORCE_ROOT=1
+    depends_on:
+     - postgres
+     - redis
+    ports:
+      - "127.0.0.1:5555:5555"
+    volumes:
+      - .:/app
+    command: celery flower
 
   pycharm:
     build:

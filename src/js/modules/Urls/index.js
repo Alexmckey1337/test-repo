@@ -25,6 +25,7 @@ const SUMMIT = {
     attends: (summitId) => `/api/v1.0/summit/${summitId}/stats/attends/`,
     stats_by_master: (summitId, masterId) => `/api/v1.0/summit/${summitId}/stats/master/${masterId}/disciples/`,
     stats_latecomer: (summitId) => `/api/v1.0/summit/${summitId}/stats/latecomers/`,
+    send_codes: (summitId) => `/api/v1.0/summit/${summitId}/send_unsent_codes/`,
 };
 
 const SUMMIT_PROFILE = {
