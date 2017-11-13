@@ -86,8 +86,8 @@ def send_email_with_code(profile_id, sender_id):
                 attachments=[('ticket.pdf', pdf, 'application/pdf')],
                 signals_kwargs={'anket': profile}
             )
-            if isinstance(result, AsyncResult):
-                check_send_email_with_code_state.apply_async(args=[result.id, profile_id, sender_id])
+            # if isinstance(result, AsyncResult):
+            #     check_send_email_with_code_state.apply_async(args=[result.id, profile_id, sender_id])
         except Exception:
             send_error(profile_id, sender_id)
 
