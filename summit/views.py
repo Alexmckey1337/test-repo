@@ -618,6 +618,35 @@ def send_code(request, profile_id):
     return Response(data={'profile_id': profile_id})
 
 
+@api_view(['GET'])
+def send_unsent_codes(request, summit_id):
+    summit = get_object_or_404(Summit, pk=summit_id)
+    current_user = request.user
+
+    sent_count = 0
+    unsent_count = 0
+    users_without_emails = list()
+    if not summit.mail_template:
+        return Response(data={'detail': 'Template for summit does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+    for profile in summit.ankets.filter(emails__isnull=True).select_related('user'):
+        if not profile.user.email:
+            unsent_count += 1
+            users_without_emails.append(profile.user_id)
+            continue
+        send_email_with_code.apply_async(args=[profile.id, current_user.id])
+        sent_count += 1
+
+    return Response(data={
+        'sent_count': sent_count,
+        'unsent_count': unsent_count,
+        'users_without_emails': list(
+            CustomUser.objects.filter(pk__in=users_without_emails).annotate(full_name=Concat(
+                'last_name', V(' '),
+                'first_name', V(' '),
+                'middle_name')).values('pk', 'full_name')),
+    }, status=status.HTTP_202_ACCEPTED)
+
+
 class HistorySummitStatsMixin(GenericAPIView):
     queryset = SummitAnket.objects.all()
 

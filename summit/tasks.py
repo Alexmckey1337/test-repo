@@ -73,15 +73,17 @@ def send_error(profile_id, sender_id):
 
 @app.task(max_retries=0)
 def send_email_with_code(profile_id, sender_id):
-    profile = SummitAnket.objects.get(pk=profile_id)
+    profile = SummitAnket.objects.select_related('summit__mail_template', 'user').get(pk=profile_id)
     template = profile.summit.mail_template
     email = profile.user.email
     if template and email:
         try:
+            pdf = generate_ticket(profile.code)
             result = send_db_mail(
                 template.slug,
                 email,
                 {'profile': profile},
+                attachments=[('ticket.pdf', pdf, 'application/pdf')],
                 signals_kwargs={'anket': profile}
             )
             if isinstance(result, AsyncResult):
@@ -146,6 +148,7 @@ def check_send_email_with_code_state(task_id, profile_id, sender_id):
     result = AsyncResult(task_id)
 
     while not result.ready():
+        print(result.status)
         sleep(1)
 
     if result.failed():

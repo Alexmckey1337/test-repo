@@ -30,6 +30,7 @@ custom_urls = [
         views.summit_report_by_bishops, name='summit-report-bishops'),
     url(r'^generate_summit_tickets/(?P<summit_id>\d+)/$', views.generate_summit_tickets, name='generate_code'),
     url(r'^summit/profile/(?P<profile_id>\d+)/send_code/$', views.send_code, name='send_code'),
+    # url(r'^summit/(?P<summit_id>\d+)/send_unsent_codes/$', views.send_unsent_codes, name='send_unsent_codes'),
     url(r'^summit/(?P<summit_id>\d+)/stats/attends/$',
         views.HistorySummitAttendStatsView.as_view(), name='attend-stats'),
     url(r'^summit/(?P<summit_id>\d+)/stats/latecomers/$',
