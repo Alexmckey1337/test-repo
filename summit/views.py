@@ -620,30 +620,29 @@ def send_code(request, profile_id):
 
 @api_view(['GET'])
 def send_unsent_codes(request, summit_id):
+    limit = 500
     summit = get_object_or_404(Summit, pk=summit_id)
     current_user = request.user
 
     sent_count = 0
     unsent_count = 0
-    users_without_emails = list()
     if not summit.mail_template:
         return Response(data={'detail': 'Template for summit does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
-    for profile in summit.ankets.filter(emails__isnull=True).select_related('user'):
+    for profile in summit.ankets.filter(emails__isnull=True).exclude(user__email='').select_related('user')[:limit]:
         if not profile.user.email:
             unsent_count += 1
-            users_without_emails.append(profile.user_id)
             continue
         send_email_with_code.apply_async(args=[profile.id, current_user.id])
         sent_count += 1
 
+    users_without_emails = summit.ankets.filter(user__email='').annotate(full_name=Concat(
+                'user__last_name', V(' '),
+                'user__first_name', V(' '),
+                'user__middle_name'))
     return Response(data={
         'sent_count': sent_count,
-        'unsent_count': unsent_count,
-        'users_without_emails': list(
-            CustomUser.objects.filter(pk__in=users_without_emails).annotate(full_name=Concat(
-                'last_name', V(' '),
-                'first_name', V(' '),
-                'middle_name')).values('pk', 'full_name')),
+        'users_without_emails_count': users_without_emails.count(),
+        'users_without_emails': list(users_without_emails.values('user_id', 'full_name', 'user__email')),
     }, status=status.HTTP_202_ACCEPTED)
 
 

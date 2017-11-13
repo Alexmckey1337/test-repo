@@ -141,7 +141,7 @@ services:
     depends_on:
      - postgres
      - redis
-    command: celery -A edem worker -l INFO
+    command: celery -A edem worker -l INFO -c 4
 
   celerybeat:
     build:
