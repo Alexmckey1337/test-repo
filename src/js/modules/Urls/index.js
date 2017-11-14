@@ -153,6 +153,7 @@ const URLS = {
     generate_summit_tickets: (summitId) => `/api/v1.0/generate_summit_tickets/${summitId}/`,
     profile_status: () => `/api/v1.0/summit_attends/anket_active_status/`,
     exports: () => `/api/v1.0/notifications/exports/`,
+    scan_code: () => `/api/v1.0/summit_attends/accept_mobile_code`,
     summit: SUMMIT,
     user: USER,
     partner: PARTNER,
