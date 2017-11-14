@@ -11,6 +11,7 @@ class SummitAnketResource(CustomFieldsModelResource):
     """For excel import/export"""
     full_name = fields.Field(attribute='full_name')
     e_ticket = fields.Field(attribute='status__reg_code_requested')
+    reg_code = fields.Field(attribute='reg_code')
     email = fields.Field(attribute='user__email')
     phone_number = fields.Field(attribute='user__phone_number')
     district = fields.Field(attribute='user__district')
@@ -28,6 +29,7 @@ class SummitAnketResource(CustomFieldsModelResource):
             'e_ticket',
             'district', 'address', 'region',
             'repentance_date', 'born_date',
+            'reg_code',
 
             'hierarchy_title', 'responsible',
             'divisions_title', 'spiritual_level', 'city', 'country', 'department',
@@ -37,6 +39,13 @@ class SummitAnketResource(CustomFieldsModelResource):
 
     def dehydrate_spiritual_level(self, user):
         return user.get_spiritual_level_display()
+
+    def dehydrate_full_name(self, user):
+        return user.full_name
+
+    def export(self, queryset=None, *args, **kwargs):
+        self.custom_export_fields = kwargs.get('custom_export_fields') + ['reg_code']
+        return super(CustomFieldsModelResource, self).export(queryset=queryset, *args, **kwargs)
 
 
 class SummitStatisticsResource(CustomFieldsModelResource):
