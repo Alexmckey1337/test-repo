@@ -79,13 +79,19 @@ def send_email_with_code(profile_id, sender_id):
     if template and email:
         try:
             pdf = generate_ticket(profile.code)
-            result = send_db_mail(
+            task = send_db_mail(
                 template.slug,
                 email,
                 {'profile': profile},
                 attachments=[('ticket.pdf', pdf, 'application/pdf')],
                 signals_kwargs={'anket': profile}
             )
+            try:
+                r = RedisBackend()
+                r.sadd('summit:email:sending:{}:{}'.format(profile.summit_id, profile_id), task.id)
+                r.expire('summit:email:sending:{}'.format(profile), 30 * 24 * 60 * 60)
+            except Exception as err:
+                print(err)
             # if isinstance(result, AsyncResult):
             #     check_send_email_with_code_state.apply_async(args=[result.id, profile_id, sender_id])
         except Exception:
@@ -137,8 +143,8 @@ def send_sms_with_code(profile_id, sender_id):
                 slug=template.slug,
                 recipient=recipient,
             )
-            if isinstance(result, AsyncResult):
-                check_send_email_with_code_state.apply_async(args=[result.id, profile_id, sender_id])
+            # if isinstance(result, AsyncResult):
+            #     check_send_email_with_code_state.apply_async(args=[result.id, profile_id, sender_id])
         except Exception:
             send_error(profile_id, sender_id)
 
@@ -148,7 +154,6 @@ def check_send_email_with_code_state(task_id, profile_id, sender_id):
     result = AsyncResult(task_id)
 
     while not result.ready():
-        print(result.status)
         sleep(1)
 
     if result.failed():
