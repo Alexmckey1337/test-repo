@@ -515,3 +515,7 @@ class HomeGroupViewSet(ModelViewSet, HomeGroupUsersMixin, ExportViewSetMixin):
             raise exceptions.ValidationError(
                 {'detail': _('Невозможно удалить пользователя.'
                              'Пользователь не принадлежит к данной Домашней Группе.')})
+
+    @list_route(methods=['GET'])
+    def visits_stats(self, request):
+        pass

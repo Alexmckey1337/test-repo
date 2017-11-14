@@ -13,7 +13,7 @@ from django.db import transaction, IntegrityError
 # HOME MEETING TASKS
 
 @app.task(name='processing_home_meetings', ignore_result=True,
-          max_retries=5, default_retry_delay=60)
+          max_retries=10, default_retry_delay=1000)
 def processing_home_meetings():
     current_date = datetime.now().date()
     active_home_groups = HomeGroup.objects.filter(active=True)
@@ -37,7 +37,7 @@ def processing_home_meetings():
 # CHURCH REPORT TASKS
 
 @app.task(name='processing_church_reports', ignore_result=True,
-          max_retries=5, default_retry_delay=60)
+          max_retries=10, default_retry_delay=1000)
 def processing_church_reports():
     current_date = datetime.now().date()
     open_churches = Church.objects.filter(is_open=True)
